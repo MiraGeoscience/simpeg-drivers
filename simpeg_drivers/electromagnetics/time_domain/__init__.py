@@ -2,7 +2,6 @@
 #
 #  This file is part of simpeg_drivers package.
 #
-#  All rights reserved.
+#  All rights reserved
 
-if __name__ == "__main__":  # pragma: no cover
-    print("Hello, world!")
+from .params import TimeDomainElectromagneticsParams
