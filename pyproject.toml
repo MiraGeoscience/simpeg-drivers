@@ -1,0 +1,97 @@
+[tool.poetry]
+name = "my-app"
+version = "0.1.0-alpha.1"
+description = "My application"
+authors = ["Mira Geoscience <support@mirageoscience.com>"]
+packages = [
+     { include = "my_app" },
+     { include = "my_app-assets" },
+]
+
+[tool.poetry.scripts]
+my_app_hello = 'my_app.commands.hello'
+
+[tool.poetry.dependencies]
+python = "^3.9, <3.11"
+numpy = "~1.23.5" # also geoh5py, simpeg and geoana
+scipy = "~1.10.1"
+pandas = "~1.5.3"
+
+## pip dependencies
+geoh5py = {version = "~0.8.0rc3", source = "pypi", allow-prereleases = true}
+#geoh5py = { url = "https://github.com/MiraGeoscience/geoh5py/archive/refs/heads/main.tar.gz#sha256=" }
+
+## indirect dependencies, forcing them here for installation through Conda not pip
+h5py = "*" # from geoh5py
+Pillow = "*" # from geoh5py
+
+## about pip dependencies
+# to be specified to work with conda-lock
+# - from PyPI: my_package = { version = "1.2.3", source = "pypi" }
+# - from URL:
+#   - for a tags:   my_package = { url = "https://github.com/ORGANISATION/REPO/archive/refs/tags/VERSION_TAG.zip#sha256=" }
+#   - for a branch: my_package = { url = "https://github.com/ORGANISATION/REPO/archive/refs/heads/BRANCH.zip#sha256=" }
+# Note - conda-lock does not support the syntax: my_package = { git = ... }
+#        while poetry2conda supports only { git = "...", tag = "..." }, and not { url = ... }
+
+[tool.poetry.dev-dependencies]
+Pygments = "*"
+pylint = "*"
+pytest = "*"
+pytest-cov = "*"
+tomli = "*"
+
+[tool.conda-lock]
+platforms = ['win-64', 'linux-64']
+channels = ['conda-forge']
+
+[tool.isort]
+# settings for compatibility between ``isort`` and ``black`` formatting
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+line_length = 88
+
+[tool.black]
+# defaults are just fine
+
+[tool.mypy]
+warn_unused_configs = true
+ignore_missing_imports = true
+scripts_are_modules = true
+show_error_context = true
+show_column_numbers = true
+check_untyped_defs = true
+
+plugins = [
+#    'numpy.typing.mypy_plugin'
+]
+
+[tool.pytest.ini_options]
+addopts = "--cov my_app --cov-report html --cov-report term-missing:skip-covered"
+
+[tool.coverage.run]
+branch = true
+source = ["my_app"]
+omit = [
+    "my_app/commands/hello_world.py"
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "raise NotImplementedError",
+    "pass",
+    "if TYPE_CHECKING",
+    "pragma: no cover"
+]
+
+fail_under = 80
+
+[tool.coverage.html]
+skip_empty = true
+skip_covered = true
+
+[build-system]
+requires = ["poetry-core>=1.0.0", "setuptools"]
+build-backend = "poetry.core.masonry.api"

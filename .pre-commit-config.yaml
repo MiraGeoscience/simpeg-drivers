@@ -1,0 +1,108 @@
+
+default_language_version:
+    python: python3
+exclude: (^docs/(conf.py|_ext/)|^my_app-assets/)
+default_stages: [commit,push]
+fail_fast: false
+
+ci:
+    skip: [pylint]
+    autoupdate_branch: develop
+    autoupdate_schedule: monthly
+
+repos:
+-   repo: https://github.com/psf/black
+    rev: 23.10.0
+    hooks:
+    -   id: black
+-   repo: https://github.com/PyCQA/isort
+    rev: 5.12.0
+    hooks:
+    -   id: isort
+        additional_dependencies: [tomli] # to read config from pyproject.toml
+-   repo: https://github.com/humitos/mirrors-autoflake
+    rev: v1.1
+    hooks:
+    -   id: autoflake
+-   repo: https://github.com/PyCQA/flake8
+    rev: 6.1.0
+    hooks:
+    -   id: flake8
+-   repo: https://github.com/asottile/pyupgrade
+    rev: v3.15.0
+    hooks:
+    -   id: pyupgrade
+        args: [--py39-plus]
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.6.1
+    hooks:
+    -   id: mypy
+        additional_dependencies: [
+            types-toml,
+            types-PyYAML,
+            tomli # to read config from pyproject.toml
+        ]
+-   repo: https://github.com/codingjoe/relint
+    rev: 3.1.0
+    hooks:
+    -   id: relint
+        args: [-W]  # to fail on warnings
+-   repo: local
+    hooks:
+    -   id: pylint
+        name: pylint
+        entry: .\\devtools\\conda_env_pylint.bat
+        language: system
+        require_serial: true  # pylint does its own parallelism
+        types: [python]
+        exclude: ^(devtools|docs)/
+    -   id: check-copyright
+        name: Check copyright
+        entry: python devtools/check-copyright.py
+        language: python
+        types: [text]
+        files: (^LICENSE|^README(|-dev).rst|\.py|\.pyi)$
+        exclude: (^\.|^docs/)
+    -   id: prepare-commit-msg
+        stages: [prepare-commit-msg]
+        name: Prepare commit message
+        entry: python devtools/git_message_hook.py --prepare
+        language: python
+    -   id: check-commit-msg
+        stages: [commit-msg]
+        name: Check commit message
+        entry: python devtools/git_message_hook.py --check
+        language: python
+-   repo: https://github.com/codespell-project/codespell
+    rev: v2.2.6
+    hooks:
+    -   id: codespell
+        exclude: (-lock\.ya?ml|\benvironments/.*\.ya?ml|\.ipynb|^THIRD_PARTY_SOFTWARE\.rst)$
+        entry: codespell -I .codespellignore
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+    -   id: trailing-whitespace
+        exclude: \.mdj$
+    -   id: check-toml
+    -   id: check-yaml
+#    -   id: check-added-large-files # crashing on some configuration. To be investigated
+    -   id: check-case-conflict
+    -   id: check-merge-conflict
+    -   id: debug-statements
+    -   id: detect-private-key
+    -   id: end-of-file-fixer
+        exclude: \.mdj$
+    -   id: mixed-line-ending
+    -   id: name-tests-test
+-   repo: https://github.com/rstcheck/rstcheck
+    rev: v6.2.0
+    hooks:
+    -   id: rstcheck
+        exclude: ^THIRD_PARTY_SOFTWARE.rst$
+        additional_dependencies: [sphinx]
+-   repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.10.0
+    hooks:
+    -   id: rst-backticks
+        exclude: ^THIRD_PARTY_SOFTWARE.rst$
