@@ -1,15 +1,15 @@
 [tool.poetry]
-name = "my-app"
+name = "simpeg-drivers"
 version = "0.1.0-alpha.1"
 description = "My application"
 authors = ["Mira Geoscience <support@mirageoscience.com>"]
 packages = [
-     { include = "my_app" },
-     { include = "my_app-assets" },
+     { include = "simpeg_drivers" },
+     { include = "simpeg_drivers-assets" },
 ]
 
 [tool.poetry.scripts]
-my_app_hello = 'my_app.commands.hello'
+my_app_hello = 'simpeg_drivers.commands.hello'
 
 [tool.poetry.dependencies]
 python = "^3.9, <3.11"
@@ -69,13 +69,13 @@ plugins = [
 ]
 
 [tool.pytest.ini_options]
-addopts = "--cov my_app --cov-report html --cov-report term-missing:skip-covered"
+addopts = "--cov simpeg_drivers --cov-report html --cov-report term-missing:skip-covered"
 
 [tool.coverage.run]
 branch = true
-source = ["my_app"]
+source = ["simpeg_drivers"]
 omit = [
-    "my_app/commands/hello_world.py"
+    "simpeg_drivers/commands/hello_world.py"
 ]
 
 [tool.coverage.report]

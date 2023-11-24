@@ -9,7 +9,7 @@ if !errorlevel! neq 0 (
 
 set PY_VER=3.10
 
-set ENV_NAME=my_app
+set ENV_NAME=simpeg_drivers
 set MY_CONDA=!MY_CONDA_EXE:"=!
 cd %~dp0
 set PYTHONUTF8=1

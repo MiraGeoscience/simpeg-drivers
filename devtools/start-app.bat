@@ -9,7 +9,7 @@ if !errorlevel! neq 0 (
 )
 
 set env_path=%project_dir%\.conda-env
-cd %project_dir%\my_app
+cd %project_dir%\simpeg_drivers
 set "PYTHONPATH=%project_dir%;%PYTHONPATH%"
 call !MY_CONDA_EXE! run -n %env_path% jupyter notebook Index.ipynb
 cmd /k

@@ -1,0 +1,10 @@
+{"title": "simpeg-drivers Hello World",
+ "run_command": "simpeg_drivers.commands.hello",
+  "conda_environment": "simpeg_drivers",
+  "name": {
+    "main": true,
+    "label": "Name",
+    "value": "World",
+    "tooltip": "Name to say hello to"
+  }
+}

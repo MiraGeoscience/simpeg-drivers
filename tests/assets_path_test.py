@@ -1,11 +1,11 @@
 #  Copyright (c) 2023 Mira Geoscience Ltd.
 #
-#  This file is part of my_app package.
+#  This file is part of simpeg_drivers package.
 #
 #  All rights reserved.
 #
 
-from my_app import assets_path
+from simpeg_drivers import assets_path
 
 
 def test_assets_directory_exist():

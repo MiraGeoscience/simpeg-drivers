@@ -1,42 +1,42 @@
 |coverage| |maintainability| |precommit_ci| |docs| |style| |version| |status| |pyversions|
 
 
-.. |docs| image:: https://readthedocs.org/projects/my-app/badge/
+.. |docs| image:: https://readthedocs.org/projects/simpeg-drivers/badge/
     :alt: Documentation Status
-    :target: https://my-app.readthedocs.io/en/latest/?badge=latest
+    :target: https://simpeg-drivers.readthedocs.io/en/latest/?badge=latest
 
-.. |coverage| image:: https://codecov.io/gh/MiraGeoscience/my-app/branch/develop/graph/badge.svg
+.. |coverage| image:: https://codecov.io/gh/MiraGeoscience/simpeg-drivers/branch/develop/graph/badge.svg
     :alt: Code coverage
-    :target: https://codecov.io/gh/MiraGeoscience/my-app
+    :target: https://codecov.io/gh/MiraGeoscience/simpeg-drivers
 
 .. |style| image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :alt: Coding style
     :target: https://github.com/pf/black
 
-.. |version| image:: https://img.shields.io/pypi/v/my-app.svg
+.. |version| image:: https://img.shields.io/pypi/v/simpeg-drivers.svg
     :alt: version on PyPI
-    :target: https://pypi.python.org/pypi/my-app/
+    :target: https://pypi.python.org/pypi/simpeg-drivers/
 
-.. |status| image:: https://img.shields.io/pypi/status/my-app.svg
+.. |status| image:: https://img.shields.io/pypi/status/simpeg-drivers.svg
     :alt: version status on PyPI
-    :target: https://pypi.python.org/pypi/my-app/
+    :target: https://pypi.python.org/pypi/simpeg-drivers/
 
-.. |pyversions| image:: https://img.shields.io/pypi/pyversions/my-app.svg
+.. |pyversions| image:: https://img.shields.io/pypi/pyversions/simpeg-drivers.svg
     :alt: Python versions
-    :target: https://pypi.python.org/pypi/my-app/
+    :target: https://pypi.python.org/pypi/simpeg-drivers/
 
-.. |precommit_ci| image:: https://results.pre-commit.ci/badge/github/MiraGeoscience/my-app/develop.svg
+.. |precommit_ci| image:: https://results.pre-commit.ci/badge/github/MiraGeoscience/simpeg-drivers/develop.svg
     :alt: pre-commit.ci status
-    :target: https://results.pre-commit.ci/latest/github/MiraGeoscience/my-app/develop
+    :target: https://results.pre-commit.ci/latest/github/MiraGeoscience/simpeg-drivers/develop
 
 .. |maintainability| image:: https://api.codeclimate.com/v1/badges/_token_/maintainability
-   :target: https://codeclimate.com/github/MiraGeoscience/my-app/maintainability
+   :target: https://codeclimate.com/github/MiraGeoscience/simpeg-drivers/maintainability
    :alt: Maintainability
 
 
-my-app: # TODO: SHORT DESCRIPTION
+simpeg-drivers: # TODO: SHORT DESCRIPTION
 =========================================================================
-The **my-app** library # TODO: PACKAGE DESCRIPTION
+The **simpeg-drivers** library # TODO: PACKAGE DESCRIPTION
 
 .. contents:: Table of Contents
    :local:
@@ -44,17 +44,17 @@ The **my-app** library # TODO: PACKAGE DESCRIPTION
 
 Documentation
 ^^^^^^^^^^^^^
-`Online documentation <https://my-app.readthedocs.io/en/latest/>`_
+`Online documentation <https://simpeg-drivers.readthedocs.io/en/latest/>`_
 
 
 Installation
 ^^^^^^^^^^^^
-**my-app** is currently written for Python 3.10 or higher.
+**simpeg-drivers** is currently written for Python 3.10 or higher.
 
 Install Conda
 -------------
 
-To install **my-app**, you need to install **Conda** first.
+To install **simpeg-drivers**, you need to install **Conda** first.
 
 We recommend to install **Conda** using `miniforge`_.
 
@@ -63,7 +63,7 @@ We recommend to install **Conda** using `miniforge`_.
 Within a conda environment
 --------------------------
 
-You can install (or update) a conda environment with all the requires packages to run **my-app**.
+You can install (or update) a conda environment with all the requires packages to run **simpeg-drivers**.
 To do so you can directly run the **Install_or_Update.bat** file by double left clicking on it.
 
 Install with conda
@@ -84,11 +84,11 @@ Still, you can install it in a conda environment without its dependencies (``--n
 From PyPI
 ~~~~~~~~~
 
-To install the **my-app** package published on PyPI:
+To install the **simpeg-drivers** package published on PyPI:
 
 .. code-block:: bash
 
-    pip install -U --no-deps my-app
+    pip install -U --no-deps simpeg-drivers
 
 From a Git tag or branch
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -96,13 +96,13 @@ If the package is not on PiPY yet, you can install it from a Git tag:
 
 .. code-block:: bash
 
-    pip install -U --no-deps --force-reinstall https://github.com/MiraGeoscience/my-app/archive/refs/tags/TAG.zip
+    pip install -U --no-deps --force-reinstall https://github.com/MiraGeoscience/simpeg-drivers/archive/refs/tags/TAG.zip
 
 Or to install the latest changes available on a given Git branch:
 
 .. code-block:: bash
 
-    pip install -U --no-deps --force-reinstall https://github.com/MiraGeoscience/my-app/archive/refs/heads/BRANCH.zip
+    pip install -U --no-deps --force-reinstall https://github.com/MiraGeoscience/simpeg-drivers/archive/refs/heads/BRANCH.zip
 
 .. note::
     The ``--force-reinstall`` option is used to make sure the updated version
@@ -113,7 +113,7 @@ Or to install the latest changes available on a given Git branch:
 From a local copy of the sources
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 If you have a git clone of the package sources locally,
-you can install **my-app** from the local copy of the sources with:
+you can install **simpeg-drivers** from the local copy of the sources with:
 
 .. code-block:: bash
 
@@ -137,7 +137,7 @@ License
 
 Third Party Software
 ^^^^^^^^^^^^^^^^^^^^
-The my-app Software may provide links to third party libraries or code (collectively “Third Party Software”)
+The simpeg-drivers Software may provide links to third party libraries or code (collectively “Third Party Software”)
 to implement various functions. Third Party Software does not comprise part of the Software.
 The use of Third Party Software is governed by the terms of such software license(s).
 Third Party Software notices and/or additional terms and conditions are located in the

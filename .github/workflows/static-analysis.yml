@@ -21,7 +21,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  source_dir: my_app
+  source_dir: simpeg_drivers
 
 jobs:
   pre-commit:

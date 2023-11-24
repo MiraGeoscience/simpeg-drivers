@@ -21,7 +21,7 @@ Create the .lock files
 First, you need to create the ``.lock`` files for the dependencies defined in ``pyproject.toml``.
 To do so, double click on ``devtools\run-conda-lock.bat`` or execute it from command line::
 
-    $ [path\to\my-app]\devtools\run_conda_lock.bat
+    $ [path\to\simpeg-drivers]\devtools\run_conda_lock.bat
 
 It will create ``.lock`` in the ``environments`` folder.
 The created ``.lock`` files are the combination of python version and platforms.
@@ -47,7 +47,7 @@ Install the conda environment
 
 For development, you need a **conda** environments. you can install it running the ``setup-dev.bat`` or::
 
-    $ [path\to\my-app]\devtools\setup-dev.bat
+    $ [path\to\simpeg-drivers]\devtools\setup-dev.bat
 
 This command install a local environment at the base of your repository: ``.conda-env``.
 This environment should automatically be recognized by the conda installation.
@@ -144,7 +144,7 @@ You can run the tests from the console with coverage:
 
 .. code-block:: bash
 
-    pytest --cov=my_app --cov-report html tests
+    pytest --cov=simpeg_drivers --cov-report html tests
 
 The html report is generated in the folder ``htmlcov`` at the root of the project.
 You can then explore the report by opening ``index.html`` in a browser.
@@ -208,7 +208,7 @@ and select the desired environment from the list (the one in the ``.conda-env`` 
         :width: 80%
 
 Then you can check the list of installed packages in the ``Packages`` table. You should see
-**my-app** and its dependencies. Make sure to turn off the ``Use Conda Package Manager``
+**simpeg-drivers** and its dependencies. Make sure to turn off the ``Use Conda Package Manager``
 option to see also the packages installed through pip:
 
     ..  image:: devtools/images/pycharm-list_all_conda_packages.png
@@ -256,7 +256,7 @@ then add the following option in the ``Additional Arguments`` field:
 
 select ``pytest in tests``, and add the following option in the ``Additional Arguments`` field::
 
-    --cov=my_app --cov-report html
+    --cov=simpeg_drivers --cov-report html
 
 Then, run the tests as usual, and you will get a nice report of the code coverage.
 

@@ -1,7 +1,7 @@
 
 default_language_version:
     python: python3
-exclude: (^docs/(conf.py|_ext/)|^my_app-assets/)
+exclude: (^docs/(conf.py|_ext/)|^simpeg_drivers-assets/)
 default_stages: [commit,push]
 fail_fast: false
 
