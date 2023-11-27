@@ -12,9 +12,11 @@
 from __future__ import annotations
 
 import warnings
+from uuid import UUID
 
 import numpy as np
 from discretize import TreeMesh
+from geoh5py import Workspace
 from scipy.spatial import ConvexHull, cKDTree
 from SimPEG.electromagnetics.frequency_domain.sources import (
     LineCurrent as FEMLineCurrent,
@@ -24,6 +26,7 @@ from SimPEG.survey import BaseSurvey
 from SimPEG.utils import mkvc
 
 from geoapps.utils.surveys import get_intersecting_cells, get_unique_locations
+from geoapps_utils.conversions import string_to_numeric
 
 
 def calculate_2D_trend(
@@ -175,6 +178,31 @@ def create_nested_mesh(
         nested_mesh.finalize()
 
     return nested_mesh
+
+
+def get_inversion_output(h5file: str | Workspace, inversion_group: str | UUID):
+    """
+    Recover inversion iterations from a ContainerGroup comments.
+    """
+    if isinstance(h5file, Workspace):
+        workspace = h5file
+    else:
+        workspace = Workspace(h5file)
+
+    try:
+        group = workspace.get_entity(inversion_group)[0]
+    except IndexError as exc:
+        raise IndexError(
+            f"BaseInversion group {inversion_group} could not be found in the target geoh5 {h5file}"
+        ) from exc
+
+    outfile = group.get_entity("SimPEG.out")[0]
+    out = [l for l in outfile.values.decode("utf-8").replace("\r", "").split("\n")][:-1]
+    cols = out.pop(0).split(" ")
+    out = [[string_to_numeric(k) for k in l.split(" ")] for l in out]
+    out = dict(zip(cols, list(map(list, zip(*out)))))
+
+    return out
 
 
 def tile_locations(

@@ -3,10 +3,13 @@
 #  This file is part of simpeg_drivers package.
 #
 #  All rights reserved
+from typing import Callable
 
 import numpy as np
 from geoh5py import Workspace
-from geoh5py.objects import PotentialElectrode
+from geoh5py.data import FloatData
+from geoh5py.objects import PotentialElectrode, CurrentElectrode
+from scipy.spatial import cKDTree
 
 
 def extract_dcip_survey(
@@ -104,3 +107,158 @@ def extract_dcip_survey(
             potentials.add_data({c.name: {"values": c.values[list(survey_cell_map)]}})
 
     return potentials
+
+
+def is_outlier(population: list[float | int], value: float, n_std: int | float = 3):
+    """
+    use a standard deviation threshold to determine if value is an outlier for the population.
+
+    :param population: list of values.
+    :param value: single value to detect outlier status
+    :param n_std (optional):
+
+    :return True if the deviation of value from the mean exceeds the standard deviation threshold.
+    """
+    mean = np.mean(population)
+    std = np.std(population)
+    deviation = np.abs(mean - value)
+    return deviation > n_std * std
+
+
+def next_neighbor(tree: cKDTree, point: list[float], nodes: list[int], n: int = 3):
+    """
+    Returns smallest distance neighbor that has not yet been traversed.
+
+    :param: tree: kd-tree computed for the point cloud of possible neighbors.
+    :param: point: Current point being traversed.
+    :param: nodes: Traversed point ids.
+    """
+    distances, neighbors = tree.query(point, n)
+    new_ids = new_neighbors(distances, neighbors, nodes)
+    if any(new_ids):
+        distances = distances[new_ids]
+        neighbors = neighbors[new_ids]
+        next_id = np.argmin(distances)
+        return distances[next_id], neighbors[next_id]
+
+    else:
+        return next_neighbor(tree, point, nodes, n + 3)
+
+
+def new_neighbors(distances: np.ndarray, neighbors: np.ndarray, nodes: list[int]):
+    """
+    Index into neighbor arrays excluding zero distance and past neighbors.
+
+    :param: distances: previously computed distances
+    :param: neighbors: Possible neighbors
+    :param: nodes: Traversed point ids.
+    """
+    ind = [
+        i in nodes if distances[neighbors.tolist().index(i)] != 0 else False
+        for i in neighbors
+    ]
+    return np.where(ind)[0].tolist()
+
+
+def slice_and_map(obj: np.ndarray, slicer: np.ndarray | Callable):
+    """
+    Slice an array and return both sliced array and global to local map.
+
+    :param object: Array to be sliced.
+    :param slicer: Boolean index array, Integer index array,  or callable
+        that provides a condition to keep or remove each row of object.
+    :return: Sliced array.
+    :return: Dictionary map from global to local indices.
+    """
+
+    if isinstance(slicer, np.ndarray):
+        if slicer.dtype == bool:
+            sliced_object = obj[slicer]
+            g2l = dict(zip(np.where(slicer)[0], np.arange(len(obj))))
+        else:
+            sliced_object = obj[slicer]
+            g2l = dict(zip(slicer, np.arange(len(slicer))))
+
+    elif callable(slicer):
+        slicer = np.array([slicer(k) for k in obj])
+        sliced_object = obj[slicer]
+        g2l = dict(zip(np.where(slicer)[0], np.arange(len(obj))))
+
+    return sliced_object, g2l
+
+
+def survey_lines(survey, start_loc: list[int | float], save: str | None = None):
+    """
+    Build an array of line ids for a survey laid out in a line biased grid.
+
+    :param: survey: geoh5py.objects.surveys object with .vertices attribute or xyz array.
+    :param: start_loc: Easting and Northing of a survey extremity from which the
+        all other survey locations will be traversed and assigned line ids.
+    :save: Name assigned to line id (ReferencedData) object if not None.
+
+    """
+    # extract xy locations and create linear indexing
+    try:
+        locs = survey.vertices[:, :2]
+    except AttributeError:
+        locs = survey[:, :2]
+
+    nodes = np.arange(len(locs)).tolist()
+
+    # find the id of the closest point to the starting location
+    start_id = np.argmin(np.linalg.norm(locs - start_loc, axis=1))
+
+    # pop the starting location and index out of their respective lists
+    locs = locs.tolist()
+    loc = locs[start_id]
+    inds = []
+    n = nodes.pop(start_id)
+    inds.append(n)
+
+    # compute the tree of the remaining points and begin to traverse the tree
+    # in the direction of closest neighbors.  Label points with same line id
+    # until an outlier is detected in the distance to the next closest point,
+    # then increase the line id.
+    tree = cKDTree(locs)
+    line_id = 1  # zero is reserved
+    lines = []
+    distances = []
+    while nodes:
+        lines.append(line_id)
+        dist, next_id = next_neighbor(tree, loc, nodes)
+
+        outlier = False
+        if len(distances) > 1:
+            if np.allclose(dist, distances, atol=1e-6):
+                outlier = False
+            else:
+                outlier = is_outlier(distances, dist)
+
+        if outlier:
+            line_id += 1
+            distances = []
+        else:
+            distances.append(dist)
+
+        n = nodes.pop(nodes.index(next_id))
+        inds.append(n)
+        loc = locs[next_id]
+
+    lines += [line_id]  # nodes run out before last id assigned
+
+    inds = np.argsort(inds)
+    if save is not None:
+        survey.add_data(
+            {
+                save: {
+                    "values": np.array(lines)[inds],
+                    "association": "VERTEX",
+                    "entity_type": {
+                        "primitive_type": "REFERENCED",
+                        "value_map": {k: str(k) for k in lines},
+                    },
+                }
+            }
+        )
+
+    return np.array(lines)[inds]
