@@ -15,11 +15,7 @@ from geoh5py.workspace import Workspace
 
 from simpeg_drivers.components import InversionTopography
 from simpeg_drivers.potential_fields import MagneticVectorParams
-from geoapps.utils.testing import Geoh5Tester
-
-from . import PROJECT
-
-geoh5 = Workspace(PROJECT)
+from simpeg_drivers.utils.testing import Geoh5Tester
 
 
 def setup_params(tmp):

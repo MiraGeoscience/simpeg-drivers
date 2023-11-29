@@ -6,6 +6,7 @@
 #
 import warnings
 from pathlib import Path
+from uuid import UUID
 
 import numpy as np
 from geoh5py import Workspace
@@ -16,6 +17,45 @@ from scipy.spatial import Delaunay
 from SimPEG import utils
 from geoapps_utils.numerical import active_from_xyz
 from simpeg_drivers.utils.surveys import survey_lines
+
+
+class Geoh5Tester:
+    """Create temp workspace, copy entities, and setup params class."""
+
+    def __init__(self, geoh5, path, name, params_class=None):
+        self.geoh5 = geoh5
+        self.tmp_path = Path(path) / name
+        self.ws = Workspace.create(self.tmp_path)
+
+        if params_class is not None:
+            self.params = params_class(validate=False, geoh5=self.ws)
+            self.has_params = True
+        else:
+            self.has_params = False
+
+    def copy_entity(self, uid):
+        entity = self.ws.get_entity(uid)
+        if not entity or entity[0] is None:
+            return self.geoh5.get_entity(uid)[0].copy(parent=self.ws)
+        return entity[0]
+
+    def set_param(self, param, value):
+        if self.has_params:
+            try:
+                uid = UUID(value)
+                entity = self.copy_entity(uid)
+                setattr(self.params, param, entity)
+            except (AttributeError, ValueError):
+                setattr(self.params, param, value)
+        else:
+            msg = "No params class has been initialized."
+            raise (ValueError(msg))
+
+    def make(self):
+        if self.has_params:
+            return self.ws, self.params
+        else:
+            return self.ws
 
 
 def check_target(output: dict, target: dict, tolerance=0.1):

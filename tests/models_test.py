@@ -24,11 +24,7 @@ from simpeg_drivers.potential_fields.magnetic_vector.driver import (
     MagneticVectorDriver,
 )
 from geoapps_utils.numerical import rotate_xyz
-from geoapps.utils.testing import Geoh5Tester
-
-from . import PROJECT
-
-geoh5 = Workspace(PROJECT)
+from simpeg_drivers.utils.testing import Geoh5Tester
 
 
 def setup_params(path):

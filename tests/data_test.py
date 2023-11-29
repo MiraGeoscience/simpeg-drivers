@@ -23,11 +23,7 @@ from simpeg_drivers.potential_fields.magnetic_vector.driver import (
     MagneticVectorParams,
 )
 from octree_creation_app.driver import OctreeDriver
-from geoapps.utils.testing import Geoh5Tester
-
-from . import PROJECT
-
-geoh5 = Workspace(PROJECT)
+from simpeg_drivers.utils.testing import Geoh5Tester
 
 
 def setup_params(tmp):
