@@ -20,7 +20,7 @@ from geoh5py.objects import Curve, DrapeModel, Grid2D
 from geoh5py.workspace import Workspace
 from pymatsolver import PardisoSolver
 from scipy.interpolate import LinearNDInterpolator
-from scipy.sparse import csr_matrix, diags
+from scipy.sparse import csr_matrix
 from scipy.spatial import cKDTree
 from simpeg_archive import (
     DataMisfit,
@@ -40,9 +40,8 @@ from simpeg_archive.simpegEM1D import (
 )
 from simpeg_archive.utils import Counter, mkvc
 
-from geoapps_utils.numerical import rotate_xyz
-#from geoapps.shared_utils.utils import filter_xy
-from geoapps.utils import geophysical_systems
+from geoapps_utils.numerical import rotate_xyz, filter_xy
+from geoapps_utils import geophysical_systems
 
 
 def inversion(input_file):

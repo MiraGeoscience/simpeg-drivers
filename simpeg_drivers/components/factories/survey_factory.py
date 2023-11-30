@@ -20,9 +20,9 @@ from scipy.interpolate import interp1d
 
 from simpeg_drivers.utils.surveys import extract_dcip_survey
 
-from .receiver_factory import ReceiversFactory
-from .simpeg_factory import SimPEGFactory
-from .source_factory import SourcesFactory
+from simpeg_drivers.components.factories.receiver_factory import ReceiversFactory
+from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
+from simpeg_drivers.components.factories.source_factory import SourcesFactory
 
 
 def receiver_group(txi, potential_electrodes):

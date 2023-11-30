@@ -15,10 +15,10 @@ import numpy as np
 from SimPEG import directives, maps
 from SimPEG.utils.mat_utils import cartesian2amplitude_dip_azimuth
 
-from .simpeg_factory import SimPEGFactory
+from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 
 if TYPE_CHECKING:
-    from ...driver import InversionDriver
+    from simpeg_drivers.driver import InversionDriver
 
 
 class DirectivesFactory:

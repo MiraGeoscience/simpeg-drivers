@@ -19,9 +19,9 @@ from geoh5py.workspace import Workspace
 from param_sweeps.driver import SweepDriver, SweepParams
 from param_sweeps.generate import generate
 
-from geoapps.driver_base.utils import active_from_xyz
+from geoapps_utils.numerical import active_from_xyz
 from simpeg_drivers.driver import InversionDriver
-from geoapps.utils.models import drape_to_octree
+from simpeg_drivers.utils.utils import drape_to_octree
 
 
 class LineSweepDriver(SweepDriver, InversionDriver):

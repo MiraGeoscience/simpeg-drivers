@@ -20,7 +20,7 @@ from geoh5py.shared import Entity
 from scipy.interpolate import LinearNDInterpolator
 from scipy.spatial import cKDTree
 
-from geoapps_utils.numerical import get_locations, rotate_xyz
+from geoapps_utils.numerical import rotate_xyz, get_locations
 
 
 class InversionLocations:
@@ -116,7 +116,7 @@ class InversionLocations:
 
         """
 
-        locs = get_locs(self.workspace, obj)
+        locs = get_locations(self.workspace, obj)
 
         if locs is None:
             msg = f"Workspace object {obj} 'vertices' attribute is None."

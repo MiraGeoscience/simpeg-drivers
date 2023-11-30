@@ -17,11 +17,11 @@ from SimPEG.objective_function import ComboObjectiveFunction
 
 from octree_creation_app.utils import treemesh_2_octree
 from simpeg_drivers import DRIVER_MAP
-from simpeg_drivers.components import InversionMesh
+from simpeg_drivers.components.meshes import InversionMesh
 from simpeg_drivers.components.factories import SaveIterationGeoh5Factory
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.joint.params import BaseJointParams
-from geoapps.utils.models import collocate_octrees, create_octree_from_octrees
+from octree_creation_app.utils import collocate_octrees, create_octree_from_octrees
 
 
 class BaseJointDriver(InversionDriver):

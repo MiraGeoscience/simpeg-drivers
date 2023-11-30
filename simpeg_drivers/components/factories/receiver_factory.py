@@ -16,9 +16,9 @@ if TYPE_CHECKING:
 
 import numpy as np
 
-from geoapps_utils.numerical.utils import rotate_xyz
+from geoapps_utils.numerical import rotate_xyz
 
-from .simpeg_factory import SimPEGFactory
+from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 
 
 class ReceiversFactory(SimPEGFactory):

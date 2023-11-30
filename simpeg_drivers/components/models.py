@@ -20,7 +20,7 @@ from geoapps_utils.driver.driver import BaseDriver
 from geoapps_utils.numerical import rotate_xyz, weighted_average
 
 if TYPE_CHECKING:
-    from ..driver import InversionDriver
+    from simpeg_drivers.driver import InversionDriver
 
 
 class InversionModelCollection:

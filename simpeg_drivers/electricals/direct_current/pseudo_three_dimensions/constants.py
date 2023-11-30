@@ -93,7 +93,7 @@ inversion_defaults = {
     "potential_channel_bool": True,
 }
 forward_defaults = {
-    "version": geoapps.__version__,
+    "version": simpeg_drivers.__version__,
     "title": "Direct Current (DC) 2D Batch Forward",
     "icon": "PotentialElectrode",
     "inversion_type": "direct current pseudo 3d",

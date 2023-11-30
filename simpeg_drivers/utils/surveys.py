@@ -6,10 +6,33 @@
 from typing import Callable
 
 import numpy as np
+from SimPEG.survey import BaseSurvey
+from discretize import TreeMesh, TensorMesh
+from geoapps_utils.numerical import traveling_salesman
 from geoh5py import Workspace
 from geoh5py.data import FloatData
 from geoh5py.objects import PotentialElectrode, CurrentElectrode
 from scipy.spatial import cKDTree
+
+
+def compute_alongline_distance(points: np.ndarray, ordered: bool = True):
+    """
+    Convert from cartesian (x, y, values) points to (distance, values) locations.
+
+    :param: points: Cartesian coordinates of points lying either roughly within a
+        plane or a line.
+    """
+    if not ordered:
+        order = traveling_salesman(points)
+        points = points[order, :]
+
+    distances = np.cumsum(
+        np.r_[0, np.linalg.norm(np.diff(points[:, :2], axis=0), axis=1)]
+    )
+    if points.shape[1] == 3:
+        distances = np.c_[distances, points[:, 2:]]
+
+    return distances
 
 
 def extract_dcip_survey(
@@ -107,6 +130,48 @@ def extract_dcip_survey(
             potentials.add_data({c.name: {"values": c.values[list(survey_cell_map)]}})
 
     return potentials
+
+
+def get_intersecting_cells(locations: np.ndarray, mesh: TreeMesh) -> np.ndarray:
+    """
+    Find cells that intersect with a set of segments.
+
+    :param: locations: Locations making a line path.
+    :param: mesh: TreeMesh object.
+
+    :return: Array of unique cell indices.
+    """
+    cell_index = []
+    for ind in range(locations.shape[0] - 1):
+        cell_index.append(mesh.get_cells_along_line(locations[ind], locations[ind + 1]))
+
+    return np.unique(np.hstack(cell_index))
+
+
+def get_unique_locations(survey: BaseSurvey) -> np.ndarray:
+    """
+    Get unique locations from a survey including sources and receivers when
+    applicable.
+
+    :param: survey: SimPEG survey object.
+
+    :return: Array of unique locations.
+    """
+    if survey.source_list:
+        locations = []
+        for source in survey.source_list:
+            source_location = source.location
+            if source_location is not None:
+                if not isinstance(source_location, list):
+                    locations += [[source_location]]
+                else:
+                    locations += [source_location]
+            locations += [receiver.locations for receiver in source.receiver_list]
+        locations = np.vstack([np.vstack(np.atleast_2d(*locs)) for locs in locations])
+    else:
+        locations = survey.receiver_locations
+
+    return np.unique(locations, axis=0)
 
 
 def is_outlier(population: list[float | int], value: float, n_std: int | float = 3):

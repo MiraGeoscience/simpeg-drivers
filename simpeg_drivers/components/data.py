@@ -23,16 +23,15 @@ from scipy.spatial import cKDTree
 from SimPEG import maps
 from SimPEG.electromagnetics.static.utils.static_utils import geometric_factor
 
-from simpeg_drivers.utils import create_nested_mesh
-from geoapps.shared_utils.utils import drape_2_tensor
+from simpeg_drivers.utils.utils import create_nested_mesh, drape_2_tensor
 
-from .factories import (
+from simpeg_drivers.components.factories import (
     EntityFactory,
     SaveIterationGeoh5Factory,
     SimulationFactory,
     SurveyFactory,
 )
-from .locations import InversionLocations
+from simpeg_drivers.components.locations import InversionLocations
 
 
 class InversionData(InversionLocations):

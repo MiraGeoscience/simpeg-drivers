@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 import numpy as np
 from SimPEG import data, data_misfit, objective_function
 
-from .simpeg_factory import SimPEGFactory
+from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 
 
 class MisfitFactory(SimPEGFactory):

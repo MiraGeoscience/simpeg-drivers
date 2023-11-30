@@ -44,7 +44,7 @@ from simpeg_drivers.components import (
 )
 from simpeg_drivers.components.factories import DirectivesFactory, MisfitFactory
 from simpeg_drivers.params import InversionBaseParams
-from simpeg_drivers.utils import tile_locations
+from simpeg_drivers.utils.utils import tile_locations
 
 
 class InversionDriver(BaseDriver):

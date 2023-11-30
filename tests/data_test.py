@@ -25,8 +25,19 @@ from simpeg_drivers.potential_fields.magnetic_vector.driver import (
 from octree_creation_app.driver import OctreeDriver
 from simpeg_drivers.utils.testing import Geoh5Tester
 
+from tests import GEOH5 as geoh5
+
 
 def setup_params(tmp):
+    print(geoh5.objects)
+    print([o.uid for o in geoh5.objects])
+    print([type(o) for o in geoh5.objects])
+
+    mesh = geoh5.get_entity("mesh")
+    print(mesh)
+    topography = geoh5.get_entity("topography")
+    print(topography)
+
     geotest = Geoh5Tester(geoh5, tmp, "test.geoh5", params_class=MagneticVectorParams)
     geotest.set_param("mesh", "{a8f3b369-10bd-4ca8-8bd6-2d2595bddbdf}")
     geotest.set_param("data_object", "{538a7eb1-2218-4bec-98cc-0a759aa0ef4f}")
@@ -128,7 +139,7 @@ def test_survey_data(tmp_path: Path):
     survey_dobs = [local_survey_a.dobs, local_survey_b.dobs]
     np.testing.assert_array_equal(expected_dobs, np.hstack(survey_dobs))
 
-    # test savegeoh5iteration data
+    # test save geoh5 iteration data
     driver.directives.directive_list[1].save_components(99, survey_dobs)
 
     with workspace.open():

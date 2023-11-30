@@ -9,7 +9,7 @@ from __future__ import annotations
 import numpy as np
 
 from simpeg_drivers import InversionBaseParams
-from geoapps.utils.models import get_drape_model
+from simpeg_drivers.utils.utils import get_drape_model
 from simpeg_drivers.utils.surveys import extract_dcip_survey
 
 

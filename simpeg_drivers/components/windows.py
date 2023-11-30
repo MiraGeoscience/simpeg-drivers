@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from geoh5py.workspace import Workspace
-    from geoapps.drivers import BaseParams
+    from geoapps_utils.driver.params import BaseParams
 
 import numpy as np
 from geoh5py.objects import Grid2D, PotentialElectrode

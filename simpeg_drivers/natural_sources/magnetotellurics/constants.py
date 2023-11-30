@@ -18,7 +18,7 @@ from simpeg_drivers.constants import validations as base_validations
 ################# defaults ##################
 
 inversion_defaults = {
-    "version": geoapps.__version__,
+    "version": simpeg_drivers.__version__,
     "title": "Magnetotellurics (MT) Inversion",
     "icon": "surveymagnetotellurics",
     "inversion_type": "magnetotellurics",
@@ -99,7 +99,7 @@ inversion_defaults = {
     "distributed_workers": None,
 }
 forward_defaults = {
-    "version": geoapps.__version__,
+    "version": simpeg_drivers.__version__,
     "title": "Magnetotellurics (MT) Forward",
     "icon": "surveymagnetotellurics",
     "inversion_type": "magnetotellurics",

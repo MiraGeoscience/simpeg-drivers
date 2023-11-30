@@ -11,19 +11,18 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from geoh5py.workspace import Workspace
     from geoapps_utils.driver.params import BaseParams
-    from . import InversionMesh
+    from simpeg_drivers.components.meshes import InversionMesh
 
 import warnings
 
 import numpy as np
 from geoh5py.shared import Entity
 
-from geoapps.driver_base.utils import active_from_xyz
+from geoapps_utils.numerical import active_from_xyz, filter_xy
 from simpeg_drivers.components.data import InversionData
 from simpeg_drivers.components.locations import InversionLocations
-from geoapps.shared_utils.utils import filter_xy
-from geoapps.utils.models import floating_active
-from geoapps.utils.surveys import get_containing_cells
+from simpeg_drivers.utils.utils import floating_active
+from simpeg_drivers.components.utils import get_containing_cells
 
 
 class InversionTopography(InversionLocations):

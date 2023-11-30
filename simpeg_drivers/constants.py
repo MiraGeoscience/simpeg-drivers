@@ -454,7 +454,7 @@ default_ui_json = {
     "run_command_boolean": None,
     "conda_environment": "geoapps",
     "distributed_workers": None,
-    "version": geoapps.__version__,
+    "version": simpeg_drivers.__version__,
 }
 
 ######################## Validations ###########################

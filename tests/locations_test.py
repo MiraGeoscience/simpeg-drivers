@@ -19,11 +19,17 @@ from simpeg_drivers.components.locations import InversionLocations
 from simpeg_drivers.potential_fields import MagneticVectorParams
 from simpeg_drivers.utils.testing import Geoh5Tester
 
+from tests import GEOH5 as geoh5
+
 
 def setup_params(tmp):
     geotest = Geoh5Tester(geoh5, tmp, "test.geoh5", MagneticVectorParams)
-    geotest.set_param("mesh", "{a8f3b369-10bd-4ca8-8bd6-2d2595bddbdf}")
-    geotest.set_param("topography_object", "{ab3c2083-6ea8-4d31-9230-7aad3ec09525}")
+    mesh = geoh5.get_entity("mesh")[0]
+    topography_object = geoh5.get_entity("topography")[0]
+
+    geotest.set_param("mesh", str(mesh.uid))
+    geotest.set_param("topography_object", str(topography_object.uid))
+
     return geotest.make()
 
 

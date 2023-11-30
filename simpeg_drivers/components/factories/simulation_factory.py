@@ -19,7 +19,7 @@ from pathlib import Path
 import numpy as np
 from SimPEG import maps
 
-from .simpeg_factory import SimPEGFactory
+from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 
 
 class SimulationFactory(SimPEGFactory):
