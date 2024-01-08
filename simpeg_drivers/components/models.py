@@ -118,7 +118,7 @@ class InversionModelCollection:
         self._active_cells = active_cells
 
     @property
-    def starting(self):
+    def starting(self) -> np.ndarray | None:
         if self._starting.model is None:
             return None
 
@@ -130,7 +130,7 @@ class InversionModelCollection:
         return mstart
 
     @property
-    def reference(self):
+    def reference(self) -> np.ndarray | None:
         mref = self._reference.model
 
         if self.driver.params.forward_only:
@@ -150,7 +150,7 @@ class InversionModelCollection:
         return mref
 
     @property
-    def lower_bound(self):
+    def lower_bound(self) -> np.ndarray | None:
         if self._lower_bound.model is None:
             return -np.inf
 
@@ -162,7 +162,7 @@ class InversionModelCollection:
         return lbound
 
     @property
-    def upper_bound(self):
+    def upper_bound(self) -> np.ndarray | None:
         if self._upper_bound.model is None:
             return -np.inf
 
@@ -175,7 +175,7 @@ class InversionModelCollection:
         return ubound
 
     @property
-    def conductivity(self):
+    def conductivity(self) -> np.ndarray | None:
         if self._conductivity.model is None:
             return None
 
@@ -340,7 +340,7 @@ class InversionModel:
         if self.model is not None:
             self.model = self.model[np.tile(active_cells, self.n_blocks)]
 
-    def permute_2_octree(self):
+    def permute_2_octree(self) -> np.ndarray | None:
         """
         Reorder model values stored in cell centers of a TreeMesh to
         its original octree mesh order.
@@ -358,7 +358,7 @@ class InversionModel:
             )
         return self.model[self.driver.inversion_mesh.permutation]
 
-    def permute_2_treemesh(self, model: np.ndarray):
+    def permute_2_treemesh(self, model: np.ndarray) -> np.ndarray:
         """
         Reorder model values stored in cell centers of an octree mesh to
         TreeMesh order in self.driver.inversion_mesh.
@@ -371,6 +371,10 @@ class InversionModel:
     def save_model(self):
         """Resort model to the octree object's ordering and save to workspace."""
         remapped_model = self.permute_2_octree()
+
+        if remapped_model is None:
+            return
+
         if self.is_vector:
             if self.model_type in ["starting", "reference"]:
                 aid = cartesian2amplitude_dip_azimuth(remapped_model)
@@ -435,7 +439,7 @@ class InversionModel:
 
         return None
 
-    def _get_value(self, model: float | NumericData):
+    def _get_value(self, model: float | NumericData) -> np.ndarray:
         """
         Fills vector with model value to match size of inversion mesh.
 
@@ -453,7 +457,7 @@ class InversionModel:
 
         return model
 
-    def _obj_2_mesh(self, obj, parent):
+    def _obj_2_mesh(self, obj, parent) -> np.ndarray:
         """
         Interpolates obj into inversion mesh using nearest neighbors of parent.
 
