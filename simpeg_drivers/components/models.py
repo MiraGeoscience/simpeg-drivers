@@ -67,7 +67,7 @@ class InversionModelCollection:
         self._conductivity = InversionModel(driver, "conductivity")
 
     @property
-    def n_active(self):
+    def n_active(self) -> int:
         """Number of active cells."""
         return int(self.active_cells.sum())
 
