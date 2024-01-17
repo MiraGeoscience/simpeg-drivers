@@ -27,7 +27,7 @@ from simpeg_drivers.electricals.induced_polarization.two_dimensions.params impor
     InducedPolarization2DParams,
 )
 from simpeg_drivers.line_sweep.driver import LineSweepDriver
-from geoapps_utils.numerical import get_locations, weighted_average
+from geoapps_utils import get_locations, weighted_average
 from simpeg_drivers.utils.utils import get_drape_model
 from simpeg_drivers.utils.surveys import extract_dcip_survey
 

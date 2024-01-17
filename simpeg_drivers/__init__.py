@@ -14,9 +14,6 @@ from SimPEG import dask
 from simpeg_drivers.params import InversionBaseParams
 from simpeg_drivers.constants import default_ui_json
 
-from geoapps_utils.importing import assets_path
-
-
 def assets_path() -> Path:
     """Return the path to the assets folder."""
 

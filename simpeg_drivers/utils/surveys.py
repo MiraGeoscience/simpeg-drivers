@@ -8,7 +8,7 @@ from typing import Callable
 import numpy as np
 from SimPEG.survey import BaseSurvey
 from discretize import TreeMesh, TensorMesh
-from geoapps_utils.numerical import traveling_salesman
+from geoapps_utils import traveling_salesman
 from geoh5py import Workspace
 from geoh5py.data import FloatData
 from geoh5py.objects import PotentialElectrode, CurrentElectrode

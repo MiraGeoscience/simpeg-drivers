@@ -18,7 +18,8 @@ import warnings
 import numpy as np
 from geoh5py.shared import Entity
 
-from geoapps_utils.numerical import active_from_xyz, filter_xy
+from geoapps_utils import active_from_xyz, filter_xy
+
 from simpeg_drivers.components.data import InversionData
 from simpeg_drivers.components.locations import InversionLocations
 from simpeg_drivers.utils.utils import floating_active

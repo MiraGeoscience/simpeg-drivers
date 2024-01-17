@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 import numpy as np
 
-from geoapps_utils.numerical import rotate_xyz
+from geoapps_utils import rotate_xyz
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 

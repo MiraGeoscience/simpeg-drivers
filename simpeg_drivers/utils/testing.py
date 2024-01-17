@@ -18,7 +18,7 @@ from octree_creation_app.driver import OctreeDriver
 from octree_creation_app.utils import treemesh_2_octree
 from scipy.spatial import Delaunay
 from SimPEG import utils
-from geoapps_utils.numerical import active_from_xyz
+from geoapps_utils import active_from_xyz
 from simpeg_drivers.utils.surveys import survey_lines
 from simpeg_drivers.utils.utils import get_drape_model
 

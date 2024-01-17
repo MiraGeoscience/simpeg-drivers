@@ -15,7 +15,7 @@ from geoh5py.objects import Grid2D, ObjectBase, Points, PotentialElectrode
 from geoh5py.shared.utils import is_uuid
 
 from simpeg_drivers.utils.utils import calculate_2D_trend
-from geoapps_utils.numerical import get_locations, filter_xy
+from geoapps_utils import get_locations, filter_xy
 
 
 # TODO replace with implementation in geoh5py v0.9.0

@@ -20,7 +20,7 @@ from geoh5py.shared import Entity
 from scipy.interpolate import LinearNDInterpolator
 from scipy.spatial import cKDTree
 
-from geoapps_utils.numerical import rotate_xyz, get_locations
+from geoapps_utils import rotate_xyz, get_locations
 
 
 class InversionLocations:

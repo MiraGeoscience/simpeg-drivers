@@ -16,7 +16,7 @@ from uuid import UUID
 
 import numpy as np
 from discretize import TreeMesh, TensorMesh
-from geoapps_utils.numerical import traveling_salesman, running_mean, truncate_locs_depths, minimum_depth_core
+from geoapps_utils import traveling_salesman, running_mean, truncate_locs_depths, minimum_depth_core
 from geoh5py import Workspace
 from geoh5py.objects import DrapeModel, Octree
 from geoh5py.shared import INTEGER_NDV
@@ -31,7 +31,7 @@ from SimPEG.survey import BaseSurvey
 from SimPEG.utils import mkvc
 
 from simpeg_drivers.utils.surveys import get_intersecting_cells, get_unique_locations
-from geoapps_utils.conversions import string_to_numeric
+from geoapps_utils import string_to_numeric
 from simpeg_drivers.utils.surveys import compute_alongline_distance
 from geoh5py.groups import Group
 from discretize.utils import mesh_utils

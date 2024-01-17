@@ -40,7 +40,7 @@ from simpeg_archive.simpegEM1D import (
 )
 from simpeg_archive.utils import Counter, mkvc
 
-from geoapps_utils.numerical import rotate_xyz, filter_xy
+from geoapps_utils import rotate_xyz, filter_xy
 from geoapps_utils import geophysical_systems
 
 
