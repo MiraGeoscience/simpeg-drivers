@@ -84,8 +84,8 @@ plugins = [
 #    'numpy.typing.mypy_plugin'
 ]
 
-[tool.pytest.ini_options]
-addopts = "--cov simpeg_drivers --cov-report html --cov-report term-missing:skip-covered"
+#[tool.pytest.ini_options]
+#addopts = "--cov simpeg_drivers --cov-report html --cov-report term-missing:skip-covered"
 
 [tool.coverage.run]
 branch = true

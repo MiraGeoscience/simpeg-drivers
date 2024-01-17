@@ -8,6 +8,7 @@
 
 from __future__ import annotations
 
+import pytest
 from pathlib import Path
 
 import numpy as np
@@ -23,21 +24,26 @@ from simpeg_drivers.potential_fields.magnetic_vector.driver import (
     MagneticVectorParams,
 )
 from octree_creation_app.driver import OctreeDriver
-from simpeg_drivers.utils.testing import Geoh5Tester
+from simpeg_drivers.utils.testing import Geoh5Tester, setup_inversion_workspace
 
 from tests import GEOH5 as geoh5
 
+@pytest.fixture
+def object_setup():
+
+
+# geoh5, entity, model, survey, topography = setup_inversion_workspace(
+#     tmp_path,
+#     background=0.0,
+#     anomaly=0.05,
+#     refinement=(2,),
+#     n_electrodes=2,
+#     n_lines=2,
+# )
+
+
 
 def setup_params(tmp):
-    print(geoh5.objects)
-    print([o.uid for o in geoh5.objects])
-    print([type(o) for o in geoh5.objects])
-
-    mesh = geoh5.get_entity("mesh")
-    print(mesh)
-    topography = geoh5.get_entity("topography")
-    print(topography)
-
     geotest = Geoh5Tester(geoh5, tmp, "test.geoh5", params_class=MagneticVectorParams)
     geotest.set_param("mesh", "{a8f3b369-10bd-4ca8-8bd6-2d2595bddbdf}")
     geotest.set_param("data_object", "{538a7eb1-2218-4bec-98cc-0a759aa0ef4f}")
@@ -47,7 +53,8 @@ def setup_params(tmp):
     geotest.set_param("topography", "{a603a762-f6cb-4b21-afda-3160e725bf7d}")
     return geotest.make()
 
-
+def test_fixture_stuff(stuff):
+    assert stuff == ["this", "and", "that"]
 def test_survey_data(tmp_path: Path):
     X, Y, Z = np.meshgrid(np.linspace(0, 100, 3), np.linspace(0, 100, 3), 0)
     verts = np.column_stack([X.ravel(), Y.ravel(), Z.ravel()])
