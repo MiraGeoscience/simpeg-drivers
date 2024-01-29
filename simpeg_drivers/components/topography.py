@@ -91,6 +91,7 @@ class InversionTopography(InversionLocations):
             active_cells = active_from_xyz(
                 mesh.entity, self.locations, grid_reference="bottom"
             )
+            active_cells = active_cells[np.argsort(mesh.permutation)]
 
             print(
                 "Adjusting active cells so that receivers are all within an active cell . . ."
@@ -106,6 +107,7 @@ class InversionTopography(InversionLocations):
             active_cells = active_from_xyz(
                 mesh.entity, self.locations, grid_reference="center"
             )
+            active_cells = active_cells[np.argsort(mesh.permutation)]
 
 
         return active_cells

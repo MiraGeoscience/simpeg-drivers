@@ -104,6 +104,7 @@ class InversionMesh:
                     self.rotation = {"origin": origin, "angle": angle}
 
                 self._mesh = octree_2_treemesh(self.entity)
+                self._permutation = np.arange(self.entity.n_cells)
 
             if isinstance(self.entity, DrapeModel) and self._mesh is None:
                 self._mesh, self._permutation = drape_2_tensor(
