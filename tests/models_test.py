@@ -23,18 +23,39 @@ from simpeg_drivers.potential_fields import MagneticVectorParams
 from simpeg_drivers.potential_fields.magnetic_vector.driver import (
     MagneticVectorDriver,
 )
-from geoapps_utils import rotate_xyz
-from simpeg_drivers.utils.testing import Geoh5Tester
+from geoapps_utils.transformations import rotate_xyz
+from simpeg_drivers.utils.testing import Geoh5Tester, setup_inversion_workspace
 
-from tests import GEOH5 as geoh5
+def setup_params(tmp_path):
 
-def setup_params(path):
-    geotest = Geoh5Tester(geoh5, path, "test.geoh5", MagneticVectorParams)
-    geotest.set_param("data_object", "{538a7eb1-2218-4bec-98cc-0a759aa0ef4f}")
-    geotest.set_param("tmi_channel", "{44822654-b6ae-45b0-8886-2d845f80f422}")
-    geotest.set_param("mesh", "{a8f3b369-10bd-4ca8-8bd6-2d2595bddbdf}")
-    geotest.set_param("topography_object", "{ab3c2083-6ea8-4d31-9230-7aad3ec09525}")
-    geotest.set_param("topography", "{a603a762-f6cb-4b21-afda-3160e725bf7d}")
+    geoh5, entity, model, survey, topography = setup_inversion_workspace(
+        tmp_path,
+        background=0.0,
+        anomaly=0.05,
+        refinement=(2,),
+        n_electrodes=2,
+        n_lines=2,
+        inversion_type="magnetic_vector",
+    )
+
+    mesh = model.parent
+    tmi_channel = survey.add_data(
+        {
+            "tmi": {"values": np.random.rand(survey.n_vertices)},
+        }
+    )
+    elevation = topography.add_data(
+        {
+            "elevation": {"values": topography.vertices[:, 2]}
+        }
+    )
+
+    geotest = Geoh5Tester(geoh5, tmp_path, "test.geoh5", MagneticVectorParams)
+    geotest.set_param("data_object", str(survey.uid))
+    geotest.set_param("tmi_channel", str(tmi_channel.uid))
+    geotest.set_param("mesh", str(mesh.uid))
+    geotest.set_param("topography_object", str(topography.uid))
+    geotest.set_param("topography", str(elevation.uid))
     geotest.set_param("starting_model", 1e-04)
     geotest.set_param("inducing_field_inclination", 79.0)
     geotest.set_param("inducing_field_declination", 11.0)
@@ -100,72 +121,3 @@ def test_model_from_object(tmp_path: Path):
     m = lstsq(A, b)[0]
     np.testing.assert_array_almost_equal(m, m0, decimal=1)
 
-
-def test_permute_2_octree(tmp_path: Path):
-    ws, params = setup_params(tmp_path)
-    driver = MagneticVectorDriver(params)
-    params.lower_bound = 0.0
-    inversion_mesh = InversionMesh(
-        ws, params, driver.inversion_data, driver.inversion_topography
-    )
-    lower_bound = InversionModel(driver, "lower_bound")
-    cc = inversion_mesh.mesh.cell_centers
-    center = np.mean(cc, axis=0)
-    dx = inversion_mesh.mesh.h[0].min()
-    dy = inversion_mesh.mesh.h[1].min()
-    dz = inversion_mesh.mesh.h[2].min()
-    xmin = center[0] - (5 * dx)
-    xmax = center[0] + (5 * dx)
-    ymin = center[1] - (5 * dy)
-    ymax = center[1] + (5 * dy)
-    zmin = center[2] - (5 * dz)
-    zmax = center[2] + (5 * dz)
-    xind = (cc[:, 0] > xmin) & (cc[:, 0] < xmax)
-    yind = (cc[:, 1] > ymin) & (cc[:, 1] < ymax)
-    zind = (cc[:, 2] > zmin) & (cc[:, 2] < zmax)
-    ind = xind & yind & zind
-    lower_bound.model[np.tile(ind, 3)] = 1
-    lb_perm = lower_bound.permute_2_octree()
-
-    locs_perm = params.mesh.centroids[lb_perm[: params.mesh.n_cells] == 1, :]
-    origin = [float(params.mesh.origin[k]) for k in ["x", "y", "z"]]
-    locs_perm_rot = rotate_xyz(locs_perm, origin, -params.mesh.rotation)
-    assert xmin <= locs_perm_rot[:, 0].min()
-    assert xmax >= locs_perm_rot[:, 0].max()
-    assert ymin <= locs_perm_rot[:, 1].min()
-    assert ymax >= locs_perm_rot[:, 1].max()
-    assert zmin <= locs_perm_rot[:, 2].min()
-    assert zmax >= locs_perm_rot[:, 2].max()
-
-
-def test_permute_2_treemesh(tmp_path: Path):
-    ws, params = setup_params(tmp_path)
-    driver = MagneticVectorDriver(params)
-    cc = params.mesh.centroids
-    center = np.mean(cc, axis=0)
-    dx = params.mesh.u_cell_size.min()
-    dy = params.mesh.v_cell_size.min()
-    dz = np.abs(params.mesh.w_cell_size.min())
-    xmin = center[0] - (5 * dx)
-    xmax = center[0] + (5 * dx)
-    ymin = center[1] - (5 * dy)
-    ymax = center[1] + (5 * dy)
-    zmin = center[2] - (5 * dz)
-    zmax = center[2] + (5 * dz)
-    xind = (cc[:, 0] > xmin) & (cc[:, 0] < xmax)
-    yind = (cc[:, 1] > ymin) & (cc[:, 1] < ymax)
-    zind = (cc[:, 2] > zmin) & (cc[:, 2] < zmax)
-    ind = xind & yind & zind
-    model = np.zeros(params.mesh.n_cells, dtype=float)
-    model[ind] = 1
-    params.mesh.add_data({"test_model": {"values": model}})
-    params.upper_bound = ws.get_entity("test_model")[0].uid
-    upper_bound = InversionModel(driver, "upper_bound")
-    locs = driver.inversion_mesh.mesh.cell_centers
-    locs = locs[upper_bound.model[: driver.inversion_mesh.mesh.nC] == 1, :]
-    assert xmin <= locs[:, 0].min()
-    assert xmax >= locs[:, 0].max()
-    assert ymin <= locs[:, 1].min()
-    assert ymax >= locs[:, 1].max()
-    assert zmin <= locs[:, 2].min()
-    assert zmax >= locs[:, 2].max()

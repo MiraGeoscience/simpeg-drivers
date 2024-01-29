@@ -318,14 +318,13 @@ class SaveIterationGeoh5Factory(SimPEGFactory):
             active_cells_map = maps.InjectActiveCells(
                 inversion_object.mesh, active_cells, np.nan
             )
-            sorting = inversion_object.permutation  # pylint: disable=W0212
-
+            sorting = inversion_object.permutation
             kwargs = {
                 "save_objective_function": save_objective_function,
                 "label": "model",
                 "association": "CEll",
-                "sorting": sorting,
                 "transforms": [active_cells_map],
+                "sorting": sorting
             }
 
             if self.factory_type == "magnetic vector":

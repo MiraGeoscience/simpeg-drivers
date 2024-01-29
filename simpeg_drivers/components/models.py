@@ -10,7 +10,8 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from geoapps_utils.driver.driver import BaseDriver
-from geoapps_utils import weighted_average, rotate_xyz
+from geoapps_utils.transformations import rotate_xyz
+from geoapps_utils.numerical import weighted_average
 from geoh5py.data import NumericData
 from SimPEG.utils.mat_utils import (
     cartesian2amplitude_dip_azimuth,
@@ -29,10 +30,6 @@ class InversionModelCollection:
     Methods
     -------
     remove_air: Use active cells vector to remove air cells from model.
-    permute_2_octree: Reorder model values stored in cell centers of a TreeMesh to
-        their original octree mesh sorting.
-    permute_2_treemesh: Reorder model values stored in cell centers of an octree mesh to
-        TreeMesh sorting.
 
     """
 
@@ -103,14 +100,12 @@ class InversionModelCollection:
         if not isinstance(active_cells, np.ndarray) or active_cells.dtype != bool:
             raise ValueError("active_cells must be a boolean numpy array.")
 
-        self.edit_ndv_model(active_cells[self.driver.inversion_mesh.permutation])
+        self.edit_ndv_model(active_cells)
         self.remove_air(active_cells)
         self.driver.inversion_mesh.entity.add_data(
             {
                 "active_cells": {
-                    "values": active_cells[
-                        self.driver.inversion_mesh.permutation
-                    ].astype(np.int32)
+                    "values": active_cells.astype(np.int32)
                 }
             }
         )
@@ -163,7 +158,7 @@ class InversionModelCollection:
     @property
     def upper_bound(self) -> np.ndarray | None:
         if self._upper_bound.model is None:
-            return -np.inf
+            return np.inf
 
         ubound = self._upper_bound.model.copy()
 
@@ -201,30 +196,6 @@ class InversionModelCollection:
         """Use active cells vector to remove air cells from model"""
         self._model_method_wrapper("remove_air", active_cells=active_cells)
 
-    def permute_2_octree(self, name):
-        """
-        Reorder model values stored in cell centers of a TreeMesh to
-        their original octree mesh sorting.
-
-        :param: name: model type name ("starting", "reference",
-            "lower_bound", or "upper_bound").
-
-        :return: Vector of model values reordered for octree mesh.
-        """
-        return self._model_method_wrapper("permute_2_octree", name=name)
-
-    def permute_2_treemesh(self, model, name):
-        """
-        Reorder model values stored in cell centers of an octree mesh to
-        TreeMesh sorting.
-
-        :param model: octree sorted model.
-        :param name: model type name ("starting", "reference",
-            "lower_bound", or "upper_bound").
-
-        :return: Vector of model values reordered for TreeMesh.
-        """
-        return self._model_method_wrapper("permute_2_treemesh", name=name, model=model)
 
     def edit_ndv_model(self, actives: np.ndarray):
         """
@@ -243,10 +214,6 @@ class InversionModel:
     Methods
     -------
     remove_air: Use active cells vector to remove air cells from model.
-    permute_2_octree: Reorder model values stored in cell centers of a TreeMesh to
-        their original octree mesh sorting.
-    permute_2_treemesh: Reorder model values stored in cell centers of an octree mesh to
-        TreeMesh sorting.
     """
 
     model_types = [
@@ -339,44 +306,18 @@ class InversionModel:
         if self.model is not None:
             self.model = self.model[np.tile(active_cells, self.n_blocks)]
 
-    def permute_2_octree(self) -> np.ndarray | None:
-        """
-        Reorder model values stored in cell centers of a TreeMesh to
-        its original octree mesh order.
-
-        :return: Vector of model values reordered for octree mesh.
-        """
-        if self.model is None:
-            return None
-
-        if self.is_vector:
-            return mkvc(
-                self.model.reshape((-1, 3), order="F")[
-                    self.driver.inversion_mesh.permutation, :
-                ]
-            )
-        return self.model[self.driver.inversion_mesh.permutation]
-
-    def permute_2_treemesh(self, model: np.ndarray) -> np.ndarray:
-        """
-        Reorder model values stored in cell centers of an octree mesh to
-        TreeMesh order in self.driver.inversion_mesh.
-
-        :param model: octree sorted model
-        :return: Vector of model values reordered for TreeMesh.
-        """
-        return model[np.argsort(self.driver.inversion_mesh.permutation)]
 
     def save_model(self):
         """Resort model to the octree object's ordering and save to workspace."""
-        remapped_model = self.permute_2_octree()
 
-        if remapped_model is None:
+        if self.model is None:
             return
+        else:
+            model = self.model.copy()
 
         if self.is_vector:
             if self.model_type in ["starting", "reference"]:
-                aid = cartesian2amplitude_dip_azimuth(remapped_model)
+                aid = cartesian2amplitude_dip_azimuth(model)
                 aid[np.isnan(aid[:, 0]), 1:] = np.nan
                 entity = self.driver.inversion_mesh.entity.add_data(
                     {f"{self.model_type}_inclination": {"values": aid[:, 1]}}
@@ -386,14 +327,14 @@ class InversionModel:
                     {f"{self.model_type}_declination": {"values": aid[:, 2]}}
                 )
                 setattr(self.driver.params, f"{self.model_type}_declination", entity)
-                remapped_model = aid[:, 0]
+                model = aid[:, 0]
             else:
-                remapped_model = np.linalg.norm(
-                    remapped_model.reshape((-1, 3), order="F"), axis=1
+                model = np.linalg.norm(
+                    model.reshape((-1, 3), order="F"), axis=1
                 )
 
         entity = self.driver.inversion_mesh.entity.add_data(
-            {f"{self.model_type}_model": {"values": remapped_model}}
+            {f"{self.model_type}_model": {"values": model}}
         )
         model_type = self.model_type
 
@@ -482,7 +423,7 @@ class InversionModel:
 
         full_vector = weighted_average(xyz_in, xyz_out, [obj], n=1)[0]
 
-        return full_vector[np.argsort(self.driver.inversion_mesh.permutation)]
+        return full_vector
 
     @property
     def model_type(self):

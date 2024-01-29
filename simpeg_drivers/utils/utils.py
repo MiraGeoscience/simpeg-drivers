@@ -255,7 +255,7 @@ def drape_to_octree(
         if method == "nearest":
             octree_model = np.hstack(octree_model)[lookup_inds]
         else:
-            octree_model = octree_model[mesh._ubc_order]  # pylint: disable=W0212
+            octree_model = octree_model  # pylint: disable=W0212
 
         if np.issubdtype(octree_model.dtype, np.integer):
             octree_model[~active] = INTEGER_NDV

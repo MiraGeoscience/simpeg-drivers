@@ -104,7 +104,6 @@ class InversionMesh:
                     self.rotation = {"origin": origin, "angle": angle}
 
                 self._mesh = octree_2_treemesh(self.entity)
-                self._permutation = getattr(self.mesh, "_ubc_order")
 
             if isinstance(self.entity, DrapeModel) and self._mesh is None:
                 self._mesh, self._permutation = drape_2_tensor(
@@ -113,10 +112,12 @@ class InversionMesh:
 
         return self._mesh
 
+
     @property
     def permutation(self) -> np.ndarray:
-        """Permutation vector between discretize and geoh5py ordering."""
+        """Permutation vector between discretize and geoh5py/DrapeModel ordering."""
         if self.mesh is None:
             raise ValueError("A 'mesh' must be assigned before accessing permutation.")
 
         return self._permutation
+

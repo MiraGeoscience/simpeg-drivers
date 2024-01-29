@@ -28,33 +28,50 @@ from simpeg_drivers.utils.testing import Geoh5Tester, setup_inversion_workspace
 
 from tests import GEOH5 as geoh5
 
-@pytest.fixture
-def object_setup():
 
+def setup_params(tmp_path):
 
-# geoh5, entity, model, survey, topography = setup_inversion_workspace(
-#     tmp_path,
-#     background=0.0,
-#     anomaly=0.05,
-#     refinement=(2,),
-#     n_electrodes=2,
-#     n_lines=2,
-# )
+    geoh5, entity, model, survey, topography = setup_inversion_workspace(
+        tmp_path,
+        background=0.0,
+        anomaly=0.05,
+        refinement=(2,),
+        n_electrodes=2,
+        n_lines=2,
+        inversion_type="magnetic_vector",
+    )
+    tmi_channel, gyz_channel = survey.add_data(
+        {
+            "tmi": {"values": np.random.rand(survey.n_vertices)},
+            "gyz": {"values": np.random.rand(survey.n_vertices)},
+        }
+    )
 
-
-
-def setup_params(tmp):
-    geotest = Geoh5Tester(geoh5, tmp, "test.geoh5", params_class=MagneticVectorParams)
-    geotest.set_param("mesh", "{a8f3b369-10bd-4ca8-8bd6-2d2595bddbdf}")
-    geotest.set_param("data_object", "{538a7eb1-2218-4bec-98cc-0a759aa0ef4f}")
-    geotest.set_param("topography_object", "{ab3c2083-6ea8-4d31-9230-7aad3ec09525}")
-    geotest.set_param("tmi_channel", "{44822654-b6ae-45b0-8886-2d845f80f422}")
-    geotest.set_param("gyz_channel", "{3d19bd53-8bb8-4634-aeae-4e3a90e9d19e}")
-    geotest.set_param("topography", "{a603a762-f6cb-4b21-afda-3160e725bf7d}")
+    mesh = model.parent
+    geotest = Geoh5Tester(geoh5, tmp_path, "test.geoh5", params_class=MagneticVectorParams)
+    geotest.set_param("mesh", str(mesh.uid))
+    geotest.set_param("data_object", str(survey.uid))
+    geotest.set_param("topography_object", str(topography.uid))
+    geotest.set_param("tmi_channel", str(tmi_channel.uid))
+    geotest.set_param("gyz_channel", str(gyz_channel.uid))
+    geotest.set_param("topography", str(topography.uid))
     return geotest.make()
 
-def test_fixture_stuff(stuff):
-    assert stuff == ["this", "and", "that"]
+def test_save_data(tmp_path: Path):
+    ws, params = setup_params(tmp_path)
+    locs = params.data_object.vertices
+    params.update(
+        {
+            "window_center_x": np.mean(locs[:, 0]),
+            "window_center_y": np.mean(locs[:, 1]),
+            "window_width": 100.0,
+            "window_height": 100.0,
+        }
+    )
+    data = InversionData(ws, params)
+
+    assert len(data.entity.vertices) > 0
+
 def test_survey_data(tmp_path: Path):
     X, Y, Z = np.meshgrid(np.linspace(0, 100, 3), np.linspace(0, 100, 3), 0)
     verts = np.column_stack([X.ravel(), Y.ravel(), Z.ravel()])
@@ -172,20 +189,7 @@ def test_survey_data(tmp_path: Path):
         ), "Residual data should be zero."
 
 
-def test_save_data(tmp_path: Path):
-    ws, params = setup_params(tmp_path)
-    locs = params.data_object.centroids
-    params.update(
-        {
-            "window_center_x": np.mean(locs[:, 0]),
-            "window_center_y": np.mean(locs[:, 1]),
-            "window_width": 100.0,
-            "window_height": 100.0,
-        }
-    )
-    data = InversionData(ws, params)
 
-    assert len(data.entity.vertices) > 0
 
 
 def test_has_tensor():
@@ -204,7 +208,7 @@ def test_has_tensor():
 
 def test_get_uncertainty_component(tmp_path: Path):
     ws, params = setup_params(tmp_path)
-    locs = params.data_object.centroids
+    locs = params.data_object.vertices
     params.update(
         {
             "window_center_x": np.mean(locs[:, 0]),
@@ -223,7 +227,7 @@ def test_get_uncertainty_component(tmp_path: Path):
 
 def test_displace(tmp_path: Path):
     ws, params = setup_params(tmp_path)
-    locs = params.data_object.centroids
+    locs = params.data_object.vertices
     params.update(
         {
             "window_center_x": np.mean(locs[:, 0]),
@@ -252,7 +256,7 @@ def test_displace(tmp_path: Path):
 
 def test_drape(tmp_path: Path):
     ws, params = setup_params(tmp_path)
-    locs = params.data_object.centroids
+    locs = params.data_object.vertices
     params.update(
         {
             "window_center_x": np.mean(locs[:, 0]),
