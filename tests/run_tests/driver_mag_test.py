@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 Mira Geoscience Ltd.
+#  Copyright (c) 2024 Mira Geoscience Ltd.
 #
 #  This file is part of geoapps.
 #
@@ -13,11 +13,9 @@ import numpy as np
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.potential_fields import MagneticScalarParams
-from simpeg_drivers.potential_fields.magnetic_scalar.driver import (
-    MagneticScalarDriver,
-)
-from simpeg_drivers.utils.utils import get_inversion_output
+from simpeg_drivers.potential_fields.magnetic_scalar.driver import MagneticScalarDriver
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
+from simpeg_drivers.utils.utils import get_inversion_output
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
@@ -31,7 +29,7 @@ def test_susceptibility_fwr_run(
     refinement=(2,),
 ):
     np.random.seed(0)
-    inducing_field = (50000.0, 90.0, 0.0)
+    inducing_field = (49999.8, 90.0, 0.0)
     # Run the forward
     geoh5, _, model, survey, topography = setup_inversion_workspace(
         tmp_path,
@@ -59,7 +57,10 @@ def test_susceptibility_fwr_run(
     fwr_driver = MagneticScalarDriver(params)
     fwr_driver.run()
 
-    assert params.out_group.options, "Error adding metadata on creation."
+    assert fwr_driver.inversion_data.survey.source_field.amplitude == inducing_field[0]
+
+    assert params.out_group is not None
+    assert params.out_group.options
 
 
 def test_susceptibility_run(

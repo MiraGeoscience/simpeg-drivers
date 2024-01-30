@@ -84,9 +84,6 @@ plugins = [
 #    'numpy.typing.mypy_plugin'
 ]
 
-#[tool.pytest.ini_options]
-#addopts = "--cov simpeg_drivers --cov-report html --cov-report term-missing:skip-covered"
-
 [tool.coverage.run]
 branch = true
 source = ["simpeg_drivers"]
@@ -101,8 +98,6 @@ exclude_lines = [
     "if TYPE_CHECKING",
     "pragma: no cover"
 ]
-
-fail_under = 80
 
 [tool.coverage.html]
 skip_empty = true

@@ -1,4 +1,4 @@
-#  Copyright (c) 2022-2023 Mira Geoscience Ltd.
+#  Copyright (c) 2024 Mira Geoscience Ltd.
 #
 #  This file is part of simpeg_drivers package.
 #
@@ -12,9 +12,8 @@ if TYPE_CHECKING:
     from geoapps_utils.driver.params import BaseParams
 
 import numpy as np
-from geoh5py.objects import LargeLoopGroundTEMReceivers
-
 from geoapps_utils import rotate_xyz
+from geoh5py.objects import LargeLoopGroundTEMReceivers
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 
@@ -120,7 +119,12 @@ class SourcesFactory(SimPEGFactory):
         _ = (receivers, frequency)
         kwargs = {}
         if self.factory_type in ["magnetic scalar", "magnetic vector"]:
-            kwargs["parameters"] = self.params.inducing_field_aid()
+            kwargs = dict(
+                zip(
+                    ["amplitude", "inclination", "declination"],
+                    self.params.inducing_field_aid(),
+                )
+            )
         if self.factory_type in ["magnetotellurics", "tipper"]:
             kwargs["sigma_primary"] = [self.params.background_conductivity]
         if self.factory_type in ["fem"]:
@@ -131,9 +135,7 @@ class SourcesFactory(SimPEGFactory):
 
         return kwargs
 
-    def build(
-        self, receivers=None, locations=None, frequency=None, waveform=None
-    ):  #  pylint: disable=arguments-differ
+    def build(self, receivers=None, locations=None, frequency=None, waveform=None):
         return super().build(
             receivers=receivers,
             locations=locations,
