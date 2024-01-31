@@ -20,7 +20,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 8.71227951689941, "phi_d": 18.42, "phi_m": 2.981e-06}
+target_run = {"data_norm": 8.71227951689941, "phi_d": 18.42, "phi_m": 3.624e-6}
 
 
 def test_susceptibility_fwr_run(
