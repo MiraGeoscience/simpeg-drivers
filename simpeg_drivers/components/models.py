@@ -10,8 +10,8 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from geoapps_utils.driver.driver import BaseDriver
-from geoapps_utils.transformations import rotate_xyz
 from geoapps_utils.numerical import weighted_average
+from geoapps_utils.transformations import rotate_xyz
 from geoh5py.data import NumericData
 from SimPEG.utils.mat_utils import (
     cartesian2amplitude_dip_azimuth,
@@ -104,11 +104,7 @@ class InversionModelCollection:
         self.edit_ndv_model(active_cells[permutation])
         self.remove_air(active_cells)
         self.driver.inversion_mesh.entity.add_data(
-            {
-                "active_cells": {
-                    "values": active_cells[permutation].astype(np.int32)
-                }
-            }
+            {"active_cells": {"values": active_cells[permutation].astype(np.int32)}}
         )
         self._active_cells = active_cells
 
@@ -131,18 +127,14 @@ class InversionModelCollection:
         if self.driver.params.forward_only:
             return mref
 
-        if mref is None:
+        if mref is None or (self.is_sigma and all(mref == 0)):
             mref = self.starting
             self.driver.params.alpha_s = 0.0
-        else:
-            mref = mref.copy()
-            if self.is_sigma & (all(mref == 0)):
-                mref = self.starting
-                self.driver.params.alpha_s = 0.0
-            else:
-                mref = np.log(mref) if self.is_sigma else mref
 
-        return mref
+        ref_model = mref.copy()
+        ref_model = np.log(ref_model) if self.is_sigma else ref_model
+
+        return ref_model
 
     @property
     def lower_bound(self) -> np.ndarray | None:
