@@ -18,12 +18,10 @@ import warnings
 import numpy as np
 from geoh5py.shared import Entity
 
-from geoapps_utils import active_from_xyz, filter_xy
-
 from simpeg_drivers.components.data import InversionData
 from simpeg_drivers.components.locations import InversionLocations
-from simpeg_drivers.utils.utils import floating_active
 from simpeg_drivers.components.utils import get_containing_cells
+from simpeg_drivers.utils.utils import active_from_xyz, filter_xy, floating_active
 
 
 class InversionTopography(InversionLocations):
@@ -108,7 +106,6 @@ class InversionTopography(InversionLocations):
                 mesh.entity, self.locations, grid_reference="center"
             )
             active_cells = active_cells[np.argsort(mesh.permutation)]
-
 
         return active_cells
 

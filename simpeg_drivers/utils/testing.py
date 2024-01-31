@@ -11,16 +11,28 @@ from uuid import UUID
 import numpy as np
 from discretize.utils import mesh_builder_xyz
 from geoh5py import Workspace
-from geoh5py.objects import Surface, CurrentElectrode, PotentialElectrode, MTReceivers, TipperReceivers, \
-    TipperBaseStations, AirborneFEMReceivers, AirborneFEMTransmitters, AirborneTEMReceivers, AirborneTEMTransmitters, \
-    LargeLoopGroundTEMTransmitters, LargeLoopGroundTEMReceivers, Points
+from geoh5py.objects import (
+    AirborneFEMReceivers,
+    AirborneFEMTransmitters,
+    AirborneTEMReceivers,
+    AirborneTEMTransmitters,
+    CurrentElectrode,
+    LargeLoopGroundTEMReceivers,
+    LargeLoopGroundTEMTransmitters,
+    MTReceivers,
+    Points,
+    PotentialElectrode,
+    Surface,
+    TipperBaseStations,
+    TipperReceivers,
+)
 from octree_creation_app.driver import OctreeDriver
 from octree_creation_app.utils import treemesh_2_octree
 from scipy.spatial import Delaunay
 from SimPEG import utils
-from geoapps_utils.numerical import active_from_xyz
+
 from simpeg_drivers.utils.surveys import survey_lines
-from simpeg_drivers.utils.utils import get_drape_model
+from simpeg_drivers.utils.utils import active_from_xyz, get_drape_model
 
 
 class Geoh5Tester:

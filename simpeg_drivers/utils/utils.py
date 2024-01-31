@@ -15,14 +15,17 @@ import warnings
 from uuid import UUID
 
 import numpy as np
-from discretize import TreeMesh, TensorMesh
-from geoapps_utils import traveling_salesman, running_mean, truncate_locs_depths, minimum_depth_core
+from discretize import TensorMesh, TreeMesh
+from discretize.utils import mesh_utils
+from geoapps_utils.conversions import string_to_numeric
+from geoapps_utils.numerical import running_mean, traveling_salesman
 from geoh5py import Workspace
+from geoh5py.groups import Group
 from geoh5py.objects import DrapeModel, Octree
 from geoh5py.shared import INTEGER_NDV
 from octree_creation_app.utils import octree_2_treemesh
-from scipy.interpolate import interp1d
-from scipy.spatial import ConvexHull, cKDTree
+from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator, interp1d
+from scipy.spatial import ConvexHull, Delaunay, cKDTree
 from SimPEG.electromagnetics.frequency_domain.sources import (
     LineCurrent as FEMLineCurrent,
 )
@@ -30,11 +33,11 @@ from SimPEG.electromagnetics.time_domain.sources import LineCurrent as TEMLineCu
 from SimPEG.survey import BaseSurvey
 from SimPEG.utils import mkvc
 
-from simpeg_drivers.utils.surveys import get_intersecting_cells, get_unique_locations
-from geoapps_utils import string_to_numeric
-from simpeg_drivers.utils.surveys import compute_alongline_distance
-from geoh5py.groups import Group
-from discretize.utils import mesh_utils
+from simpeg_drivers.utils.surveys import (
+    compute_alongline_distance,
+    get_intersecting_cells,
+    get_unique_locations,
+)
 
 
 def calculate_2D_trend(
@@ -495,7 +498,7 @@ def tile_locations(
 
         np.random.seed(0)
         # Cluster
-        # TODO turn off filter once sklearn has dealt with the issue causeing the warning
+        # TODO turn off filter once sklearn has dealt with the issue causing the warning
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", category=UserWarning)
             from sklearn.cluster import KMeans
@@ -613,3 +616,181 @@ def tile_locations(
     if len(out) == 1:
         return out[0]
     return tuple(out)
+
+
+def filter_xy(
+    x: np.array,
+    y: np.array,
+    distance: float | None = None,
+    window: dict | None = None,
+    angle: float | None = None,
+    mask: np.ndarray | None = None,
+) -> np.array:
+    """
+    Window and down-sample locations based on distance and window parameters.
+
+    :param x: Easting coordinates, as vector or meshgrid-like array
+    :param y: Northing coordinates, as vector or meshgrid-like array
+    :param distance: Desired coordinate spacing.
+    :param window: Window parameters describing a domain of interest.
+        Must contain the following keys and values:
+        window = {
+            "center": [X: float, Y: float],
+            "size": [width: float, height: float]
+        }
+        May also contain an "azimuth" in the case of rotated x and y.
+    :param angle: Angle through which the locations must be rotated
+        to take on a east-west, north-south orientation.  Supersedes
+        the 'azimuth' key/value pair in the window dictionary if it
+        exists.
+    :param mask: Boolean mask to be combined with filter_xy masks via
+        logical 'and' operation.
+
+    :return mask: Boolean mask to be applied input arrays x and y.
+    """
+
+    if mask is None:
+        mask = np.ones_like(x, dtype=bool)
+
+    azim = None
+    if angle is not None:
+        azim = angle
+    elif window is not None:
+        if "azimuth" in window:
+            azim = window["azimuth"]
+
+    is_rotated = False if (azim is None) | (azim == 0) else True
+    if is_rotated:
+        xy_locs = rotate_xyz(np.c_[x.ravel(), y.ravel()], window["center"], azim)
+        xr = xy_locs[:, 0].reshape(x.shape)
+        yr = xy_locs[:, 1].reshape(y.shape)
+
+    if window is not None:
+        if is_rotated:
+            mask, _, _ = window_xy(xr, yr, window, mask=mask)
+        else:
+            mask, _, _ = window_xy(x, y, window, mask=mask)
+
+    if distance not in [None, 0]:
+        is_grid = False
+        if x.ndim > 1:
+            if is_rotated:
+                u_diff = np.unique(np.round(np.diff(xr, axis=1), 8))
+                v_diff = np.unique(np.round(np.diff(yr, axis=0), 8))
+            else:
+                u_diff = np.unique(np.round(np.diff(x, axis=1), 8))
+                v_diff = np.unique(np.round(np.diff(y, axis=0), 8))
+
+            is_grid = (len(u_diff) == 1) & (len(v_diff) == 1)
+
+        if is_grid:
+            mask, _, _ = downsample_grid(x, y, distance, mask=mask)
+        else:
+            mask, _, _ = downsample_xy(x, y, distance, mask=mask)
+
+    return mask
+
+
+def cell_size_z(drape_model: DrapeModel) -> np.ndarray:
+    """Compute z cell sizes of drape model."""
+    hz = []
+    for prism in drape_model.prisms:
+        top_z, top_layer, n_layers = prism[2:]
+        bottoms = drape_model.layers[
+            range(int(top_layer), int(top_layer + n_layers)), 2
+        ]
+        z = np.hstack([top_z, bottoms])
+        hz.append(z[:-1] - z[1:])
+    return np.hstack(hz)
+
+
+def active_from_xyz(
+    mesh: DrapeModel | Octree,
+    topo: np.ndarray,
+    grid_reference="center",
+    method="linear",
+):
+    """Returns an active cell index array below a surface
+
+    :param mesh: Mesh object
+    :param topo: Array of xyz locations
+    :param grid_reference: Cell reference. Must be "center", "top", or "bottom"
+    :param method: Interpolation method. Must be "linear", or "nearest"
+    """
+
+    mesh_dim = 2 if isinstance(mesh, DrapeModel) else 3
+    locations = mesh.centroids.copy()
+
+    if method == "linear":
+        delaunay_2d = Delaunay(topo[:, :-1])
+        z_interpolate = LinearNDInterpolator(delaunay_2d, topo[:, -1])
+    elif method == "nearest":
+        z_interpolate = NearestNDInterpolator(topo[:, :-1], topo[:, -1])
+    else:
+        raise ValueError("Method must be 'linear', or 'nearest'")
+
+    if mesh_dim == 2:
+        z_offset = cell_size_z(mesh) / 2.0
+    else:
+        z_offset = mesh.octree_cells["NCells"] * np.abs(mesh.w_cell_size) / 2
+
+    # Shift cell center location to top or bottom of cell
+    if grid_reference == "top":
+        locations[:, -1] += z_offset
+    elif grid_reference == "bottom":
+        locations[:, -1] -= z_offset
+    elif grid_reference == "center":
+        pass
+    else:
+        raise ValueError("'grid_reference' must be one of 'center', 'top', or 'bottom'")
+
+    z_locations = z_interpolate(locations[:, :2])
+
+    # Apply nearest neighbour if in extrapolation
+    ind_nan = np.isnan(z_locations)
+    if any(ind_nan):
+        tree = cKDTree(topo)
+        _, ind = tree.query(locations[ind_nan, :])
+        z_locations[ind_nan] = topo[ind, -1]
+
+    # fill_nan(locations, z_locations, filler=topo[:, -1])
+
+    # Return the active cell array
+    return locations[:, -1] < z_locations
+
+
+def truncate_locs_depths(locs: np.ndarray, depth_core: float) -> np.ndarray:
+    """
+    Sets locations below core to core bottom.
+
+    :param locs: Location points.
+    :param depth_core: Depth of core mesh below locs.
+
+    :return locs: locs with depths truncated.
+    """
+    zmax = locs[:, -1].max()  # top of locs
+    below_core_ind = (zmax - locs[:, -1]) > depth_core
+    core_bottom_elev = zmax - depth_core
+    locs[
+        below_core_ind, -1
+    ] = core_bottom_elev  # sets locations below core to core bottom
+    return locs
+
+
+def minimum_depth_core(
+    locs: np.ndarray, depth_core: float, core_z_cell_size: int
+) -> float:
+    """
+    Get minimum depth core.
+
+    :param locs: Location points.
+    :param depth_core: Depth of core mesh below locs.
+    :param core_z_cell_size: Cell size in z direction.
+
+    :return depth_core: Minimum depth core.
+    """
+    zrange = locs[:, -1].max() - locs[:, -1].min()  # locs z range
+    if depth_core >= zrange:
+        return depth_core - zrange + core_z_cell_size
+    else:
+        return depth_core

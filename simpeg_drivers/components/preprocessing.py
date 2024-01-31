@@ -9,13 +9,13 @@ from __future__ import annotations
 import uuid
 
 import numpy as np
+from geoapps_utils.locations import get_locations
 from geoh5py import Workspace
 from geoh5py.data import Data, NumericData
 from geoh5py.objects import Grid2D, ObjectBase, Points, PotentialElectrode
 from geoh5py.shared.utils import is_uuid
 
-from simpeg_drivers.utils.utils import calculate_2D_trend
-from geoapps_utils import get_locations, filter_xy
+from simpeg_drivers.utils.utils import calculate_2D_trend, filter_xy
 
 
 # TODO replace with implementation in geoh5py v0.9.0

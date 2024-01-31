@@ -13,14 +13,13 @@ if TYPE_CHECKING:
     from geoh5py.workspace import Workspace
     from simpeg_drivers.params import InversionBaseParams
 
-
 import numpy as np
+from geoapps_utils.locations import get_locations
+from geoapps_utils.transformations import rotate_xyz
 from geoh5py.objects import Points
 from geoh5py.shared import Entity
 from scipy.interpolate import LinearNDInterpolator
 from scipy.spatial import cKDTree
-
-from geoapps_utils import rotate_xyz, get_locations
 
 
 class InversionLocations:

@@ -11,6 +11,8 @@ from copy import deepcopy
 from pathlib import Path
 
 import numpy as np
+from geoapps_utils.locations import get_locations
+from geoapps_utils.numerical import weighted_average
 from geoh5py.data import Data
 from geoh5py.workspace import Workspace
 
@@ -27,9 +29,8 @@ from simpeg_drivers.electricals.induced_polarization.two_dimensions.params impor
     InducedPolarization2DParams,
 )
 from simpeg_drivers.line_sweep.driver import LineSweepDriver
-from geoapps_utils import get_locations, weighted_average
-from simpeg_drivers.utils.utils import get_drape_model
 from simpeg_drivers.utils.surveys import extract_dcip_survey
+from simpeg_drivers.utils.utils import get_drape_model
 
 
 class InducedPolarizationPseudo3DDriver(LineSweepDriver):
@@ -42,6 +43,14 @@ class InducedPolarizationPseudo3DDriver(LineSweepDriver):
         super().__init__(params)
         if params.files_only:
             sys.exit("Files written")
+
+    @property
+    def params(self):
+        return self._params
+
+    @params.setter
+    def params(self, value):
+        self._params = value
 
     def write_files(self, lookup: dict) -> None:
         """
