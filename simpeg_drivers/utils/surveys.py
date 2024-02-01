@@ -3,6 +3,8 @@
 #  This file is part of simpeg_drivers package.
 #
 #  All rights reserved
+from __future__ import annotations
+
 from typing import Callable
 
 import numpy as np
