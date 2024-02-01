@@ -10,9 +10,9 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from geoh5py.objects import DrapeModel, Octree
-
 from octree_creation_app.params import OctreeParams
 from octree_creation_app.utils import octree_2_treemesh
+
 from simpeg_drivers.utils.utils import drape_2_tensor
 
 if TYPE_CHECKING:
@@ -113,7 +113,6 @@ class InversionMesh:
 
         return self._mesh
 
-
     @property
     def permutation(self) -> np.ndarray:
         """Permutation vector between discretize and geoh5py/DrapeModel ordering."""
@@ -121,4 +120,3 @@ class InversionMesh:
             raise ValueError("A 'mesh' must be assigned before accessing permutation.")
 
         return self._permutation
-

@@ -5,7 +5,7 @@
 #  All rights reserved.
 #
 import numpy as np
-from discretize import TreeMesh, TensorMesh
+from discretize import TensorMesh, TreeMesh
 
 from simpeg_drivers.components import InversionData
 from simpeg_drivers.utils.surveys import get_unique_locations

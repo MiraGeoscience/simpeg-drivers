@@ -18,12 +18,10 @@ from geoh5py.workspace import Workspace
 from simpeg_drivers.components.locations import InversionLocations
 from simpeg_drivers.potential_fields import MagneticVectorParams
 from simpeg_drivers.utils.testing import Geoh5Tester, setup_inversion_workspace
-
 from tests import GEOH5 as geoh5
 
 
 def setup_params(tmp_path):
-
     geoh5, entity, model, survey, topography = setup_inversion_workspace(
         tmp_path,
         background=0.0,
@@ -105,7 +103,7 @@ def test_rotate(tmp_path: Path):
 def test_z_from_topo(tmp_path: Path):
     ws, params = setup_params(tmp_path)
     locations = InversionLocations(ws, params)
-    locs = locations.set_z_from_topo(np.array([[0., 0., 0.]]))
+    locs = locations.set_z_from_topo(np.array([[0.0, 0.0, 0.0]]))
     assert np.isclose(locs[0, 2], 49.91677)
 
     params.topography = 320.0

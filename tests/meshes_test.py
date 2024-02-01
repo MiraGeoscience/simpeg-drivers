@@ -11,21 +11,15 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-
 from discretize import TreeMesh
 
-from simpeg_drivers.components import (
-    InversionData,
-    InversionMesh,
-    InversionTopography,
-)
+from simpeg_drivers.components import InversionData, InversionMesh, InversionTopography
 from simpeg_drivers.potential_fields import MagneticVectorParams
 from simpeg_drivers.utils.testing import Geoh5Tester, setup_inversion_workspace
-
 from tests import GEOH5 as geoh5
 
-def setup_params(tmp_path):
 
+def setup_params(tmp_path):
     geoh5, entity, model, survey, topography = setup_inversion_workspace(
         tmp_path,
         background=0.0,
@@ -45,9 +39,7 @@ def setup_params(tmp_path):
         }
     )
     elevation = topography.add_data(
-        {
-        "elevation": {"values": topography.vertices[:, 2]}
-    }
+        {"elevation": {"values": topography.vertices[:, 2]}}
     )
     elevation = topography.children[0]
     geotest = Geoh5Tester(geoh5, tmp_path, "test.geoh5", MagneticVectorParams)

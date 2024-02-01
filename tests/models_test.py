@@ -11,6 +11,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+from geoapps_utils.transformations import rotate_xyz
 from geoh5py.objects import Points
 from geoh5py.workspace import Workspace
 
@@ -20,14 +21,11 @@ from simpeg_drivers.components import (
     InversionModelCollection,
 )
 from simpeg_drivers.potential_fields import MagneticVectorParams
-from simpeg_drivers.potential_fields.magnetic_vector.driver import (
-    MagneticVectorDriver,
-)
-from geoapps_utils.transformations import rotate_xyz
+from simpeg_drivers.potential_fields.magnetic_vector.driver import MagneticVectorDriver
 from simpeg_drivers.utils.testing import Geoh5Tester, setup_inversion_workspace
 
-def setup_params(tmp_path):
 
+def setup_params(tmp_path):
     geoh5, entity, model, survey, topography = setup_inversion_workspace(
         tmp_path,
         background=0.0,
@@ -45,9 +43,7 @@ def setup_params(tmp_path):
         }
     )
     elevation = topography.add_data(
-        {
-            "elevation": {"values": topography.vertices[:, 2]}
-        }
+        {"elevation": {"values": topography.vertices[:, 2]}}
     )
 
     geotest = Geoh5Tester(geoh5, tmp_path, "test.geoh5", MagneticVectorParams)
@@ -120,4 +116,3 @@ def test_model_from_object(tmp_path: Path):
 
     m = lstsq(A, b)[0]
     np.testing.assert_array_almost_equal(m, m0, decimal=1)
-

@@ -8,29 +8,27 @@
 
 from __future__ import annotations
 
-import pytest
 from pathlib import Path
 
 import numpy as np
+import pytest
 import SimPEG
 from discretize.utils import mesh_builder_xyz
 from geoh5py.objects import Points
 from geoh5py.workspace import Workspace
-
+from octree_creation_app.driver import OctreeDriver
 from octree_creation_app.utils import treemesh_2_octree
+
 from simpeg_drivers.components import InversionData
 from simpeg_drivers.potential_fields.magnetic_vector.driver import (
     MagneticVectorDriver,
     MagneticVectorParams,
 )
-from octree_creation_app.driver import OctreeDriver
 from simpeg_drivers.utils.testing import Geoh5Tester, setup_inversion_workspace
-
 from tests import GEOH5 as geoh5
 
 
 def setup_params(tmp_path):
-
     geoh5, entity, model, survey, topography = setup_inversion_workspace(
         tmp_path,
         background=0.0,
@@ -48,7 +46,9 @@ def setup_params(tmp_path):
     )
 
     mesh = model.parent
-    geotest = Geoh5Tester(geoh5, tmp_path, "test.geoh5", params_class=MagneticVectorParams)
+    geotest = Geoh5Tester(
+        geoh5, tmp_path, "test.geoh5", params_class=MagneticVectorParams
+    )
     geotest.set_param("mesh", str(mesh.uid))
     geotest.set_param("data_object", str(survey.uid))
     geotest.set_param("topography_object", str(topography.uid))
@@ -56,6 +56,7 @@ def setup_params(tmp_path):
     geotest.set_param("gyz_channel", str(gyz_channel.uid))
     geotest.set_param("topography", str(topography.uid))
     return geotest.make()
+
 
 def test_save_data(tmp_path: Path):
     ws, params = setup_params(tmp_path)
@@ -71,6 +72,7 @@ def test_save_data(tmp_path: Path):
     data = InversionData(ws, params)
 
     assert len(data.entity.vertices) > 0
+
 
 def test_survey_data(tmp_path: Path):
     X, Y, Z = np.meshgrid(np.linspace(0, 100, 3), np.linspace(0, 100, 3), 0)
@@ -187,9 +189,6 @@ def test_survey_data(tmp_path: Path):
         assert np.all(
             workspace.get_entity("Iteration_99_bzz_Residual")[0].values == 0
         ), "Residual data should be zero."
-
-
-
 
 
 def test_has_tensor():

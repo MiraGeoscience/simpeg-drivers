@@ -14,16 +14,18 @@ from geoh5py.objects import Curve
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.potential_fields import MagneticVectorParams
-from simpeg_drivers.potential_fields.magnetic_vector.driver import (
-    MagneticVectorDriver,
-)
-from simpeg_drivers.utils.utils import get_inversion_output
+from simpeg_drivers.potential_fields.magnetic_vector.driver import MagneticVectorDriver
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
+from simpeg_drivers.utils.utils import get_inversion_output
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_mvi_run = {"data_norm": 6.3559205278626525, "phi_d": 0.006523, "phi_m": 2.348e-06}
+target_mvi_run = {
+    "data_norm": 6.3559205278626525,
+    "phi_d": 0.006523,
+    "phi_m": 2.348e-06,
+}
 
 
 def test_magnetic_vector_fwr_run(

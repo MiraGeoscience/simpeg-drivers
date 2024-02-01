@@ -9,10 +9,12 @@ from __future__ import annotations
 __version__ = "0.1.0-alpha.1"
 
 from pathlib import Path
+
 from SimPEG import dask
 
-from simpeg_drivers.params import InversionBaseParams
 from simpeg_drivers.constants import default_ui_json
+from simpeg_drivers.params import InversionBaseParams
+
 
 def assets_path() -> Path:
     """Return the path to the assets folder."""

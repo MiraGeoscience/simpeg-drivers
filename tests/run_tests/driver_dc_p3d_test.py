@@ -20,9 +20,9 @@ from simpeg_drivers.electricals.direct_current.pseudo_three_dimensions.driver im
 from simpeg_drivers.electricals.direct_current.pseudo_three_dimensions.params import (
     DirectCurrentPseudo3DParams,
 )
-from simpeg_drivers.utils.utils import get_inversion_output
 from simpeg_drivers.utils.surveys import survey_lines
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
+from simpeg_drivers.utils.utils import get_inversion_output
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.

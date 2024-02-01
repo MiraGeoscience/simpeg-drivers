@@ -6,7 +6,7 @@
 from simpeg_drivers.utils.testing import setup_inversion_workspace
 
 GEOH5, _, model, survey, topography = setup_inversion_workspace(
-    work_dir="",#r"C:\Users\jamieb\Documents\repos\simpeg-drivers\simpeg_drivers-assets",
+    work_dir="",  # r"C:\Users\jamieb\Documents\repos\simpeg-drivers\simpeg_drivers-assets",
     background=0.001,
     anomaly=1.0,
     n_electrodes=2,
