@@ -11,7 +11,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-import pytest
 import SimPEG
 from discretize.utils import mesh_builder_xyz
 from geoh5py.objects import Points
@@ -25,7 +24,6 @@ from simpeg_drivers.potential_fields.magnetic_vector.driver import (
     MagneticVectorParams,
 )
 from simpeg_drivers.utils.testing import Geoh5Tester, setup_inversion_workspace
-from tests import GEOH5 as geoh5
 
 
 def setup_params(tmp_path):

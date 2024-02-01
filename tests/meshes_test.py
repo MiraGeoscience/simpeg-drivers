@@ -16,7 +16,6 @@ from discretize import TreeMesh
 from simpeg_drivers.components import InversionData, InversionMesh, InversionTopography
 from simpeg_drivers.potential_fields import MagneticVectorParams
 from simpeg_drivers.utils.testing import Geoh5Tester, setup_inversion_workspace
-from tests import GEOH5 as geoh5
 
 
 def setup_params(tmp_path):
