@@ -10,6 +10,11 @@ __version__ = "0.1.0-alpha.1"
 
 from pathlib import Path
 
+from SimPEG import dask
+
+from simpeg_drivers.constants import default_ui_json
+from simpeg_drivers.params import InversionBaseParams
+
 
 def assets_path() -> Path:
     """Return the path to the assets folder."""
@@ -21,3 +26,61 @@ def assets_path() -> Path:
         raise RuntimeError(f"Assets folder not found: {assets_folder}")
 
     return assets_folder
+
+
+DRIVER_MAP = {
+    "direct current 3d": (
+        "simpeg_drivers.electricals.direct_current.three_dimensions.driver",
+        "DirectCurrent3DDriver",
+    ),
+    "direct current 2d": (
+        "simpeg_drivers.electricals.direct_current.two_dimensions.driver",
+        "DirectCurrent2DDriver",
+    ),
+    "direct current pseudo 3d": (
+        "simpeg_drivers.electricals.direct_current.pseudo_three_dimensions.driver",
+        "DirectCurrentPseudo3DDriver",
+    ),
+    "induced polarization 3d": (
+        "simpeg_drivers.electricals.induced_polarization.three_dimensions.driver",
+        "InducedPolarization3DDriver",
+    ),
+    "induced polarization 2d": (
+        "simpeg_drivers.electricals.induced_polarization.two_dimensions.driver",
+        "InducedPolarization2DDriver",
+    ),
+    "induced polarization pseudo 3d": (
+        "simpeg_drivers.electricals.induced_polarization.pseudo_three_dimensions.driver",
+        "InducedPolarizationPseudo3DDriver",
+    ),
+    "joint surveys": (
+        "simpeg_drivers.joint.joint_surveys.driver",
+        "JointSurveyDriver",
+    ),
+    "fem": (
+        "simpeg_drivers.airborne_electromagnetics.frequency_domain.driver",
+        "FrequencyDomainElectromagneticsDriver",
+    ),
+    "joint cross gradient": (
+        "simpeg_drivers.joint.joint_cross_gradient.driver",
+        "JointCrossGradientDriver",
+    ),
+    "tdem": (
+        "simpeg_drivers.electromagnetics.time_domain.driver",
+        "TimeDomainElectromagneticsDriver",
+    ),
+    "magnetotellurics": (
+        "simpeg_drivers.natural_sources.magnetotellurics.driver",
+        "MagnetotelluricsDriver",
+    ),
+    "tipper": ("simpeg_drivers.natural_sources.tipper.driver", "TipperDriver"),
+    "gravity": ("simpeg_drivers.potential_fields.gravity.driver", "GravityDriver"),
+    "magnetic scalar": (
+        "simpeg_drivers.potential_fields.magnetic_scalar.driver",
+        "MagneticScalarDriver",
+    ),
+    "magnetic vector": (
+        "simpeg_drivers.potential_fields.magnetic_vector.driver",
+        "MagneticVectorDriver",
+    ),
+}
