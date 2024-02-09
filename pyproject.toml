@@ -8,9 +8,6 @@ packages = [
      { include = "simpeg_drivers-assets" },
 ]
 
-[tool.poetry.scripts]
-my_app_hello = 'simpeg_drivers.commands.hello'
-
 [tool.poetry.dependencies]
 python = "^3.9, <3.11"
 numpy = "~1.23.5" # also geoh5py, simpeg and geoana
