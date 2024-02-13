@@ -24,7 +24,6 @@ from simpeg_drivers.components.data import InversionData
 from simpeg_drivers.components.locations import InversionLocations
 from simpeg_drivers.utils.utils import (
     active_from_xyz,
-    filter_xy,
     floating_active,
     get_containing_cells,
     get_neighbouring_cells,
@@ -61,16 +60,11 @@ class InversionTopography(InversionLocations):
         """
         super().__init__(workspace, params)
         self.locations: np.ndarray | None = None
-        self.mask: np.ndarray | None = None
+
         self._initialize()
 
     def _initialize(self):
         self.locations = self.get_locations(self.params.topography_object)
-        self.mask = filter_xy(
-            self.locations[:, 0],
-            self.locations[:, 1],
-        )
-
         self.locations = super().filter(self.locations)
 
     def active_cells(self, mesh: InversionMesh, data: InversionData) -> np.ndarray:
