@@ -17,14 +17,18 @@ import warnings
 
 import numpy as np
 from discretize import TreeMesh
-from geoapps.driver_base.utils import active_from_xyz
-from geoapps.inversion.components.data import InversionData
-from geoapps.inversion.components.locations import InversionLocations
-from geoapps.shared_utils.utils import filter_xy, get_neighbouring_cells
-from geoapps.utils.models import floating_active
-from geoapps.utils.surveys import get_containing_cells
 from geoh5py.objects.surveys.electromagnetics.base import LargeLoopGroundEMSurvey
 from geoh5py.shared import Entity
+
+from simpeg_drivers.components.data import InversionData
+from simpeg_drivers.components.locations import InversionLocations
+from simpeg_drivers.utils.utils import (
+    active_from_xyz,
+    filter_xy,
+    floating_active,
+    get_containing_cells,
+    get_neighbouring_cells,
+)
 
 
 class InversionTopography(InversionLocations):

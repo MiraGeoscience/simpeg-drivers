@@ -1,4 +1,4 @@
-#  Copyright (c) 2022-2023 Mira Geoscience Ltd.
+#  Copyright (c) 2024 Mira Geoscience Ltd.
 #
 #  This file is part of simpeg_drivers package.
 #
@@ -13,6 +13,7 @@ from pathlib import Path
 import numpy as np
 from geoh5py.data import FilenameData
 from geoh5py.groups import SimPEGGroup
+from geoh5py.objects import DrapeModel, PotentialElectrode
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
 from geoh5py.workspace import Workspace
@@ -77,7 +78,7 @@ class LineSweepDriver(SweepDriver, InversionDriver):
         generate(
             ui_json_path,
             parameters=["line_id"],
-            update_values={"conda_environment": "geoapps"},
+            update_values={"conda_environment": "simpeg_drivers"},
         )
         ifile = InputFile.read_ui_json(
             h5_file_path.parent
@@ -114,19 +115,31 @@ class LineSweepDriver(SweepDriver, InversionDriver):
     def collect_results(self):
         path = Path(self.workspace.h5file).parent
         files = LineSweepDriver.line_files(str(path))
-        lines = np.unique(self.pseudo3d_params.line_object.values)
-        data_result = self.pseudo3d_params.data_object.copy(
-            parent=self.pseudo3d_params.out_group
-        )
-
+        line_ids = self.pseudo3d_params.line_object.values
         data = {}
         drape_models = []
-        for line in lines:
+        for line in np.unique(line_ids):
             with Workspace(f"{path / files[line]}.ui.geoh5") as ws:
-                survey = ws.get_entity("Data")[0]
-                data = self.collect_line_data(survey, data)
+                out_group = [
+                    group for group in ws.groups if isinstance(group, SimPEGGroup)
+                ][0]
+                survey = [
+                    child
+                    for child in out_group.children
+                    if isinstance(child, PotentialElectrode)
+                ][0]
+                line_data = survey.get_entity(self.pseudo3d_params.line_object.name)
 
-                mesh = ws.get_entity("Models")[0]
+                if not line_data:
+                    raise ValueError(f"Line {line} not found in {survey.name}")
+
+                line_indices = line_ids == line
+                data = self.collect_line_data(survey, line_indices, data)
+                mesh = [
+                    child
+                    for child in out_group.children
+                    if isinstance(child, DrapeModel)
+                ][0]
                 filedata = [
                     k for k in mesh.parent.children if isinstance(k, FilenameData)
                 ]
@@ -137,11 +150,11 @@ class LineSweepDriver(SweepDriver, InversionDriver):
                 )
                 for fdat in filedata:
                     fdat.copy(parent=local_simpeg_group)
+
                 mesh = mesh.copy(parent=local_simpeg_group)
-                mesh.name = "models"
                 drape_models.append(mesh)
 
-        data_result.add_data(data)
+        self.pseudo3d_params.data_object.add_data(data)
 
         if self.pseudo3d_params.mesh is None:
             return
@@ -184,16 +197,16 @@ class LineSweepDriver(SweepDriver, InversionDriver):
 
         octree_model.copy(parent=self.pseudo3d_params.out_group)
 
-    def collect_line_data(self, survey, data):
+    def collect_line_data(self, survey, line_indices, data):
+        """
+        Fill chunks of values from one line
+        """
         for child in survey.children:  # initialize data values dictionary
             if "Iteration" in child.name and child.name not in data:
-                data[child.name] = {"values": np.zeros(survey.n_cells)}
+                data[child.name] = {"values": np.zeros_like(line_indices) * np.nan}
 
-        ind = None
-        for child in survey.children:  # fill a chunk of values from one line
+        for child in survey.children:
             if "Iteration" in child.name:
-                if ind is None:
-                    ind = ~np.isnan(child.values)
-                data[child.name]["values"][ind] = child.values[ind]
+                data[child.name]["values"][line_indices] = child.values
 
         return data
