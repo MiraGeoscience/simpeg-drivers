@@ -1,4 +1,4 @@
-#  Copyright (c) 2022-2023 Mira Geoscience Ltd.
+#  Copyright (c) 2024 Mira Geoscience Ltd.
 #
 #  This file is part of simpeg_drivers package.
 #
@@ -26,7 +26,6 @@ inversion_defaults = {
     "topography": None,
     "data_object": None,
     "line_object": None,
-    "line_id": 1,
     "z_from_topo": False,
     "receivers_radar_drape": None,
     "receivers_offset_z": 0.0,
@@ -60,7 +59,6 @@ inversion_defaults = {
     "length_scale_z": 1.0,
     "s_norm": 0.0,
     "x_norm": 2.0,
-    "y_norm": 2.0,
     "z_norm": 2.0,
     "gradient_type": "total",
     "max_irls_iterations": 25,
@@ -88,7 +86,7 @@ inversion_defaults = {
     "workspace_geoh5": None,
     "run_command": "simpeg_drivers.driver",
     "run_command_boolean": False,
-    "conda_environment": "geoapps",
+    "conda_environment": "simpeg_drivers",
     "distributed_workers": None,
     "potential_channel_bool": True,
 }
@@ -103,7 +101,6 @@ forward_defaults = {
     "topography": None,
     "data_object": None,
     "line_object": None,
-    "line_id": 1,
     "z_from_topo": False,
     "receivers_radar_drape": None,
     "receivers_offset_z": 0.0,
@@ -131,7 +128,7 @@ forward_defaults = {
     "workspace_geoh5": None,
     "run_command": "simpeg_drivers.driver",
     "run_command_boolean": False,
-    "conda_environment": "geoapps",
+    "conda_environment": "simpeg_drivers",
     "distributed_workers": None,
 }
 
@@ -140,7 +137,7 @@ default_ui_json = {
     "icon": "PotentialElectrode",
     "inversion_type": "direct current pseudo 3d",
     "line_object": {
-        "association": ["Cell", "Vertex"],
+        "association": "Cell",
         "dataType": "Referenced",
         "group": "Data",
         "main": True,
@@ -148,7 +145,6 @@ default_ui_json = {
         "parent": "data_object",
         "value": None,
     },
-    "line_id": 1,
     "data_object": {
         "main": True,
         "group": "Data",
@@ -158,7 +154,7 @@ default_ui_json = {
     },
     "potential_channel_bool": True,
     "potential_channel": {
-        "association": ["Cell", "Vertex"],
+        "association": "Cell",
         "dataType": "Float",
         "group": "Data",
         "main": True,
@@ -167,7 +163,7 @@ default_ui_json = {
         "value": None,
     },
     "potential_uncertainty": {
-        "association": ["Cell", "Vertex"],
+        "association": "Cell",
         "dataType": "Float",
         "group": "Data",
         "main": True,
@@ -317,13 +313,11 @@ app_initializer = {
     "potential_channel": UUID("{502e7256-aafa-4016-969f-5cc3a4f27315}"),
     "potential_uncertainty": UUID("{62746129-3d82-427e-a84c-78cded00c0bc}"),
     "line_object": UUID("{d400e8f1-8460-4609-b852-b3b93f945770}"),
-    "line_id": 1,
     "mesh": UUID("{da109284-aa8c-4824-a647-29951109b058}"),
     "starting_model": 1e-1,
     "reference_model": 1e-1,
     "s_norm": 0.0,
     "x_norm": 2.0,
-    "y_norm": 2.0,
     "z_norm": 2.0,
     "upper_bound": 100.0,
     "lower_bound": 1e-5,
