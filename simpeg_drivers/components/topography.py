@@ -65,7 +65,6 @@ class InversionTopography(InversionLocations):
 
     def _initialize(self):
         self.locations = self.get_locations(self.params.topography_object)
-        self.locations = super().filter(self.locations)
 
     def active_cells(self, mesh: InversionMesh, data: InversionData) -> np.ndarray:
         """
