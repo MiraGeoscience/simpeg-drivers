@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 import warnings
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 import numpy as np
@@ -34,7 +35,9 @@ from SimPEG.electromagnetics.time_domain.sources import LineCurrent as TEMLineCu
 from SimPEG.survey import BaseSurvey
 from SimPEG.utils import mkvc
 
-from simpeg_drivers.components.data import InversionData
+if TYPE_CHECKING:
+    from simpeg_drivers.components.data import InversionData
+
 from simpeg_drivers.utils.surveys import (
     compute_alongline_distance,
     get_intersecting_cells,

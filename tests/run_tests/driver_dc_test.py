@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 Mira Geoscience Ltd.
+#  Copyright (c) 2024 Mira Geoscience Ltd.
 #
 #  This file is part of geoapps.
 #
@@ -10,21 +10,20 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-from geoh5py.workspace import Workspace
-
-from simpeg_drivers.electricals.direct_current.three_dimensions import (
+from geoapps.inversion.electricals.direct_current.three_dimensions import (
     DirectCurrent3DParams,
 )
-from simpeg_drivers.electricals.direct_current.three_dimensions.driver import (
+from geoapps.inversion.electricals.direct_current.three_dimensions.driver import (
     DirectCurrent3DDriver,
 )
-from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
-from simpeg_drivers.utils.utils import get_inversion_output
+from geoapps.shared_utils.utils import get_inversion_output
+from geoapps.utils.testing import check_target, setup_inversion_workspace
+from geoh5py.workspace import Workspace
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.15258054504749555, "phi_d": 31.85, "phi_m": 122.7}
+target_run = {"data_norm": 0.15258, "phi_d": 31.85, "phi_m": 122.7}
 
 np.random.seed(0)
 
@@ -58,6 +57,8 @@ def test_dc_3d_fwr_run(
 
     survey.ab_cell_id = tx_id
     survey.cells = cells
+
+    geoh5.close()
 
     params = DirectCurrent3DParams(
         forward_only=True,

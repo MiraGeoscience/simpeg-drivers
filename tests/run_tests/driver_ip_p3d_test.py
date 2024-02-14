@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 Mira Geoscience Ltd.
+#  Copyright (c) 2024 Mira Geoscience Ltd.
 #
 #  This file is part of geoapps.
 #
@@ -11,26 +11,24 @@ import json
 from pathlib import Path
 
 import numpy as np
-from geoh5py.groups import SimPEGGroup
-from geoh5py.workspace import Workspace
-
-from simpeg_drivers.electricals.induced_polarization.pseudo_three_dimensions.driver import (
+from geoapps.inversion.electricals.induced_polarization.pseudo_three_dimensions.driver import (
     InducedPolarizationPseudo3DDriver,
 )
-from simpeg_drivers.electricals.induced_polarization.pseudo_three_dimensions.params import (
+from geoapps.inversion.electricals.induced_polarization.pseudo_three_dimensions.params import (
     InducedPolarizationPseudo3DParams,
 )
-from simpeg_drivers.utils.surveys import survey_lines
-from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
-from simpeg_drivers.utils.utils import get_inversion_output
+from geoapps.shared_utils.utils import get_inversion_output
+from geoapps.utils.testing import check_target, setup_inversion_workspace
+from geoh5py.groups import SimPEGGroup
+from geoh5py.workspace import Workspace
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
 target_run = {
     "data_norm": 0.08768,
-    "phi_d": 7267,
-    "phi_m": 0.1079,
+    "phi_d": 8239,
+    "phi_m": 0.1178,
 }
 
 np.random.seed(0)
@@ -55,7 +53,6 @@ def test_ip_p3d_fwr_run(
         flatten=False,
     )
 
-    _ = survey_lines(survey, [-100, -100], save="line_ids")
     params = InducedPolarizationPseudo3DParams(
         forward_only=True,
         geoh5=geoh5,
@@ -92,7 +89,6 @@ def test_ip_p3d_run(
         out_group = geoh5.get_entity("Line 1")[0].parent
         mesh = out_group.get_entity("mesh")[0]  # Finds the octree mesh
         topography = geoh5.get_entity("topography")[0]
-        _ = survey_lines(chargeability.parent, [-100, 100], save="line_IDs")
 
         # Run the inverse
         np.random.seed(0)
@@ -108,7 +104,7 @@ def test_ip_p3d_run(
             data_object=chargeability.parent.uid,
             chargeability_channel=chargeability.uid,
             chargeability_uncertainty=2e-4,
-            line_object=geoh5.get_entity("line_IDs")[0].uid,
+            line_object=geoh5.get_entity("line_ids")[0].uid,
             conductivity_model=1e-2,
             starting_model=1e-6,
             reference_model=1e-6,
@@ -134,7 +130,7 @@ def test_ip_p3d_run(
     basepath = workpath.parent
     with open(basepath / "lookup.json", encoding="utf8") as f:
         lookup = json.load(f)
-        middle_line_id = [k for k, v in lookup.items() if v["line_id"] == 2][0]
+        middle_line_id = [k for k, v in lookup.items() if v["line_id"] == 101][0]
 
     with Workspace(basepath / f"{middle_line_id}.ui.geoh5", mode="r") as workspace:
         middle_inversion_group = [

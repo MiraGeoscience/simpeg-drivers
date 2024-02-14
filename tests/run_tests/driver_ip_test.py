@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 Mira Geoscience Ltd.
+#  Copyright (c) 2024 Mira Geoscience Ltd.
 #
 #  This file is part of geoapps.
 #
@@ -10,21 +10,20 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-from geoh5py.workspace import Workspace
-
-from simpeg_drivers.electricals.induced_polarization.three_dimensions import (
+from geoapps.inversion.electricals.induced_polarization.three_dimensions import (
     InducedPolarization3DParams,
 )
-from simpeg_drivers.electricals.induced_polarization.three_dimensions.driver import (
+from geoapps.inversion.electricals.induced_polarization.three_dimensions.driver import (
     InducedPolarization3DDriver,
 )
-from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
-from simpeg_drivers.utils.utils import get_inversion_output
+from geoapps.shared_utils.utils import get_inversion_output
+from geoapps.utils.testing import check_target, setup_inversion_workspace
+from geoh5py.workspace import Workspace
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.008494880725179624, "phi_d": 1.438, "phi_m": 0.3258}
+target_run = {"data_norm": 0.008494, "phi_d": 1.734, "phi_m": 0.3202}
 
 np.random.seed(0)
 

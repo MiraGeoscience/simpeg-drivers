@@ -11,11 +11,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from geoapps.inversion.components.data import InversionData
+    from simpeg_drivers.components.data import InversionData
 
 import numpy as np
-from geoapps.inversion.components.factories.abstract_factory import AbstractFactory
 from geoh5py.objects import CurrentElectrode, Curve, Grid2D, Points, PotentialElectrode
+
+from simpeg_drivers.components.factories.abstract_factory import AbstractFactory
 
 
 class EntityFactory(AbstractFactory):
