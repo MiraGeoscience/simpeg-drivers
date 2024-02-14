@@ -24,6 +24,7 @@ from geoapps_utils.driver.driver import BaseDriver
 from geoh5py.groups import SimPEGGroup
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
+from param_sweeps.driver import SweepParams
 from SimPEG import (
     directives,
     inverse_problem,
@@ -243,6 +244,19 @@ class InversionDriver(BaseDriver):
                 self._out_group = SimPEGGroup.create(self.params.geoh5, name=name)
 
         return self._out_group
+
+    @property
+    def params(self) -> InversionBaseParams:
+        """Application parameters."""
+        return self._params
+
+    @params.setter
+    def params(self, val: (InversionBaseParams, SweepParams)):
+        if not isinstance(val, (InversionBaseParams, SweepParams)):
+            raise TypeError(
+                "Parameters must be of type 'InversionBaseParams' or 'SweepParams'."
+            )
+        self._params = val
 
     @property
     def regularization(self):

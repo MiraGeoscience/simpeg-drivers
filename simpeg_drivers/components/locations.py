@@ -14,8 +14,8 @@ if TYPE_CHECKING:
     from simpeg_drivers.params import InversionBaseParams
 
 import numpy as np
-from geoapps_utils.locations import get_locations
-from geoh5py.objects import Points
+from geoh5py.objects import ObjectBase, Points
+from geoh5py.objects.surveys.direct_current import BaseElectrode
 from geoh5py.shared import Entity
 from scipy.interpolate import LinearNDInterpolator
 from scipy.spatial import cKDTree
@@ -79,25 +79,41 @@ class InversionLocations:
 
         return entity
 
-    def get_locations(self, obj) -> np.ndarray:
+    def get_locations(self, entity: ObjectBase):
         """
-        Returns locations of data object centroids or vertices.
+        Returns entity's centroids or vertices.
 
-        :param uid: UUID of geoh5py object containing centroid or
-            vertex location data
+        If no location data is found on the provided entity, the method will
+        attempt to call itself on its parent.
+
+        :param workspace: Geoh5py Workspace entity.
+        :param entity: Object or uuid of entity containing centroid or
+            vertex location data.
 
         :return: Array shape(*, 3) of x, y, z location data
 
         """
+        if hasattr(entity, "centroids"):
+            locations = entity.centroids
+        elif hasattr(entity, "vertices"):
+            if isinstance(entity, BaseElectrode):
+                potentials = entity.potential_electrodes
+                locations = np.mean(
+                    [
+                        potentials.vertices[potentials.cells[:, 0], :],
+                        potentials.vertices[potentials.cells[:, 1], :],
+                    ],
+                    axis=0,
+                )
+            else:
+                locations = entity.vertices
 
-        locs = get_locations(self.workspace, obj)
-
-        if locs is None:
-            msg = f"Workspace object {obj} 'vertices' attribute is None."
+        else:
+            msg = f"Workspace object {entity} 'vertices' attribute is None."
             msg += " Object type should be Grid2D or point-like."
             raise (ValueError(msg))
 
-        return locs
+        return locations
 
     def _filter(self, a, mask):
         for k, v in a.items():
