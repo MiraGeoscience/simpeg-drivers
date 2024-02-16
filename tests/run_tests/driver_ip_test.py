@@ -1,8 +1,8 @@
 #  Copyright (c) 2024 Mira Geoscience Ltd.
 #
-#  This file is part of geoapps.
+#  This file is part of simpeg-drivers.
 #
-#  geoapps is distributed under the terms and conditions of the MIT License
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License
 #  (see LICENSE file at the root of this source code package).
 
 from __future__ import annotations
@@ -10,15 +10,16 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-from geoapps.inversion.electricals.induced_polarization.three_dimensions import (
+from geoh5py.workspace import Workspace
+
+from simpeg_drivers.electricals.induced_polarization.three_dimensions import (
     InducedPolarization3DParams,
 )
-from geoapps.inversion.electricals.induced_polarization.three_dimensions.driver import (
+from simpeg_drivers.electricals.induced_polarization.three_dimensions.driver import (
     InducedPolarization3DDriver,
 )
-from geoapps.shared_utils.utils import get_inversion_output
-from geoapps.utils.testing import check_target, setup_inversion_workspace
-from geoh5py.workspace import Workspace
+from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
+from simpeg_drivers.utils.utils import get_inversion_output
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
