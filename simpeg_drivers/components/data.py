@@ -11,17 +11,17 @@ from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from geoh5py.workspace import Workspace
-    from geoapps.inversion.params import InversionBaseParams
+    from simpeg_drivers.params import InversionBaseParams
 
 from copy import deepcopy
 
 import numpy as np
 from discretize import TreeMesh
-from geoapps.inversion.utils import create_nested_mesh
-from geoapps.shared_utils.utils import drape_2_tensor
 from scipy.spatial import cKDTree
 from SimPEG import maps
 from SimPEG.electromagnetics.static.utils.static_utils import geometric_factor
+
+from simpeg_drivers.utils.utils import create_nested_mesh, drape_2_tensor
 
 from .factories import (
     EntityFactory,

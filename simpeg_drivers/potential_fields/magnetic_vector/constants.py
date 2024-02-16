@@ -106,7 +106,7 @@ inversion_defaults = {
     "monitoring_directory": None,
     "workspace_geoh5": None,
     "run_command": "simpeg_drivers.driver",
-    "conda_environment": "geoapps",
+    "conda_environment": "simpeg_drivers",
     "distributed_workers": None,
 }
 forward_defaults = {
@@ -153,7 +153,7 @@ forward_defaults = {
     "monitoring_directory": None,
     "workspace_geoh5": None,
     "run_command": "simpeg_drivers.driver",
-    "conda_environment": "geoapps",
+    "conda_environment": "simpeg_drivers",
     "distributed_workers": None,
 }
 
