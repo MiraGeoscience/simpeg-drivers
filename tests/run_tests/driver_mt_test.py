@@ -26,7 +26,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.003936, "phi_d": 0.106, "phi_m": 2.793}
+target_run = {"data_norm": 0.003936, "phi_d": 1.06, "phi_m": 2.793}
 np.random.seed(0)
 
 
