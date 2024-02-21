@@ -11,12 +11,10 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-from geoh5py.workspace import Workspace
 
 from simpeg_drivers.components import InversionTopography
 from simpeg_drivers.potential_fields import MagneticVectorParams
 from simpeg_drivers.utils.testing import Geoh5Tester, setup_inversion_workspace
-from tests import GEOH5 as geoh5
 
 
 def setup_params(tmp_path):

@@ -12,12 +12,10 @@ from pathlib import Path
 import numpy as np
 import pytest
 from geoh5py.objects import Grid2D, Points
-from geoh5py.workspace import Workspace
 
 from simpeg_drivers.components.locations import InversionLocations
 from simpeg_drivers.potential_fields import MagneticVectorParams
 from simpeg_drivers.utils.testing import Geoh5Tester, setup_inversion_workspace
-from tests import GEOH5 as geoh5
 
 
 def setup_params(tmp_path):
