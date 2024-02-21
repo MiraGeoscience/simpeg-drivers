@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: 454264f0aa456e1064d25c54c755e193ea1ec362fc2844d8f436c0034536b003
-    linux-64: 0005c6e8222f77ff7fff5b31521126bc5810ae92a8e8d4108d9719fd1117420b
+    win-64: 1b9f1cf16af78b51c0828a62bc81954ac616221cce39134bac7f350bb043fe9b
+    linux-64: 243785a78ddf8d406eba84fd877d6ecef6802fe9789b63ea8a8d9cf12fba05fd
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -1340,8 +1340,8 @@ package:
   hash:
     md5: a92a6440c3fe7052d63244f3aba2a4a7
     sha256: f3c5be8673bfd905c4665efcb27fa50192f24f84fa8eff2f19cba5d09753d905
-  category: dev
-  optional: true
+  category: main
+  optional: false
 - name: unicodedata2
   version: 15.1.0
   manager: conda
@@ -1639,8 +1639,8 @@ package:
   hash:
     md5: c16524c1b7227dc80b36b4fa6f77cc86
     sha256: d795c1eb1db4ea147f01ece74e5a504d7c2e8d5ee8c11ec987884967dd938f9c
-  category: dev
-  optional: true
+  category: main
+  optional: false
 - name: urllib3
   version: 2.2.1
   manager: conda
@@ -1653,6 +1653,19 @@ package:
   hash:
     md5: 08807a87fa7af10754d46f63b368e016
     sha256: d4009dcc9327684d6409706ce17656afbeae690d8522d3c9bc4df57649a352cd
+  category: main
+  optional: false
+- name: annotated-types
+  version: 0.6.0
+  manager: conda
+  platform: linux-64
+  dependencies:
+    python: '>=3.7'
+    typing-extensions: '>=4.0.0'
+  url: https://conda.anaconda.org/conda-forge/noarch/annotated-types-0.6.0-pyhd8ed1ab_0.conda
+  hash:
+    md5: 997c29372bdbe2afee073dff71f35923
+    sha256: 3a2c98154d95cfd54daba6b7d507d31f5ba07ac2ad955c44eb041b66563193cd
   category: main
   optional: false
 - name: astroid
@@ -1704,6 +1717,21 @@ package:
   hash:
     md5: 3b114b1559def8bad228fec544ac1812
     sha256: c3b2dc03dbae88ae1337e37e672aa44008898395d3508839bf35323b54e71665
+  category: main
+  optional: false
+- name: pydantic-core
+  version: 2.14.6
+  manager: conda
+  platform: linux-64
+  dependencies:
+    libgcc-ng: '>=12'
+    python: '>=3.10,<3.11.0a0'
+    python_abi: 3.10.*
+    typing-extensions: '>=4.6.0,!=4.7.0'
+  url: https://conda.anaconda.org/conda-forge/linux-64/pydantic-core-2.14.6-py310hcb5633a_1.conda
+  hash:
+    md5: f0f6b7e4b3d134f070288963ed4fbeee
+    sha256: 3bdc1ef89f9e431392aec8ed5695d8aefc7b65a014cc46934f75e87779f89745
   category: main
   optional: false
 - name: pytest-cov
@@ -1846,6 +1874,21 @@ package:
   hash:
     md5: d15917f33140f8d2ac9ca44db7ec8a25
     sha256: 63f95e626754f5e05e74f39c0f4866aa8bd40b933eef336077978d365d66ca7b
+  category: main
+  optional: false
+- name: pydantic
+  version: 2.5.3
+  manager: conda
+  platform: linux-64
+  dependencies:
+    annotated-types: '>=0.4.0'
+    pydantic-core: 2.14.6
+    python: '>=3.7'
+    typing-extensions: '>=4.6.1'
+  url: https://conda.anaconda.org/conda-forge/noarch/pydantic-2.5.3-pyhd8ed1ab_0.conda
+  hash:
+    md5: 3569001fd8b37e542aaefdf5de124e19
+    sha256: 07ec778cbf17737b740f0547fb5cba91a7bff52945fe637287458e4119c58ffe
   category: main
   optional: false
 - name: pylint
@@ -2029,16 +2072,6 @@ package:
     sha256: 8d16b3c276ffd5f35890bba6539f3f526cc93061b0320eee2c8d488e7d5089de
   category: main
   optional: false
-- name: annotated-types
-  version: 0.6.0
-  manager: pip
-  platform: linux-64
-  dependencies: {}
-  url: https://files.pythonhosted.org/packages/28/78/d31230046e58c207284c6b2c4e8d96e6d3cb4e52354721b944d3e1ee4aa5/annotated_types-0.6.0-py3-none-any.whl
-  hash:
-    sha256: 0641064de18ba7a25dee8f96403ebc39113d0cb953a01429249d5c7564666a43
-  category: main
-  optional: false
 - name: joblib
   version: 1.3.2
   manager: pip
@@ -2106,17 +2139,6 @@ package:
     sha256: 20404d2adefe92aed3b38da41d0847a143a09be982a31b85bc7dd565bdba0f4e
   category: main
   optional: false
-- name: pydantic-core
-  version: 2.14.6
-  manager: pip
-  platform: linux-64
-  dependencies:
-    typing-extensions: '>=4.6.0,<4.7.0 || >4.7.0'
-  url: https://files.pythonhosted.org/packages/90/28/3c6843e6b203999be2660d3f114be196f2182dcac533dc764ad320c9184d/pydantic_core-2.14.6-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-  hash:
-    sha256: 036137b5ad0cb0004c75b579445a1efccd072387a36c7f217bb8efd1afbe5245
-  category: main
-  optional: false
 - name: scikit-learn
   version: 1.4.1.post1
   manager: pip
@@ -2129,6 +2151,22 @@ package:
   url: https://files.pythonhosted.org/packages/bc/b9/6a637668d69de04b7f8b917e837aff282950601f09998a5f6c9f23f6642d/scikit_learn-1.4.1.post1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
   hash:
     sha256: c02e27d65b0c7dc32f2c5eb601aaf5530b7a02bfbe92438188624524878336f2
+  category: main
+  optional: false
+- name: geoapps-utils
+  version: 0.3.0a2
+  manager: pip
+  platform: linux-64
+  dependencies:
+    pillow: '>=10.0.1,<11.0.0'
+    geoh5py: '>=0.9.0a1,<0.10.0'
+    h5py: '>=3.2.1,<4.0.0'
+    numpy: '>=1.23.5,<1.24.0'
+    pydantic: '>=2.5.2,<2.6.0'
+    scipy: '>=1.10.1,<1.11.0'
+  url: https://files.pythonhosted.org/packages/8e/9c/8a8341f4c0614dcd7c4dfc1e86995b7cd42f9e1c9d4faf648aaadb769329/geoapps_utils-0.3.0a2-py3-none-any.whl
+  hash:
+    sha256: cf9d091d7f86c860f24369ddd2fbc6f6670369ca56dd35038c1093bd62ef957d
   category: main
   optional: false
 - name: mira-simpeg
@@ -2159,35 +2197,6 @@ package:
   url: https://files.pythonhosted.org/packages/92/4d/dd1cc1f36dedf2a7e606840f9b2a2f601c26fb5ae408a9f09edccb0536ca/param_sweeps-0.1.7a1-py3-none-any.whl
   hash:
     sha256: 2a82acf94d50507f9a2922ff96b90e22326d9e0deb632a03fc4ae7008defca05
-  category: main
-  optional: false
-- name: pydantic
-  version: 2.5.3
-  manager: pip
-  platform: linux-64
-  dependencies:
-    annotated-types: '>=0.4.0'
-    pydantic-core: 2.14.6
-    typing-extensions: '>=4.6.1'
-  url: https://files.pythonhosted.org/packages/dd/b7/9aea7ee6c01fe3f3c03b8ca3c7797c866df5fecece9d6cb27caa138db2e2/pydantic-2.5.3-py3-none-any.whl
-  hash:
-    sha256: d0caf5954bee831b6bfe7e338c32b9e30c85dfe080c843680783ac2b631673b4
-  category: main
-  optional: false
-- name: geoapps-utils
-  version: 0.3.0a2
-  manager: pip
-  platform: linux-64
-  dependencies:
-    pillow: '>=10.0.1,<11.0.0'
-    geoh5py: '>=0.9.0a1,<0.10.0'
-    h5py: '>=3.2.1,<4.0.0'
-    numpy: '>=1.23.5,<1.24.0'
-    pydantic: '>=2.5.2,<2.6.0'
-    scipy: '>=1.10.1,<1.11.0'
-  url: https://files.pythonhosted.org/packages/8e/9c/8a8341f4c0614dcd7c4dfc1e86995b7cd42f9e1c9d4faf648aaadb769329/geoapps_utils-0.3.0a2-py3-none-any.whl
-  hash:
-    sha256: cf9d091d7f86c860f24369ddd2fbc6f6670369ca56dd35038c1093bd62ef957d
   category: main
   optional: false
 - name: octree-creation-app
@@ -3360,8 +3369,8 @@ package:
   hash:
     md5: a92a6440c3fe7052d63244f3aba2a4a7
     sha256: f3c5be8673bfd905c4665efcb27fa50192f24f84fa8eff2f19cba5d09753d905
-  category: dev
-  optional: true
+  category: main
+  optional: false
 - name: unicodedata2
   version: 15.1.0
   manager: conda
@@ -3496,7 +3505,7 @@ package:
   category: main
   optional: false
 - name: coverage
-  version: 7.4.1
+  version: 7.4.2
   manager: conda
   platform: win-64
   dependencies:
@@ -3506,10 +3515,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://conda.anaconda.org/conda-forge/win-64/coverage-7.4.1-py310h8d17308_0.conda
+  url: https://conda.anaconda.org/conda-forge/win-64/coverage-7.4.2-py310h8d17308_0.conda
   hash:
-    md5: 2430a42e0df9314ce369cf6fecb73e84
-    sha256: 3041bc214c741cd2971edda4012d019754a1a7f9928ae0d1d2320bb3c8aa16f1
+    md5: 8ada3ed6a5be913ed0589ee86fb968e6
+    sha256: 101fc828e28a3533b1b9bd422fab27aa8985c1da5e3eb206ce4b63dae16d78b6
   category: dev
   optional: true
 - name: cytoolz
@@ -3752,8 +3761,21 @@ package:
   hash:
     md5: c16524c1b7227dc80b36b4fa6f77cc86
     sha256: d795c1eb1db4ea147f01ece74e5a504d7c2e8d5ee8c11ec987884967dd938f9c
-  category: dev
-  optional: true
+  category: main
+  optional: false
+- name: annotated-types
+  version: 0.6.0
+  manager: conda
+  platform: win-64
+  dependencies:
+    python: '>=3.7'
+    typing-extensions: '>=4.0.0'
+  url: https://conda.anaconda.org/conda-forge/noarch/annotated-types-0.6.0-pyhd8ed1ab_0.conda
+  hash:
+    md5: 997c29372bdbe2afee073dff71f35923
+    sha256: 3a2c98154d95cfd54daba6b7d507d31f5ba07ac2ad955c44eb041b66563193cd
+  category: main
+  optional: false
 - name: astroid
   version: 3.0.3
   manager: conda
@@ -3916,6 +3938,23 @@ package:
     sha256: c292445fa0c933b305f7edce899d08a1b166ddb4dcdf4f0c33c6a8adbb31d603
   category: main
   optional: false
+- name: pydantic-core
+  version: 2.14.6
+  manager: conda
+  platform: win-64
+  dependencies:
+    python: '>=3.10,<3.11.0a0'
+    python_abi: 3.10.*
+    typing-extensions: '>=4.6.0,!=4.7.0'
+    ucrt: '>=10.0.20348.0'
+    vc: '>=14.2,<15'
+    vc14_runtime: '>=14.29.30139'
+  url: https://conda.anaconda.org/conda-forge/win-64/pydantic-core-2.14.6-py310h87d50f1_1.conda
+  hash:
+    md5: e1055e9fe6ac345e7b8d85acda87dacc
+    sha256: 88dbd555fbf8fdc1dbf54c000e82061527d8bd7905ae85e5f9c034450d8b1d3c
+  category: main
+  optional: false
 - name: pytest-cov
   version: 4.1.0
   manager: conda
@@ -3998,6 +4037,21 @@ package:
   hash:
     md5: 2610424e948636add8f073e1c7524981
     sha256: d8e7f55a4f332714e9a66221aa8219c3ce0789d268ae20c86414b964da9abeac
+  category: main
+  optional: false
+- name: pydantic
+  version: 2.5.3
+  manager: conda
+  platform: win-64
+  dependencies:
+    python: '>=3.7'
+    annotated-types: '>=0.4.0'
+    typing-extensions: '>=4.6.1'
+    pydantic-core: 2.14.6
+  url: https://conda.anaconda.org/conda-forge/noarch/pydantic-2.5.3-pyhd8ed1ab_0.conda
+  hash:
+    md5: 3569001fd8b37e542aaefdf5de124e19
+    sha256: 07ec778cbf17737b740f0547fb5cba91a7bff52945fe637287458e4119c58ffe
   category: main
   optional: false
 - name: pylint
@@ -4190,16 +4244,6 @@ package:
     sha256: 8d16b3c276ffd5f35890bba6539f3f526cc93061b0320eee2c8d488e7d5089de
   category: main
   optional: false
-- name: annotated-types
-  version: 0.6.0
-  manager: pip
-  platform: win-64
-  dependencies: {}
-  url: https://files.pythonhosted.org/packages/28/78/d31230046e58c207284c6b2c4e8d96e6d3cb4e52354721b944d3e1ee4aa5/annotated_types-0.6.0-py3-none-any.whl
-  hash:
-    sha256: 0641064de18ba7a25dee8f96403ebc39113d0cb953a01429249d5c7564666a43
-  category: main
-  optional: false
 - name: joblib
   version: 1.3.2
   manager: pip
@@ -4267,17 +4311,6 @@ package:
     sha256: 5a946f210383c7e6d16312d30b238fd508d80d927014f3b33fb5b15c2f895430
   category: main
   optional: false
-- name: pydantic-core
-  version: 2.14.6
-  manager: pip
-  platform: win-64
-  dependencies:
-    typing-extensions: '>=4.6.0,<4.7.0 || >4.7.0'
-  url: https://files.pythonhosted.org/packages/4b/26/0645f87ed58c9ec41def2268ea1d96d4a436bbcd151fe126b80cb649e49d/pydantic_core-2.14.6-cp310-none-win_amd64.whl
-  hash:
-    sha256: 36fa402dcdc8ea7f1b0ddcf0df4254cc6b2e08f8cd80e7010d4c4ae6e86b2a87
-  category: main
-  optional: false
 - name: scikit-learn
   version: 1.4.1.post1
   manager: pip
@@ -4290,6 +4323,22 @@ package:
   url: https://files.pythonhosted.org/packages/5d/85/6dff36f75ed9707f65fbd15832d599e2ebec6962d2e52fbbfba22c2df088/scikit_learn-1.4.1.post1-cp310-cp310-win_amd64.whl
   hash:
     sha256: 629e09f772ad42f657ca60a1a52342eef786218dd20cf1369a3b8d085e55ef8f
+  category: main
+  optional: false
+- name: geoapps-utils
+  version: 0.3.0a2
+  manager: pip
+  platform: win-64
+  dependencies:
+    pillow: '>=10.0.1,<11.0.0'
+    geoh5py: '>=0.9.0a1,<0.10.0'
+    h5py: '>=3.2.1,<4.0.0'
+    numpy: '>=1.23.5,<1.24.0'
+    pydantic: '>=2.5.2,<2.6.0'
+    scipy: '>=1.10.1,<1.11.0'
+  url: https://files.pythonhosted.org/packages/8e/9c/8a8341f4c0614dcd7c4dfc1e86995b7cd42f9e1c9d4faf648aaadb769329/geoapps_utils-0.3.0a2-py3-none-any.whl
+  hash:
+    sha256: cf9d091d7f86c860f24369ddd2fbc6f6670369ca56dd35038c1093bd62ef957d
   category: main
   optional: false
 - name: mira-simpeg
@@ -4320,35 +4369,6 @@ package:
   url: https://files.pythonhosted.org/packages/92/4d/dd1cc1f36dedf2a7e606840f9b2a2f601c26fb5ae408a9f09edccb0536ca/param_sweeps-0.1.7a1-py3-none-any.whl
   hash:
     sha256: 2a82acf94d50507f9a2922ff96b90e22326d9e0deb632a03fc4ae7008defca05
-  category: main
-  optional: false
-- name: pydantic
-  version: 2.5.3
-  manager: pip
-  platform: win-64
-  dependencies:
-    annotated-types: '>=0.4.0'
-    pydantic-core: 2.14.6
-    typing-extensions: '>=4.6.1'
-  url: https://files.pythonhosted.org/packages/dd/b7/9aea7ee6c01fe3f3c03b8ca3c7797c866df5fecece9d6cb27caa138db2e2/pydantic-2.5.3-py3-none-any.whl
-  hash:
-    sha256: d0caf5954bee831b6bfe7e338c32b9e30c85dfe080c843680783ac2b631673b4
-  category: main
-  optional: false
-- name: geoapps-utils
-  version: 0.3.0a2
-  manager: pip
-  platform: win-64
-  dependencies:
-    pillow: '>=10.0.1,<11.0.0'
-    geoh5py: '>=0.9.0a1,<0.10.0'
-    h5py: '>=3.2.1,<4.0.0'
-    numpy: '>=1.23.5,<1.24.0'
-    pydantic: '>=2.5.2,<2.6.0'
-    scipy: '>=1.10.1,<1.11.0'
-  url: https://files.pythonhosted.org/packages/8e/9c/8a8341f4c0614dcd7c4dfc1e86995b7cd42f9e1c9d4faf648aaadb769329/geoapps_utils-0.3.0a2-py3-none-any.whl
-  hash:
-    sha256: cf9d091d7f86c860f24369ddd2fbc6f6670369ca56dd35038c1093bd62ef957d
   category: main
   optional: false
 - name: octree-creation-app
