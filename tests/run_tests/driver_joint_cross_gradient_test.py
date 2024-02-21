@@ -61,6 +61,7 @@ def test_joint_cross_gradient_fwr_run(
 
     _, _, model, survey, _ = setup_inversion_workspace(
         tmp_path,
+        geoh5=geoh5,
         background=0.0,
         anomaly=0.05,
         refinement=refinement,
@@ -87,6 +88,7 @@ def test_joint_cross_gradient_fwr_run(
 
     _, _, model, survey, _ = setup_inversion_workspace(
         tmp_path,
+        geoh5=geoh5,
         background=0.01,
         anomaly=10,
         n_electrodes=n_grid_points,
