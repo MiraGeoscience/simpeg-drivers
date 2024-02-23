@@ -422,7 +422,7 @@ def setup_inversion_workspace(
 
     if "2d" in inversion_type:
         lines = survey.get_entity("line_ids")[0].values
-        entity, mesh, _ = get_drape_model(  # pylint: disable=W0632
+        entity, mesh, _ = get_drape_model(  # pylint: disable=unbalanced-tuple-unpacking
             geoh5,
             "Models",
             survey.vertices[np.unique(survey.cells[lines == 101, :]), :],
