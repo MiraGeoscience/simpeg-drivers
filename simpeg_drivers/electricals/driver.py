@@ -138,7 +138,7 @@ class BasePseudo3DDriver(LineSweepDriver):
                     )
 
                 ifile.name = f"{uid}.ui.json"
-                ifile.path = self.working_directory  # pylint: disable=E1101
+                ifile.path = self.working_directory  # pylint: disable=no-member
                 ifile.write_ui_json()
                 lookup[uid]["status"] = "written"
 
