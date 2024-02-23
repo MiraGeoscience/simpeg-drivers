@@ -142,4 +142,4 @@ class BasePseudo3DDriver(LineSweepDriver):
                 ifile.write_ui_json()
                 lookup[uid]["status"] = "written"
 
-        _ = self.update_lookup(lookup)  # pylint: disable=E1101
+        _ = self.update_lookup(lookup)  # pylint: disable=no-member
