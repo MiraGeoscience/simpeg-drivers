@@ -79,7 +79,7 @@ class InversionLocations:
 
         return entity
 
-    def get_locations(self, entity: ObjectBase):
+    def get_locations(self, entity: ObjectBase) -> np.ndarray:
         """
         Returns entity's centroids or vertices.
 

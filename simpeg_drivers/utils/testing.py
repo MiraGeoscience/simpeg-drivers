@@ -102,7 +102,12 @@ def check_target(output: dict, target: dict, tolerance=0.1):
     )
 
 
-def generate_dc_survey(workspace, x_loc, y_loc, z_loc=None):
+def generate_dc_survey(
+    workspace: Workspace,
+    x_loc: np.ndarray,
+    y_loc: np.ndarray,
+    z_loc: np.ndarray | None = None,
+) -> PotentialElectrode:
     """
     Utility function to generate a DC survey.
     """
