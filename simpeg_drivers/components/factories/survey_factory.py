@@ -1,26 +1,48 @@
-#  Copyright (c) 2022-2023 Mira Geoscience Ltd.
+#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
 #
 #  This file is part of simpeg_drivers package.
 #
 #  All rights reserved
 
-# pylint: disable=W0613
-# pylint: disable=W0221
+# pylint: disable=too-many-locals, redefined-argument-from-local, arguments-differ
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from geoapps_utils.driver.params import BaseParams
-
 import numpy as np
 import SimPEG.electromagnetics.time_domain as tdem
 from scipy.interpolate import interp1d
+from SimPEG.electromagnetics.frequency_domain import survey as fem_survey
+from SimPEG.electromagnetics.natural_source import survey as ns_survey
+from SimPEG.electromagnetics.static.induced_polarization import survey as ip_survey
+from SimPEG.electromagnetics.static.resistivity import survey as res_survey
+from SimPEG.electromagnetics.time_domain import survey as tem_survey
+from SimPEG.potential_fields.gravity import survey as grav_survey
+from SimPEG.potential_fields.magnetics import survey as mag_survey
 
 from simpeg_drivers.components.factories.receiver_factory import ReceiversFactory
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 from simpeg_drivers.components.factories.source_factory import SourcesFactory
+
+if TYPE_CHECKING:
+    from geoapps_utils.driver.params import BaseParams
+
+SURVEYS = {
+    "magnetic scalar": mag_survey.Survey,
+    "magnetic vector": mag_survey.Survey,
+    "gravity": grav_survey.Survey,
+    "direct current 2d": res_survey.Survey,
+    "direct current 3d": res_survey.Survey,
+    "direct current pseudo 3d": res_survey.Survey,
+    "induced polarization 2d": ip_survey.Survey,
+    "induced polarization 3d": ip_survey.Survey,
+    "induced polarization pseudo 3d": ip_survey.Survey,
+    "fem": fem_survey.Survey,
+    "tdem": tem_survey.Survey,
+    "magnetotellurics": ns_survey.Survey,
+    "tipper": ns_survey.Survey,
+}
 
 
 def receiver_group(txi, potential_electrodes):
@@ -67,35 +89,16 @@ class SurveyFactory(SimPEGFactory):
         """
         super().__init__(params)
         self.simpeg_object = self.concrete_object()
-        self.local_index = None
+        self.local_index: np.ndarray
         self.survey = None
-        self.ordering = None
+        self.ordering: list
 
     def concrete_object(self):
-        if self.factory_type in ["magnetic vector", "magnetic scalar"]:
-            from SimPEG.potential_fields.magnetics import survey
+        return SURVEYS[self.factory_type]
 
-        elif self.factory_type == "gravity":
-            from SimPEG.potential_fields.gravity import survey
-
-        elif "direct current" in self.factory_type:
-            from SimPEG.electromagnetics.static.resistivity import survey
-
-        elif "induced polarization" in self.factory_type:
-            from SimPEG.electromagnetics.static.induced_polarization import survey
-
-        elif "fem" in self.factory_type:
-            from SimPEG.electromagnetics.frequency_domain import survey
-
-        elif "tdem" in self.factory_type:
-            from SimPEG.electromagnetics.time_domain import survey
-
-        elif self.factory_type in ["magnetotellurics", "tipper"]:
-            from SimPEG.electromagnetics.natural_source import survey
-
-        return survey.Survey
-
-    def assemble_arguments(self, data=None, mesh=None, local_index=None, channel=None):
+    def assemble_arguments(
+        self, data=None, mesh=None, local_index: np.ndarray | None = None, channel=None
+    ):
         """Provides implementations to assemble arguments for receivers object."""
         receiver_entity = data.entity
 
@@ -111,22 +114,25 @@ class SurveyFactory(SimPEGFactory):
 
         if "current" in self.factory_type or "polarization" in self.factory_type:
             return self._dcip_arguments(data=data, local_index=local_index)
-        elif self.factory_type in ["tdem"]:
-            return self._tdem_arguments(data=data, mesh=mesh, local_index=local_index)
-        elif self.factory_type in ["magnetotellurics", "tipper"]:
+
+        if self.factory_type in ["tdem"]:
+            return self._tdem_arguments(data=data, mesh=mesh)
+
+        if self.factory_type in ["magnetotellurics", "tipper"]:
             return self._naturalsource_arguments(
                 data=data, mesh=mesh, frequency=channel
             )
-        elif self.factory_type in ["fem"]:
+
+        if self.factory_type in ["fem"]:
             return self._fem_arguments(data=data, mesh=mesh, channel=channel)
-        else:
-            receivers = ReceiversFactory(self.params).build(
-                locations=data.locations,
-                data=data.observed,
-                local_index=self.local_index,
-            )
-            sources = SourcesFactory(self.params).build(receivers)
-            return [sources]
+
+        receivers = ReceiversFactory(self.params).build(
+            locations=data.locations,
+            data=data.observed,
+            local_index=self.local_index,
+        )
+        sources = SourcesFactory(self.params).build(receivers)
+        return [sources]
 
     def assemble_keyword_arguments(self, **_):
         """Implementation of abstract method from SimPEGFactory."""
@@ -137,7 +143,6 @@ class SurveyFactory(SimPEGFactory):
         data=None,
         mesh=None,
         local_index=None,
-        indices=None,
         channel=None,
     ):
         """Overloads base method to add dobs, std attributes to survey class instance."""
@@ -181,47 +186,57 @@ class SurveyFactory(SimPEGFactory):
 
         return local_data, local_uncertainties
 
-    def _add_data(self, survey, data, local_index, channel):
-        if self.factory_type in ["fem", "tdem"]:
-            dobs = []
-            uncerts = []
+    def _add_em_data(self, survey, data):
+        """
+        Specialized method to add electromagnetic data to survey object.
+        """
+        dobs = []
+        uncerts = []
 
-            data_stack = [np.vstack(list(k.values())) for k in data.observed.values()]
-            uncert_stack = [
-                np.vstack(list(k.values())) for k in data.uncertainties.values()
-            ]
-            for order in self.ordering:
-                channel_id, component_id, rx_id = order
-                dobs.append(data_stack[component_id][channel_id, rx_id])
-                uncerts.append(uncert_stack[component_id][channel_id, rx_id])
+        data_stack = [np.vstack(list(k.values())) for k in data.observed.values()]
+        uncert_stack = [
+            np.vstack(list(k.values())) for k in data.uncertainties.values()
+        ]
+        for order in self.ordering:
+            channel_id, component_id, rx_id = order
+            dobs.append(data_stack[component_id][channel_id, rx_id])
+            uncerts.append(uncert_stack[component_id][channel_id, rx_id])
 
-            survey.dobs = np.vstack([dobs]).flatten()
-            survey.std = np.vstack([uncerts]).flatten()
+        survey.dobs = np.vstack([dobs]).flatten()
+        survey.std = np.vstack([uncerts]).flatten()
 
-        elif self.factory_type in ["magnetotellurics", "tipper"]:
-            local_data = {}
-            local_uncertainties = {}
+    def _add_natural_source_data(self, survey, data, local_index, channel):
+        """
+        Specialized method to add natural source data to survey object.
+        """
+        local_data = {}
+        local_uncertainties = {}
 
-            if channel is None:
-                channels = np.unique([list(v.keys()) for v in data.observed.values()])
-                for chan in channels:
-                    dat, unc = self._get_local_data(data, chan, local_index)
-                    local_data.update(dat)
-                    local_uncertainties.update(unc)
-
-            else:
-                dat, unc = self._get_local_data(data, channel, local_index)
+        if channel is None:
+            channels = np.unique([list(v.keys()) for v in data.observed.values()])
+            for chan in channels:
+                dat, unc = self._get_local_data(data, chan, local_index)
                 local_data.update(dat)
                 local_uncertainties.update(unc)
 
-            data_vec = self._stack_channels(local_data, "row")
-            uncertainty_vec = self._stack_channels(local_uncertainties, "row")
-            uncertainty_vec[np.isnan(data_vec)] = np.inf
-            data_vec[
-                np.isnan(data_vec)
-            ] = self.dummy  # Nan's handled by inf uncertainties
-            survey.dobs = data_vec
-            survey.std = uncertainty_vec
+        else:
+            dat, unc = self._get_local_data(data, channel, local_index)
+            local_data.update(dat)
+            local_uncertainties.update(unc)
+
+        data_vec = self._stack_channels(local_data, "row")
+        uncertainty_vec = self._stack_channels(local_uncertainties, "row")
+        uncertainty_vec[np.isnan(data_vec)] = np.inf
+        data_vec[np.isnan(data_vec)] = self.dummy  # Nan's handled by inf uncertainties
+        survey.dobs = data_vec
+        survey.std = uncertainty_vec
+
+    def _add_data(self, survey, data, local_index, channel):
+        if self.factory_type in ["fem", "tdem"]:
+            self._add_em_data(survey, data)
+
+        elif self.factory_type in ["magnetotellurics", "tipper"]:
+            self._add_natural_source_data(survey, data, local_index, channel)
 
         else:
             local_data = {k: v[local_index] for k, v in data.observed.items()}
@@ -257,8 +272,8 @@ class SurveyFactory(SimPEGFactory):
         """
         if mode == "column":
             return np.column_stack(list(channel_data.values())).ravel()
-        elif mode == "row":
-            return np.row_stack(list(channel_data.values())).ravel()
+
+        return np.row_stack(list(channel_data.values())).ravel()
 
     def _dcip_arguments(self, data=None, local_index=None):
         if getattr(data, "entity", None) is None:
@@ -282,7 +297,7 @@ class SurveyFactory(SimPEGFactory):
 
         # TODO hook up tile_spatial to handle local_index handling
         sources = []
-        self.local_index = []
+        indices = []
         for source_id in source_ids[np.argsort(order)]:  # Cycle in original order
             receiver_indices = receiver_group(source_id, receiver_entity)
 
@@ -307,13 +322,13 @@ class SurveyFactory(SimPEGFactory):
             )
 
             sources.append(source)
-            self.local_index.append(receiver_indices)
+            indices.append(receiver_indices)
 
-        self.local_index = np.hstack(self.local_index)
+        self.local_index = np.hstack(indices)
 
         return [sources]
 
-    def _tdem_arguments(self, data=None, local_index=None, mesh=None):
+    def _tdem_arguments(self, data=None, mesh=None):
         receivers = data.entity
         transmitters = receivers.transmitters
         transmitter_id = receivers.get_data("Transmitter ID")
@@ -391,7 +406,7 @@ class SurveyFactory(SimPEGFactory):
         tx_factory = SourcesFactory(self.params)
 
         receiver_groups = {}
-        ordering = []
+        order_lists = []
         for receiver_id in self.local_index:
             receivers = []
             for component_id, component in enumerate(data.components):
@@ -403,10 +418,10 @@ class SurveyFactory(SimPEGFactory):
                         component=component,
                     )
                 )
-                ordering.append([component_id, receiver_id])
+                order_lists.append([component_id, receiver_id])
             receiver_groups[receiver_id] = receivers
 
-        ordering = np.vstack(ordering)
+        ordering: np.ndarray = np.vstack(order_lists)
         for frequency in frequencies:
             frequency_id = np.where(frequency == channels)[0][0]
             self.ordering.append(
