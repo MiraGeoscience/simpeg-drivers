@@ -39,7 +39,7 @@ dependencies:
   - libblas=3.9.0=21_win64_blis
   - libbrotlidec=1.1.0=hcfcfb64_1
   - libbrotlienc=1.1.0=hcfcfb64_1
-  - libpng=1.6.42=h19919ed_0
+  - libpng=1.6.43=h19919ed_0
   - libssh2=1.11.0=h7dfc565_0
   - libxml2=2.12.5=hc3477c8_0
   - m2w64-gcc-libs=5.3.0=7
@@ -75,13 +75,13 @@ dependencies:
   - pthread-stubs=0.4=hcd874cb_1001
   - pyparsing=3.1.1=pyhd8ed1ab_0
   - pyyaml=6.0.1=py310h8d17308_1
-  - setuptools=69.1.0=pyhd8ed1ab_1
+  - setuptools=69.1.1=pyhd8ed1ab_0
   - six=1.16.0=pyh6c4a22f_0
   - sortedcontainers=2.4.0=pyhd8ed1ab_0
   - tblib=3.0.0=pyhd8ed1ab_0
   - toolz=0.12.1=pyhd8ed1ab_0
   - tornado=6.1=py310he2412df_3
-  - typing_extensions=4.9.0=pyha770c72_0
+  - typing_extensions=4.10.0=pyha770c72_0
   - unicodedata2=15.1.0=py310h8d17308_0
   - utm=0.7.0=pyhd8ed1ab_0
   - wheel=0.42.0=pyhd8ed1ab_0
@@ -98,14 +98,14 @@ dependencies:
   - lcms2=2.16=h67d730c_0
   - libxcb=1.15=hcd874cb_0
   - numpy=1.23.5=py310h4a8f9c9_0
-  - openjpeg=2.5.0=h3d672ee_3
+  - openjpeg=2.5.1=h3d672ee_0
   - partd=1.4.1=pyhd8ed1ab_0
   - pip=24.0=pyhd8ed1ab_0
   - pysocks=1.7.1=pyh0701188_6
   - python-dateutil=2.8.2=pyhd8ed1ab_0
   - tbb=2021.11.0=h91493d7_1
   - tqdm=4.66.2=pyhd8ed1ab_0
-  - typing-extensions=4.9.0=hd8ed1ab_0
+  - typing-extensions=4.10.0=hd8ed1ab_0
   - annotated-types=0.6.0=pyhd8ed1ab_0
   - contourpy=1.2.0=py310h232114e_0
   - dask-core=2022.10.2=pyhd8ed1ab_0
@@ -136,7 +136,7 @@ dependencies:
     - threadpoolctl === 3.3.0 --hash=sha256:6155be1f4a39f31a18ea70f94a77e0ccd57dced08122ea61109e7da89883781e
     - tzdata === 2024.1 --hash=sha256:9068bc196136463f5245e51efda838afa15aaeca9903f49050dfa2679db4d252
     - geoh5py === 0.9.0a1 --hash=sha256:ddf340cc1b966ee8ac4f0bf6e0206e56e2de77f9cdbae20d07ce93fd4793bfa5
-    - pandas === 2.2.0 --hash=sha256:5a946f210383c7e6d16312d30b238fd508d80d927014f3b33fb5b15c2f895430
+    - pandas === 2.2.1 --hash=sha256:94e714a1cca63e4f5939cdce5f29ba8d415d85166be3441165edd427dc9f6bc0
     - scikit-learn === 1.4.1.post1 --hash=sha256:629e09f772ad42f657ca60a1a52342eef786218dd20cf1369a3b8d085e55ef8f
     - geoapps-utils === 0.3.0a2 --hash=sha256:cf9d091d7f86c860f24369ddd2fbc6f6670369ca56dd35038c1093bd62ef957d
     - mira-simpeg === 0.19.0.dev7 --hash=sha256:d3ec1138f09611404ae302510b8298ca72e35d70dc623bcd5f499333d8adce01
