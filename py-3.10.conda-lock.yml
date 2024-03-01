@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: 1b9f1cf16af78b51c0828a62bc81954ac616221cce39134bac7f350bb043fe9b
-    linux-64: 243785a78ddf8d406eba84fd877d6ecef6802fe9789b63ea8a8d9cf12fba05fd
+    win-64: 71b6f64ed0ad53b3872aa121b3d9c61381fb9163481d975a8dccc78a12f0c74a
+    linux-64: 9f1e6e1319eb5768ce6c4ebde2184f75580dd54ab9986812e3bbf9c9f54b8885
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -1089,7 +1089,7 @@ package:
   category: main
   optional: false
 - name: openjpeg
-  version: 2.5.1
+  version: 2.5.2
   manager: conda
   platform: linux-64
   dependencies:
@@ -1098,10 +1098,10 @@ package:
     libstdcxx-ng: '>=12'
     libtiff: '>=4.6.0,<4.7.0a0'
     libzlib: '>=1.2.13,<1.3.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/openjpeg-2.5.1-h488ebb8_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/openjpeg-2.5.2-h488ebb8_0.conda
   hash:
-    md5: db9c6f64114b57107f6adae562a952c1
-    sha256: bace6e46cb33d133fbc0c27647c271358450d5f6bd0dd7b64f9d81bb25694f51
+    md5: 7f2e286780f072ed750df46dc2631138
+    sha256: 5600a0b82df042bd27d01e4e687187411561dfc11cc05143a08ce29b64bf2af2
   category: main
   optional: false
 - name: packaging
@@ -1293,15 +1293,15 @@ package:
   category: dev
   optional: true
 - name: tomlkit
-  version: 0.12.3
+  version: 0.12.4
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.7'
-  url: https://conda.anaconda.org/conda-forge/noarch/tomlkit-0.12.3-pyha770c72_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/tomlkit-0.12.4-pyha770c72_0.conda
   hash:
-    md5: 074d0ce7a6261ab8b497c3518796ef3e
-    sha256: 53cc436ab92d38683df1320e4468a8b978428e800195bf1c8c2460e90b0bc117
+    md5: 37c47ea93ef00dd80d880fc4ba21256a
+    sha256: 8d45c266bf919788abacd9828f4a2101d7216f6d4fc7c8d3417034fe0d795a18
   category: dev
   optional: true
 - name: toolz
@@ -1604,16 +1604,16 @@ package:
   category: dev
   optional: true
 - name: python-dateutil
-  version: 2.8.2
+  version: 2.9.0
   manager: conda
   platform: linux-64
   dependencies:
-    python: '>=3.6'
+    python: '>=3.7'
     six: '>=1.5'
-  url: https://conda.anaconda.org/conda-forge/noarch/python-dateutil-2.8.2-pyhd8ed1ab_0.tar.bz2
+  url: https://conda.anaconda.org/conda-forge/noarch/python-dateutil-2.9.0-pyhd8ed1ab_0.conda
   hash:
-    md5: dd999d1cc9f79e67dbb855c8924c7984
-    sha256: 54d7785c7678166aa45adeaccfc1d2b8c3c799ca2dc05d4a82bb39b1968bd7da
+    md5: 2cf4264fffb9e6eff6031c5b6884d61c
+    sha256: f3ceef02ac164a8d3a080d0d32f8e2ebe10dd29e3a685d240e38b3599e146320
   category: main
   optional: false
 - name: tqdm
@@ -2113,16 +2113,16 @@ package:
   category: main
   optional: false
 - name: geoh5py
-  version: 0.9.0a1
+  version: 0.9.0a2
   manager: pip
   platform: linux-64
   dependencies:
     pillow: '>=10.0.1,<11.0.0'
     h5py: '>=3.2.1,<4.0.0'
     numpy: '>=1.23.5,<1.24.0'
-  url: https://files.pythonhosted.org/packages/fd/e4/945600245b28605f80fa2f51656a2c3ed33d8d2243e59cde215bf8e52314/geoh5py-0.9.0a1-py3-none-any.whl
+  url: https://files.pythonhosted.org/packages/37/dc/b540f4b603240a7b0672979cf4ace87b2f0ea263dd259754ed878fa9022a/geoh5py-0.9.0a2-py3-none-any.whl
   hash:
-    sha256: ddf340cc1b966ee8ac4f0bf6e0206e56e2de77f9cdbae20d07ce93fd4793bfa5
+    sha256: 70041ed40bda3caa4fc95b9cf842822ceb0b4337954233a76fcada04daf9fd0f
   category: main
   optional: false
 - name: pandas
@@ -3321,15 +3321,15 @@ package:
   category: dev
   optional: true
 - name: tomlkit
-  version: 0.12.3
+  version: 0.12.4
   manager: conda
   platform: win-64
   dependencies:
     python: '>=3.7'
-  url: https://conda.anaconda.org/conda-forge/noarch/tomlkit-0.12.3-pyha770c72_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/tomlkit-0.12.4-pyha770c72_0.conda
   hash:
-    md5: 074d0ce7a6261ab8b497c3518796ef3e
-    sha256: 53cc436ab92d38683df1320e4468a8b978428e800195bf1c8c2460e90b0bc117
+    md5: 37c47ea93ef00dd80d880fc4ba21256a
+    sha256: 8d45c266bf919788abacd9828f4a2101d7216f6d4fc7c8d3417034fe0d795a18
   category: dev
   optional: true
 - name: toolz
@@ -3634,7 +3634,7 @@ package:
   category: main
   optional: false
 - name: openjpeg
-  version: 2.5.1
+  version: 2.5.2
   manager: conda
   platform: win-64
   dependencies:
@@ -3644,10 +3644,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://conda.anaconda.org/conda-forge/win-64/openjpeg-2.5.1-h3d672ee_0.conda
+  url: https://conda.anaconda.org/conda-forge/win-64/openjpeg-2.5.2-h3d672ee_0.conda
   hash:
-    md5: 2d61a073d2129a6a3cab9fd90dcbfddf
-    sha256: d9b31a55adecfaabd31a6b4624abe76caf3f640c1eb82090bf6ccbabc70fe873
+    md5: 7e7099ad94ac3b599808950cec30ad4e
+    sha256: dda71cbe094234ab208f3552dec1f4ca6f2e614175d010808d6cb66ecf0bc753
   category: main
   optional: false
 - name: partd
@@ -3711,16 +3711,16 @@ package:
   category: dev
   optional: true
 - name: python-dateutil
-  version: 2.8.2
+  version: 2.9.0
   manager: conda
   platform: win-64
   dependencies:
-    python: '>=3.6'
+    python: '>=3.7'
     six: '>=1.5'
-  url: https://conda.anaconda.org/conda-forge/noarch/python-dateutil-2.8.2-pyhd8ed1ab_0.tar.bz2
+  url: https://conda.anaconda.org/conda-forge/noarch/python-dateutil-2.9.0-pyhd8ed1ab_0.conda
   hash:
-    md5: dd999d1cc9f79e67dbb855c8924c7984
-    sha256: 54d7785c7678166aa45adeaccfc1d2b8c3c799ca2dc05d4a82bb39b1968bd7da
+    md5: 2cf4264fffb9e6eff6031c5b6884d61c
+    sha256: f3ceef02ac164a8d3a080d0d32f8e2ebe10dd29e3a685d240e38b3599e146320
   category: main
   optional: false
 - name: tbb
@@ -4285,16 +4285,16 @@ package:
   category: main
   optional: false
 - name: geoh5py
-  version: 0.9.0a1
+  version: 0.9.0a2
   manager: pip
   platform: win-64
   dependencies:
     pillow: '>=10.0.1,<11.0.0'
     h5py: '>=3.2.1,<4.0.0'
     numpy: '>=1.23.5,<1.24.0'
-  url: https://files.pythonhosted.org/packages/fd/e4/945600245b28605f80fa2f51656a2c3ed33d8d2243e59cde215bf8e52314/geoh5py-0.9.0a1-py3-none-any.whl
+  url: https://files.pythonhosted.org/packages/37/dc/b540f4b603240a7b0672979cf4ace87b2f0ea263dd259754ed878fa9022a/geoh5py-0.9.0a2-py3-none-any.whl
   hash:
-    sha256: ddf340cc1b966ee8ac4f0bf6e0206e56e2de77f9cdbae20d07ce93fd4793bfa5
+    sha256: 70041ed40bda3caa4fc95b9cf842822ceb0b4337954233a76fcada04daf9fd0f
   category: main
   optional: false
 - name: pandas
