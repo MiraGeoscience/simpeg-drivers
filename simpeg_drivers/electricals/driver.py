@@ -38,9 +38,12 @@ class BasePseudo3DDriver(LineSweepDriver):
         if params.files_only:
             sys.exit("Files written")
 
-    def transfer_models(self, mesh: DrapeModel) -> dict[str, uuid.UUID]:
-        xyz_in = get_locations(self.workspace, self.pseudo3d_params.mesh)
+    def transfer_models(self, mesh: DrapeModel) -> dict[str, uuid.UUID | float]:
+        """
+        Transfer models from the input parameters to the output drape mesh.
 
+        :param mesh: Destination DrapeModel object.
+        """
         models = {"starting_model": self.pseudo3d_params.starting_model}
 
         for model in self._model_list:
@@ -50,20 +53,24 @@ class BasePseudo3DDriver(LineSweepDriver):
             for model in ["reference_model", "lower_bound", "upper_bound"]:
                 models[model] = getattr(self.pseudo3d_params, model)
 
-        xyz_out = mesh.centroids
-        model_uids = deepcopy(models)
-        for name, model in models.items():
-            if model is None:
-                continue
-            elif isinstance(model, Data):
-                model_values = weighted_average(xyz_in, xyz_out, [model.values], n=1)[0]
-            else:
-                model_values = model * np.ones(len(xyz_out))
+        if self.pseudo3d_params.mesh is not None:
+            xyz_in = get_locations(self.workspace, self.pseudo3d_params.mesh)
+            xyz_out = mesh.centroids
 
-            model_object = mesh.add_data({name: {"values": model_values}})
-            model_uids[name] = model_object.uid
+            for name, model in models.items():
+                if model is None:
+                    continue
+                elif isinstance(model, Data):
+                    model_values = weighted_average(
+                        xyz_in, xyz_out, [model.values], n=1
+                    )[0]
+                else:
+                    model_values = model * np.ones(len(xyz_out))
 
-        return model_uids
+                model_object = mesh.add_data({name: {"values": model_values}})
+                models[name] = model_object.uid
+
+        return models
 
     def write_files(self, lookup):
         """Write ui.geoh5 and ui.json files for sweep trials."""
@@ -113,7 +120,7 @@ class BasePseudo3DDriver(LineSweepDriver):
                         self.pseudo3d_params.expansion_factor,
                     )[0]
 
-                    model_uids = self.transfer_models(mesh)
+                    model_parameters = self.transfer_models(mesh)
 
                     for key in ifile.data:
                         param = getattr(self.pseudo3d_params, key, None)
@@ -133,7 +140,7 @@ class BasePseudo3DDriver(LineSweepDriver):
                                 "line_id": trial["line_id"],
                                 "out_group": None,
                             },
-                            **model_uids,
+                            **model_parameters,
                         )
                     )
 
