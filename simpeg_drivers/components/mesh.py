@@ -1,4 +1,4 @@
-#  Copyright (c) 2022-2023 Mira Geoscience Ltd.
+#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
 #
 #  This file is part of simpeg_drivers package.
 #
@@ -9,19 +9,18 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
+from discretize import TensorMesh, TreeMesh
 from geoh5py.objects import DrapeModel, Octree
 from octree_creation_app.params import OctreeParams
 from octree_creation_app.utils import octree_2_treemesh
 
-from simpeg_drivers.utils.utils import drape_2_tensor
+from simpeg_drivers.utils.mesh import drape_2_tensor
 
 if TYPE_CHECKING:
     from geoh5py.workspace import Workspace
 
     from simpeg_drivers.components.data import InversionData
     from simpeg_drivers.components.topography import InversionTopography
-
-from discretize import TensorMesh, TreeMesh
 
 
 class InversionMesh:
@@ -76,11 +75,18 @@ class InversionMesh:
 
         if self.params.mesh is None:
             raise ValueError("Must pass pre-constructed mesh.")
-        else:
-            self.entity = self.params.mesh.copy(
-                parent=self.params.out_group, copy_children=False
+
+        self.entity = self.params.mesh.copy(
+            parent=self.params.out_group, copy_children=False
+        )
+
+        if not isinstance(self.entity, (Octree, DrapeModel)):
+            raise ValueError(
+                "Mesh must be of type Octree or DrapeModel. "
+                f"Got {type(self.entity)}."
             )
-            self.params.mesh = self.entity
+
+        self.params.mesh = self.entity
 
         if (
             getattr(self.entity, "rotation", None)
@@ -95,14 +101,11 @@ class InversionMesh:
 
     @property
     def mesh(self) -> TreeMesh | TensorMesh:
-        """"""
+        """
+        The discretize representation of the entity mesh object.
+        """
         if self._mesh is None:
             if isinstance(self.entity, Octree):
-                if self.entity.rotation:
-                    origin = self.entity.origin.tolist()
-                    angle = self.entity.rotation[0]
-                    self.rotation = {"origin": origin, "angle": angle}
-
                 self._mesh = octree_2_treemesh(self.entity)
                 self._permutation = np.arange(self.entity.n_cells)
 

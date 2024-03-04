@@ -1,20 +1,101 @@
-#  Copyright (c) 2022-2023 Mira Geoscience Ltd.
+#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
 #
 #  This file is part of simpeg_drivers package.
 #
 #  All rights reserved
 from __future__ import annotations
 
+import warnings
 from typing import Callable
 
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore", category=UserWarning)
+    from sklearn.cluster import KMeans  # pylint: disable=import-error
+
 import numpy as np
-from discretize import TensorMesh, TreeMesh
-from geoapps_utils.numerical import traveling_salesman
+from discretize import TreeMesh
+from geoapps_utils.numerical import running_mean, traveling_salesman
 from geoh5py import Workspace
-from geoh5py.data import FloatData
-from geoh5py.objects import CurrentElectrode, PotentialElectrode
+from geoh5py.objects import PotentialElectrode
+from scipy.interpolate import interp1d
 from scipy.spatial import cKDTree
 from SimPEG.survey import BaseSurvey
+
+
+class DistanceMapper:
+    """
+    Class to map distances to locations.
+    """
+
+    def __init__(self, locations: np.ndarray, smoothing: int = 0):
+        if not isinstance(locations, np.ndarray) or locations.ndim != 2:
+            raise ValueError("Locations must be a 2D array.")
+
+        order = traveling_salesman(locations)
+        self.locations = locations[order, :]
+        self._profile: np.ndarray | None = None
+        self._smooth_locations: np.ndarray | None = None
+        self.smoothing = smoothing
+
+    @property
+    def smoothing(self) -> int:
+        """
+        Smoothing factor.
+        """
+        return self._smoothing
+
+    @smoothing.setter
+    def smoothing(self, value: int):
+        """
+        Smoothing factor.
+        """
+        if not isinstance(value, int):
+            raise ValueError("Smoothing must be an integer.")
+
+        self._smoothing: int = value
+        self._smooth_locations = None
+        self._profile = None
+
+    @property
+    def smooth_locations(self) -> np.ndarray:
+        """
+        Smoothed 3D coordinate locations.
+        """
+        if self._smooth_locations is None:
+            self._smooth_locations = np.c_[
+                [running_mean(locs, self.smoothing) for locs in self.locations.T]
+            ].T
+        return self._smooth_locations
+
+    @property
+    def profile(self) -> np.ndarray:
+        """
+        Along line profile of distance and elevation.
+        """
+        if self._profile is None:
+            self._profile = compute_alongline_distance(self.smooth_locations)
+        return self._profile
+
+    @property
+    def distances(self) -> np.ndarray:
+        """
+        Along line distances.
+        """
+        return self.profile[:, 0]
+
+    def map_locations(self, distance: np.ndarray | None = None) -> np.ndarray:
+        """
+        Interpolate 3D coordinates from distance along profile.
+        """
+        if distance is None:
+            return self.smooth_locations
+
+        return np.c_[
+            [
+                interp1d(self.distances, locs, fill_value="extrapolate")(distance)
+                for locs in self.smooth_locations.T
+            ]
+        ].T
 
 
 def compute_alongline_distance(points: np.ndarray, ordered: bool = True):
@@ -52,7 +133,10 @@ def extract_dcip_survey(
         raise ValueError("No cells found in the mask.")
 
     active_poles = np.zeros(survey.n_vertices, dtype=bool)
-    active_poles[survey.cells[cell_mask, :].ravel()] = True
+
+    if survey.cells is not None:
+        active_poles[survey.cells[cell_mask, :].ravel()] = True
+
     potentials = survey.copy(parent=workspace, mask=active_poles, cell_mask=cell_mask)
 
     return potentials
@@ -132,8 +216,7 @@ def next_neighbor(tree: cKDTree, point: list[float], nodes: list[int], n: int = 
         next_id = np.argmin(distances)
         return distances[next_id], neighbors[next_id]
 
-    else:
-        return next_neighbor(tree, point, nodes, n + 3)
+    return next_neighbor(tree, point, nodes, n + 3)
 
 
 def new_neighbors(distances: np.ndarray, neighbors: np.ndarray, nodes: list[int]):
@@ -176,3 +259,37 @@ def slice_and_map(obj: np.ndarray, slicer: np.ndarray | Callable):
         g2l = dict(zip(np.where(slicer)[0], np.arange(len(obj))))
 
     return sliced_object, g2l
+
+
+def tile_locations(
+    locations,
+    n_tiles,
+):
+    """
+    Function to tile a survey points into smaller square subsets of points
+
+    :param numpy.ndarray locations: n x 2 array of locations [x,y]
+    :param integer n_tiles: number of tiles (for 'cluster'), or number of
+        refinement steps ('other')
+    :param bounding_box: bool [False]
+        Return the SW and NE corners of each tile.
+    :param count: bool [False]
+        Return the number of locations in each tile.
+    :param unique_id: bool [False]
+        Return the unique identifiers of all tiles.
+
+    :returns tiles: list of numpy.ndarray
+        List of arrays containing the indices of the points in each tile.
+    """
+    np.random.seed(0)
+    # Cluster
+    # TODO turn off filter once sklearn has dealt with the issue causing the warning
+    cluster = KMeans(n_clusters=n_tiles, n_init="auto")
+    cluster.fit_predict(locations[:, :2])
+
+    labels = cluster.labels_
+    # Get the tile numbers that exist, for compatibility with the next method
+    tile_id = np.unique(cluster.labels_)
+    tiles = [np.where(labels == tid)[0] for tid in tile_id]
+
+    return tiles
