@@ -1,4 +1,4 @@
-#  Copyright (c) 2022-2023 Mira Geoscience Ltd.
+#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
 #
 #  This file is part of simpeg_drivers package.
 #
@@ -10,7 +10,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from geoapps_utils.driver.params import BaseParams
+    from simpeg_drivers.driver import InversionDriver
 
 # TODO Redesign simpeg factory to avoid pylint arguments-differ complaint
 
@@ -21,12 +21,8 @@ class SimPEGFactory(ABC):
 
     Parameters
     ----------
-    params :
+    driver :
         Driver parameters object.
-    factory_type :
-        Concrete factory type.
-    simpeg_object :
-        Abstract SimPEG object.
 
     Methods
     -------
@@ -38,43 +34,13 @@ class SimPEGFactory(ABC):
         Generate SimPEG object with assembled arguments and keyword arguments.
     """
 
-    valid_factory_types = [
-        "gravity",
-        "magnetic scalar",
-        "magnetic vector",
-        "direct current pseudo 3d",
-        "direct current 3d",
-        "direct current 2d",
-        "induced polarization 3d",
-        "induced polarization 2d",
-        "induced polarization pseudo 3d",
-        "fem",
-        "tdem",
-        "magnetotellurics",
-        "tipper",
-        "joint surveys",
-        "joint cross gradient",
-    ]
+    concrete_type: type
 
-    def __init__(self, params: BaseParams):
+    def __init__(self, driver: InversionDriver):
         """
-        :param params: Driver parameters object.
+        :param driver: A driver class.
         """
-        self.params = params
-        self.factory_type: str = params.inversion_type
-        self.simpeg_object = None
-
-    @property
-    def factory_type(self):
-        return self._factory_type
-
-    @factory_type.setter
-    def factory_type(self, val):
-        if val not in self.valid_factory_types:
-            msg = f"Factory type: {val} not implemented yet."
-            raise NotImplementedError(msg)
-        else:
-            self._factory_type = val
+        self.driver = driver
 
     @abstractmethod
     def concrete_object(self):
@@ -88,11 +54,9 @@ class SimPEGFactory(ABC):
     def assemble_keyword_arguments(self, **_) -> dict:
         """To be over-ridden in factory implementations."""
 
-    def build(self, **kwargs):
-        """To be over-ridden in factory implementations."""
-
-        class_args = self.assemble_arguments(**kwargs)
-        class_kwargs = self.assemble_keyword_arguments(**kwargs)
-        return self.simpeg_object(  # pylint: disable=not-callable
-            *class_args, **class_kwargs
-        )
+    @classmethod
+    def build(cls, driver, **kwargs):
+        """Collect arguments and keyword arguments and build SimPEG object."""
+        class_args = cls.assemble_arguments(driver, **kwargs)
+        class_kwargs = cls.assemble_keyword_arguments(driver, **kwargs)
+        return cls.concrete_type(*class_args, **class_kwargs)
