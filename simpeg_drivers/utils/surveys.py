@@ -62,9 +62,12 @@ class DistanceMapper:
         Smoothed 3D coordinate locations.
         """
         if self._smooth_locations is None:
-            self._smooth_locations = np.c_[
+            smooth_locations = np.c_[
                 [running_mean(locs, self.smoothing) for locs in self.locations.T]
             ].T
+            smooth_locations[0, :] = self.locations[0, :]
+            smooth_locations[-1, :] = self.locations[-1, :]
+            self._smooth_locations = smooth_locations
         return self._smooth_locations
 
     @property

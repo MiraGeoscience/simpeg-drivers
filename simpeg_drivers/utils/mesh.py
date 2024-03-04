@@ -298,7 +298,7 @@ def get_drape_model(
         [parameters.u_cell_size, parameters.v_cell_size],
         padding_distance=[
             [parameters.horizontal_padding] * 2,
-            [parameters.vertical_padding] * 2,
+            [parameters.vertical_padding, parameters.v_cell_size],
         ],
         depth_core=depth_core,
         expansion_factor=parameters.expansion_factor,
