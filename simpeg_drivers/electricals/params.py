@@ -8,9 +8,10 @@ from __future__ import annotations
 
 import numpy as np
 from geoh5py.data import Data, DataAssociationEnum
+from geoh5py.objects import DrapeModel
 
 from simpeg_drivers import InversionBaseParams
-from simpeg_drivers.utils.utils import get_drape_model
+from simpeg_drivers.utils.mesh import DrapeModelParameters, get_drape_model
 
 
 class Core2DParams(InversionBaseParams):
@@ -19,6 +20,7 @@ class Core2DParams(InversionBaseParams):
     """
 
     def __init__(self, input_file=None, forward_only=False, **kwargs):
+        self._mesh: DrapeModel | None = None
         self._line_object = None
         self._u_cell_size: float = 25.0
         self._v_cell_size: float = 25.0
@@ -43,7 +45,9 @@ class Core2DParams(InversionBaseParams):
 
     @property
     def u_cell_size(self):
-        """"""
+        """
+        Cell size in the u direction (x for 2D).
+        """
         return self._u_cell_size
 
     @u_cell_size.setter
@@ -52,7 +56,9 @@ class Core2DParams(InversionBaseParams):
 
     @property
     def v_cell_size(self):
-        """"""
+        """
+        Cell size in the v direction (y for 2D).
+        """
         return self._v_cell_size
 
     @v_cell_size.setter
@@ -61,7 +67,9 @@ class Core2DParams(InversionBaseParams):
 
     @property
     def depth_core(self):
-        """"""
+        """
+        Depth of the core mesh (smallest cell size).
+        """
         return self._depth_core
 
     @depth_core.setter
@@ -70,7 +78,9 @@ class Core2DParams(InversionBaseParams):
 
     @property
     def horizontal_padding(self):
-        """"""
+        """
+        Horizontal padding distance along the u direction.
+        """
         return self._horizontal_padding
 
     @horizontal_padding.setter
@@ -79,7 +89,9 @@ class Core2DParams(InversionBaseParams):
 
     @property
     def vertical_padding(self):
-        """"""
+        """
+        Vertical padding distance along the v direction.
+        """
         return self._vertical_padding
 
     @vertical_padding.setter
@@ -88,7 +100,9 @@ class Core2DParams(InversionBaseParams):
 
     @property
     def expansion_factor(self):
-        """"""
+        """
+        Expansion factor for the padding cells.
+        """
         return self._expansion_factor
 
     @expansion_factor.setter
@@ -122,18 +136,17 @@ class Base2DParams(Core2DParams):
             receiver_locs = np.vstack(
                 [self.data_object.vertices, current_entity.vertices]
             )
-            self._mesh = get_drape_model(
-                self.geoh5,
-                "Models",
-                receiver_locs,
-                [
-                    self.u_cell_size,
-                    self.v_cell_size,
-                ],
-                self.depth_core,
-                [self.horizontal_padding] * 2 + [self.vertical_padding, 1],
-                self.expansion_factor,
-            )[0]
+
+            # TODO: Parse a BaseModel directly by Params class
+            parameters = DrapeModelParameters(
+                u_cell_size=self.u_cell_size,
+                v_cell_size=self.v_cell_size,
+                depth_core=self.depth_core,
+                horizontal_padding=self.horizontal_padding,
+                vertical_padding=self.vertical_padding,
+                expansion_factor=self.expansion_factor,
+            )
+            self._mesh, _ = get_drape_model(self.geoh5, receiver_locs, parameters)
 
         return self._mesh
 

@@ -1,12 +1,15 @@
-#  Copyright (c) 2024 Mira Geoscience Ltd.
+#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
 #
 #  This file is part of simpeg_drivers package.
 #
 #  All rights reserved
 
+# pylint: disable=invalid-name, too-many-instance-attributes, too-many-public-methods, too-many-statements
+
 from __future__ import annotations
 
 from copy import deepcopy
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 import numpy as np
@@ -17,17 +20,22 @@ from geoh5py.objects import Octree
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
 
+if TYPE_CHECKING:
+    from geoh5py.objects.grid_object import GridObject
+
 
 class InversionBaseParams(BaseParams):
     """
     Base parameter class for geophysical->property inversion.
+
+    TODO: Use pydantic models to subclass and type the inputs.
     """
 
-    _default_ui_json = None
-    _forward_defaults = None
-    _inversion_defaults = None
-    _inversion_type = None
-    _physical_property = None
+    _default_ui_json: dict
+    _forward_defaults: dict
+    _inversion_defaults: dict
+    _inversion_type: str
+    _physical_property: str
 
     def __init__(
         self,
@@ -35,73 +43,73 @@ class InversionBaseParams(BaseParams):
         forward_only: bool = False,
         **kwargs,
     ):
-        self._forward_only: bool = (
-            forward_only if input_file is None else input_file.data["forward_only"]
-        )
-        self._topography_object: UUID = None
-        self._topography: UUID | float = None
-        self._data_object: UUID = None
-        self._starting_model: UUID | float = None
-        self._tile_spatial = None
-        self._z_from_topo: bool = None
-        self._receivers_radar_drape = None
-        self._receivers_offset_z: float = None
-        self._gps_receivers_offset = None
-        self._max_chunk_size: int = None
-        self._chunk_by_rows: bool = None
-        self._output_tile_files: bool = None
-        self._mesh = None
-        self._inversion_style: str = None
-        self._chi_factor: float = None
-        self._sens_wts_threshold: float = None
-        self._every_iteration_bool: bool = None
-        self._f_min_change: float = None
-        self._beta_tol: float = None
-        self._prctile: float = None
-        self._coolingRate: float = None
-        self._coolingFactor: float = None
-        self._coolEps_q: bool = None
-        self._coolEpsFact: float = None
-        self._beta_search: bool = None
-        self._starting_chi_factor: float = None
-        self._max_irls_iterations: int = None
-        self._max_global_iterations: int = None
-        self._max_line_search_iterations: int = None
-        self._max_cg_iterations: int = None
-        self._initial_beta: float = None
-        self._initial_beta_ratio: float = None
-        self._tol_cg: float = None
-        self._alpha_s: float = None
-        self._length_scale_x: float = None
-        self._length_scale_y: float = None
-        self._length_scale_z: float = None
-        self._s_norm: float = None
-        self._x_norm: float = None
-        self._y_norm: float = None
-        self._z_norm: float = None
-        self._reference_model = None
-        self._gradient_type: str = None
-        self._lower_bound = None
-        self._upper_bound = None
-        self._parallelized: bool = None
-        self._n_cpu: int = None
-        self._max_ram: float = None
-        self._store_sensitivities: str = None
-        self._out_group = None
-        self._ga_group = None
-        self._no_data_value: float = None
-        self._distributed_workers = None
+        self._forward_only: bool = forward_only
+
+        if isinstance(input_file, InputFile) and input_file.data is not None:
+            self._forward_only = input_file.data.get("forward_only", False)
+
+        self._topography_object: UUID | None = None
+        self._topography: UUID | float | None = None
+        self._data_object: UUID | None = None
+        self._starting_model: UUID | float | None = None
+        self._tile_spatial: None = None
+        self._z_from_topo: bool | None = None
+        self._receivers_radar_drape: None = None
+        self._receivers_offset_z: float | None = None
+        self._gps_receivers_offset: None = None
+        self._max_chunk_size: int | None = None
+        self._chunk_by_rows: bool | None = None
+        self._output_tile_files: bool | None = None
+        self._mesh: GridObject | None | None = None
+        self._inversion_style: str | None = None
+        self._chi_factor: float | None = None
+        self._sens_wts_threshold: float | None = None
+        self._every_iteration_bool: bool | None = None
+        self._f_min_change: float | None = None
+        self._beta_tol: float | None = None
+        self._prctile: float | None = None
+        self._coolingRate: float | None = None
+        self._coolingFactor: float | None = None
+        self._coolEps_q: bool | None = None
+        self._coolEpsFact: float | None = None
+        self._beta_search: bool | None = None
+        self._starting_chi_factor: float | None = None
+        self._max_irls_iterations: int | None = None
+        self._max_global_iterations: int | None = None
+        self._max_line_search_iterations: int | None = None
+        self._max_cg_iterations: int | None = None
+        self._initial_beta: float | None = None
+        self._initial_beta_ratio: float | None = None
+        self._tol_cg: float | None = None
+        self._alpha_s: float | None = None
+        self._length_scale_x: float | None = None
+        self._length_scale_y: float | None = None
+        self._length_scale_z: float | None = None
+        self._s_norm: float | None = None
+        self._x_norm: float | None = None
+        self._y_norm: float | None = None
+        self._z_norm: float | None = None
+        self._reference_model: UUID | float | None = None
+        self._gradient_type: str | None = None
+        self._lower_bound: UUID | float | None = None
+        self._upper_bound: UUID | float | None = None
+        self._parallelized: bool | None = None
+        self._n_cpu: int | None = None
+        self._max_ram: float | None = None
+        self._store_sensitivities: str | None = None
+        self._out_group: SimPEGGroup | None = None
+        self._no_data_value: float | None = None
+        self._distributed_workers: None = None
         self._documentation: str = ""
         self._icon: str = ""
         self._defaults = (
             self._forward_defaults if self.forward_only else self._inversion_defaults
         )
 
-        if input_file is None:
+        if input_file is None and isinstance(self.defaults, dict):
             ui_json = deepcopy(self._default_ui_json)
-            ui_json = {
-                k: ui_json[k] for k in list(self.defaults)
-            }  # Re-order using defaults
+            # Re-order using defaults
+            ui_json = {k: ui_json[k] for k in list(self.defaults)}
             input_file = InputFile(
                 ui_json=ui_json,
                 data=self.defaults,
@@ -143,7 +151,7 @@ class InversionBaseParams(BaseParams):
     def data(self, component: str):
         """Returns array of data for chosen data component."""
         data_entity = self.data_channel(component)
-        if isinstance(data_entity, NumericData):
+        if isinstance(data_entity, NumericData) and data_entity.values is not None:
             return data_entity.values.astype(float)
         return None
 
@@ -151,16 +159,17 @@ class InversionBaseParams(BaseParams):
         """Returns uncertainty for chosen data component."""
         val = self.uncertainty_channel(component)
 
-        if isinstance(val, NumericData):
+        if isinstance(val, NumericData) and val.values is not None:
             return val.values.astype(float)
-        elif self.data(component) is not None:
+
+        if self.data(component) is not None:
             d = self.data(component)
             if isinstance(val, (int, float)):
                 return np.array([float(val)] * len(d))
-            else:
-                return d * 0.0 + 1.0  # Default
-        else:
-            return None
+
+            return d * 0.0 + 1.0  # Default
+
+        return None
 
     def components(self) -> list[str]:
         """Retrieve component names used to index channel and uncertainty data."""
@@ -180,15 +189,13 @@ class InversionBaseParams(BaseParams):
 
         return comps
 
-    def offset(self) -> tuple[list[float], UUID]:
+    def offset(self) -> tuple[list[float], np.ndarray | None]:
         """Returns offset components as list and drape data."""
-        offsets = [
-            0,
-            0,
-            0 if self.receivers_offset_z is None else self.receivers_offset_z,
-        ]
-        is_offset = any([(k != 0) for k in offsets])
-        offsets = offsets if is_offset else None
+        offsets = [0.0, 0.0, 0.0]
+
+        if self.receivers_offset_z is not None:
+            offsets[2] = self.receivers_offset_z
+
         r = self.receivers_radar_drape
         if isinstance(r, (str, UUID)):
             r = UUID(r) if isinstance(r, str) else r
@@ -659,15 +666,6 @@ class InversionBaseParams(BaseParams):
     def out_group(self, val):
         self.setter_validator("out_group", val)
         self.update_group_options()
-
-    @property
-    def ga_group(self) -> str:
-        """GA group name."""
-        return self._ga_group
-
-    @ga_group.setter
-    def ga_group(self, val):
-        self.setter_validator("ga_group", val)
 
     @property
     def distributed_workers(self):
