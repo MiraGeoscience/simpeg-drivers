@@ -1,4 +1,4 @@
-#  Copyright (c) 2022-2023 Mira Geoscience Ltd.
+#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
 #
 #  This file is part of simpeg_drivers package.
 #
@@ -7,25 +7,17 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from geoh5py.workspace import Workspace
-    from simpeg_drivers.params import InversionBaseParams
-
 import numpy as np
-from geoh5py.objects import ObjectBase, Points
+from geoh5py.data import NumericData
+from geoh5py.objects import ObjectBase
 from geoh5py.objects.surveys.direct_current import BaseElectrode
-from geoh5py.shared import Entity
-from scipy.interpolate import LinearNDInterpolator
-from scipy.spatial import cKDTree
 
 
 class InversionLocations:
     """
     Retrieve topography data from workspace and apply transformations.
 
-    Parameters
+    Attributes
     ----------
     mask :
         Mask that stores cumulative filtering actions.
@@ -41,15 +33,17 @@ class InversionLocations:
 
     """
 
-    def __init__(self, workspace: Workspace, params: InversionBaseParams):
+    def __init__(
+        self, entity: ObjectBase, elevations: NumericData | float | None = None
+    ):
         """
-        :param workspace: Geoh5py workspace object containing location based data.
-        :param params: Params object containing location based data parameters.
+        :param entity: Inversion driver object.
+        :param elevations: Optional elevation data.
         """
-        self.workspace = workspace
-        self._params: InversionBaseParams = params
+        self._entity = entity
+        self._elevations = elevations
         self.mask: np.ndarray | None = None
-        self.locations: np.ndarray | None = None
+        self.locations: np.ndarray = self.compute_locations()
 
     @property
     def mask(self):
@@ -63,41 +57,21 @@ class InversionLocations:
         if np.all([n in [0, 1] for n in np.unique(v)]):
             v = np.array(v, dtype=bool)
         else:
-            msg = f"Badly formed mask array {v}"
-            raise (ValueError(msg))
+            raise ValueError(f"Badly formed mask array {v}")
         self._mask = v
 
-    def create_entity(self, name, locs: np.ndarray, geoh5_object=Points):
-        """Create Data group and Points object with observed data."""
-
-        entity = geoh5_object.create(
-            self.workspace,
-            name=name,
-            vertices=locs,
-            parent=self.params.out_group,
-        )
-
-        return entity
-
-    def get_locations(self, entity: ObjectBase):
+    def get_locations(self):
         """
         Returns entity's centroids or vertices.
-
-        If no location data is found on the provided entity, the method will
-        attempt to call itself on its parent.
-
-        :param workspace: Geoh5py Workspace entity.
-        :param entity: Object or uuid of entity containing centroid or
-            vertex location data.
 
         :return: Array shape(*, 3) of x, y, z location data
 
         """
-        if hasattr(entity, "centroids"):
-            locations = entity.centroids
-        elif hasattr(entity, "vertices"):
-            if isinstance(entity, BaseElectrode):
-                potentials = entity.potential_electrodes
+        if hasattr(self._entity, "centroids"):
+            locations = self._entity.centroids
+        elif hasattr(self._entity, "vertices"):
+            if isinstance(self._entity, BaseElectrode):
+                potentials = self._entity.potential_electrodes
                 locations = np.mean(
                     [
                         potentials.vertices[potentials.cells[:, 0], :],
@@ -106,12 +80,13 @@ class InversionLocations:
                     axis=0,
                 )
             else:
-                locations = entity.vertices
+                locations = self._entity.vertices
 
         else:
-            msg = f"Workspace object {entity} 'vertices' attribute is None."
-            msg += " Object type should be Grid2D or point-like."
-            raise (ValueError(msg))
+            raise ValueError(
+                f"Workspace object {self._entity} 'vertices' attribute is None."
+                " Object type should be Grid2D or point-like."
+            )
 
         return locations
 
@@ -148,41 +123,31 @@ class InversionLocations:
         if isinstance(a, dict):
             if self._none_dict(a):
                 return a
-            else:
-                return self._filter(a, mask)
-        else:
-            if a is None:
-                return None
-            else:
-                return a[mask]
+            return self._filter(a, mask)
 
-    def set_z_from_topo(self, locs: np.ndarray):
-        """interpolate locations z data from topography."""
-
-        if locs is None:
+        if a is None:
             return None
+        return a[mask]
 
-        topo = self.get_locations(self.params.topography_object)
-        if self.params.topography is not None:
-            if isinstance(self.params.topography, Entity):
-                z = self.params.topography.values
+    def compute_locations(self) -> np.ndarray:
+        """
+        Returns locations of data object centroids or vertices.
+
+        :param obj: geoh5py object containing centroid or
+            vertex location data
+
+        :return: Array shape(*, 3) of x, y, z location data
+
+        """
+
+        locs = self.get_locations()
+
+        if self._elevations is not None:
+            if isinstance(self._elevations, NumericData):
+                elev = self._elevations.values
             else:
-                z = np.ones_like(topo[:, 2]) * self.params.topography
+                elev = np.ones_like(locs[:, 2]) * self._elevations
 
-            topo[:, 2] = z
+            locs[:, 2] = elev
 
-        xyz = locs.copy()
-        topo_interpolator = LinearNDInterpolator(topo[:, :2], topo[:, 2])
-        z_topo = topo_interpolator(xyz[:, :2])
-        if np.any(np.isnan(z_topo)):
-            tree = cKDTree(topo[:, :2])
-            _, ind = tree.query(xyz[np.isnan(z_topo), :2])
-            z_topo[np.isnan(z_topo)] = topo[ind, 2]
-        xyz[:, 2] = z_topo
-
-        return xyz
-
-    @property
-    def params(self):
-        """Associated parameters."""
-        return self._params
+        return locs
