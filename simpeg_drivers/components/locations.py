@@ -131,13 +131,9 @@ class InversionLocations:
 
     def compute_locations(self) -> np.ndarray:
         """
-        Returns locations of data object centroids or vertices.
-
-        :param obj: geoh5py object containing centroid or
-            vertex location data
+        Combine the locations of centroids or vertices and elevation data.
 
         :return: Array shape(*, 3) of x, y, z location data
-
         """
 
         locs = self.get_locations()

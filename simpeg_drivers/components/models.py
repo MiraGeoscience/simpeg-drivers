@@ -6,10 +6,11 @@
 
 from __future__ import annotations
 
+import warnings
 from typing import TYPE_CHECKING
 
 import numpy as np
-from geoapps_utils.driver.driver import BaseDriver
+from discretize import TreeMesh
 from geoapps_utils.numerical import weighted_average
 from geoapps_utils.transformations import rotate_xyz
 from geoh5py.data import NumericData
@@ -19,7 +20,17 @@ from SimPEG.utils.mat_utils import (
     mkvc,
 )
 
+from simpeg_drivers.utils.mesh import (
+    floating_active,
+    get_containing_cells,
+    get_neighbouring_cells,
+)
+from simpeg_drivers.utils.utils import active_from_xyz
+
 if TYPE_CHECKING:
+    from geoh5py.objects import DrapeModel
+
+    from simpeg_drivers.components.data import InversionData
     from simpeg_drivers.driver import InversionDriver
 
 
@@ -45,22 +56,27 @@ class InversionModelCollection:
         """
         :param driver: Parental InversionDriver class.
         """
-        self._driver: InversionDriver
+        self._driver: InversionDriver = driver
         self._active_cells = None
 
-        self.driver = driver
         self.is_sigma = self.driver.params.physical_property == "conductivity"
-        self.is_vector = (
-            True if self.driver.params.inversion_type == "magnetic vector" else False
+
+        self.is_vector = False
+
+        if self.driver.params.inversion_type == "magnetic vector":
+            self.is_vector = True
+
+        self._starting = InversionModel(driver, "starting", is_vector=self.is_vector)
+        self._reference = InversionModel(driver, "reference", is_vector=self.is_vector)
+        self._lower_bound = InversionModel(
+            driver, "lower_bound", is_vector=self.is_vector
         )
-        self.n_blocks = (
-            3 if self.driver.params.inversion_type == "magnetic vector" else 1
+        self._upper_bound = InversionModel(
+            driver, "upper_bound", is_vector=self.is_vector
         )
-        self._starting = InversionModel(driver, "starting")
-        self._reference = InversionModel(driver, "reference")
-        self._lower_bound = InversionModel(driver, "lower_bound")
-        self._upper_bound = InversionModel(driver, "upper_bound")
-        self._conductivity = InversionModel(driver, "conductivity")
+        self._conductivity = InversionModel(
+            driver, "conductivity", is_vector=self.is_vector
+        )
 
     @property
     def n_active(self) -> int:
@@ -68,28 +84,16 @@ class InversionModelCollection:
         return int(self.active_cells.sum())
 
     @property
-    def driver(self):
+    def driver(self) -> InversionDriver:
+        """Parental InversionDriver class."""
         return self._driver
-
-    @driver.setter
-    def driver(self, driver):
-        if not isinstance(driver, BaseDriver):
-            raise ValueError("'driver' must be an InversionDriver object.")
-
-        self._driver = driver
 
     @property
     def active_cells(self):
         """Active cells vector."""
         if self._active_cells is None:
             # Build active cells array and reduce models active set
-            if (
-                self.driver.inversion_mesh is not None
-                and self.driver.inversion_data is not None
-            ):
-                self.active_cells = self.driver.inversion_topography.active_cells(
-                    self.driver.inversion_mesh, self.driver.inversion_data
-                )
+            self.active_cells = self.get_active_cells()
         return self._active_cells
 
     @active_cells.setter
@@ -109,9 +113,9 @@ class InversionModelCollection:
         self._active_cells = active_cells
 
     @property
-    def starting(self) -> np.ndarray | None:
+    def starting(self) -> np.ndarray:
         if self._starting.model is None:
-            return None
+            raise ValueError("Starting model is not defined.")
 
         mstart = self._starting.model.copy()
 
@@ -129,7 +133,7 @@ class InversionModelCollection:
 
         if mref is None or (self.is_sigma and all(mref == 0)):
             self.driver.params.alpha_s = 0.0
-            
+
             return self.starting.copy()
 
         ref_model = mref.copy()
@@ -176,15 +180,17 @@ class InversionModelCollection:
 
     def _model_method_wrapper(self, method, name=None, **kwargs):
         """wraps individual model's specific method and applies in loop over model types."""
+        if name is None:
+            return None
+
         returned_items = {}
         for mtype in self.model_types:
-            model = self.__getattribute__(f"_{mtype}")
+            model = getattr(self, f"_{mtype}")
             if model.model is not None:
                 f = getattr(model, method)
                 returned_items[mtype] = f(**kwargs)
 
-        if name is not None:
-            return returned_items[name]
+        return returned_items[name]
 
     def remove_air(self, active_cells: np.ndarray):
         """Use active cells vector to remove air cells from model"""
@@ -223,6 +229,67 @@ class InversionModelCollection:
         """
         return self._model_method_wrapper("edit_ndv_model", name=None, model=actives)
 
+    def get_active_cells(self) -> np.ndarray:
+        """
+        Return mask that restricts models to set of earth cells.
+
+        :param: mesh: inversion mesh.
+        :return: active_cells: Mask that restricts a model to the set of
+            earth cells that are active in the inversion (beneath topography).
+        """
+        active_cells = active_from_xyz(
+            self.driver.inversion_mesh.entity,
+            self.driver.inversion_topography.locations,
+            grid_reference="bottom" if self.driver.force_to_surface else "center",
+        )
+        active_cells = active_cells[np.argsort(self.driver.inversion_mesh.permutation)]
+
+        if self.driver.force_to_surface:
+            active_cells = self.expand_actives(
+                active_cells,
+                self.driver.inversion_mesh.mesh,
+                self.driver.inversion_data,
+            )
+
+            if floating_active(self.driver.inversion_mesh.mesh, active_cells):
+                warnings.warn(
+                    "Active cell adjustment has created a patch of active cells in the air, "
+                    "likely due to a faulty survey location."
+                )
+
+        return active_cells
+
+    @staticmethod
+    def expand_actives(
+        active_cells: np.ndarray, mesh: TreeMesh | DrapeModel, data: InversionData
+    ) -> np.ndarray:
+        """
+        Expand active cells to ensure receivers are within active cells.
+
+        :param active_cells: Mask that restricts a model to the set of
+        :param mesh: Inversion mesh.
+        :param data: Inversion data.
+
+        :return: active_cells: Mask that restricts a model to the set of
+        """
+        containing_cells = get_containing_cells(mesh, data)
+        active_cells[containing_cells] = True
+
+        # Apply extra active cells to ensure connectivity for tree meshes
+        if isinstance(mesh, TreeMesh):
+            neighbours = get_neighbouring_cells(mesh, containing_cells)
+            neighbours_xy = np.r_[neighbours[0] + neighbours[1]]
+
+            # Make sure the new actives are connected to the old actives
+            new_actives = ~active_cells[neighbours_xy]
+            if np.any(new_actives):
+                neighbours = get_neighbouring_cells(mesh, neighbours_xy[new_actives])
+                active_cells[np.r_[neighbours[2][0]]] = True  # z-axis neighbours
+
+            active_cells[neighbours_xy] = True  # xy-axis neighbours
+
+        return active_cells
+
 
 class InversionModel:
     """
@@ -246,6 +313,7 @@ class InversionModel:
         self,
         driver: InversionDriver,
         model_type: str,
+        is_vector: bool = False,
     ):
         """
         :param driver: InversionDriver object.
@@ -255,12 +323,12 @@ class InversionModel:
         self.driver = driver
         self.model_type = model_type
         self.model: np.ndarray | None = None
-        self.is_vector = (
-            True if self.driver.params.inversion_type == "magnetic vector" else False
-        )
-        self.n_blocks = (
-            3 if self.driver.params.inversion_type == "magnetic vector" else 1
-        )
+        self.is_vector = is_vector
+
+        self.n_blocks = 1
+        if is_vector:
+            self.n_blocks = 3
+
         self._initialize()
 
     def _initialize(self):
