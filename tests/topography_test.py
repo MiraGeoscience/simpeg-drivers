@@ -1,8 +1,8 @@
-#  Copyright (c) 2023 Mira Geoscience Ltd.
+#  Copyright (c) 2024 Mira Geoscience Ltd.
 #
-#  This file is part of geoapps.
+#  This file is part of simpeg-drivers.
 #
-#  geoapps is distributed under the terms and conditions of the MIT License
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License
 #  (see LICENSE file at the root of this source code package).
 
 
@@ -11,12 +11,10 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-from geoh5py.workspace import Workspace
 
 from simpeg_drivers.components import InversionTopography
 from simpeg_drivers.potential_fields import MagneticVectorParams
 from simpeg_drivers.utils.testing import Geoh5Tester, setup_inversion_workspace
-from tests import GEOH5 as geoh5
 
 
 def setup_params(tmp_path):

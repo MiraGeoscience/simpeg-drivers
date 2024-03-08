@@ -1,4 +1,4 @@
-#  Copyright (c) 2022-2023 Mira Geoscience Ltd.
+#  Copyright (c) 2024 Mira Geoscience Ltd.
 #
 #  This file is part of simpeg_drivers package.
 #
@@ -13,6 +13,7 @@ import numpy as np
 from geoapps_utils.driver.params import BaseParams
 from geoh5py.data import NumericData
 from geoh5py.groups import SimPEGGroup
+from geoh5py.objects import Octree
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
 
@@ -32,7 +33,6 @@ class InversionBaseParams(BaseParams):
         self,
         input_file: InputFile | None = None,
         forward_only: bool = False,
-        out_group: SimPEGGroup | None = None,
         **kwargs,
     ):
         self._forward_only: bool = (
@@ -110,8 +110,6 @@ class InversionBaseParams(BaseParams):
             )
 
         super().__init__(input_file=input_file, **kwargs)
-
-        self.out_group = out_group
 
         if not self.forward_only:
             for key in self.__dict__:
@@ -347,6 +345,16 @@ class InversionBaseParams(BaseParams):
     @mesh.setter
     def mesh(self, val):
         self.setter_validator("mesh", val, fun=self._uuid_promoter)
+
+        if (
+            isinstance(self._mesh, Octree)
+            and self._mesh.rotation is not None
+            and self._mesh.rotation != 0.0
+        ):
+            raise ValueError(
+                "Rotated meshes are not supported. Please use a mesh with an angle of 0.0."
+            )
+
         self.update_group_options()
 
     @property

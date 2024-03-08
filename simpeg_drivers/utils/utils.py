@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 import warnings
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 import numpy as np
@@ -22,6 +23,7 @@ from geoapps_utils.numerical import running_mean, traveling_salesman
 from geoh5py import Workspace
 from geoh5py.groups import Group
 from geoh5py.objects import DrapeModel, Octree
+from geoh5py.objects.surveys.electromagnetics.base import LargeLoopGroundEMSurvey
 from geoh5py.shared import INTEGER_NDV
 from octree_creation_app.utils import octree_2_treemesh
 from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator, interp1d
@@ -32,6 +34,9 @@ from SimPEG.electromagnetics.frequency_domain.sources import (
 from SimPEG.electromagnetics.time_domain.sources import LineCurrent as TEMLineCurrent
 from SimPEG.survey import BaseSurvey
 from SimPEG.utils import mkvc
+
+if TYPE_CHECKING:
+    from simpeg_drivers.components.data import InversionData
 
 from simpeg_drivers.utils.surveys import (
     compute_alongline_distance,
@@ -618,77 +623,42 @@ def tile_locations(
     return tuple(out)
 
 
-def filter_xy(
-    x: np.array,
-    y: np.array,
-    distance: float | None = None,
-    window: dict | None = None,
-    angle: float | None = None,
-    mask: np.ndarray | None = None,
-) -> np.array:
+def get_containing_cells(
+    mesh: TreeMesh | TensorMesh, data: InversionData
+) -> np.ndarray:
     """
-    Window and down-sample locations based on distance and window parameters.
+    Find indices of cells that contain data locations
 
-    :param x: Easting coordinates, as vector or meshgrid-like array
-    :param y: Northing coordinates, as vector or meshgrid-like array
-    :param distance: Desired coordinate spacing.
-    :param window: Window parameters describing a domain of interest.
-        Must contain the following keys and values:
-        window = {
-            "center": [X: float, Y: float],
-            "size": [width: float, height: float]
-        }
-        May also contain an "azimuth" in the case of rotated x and y.
-    :param angle: Angle through which the locations must be rotated
-        to take on a east-west, north-south orientation.  Supersedes
-        the 'azimuth' key/value pair in the window dictionary if it
-        exists.
-    :param mask: Boolean mask to be combined with filter_xy masks via
-        logical 'and' operation.
-
-    :return mask: Boolean mask to be applied input arrays x and y.
+    :param mesh: Computational mesh object
+    :param data: Inversion data object
     """
+    if isinstance(mesh, TreeMesh):
+        inds = mesh._get_containing_cell_indexes(  # pylint: disable=protected-access
+            data.locations
+        )
 
-    if mask is None:
-        mask = np.ones_like(x, dtype=bool)
+        if isinstance(data.entity, LargeLoopGroundEMSurvey):
+            line_ind = []
+            transmitters = data.entity.transmitters
+            for cell in transmitters.cells:
+                line_ind.append(
+                    mesh.get_cells_along_line(
+                        transmitters.vertices[cell[0], :],
+                        transmitters.vertices[cell[1], :],
+                    )
+                )
+            inds = np.unique(np.r_[inds, np.hstack(line_ind)])
 
-    azim = None
-    if angle is not None:
-        azim = angle
-    elif window is not None:
-        if "azimuth" in window:
-            azim = window["azimuth"]
+    elif isinstance(mesh, TensorMesh):
+        locations = data.drape_locations(np.unique(data.locations, axis=0))
+        xi = np.searchsorted(mesh.nodes_x, locations[:, 0]) - 1
+        yi = np.searchsorted(mesh.nodes_y, locations[:, -1]) - 1
+        inds = xi * mesh.shape_cells[1] + yi
 
-    is_rotated = False if (azim is None) | (azim == 0) else True
-    if is_rotated:
-        xy_locs = rotate_xyz(np.c_[x.ravel(), y.ravel()], window["center"], azim)
-        xr = xy_locs[:, 0].reshape(x.shape)
-        yr = xy_locs[:, 1].reshape(y.shape)
+    else:
+        raise TypeError("Mesh must be 'TreeMesh' or 'TensorMesh'")
 
-    if window is not None:
-        if is_rotated:
-            mask, _, _ = window_xy(xr, yr, window, mask=mask)
-        else:
-            mask, _, _ = window_xy(x, y, window, mask=mask)
-
-    if distance not in [None, 0]:
-        is_grid = False
-        if x.ndim > 1:
-            if is_rotated:
-                u_diff = np.unique(np.round(np.diff(xr, axis=1), 8))
-                v_diff = np.unique(np.round(np.diff(yr, axis=0), 8))
-            else:
-                u_diff = np.unique(np.round(np.diff(x, axis=1), 8))
-                v_diff = np.unique(np.round(np.diff(y, axis=0), 8))
-
-            is_grid = (len(u_diff) == 1) & (len(v_diff) == 1)
-
-        if is_grid:
-            mask, _, _ = downsample_grid(x, y, distance, mask=mask)
-        else:
-            mask, _, _ = downsample_xy(x, y, distance, mask=mask)
-
-    return mask
+    return inds
 
 
 def cell_size_z(drape_model: DrapeModel) -> np.ndarray:
@@ -794,3 +764,35 @@ def minimum_depth_core(
         return depth_core - zrange + core_z_cell_size
     else:
         return depth_core
+
+
+def get_neighbouring_cells(mesh: TreeMesh, indices: list | np.ndarray) -> tuple:
+    """
+    Get the indices of neighbouring cells along a given axis for a given list of
+    cell indices.
+
+    :param mesh: discretize.TreeMesh object.
+    :param indices: List of cell indices.
+
+    :return: Two lists of neighbouring cell indices for every axis.
+        axis[0] = (west, east)
+        axis[1] = (south, north)
+        axis[2] = (down, up)
+    """
+    if not isinstance(indices, (list, np.ndarray)):
+        raise TypeError("Input 'indices' must be a list or numpy.ndarray of indices.")
+
+    if not isinstance(mesh, TreeMesh):
+        raise TypeError("Input 'mesh' must be a discretize.TreeMesh object.")
+
+    neighbors = {ax: [[], []] for ax in range(mesh.dim)}
+
+    for ind in indices:
+        for ax in range(mesh.dim):
+            neighbors[ax][0].append(np.r_[mesh[ind].neighbors[ax * 2]])
+            neighbors[ax][1].append(np.r_[mesh[ind].neighbors[ax * 2 + 1]])
+
+    return tuple(
+        (np.r_[tuple(neighbors[ax][0])], np.r_[tuple(neighbors[ax][1])])
+        for ax in range(mesh.dim)
+    )

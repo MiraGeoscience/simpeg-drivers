@@ -1,8 +1,8 @@
-#  Copyright (c) 2023 Mira Geoscience Ltd.
+#  Copyright (c) 2024 Mira Geoscience Ltd.
 #
-#  This file is part of geoapps.
+#  This file is part of simpeg-drivers.
 #
-#  geoapps is distributed under the terms and conditions of the MIT License
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License
 #  (see LICENSE file at the root of this source code package).
 
 from __future__ import annotations
@@ -18,7 +18,6 @@ from simpeg_drivers.electricals.induced_polarization.two_dimensions import (
 from simpeg_drivers.electricals.induced_polarization.two_dimensions.driver import (
     InducedPolarization2DDriver,
 )
-from simpeg_drivers.utils.surveys import survey_lines
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
@@ -26,9 +25,9 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # Move this file out of the test directory and run.
 
 target_run = {
-    "data_norm": 0.091298,
-    "phi_d": 9581,
-    "phi_m": 0.08327,
+    "data_norm": 0.09141,
+    "phi_d": 9934,
+    "phi_m": 0.08341,
 }
 
 np.random.seed(0)
@@ -52,7 +51,6 @@ def test_ip_2d_fwr_run(
         flatten=False,
         drape_height=0.0,
     )
-    _ = survey_lines(survey, [-100, -100], save="line_ids")
     params = InducedPolarization2DParams(
         forward_only=True,
         geoh5=geoh5,
@@ -63,7 +61,7 @@ def test_ip_2d_fwr_run(
         starting_model=model.uid,
         conductivity_model=1e-2,
         line_object=geoh5.get_entity("line_ids")[0].uid,
-        line_id=2,
+        line_id=101,
     )
     params.workpath = tmp_path
     fwr_driver = InducedPolarization2DDriver(params)
@@ -83,8 +81,6 @@ def test_ip_2d_run(
         chargeability = geoh5.get_entity("Iteration_0_ip")[0]
         mesh = geoh5.get_entity("Models")[0]
         topography = geoh5.get_entity("topography")[0]
-        _ = survey_lines(chargeability.parent, [-100, 100], save="line_IDs")
-
         # Run the inverse
         np.random.seed(0)
         params = InducedPolarization2DParams(
@@ -94,8 +90,8 @@ def test_ip_2d_run(
             data_object=chargeability.parent.uid,
             chargeability_channel=chargeability.uid,
             chargeability_uncertainty=2e-4,
-            line_object=geoh5.get_entity("line_IDs")[0].uid,
-            line_id=2,
+            line_object=geoh5.get_entity("line_ids")[0].uid,
+            line_id=101,
             starting_model=1e-6,
             reference_model=1e-6,
             conductivity_model=1e-2,

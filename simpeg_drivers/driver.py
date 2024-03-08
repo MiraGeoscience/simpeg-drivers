@@ -24,6 +24,7 @@ from geoapps_utils.driver.driver import BaseDriver
 from geoh5py.groups import SimPEGGroup
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
+from param_sweeps.driver import SweepParams
 from SimPEG import (
     directives,
     inverse_problem,
@@ -245,6 +246,19 @@ class InversionDriver(BaseDriver):
         return self._out_group
 
     @property
+    def params(self) -> InversionBaseParams:
+        """Application parameters."""
+        return self._params
+
+    @params.setter
+    def params(self, val: (InversionBaseParams, SweepParams)):
+        if not isinstance(val, (InversionBaseParams, SweepParams)):
+            raise TypeError(
+                "Parameters must be of type 'InversionBaseParams' or 'SweepParams'."
+            )
+        self._params = val
+
+    @property
     def regularization(self):
         if getattr(self, "_regularization", None) is None:
             self._regularization = self.get_regularization()
@@ -401,20 +415,9 @@ class InversionDriver(BaseDriver):
 
     def get_tiles(self):
         if "2d" in self.params.inversion_type:
-            tiles = [self.inversion_data.indices]
+            tiles = [np.arange(len(self.inversion_data.indices))]
         else:
             locations = self.inversion_data.locations
-
-            # Use mid-point between M-N electrodes
-            if self.params.inversion_type in [
-                "direct current 3d",
-                "induced polarization 3d",
-            ]:
-                cells = self.inversion_data.entity.cells
-                locations = (
-                    locations[cells[:, 0], :] + locations[cells[:, 1], :]
-                ) / 2.0
-
             tiles = tile_locations(
                 locations,
                 self.params.tile_spatial,

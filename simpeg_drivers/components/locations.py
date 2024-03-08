@@ -14,9 +14,8 @@ if TYPE_CHECKING:
     from simpeg_drivers.params import InversionBaseParams
 
 import numpy as np
-from geoapps_utils.locations import get_locations
-from geoapps_utils.transformations import rotate_xyz
-from geoh5py.objects import Points
+from geoh5py.objects import ObjectBase, Points
+from geoh5py.objects.surveys.direct_current import BaseElectrode
 from geoh5py.shared import Entity
 from scipy.interpolate import LinearNDInterpolator
 from scipy.spatial import cKDTree
@@ -30,12 +29,6 @@ class InversionLocations:
     ----------
     mask :
         Mask that stores cumulative filtering actions.
-    origin :
-        Rotation origin.
-    angle :
-        Rotation angle.
-    is_rotated :
-        True if locations have been rotated.
     locations :
         xyz locations.
 
@@ -45,8 +38,6 @@ class InversionLocations:
         Returns locations of data object centroids or vertices.
     filter() :
         Apply accumulated self.mask to array, or dict of arrays.
-    rotate() :
-        Un-rotate data using origin and angle assigned to inversion mesh.
 
     """
 
@@ -57,17 +48,8 @@ class InversionLocations:
         """
         self.workspace = workspace
         self._params: InversionBaseParams = params
-        self.mask: np.ndarray = None
-        self.origin: list[float] = None
-        self.angle: float = None
-        self.is_rotated: bool = False
-        self.locations: np.ndarray = None
-
-        if params.mesh is not None:
-            if hasattr(params.mesh, "rotation"):
-                self.origin = np.asarray(params.mesh.origin.tolist())
-                self.angle = -1 * params.mesh.rotation
-                self.is_rotated = True if np.abs(self.angle) != 0 else False
+        self.mask: np.ndarray | None = None
+        self.locations: np.ndarray | None = None
 
     @property
     def mask(self):
@@ -88,13 +70,6 @@ class InversionLocations:
     def create_entity(self, name, locs: np.ndarray, geoh5_object=Points):
         """Create Data group and Points object with observed data."""
 
-        if self.is_rotated:
-            locs[:, :2] = rotate_xyz(
-                locs[:, :2],
-                self.origin,
-                -1 * self.angle,
-            )
-
         entity = geoh5_object.create(
             self.workspace,
             name=name,
@@ -104,25 +79,41 @@ class InversionLocations:
 
         return entity
 
-    def get_locations(self, obj) -> np.ndarray:
+    def get_locations(self, entity: ObjectBase) -> np.ndarray:
         """
-        Returns locations of data object centroids or vertices.
+        Returns entity's centroids or vertices.
 
-        :param uid: UUID of geoh5py object containing centroid or
-            vertex location data
+        If no location data is found on the provided entity, the method will
+        attempt to call itself on its parent.
+
+        :param workspace: Geoh5py Workspace entity.
+        :param entity: Object or uuid of entity containing centroid or
+            vertex location data.
 
         :return: Array shape(*, 3) of x, y, z location data
 
         """
+        if hasattr(entity, "centroids"):
+            locations = entity.centroids
+        elif hasattr(entity, "vertices"):
+            if isinstance(entity, BaseElectrode):
+                potentials = entity.potential_electrodes
+                locations = np.mean(
+                    [
+                        potentials.vertices[potentials.cells[:, 0], :],
+                        potentials.vertices[potentials.cells[:, 1], :],
+                    ],
+                    axis=0,
+                )
+            else:
+                locations = entity.vertices
 
-        locs = get_locations(self.workspace, obj)
-
-        if locs is None:
-            msg = f"Workspace object {obj} 'vertices' attribute is None."
+        else:
+            msg = f"Workspace object {entity} 'vertices' attribute is None."
             msg += " Object type should be Grid2D or point-like."
             raise (ValueError(msg))
 
-        return locs
+        return locations
 
     def _filter(self, a, mask):
         for k, v in a.items():
@@ -164,22 +155,6 @@ class InversionLocations:
                 return None
             else:
                 return a[mask]
-
-    def rotate(self, locs: np.ndarray) -> np.ndarray:
-        """
-        Rotate data using origin and angle assigned to inversion mesh.
-
-        Since rotation attribute is stored with a negative sign the applied
-        rotation will restore locations to an East-West, North-South orientation.
-
-        :param locs: Array of xyz locations.
-        """
-
-        if locs is None:
-            return None
-
-        xy = rotate_xyz(locs[:, :2], self.origin, self.angle)
-        return np.c_[xy, locs[:, 2]]
 
     def set_z_from_topo(self, locs: np.ndarray):
         """interpolate locations z data from topography."""

@@ -16,12 +16,18 @@ if TYPE_CHECKING:
 import warnings
 
 import numpy as np
+from discretize import TreeMesh
+from geoh5py.objects.surveys.electromagnetics.base import LargeLoopGroundEMSurvey
 from geoh5py.shared import Entity
 
 from simpeg_drivers.components.data import InversionData
 from simpeg_drivers.components.locations import InversionLocations
-from simpeg_drivers.components.utils import get_containing_cells
-from simpeg_drivers.utils.utils import active_from_xyz, filter_xy, floating_active
+from simpeg_drivers.utils.utils import (
+    active_from_xyz,
+    floating_active,
+    get_containing_cells,
+    get_neighbouring_cells,
+)
 
 
 class InversionTopography(InversionLocations):
@@ -54,21 +60,11 @@ class InversionTopography(InversionLocations):
         """
         super().__init__(workspace, params)
         self.locations: np.ndarray | None = None
-        self.mask: np.ndarray | None = None
+
         self._initialize()
 
     def _initialize(self):
         self.locations = self.get_locations(self.params.topography_object)
-        self.mask = filter_xy(
-            self.locations[:, 0],
-            self.locations[:, 1],
-            angle=self.angle,
-        )
-
-        self.locations = super().filter(self.locations)
-
-        if self.is_rotated:
-            self.locations = super().rotate(self.locations)
 
     def active_cells(self, mesh: InversionMesh, data: InversionData) -> np.ndarray:
         """
@@ -78,34 +74,28 @@ class InversionTopography(InversionLocations):
         :return: active_cells: Mask that restricts a model to the set of
             earth cells that are active in the inversion (beneath topography).
         """
-        forced_to_surface = [
+        forced_to_surface = self.params.inversion_type in [
             "magnetotellurics",
             "direct current 3d",
             "direct current 2d",
             "induced polarization 3d",
             "induced polarization 2d",
-        ]
-        if self.params.inversion_type in forced_to_surface:
-            active_cells = active_from_xyz(
-                mesh.entity, self.locations, grid_reference="bottom"
-            )
-            active_cells = active_cells[np.argsort(mesh.permutation)]
+        ] or isinstance(data.entity, LargeLoopGroundEMSurvey)
+        active_cells = active_from_xyz(
+            mesh.entity,
+            self.locations,
+            grid_reference="bottom" if forced_to_surface else "center",
+        )
+        active_cells = active_cells[np.argsort(mesh.permutation)]
 
-            print(
-                "Adjusting active cells so that receivers are all within an active cell . . ."
-            )
-            active_cells[get_containing_cells(mesh.mesh, data)] = True
+        if forced_to_surface:
+            active_cells = self.expand_actives(active_cells, mesh, data)
 
             if floating_active(mesh.mesh, active_cells):
                 warnings.warn(
-                    "Active cell adjustment has created a patch of active cells in the air, likely due to a faulty survey location."
+                    "Active cell adjustment has created a patch of active cells in the air, "
+                    "likely due to a faulty survey location."
                 )
-
-        else:
-            active_cells = active_from_xyz(
-                mesh.entity, self.locations, grid_reference="center"
-            )
-            active_cells = active_cells[np.argsort(mesh.permutation)]
 
         return active_cells
 
@@ -134,3 +124,35 @@ class InversionTopography(InversionLocations):
                 locs[:, 2] = elev
 
         return locs
+
+    def expand_actives(
+        self, active_cells: np.ndarray, mesh: InversionMesh, data: InversionData
+    ) -> np.ndarray:
+        """
+        Expand active cells to ensure receivers are within active cells.
+
+        :param active_cells: Mask that restricts a model to the set of
+        :param mesh: Inversion mesh.
+        :param data: Inversion data.
+
+        :return: active_cells: Mask that restricts a model to the set of
+        """
+        containing_cells = get_containing_cells(mesh.mesh, data)
+        active_cells[containing_cells] = True
+
+        # Apply extra active cells to ensure connectivity for tree meshes
+        if isinstance(mesh.mesh, TreeMesh):
+            neighbours = get_neighbouring_cells(mesh.mesh, containing_cells)
+            neighbours_xy = np.r_[neighbours[0] + neighbours[1]]
+
+            # Make sure the new actives are connected to the old actives
+            new_actives = ~active_cells[neighbours_xy]
+            if np.any(new_actives):
+                neighbours = get_neighbouring_cells(
+                    mesh.mesh, neighbours_xy[new_actives]
+                )
+                active_cells[np.r_[neighbours[2][0]]] = True  # z-axis neighbours
+
+            active_cells[neighbours_xy] = True  # xy-axis neighbours
+
+        return active_cells

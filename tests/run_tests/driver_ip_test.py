@@ -1,8 +1,8 @@
-#  Copyright (c) 2023 Mira Geoscience Ltd.
+#  Copyright (c) 2024 Mira Geoscience Ltd.
 #
-#  This file is part of geoapps.
+#  This file is part of simpeg-drivers.
 #
-#  geoapps is distributed under the terms and conditions of the MIT License
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License
 #  (see LICENSE file at the root of this source code package).
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.008494880725179624, "phi_d": 1.438, "phi_m": 0.3258}
+target_run = {"data_norm": 0.008494, "phi_d": 1.438, "phi_m": 0.3258}
 
 np.random.seed(0)
 

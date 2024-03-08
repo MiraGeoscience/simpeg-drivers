@@ -1,9 +1,10 @@
-#  Copyright (c) 2023 Mira Geoscience Ltd.
+#  Copyright (c) 2024 Mira Geoscience Ltd.
 #
-#  This file is part of geoapps.
+#  This file is part of simpeg-drivers.
 #
-#  geoapps is distributed under the terms and conditions of the MIT License
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License
 #  (see LICENSE file at the root of this source code package).
+
 from pathlib import Path
 
 import numpy as np
@@ -60,6 +61,7 @@ def test_joint_cross_gradient_fwr_run(
 
     _, _, model, survey, _ = setup_inversion_workspace(
         tmp_path,
+        geoh5=geoh5,
         background=0.0,
         anomaly=0.05,
         refinement=refinement,
@@ -86,6 +88,7 @@ def test_joint_cross_gradient_fwr_run(
 
     _, _, model, survey, _ = setup_inversion_workspace(
         tmp_path,
+        geoh5=geoh5,
         background=0.01,
         anomaly=10,
         n_electrodes=n_grid_points,

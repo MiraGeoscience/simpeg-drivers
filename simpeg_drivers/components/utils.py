@@ -11,7 +11,6 @@ import numpy as np
 from discretize import TensorMesh, TreeMesh
 
 from simpeg_drivers.components import InversionData
-from simpeg_drivers.utils.surveys import get_unique_locations
 
 
 def get_containing_cells(
@@ -29,10 +28,10 @@ def get_containing_cells(
         )
 
     elif isinstance(mesh, TensorMesh):
-        locations = data.drape_locations(get_unique_locations(data.survey))
+        locations = data.drape_locations(np.unique(data.locations, axis=0))
         xi = np.searchsorted(mesh.nodes_x, locations[:, 0]) - 1
         yi = np.searchsorted(mesh.nodes_y, locations[:, -1]) - 1
-        inds = xi + yi * mesh.shape_cells[0]
+        inds = xi * mesh.shape_cells[1] + yi
 
     else:
         raise TypeError("Mesh must be 'TreeMesh' or 'TensorMesh'")

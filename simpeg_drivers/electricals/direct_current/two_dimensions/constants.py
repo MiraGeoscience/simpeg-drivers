@@ -1,4 +1,4 @@
-#  Copyright (c) 2022-2023 Mira Geoscience Ltd.
+#  Copyright (c) 2024 Mira Geoscience Ltd.
 #
 #  This file is part of simpeg_drivers package.
 #
@@ -84,7 +84,7 @@ inversion_defaults = {
     "monitoring_directory": None,
     "workspace_geoh5": None,
     "run_command": "simpeg_drivers.driver",
-    "conda_environment": "geoapps",
+    "conda_environment": "simpeg_drivers",
     "distributed_workers": None,
     "potential_channel_bool": True,
 }
@@ -124,7 +124,7 @@ forward_defaults = {
     "monitoring_directory": None,
     "workspace_geoh5": None,
     "run_command": "simpeg_drivers.driver",
-    "conda_environment": "geoapps",
+    "conda_environment": "simpeg_drivers",
     "distributed_workers": None,
     "gradient_type": "total",
 }
@@ -134,7 +134,7 @@ default_ui_json = {
     "icon": "PotentialElectrode",
     "inversion_type": "direct current 2d",
     "line_object": {
-        "association": ["Cell", "Vertex"],
+        "association": "Cell",
         "dataType": "Referenced",
         "group": "Data",
         "main": True,
@@ -165,7 +165,7 @@ default_ui_json = {
     },
     "potential_channel_bool": True,
     "potential_channel": {
-        "association": ["Cell", "Vertex"],
+        "association": "Cell",
         "dataType": "Float",
         "group": "Data",
         "main": True,
@@ -175,7 +175,7 @@ default_ui_json = {
         "value": None,
     },
     "potential_uncertainty": {
-        "association": ["Cell", "Vertex"],
+        "association": "Cell",
         "dataType": "Float",
         "group": "Data",
         "main": True,
