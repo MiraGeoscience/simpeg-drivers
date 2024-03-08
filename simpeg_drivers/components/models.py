@@ -151,6 +151,7 @@ class InversionModelCollection:
         if self.is_sigma:
             is_finite = np.isfinite(lbound)
             lbound[is_finite] = np.log(lbound[is_finite])
+
         return lbound
 
     @property

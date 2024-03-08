@@ -14,6 +14,7 @@ from uuid import UUID
 import numpy as np
 from discretize.utils import mesh_builder_xyz
 from geoh5py import Workspace
+from geoh5py.data import ReferencedData
 from geoh5py.objects import (
     AirborneFEMReceivers,
     AirborneFEMTransmitters,
@@ -107,7 +108,12 @@ def check_target(output: dict, target: dict, tolerance=0.1):
     )
 
 
-def generate_dc_survey(workspace, x_loc, y_loc, z_loc=None):
+def generate_dc_survey(
+    workspace: Workspace,
+    x_loc: np.ndarray,
+    y_loc: np.ndarray,
+    z_loc: np.ndarray | None = None,
+) -> PotentialElectrode:
     """
     Utility function to generate a DC survey.
     """
@@ -162,6 +168,184 @@ def generate_dc_survey(workspace, x_loc, y_loc, z_loc=None):
     currents.potential_electrodes = potentials
 
     return potentials
+
+
+def generate_tipper_survey(geoh5, vertices) -> TipperReceivers:
+    survey = TipperReceivers.create(
+        geoh5,
+        vertices=vertices,
+        name="survey",
+        components=[
+            "Txz (real)",
+            "Txz (imag)",
+            "Tyz (real)",
+            "Tyz (imag)",
+        ],
+    )
+    survey.base_stations = TipperBaseStations.create(
+        geoh5, vertices=np.c_[vertices[0, :]].T
+    )
+    survey.channels = [10.0, 100.0, 1000.0]
+    dist = np.linalg.norm(
+        survey.vertices[survey.cells[:, 0], :] - survey.vertices[survey.cells[:, 1], :],
+        axis=1,
+    )
+    # survey.cells = survey.cells[dist < 100.0, :]
+    survey.remove_cells(np.where(dist > 100)[0])
+
+    return survey
+
+
+def generate_fem_survey(geoh5, vertices) -> AirborneFEMReceivers:
+    survey = AirborneFEMReceivers.create(geoh5, vertices=vertices, name="Airborne_rx")
+    freq_metadata = [
+        {"Coaxial data": False, "Frequency": 900, "Offset": 7.86},
+        {"Coaxial data": False, "Frequency": 7200, "Offset": 7.86},
+        {"Coaxial data": False, "Frequency": 56000, "Offset": 6.3},
+    ]
+    survey.metadata["EM Dataset"]["Frequency configurations"] = freq_metadata
+
+    tx_locs = []
+    freqs = []
+    for meta in freq_metadata:
+        tx_vertices = vertices.copy()
+        tx_vertices[:, 0] -= meta["Offset"]
+        tx_locs.append(tx_vertices)
+        freqs.append([[meta["Frequency"]] * len(vertices)])
+    tx_locs = np.vstack(tx_locs)
+    freqs = np.hstack(freqs).flatten()
+
+    transmitters = AirborneFEMTransmitters.create(
+        geoh5, vertices=tx_locs, name="Airborne_tx"
+    )
+    survey.transmitters = transmitters
+    survey.channels = [900.0, 7200.0, 56000.0]
+
+    transmitters.add_data(
+        {
+            "Tx frequency": {
+                "values": freqs,
+                "association": "VERTEX",
+                "entity_type": {
+                    "primitive_type": "REFERENCED",
+                    "value_map": {k: str(k) for k in freqs},
+                },
+            }
+        }
+    )
+
+    dist = np.linalg.norm(
+        survey.vertices[survey.cells[:, 0], :] - survey.vertices[survey.cells[:, 1], :],
+        axis=1,
+    )
+    survey.remove_cells(np.where(dist > 200.0)[0])
+    dist = np.linalg.norm(
+        transmitters.vertices[transmitters.cells[:, 0], :]
+        - transmitters.vertices[transmitters.cells[:, 1], :],
+        axis=1,
+    )
+    transmitters.remove_cells(np.where(dist > 200.0)[0])
+
+    return survey
+
+
+def generate_airborne_tem_survey(geoh5, vertices) -> AirborneTEMReceivers:
+    survey = AirborneTEMReceivers.create(geoh5, vertices=vertices, name="Airborne_rx")
+    transmitters = AirborneTEMTransmitters.create(
+        geoh5, vertices=vertices, name="Airborne_tx"
+    )
+
+    dist = np.linalg.norm(
+        survey.vertices[survey.cells[:, 0], :] - survey.vertices[survey.cells[:, 1], :],
+        axis=1,
+    )
+    survey.remove_cells(np.where(dist > 200.0)[0])
+    transmitters.remove_cells(np.where(dist > 200.0)[0])
+    survey.transmitters = transmitters
+
+    return survey
+
+
+def generate_ground_tem_survey(
+    geoh5, vertices, x_grid, y_grid, z_grid, n_lines, topo_drape, drape_height, center
+) -> LargeLoopGroundTEMReceivers:
+    arrays = [
+        np.c_[
+            x_grid[: int(n_lines / 2), :].flatten(),
+            y_grid[: int(n_lines / 2), :].flatten(),
+            z_grid[: int(n_lines / 2), :].flatten(),
+        ],
+        np.c_[
+            x_grid[int(n_lines / 2) :, :].flatten(),
+            y_grid[int(n_lines / 2) :, :].flatten(),
+            z_grid[int(n_lines / 2) :, :].flatten(),
+        ],
+    ]
+    loops = []
+    loop_cells = []
+    loop_id = []
+    count = 0
+    for ind, array in enumerate(arrays):
+        loop_id += [np.ones(array.shape[0]) * (ind + 1)]
+        min_loc = np.min(array, axis=0)
+        max_loc = np.max(array, axis=0)
+        loop = np.vstack(
+            [
+                np.c_[
+                    np.ones(5) * min_loc[0],
+                    np.linspace(min_loc[1], max_loc[1], 5),
+                ],
+                np.c_[
+                    np.linspace(min_loc[0], max_loc[0], 5)[1:],
+                    np.ones(4) * max_loc[1],
+                ],
+                np.c_[
+                    np.ones(4) * max_loc[0],
+                    np.linspace(max_loc[1], min_loc[1], 5)[1:],
+                ],
+                np.c_[
+                    np.linspace(max_loc[0], min_loc[0], 5)[1:-1],
+                    np.ones(3) * min_loc[1],
+                ],
+            ]
+        )
+        loop = (loop - np.mean(loop, axis=0)) * 1.5 + np.mean(loop, axis=0)
+        loop = np.c_[loop, topo_drape(loop[:, 0], loop[:, 1]) + drape_height]
+        loops += [loop + np.asarray(center)]
+        loop_cells += [np.c_[np.arange(15) + count, np.arange(15) + count + 1]]
+        loop_cells += [np.c_[count + 15, count]]
+        count += 16
+
+    transmitters = LargeLoopGroundTEMTransmitters.create(
+        geoh5,
+        vertices=np.vstack(loops),
+        cells=np.vstack(loop_cells),
+    )
+    transmitters.tx_id_property = transmitters.parts + 1
+    survey = LargeLoopGroundTEMReceivers.create(geoh5, vertices=np.vstack(vertices))
+    survey.transmitters = transmitters
+    survey.tx_id_property = np.hstack(loop_id)
+    # survey.parts = np.repeat(np.arange(n_lines), n_electrodes)
+    return survey
+
+
+def assign_tem_parameters(survey):
+    survey.channels = np.r_[3e-04, 6e-04, 1.2e-03] * 1e3
+    waveform = np.c_[
+        np.r_[
+            np.arange(-0.002, -0.0001, 5e-4),
+            np.arange(-0.0004, 0.0, 1e-4),
+            np.arange(0.0, 0.002, 5e-4),
+        ]
+        * 1e3
+        + 2.0,
+        np.r_[np.linspace(0, 1, 4), np.linspace(0.9, 0.0, 4), np.zeros(4)],
+    ]
+    survey.waveform = waveform
+    survey.timing_mark = 2.0
+    survey.unit = "Milliseconds (ms)"
+
+    return survey
 
 
 def setup_inversion_workspace(
@@ -225,10 +409,12 @@ def setup_inversion_workspace(
         utils.mkvc(z_grid.T) + center[2],
     ]
 
+    survey: Points | None = None
+
     if inversion_type in ["dcip", "dcip_2d"]:
         survey = generate_dc_survey(geoh5, x_grid, y_grid, z_grid)
 
-    elif inversion_type == "magnetotellurics":
+    if inversion_type == "magnetotellurics":
         survey = MTReceivers.create(
             geoh5,
             vertices=vertices,
@@ -246,177 +432,31 @@ def setup_inversion_workspace(
             channels=[10.0, 100.0, 1000.0],
         )
 
-    elif inversion_type == "tipper":
-        survey = TipperReceivers.create(
-            geoh5,
-            vertices=vertices,
-            name="survey",
-            components=[
-                "Txz (real)",
-                "Txz (imag)",
-                "Tyz (real)",
-                "Tyz (imag)",
-            ],
-        )
-        survey.base_stations = TipperBaseStations.create(
-            geoh5, vertices=np.c_[vertices[0, :]].T
-        )
-        survey.channels = [10.0, 100.0, 1000.0]
-        dist = np.linalg.norm(
-            survey.vertices[survey.cells[:, 0], :]
-            - survey.vertices[survey.cells[:, 1], :],
-            axis=1,
-        )
-        # survey.cells = survey.cells[dist < 100.0, :]
-        survey.remove_cells(np.where(dist > 100)[0])
+    if inversion_type == "tipper":
+        survey = generate_tipper_survey(geoh5, vertices)
 
-    elif inversion_type == "fem":
-        survey = AirborneFEMReceivers.create(
-            geoh5, vertices=vertices, name="Airborne_rx"
-        )
-        freq_metadata = [
-            {"Coaxial data": False, "Frequency": 900, "Offset": 7.86},
-            {"Coaxial data": False, "Frequency": 7200, "Offset": 7.86},
-            {"Coaxial data": False, "Frequency": 56000, "Offset": 6.3},
-        ]
-        survey.metadata["EM Dataset"]["Frequency configurations"] = freq_metadata
+    if inversion_type == "fem":
+        survey = generate_fem_survey(geoh5, vertices)
 
-        tx_locs = []
-        freqs = []
-        for meta in freq_metadata:
-            tx_vertices = vertices.copy()
-            tx_vertices[:, 0] -= meta["Offset"]
-            tx_locs.append(tx_vertices)
-            freqs.append([[meta["Frequency"]] * len(vertices)])
-        tx_locs = np.vstack(tx_locs)
-        freqs = np.hstack(freqs).flatten()
-
-        transmitters = AirborneFEMTransmitters.create(
-            geoh5, vertices=tx_locs, name="Airborne_tx"
-        )
-        survey.transmitters = transmitters
-        survey.channels = [900.0, 7200.0, 56000.0]
-
-        transmitters.add_data(
-            {
-                "Tx frequency": {
-                    "values": freqs,
-                    "association": "VERTEX",
-                    "entity_type": {
-                        "primitive_type": "REFERENCED",
-                        "value_map": {k: str(k) for k in freqs},
-                    },
-                }
-            }
-        )
-
-        dist = np.linalg.norm(
-            survey.vertices[survey.cells[:, 0], :]
-            - survey.vertices[survey.cells[:, 1], :],
-            axis=1,
-        )
-        survey.remove_cells(np.where(dist > 200.0)[0])
-        dist = np.linalg.norm(
-            transmitters.vertices[transmitters.cells[:, 0], :]
-            - transmitters.vertices[transmitters.cells[:, 1], :],
-            axis=1,
-        )
-        transmitters.remove_cells(np.where(dist > 200.0)[0])
-
-    elif "tem" in inversion_type:
+    if "tem" in inversion_type:
         if "airborne" in inversion_type:
-            survey = AirborneTEMReceivers.create(
-                geoh5, vertices=vertices, name="Airborne_rx"
-            )
-            transmitters = AirborneTEMTransmitters.create(
-                geoh5, vertices=vertices, name="Airborne_tx"
-            )
-
-            dist = np.linalg.norm(
-                survey.vertices[survey.cells[:, 0], :]
-                - survey.vertices[survey.cells[:, 1], :],
-                axis=1,
-            )
-            survey.remove_cells(np.where(dist > 200.0)[0])
-            transmitters.remove_cells(np.where(dist > 200.0)[0])
-            survey.transmitters = transmitters
+            survey = generate_airborne_tem_survey(geoh5, vertices)
         else:
-            arrays = [
-                np.c_[
-                    x_grid[: int(n_lines / 2), :].flatten(),
-                    y_grid[: int(n_lines / 2), :].flatten(),
-                    z_grid[: int(n_lines / 2), :].flatten(),
-                ],
-                np.c_[
-                    x_grid[int(n_lines / 2) :, :].flatten(),
-                    y_grid[int(n_lines / 2) :, :].flatten(),
-                    z_grid[int(n_lines / 2) :, :].flatten(),
-                ],
-            ]
-            loops = []
-            loop_cells = []
-            loop_id = []
-            count = 0
-            for ind, array in enumerate(arrays):
-                loop_id += [np.ones(array.shape[0]) * (ind + 1)]
-                min_loc = np.min(array, axis=0)
-                max_loc = np.max(array, axis=0)
-                loop = np.vstack(
-                    [
-                        np.c_[
-                            np.ones(5) * min_loc[0],
-                            np.linspace(min_loc[1], max_loc[1], 5),
-                        ],
-                        np.c_[
-                            np.linspace(min_loc[0], max_loc[0], 5)[1:],
-                            np.ones(4) * max_loc[1],
-                        ],
-                        np.c_[
-                            np.ones(4) * max_loc[0],
-                            np.linspace(max_loc[1], min_loc[1], 5)[1:],
-                        ],
-                        np.c_[
-                            np.linspace(max_loc[0], min_loc[0], 5)[1:-1],
-                            np.ones(3) * min_loc[1],
-                        ],
-                    ]
-                )
-                loop = (loop - np.mean(loop, axis=0)) * 1.5 + np.mean(loop, axis=0)
-                loop = np.c_[loop, topo_drape(loop[:, 0], loop[:, 1]) + drape_height]
-                loops += [loop + np.asarray(center)]
-                loop_cells += [np.c_[np.arange(15) + count, np.arange(15) + count + 1]]
-                loop_cells += [np.c_[count + 15, count]]
-                count += 16
-
-            transmitters = LargeLoopGroundTEMTransmitters.create(
+            survey = generate_ground_tem_survey(
                 geoh5,
-                vertices=np.vstack(loops),
-                cells=np.vstack(loop_cells),
+                vertices,
+                x_grid,
+                y_grid,
+                z_grid,
+                n_lines,
+                topo_drape,
+                drape_height,
+                center,
             )
-            transmitters.tx_id_property = transmitters.parts + 1
-            survey = LargeLoopGroundTEMReceivers.create(
-                geoh5, vertices=np.vstack(vertices)
-            )
-            survey.transmitters = transmitters
-            survey.tx_id_property = np.hstack(loop_id)
-            # survey.parts = np.repeat(np.arange(n_lines), n_electrodes)
 
-        survey.channels = np.r_[3e-04, 6e-04, 1.2e-03] * 1e3
-        waveform = np.c_[
-            np.r_[
-                np.arange(-0.002, -0.0001, 5e-4),
-                np.arange(-0.0004, 0.0, 1e-4),
-                np.arange(0.0, 0.002, 5e-4),
-            ]
-            * 1e3
-            + 2.0,
-            np.r_[np.linspace(0, 1, 4), np.linspace(0.9, 0.0, 4), np.zeros(4)],
-        ]
-        survey.waveform = waveform
-        survey.timing_mark = 2.0
-        survey.unit = "Milliseconds (ms)"
+        survey = assign_tem_parameters(survey)
 
-    else:
+    if survey is None:
         survey = Points.create(
             geoh5,
             vertices=vertices,
@@ -426,7 +466,13 @@ def setup_inversion_workspace(
     # Create a mesh
 
     if "2d" in inversion_type:
-        lines = survey.get_entity("line_ids")[0].values
+        entity = survey.get_entity("line_ids")[0]
+
+        if not isinstance(entity, ReferencedData) or entity.values is None:
+            raise ValueError("Survey must have a line_id property")
+
+        lines = entity.values
+
         parameters = DrapeModelParameters(
             u_cell_size=cell_size[0],
             v_cell_size=cell_size[2],
@@ -435,6 +481,10 @@ def setup_inversion_workspace(
             vertical_padding=padding_distance,
             expansion_factor=1.1,
         )
+
+        if survey.vertices is None or survey.cells is None:
+            raise ValueError("Survey must have vertices and cells")
+
         entity, mesh = get_drape_model(  # pylint: disable=W0632
             geoh5,
             survey.vertices[np.unique(survey.cells[lines == 101, :]), :],
