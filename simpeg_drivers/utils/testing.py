@@ -1,9 +1,12 @@
-#  Copyright (c) 2023 Mira Geoscience Ltd.
+#  Copyright (c) 2024 Mira Geoscience Ltd.
 #
 #  This file is part of my_app package.
 #
 #  All rights reserved.
 #
+
+# pylint: disable=too-many-statements, too-many-branches, too-many-arguments, too-many-locals
+
 import warnings
 from pathlib import Path
 from uuid import UUID
@@ -31,7 +34,8 @@ from octree_creation_app.utils import treemesh_2_octree
 from scipy.spatial import Delaunay
 from SimPEG import utils
 
-from simpeg_drivers.utils.utils import active_from_xyz, get_drape_model
+from simpeg_drivers.utils.mesh import DrapeModelParameters, get_drape_model
+from simpeg_drivers.utils.utils import active_from_xyz
 
 
 class Geoh5Tester:
@@ -62,15 +66,13 @@ class Geoh5Tester:
                 setattr(self.params, param, entity)
             except (AttributeError, ValueError):
                 setattr(self.params, param, value)
-        else:
-            msg = "No params class has been initialized."
-            raise (ValueError(msg))
+
+        raise ValueError("No params class has been initialized.")
 
     def make(self):
         if self.has_params:
             return self.ws, self.params
-        else:
-            return self.ws
+        return self.ws
 
 
 def check_target(output: dict, target: dict, tolerance=0.1):
@@ -81,11 +83,14 @@ def check_target(output: dict, target: dict, tolerance=0.1):
     :param tolerance: Tolerance between output and target measured as: |a-b|/b
     """
     print(
-        f"'data_norm': {np.linalg.norm(output['data'])}, 'phi_d': {output['phi_d'][1]}, 'phi_m': {output['phi_m'][1]}"
+        f"'data_norm': {np.linalg.norm(output['data'])}, "
+        f"'phi_d': {output['phi_d'][1]}, "
+        f"'phi_m': {output['phi_m'][1]}"
     )
     if any(np.isnan(output["data"])):
         warnings.warn(
-            "Skipping data norm comparison due to nan (used to bypass lone faulty test run in GH actions)."
+            "Skipping data norm comparison due to nan "
+            "(used to bypass lone faulty test run in GH actions)."
         )
     else:
         np.testing.assert_array_less(
@@ -184,11 +189,11 @@ def setup_inversion_workspace(
     def topo_drape(x, y):
         """Topography Gaussian function"""
         b = 100
-        A = 50
+        amp = 50
         if flatten:
             return np.zeros_like(x)
-        else:
-            return A * np.exp(-0.5 * ((x / b) ** 2.0 + (y / b) ** 2.0))
+
+        return amp * np.exp(-0.5 * ((x / b) ** 2.0 + (y / b) ** 2.0))
 
     zz = topo_drape(xx, yy)
     topo = np.c_[
@@ -211,17 +216,17 @@ def setup_inversion_workspace(
     )
     xr = np.linspace(x_limits[0], x_limits[1], int(n_electrodes))
     yr = np.linspace(y_limits[0], y_limits[1], int(n_lines))
-    X, Y = np.meshgrid(xr, yr)
-    Z = topo_drape(X, Y) + drape_height
+    x_grid, y_grid = np.meshgrid(xr, yr)
+    z_grid = topo_drape(x_grid, y_grid) + drape_height
 
     vertices = np.c_[
-        utils.mkvc(X.T) + center[0],
-        utils.mkvc(Y.T) + center[1],
-        utils.mkvc(Z.T) + center[2],
+        utils.mkvc(x_grid.T) + center[0],
+        utils.mkvc(y_grid.T) + center[1],
+        utils.mkvc(z_grid.T) + center[2],
     ]
 
     if inversion_type in ["dcip", "dcip_2d"]:
-        survey = generate_dc_survey(geoh5, X, Y, Z)
+        survey = generate_dc_survey(geoh5, x_grid, y_grid, z_grid)
 
     elif inversion_type == "magnetotellurics":
         survey = MTReceivers.create(
@@ -338,14 +343,14 @@ def setup_inversion_workspace(
         else:
             arrays = [
                 np.c_[
-                    X[: int(n_lines / 2), :].flatten(),
-                    Y[: int(n_lines / 2), :].flatten(),
-                    Z[: int(n_lines / 2), :].flatten(),
+                    x_grid[: int(n_lines / 2), :].flatten(),
+                    y_grid[: int(n_lines / 2), :].flatten(),
+                    z_grid[: int(n_lines / 2), :].flatten(),
                 ],
                 np.c_[
-                    X[int(n_lines / 2) :, :].flatten(),
-                    Y[int(n_lines / 2) :, :].flatten(),
-                    Z[int(n_lines / 2) :, :].flatten(),
+                    x_grid[int(n_lines / 2) :, :].flatten(),
+                    y_grid[int(n_lines / 2) :, :].flatten(),
+                    z_grid[int(n_lines / 2) :, :].flatten(),
                 ],
             ]
             loops = []
@@ -422,27 +427,28 @@ def setup_inversion_workspace(
 
     if "2d" in inversion_type:
         lines = survey.get_entity("line_ids")[0].values
-        entity, mesh, _ = get_drape_model(  # pylint: disable=W0632
+        parameters = DrapeModelParameters(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[2],
+            depth_core=100.0,
+            horizontal_padding=padding_distance,
+            vertical_padding=padding_distance,
+            expansion_factor=1.1,
+        )
+        entity, mesh = get_drape_model(  # pylint: disable=W0632
             geoh5,
-            "Models",
             survey.vertices[np.unique(survey.cells[lines == 101, :]), :],
-            [cell_size[0], cell_size[2]],
-            100.0,
-            [padding_distance] * 2 + [padding_distance] * 2,
-            1.1,
-            parent=None,
-            return_colocated_mesh=True,
-            return_sorting=True,
+            parameters,
         )
         active = active_from_xyz(entity, topography.vertices, grid_reference="top")
 
     else:
-        padDist = np.ones((3, 2)) * padding_distance
+        padding_distance = np.ones((3, 2)) * padding_distance
         mesh = mesh_builder_xyz(
             vertices - np.r_[cell_size] / 2.0,
             cell_size,
             depth_core=100.0,
-            padding_distance=padDist,
+            padding_distance=padding_distance,
             mesh_type="TREE",
         )
         mesh = OctreeDriver.refine_tree_from_surface(
