@@ -128,8 +128,9 @@ class InversionModelCollection:
             return mref
 
         if mref is None or (self.is_sigma and all(mref == 0)):
-            mref = self.starting
             self.driver.params.alpha_s = 0.0
+
+            return self.starting.copy()
 
         ref_model = mref.copy()
         ref_model = np.log(ref_model) if self.is_sigma else ref_model
@@ -146,6 +147,7 @@ class InversionModelCollection:
         if self.is_sigma:
             is_finite = np.isfinite(lbound)
             lbound[is_finite] = np.log(lbound[is_finite])
+
         return lbound
 
     @property
