@@ -256,7 +256,6 @@ class InversionBaseParams(BaseParams):
     @data_object.setter
     def data_object(self, val):
         self.setter_validator("data_object", val, fun=self._uuid_promoter)
-        self.update_group_options()
 
     @property
     def starting_model(self):
@@ -354,8 +353,6 @@ class InversionBaseParams(BaseParams):
             raise ValueError(
                 "Rotated meshes are not supported. Please use a mesh with an angle of 0.0."
             )
-
-        self.update_group_options()
 
     @property
     def inversion_style(self):
@@ -658,7 +655,6 @@ class InversionBaseParams(BaseParams):
     @out_group.setter
     def out_group(self, val):
         self.setter_validator("out_group", val)
-        self.update_group_options()
 
     @property
     def ga_group(self) -> str:
