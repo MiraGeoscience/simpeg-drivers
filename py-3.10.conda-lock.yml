@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: aa4eb83f1f79b8416bdd8f42c80c45e929e24a3e244b31f302624972bc34d90c
-    linux-64: 23d3d119ff5dabd82874b103a25adc99bb9f261e7a74dfe4d880310599ce0e7d
+    win-64: cff45b9f4ea25abedb47f87db464cb5253e61a6d07a8869ed732dec68373ebbf
+    linux-64: b8f03211578e0722df6c4bb15c7f8b3654940f4a48a59bc779430b99dbd30f3d
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -2109,6 +2109,16 @@ package:
     sha256: 42942470d4062537be4d54c83511186da1fc14ba354961a2114da91efa9a4ed7
   category: main
   optional: false
+- name: pillow
+  version: 10.1.0
+  manager: pip
+  platform: linux-64
+  dependencies: {}
+  url: https://files.pythonhosted.org/packages/95/7b/71e2665760b5c33af00fa9bb6d6bca068b51bf021a4ceaeee03e18689f51/Pillow-10.1.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+  hash:
+    sha256: c0949b55eb607898e28eaccb525ab104b2d86542a85c74baf3a6dc24002edec2
+  category: main
+  optional: false
 - name: pytz
   version: '2024.1'
   manager: pip
@@ -2140,16 +2150,16 @@ package:
   category: main
   optional: false
 - name: geoh5py
-  version: 0.9.0a2
+  version: 0.9.0a3
   manager: pip
   platform: linux-64
   dependencies:
-    pillow: '>=10.0.1,<11.0.0'
+    pillow: 10.1.0
     h5py: '>=3.2.1,<4.0.0'
     numpy: '>=1.23.5,<1.24.0'
-  url: https://files.pythonhosted.org/packages/37/dc/b540f4b603240a7b0672979cf4ace87b2f0ea263dd259754ed878fa9022a/geoh5py-0.9.0a2-py3-none-any.whl
+  url: https://files.pythonhosted.org/packages/22/24/b867af9e4f06f91b99e7aec28080d581e7ac066bd63e883e97b47e1f2cf0/geoh5py-0.9.0a3-py3-none-any.whl
   hash:
-    sha256: 70041ed40bda3caa4fc95b9cf842822ceb0b4337954233a76fcada04daf9fd0f
+    sha256: 102e2587c399a60b55eb0ef0829e66139d351256b5e28a20ae9caa473c033882
   category: main
   optional: false
 - name: pandas
@@ -2201,13 +2211,13 @@ package:
   manager: pip
   platform: linux-64
   dependencies:
-    geoh5py: '*'
+    pymatsolver: '>=0.2'
+    scikit-learn: '>=1.2'
     scipy: '>=1.8.0'
     pandas: '*'
-    pymatsolver: '>=0.2'
-    numpy: '>=1.20'
+    geoh5py: '*'
     discretize: '>=0.8.0'
-    scikit-learn: '>=1.2'
+    numpy: '>=1.20'
     empymod: '>=2.0.0'
   url: https://github.com/MiraGeoscience/simpeg/archive/refs/heads/release/v0.19.0.dev8+geoapps.0.12.0.zip
   hash:
@@ -4311,6 +4321,16 @@ package:
     sha256: 42942470d4062537be4d54c83511186da1fc14ba354961a2114da91efa9a4ed7
   category: main
   optional: false
+- name: pillow
+  version: 10.1.0
+  manager: pip
+  platform: win-64
+  dependencies: {}
+  url: https://files.pythonhosted.org/packages/2d/7e/18ffce67b6e7637eead295b8a78d293d170d404a633010c3549da9a5e674/Pillow-10.1.0-cp310-cp310-win_amd64.whl
+  hash:
+    sha256: 41f67248d92a5e0a2076d3517d8d4b1e41a97e2df10eb8f93106c89107f38b57
+  category: main
+  optional: false
 - name: pytz
   version: '2024.1'
   manager: pip
@@ -4342,16 +4362,16 @@ package:
   category: main
   optional: false
 - name: geoh5py
-  version: 0.9.0a2
+  version: 0.9.0a3
   manager: pip
   platform: win-64
   dependencies:
-    pillow: '>=10.0.1,<11.0.0'
+    pillow: 10.1.0
     h5py: '>=3.2.1,<4.0.0'
     numpy: '>=1.23.5,<1.24.0'
-  url: https://files.pythonhosted.org/packages/37/dc/b540f4b603240a7b0672979cf4ace87b2f0ea263dd259754ed878fa9022a/geoh5py-0.9.0a2-py3-none-any.whl
+  url: https://files.pythonhosted.org/packages/22/24/b867af9e4f06f91b99e7aec28080d581e7ac066bd63e883e97b47e1f2cf0/geoh5py-0.9.0a3-py3-none-any.whl
   hash:
-    sha256: 70041ed40bda3caa4fc95b9cf842822ceb0b4337954233a76fcada04daf9fd0f
+    sha256: 102e2587c399a60b55eb0ef0829e66139d351256b5e28a20ae9caa473c033882
   category: main
   optional: false
 - name: pandas
@@ -4403,13 +4423,13 @@ package:
   manager: pip
   platform: win-64
   dependencies:
-    geoh5py: '*'
+    pymatsolver: '>=0.2'
+    scikit-learn: '>=1.2'
     scipy: '>=1.8.0'
     pandas: '*'
-    pymatsolver: '>=0.2'
-    numpy: '>=1.20'
+    geoh5py: '*'
     discretize: '>=0.8.0'
-    scikit-learn: '>=1.2'
+    numpy: '>=1.20'
     empymod: '>=2.0.0'
   url: https://github.com/MiraGeoscience/simpeg/archive/refs/heads/release/v0.19.0.dev8+geoapps.0.12.0.zip
   hash:
