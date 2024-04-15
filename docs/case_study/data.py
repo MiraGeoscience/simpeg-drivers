@@ -5,7 +5,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.6
+#       jupytext_version: 1.16.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -18,7 +18,7 @@
 #
 # This section provides details about the three airborne datasets used in this case study:
 #
-# - [Time-domain EM (HeliTEM)](atem-data)
+# - [Direct-current resistivity (DCR)](dc-data)
 # - [Magnetic total field (HeliTEM)](magnetic-data)
 # - [Airborne full-tensor gravity gradiometry (FTG)](ftg-data)
 #
@@ -42,7 +42,7 @@
 #
 # <p style="page-break-after:always;"></p>
 
-# (atem-data)=
+# (dc-data)=
 #
 # ## Airborne time-domain EM (TEM)
 #
