@@ -5,7 +5,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.6
+#       jupytext_version: 1.16.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -37,18 +37,16 @@
 # ```
 #
 #
-# This chapter summarizes the work completed by Mira Geoscience to validate the algorithms and inversion codes developed during the Accelerated Development project for Vale S.A.
-#
-# After consulting with Vale's exploration team, the decision was made to focus on a southern portion of Carajas-Block 3 site. Several surveys have been flown over the area to help delineate known ore deposits and to identify potential extension zones.
+# This chapter demonstrates standalone and joint inversions of geophysical data over a synthetic model of the Flin Flon nickel deposit. We simulated several surveys over the area to help delineate the ore deposits.
 # The goal is to use airborne geophysics to characterize the physical property and shape of the ore body and host rocks. This case study focuses on the following three datasets and respective physical properties:
 #
-# - [Time-domain EM (HeliTEM)](atem-data) -> resistivity
+# - [Direct-current resistivity (DCR)](dc-data) -> resistivity
 # - [Magnetic Total Field (TMI)](magnetic-data) -> magnetization
 # - [Full-tensor gravity gradiometry (FTG)](ftg-data) -> density
 #
-# The datasets were first inverted independently ([Figure 1](standalone)), then jointly with a cross-gradient coupling constraint ([Figure 2](joint)).
+# The datasets are first inverted independently ([Figure 1](standalone)), then jointly with a cross-gradient coupling constraint ([Figure 2](joint)).
 #
-# The following sections provide details about the processing and results. A compilation `geoh5` project can be found [here](https://mirageoscience-my.sharepoint.com/:u:/p/dominiquef/ETI3rho9sdVIqvYoAclE-xMBxrrieDzf0oF6gJIyCzlkxQ?e=yaJ6ry)
+# The following sections provide details about the processing and results. A compilation `geoh5` project can be found [here]()
 #
 # - [Background information](background.ipynb)
 # - [Data](data.ipynb)
