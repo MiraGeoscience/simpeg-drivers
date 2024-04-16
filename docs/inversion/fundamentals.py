@@ -5,7 +5,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.6
+#       jupytext_version: 1.16.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -145,7 +145,7 @@ np.dot(F, [0.5, 0.25])
 
 # ### Example
 #
-# We can re-use the two-parameter problem above to illustrate the inverse problem. We are going to ignore the issue of noise for now and simply look at the under-determined problem
+# We can reuse the two-parameter problem above to illustrate the inverse problem. We are going to ignore the issue of noise for now and simply look at the under-determined problem
 # $$
 # \large[\begin{array}{ccc}
 # 1 & 2

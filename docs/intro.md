@@ -1,7 +1,6 @@
 # Tools for Integrated Geophysical Modeling and Targeting
 
-This document binds together the various R&D modules under the accelerated development program sponsored by Vale:
-Tools for Integrated Geophysical Modeling and Targeting
+This document contains training material for geophysical inversion using SimPEG and Geoscience ANALYST.
 
 # Table of content
 

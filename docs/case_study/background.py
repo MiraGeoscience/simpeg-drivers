@@ -5,7 +5,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.6
+#       jupytext_version: 1.16.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -16,38 +16,41 @@
 #
 # # Background
 #
-# The processing and inversion work focuses on airborne datasets acquired over the Carajas - Block 3 area ([Figure 3](global_map)). The region contains several iron-ore deposits currently exploited by Vale. This case study focuses on the southern portion of Block 3, over a known ore body currently under investigation by the exploration team.
+# The processing and inversion work focuses on ground and airborne datasets simulated over the Flin Flon model ([Figure 3](global_map)). Extensive drilling has been done over the deposit, as shown in [Figure 3](global_map).
 #
-# ```{figure} ./images/map_carajas.png
+# ```{figure} ./images/map_flinflon.png
 # ---
 # height: 400px
 # name: global_map
 # ---
-# Satellite image over the Carajas - Block 3 area. Flight lines (black) of the HeliTEM survey and outline of the expected jaspelite (blue) and hematite (red) ore bodies are shown for reference.
+# Geological map and drillholes of the Flin Flon deposit. Outline of the main ore body (red) is shown for reference.
 # ```
 #
-# Limited drilling has been done over the Western half of the deposit, as shown in [Figure 4](ore_body).
-# The iron formation is made up of units ranging from jaspelite (JP) in variable degree of alteration (supergene alteration) to compact hematite (HC) and friable hematite (HF) units. On the top of it, there is the occurrence of the extreme alteration product of the iron body, forming an iron crust, called "structural canga" (CE). For Vale, the iron ore is composed by HF and CE units. The whole iron formation is hosted in a mafic unit, also with variable degree of supergene alteration, which is composed by the non-alterated mafic (MS), semi-decomposed mafic (MSD) and decomposed mafic (MD).
+# The synthetic block model was generated from open-source data made available by [Natural Resources Canada (NRCan)](https://ostrnrcan-dostrncan.canada.ca/entities/publication/73d767d8-ee1c-4bab-a2da-52dcf83faa06). The VMS deposit is hosted in rhyolite unit ...
 #
 # ```{figure} ./images/ore_body.png
 # ---
 # height: 400px
 # name: ore_body
 # ---
-# Close-up view of the expected ore shell with respect to the drilling data.
+# Discrete geological model of the ore deposit and host units.
 # ```
 #
 #  [Table 1](phys_prop) summarizes the relative physical properties of the main rock units in the area.
-# The iron formation is expected to be more resistive and dense than the host rocks. Although non-alterated mafic rocks are generally magnetic, petrophysical data show that the iron formation in this region is more magnetic than the host rocks. In fact, jaspelite has a higher concentration of magnetite than any other lithology in this area.
-#
+# The VMS ore is expected to be more conductive and dense than the host rocks, as well as highly magnetic. This is contrast with the host rhyolite unit with low density, non-magnetic and highly resistive. The background mafic rocks are generally non-magnetic and have moderate densities and resistivities. A thick (40 m) overburden layer of relatively low density and  low resistivity covers the survey area.
 #
 #
 # ```{table} Summary of expected physical properties
 # :name: phys_prop
-# | Unit | Susceptibility | Density | Resistivity |
+# | Unit | Density (g/cc) | Magnetic Susceptibility (SI) | Resistivity (Ohm.m) |
 # | :--- | :--- | :---- | :---- |
-# | Jaspelite (JP) |  high    | high      | high     |
-# | Hematite (HC) |  high    | high      | high     |
-# | Mafic (MS, MSD) |  moderate    | moderate      | moderate     |
+# | Rhyolite |  low    | low      | high     |
+# | Chloritic Schist |  moderate    | low      | moderate     |
+# | Mafic Volcanics |  moderate    | low      | moderate     |
+# | Mafic Dykes |  moderate    | low      | moderate     |
+# | Host Mafic |  moderate    | low      | moderate     |
+# | Basalt |  moderate    | moderate      | low     |
+# | Ore |  high    | high      | low     |
+# | Overburden |  low    | low      | moderate     |
+# | Tailings |  low    | low      | low     |
 # ```
-#

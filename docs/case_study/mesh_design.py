@@ -5,7 +5,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.6
+#       jupytext_version: 1.16.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -16,7 +16,7 @@
 #
 # # Mesh design
 #
-# This section provides details about the mesh creation for the individual inversions using the `Octree Mesh Creation` routine from [Mirageoscience\geoapps](https://geoapps.readthedocs.io/en/latest/content/applications/create_octree.html) package. The goal is to create inversion meshes that are well adapted to each survey, while also optimal for the subsequent joint inversion process.
+# This section provides details about the mesh creation for the individual inversions using the `Octree Mesh Creation` routine from [Mirageoscience\geoapps](https://mirageoscience-octree-creation-app.readthedocs-hosted.com/en/latest) package. The goal is to create inversion meshes that are well adapted to each survey, while also optimal for the subsequent joint inversion process.
 #
 #
 # ## Base parameters
@@ -32,7 +32,7 @@
 #
 # ### Mesh extent
 #
-# Since we need our three simulations (TEM, magnetics and gravity) to have the same core parameters, we need to create a  "combined" survey that contains all source and receiver locations in our domain.
+# Since we need our three simulations (direct-current, magnetics and gravity) to have the same core parameters, we need to create a  "combined" survey that contains all source and receiver locations in our domain.
 #
 #
 # ```{figure} ./images/common_survey.png
@@ -51,12 +51,12 @@
 # - Terrain clearance (height above ground)
 # - Modeling resolution (size of the target)
 #
-# In this case, the flight clearance of both the airborne EM/mag and FTG had a minimum recorded clearance of about 80 m. As a general rule of thumb, numerical artefacts due to the discretization of topography decays sufficiently when roughly two cell distance away from the nearest edge or corner. The choice was made to invert at a 25 m cell resolution to assure at least 2 cells between the lowest point and the discrete active model.
+# In this case, the lowest drape height from the airborne magnetics is 60 m. As a general rule of thumb, numerical artefacts due to the discretization of topography decays sufficiently when receivers are roughly two cell distance away from the nearest edge or corner. Secondly, the dipole separation of the direct-current survey is 40 m. To improve numerical accuracy, we want to avoid computing potential differences within the same cell. This is guaranteed if the cell dimension is half the dipole separation, regardless of the dipole orientation.
 #
 #
 # ### Padding cells
 #
-# The area of interest covers roughly 5 km by 8 km. As a general rule of thumb, the padding region should be at least as wide as the data extent in order to easy model features with wavelengths that may extend beyond the surveyed area.
+# The area of interest covers roughly 2 km in width. As a general rule of thumb, the padding region should be at least as wide as the data extent in order to easy model features with wavelengths that may extend beyond the surveyed area.
 #
 # In the case of EM modeling, we also need to consider the diffusion distance of the EM fields. The [skin depth](http://em.geosci.xyz/content/maxwell1_fundamentals/harmonic_planewaves_homogeneous/skindepth.html?highlight=skin%20depth#approximations) can be estimated by
 #
@@ -69,13 +69,11 @@
 # Equivalently for time-domain systems
 #
 #
-#
 # $$
 # \delta = \sqrt{\frac{2t \; \rho}{\mu_0}}
 # $$
 #
-# where $t$ is the largest time measured by the system and $\mu_0$ is the permeability of free space ($4 \pi * 1e-7$). For a Helitem survey, with the last time gate at 7.1 msec, and moderately resistive ground (~1000 Ohm.m), the skin depth is roughly 3.3 km. This number was rounded up to the next power of 2 (2^N) to satisfy the octree structure, resulting in roughly 6 km of padding at depth.
-#
+# where $t$ is the largest time measured by the system and $\mu_0$ is the permeability of free space ($4 \pi * 1e-7$).
 #
 #
 # ```{figure} ./images/mesh_core.png
@@ -91,32 +89,32 @@
 #
 # An octree mesh allows to increase the mesh resolution (smaller cells) in specific regions - warranted for either numerical accuracy or modeling purposes. Fine cells can be "added" to the octree grid using various insertion methods:
 #
-# - Ball: Add concentric spherical shells of cells around points: Mostly used for numerical accuracy near receivers.
-# - Line: Add concentric tubes around line segments: Mostly used to discretize line sources (EM loops)
-# - Surface: Add layers of cells along triangulated surfaces: Used to refine known boundaries between geological domain and topography
-# - Box: Add rectangular boxes of cells around extent: Simple refinement resembling conventional rectilinar (tensor) grids.
+# - Radial: Add concentric spherical shells of cells around points. It is used for numerical accuracy near receiver poles (DC) and dipoles (EM).
+# - Line: Add concentric tubes around line segments. It is the default discretization for line sources (EM loops)
+# - Surface: Add layers of cells along triangulated surfaces in 3D. It is mostly used to refine known boundaries between geological domain and topography.
+# - Horizon: Add horizontal layers of cells below a triangulated surface computed from the input object's vertices. This is a useful option to create a core region below the survey area.
 #
 #
 #
-# ### For time-domain EM
+# ### For direct-current survey
 #
-# For airborne EM surveys, the numerical accuracy of the forward simulation is the driving factor for the mesh refinement. It is important to have several small cells around each source and receivers for solving partial differential equations. The radial `ball` refinement was used to add concentric layers of cells around each source/receiver pairs.
+# For EM methods, such as electrical direct-current surveys, the numerical accuracy of the forward simulation is the primary  factor to decide on a mesh refinement strategy. It is important to have several small cells around each source and receivers for solving partial differential equations accurately. In this case, dipole source and receivers use radial `ball` refinement was used to add concentric layers of cells around each source/receiver pairs.
 #
-# ```{figure} ./images/mesh_em.png
+# ```{figure} ./images/mesh_dc.png
 # ---
 # scale: 50%
-# name: mesh_em
+# name: mesh_dc
 # ---
-# Parameters used for the mesh creation of the EM simulation.
+# Parameters used for the mesh creation of the direct-current simulation.
 # ```
 #
-# A second level of `surface` refinement was added along the topography. Only coarse cells (4th octree level) were needed to preserve good continuity of the fields near the boundary of the domain.
+# A second level of `Surface` refinement was added along the triangulated topography. Only coarse cells (3th octree level) were needed to preserve good continuity of the fields near the boundary of the domain.
 #
 #
-# ### For gravity and magnetics
+# ### For gravity and magnetic surveys
 #
 #
-# For potential field methods, the forward simulation is achieved via integration over prisms (linear operator) which is much less sensitive to the choice of discretization. Moreover, only cells below topography (active cells) are considered. For a more optimal mesh design, only fine cells are required at the air-ground interface. A `surface` style refinement was used in order to add layers of fine cells below the footprint of the gravity and magnetic sensors as well as coarser (octree level 4) cells at the air-ground interface away from the sensors
+# For potential field methods, the forward simulation is achieved via integration over prisms (linear operator) which is much less sensitive to the choice of discretization. Moreover, only cells below topography (active cells) are considered. For a more optimal mesh design, only fine cells are required at the air-ground interface. A `horizon` style refinement was used in order to add layers of fine cells below the footprint of the gravity and magnetic sensors. The maximum `distance` parameter was set to 100 m to reduce the number of small cells away from the receiver locations.
 #
 # ```{figure} ./images/mesh_mag.png
 # ---
