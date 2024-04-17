@@ -54,7 +54,7 @@ class LineSweepDriver(SweepDriver, InversionDriver):
                 self._out_group = SimPEGGroup.create(
                     self.pseudo3d_params.geoh5, name=name
                 )
-                self.params.update_group_options()
+                self.pseudo3d_params.update_group_options()
 
         return self._out_group
 
