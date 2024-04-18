@@ -242,6 +242,8 @@ class InversionDriver(BaseDriver):
                     name += " Inversion"
 
                 self._out_group = SimPEGGroup.create(self.params.geoh5, name=name)
+                self.params.out_group = self._out_group
+                self.params.update_group_options()
 
         return self._out_group
 
