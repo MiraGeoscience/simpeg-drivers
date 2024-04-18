@@ -60,20 +60,15 @@ class BaseJointDriver(InversionDriver):
             drivers = []
             physical_property = []
             # Create sub-drivers
-            for group in [
-                self.params.group_a,
-                self.params.group_b,
-                self.params.group_c,
-            ]:
-                if group is None:
-                    continue
-
+            for group in self.params.groups:
                 group = self.workspace.get_entity(group.uid)[0]
+                group = group.copy(parent=self.params.out_group)
+
                 ui_json = group.options
                 ui_json["geoh5"] = self.workspace
 
                 ifile = InputFile(ui_json=ui_json)
-                mod_name, class_name = DRIVER_MAP.get(ifile.data["inversion_type"])
+                mod_name, class_name = DRIVER_MAP.get(ui_json["inversion_type"])
                 module = __import__(mod_name, fromlist=[class_name])
                 inversion_driver = getattr(module, class_name)
                 params = inversion_driver._params_class(  # pylint: disable=W0212
@@ -81,7 +76,6 @@ class BaseJointDriver(InversionDriver):
                 )
                 driver = inversion_driver(params)
                 physical_property.append(params.physical_property)
-                group.parent = self.params.out_group
                 drivers.append(driver)
 
             self._drivers = drivers
