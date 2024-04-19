@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 import sys
+from pathlib import Path
 
 import numpy as np
 from geoh5py.shared.utils import fetch_active_workspace
@@ -182,8 +183,9 @@ class BaseJointDriver(InversionDriver):
         self.logger.start()
         self.configure_dask()
 
-        with fetch_active_workspace(self.workspace, mode="r+"):
-            self.out_group.add_file(self.params.input_file.path_name)
+        if Path(self.params.input_file.path_name).is_file():
+            with fetch_active_workspace(self.workspace, mode="r+"):
+                self.out_group.add_file(self.params.input_file.path_name)
 
         if self.params.forward_only:
             print("Running the forward simulation ...")
