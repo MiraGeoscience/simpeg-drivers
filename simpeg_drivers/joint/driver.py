@@ -11,6 +11,7 @@ from __future__ import annotations
 import sys
 
 import numpy as np
+from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
 from octree_creation_app.utils import (
     collocate_octrees,
@@ -180,6 +181,9 @@ class BaseJointDriver(InversionDriver):
         sys.stdout = self.logger
         self.logger.start()
         self.configure_dask()
+
+        with fetch_active_workspace(self.workspace, mode="r+"):
+            self.out_group.add_file(self.params.input_file.path_name)
 
         if self.params.forward_only:
             print("Running the forward simulation ...")

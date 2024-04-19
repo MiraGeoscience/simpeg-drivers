@@ -295,6 +295,9 @@ class InversionDriver(BaseDriver):
 
         simpeg_inversion = self.inversion
 
+        with fetch_active_workspace(self.workspace, mode="r+"):
+            self.out_group.add_file(self.params.input_file.path_name)
+
         predicted = None
         if self.params.forward_only:
             print("Running the forward simulation ...")
