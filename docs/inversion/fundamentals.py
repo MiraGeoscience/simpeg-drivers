@@ -14,7 +14,7 @@
 
 # # Inversion Fundamentals
 #
-# This section provides the mathematical background to understand the inversion algorithm. We are going to use standard terminalogy and nomenclature used in the literature as a framework. Even though we are going to use mathematical expressions, it is only a vehicle to help in understanding the influence of different parameters controlling the outcome of an inversion.
+# This section provides the mathematical background to understand the inversion algorithm. We are going to use standard terminology and nomenclature used in the literature as a framework. Even though we are going to use mathematical expressions, it is only a vehicle to help in understanding the influence of different parameters controlling the outcome of an inversion.
 
 # ## Forward simulation
 #
