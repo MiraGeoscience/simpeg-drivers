@@ -1,8 +1,22 @@
 [tool.poetry]
 name = "simpeg-drivers"
 version = "0.1.0-alpha.1"
-description = "My application"
+description = "Inversion drivers for SimPEG and ANALYST"
+license = "MIT"
 authors = ["Mira Geoscience <support@mirageoscience.com>"]
+readme = "README.rst"
+repository = "https://github.com/MiraGeoscience/simpeg-drivers"
+documentation = "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/"
+homepage = "https://mirageoscience.com"
+keywords = [] # TODO: add keywords
+classifiers = [ # TODO add more classifiers
+    "Development Status :: 1 - Pre-Alpha",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "Topic :: Database",
+    "Topic :: Scientific/Engineering",
+]
 packages = [
      { include = "simpeg_drivers" },
      { include = "simpeg_drivers-assets" },
