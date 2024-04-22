@@ -22,7 +22,7 @@
 # \phi_d =\sum_{i=1}^{N}\left(\frac{d_i^{pred} - {d}_i^{obs}}{w_i}\right)^2 \;.
 # $$
 #
-# It measures the sum of **weighted residual** between observed ($\mathbf{d}^{obs}$) and predicted ($\mathbf{d}^{pre}$) data. In matrix form, this least-square measure can be written as
+# It measures the sum of **weighted residual** between observed ($\mathbf{d}^{obs}$) and predicted ($\mathbf{d}^{pred}$) data. In matrix form, this least-square measure can be written as
 #
 # $$
 # \phi_d =(F(\mathbf{m}) - \mathbf{d}^{obs})^T \mathbf{W}_d^T \mathbf{W}_d (F(\mathbf{m}) - \mathbf{d}^{obs})\;,
@@ -32,13 +32,13 @@
 #
 #
 #  - Experimental noise from $\mathbf{d}^{obs}$, generally introduced during acquisition (positioning, instrumental noise)
-#  - Numerically noise introduced by $F(\mathbf{m})$ from our ability to accurately simulate the physics (discretization, interpolation, etc.)
+#  - Numerical noise introduced by $F(\mathbf{m})$ from our inability to perfectly simulate the physics (discretization, interpolation, etc.)
 #
 # In all cases, we may never expect the data residual to completely vanish, but we may allow it to be within an *acceptable* level of fitness for modelling purposes.
 
 # ## Data Uncertainties
 #
-# As mentioned in the [Data Misfit](#Data-Misfit) section, we want to assign **data uncertainties** that reflect our ability to replicate the observed data, within an acceptable level. While many strategies can be used, we are going to demonstrate basic principles to assess the effectiveness of a chosen method. We will employ two basic strategies:
+# As mentioned in the [Data Misfit](#Data-Misfit) section, we want to assign **data uncertainties** that reflect our inability to perfectly replicate the observed data, within an acceptable level. While many strategies can be used, we are going to demonstrate basic principles to assess the effectiveness of a chosen method. We will employ two basic strategies:
 #
 # - [Floor](#Constant-floor) value set as a constant,
 # - [Amplitude-based (%)](#Amplitude-(%)) values with variable weights.

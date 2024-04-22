@@ -19,7 +19,7 @@
 # - [Conventional L2-norm](l2-norm)
 # - [General Lp-norms](lp-norm)
 #
-# While often referred to as an "unconstrained inversion", one could argue that the conventional model norm regularizations do still incorporate some degree of geological information, at least in the form of physical property distribution. Exactly what kind of a priori information is available dedicates the complexity of the constraints. For more advanced petrophysical and/or geometric constraints, see the [Joint Inversion](#joint_inversion.ipynb) section.
+# While often referred to as an "unconstrained inversion", one could argue that the conventional model norm regularizations do still incorporate some degree of geological information, at least in the form of physical property distribution. Exactly what kind of a priori information is available dictates the complexity of the constraints. For more advanced petrophysical and/or geometric constraints, see the [Joint Inversion](#joint_inversion.ipynb) section.
 
 # (l2-norm)=
 #
@@ -36,7 +36,7 @@
 #
 # ### Model smallness
 #
-# In the seminal work of {cite:p}`TikhonovArsenin77`, the function $f(\mathbf{m})$ simply measures the deviation between the inversion model from a reference
+# In the seminal work of {cite:t}`TikhonovArsenin77`, the function $f(\mathbf{m})$ simply measures the deviation between the inversion model from a reference
 #
 # $$
 # f_s(\mathbf{m}) = \mathbf{m} - \mathbf{m}_{ref} \;,
@@ -57,7 +57,7 @@
 # f_x(\mathbf{m}) = \mathbf{G}_x (\mathbf{m} - \mathbf{m}_{ref}) \;,
 # $$
 #
-# where $\mathbf{G}_x$ is a finite different operator that measures the gradient of the model $\mathbf{m}$ along one of the Cartesian directions (`x` for Easting). This function keeps the model "smooth", as large gradients (sharp contrasts) are penalized strongly. Two additional terms are needed to measure the model gradients along the Northing ($f_y$) and vertical ($f_z$) direction.
+# where $\mathbf{G}_x$ is a finite difference operator that measures the gradient of the model $\mathbf{m}$ along one of the Cartesian directions (`x` for Easting). This function keeps the model "smooth", as large gradients (sharp contrasts) are penalized strongly. Two additional terms are needed to measure the model gradients along the Northing ($f_y$) and vertical ($f_z$) direction.
 #
 #
 # ### Scaling
@@ -74,9 +74,18 @@
 #
 # - Dimensionality scaling to level the functions with each other.
 #
+# Dimensionality scales arise from the difference operators:
+#
+# $$
+# \phi_x(m) = \sum_{i=1}^{N_{fx}} \left(\frac{\Delta m_i}{h_{xi}}\right)^2
+# $$
+#
+# such that $\Delta m_i$ is the difference in model values between two cells separated by a distance $h_{xi}$ along the x-axis. When adding together the [reference](#Model smallness) and [model smoothnedd](#Model smoothness) terms in the regularization, it is obvious that the scale factor of $h^{-2}$ would favor $\phi_m$ to have a larger impact on the solution. The standard practice is to weight down the influence of the reference model accordingly.
+#
+#
 # **Note**
 #
-# For all SimPEG inversions, dimensionality scaling is applied directly by the program, allowing the default state to be all 1s for simplicity.
+# For all SimPEG inversions, dimensionality scaling of $h^2$ is applied directly for the gradient terms by the program, allowing the default state to be all 1s for simplicity.
 #
 #
 # ![reg_alphas](./images/regularization_alpha.png)
@@ -135,7 +144,7 @@
 # \mathbf{R}_i = {\frac{1}{\left( {{f(m)^{(k-1)}_i}}^{2} + \epsilon^2 \right)^{1-p/2 }}}\,.
 # $$
 #
-# Here the superscript $(k)$ denotes the inversion iteration number. This is also unknown as an iterative re-weighted least-squares (IRLS) method. For more details on the implementation refer to {cite:p}`fournier_2019`.
+# Here the superscript $(k)$ denotes the inversion iteration number. This is also known as an iterative re-weighted least-squares (IRLS) method. For more details on the implementation refer to {cite:p}`fournier_2019`.
 #
 # The next two sub-sections apply this methodology to the [model smallness](#Reference-model) and [model smoothness](#Model-smoothness) regularizers.
 #
@@ -161,9 +170,9 @@
 #
 # Note that as $p \rightarrow 0$ the volume of the anomaly shrinks to a few non-zero elements while the physical property contrasts increase. They generally agree on the center position of the anomaly but differ greatly on the extent and shape.
 #
-# No smoothness constraints were used ($\alpha_x,y,z = 0$).
-#
 # ![smallness_setup](./images/smallness_norm_setup.png)
+#
+# No smoothness constraints were used ($\alpha_{x,y,z} = 0$), only a penalty on the reference model ($m_{ref} = 0$).
 #
 #
 # All those models fit the data to the target [data misfit](data_misfit) and are therefore valid solutions to the inversion.
@@ -193,11 +202,11 @@
 # ![flat_model](./images/flat_models.png)
 #
 #
-# The [figure above](flat_model) shows vertical sections through the true and recovered models (from left to right) with L2, L1 and L0-norm on the model gradients. No reference model was used ($\alpha_s = 0$) with uniform norm values on all three Cartesian components.
+# The [figure above](flat_model) shows vertical sections through the true and recovered models (from left to right) with L2, L1 and L0-norm on the model gradients.
 #
 # ![smoothness_setup](./images/smoothness_norm_setup.png)
 #
-#
+# No reference model was used ($\alpha_s = 0$) with uniform norm values on all three Cartesian components.
 #
 # All those models also fit the data to the target [data misfit](data_misfit) and are therefore valid solutions to the inversion. Note that as $p \rightarrow 0$ the edges of the anomaly become tighter while variability inside the body diminishes. They generally agree on the center position of the anomaly but differ greatly on the extent and shape.
 #
