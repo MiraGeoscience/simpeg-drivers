@@ -91,7 +91,7 @@ np.dot(F, [0.5, 0.25])
 # \mathbf{m} = \mathbf{F}^{-1} \mathbf{d}
 # $$
 #
-# but this operation is in practice never possible. First, there are too many unknowns compared to the amount of data, so $\mathbf{F}^{-1}$ does not exist. Secondly, the data are generally noisy so that we would have:
+# but this operation is never possible in practice. First, there are too many unknowns compared to the amount of data, so $\mathbf{F}^{-1}$ does not exist. Secondly, the data are generally noisy so that we would have:
 #
 # $$
 # \mathbf{m} = \mathbf{F}^{-1} (\mathbf{d + e})
