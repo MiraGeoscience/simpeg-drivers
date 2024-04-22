@@ -14,7 +14,7 @@
 
 # # Inversion Fundamentals
 #
-# This section provides the mathematical background to understand the inversion algorithm. We are going to use standard terminology and nomenclature used in the literature as a framework. Even though we are going to use mathematical expressions, it is only a vehicle to help in understanding the influence of different parameters controlling the outcome of an inversion.
+# This section provides the mathematical background to understand the inversion algorithm. We are going to use standard terminalogy and nomenclature used in the literature as a framework. Even though we are going to use mathematical expressions, it is only a vehicle to help in understanding the influence of different parameters controlling the outcome of an inversion.
 
 # ## Forward simulation
 #
@@ -34,14 +34,14 @@
 # - [Gravity](gravity.ipynb)
 # - [Magnetics](magnetic.ipynb)
 #
-# to elaborate partial differential equations for EM problems:
+# to ellaborate partial differential equations for EM problems:
 #
 # - [Direct Current](dc_ip.ipynb)
 # - [Magnetotellurics](mt.ipynb)
 # - [Frequency-Domain EM](frequency_em.ipynb)
 # - [Time-Domain EM](time_em.ipynb)
 #
-# All that matters at this point is that `SimPEG` knows how to compute data given a model $\mathbf{m}$.
+# All what matters at this point is that `SimPEG` knows how to compute data given a model $\mathbf{m}$.
 #
 # ![forward_mag_susc](./images/forward_mag_susc.png)
 #
@@ -91,7 +91,7 @@ np.dot(F, [0.5, 0.25])
 # \mathbf{m} = \mathbf{F}^{-1} \mathbf{d}
 # $$
 #
-# but this operation is never possible in practice. First, there are too many unknowns compared to the amount of data, so $\mathbf{F}^{-1}$ does not exist. Secondly, the data are generally noisy so that we would have:
+# but this operation is in practice never possible. First, there are too many unknowns compared to the amount of data, so $\mathbf{F}^{-1}$ does not exist. Secondly, the data are generally noisy so that we would have:
 #
 # $$
 # \mathbf{m} = \mathbf{F}^{-1} (\mathbf{d + e})
@@ -146,6 +146,7 @@ np.dot(F, [0.5, 0.25])
 # ### Example
 #
 # We can reuse the two-parameter problem above to illustrate the inverse problem. We are going to ignore the issue of noise for now and simply look at the under-determined problem
+#
 # $$
 # \large[\begin{array}{ccc}
 # 1 & 2
@@ -175,8 +176,21 @@ np.dot(F, [0.5, 0.25])
 # \mathbf{m} =(\mathbf{F}^T \mathbf{F})^{-1}(\mathbf{F}^T 1)\;.
 # $$
 #
-# but even here $(\mathbf{F}^T \mathbf{F})^{-1}$ is singular and cannot be inverted directly.
+# but even here $(\mathbf{F}^T \mathbf{F})^{-1}$ is singular and cannot be inverted directly as shown below
 
-m = np.linalg.solve(np.dot(F.T, F) + np.eye(2), F.T * np.r_[1])
+try:
+    np.linalg.solve(np.dot(F.T, F), F.T * np.r_[1])
+except Exception as error:
+    print(error)
+
+# We can get around this by adding a small value to `regularize` the system such that
+#
+# $$
+# \mathbf{m} =(\mathbf{F}^T \mathbf{F} + \delta \mathbf{I})^{-1}(\mathbf{F}^T 1)\;.
+# $$
+
+np.linalg.solve(np.dot(F.T, F) + 1e-12 * np.eye(2), F.T * np.r_[1])
+
+# We have found a solution to this under-determined problem: $m = [0.2,\; 0.4]$. This result is known as the `least-norm` solution, which differs from the true answer $m = [0.5, \;0.25]$. Other "better" solutions could be found if more information is provided to the inverse problem to push the model towards expected values. This will be the topic of the [Regularization Section](regularization.ipynb)
 
 # <p style="page-break-after:always;"></p>
