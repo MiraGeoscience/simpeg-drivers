@@ -34,7 +34,7 @@
 # - [Gravity](gravity.ipynb)
 # - [Magnetics](magnetic.ipynb)
 #
-# to ellaborate partial differential equations for EM problems:
+# to elaborate partial differential equations for EM problems:
 #
 # - [Direct Current](dc_ip.ipynb)
 # - [Magnetotellurics](mt.ipynb)
