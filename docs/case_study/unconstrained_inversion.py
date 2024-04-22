@@ -31,10 +31,9 @@
 # ---
 # (Top) (left) Observed and (right) predicted data after convergence of the L2 (smooth) solution. Most of the data is well recovered.
 #
-# (Bottom) Horizontal slice at 255 m elevation for (left) the smooth and (right) compact magnetization models. The outline of the inferred ore shell is shown in gray for reference.
+# (Bottom) Horizontal slice at 255 m elevation for (left) the smooth and (right) compact magnetization models.
 # ```
 #
-# We note a somewhat good correlation between the shape of the inferred ore shell and magnetic model. The magnetization appears to be shifted southward and at depth, as seen in profile.
 #
 # [Add more here]
 #
@@ -43,7 +42,7 @@
 
 # ## Ground gravity inversion
 #
-# The ground gravity data, reference terrain corrected at 2.67 g/cc, were also inverted in the same fashion. A floor uncertainty value of 0.05 mGal was assigned.
+# The ground gravity data (terrain corrected at 2.67 g/cc) were also inverted in the same fashion. A floor uncertainty value of 0.05 mGal was assigned.
 #
 #
 #
@@ -64,7 +63,7 @@
 
 # ## Gravity gradiometry inversion
 #
-# The airborne tensor terrain corrected (2.67 g/cc) gravity data were also inverted in the same fashion. A floor uncertainty value of 0.2 Eotvos was assigned to all the components.
+# The airborne tensor gravity data (terrain corrected at 2.67 g/cc) were also inverted in the same fashion. A floor uncertainty value of 0.2 Eotvos was assigned to all the components.
 #
 #
 #
@@ -75,7 +74,7 @@
 # ---
 # (Top) (left) Observed and (right) predicted gxx data after convergence of the L2 (smooth) solution. Most of the data is well recovered.
 #
-# (Bottom) Horizontal slice for (left) the smooth and (right) L1-norm density contrast models. The outline of the inferred ore shell is shown in gray for reference.
+# (Bottom) Horizontal slice for (left) the smooth and (right) L1-norm density contrast models.
 # ```
 #
 # We note a slight correlation to the shape of the known ore body
@@ -99,7 +98,7 @@
 # (Top) (left) Observed and (right) predicted apparent resistivity data after convergence.
 #
 # (Bottom)
-# (Left) Horizontal section at 240 m elevation through the compact density model. Outline of the hematite shell is shown in grey for reference.
+# (Left) Horizontal section at 240 m elevation through the compact density model.
 # (Right) Vertical NS section through the recovered smooth resistivity model.
 # ```
 #
