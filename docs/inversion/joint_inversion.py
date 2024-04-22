@@ -14,7 +14,7 @@
 
 # # Joint Inversion
 #
-# This section introduces the methodolgy to invert multiple datasets jointly.
+# This section introduces the methodology to invert multiple datasets jointly.
 
 # ## Joint Surveys Inversion
 #
@@ -23,7 +23,7 @@
 #
 # ![joint_surveys](./images/joint_surveys.png)
 #
-# For example, a magnetotelluric survey is mostly sensitive to deep structures but can still be affected by local changes in resistivity near the sensor locations. A ground direct-current survey on the other hand is highly sensitive to near surface changes in resisivity. Inverting both surveys together would provide complementary information that improves overall our modeling capabilities.
+# For example, a magnetotelluric survey is mostly sensitive to deep structures but can still be affected by local changes in resistivity near the sensor locations. A ground direct-current survey on the other hand is highly sensitive to near surface changes in resistivity. Inverting both surveys together would provide complementary information that improves our modeling capabilities overall.
 #
 # This joint inversion problem does not require a coupling term - simply the summation of multiple misfit functions. Extending the objective function described in the [inverse problem](inverse_problem) section, our new misfit function becomes
 #
@@ -73,13 +73,13 @@
 #
 # ### Cross-gradient
 #
-# The `cross-gradient` regularization was first introduced by {cite:p}`gallardo2003` to constrain electrical resistivity and seismic velocity inversions, but the same strategy applies to any physical property models. As the name states, the method employes the cross product on the spatial gradients of models such that
+# The `cross-gradient` regularization was first introduced by {cite:p}`gallardo2003` to constrain electrical resistivity and seismic velocity inversions, but the same strategy applies to any physical property models. As the name states, the method employs the cross product on the spatial gradients of models such that
 #
 # $$
 # \phi_c(\mathbf{m_A},\mathbf{m_B}) = \sum_{i=1}^{M} \| \nabla \mathbf{m_A}_i \times \nabla \mathbf{m_B}_i \|^2
 # $$
 #
-# where $\nabla \mathbf{m_A}$ and $\nabla \mathbf{m_B}$ are the gradients for two distinct physical properties (density, magnetization components, resitivity, etc.). Since the cross-product of two vectors is also a vector, we use the total length (l2-norm) of the cross-product. The constraint is small (no impact) if the gradients of the models are either aligned or zero. Oppositely, the measure becomes large if edges in the physical models are perpendicular with each other. Since we attempting to minimize this function, this constraint will force model boundaries to occur at the same location or not at all.
+# where $\nabla \mathbf{m_A}$ and $\nabla \mathbf{m_B}$ are the gradients for two distinct physical properties (density, magnetization components, resitivity, etc.). Since the cross-product of two vectors is also a vector, we use the total length (l2-norm) of the cross-product. The constraint is small (no impact) if the gradients of the models are either aligned or zero. Conversely, the measure becomes large if edges in the physical models are perpendicular with each other. Since we are attempting to minimize this function, this constraint will force model boundaries to occur at the same location or not at all.
 #
 # It is possible to constrain more than two physical property models by adding multiple cross-gradient terms for every pair of models such that
 #
@@ -105,7 +105,7 @@
 
 # ## Mesh creation
 #
-# This section provides details on how to create the forward simulation meshes for each survey in preparation for a joint inversion. While all the misfit functions try to influence a model $m$ defined on a global mesh, individual forward simulations $\mathbb{F}^j(m)$ can be defined on sub-domains adapted to their specific array configurations. For example, an airborne EM simulation may require small cells in the air for numerical accuracy, while a dc-resisitivity survey only requires cells underground at the transmitter-receiver pole locations.
+# This section provides details on how to create the forward simulation meshes for each survey in preparation for a joint inversion. While all the misfit functions try to influence a model $m$ defined on a global mesh, individual forward simulations $\mathbb{F}^j(m)$ can be defined on sub-domains adapted to their specific array configurations. For example, an airborne EM simulation may require small cells in the air for numerical accuracy, while a dc-resisitivity survey only requires cells below ground at the transmitter-receiver pole locations.
 #
 #
 # To be continued
