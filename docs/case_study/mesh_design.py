@@ -16,7 +16,9 @@
 #
 # # Mesh design
 #
-# This section provides details about the mesh creation for the individual inversions using the `Octree Mesh Creation` routine from [Mirageoscience\geoapps](https://mirageoscience-octree-creation-app.readthedocs-hosted.com/en/latest) package. The goal is to create inversion meshes that are well adapted to each survey, while also optimal for the subsequent joint inversion process.
+# This section provides details about the mesh creation towards joint inversions. The goal is to create inversion meshes that are well adapted to each survey, while also optimal for the subsequent joint inversion process.
+#
+# For further details and examples on how to create octree meshes, please visit the [Octree Mesh Creation](https://mirageoscience-octree-creation-app.readthedocs-hosted.com/en/latest) documentation provided by [Mira Geoscience](https://www.mirageoscience.com/mining-industry-software/python-integration).
 #
 #
 # ## Base parameters
@@ -51,12 +53,12 @@
 # - Terrain clearance (height above ground)
 # - Modeling resolution (size of the target)
 #
-# In this case, the lowest drape height from the airborne magnetics is 60 m. As a general rule of thumb, numerical artefacts due to the discretization of topography decays sufficiently when receivers are roughly two cell distance away from the nearest edge or corner. Secondly, the dipole separation of the direct-current survey is 40 m. To improve numerical accuracy, we want to avoid computing potential differences within the same cell. This is guaranteed if the cell dimension is half the dipole separation, regardless of the dipole orientation.
+# Numerical artefacts due to the discretization of topography decay sufficiently when receivers are roughly two cell dimensions away from the nearest edge or corner. Since the lowest drape height from the airborne magnetics is 60 m, a prudent cell size would be in the range of ~30 m.  We also want to avoid computing electrical potential differences within the same cell for numerical accuracy.  This is condition is guaranteed for cell dimensions less than half the smallest dipole separation - suggesting an even smaller cell (<=20 m) dimension for the 40m dipole direct-current data simulated here.
 #
 #
 # ### Padding cells
 #
-# The area of interest covers roughly 2 km in width. As a general rule of thumb, the padding region should be at least as wide as the data extent in order to easy model features with wavelengths that may extend beyond the surveyed area.
+# The area of interest covers roughly 2 km in width. As a general rule of thumb, the padding region should be at least as wide as the data extent in order to easily model features with wavelengths that may extend beyond the surveyed area.
 #
 # In the case of EM modeling, we also need to consider the diffusion distance of the EM fields. The [skin depth](http://em.geosci.xyz/content/maxwell1_fundamentals/harmonic_planewaves_homogeneous/skindepth.html?highlight=skin%20depth#approximations) can be estimated by
 #
@@ -87,18 +89,20 @@
 
 # ## Refinements
 #
-# An octree mesh allows to increase the mesh resolution (smaller cells) in specific regions - warranted for either numerical accuracy or modeling purposes. Fine cells can be "added" to the octree grid using various insertion methods:
+# An octree mesh allows to increase the mesh resolution (smaller cells) in specific regions - warranted for either numerical accuracy or modeling purposes. Fine cells can be "added" to the octree grid using various insertion methods that depend on the type of object used:
 #
-# - Radial: Add concentric spherical shells of cells around points. It is used for numerical accuracy near receiver poles (DC) and dipoles (EM).
-# - Line: Add concentric tubes around line segments. It is the default discretization for line sources (EM loops)
-# - Surface: Add layers of cells along triangulated surfaces in 3D. It is mostly used to refine known boundaries between geological domain and topography.
-# - Horizon: Add horizontal layers of cells below a triangulated surface computed from the input object's vertices. This is a useful option to create a core region below the survey area.
+# - Radial: Add concentric spherical shells of cells around points. It is the default behaviour for `Points`-like objects.
+# - Line: Add concentric tubes around line segments. It is the default discretization for line sources (EM loops) and `Curve` objects.
+# - Surface: Add layers of cells along triangulated surfaces in 3D. It is the default behaviour for `Surface` objects and mostly used to refine known boundaries between geological domain and topography.
+# - Horizon [Optional]: Add horizontal layers of cells below a triangulated surface computed from the input object's vertices. This is a useful option to create a core region below the survey area.
+#
+# See the [Octree-Creation-App: Refinements](https://mirageoscience-octree-creation-app.readthedocs-hosted.com/en/latest/methodology.html#refinements) section for more details.
 #
 #
 #
 # ### For direct-current survey
 #
-# For EM methods, such as electrical direct-current surveys, the numerical accuracy of the forward simulation is the primary  factor to decide on a mesh refinement strategy. It is important to have several small cells around each source and receivers for solving partial differential equations accurately. In this case, dipole source and receivers use radial `ball` refinement was used to add concentric layers of cells around each source/receiver pairs.
+# For EM methods, such as electrical direct-current surveys, the numerical accuracy of the forward simulation is the primary  factor to decide on a mesh refinement strategy. It is important to have several small cells around each source and receivers for solving partial differential equations accurately. In this case, dipole source and receivers must be converted to a `Points` object in order to trigger a `radial` refinement. Concentric shells of cells are added around each source/receiver poles.
 #
 # ```{figure} ./images/mesh_dc.png
 # ---
