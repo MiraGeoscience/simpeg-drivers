@@ -41,7 +41,7 @@
 # - [Frequency-Domain EM](frequency_em.ipynb)
 # - [Time-Domain EM](time_em.ipynb)
 #
-# All what matters at this point is that `SimPEG` knows how to compute data given a model $\mathbf{m}$.
+# All that matters at this point is that `SimPEG` knows how to compute data given a model $\mathbf{m}$.
 #
 # ![forward_mag_susc](./images/forward_mag_susc.png)
 #
