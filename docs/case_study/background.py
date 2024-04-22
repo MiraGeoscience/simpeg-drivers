@@ -16,7 +16,7 @@
 #
 # # Background
 #
-# The processing and inversion work focuses on ground and airborne datasets simulated over the Flin Flon model ([Figure 3](global_map)). Extensive drilling has been done over the deposit, as shown in [Figure 3](global_map).
+# The processing and inversion work focuses on ground and airborne datasets simulated over the Flin Flon model. Extensive drilling has been done over the deposit, as shown in [Figure 2](global_map).
 #
 # ```{figure} ./images/map_flinflon.png
 # ---
@@ -26,7 +26,7 @@
 # Geological map and drillholes of the Flin Flon deposit. Outline of the main ore body (red) is shown for reference.
 # ```
 #
-# The synthetic block model was generated from open-source data made available by [Natural Resources Canada (NRCan)](https://ostrnrcan-dostrncan.canada.ca/entities/publication/73d767d8-ee1c-4bab-a2da-52dcf83faa06). The VMS deposit is hosted in rhyolite unit ...
+# The synthetic block model was generated from open-source data made available by [Natural Resources Canada (NRCan)](https://ostrnrcan-dostrncan.canada.ca/entities/publication/73d767d8-ee1c-4bab-a2da-52dcf83faa06). The VMS deposit is hosted in rhyolite unit as indicated by yellow voxels [Figure 3](ore_body).
 #
 # ```{figure} ./images/ore_body.png
 # ---
@@ -37,7 +37,7 @@
 # ```
 #
 #  [Table 1](phys_prop) summarizes the relative physical properties of the main rock units in the area.
-# The VMS ore is expected to be more conductive and dense than the host rocks, as well as highly magnetic. This is contrast with the host rhyolite unit with low density, non-magnetic and highly resistive. The background mafic rocks are generally non-magnetic and have moderate densities and resistivities. A thick (40 m) overburden layer of relatively low density and  low resistivity covers the survey area.
+# The VMS ore is expected to be more conductive, dense and magnetic than host rhyolite unit. The background mafic rocks are generally non-magnetic and have moderate densities and resistivities. A thick (40 m) overburden layer of relatively low density and  low resistivity covers the survey area.
 #
 #
 # ```{table} Summary of expected physical properties
