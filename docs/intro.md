@@ -1,15 +1,20 @@
-# Tools for Integrated Geophysical Modeling and Targeting
+# About
 
-This document contains training material for geophysical inversion using SimPEG and Geoscience ANALYST.
+This document contains training material for geophysical inversions using [SimPEG](https://simpeg.xyz/) and [Geoscience ANALYST](https://www.mirageoscience.com/mining-industry-software/geoscience-analyst/).
+```{image} ./images/ore_body.png
+:width: 500px
+```
 
 # Table of content
 
 ```{tableofcontents}
 ```
 
+
+
 # References
 
 ```{bibliography}
 ```
 
- Copyright (c) 2023 Mira Geoscience Ltd.
+ Copyright (c) 2024 Mira Geoscience Ltd.
