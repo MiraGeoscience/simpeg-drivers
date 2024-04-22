@@ -37,7 +37,7 @@
 #
 # ## Direct-current resistivity (DCR)
 #
-# A ground dipole-dipole survey was simulated over the main ore body. The survey was acquired with 40 m dipole length, data measured on sever receivers per transmitter dipole. Line separation was set to 100 m ([Figure 6](dc_topo)).
+# A ground dipole-dipole survey was simulated over the main ore body. The survey was acquired with 40 m dipole length, data measured on seven receivers per transmitter dipole. Line separation was set to 100 m ([Figure 5](dc_topo)).
 #
 # ```{figure} ./images/DCR_data.png
 # ---
@@ -55,7 +55,7 @@
 #
 # ## Airborne magnetic survey (TMI)
 #
-# We simulated Residual Magnetic Intensity (RMI) data along East-West lines at a 40 m drape height above topography. The line spacing was set to 200 m, along downsampling of 10 m.
+# We simulated Residual Magnetic Intensity (RMI) data along East-West lines at a 40 m drape height above topography. The line spacing was set to 200 m, with along-line data downsampled to 10 m.
 #
 # The following inducing field parameters were used for the forward simulation:
 #
@@ -82,7 +82,7 @@
 #
 # An airborne fixed-wing full-tensor gravity gradiometry (FTG) survey was simulated at a nominal drape height of 60 m above topography.
 #
-# The FTG system measures six independent components of the gradient tensor: Txx, Txy, Txz, Tyy, Tyz and Tzz. Data were leveled, free-air and terrain corrected with 2.67 g/cc reference density.
+# The FTG system measures six independent components of the gradient tensor: $g_{xx},\; g_{xy},\; g_{xz},\; g_{yy},\; g_{yz}$ and $g_{zz}$. Data were leveled, free-air and terrain corrected with 2.67 g/cc reference density.
 #
 #
 # ```{figure} ./images/GG_data.png
@@ -90,7 +90,7 @@
 # scale: 50%
 # name: ftg_data
 # ---
-# Components of the gravity gradiometry data measured over the zone of interest (from to bottom): (left) Txx, Tyy and Tzz components, (right) Tyx, Txz and Tyz components.
+# (Top) Components of the gravity gradiometry data measured over the zone of interest. (Bottom) The green and red marker indicate the flight direction.
 # ```
 #
 
