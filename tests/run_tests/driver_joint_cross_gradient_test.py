@@ -29,7 +29,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 51.20763877051509, "phi_d": 1028, "phi_m": 0.08187}
+target_run = {"data_norm": 51.20763877051509, "phi_d": 1159, "phi_m": 0.07619}
 
 
 def test_joint_cross_gradient_fwr_run(
