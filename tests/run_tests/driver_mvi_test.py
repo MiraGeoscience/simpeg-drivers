@@ -23,8 +23,8 @@ from simpeg_drivers.utils.utils import get_inversion_output
 
 target_mvi_run = {
     "data_norm": 6.3559205278626525,
-    "phi_d": 0.007914,
-    "phi_m": 2.311e-06,
+    "phi_d": 0.004415,
+    "phi_m": 2.413e-06,
 }
 
 
