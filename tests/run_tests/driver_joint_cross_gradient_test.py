@@ -37,7 +37,6 @@ def test_joint_cross_gradient_fwr_run(
     n_grid_points=4,
     refinement=(2,),
 ):
-    np.random.seed(0)
     # Create local problem A
     geoh5, _, model, survey, topography = setup_inversion_workspace(
         tmp_path,
@@ -205,7 +204,6 @@ def test_joint_cross_gradient_inv_run(
                 drivers.append(MagneticVectorDriver(params))
 
         # Run the inverse
-        np.random.seed(0)
         joint_params = JointCrossGradientParams(
             geoh5=geoh5,
             topography_object=topography.uid,

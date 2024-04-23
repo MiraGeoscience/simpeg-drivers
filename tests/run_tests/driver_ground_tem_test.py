@@ -28,8 +28,6 @@ target_run = {
     "phi_m": 241.1,
 }
 
-np.random.seed(0)
-
 
 def test_ground_tem_fwr_run(
     tmp_path: Path,
@@ -121,7 +119,6 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         orig_dBzdt = geoh5.get_entity("Iteration_0_z_[0]")[0].values
 
         # Run the inverse
-        np.random.seed(0)
         params = TimeDomainElectromagneticsParams(
             geoh5=geoh5,
             mesh=mesh.uid,
@@ -141,8 +138,7 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
             lower_bound=2e-6,
             upper_bound=1e2,
             max_global_iterations=max_iterations,
-            # initial_beta_ratio=1e1,
-            initial_beta=2.65e-02,
+            initial_beta_ratio=1e1,
             coolingRate=2,
             max_cg_iterations=200,
             prctile=100,

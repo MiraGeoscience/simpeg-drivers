@@ -81,7 +81,9 @@ def check_target(output: dict, target: dict, tolerance=0.1):
     :param tolerance: Tolerance between output and target measured as: |a-b|/b
     """
     print(
-        f"'data_norm': {np.linalg.norm(output['data'])}, 'phi_d': {output['phi_d'][1]}, 'phi_m': {output['phi_m'][1]}"
+        f"'data_norm': {np.linalg.norm(output['data'])}, "
+        f"'phi_d': {output['phi_d'][1]}, "
+        f"'phi_m': {output['phi_m'][1]}"
     )
     if any(np.isnan(output["data"])):
         warnings.warn(
@@ -93,7 +95,7 @@ def check_target(output: dict, target: dict, tolerance=0.1):
             / target["data_norm"],
             tolerance,
         )
-    print(output["phi_m"], target["phi_m"])
+
     np.testing.assert_array_less(
         np.abs(output["phi_m"][1] - target["phi_m"]) / target["phi_m"], tolerance
     )
