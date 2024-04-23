@@ -51,7 +51,7 @@
 #
 # ### Model smoothness
 #
-# A second set of terms can be added to the regularization function to apply constraints on the model gradients, or roughness of the solution. Following the notation used in {cite:p}`LiOldenburg1998` and others before,
+# A second set of terms can be added to the regularization function to apply constraints on the model gradients, or roughness of the solution. Following the notation used in {cite:t}`LiOldenburg1998` and others before,
 #
 # $$
 # f_x(\mathbf{m}) = \mathbf{G}_x (\mathbf{m} - \mathbf{m}_{ref}) \;,
@@ -110,7 +110,7 @@
 # ## Sparse regularization
 #
 #
-# It is possible to generalize the conventional least-squares approach such that we can recover different solutions with variable degrees of sparsity {cite:p}`fournier_2019`. The goal is to explore the model space by changing our assumption about the character of the solution, in terms of volume of the anomalies and sharpness of contrasts between domains. We can do this by changing the "ruler" by which we evaluate the model function $f(\mathbf{m})$.
+# It is possible to generalize the conventional least-squares approach such that we can recover different solutions with variable degrees of sparsity {cite:t}`fournier_2019`. The goal is to explore the model space by changing our assumption about the character of the solution, in terms of volume of the anomalies and sharpness of contrasts between domains. We can do this by changing the "ruler" by which we evaluate the model function $f(\mathbf{m})$.
 #
 #
 # ### Approximated $L_p$-norm
@@ -144,7 +144,7 @@
 # \mathbf{R}_i = {\frac{1}{\left( {{f(m)^{(k-1)}_i}}^{2} + \epsilon^2 \right)^{1-p/2 }}}\,.
 # $$
 #
-# Here the superscript $(k)$ denotes the inversion iteration number. This is also known as an iterative re-weighted least-squares (IRLS) method. For more details on the implementation refer to {cite:p}`fournier_2019`.
+# Here the superscript $(k)$ denotes the inversion iteration number. This is also known as an iterative re-weighted least-squares (IRLS) method. For more details on the implementation refer to {cite:t}`fournier_2019`.
 #
 # The next two sub-sections apply this methodology to the [model smallness](#Reference-model) and [model smoothness](#Model-smoothness) regularizers.
 #

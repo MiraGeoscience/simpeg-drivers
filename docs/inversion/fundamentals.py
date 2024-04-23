@@ -14,7 +14,7 @@
 
 # # Inversion Fundamentals
 #
-# This section provides the mathematical background to understand the inversion algorithm. We are going to use standard terminalogy and nomenclature used in the literature as a framework. Even though we are going to use mathematical expressions, it is only a vehicle to help in understanding the influence of different parameters controlling the outcome of an inversion.
+# This section provides the mathematical background to understand the inversion algorithm. We are going to use standard terminology and nomenclature used in the literature as a framework. Even though we are going to use mathematical expressions, it is only a vehicle to help in understanding the influence of different parameters controlling the outcome of an inversion.
 
 # ## Forward simulation
 #
@@ -34,14 +34,14 @@
 # - [Gravity](gravity.ipynb)
 # - [Magnetics](magnetic.ipynb)
 #
-# to ellaborate partial differential equations for EM problems:
+# to elaborate partial differential equations for EM problems:
 #
 # - [Direct Current](dc_ip.ipynb)
 # - [Magnetotellurics](mt.ipynb)
 # - [Frequency-Domain EM](frequency_em.ipynb)
 # - [Time-Domain EM](time_em.ipynb)
 #
-# All what matters at this point is that `SimPEG` knows how to compute data given a model $\mathbf{m}$.
+# All that matters at this point is that `SimPEG` knows how to compute data given a model $\mathbf{m}$.
 #
 # ![forward_mag_susc](./images/forward_mag_susc.png)
 #
@@ -91,7 +91,7 @@ np.dot(F, [0.5, 0.25])
 # \mathbf{m} = \mathbf{F}^{-1} \mathbf{d}
 # $$
 #
-# but this operation is in practice never possible. First, there are too many unknowns compared to the amount of data, so $\mathbf{F}^{-1}$ does not exist. Secondly, the data are generally noisy so that we would have:
+# but this operation is never possible in practice. First, there are too many unknowns compared to the amount of data, so $\mathbf{F}^{-1}$ does not exist. Secondly, the data are generally noisy so that we would have:
 #
 # $$
 # \mathbf{m} = \mathbf{F}^{-1} (\mathbf{d + e})
@@ -146,7 +146,6 @@ np.dot(F, [0.5, 0.25])
 # ### Example
 #
 # We can reuse the two-parameter problem above to illustrate the inverse problem. We are going to ignore the issue of noise for now and simply look at the under-determined problem
-#
 # $$
 # \large[\begin{array}{ccc}
 # 1 & 2
