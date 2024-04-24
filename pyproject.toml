@@ -61,6 +61,11 @@ pylint = "*"
 pytest = "*"
 pytest-cov = "*"
 tomli = "*"
+jupyter-book = "^0.13"
+jupytext = "^1.14"
+sphinx = "^5.0"
+readthedocs-sphinx-ext = "*"
+ipywidgets = {version = "^7.6.5", optional = true}
 
 [tool.conda-lock]
 platforms = ['win-64', 'linux-64']
