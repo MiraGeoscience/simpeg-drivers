@@ -59,6 +59,9 @@ tomli = "*"
 platforms = ['win-64', 'linux-64']
 channels = ['conda-forge']
 
+[tool.conda-lock.dependencies]
+libblas = "*=*mkl"  # because simpeg already brings in the MKL
+
 [tool.isort]
 # settings for compatibility between ``isort`` and ``black`` formatting
 multi_line_output = 3
