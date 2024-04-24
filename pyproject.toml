@@ -57,15 +57,15 @@ zarr = "~2.14.2"  # from simpeg using Dask
 
 [tool.poetry.dev-dependencies]
 Pygments = "*"
+ipywidgets = "^7.6.5"
+jupyter-book = "^0.13"
+jupytext = "^1.14"
 pylint = "*"
 pytest = "*"
 pytest-cov = "*"
-tomli = "*"
-jupyter-book = "^0.13"
-jupytext = "^1.14"
-sphinx = "^5.0"
 readthedocs-sphinx-ext = "*"
-ipywidgets = {version = "^7.6.5", optional = true}
+sphinx = "^5.0"
+tomli = "*"
 
 [tool.conda-lock]
 platforms = ['win-64', 'linux-64']
