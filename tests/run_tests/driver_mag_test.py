@@ -20,7 +20,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 8.71227951689941, "phi_d": 18.42, "phi_m": 3.624e-6}
+target_run = {"data_norm": 8.71227951689941, "phi_d": 19.01, "phi_m": 2.77e-06}
 
 
 def test_susceptibility_fwr_run(
@@ -28,7 +28,6 @@ def test_susceptibility_fwr_run(
     n_grid_points=2,
     refinement=(2,),
 ):
-    np.random.seed(0)
     inducing_field = (49999.8, 90.0, 0.0)
     # Run the forward
     geoh5, _, model, survey, topography = setup_inversion_workspace(
@@ -81,7 +80,6 @@ def test_susceptibility_run(
         inducing_field = (50000.0, 90.0, 0.0)
 
         # Run the inverse
-        np.random.seed(0)
         params = MagneticScalarParams(
             geoh5=geoh5,
             mesh=mesh.uid,

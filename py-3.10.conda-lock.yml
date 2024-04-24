@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: ab7693575d9874cbaec7f2b2412ea635e24e32b54c244228345d64addc2048a3
-    linux-64: 8e3ef583c961e9e00635e390890d694582ccbe20e35610f206eae9bbf3fafcb5
+    win-64: f085f61f85b2c07b961247492987a93b31023e987784d6298cad671d6491fbe8
+    linux-64: a1a50f0ffda952c609ef139d3164f96d76164fc27f48cc39f0d702cbec5b8bf5
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -1401,15 +1401,15 @@ package:
   category: dev
   optional: true
 - name: platformdirs
-  version: 4.2.0
+  version: 4.2.1
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.8'
-  url: https://conda.anaconda.org/conda-forge/noarch/platformdirs-4.2.0-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/platformdirs-4.2.1-pyhd8ed1ab_0.conda
   hash:
-    md5: a0bc3eec34b0fab84be6b2da94e98e20
-    sha256: 2ebfb971236ab825dd79dd6086ea742a9901008ffb9c6222c1f2b5172a8039d3
+    md5: d478a8a3044cdff1aa6e62f9269cefe0
+    sha256: 5718fef2954f016834058ae1d359e407ff8e2e847b35ab43d5d91bcf22d5578d
   category: main
   optional: false
 - name: pluggy
@@ -1889,15 +1889,15 @@ package:
   category: dev
   optional: true
 - name: websocket-client
-  version: 1.7.0
+  version: 1.8.0
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.8'
-  url: https://conda.anaconda.org/conda-forge/noarch/websocket-client-1.7.0-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/websocket-client-1.8.0-pyhd8ed1ab_0.conda
   hash:
-    md5: 50ad31e07d706aae88b14a4ac9c73f23
-    sha256: d9b537d5b7c5aa7a02a4ce4c6b755e458bd8083b67752a73c92d113ccec6c10f
+    md5: f372c576b8774922da83cda2b12f9d29
+    sha256: 44a5e3b97feef24cd719f7851cca9af9799dc9c17d3e0298d5856baab2d682f5
   category: dev
   optional: true
 - name: wheel
@@ -2063,7 +2063,7 @@ package:
   category: dev
   optional: true
 - name: coverage
-  version: 7.4.4
+  version: 7.5.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -2071,10 +2071,10 @@ package:
     python: '>=3.10,<3.11.0a0'
     python_abi: 3.10.*
     tomli: ''
-  url: https://conda.anaconda.org/conda-forge/linux-64/coverage-7.4.4-py310h2372a71_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/coverage-7.5.0-py310hc51659f_0.conda
   hash:
-    md5: 2d948842110ae68e4f2e7738f92bf7e1
-    sha256: e95f08ca0f555a5e16e7ef800317e04a237ef6622073d1c9dfb8792a06d28336
+    md5: 3609fdb03842f67e2ec68a9c137221b8
+    sha256: b7f29f2cef34873a7f345a989c8203507b4f177fe54a864c5f8c82d29bf10373
   category: dev
   optional: true
 - name: cytoolz
@@ -2450,16 +2450,16 @@ package:
   category: dev
   optional: true
 - name: tinycss2
-  version: 1.2.1
+  version: 1.3.0
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.5'
     webencodings: '>=0.4'
-  url: https://conda.anaconda.org/conda-forge/noarch/tinycss2-1.2.1-pyhd8ed1ab_0.tar.bz2
+  url: https://conda.anaconda.org/conda-forge/noarch/tinycss2-1.3.0-pyhd8ed1ab_0.conda
   hash:
-    md5: 7234c9eefff659501cd2fe0d2ede4d48
-    sha256: f0db1a2298a5e10e30f4b947566c7229442834702f549dded40a73ecdea7502d
+    md5: 8662629d9a05f9cff364e31ca106c1ac
+    sha256: bc55e5899e66805589c02061e315bfc23ae6cc2f2811f5cc13fb189a5ed9d90f
   category: dev
   optional: true
 - name: tqdm
@@ -3845,13 +3845,13 @@ package:
   platform: linux-64
   dependencies:
     scikit-learn: '>=1.2'
-    numpy: '>=1.20'
-    empymod: '>=2.0.0'
     scipy: '>=1.8.0'
-    discretize: '>=0.8.0'
+    numpy: '>=1.20'
     pandas: '*'
+    empymod: '>=2.0.0'
     geoh5py: '*'
     pymatsolver: '>=0.2'
+    discretize: '>=0.8.0'
   url: https://github.com/MiraGeoscience/simpeg/archive/refs/heads/release/v0.19.0.dev8+geoapps.0.12.0.zip
   hash:
     sha256: ''
@@ -3861,15 +3861,15 @@ package:
     url: https://github.com/MiraGeoscience/simpeg/archive/refs/heads/release/v0.19.0.dev8+geoapps.0.12.0.zip#sha256=
   optional: false
 - name: param-sweeps
-  version: 0.1.7a3
+  version: 0.1.7a4
   manager: pip
   platform: linux-64
   dependencies:
-    geoh5py: '>=0.9.0-alpha.1,<0.10.0'
+    geoh5py: '>=0.9.0-alpha.4,<0.10.0'
     numpy: '>=1.23.5,<1.24.0'
-  url: https://files.pythonhosted.org/packages/6e/61/3c1824cd7d1a3b5cf8f711cbb84a42b3d8cbc441ece31de063d5708a9e97/param_sweeps-0.1.7a3-py3-none-any.whl
+  url: https://files.pythonhosted.org/packages/25/f8/71859702eb5dbc21bc76b2c14d9da22e57fa487652a1b6a308a0f7296bd2/param_sweeps-0.1.7a4-py3-none-any.whl
   hash:
-    sha256: a842cf4d220baa76078618c6f8023dea73d8940297f95f12ab3774eab808b7a8
+    sha256: 7185d329ed56e04a068b6c7494397e9853dca8bd15f98e4ba2a5fc4f86dff5fe
   category: main
   optional: false
 - name: octree-creation-app
@@ -5127,15 +5127,15 @@ package:
   category: dev
   optional: true
 - name: platformdirs
-  version: 4.2.0
+  version: 4.2.1
   manager: conda
   platform: win-64
   dependencies:
     python: '>=3.8'
-  url: https://conda.anaconda.org/conda-forge/noarch/platformdirs-4.2.0-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/platformdirs-4.2.1-pyhd8ed1ab_0.conda
   hash:
-    md5: a0bc3eec34b0fab84be6b2da94e98e20
-    sha256: 2ebfb971236ab825dd79dd6086ea742a9901008ffb9c6222c1f2b5172a8039d3
+    md5: d478a8a3044cdff1aa6e62f9269cefe0
+    sha256: 5718fef2954f016834058ae1d359e407ff8e2e847b35ab43d5d91bcf22d5578d
   category: main
   optional: false
 - name: pluggy
@@ -5618,15 +5618,15 @@ package:
   category: dev
   optional: true
 - name: websocket-client
-  version: 1.7.0
+  version: 1.8.0
   manager: conda
   platform: win-64
   dependencies:
     python: '>=3.8'
-  url: https://conda.anaconda.org/conda-forge/noarch/websocket-client-1.7.0-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/websocket-client-1.8.0-pyhd8ed1ab_0.conda
   hash:
-    md5: 50ad31e07d706aae88b14a4ac9c73f23
-    sha256: d9b537d5b7c5aa7a02a4ce4c6b755e458bd8083b67752a73c92d113ccec6c10f
+    md5: f372c576b8774922da83cda2b12f9d29
+    sha256: 44a5e3b97feef24cd719f7851cca9af9799dc9c17d3e0298d5856baab2d682f5
   category: dev
   optional: true
 - name: wheel
@@ -5862,7 +5862,7 @@ package:
   category: dev
   optional: true
 - name: coverage
-  version: 7.4.4
+  version: 7.5.0
   manager: conda
   platform: win-64
   dependencies:
@@ -5872,10 +5872,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://conda.anaconda.org/conda-forge/win-64/coverage-7.4.4-py310h8d17308_0.conda
+  url: https://conda.anaconda.org/conda-forge/win-64/coverage-7.5.0-py310ha8f682b_0.conda
   hash:
-    md5: f52d17cf10b0451ec05c24d14f72870b
-    sha256: 1d12680e79b05ef32d04142539307b2744de2e6798870340ac27982e2adb052d
+    md5: 02ca9058b92ec2c17bf9f392d2548c35
+    sha256: 67ca0a658cb4714c197dd8acff394eb49d307d368b8a0339ca359197141f1fe5
   category: dev
   optional: true
 - name: cytoolz
@@ -6273,16 +6273,16 @@ package:
   category: dev
   optional: true
 - name: tinycss2
-  version: 1.2.1
+  version: 1.3.0
   manager: conda
   platform: win-64
   dependencies:
     python: '>=3.5'
     webencodings: '>=0.4'
-  url: https://conda.anaconda.org/conda-forge/noarch/tinycss2-1.2.1-pyhd8ed1ab_0.tar.bz2
+  url: https://conda.anaconda.org/conda-forge/noarch/tinycss2-1.3.0-pyhd8ed1ab_0.conda
   hash:
-    md5: 7234c9eefff659501cd2fe0d2ede4d48
-    sha256: f0db1a2298a5e10e30f4b947566c7229442834702f549dded40a73ecdea7502d
+    md5: 8662629d9a05f9cff364e31ca106c1ac
+    sha256: bc55e5899e66805589c02061e315bfc23ae6cc2f2811f5cc13fb189a5ed9d90f
   category: dev
   optional: true
 - name: tqdm
@@ -7722,13 +7722,13 @@ package:
   platform: win-64
   dependencies:
     scikit-learn: '>=1.2'
-    numpy: '>=1.20'
-    empymod: '>=2.0.0'
     scipy: '>=1.8.0'
-    discretize: '>=0.8.0'
+    numpy: '>=1.20'
     pandas: '*'
+    empymod: '>=2.0.0'
     geoh5py: '*'
     pymatsolver: '>=0.2'
+    discretize: '>=0.8.0'
   url: https://github.com/MiraGeoscience/simpeg/archive/refs/heads/release/v0.19.0.dev8+geoapps.0.12.0.zip
   hash:
     sha256: ''
@@ -7738,15 +7738,15 @@ package:
     url: https://github.com/MiraGeoscience/simpeg/archive/refs/heads/release/v0.19.0.dev8+geoapps.0.12.0.zip#sha256=
   optional: false
 - name: param-sweeps
-  version: 0.1.7a3
+  version: 0.1.7a4
   manager: pip
   platform: win-64
   dependencies:
-    geoh5py: '>=0.9.0-alpha.1,<0.10.0'
+    geoh5py: '>=0.9.0-alpha.4,<0.10.0'
     numpy: '>=1.23.5,<1.24.0'
-  url: https://files.pythonhosted.org/packages/6e/61/3c1824cd7d1a3b5cf8f711cbb84a42b3d8cbc441ece31de063d5708a9e97/param_sweeps-0.1.7a3-py3-none-any.whl
+  url: https://files.pythonhosted.org/packages/25/f8/71859702eb5dbc21bc76b2c14d9da22e57fa487652a1b6a308a0f7296bd2/param_sweeps-0.1.7a4-py3-none-any.whl
   hash:
-    sha256: a842cf4d220baa76078618c6f8023dea73d8940297f95f12ab3774eab808b7a8
+    sha256: 7185d329ed56e04a068b6c7494397e9853dca8bd15f98e4ba2a5fc4f86dff5fe
   category: main
   optional: false
 - name: octree-creation-app

@@ -26,8 +26,6 @@ from simpeg_drivers.utils.utils import get_inversion_output
 
 target_run = {"data_norm": 0.008494, "phi_d": 1.438, "phi_m": 0.3258}
 
-np.random.seed(0)
-
 
 def test_ip_3d_fwr_run(
     tmp_path: Path,
@@ -78,7 +76,6 @@ def test_ip_3d_run(
         topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
-        np.random.seed(0)
         params = InducedPolarization3DParams(
             geoh5=geoh5,
             mesh=mesh.uid,

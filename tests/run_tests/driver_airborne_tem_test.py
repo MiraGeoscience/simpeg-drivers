@@ -28,8 +28,6 @@ target_run = {
     "phi_m": 718.9,
 }
 
-np.random.seed(0)
-
 
 def test_airborne_tem_fwr_run(
     tmp_path: Path,
@@ -119,7 +117,6 @@ def test_airborne_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         orig_dBzdt = geoh5.get_entity("Iteration_0_z_[0]")[0].values
 
         # Run the inverse
-        np.random.seed(0)
         params = TimeDomainElectromagneticsParams(
             geoh5=geoh5,
             mesh=mesh.uid,

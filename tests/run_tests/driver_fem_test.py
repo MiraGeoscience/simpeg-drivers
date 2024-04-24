@@ -27,7 +27,6 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # Move this file out of the test directory and run.
 
 target_run = {"data_norm": 47.522882323952054, "phi_d": 364.3, "phi_m": 443.3}
-np.random.seed(0)
 
 
 def test_fem_fwr_run(
@@ -117,7 +116,6 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
         orig_z_real_1 = geoh5.get_entity("Iteration_0_z_real_[0]")[0].values
 
         # Run the inverse
-        np.random.seed(0)
         params = FrequencyDomainElectromagneticsParams(
             geoh5=geoh5,
             mesh=mesh.uid,

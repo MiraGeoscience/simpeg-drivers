@@ -20,9 +20,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.0020959218368283884, "phi_d": 0.123, "phi_m": 3632}
-
-np.random.seed(0)
+target_run = {"data_norm": 0.0020959218368283884, "phi_d": 0.3511, "phi_m": 3017}
 
 
 def test_tipper_fwr_run(
@@ -113,7 +111,6 @@ def test_tipper_run(tmp_path: Path, max_iterations=1, pytest=True):
         orig_tyz_real_1 = geoh5.get_entity("Iteration_0_tyz_real_[0]")[0].values
 
         # Run the inverse
-        np.random.seed(0)
         params = TipperParams(
             geoh5=geoh5,
             mesh=mesh.uid,
