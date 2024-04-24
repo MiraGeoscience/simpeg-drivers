@@ -3844,14 +3844,14 @@ package:
   manager: pip
   platform: linux-64
   dependencies:
-    numpy: '>=1.20'
-    empymod: '>=2.0.0'
-    pandas: '*'
     scikit-learn: '>=1.2'
-    discretize: '>=0.8.0'
-    pymatsolver: '>=0.2'
-    geoh5py: '*'
     scipy: '>=1.8.0'
+    numpy: '>=1.20'
+    pandas: '*'
+    empymod: '>=2.0.0'
+    geoh5py: '*'
+    pymatsolver: '>=0.2'
+    discretize: '>=0.8.0'
   url: https://github.com/MiraGeoscience/simpeg/archive/refs/heads/release/v0.19.0.dev8+geoapps.0.12.0.zip
   hash:
     sha256: ''
@@ -7721,14 +7721,14 @@ package:
   manager: pip
   platform: win-64
   dependencies:
-    numpy: '>=1.20'
-    empymod: '>=2.0.0'
-    pandas: '*'
     scikit-learn: '>=1.2'
-    discretize: '>=0.8.0'
-    pymatsolver: '>=0.2'
-    geoh5py: '*'
     scipy: '>=1.8.0'
+    numpy: '>=1.20'
+    pandas: '*'
+    empymod: '>=2.0.0'
+    geoh5py: '*'
+    pymatsolver: '>=0.2'
+    discretize: '>=0.8.0'
   url: https://github.com/MiraGeoscience/simpeg/archive/refs/heads/release/v0.19.0.dev8+geoapps.0.12.0.zip
   hash:
     sha256: ''
