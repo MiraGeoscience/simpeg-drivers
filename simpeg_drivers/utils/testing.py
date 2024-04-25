@@ -14,11 +14,7 @@
 #  not be provided or otherwise made available to any other person.
 #
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#
-#  This file is part of my_app package.
-#
-#  All rights reserved.
-#
+
 import warnings
 from pathlib import Path
 from uuid import UUID

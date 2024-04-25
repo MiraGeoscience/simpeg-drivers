@@ -14,10 +14,6 @@
 #  not be provided or otherwise made available to any other person.
 #
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#
-#  This file is part of simpeg_drivers package.
-#
-#  All rights reserved
 
 
 from __future__ import annotations

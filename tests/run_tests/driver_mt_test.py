@@ -14,11 +14,6 @@
 #  not be provided or otherwise made available to any other person.
 #
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#
-#  This file is part of simpeg-drivers.
-#
-#  simpeg-drivers is distributed under the terms and conditions of the MIT License
-#  (see LICENSE file at the root of this source code package).
 
 # pylint: disable=too-many-locals
 

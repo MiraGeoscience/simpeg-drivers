@@ -15,17 +15,6 @@
 #
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-#
-#  This file is part of simpeg-drivers.
-#
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#
-#  This file is part of simpeg-drivers.
-#
-#  simpeg-drivers is distributed under the terms and conditions of the MIT License
-#  (see LICENSE file at the root of this source code package).
-
 from __future__ import annotations
 
 from pathlib import Path
