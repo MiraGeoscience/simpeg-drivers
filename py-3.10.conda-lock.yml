@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: c9677703976ba3a7291a2a616469ca07d0597e4524bdd18e6dfffbeb9cd0ca1c
-    linux-64: 97308f36b88d4ab6426ed1d136621d08801e1ada3673d70fac7026974acf5e7e
+    win-64: b3b4646d2f75521be0a4ab341262db195d07df6caed7584ce6a6c7f4bf805fae
+    linux-64: f0fdc4c627029ee71f224a7f49f7dc20b43e23357393e25d852164f0c1b27d9a
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -3831,20 +3831,17 @@ package:
   platform: linux-64
   dependencies:
     discretize: '>=0.8.0'
-    pymatsolver: '>=0.2'
-    geoh5py: '*'
     empymod: '>=2.0.0'
+    geoh5py: '*'
     numpy: '>=1.20'
     pandas: '*'
+    pymatsolver: '>=0.2'
     scikit-learn: '>=1.2'
     scipy: '>=1.8.0'
-  url: https://github.com/MiraGeoscience/simpeg/archive/refs/heads/release/v0.19.0.dev8+geoapps.0.12.0.zip
+  url: https://files.pythonhosted.org/packages/c1/12/5307f42b37d8709cec2beef795599b3a81585df2de871e615caf7e51d2f4/mira_simpeg-0.19.0.dev8-py2.py3-none-any.whl
   hash:
-    sha256: ''
+    sha256: 11194fc7ff7a075999fa120d41ba948ff71b24bbb640ae860005c6a89140883b
   category: main
-  source:
-    type: url
-    url: https://github.com/MiraGeoscience/simpeg/archive/refs/heads/release/v0.19.0.dev8+geoapps.0.12.0.zip#sha256=
   optional: false
 - name: param-sweeps
   version: 0.1.7a4
@@ -7693,20 +7690,17 @@ package:
   platform: win-64
   dependencies:
     discretize: '>=0.8.0'
-    pymatsolver: '>=0.2'
-    geoh5py: '*'
     empymod: '>=2.0.0'
+    geoh5py: '*'
     numpy: '>=1.20'
     pandas: '*'
+    pymatsolver: '>=0.2'
     scikit-learn: '>=1.2'
     scipy: '>=1.8.0'
-  url: https://github.com/MiraGeoscience/simpeg/archive/refs/heads/release/v0.19.0.dev8+geoapps.0.12.0.zip
+  url: https://files.pythonhosted.org/packages/c1/12/5307f42b37d8709cec2beef795599b3a81585df2de871e615caf7e51d2f4/mira_simpeg-0.19.0.dev8-py2.py3-none-any.whl
   hash:
-    sha256: ''
+    sha256: 11194fc7ff7a075999fa120d41ba948ff71b24bbb640ae860005c6a89140883b
   category: main
-  source:
-    type: url
-    url: https://github.com/MiraGeoscience/simpeg/archive/refs/heads/release/v0.19.0.dev8+geoapps.0.12.0.zip#sha256=
   optional: false
 - name: param-sweeps
   version: 0.1.7a4
