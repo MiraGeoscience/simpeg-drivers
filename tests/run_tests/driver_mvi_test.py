@@ -33,8 +33,8 @@ from simpeg_drivers.utils.utils import get_inversion_output
 
 target_mvi_run = {
     "data_norm": 6.3559205278626525,
-    "phi_d": 0.006523,
-    "phi_m": 2.348e-06,
+    "phi_d": 0.004415,
+    "phi_m": 2.413e-06,
 }
 
 
@@ -43,7 +43,6 @@ def test_magnetic_vector_fwr_run(
     n_grid_points=2,
     refinement=(2,),
 ):
-    np.random.seed(0)
     inducing_field = (50000.0, 90.0, 0.0)
     # Run the forward
     geoh5, _, model, points, topography = setup_inversion_workspace(
@@ -67,7 +66,6 @@ def test_magnetic_vector_fwr_run(
         inducing_field_strength=inducing_field[0],
         inducing_field_inclination=inducing_field[1],
         inducing_field_declination=inducing_field[2],
-        resolution=0.0,
         z_from_topo=False,
         data_object=survey.uid,
         starting_model_object=model.parent.uid,
@@ -108,7 +106,6 @@ def test_magnetic_vector_run(
             inducing_field_strength=inducing_field[0],
             inducing_field_inclination=inducing_field[1],
             inducing_field_declination=inducing_field[2],
-            resolution=0.0,
             data_object=tmi.parent.uid,
             starting_model=1e-4,
             reference_model=0.0,

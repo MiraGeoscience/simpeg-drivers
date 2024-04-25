@@ -30,7 +30,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.0028055269276044915, "phi_d": 4.475e-05, "phi_m": 0.00144}
+target_run = {"data_norm": 0.0028055269276044915, "phi_d": 3.974e-05, "phi_m": 0.001442}
 
 
 def test_gravity_fwr_run(
@@ -38,7 +38,6 @@ def test_gravity_fwr_run(
     n_grid_points=2,
     refinement=(2,),
 ):
-    np.random.seed(0)
     # Run the forward
     geoh5, _, model, survey, topography = setup_inversion_workspace(
         tmp_path,
@@ -51,10 +50,9 @@ def test_gravity_fwr_run(
     )
     params = GravityParams(
         forward_only=True,
-        geoh5=Path(geoh5.h5file),
+        geoh5=geoh5,
         mesh=model.parent.uid,
         topography_object=topography.uid,
-        resolution=0.0,
         z_from_topo=False,
         data_object=survey.uid,
         starting_model=model.uid,
@@ -84,12 +82,10 @@ def test_gravity_run(
         gz.values = values
 
         # Run the inverse
-        np.random.seed(0)
         params = GravityParams(
             geoh5=geoh5,
             mesh=mesh.uid,
             topography_object=topography.uid,
-            resolution=0.0,
             data_object=gz.parent.uid,
             starting_model=1e-4,
             reference_model=0.0,

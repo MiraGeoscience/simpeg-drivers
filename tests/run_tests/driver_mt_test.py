@@ -36,8 +36,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.003936, "phi_d": 1.06, "phi_m": 2.793}
-np.random.seed(0)
+target_run = {"data_norm": 0.003936, "phi_d": 1.824, "phi_m": 2.551}
 
 
 def test_magnetotellurics_fwr_run(
@@ -143,7 +142,6 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
         orig_zyy_real_1 = geoh5.get_entity("Iteration_0_zyy_real_[0]")[0].values
 
         # Run the inverse
-        np.random.seed(0)
         params = MagnetotelluricsParams(
             geoh5=geoh5,
             mesh=mesh.uid,

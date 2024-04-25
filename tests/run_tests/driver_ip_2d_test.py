@@ -40,8 +40,6 @@ target_run = {
     "phi_m": 0.08341,
 }
 
-np.random.seed(0)
-
 
 def test_ip_2d_fwr_run(
     tmp_path: Path,
@@ -91,8 +89,8 @@ def test_ip_2d_run(
         chargeability = geoh5.get_entity("Iteration_0_ip")[0]
         mesh = geoh5.get_entity("Models")[0]
         topography = geoh5.get_entity("topography")[0]
+
         # Run the inverse
-        np.random.seed(0)
         params = InducedPolarization2DParams(
             geoh5=geoh5,
             mesh=mesh.uid,

@@ -36,8 +36,6 @@ from simpeg_drivers.utils.utils import get_inversion_output
 
 target_run = {"data_norm": 0.15258, "phi_d": 31.85, "phi_m": 122.7}
 
-np.random.seed(0)
-
 
 def test_dc_3d_fwr_run(
     tmp_path: Path,
@@ -102,7 +100,6 @@ def test_dc_3d_run(
         topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
-        np.random.seed(0)
         params = DirectCurrent3DParams(
             geoh5=geoh5,
             mesh=mesh.uid,

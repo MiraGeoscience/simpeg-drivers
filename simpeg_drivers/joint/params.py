@@ -41,6 +41,11 @@ class BaseJointParams(InversionBaseParams):
         super().__init__(input_file=input_file, forward_only=forward_only, **kwargs)
 
     @property
+    def groups(self):
+        """List all active groups."""
+        return [k for k in [self.group_a, self.group_b, self.group_c] if k is not None]
+
+    @property
     def group_a(self):
         """First SimPEGGroup inversion."""
         return self._group_a

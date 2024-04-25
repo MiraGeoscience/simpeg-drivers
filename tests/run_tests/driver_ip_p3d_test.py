@@ -42,8 +42,6 @@ target_run = {
     "phi_m": 0.1178,
 }
 
-np.random.seed(0)
-
 
 def test_ip_p3d_fwr_run(
     tmp_path: Path,
@@ -102,7 +100,6 @@ def test_ip_p3d_run(
         topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
-        np.random.seed(0)
         params = InducedPolarizationPseudo3DParams(
             geoh5=geoh5,
             mesh=mesh.uid,
