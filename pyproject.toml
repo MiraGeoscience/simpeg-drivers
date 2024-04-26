@@ -8,6 +8,14 @@ packages = [
      { include = "simpeg_drivers-assets" },
 ]
 
+include = [
+    "COPYING",
+    "COPYING.LESSER",
+    "LICENSE",
+    "README.rst",
+    "THIRD_PARTY_SOFTWARE.rst",
+]
+
 [tool.poetry.dependencies]
 python = "^3.10, <3.11"
 
