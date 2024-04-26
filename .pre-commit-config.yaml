@@ -40,6 +40,7 @@ repos:
 #        additional_dependencies: [
 #            types-toml,
 #            types-PyYAML,
+#            pydantic==2.5.*,
 #            tomli # to read config from pyproject.toml
 #        ]
 -   repo: https://github.com/codingjoe/relint
