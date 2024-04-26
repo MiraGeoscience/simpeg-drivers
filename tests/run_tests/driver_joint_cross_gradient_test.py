@@ -1,9 +1,19 @@
-#  Copyright (c) 2024 Mira Geoscience Ltd.
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
+#  All rights reserved.
 #
 #  This file is part of simpeg-drivers.
 #
-#  simpeg-drivers is distributed under the terms and conditions of the MIT License
-#  (see LICENSE file at the root of this source code package).
+#  The software and information contained herein are proprietary to, and
+#  comprise valuable trade secrets of, Mira Geoscience, which
+#  intend to preserve as trade secrets such software and information.
+#  This software is furnished pursuant to a written license agreement and
+#  may be used, copied, transmitted, and stored only in accordance with
+#  the terms of such license and with the inclusion of the above copyright
+#  notice.  This software and information or any other copies thereof may
+#  not be provided or otherwise made available to any other person.
+#
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 from pathlib import Path
 
@@ -29,7 +39,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 51.20763877051509, "phi_d": 1028, "phi_m": 0.08187}
+target_run = {"data_norm": 51.20763877051509, "phi_d": 1159, "phi_m": 0.07619}
 
 
 def test_joint_cross_gradient_fwr_run(
@@ -37,7 +47,6 @@ def test_joint_cross_gradient_fwr_run(
     n_grid_points=4,
     refinement=(2,),
 ):
-    np.random.seed(0)
     # Create local problem A
     geoh5, _, model, survey, topography = setup_inversion_workspace(
         tmp_path,
@@ -205,7 +214,6 @@ def test_joint_cross_gradient_inv_run(
                 drivers.append(MagneticVectorDriver(params))
 
         # Run the inverse
-        np.random.seed(0)
         joint_params = JointCrossGradientParams(
             geoh5=geoh5,
             topography_object=topography.uid,

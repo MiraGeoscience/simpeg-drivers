@@ -1,13 +1,20 @@
-#  Copyright (c) 2022-2023 Mira Geoscience Ltd.
-#
-#  This file is part of my_app package.
-#
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
 #  All rights reserved.
 #
+#  This file is part of simpeg-drivers.
 #
-#  This file is part of simpeg_drivers package.
+#  The software and information contained herein are proprietary to, and
+#  comprise valuable trade secrets of, Mira Geoscience, which
+#  intend to preserve as trade secrets such software and information.
+#  This software is furnished pursuant to a written license agreement and
+#  may be used, copied, transmitted, and stored only in accordance with
+#  the terms of such license and with the inclusion of the above copyright
+#  notice.  This software and information or any other copies thereof may
+#  not be provided or otherwise made available to any other person.
 #
-#  All rights reserved
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
 
 from __future__ import annotations
 
@@ -501,14 +508,13 @@ def tile_locations(
     if method == "kmeans":
         # Best for smaller problems
 
-        np.random.seed(0)
         # Cluster
         # TODO turn off filter once sklearn has dealt with the issue causing the warning
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", category=UserWarning)
             from sklearn.cluster import KMeans
 
-            cluster = KMeans(n_clusters=n_tiles, n_init="auto")
+            cluster = KMeans(n_clusters=n_tiles, random_state=0, n_init="auto")
             cluster.fit_predict(locations[:, :2])
 
         labels = cluster.labels_
