@@ -47,7 +47,7 @@ param-sweeps = {version = "~0.1.7a4", source = "pypi", allow-prereleases = true}
 Pillow = "^10.1.0"  # from geoh5py
 geoana = "~0.4.0"  # from simpeg
 h5py = "^3.2.1"  # from geoh5py
-mkl = "2022.*"  # from simpeg
+mkl = "2022.1.*"  # from simpeg
 pydantic = "~2.5.2"  # from geoapps-utils
 pydiso = "~0.0.3"  # from simpeg
 pymatsolver = "~0.2.0"  # from simpeg
