@@ -37,8 +37,9 @@ octree-creation-app = {version = "~0.1.0a5", source = "pypi", allow-prereleases 
 geoapps-utils = {version = "~0.3.0a3", source = "pypi", allow-prereleases = true}
 #geoapps-utils = {url = "https://github.com/MiraGeoscience/geoapps-utils/archive/refs/heads/release/0.3.0.zip#sha256="}
 
-mira-simpeg = {version = "~0.19.0.dev8", source = "pypi"}
-#mira-simpeg = {url = "https://github.com/MiraGeoscience/simpeg/archive/refs/heads/release/v0.19.0.dev8+geoapps.0.12.0.zip#sha256="}
+mira-simpeg = {version = "~0.19.0.8a2", source = "pypi", allow-prereleases = true}
+#mira-simpeg = {url = "https://github.com/MiraGeoscience/simpeg/archive/refs/heads/release/0.19.0.8.zip#sha256="}
+#mira-simpeg = {url = "http://localhost:8888/mira-simpeg.tar.gz#sha256="}
 
 param-sweeps = {version = "~0.1.7a4", source = "pypi", allow-prereleases = true}
 #param-sweeps = {url = "https://github.com/MiraGeoscience/param-sweeps/archive/refs/heads/release/0.1.7.zip#sha256="}
