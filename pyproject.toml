@@ -1,8 +1,17 @@
 [tool.poetry]
 name = "simpeg-drivers"
 version = "0.1.0-alpha.1"
-description = "My application"
+description = "Application to run SimPEG inversions with geoh5 files from Geoscience Analyst."
+license = "MIT"
 authors = ["Mira Geoscience <support@mirageoscience.com>"]
+maintainers = [
+    "Benjamin Kary <benjamink@mirageoscience.com>",
+    "Dominique Fournier <dominiquef@mirageoscience.com>",
+]
+repository = "https://github.com/MiraGeoscience/simpeg-drivers"
+documentation = "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/"
+homepage = "https://www.mirageoscience.com/mining-industry-software/python-integration/"
+
 packages = [
      { include = "simpeg_drivers" },
      { include = "simpeg_drivers-assets" },
