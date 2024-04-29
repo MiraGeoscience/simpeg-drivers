@@ -71,6 +71,7 @@ tqdm = "^4.66.1"  # from simpeg
 zarr = "~2.14.2"  # from simpeg using Dask
 
 # force some versions to resolve incompatible resolution between PyPI and Conda
+#------------------------------------------------------------------------------
 tzdata = "2023.4"  # through pandas from SimPEG
 
 ## about pip dependencies
