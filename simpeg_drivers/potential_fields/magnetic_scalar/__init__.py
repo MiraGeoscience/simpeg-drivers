@@ -17,3 +17,6 @@
 
 
 from .params import MagneticScalarParams
+
+# pylint: disable=unused-import
+# flake8: noqa

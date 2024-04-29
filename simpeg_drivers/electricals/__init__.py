@@ -20,3 +20,6 @@ from __future__ import annotations
 
 from .direct_current.three_dimensions import DirectCurrent3DParams
 from .induced_polarization.three_dimensions.params import InducedPolarization3DParams
+
+# pylint: disable=unused-import
+# flake8: noqa

@@ -17,3 +17,6 @@
 
 
 from .params import TimeDomainElectromagneticsParams
+
+# pylint: disable=unused-import
+# flake8: noqa

@@ -17,3 +17,6 @@
 
 
 from .params import DirectCurrent3DParams
+
+# pylint: disable=unused-import
+# flake8: noqa

@@ -18,3 +18,6 @@
 
 from .magnetotellurics import MagnetotelluricsParams
 from .tipper import TipperParams
+
+# pylint: disable=unused-import
+# flake8: noqa

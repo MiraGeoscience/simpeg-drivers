@@ -747,9 +747,9 @@ def truncate_locs_depths(locs: np.ndarray, depth_core: float) -> np.ndarray:
     zmax = locs[:, -1].max()  # top of locs
     below_core_ind = (zmax - locs[:, -1]) > depth_core
     core_bottom_elev = zmax - depth_core
-    locs[
-        below_core_ind, -1
-    ] = core_bottom_elev  # sets locations below core to core bottom
+    locs[below_core_ind, -1] = (
+        core_bottom_elev  # sets locations below core to core bottom
+    )
     return locs
 
 

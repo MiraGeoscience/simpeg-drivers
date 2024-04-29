@@ -17,3 +17,6 @@
 
 
 from .params import InducedPolarization2DParams
+
+# pylint: disable=unused-import
+# flake8: noqa

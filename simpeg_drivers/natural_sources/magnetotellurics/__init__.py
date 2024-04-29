@@ -17,3 +17,6 @@
 
 
 from .params import MagnetotelluricsParams
+
+# pylint: disable=unused-import
+# flake8: noqa
