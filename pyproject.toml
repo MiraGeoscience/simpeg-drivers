@@ -40,7 +40,7 @@ geoh5py = {version = "~0.9.0rc1", source = "pypi", allow-prereleases = true}
 #geoh5py = {url = "https://github.com/MiraGeoscience/geoh5py/archive/refs/heads/release/0.9.0.zip#sha256="}
 #geoh5py = {url = "http://localhost:8888/geoh5py.tar.gz#sha256="}
 
-octree-creation-app = {version = "~0.1.0rc1", source = "pypi", allow-prereleases = true}
+octree-creation-app = {version = "~0.1.0rc2", source = "pypi", allow-prereleases = true}
 #octree-creation-app = {url = "https://github.com/MiraGeoscience/octree-creation-app/archive/refs/heads/release/0.1.0.zip#sha256="}
 #octree-creation-app = {url = "http://localhost:8888/octree-creation-app.tar.gz#sha256="}
 
@@ -62,9 +62,11 @@ Pillow = "~10.1.0"  # from geoh5py
 geoana = "~0.4.0"  # from simpeg
 h5py = "^3.2.1"  # from geoh5py
 mkl = "2022.1.*"  # from simpeg
+pandas = "~2.2.1"  # from SimPEG, also used by targeting-workflow, petro-lingo
 pydantic = "~2.5.2"  # from geoapps-utils
 pydiso = "~0.0.3"  # from simpeg
 pymatsolver = "~0.2.0"  # from simpeg
+scikit-learn = "~1.4.0"  # from SimPEG, also used by geo-unsup-mapper, petro-lingo
 tqdm = "^4.66.1"  # from simpeg
 zarr = "~2.14.2"  # from simpeg using Dask
 

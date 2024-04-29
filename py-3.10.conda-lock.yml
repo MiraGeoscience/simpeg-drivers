@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: 7214aad12c6c97b9a7db4b65a4a90970d8a78705f20591ed2e21b07b088ee21e
-    linux-64: 7b2e25a932d99ce64c837d4d01b0f0673047836bd2fa20915723f44a5ef97db6
+    win-64: 349902fb85309b56e3fa0a109fd74d0ba164f8a6db2b9dc7024299d0e35816bb
+    linux-64: 74ce1e2b90215eac44ad8fc517d878322d7e663fe287ed3ebc42fc1094c16871
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -1962,6 +1962,32 @@ package:
   hash:
     md5: e7d8df6509ba635247ff9aea31134262
     sha256: fd517b7dd3a61eca34f8a6f9f92f306397149cae1204fce72ac3d227107dafdc
+  category: main
+  optional: false
+- name: joblib
+  version: 1.4.0
+  manager: conda
+  platform: linux-64
+  dependencies:
+    python: '>=3.8'
+    setuptools: ''
+  url: https://conda.anaconda.org/conda-forge/noarch/joblib-1.4.0-pyhd8ed1ab_0.conda
+  hash:
+    md5: e0ed1bf13ce3a440e022157bf4764465
+    sha256: 56eea2c4af35a9c8f9cdca530f6aea0dc8e2551bfcc8b8da37da78221366af10
+  category: main
+  optional: false
+- name: joblib
+  version: 1.4.0
+  manager: conda
+  platform: win-64
+  dependencies:
+    setuptools: ''
+    python: '>=3.8'
+  url: https://conda.anaconda.org/conda-forge/noarch/joblib-1.4.0-pyhd8ed1ab_0.conda
+  hash:
+    md5: e0ed1bf13ce3a440e022157bf4764465
+    sha256: 56eea2c4af35a9c8f9cdca530f6aea0dc8e2551bfcc8b8da37da78221366af10
   category: main
   optional: false
 - name: jsonschema
@@ -4401,6 +4427,45 @@ package:
     sha256: a390182d74c31dfd713c16db888c92c277feeb6d1fe96ff9d9c105f9564be48a
   category: main
   optional: false
+- name: pandas
+  version: 2.2.2
+  manager: conda
+  platform: linux-64
+  dependencies:
+    libgcc-ng: '>=12'
+    libstdcxx-ng: '>=12'
+    numpy: '>=1.22.4,<2.0a0'
+    python: '>=3.10,<3.11.0a0'
+    python-dateutil: '>=2.8.1'
+    python-tzdata: '>=2022a'
+    python_abi: 3.10.*
+    pytz: '>=2020.1'
+  url: https://conda.anaconda.org/conda-forge/linux-64/pandas-2.2.2-py310hcc13569_0.conda
+  hash:
+    md5: 96910063174ce34fc15609081efc3e5d
+    sha256: e636b6affa03646a554f58c97171a872f23e796d7f78fe5ba1e7b7eaaa77809e
+  category: main
+  optional: false
+- name: pandas
+  version: 2.2.2
+  manager: conda
+  platform: win-64
+  dependencies:
+    numpy: '>=1.22.4,<2.0a0'
+    python: '>=3.10,<3.11.0a0'
+    python-dateutil: '>=2.8.1'
+    python-tzdata: '>=2022a'
+    python_abi: 3.10.*
+    pytz: '>=2020.1'
+    ucrt: '>=10.0.20348.0'
+    vc: '>=14.2,<15'
+    vc14_runtime: '>=14.29.30139'
+  url: https://conda.anaconda.org/conda-forge/win-64/pandas-2.2.2-py310hecd3228_0.conda
+  hash:
+    md5: 79594f7c3379f37ef2c729c5fa991fdd
+    sha256: 6eba2d972a523f248792203e4029716bf7e5d5e48590224ab30dba708645138e
+  category: main
+  optional: false
 - name: pandoc
   version: 3.1.13
   manager: conda
@@ -5484,8 +5549,8 @@ package:
   hash:
     md5: 3eeeeb9e4827ace8c0c1419c85d590ad
     sha256: 1a7d6b233f7e6e3bbcbad054c8fd51e690a67b129a899a056a5e45dd9f00cb41
-  category: dev
-  optional: true
+  category: main
+  optional: false
 - name: pytz
   version: '2024.1'
   manager: conda
@@ -5496,8 +5561,8 @@ package:
   hash:
     md5: 3eeeeb9e4827ace8c0c1419c85d590ad
     sha256: 1a7d6b233f7e6e3bbcbad054c8fd51e690a67b129a899a056a5e45dd9f00cb41
-  category: dev
-  optional: true
+  category: main
+  optional: false
 - name: pywin32
   version: '306'
   manager: conda
@@ -5731,6 +5796,46 @@ package:
     sha256: 0227043dc8a9d5f737c36f7653f9b4476e47e0c60c7e67012dd72fe5a7842fb4
   category: dev
   optional: true
+- name: scikit-learn
+  version: 1.4.2
+  manager: conda
+  platform: linux-64
+  dependencies:
+    _openmp_mutex: '>=4.5'
+    joblib: '>=1.2.0'
+    libgcc-ng: '>=12'
+    libstdcxx-ng: '>=12'
+    numpy: '>=1.22.4,<2.0a0'
+    python: '>=3.10,<3.11.0a0'
+    python_abi: 3.10.*
+    scipy: ''
+    threadpoolctl: '>=2.0.0'
+  url: https://conda.anaconda.org/conda-forge/linux-64/scikit-learn-1.4.2-py310h1fdf081_0.conda
+  hash:
+    md5: e6366971f5be0c52c003de2f5b49e633
+    sha256: 2a0236a275ddb8a8fbc7141b3d1d18b02eff33cf3ad2343cf201f43d884ae91d
+  category: main
+  optional: false
+- name: scikit-learn
+  version: 1.4.2
+  manager: conda
+  platform: win-64
+  dependencies:
+    joblib: '>=1.2.0'
+    numpy: '>=1.22.4,<2.0a0'
+    python: '>=3.10,<3.11.0a0'
+    python_abi: 3.10.*
+    scipy: ''
+    threadpoolctl: '>=2.0.0'
+    ucrt: '>=10.0.20348.0'
+    vc: '>=14.2,<15'
+    vc14_runtime: '>=14.29.30139'
+  url: https://conda.anaconda.org/conda-forge/win-64/scikit-learn-1.4.2-py310hfd2573f_0.conda
+  hash:
+    md5: bff081283450192311a279e70b1feade
+    sha256: 68449c36cc430e0030da159ce724a6db69e27f3e6880032cfca69bc83b5b2997
+  category: main
+  optional: false
 - name: scipy
   version: 1.10.1
   manager: conda
@@ -6634,6 +6739,30 @@ package:
     sha256: 8cb078291fd7882904e3de594d299c8de16dd3af7405787fce6919a385cfc238
   category: dev
   optional: true
+- name: threadpoolctl
+  version: 3.4.0
+  manager: conda
+  platform: linux-64
+  dependencies:
+    python: '>=3.8'
+  url: https://conda.anaconda.org/conda-forge/noarch/threadpoolctl-3.4.0-pyhc1e730c_0.conda
+  hash:
+    md5: b296278eef667c673bf51de6535bad88
+    sha256: 4f4ad4f2a4ee8875cf2cb9c80abf4c7383e5e53cfec41104da7058569d9063b7
+  category: main
+  optional: false
+- name: threadpoolctl
+  version: 3.4.0
+  manager: conda
+  platform: win-64
+  dependencies:
+    python: '>=3.8'
+  url: https://conda.anaconda.org/conda-forge/noarch/threadpoolctl-3.4.0-pyhc1e730c_0.conda
+  hash:
+    md5: b296278eef667c673bf51de6535bad88
+    sha256: 4f4ad4f2a4ee8875cf2cb9c80abf4c7383e5e53cfec41104da7058569d9063b7
+  category: main
+  optional: false
 - name: tinycss2
   version: 1.3.0
   manager: conda
@@ -7525,26 +7654,6 @@ package:
     sha256: eaab844632c242c8f60716fc6d274750398b59d5de5264c3e85366918f37a293
   category: main
   optional: false
-- name: joblib
-  version: 1.4.0
-  manager: pip
-  platform: linux-64
-  dependencies: {}
-  url: https://files.pythonhosted.org/packages/ae/e2/4dea6313ef2b38442fccbbaf4017e50a6c3c8a50e8ee9b512783e5c90409/joblib-1.4.0-py3-none-any.whl
-  hash:
-    sha256: 42942470d4062537be4d54c83511186da1fc14ba354961a2114da91efa9a4ed7
-  category: main
-  optional: false
-- name: joblib
-  version: 1.4.0
-  manager: pip
-  platform: win-64
-  dependencies: {}
-  url: https://files.pythonhosted.org/packages/ae/e2/4dea6313ef2b38442fccbbaf4017e50a6c3c8a50e8ee9b512783e5c90409/joblib-1.4.0-py3-none-any.whl
-  hash:
-    sha256: 42942470d4062537be4d54c83511186da1fc14ba354961a2114da91efa9a4ed7
-  category: main
-  optional: false
 - name: mira-simpeg
   version: 0.19.0.8a3
   manager: pip
@@ -7584,7 +7693,7 @@ package:
   category: main
   optional: false
 - name: octree-creation-app
-  version: 0.1.0rc1
+  version: 0.1.0rc2
   manager: pip
   platform: linux-64
   dependencies:
@@ -7594,14 +7703,15 @@ package:
     geoh5py: '>=0.9.0rc1,<0.10.0'
     h5py: '>=3.2.1,<4.0.0'
     numpy: '>=1.23.5,<1.24.0'
+    pydantic: '>=2.5.2,<2.6.0'
     scipy: '>=1.10.1,<1.11.0'
-  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/analyst-pypi-local/octree-creation-app/0.1.0rc1/octree_creation_app-0.1.0rc1-py3-none-any.whl
+  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/analyst-pypi-local/octree-creation-app/0.1.0rc2/octree_creation_app-0.1.0rc2-py3-none-any.whl
   hash:
-    sha256: f6649128124b714f4098e1120484bf43e13c42e0032bc6502e8d0efd0fc83448
+    sha256: 55aefbc40ce086f38652dfe73fa8d2354c3e214e37028504ea57f27819df215e
   category: main
   optional: false
 - name: octree-creation-app
-  version: 0.1.0rc1
+  version: 0.1.0rc2
   manager: pip
   platform: win-64
   dependencies:
@@ -7611,38 +7721,11 @@ package:
     geoh5py: '>=0.9.0rc1,<0.10.0'
     h5py: '>=3.2.1,<4.0.0'
     numpy: '>=1.23.5,<1.24.0'
+    pydantic: '>=2.5.2,<2.6.0'
     scipy: '>=1.10.1,<1.11.0'
-  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/analyst-pypi-local/octree-creation-app/0.1.0rc1/octree_creation_app-0.1.0rc1-py3-none-any.whl
+  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/analyst-pypi-local/octree-creation-app/0.1.0rc2/octree_creation_app-0.1.0rc2-py3-none-any.whl
   hash:
-    sha256: f6649128124b714f4098e1120484bf43e13c42e0032bc6502e8d0efd0fc83448
-  category: main
-  optional: false
-- name: pandas
-  version: 2.2.2
-  manager: pip
-  platform: linux-64
-  dependencies:
-    numpy: '>=1.22.4'
-    python-dateutil: '>=2.8.2'
-    pytz: '>=2020.1'
-    tzdata: '>=2022.7'
-  url: https://files.pythonhosted.org/packages/89/1b/12521efcbc6058e2673583bb096c2b5046a9df39bd73eca392c1efed24e5/pandas-2.2.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-  hash:
-    sha256: 8635c16bf3d99040fdf3ca3db669a7250ddf49c55dc4aa8fe0ae0fa8d6dcc1f0
-  category: main
-  optional: false
-- name: pandas
-  version: 2.2.2
-  manager: pip
-  platform: win-64
-  dependencies:
-    numpy: '>=1.22.4'
-    python-dateutil: '>=2.8.2'
-    pytz: '>=2020.1'
-    tzdata: '>=2022.7'
-  url: https://files.pythonhosted.org/packages/69/a6/81d5dc9a612cf0c1810c2ebc4f2afddb900382276522b18d128213faeae3/pandas-2.2.2-cp310-cp310-win_amd64.whl
-  hash:
-    sha256: ddf818e4e6c7c6f4f7c8a12709696d193976b591cc7dc50588d3d1a6b5dc8772
+    sha256: 55aefbc40ce086f38652dfe73fa8d2354c3e214e37028504ea57f27819df215e
   category: main
   optional: false
 - name: param-sweeps
@@ -7667,53 +7750,5 @@ package:
   url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/analyst-pypi-local/param-sweeps/0.1.7rc1/param_sweeps-0.1.7rc1-py3-none-any.whl
   hash:
     sha256: eb232e45e49ec4504a6aadea40c1054bb0a73efcae32da309bcbe31408bb6ffd
-  category: main
-  optional: false
-- name: scikit-learn
-  version: 1.4.2
-  manager: pip
-  platform: linux-64
-  dependencies:
-    numpy: '>=1.19.5'
-    scipy: '>=1.6.0'
-    joblib: '>=1.2.0'
-    threadpoolctl: '>=2.0.0'
-  url: https://files.pythonhosted.org/packages/8f/38/420ee614359d8f453ffe2bb5c2e963bf50459d9bbd3f5a92aa9059658955/scikit_learn-1.4.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-  hash:
-    sha256: 36f0ea5d0f693cb247a073d21a4123bdf4172e470e6d163c12b74cbb1536cf38
-  category: main
-  optional: false
-- name: scikit-learn
-  version: 1.4.2
-  manager: pip
-  platform: win-64
-  dependencies:
-    numpy: '>=1.19.5'
-    scipy: '>=1.6.0'
-    joblib: '>=1.2.0'
-    threadpoolctl: '>=2.0.0'
-  url: https://files.pythonhosted.org/packages/54/43/40a4ae4b05b00cd532fe77fdd1629dd5355776d0977a7e3b8890bec309a9/scikit_learn-1.4.2-cp310-cp310-win_amd64.whl
-  hash:
-    sha256: 87440e2e188c87db80ea4023440923dccbd56fbc2d557b18ced00fef79da0727
-  category: main
-  optional: false
-- name: threadpoolctl
-  version: 3.4.0
-  manager: pip
-  platform: linux-64
-  dependencies: {}
-  url: https://files.pythonhosted.org/packages/1e/84/ccd9b08653022b7785b6e3ee070ffb2825841e0dc119be22f0840b2b35cb/threadpoolctl-3.4.0-py3-none-any.whl
-  hash:
-    sha256: 8f4c689a65b23e5ed825c8436a92b818aac005e0f3715f6a1664d7c7ee29d262
-  category: main
-  optional: false
-- name: threadpoolctl
-  version: 3.4.0
-  manager: pip
-  platform: win-64
-  dependencies: {}
-  url: https://files.pythonhosted.org/packages/1e/84/ccd9b08653022b7785b6e3ee070ffb2825841e0dc119be22f0840b2b35cb/threadpoolctl-3.4.0-py3-none-any.whl
-  hash:
-    sha256: 8f4c689a65b23e5ed825c8436a92b818aac005e0f3715f6a1664d7c7ee29d262
   category: main
   optional: false
