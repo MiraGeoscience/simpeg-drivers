@@ -85,12 +85,7 @@ channels = ['conda-forge']
 libblas = "*=*mkl"  # because simpeg already brings in the MKL
 
 [tool.isort]
-# settings for compatibility between ``isort`` and ``black`` formatting
-multi_line_output = 3
-include_trailing_comma = true
-force_grid_wrap = 0
-use_parentheses = true
-line_length = 88
+profile = "black"
 
 [tool.black]
 # defaults are just fine
@@ -104,16 +99,12 @@ show_column_numbers = true
 check_untyped_defs = true
 
 plugins = [
-#    "numpy.typing.mypy_plugin",
-#    "pydantic.mypy"
+    "numpy.typing.mypy_plugin",
 ]
 
 [tool.coverage.run]
 branch = true
 source = ["simpeg_drivers"]
-omit = [
-    "simpeg_drivers/commands/hello_world.py"
-]
 
 [tool.coverage.report]
 exclude_lines = [
