@@ -17,3 +17,6 @@
 
 
 from .params import FrequencyDomainElectromagneticsParams
+
+# pylint: disable=unused-import
+# flake8: noqa

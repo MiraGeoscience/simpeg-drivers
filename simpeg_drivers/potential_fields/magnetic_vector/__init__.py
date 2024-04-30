@@ -17,3 +17,6 @@
 
 
 from .params import MagneticVectorParams
+
+# pylint: disable=unused-import
+# flake8: noqa

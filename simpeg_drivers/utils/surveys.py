@@ -17,7 +17,7 @@
 
 from __future__ import annotations
 
-from typing import Callable
+from collections.abc import Callable
 
 import numpy as np
 from discretize import TensorMesh, TreeMesh
