@@ -1,7 +1,7 @@
 
 default_language_version:
     python: python3
-exclude: (^docs/(conf.py|_ext/)|^simpeg_drivers-assets/)
+exclude: ^docs/(conf.py|_ext/)
 default_stages: [commit,push]
 fail_fast: false
 
@@ -15,7 +15,7 @@ repos:
     rev: v2.4.0
     hooks:
     -   id: pycln
-        args: [ --config=pyproject.toml ]
+        args: [--config=pyproject.toml]
 -   repo: https://github.com/PyCQA/isort
     rev: 5.13.2
     hooks:
@@ -39,12 +39,12 @@ repos:
 #    hooks:
 #    -   id: mypy
 #        additional_dependencies: [
-#            numpy==1.26.*,
+#            numpy==1.26.*,  # pre-commit CI does not provide numpy 1.23.*
 #            types-toml,
 #            types-PyYAML,
-#            tomli # to read config from pyproject.toml
+#            tomli  # to read config from pyproject.toml
 #        ]
-#        exclude: ^docs/
+#        exclude: ^(docs|simpeg_drivers-assets)/
 -   repo: https://github.com/codingjoe/relint
     rev: 3.1.1
     hooks:
@@ -87,6 +87,8 @@ repos:
     hooks:
     -   id: trailing-whitespace
         exclude: \.mdj$
+    -   id: check-json
+        exclude_types: [jupyter]
     -   id: check-toml
     -   id: check-yaml
 #    -   id: check-added-large-files # crashing on some configuration. To be investigated
@@ -99,6 +101,15 @@ repos:
     -   id: mixed-line-ending
         exclude: ^\.idea/.*\.xml$
     -   id: name-tests-test
+    -   id: pretty-format-json
+        args:
+            - --autofix
+            - --indent=4
+            - --no-sort-keys
+            - --top-keys
+            - version,title,icon,documentation,conda_environment,run_command,geoh5,monitoring_directory,workspace_geoh5
+        exclude_types: [jupyter]
+        exclude: ^docs/(.*/)?images/
 -   repo: https://github.com/rstcheck/rstcheck
     rev: v6.2.0
     hooks:
