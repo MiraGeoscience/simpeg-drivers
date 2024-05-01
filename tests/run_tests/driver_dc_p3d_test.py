@@ -21,7 +21,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import numpy as np
 from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 

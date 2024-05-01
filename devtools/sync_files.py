@@ -26,7 +26,7 @@ def update_files(ext):
                 continue
 
             os.system(
-                f"jupytext --output {Path(directory)  / (path.stem + '.' + ext)} {Path(directory) / path}"
+                f"jupytext --output {Path(directory) / (path.stem + '.' + ext)} {Path(directory) / path}"
             )
 
 
