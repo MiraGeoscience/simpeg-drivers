@@ -171,10 +171,13 @@ class InversionData(InversionLocations):
 
         return np.c_[distance_interp, locations[:, 2:]]
 
-    def filter(self, a):
+    def filter(self, a, mask=None):
         """Remove vertices based on mask property."""
+        if mask is None:
+            mask = self.mask
+
         if self.indices is None:
-            self.indices = np.where(self.mask)[0]
+            self.indices = np.where(mask)[0]
 
         a = super().filter(a, mask=self.indices)
 
