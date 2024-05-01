@@ -158,6 +158,8 @@ disable=raw-checker-failed,
         missing-class-docstring,
         fixme,
         R,           # TODO: re-enable refactoring warnings, and the ones below
+        arguments-differ,
+        arguments-renamed,
         empty-docstring,
         import-outside-toplevel,
         invalid-name,

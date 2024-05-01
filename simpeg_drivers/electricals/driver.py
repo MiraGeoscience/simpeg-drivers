@@ -44,7 +44,7 @@ class BasePseudo3DDriver(LineSweepDriver):
     _validations: dict
     _model_list: list[str] = []
 
-    def __init__(self, params):  # pylint: disable=useless_super_delegation
+    def __init__(self, params):
         super().__init__(params)
         if params.files_only:
             sys.exit("Files written")
