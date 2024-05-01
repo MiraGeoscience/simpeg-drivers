@@ -362,8 +362,11 @@ class InversionData(InversionLocations):
                     normalizations[chan][comp] = (
                         mu0 * (-1 / offsets[chan] ** 3 / (4 * np.pi)) / 1e6
                     )
-                elif self.params.inversion_type in ["tdem"]:
-                    if comp in ["x", "z"]:
+                elif (
+                    self.params.inversion_type in ["tdem"]
+                    and self.params.data_units == "dB/dt (T/s)"
+                ):
+                    if comp in ["x", "y", "z"]:
                         normalizations[chan][comp] = -1
                     normalizations[chan][comp] *= np.ones(self.mask.sum())
 
