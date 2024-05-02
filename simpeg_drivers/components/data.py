@@ -25,6 +25,7 @@ if TYPE_CHECKING:
     from simpeg_drivers.params import InversionBaseParams
 
 from copy import deepcopy
+from re import findall
 
 import numpy as np
 from discretize import TreeMesh
@@ -496,10 +497,12 @@ class InversionData(InversionLocations):
 
     @staticmethod
     def check_tensor(channels):
-        tensor_components = ["xx", "xy", "xz", "yx", "zx", "yy", "zz", "zy", "yz"]
+        tensor_components = "|".join(
+            ["xx", "xy", "xz", "yx", "zx", "yy", "zz", "zy", "yz"]
+        )
 
         for channel in channels:
-            if channel in tensor_components:
+            if any(findall(tensor_components, channel)):
                 return True
 
         return False
