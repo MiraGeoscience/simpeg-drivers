@@ -21,6 +21,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
+from discretize import TensorMesh, TreeMesh
 from geoh5py.objects import DrapeModel, Octree
 from octree_creation_app.params import OctreeParams
 from octree_creation_app.utils import octree_2_treemesh
@@ -32,8 +33,6 @@ if TYPE_CHECKING:
 
     from simpeg_drivers.components.data import InversionData
     from simpeg_drivers.components.topography import InversionTopography
-
-from discretize import TensorMesh, TreeMesh
 
 
 class InversionMesh:
@@ -109,7 +108,11 @@ class InversionMesh:
     def mesh(self) -> TreeMesh | TensorMesh:
         """"""
         if self._mesh is None:
+
             if isinstance(self.entity, Octree):
+
+                self.entity = InversionMesh.ensure_cell_convention(self.entity)
+
                 if self.entity.rotation:
                     origin = self.entity.origin.tolist()
                     angle = self.entity.rotation[0]
@@ -118,7 +121,8 @@ class InversionMesh:
                 self._mesh = octree_2_treemesh(self.entity)
                 self._permutation = np.arange(self.entity.n_cells)
 
-            if isinstance(self.entity, DrapeModel) and self._mesh is None:
+            elif isinstance(self.entity, DrapeModel) and self._mesh is None:
+
                 self._mesh, self._permutation = drape_2_tensor(
                     self.entity, return_sorting=True
                 )
@@ -132,3 +136,28 @@ class InversionMesh:
             raise ValueError("A 'mesh' must be assigned before accessing permutation.")
 
         return self._permutation
+
+    @staticmethod
+    def ensure_cell_convention(mesh: Octree) -> Octree:
+        """
+        Shift origin and flip sign for negative cell size dimensions.
+
+        :param mesh: Input octree mesh object.
+
+        :return: Mesh object with positive cell sizes and shifted origin
+            to maintain mesh geometry.
+        """
+
+        if any([k < 0 for k in [mesh.u_cell_size, mesh.v_cell_size, mesh.w_cell_size]]):
+
+            if mesh.rotation:
+                raise ValueError("Cannot convert negative cell sizes for rotated mesh.")
+
+            for axis, dim, ind in zip("xyz", "uvw", "IJK"):
+                n_cells = getattr(mesh, f"{dim}_count")
+                cell_size = getattr(mesh, f"{dim}_cell_size")
+                if cell_size < 0:
+                    mesh.origin[axis] += n_cells * cell_size
+                    setattr(mesh, f"{dim}_cell_size", np.abs(cell_size))
+
+        return mesh
