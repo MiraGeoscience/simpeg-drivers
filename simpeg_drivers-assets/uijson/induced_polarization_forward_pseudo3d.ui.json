@@ -2,8 +2,12 @@
     "version": "0.1.0-alpha.1",
     "title": "Induced Polarization (IP) 2D Batch Forward",
     "icon": "PotentialElectrode",
-    "inversion_type": "induced polarization pseudo 3d",
+    "conda_environment": "simpeg_drivers",
+    "run_command": "simpeg_drivers.driver",
     "geoh5": "",
+    "monitoring_directory": "",
+    "workspace_geoh5": "",
+    "inversion_type": "induced polarization pseudo 3d",
     "forward_only": true,
     "topography_object": {
         "main": true,
@@ -219,10 +223,6 @@
         "label": "Clean directory",
         "value": false
     },
-    "monitoring_directory": "",
-    "workspace_geoh5": "",
-    "run_command": "simpeg_drivers.driver",
     "run_command_boolean": false,
-    "conda_environment": "simpeg_drivers",
     "distributed_workers": ""
 }

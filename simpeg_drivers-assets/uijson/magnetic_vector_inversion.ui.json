@@ -1,10 +1,14 @@
 {
     "version": "0.1.0-alpha.1",
     "title": "Magnetic Vector (MVI) Inversion",
-    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/",
     "icon": "surveyairbornegravity",
-    "inversion_type": "magnetic vector",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/",
+    "conda_environment": "simpeg_drivers",
+    "run_command": "simpeg_drivers.driver",
     "geoh5": "",
+    "monitoring_directory": "",
+    "workspace_geoh5": "",
+    "inversion_type": "magnetic vector",
     "forward_only": false,
     "inducing_field_strength": {
         "min": 0.1,
@@ -856,9 +860,5 @@
         "main": true,
         "value": false
     },
-    "monitoring_directory": "",
-    "workspace_geoh5": "",
-    "run_command": "simpeg_drivers.driver",
-    "conda_environment": "simpeg_drivers",
     "distributed_workers": ""
 }
