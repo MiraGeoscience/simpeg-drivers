@@ -1,8 +1,12 @@
 {
-    "title": "SimPEG Joint Cross Gradient Inversion",
-    "inversion_type": "joint cross gradient",
     "version": "0.1.0-alpha.1",
+    "title": "SimPEG Joint Cross Gradient Inversion",
+    "conda_environment": "simpeg_drivers",
+    "run_command": "simpeg_drivers.driver",
     "geoh5": "",
+    "monitoring_directory": "",
+    "workspace_geoh5": "",
+    "inversion_type": "joint cross gradient",
     "forward_only": false,
     "topography_object": {
         "main": true,
@@ -424,9 +428,5 @@
         "main": true,
         "value": false
     },
-    "monitoring_directory": "",
-    "workspace_geoh5": "",
-    "run_command": "simpeg_drivers.driver",
-    "conda_environment": "simpeg_drivers",
     "distributed_workers": ""
 }
