@@ -16,4 +16,4 @@
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from .params import DirectCurrent2DParams
+from .params import DirectCurrent2DParams  # noqa: F401

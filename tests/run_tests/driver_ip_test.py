@@ -19,7 +19,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import numpy as np
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.electricals.induced_polarization.three_dimensions import (

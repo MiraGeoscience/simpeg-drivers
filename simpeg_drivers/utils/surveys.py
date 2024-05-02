@@ -20,11 +20,10 @@ from __future__ import annotations
 from collections.abc import Callable
 
 import numpy as np
-from discretize import TensorMesh, TreeMesh
+from discretize import TreeMesh
 from geoapps_utils.numerical import traveling_salesman
 from geoh5py import Workspace
-from geoh5py.data import FloatData
-from geoh5py.objects import CurrentElectrode, PotentialElectrode
+from geoh5py.objects import PotentialElectrode
 from scipy.spatial import cKDTree
 from SimPEG.survey import BaseSurvey
 

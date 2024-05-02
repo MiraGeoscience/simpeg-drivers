@@ -20,9 +20,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-from geoapps_utils.transformations import rotate_xyz
 from geoh5py.objects import Points
-from geoh5py.workspace import Workspace
 
 from simpeg_drivers.components import (
     InversionMesh,
