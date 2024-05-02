@@ -2,8 +2,12 @@
     "version": "0.1.0-alpha.1",
     "title": "Frequency-domain EM (FEM) Forward",
     "icon": "surveyairborneem",
-    "inversion_type": "fem",
+    "conda_environment": "simpeg_drivers",
+    "run_command": "simpeg_drivers.driver",
     "geoh5": "",
+    "monitoring_directory": "",
+    "workspace_geoh5": "",
+    "inversion_type": "fem",
     "forward_only": true,
     "topography_object": {
         "main": true,
@@ -133,9 +137,5 @@
         "main": true,
         "value": false
     },
-    "monitoring_directory": "",
-    "workspace_geoh5": "",
-    "run_command": "simpeg_drivers.driver",
-    "conda_environment": "simpeg_drivers",
     "distributed_workers": ""
 }
