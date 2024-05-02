@@ -103,7 +103,7 @@ def calculate_2D_trend(
         # Extract only those points that make the ConvexHull
         loc_xy = loc_xy[hull.vertices, :2]
         values = values[hull.vertices]
-    elif not method == "all":
+    elif method != "all":
         raise ValueError(
             "'method' must be either 'all', or 'perimeter'. " f"Value {method} provided"
         )
@@ -269,8 +269,6 @@ def drape_to_octree(
 
         if method == "nearest":
             octree_model = np.hstack(octree_model)[lookup_inds]
-        else:
-            octree_model = octree_model
 
         if np.issubdtype(octree_model.dtype, np.integer):
             octree_model[~active] = INTEGER_NDV
@@ -458,9 +456,11 @@ def get_inversion_output(h5file: str | Workspace, inversion_group: str | UUID):
         ) from exc
 
     outfile = group.get_entity("SimPEG.out")[0]
-    out = [l for l in outfile.values.decode("utf-8").replace("\r", "").split("\n")][:-1]
+    out = [
+        line for line in outfile.values.decode("utf-8").replace("\r", "").split("\n")
+    ][:-1]
     cols = out.pop(0).split(" ")
-    out = [[string_to_numeric(k) for k in l.split(" ")] for l in out]
+    out = [[string_to_numeric(k) for k in line.split(" ")] for line in out]
     out = dict(zip(cols, list(map(list, zip(*out)))))
 
     return out

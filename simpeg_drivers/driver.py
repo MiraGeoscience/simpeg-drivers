@@ -18,11 +18,6 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from simpeg_drivers import InversionBaseParams
-
 import multiprocessing
 import sys
 from datetime import datetime, timedelta
@@ -352,18 +347,12 @@ class InversionDriver(BaseDriver):
             data_count = len(self.inversion_data.survey.std)
 
         print(
-            "Target Misfit: {:.2e} ({} data with chifact = {}) / 2".format(
-                0.5 * self.params.chi_factor * data_count,
-                data_count,
-                self.params.chi_factor,
-            )
+            f"Target Misfit: {0.5 * self.params.chi_factor * data_count:.2e} "
+            f"({data_count} data with chifact = {self.params.chi_factor}) / 2"
         )
         print(
-            "IRLS Start Misfit: {:.2e} ({} data with chifact = {}) / 2".format(
-                0.5 * chi_start * data_count,
-                data_count,
-                chi_start,
-            )
+            f"IRLS Start Misfit: {0.5 * chi_start * data_count:.2e} "
+            f"({data_count} data with chifact = {chi_start}) / 2"
         )
 
     @property

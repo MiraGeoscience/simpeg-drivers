@@ -142,13 +142,13 @@ class InversionLocations:
             is_none.append(v is None)
         return all(is_none)
 
-    def filter(self, a: dict[str, np.ndarray] | np.ndarray, mask=None):
+    def filter(self, obj: dict[str, np.ndarray] | np.ndarray, mask=None):
         """
         Apply accumulated self.mask to array, or dict of arrays.
 
         If argument a is a dictionary filter will be applied to all key/values.
 
-        :param a: Object containing data to filter.
+        :param obj: Object containing data to filter.
 
         :return: Filtered data.
 
@@ -156,16 +156,16 @@ class InversionLocations:
 
         mask = self.mask if mask is None else mask
 
-        if isinstance(a, dict):
-            if self._none_dict(a):
-                return a
+        if isinstance(obj, dict):
+            if self._none_dict(obj):
+                return obj
             else:
-                return self._filter(a, mask)
+                return self._filter(obj, mask)
         else:
-            if a is None:
+            if obj is None:
                 return None
             else:
-                return a[mask]
+                return obj[mask]
 
     def set_z_from_topo(self, locs: np.ndarray):
         """interpolate locations z data from topography."""

@@ -130,9 +130,9 @@ class InversionData(InversionLocations):
         if self.radar is not None and any(np.isnan(self.radar)):
             self.mask[np.isnan(self.radar)] = False
 
-        self.observed = self.filter(self.observed)
-        self.radar = self.filter(self.radar)
-        self.uncertainties = self.filter(self.uncertainties)
+        self.observed = self.filter(self.observed, self.mask)
+        self.radar = self.filter(self.radar, self.mask)
+        self.uncertainties = self.filter(self.uncertainties, self.mask)
 
         self.normalizations = self.get_normalizations()
         self.observed = self.normalize(self.observed)
@@ -171,14 +171,14 @@ class InversionData(InversionLocations):
 
         return np.c_[distance_interp, locations[:, 2:]]
 
-    def filter(self, a):
+    def filter(self, obj: dict[str, np.ndarray] | np.ndarray, mask=None):
         """Remove vertices based on mask property."""
         if self.indices is None:
-            self.indices = np.where(self.mask)[0]
+            self.indices = np.where(mask)[0]
 
-        a = super().filter(a, mask=self.indices)
+        obj = super().filter(obj, mask=self.indices)
 
-        return a
+        return obj
 
     def get_data(self) -> tuple[list, dict, dict]:
         """
@@ -491,7 +491,10 @@ class InversionData(InversionLocations):
     @staticmethod
     def check_tensor(channels):
         tensor_components = ["xx", "xy", "xz", "yx", "zx", "yy", "zz", "zy", "yz"]
-        has_tensor = lambda c: any(k in c for k in tensor_components)
+
+        def has_tensor(components):
+            return any(k in components for k in tensor_components)
+
         return any(has_tensor(c) for c in channels)
 
     def update_params(self, data_dict, uncert_dict):
