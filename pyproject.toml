@@ -33,6 +33,7 @@ discretize = "~0.10.0"
 distributed = "2022.10.*"  # because conda-lock doesn't take dask extras into account
 numpy = "~1.23.5" # also in geoh5py, simpeg
 scipy = "~1.10.1"
+zarr = "~2.14.2"  # also in simpeg[dask]
 
 ## Pip dependencies from Git repositories
 #----------------------------------------
@@ -68,7 +69,6 @@ pydiso = "~0.0.3"  # from simpeg
 pymatsolver = "~0.2.0"  # from simpeg
 scikit-learn = "~1.4.0"  # from SimPEG, also used by geo-unsup-mapper, petro-lingo
 tqdm = "^4.66.1"  # from simpeg
-zarr = "~2.14.2"  # from simpeg using Dask
 
 # force some versions to resolve incompatible resolution between PyPI and Conda
 #------------------------------------------------------------------------------
