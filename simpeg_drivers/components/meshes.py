@@ -25,6 +25,8 @@ from geoh5py.objects import DrapeModel, Octree
 from octree_creation_app.params import OctreeParams
 from octree_creation_app.utils import octree_2_treemesh
 
+from discretize import TensorMesh, TreeMesh
+
 from simpeg_drivers.utils.utils import drape_2_tensor
 
 if TYPE_CHECKING:
@@ -33,7 +35,6 @@ if TYPE_CHECKING:
     from simpeg_drivers.components.data import InversionData
     from simpeg_drivers.components.topography import InversionTopography
 
-from discretize import TensorMesh, TreeMesh
 
 
 class InversionMesh:

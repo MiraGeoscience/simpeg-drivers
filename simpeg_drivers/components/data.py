@@ -171,14 +171,14 @@ class InversionData(InversionLocations):
 
         return np.c_[distance_interp, locations[:, 2:]]
 
-    def filter(self, a):
+    def filter(self, obj: dict[str, np.ndarray] | np.ndarray):
         """Remove vertices based on mask property."""
         if self.indices is None:
             self.indices = np.where(self.mask)[0]
 
-        a = super().filter(a, mask=self.indices)
+        obj = super().filter(obj, mask=self.indices)
 
-        return a
+        return obj
 
     def get_data(self) -> tuple[list, dict, dict]:
         """
