@@ -36,7 +36,6 @@ if TYPE_CHECKING:
     from simpeg_drivers.components.topography import InversionTopography
 
 
-
 class InversionMesh:
     """
     Retrieve octree mesh data from workspace and convert to Treemesh.
