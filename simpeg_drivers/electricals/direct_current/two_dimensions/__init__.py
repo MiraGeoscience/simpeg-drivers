@@ -15,5 +15,6 @@
 #
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-
 from .params import DirectCurrent2DParams
+
+__all__ = ["DirectCurrent2DParams"]
