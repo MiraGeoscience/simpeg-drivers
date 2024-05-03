@@ -21,11 +21,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
+from discretize import TensorMesh, TreeMesh
 from geoh5py.objects import DrapeModel, Octree
 from octree_creation_app.params import OctreeParams
 from octree_creation_app.utils import octree_2_treemesh
-
-from discretize import TensorMesh, TreeMesh
 
 from simpeg_drivers.utils.utils import drape_2_tensor
 
