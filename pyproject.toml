@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "simpeg-drivers"
-version = "0.1.0-beta.3"
+version = "0.1.0-beta.4"
 description = "Application to run SimPEG inversions with geoh5 files from Geoscience Analyst."
 license = "MIT"
 authors = ["Mira Geoscience <support@mirageoscience.com>"]
@@ -29,7 +29,7 @@ include = [
 python = "^3.10, <3.11"
 
 dask = {version = "2022.10.*", extras = ["distributed"]}  # also in simpeg[dask]
-discretize = "~0.10.0"
+discretize = "~0.10.0"  # also in simpeg, octree-creation-app
 distributed = "2022.10.*"  # because conda-lock doesn't take dask extras into account
 numpy = "~1.23.5" # also in geoh5py, simpeg
 scipy = "~1.10.1"
