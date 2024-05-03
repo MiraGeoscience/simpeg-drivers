@@ -17,5 +17,4 @@
 
 from .params import DirectCurrent2DParams
 
-# pylint: disable=unused-import
-# flake8: noqa
+__all__ = ["DirectCurrent2DParams"]

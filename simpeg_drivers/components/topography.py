@@ -111,18 +111,18 @@ class InversionTopography(InversionLocations):
 
         return active_cells
 
-    def get_locations(self, obj: Entity) -> np.ndarray:
+    def get_locations(self, entity: Entity) -> np.ndarray:
         """
         Returns locations of data object centroids or vertices.
 
-        :param obj: geoh5py object containing centroid or
+        :param entity: geoh5py object containing centroid or
             vertex location data
 
         :return: Array shape(*, 3) of x, y, z location data
 
         """
 
-        locs = super().get_locations(obj)
+        locs = super().get_locations(entity)
 
         if self.params.topography is not None:
             if isinstance(self.params.topography, Entity):
