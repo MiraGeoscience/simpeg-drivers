@@ -347,12 +347,12 @@ class InversionDriver(BaseDriver):
             data_count = len(self.inversion_data.survey.std)
 
         print(
-            f"Target Misfit: {0.5 * self.params.chi_factor * data_count:.2e} "
-            f"({data_count} data with chifact = {self.params.chi_factor}) / 2"
+            f"Target Misfit: {0.5 * self.params.chi_factor * data_count:.2e} ({data_count} data "
+            f"with chifact = {self.params.chi_factor}) / 2"
         )
         print(
-            f"IRLS Start Misfit: {0.5 * chi_start * data_count:.2e} "
-            f"({data_count} data with chifact = {chi_start}) / 2"
+            f"IRLS Start Misfit: {0.5 * chi_start * data_count:.2e} ({data_count} data "
+            f"with chifact = {chi_start}) / 2"
         )
 
     @property
@@ -437,7 +437,7 @@ class InversionDriver(BaseDriver):
 
         if self.params.parallelized:
             if self.params.n_cpu is None:
-                self.params.n_cpu = int(multiprocessing.cpu_count() / 2)
+                self.params.n_cpu = int(multiprocessing.cpu_count())
 
             dconf.set({"array.chunk-size": str(self.params.max_chunk_size) + "MiB"})
             dconf.set(scheduler="threads", pool=ThreadPool(self.params.n_cpu))
