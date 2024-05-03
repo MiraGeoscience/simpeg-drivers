@@ -18,11 +18,6 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from simpeg_drivers import InversionBaseParams
-
 import multiprocessing
 import sys
 from datetime import datetime, timedelta
@@ -352,18 +347,12 @@ class InversionDriver(BaseDriver):
             data_count = len(self.inversion_data.survey.std)
 
         print(
-            "Target Misfit: {:.2e} ({} data with chifact = {}) / 2".format(
-                0.5 * self.params.chi_factor * data_count,
-                data_count,
-                self.params.chi_factor,
-            )
+            f"Target Misfit: {0.5 * self.params.chi_factor * data_count:.2e} ({data_count} data "
+            f"with chifact = {self.params.chi_factor}) / 2"
         )
         print(
-            "IRLS Start Misfit: {:.2e} ({} data with chifact = {}) / 2".format(
-                0.5 * chi_start * data_count,
-                data_count,
-                chi_start,
-            )
+            f"IRLS Start Misfit: {0.5 * chi_start * data_count:.2e} ({data_count} data "
+            f"with chifact = {chi_start}) / 2"
         )
 
     @property
@@ -448,7 +437,7 @@ class InversionDriver(BaseDriver):
 
         if self.params.parallelized:
             if self.params.n_cpu is None:
-                self.params.n_cpu = int(multiprocessing.cpu_count() / 2)
+                self.params.n_cpu = int(multiprocessing.cpu_count())
 
             dconf.set({"array.chunk-size": str(self.params.max_chunk_size) + "MiB"})
             dconf.set(scheduler="threads", pool=ThreadPool(self.params.n_cpu))
@@ -461,7 +450,7 @@ class InversionDriver(BaseDriver):
         inversion_type = ifile.data["inversion_type"]
         if inversion_type not in DRIVER_MAP:
             msg = f"Inversion type {inversion_type} is not supported."
-            msg += f" Valid inversions are: {*list(DRIVER_MAP),}."
+            msg += f" Valid inversions are: {*list(DRIVER_MAP), }."
             raise NotImplementedError(msg)
 
         mod_name, class_name = DRIVER_MAP.get(inversion_type)

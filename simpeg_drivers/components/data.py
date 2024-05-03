@@ -25,6 +25,7 @@ if TYPE_CHECKING:
     from simpeg_drivers.params import InversionBaseParams
 
 from copy import deepcopy
+from re import findall
 
 import numpy as np
 from discretize import TreeMesh
@@ -171,10 +172,13 @@ class InversionData(InversionLocations):
 
         return np.c_[distance_interp, locations[:, 2:]]
 
-    def filter(self, a):
+    def filter(self, a, mask=None):
         """Remove vertices based on mask property."""
+        if mask is None:
+            mask = self.mask
+
         if self.indices is None:
-            self.indices = np.where(self.mask)[0]
+            self.indices = np.where(mask)[0]
 
         a = super().filter(a, mask=self.indices)
 
@@ -490,9 +494,15 @@ class InversionData(InversionLocations):
 
     @staticmethod
     def check_tensor(channels):
-        tensor_components = ["xx", "xy", "xz", "yx", "zx", "yy", "zz", "zy", "yz"]
-        has_tensor = lambda c: any(k in c for k in tensor_components)
-        return any(has_tensor(c) for c in channels)
+        tensor_components = "|".join(
+            ["xx", "xy", "xz", "yx", "zx", "yy", "zz", "zy", "yz"]
+        )
+
+        for channel in channels:
+            if any(findall(tensor_components, channel)):
+                return True
+
+        return False
 
     def update_params(self, data_dict, uncert_dict):
         """

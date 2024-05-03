@@ -1,10 +1,14 @@
 {
     "version": "0.1.0-alpha.1",
     "title": "Direct Current (DC) 3D Inversion",
-    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/",
     "icon": "PotentialElectrode",
-    "inversion_type": "direct current 3d",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/",
+    "conda_environment": "simpeg_drivers",
+    "run_command": "simpeg_drivers.driver",
     "geoh5": "",
+    "monitoring_directory": "",
+    "workspace_geoh5": "",
+    "inversion_type": "direct current 3d",
     "forward_only": false,
     "topography_object": {
         "main": true,
@@ -477,10 +481,6 @@
         "main": true,
         "value": false
     },
-    "monitoring_directory": "",
-    "workspace_geoh5": "",
-    "run_command": "simpeg_drivers.driver",
-    "conda_environment": "simpeg_drivers",
     "distributed_workers": "",
     "potential_channel_bool": true
 }
