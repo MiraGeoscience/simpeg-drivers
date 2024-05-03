@@ -191,7 +191,7 @@ class InversionModelCollection:
         """wraps individual model's specific method and applies in loop over model types."""
         returned_items = {}
         for mtype in self.model_types:
-            model = self.__getattribute__(f"_{mtype}")
+            model = getattr(self, f"_{mtype}")
             if model.model is not None:
                 f = getattr(model, method)
                 returned_items[mtype] = f(**kwargs)

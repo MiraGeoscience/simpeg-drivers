@@ -147,7 +147,9 @@ class SourcesFactory(SimPEGFactory):
 
         return kwargs
 
-    def build(self, receivers=None, locations=None, frequency=None, waveform=None):
+    def build(  # pylint: disable=arguments-differ
+        self, receivers=None, locations=None, frequency=None, waveform=None
+    ):
         return super().build(
             receivers=receivers,
             locations=locations,
