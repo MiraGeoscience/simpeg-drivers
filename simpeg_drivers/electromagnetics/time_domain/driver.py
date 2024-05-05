@@ -18,7 +18,13 @@
 
 from __future__ import annotations
 
+import numpy as np
+from geoh5py.objects.surveys.electromagnetics.ground_tem import (
+    LargeLoopGroundTEMReceivers,
+)
+
 from simpeg_drivers.driver import InversionDriver
+from simpeg_drivers.utils.utils import tile_locations
 
 from .constants import validations
 from .params import TimeDomainElectromagneticsParams
@@ -30,3 +36,50 @@ class TimeDomainElectromagneticsDriver(InversionDriver):
 
     def __init__(self, params: TimeDomainElectromagneticsParams):
         super().__init__(params)
+
+    def get_tiles(self):
+        """
+        Special method to tile the data based on the transmitters center locations.
+        """
+        if isinstance(self.params.data_object, LargeLoopGroundTEMReceivers):
+
+            tx_ids = self.params.data_object.transmitters.tx_id_property.values
+
+            uids = np.unique(tx_ids)
+
+            n_groups = np.min([len(uids), self.params.tile_spatial])
+            locations = []
+            for uid in uids:
+                locations.append(
+                    np.mean(
+                        self.params.data_object.transmitters.vertices[tx_ids == uid],
+                        axis=0,
+                    )
+                )
+
+            tx_tiles = tile_locations(
+                np.vstack(locations),
+                n_groups,
+                method="kmeans",
+            )
+            rx_ids = self.params.data_object.tx_id_property.values
+            tiles = []
+            counter = {}
+            for t_id, group in enumerate(tx_tiles):
+                sub_group = []
+                for value in group:
+                    receiver_ind = rx_ids == value
+                    sub_group.append(np.where(receiver_ind)[0])
+                    counter[t_id] = counter.get(t_id, 0) + np.sum(receiver_ind)
+
+                tiles.append(np.hstack(sub_group))
+
+        else:
+            locations = self.inversion_data.locations
+            tiles = tile_locations(
+                locations,
+                self.params.tile_spatial,
+                method="kmeans",
+            )
+
+        return tiles
