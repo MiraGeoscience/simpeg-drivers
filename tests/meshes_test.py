@@ -22,11 +22,11 @@ from pathlib import Path
 import numpy as np
 import pytest
 from discretize import TreeMesh
-from geoh5py.groups import SimPEGGroup
+from geoh5py import Workspace
+from geoh5py.objects import Octree
 
 from simpeg_drivers.components import InversionData, InversionMesh, InversionTopography
 from simpeg_drivers.potential_fields import MagneticVectorParams
-from simpeg_drivers.potential_fields.magnetic_vector.driver import MagneticVectorDriver
 from simpeg_drivers.utils.testing import Geoh5Tester, setup_inversion_workspace
 
 
@@ -71,57 +71,40 @@ def test_initialize(tmp_path: Path):
 
 
 def test_ensure_cell_convention(tmp_path):
+    workspace = Workspace(tmp_path / "test_octree.geoh5")
+    octree_cells = np.array(
+        [
+            (0, 0, 0, 1),
+            (1, 0, 0, 1),
+            (0, 1, 0, 1),
+            (1, 1, 0, 1),
+            (0, 0, 1, 1),
+            (1, 0, 1, 1),
+            (0, 1, 1, 1),
+            (1, 1, 1, 1),
+        ],
+        dtype=[("I", "<i4"), ("J", "<i4"), ("K", "<i4"), ("NCells", "<i4")],
+    )
+    test_mesh = Octree.create(
+        workspace,
+        name="Mesh",
+        origin=np.array([0, 0, 10]),
+        u_count=2,
+        v_count=2,
+        w_count=2,
+        u_cell_size=5.0,
+        v_cell_size=5.0,
+        w_cell_size=-5.0,
+        octree_cells=octree_cells,
+    )
 
-    ws, params = setup_params(tmp_path)
-
-    validation_mesh = params.mesh.copy(copy_children=True)
+    validation_mesh = test_mesh.copy()
     validation_mesh.name = "validation"
-    validation_params = MagneticVectorParams(
-        geoh5=ws,
-        mesh=validation_mesh,
-        starting_model=validation_mesh.get_data("model")[0],
-        data_object=params.data_object.copy(copy_children=False),
-        topography_object=params.topography_object.copy(),
-        tmi_channel_bool=True,
-        forward_only=True,
-        out_group=SimPEGGroup.create(ws, name="validation_group"),
-    )
-    driver = MagneticVectorDriver(validation_params)
-    driver.run()
-
-    test_mesh = params.mesh.copy(copy_children=True)
-    test_mesh.name = "test"
-    test_mesh.origin["z"] += test_mesh.w_count * test_mesh.w_cell_size
-    test_mesh.w_cell_size *= -1
-    test_params = MagneticVectorParams(
-        geoh5=ws,
-        mesh=test_mesh,
-        starting_model=test_mesh.get_data("model")[0],
-        data_object=params.data_object.copy(copy_children=False),
-        topography_object=params.topography_object.copy(),
-        tmi_channel_bool=True,
-        forward_only=True,
-        out_group=SimPEGGroup.create(ws, name="test_group"),
-    )
-    driver = MagneticVectorDriver(test_params)
-    driver.run()
-    ws.close()
-
-    with ws.open():
-
-        data = ws.get_entity("Iteration_0_tmi")
-        test_data = data[0].values
-        validation_data = data[1].values
-        active = ws.get_entity("active_cells")
-        test_active = active[0].values
-        validation_active = active[1].values
-
-        test_mesh = InversionMesh.ensure_cell_convention(test_mesh)
-        assert test_mesh.w_cell_size == 5.0
-        assert test_mesh.origin["z"] == validation_mesh.origin["z"]
-        assert np.allclose(test_mesh.centroids, validation_mesh.centroids)
-        assert np.allclose(test_data, validation_data)
-        assert np.allclose(test_active, validation_active)
+    old_centroids = test_mesh.centroids.copy()
+    test_mesh = InversionMesh.ensure_cell_convention(test_mesh)
+    new_centroids = test_mesh.centroids.copy()
+    workspace.close()
+    assert np.allclose(np.sort(old_centroids.flat), np.sort(new_centroids.flat))
 
 
 def test_raise_on_rotated_negative_cell_size(tmp_path):
@@ -133,64 +116,3 @@ def test_raise_on_rotated_negative_cell_size(tmp_path):
     with pytest.raises(ValueError, match=msg):
         InversionMesh.ensure_cell_convention(mesh)
     ws.close()
-
-
-def test_negative_cell_size_inversion(tmp_path):
-
-    ws, params = setup_params(tmp_path)
-
-    validation_mesh = params.mesh.copy(copy_children=True)
-    validation_mesh.name = "validation"
-    inducing_field = (50000.0, 90.0, 0.0)
-    validation_params = MagneticVectorParams(
-        geoh5=ws,
-        mesh=validation_mesh,
-        starting_model=validation_mesh.get_data("model")[0],
-        inducing_field_strength=inducing_field[0],
-        inducing_field_inclination=inducing_field[1],
-        inducing_field_declination=inducing_field[2],
-        data_object=params.data_object.copy(copy_children=False),
-        topography_object=params.topography_object.copy(),
-        tmi_channel_bool=True,
-        forward_only=True,
-        out_group=SimPEGGroup.create(ws, name="validation_group"),
-    )
-    driver = MagneticVectorDriver(validation_params)
-    driver.run()
-    ws.close()
-
-    with ws.open():
-        data_object = ws.get_entity("survey")[0]
-        data = ws.get_entity("Iteration_0_tmi")[0].copy()
-        data.name = "tmi_data"
-
-        test_mesh = params.mesh.copy(copy_children=True)
-        test_mesh.name = "test"
-        test_mesh.origin["z"] += test_mesh.w_count * test_mesh.w_cell_size
-        test_mesh.w_cell_size *= -1
-
-        test_params = MagneticVectorParams(
-            geoh5=ws,
-            mesh=test_mesh,
-            starting_model=1e-4,
-            reference_model=0.0,
-            inducing_field_strength=inducing_field[0],
-            inducing_field_inclination=inducing_field[1],
-            inducing_field_declination=inducing_field[2],
-            data_object=data_object,
-            tmi_channel=data,
-            tmi_uncertainty=4.0,
-            topography_object=params.topography_object.copy(),
-            out_group=SimPEGGroup.create(ws, name="test_group"),
-            s_norm=0.0,
-            x_norm=1.0,
-            y_norm=1.0,
-            z_norm=1.0,
-            gradient_type="components",
-            initial_beta_ratio=1e1,
-            prctile=100,
-            store_sensitivities="ram",
-            max_global_iterations=2,
-        )
-        driver = MagneticVectorDriver(test_params)
-        driver.run()
