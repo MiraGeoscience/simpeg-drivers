@@ -33,6 +33,7 @@ from scipy.interpolate import interp1d
 from simpeg_drivers.components.factories.receiver_factory import ReceiversFactory
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 from simpeg_drivers.components.factories.source_factory import SourcesFactory
+from simpeg_drivers.utils.surveys import counter_clockwise_sort
 
 
 def receiver_group(txi, potential_electrodes):
@@ -341,6 +342,9 @@ class SurveyFactory(SimPEGFactory):
                 loop_cells = transmitters.cells[
                     np.all(tx_ind[transmitters.cells], axis=1), :
                 ]
+
+                loop_cells = counter_clockwise_sort(loop_cells, transmitters.vertices)
+
                 loop_ind = np.r_[loop_cells[:, 0], loop_cells[-1, 1]]
                 tx_locs = transmitters.vertices[loop_ind, :]
                 tx_locs_lookup[k] = tx_locs

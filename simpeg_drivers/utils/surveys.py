@@ -28,6 +28,24 @@ from scipy.spatial import cKDTree
 from SimPEG.survey import BaseSurvey
 
 
+def counter_clockwise_sort(segments: np.ndarray, vertices: np.ndarray) -> np.ndarray:
+    """
+    Sort segments in counter-clockwise order.
+
+    :param segments: Array of segment indices.
+    :param vertices: Array of vertices.
+
+    :return: Sorted segments.
+    """
+    deltas = vertices[segments[:, 1], :2] - vertices[segments[:, 0], :2]
+    cross = np.cross(deltas[:-1], deltas[1:])
+
+    if np.sign(np.mean(cross[cross != 0])) < 0:
+        segments = segments[::-1, ::-1]
+
+    return segments
+
+
 def compute_alongline_distance(points: np.ndarray, ordered: bool = True):
     """
     Convert from cartesian (x, y, values) points to (distance, values) locations.
