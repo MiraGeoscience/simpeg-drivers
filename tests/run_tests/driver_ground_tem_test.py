@@ -70,11 +70,13 @@ def test_tiling_ground_tem(
         x_channel_bool=True,
         y_channel_bool=True,
         z_channel_bool=True,
-        tile_spatial=2,
+        tile_spatial=4,
     )
     fwr_driver = TimeDomainElectromagneticsDriver(params)
 
     tiles = fwr_driver.get_tiles()
+
+    assert len(tiles) == 4
 
     for tile in tiles:
         assert len(np.unique(survey.tx_id_property.values[tile])) == 1

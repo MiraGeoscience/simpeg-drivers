@@ -40,6 +40,10 @@ class TimeDomainElectromagneticsDriver(InversionDriver):
     def get_tiles(self):
         """
         Special method to tile the data based on the transmitters center locations.
+
+        First the transmitter locations are grouped into groups using kmeans clustering.
+        Second, if the number of groups is less than the number of 'tile_spatial' value, the groups are
+        further divided into groups based on the clustering of receiver locations.
         """
         if isinstance(self.params.data_object, LargeLoopGroundTEMReceivers):
 
@@ -73,6 +77,16 @@ class TimeDomainElectromagneticsDriver(InversionDriver):
                     counter[t_id] = counter.get(t_id, 0) + np.sum(receiver_ind)
 
                 tiles.append(np.hstack(sub_group))
+
+            while len(tiles) < self.params.tile_spatial:
+                largest_group = np.argmax([len(tile) for tile in tiles])
+                tile = tiles.pop(largest_group)
+                new_tiles = tile_locations(
+                    self.params.data_object.vertices[tile],
+                    2,
+                    method="kmeans",
+                )
+                tiles += [tile[new_tiles[0]], tile[new_tiles[1]]]
 
         else:
             locations = self.inversion_data.locations
