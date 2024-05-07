@@ -508,7 +508,6 @@ class InversionLogger:
 
 
 if __name__ == "__main__":
-    # file = str(Path(sys.argv[1]).resolve())
-    file = r"C:\Users\dominiquef\Documents\GIT\mira\geoapps\geoapps-assets\Temp\GravityInversion_1715098073.ui.json"
+    file = str(Path(sys.argv[1]).resolve())
     InversionDriver.start(file)
     sys.stdout.close()
