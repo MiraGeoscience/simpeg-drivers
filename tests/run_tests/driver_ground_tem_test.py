@@ -81,6 +81,8 @@ def test_tiling_ground_tem(
     for tile in tiles:
         assert len(np.unique(survey.tx_id_property.values[tile])) == 1
 
+    fwr_driver.run()
+
 
 def test_ground_tem_fwr_run(
     tmp_path: Path,
