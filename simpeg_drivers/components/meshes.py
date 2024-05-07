@@ -25,17 +25,32 @@ from discretize import TensorMesh, TreeMesh
 from geoh5py import Workspace
 from geoh5py.objects import DrapeModel, Octree
 from octree_creation_app.params import OctreeParams
-from octree_creation_app.utils import (
-    convert_octree_levels,
-    octree_2_treemesh,
-    treemesh_2_octree,
-)
+from octree_creation_app.utils import octree_2_treemesh, treemesh_2_octree
 
 from simpeg_drivers.utils.utils import drape_2_tensor
 
 if TYPE_CHECKING:
     from simpeg_drivers.components.data import InversionData
     from simpeg_drivers.components.topography import InversionTopography
+
+
+# TODO: Import this from newer octree-creation-app release
+def convert_octree_levels(mesh):
+    """
+    Convert octree cells indices and levels to CPP representation.
+    """
+    if mesh.octree_cells is None:
+        return None
+
+    n_cell_dim = [mesh.u_count, mesh.v_count, mesh.w_count]
+    ls = np.log2(n_cell_dim).astype(int)
+    if len(set(ls)) == 1:
+        max_level = ls[0]
+    else:
+        max_level = min(ls) + 1
+    levels = max_level - np.log2(mesh.octree_cells["NCells"])
+
+    return levels
 
 
 class InversionMesh:
@@ -114,15 +129,23 @@ class InversionMesh:
 
             if isinstance(self.entity, Octree):
 
-                self._mesh = self.ensure_cell_convention(self.entity)
+                cell_sizes = [
+                    self.entity.u_cell_size,
+                    self.entity.v_cell_size,
+                    self.entity.w_cell_size,
+                ]
+                if any([k < 0 for k in cell_sizes]):
+                    # TODO: should implement this in octree-creation-app and build the behaviour
+                    # into the octree_2_treemesh function
+                    print("Negative cell sizes detected. Flipping origin and sign.")
+                    self._mesh = InversionMesh.ensure_cell_convention(self.entity)
+                else:
+                    self._mesh = octree_2_treemesh(self.entity)
 
                 if self.entity.rotation:
                     origin = self.entity.origin.tolist()
                     angle = self.entity.rotation[0]
                     self.rotation = {"origin": origin, "angle": angle}
-
-                if self._mesh is None:
-                    self._mesh = octree_2_treemesh(self.entity)
 
                 self._permutation = np.arange(self.entity.n_cells)
 
@@ -152,11 +175,6 @@ class InversionMesh:
         :return: Mesh object with positive cell sizes and shifted origin
             to maintain mesh geometry.
         """
-
-        if not any(
-            [k < 0 for k in [mesh.u_cell_size, mesh.v_cell_size, mesh.w_cell_size]]
-        ):
-            return None
 
         if mesh.rotation:
             raise ValueError("Cannot convert negative cell sizes for rotated mesh.")

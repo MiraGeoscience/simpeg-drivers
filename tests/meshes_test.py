@@ -24,6 +24,7 @@ import pytest
 from discretize import TreeMesh
 from geoh5py import Workspace
 from geoh5py.objects import Octree
+from octree_creation_app.utils import treemesh_2_octree
 
 from simpeg_drivers.components import InversionData, InversionMesh, InversionTopography
 from simpeg_drivers.potential_fields import MagneticVectorParams
@@ -101,9 +102,9 @@ def test_ensure_cell_convention(tmp_path):
     validation_mesh = test_mesh.copy()
     validation_mesh.name = "validation"
     old_centroids = test_mesh.centroids.copy()
-    test_mesh = InversionMesh.ensure_cell_convention(test_mesh)
+    treemesh = InversionMesh.ensure_cell_convention(test_mesh)
+    test_mesh = treemesh_2_octree(workspace, treemesh)
     new_centroids = test_mesh.centroids.copy()
-    workspace.close()
     assert np.allclose(np.sort(old_centroids.flat), np.sort(new_centroids.flat))
 
 
@@ -115,4 +116,3 @@ def test_raise_on_rotated_negative_cell_size(tmp_path):
     msg = "Cannot convert negative cell sizes for rotated mesh."
     with pytest.raises(ValueError, match=msg):
         InversionMesh.ensure_cell_convention(mesh)
-    ws.close()
