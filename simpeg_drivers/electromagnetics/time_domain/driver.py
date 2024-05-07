@@ -68,7 +68,7 @@ class TimeDomainElectromagneticsDriver(InversionDriver):
             for t_id, group in enumerate(tx_tiles):
                 sub_group = []
                 for value in group:
-                    receiver_ind = rx_ids == value
+                    receiver_ind = rx_ids == uids[value]
                     sub_group.append(np.where(receiver_ind)[0])
                     counter[t_id] = counter.get(t_id, 0) + np.sum(receiver_ind)
 
