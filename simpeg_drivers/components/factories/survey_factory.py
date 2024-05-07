@@ -138,7 +138,7 @@ class SurveyFactory(SimPEGFactory):
                 data=data.observed,
                 local_index=self.local_index,
             )
-            sources = SourcesFactory(self.params).build(receivers)
+            sources = SourcesFactory(self.params).build(receivers=receivers)
             return [sources]
 
     def assemble_keyword_arguments(self, **_):
