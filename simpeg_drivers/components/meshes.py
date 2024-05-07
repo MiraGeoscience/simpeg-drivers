@@ -114,7 +114,7 @@ class InversionMesh:
 
             if isinstance(self.entity, Octree):
 
-                self.ensure_cell_convention(self.entity)
+                self._mesh = self.ensure_cell_convention(self.entity)
 
                 if self.entity.rotation:
                     origin = self.entity.origin.tolist()
@@ -142,7 +142,8 @@ class InversionMesh:
 
         return self._permutation
 
-    def ensure_cell_convention(self, mesh: Octree):
+    @staticmethod
+    def ensure_cell_convention(mesh: Octree) -> TreeMesh | None:
         """
         Shift origin and flip sign for negative cell size dimensions.
 
@@ -155,7 +156,7 @@ class InversionMesh:
         if not any(
             [k < 0 for k in [mesh.u_cell_size, mesh.v_cell_size, mesh.w_cell_size]]
         ):
-            return
+            return None
 
         if mesh.rotation:
             raise ValueError("Cannot convert negative cell sizes for rotated mesh.")
@@ -171,12 +172,12 @@ class InversionMesh:
                 origin.append(mesh.origin[axis])
                 cell_sizes.append([cell_size] * n_cells)
 
-        self._mesh = TreeMesh(cell_sizes, origin)
+        treemesh = TreeMesh(cell_sizes, origin)
         levels = convert_octree_levels(mesh)
-        self._mesh.insert_cells(points=mesh.centroids, levels=levels, finalize=True)
+        treemesh.insert_cells(points=mesh.centroids, levels=levels, finalize=True)
 
         temp_workspace = Workspace()
-        temp_octree = treemesh_2_octree(temp_workspace, self._mesh)
+        temp_octree = treemesh_2_octree(temp_workspace, treemesh)
 
         mesh.octree_cells = np.vstack(temp_octree.octree_cells.tolist())
         mesh.origin = origin
@@ -184,7 +185,7 @@ class InversionMesh:
             attr = f"{dim}_cell_size"
             setattr(mesh, attr, np.abs(getattr(mesh, attr)))
 
-        indices = self._mesh._get_containing_cell_indexes(  # pylint: disable=W0212
+        indices = treemesh._get_containing_cell_indexes(  # pylint: disable=W0212
             mesh.centroids
         )
         ind = np.argsort(indices)
@@ -192,3 +193,5 @@ class InversionMesh:
             if child.values is None or isinstance(child.values, np.ndarray):
                 continue
             child.values = child.values[ind]
+
+        return treemesh
