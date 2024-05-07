@@ -25,7 +25,11 @@ from discretize import TensorMesh, TreeMesh
 from geoh5py import Workspace
 from geoh5py.objects import DrapeModel, Octree
 from octree_creation_app.params import OctreeParams
-from octree_creation_app.utils import octree_2_treemesh, treemesh_2_octree
+from octree_creation_app.utils import (
+    convert_octree_levels,
+    octree_2_treemesh,
+    treemesh_2_octree,
+)
 
 from simpeg_drivers.utils.utils import drape_2_tensor
 
@@ -110,14 +114,16 @@ class InversionMesh:
 
             if isinstance(self.entity, Octree):
 
-                self.entity = InversionMesh.ensure_cell_convention(self.entity)
+                self.ensure_cell_convention(self.entity)
 
                 if self.entity.rotation:
                     origin = self.entity.origin.tolist()
                     angle = self.entity.rotation[0]
                     self.rotation = {"origin": origin, "angle": angle}
 
-                self._mesh = octree_2_treemesh(self.entity)
+                if self._mesh is None:
+                    self._mesh = octree_2_treemesh(self.entity)
+
                 self._permutation = np.arange(self.entity.n_cells)
 
             elif isinstance(self.entity, DrapeModel) and self._mesh is None:
@@ -136,8 +142,7 @@ class InversionMesh:
 
         return self._permutation
 
-    @staticmethod
-    def ensure_cell_convention(mesh: Octree) -> Octree:
+    def ensure_cell_convention(self, mesh: Octree):
         """
         Shift origin and flip sign for negative cell size dimensions.
 
@@ -147,43 +152,43 @@ class InversionMesh:
             to maintain mesh geometry.
         """
 
-        if any([k < 0 for k in [mesh.u_cell_size, mesh.v_cell_size, mesh.w_cell_size]]):
+        if not any(
+            [k < 0 for k in [mesh.u_cell_size, mesh.v_cell_size, mesh.w_cell_size]]
+        ):
+            return
 
-            if mesh.rotation:
-                raise ValueError("Cannot convert negative cell sizes for rotated mesh.")
+        if mesh.rotation:
+            raise ValueError("Cannot convert negative cell sizes for rotated mesh.")
 
-            cell_sizes, origin = [], []
-            for axis, dim in zip("xyz", "uvw"):
-                n_cells = getattr(mesh, f"{dim}_count")
-                cell_size = getattr(mesh, f"{dim}_cell_size")
-                if cell_size < 0:
-                    origin.append(mesh.origin[axis] + n_cells * cell_size)
-                    cell_sizes.append([np.abs(cell_size)] * n_cells)
-                else:
-                    origin.append(mesh.origin[axis])
-                    cell_sizes.append([cell_size] * n_cells)
+        cell_sizes, origin = [], []
+        for axis, dim in zip("xyz", "uvw"):
+            n_cells = getattr(mesh, f"{dim}_count")
+            cell_size = getattr(mesh, f"{dim}_cell_size")
+            if cell_size < 0:
+                origin.append(mesh.origin[axis] + n_cells * cell_size)
+                cell_sizes.append([np.abs(cell_size)] * n_cells)
+            else:
+                origin.append(mesh.origin[axis])
+                cell_sizes.append([cell_size] * n_cells)
 
-            tree = TreeMesh(cell_sizes, origin)
-            tree.insert_cells(
-                points=mesh.centroids, levels=mesh.octree_cells["NCells"], finalize=True
-            )
+        self._mesh = TreeMesh(cell_sizes, origin)
+        levels = convert_octree_levels(mesh)
+        self._mesh.insert_cells(points=mesh.centroids, levels=levels, finalize=True)
 
-            temp_workspace = Workspace()
-            temp_octree = treemesh_2_octree(temp_workspace, tree)
+        temp_workspace = Workspace()
+        temp_octree = treemesh_2_octree(temp_workspace, self._mesh)
 
-            mesh.octree_cells = temp_octree.octree_cells.copy()
-            mesh.origin = origin
-            for dim in "uvw":
-                attr = f"{dim}_cell_size"
-                setattr(mesh, attr, np.abs(getattr(mesh, attr)))
+        mesh.octree_cells = temp_octree.octree_cells.copy()
+        mesh.origin = origin
+        for dim in "uvw":
+            attr = f"{dim}_cell_size"
+            setattr(mesh, attr, np.abs(getattr(mesh, attr)))
 
-            indices = tree._get_containing_cell_indexes(  # pylint: disable=W0212
-                mesh.centroids
-            )
-            ind = np.argsort(indices)
-            for child in mesh.children:
-                if child.values is None or isinstance(child.values, np.ndarray):
-                    continue
-                child.values = child.values[ind]
-
-        return mesh
+        indices = self._mesh._get_containing_cell_indexes(  # pylint: disable=W0212
+            mesh.centroids
+        )
+        ind = np.argsort(indices)
+        for child in mesh.children:
+            if child.values is None or isinstance(child.values, np.ndarray):
+                continue
+            child.values = child.values[ind]
