@@ -39,6 +39,47 @@ target_run = {
 }
 
 
+def test_tiling_ground_tem(
+    tmp_path: Path,
+    n_grid_points=4,
+    refinement=(2,),
+):
+    # Run the forward
+    geoh5, _, model, survey, topography = setup_inversion_workspace(
+        tmp_path,
+        background=0.001,
+        anomaly=1.0,
+        n_electrodes=n_grid_points,
+        n_lines=n_grid_points,
+        refinement=refinement,
+        inversion_type="ground_tem",
+        drape_height=5.0,
+        padding_distance=1000.0,
+        flatten=True,
+    )
+
+    params = TimeDomainElectromagneticsParams(
+        forward_only=True,
+        geoh5=geoh5,
+        mesh=model.parent.uid,
+        topography_object=topography.uid,
+        resolution=0.0,
+        z_from_topo=False,
+        data_object=survey.uid,
+        starting_model=model.uid,
+        x_channel_bool=True,
+        y_channel_bool=True,
+        z_channel_bool=True,
+        tile_spatial=2,
+    )
+    fwr_driver = TimeDomainElectromagneticsDriver(params)
+
+    tiles = fwr_driver.get_tiles()
+
+    for tile in tiles:
+        assert len(np.unique(survey.tx_id_property.values[tile])) == 1
+
+
 def test_ground_tem_fwr_run(
     tmp_path: Path,
     n_grid_points=4,
