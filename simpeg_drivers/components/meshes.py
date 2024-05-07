@@ -87,11 +87,11 @@ class InversionMesh:
         self.params = params
         self.inversion_data = inversion_data
         self.inversion_topography = inversion_topography
-        self._mesh: TreeMesh | TensorMesh | None = None
+        self.mesh: TreeMesh | TensorMesh | None = None
         self.n_cells: int | None = None
         self.rotation: dict[str, float] | None = None
-        self._permutation: np.ndarray | None = None
-        self.entity: Octree | DrapeModel | None = None
+        self.permutation: np.ndarray | None = None
+        self._entity: Octree | DrapeModel | None = None
         self._initialize()
 
     def _initialize(self) -> None:
@@ -123,47 +123,35 @@ class InversionMesh:
         self.n_cells = self.entity.n_cells
 
     @property
-    def mesh(self) -> TreeMesh | TensorMesh:
-        """"""
-        if self._mesh is None:
+    def entity(self) -> Octree | DrapeModel:
+        """Octree or DrapeModel object containing mesh data."""
+        return self._entity
 
-            if isinstance(self.entity, Octree):
+    @entity.setter
+    def entity(self, val: Octree | DrapeModel) -> None:
 
-                cell_sizes = [
-                    self.entity.u_cell_size,
-                    self.entity.v_cell_size,
-                    self.entity.w_cell_size,
-                ]
-                if any([k < 0 for k in cell_sizes]):
-                    # TODO: should implement this in octree-creation-app and build the behaviour
-                    # into the octree_2_treemesh function
-                    print("Negative cell sizes detected. Flipping origin and sign.")
-                    self._mesh = InversionMesh.ensure_cell_convention(self.entity)
-                else:
-                    self._mesh = octree_2_treemesh(self.entity)
+        if isinstance(val, Octree):
 
-                if self.entity.rotation:
-                    origin = self.entity.origin.tolist()
-                    angle = self.entity.rotation[0]
-                    self.rotation = {"origin": origin, "angle": angle}
+            self.permutation = np.arange(val.n_cells)
 
-                self._permutation = np.arange(self.entity.n_cells)
+            if val.rotation:
+                origin = val.origin.tolist()
+                angle = val.rotation[0]
+                self.rotation = {"origin": origin, "angle": angle}
 
-            elif isinstance(self.entity, DrapeModel) and self._mesh is None:
+            cell_sizes = [val.u_cell_size, val.u_cell_size, val.w_cell_size]
+            if any([k < 0 for k in cell_sizes]):
+                self.mesh = InversionMesh.ensure_cell_convention(val)
+            else:
+                self.mesh = octree_2_treemesh(val)
 
-                self._mesh, self._permutation = drape_2_tensor(
-                    self.entity, return_sorting=True
-                )
+        elif isinstance(val, DrapeModel):
+            self.mesh, self.permutation = drape_2_tensor(val, return_sorting=True)
 
-        return self._mesh
+        else:
+            raise ValueError("Entity must be of type Octree or DrapeModel.")
 
-    @property
-    def permutation(self) -> np.ndarray:
-        """Permutation vector between discretize and geoh5py/DrapeModel ordering."""
-        if self.mesh is None:
-            raise ValueError("A 'mesh' must be assigned before accessing permutation.")
-
-        return self._permutation
+        self._entity = val
 
     @staticmethod
     def ensure_cell_convention(mesh: Octree) -> TreeMesh | None:
