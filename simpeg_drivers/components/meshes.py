@@ -178,7 +178,7 @@ class InversionMesh:
         temp_workspace = Workspace()
         temp_octree = treemesh_2_octree(temp_workspace, self._mesh)
 
-        mesh.octree_cells = temp_octree.octree_cells.copy()
+        mesh.octree_cells = np.vstack(temp_octree.octree_cells.tolist())
         mesh.origin = origin
         for dim in "uvw":
             attr = f"{dim}_cell_size"
