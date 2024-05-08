@@ -35,9 +35,13 @@ if TYPE_CHECKING:
 
 
 # TODO: Import this from newer octree-creation-app release
-def convert_octree_levels(mesh):
+def tree_levels(mesh: Octree) -> np.ndarray | None:
     """
-    Convert octree cells indices and levels to CPP representation.
+    Convert Octree n cell indices to Treemesh level indices.
+
+    :param mesh: Octree object with n cell index.
+
+    :returns: Array of level indices.
     """
     if mesh.octree_cells is None:
         return None
@@ -179,7 +183,7 @@ class InversionMesh:
                 cell_sizes.append([cell_size] * n_cells)
 
         treemesh = TreeMesh(cell_sizes, origin)
-        levels = convert_octree_levels(mesh)
+        levels = tree_levels(mesh)
         treemesh.insert_cells(points=mesh.centroids, levels=levels, finalize=True)
 
         temp_workspace = Workspace()
