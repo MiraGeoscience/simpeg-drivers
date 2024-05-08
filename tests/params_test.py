@@ -7,9 +7,10 @@
 #  (see LICENSE file at the root of this source code package).                 '
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
+# pylint: disable=redefined-outer-name
+
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from uuid import UUID, uuid4
 
@@ -25,7 +26,6 @@ from geoh5py.shared.exceptions import (
 )
 from geoh5py.ui_json import InputFile
 from geoh5py.ui_json.utils import requires_value
-from geoh5py.workspace import Workspace
 
 from simpeg_drivers.electricals.direct_current.three_dimensions import (
     DirectCurrent3DParams,
@@ -38,40 +38,117 @@ from simpeg_drivers.potential_fields import (
     MagneticScalarParams,
     MagneticVectorParams,
 )
-
-from geoapps.inversion.electricals.direct_current.three_dimensions.constants import (
-    app_initializer as dc_initializer,
-)
-from geoapps.inversion.electricals.induced_polarization.three_dimensions.constants import (
-    app_initializer as ip_initializer,
-)
-from geoapps.inversion.potential_fields.gravity.constants import (
-    app_initializer as grav_init,
-)
-from geoapps.inversion.potential_fields.magnetic_scalar.constants import (
-    app_initializer as mag_initializer,
-)
-from geoapps.inversion.potential_fields.magnetic_vector.constants import (
-    app_initializer as mvi_init,
-)
-
-from . import PROJECT, PROJECT_DCIP
-
-# Setup
-geoh5 = Workspace(PROJECT)
+from simpeg_drivers.utils.testing import setup_inversion_workspace
 
 
-def tmp_input_file(filepath, idict):
-    with open(filepath, "w", encoding="utf-8") as f:
-        json.dump(idict, f)
+@pytest.fixture(scope="session")
+def mvi_params(tmp_path_factory):
+    geoh5, mesh, model, survey, topography = setup_inversion_workspace(
+        tmp_path_factory.mktemp("mvi"),
+        background=0.01,
+        anomaly=10,
+        n_electrodes=2,
+        n_lines=2,
+        flatten=False,
+    )
+    geoh5.close()
+    inducing_field = (50000.0, 90.0, 0.0)
+    params = MagneticVectorParams(
+        geoh5=geoh5,
+        mesh=model.parent.uid,
+        topography_object=topography.uid,
+        inducing_field_strength=inducing_field[0],
+        inducing_field_inclination=inducing_field[1],
+        inducing_field_declination=inducing_field[2],
+        z_from_topo=False,
+        data_object=survey.uid,
+        starting_model_object=model.parent.uid,
+        starting_model=model.uid,
+        starting_inclination=45,
+        starting_declination=270,
+    )
+    params.input_file.geoh5.open()
+
+    return params
 
 
-mvi_init["geoh5"] = str(PROJECT)
-mvi_params = MagneticVectorParams(**mvi_init)
-mvi_params.input_file.geoh5.open()
+@pytest.fixture(scope="session")
+def grav_params(tmp_path_factory):
+    geoh5, mesh, model, survey, topography = setup_inversion_workspace(
+        tmp_path_factory.mktemp("gravity"),
+        background=0.01,
+        anomaly=10,
+        n_electrodes=2,
+        n_lines=2,
+        flatten=False,
+    )
+    geoh5.close()
+    params = GravityParams(
+        **{
+            "geoh5": geoh5,
+            "data_object": survey,
+            "topography_object": topography,
+            "mesh": mesh,
+        }
+    )
+    params.input_file.geoh5.open()
+
+    return params
 
 
-def catch_invalid_generator(param, invalid_value, validation_type):
+@pytest.fixture(scope="session")
+def dc_params(tmp_path_factory):
+    geoh5, mesh, model, survey, topography = setup_inversion_workspace(
+        tmp_path_factory.mktemp("dcr"),
+        background=0.01,
+        anomaly=10,
+        n_electrodes=2,
+        n_lines=2,
+        inversion_type="dcip",
+        flatten=False,
+    )
+
+    geoh5.close()
+
+    params = DirectCurrent3DParams(
+        **{
+            "geoh5": geoh5,
+            "data_object": survey,
+            "topography_object": topography,
+            "mesh": mesh,
+        }
+    )
+    params.input_file.geoh5.open()
+
+    return params
+
+
+@pytest.fixture(scope="session")
+def ip_params(tmp_path_factory):
+    geoh5, mesh, model, survey, topography = setup_inversion_workspace(
+        tmp_path_factory.mktemp("dcr"),
+        background=0.01,
+        anomaly=10,
+        n_electrodes=2,
+        n_lines=2,
+        inversion_type="dcip",
+        flatten=False,
+    )
+    geoh5.close()
+    ip_params = InducedPolarization3DParams(
+        **{
+            "geoh5": geoh5,
+            "data_object": survey,
+            "topography": topography,
+            "mesh": mesh,
+        }
+    )
+    ip_params.input_file.geoh5.open()
+
+    return ip_params
+
+
+def catch_invalid_generator(params, field, invalid_value, validation_type):
     if validation_type == "value":
         err = ValueValidationError
     elif validation_type == "type":
@@ -86,27 +163,25 @@ def catch_invalid_generator(param, invalid_value, validation_type):
         err = AssociationValidationError
 
     with pytest.raises(err):
-        setattr(mvi_params, param, invalid_value)
+        setattr(params, field, invalid_value)
 
 
-def param_test_generator(param, value):
-    setattr(mvi_params, param, value)
-    pval = mvi_params.input_file.data[param]
+def param_test_generator(params, param, value):
+    setattr(params, param, value)
+    pval = params.input_file.data[param]
     if hasattr(pval, "uid"):
         pval = pval.uid
 
     assert pval == value
 
 
-def test_write_input_file_validation(tmp_path: Path):
-    grav_init["geoh5"] = str(PROJECT)
-    params = GravityParams(validate=False, **grav_init)
-    params.topography_object = None
-    params.validate = True
-    with pytest.raises(OptionalValidationError) as excinfo:
-        params.write_input_file(name="test.ui.json", path=tmp_path)
+def test_write_input_file_validation(tmp_path, mvi_params):
+    test_dict = mvi_params.to_dict()
+    test_dict.pop("topography_object")
+    params = MagneticVectorParams(**test_dict)  # pylint: disable=repeated-keyword
 
-    assert "topography_object" in str(excinfo.value)
+    with pytest.raises(OptionalValidationError, match="topography_object"):
+        params.write_input_file(name="test.ui.json", path=tmp_path)
 
 
 def test_params_initialize():
@@ -206,1683 +281,312 @@ def test_update():
     assert params.starting_model == 99.0
 
 
-def test_chunk_validation_mvi(tmp_path: Path):
-    test_dict = dict(mvi_init, **{"geoh5": geoh5})
+def test_chunk_validation_mvi(tmp_path, mvi_params):
+    test_dict = mvi_params.to_dict()
     test_dict.pop("data_object")
     params = MagneticVectorParams(**test_dict)  # pylint: disable=repeated-keyword
-    with pytest.raises(RequiredValidationError) as excinfo:
+    with pytest.raises(
+        RequiredValidationError, match="Missing required parameter: 'data_object'"
+    ):
         params.write_input_file(name="test.ui.json", path=tmp_path)
-    for a in ["Missing required parameter", "data_object"]:
-        assert a in str(excinfo.value)
 
 
-def test_chunk_validation_mag(tmp_path: Path):
-    test_dict = dict(mag_initializer, **{"geoh5": geoh5})
+def test_chunk_validation_mag(tmp_path: Path, mvi_params):
+    test_dict = mvi_params.to_dict()
     test_dict["inducing_field_strength"] = None
-    params = MagneticScalarParams(**test_dict)  # pylint: disable=repeated-keyword
-    with pytest.raises(OptionalValidationError) as excinfo:
+    params = MagneticVectorParams(**test_dict)
+    with pytest.raises(
+        OptionalValidationError,
+        match="Cannot set a None value to non-optional parameter: inducing_field_strength.",
+    ):
         params.write_input_file(name="test.ui.json", path=tmp_path)
-    for a in ["Cannot set a None", "inducing_field_strength"]:
-        assert a in str(excinfo.value)
 
 
-def test_chunk_validation_grav(tmp_path: Path):
-    test_dict = dict(grav_init, **{"geoh5": geoh5})
+def test_chunk_validation_grav(tmp_path: Path, grav_params):
+    test_dict = grav_params.to_dict()
     params = GravityParams(**test_dict)  # pylint: disable=repeated-keyword
     params.topography_object = None
-    with pytest.raises(OptionalValidationError) as excinfo:
+    with pytest.raises(
+        OptionalValidationError,
+        match="Cannot set a None value to non-optional parameter: topography_object.",
+    ):
         params.write_input_file(name="test.ui.json", path=tmp_path)
-    for a in ["Cannot set a None", "topography_object"]:
-        assert a in str(excinfo.value)
 
 
-def test_chunk_validation_dc(tmp_path: Path):
-    with Workspace(PROJECT_DCIP) as dc_geoh5:
-        test_dict = dc_initializer.copy()
-        test_dict.update({"geoh5": dc_geoh5})
-        test_dict.pop("topography_object")
-        params = DirectCurrent3DParams(**test_dict)  # pylint: disable=repeated-keyword
-
-        with pytest.raises(OptionalValidationError) as excinfo:
-            params.write_input_file(name="test.ui.json", path=tmp_path)
-        for a in ["Cannot set a None value", "topography_object"]:
-            assert a in str(excinfo.value)
+def test_active_set(mvi_params):
+    assert "inversion_type" in mvi_params.active_set()
+    assert "mesh" in mvi_params.active_set()
 
 
-def test_chunk_validation_ip(tmp_path: Path):
-    with Workspace(PROJECT_DCIP) as dc_geoh5:
-        test_dict = ip_initializer.copy()
-        test_dict.update({"geoh5": dc_geoh5})
-        test_dict.pop("topography_object")
-        params = InducedPolarization3DParams(
-            **test_dict
-        )  # pylint: disable=repeated-keyword
-
-        with pytest.raises(OptionalValidationError) as excinfo:
-            params.write_input_file(name="test.ui.json", path=tmp_path)
-        for a in ["Cannot set a None", "topography_object"]:
-            assert a in str(excinfo.value)
-
-
-def test_active_set():
-    test_dict = dict(mvi_init, **{"geoh5": geoh5})
-    params = MagneticVectorParams(**test_dict)  # pylint: disable=repeated-keyword
-    assert "inversion_type" in params.active_set()
-    assert "mesh" in params.active_set()
-
-
-def test_validate_inversion_type():
+def test_validate_inversion_type(mvi_params):
     param = "inversion_type"
     newval = "magnetic vector"
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "em", "value")
+    param_test_generator(mvi_params, param, newval)
+    catch_invalid_generator(mvi_params, param, "em", "value")
 
 
-def test_validate_inducing_field_strength():
+def test_validate_inducing_field_strength(mvi_params):
     param = "inducing_field_strength"
     newval = 60000.0
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "type")
+    param_test_generator(mvi_params, param, newval)
+    catch_invalid_generator(mvi_params, param, "test", "type")
 
 
-def test_validate_inducing_field_inclination():
+def test_validate_inducing_field_inclination(mvi_params):
     param = "inducing_field_inclination"
     newval = 44.0
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "type")
+    param_test_generator(mvi_params, param, newval)
+    catch_invalid_generator(mvi_params, param, "test", "type")
 
 
-def test_validate_inducing_field_declination():
+def test_validate_inducing_field_declination(mvi_params):
     param = "inducing_field_declination"
     newval = 9.0
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "type")
+    param_test_generator(mvi_params, param, newval)
+    catch_invalid_generator(mvi_params, param, "test", "type")
 
 
-def test_validate_topography_object():
+def test_validate_topography_object(mvi_params):
     param = "topography_object"
     newval = UUID("{79b719bc-d996-4f52-9af0-10aa9c7bb941}")
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, True, "type")
-    catch_invalid_generator(param, "lsdkfj", "uuid")
-    catch_invalid_generator(param, "", "uuid")
+    catch_invalid_generator(mvi_params, param, newval, "association")
+    catch_invalid_generator(mvi_params, param, True, "type")
+    catch_invalid_generator(mvi_params, param, "lsdkfj", "uuid")
+    catch_invalid_generator(mvi_params, param, "", "uuid")
 
 
-def test_validate_topography():
+def test_validate_topography(mvi_params):
     param = "topography"
-    mvi_params.topography_object = UUID("{ab3c2083-6ea8-4d31-9230-7aad3ec09525}")
-    newval = UUID("{a603a762-f6cb-4b21-afda-3160e725bf7d}")
-    param_test_generator(param, newval)
     newval = UUID("{79b719bc-d996-4f52-9af0-10aa9c7bb941}")
-    catch_invalid_generator(param, newval, "association")
+    catch_invalid_generator(mvi_params, param, newval, "association")
     newval = "abc"
-    catch_invalid_generator(param, newval, "uuid")
+    catch_invalid_generator(mvi_params, param, newval, "uuid")
 
 
-def test_validate_data_object():
+def test_validate_data_object(mvi_params):
     param = "data_object"
-    newval = UUID("{538a7eb1-2218-4bec-98cc-0a759aa0ef4f}")
-    param_test_generator(param, newval)
     newval = uuid4()
-    catch_invalid_generator(param, newval, "association")
-    catch_invalid_generator(param, 2, "type")
+    catch_invalid_generator(mvi_params, param, newval, "association")
+    catch_invalid_generator(mvi_params, param, 2, "type")
 
 
-def test_validate_tmi_channel():
-    param = "tmi_channel"
-    newval = UUID("{44822654-b6ae-45b0-8886-2d845f80f422}")
-    param_test_generator(param, newval)
-    newval = uuid4()
-    catch_invalid_generator(param, newval, "association")
-    catch_invalid_generator(param, 4, "type")
-
-
-def test_validate_tmi_uncertainty():
-    param = "tmi_uncertainty"
-    param_test_generator(param, 1.0)
-    newval = uuid4()
-    catch_invalid_generator(param, newval, "association")
-    catch_invalid_generator(param, {}, "type")
-
-
-def test_validate_starting_model():
+def test_validate_starting_model(mvi_params):
     param = "starting_model"
-    param_test_generator(param, 1.0)
+    param_test_generator(mvi_params, param, 1.0)
     newval = uuid4()
-    catch_invalid_generator(param, newval, "association")
-    catch_invalid_generator(param, {}, "type")
+    catch_invalid_generator(mvi_params, param, newval, "association")
+    catch_invalid_generator(mvi_params, param, {}, "type")
 
 
-def test_validate_starting_inclination():
+def test_validate_starting_inclination(mvi_params):
     param = "starting_inclination"
-    param_test_generator(param, 1.0)
+    param_test_generator(mvi_params, param, 1.0)
     newval = uuid4()
-    catch_invalid_generator(param, newval, "association")
-    catch_invalid_generator(param, {}, "type")
+    catch_invalid_generator(mvi_params, param, newval, "association")
+    catch_invalid_generator(mvi_params, param, {}, "type")
 
 
-def test_validate_starting_declination():
+def test_validate_starting_declination(mvi_params):
     param = "starting_declination"
-    param_test_generator(param, 1.0)
+    param_test_generator(mvi_params, param, 1.0)
     newval = uuid4()
-    catch_invalid_generator(param, newval, "association")
-    catch_invalid_generator(param, {}, "type")
+    catch_invalid_generator(mvi_params, param, newval, "association")
+    catch_invalid_generator(mvi_params, param, {}, "type")
 
 
-def test_validate_tile_spatial():
+def test_validate_tile_spatial(mvi_params):
     param = "tile_spatial"
     newval = 9
     invalidval = {}
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, invalidval, "type")
+    param_test_generator(mvi_params, param, newval)
+    catch_invalid_generator(mvi_params, param, invalidval, "type")
 
 
-def test_validate_receivers_radar_drape():
+def test_validate_receivers_radar_drape(mvi_params):
     param = "receivers_radar_drape"
-    newval = UUID("{44822654-b6ae-45b0-8886-2d845f80f422}")
-    param_test_generator(param, newval)
     newval = uuid4()
-    catch_invalid_generator(param, newval, "association")
-    catch_invalid_generator(param, {}, "type")
-
-
-def test_validate_receivers_offset_z():
-    param = "receivers_offset_z"
-    newval = 99.0
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "type")
-
-
-def test_validate_max_chunk_size():
-    param = "max_chunk_size"
-    newval = 256
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "asdf", "type")
-
-
-def test_validate_chunk_by_rows():
-    param = "chunk_by_rows"
-    newval = True
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "sdf", "type")
-
-
-def test_validate_output_tile_files():
-    param = "output_tile_files"
-    newval = True
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "sdf", "type")
-
-
-def test_validate_mesh():
-    param = "mesh"
-    newval = UUID("{c02e0470-0c3e-4119-8ac1-0aacba5334af}")
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, {}, "type")
-
-
-def test_validate_inversion_style():
-    param = "inversion_style"
-    newval = "voxel"
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, 123, "type")
-
-
-def test_validate_chi_factor():
-    param = "chi_factor"
-    newval = 0.5
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "type")
-
-
-def test_sens_wts_threshold():
-    param = "sens_wts_threshold"
-    newval = 0.1
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "type")
-
-
-def test_every_iteration_bool():
-    param = "every_iteration_bool"
-    newval = True
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "type")
-
-
-def test_f_min_change():
-    param = "f_min_change"
-    newval = 1e-3
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "type")
-
-
-def test_beta_tol():
-    param = "beta_tol"
-    newval = 0.2
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "type")
-
-
-def test_prctile():
-    param = "prctile"
-    newval = 90
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "type")
-
-
-def test_coolingRate():
-    param = "coolingRate"
-    newval = 3
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "type")
-
-
-def test_coolingFactor():
-    param = "coolingFactor"
-    newval = 4.0
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "type")
-
-
-def test_coolEps_q():
-    param = "coolEps_q"
-    newval = False
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "type")
-
-
-def test_coolEpsFact():
-    param = "coolEpsFact"
-    newval = 1.1
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "type")
-
-
-def test_beta_search():
-    param = "beta_search"
-    newval = True
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "type")
-
-
-def test_starting_chi_factor():
-    param = "starting_chi_factor"
-    newval = 2.0
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "type")
-
-
-def test_validate_max_global_iterations():
-    param = "max_global_iterations"
-    newval = 2
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "type")
-
-
-def test_validate_max_irls_iterations():
-    param = "max_irls_iterations"
-    newval = 1
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "type")
-
-
-def test_validate_max_cg_iterations():
-    param = "max_cg_iterations"
-    newval = 2
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "type")
-
-
-def test_validate_initial_beta():
-    param = "initial_beta"
-    newval = 2.0
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "type")
-
-
-def test_validate_initial_beta_ratio():
-    param = "initial_beta_ratio"
-    newval = 0.5
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "type")
-
-
-def test_validate_tol_cg():
-    param = "tol_cg"
-    newval = 0.1
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "type")
-
-
-def test_validate_alpha_s():
-    param = "alpha_s"
-    newval = 0.1
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "type")
-
-
-def test_validate_length_scale_x():
-    param = "length_scale_x"
-    newval = 0.1
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "type")
-
-
-def test_validate_length_scale_y():
-    param = "length_scale_y"
-    newval = 0.1
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "type")
-
-
-def test_validate_length_scale_z():
-    param = "length_scale_z"
-    newval = 0.1
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "type")
-
-
-def test_validate_s_norm():
-    param = "s_norm"
-    newval = 0.5
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "type")
-
-
-def test_validate_x_norm():
-    param = "x_norm"
-    newval = 0.5
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "type")
-
-
-def test_validate_y_norm():
-    param = "y_norm"
-    newval = 0.5
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "type")
-
-
-def test_validate_z_norm():
-    param = "z_norm"
-    newval = 0.5
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "type")
-
-
-def test_validate_reference_model():
-    param = "reference_model"
-    newval = 99.0
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, {}, "type")
-
-
-def test_validate_reference_inclination():
-    param = "reference_inclination"
-    newval = 99.0
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, {}, "type")
-
-
-def test_validate_reference_declination():
-    param = "reference_declination"
-    newval = 99.0
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, {}, "type")
-
-
-def test_validate_gradient_type():
-    param = "gradient_type"
-    newval = "components"
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "value")
-
-
-def test_validate_lower_bound():
-    param = "lower_bound"
-    newval = -1000
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, {}, "type")
-
-
-def test_validate_upper_bound():
-    param = "upper_bound"
-    newval = 1000
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, {}, "type")
-
-
-def test_validate_parallelized():
-    param = "parallelized"
-    newval = False
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "type")
-
-
-def test_validate_n_cpu():
-    param = "n_cpu"
-    newval = 12
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, "test", "type")
-
-
-grav_params_fwr = GravityParams(
-    **{
-        "geoh5": str(PROJECT),
-        "data_object": UUID("{538a7eb1-2218-4bec-98cc-0a759aa0ef4f}"),
-    },
-    forward_only=True,
+    catch_invalid_generator(mvi_params, param, newval, "association")
+    catch_invalid_generator(mvi_params, param, {}, "type")
+
+
+@pytest.mark.parametrize(
+    "param,newval,value,error_type",
+    [
+        ("receivers_offset_z", 99.0, "test", "type"),
+        ("max_chunk_size", 256, "asdf", "type"),
+        ("chunk_by_rows", True, "sdf", "type"),
+        ("output_tile_files", True, "sdf", "type"),
+        ("inversion_style", "voxel", 123, "type"),
+        ("chi_factor", 0.5, "test", "type"),
+        ("sens_wts_threshold", 0.1, "test", "type"),
+        ("every_iteration_bool", True, "test", "type"),
+        ("f_min_change", 1e-3, "test", "type"),
+        ("beta_tol", 0.2, "test", "type"),
+        ("prctile", 90, "test", "type"),
+        ("coolingRate", 3, "test", "type"),
+        ("coolingFactor", 4.0, "test", "type"),
+        ("coolEps_q", False, "test", "type"),
+        ("coolEpsFact", 1.1, "test", "type"),
+        ("beta_search", True, "test", "type"),
+        ("starting_chi_factor", 2.0, "test", "type"),
+        ("max_global_iterations", 2, "test", "type"),
+        ("max_irls_iterations", 1, "test", "type"),
+        ("max_cg_iterations", 2, "test", "type"),
+        ("initial_beta", 2.0, "test", "type"),
+        ("initial_beta_ratio", 0.5, "test", "type"),
+        ("tol_cg", 0.1, "test", "type"),
+        ("alpha_s", 0.1, "test", "type"),
+        ("length_scale_x", 0.1, "test", "type"),
+        ("length_scale_y", 0.1, "test", "type"),
+        ("length_scale_z", 0.1, "test", "type"),
+        ("s_norm", 0.5, "test", "type"),
+        ("x_norm", 0.5, "test", "type"),
+        ("y_norm", 0.5, "test", "type"),
+        ("z_norm", 0.5, "test", "type"),
+        ("reference_model", 99.0, {}, "type"),
+        ("reference_inclination", 99.0, {}, "type"),
+        ("reference_declination", 99.0, {}, "type"),
+        ("gradient_type", "components", "test", "value"),
+        ("lower_bound", -1000, {}, "type"),
+        ("upper_bound", 1000, {}, "type"),
+        ("parallelized", False, "test", "type"),
+        ("n_cpu", 12, "test", "type"),
+    ],
 )
-grav_params_fwr.input_file.geoh5.open()
-grav_params = GravityParams(
-    **{
-        "geoh5": str(PROJECT),
-        "data_object": UUID("{538a7eb1-2218-4bec-98cc-0a759aa0ef4f}"),
-    },
-)
-grav_params.input_file.geoh5.open()
+def test_validate_inversion_parameters(
+    mvi_params, param, newval, value, error_type
+):  # pylint: disable=expression-not-assigned
+    param_test_generator(mvi_params, param, newval)
+    catch_invalid_generator(mvi_params, param, value, error_type),
 
 
-def test_validate_geoh5():
-    with pytest.raises(TypeValidationError) as excinfo:
-        grav_params.geoh5 = 4
+def test_validate_geoh5(mvi_params):
+    with pytest.raises(
+        TypeValidationError,
+        match="Must be one of: 'str', 'Path', 'Workspace', 'NoneType'.",
+    ):
+        mvi_params.geoh5 = 4
 
-    assert all(
-        [k in str(excinfo.value) for k in ["geoh5", "Type", "int", "str", "Workspace"]]
-    )
 
-
-def test_validate_out_group():
+def test_validate_out_group(mvi_params):
     param = "out_group"
     newval = "test_"
     with pytest.raises(UUIDValidationError, match="not a valid uuid string"):
-        param_test_generator(param, newval)
+        param_test_generator(mvi_params, param, newval)
 
 
-def test_validate_distributed_workers():
+def test_validate_distributed_workers(mvi_params):
     param = "distributed_workers"
     newval = "one, two"
-    param_test_generator(param, newval)
-    catch_invalid_generator(param, 123, "type")
+    param_test_generator(mvi_params, param, newval)
+    catch_invalid_generator(mvi_params, param, 123, "type")
 
 
-def test_gravity_inversion_type():
-    with pytest.raises(ValueValidationError) as excinfo:
+@pytest.mark.parametrize(
+    "channel", ["tmi", "bx", "by", "bz", "bxy", "bxz", "byz", "bxx", "byy", "bzz"]
+)
+def test_mag_data(mvi_params, channel):
+    with pytest.raises(AssociationValidationError):
+        setattr(mvi_params, f"{channel}_channel", uuid4())
+
+    with pytest.raises(
+        TypeValidationError,
+        match="Must be one of: 'str', 'UUID', 'Entity', 'NoneType'.",
+    ):
+        setattr(mvi_params, f"{channel}_channel", 4)
+
+    with pytest.raises(AssociationValidationError):
+        setattr(mvi_params, f"{channel}_uncertainty", uuid4())
+
+    with pytest.raises(
+        TypeValidationError,
+        match="Must be one of: 'str', 'UUID', 'int', 'float', 'Entity', 'NoneType'.",
+    ):
+        setattr(mvi_params, f"{channel}_uncertainty", mvi_params.geoh5)
+
+
+def test_gravity_inversion_type(grav_params):
+    with pytest.raises(
+        ValueValidationError, match="'inversion_type' is invalid. Must be: 'gravity'"
+    ):
         grav_params.inversion_type = "alskdj"
 
-    assert all(
-        [s in str(excinfo.value) for s in ["inversion_type", "alskdj", "gravity"]]
-    )
 
-
-def test_gz_channel_bool():
-    with pytest.raises(TypeValidationError) as excinfo:
-        grav_params_fwr.gz_channel_bool = "alskdj"
-
-    assert all(
-        [s in str(excinfo.value) for s in ["gz_channel_bool", "Type", "str", "bool"]]
-    )
-
-
-def test_gz_channel():
-    with pytest.raises(AssociationValidationError):
-        grav_params.gz_channel = uuid4()
-
-    with pytest.raises(TypeValidationError) as excinfo:
-        grav_params.gz_channel = 4
-
-    assert all(
-        [s in str(excinfo.value) for s in ["gz_channel", "Type", "int", "str", "UUID"]]
-    )
-
-
-def test_gz_uncertainty():
-    with pytest.raises(AssociationValidationError):
-        grav_params.gz_uncertainty = uuid4()
-
-    grav_params.gz_uncertainty = 4.0
-    with pytest.raises(TypeValidationError) as excinfo:
-        grav_params.gz_uncertainty = geoh5
-
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in [
-                "gz_uncertainty",
-                "Type",
-                "Workspace",
-                "str",
-                "int",
-                "float",
-                "UUID",
-            ]
-        ]
-    )
-
-
-def test_guv_channel_bool():
-    with pytest.raises(TypeValidationError) as excinfo:
-        grav_params_fwr.guv_channel_bool = "alskdj"
-
-    assert all(
-        [s in str(excinfo.value) for s in ["guv_channel_bool", "Type", "str", "bool"]]
-    )
-
-
-def test_guv_channel():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        grav_params.guv_channel = uuid4()
-
-    with pytest.raises(TypeValidationError) as excinfo:
-        grav_params.guv_channel = 4
-
-    assert all(
-        [s in str(excinfo.value) for s in ["guv_channel", "Type", "int", "str", "UUID"]]
-    )
-
-
-def test_guv_uncertainty():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        grav_params.guv_uncertainty = uuid4()
-
-    grav_params.guv_uncertainty = 4.0
-    with pytest.raises(TypeValidationError) as excinfo:
-        grav_params.guv_uncertainty = geoh5
-
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in [
-                "guv_uncertainty",
-                "Type",
-                "Workspace",
-                "str",
-                "int",
-                "float",
-                "UUID",
-            ]
-        ]
-    )
-
-
-def test_gxy_channel_bool():
-    with pytest.raises(TypeValidationError) as excinfo:
-        grav_params_fwr.gxy_channel_bool = "alskdj"
-
-    assert all(
-        [s in str(excinfo.value) for s in ["gxy_channel_bool", "Type", "str", "bool"]]
-    )
-
-
-def test_gxy_channel():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        grav_params.gxy_channel = uuid4()
-
-    with pytest.raises(TypeValidationError) as excinfo:
-        grav_params.gxy_channel = 4
-
-    assert all(
-        [s in str(excinfo.value) for s in ["gxy_channel", "Type", "int", "str", "UUID"]]
-    )
-
-
-def test_gxy_uncertainty():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        grav_params.gxy_uncertainty = uuid4()
-
-    grav_params.gxy_uncertainty = 4.0
-    with pytest.raises(TypeValidationError) as excinfo:
-        grav_params.gxy_uncertainty = geoh5
-
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in [
-                "gxy_uncertainty",
-                "Type",
-                "Workspace",
-                "str",
-                "int",
-                "float",
-                "UUID",
-            ]
-        ]
-    )
-
-
-def test_gxx_channel_bool():
-    with pytest.raises(TypeValidationError) as excinfo:
-        grav_params_fwr.gxx_channel_bool = "alskdj"
-
-    assert all(
-        [s in str(excinfo.value) for s in ["gxx_channel_bool", "Type", "str", "bool"]]
-    )
-
-
-def test_gxx_channel():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        grav_params.gxx_channel = uuid4()
-
-    with pytest.raises(TypeValidationError) as excinfo:
-        grav_params.gxx_channel = 4
-
-    assert all(
-        [s in str(excinfo.value) for s in ["gxx_channel", "Type", "int", "str", "UUID"]]
-    )
-
-
-def test_gxx_uncertainty():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        grav_params.gxx_uncertainty = uuid4()
-
-    grav_params.gxx_uncertainty = 4
-    with pytest.raises(TypeValidationError) as excinfo:
-        grav_params.gxx_uncertainty = geoh5
-
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in [
-                "gxx_uncertainty",
-                "Type",
-                "Workspace",
-                "str",
-                "int",
-                "float",
-                "UUID",
-            ]
-        ]
-    )
-
-
-def test_gyy_channel_bool():
-    with pytest.raises(TypeValidationError) as excinfo:
-        grav_params_fwr.gyy_channel_bool = "alskdj"
-
-    assert all(
-        [s in str(excinfo.value) for s in ["gyy_channel_bool", "Type", "str", "bool"]]
-    )
-
-
-def test_gyy_channel():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        grav_params.gyy_channel = uuid4()
-
-    with pytest.raises(TypeValidationError) as excinfo:
-        grav_params.gyy_channel = 4
-
-    assert all(
-        [s in str(excinfo.value) for s in ["gyy_channel", "Type", "int", "str", "UUID"]]
-    )
-
-
-def test_gyy_uncertainty():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        grav_params.gyy_uncertainty = uuid4()
-
-    grav_params.gyy_uncertainty = 4.0
-    with pytest.raises(TypeValidationError) as excinfo:
-        grav_params.gyy_uncertainty = geoh5
-
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in [
-                "gyy_uncertainty",
-                "Type",
-                "Workspace",
-                "str",
-                "int",
-                "float",
-                "UUID",
-            ]
-        ]
-    )
-
-
-def test_gzz_channel_bool():
-    with pytest.raises(TypeValidationError) as excinfo:
-        grav_params_fwr.gzz_channel_bool = "alskdj"
-
-    assert all(
-        [s in str(excinfo.value) for s in ["gzz_channel_bool", "Type", "str", "bool"]]
-    )
-
-
-def test_gzz_channel():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        grav_params.gzz_channel = uuid4()
-
-    with pytest.raises(TypeValidationError) as excinfo:
-        grav_params.gzz_channel = 4
-
-    assert all(
-        [s in str(excinfo.value) for s in ["gzz_channel", "Type", "int", "str", "UUID"]]
-    )
-
-
-def test_gzz_uncertainty():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        grav_params.gzz_uncertainty = uuid4()
-
-    grav_params.gzz_uncertainty = 4.0
-    with pytest.raises(TypeValidationError) as excinfo:
-        grav_params.gzz_uncertainty = geoh5
-
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in [
-                "gzz_uncertainty",
-                "Type",
-                "Workspace",
-                "str",
-                "int",
-                "float",
-                "UUID",
-            ]
-        ]
-    )
-
-
-def test_gxz_channel_bool():
-    with pytest.raises(TypeValidationError) as excinfo:
-        grav_params_fwr.gxz_channel_bool = "alskdj"
-
-    assert all(
-        [s in str(excinfo.value) for s in ["gxz_channel_bool", "Type", "str", "bool"]]
-    )
-
-
-def test_gxz_channel():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        grav_params.gxz_channel = uuid4()
-
-    with pytest.raises(TypeValidationError) as excinfo:
-        grav_params.gxz_channel = 4
-
-    assert all(
-        [s in str(excinfo.value) for s in ["gxz_channel", "Type", "int", "str", "UUID"]]
-    )
-
-
-def test_gxz_uncertainty():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        grav_params.gxz_uncertainty = uuid4()
-
-    grav_params.gxz_uncertainty = 4.0
-    with pytest.raises(TypeValidationError) as excinfo:
-        grav_params.gxz_uncertainty = geoh5
-
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in [
-                "gxz_uncertainty",
-                "Type",
-                "Workspace",
-                "str",
-                "int",
-                "float",
-                "UUID",
-            ]
-        ]
-    )
-
-
-def test_gyz_channel_bool():
-    with pytest.raises(TypeValidationError) as excinfo:
-        grav_params_fwr.gyz_channel_bool = "alskdj"
-
-    assert all(
-        [s in str(excinfo.value) for s in ["gyz_channel_bool", "Type", "str", "bool"]]
-    )
-
-
-def test_gyz_channel():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        grav_params.gyz_channel = uuid4()
-
-    with pytest.raises(TypeValidationError) as excinfo:
-        grav_params.gyz_channel = 4
-
-    assert all(
-        [s in str(excinfo.value) for s in ["gyz_channel", "Type", "int", "str", "UUID"]]
-    )
-
-
-def test_gyz_uncertainty():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        grav_params.gyz_uncertainty = uuid4()
-
-    grav_params.gyz_uncertainty = 4.0
-    with pytest.raises(TypeValidationError) as excinfo:
-        grav_params.gyz_uncertainty = geoh5
-
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in [
-                "gyz_uncertainty",
-                "Type",
-                "Workspace",
-                "str",
-                "int",
-                "float",
-                "UUID",
-            ]
-        ]
-    )
-
-
-def test_gx_channel_bool():
-    with pytest.raises(TypeValidationError) as excinfo:
-        grav_params_fwr.gx_channel_bool = "alskdj"
-
-    assert all(
-        [s in str(excinfo.value) for s in ["gx_channel_bool", "Type", "str", "bool"]]
-    )
-
-
-def test_gx_channel():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        grav_params.gx_channel = uuid4()
-
-    with pytest.raises(TypeValidationError) as excinfo:
-        grav_params.gx_channel = 4
-
-    assert all(
-        [s in str(excinfo.value) for s in ["gx_channel", "Type", "int", "str", "UUID"]]
-    )
-
-
-def test_gx_uncertainty():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        grav_params.gx_uncertainty = uuid4()
-
-    grav_params.gx_uncertainty = 4.0
-    with pytest.raises(TypeValidationError) as excinfo:
-        grav_params.gx_uncertainty = geoh5
-
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in [
-                "gx_uncertainty",
-                "Type",
-                "Workspace",
-                "str",
-                "int",
-                "float",
-                "UUID",
-            ]
-        ]
-    )
-
-
-def test_gy_channel_bool():
-    with pytest.raises(TypeValidationError) as excinfo:
-        grav_params_fwr.gy_channel_bool = "alskdj"
-
-    assert all(
-        [s in str(excinfo.value) for s in ["gy_channel_bool", "Type", "str", "bool"]]
-    )
-
-
-def test_gy_channel():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        grav_params.gy_channel = uuid4()
-
-    with pytest.raises(TypeValidationError) as excinfo:
-        grav_params.gy_channel = 4
-
-    assert all(
-        [s in str(excinfo.value) for s in ["gy_channel", "Type", "int", "str", "UUID"]]
-    )
-
-
-def test_gy_uncertainty():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        grav_params.gy_uncertainty = uuid4()
-
-    grav_params.gy_uncertainty = 4.0
-    with pytest.raises(TypeValidationError) as excinfo:
-        grav_params.gy_uncertainty = geoh5
-
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in [
-                "gy_uncertainty",
-                "Type",
-                "Workspace",
-                "str",
-                "int",
-                "float",
-                "UUID",
-            ]
-        ]
-    )
-
-
-mag_params_fwr = MagneticScalarParams(
-    **{
-        "geoh5": str(PROJECT),
-        "data_object": UUID("{538a7eb1-2218-4bec-98cc-0a759aa0ef4f}"),
-    },
-    forward_only=True,
+@pytest.mark.parametrize(
+    "channel", ["gz", "gy", "gz", "guv", "gxy", "gxz", "gyz", "gxx", "gyy", "gzz"]
 )
-mag_params = MagneticScalarParams(
-    **{
-        "geoh5": str(PROJECT),
-        "data_object": UUID("{538a7eb1-2218-4bec-98cc-0a759aa0ef4f}"),
-    }
-)
-mag_params.geoh5.open()
+def test_grav_data(grav_params, channel):
+    with pytest.raises(AssociationValidationError):
+        setattr(grav_params, f"{channel}_channel", uuid4())
 
+    with pytest.raises(
+        TypeValidationError,
+        match="Must be one of: 'str', 'UUID', 'Entity', 'NoneType'.",
+    ):
+        setattr(grav_params, f"{channel}_channel", 4)
 
-def test_magnetic_scalar_inversion_type():
-    with pytest.raises(ValueValidationError) as excinfo:
-        mag_params.inversion_type = "alskdj"
+    with pytest.raises(AssociationValidationError):
+        setattr(grav_params, f"{channel}_uncertainty", uuid4())
 
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in ["inversion_type", "alskdj", "magnetic scalar"]
-        ]
-    )
+    with pytest.raises(
+        TypeValidationError,
+        match="Must be one of: 'str', 'UUID', 'int', 'float', 'Entity', 'NoneType'.",
+    ):
+        setattr(grav_params, f"{channel}_uncertainty", grav_params.geoh5)
 
 
-def test_inducing_field_strength():
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params.inducing_field_strength = "alskdj"
+def test_direct_current_inversion_type(dc_params):
+    with pytest.raises(ValueValidationError, match="Must be: 'direct current 3d'"):
+        dc_params.inversion_type = "alskdj"
 
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in ["inducing_field_strength", "Type", "str", "float"]
-        ]
-    )
 
+def test_direct_current_data_object(dc_params):
+    with pytest.raises(
+        TypeValidationError, match="Must be one of: 'UUID', 'PotentialElectrode'."
+    ):
+        dc_params.data_object = 4
 
-def test_inducing_field_inclination():
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params.inducing_field_inclination = "alskdj"
 
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in ["inducing_field_inclination", "Type", "str", "float"]
-        ]
-    )
+def test_potential_channel(dc_params):
+    with pytest.raises(
+        TypeValidationError, match="Must be one of: 'str', 'UUID', 'Entity'."
+    ):
+        dc_params.potential_channel = 4
 
 
-def test_inducing_field_declination():
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params.inducing_field_declination = "alskdj"
+def test_potential_uncertainty(dc_params):
+    with pytest.raises(
+        TypeValidationError,
+        match="Must be one of: 'str', 'UUID', 'int', 'float', 'Entity'.",
+    ):
+        dc_params.potential_uncertainty = dc_params.geoh5
 
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in ["inducing_field_declination", "Type", "str", "float"]
-        ]
-    )
 
+def test_induced_polarization_inversion_type(ip_params):
+    with pytest.raises(
+        ValueValidationError, match="Must be: 'induced polarization 3d'"
+    ):
+        ip_params.inversion_type = "alskdj"
 
-def test_tmi_channel_bool():
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params_fwr.tmi_channel_bool = "alskdj"
 
-    assert all(
-        [s in str(excinfo.value) for s in ["tmi_channel_bool", "Type", "str", "bool"]]
-    )
+def test_chargeability_channel(ip_params):
+    with pytest.raises(
+        TypeValidationError, match="Must be one of: 'str', 'UUID', 'Entity'."
+    ):
+        ip_params.chargeability_channel = 4
 
 
-def test_tmi_channel():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        mag_params.tmi_channel = uuid4()
+def test_chargeability_uncertainty(ip_params):
+    with pytest.raises(
+        TypeValidationError,
+        match="Must be one of: 'str', 'UUID', 'int', 'float', 'Entity'.",
+    ):
+        ip_params.chargeability_uncertainty = ip_params.geoh5
 
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params.tmi_channel = 4
 
-    assert all(
-        [s in str(excinfo.value) for s in ["tmi_channel", "Type", "int", "str", "UUID"]]
-    )
-
-
-def test_tmi_uncertainty():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        mag_params.tmi_uncertainty = uuid4()
-
-    mag_params.tmi_uncertainty = 4.0
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params.tmi_uncertainty = geoh5
-
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in [
-                "tmi_uncertainty",
-                "Type",
-                "Workspace",
-                "str",
-                "int",
-                "float",
-                "UUID",
-            ]
-        ]
-    )
-
-
-def test_bxx_channel_bool():
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params_fwr.bxx_channel_bool = "alskdj"
-
-    assert all(
-        [s in str(excinfo.value) for s in ["bxx_channel_bool", "Type", "str", "bool"]]
-    )
-
-
-def test_bxx_channel():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        mag_params.bxx_channel = uuid4()
-
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params.bxx_channel = 4
-
-    assert all(
-        [s in str(excinfo.value) for s in ["bxx_channel", "Type", "int", "str", "UUID"]]
-    )
-
-
-def test_bxx_uncertainty():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        mag_params.bxx_uncertainty = uuid4()
-
-    mag_params.bxx_uncertainty = 4.0
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params.bxx_uncertainty = geoh5
-
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in [
-                "bxx_uncertainty",
-                "Type",
-                "Workspace",
-                "str",
-                "int",
-                "float",
-                "UUID",
-            ]
-        ]
-    )
-
-
-def test_bxy_channel_bool():
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params_fwr.bxy_channel_bool = "alskdj"
-
-    assert all(
-        [s in str(excinfo.value) for s in ["bxy_channel_bool", "Type", "str", "bool"]]
-    )
-
-
-def test_bxy_channel():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        mag_params.bxy_channel = uuid4()
-
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params.bxy_channel = 4
-
-    assert all(
-        [s in str(excinfo.value) for s in ["bxy_channel", "Type", "int", "str", "UUID"]]
-    )
-
-
-def test_bxy_uncertainty():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        mag_params.bxy_uncertainty = uuid4()
-
-    mag_params.bxy_uncertainty = 4.0
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params.bxy_uncertainty = geoh5
-
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in [
-                "bxy_uncertainty",
-                "Type",
-                "Workspace",
-                "str",
-                "int",
-                "float",
-                "UUID",
-            ]
-        ]
-    )
-
-
-def test_bxz_channel_bool():
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params_fwr.bxz_channel_bool = "alskdj"
-
-    assert all(
-        [s in str(excinfo.value) for s in ["bxz_channel_bool", "Type", "str", "bool"]]
-    )
-
-
-def test_bxz_channel():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        mag_params.bxz_channel = uuid4()
-
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params.bxz_channel = 4
-
-    assert all(
-        [s in str(excinfo.value) for s in ["bxz_channel", "Type", "int", "str", "UUID"]]
-    )
-
-
-def test_bxz_uncertainty():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        mag_params.bxz_uncertainty = uuid4()
-
-    mag_params.bxz_uncertainty = 4.0
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params.bxz_uncertainty = geoh5
-
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in [
-                "bxz_uncertainty",
-                "Type",
-                "Workspace",
-                "str",
-                "int",
-                "float",
-                "UUID",
-            ]
-        ]
-    )
-
-
-def test_byy_channel_bool():
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params_fwr.byy_channel_bool = "alskdj"
-
-    assert all(
-        [s in str(excinfo.value) for s in ["byy_channel_bool", "Type", "str", "bool"]]
-    )
-
-
-def test_byy_channel():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        mag_params.byy_channel = uuid4()
-
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params.byy_channel = 4
-
-    assert all(
-        [s in str(excinfo.value) for s in ["byy_channel", "Type", "int", "str", "UUID"]]
-    )
-
-
-def test_byy_uncertainty():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        mag_params.byy_uncertainty = uuid4()
-
-    mag_params.byy_uncertainty = 4.0
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params.byy_uncertainty = geoh5
-
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in [
-                "byy_uncertainty",
-                "Type",
-                "Workspace",
-                "str",
-                "int",
-                "float",
-                "UUID",
-            ]
-        ]
-    )
-
-
-def test_byz_channel_bool():
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params_fwr.byz_channel_bool = "alskdj"
-
-    assert all(
-        [s in str(excinfo.value) for s in ["byz_channel_bool", "Type", "str", "bool"]]
-    )
-
-
-def test_byz_channel():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        mag_params.byz_channel = uuid4()
-
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params.byz_channel = 4
-
-    assert all(
-        [s in str(excinfo.value) for s in ["byz_channel", "Type", "int", "str", "UUID"]]
-    )
-
-
-def test_byz_uncertainty():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        mag_params.byz_uncertainty = uuid4()
-
-    mag_params.byz_uncertainty = 4.0
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params.byz_uncertainty = geoh5
-
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in [
-                "byz_uncertainty",
-                "Type",
-                "Workspace",
-                "str",
-                "int",
-                "float",
-                "UUID",
-            ]
-        ]
-    )
-
-
-def test_bzz_channel_bool():
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params_fwr.bzz_channel_bool = "alskdj"
-
-    assert all(
-        [s in str(excinfo.value) for s in ["bzz_channel_bool", "Type", "str", "bool"]]
-    )
-
-
-def test_bzz_channel():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        mag_params.bzz_channel = uuid4()
-
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params.bzz_channel = 4
-
-    assert all(
-        [s in str(excinfo.value) for s in ["bzz_channel", "Type", "int", "str", "UUID"]]
-    )
-
-
-def test_bzz_uncertainty():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        mag_params.bzz_uncertainty = uuid4()
-
-    mag_params.bzz_uncertainty = 4.0
-
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params.bzz_uncertainty = geoh5
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in [
-                "bzz_uncertainty",
-                "Type",
-                "Workspace",
-                "str",
-                "int",
-                "float",
-                "UUID",
-            ]
-        ]
-    )
-
-
-def test_bx_channel_bool():
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params_fwr.bx_channel_bool = "alskdj"
-
-    assert all(
-        [s in str(excinfo.value) for s in ["bx_channel_bool", "Type", "str", "bool"]]
-    )
-
-
-def test_bx_channel():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        mag_params.bx_channel = uuid4()
-
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params.bx_channel = 4
-
-    assert all(
-        [s in str(excinfo.value) for s in ["bx_channel", "Type", "int", "str", "UUID"]]
-    )
-
-
-def test_bx_uncertainty():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        mag_params.bx_uncertainty = uuid4()
-    mag_params.bx_uncertainty = 4.0
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params.bx_uncertainty = geoh5
-
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in [
-                "bx_uncertainty",
-                "Type",
-                "Workspace",
-                "str",
-                "int",
-                "float",
-                "UUID",
-            ]
-        ]
-    )
-
-
-def test_by_channel_bool():
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params_fwr.by_channel_bool = "alskdj"
-
-    assert all(
-        [s in str(excinfo.value) for s in ["by_channel_bool", "Type", "str", "bool"]]
-    )
-
-
-def test_by_channel():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        mag_params.by_channel = uuid4()
-
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params.by_channel = 4
-
-    assert all(
-        [s in str(excinfo.value) for s in ["by_channel", "Type", "int", "str", "UUID"]]
-    )
-
-
-def test_by_uncertainty():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        mag_params.by_uncertainty = uuid4()
-
-    mag_params.by_uncertainty = 4.0
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params.by_uncertainty = geoh5
-
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in [
-                "by_uncertainty",
-                "Type",
-                "Workspace",
-                "str",
-                "int",
-                "float",
-                "UUID",
-            ]
-        ]
-    )
-
-
-def test_bz_channel_bool():
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params_fwr.bz_channel_bool = "alskdj"
-
-    assert all(
-        [s in str(excinfo.value) for s in ["bz_channel_bool", "Type", "str", "bool"]]
-    )
-
-
-def test_bz_channel():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        mag_params.bz_channel = uuid4()
-
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params.bz_channel = 4
-
-    assert all(
-        [s in str(excinfo.value) for s in ["bz_channel", "Type", "int", "str", "UUID"]]
-    )
-
-
-def test_bz_uncertainty():
-    with pytest.raises(AssociationValidationError) as excinfo:
-        mag_params.bz_uncertainty = uuid4()
-
-    mag_params.bz_uncertainty = 4.0
-    with pytest.raises(TypeValidationError) as excinfo:
-        mag_params.bz_uncertainty = geoh5
-
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in [
-                "bz_uncertainty",
-                "Type",
-                "Workspace",
-                "str",
-                "int",
-                "float",
-                "UUID",
-            ]
-        ]
-    )
-
-
-def test_direct_current_inversion_type():
-    params = DirectCurrent3DParams()
-    params.inversion_type = "direct current 3d"
-    with pytest.raises(ValueValidationError) as excinfo:
-        params.inversion_type = "alskdj"
-
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in ["inversion_type", "alskdj", "direct current"]
-        ]
-    )
-
-
-def test_direct_current_data_object():
-    params = DirectCurrent3DParams()
-    params.data_object = uuid4()
-
-    with pytest.raises(TypeValidationError) as excinfo:
-        params.data_object = 4
-
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in ["data_object", "Type", "int", "UUID", "PotentialElectrode"]
-        ]
-    )
-
-
-def test_potential_channel_bool():
-    params = DirectCurrent3DParams()
-    with pytest.raises(TypeValidationError) as excinfo:
-        params.potential_channel_bool = "alskdj"
-
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in ["potential_channel_bool", "Type", "str", "bool"]
-        ]
-    )
-
-
-def test_potential_channel():
-    params = DirectCurrent3DParams()
-    params.potential_channel = uuid4()
-    params.potential_channel = uuid4()
-    with pytest.raises(TypeValidationError) as excinfo:
-        params.potential_channel = 4
-
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in ["potential_channel", "Type", "int", "str", "UUID"]
-        ]
-    )
-
-
-def test_potential_uncertainty():
-    params = DirectCurrent3DParams()
-    params.potential_uncertainty = uuid4()
-    params.potential_uncertainty = uuid4()
-    params.potential_uncertainty = 4
-    params.potential_uncertainty = 4.0
-    with pytest.raises(TypeValidationError) as excinfo:
-        params.potential_uncertainty = geoh5
-
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in [
-                "potential_uncertainty",
-                "Type",
-                "Workspace",
-                "str",
-                "int",
-                "float",
-                "UUID",
-            ]
-        ]
-    )
-
-
-def test_induced_polarization_inversion_type():
-    params = InducedPolarization3DParams()
-    params.inversion_type = "induced polarization 3d"
-    with pytest.raises(ValueValidationError) as excinfo:
-        params.inversion_type = "alskdj"
-
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in ["inversion_type", "alskdj", "induced polarization"]
-        ]
-    )
-
-
-def test_chargeability_channel_bool():
-    params = InducedPolarization3DParams()
-    params.chargeability_channel_bool = True
-    with pytest.raises(TypeValidationError) as excinfo:
-        params.chargeability_channel_bool = "alskdj"
-
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in ["chargeability_channel_bool", "Type", "str", "bool"]
-        ]
-    )
-
-
-def test_chargeability_channel():
-    params = InducedPolarization3DParams()
-    params.chargeability_channel = uuid4()
-    params.chargeability_channel = uuid4()
-    with pytest.raises(TypeValidationError) as excinfo:
-        params.chargeability_channel = 4
-
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in ["chargeability_channel", "Type", "int", "str", "UUID"]
-        ]
-    )
-
-
-def test_chargeability_uncertainty():
-    params = InducedPolarization3DParams()
-    params.chargeability_uncertainty = uuid4()
-    params.chargeability_uncertainty = uuid4()
-    params.chargeability_uncertainty = 4
-    params.chargeability_uncertainty = 4.0
-    with pytest.raises(TypeValidationError) as excinfo:
-        params.chargeability_uncertainty = geoh5
-
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in [
-                "chargeability_uncertainty",
-                "Type",
-                "Workspace",
-                "str",
-                "int",
-                "float",
-                "UUID",
-            ]
-        ]
-    )
-
-
-def conductivity_model_object():
-    params = InducedPolarization3DParams()
-    params.conductivity_model_object = uuid4()
-    params.conductivity_model_object = uuid4()
-    with pytest.raises(TypeValidationError) as excinfo:
-        params.conductivity_model_object = 4
-
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in ["conductivity_model_object", "Type", "int", "str", "UUID"]
-        ]
-    )
-
-
-def test_conductivity_model():
-    params = InducedPolarization3DParams()
-    params.conductivity_model = uuid4()
-    params.conductivity_model = uuid4()
-    params.conductivity_model = 4
-    params.conductivity_model = 4.0
-    with pytest.raises(TypeValidationError) as excinfo:
-        params.conductivity_model = geoh5
-
-    assert all(
-        [
-            s in str(excinfo.value)
-            for s in [
-                "conductivity_model",
-                "Type",
-                "Workspace",
-                "str",
-                "int",
-                "float",
-                "UUID",
-            ]
-        ]
-    )
-
-
-def test_isValue(tmp_path: Path):
-    file_name = "test.ui.json"
-    mesh = geoh5.get_entity("O2O_Interp_25m")[0]
-    mag_params.starting_model = 0.0
-    mag_params.write_input_file(name=file_name, path=tmp_path, validate=False)
-
-    with open(tmp_path / file_name, encoding="utf-8") as f:
-        ui = json.load(f)
-
-    assert ui["starting_model"]["isValue"] is True, "isValue should be True"
-
-    mag_params.starting_model = mesh.get_data("VTEM_model")[0].uid
-
-    mag_params.write_input_file(name=file_name, path=tmp_path, validate=False)
-    with open(tmp_path / file_name, encoding="utf-8") as f:
-        ui = json.load(f)
-
-    assert ui["starting_model"]["isValue"] is False, "isValue should be False"
+def test_conductivity_model(ip_params):
+    with pytest.raises(
+        TypeValidationError,
+        match="Must be one of: 'str', 'UUID', 'int', 'float', 'Entity'.",
+    ):
+        ip_params.conductivity_model = ip_params.geoh5
