@@ -91,11 +91,11 @@ class InversionMesh:
         self.params = params
         self.inversion_data = inversion_data
         self.inversion_topography = inversion_topography
-        self.mesh: TreeMesh | TensorMesh | None = None
+        self._mesh: TreeMesh | TensorMesh | None = None
         self.n_cells: int | None = None
         self.rotation: dict[str, float] | None = None
-        self.permutation: np.ndarray | None = None
-        self._entity: Octree | DrapeModel | None = None
+        self._permutation: np.ndarray | None = None
+        self.entity: Octree | DrapeModel | None = None
         self._initialize()
 
     def _initialize(self) -> None:
@@ -127,35 +127,51 @@ class InversionMesh:
         self.n_cells = self.entity.n_cells
 
     @property
+    def mesh(self) -> TreeMesh | TensorMesh:
+        """TreeMesh or TensorMesh object containing mesh data."""
+
+        if self._mesh is None:
+            if isinstance(self._entity, Octree):
+                if self.entity.rotation:
+                    origin = self.entity.origin.tolist()
+                    angle = self.entity.rotation[0]
+                    self.rotation = {"origin": origin, "angle": angle}
+
+                cell_sizes = [
+                    self._entity.u_cell_size,
+                    self._entity.u_cell_size,
+                    self._entity.w_cell_size,
+                ]
+                if any([k < 0 for k in cell_sizes]):
+                    self._mesh = InversionMesh.ensure_cell_convention(self._entity)
+                else:
+                    self._mesh = octree_2_treemesh(self._entity)
+
+                self._permutation = np.arange(self.entity.n_cells)
+
+            if isinstance(self.entity, DrapeModel) and self._mesh is None:
+                self._mesh, self._permutation = drape_2_tensor(
+                    self.entity, return_sorting=True
+                )
+
+        return self._mesh
+
+    @property
+    def permutation(self) -> np.ndarray:
+        """Permutation vector between discretize and geoh5py/DrapeModel ordering."""
+        if self.mesh is None:
+            raise ValueError("A 'mesh' must be assigned before accessing permutation.")
+        return self._permutation
+
+    @property
     def entity(self) -> Octree | DrapeModel:
         """Octree or DrapeModel object containing mesh data."""
         return self._entity
 
     @entity.setter
     def entity(self, val: Octree | DrapeModel) -> None:
-
-        if isinstance(val, Octree):
-
-            self.permutation = np.arange(val.n_cells)
-
-            if val.rotation:
-                origin = val.origin.tolist()
-                angle = val.rotation[0]
-                self.rotation = {"origin": origin, "angle": angle}
-
-            cell_sizes = [val.u_cell_size, val.u_cell_size, val.w_cell_size]
-            if any([k < 0 for k in cell_sizes]):
-                self.mesh = InversionMesh.ensure_cell_convention(val)
-            else:
-                self.mesh = octree_2_treemesh(val)
-
-        elif isinstance(val, DrapeModel):
-            self.mesh, self.permutation = drape_2_tensor(val, return_sorting=True)
-
-        else:
-            raise ValueError("Entity must be of type Octree or DrapeModel.")
-
         self._entity = val
+        self.mesh  # pylint: disable=pointless-statement
 
     @staticmethod
     def ensure_cell_convention(mesh: Octree) -> TreeMesh | None:
