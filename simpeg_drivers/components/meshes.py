@@ -21,19 +21,40 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
+from discretize import TensorMesh, TreeMesh
+from geoh5py import Workspace
 from geoh5py.objects import DrapeModel, Octree
 from octree_creation_app.params import OctreeParams
-from octree_creation_app.utils import octree_2_treemesh
+from octree_creation_app.utils import octree_2_treemesh, treemesh_2_octree
 
 from simpeg_drivers.utils.utils import drape_2_tensor
 
 if TYPE_CHECKING:
-    from geoh5py.workspace import Workspace
-
     from simpeg_drivers.components.data import InversionData
     from simpeg_drivers.components.topography import InversionTopography
 
-from discretize import TensorMesh, TreeMesh
+
+# TODO: Import this from newer octree-creation-app release
+def tree_levels(mesh: Octree) -> np.ndarray | None:
+    """
+    Convert Octree n cell indices to Treemesh level indices.
+
+    :param mesh: Octree object with n cell index.
+
+    :returns: Array of level indices.
+    """
+    if mesh.octree_cells is None:
+        return None
+
+    n_cell_dim = [mesh.u_count, mesh.v_count, mesh.w_count]
+    ls = np.log2(n_cell_dim).astype(int)
+    if len(set(ls)) == 1:
+        max_level = ls[0]
+    else:
+        max_level = min(ls) + 1
+    levels = max_level - np.log2(mesh.octree_cells["NCells"])
+
+    return levels
 
 
 class InversionMesh:
@@ -70,11 +91,11 @@ class InversionMesh:
         self.params = params
         self.inversion_data = inversion_data
         self.inversion_topography = inversion_topography
-        self._mesh: TreeMesh | TensorMesh | None = None
+        self.mesh: TreeMesh | TensorMesh | None = None
         self.n_cells: int | None = None
         self.rotation: dict[str, float] | None = None
-        self._permutation: np.ndarray | None = None
-        self.entity: Octree | DrapeModel | None = None
+        self.permutation: np.ndarray | None = None
+        self._entity: Octree | DrapeModel | None = None
         self._initialize()
 
     def _initialize(self) -> None:
@@ -106,29 +127,81 @@ class InversionMesh:
         self.n_cells = self.entity.n_cells
 
     @property
-    def mesh(self) -> TreeMesh | TensorMesh:
-        """"""
-        if self._mesh is None:
-            if isinstance(self.entity, Octree):
-                if self.entity.rotation:
-                    origin = self.entity.origin.tolist()
-                    angle = self.entity.rotation[0]
-                    self.rotation = {"origin": origin, "angle": angle}
+    def entity(self) -> Octree | DrapeModel:
+        """Octree or DrapeModel object containing mesh data."""
+        return self._entity
 
-                self._mesh = octree_2_treemesh(self.entity)
-                self._permutation = np.arange(self.entity.n_cells)
+    @entity.setter
+    def entity(self, val: Octree | DrapeModel) -> None:
 
-            if isinstance(self.entity, DrapeModel) and self._mesh is None:
-                self._mesh, self._permutation = drape_2_tensor(
-                    self.entity, return_sorting=True
-                )
+        if isinstance(val, Octree):
 
-        return self._mesh
+            self.permutation = np.arange(val.n_cells)
 
-    @property
-    def permutation(self) -> np.ndarray:
-        """Permutation vector between discretize and geoh5py/DrapeModel ordering."""
-        if self.mesh is None:
-            raise ValueError("A 'mesh' must be assigned before accessing permutation.")
+            if val.rotation:
+                origin = val.origin.tolist()
+                angle = val.rotation[0]
+                self.rotation = {"origin": origin, "angle": angle}
 
-        return self._permutation
+            cell_sizes = [val.u_cell_size, val.u_cell_size, val.w_cell_size]
+            if any([k < 0 for k in cell_sizes]):
+                self.mesh = InversionMesh.ensure_cell_convention(val)
+            else:
+                self.mesh = octree_2_treemesh(val)
+
+        elif isinstance(val, DrapeModel):
+            self.mesh, self.permutation = drape_2_tensor(val, return_sorting=True)
+
+        else:
+            raise ValueError("Entity must be of type Octree or DrapeModel.")
+
+        self._entity = val
+
+    @staticmethod
+    def ensure_cell_convention(mesh: Octree) -> TreeMesh | None:
+        """
+        Shift origin and flip sign for negative cell size dimensions.
+
+        :param mesh: Input octree mesh object.
+
+        :return: Mesh object with positive cell sizes and shifted origin
+            to maintain mesh geometry.
+        """
+
+        if mesh.rotation:
+            raise ValueError("Cannot convert negative cell sizes for rotated mesh.")
+
+        cell_sizes, origin = [], []
+        for axis, dim in zip("xyz", "uvw"):
+            n_cells = getattr(mesh, f"{dim}_count")
+            cell_size = getattr(mesh, f"{dim}_cell_size")
+            if cell_size < 0:
+                origin.append(mesh.origin[axis] + n_cells * cell_size)
+                cell_sizes.append([np.abs(cell_size)] * n_cells)
+            else:
+                origin.append(mesh.origin[axis])
+                cell_sizes.append([cell_size] * n_cells)
+
+        treemesh = TreeMesh(cell_sizes, origin)
+        levels = tree_levels(mesh)
+        treemesh.insert_cells(points=mesh.centroids, levels=levels, finalize=True)
+
+        temp_workspace = Workspace()
+        temp_octree = treemesh_2_octree(temp_workspace, treemesh)
+
+        mesh.octree_cells = np.vstack(temp_octree.octree_cells.tolist())
+        mesh.origin = origin
+        for dim in "uvw":
+            attr = f"{dim}_cell_size"
+            setattr(mesh, attr, np.abs(getattr(mesh, attr)))
+
+        indices = treemesh._get_containing_cell_indexes(  # pylint: disable=W0212
+            mesh.centroids
+        )
+        ind = np.argsort(indices)
+        for child in mesh.children:
+            if child.values is None or isinstance(child.values, np.ndarray):
+                continue
+            child.values = child.values[ind]
+
+        return treemesh

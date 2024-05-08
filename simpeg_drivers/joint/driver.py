@@ -75,7 +75,7 @@ class BaseJointDriver(InversionDriver):
             physical_property = []
             # Create sub-drivers
             for group in self.params.groups:
-                group.options  # Triggers something... otherwise ui_json is empty
+                _ = group.options  # Triggers something... otherwise ui_json is empty
                 group = group.copy(parent=self.params.out_group)
 
                 ui_json = group.options

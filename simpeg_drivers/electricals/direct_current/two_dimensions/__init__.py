@@ -15,7 +15,6 @@
 #
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-from .params import DirectCurrent2DParams
+from .params import DirectCurrent2DParams  # noqa: F401
 
-# pylint: disable=unused-import
-# flake8: noqa
+__all__ = ["DirectCurrent2DParams"]

@@ -131,9 +131,9 @@ class InversionData(InversionLocations):
         if self.radar is not None and any(np.isnan(self.radar)):
             self.mask[np.isnan(self.radar)] = False
 
-        self.observed = self.filter(self.observed)
-        self.radar = self.filter(self.radar)
-        self.uncertainties = self.filter(self.uncertainties)
+        self.observed = self.filter(self.observed, self.mask)
+        self.radar = self.filter(self.radar, self.mask)
+        self.uncertainties = self.filter(self.uncertainties, self.mask)
 
         self.normalizations = self.get_normalizations()
         self.observed = self.normalize(self.observed)
@@ -172,7 +172,7 @@ class InversionData(InversionLocations):
 
         return np.c_[distance_interp, locations[:, 2:]]
 
-    def filter(self, a, mask=None):
+    def filter(self, obj: dict[str, np.ndarray] | np.ndarray, mask=None):
         """Remove vertices based on mask property."""
         if mask is None:
             mask = self.mask
@@ -180,9 +180,9 @@ class InversionData(InversionLocations):
         if self.indices is None:
             self.indices = np.where(mask)[0]
 
-        a = super().filter(a, mask=self.indices)
+        obj = super().filter(obj, mask=self.indices)
 
-        return a
+        return obj
 
     def get_data(self) -> tuple[list, dict, dict]:
         """
