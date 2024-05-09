@@ -132,21 +132,7 @@ class InversionMesh:
 
         if self._mesh is None:
             if isinstance(self._entity, Octree):
-                if self.entity.rotation:
-                    origin = self.entity.origin.tolist()
-                    angle = self.entity.rotation[0]
-                    self.rotation = {"origin": origin, "angle": angle}
-
-                cell_sizes = [
-                    self._entity.u_cell_size,
-                    self._entity.u_cell_size,
-                    self._entity.w_cell_size,
-                ]
-                if any([k < 0 for k in cell_sizes]):
-                    self._mesh = InversionMesh.ensure_cell_convention(self._entity)
-                else:
-                    self._mesh = octree_2_treemesh(self._entity)
-
+                self._mesh = octree_2_treemesh(self._entity)
                 self._permutation = np.arange(self.entity.n_cells)
 
             if isinstance(self.entity, DrapeModel) and self._mesh is None:
@@ -169,9 +155,18 @@ class InversionMesh:
         return self._entity
 
     @entity.setter
-    def entity(self, val: Octree | DrapeModel) -> None:
+    def entity(self, val: Octree | DrapeModel):
+        if not isinstance(val, (Octree, DrapeModel, type(None))):
+            raise TypeError(
+                "Attribute 'entity' must be an Octree or DrapeModel object."
+            )
+
         self._entity = val
-        self.mesh  # pylint: disable=pointless-statement
+
+        if isinstance(self._entity, Octree):
+            if any(getattr(self._entity, f"{axis}_cell_size") < 0 for axis in "uvw"):
+                self._mesh = InversionMesh.ensure_cell_convention(self._entity)
+                self._permutation = np.arange(self.entity.n_cells)
 
     @staticmethod
     def ensure_cell_convention(mesh: Octree) -> TreeMesh | None:

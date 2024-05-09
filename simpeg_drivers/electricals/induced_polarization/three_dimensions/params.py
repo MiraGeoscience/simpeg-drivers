@@ -46,7 +46,6 @@ class InducedPolarization3DParams(InversionBaseParams):
         self._chargeability_channel_bool = None
         self._chargeability_channel = None
         self._chargeability_uncertainty = None
-        self._conductivity_model_object = None
         self._conductivity_model = None
 
         super().__init__(input_file=input_file, forward_only=forward_only, **kwargs)
@@ -82,14 +81,6 @@ class InducedPolarization3DParams(InversionBaseParams):
     @chargeability_uncertainty.setter
     def chargeability_uncertainty(self, val):
         self.setter_validator("chargeability_uncertainty", val, fun=self._uuid_promoter)
-
-    @property
-    def conductivity_model_object(self):
-        return self._conductivity_model_object
-
-    @conductivity_model_object.setter
-    def conductivity_model_object(self, val):
-        self.setter_validator("conductivity_model_object", val, fun=self._uuid_promoter)
 
     @property
     def conductivity_model(self):
