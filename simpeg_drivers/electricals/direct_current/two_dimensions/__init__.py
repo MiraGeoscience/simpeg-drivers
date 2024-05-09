@@ -15,6 +15,6 @@
 #
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-from .params import DirectCurrent2DParams
+from .params import DirectCurrent2DParams  # noqa: F401
 
 __all__ = ["DirectCurrent2DParams"]
