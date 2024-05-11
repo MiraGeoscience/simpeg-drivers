@@ -183,11 +183,16 @@ class JointCrossGradientDriver(BaseJointDriver):
                         CrossGradient(
                             self.inversion_mesh.mesh,
                             wires,
+                            normalize=True,
                             active_cells=self.models.active_cells,
                         )
                     )
+                    base_multipier = (
+                        reg_list[-1].regularization_mesh.base_length ** 4.0
+                    )  # Account for cross of length scale square
                     multipliers.append(
                         getattr(self.params, f"cross_gradient_weight_{label}")
+                        * base_multipier
                     )
 
         return ComboObjectiveFunction(objfcts=reg_list, multipliers=multipliers)
