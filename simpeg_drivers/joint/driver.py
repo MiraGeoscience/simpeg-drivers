@@ -58,7 +58,7 @@ class BaseJointDriver(InversionDriver):
                 if driver.data_misfit is not None:
                     objective_functions += driver.data_misfit.objfcts
                     multipliers += [
-                        getattr(self.params, f"group_{label}_multiplier")
+                        getattr(self.params, f"group_{label}_multiplier") ** 2.0
                     ] * len(driver.data_misfit.objfcts)
 
             self._data_misfit = ComboObjectiveFunction(
