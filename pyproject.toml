@@ -49,7 +49,7 @@ geoapps-utils = {version = "~0.3.0rc1", source = "pypi", allow-prereleases = tru
 #geoapps-utils = {url = "https://github.com/MiraGeoscience/geoapps-utils/archive/refs/heads/release/0.3.0.zip#sha256="}
 #geoapps-utils = {url = "http://localhost:8888/geoapps-utils.tar.gz#sha256="}
 
-mira-simpeg = {version = ">=0.19.0.8rc1,<0.19.0.8.post999", source = "pypi", allow-prereleases = true}
+mira-simpeg = {version = ">=0.19.0.8rc3,<0.19.0.8.post999", source = "pypi", allow-prereleases = true}
 #mira-simpeg = {url = "https://github.com/MiraGeoscience/simpeg/archive/refs/heads/release/0.19.0.8.zip#sha256="}
 #mira-simpeg = {url = "http://localhost:8888/mira-simpeg.tar.gz#sha256="}
 
@@ -63,6 +63,7 @@ Pillow = "~10.1.0"  # from geoh5py
 fsspec = "2022.*"  # from simpeg[dask]
 geoana = "~0.4.0"  # from simpeg
 h5py = "^3.2.1"  # from geoh5py
+matplotlib = "~3.7.1"  # from simpeg
 mkl = "2022.1.*"  # from simpeg
 pandas = "~2.2.1"  # from SimPEG, also used by targeting-workflow, petro-lingo
 pydantic = "~2.5.2"  # from geoapps-utils
