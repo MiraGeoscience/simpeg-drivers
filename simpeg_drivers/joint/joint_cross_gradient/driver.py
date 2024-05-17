@@ -1,8 +1,20 @@
-#  Copyright (c) 2022-2023 Mira Geoscience Ltd.
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
+#  All rights reserved.
 #
-#  This file is part of simpeg_drivers package.
+#  This file is part of simpeg-drivers.
 #
-#  All rights reserved
+#  The software and information contained herein are proprietary to, and
+#  comprise valuable trade secrets of, Mira Geoscience, which
+#  intend to preserve as trade secrets such software and information.
+#  This software is furnished pursuant to a written license agreement and
+#  may be used, copied, transmitted, and stored only in accordance with
+#  the terms of such license and with the inclusion of the above copyright
+#  notice.  This software and information or any other copies thereof may
+#  not be provided or otherwise made available to any other person.
+#
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
 
 # pylint: disable=unexpected-keyword-arg, no-value-for-parameter
 
@@ -171,11 +183,16 @@ class JointCrossGradientDriver(BaseJointDriver):
                         CrossGradient(
                             self.inversion_mesh.mesh,
                             wires,
+                            normalize=True,
                             active_cells=self.models.active_cells,
                         )
                     )
+                    base_multipier = (
+                        reg_list[-1].regularization_mesh.base_length ** 4.0
+                    )  # Account for cross of length scale square
                     multipliers.append(
                         getattr(self.params, f"cross_gradient_weight_{label}")
+                        * base_multipier
                     )
 
         return ComboObjectiveFunction(objfcts=reg_list, multipliers=multipliers)

@@ -1,8 +1,19 @@
-#  Copyright (c) 2022-2023 Mira Geoscience Ltd.
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
+#  All rights reserved.
 #
-#  This file is part of simpeg_drivers package.
+#  This file is part of simpeg-drivers.
 #
-#  All rights reserved
+#  The software and information contained herein are proprietary to, and
+#  comprise valuable trade secrets of, Mira Geoscience, which
+#  intend to preserve as trade secrets such software and information.
+#  This software is furnished pursuant to a written license agreement and
+#  may be used, copied, transmitted, and stored only in accordance with
+#  the terms of such license and with the inclusion of the above copyright
+#  notice.  This software and information or any other copies thereof may
+#  not be provided or otherwise made available to any other person.
+#
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
 from __future__ import annotations
@@ -14,6 +25,7 @@ if TYPE_CHECKING:
     from simpeg_drivers.params import InversionBaseParams
 
 from copy import deepcopy
+from re import findall
 
 import numpy as np
 from discretize import TreeMesh
@@ -160,14 +172,17 @@ class InversionData(InversionLocations):
 
         return np.c_[distance_interp, locations[:, 2:]]
 
-    def filter(self, a):
+    def filter(self, obj: dict[str, np.ndarray] | np.ndarray, mask=None):
         """Remove vertices based on mask property."""
+        if mask is None:
+            mask = self.mask
+
         if self.indices is None:
-            self.indices = np.where(self.mask)[0]
+            self.indices = np.where(mask)[0]
 
-        a = super().filter(a, mask=self.indices)
+        obj = super().filter(obj, mask=self.indices)
 
-        return a
+        return obj
 
     def get_data(self) -> tuple[list, dict, dict]:
         """
@@ -348,8 +363,11 @@ class InversionData(InversionLocations):
                     normalizations[chan][comp] = (
                         mu0 * (-1 / offsets[chan] ** 3 / (4 * np.pi)) / 1e6
                     )
-                elif self.params.inversion_type in ["tdem"]:
-                    if comp in ["x", "z"]:
+                elif (
+                    self.params.inversion_type in ["tdem"]
+                    and self.params.data_units == "dB/dt (T/s)"
+                ):
+                    if comp in ["x", "y", "z"]:
                         normalizations[chan][comp] = -1
                     normalizations[chan][comp] *= np.ones(self.mask.sum())
 
@@ -479,9 +497,15 @@ class InversionData(InversionLocations):
 
     @staticmethod
     def check_tensor(channels):
-        tensor_components = ["xx", "xy", "xz", "yx", "zx", "yy", "zz", "zy", "yz"]
-        has_tensor = lambda c: any(k in c for k in tensor_components)
-        return any(has_tensor(c) for c in channels)
+        tensor_components = "|".join(
+            ["xx", "xy", "xz", "yx", "zx", "yy", "zz", "zy", "yz"]
+        )
+
+        for channel in channels:
+            if any(findall(tensor_components, channel)):
+                return True
+
+        return False
 
     def update_params(self, data_dict, uncert_dict):
         """

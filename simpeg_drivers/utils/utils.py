@@ -1,13 +1,20 @@
-#  Copyright (c) 2022-2023 Mira Geoscience Ltd.
-#
-#  This file is part of my_app package.
-#
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
 #  All rights reserved.
 #
+#  This file is part of simpeg-drivers.
 #
-#  This file is part of simpeg_drivers package.
+#  The software and information contained herein are proprietary to, and
+#  comprise valuable trade secrets of, Mira Geoscience, which
+#  intend to preserve as trade secrets such software and information.
+#  This software is furnished pursuant to a written license agreement and
+#  may be used, copied, transmitted, and stored only in accordance with
+#  the terms of such license and with the inclusion of the above copyright
+#  notice.  This software and information or any other copies thereof may
+#  not be provided or otherwise made available to any other person.
 #
-#  All rights reserved
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
 
 from __future__ import annotations
 
@@ -96,7 +103,7 @@ def calculate_2D_trend(
         # Extract only those points that make the ConvexHull
         loc_xy = loc_xy[hull.vertices, :2]
         values = values[hull.vertices]
-    elif not method == "all":
+    elif method != "all":
         raise ValueError(
             "'method' must be either 'all', or 'perimeter'. " f"Value {method} provided"
         )
@@ -262,8 +269,6 @@ def drape_to_octree(
 
         if method == "nearest":
             octree_model = np.hstack(octree_model)[lookup_inds]
-        else:
-            octree_model = octree_model
 
         if np.issubdtype(octree_model.dtype, np.integer):
             octree_model[~active] = INTEGER_NDV
@@ -451,9 +456,11 @@ def get_inversion_output(h5file: str | Workspace, inversion_group: str | UUID):
         ) from exc
 
     outfile = group.get_entity("SimPEG.out")[0]
-    out = [l for l in outfile.values.decode("utf-8").replace("\r", "").split("\n")][:-1]
+    out = [
+        elem for elem in outfile.values.decode("utf-8").replace("\r", "").split("\n")
+    ][:-1]
     cols = out.pop(0).split(" ")
-    out = [[string_to_numeric(k) for k in l.split(" ")] for l in out]
+    out = [[string_to_numeric(k) for k in elem.split(" ")] for elem in out]
     out = dict(zip(cols, list(map(list, zip(*out)))))
 
     return out
@@ -501,14 +508,13 @@ def tile_locations(
     if method == "kmeans":
         # Best for smaller problems
 
-        np.random.seed(0)
         # Cluster
         # TODO turn off filter once sklearn has dealt with the issue causing the warning
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", category=UserWarning)
             from sklearn.cluster import KMeans
 
-            cluster = KMeans(n_clusters=n_tiles, n_init="auto")
+            cluster = KMeans(n_clusters=n_tiles, random_state=0, n_init="auto")
             cluster.fit_predict(locations[:, :2])
 
         labels = cluster.labels_
@@ -741,9 +747,9 @@ def truncate_locs_depths(locs: np.ndarray, depth_core: float) -> np.ndarray:
     zmax = locs[:, -1].max()  # top of locs
     below_core_ind = (zmax - locs[:, -1]) > depth_core
     core_bottom_elev = zmax - depth_core
-    locs[
-        below_core_ind, -1
-    ] = core_bottom_elev  # sets locations below core to core bottom
+    locs[below_core_ind, -1] = (
+        core_bottom_elev  # sets locations below core to core bottom
+    )
     return locs
 
 

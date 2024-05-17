@@ -1,15 +1,22 @@
-#  Copyright (c) 2022-2023 Mira Geoscience Ltd.
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
+#  All rights reserved.
 #
-#  This file is part of simpeg_drivers package.
+#  This file is part of simpeg-drivers.
 #
-#  All rights reserved
+#  The software and information contained herein are proprietary to, and
+#  comprise valuable trade secrets of, Mira Geoscience, which
+#  intend to preserve as trade secrets such software and information.
+#  This software is furnished pursuant to a written license agreement and
+#  may be used, copied, transmitted, and stored only in accordance with
+#  the terms of such license and with the inclusion of the above copyright
+#  notice.  This software and information or any other copies thereof may
+#  not be provided or otherwise made available to any other person.
+#
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
 
 from __future__ import annotations
-
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from simpeg_drivers import InversionBaseParams
 
 import multiprocessing
 import sys
@@ -295,6 +302,10 @@ class InversionDriver(BaseDriver):
 
         simpeg_inversion = self.inversion
 
+        if Path(self.params.input_file.path_name).is_file():
+            with fetch_active_workspace(self.workspace, mode="r+"):
+                self.out_group.add_file(self.params.input_file.path_name)
+
         predicted = None
         if self.params.forward_only:
             print("Running the forward simulation ...")
@@ -336,18 +347,12 @@ class InversionDriver(BaseDriver):
             data_count = len(self.inversion_data.survey.std)
 
         print(
-            "Target Misfit: {:.2e} ({} data with chifact = {}) / 2".format(
-                0.5 * self.params.chi_factor * data_count,
-                data_count,
-                self.params.chi_factor,
-            )
+            f"Target Misfit: {0.5 * self.params.chi_factor * data_count:.2e} ({data_count} data "
+            f"with chifact = {self.params.chi_factor}) / 2"
         )
         print(
-            "IRLS Start Misfit: {:.2e} ({} data with chifact = {}) / 2".format(
-                0.5 * chi_start * data_count,
-                data_count,
-                chi_start,
-            )
+            f"IRLS Start Misfit: {0.5 * chi_start * data_count:.2e} ({data_count} data "
+            f"with chifact = {chi_start}) / 2"
         )
 
     @property
@@ -432,7 +437,7 @@ class InversionDriver(BaseDriver):
 
         if self.params.parallelized:
             if self.params.n_cpu is None:
-                self.params.n_cpu = int(multiprocessing.cpu_count() / 2)
+                self.params.n_cpu = int(multiprocessing.cpu_count())
 
             dconf.set({"array.chunk-size": str(self.params.max_chunk_size) + "MiB"})
             dconf.set(scheduler="threads", pool=ThreadPool(self.params.n_cpu))
@@ -445,7 +450,7 @@ class InversionDriver(BaseDriver):
         inversion_type = ifile.data["inversion_type"]
         if inversion_type not in DRIVER_MAP:
             msg = f"Inversion type {inversion_type} is not supported."
-            msg += f" Valid inversions are: {*list(DRIVER_MAP),}."
+            msg += f" Valid inversions are: {*list(DRIVER_MAP), }."
             raise NotImplementedError(msg)
 
         mod_name, class_name = DRIVER_MAP.get(inversion_type)

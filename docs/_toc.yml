@@ -1,0 +1,19 @@
+# Table of contents
+# Learn more at https://jupyterbook.org/customize/toc.html
+
+format: jb-book
+root: intro
+chapters:
+- file: inversion/index
+  sections:
+  - file: inversion/fundamentals
+  - file: inversion/data_misfit
+  - file: inversion/regularization
+  - file: inversion/joint_inversion
+- file: case_study/introduction
+  sections:
+  - file: case_study/background
+  - file: case_study/data
+  - file: case_study/mesh_design
+  - file: case_study/unconstrained_inversion
+  - file: case_study/joint_inversion

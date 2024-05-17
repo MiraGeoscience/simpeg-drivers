@@ -1,9 +1,20 @@
-#  Copyright (c) 2023 Mira Geoscience Ltd.
-#
-#  This file is part of my_app package.
-#
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
 #  All rights reserved.
 #
+#  This file is part of simpeg-drivers.
+#
+#  The software and information contained herein are proprietary to, and
+#  comprise valuable trade secrets of, Mira Geoscience, which
+#  intend to preserve as trade secrets such software and information.
+#  This software is furnished pursuant to a written license agreement and
+#  may be used, copied, transmitted, and stored only in accordance with
+#  the terms of such license and with the inclusion of the above copyright
+#  notice.  This software and information or any other copies thereof may
+#  not be provided or otherwise made available to any other person.
+#
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
 import warnings
 from pathlib import Path
 from uuid import UUID
@@ -81,8 +92,10 @@ def check_target(output: dict, target: dict, tolerance=0.1):
     :param tolerance: Tolerance between output and target measured as: |a-b|/b
     """
     print(
-        f"'data_norm': {np.linalg.norm(output['data'])}, 'phi_d': {output['phi_d'][1]}, 'phi_m': {output['phi_m'][1]}"
+        f"Output: 'data_norm': {np.linalg.norm(output['data'])}, 'phi_d': {output['phi_d'][1]}, 'phi_m': {output['phi_m'][1]}"
     )
+    print(f"Target: {target}")
+
     if any(np.isnan(output["data"])):
         warnings.warn(
             "Skipping data norm comparison due to nan (used to bypass lone faulty test run in GH actions)."

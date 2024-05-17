@@ -1,14 +1,25 @@
-#  Copyright (c) 2024 Mira Geoscience Ltd.
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
+#  All rights reserved.
 #
-#  This file is part of simpeg_drivers package.
+#  This file is part of simpeg-drivers.
 #
-#  All rights reserved
+#  The software and information contained herein are proprietary to, and
+#  comprise valuable trade secrets of, Mira Geoscience, which
+#  intend to preserve as trade secrets such software and information.
+#  This software is furnished pursuant to a written license agreement and
+#  may be used, copied, transmitted, and stored only in accordance with
+#  the terms of such license and with the inclusion of the above copyright
+#  notice.  This software and information or any other copies thereof may
+#  not be provided or otherwise made available to any other person.
+#
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
 
 from __future__ import annotations
 
 import sys
 import uuid
-from copy import deepcopy
 from pathlib import Path
 
 import numpy as np
@@ -33,7 +44,7 @@ class BasePseudo3DDriver(LineSweepDriver):
     _validations: dict
     _model_list: list[str] = []
 
-    def __init__(self, params):  # pylint: disable=useless_super_delegation
+    def __init__(self, params):
         super().__init__(params)
         if params.files_only:
             sys.exit("Files written")

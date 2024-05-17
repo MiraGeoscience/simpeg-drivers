@@ -26,8 +26,8 @@ if not exist %MY_CONDA_ENV_FILE% (
 )
 
 call "!MY_CONDA!" activate base ^
-  && call "!MY_CONDA!" env create --force -n %ENV_NAME% --file %MY_CONDA_ENV_FILE% ^
-  && call "!MY_CONDA!" run -n %ENV_NAME% pip install --upgrade --force-reinstall .
+  && call "!MY_CONDA!" env create -y -n %ENV_NAME% --file %MY_CONDA_ENV_FILE% ^
+  && call "!MY_CONDA!" run -n %ENV_NAME% pip install .
 
 if !errorlevel! neq 0 (
   echo "** ERROR: Installation failed **"
