@@ -164,9 +164,13 @@ def test_joint_cross_gradient_inv_run(
             mesh = group.get_entity("mesh")[0]
             survey = group.get_entity("survey")[0]
 
+            data = None
             for child in survey.children:
                 if isinstance(child, FloatData):
                     data = child
+
+            if data is None:
+                raise ValueError("No data found in survey")
 
             orig_data.append(data.values)
 

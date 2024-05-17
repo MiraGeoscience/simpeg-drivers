@@ -17,8 +17,6 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
-
 import numpy as np
 from discretize import TreeMesh
 from geoapps_utils.numerical import traveling_salesman
@@ -178,30 +176,3 @@ def new_neighbors(distances: np.ndarray, neighbors: np.ndarray, nodes: list[int]
         for i in neighbors
     ]
     return np.where(ind)[0].tolist()
-
-
-def slice_and_map(obj: np.ndarray, slicer: np.ndarray | Callable):
-    """
-    Slice an array and return both sliced array and global to local map.
-
-    :param object: Array to be sliced.
-    :param slicer: Boolean index array, Integer index array,  or callable
-        that provides a condition to keep or remove each row of object.
-    :return: Sliced array.
-    :return: Dictionary map from global to local indices.
-    """
-
-    if isinstance(slicer, np.ndarray):
-        if slicer.dtype == bool:
-            sliced_object = obj[slicer]
-            g2l = dict(zip(np.where(slicer)[0], np.arange(len(obj))))
-        else:
-            sliced_object = obj[slicer]
-            g2l = dict(zip(slicer, np.arange(len(slicer))))
-
-    elif callable(slicer):
-        slicer = np.array([slicer(k) for k in obj])
-        sliced_object = obj[slicer]
-        g2l = dict(zip(np.where(slicer)[0], np.arange(len(obj))))
-
-    return sliced_object, g2l
