@@ -1,5 +1,5 @@
 {
-    "version": "0.1.0-alpha.1",
+    "version": "0.2.0-alpha.1",
     "title": "Time-domain EM (TEM) Forward",
     "icon": "surveyairborneem",
     "conda_environment": "simpeg_drivers",
