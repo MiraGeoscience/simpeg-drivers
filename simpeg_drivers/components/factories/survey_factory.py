@@ -109,6 +109,9 @@ class SurveyFactory(SimPEGFactory):
         elif self.factory_type in ["magnetotellurics", "tipper"]:
             from SimPEG.electromagnetics.natural_source import survey
 
+        else:
+            raise ValueError(f"Factory type '{self.factory_type}' not recognized.")
+
         return survey.Survey
 
     def assemble_arguments(self, data=None, mesh=None, local_index=None, channel=None):
