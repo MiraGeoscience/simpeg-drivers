@@ -18,7 +18,7 @@
 
 from __future__ import annotations
 
-from geoh5py.groups.simpeg_group import SimPEGGroup
+from geoh5py.groups import SimPEGGroup
 
 from simpeg_drivers.params import InversionBaseParams
 
