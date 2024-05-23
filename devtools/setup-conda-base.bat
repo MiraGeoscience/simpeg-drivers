@@ -16,12 +16,9 @@ if !errorlevel! neq 0 (
 )
 
 :: install a few packages in the conda base environment
-:: - conda-libmamba-solver: for faster dependency solving
 :: - conda-lock: for locking the environment
-:: - networkx, ruamel.yaml: used by run_conda_lock.py to create the conda environment lock files
-call !MY_CONDA_EXE! install -n base conda-libmamba-solver conda-lock networkx ruamel.yaml
-call !MY_CONDA_EXE! run -n base conda config --env --set solver libmamba
-
+:: - networkx, ruamel.yaml, tomli: used by run_conda_lock.py to create the conda environment lock files
+call !MY_CONDA_EXE! install -n base conda-lock networkx ruamel.yaml tomli
 
 if !errorlevel! neq 0 (
   echo "** ERROR: Installation failed **"

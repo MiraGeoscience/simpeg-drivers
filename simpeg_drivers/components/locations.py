@@ -1,8 +1,19 @@
-#  Copyright (c) 2022-2023 Mira Geoscience Ltd.
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
+#  All rights reserved.
 #
-#  This file is part of simpeg_drivers package.
+#  This file is part of simpeg-drivers.
 #
-#  All rights reserved
+#  The software and information contained herein are proprietary to, and
+#  comprise valuable trade secrets of, Mira Geoscience, which
+#  intend to preserve as trade secrets such software and information.
+#  This software is furnished pursuant to a written license agreement and
+#  may be used, copied, transmitted, and stored only in accordance with
+#  the terms of such license and with the inclusion of the above copyright
+#  notice.  This software and information or any other copies thereof may
+#  not be provided or otherwise made available to any other person.
+#
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
 from __future__ import annotations
@@ -131,13 +142,13 @@ class InversionLocations:
             is_none.append(v is None)
         return all(is_none)
 
-    def filter(self, a: dict[str, np.ndarray] | np.ndarray, mask=None):
+    def filter(self, obj: dict[str, np.ndarray] | np.ndarray, mask=None):
         """
         Apply accumulated self.mask to array, or dict of arrays.
 
         If argument a is a dictionary filter will be applied to all key/values.
 
-        :param a: Object containing data to filter.
+        :param obj: Object containing data to filter.
 
         :return: Filtered data.
 
@@ -145,16 +156,16 @@ class InversionLocations:
 
         mask = self.mask if mask is None else mask
 
-        if isinstance(a, dict):
-            if self._none_dict(a):
-                return a
+        if isinstance(obj, dict):
+            if self._none_dict(obj):
+                return obj
             else:
-                return self._filter(a, mask)
+                return self._filter(obj, mask)
         else:
-            if a is None:
+            if obj is None:
                 return None
             else:
-                return a[mask]
+                return obj[mask]
 
     def set_z_from_topo(self, locs: np.ndarray):
         """interpolate locations z data from topography."""

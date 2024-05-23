@@ -1,9 +1,19 @@
-#  Copyright (c) 2024 Mira Geoscience Ltd.
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
+#  All rights reserved.
 #
 #  This file is part of simpeg-drivers.
 #
-#  simpeg-drivers is distributed under the terms and conditions of the MIT License
-#  (see LICENSE file at the root of this source code package).
+#  The software and information contained herein are proprietary to, and
+#  comprise valuable trade secrets of, Mira Geoscience, which
+#  intend to preserve as trade secrets such software and information.
+#  This software is furnished pursuant to a written license agreement and
+#  may be used, copied, transmitted, and stored only in accordance with
+#  the terms of such license and with the inclusion of the above copyright
+#  notice.  This software and information or any other copies thereof may
+#  not be provided or otherwise made available to any other person.
+#
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 from __future__ import annotations
 
@@ -28,7 +38,50 @@ target_run = {
     "phi_m": 241.1,
 }
 
-np.random.seed(0)
+
+def test_tiling_ground_tem(
+    tmp_path: Path,
+    n_grid_points=4,
+    refinement=(2,),
+):
+    # Run the forward
+    geoh5, _, model, survey, topography = setup_inversion_workspace(
+        tmp_path,
+        background=0.001,
+        anomaly=1.0,
+        n_electrodes=n_grid_points,
+        n_lines=n_grid_points,
+        refinement=refinement,
+        inversion_type="ground_tem",
+        drape_height=5.0,
+        padding_distance=1000.0,
+        flatten=True,
+    )
+
+    params = TimeDomainElectromagneticsParams(
+        forward_only=True,
+        geoh5=geoh5,
+        mesh=model.parent.uid,
+        topography_object=topography.uid,
+        resolution=0.0,
+        z_from_topo=False,
+        data_object=survey.uid,
+        starting_model=model.uid,
+        x_channel_bool=True,
+        y_channel_bool=True,
+        z_channel_bool=True,
+        tile_spatial=4,
+    )
+    fwr_driver = TimeDomainElectromagneticsDriver(params)
+
+    tiles = fwr_driver.get_tiles()
+
+    assert len(tiles) == 4
+
+    for tile in tiles:
+        assert len(np.unique(survey.tx_id_property.values[tile])) == 1
+
+    fwr_driver.run()
 
 
 def test_ground_tem_fwr_run(
@@ -121,7 +174,6 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         orig_dBzdt = geoh5.get_entity("Iteration_0_z_[0]")[0].values
 
         # Run the inverse
-        np.random.seed(0)
         params = TimeDomainElectromagneticsParams(
             geoh5=geoh5,
             mesh=mesh.uid,

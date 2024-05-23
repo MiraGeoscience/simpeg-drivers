@@ -1,8 +1,20 @@
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 #  Copyright (c) 2023-2024 Mira Geoscience Ltd.
+#  All rights reserved.
 #
-#  This file is part of simpeg_drivers package.
+#  This file is part of simpeg-drivers.
 #
-#  All rights reserved
+#  The software and information contained herein are proprietary to, and
+#  comprise valuable trade secrets of, Mira Geoscience, which
+#  intend to preserve as trade secrets such software and information.
+#  This software is furnished pursuant to a written license agreement and
+#  may be used, copied, transmitted, and stored only in accordance with
+#  the terms of such license and with the inclusion of the above copyright
+#  notice.  This software and information or any other copies thereof may
+#  not be provided or otherwise made available to any other person.
+#
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
 
 from __future__ import annotations
 
@@ -179,7 +191,7 @@ class InversionModelCollection:
         """wraps individual model's specific method and applies in loop over model types."""
         returned_items = {}
         for mtype in self.model_types:
-            model = self.__getattribute__(f"_{mtype}")
+            model = getattr(self, f"_{mtype}")
             if model.model is not None:
                 f = getattr(model, method)
                 returned_items[mtype] = f(**kwargs)
@@ -473,6 +485,6 @@ class InversionModel:
     @model_type.setter
     def model_type(self, v):
         if v not in self.model_types:
-            msg = f"Invalid 'model_type'. Must be one of {*self.model_types,}."
+            msg = f"Invalid 'model_type'. Must be one of {*self.model_types, }."
             raise ValueError(msg)
         self._model_type = v

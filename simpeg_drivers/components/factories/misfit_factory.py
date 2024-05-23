@@ -1,8 +1,20 @@
-#  Copyright (c) 2024 Mira Geoscience Ltd.
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
+#  All rights reserved.
 #
-#  This file is part of simpeg_drivers package.
+#  This file is part of simpeg-drivers.
 #
-#  All rights reserved
+#  The software and information contained herein are proprietary to, and
+#  comprise valuable trade secrets of, Mira Geoscience, which
+#  intend to preserve as trade secrets such software and information.
+#  This software is furnished pursuant to a written license agreement and
+#  may be used, copied, transmitted, and stored only in accordance with
+#  the terms of such license and with the inclusion of the above copyright
+#  notice.  This software and information or any other copies thereof may
+#  not be provided or otherwise made available to any other person.
+#
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
 
 from __future__ import annotations
 
@@ -61,7 +73,7 @@ class MisfitFactory(SimPEGFactory):
         local_misfits = []
         self.sorting = []
         self.ordering = []
-        padding_cells = 8 if self.factory_type in ["fem", "tdem"] else 6
+        padding_cells = 4 if self.factory_type in ["fem", "tdem"] else 6
 
         # Keep whole mesh for 1 tile
         if len(tiles) == 1:
@@ -70,6 +82,9 @@ class MisfitFactory(SimPEGFactory):
         tile_num = 0
         data_count = 0
         for local_index in tiles:
+            if len(local_index) == 0:
+                continue
+
             for count, channel in enumerate(channels):
                 survey, local_index, ordering = inversion_data.create_survey(
                     mesh=mesh, local_index=local_index, channel=channel
@@ -96,6 +111,14 @@ class MisfitFactory(SimPEGFactory):
                     tile_id=tile_num,
                     padding_cells=padding_cells,
                 )
+
+                # TODO add option to export tile meshes
+                # from octree_creation_app.utils import treemesh_2_octree
+                # from geoh5py.shared.utils import fetch_active_workspace
+                #
+                # with fetch_active_workspace(self.params.geoh5) as ws:
+                #     treemesh_2_octree(ws, local_sim.mesh)
+
                 # TODO Parse workers to simulations
                 local_sim.workers = self.params.distributed_workers
                 local_data = data.Data(survey)

@@ -1,16 +1,30 @@
-#  Copyright (c) 2022-2023 Mira Geoscience Ltd.
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
+#  All rights reserved.
 #
-#  This file is part of simpeg_drivers package.
+#  This file is part of simpeg-drivers.
 #
-#  All rights reserved
+#  The software and information contained herein are proprietary to, and
+#  comprise valuable trade secrets of, Mira Geoscience, which
+#  intend to preserve as trade secrets such software and information.
+#  This software is furnished pursuant to a written license agreement and
+#  may be used, copied, transmitted, and stored only in accordance with
+#  the terms of such license and with the inclusion of the above copyright
+#  notice.  This software and information or any other copies thereof may
+#  not be provided or otherwise made available to any other person.
+#
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
 
 # pylint: disable=unexpected-keyword-arg, no-value-for-parameter
 
 from __future__ import annotations
 
 import sys
+from pathlib import Path
 
 import numpy as np
+from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
 from octree_creation_app.utils import (
     collocate_octrees,
@@ -44,7 +58,7 @@ class BaseJointDriver(InversionDriver):
                 if driver.data_misfit is not None:
                     objective_functions += driver.data_misfit.objfcts
                     multipliers += [
-                        getattr(self.params, f"group_{label}_multiplier")
+                        getattr(self.params, f"group_{label}_multiplier") ** 2.0
                     ] * len(driver.data_misfit.objfcts)
 
             self._data_misfit = ComboObjectiveFunction(
@@ -60,20 +74,15 @@ class BaseJointDriver(InversionDriver):
             drivers = []
             physical_property = []
             # Create sub-drivers
-            for group in [
-                self.params.group_a,
-                self.params.group_b,
-                self.params.group_c,
-            ]:
-                if group is None:
-                    continue
+            for group in self.params.groups:
+                _ = group.options  # Triggers something... otherwise ui_json is empty
+                group = group.copy(parent=self.params.out_group)
 
-                group = self.workspace.get_entity(group.uid)[0]
                 ui_json = group.options
                 ui_json["geoh5"] = self.workspace
 
                 ifile = InputFile(ui_json=ui_json)
-                mod_name, class_name = DRIVER_MAP.get(ifile.data["inversion_type"])
+                mod_name, class_name = DRIVER_MAP.get(ui_json["inversion_type"])
                 module = __import__(mod_name, fromlist=[class_name])
                 inversion_driver = getattr(module, class_name)
                 params = inversion_driver._params_class(  # pylint: disable=W0212
@@ -81,7 +90,6 @@ class BaseJointDriver(InversionDriver):
                 )
                 driver = inversion_driver(params)
                 physical_property.append(params.physical_property)
-                group.parent = self.params.out_group
                 drivers.append(driver)
 
             self._drivers = drivers
@@ -186,6 +194,10 @@ class BaseJointDriver(InversionDriver):
         sys.stdout = self.logger
         self.logger.start()
         self.configure_dask()
+
+        if Path(self.params.input_file.path_name).is_file():
+            with fetch_active_workspace(self.workspace, mode="r+"):
+                self.out_group.add_file(self.params.input_file.path_name)
 
         if self.params.forward_only:
             print("Running the forward simulation ...")

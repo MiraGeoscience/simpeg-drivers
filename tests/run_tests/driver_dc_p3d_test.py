@@ -1,8 +1,19 @@
-#  Copyright (c) 2024 Mira Geoscience Ltd.
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
+#  All rights reserved.
 #
-#  This file is part of simpeg_drivers package.
+#  This file is part of simpeg-drivers.
 #
-#  All rights reserved
+#  The software and information contained herein are proprietary to, and
+#  comprise valuable trade secrets of, Mira Geoscience, which
+#  intend to preserve as trade secrets such software and information.
+#  This software is furnished pursuant to a written license agreement and
+#  may be used, copied, transmitted, and stored only in accordance with
+#  the terms of such license and with the inclusion of the above copyright
+#  notice.  This software and information or any other copies thereof may
+#  not be provided or otherwise made available to any other person.
+#
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
 from __future__ import annotations
@@ -10,7 +21,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import numpy as np
 from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 
@@ -26,9 +36,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 1.099, "phi_d": 4150, "phi_m": 0.7511}
-
-np.random.seed(0)
+target_run = {"data_norm": 1.099, "phi_d": 4320, "phi_m": 0.6145}
 
 
 def test_dc_p3d_fwr_run(
@@ -86,7 +94,6 @@ def test_dc_p3d_run(
         topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
-        np.random.seed(0)
         params = DirectCurrentPseudo3DParams(
             geoh5=geoh5,
             mesh=mesh.uid,

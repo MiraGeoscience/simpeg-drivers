@@ -1,8 +1,20 @@
-#  Copyright (c) 2022-2023 Mira Geoscience Ltd.
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
+#  All rights reserved.
 #
-#  This file is part of simpeg_drivers package.
+#  This file is part of simpeg-drivers.
 #
-#  All rights reserved
+#  The software and information contained herein are proprietary to, and
+#  comprise valuable trade secrets of, Mira Geoscience, which
+#  intend to preserve as trade secrets such software and information.
+#  This software is furnished pursuant to a written license agreement and
+#  may be used, copied, transmitted, and stored only in accordance with
+#  the terms of such license and with the inclusion of the above copyright
+#  notice.  This software and information or any other copies thereof may
+#  not be provided or otherwise made available to any other person.
+#
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
 
 # pylint: disable=W0613
 # pylint: disable=W0221
@@ -16,11 +28,15 @@ if TYPE_CHECKING:
 
 import numpy as np
 import SimPEG.electromagnetics.time_domain as tdem
+from geoh5py.objects.surveys.electromagnetics.ground_tem import (
+    LargeLoopGroundTEMTransmitters,
+)
 from scipy.interpolate import interp1d
 
 from simpeg_drivers.components.factories.receiver_factory import ReceiversFactory
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 from simpeg_drivers.components.factories.source_factory import SourcesFactory
+from simpeg_drivers.utils.surveys import counter_clockwise_sort
 
 
 def receiver_group(txi, potential_electrodes):
@@ -93,6 +109,9 @@ class SurveyFactory(SimPEGFactory):
         elif self.factory_type in ["magnetotellurics", "tipper"]:
             from SimPEG.electromagnetics.natural_source import survey
 
+        else:
+            raise ValueError(f"Factory type '{self.factory_type}' not recognized.")
+
         return survey.Survey
 
     def assemble_arguments(self, data=None, mesh=None, local_index=None, channel=None):
@@ -125,7 +144,7 @@ class SurveyFactory(SimPEGFactory):
                 data=data.observed,
                 local_index=self.local_index,
             )
-            sources = SourcesFactory(self.params).build(receivers)
+            sources = SourcesFactory(self.params).build(receivers=receivers)
             return [sources]
 
     def assemble_keyword_arguments(self, **_):
@@ -217,9 +236,9 @@ class SurveyFactory(SimPEGFactory):
             data_vec = self._stack_channels(local_data, "row")
             uncertainty_vec = self._stack_channels(local_uncertainties, "row")
             uncertainty_vec[np.isnan(data_vec)] = np.inf
-            data_vec[
-                np.isnan(data_vec)
-            ] = self.dummy  # Nan's handled by inf uncertainties
+            data_vec[np.isnan(data_vec)] = (
+                self.dummy
+            )  # Nan's handled by inf uncertainties
             survey.dobs = data_vec
             survey.std = uncertainty_vec
 
@@ -232,9 +251,9 @@ class SurveyFactory(SimPEGFactory):
             data_vec = self._stack_channels(local_data, "column")
             uncertainty_vec = self._stack_channels(local_uncertainties, "column")
             uncertainty_vec[np.isnan(data_vec)] = np.inf
-            data_vec[
-                np.isnan(data_vec)
-            ] = self.dummy  # Nan's handled by inf uncertainties
+            data_vec[np.isnan(data_vec)] = (
+                self.dummy
+            )  # Nan's handled by inf uncertainties
             survey.dobs = data_vec
             survey.std = uncertainty_vec
 
@@ -316,25 +335,30 @@ class SurveyFactory(SimPEGFactory):
     def _tdem_arguments(self, data=None, local_index=None, mesh=None):
         receivers = data.entity
         transmitters = receivers.transmitters
-        transmitter_id = receivers.get_data("Transmitter ID")
 
-        if transmitter_id:
-            tx_rx = transmitter_id[0].values
+        if isinstance(transmitters, LargeLoopGroundTEMTransmitters):
+
+            if receivers.tx_id_property is None:
+                raise ValueError(
+                    "Transmitter ID property required for LargeLoopGroundTEMReceivers"
+                )
+
+            tx_rx = receivers.tx_id_property.values[self.local_index]
             tx_ids = transmitters.get_data("Transmitter ID")[0].values
-            rx_lookup = {}
-            tx_locs_lookup = {}
-            for k in np.unique(tx_rx[self.local_index]):
-                rx_lookup[k] = np.where(tx_rx == k)[0]
-                tx_ind = tx_ids == k
+            rx_lookup = []
+            tx_locs = []
+            for tx_id in np.unique(tx_rx):
+                rx_lookup.append(self.local_index[tx_rx == tx_id])
+                tx_ind = tx_ids == tx_id
                 loop_cells = transmitters.cells[
                     np.all(tx_ind[transmitters.cells], axis=1), :
                 ]
+                loop_cells = counter_clockwise_sort(loop_cells, transmitters.vertices)
                 loop_ind = np.r_[loop_cells[:, 0], loop_cells[-1, 1]]
-                tx_locs = transmitters.vertices[loop_ind, :]
-                tx_locs_lookup[k] = tx_locs
+                tx_locs.append(transmitters.vertices[loop_ind, :])
         else:
-            rx_lookup = {k: [k] for k in self.local_index}
-            tx_locs_lookup = {k: transmitters.vertices[k, :] for k in self.local_index}
+            rx_lookup = self.local_index[:, np.newaxis].tolist()
+            tx_locs = [transmitters.vertices[k, :] for k in self.local_index]
 
         wave_function = interp1d(
             (receivers.waveform[:, 0] - receivers.timing_mark)
@@ -351,7 +375,7 @@ class SurveyFactory(SimPEGFactory):
         tx_list = []
         rx_factory = ReceiversFactory(self.params)
         tx_factory = SourcesFactory(self.params)
-        for tx_id, rx_ids in rx_lookup.items():
+        for tx_locs, rx_ids in zip(tx_locs, rx_lookup):
             locs = receivers.vertices[rx_ids, :]
 
             rx_list = []
@@ -370,9 +394,7 @@ class SurveyFactory(SimPEGFactory):
                         self.ordering.append([time_id, component_id, rx_id])
 
             tx_list.append(
-                tx_factory.build(
-                    rx_list, locations=tx_locs_lookup[tx_id], waveform=waveform
-                )
+                tx_factory.build(rx_list, locations=tx_locs, waveform=waveform)
             )
 
         return [tx_list]

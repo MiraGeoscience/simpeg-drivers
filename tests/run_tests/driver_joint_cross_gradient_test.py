@@ -1,9 +1,19 @@
-#  Copyright (c) 2024 Mira Geoscience Ltd.
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
+#  All rights reserved.
 #
 #  This file is part of simpeg-drivers.
 #
-#  simpeg-drivers is distributed under the terms and conditions of the MIT License
-#  (see LICENSE file at the root of this source code package).
+#  The software and information contained herein are proprietary to, and
+#  comprise valuable trade secrets of, Mira Geoscience, which
+#  intend to preserve as trade secrets such software and information.
+#  This software is furnished pursuant to a written license agreement and
+#  may be used, copied, transmitted, and stored only in accordance with
+#  the terms of such license and with the inclusion of the above copyright
+#  notice.  This software and information or any other copies thereof may
+#  not be provided or otherwise made available to any other person.
+#
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 from pathlib import Path
 
@@ -29,20 +39,21 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 51.20763877051509, "phi_d": 1028, "phi_m": 0.08187}
+target_run = {"data_norm": 53.29600188902931, "phi_d": 500, "phi_m": 0.1585}
 
 
 def test_joint_cross_gradient_fwr_run(
     tmp_path,
     n_grid_points=4,
+    n_lines=3,
     refinement=(2,),
 ):
-    np.random.seed(0)
     # Create local problem A
     geoh5, _, model, survey, topography = setup_inversion_workspace(
         tmp_path,
         background=0.0,
         anomaly=0.75,
+        drape_height=15.0,
         refinement=refinement,
         n_electrodes=n_grid_points,
         n_lines=n_grid_points,
@@ -64,6 +75,7 @@ def test_joint_cross_gradient_fwr_run(
         geoh5=geoh5,
         background=0.0,
         anomaly=0.05,
+        drape_height=15.0,
         refinement=refinement,
         n_electrodes=n_grid_points,
         n_lines=n_grid_points,
@@ -92,7 +104,7 @@ def test_joint_cross_gradient_fwr_run(
         background=0.01,
         anomaly=10,
         n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
+        n_lines=n_lines,
         refinement=refinement,
         drape_height=0.0,
         inversion_type="dcip",
@@ -123,6 +135,7 @@ def test_joint_cross_gradient_fwr_run(
 def test_joint_cross_gradient_inv_run(
     tmp_path,
     max_iterations=1,
+    n_lines=3,
     pytest=True,
 ):
     workpath = tmp_path / "inversion_test.ui.geoh5"
@@ -151,9 +164,13 @@ def test_joint_cross_gradient_inv_run(
             mesh = group.get_entity("mesh")[0]
             survey = group.get_entity("survey")[0]
 
+            data = None
             for child in survey.children:
                 if isinstance(child, FloatData):
                     data = child
+
+            if data is None:
+                raise ValueError("No data found in survey")
 
             orig_data.append(data.values)
 
@@ -161,6 +178,7 @@ def test_joint_cross_gradient_inv_run(
                 params = GravityParams(
                     geoh5=geoh5,
                     mesh=mesh.uid,
+                    alpha_s=0.0,
                     topography_object=topography.uid,
                     data_object=survey.uid,
                     gz_channel=data.uid,
@@ -172,11 +190,12 @@ def test_joint_cross_gradient_inv_run(
                 params = DirectCurrent3DParams(
                     geoh5=geoh5,
                     mesh=mesh.uid,
+                    alpha_s=0.0,
                     topography_object=topography.uid,
                     data_object=survey.uid,
                     potential_channel=data.uid,
                     potential_uncertainty=1e-3,
-                    tile_spatial=1,
+                    tile_spatial=n_lines,
                     starting_model=1e-2,
                     reference_model=1e-2,
                 )
@@ -185,6 +204,7 @@ def test_joint_cross_gradient_inv_run(
                 params = MagneticVectorParams(
                     geoh5=geoh5,
                     mesh=mesh.uid,
+                    alpha_s=0.0,
                     topography_object=topography.uid,
                     inducing_field_strength=group.options["inducing_field_strength"][
                         "value"
@@ -198,23 +218,26 @@ def test_joint_cross_gradient_inv_run(
                     data_object=survey.uid,
                     starting_model=1e-4,
                     reference_model=0.0,
-                    tile_spatial=2,
+                    tile_spatial=1,
                     tmi_channel=data.uid,
-                    tmi_uncertainty=2.0,
+                    tmi_uncertainty=1e0,
                 )
                 drivers.append(MagneticVectorDriver(params))
 
         # Run the inverse
-        np.random.seed(0)
         joint_params = JointCrossGradientParams(
             geoh5=geoh5,
             topography_object=topography.uid,
             group_a=drivers[0].params.out_group,
+            group_a_multiplier=1e-2,
             group_b=drivers[1].params.out_group,
+            group_b_multiplier=1e-2,
             group_c=drivers[2].params.out_group,
             max_global_iterations=max_iterations,
-            initial_beta_ratio=1e0,
-            cross_gradient_weight_a_b=1e3,
+            initial_beta_ratio=1e2,
+            cross_gradient_weight_a_b=5e0,
+            cross_gradient_weight_c_a=5e0,
+            cross_gradient_weight_c_b=5e0,
             s_norm=0.0,
             x_norm=0.0,
             y_norm=0.0,
@@ -241,11 +264,13 @@ if __name__ == "__main__":
     # Full run
     test_joint_cross_gradient_fwr_run(
         Path("./"),
-        n_grid_points=20,
+        n_grid_points=16,
+        n_lines=5,
         refinement=(4, 8),
     )
     test_joint_cross_gradient_inv_run(
         Path("./"),
         max_iterations=20,
+        n_lines=5,
         pytest=False,
     )
