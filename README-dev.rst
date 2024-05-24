@@ -7,50 +7,116 @@ Setup for development
    :depth: 2
 
 After you have cloned the Git repository, you will need to:
-    #. create the ``.lock`` files for the dependencies
-    #. create a virtual ``conda`` environment for development, where to install the dependencies
-       of  the project
-    #. execute the tests
-    #. setup Git LFS if needed
-    #. configure the pre-commit hooks for static code analysis and auto-formatting
-    #. configure the Python IDE (PyCharm)
 
-Create the .lock files
-^^^^^^^^^^^^^^^^^^^^^^
+#. create the Conda environment lock files for the dependencies
+#. create a virtual Conda environment for development, where to install the
+   dependencies of the project
+#. execute the tests
+#. setup Git LFS if needed
+#. configure the pre-commit hooks for static code analysis and auto-formatting
+#. configure the Python IDE (PyCharm)
 
-First, you need to create the ``.lock`` files for the dependencies defined in ``pyproject.toml``.
-To do so, double click on ``devtools\run-conda-lock.bat`` or execute it from command line::
 
-    $ [path\to\simpeg-drivers]\devtools\run_conda_lock.bat
+.. _conda-lock: https://conda.github.io/conda-lock/
+.. _Poetry: https://python-poetry.org/
+.. _pipx: https://pipxproject.github.io/pipx/
+.. _pre-commit: https://pre-commit.com/
+.. _py-deps-lock: https://github.com/MiraGeoscience/py-deps-lock
 
-It will create ``.lock`` in the ``environments`` folder.
-The created ``.lock`` files are the combination of python version and platforms.
-The platforms are specified in ``conda-lock`` section of the ``pyproject.toml`` file:
 
-.. code-block:: toml
+Create the Conda lock files and environment
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    [tool.conda-lock]
-    platforms = ['win-64', 'linux-64']
+Install internal tool ``py-deps-lock`` to create the Conda environment lock files,
+and the local development environment. ``py-deps-lock`` is a wrapper around `conda-lock`_.
 
-The python versions are specified at the beginning of the ``devtools\run-conda-lock.py`` file:
+See details in the `py-deps-lock`_ documentation.
 
-.. code-block:: python
+To install ``py-deps-lock`` with `pipx`_, run the command::
 
-    _python_versions = ["3.10"]
+    $ pipx install git+https://github.com/MiraGeoscience/py-deps-lock
 
-The ``Install_or_Update.bat`` and the ``setup-dev.bat`` will use them to install the environment.
 
-Anytime dependencies are added or removed to the ``pyproject.toml`` file, you need to run ``run-conda-lock.bat`` again. Run it as well when you want to fetch newly available versions of the dependencies (typically patches, still in accordance with the specifications expressed in ``pyproject.toml``).
+This expose commands to the execution ``PATH``:
 
-Install the conda environment
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+- create-dev-env
+- deps-lock
 
-For development, you need a **conda** environments. you can install it running the ``setup-dev.bat`` or::
 
-    $ [path\to\simpeg-drivers]\devtools\setup-dev.bat
+Create the Conda environment lock files
+---------------------------------------
+First, create the Conda environment lock files (``*.conda.lock.yml``) for the dependencies defined
+in `pyproject.toml`_. From the root of the project, run the command::
+
+    $ deps-lock
+
+It will create or replace the ``*.conda.lock.yml`` files in the ``environments`` folder:
+one for runtime dependencies, and one for development dependencies (with the ``-dev`` suffix),
+for each combinations of Python versions and platforms
+(platforms are specified in ``conda-lock`` section of the ``pyproject.toml``).
+
+These files will be used by installation script and to create the development environment.
+
+
+Install the Conda environment
+-----------------------------
+
+For development, you need a **Conda** environment. From the root of the project, run the command::
+
+    $ create-dev-env
 
 This command install a local environment at the base of your repository: ``.conda-env``.
-This environment should automatically be recognized by the conda installation.
+This environment should automatically be recognized by the Conda installation.
+
+To activate this environment, run the following command from the root of the project::
+
+    $ conda activate ./.conda-env
+
+
+Updating dependencies
+^^^^^^^^^^^^^^^^^^^^^
+
+Dependencies are listed in `pyproject.toml`_ with version constraints.
+Versions are then locked using ``deps-lock`` as previously described.
+
+Anytime dependencies are added to or removed from the ``pyproject.toml`` file,
+regenerate the Conda environment lock files, re-running ``deps-lock`` from command line.
+
+Regenerate the Conda environment lock files as well when you want to fetch newly
+available versions of the dependencies (typically patches, still in accordance with
+the specifications expressed in ``pyproject.toml``).
+
+
+Adding a dependency
+-------------------
+First install the dependency using ``conda``:
+
+    $ conda install -p ./.conda-env my_new_dep
+
+Then update the list of dependencies in `pyproject.toml`_ with a suited version constraint
+(if for development only, place it under section ``[tool.poetry.group.dev.dependencies]``).
+
+For example, if ``conda`` installed version 1.5.2 of ``my_new_dep``,
+then add ``my_new_dep="^1.5.2"``.
+
+Do not forget to regenerate the Conda environment lock files.
+
+
+How to use **Poetry** to update the dependency list (optional)
+--------------------------------------------------------------
+`Poetry`_ provides a command line interface to easily add or remove dependencies:
+
+    (path/to/.conda-env) $ poetry add another_package --lock
+
+Note the ``--lock`` option, that simple creates or updates the lock file, without Poetry installing anything.
+``poetry`` would install the package through ``pip`` while we want dependencies to be installed through ``conda``
+so that they match the version pinned by ``conda-lock``.
+
+One limitation though: Poetry will look for packages in PiPY only and not in the Conda channels.
+The version selected by Poetry might thus not be available for Conda.
+
+To install ``Poetry`` on your computer, refer to the `Poetry`_ documentation.
+
 
 Configure the pre-commit hooks
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -58,81 +124,71 @@ Configure the pre-commit hooks
 `pre-commit`_ is used to automatically run static code analysis upon commit.
 The list of tools to execute upon commit is configured in the file `.pre-commit-config.yaml`_.
 
-pre-commit can be installed using a Python installation on the system, or one from a conda environment.
+pre-commit can be installed using a Python installation on the system, or one from a Conda environment,
+or through `pipx`_.
 
-- To install pre-commit using Python (and pip) in your system path:
+- To install ``pre-commit`` using ``pipx`` (recommended)::
 
-..  code-block:: bash
+    $ pipx install pre-commit
 
-    pip install --user pre-commit
+- To install ``pre-commit`` using Python (and pip) in your system path::
 
-- Or to install from an activated conda environment:
+    $ pip install --user pre-commit
 
-..  code-block:: bash
+- Or to install from an activated Conda environment::
 
-    conda install -c conda-forge pre-commit
+    $ conda install -c conda-forge pre-commit
 
-Then, in either way, install the pre-commit hooks as follow (**current directory is the project folder**):
+Then, in either way, install the pre-commit hooks as follow (**current directory is the project folder**)::
 
-..  code-block:: bash
+    $ pre-commit install
 
-    pre-commit install
+To prepare and check the commit messages, you can also use the following commands::
 
-To prepare and check the commit messages, you can also use the following commands:
+    $ pre-commit install -t prepare-commit-msg -t commit-msg
 
-.. code-block:: bash
+It configures ``pre-commit`` to prepares and checks the commit ensuring it has a JIRA issue ID:
+if no ID was provided, it extracts it from the branch name;
+if one was provided, it checks it is the same one as in the branch name.
 
-    pre-commit install -t prepare-commit-msg -t commit-msg
+To run pre-commit manually, use the following command::
 
-It configures ``pre-commit`` to prepares and checks the commit ensuring it has a JIRA issue ID: if no ID was provided, it extracts it from the branch name. If one was provided, it checks it is the same one as in the branch name.
+    $ pre-commit run --all-files
 
-To run pre-commit manually, use the following command:
+To run only on changes staged for commit::
 
-..  code-block:: bash
+    $ pre-commit run
 
-    pre-commit run --all-files
+If a tool fails running, it might be caused by an obsolete versions of the tools that pre-commit is
+trying to execute. Try the following command to update them::
 
-To run only on changes staged for commit:
-
-.. code-block:: bash
-
-    pre-commit run
-
-If a tool fails running, it might be caused by an obsolete versions of the tools that pre-commit is trying to execute.
-Try the following command to update them:
-
-..  code-block:: bash
-
-    pre-commit autoupdate
+    $ pre-commit autoupdate
 
 Upon every commit, all the pre-commit checks run automatically for you, and reformat files when required. Enjoy...
 
-If you prefer to run pre-commit upon push, and not upon every commit, use the following commands:
+If you prefer to run pre-commit upon push, and not upon every commit, use the following commands::
 
-..  code-block:: bash
+    $ pre-commit uninstall -t pre-commit
+    $ pre-commit install -t pre-push
 
-    pre-commit uninstall -t pre-commit
-    pre-commit install -t pre-push
-
-.. _pre-commit: https://pre-commit.com/
 
 Running the tests
 ^^^^^^^^^^^^^^^^^
+
 Test files are placed under the ``tests`` folder. Inside this folder and sub-folders,
 Python test files are to be named with ``_test.py`` as a suffix.
 The test function within this files must have a ``test_`` prefix.
 
+
 Install pytest
 --------------
-
 .. _pytest: https://docs.pytest.org/
 
 If you installed  your environment through ``setup-dev.bat``, pytest is already installed.
-You can run it from the conda command (**in your project folder**):
+You can run it from the Conda command (**in your project folder**)::
 
-.. code-block:: bash
+    $ pytest tests
 
-    pytest tests
 
 Code coverage with Pytest
 -------------------------
@@ -140,25 +196,22 @@ Code coverage with Pytest
 
 If you installed  your environment through ``setup-dev.bat``, `pytest-cov`_ is already installed.
 It allows you to visualize the code coverage of your tests.
-You can run the tests from the console with coverage:
+You can run the tests from the console with coverage::
 
-.. code-block:: bash
-
-    pytest --cov=simpeg_drivers --cov-report html tests
+    $ pytest --cov-report html tests
 
 The html report is generated in the folder ``htmlcov`` at the root of the project.
 You can then explore the report by opening ``index.html`` in a browser.
+
 
 Git LFS
 ^^^^^^^
 In the case your package requires large files, `git-lfs`_ can be used to store those files.
 Copy it from the `git-lfs`_ website, and install it.
 
-Then, in the project folder, run the following command to install git-lfs:
+Then, in the project folder, run the following command to install git-lfs::
 
-.. code-block:: bash
-
-    git lfs install
+    $ git lfs install
 
 
 It will update the file ``.gitattributes`` with the list of files to track.
@@ -167,15 +220,15 @@ Then, add the files and the ``.gitattributes`` to the git repository, and commit
 
 .. _git-lfs: https://git-lfs.com/
 
-Then, add the files to track with git-lfs:
+Then, add the files to track with git-lfs::
 
-.. code-block:: bash
+    $ git lfs track "*.desire_extension"
 
-    git lfs track "*.desire_extension"
 
 IDE : PyCharm
 ^^^^^^^^^^^^^
 `PyCharm`_, by JetBrains, is a very good IDE for developing with Python.
+
 
 Configure the Python interpreter in PyCharm
 --------------------------------------------
@@ -183,10 +236,10 @@ Configure the Python interpreter in PyCharm
 First, excluded the ``.conda-env`` folder from PyCharm.
 Do so, in PyCharm, right-click on the ``.conda-env`` folder, and ``Mark Directory as > Excluded``.
 
-Then, you can add the conda environment as a Python interpreter in PyCharm.
+Then, you can add the Conda environment as a Python interpreter in PyCharm.
 
     ..  image:: devtools/images/pycharm-exclude_conda_env.png
-        :alt: PyCharm: Exclude conda environment
+        :alt: PyCharm: Exclude Conda environment
         :align: center
         :width: 40%
 
@@ -203,12 +256,12 @@ Select ``Conda Environment``, ``Use existing environment``,
 and select the desired environment from the list (the one in the ``.conda-env`` folder):
 
     ..  image:: devtools/images/pycharm-set_conda_env_as_interpreter.png
-        :alt: PyCharm: Set conda environment as interpreter
+        :alt: PyCharm: Set Conda environment as interpreter
         :align: center
         :width: 80%
 
 Then you can check the list of installed packages in the ``Packages`` table. You should see
-**simpeg-drivers** and its dependencies. Make sure to turn off the ``Use Conda Package Manager``
+this source package and its dependencies. Make sure to turn off the ``Use Conda Package Manager``
 option to see also the packages installed through pip:
 
     ..  image:: devtools/images/pycharm-list_all_conda_packages.png
@@ -236,6 +289,7 @@ PyCharm will nicely present the test results and logs:
         :align: center
         :width: 80%
 
+
 Execute tests with coverage from PyCharm
 ----------------------------------------
 
@@ -256,9 +310,10 @@ then add the following option in the ``Additional Arguments`` field:
 
 select ``pytest in tests``, and add the following option in the ``Additional Arguments`` field::
 
-    --cov=simpeg_drivers --cov-report html
+    --cov-report html
 
 Then, run the tests as usual, and you will get a nice report of the code coverage.
+
 
 Some useful plugins for PyCharm
 --------------------------------
@@ -276,11 +331,6 @@ Here is a suggestion for some plugins you can install in PyCharm.
 
 .. _pyproject.toml: pyproject.toml
 .. _.pre-commit-config.yaml: .pre-commit-config.yaml
-
-
-License
-^^^^^^^
-# TODO: ADD LICENSE TERMS
 
 
 Copyright
