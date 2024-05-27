@@ -27,14 +27,14 @@ dependencies:
   - distributed=2022.10.2=pyhd8ed1ab_0
   - empymod=2.3.0=pyhd8ed1ab_0
   - fasteners=0.17.3=pyhd8ed1ab_0
-  - fonttools=4.51.0=py310h8d17308_0
+  - fonttools=4.52.1=py310ha8f682b_0
   - freetype=2.12.1=hdaf720e_2
   - fsspec=2022.11.0=pyhd8ed1ab_0
   - geoana=0.4.0=py310h232114e_1
   - h5py=3.11.0=nompi_py310h2b0be38_101
   - hdf5=1.14.3=nompi_h73e8ff5_101
   - idna=3.7=pyhd8ed1ab_0
-  - intel-openmp=2024.1.0=h57928b3_965
+  - intel-openmp=2024.1.0=h57928b3_966
   - jinja2=3.1.4=pyhd8ed1ab_0
   - joblib=1.4.2=pyhd8ed1ab_0
   - kiwisolver=1.4.5=py310h232114e_1
@@ -80,7 +80,7 @@ dependencies:
   - numcodecs=0.12.1=py310h9e98ed7_1
   - numpy=1.23.5=py310h4a8f9c9_0
   - openjpeg=2.5.2=h3d672ee_0
-  - openssl=3.3.0=h2466b09_2
+  - openssl=3.3.0=h2466b09_3
   - packaging=24.0=pyhd8ed1ab_0
   - pandas=2.2.2=py310hb4db72f_1
   - partd=1.4.2=pyhd8ed1ab_0
@@ -143,7 +143,6 @@ dependencies:
       - mira-simpeg @ https://github.com/MiraGeoscience/simpeg/archive/refs/heads/develop.zip
       - octree-creation-app @ https://github.com/MiraGeoscience/octree-creation-app/archive/refs/heads/develop.zip
       - param-sweeps @ https://github.com/MiraGeoscience/param-sweeps/archive/refs/heads/develop.zip
-      - setuptools-scm === 8.1.0
 
 variables:
   KMP_WARNINGS: 0
