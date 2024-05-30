@@ -16,17 +16,14 @@
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-# pylint: disable=unexpected-keyword-arg, no-value-for-parameter
-
 from __future__ import annotations
 
 import numpy as np
 from geoh5py.shared.utils import fetch_active_workspace
 from SimPEG import maps
 
-from simpeg_drivers.components.factories import DirectivesFactory
-from simpeg_drivers.joint.driver import BaseJointDriver
-
+from ...components.factories import DirectivesFactory
+from ...joint.driver import BaseJointDriver
 from .constants import validations
 from .params import JointSurveysParams
 
