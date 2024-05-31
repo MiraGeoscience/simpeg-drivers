@@ -16,17 +16,14 @@
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-# pylint: disable=unexpected-keyword-arg, no-value-for-parameter
-
 from __future__ import annotations
 
 import numpy as np
 from geoh5py.shared.utils import fetch_active_workspace
 from SimPEG import maps
 
-from simpeg_drivers.components.factories import DirectivesFactory
-from simpeg_drivers.joint.driver import BaseJointDriver
-
+from ...components.factories import DirectivesFactory
+from ...joint.driver import BaseJointDriver
 from .constants import validations
 from .params import JointSurveysParams
 
@@ -84,29 +81,28 @@ class JointSurveyDriver(BaseJointDriver):
                 count = 0
                 for driver in self.drivers:
                     driver_directives = DirectivesFactory(driver)
-                    save_data = driver_directives.save_iteration_data_directive
-
-                    n_tiles = len(driver.data_misfit.objfcts)
-                    save_data.joint_index = [count + ii for ii in range(n_tiles)]
-                    count += n_tiles
 
                     save_model = driver_directives.save_iteration_model_directive
                     save_model.transforms = [
                         driver.data_misfit.model_map
                     ] + save_model.transforms
-                    directives_list += [
-                        save_data,
-                        save_model,
-                    ]
+                    directives_list.append(save_model)
 
-                    for directive in [
+                    n_tiles = len(driver.data_misfit.objfcts)
+                    for name in [
+                        "save_iteration_data_directive",
+                        "save_iteration_residual_directive",
                         "save_iteration_apparent_resistivity_directive",
                         "vector_inversion_directive",
                     ]:
-                        if getattr(driver_directives, directive) is not None:
-                            directives_list.append(
-                                getattr(driver_directives, directive)
-                            )
+                        directive = getattr(driver_directives, name)
+                        if directive is not None:
+                            directive.joint_index = [
+                                count + ii for ii in range(n_tiles)
+                            ]
+                            directives_list.append(directive)
+
+                    count += n_tiles
 
                 self._directives = DirectivesFactory(self)
                 global_model_save = self._directives.save_iteration_model_directive
