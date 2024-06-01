@@ -15,9 +15,6 @@
 #
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-# pylint: disable=unused-import
-# flake8: noqa
-
 from __future__ import annotations
 
 __version__ = "0.1.0-beta.7"
@@ -28,6 +25,14 @@ from SimPEG import dask
 
 from simpeg_drivers.constants import default_ui_json
 from simpeg_drivers.params import InversionBaseParams
+
+__all__ = [
+    "DRIVER_MAP",
+    "InversionBaseParams",
+    "assets_path",
+    "dask",
+    "default_ui_json",
+]
 
 
 def assets_path() -> Path:
