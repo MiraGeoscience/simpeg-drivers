@@ -17,7 +17,7 @@
 
 from __future__ import annotations
 
-__version__ = "0.1.0-beta.7"
+__version__ = "0.1.0-rc.1"
 
 from pathlib import Path
 
