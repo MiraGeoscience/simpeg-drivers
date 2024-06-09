@@ -117,7 +117,7 @@ class DirectivesFactory:
             "save_iteration_data_directive",
             "save_iteration_residual_directive",
             "save_iteration_apparent_resistivity_directive",
-            "save_iteration_sensitivity_directive",
+            # "save_iteration_sensitivity_directive",
         ]:
             if getattr(self, directive) is not None:
                 directives_list.append(getattr(self, directive))

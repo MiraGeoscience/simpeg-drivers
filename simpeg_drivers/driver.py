@@ -50,7 +50,11 @@ from simpeg_drivers.components import (
     InversionTopography,
     InversionWindow,
 )
-from simpeg_drivers.components.factories import DirectivesFactory, MisfitFactory
+from simpeg_drivers.components.factories import (
+    DirectivesFactory,
+    MisfitFactory,
+    SaveIterationsGeoH5,
+)
 from simpeg_drivers.params import InversionBaseParams
 from simpeg_drivers.utils.utils import tile_locations
 
@@ -327,7 +331,7 @@ class InversionDriver(BaseDriver):
         else:
             for directive in self.directives.save_directives:
                 if (
-                    isinstance(directive, directives.SaveIterationsGeoH5)
+                    isinstance(directive, SaveIterationsGeoH5)
                     and directive.save_objective_function
                 ):
                     directive.save_log()
