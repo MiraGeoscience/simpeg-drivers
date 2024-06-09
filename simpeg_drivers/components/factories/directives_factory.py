@@ -63,8 +63,8 @@ class DirectivesFactory:
             and self._beta_estimate_by_eigenvalues_directive is None
         ):
             self._beta_estimate_by_eigenvalues_directive = (
-                directives.BetaEstimate_ByEig(
-                    beta0_ratio=self.params.initial_beta_ratio, method="ratio", seed=0
+                directives.BetaEstimateMaxDerivative(
+                    beta0_ratio=self.params.initial_beta_ratio, seed=0
                 )
             )
 
@@ -207,7 +207,7 @@ class DirectivesFactory:
         """Directive to update IRLS."""
         if self._update_irls_directive is None:
             has_chi_start = self.params.starting_chi_factor is not None
-            self._update_irls_directive = directives.UpdateIRLS(
+            self._update_irls_directive = directives.Update_IRLS(
                 f_min_change=self.params.f_min_change,
                 max_irls_iterations=self.params.max_irls_iterations,
                 max_beta_iterations=self.params.max_global_iterations,
@@ -661,7 +661,9 @@ class SaveIterationsGeoH5(directives.InversionDirective):
 
         return self.reshape(np.hstack(dpred))
 
-    def save_components(self, iteration: int, values: list[np.ndarray] = None):  # flake8: noqa
+    def save_components(
+        self, iteration: int, values: list[np.ndarray] = None
+    ):  # flake8: noqa
         """
         Sort, transform and store data per components and channels.
         """
