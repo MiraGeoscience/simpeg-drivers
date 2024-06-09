@@ -24,9 +24,9 @@ from itertools import combinations
 
 import numpy as np
 from geoh5py.shared.utils import fetch_active_workspace
-from SimPEG import maps
-from SimPEG.objective_function import ComboObjectiveFunction
-from SimPEG.regularization import CrossGradient
+from simpeg import maps
+from simpeg.objective_function import ComboObjectiveFunction
+from simpeg.regularization import CrossGradient
 
 from simpeg_drivers.components.factories import (
     DirectivesFactory,

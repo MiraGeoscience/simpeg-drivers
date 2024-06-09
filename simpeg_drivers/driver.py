@@ -32,7 +32,7 @@ from geoh5py.groups import SimPEGGroup
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
 from param_sweeps.driver import SweepParams
-from SimPEG import (
+from simpeg import (
     directives,
     inverse_problem,
     inversion,
@@ -40,7 +40,7 @@ from SimPEG import (
     objective_function,
     optimization,
 )
-from SimPEG.regularization import BaseRegularization, Sparse
+from simpeg.regularization import BaseRegularization, Sparse
 
 from simpeg_drivers import DRIVER_MAP
 from simpeg_drivers.components import (

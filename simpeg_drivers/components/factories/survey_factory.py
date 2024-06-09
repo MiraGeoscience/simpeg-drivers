@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from geoapps_utils.driver.params import BaseParams
 
 import numpy as np
-import SimPEG.electromagnetics.time_domain as tdem
+import simpeg.electromagnetics.time_domain as tdem
 from geoh5py.objects.surveys.electromagnetics.ground_tem import (
     LargeLoopGroundTEMTransmitters,
 )
@@ -89,25 +89,25 @@ class SurveyFactory(SimPEGFactory):
 
     def concrete_object(self):
         if self.factory_type in ["magnetic vector", "magnetic scalar"]:
-            from SimPEG.potential_fields.magnetics import survey
+            from simpeg.potential_fields.magnetics import survey
 
         elif self.factory_type == "gravity":
-            from SimPEG.potential_fields.gravity import survey
+            from simpeg.potential_fields.gravity import survey
 
         elif "direct current" in self.factory_type:
-            from SimPEG.electromagnetics.static.resistivity import survey
+            from simpeg.electromagnetics.static.resistivity import survey
 
         elif "induced polarization" in self.factory_type:
-            from SimPEG.electromagnetics.static.induced_polarization import survey
+            from simpeg.electromagnetics.static.induced_polarization import survey
 
         elif "fem" in self.factory_type:
-            from SimPEG.electromagnetics.frequency_domain import survey
+            from simpeg.electromagnetics.frequency_domain import survey
 
         elif "tdem" in self.factory_type:
-            from SimPEG.electromagnetics.time_domain import survey
+            from simpeg.electromagnetics.time_domain import survey
 
         elif self.factory_type in ["magnetotellurics", "tipper"]:
-            from SimPEG.electromagnetics.natural_source import survey
+            from simpeg.electromagnetics.natural_source import survey
 
         else:
             raise ValueError(f"Factory type '{self.factory_type}' not recognized.")

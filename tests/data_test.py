@@ -20,7 +20,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-import SimPEG
+import simpeg
 from discretize.utils import mesh_builder_xyz
 from geoh5py.objects import Points
 from geoh5py.workspace import Workspace
@@ -302,4 +302,4 @@ def test_get_survey(tmp_path: Path):
     ws, params = setup_params(tmp_path)
     data = InversionData(ws, params)
     survey = data.create_survey()
-    assert isinstance(survey[0], SimPEG.potential_fields.magnetics.Survey)
+    assert isinstance(survey[0], simpeg.potential_fields.magnetics.Survey)
