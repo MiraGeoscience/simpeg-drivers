@@ -347,12 +347,12 @@ class InversionDriver(BaseDriver):
             data_count = len(self.inversion_data.survey.std)
 
         print(
-            f"Target Misfit: {0.5 * self.params.chi_factor * data_count:.2e} ({data_count} data "
-            f"with chifact = {self.params.chi_factor}) / 2"
+            f"Target Misfit: {self.params.chi_factor * data_count:.2e} ({data_count} data "
+            f"with chifact = {self.params.chi_factor})"
         )
         print(
-            f"IRLS Start Misfit: {0.5 * chi_start * data_count:.2e} ({data_count} data "
-            f"with chifact = {chi_start}) / 2"
+            f"IRLS Start Misfit: {chi_start * data_count:.2e} ({data_count} data "
+            f"with chifact = {chi_start})"
         )
 
     @property
