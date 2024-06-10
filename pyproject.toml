@@ -59,7 +59,7 @@ param-sweeps = {url = "https://github.com/MiraGeoscience/param-sweeps/archive/re
 
 ## indirect dependencies, forcing them here for installation through Conda not pip
 #---------------------------------------------------------------------------------
-Pillow = "~10.1.0"  # from geoh5py
+Pillow = "~10.3.0"  # from geoh5py
 fsspec = "2022.*"  # from simpeg[dask]
 geoana = "~0.4.0"  # from simpeg
 h5py = "^3.2.1"  # from geoh5py
