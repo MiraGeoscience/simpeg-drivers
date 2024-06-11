@@ -69,7 +69,7 @@ dependencies:
   - libnghttp2=1.58.0=h47da74e_1
   - libnsl=2.0.1=hd590300_0
   - libpng=1.6.43=h2797004_0
-  - libsqlite=3.45.3=h2797004_0
+  - libsqlite=3.46.0=hde9e2c9_0
   - libssh2=1.11.0=h0841786_0
   - libstdcxx-ng=13.2.0=hc0a3c3a_7
   - libtiff=4.6.0=h1dd3fc0_3

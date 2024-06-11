@@ -56,7 +56,7 @@ dependencies:
   - libjpeg-turbo=3.0.0=hcfcfb64_1
   - liblapack=3.9.0=18_win64_mkl
   - libpng=1.6.43=h19919ed_0
-  - libsqlite=3.45.3=hcfcfb64_0
+  - libsqlite=3.46.0=h2466b09_0
   - libssh2=1.11.0=h7dfc565_0
   - libtiff=4.6.0=hddb2be6_3
   - libwebp-base=1.4.0=hcfcfb64_0
