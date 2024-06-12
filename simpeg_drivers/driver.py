@@ -14,7 +14,7 @@
 #  not be provided or otherwise made available to any other person.
 #
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
+# flake8: noqa
 
 from __future__ import annotations
 
@@ -33,6 +33,7 @@ from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
 from param_sweeps.driver import SweepParams
 from SimPEG import (
+    dask,
     directives,
     inverse_problem,
     inversion,
