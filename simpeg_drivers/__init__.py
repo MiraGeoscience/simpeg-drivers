@@ -21,8 +21,6 @@ __version__ = "0.1.0-rc.2"
 
 from pathlib import Path
 
-from SimPEG import dask
-
 from simpeg_drivers.constants import default_ui_json
 from simpeg_drivers.params import InversionBaseParams
 
@@ -30,7 +28,6 @@ __all__ = [
     "DRIVER_MAP",
     "InversionBaseParams",
     "assets_path",
-    "dask",
     "default_ui_json",
 ]
 
