@@ -48,7 +48,6 @@ class DirectivesFactory:
         self._save_iteration_data_directive = None
         self._save_iteration_residual_directive = None
         self._save_iteration_apparent_resistivity_directive = None
-        self._save_iteration_sensitivity_directive = None
 
     @property
     def beta_estimate_by_eigenvalues_directive(self):
@@ -112,7 +111,6 @@ class DirectivesFactory:
             "save_iteration_data_directive",
             "save_iteration_residual_directive",
             "save_iteration_apparent_resistivity_directive",
-            # "save_iteration_sensitivity_directive",
         ]:
             if getattr(self, directive) is not None:
                 directives_list.append(getattr(self, directive))
@@ -164,20 +162,6 @@ class DirectivesFactory:
                 name="Model",
             )
         return self._save_iteration_model_directive
-
-    @property
-    def save_iteration_sensitivity_directive(self):
-        """"""
-        if self._save_iteration_sensitivity_directive is None:
-            self._save_iteration_sensitivity_directive = SaveIterationGeoh5Factory(
-                self.params
-            ).build(
-                inversion_object=self.driver.inversion_mesh,
-                active_cells=self.driver.models.active_cells,
-                save_objective_function=True,
-                name="Sensitivities",
-            )
-        return self._save_iteration_sensitivity_directive
 
     @property
     def save_iteration_residual_directive(self):
