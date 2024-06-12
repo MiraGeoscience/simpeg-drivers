@@ -96,6 +96,7 @@ pytest-cov = "*"
 readthedocs-sphinx-ext = "*"
 sphinx = "^5.0"
 tomli = "*"
+nbconvert = "~7.16.4"
 
 [tool.conda-lock]
 platforms = ['win-64', 'linux-64']

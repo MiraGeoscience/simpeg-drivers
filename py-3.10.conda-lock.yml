@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: eddbdc9731819929fa0737c26a45ba15c30cc2d70f8b5dfc7b64fb65ea2224d4
-    linux-64: b967d1b23dfc8c82be52259303d1a0367434636b997c60965faa6bb30def23fe
+    win-64: 5f130d3b87fe6831ca8cc1a282eb745ae37876309e13e6d13b110431064bf0b1
+    linux-64: ba7c7f0f20aa210b9eb0c05840347b5e7f2cc2f24bcf114ec09dd619acebe1d9
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -2831,10 +2831,10 @@ package:
   dependencies:
     _libgcc_mutex: '0.1'
     _openmp_mutex: '>=4.5'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libgcc-ng-13.2.0-h77fa898_7.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libgcc-ng-13.2.0-h77fa898_8.conda
   hash:
-    md5: 72ec1b1b04c4d15d4204ece1ecea5978
-    sha256: 62af2b89acbe74a21606c8410c276e57309c0a2ab8a9e8639e3c8131c0b60c92
+    md5: a579489cacbe7775680d40704a537553
+    sha256: 849ed1de90ee9d668c5d80e6728dca3d97e10d05b365d212b84197cf1874a7ca
   category: main
   optional: false
 - name: libgfortran-ng
@@ -2843,10 +2843,10 @@ package:
   platform: linux-64
   dependencies:
     libgfortran5: 13.2.0
-  url: https://conda.anaconda.org/conda-forge/linux-64/libgfortran-ng-13.2.0-h69a702a_7.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libgfortran-ng-13.2.0-h69a702a_8.conda
   hash:
-    md5: 1b84f26d9f4f6026e179e7805d5a15cd
-    sha256: a588e69f96b8e0983a8cdfdbf1dc75eb48189f5420ec71150c8d8cdc0a811a9b
+    md5: bfec48a6862ff3bf748008d5d31387b3
+    sha256: 227730f1a811b61e30eabb465a0446e4cae4c353f295c75d4e2173e5aaa8864f
   category: main
   optional: false
 - name: libgfortran5
@@ -2855,10 +2855,10 @@ package:
   platform: linux-64
   dependencies:
     libgcc-ng: '>=13.2.0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libgfortran5-13.2.0-hca663fb_7.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libgfortran5-13.2.0-h3d2ce59_8.conda
   hash:
-    md5: c0bd771f09a326fdcd95a60b617795bf
-    sha256: 754ab038115edce550fdccdc9ddf7dead2fa8346b8cdd4428c59ae1e83293978
+    md5: 6a072cd884c913056a5dbd5fcd984f3c
+    sha256: 38afdb04d98c4075d66f46da10c819fb760613c6d984a7ea464a61f84b495f07
   category: main
   optional: false
 - name: libhwloc
@@ -3124,11 +3124,12 @@ package:
   version: 13.2.0
   manager: conda
   platform: linux-64
-  dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/linux-64/libstdcxx-ng-13.2.0-hc0a3c3a_7.conda
+  dependencies:
+    libgcc-ng: 13.2.0
+  url: https://conda.anaconda.org/conda-forge/linux-64/libstdcxx-ng-13.2.0-hc0a3c3a_8.conda
   hash:
-    md5: 53ebd4c833fa01cb2c6353e99f905406
-    sha256: 35f1e08be0a84810c9075f5bd008495ac94e6c5fe306dfe4b34546f11fed850f
+    md5: 19cdb9820e89c07e9b4dbb67aeaec234
+    sha256: 007943d15075909df7d5299e4a2333c8b574888388439aa4f63e1c2634f759d5
   category: main
   optional: false
 - name: libtiff
@@ -3950,6 +3951,32 @@ package:
     sha256: f26afcbbdd4bd1245db514c6ebc6ef18cc12067145dcab229b6f88653575d44c
   category: dev
   optional: true
+- name: nbconvert
+  version: 7.16.4
+  manager: conda
+  platform: linux-64
+  dependencies:
+    nbconvert-core: 7.16.4
+    nbconvert-pandoc: 7.16.4
+  url: https://conda.anaconda.org/conda-forge/noarch/nbconvert-7.16.4-hd8ed1ab_1.conda
+  hash:
+    md5: ab83e3b9ca2b111d8f332e9dc8b2170f
+    sha256: e014e8a583ca2f2fc751bf9093ee95bfd203bd189bafe0f512c0262fece69bce
+  category: dev
+  optional: true
+- name: nbconvert
+  version: 7.16.4
+  manager: conda
+  platform: win-64
+  dependencies:
+    nbconvert-core: 7.16.4
+    nbconvert-pandoc: 7.16.4
+  url: https://conda.anaconda.org/conda-forge/noarch/nbconvert-7.16.4-hd8ed1ab_1.conda
+  hash:
+    md5: ab83e3b9ca2b111d8f332e9dc8b2170f
+    sha256: e014e8a583ca2f2fc751bf9093ee95bfd203bd189bafe0f512c0262fece69bce
+  category: dev
+  optional: true
 - name: nbconvert-core
   version: 7.16.4
   manager: conda
@@ -4004,6 +4031,32 @@ package:
   hash:
     md5: e2d2abb421c13456a9a9f80272fdf543
     sha256: 074d858c5808e0a832acc0da37cd70de1565e8d6e17a62d5a11b3902b5e78319
+  category: dev
+  optional: true
+- name: nbconvert-pandoc
+  version: 7.16.4
+  manager: conda
+  platform: linux-64
+  dependencies:
+    nbconvert-core: 7.16.4
+    pandoc: ''
+  url: https://conda.anaconda.org/conda-forge/noarch/nbconvert-pandoc-7.16.4-hd8ed1ab_1.conda
+  hash:
+    md5: 37cec2cf68f4c09563d8bc833791096b
+    sha256: 31df882e97b227e7e57a328a36840e65ea3247023ac2ce502fd5d4b621da8dbe
+  category: dev
+  optional: true
+- name: nbconvert-pandoc
+  version: 7.16.4
+  manager: conda
+  platform: win-64
+  dependencies:
+    pandoc: ''
+    nbconvert-core: 7.16.4
+  url: https://conda.anaconda.org/conda-forge/noarch/nbconvert-pandoc-7.16.4-hd8ed1ab_1.conda
+  hash:
+    md5: 37cec2cf68f4c09563d8bc833791096b
+    sha256: 31df882e97b227e7e57a328a36840e65ea3247023ac2ce502fd5d4b621da8dbe
   category: dev
   optional: true
 - name: nbformat
@@ -4326,27 +4379,27 @@ package:
   category: main
   optional: false
 - name: packaging
-  version: '24.0'
+  version: '24.1'
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.8'
-  url: https://conda.anaconda.org/conda-forge/noarch/packaging-24.0-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/packaging-24.1-pyhd8ed1ab_0.conda
   hash:
-    md5: 248f521b64ce055e7feae3105e7abeb8
-    sha256: a390182d74c31dfd713c16db888c92c277feeb6d1fe96ff9d9c105f9564be48a
+    md5: cbe1bb1f21567018ce595d9c2be0f0db
+    sha256: 36aca948219e2c9fdd6d80728bcc657519e02f06c2703d8db3446aec67f51d81
   category: main
   optional: false
 - name: packaging
-  version: '24.0'
+  version: '24.1'
   manager: conda
   platform: win-64
   dependencies:
     python: '>=3.8'
-  url: https://conda.anaconda.org/conda-forge/noarch/packaging-24.0-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/packaging-24.1-pyhd8ed1ab_0.conda
   hash:
-    md5: 248f521b64ce055e7feae3105e7abeb8
-    sha256: a390182d74c31dfd713c16db888c92c277feeb6d1fe96ff9d9c105f9564be48a
+    md5: cbe1bb1f21567018ce595d9c2be0f0db
+    sha256: 36aca948219e2c9fdd6d80728bcc657519e02f06c2703d8db3446aec67f51d81
   category: main
   optional: false
 - name: pandas
@@ -4388,6 +4441,28 @@ package:
     sha256: 3377ce9a559547f1434f430f7d17f9ff0d44c8cdd70d413b647e867ee520189f
   category: main
   optional: false
+- name: pandoc
+  version: '3.2'
+  manager: conda
+  platform: linux-64
+  dependencies: {}
+  url: https://conda.anaconda.org/conda-forge/linux-64/pandoc-3.2-ha770c72_0.conda
+  hash:
+    md5: 8c924f0b7f3e064b1c954a08e7c32fba
+    sha256: 418348076c1a39170efb0bdc8a584ddd11e9ed0ff58ccd905488d3f165ca98ba
+  category: dev
+  optional: true
+- name: pandoc
+  version: '3.2'
+  manager: conda
+  platform: win-64
+  dependencies: {}
+  url: https://conda.anaconda.org/conda-forge/win-64/pandoc-3.2-h57928b3_0.conda
+  hash:
+    md5: 44c65fee440f2492edb8cb25f5770065
+    sha256: 20781b4a5ed66b459968f5929a8994473198f0505797382a8eee794f5d9d7c32
+  category: dev
+  optional: true
 - name: pandocfilters
   version: 1.5.0
   manager: conda
