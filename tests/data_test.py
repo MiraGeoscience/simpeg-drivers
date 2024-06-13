@@ -148,6 +148,8 @@ def test_survey_data(tmp_path: Path):
 
         driver = MagneticVectorDriver(params)
 
+    assert driver.inversion is not None
+
     local_survey_a = driver.inverse_problem.dmisfit.objfcts[0].simulation.survey
     local_survey_b = driver.inverse_problem.dmisfit.objfcts[1].simulation.survey
 
@@ -173,7 +175,7 @@ def test_survey_data(tmp_path: Path):
     np.testing.assert_array_equal(expected_dobs, np.hstack(survey_dobs))
 
     # test save geoh5 iteration data
-    driver.directives.directive_list[1].save_components(99, survey_dobs)
+    driver.directives.directive_list[-2].save_components(99, survey_dobs)
 
     with workspace.open():
         bxx_test = workspace.get_entity("Iteration_99_bxx")[0].values
@@ -184,7 +186,7 @@ def test_survey_data(tmp_path: Path):
     np.testing.assert_array_equal(byy_test, byy_data.values)
     np.testing.assert_array_equal(bzz_test, bzz_data.values)
 
-    driver.directives.directive_list[2].save_components(99, survey_dobs)
+    driver.directives.directive_list[-1].save_components(99, survey_dobs)
 
     with workspace.open():
         assert np.all(
