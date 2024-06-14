@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: 4cd7cf3a95475d7dc5d68b1023f9013a086f0ce0cdc60e5d52eda5319142b15a
-    linux-64: 769cc489f34e61f12004493f067269a991aee946932346cf4e83a3ede82ead6e
+    win-64: 637a96a53bd1a4fbbc05b1285db7455700a92fb69195edce80eca69f07686e7c
+    linux-64: 178eb2a3f6ff6bfef6eec3fc48234ef9d631fabc31f909a78d123fe002c0c453
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -2831,10 +2831,10 @@ package:
   dependencies:
     _libgcc_mutex: '0.1'
     _openmp_mutex: '>=4.5'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libgcc-ng-13.2.0-h77fa898_8.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libgcc-ng-13.2.0-h77fa898_9.conda
   hash:
-    md5: a579489cacbe7775680d40704a537553
-    sha256: 849ed1de90ee9d668c5d80e6728dca3d97e10d05b365d212b84197cf1874a7ca
+    md5: f23bc130bc3d2bbd9d9d6892609546ea
+    sha256: 99766cf453f4d5ed78b8446d81de99a5fe243dea0d73cf402454f81c136c7d7d
   category: main
   optional: false
 - name: libgfortran-ng
@@ -2843,10 +2843,10 @@ package:
   platform: linux-64
   dependencies:
     libgfortran5: 13.2.0
-  url: https://conda.anaconda.org/conda-forge/linux-64/libgfortran-ng-13.2.0-h69a702a_8.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libgfortran-ng-13.2.0-h69a702a_9.conda
   hash:
-    md5: bfec48a6862ff3bf748008d5d31387b3
-    sha256: 227730f1a811b61e30eabb465a0446e4cae4c353f295c75d4e2173e5aaa8864f
+    md5: 90a8b0f4e0d4a333f54d0c33b882ee9a
+    sha256: 2e233e7b461749fcbc14b5e6ed5372a02e766924c1d73526ba9a46094c9499ba
   category: main
   optional: false
 - name: libgfortran5
@@ -2855,10 +2855,10 @@ package:
   platform: linux-64
   dependencies:
     libgcc-ng: '>=13.2.0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libgfortran5-13.2.0-h3d2ce59_8.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libgfortran5-13.2.0-h3d2ce59_9.conda
   hash:
-    md5: 6a072cd884c913056a5dbd5fcd984f3c
-    sha256: 38afdb04d98c4075d66f46da10c819fb760613c6d984a7ea464a61f84b495f07
+    md5: 2f2a59af95aed6024368b8dbaf9591d8
+    sha256: 16042f9ee0b6303c85cac9c763dd32e8bdc82f3f7c24156560e603adfc31506a
   category: main
   optional: false
 - name: libhwloc
@@ -3126,10 +3126,10 @@ package:
   platform: linux-64
   dependencies:
     libgcc-ng: 13.2.0
-  url: https://conda.anaconda.org/conda-forge/linux-64/libstdcxx-ng-13.2.0-hc0a3c3a_8.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libstdcxx-ng-13.2.0-hc0a3c3a_9.conda
   hash:
-    md5: 19cdb9820e89c07e9b4dbb67aeaec234
-    sha256: 007943d15075909df7d5299e4a2333c8b574888388439aa4f63e1c2634f759d5
+    md5: 2075df518ef9d09f1ae209c83116e808
+    sha256: 642469fd890e890fd96db3d26e4fbd66b5d5d56142d8657b5c15450ab05dc6e1
   category: main
   optional: false
 - name: libtiff
@@ -7621,12 +7621,12 @@ package:
     pymatsolver: '>=0.2'
     scikit-learn: '>=1.2'
     scipy: '>=1.8.0'
-  url: https://github.com/MiraGeoscience/simpeg/archive/refs/heads/GEOPY-1573.zip
+  url: https://github.com/MiraGeoscience/simpeg/archive/refs/heads/develop.zip
   hash: {}
   category: main
   source:
     type: url
-    url: https://github.com/MiraGeoscience/simpeg/archive/refs/heads/GEOPY-1573.zip
+    url: https://github.com/MiraGeoscience/simpeg/archive/refs/heads/develop.zip
   optional: false
 - name: mira-simpeg
   version: 0.21.2.1a1
@@ -7643,12 +7643,12 @@ package:
     pymatsolver: '>=0.2'
     scikit-learn: '>=1.2'
     scipy: '>=1.8.0'
-  url: https://github.com/MiraGeoscience/simpeg/archive/refs/heads/GEOPY-1573.zip
+  url: https://github.com/MiraGeoscience/simpeg/archive/refs/heads/develop.zip
   hash: {}
   category: main
   source:
     type: url
-    url: https://github.com/MiraGeoscience/simpeg/archive/refs/heads/GEOPY-1573.zip
+    url: https://github.com/MiraGeoscience/simpeg/archive/refs/heads/develop.zip
   optional: false
 - name: octree-creation-app
   version: 0.2.0a1
