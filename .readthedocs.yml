@@ -23,7 +23,7 @@ build:
       - ./git-lfs checkout
     pre_build:
       # Generate on-the-fly Sphinx configuration from Jupyter Book's _config.yml
-      - "jupyter-book config sphinx content/"
+      - "jupyter-book config sphinx docs/"
       - "pip install . --no-deps"
 
 conda:

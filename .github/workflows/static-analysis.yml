@@ -2,6 +2,7 @@ name: static analysis
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     branches:
       - develop
       - main
@@ -24,36 +25,9 @@ env:
   source_dir: simpeg_drivers
 
 jobs:
-  pre-commit:
-    name: pre-commit
-    strategy:
-      fail-fast: false
-    runs-on: ubuntu-latest
-    env:
-      SKIP: pylint
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
-      - name: capture modified files
-        if: github.event_name == 'pull_request'
-        run: >-
-          git fetch --deepen=500 origin ${{github.base_ref}}
-          && echo "FILES_PARAM=$(
-          git diff --diff-filter=AM --name-only refs/remotes/origin/${{github.base_ref}}... -- | grep -E "^(${source_dir}|tests)/.*\.py$" | xargs
-          )" >> $GITHUB_ENV
-      - name: Run pre-commit on modified files
-        if: github.event_name == 'pull_request' && env.FILES_PARAM
-        uses: pre-commit/action@v3.0.0
-        with:
-          extra_args: --hook-stage push --files ${{ env.FILES_PARAM }}
-      - name: Run pre-commit on all files
-        if: github.event_name == 'push'
-        uses: pre-commit/action@v3.0.0
-        with:
-          extra_args: --hook-stage push --all-files
-
   pylint:
     name: pylint
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     defaults:
       run:
