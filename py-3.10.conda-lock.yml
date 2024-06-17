@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: a3fb954f8c4f68ae5eb20f8a610892e2af3ca8be63fe984909f8761992e0e293
-    linux-64: fa4fb5a74475967e2bf8c87886a01127ab16cf8e55228ae8c42685c96ba0c75e
+    win-64: 52f8e946bb101cbc64907449f1bf02682bf165be80ac7f0a868fb7407276391f
+    linux-64: 42267cce6805ace5ab136105a696497737bb041cd593c960458b8e207476d61b
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -7028,31 +7028,31 @@ package:
   category: main
   optional: false
 - name: urllib3
-  version: 2.2.1
+  version: 2.2.2
   manager: conda
   platform: linux-64
   dependencies:
     brotli-python: '>=1.0.9'
     pysocks: '>=1.5.6,<2.0,!=1.5.7'
     python: '>=3.7'
-  url: https://conda.anaconda.org/conda-forge/noarch/urllib3-2.2.1-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/urllib3-2.2.2-pyhd8ed1ab_0.conda
   hash:
-    md5: 08807a87fa7af10754d46f63b368e016
-    sha256: d4009dcc9327684d6409706ce17656afbeae690d8522d3c9bc4df57649a352cd
+    md5: 92cdb6fe54b78739ad70637e4f0deb07
+    sha256: 8cd972048f297b8e0601158ce352f5ca9510dda9f2706a46560220aa58b9f038
   category: main
   optional: false
 - name: urllib3
-  version: 2.2.1
+  version: 2.2.2
   manager: conda
   platform: win-64
   dependencies:
     python: '>=3.7'
     brotli-python: '>=1.0.9'
     pysocks: '>=1.5.6,<2.0,!=1.5.7'
-  url: https://conda.anaconda.org/conda-forge/noarch/urllib3-2.2.1-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/urllib3-2.2.2-pyhd8ed1ab_0.conda
   hash:
-    md5: 08807a87fa7af10754d46f63b368e016
-    sha256: d4009dcc9327684d6409706ce17656afbeae690d8522d3c9bc4df57649a352cd
+    md5: 92cdb6fe54b78739ad70637e4f0deb07
+    sha256: 8cd972048f297b8e0601158ce352f5ca9510dda9f2706a46560220aa58b9f038
   category: main
   optional: false
 - name: utm
@@ -7599,7 +7599,7 @@ package:
   category: main
   optional: false
 - name: octree-creation-app
-  version: 0.1.0
+  version: 0.1.1
   manager: pip
   platform: linux-64
   dependencies:
@@ -7611,13 +7611,13 @@ package:
     numpy: '>=1.23.5,<1.24.0'
     pydantic: '>=2.5.2,<2.6.0'
     scipy: '>=1.10.1,<1.11.0'
-  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/analyst-pypi-local/octree-creation-app/0.1.0/octree_creation_app-0.1.0-py3-none-any.whl
+  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/analyst-pypi-local/octree-creation-app/0.1.1/octree_creation_app-0.1.1-py3-none-any.whl
   hash:
-    sha256: dec43fe29c9ad2430d08cb6b8e45b58b6d68fd0178fe03b7e531292a077949b3
+    sha256: 0a3c93b029e63df520b91d3aca29a40f7839cb8a152bf99e87b177573198a15f
   category: main
   optional: false
 - name: octree-creation-app
-  version: 0.1.0
+  version: 0.1.1
   manager: pip
   platform: win-64
   dependencies:
@@ -7629,9 +7629,9 @@ package:
     numpy: '>=1.23.5,<1.24.0'
     pydantic: '>=2.5.2,<2.6.0'
     scipy: '>=1.10.1,<1.11.0'
-  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/analyst-pypi-local/octree-creation-app/0.1.0/octree_creation_app-0.1.0-py3-none-any.whl
+  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/analyst-pypi-local/octree-creation-app/0.1.1/octree_creation_app-0.1.1-py3-none-any.whl
   hash:
-    sha256: dec43fe29c9ad2430d08cb6b8e45b58b6d68fd0178fe03b7e531292a077949b3
+    sha256: 0a3c93b029e63df520b91d3aca29a40f7839cb8a152bf99e87b177573198a15f
   category: main
   optional: false
 - name: param-sweeps
