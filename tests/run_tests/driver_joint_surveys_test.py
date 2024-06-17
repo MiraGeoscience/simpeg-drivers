@@ -117,11 +117,14 @@ def test_joint_surveys_inv_run(
         for ind in range(2):
             group = geoh5.get_entity(f"Gravity Forward [{ind}]")[0]
             survey = geoh5.get_entity(group.options["data_object"]["value"])[0]
+            mesh = None
             for child in group.children:
                 if isinstance(child, Octree):
                     mesh = child
                 else:
                     survey = child
+
+            assert mesh is not None, "Mesh not found in group."
 
             gz = survey.get_data("Iteration_0_gz")[0]
             orig_data.append(gz.values)

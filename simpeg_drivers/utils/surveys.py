@@ -204,4 +204,7 @@ def slice_and_map(obj: np.ndarray, slicer: np.ndarray | Callable):
         sliced_object = obj[slicer]
         g2l = dict(zip(np.where(slicer)[0], np.arange(len(obj))))
 
+    else:
+        raise TypeError("Slicer must be a boolean array or callable.")
+
     return sliced_object, g2l

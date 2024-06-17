@@ -161,6 +161,8 @@ def catch_invalid_generator(params, field, invalid_value, validation_type):
         err = UUIDValidationError
     elif validation_type == "association":
         err = AssociationValidationError
+    else:
+        raise ValueError(f"'validation_type' {validation_type} not recognized.")
 
     with pytest.raises(err):
         setattr(params, field, invalid_value)
