@@ -32,7 +32,7 @@ dask = {version = "2022.10.*", extras = ["distributed"]}  # also in simpeg[dask]
 discretize = "~0.10.0"  # also in simpeg, octree-creation-app
 distributed = "2022.10.*"  # because conda-lock doesn't take dask extras into account
 numpy = "~1.23.5" # also in geoh5py, simpeg
-scipy = "~1.10.1"
+scipy = "~1.13"
 zarr = "~2.14.2"  # also in simpeg[dask]
 
 ## Pip dependencies from Git repositories
@@ -59,7 +59,7 @@ param-sweeps = {url = "https://github.com/MiraGeoscience/param-sweeps/archive/re
 
 ## indirect dependencies, forcing them here for installation through Conda not pip
 #---------------------------------------------------------------------------------
-Pillow = "~10.1.0"  # from geoh5py
+Pillow = "~10.3.0"  # from geoh5py
 fsspec = "2022.*"  # from simpeg[dask]
 geoana = "~0.4.0"  # from simpeg
 h5py = "^3.2.1"  # from geoh5py
@@ -96,6 +96,7 @@ pytest-cov = "*"
 readthedocs-sphinx-ext = "*"
 sphinx = "^5.0"
 tomli = "*"
+nbconvert = "~7.16.4"
 
 [tool.conda-lock]
 platforms = ['win-64', 'linux-64']

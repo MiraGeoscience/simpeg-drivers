@@ -35,12 +35,12 @@ from geoh5py.shared import INTEGER_NDV
 from octree_creation_app.utils import octree_2_treemesh
 from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator, interp1d
 from scipy.spatial import ConvexHull, Delaunay, cKDTree
-from SimPEG.electromagnetics.frequency_domain.sources import (
+from simpeg.electromagnetics.frequency_domain.sources import (
     LineCurrent as FEMLineCurrent,
 )
-from SimPEG.electromagnetics.time_domain.sources import LineCurrent as TEMLineCurrent
-from SimPEG.survey import BaseSurvey
-from SimPEG.utils import mkvc
+from simpeg.electromagnetics.time_domain.sources import LineCurrent as TEMLineCurrent
+from simpeg.survey import BaseSurvey
+from simpeg.utils import mkvc
 
 if TYPE_CHECKING:
     from simpeg_drivers.components.data import InversionData

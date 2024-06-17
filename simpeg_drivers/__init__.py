@@ -24,7 +24,7 @@ __version__ = "0.2.0-alpha.1"
 
 from pathlib import Path
 
-from SimPEG import dask
+from simpeg import dask
 
 from simpeg_drivers.constants import default_ui_json
 from simpeg_drivers.params import InversionBaseParams

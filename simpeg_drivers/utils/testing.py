@@ -40,7 +40,7 @@ from geoh5py.objects import (
 from octree_creation_app.driver import OctreeDriver
 from octree_creation_app.utils import treemesh_2_octree
 from scipy.spatial import Delaunay
-from SimPEG import utils
+from simpeg import utils
 
 from simpeg_drivers.utils.utils import active_from_xyz, get_drape_model
 

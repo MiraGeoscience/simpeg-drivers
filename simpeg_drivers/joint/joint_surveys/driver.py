@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import numpy as np
 from geoh5py.shared.utils import fetch_active_workspace
-from SimPEG import maps
+from simpeg import maps
 
 from ...components.factories import DirectivesFactory
 from ...joint.driver import BaseJointDriver

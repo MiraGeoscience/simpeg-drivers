@@ -23,7 +23,7 @@ from geoapps_utils.numerical import traveling_salesman
 from geoh5py import Workspace
 from geoh5py.objects import PotentialElectrode
 from scipy.spatial import cKDTree
-from SimPEG.survey import BaseSurvey
+from simpeg.survey import BaseSurvey
 
 
 def counter_clockwise_sort(segments: np.ndarray, vertices: np.ndarray) -> np.ndarray:

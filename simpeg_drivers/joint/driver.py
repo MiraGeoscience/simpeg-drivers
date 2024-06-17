@@ -31,8 +31,8 @@ from octree_creation_app.utils import (
     create_octree_from_octrees,
     treemesh_2_octree,
 )
-from SimPEG.maps import TileMap
-from SimPEG.objective_function import ComboObjectiveFunction
+from simpeg.maps import TileMap
+from simpeg.objective_function import ComboObjectiveFunction
 
 from simpeg_drivers import DRIVER_MAP
 from simpeg_drivers.components.factories import SaveIterationGeoh5Factory

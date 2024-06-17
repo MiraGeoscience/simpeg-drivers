@@ -34,7 +34,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.15258, "phi_d": 31.85, "phi_m": 122.7}
+target_run = {"data_norm": 0.15258, "phi_d": 32.28, "phi_m": 242.3}
 
 
 def test_dc_3d_fwr_run(

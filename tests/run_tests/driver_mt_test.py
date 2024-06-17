@@ -36,7 +36,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.003936, "phi_d": 1.824, "phi_m": 2.551}
+target_run = {"data_norm": 0.003936, "phi_d": 0.9365, "phi_m": 5.731}
 
 
 def test_magnetotellurics_fwr_run(
@@ -81,6 +81,7 @@ def test_magnetotellurics_fwr_run(
 
 
 def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
+    # pass
     workpath = tmp_path / "inversion_test.ui.geoh5"
     if pytest:
         workpath = (
