@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: 9736419d8ea251230aee4c0a1f71e737c6a35944a57f59cceae0cd52e9e03e7f
-    linux-64: a5b7409eb66e81aeadfd30b2cbb9a0b051b967bf29415a1b59701bfe1141ca46
+    win-64: 3399d486b64f7ee15f2b550e45045536fb26369e56b664dfb889858f99dfc573
+    linux-64: f118039b07fcec8872c4d185bdc0031e38bac08c6412f57ba023423c411d10a5
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -1618,53 +1618,53 @@ package:
   category: dev
   optional: true
 - name: importlib-metadata
-  version: 7.1.0
+  version: 7.2.0
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.8'
     zipp: '>=0.5'
-  url: https://conda.anaconda.org/conda-forge/noarch/importlib-metadata-7.1.0-pyha770c72_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/importlib-metadata-7.2.0-pyha770c72_0.conda
   hash:
-    md5: 0896606848b2dc5cebdf111b6543aa04
-    sha256: cc2e7d1f7f01cede30feafc1118b7aefa244d0a12224513734e24165ae12ba49
+    md5: e1d9f6dc77209defc283bdf61588e968
+    sha256: 15a35caaff1d06dc7177d7272a7b1c6cf14849569ecf2204baf0be875849d807
   category: dev
   optional: true
 - name: importlib-metadata
-  version: 7.1.0
+  version: 7.2.0
   manager: conda
   platform: win-64
   dependencies:
     python: '>=3.8'
     zipp: '>=0.5'
-  url: https://conda.anaconda.org/conda-forge/noarch/importlib-metadata-7.1.0-pyha770c72_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/importlib-metadata-7.2.0-pyha770c72_0.conda
   hash:
-    md5: 0896606848b2dc5cebdf111b6543aa04
-    sha256: cc2e7d1f7f01cede30feafc1118b7aefa244d0a12224513734e24165ae12ba49
+    md5: e1d9f6dc77209defc283bdf61588e968
+    sha256: 15a35caaff1d06dc7177d7272a7b1c6cf14849569ecf2204baf0be875849d807
   category: dev
   optional: true
 - name: importlib_metadata
-  version: 7.1.0
+  version: 7.2.0
   manager: conda
   platform: linux-64
   dependencies:
-    importlib-metadata: '>=7.1.0,<7.1.1.0a0'
-  url: https://conda.anaconda.org/conda-forge/noarch/importlib_metadata-7.1.0-hd8ed1ab_0.conda
+    importlib-metadata: '>=7.2.0,<7.2.1.0a0'
+  url: https://conda.anaconda.org/conda-forge/noarch/importlib_metadata-7.2.0-hd8ed1ab_0.conda
   hash:
-    md5: 6ef2b72d291b39e479d7694efa2b2b98
-    sha256: 01dc057a45dedcc742a71599f67c7383ae2bf873be6018ebcbd06ac8d994dedb
+    md5: 3de0087b2b86443cfae650dea6ecec6f
+    sha256: 0e75772e6731ece321838e6b6cb6cc2d69b9e38bf5372f85544869209cade52e
   category: dev
   optional: true
 - name: importlib_metadata
-  version: 7.1.0
+  version: 7.2.0
   manager: conda
   platform: win-64
   dependencies:
-    importlib-metadata: '>=7.1.0,<7.1.1.0a0'
-  url: https://conda.anaconda.org/conda-forge/noarch/importlib_metadata-7.1.0-hd8ed1ab_0.conda
+    importlib-metadata: '>=7.2.0,<7.2.1.0a0'
+  url: https://conda.anaconda.org/conda-forge/noarch/importlib_metadata-7.2.0-hd8ed1ab_0.conda
   hash:
-    md5: 6ef2b72d291b39e479d7694efa2b2b98
-    sha256: 01dc057a45dedcc742a71599f67c7383ae2bf873be6018ebcbd06ac8d994dedb
+    md5: 3de0087b2b86443cfae650dea6ecec6f
+    sha256: 0e75772e6731ece321838e6b6cb6cc2d69b9e38bf5372f85544869209cade52e
   category: dev
   optional: true
 - name: importlib_resources
