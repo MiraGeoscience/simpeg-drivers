@@ -23,9 +23,12 @@ from simpeg_drivers.utils.surveys import counter_clockwise_sort
 
 
 def test_counterclockwise_sort():
-    segments = np.array([[0, 3], [3, 2], [2, 1], [1, 0]])
-    vertices = np.array([[0, 0], [1.5, 0], [0.5, 1], [0.1, 1.5]])
+    vertices = np.array(
+        [[0, 0], [0.25, 1.5], [0.0, 2.0], [0.5, 1], [1.5, 0], [0.2, 0.2]]
+    )
+    segments = np.c_[np.arange(len(vertices)), np.arange(1, len(vertices) + 1)]
+    segments[-1, 1] = 0
 
     ccw_sorted = counter_clockwise_sort(segments, vertices)
 
-    np.testing.assert_equal(ccw_sorted[0, :], [0, 1])
+    np.testing.assert_equal(ccw_sorted[0, :], [0, 5])
