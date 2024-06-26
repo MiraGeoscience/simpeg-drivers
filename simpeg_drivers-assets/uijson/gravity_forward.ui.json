@@ -1,9 +1,9 @@
 {
-    "version": "0.1.0-alpha.1",
+    "version": "0.1.0",
     "title": "Gravity Forward",
     "icon": "surveyairbornegravity",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/",
-    "conda_environment": "simpeg_drivers",
+    "conda_environment": "mirageo",
     "run_command": "simpeg_drivers.driver",
     "geoh5": "",
     "monitoring_directory": "",
@@ -162,7 +162,7 @@
         "main": true,
         "isValue": true,
         "parent": "mesh",
-        "label": "Density (g/cc)",
+        "label": "Density contrast (g/cc)",
         "property": "",
         "value": 0.001
     },
