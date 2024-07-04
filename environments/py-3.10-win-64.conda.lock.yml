@@ -12,7 +12,7 @@ dependencies:
   - brotli-bin=1.1.0=hcfcfb64_1
   - brotli-python=1.1.0=py310h00ffb61_1
   - bzip2=1.0.8=hcfcfb64_5
-  - ca-certificates=2024.6.2=h56e8100_0
+  - ca-certificates=2024.7.4=h56e8100_0
   - cached-property=1.5.2=hd8ed1ab_1
   - cached_property=1.5.2=pyha770c72_1
   - certifi=2024.6.2=pyhd8ed1ab_0
@@ -54,7 +54,7 @@ dependencies:
   - libdeflate=1.20=hcfcfb64_0
   - libdlf=0.2.0=pyhd8ed1ab_0
   - libffi=3.4.2=h8ffe710_5
-  - libhwloc=2.10.0=default_h8125262_1001
+  - libhwloc=2.11.0=default_h8125262_1000
   - libiconv=1.17=hcfcfb64_2
   - libjpeg-turbo=3.0.0=hcfcfb64_1
   - liblapack=3.9.0=20_win64_mkl
@@ -112,7 +112,7 @@ dependencies:
   - setuptools=70.1.1=pyhd8ed1ab_0
   - six=1.16.0=pyh6c4a22f_0
   - sortedcontainers=2.4.0=pyhd8ed1ab_0
-  - tbb=2021.12.0=hc790b64_1
+  - tbb=2021.12.0=hc790b64_2
   - tblib=3.0.0=pyhd8ed1ab_0
   - threadpoolctl=3.5.0=pyhc1e730c_0
   - tk=8.6.13=h5226925_1
@@ -140,7 +140,7 @@ dependencies:
   - zstandard=0.22.0=py310he5e10e1_1
   - zstd=1.5.6=h0ea2cb4_0
   - pip:
-      - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils@a7ec429ede76a9f137d4a2cb0e4409ec91da275c
+      - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils@acf608e4106c685fac4b3e94e9ce73ac79b12fdd
       - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@661d951d1ce2d5016e7f08992062d98d6d5155d5
       - mira-simpeg @ https://github.com/MiraGeoscience/simpeg/archive/refs/heads/develop.zip
       - octree-creation-app @ https://github.com/MiraGeoscience/octree-creation-app/archive/refs/heads/GEOPY-1569.zip

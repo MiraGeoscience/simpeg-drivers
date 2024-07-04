@@ -541,25 +541,25 @@ package:
   category: main
   optional: false
 - name: ca-certificates
-  version: 2024.6.2
+  version: 2024.7.4
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/linux-64/ca-certificates-2024.6.2-hbcca054_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/ca-certificates-2024.7.4-hbcca054_0.conda
   hash:
-    md5: 847c3c2905cc467cea52c24f9cfa8080
-    sha256: 979af0932b2a5a26112044891a2d79e402e5ae8166f50fa48b8ebae47c0a2d65
+    md5: 23ab7665c5f63cfb9f1f6195256daac6
+    sha256: c1548a3235376f464f9931850b64b02492f379b2f2bb98bc786055329b080446
   category: main
   optional: false
 - name: ca-certificates
-  version: 2024.6.2
+  version: 2024.7.4
   manager: conda
   platform: win-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/win-64/ca-certificates-2024.6.2-h56e8100_0.conda
+  url: https://conda.anaconda.org/conda-forge/win-64/ca-certificates-2024.7.4-h56e8100_0.conda
   hash:
-    md5: 12a3a2b3a00a21bbb390d4de5ad8dd0f
-    sha256: d872d11558ebeaeb87bcf9086e97c075a1a2dfffed2d0e97570cf197ab29e3d8
+    md5: 9caa97c9504072cd060cf0a3142cc0ed
+    sha256: 7f37bb33c7954de1b4d19ad622859feb4f6c58f751c38b895524cad4e44af72e
   category: main
   optional: false
 - name: cached-property
@@ -2951,21 +2951,21 @@ package:
   category: main
   optional: false
 - name: libhwloc
-  version: 2.10.0
+  version: 2.11.0
   manager: conda
   platform: linux-64
   dependencies:
     libgcc-ng: '>=12'
     libstdcxx-ng: '>=12'
     libxml2: '>=2.12.7,<3.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libhwloc-2.10.0-default_h5622ce7_1001.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libhwloc-2.11.0-default_h5622ce7_1000.conda
   hash:
-    md5: fc2d5b79c2d3f8568fbab31db7ae02f3
-    sha256: 6f19d26819d336cb76689861e20560404a3cd61cc9adf7cbc395b9a5e612e226
+    md5: 695ee1e435b873780efccc64362cda89
+    sha256: 4cc0292ee8fff450da8b02ceadfab6e44646e0d6a586012b76c5454f770f546e
   category: main
   optional: false
 - name: libhwloc
-  version: 2.10.0
+  version: 2.11.0
   manager: conda
   platform: win-64
   dependencies:
@@ -2974,10 +2974,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://conda.anaconda.org/conda-forge/win-64/libhwloc-2.10.0-default_h8125262_1001.conda
+  url: https://conda.anaconda.org/conda-forge/win-64/libhwloc-2.11.0-default_h8125262_1000.conda
   hash:
-    md5: e761885eb4c181074d172220d46319a0
-    sha256: 7f1aa1b071269df72e88297c046ec153b7f9a81e6f135d2da4401c96f41b5052
+    md5: 065e86390dcd9304259ad8b627f724bd
+    sha256: f7f7733b2a839499a6d340edcce08dca5b5798293d3429f8b4a5c8a799dbabe9
   category: main
   optional: false
 - name: libiconv
@@ -6691,13 +6691,14 @@ package:
   manager: conda
   platform: linux-64
   dependencies:
+    __glibc: '>=2.17,<3.0.a0'
     libgcc-ng: '>=12'
-    libhwloc: '>=2.10.0,<2.10.1.0a0'
+    libhwloc: '>=2.11.0,<2.11.1.0a0'
     libstdcxx-ng: '>=12'
-  url: https://conda.anaconda.org/conda-forge/linux-64/tbb-2021.12.0-h297d8ca_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/tbb-2021.12.0-h434a139_2.conda
   hash:
-    md5: 3ff978d8994f591818a506640c6a7071
-    sha256: ab706931ba80e8117995fc838509f044ccd1388a4cd7cc4ff1a55ea904bac723
+    md5: 9e78ded802220ee1f67c908cb2ef188f
+    sha256: 2a988df299ef2ac408668ad5ec00b69da100d6b5411512e36249444304a227b8
   category: main
   optional: false
 - name: tbb
@@ -6705,14 +6706,14 @@ package:
   manager: conda
   platform: win-64
   dependencies:
-    libhwloc: '>=2.10.0,<2.10.1.0a0'
+    libhwloc: '>=2.11.0,<2.11.1.0a0'
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://conda.anaconda.org/conda-forge/win-64/tbb-2021.12.0-hc790b64_1.conda
+  url: https://conda.anaconda.org/conda-forge/win-64/tbb-2021.12.0-hc790b64_2.conda
   hash:
-    md5: e98333643abc739ebea1bac97a479828
-    sha256: 87461c83a4f0d4f119af7368f20c47bbe0c27d963a7c22a3d08c71075077f855
+    md5: 3d6620dda0ba48d457fb722adfad5963
+    sha256: e41d0d07bbabc0144292fd28e871f54828eaa10da27e50c8b8cf5dad9a2f3a92
   category: main
   optional: false
 - name: tblib
@@ -7677,14 +7678,14 @@ package:
     h5py: '>=3.2.1,<4.0.0'
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<2.6.0'
-    scipy: '>=1.13.1,<1.14.0'
-  url: git+https://github.com/MiraGeoscience/geoapps-utils@a7ec429ede76a9f137d4a2cb0e4409ec91da275c
+    scipy: '>=1.14,<1.15'
+  url: git+https://github.com/MiraGeoscience/geoapps-utils@acf608e4106c685fac4b3e94e9ce73ac79b12fdd
   hash:
-    sha256: a7ec429ede76a9f137d4a2cb0e4409ec91da275c
+    sha256: acf608e4106c685fac4b3e94e9ce73ac79b12fdd
   category: main
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoapps-utils@a7ec429ede76a9f137d4a2cb0e4409ec91da275c
+    url: git+https://github.com/MiraGeoscience/geoapps-utils@acf608e4106c685fac4b3e94e9ce73ac79b12fdd
   optional: false
 - name: geoapps-utils
   version: 0.4.0a1
@@ -7696,14 +7697,14 @@ package:
     h5py: '>=3.2.1,<4.0.0'
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<2.6.0'
-    scipy: '>=1.13.1,<1.14.0'
-  url: git+https://github.com/MiraGeoscience/geoapps-utils@a7ec429ede76a9f137d4a2cb0e4409ec91da275c
+    scipy: '>=1.14,<1.15'
+  url: git+https://github.com/MiraGeoscience/geoapps-utils@acf608e4106c685fac4b3e94e9ce73ac79b12fdd
   hash:
-    sha256: a7ec429ede76a9f137d4a2cb0e4409ec91da275c
+    sha256: acf608e4106c685fac4b3e94e9ce73ac79b12fdd
   category: main
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoapps-utils@a7ec429ede76a9f137d4a2cb0e4409ec91da275c
+    url: git+https://github.com/MiraGeoscience/geoapps-utils@acf608e4106c685fac4b3e94e9ce73ac79b12fdd
   optional: false
 - name: geoh5py
   version: 0.10.0a1
@@ -7805,7 +7806,7 @@ package:
     h5py: '>=3.2.1,<4.0.0'
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<2.6.0'
-    scipy: '>=1.13.1,<1.14.0'
+    scipy: '>=1.14,<1.15'
   url: https://github.com/MiraGeoscience/octree-creation-app/archive/refs/heads/GEOPY-1569.zip
   hash: {}
   category: main
@@ -7825,7 +7826,7 @@ package:
     h5py: '>=3.2.1,<4.0.0'
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<2.6.0'
-    scipy: '>=1.13.1,<1.14.0'
+    scipy: '>=1.14,<1.15'
   url: https://github.com/MiraGeoscience/octree-creation-app/archive/refs/heads/GEOPY-1569.zip
   hash: {}
   category: main
