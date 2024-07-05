@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: e9754d840c35a4983e67d8b088416e454d379001ec9f184e6f9b3a997629f908
-    linux-64: 245239cf90ea89cdf08a5aa5a9b065c6ea7a5f663389ce77f54dff3bffdf4d7c
+    win-64: 70b07a66ca4b24914bc2b238cb8341f48e0a0ab64d19e93ed59e1faa0de8a9f9
+    linux-64: 7a6f0edcf5944f55af2d370e722e84807edddc7e7ad9002c727cc4638e67fd1a
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -1193,38 +1193,6 @@ package:
     sha256: a9c40df47e2c5eb8938198f8d2d90fb0d6342f2409f4283999be44fd5f58574f
   category: dev
   optional: true
-- name: empymod
-  version: 2.3.1
-  manager: conda
-  platform: linux-64
-  dependencies:
-    libdlf: ''
-    numba: '>=0.53'
-    python: '>=3.9'
-    scipy: '>=1.9'
-    scooby: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/empymod-2.3.1-pyhd8ed1ab_0.conda
-  hash:
-    md5: bdc02c470f5c6b80dcf9fb2b04599635
-    sha256: 522860b19c5fedbdb87f6ef18d6bab2c329e6015de2c33eede5bf49c68331543
-  category: main
-  optional: false
-- name: empymod
-  version: 2.3.1
-  manager: conda
-  platform: win-64
-  dependencies:
-    scooby: ''
-    libdlf: ''
-    python: '>=3.9'
-    scipy: '>=1.9'
-    numba: '>=0.53'
-  url: https://conda.anaconda.org/conda-forge/noarch/empymod-2.3.1-pyhd8ed1ab_0.conda
-  hash:
-    md5: bdc02c470f5c6b80dcf9fb2b04599635
-    sha256: 522860b19c5fedbdb87f6ef18d6bab2c329e6015de2c33eede5bf49c68331543
-  category: main
-  optional: false
 - name: entrypoints
   version: '0.4'
   manager: conda
@@ -1412,44 +1380,40 @@ package:
   category: main
   optional: false
 - name: geoana
-  version: 0.4.0
+  version: 0.5.0
   manager: conda
   platform: linux-64
   dependencies:
-    empymod: ''
+    libdlf: ''
     libgcc-ng: '>=12'
     libstdcxx-ng: '>=12'
-    matplotlib-base: ''
-    numpy: '>=1.23.4,<2.0a0'
+    numpy: '>=1.22.4,<2.0a0'
     python: '>=3.10,<3.11.0a0'
     python_abi: 3.10.*
-    scipy: '>=0.13'
-    utm: ''
-  url: https://conda.anaconda.org/conda-forge/linux-64/geoana-0.4.0-py310hbf28c38_1.tar.bz2
+    scipy: '>=1.8'
+  url: https://conda.anaconda.org/conda-forge/linux-64/geoana-0.5.0-py310hcb52e73_4.conda
   hash:
-    md5: 1bd40020a2aa8efd348d0a7c051d3f22
-    sha256: 08a3bdd30b685bcacc097611495175d0b6994f56484a174dc85a0b61945b939c
+    md5: 5a70abcb7d771758abdbefe81367085b
+    sha256: e54743d430e2c98f9d2546cf4420dadccb87a4998ae80fa2985d5a8bd93ade0d
   category: main
   optional: false
 - name: geoana
-  version: 0.4.0
+  version: 0.5.0
   manager: conda
   platform: win-64
   dependencies:
-    empymod: ''
-    matplotlib-base: ''
-    numpy: '>=1.23.4,<2.0a0'
+    libdlf: ''
+    numpy: '>=1.22.4,<2.0a0'
     python: '>=3.10,<3.11.0a0'
     python_abi: 3.10.*
-    scipy: '>=0.13'
+    scipy: '>=1.8'
     ucrt: '>=10.0.20348.0'
-    utm: ''
     vc: '>=14.2,<15'
-    vs2015_runtime: '>=14.29.30139'
-  url: https://conda.anaconda.org/conda-forge/win-64/geoana-0.4.0-py310h232114e_1.tar.bz2
+    vc14_runtime: '>=14.29.30139'
+  url: https://conda.anaconda.org/conda-forge/win-64/geoana-0.5.0-py310h4856b71_4.conda
   hash:
-    md5: dc83eae4fe4c634d111e066e13bada84
-    sha256: e67adde2539020fa905a169ad4e06a5d39b6fa94ba87de279e7547c1f7742971
+    md5: ea10d52800881e088c64ee3f2ea024e8
+    sha256: 0cd07365c7d2891e998647a483e2a4590d3c3e52d255eabbdf6162eae527b4c2
   category: main
   optional: false
 - name: greenlet
@@ -3043,20 +3007,6 @@ package:
     sha256: 7627ef580c26e48c3496b5885fd32be4e4db49fa1077eb21235dc638489565f6
   category: main
   optional: false
-- name: libllvm14
-  version: 14.0.6
-  manager: conda
-  platform: linux-64
-  dependencies:
-    libgcc-ng: '>=12'
-    libstdcxx-ng: '>=12'
-    libzlib: '>=1.2.13,<2.0.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libllvm14-14.0.6-hcd5def8_4.conda
-  hash:
-    md5: 73301c133ded2bf71906aa2104edae8b
-    sha256: 225cc7c3b20ac1db1bdb37fa18c95bf8aecef4388e984ab2f7540a9f4382106a
-  category: main
-  optional: false
 - name: libnghttp2
   version: 1.58.0
   manager: conda
@@ -3424,41 +3374,6 @@ package:
   hash:
     md5: 322be9d39e030673e105b0abb320514e
     sha256: b620c51d91e55958c91014d89793cd705b1044b5ab157deae9bf8bdb2f11c5a3
-  category: main
-  optional: false
-- name: llvmlite
-  version: 0.43.0
-  manager: conda
-  platform: linux-64
-  dependencies:
-    libgcc-ng: '>=12'
-    libllvm14: '>=14.0.6,<14.1.0a0'
-    libstdcxx-ng: '>=12'
-    libzlib: '>=1.3.1,<2.0a0'
-    python: '>=3.10,<3.11.0a0'
-    python_abi: 3.10.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/llvmlite-0.43.0-py310h4c7c693_0.conda
-  hash:
-    md5: f1d507e72dfd110f0953f92683de5822
-    sha256: 2acd87b1a332bd5ca5a729639688425980dae3586d5da0803c3a4f19c09e994c
-  category: main
-  optional: false
-- name: llvmlite
-  version: 0.43.0
-  manager: conda
-  platform: win-64
-  dependencies:
-    libzlib: '>=1.3.1,<2.0a0'
-    python: '>=3.10,<3.11.0a0'
-    python_abi: 3.10.*
-    ucrt: '>=10.0.20348.0'
-    vc: '>=14.2,<15'
-    vc14_runtime: '>=14.29.30139'
-    vs2015_runtime: ''
-  url: https://conda.anaconda.org/conda-forge/win-64/llvmlite-0.43.0-py310h0288bfe_0.conda
-  hash:
-    md5: 722927d5664ec4a7f7089a6e7fa165f7
-    sha256: e1bec0ef2aa9ceb6e38c45b1cfe4e32d4632c117af153cd353dee4901ab76765
   category: main
   optional: false
 - name: locket
@@ -4285,42 +4200,6 @@ package:
     sha256: 9b5fdef9ebe89222baa9da2796ebe7bc02ec6c5a1f61327b651d6b92cf9a0230
   category: dev
   optional: true
-- name: numba
-  version: 0.60.0
-  manager: conda
-  platform: linux-64
-  dependencies:
-    _openmp_mutex: '>=4.5'
-    libgcc-ng: '>=12'
-    libstdcxx-ng: '>=12'
-    llvmlite: '>=0.43.0,<0.44.0a0'
-    numpy: '>=1.22.3,<2.1'
-    python: '>=3.10,<3.11.0a0'
-    python_abi: 3.10.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/numba-0.60.0-py310h5dc88bb_0.conda
-  hash:
-    md5: 73e2e2c0ffad216572ce01952ff0099c
-    sha256: c76c5baa087c2be3374bdb5eee37caf0c70f390c02a48aeb5e4337b600e5e319
-  category: main
-  optional: false
-- name: numba
-  version: 0.60.0
-  manager: conda
-  platform: win-64
-  dependencies:
-    llvmlite: '>=0.43.0,<0.44.0a0'
-    numpy: '>=1.22.3,<2.1'
-    python: '>=3.10,<3.11.0a0'
-    python_abi: 3.10.*
-    ucrt: '>=10.0.20348.0'
-    vc: '>=14.2,<15'
-    vc14_runtime: '>=14.29.30139'
-  url: https://conda.anaconda.org/conda-forge/win-64/numba-0.60.0-py310h7793332_0.conda
-  hash:
-    md5: 7bf58dbea05720f25c5b1fe99cac026c
-    sha256: 65cbc4fd3e29bb98f68fc694640546f37929c4766def46796579d7488ef9b714
-  category: main
-  optional: false
 - name: numcodecs
   version: 0.12.1
   manager: conda
@@ -5898,30 +5777,6 @@ package:
     sha256: 6928e92a92b01eaaa51227871deb23977276f4e45d4d2d268b2ce641587f8405
   category: main
   optional: false
-- name: scooby
-  version: 0.10.0
-  manager: conda
-  platform: linux-64
-  dependencies:
-    python: '>=3.8'
-  url: https://conda.anaconda.org/conda-forge/noarch/scooby-0.10.0-pyhd8ed1ab_0.conda
-  hash:
-    md5: 9e57330f431abbb4c88a5f898a4ba223
-    sha256: e47c80ff6c06898e7f49fbea5b0fd3a97dda0c11348004ada2070071d03b34cf
-  category: main
-  optional: false
-- name: scooby
-  version: 0.10.0
-  manager: conda
-  platform: win-64
-  dependencies:
-    python: '>=3.8'
-  url: https://conda.anaconda.org/conda-forge/noarch/scooby-0.10.0-pyhd8ed1ab_0.conda
-  hash:
-    md5: 9e57330f431abbb4c88a5f898a4ba223
-    sha256: e47c80ff6c06898e7f49fbea5b0fd3a97dda0c11348004ada2070071d03b34cf
-  category: main
-  optional: false
 - name: send2trash
   version: 1.8.3
   manager: conda
@@ -7176,30 +7031,6 @@ package:
     sha256: 00c47c602c03137e7396f904eccede8cc64cc6bad63ce1fc355125df8882a748
   category: main
   optional: false
-- name: utm
-  version: 0.7.0
-  manager: conda
-  platform: linux-64
-  dependencies:
-    python: '>=3.6'
-  url: https://conda.anaconda.org/conda-forge/noarch/utm-0.7.0-pyhd8ed1ab_0.tar.bz2
-  hash:
-    md5: 4864e2f5c746f45e02ec46221caccb7e
-    sha256: da75b1b3b0674bf14d32cb00d6d070bf273772c73c787694d438104a486e7627
-  category: main
-  optional: false
-- name: utm
-  version: 0.7.0
-  manager: conda
-  platform: win-64
-  dependencies:
-    python: '>=3.6'
-  url: https://conda.anaconda.org/conda-forge/noarch/utm-0.7.0-pyhd8ed1ab_0.tar.bz2
-  hash:
-    md5: 4864e2f5c746f45e02ec46221caccb7e
-    sha256: da75b1b3b0674bf14d32cb00d6d070bf273772c73c787694d438104a486e7627
-  category: main
-  optional: false
 - name: vc
   version: '14.3'
   manager: conda
@@ -7655,6 +7486,36 @@ package:
     sha256: 768e30dc513568491818fb068ee867c57c514b553915536da09e5d10b4ebf3c3
   category: main
   optional: false
+- name: empymod
+  version: 2.3.1
+  manager: pip
+  platform: linux-64
+  dependencies:
+    scipy: '>=1.9'
+    numpy: <2.0
+    numba: '>=0.53'
+    libdlf: '*'
+    scooby: '*'
+  url: https://files.pythonhosted.org/packages/42/f3/620141b1fe8f81d647e3a89fa2205abf16f4450dad87b12dadcb7f9f7b84/empymod-2.3.1-py3-none-any.whl
+  hash:
+    sha256: 310565fdb03d5e1da0022f84f74fbfc1c164de8c6a030a9ff20f676b6ea0208a
+  category: main
+  optional: false
+- name: empymod
+  version: 2.3.1
+  manager: pip
+  platform: win-64
+  dependencies:
+    scipy: '>=1.9'
+    numpy: <2.0
+    numba: '>=0.53'
+    libdlf: '*'
+    scooby: '*'
+  url: https://files.pythonhosted.org/packages/42/f3/620141b1fe8f81d647e3a89fa2205abf16f4450dad87b12dadcb7f9f7b84/empymod-2.3.1-py3-none-any.whl
+  hash:
+    sha256: 310565fdb03d5e1da0022f84f74fbfc1c164de8c6a030a9ff20f676b6ea0208a
+  category: main
+  optional: false
 - name: geoapps-utils
   version: 0.4.0a1
   manager: pip
@@ -7727,14 +7588,34 @@ package:
     type: url
     url: git+https://github.com/MiraGeoscience/geoh5py.git@21ce81d279c206ce0a279377168ce50e0a35d3d2
   optional: false
+- name: llvmlite
+  version: 0.43.0
+  manager: pip
+  platform: linux-64
+  dependencies: {}
+  url: https://files.pythonhosted.org/packages/c6/21/2ffbab5714e72f2483207b4a1de79b2eecd9debbf666ff4e7067bcc5c134/llvmlite-0.43.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+  hash:
+    sha256: 6912a87782acdff6eb8bf01675ed01d60ca1f2551f8176a300a886f09e836a6a
+  category: main
+  optional: false
+- name: llvmlite
+  version: 0.43.0
+  manager: pip
+  platform: win-64
+  dependencies: {}
+  url: https://files.pythonhosted.org/packages/f2/26/b5478037c453554a61625ef1125f7e12bb1429ae11c6376f47beba9b0179/llvmlite-0.43.0-cp310-cp310-win_amd64.whl
+  hash:
+    sha256: 14f0e4bf2fd2d9a75a3534111e8ebeb08eda2f33e9bdd6dfa13282afacdde0ed
+  category: main
+  optional: false
 - name: mira-simpeg
   version: 0.21.2.1a1
   manager: pip
   platform: linux-64
   dependencies:
-    discretize: '>=0.8.0'
+    discretize: '>=0.10.0'
     empymod: '>=2.0.0'
-    geoana: '*'
+    geoana: '>=0.5.0'
     geoh5py: '>=0.9.1,<0.11'
     matplotlib: '*'
     numpy: '>=1.20'
@@ -7742,22 +7623,22 @@ package:
     pymatsolver: '>=0.2'
     scikit-learn: '>=1.2'
     scipy: '>=1.8.0'
-  url: git+https://github.com/sebhmg/simpeg@06efe927ff555ba1596c6cb9bd453568e3c50b09
+  url: git+https://github.com/sebhmg/simpeg@b11209edcf2fa290e2efdd67df0d6ec3d6758ea8
   hash:
-    sha256: 06efe927ff555ba1596c6cb9bd453568e3c50b09
+    sha256: b11209edcf2fa290e2efdd67df0d6ec3d6758ea8
   category: main
   source:
     type: url
-    url: git+https://github.com/sebhmg/simpeg@06efe927ff555ba1596c6cb9bd453568e3c50b09
+    url: git+https://github.com/sebhmg/simpeg@b11209edcf2fa290e2efdd67df0d6ec3d6758ea8
   optional: false
 - name: mira-simpeg
   version: 0.21.2.1a1
   manager: pip
   platform: win-64
   dependencies:
-    discretize: '>=0.8.0'
+    discretize: '>=0.10.0'
     empymod: '>=2.0.0'
-    geoana: '*'
+    geoana: '>=0.5.0'
     geoh5py: '>=0.9.1,<0.11'
     matplotlib: '*'
     numpy: '>=1.20'
@@ -7765,13 +7646,37 @@ package:
     pymatsolver: '>=0.2'
     scikit-learn: '>=1.2'
     scipy: '>=1.8.0'
-  url: git+https://github.com/sebhmg/simpeg@06efe927ff555ba1596c6cb9bd453568e3c50b09
+  url: git+https://github.com/sebhmg/simpeg@b11209edcf2fa290e2efdd67df0d6ec3d6758ea8
   hash:
-    sha256: 06efe927ff555ba1596c6cb9bd453568e3c50b09
+    sha256: b11209edcf2fa290e2efdd67df0d6ec3d6758ea8
   category: main
   source:
     type: url
-    url: git+https://github.com/sebhmg/simpeg@06efe927ff555ba1596c6cb9bd453568e3c50b09
+    url: git+https://github.com/sebhmg/simpeg@b11209edcf2fa290e2efdd67df0d6ec3d6758ea8
+  optional: false
+- name: numba
+  version: 0.60.0
+  manager: pip
+  platform: linux-64
+  dependencies:
+    llvmlite: '>=0.43.0dev0,<0.44'
+    numpy: '>=1.22,<2.1'
+  url: https://files.pythonhosted.org/packages/79/58/cb4ac5b8f7ec64200460aef1fed88258fb872ceef504ab1f989d2ff0f684/numba-0.60.0-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
+  hash:
+    sha256: fe0b28abb8d70f8160798f4de9d486143200f34458d34c4a214114e445d7124e
+  category: main
+  optional: false
+- name: numba
+  version: 0.60.0
+  manager: pip
+  platform: win-64
+  dependencies:
+    llvmlite: '>=0.43.0dev0,<0.44'
+    numpy: '>=1.22,<2.1'
+  url: https://files.pythonhosted.org/packages/1c/b0/c61a93ca947d12233ff45de506ddbf52af3f752066a0b8be4d27426e16da/numba-0.60.0-cp310-cp310-win_amd64.whl
+  hash:
+    sha256: 19407ced081d7e2e4b8d8c36aa57b7452e0283871c296e12d798852bc7d7f198
+  category: main
   optional: false
 - name: octree-creation-app
   version: 0.2.0a1
@@ -7844,4 +7749,24 @@ package:
   source:
     type: url
     url: git+https://github.com/MiraGeoscience/param-sweeps@caf4da2f3af80075b484e06e0968a6c8502a3bd9
+  optional: false
+- name: scooby
+  version: 0.10.0
+  manager: pip
+  platform: linux-64
+  dependencies: {}
+  url: https://files.pythonhosted.org/packages/2f/4b/ea1c1c4ecaa97baf8001568d502eaff1bbc3d5c1b48cce3f3fd5a77b8f52/scooby-0.10.0-py3-none-any.whl
+  hash:
+    sha256: 0a3d7e304f8ebb16f69ff7f6360c345d7f50b45f2ddbf7c3d18a6a0dc2cb03a6
+  category: main
+  optional: false
+- name: scooby
+  version: 0.10.0
+  manager: pip
+  platform: win-64
+  dependencies: {}
+  url: https://files.pythonhosted.org/packages/2f/4b/ea1c1c4ecaa97baf8001568d502eaff1bbc3d5c1b48cce3f3fd5a77b8f52/scooby-0.10.0-py3-none-any.whl
+  hash:
+    sha256: 0a3d7e304f8ebb16f69ff7f6360c345d7f50b45f2ddbf7c3d18a6a0dc2cb03a6
+  category: main
   optional: false
