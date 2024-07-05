@@ -75,7 +75,6 @@ pandas = "~2.2.1"  # from SimPEG, also used by targeting-workflow, petro-lingo
 pydantic = "^2.5.2"  # from geoh5py
 pydiso = "~0.0.5"  # from simpeg
 pymatsolver = "~0.2.0"  # from simpeg
-intel-openmp = "^2023.2.0"
 scikit-learn = "~1.4.0"  # from SimPEG, also used by geo-unsup-mapper, petro-lingo
 tqdm = "^4.66.1"  # from simpeg
 
@@ -108,7 +107,7 @@ nbconvert = "~7.16.4"
 
 [tool.conda-lock]
 platforms = ['win-64', 'linux-64']
-channels = ['conda-forge', 'intel']
+channels = ['conda-forge']
 
 [tool.conda-lock.dependencies]
 libblas = "*=*mkl"  # because simpeg already brings in the MKL

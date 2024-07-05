@@ -15,12 +15,10 @@
 version: 1
 metadata:
   content_hash:
-    win-64: 7e346938fade20fcf18345408c4699b10851ee06a8b5fe8095980c00f53fcb57
-    linux-64: 12666b28906423c0c8df95d5f9c8f39fa09905331c91e428993e652d452ca76c
+    win-64: e9754d840c35a4983e67d8b088416e454d379001ec9f184e6f9b3a997629f908
+    linux-64: 245239cf90ea89cdf08a5aa5a9b065c6ea7a5f663389ce77f54dff3bffdf4d7c
   channels:
   - url: conda-forge
-    used_env_vars: []
-  - url: intel
     used_env_vars: []
   platforms:
   - win-64
@@ -1795,17 +1793,6 @@ package:
     sha256: 38740c939b668b36a50ef455b077e8015b8c9cf89860d421b3fff86048f49666
   category: dev
   optional: true
-- name: intel-openmp
-  version: 2023.2.4
-  manager: conda
-  platform: linux-64
-  dependencies: {}
-  url: https://conda.anaconda.org/intel/linux-64/intel-openmp-2023.2.4-intel_49553.tar.bz2
-  hash:
-    md5: 44f6d9ebf802960ca0ae0cea0d9faeca
-    sha256: 708102b0e69f5c5e8ae9d16acb2d0cfc3f431739a484cb7450ee4fa55fb9b9fd
-  category: main
-  optional: false
 - name: intel-openmp
   version: 2023.2.0
   manager: conda
