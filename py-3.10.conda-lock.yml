@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: 5e448b65fc6cb3e612f4cd84c4aebc8164fdc2717526c8bb8bb00ce5e160ba6c
-    linux-64: 85a667a97ddff8ff3cddf20b22a3fa6402056b55e2b3da9995bdca5c9204e7e6
+    win-64: 5934581a21fc6e45b68bca653a7d43bbd2d7afe9891685cab40f95fe5425c98f
+    linux-64: 276b32454c7b04e5308820bf518dac11c9a5658db04e64529a4a7f6ecb55627b
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -3526,7 +3526,7 @@ package:
   category: main
   optional: false
 - name: matplotlib-base
-  version: 3.7.3
+  version: 3.8.4
   manager: conda
   platform: linux-64
   dependencies:
@@ -3535,25 +3535,25 @@ package:
     cycler: '>=0.10'
     fonttools: '>=4.22.0'
     freetype: '>=2.12.1,<3.0a0'
-    kiwisolver: '>=1.0.1'
+    kiwisolver: '>=1.3.1'
     libgcc-ng: '>=12'
     libstdcxx-ng: '>=12'
-    numpy: '>=1.22.4,<2.0a0'
+    numpy: '>=1.21'
     packaging: '>=20.0'
-    pillow: '>=6.2.0'
+    pillow: '>=8'
     pyparsing: '>=2.3.1'
     python: '>=3.10,<3.11.0a0'
     python-dateutil: '>=2.7'
     python_abi: 3.10.*
-    tk: '>=8.6.12,<8.7.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/matplotlib-base-3.7.3-py310h62c0568_0.conda
+    tk: '>=8.6.13,<8.7.0a0'
+  url: https://conda.anaconda.org/conda-forge/linux-64/matplotlib-base-3.8.4-py310hef631a5_2.conda
   hash:
-    md5: 15a0409bc579d80e67715f1ce5d864a2
-    sha256: 5e60c8ab40fa69f9bb665d8dee53650fc5554edb1193cb5313589c788b7f1af2
+    md5: b3fa3fc2a0fa8b53b913c94297b12e27
+    sha256: 5733c68ff72a04a42d8363965155d4b27a1ed3364a507b8cac582c0b4881d222
   category: main
   optional: false
 - name: matplotlib-base
-  version: 3.7.3
+  version: 3.8.4
   manager: conda
   platform: win-64
   dependencies:
@@ -3562,10 +3562,10 @@ package:
     cycler: '>=0.10'
     fonttools: '>=4.22.0'
     freetype: '>=2.12.1,<3.0a0'
-    kiwisolver: '>=1.0.1'
-    numpy: '>=1.22.4,<2.0a0'
+    kiwisolver: '>=1.3.1'
+    numpy: '>=1.21'
     packaging: '>=20.0'
-    pillow: '>=6.2.0'
+    pillow: '>=8'
     pyparsing: '>=2.3.1'
     python: '>=3.10,<3.11.0a0'
     python-dateutil: '>=2.7'
@@ -3573,10 +3573,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://conda.anaconda.org/conda-forge/win-64/matplotlib-base-3.7.3-py310hc9baf74_0.conda
+  url: https://conda.anaconda.org/conda-forge/win-64/matplotlib-base-3.8.4-py310hadb10a8_2.conda
   hash:
-    md5: b8452c3adde5873f2d430381d515529b
-    sha256: b33df121d3c06700ab6046108aedbeda5e6b97f402903979df684f714c866db1
+    md5: 8f5e26aa64ab245691efb7f87c584060
+    sha256: bc3ecb8e9f68fd1b4214e223f08e94d8f88e6fdc237dc0e86efcb9f090737e96
   category: main
   optional: false
 - name: matplotlib-inline
