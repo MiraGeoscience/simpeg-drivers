@@ -26,36 +26,41 @@ include = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.10, <3.11"
+python = "^3.10"
 
 dask = {version = "2022.10.*", extras = ["distributed"]}  # also in simpeg[dask]
 discretize = "~0.10.0"  # also in simpeg, octree-creation-app
 distributed = "2022.10.*"  # because conda-lock doesn't take dask extras into account
-numpy = "~1.23.5" # also in geoh5py, simpeg
-scipy = "~1.13"
+numpy = "~1.26.0" # also in geoh5py, simpeg
+scipy = "~1.14.0"
 zarr = "~2.14.2"  # also in simpeg[dask]
 
 ## Pip dependencies from Git repositories
 #----------------------------------------
-#geoh5py = {version = "~0.9.0rc1", source = "pypi", allow-prereleases = true}
-geoh5py = {url = "https://github.com/MiraGeoscience/geoh5py/archive/refs/heads/develop.zip"}
-#geoh5py = {url = "http://localhost:8888/geoh5py.tar.gz#sha256="}
+#geoh5py = {version = "~0.10.0-alpha.1", source = "pypi", allow-prereleases = true}
+#geoh5py = {url = "https://github.com/MiraGeoscience/geoh5py/archive/refs/heads/develop.tar.gz"}
+geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "develop"}
+#geoh5py = {url = "http://localhost:8888/geoh5py.tar.gz"}
 
-#octree-creation-app = {version = "~0.1.0rc2", source = "pypi", allow-prereleases = true}
-octree-creation-app = {url = "https://github.com/MiraGeoscience/octree-creation-app/archive/refs/heads/develop.zip"}
-#octree-creation-app = {url = "http://localhost:8888/octree-creation-app.tar.gz#sha256="}
+#octree-creation-app = {version = "~0.2.0-alpha.1", source = "pypi", allow-prereleases = true}
+#octree-creation-app = {url = "https://github.com/MiraGeoscience/octree-creation-app/archive/refs/heads/develop.tar.gz"}
+octree-creation-app = {git = "https://github.com/MiraGeoscience/octree-creation-app.git", rev = "develop"}
+#octree-creation-app = {url = "http://localhost:8888/octree-creation-app.tar.gz"}
 
-#geoapps-utils = {version = "~0.3.0rc1", source = "pypi", allow-prereleases = true}
-geoapps-utils = {url = "https://github.com/MiraGeoscience/geoapps-utils/archive/refs/heads/develop.zip"}
-#geoapps-utils = {url = "http://localhost:8888/geoapps-utils.tar.gz#sha256="}
+#geoapps-utils = {version = "~0.4.0-alpha.1", source = "pypi", allow-prereleases = true}
+#geoapps-utils = {url = "https://github.com/MiraGeoscience/geoapps-utils/archive/refs/heads/develop.tar.gz"}
+geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "develop"}
+#geoapps-utils = {url = "http://localhost:8888/geoapps-utils.tar.gz"}
 
-#mira-simpeg = {version = ">=0.19.0.8rc3,<0.19.0.9.dev", source = "pypi", allow-prereleases = true}
-mira-simpeg = {url = "https://github.com/MiraGeoscience/simpeg/archive/refs/heads/develop.zip"}
-#mira-simpeg = {url = "http://localhost:8888/mira-simpeg.tar.gz#sha256="}
+#mira-simpeg = {version = ">=0.21.2.1-alpha.1, <0.21.2.2.dev", source = "pypi", allow-prereleases = true}
+#mira-simpeg = {url = "https://github.com/MiraGeoscience/simpeg/archive/refs/heads/develop.tar.gz"}
+mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", rev = "develop"}
+#mira-simpeg = {url = "http://localhost:8888/mira-simpeg.tar.gz"}
 
-#param-sweeps = {version = "~0.1.7rc1", source = "pypi", allow-prereleases = true}
-param-sweeps = {url = "https://github.com/MiraGeoscience/param-sweeps/archive/refs/heads/develop.zip"}
-#param-sweeps = {url = "http://localhost:8888/param-sweeps.tar.gz#sha256="}
+#param-sweeps = {version = "~0.1.8-alpha.1", source = "pypi", allow-prereleases = true}
+#param-sweeps = {url = "https://github.com/MiraGeoscience/param-sweeps/archive/refs/heads/develop.tar.gz"}
+param-sweeps = {git = "https://github.com/MiraGeoscience/param-sweeps.git", rev = "develop"}
+#param-sweeps = {url = "http://localhost:8888/param-sweeps.tar.gz"}
 
 ## indirect dependencies, forcing them here for installation through Conda not pip
 #---------------------------------------------------------------------------------
@@ -66,7 +71,7 @@ h5py = "^3.2.1"  # from geoh5py
 matplotlib = "~3.7.1"  # from simpeg
 mkl = "2023.2.0"  # from simpeg
 pandas = "~2.2.1"  # from SimPEG, also used by targeting-workflow, petro-lingo
-pydantic = "~2.5.2"  # from geoapps-utils
+pydantic = "^2.5.2"  # from geoh5py
 pydiso = "~0.0.5"  # from simpeg
 pymatsolver = "~0.2.0"  # from simpeg
 intel-openmp = "^2023.2.0"
@@ -75,17 +80,17 @@ tqdm = "^4.66.1"  # from simpeg
 
 # force some versions to resolve incompatible resolution between PyPI and Conda
 #------------------------------------------------------------------------------
-tbb = "~2021.12.0"
-tzdata = "2023.4"  # through pandas from SimPEG
+tbb = "2021.12.*"  # through mkl from SimPEG
+tzdata = "2023.4.*"  # through pandas from SimPEG
 
 ## about pip dependencies
 # to be specified to work with conda-lock
 # - from PyPI: my_package = { version = "1.2.3", source = "pypi" }
-# - from URL:
-#   - for a tags:   my_package = { url = "https://github.com/ORGANISATION/REPO/archive/refs/tags/VERSION_TAG.zip#sha256=" }
-#   - for a branch: my_package = { url = "https://github.com/ORGANISATION/REPO/archive/refs/heads/BRANCH.zip#sha256=" }
-# Note - conda-lock does not support the syntax: my_package = { git = ... }
-#        while poetry2conda supports only { git = "...", tag = "..." }, and not { url = ... }
+# - from URL: !!! no actual lock, as tag or branch can move and installation will fetch current !!!
+#   - for a tag:    my_package = { url = "https://github.com/ORGANISATION/REPO/archive/refs/tags/TAG.tar.gz" }
+#   - for a branch: my_package = { url = "https://github.com/ORGANISATION/REPO/archive/refs/heads/BRANCH.tar.gz" }
+# - to actually lock on a revision: my_package = { git = "https://github.com/ORGANISATION/REPO.git", rev = "GIT_REV" }
+#   (where rev value is a tag, a branch name or a commit hash). Can also use ``branch`` or ``tag`` instead of ``rev``
 
 [tool.poetry.group.dev.dependencies]
 Pygments = "*"
