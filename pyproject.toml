@@ -70,6 +70,7 @@ Pillow = "~10.3.0"  # from geoh5py
 fsspec = "2022.*"  # from simpeg[dask]
 geoana = "~0.5.0"  # from simpeg
 h5py = "^3.2.1"  # from geoh5py
+intel-openmp = {source="pypi", version="2023.2.0"}
 matplotlib = "~3.8.4"  # from simpeg
 mkl = "2023.2.0"  # from simpeg
 pandas = "~2.2.1"  # from SimPEG, also used by targeting-workflow, petro-lingo
