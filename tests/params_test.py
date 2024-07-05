@@ -162,7 +162,7 @@ def catch_invalid_generator(params, field, invalid_value, validation_type):
     elif validation_type == "association":
         err = AssociationValidationError
     else:
-        raise ValueError("Validation type not recognized")
+        raise ValueError(f"'validation_type' {validation_type} not recognized.")
 
     with pytest.raises(err):
         setattr(params, field, invalid_value)
