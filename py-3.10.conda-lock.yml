@@ -7623,13 +7623,13 @@ package:
     pymatsolver: '>=0.2'
     scikit-learn: '>=1.2'
     scipy: '>=1.8.0'
-  url: git+https://github.com/sebhmg/simpeg@b11209edcf2fa290e2efdd67df0d6ec3d6758ea8
+  url: git+https://github.com/sebhmg/simpeg@e25d50ae14a898e2055112eabf0492a5d839b62b
   hash:
-    sha256: b11209edcf2fa290e2efdd67df0d6ec3d6758ea8
+    sha256: e25d50ae14a898e2055112eabf0492a5d839b62b
   category: main
   source:
     type: url
-    url: git+https://github.com/sebhmg/simpeg@b11209edcf2fa290e2efdd67df0d6ec3d6758ea8
+    url: git+https://github.com/sebhmg/simpeg@e25d50ae14a898e2055112eabf0492a5d839b62b
   optional: false
 - name: mira-simpeg
   version: 0.21.2.1a1
@@ -7646,13 +7646,13 @@ package:
     pymatsolver: '>=0.2'
     scikit-learn: '>=1.2'
     scipy: '>=1.8.0'
-  url: git+https://github.com/sebhmg/simpeg@b11209edcf2fa290e2efdd67df0d6ec3d6758ea8
+  url: git+https://github.com/sebhmg/simpeg@e25d50ae14a898e2055112eabf0492a5d839b62b
   hash:
-    sha256: b11209edcf2fa290e2efdd67df0d6ec3d6758ea8
+    sha256: e25d50ae14a898e2055112eabf0492a5d839b62b
   category: main
   source:
     type: url
-    url: git+https://github.com/sebhmg/simpeg@b11209edcf2fa290e2efdd67df0d6ec3d6758ea8
+    url: git+https://github.com/sebhmg/simpeg@e25d50ae14a898e2055112eabf0492a5d839b62b
   optional: false
 - name: numba
   version: 0.60.0

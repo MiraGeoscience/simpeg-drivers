@@ -138,7 +138,7 @@ dependencies:
       - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils@03aa505b3957dd543be737d637760dc77a79bec7
       - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@21ce81d279c206ce0a279377168ce50e0a35d3d2
       - llvmlite === 0.43.0
-      - mira-simpeg @ git+https://github.com/sebhmg/simpeg@b11209edcf2fa290e2efdd67df0d6ec3d6758ea8
+      - mira-simpeg @ git+https://github.com/sebhmg/simpeg@e25d50ae14a898e2055112eabf0492a5d839b62b
       - numba === 0.60.0
       - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app@015211d1f189072f3c8abe3b19ade42dee72e022
       - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps@caf4da2f3af80075b484e06e0968a6c8502a3bd9
