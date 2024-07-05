@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: 2ac856d75349be73fee8fd04d6cc839a17e92d908f5267f6eb25407958130b95
-    linux-64: 97e1161f963e472c1ecf90b2961bb2af20a2d0ee1ca7a0eecd0f669e72331660
+    win-64: 5e448b65fc6cb3e612f4cd84c4aebc8164fdc2717526c8bb8bb00ce5e160ba6c
+    linux-64: 85a667a97ddff8ff3cddf20b22a3fa6402056b55e2b3da9995bdca5c9204e7e6
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -7691,13 +7691,13 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: git+https://github.com/MiraGeoscience/octree-creation-app@015211d1f189072f3c8abe3b19ade42dee72e022
+  url: git+https://github.com/MiraGeoscience/octree-creation-app@8b0749e6797c393aaa0d79e34ee199708f448175
   hash:
-    sha256: 015211d1f189072f3c8abe3b19ade42dee72e022
+    sha256: 8b0749e6797c393aaa0d79e34ee199708f448175
   category: main
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/octree-creation-app@015211d1f189072f3c8abe3b19ade42dee72e022
+    url: git+https://github.com/MiraGeoscience/octree-creation-app@8b0749e6797c393aaa0d79e34ee199708f448175
   optional: false
 - name: octree-creation-app
   version: 0.2.0a1
@@ -7712,13 +7712,13 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: git+https://github.com/MiraGeoscience/octree-creation-app@015211d1f189072f3c8abe3b19ade42dee72e022
+  url: git+https://github.com/MiraGeoscience/octree-creation-app@8b0749e6797c393aaa0d79e34ee199708f448175
   hash:
-    sha256: 015211d1f189072f3c8abe3b19ade42dee72e022
+    sha256: 8b0749e6797c393aaa0d79e34ee199708f448175
   category: main
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/octree-creation-app@015211d1f189072f3c8abe3b19ade42dee72e022
+    url: git+https://github.com/MiraGeoscience/octree-creation-app@8b0749e6797c393aaa0d79e34ee199708f448175
   optional: false
 - name: param-sweeps
   version: 0.1.8a1
