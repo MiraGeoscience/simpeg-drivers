@@ -55,7 +55,6 @@ geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", re
 
 #mira-simpeg = {version = ">=0.21.2.1-alpha.1, <0.21.2.2.dev", source = "pypi", allow-prereleases = true}
 #mira-simpeg = {url = "https://github.com/MiraGeoscience/simpeg/archive/refs/heads/develop.tar.gz"}
-#mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", rev = "develop"}
 mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", rev = "develop"}
 #mira-simpeg = {url = "http://localhost:8888/mira-simpeg.tar.gz"}
 
