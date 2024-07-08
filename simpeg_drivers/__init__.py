@@ -17,12 +17,16 @@
 
 from __future__ import annotations
 
+import os
+
 __version__ = "0.2.0-alpha.1"
 
 from pathlib import Path
 
 from simpeg_drivers.constants import default_ui_json
 from simpeg_drivers.params import InversionBaseParams
+
+os.environ["MKL_THREADING_LAYER"] = "TBB"
 
 __all__ = [
     "DRIVER_MAP",
