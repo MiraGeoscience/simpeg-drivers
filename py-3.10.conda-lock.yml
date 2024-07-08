@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: 76f70a9cf15064f79025dc6b8eecd3090a2e261d7486d43c133a356f4d74d693
-    linux-64: fed54fdf449dcc279cdbb5e1875c584d5a7ef0cc83fa47622461c7810856b211
+    win-64: 20adeb75e3e0fa83175349bbb9d2f49b4948fef2f2685139b9771c2605ae57d5
+    linux-64: 5ad1ba25f369c2571441632dab16f46625675a99b78f0e6259a27bde3a71ac92
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -3089,11 +3089,11 @@ package:
   manager: conda
   platform: linux-64
   dependencies:
-    mkl: '>=2023.2.0,<2024.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libblas-3.9.0-20_linux64_mkl.conda
+    libopenblas: '>=0.3.27,<1.0a0'
+  url: https://conda.anaconda.org/conda-forge/linux-64/libblas-3.9.0-22_linux64_openblas.conda
   hash:
-    md5: 8bf521f6007b0b0eb91515a1165b5d85
-    sha256: 9e5f27fca79223a5d38ccdf4c468e798c3684ba01bdb6b4b44e61f2103a298eb
+    md5: 1a2a0cd3153464fee6646f3dd6dad9b8
+    sha256: 082b8ac20d43a7bbcdc28b3b1cd40e4df3a8b5daf0a2d23d68953a44d2d12c1b
   category: main
   optional: false
 - name: libblas
@@ -3196,10 +3196,10 @@ package:
   platform: linux-64
   dependencies:
     libblas: 3.9.0
-  url: https://conda.anaconda.org/conda-forge/linux-64/libcblas-3.9.0-20_linux64_mkl.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libcblas-3.9.0-22_linux64_openblas.conda
   hash:
-    md5: 7a2972758a03adc92d856072c71c9170
-    sha256: 841b4d44e20e5207f4a74ca98176629ead5ba590384ed6b0fe3c8600248c9fef
+    md5: 4b31699e0ec5de64d5896e580389c9a1
+    sha256: da1b2faa017663c8f5555c1c5518e96ac4cd8e0be2a673c1c9e2cb8507c8fe46
   category: main
   optional: false
 - name: libcblas
@@ -3476,10 +3476,10 @@ package:
   platform: linux-64
   dependencies:
     libblas: 3.9.0
-  url: https://conda.anaconda.org/conda-forge/linux-64/liblapack-3.9.0-20_linux64_mkl.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/liblapack-3.9.0-22_linux64_openblas.conda
   hash:
-    md5: 4db0cd03efcdab535f6f066aca4cddbb
-    sha256: 21b4324dd65815f6b5a83c15f0b9a201434d0aa55eeecc37efce7ee70bbbf482
+    md5: b083767b6c877e24ee597d93b87ab838
+    sha256: db246341d42f9100d45adeb1a7ba8b1ef5b51ceb9056fd643e98046a3259fde6
   category: main
   optional: false
 - name: liblapack
@@ -3521,6 +3521,20 @@ package:
   hash:
     md5: 30fd6e37fe21f86f4bd26d6ee73eeec7
     sha256: 26d77a3bb4dceeedc2a41bd688564fe71bf2d149fdcf117049970bc02ff1add6
+  category: main
+  optional: false
+- name: libopenblas
+  version: 0.3.27
+  manager: conda
+  platform: linux-64
+  dependencies:
+    libgcc-ng: '>=12'
+    libgfortran-ng: ''
+    libgfortran5: '>=12.3.0'
+  url: https://conda.anaconda.org/conda-forge/linux-64/libopenblas-0.3.27-pthreads_hac2b453_1.conda
+  hash:
+    md5: ae05ece66d3924ac3d48b4aa3fa96cec
+    sha256: 714cb82d7c4620ea2635a92d3df263ab841676c9b183d0c01992767bb2451c39
   category: main
   optional: false
 - name: libpng
@@ -6201,17 +6215,18 @@ package:
   category: dev
   optional: true
 - name: rpds-py
-  version: 0.18.1
+  version: 0.19.0
   manager: conda
   platform: linux-64
   dependencies:
+    __glibc: '>=2.17,<3.0.a0'
     libgcc-ng: '>=12'
     python: '>=3.10,<3.11.0a0'
     python_abi: 3.10.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/rpds-py-0.18.1-py310he421c4c_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/rpds-py-0.19.0-py310h42e942d_0.conda
   hash:
-    md5: f12c9d4fccaae5cfc7f22adb0a71506f
-    sha256: b67df53e705727af50ddabafe2e97d827e5c60400359c979e8215f4fc0589ad7
+    md5: f7d048860e7ab5ab18c733d9ce7ecbd0
+    sha256: 9195cb82a745afc7a51b2ca32a2541fc4766c20bec3036000d52b25ebe93e5ed
   category: dev
   optional: true
 - name: rpds-py
