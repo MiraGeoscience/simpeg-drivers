@@ -25,7 +25,7 @@ dependencies:
   - ca-certificates=2024.7.4=h56e8100_0
   - cached-property=1.5.2=hd8ed1ab_1
   - cached_property=1.5.2=pyha770c72_1
-  - certifi=2024.6.2=pyhd8ed1ab_0
+  - certifi=2024.7.4=pyhd8ed1ab_0
   - cffi=1.16.0=py310h8d17308_0
   - charset-normalizer=3.3.2=pyhd8ed1ab_0
   - click=8.1.7=win_pyh7428d3b_0
@@ -49,7 +49,7 @@ dependencies:
   - exceptiongroup=1.2.0=pyhd8ed1ab_2
   - executing=2.0.1=pyhd8ed1ab_0
   - fasteners=0.17.3=pyhd8ed1ab_0
-  - fonttools=4.53.0=py310ha8f682b_0
+  - fonttools=4.53.1=py310ha8f682b_0
   - freetype=2.12.1=hdaf720e_2
   - fsspec=2022.11.0=pyhd8ed1ab_0
   - geoana=0.5.0=py310h4856b71_4
@@ -69,12 +69,12 @@ dependencies:
   - ipykernel=6.29.5=pyh4bbf305_0
   - ipython=8.26.0=pyh7428d3b_0
   - ipython_genutils=0.2.0=pyhd8ed1ab_1
-  - ipywidgets=7.8.0=pyhd8ed1ab_0
+  - ipywidgets=7.8.2=pyhd8ed1ab_0
   - isort=5.13.2=pyhd8ed1ab_0
   - jedi=0.19.1=pyhd8ed1ab_0
   - jinja2=3.1.4=pyhd8ed1ab_0
   - joblib=1.4.2=pyhd8ed1ab_0
-  - jsonschema=4.22.0=pyhd8ed1ab_0
+  - jsonschema=4.23.0=pyhd8ed1ab_0
   - jsonschema-specifications=2023.12.1=pyhd8ed1ab_0
   - jupyter-book=0.15.1=pyhd8ed1ab_0
   - jupyter-cache=0.6.1=pyhd8ed1ab_0
@@ -82,7 +82,7 @@ dependencies:
   - jupyter_core=5.7.2=py310h5588dad_0
   - jupyter_server=1.24.0=pyhd8ed1ab_0
   - jupyterlab_pygments=0.3.0=pyhd8ed1ab_1
-  - jupyterlab_widgets=1.1.7=pyhd8ed1ab_0
+  - jupyterlab_widgets=1.1.8=pyhd8ed1ab_0
   - jupytext=1.16.2=pyhd8ed1ab_1
   - kiwisolver=1.4.5=py310h232114e_1
   - krb5=1.21.3=hdf4eb48_0
@@ -167,8 +167,8 @@ dependencies:
   - pybtex=0.24.0=pyhd8ed1ab_2
   - pybtex-docutils=1.0.3=py310h5588dad_1
   - pycparser=2.22=pyhd8ed1ab_0
-  - pydantic=2.8.0=pyhd8ed1ab_0
-  - pydantic-core=2.20.0=py310hc226416_0
+  - pydantic=2.8.2=pyhd8ed1ab_0
+  - pydantic-core=2.20.1=py310hc226416_0
   - pydata-sphinx-theme=0.15.4=pyhd8ed1ab_0
   - pydiso=0.0.5=py310hafb2880_1
   - pygments=2.18.0=pyhd8ed1ab_0
@@ -192,9 +192,9 @@ dependencies:
   - readthedocs-sphinx-ext=2.2.5=pyhd8ed1ab_0
   - referencing=0.35.1=pyhd8ed1ab_0
   - requests=2.32.3=pyhd8ed1ab_0
-  - rpds-py=0.18.1=py310hc226416_0
+  - rpds-py=0.19.0=py310hc226416_0
   - scikit-learn=1.4.2=py310hf2a6c47_1
-  - scipy=1.14.0=py310h46043a1_0
+  - scipy=1.14.0=py310h46043a1_1
   - send2trash=1.8.3=pyh5737063_0
   - setuptools=70.1.1=pyhd8ed1ab_0
   - six=1.16.0=pyh6c4a22f_0
@@ -249,7 +249,7 @@ dependencies:
   - webencodings=0.5.1=pyhd8ed1ab_2
   - websocket-client=1.8.0=pyhd8ed1ab_0
   - wheel=0.43.0=pyhd8ed1ab_1
-  - widgetsnbextension=3.6.6=pyhd8ed1ab_0
+  - widgetsnbextension=3.6.7=pyhd8ed1ab_0
   - win_inet_pton=1.1.0=pyhd8ed1ab_6
   - winpty=0.4.3=4
   - xorg-libxau=1.0.11=hcd874cb_0

@@ -17,7 +17,7 @@ dependencies:
   - ca-certificates=2024.7.4=hbcca054_0
   - cached-property=1.5.2=hd8ed1ab_1
   - cached_property=1.5.2=pyha770c72_1
-  - certifi=2024.6.2=pyhd8ed1ab_0
+  - certifi=2024.7.4=pyhd8ed1ab_0
   - cffi=1.16.0=py310h2fee648_0
   - click=8.1.7=unix_pyh707e725_0
   - cloudpickle=3.0.0=pyhd8ed1ab_0
@@ -29,7 +29,7 @@ dependencies:
   - discretize=0.10.0=py310hcb52e73_1
   - distributed=2022.10.2=pyhd8ed1ab_0
   - fasteners=0.17.3=pyhd8ed1ab_0
-  - fonttools=4.53.0=py310hc51659f_0
+  - fonttools=4.53.1=py310h5b4e0ec_0
   - freetype=2.12.1=h267a509_2
   - fsspec=2022.11.0=pyhd8ed1ab_0
   - geoana=0.5.0=py310hcb52e73_4
@@ -99,8 +99,8 @@ dependencies:
   - psutil=6.0.0=py310hc51659f_0
   - pthread-stubs=0.4=h36c2ea0_1001
   - pycparser=2.22=pyhd8ed1ab_0
-  - pydantic=2.8.0=pyhd8ed1ab_0
-  - pydantic-core=2.20.0=py310he421c4c_0
+  - pydantic=2.8.2=pyhd8ed1ab_0
+  - pydantic-core=2.20.1=py310h42e942d_0
   - pydiso=0.0.5=py310h4fb8009_1
   - pymatsolver=0.2.0=ha770c72_3
   - pymatsolver-base=0.2.0=pyh44b312d_3
@@ -114,7 +114,7 @@ dependencies:
   - pyyaml=6.0.1=py310h2372a71_1
   - readline=8.2=h8228510_1
   - scikit-learn=1.4.2=py310h981052a_1
-  - scipy=1.14.0=py310h93e2701_0
+  - scipy=1.14.0=py310h93e2701_1
   - setuptools=70.1.1=pyhd8ed1ab_0
   - six=1.16.0=pyh6c4a22f_0
   - sortedcontainers=2.4.0=pyhd8ed1ab_0
