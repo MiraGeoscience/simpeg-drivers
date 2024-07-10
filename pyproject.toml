@@ -63,26 +63,6 @@ mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", rev = "deve
 param-sweeps = {git = "https://github.com/MiraGeoscience/param-sweeps.git", rev = "develop"}
 #param-sweeps = {url = "http://localhost:8888/param-sweeps.tar.gz"}
 
-## indirect dependencies, forcing them here for installation through Conda not pip
-#---------------------------------------------------------------------------------
-Pillow = "~10.3.0"  # from geoh5py
-fsspec = "2022.*"  # from simpeg[dask]
-geoana = "~0.5.0"  # from simpeg
-h5py = "^3.2.1"  # from geoh5py
-matplotlib = "~3.8.4"  # from simpeg
-mkl = "2023.2.0"  # from simpeg
-pandas = "~2.2.1"  # from SimPEG, also used by targeting-workflow, petro-lingo
-pydantic = "^2.5.2"  # from geoh5py, geoapps-utils
-pydiso = "~0.0.5"  # from simpeg
-pymatsolver = "~0.2.0"  # from simpeg
-scikit-learn = "~1.4.0"  # from SimPEG, also used by geo-unsup-mapper, petro-lingo
-tqdm = "^4.66.1"  # from simpeg
-
-# force some versions to resolve incompatible resolution between PyPI and Conda
-#------------------------------------------------------------------------------
-tbb = "2021.12.*"  # through mkl from SimPEG
-tzdata = "2023.4.*"  # through pandas from SimPEG
-
 ## about pip dependencies
 # to be specified to work with conda-lock
 # - from PyPI: my_package = { version = "1.2.3", source = "pypi" }
@@ -111,6 +91,26 @@ channels = ['conda-forge']
 
 [tool.conda-lock.dependencies]
 libblas = "*=*mkl"  # because simpeg already brings in the MKL
+
+## indirect dependencies, forcing them here for installation through Conda not pip
+#---------------------------------------------------------------------------------
+Pillow = ">=10.3.0, <10.4.0"  # from geoh5py
+fsspec = "2022.*"  # from simpeg[dask]
+geoana = ">=0.5.0, <0.6.0"  # from simpeg
+h5py = ">=3.2.1, <4.0.0"  # from geoh5py
+matplotlib-base = ">=3.8.4, <3.9.0"  # from simpeg
+mkl = ">=2023.2, <2023.3"  # from simpeg
+pandas = ">=2.2.1, <2.3.0"  # from SimPEG, also used by targeting-workflow, petro-lingo
+pydantic = ">=2.5.2, <3.0.0"  # from geoh5py, geoapps-utils
+pydiso = ">=0.0.5, <0.1.0"  # from simpeg
+pymatsolver = ">=0.2.0, <0.3.0"  # from simpeg
+scikit-learn = ">=1.4.0, <1.5.0"  # from SimPEG, also used by geo-unsup-mapper, petro-lingo
+tqdm = ">=4.66.1, <5.0.0"  # from simpeg
+
+# force some versions to resolve incompatible resolution between PyPI and Conda
+#------------------------------------------------------------------------------
+tbb = "2021.12.*"  # through mkl from SimPEG
+python-tzdata = "2023.4.*"  # through pandas from SimPEG
 
 [tool.isort]
 profile = "black"
