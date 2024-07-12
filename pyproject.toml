@@ -54,8 +54,9 @@ mira-simpeg = {version = ">=0.19.0.8,<0.19.0.9.dev", source = "pypi", allow-prer
 #mira-simpeg = {url = "https://github.com/MiraGeoscience/simpeg/archive/refs/heads/release/0.19.0.8.zip#sha256="}
 #mira-simpeg = {url = "http://localhost:8888/mira-simpeg.tar.gz#sha256="}
 
-#param-sweeps = {version = "~0.1.7", source = "pypi", allow-prereleases = true}
-param-sweeps = {url = "https://github.com/MiraGeoscience/param-sweeps/archive/refs/heads/release/0.1.7-post.1.zip#sha256="}
+param-sweeps = {version = "~0.1.8-rc.1", source = "pypi", allow-prereleases = true}
+#param-sweeps = {url = "https://github.com/MiraGeoscience/param-sweeps/archive/refs/heads/release/0.1.8.zip#sha256="}
+#param-sweeps = {git = "https://github.com/MiraGeoscience/param-sweeps.git", rev = "hotfix/0.1.8"}
 #param-sweeps = {url = "http://localhost:8888/param-sweeps.tar.gz#sha256="}
 
 ## indirect dependencies, forcing them here for installation through Conda not pip
