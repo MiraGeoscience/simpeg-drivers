@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import sys
 import uuid
+import warnings
 from pathlib import Path
 
 import numpy as np
@@ -101,7 +102,15 @@ class BasePseudo3DDriver(LineSweepDriver):
                     continue
 
                 filepath = Path(self.working_directory) / f"{uid}.ui.geoh5"
-                with Workspace(filepath) as iter_workspace:
+
+                if filepath.exists():
+                    warnings.warn(
+                        f"File {filepath} already exists but 'status' marked as 'pending'. "
+                        "Over-writting file."
+                    )
+                    filepath.unlink()
+
+                with Workspace.create(filepath) as iter_workspace:
                     cell_mask: np.ndarray = (
                         self.pseudo3d_params.line_object.values == trial["line_id"]
                     )
