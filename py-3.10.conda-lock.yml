@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: b134b5d097fe6448403199c9818d9fd4df56c14049c3c9b6503e65f6b11a7597
-    linux-64: e3aaec3b479c30a9e2888ad236e2c6041a1424bc7cec98f1a3d3bb5118016839
+    win-64: 5db0015b64eb2738bb42e4aa78b61ae2668b8462ee8830920b9b09991dbb4661
+    linux-64: a50b392307d2f4a7358b979e8f36d1e85a3a0aadc0a4d8bbd0f911e4a37ec29b
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -1848,9 +1848,9 @@ package:
     ipython: '>=7.23.1'
     matplotlib-inline: '>=0.1'
     debugpy: '>=1.6.5'
+    pyzmq: '>=24'
     comm: '>=0.1.1'
     traitlets: '>=5.4.0'
-    pyzmq: '>=24'
   url: https://conda.anaconda.org/conda-forge/noarch/ipykernel-6.29.5-pyh4bbf305_0.conda
   hash:
     md5: 18df5fc4944a679e085e0e8f31775fc8
