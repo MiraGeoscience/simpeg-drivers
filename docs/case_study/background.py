@@ -5,7 +5,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.16.1
+#       jupytext_version: 1.16.2
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -16,7 +16,9 @@
 #
 # # Background
 #
-# The processing and inversion work focuses on ground and airborne datasets simulated over the Flin Flon model. Extensive drilling has been done over the deposit, as shown in [Figure 2](global_map).
+# This tutorial on inversion uses a mix of ground and airborne geophysical datasets simulated over the Flin Flon model. The model is a simplification of a VMS copper-zinc-gold Flin Flon deposit in northern Manitoba, Canada. A synthetic block model was generated from open-source data made available by [Natural Resources Canada (NRCan)](https://ostrnrcan-dostrncan.canada.ca/entities/publication/73d767d8-ee1c-4bab-a2da-52dcf83faa06) over this historic mine site.
+#
+# In various forms of operation since the 1920s, extensive drilling has been done over the deposit, as shown in [Figure 2](global_map).
 #
 # ```{figure} ./images/map_flinflon.png
 # ---
@@ -26,7 +28,8 @@
 # Geological map and drillholes of the Flin Flon deposit. Outline of the main ore body (red) is shown for reference.
 # ```
 #
-# The synthetic block model was generated from open-source data made available by [Natural Resources Canada (NRCan)](https://ostrnrcan-dostrncan.canada.ca/entities/publication/73d767d8-ee1c-4bab-a2da-52dcf83faa06). The VMS deposit is hosted in rhyolite unit as indicated by yellow voxels [Figure 3](ore_body).
+# The local geology consists mainly of basalt and mafic volcanic flow formations, with discrete occurrences of rhyolite units (yellow) that host the mineralization (red) [Figure 3](ore_body). The entire region was later deformed by large tectonic events that folded and faulted the deposit in its current form. The main mineralization occurs along thin lences dipping steeply towards the South-East.
+#
 #
 # ```{figure} ./images/ore_body.png
 # ---

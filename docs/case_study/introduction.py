@@ -5,7 +5,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.16.1
+#       jupytext_version: 1.16.2
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -29,9 +29,10 @@
 # This chapter demonstrates how to run standalone and joint inversions of geophysical data using SimPEG and the user-interface created for Geoscience ANALYST. We generated several synthetic surveys over the Flin Flon model to simulate an exploration program over a VMS deposit.
 # The goal is to use ground and airborne geophysics to characterize the physical property and shape of the ore body and host rocks. This case study focuses on the following three datasets and respective physical properties:
 #
-# - [Direct-current resistivity (DCR)](dc-data) -> resistivity
 # - [Magnetic Total Field (TMI)](magnetic-data) -> magnetization
 # - [Full-tensor gravity gradiometry (FTG)](ftg-data) -> density
+# - [Direct-current resistivity (DCR)](dc-data) -> resistivity (shallow)
+# - [Airborne Tipper (NSEM)](tipper-data) -> resistivity (deep)
 #
 # The datasets are first inverted independently ([Figure 1](standalone)), then jointly with a cross-gradient coupling constraint ([Figure 2](joint)).
 #
