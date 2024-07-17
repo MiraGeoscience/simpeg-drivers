@@ -16,7 +16,7 @@
 #
 # # The Set Up
 #
-# This tutorial on geophysical inversion is framed around the well-known VMS deposit - the copper-zinc-gold Flin Flon mine in northern Manitoba, Canada. Our goal is to provided a step-by-step process to invert data from various geophysical methods and to test their resolving capabilities within a semi-realistic exploration context.
+# This tutorial on geophysical inversion is framed around a well-known copper-zinc VMS deposit - the Flin Flon mine in northern Manitoba, Canada. Our goal is to provided a step-by-step process to invert data from various geophysical methods and to test their resolving capabilities within a semi-realistic exploration context.
 #
 # The local geology of Flin Flon consists mainly of basalt and mafic volcanic formations (green and blue), with discrete occurrences of rhyolite units (yellow) that host the mineralization as shown in [Figure 2](setup_flinflon).
 #
@@ -67,8 +67,5 @@
 # height: 400px
 # name: ore_body
 # ---
-# Discrete geological and physical properties for the simplified Flin Flon model.
+# Discrete geological and physical properties for the simplified Flin Flon model [Download here](https://github.com/MiraGeoscience/simpeg-drivers/blob/develop/simpeg_drivers-assets/inversion_demo.geoh5).
 # ```
-#
-# [Download here](https://github.com/MiraGeoscience/simpeg-drivers/blob/develop/simpeg_drivers-assets/inversion_demo.geoh5).
-#
