@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from geoapps_utils.driver.params import BaseParams
 
 import numpy as np
-from geoapps_utils.transformations import rotate_xyz
+from geoapps_utils.utils.transformations import rotate_xyz
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 

@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import numpy as np
 from discretize import TreeMesh
-from geoapps_utils.numerical import traveling_salesman
+from geoapps_utils.utils.numerical import traveling_salesman
 from geoh5py import Workspace
 from geoh5py.objects import PotentialElectrode
 from scipy.spatial import cKDTree
