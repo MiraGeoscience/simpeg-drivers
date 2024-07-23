@@ -18,9 +18,6 @@
 #
 # This tutorial on geophysical inversion is framed around a well-known copper-zinc VMS deposit - the Flin Flon mine in northern Manitoba, Canada. Our goal is to provided a step-by-step process to invert data from various geophysical methods and to test their resolving capabilities within a semi-realistic exploration context.
 #
-# The local geology of Flin Flon consists mainly of basalt and mafic volcanic formations (green and blue), with discrete occurrences of rhyolite units (yellow) that host the mineralization as shown in [Figure 2](setup_flinflon).
-#
-#
 # ```{figure} ./images/setup_flinflon.png
 # ---
 # height: 400px
@@ -29,7 +26,8 @@
 # Discrete geological and physical properties for the simplified Flin Flon model.
 # ```
 #
-# The entire region was later deformed by large tectonic events that folded and faulted the stratigraphy in its current form. The mineralization occurs along thin lences dipping steeply towards the South-East.
+# The local geology of Flin Flon consists mainly of basalt and mafic volcanic formations (green and blue), with discrete occurrences of rhyolite units (yellow) that host the mineralization as shown in [Figure X](setup_flinflon).
+# The entire region was later deformed by large tectonic events that over-thursted, folded and faulted the stratigraphy in its current form. The mineralization occurs along thin lences dipping steeply towards the South-East.
 #
 # The area has been studied extensively over the years, yielding large amount of petrophysical data made available by [Natural Resources Canada (NRCan)](https://ostrnrcan-dostrncan.canada.ca/entities/publication/73d767d8-ee1c-4bab-a2da-52dcf83faa06), as shown in [Figure 3](global_map).
 #
@@ -60,12 +58,23 @@
 #
 # ```
 #
-# From this simplified (conceptual) model of Flin Flon, we created a 3D petrophysical model around the mineralization [Figure 4](ore_body). We added a thick (40 m) overburden layer (tailings) of relatively low density and low resistivity to test the depth of penetration of the various survey types. This model was used to generate all the synthetic data used in this tutorial.
-#
+# From this simplified (conceptual) model of Flin Flon, we created a 3D petrophysical model around the mineralization [Figure X](ore_body). We added a thick (40 m) overburden layer (tailings) of relatively low density and low resistivity to test the depth of penetration of the various survey types.
 # ```{figure} ./images/ore_body.png
 # ---
 # height: 400px
 # name: ore_body
 # ---
 # Discrete geological and physical properties for the simplified Flin Flon model [Download here](https://github.com/MiraGeoscience/simpeg-drivers/blob/develop/simpeg_drivers-assets/inversion_demo.geoh5).
+# ```
+#
+# This model was used to generate all the synthetic data used in this tutorial. [Figure X](project_area) shows the layout of the various ground and airborne surveys used in this tutorial.
+#
+#
+# ```{figure} ./images/project_area.png
+#
+# ---
+# scale: 50%
+# name: project_area
+# ---
+# Data coverage for the ground gravity (black), airborne gravity gradiometry (red), airborne magnetics and tipper (green) and direct-current (blue) surveys. Outline of the ore shell (gray) is shown for reference.
 # ```

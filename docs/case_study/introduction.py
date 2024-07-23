@@ -16,6 +16,13 @@
 #
 # # Tutorials
 #
+# This chapter demonstrates how to run standalone and joint inversions of geophysical data using SimPEG and the user-interface created for Geoscience ANALYST. We generated several synthetic surveys over the Flin Flon model to simulate an exploration program over a VMS deposit.
+# The goal is to use ground and airborne geophysics to characterize the physical property and shape of the ore body and host rocks. This case study focuses on the following three datasets and respective physical properties:
+#
+# In preparation for the joint inversion, we first inverted each dataset independently ([Figure 1](standalone)). It serves as a quality control step for data uncertainties estimation and mesh design. We can solve possible convergence issues before attempting to couple the physical property models in a joint process.
+#
+# The data is then jointly with a cross-gradient coupling constraint ([Figure 2](joint)).
+#
 #
 # ```{figure} ./images/ore_body.png
 # ---
@@ -25,21 +32,12 @@
 # Discrete geological model of the ore deposit and host units.
 # ```
 #
-#
-# This chapter demonstrates how to run standalone and joint inversions of geophysical data using SimPEG and the user-interface created for Geoscience ANALYST. We generated several synthetic surveys over the Flin Flon model to simulate an exploration program over a VMS deposit.
-# The goal is to use ground and airborne geophysics to characterize the physical property and shape of the ore body and host rocks. This case study focuses on the following three datasets and respective physical properties:
-#
-# - [Magnetic Total Field (TMI)](magnetic-data) -> magnetization
-# - [Full-tensor gravity gradiometry (FTG)](ftg-data) -> density
-# - [Direct-current resistivity (DCR)](dc-data) -> resistivity (shallow)
-# - [Airborne Tipper (NSEM)](tipper-data) -> resistivity (deep)
-#
-# The datasets are first inverted independently ([Figure 1](standalone)), then jointly with a cross-gradient coupling constraint ([Figure 2](joint)).
-#
 # The following sections provide details about the processing and results. A compilation `geoh5` project can be found in the `simpeg-drivers-assets` folder.
 #
 # - [Background information](background.ipynb)
-# - [Data](data.ipynb)
-# - [Mesh design](mesh_design.ipynb)
-# - [Unconstrained inversions](unconstrained_inversion.ipynb)
+# - [Magnetic Total Field (TMI)](magnetic)
+# - [Full-tensor gravity gradiometry (FTG)](gravity)
+# - [Direct-current resistivity (DCR)](dc_resistivity)
+# - [Airborne Tipper (NSEM)](tipper)
+# - [Airborne Time-Domain EM (ATEM)](airborne_tem)
 # - [Joint inversion](joint_inversion.ipynb)
