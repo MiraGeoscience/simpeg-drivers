@@ -25,8 +25,8 @@ from uuid import UUID
 import numpy as np
 from discretize import TensorMesh, TreeMesh
 from discretize.utils import mesh_utils
-from geoapps_utils.conversions import string_to_numeric
-from geoapps_utils.numerical import running_mean, traveling_salesman
+from geoapps_utils.utils.conversions import string_to_numeric
+from geoapps_utils.utils.numerical import running_mean, traveling_salesman
 from geoh5py import Workspace
 from geoh5py.groups import Group
 from geoh5py.objects import DrapeModel, Octree

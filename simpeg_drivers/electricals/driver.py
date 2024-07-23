@@ -23,8 +23,8 @@ import uuid
 from pathlib import Path
 
 import numpy as np
-from geoapps_utils.locations import get_locations
-from geoapps_utils.numerical import weighted_average
+from geoapps_utils.utils.locations import get_locations
+from geoapps_utils.utils.numerical import weighted_average
 from geoh5py.data import Data
 from geoh5py.objects import DrapeModel
 from geoh5py.workspace import Workspace

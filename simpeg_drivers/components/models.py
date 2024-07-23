@@ -22,8 +22,8 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from geoapps_utils.driver.driver import BaseDriver
-from geoapps_utils.numerical import weighted_average
-from geoapps_utils.transformations import rotate_xyz
+from geoapps_utils.utils.numerical import weighted_average
+from geoapps_utils.utils.transformations import rotate_xyz
 from geoh5py.data import NumericData
 from simpeg.utils.mat_utils import (
     cartesian2amplitude_dip_azimuth,
