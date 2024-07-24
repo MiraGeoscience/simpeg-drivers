@@ -337,7 +337,6 @@ class SurveyFactory(SimPEGFactory):
         transmitters = receivers.transmitters
 
         if isinstance(transmitters, LargeLoopGroundTEMTransmitters):
-
             if receivers.tx_id_property is None:
                 raise ValueError(
                     "Transmitter ID property required for LargeLoopGroundTEMReceivers"

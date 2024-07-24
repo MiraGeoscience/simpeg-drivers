@@ -46,9 +46,7 @@ class MisfitFactory(SimPEGFactory):
     def concrete_object(self):
         return objective_function.ComboObjectiveFunction
 
-    def build(
-        self, tiles, inversion_data, mesh, active_cells
-    ):  # pylint: disable=arguments-differ
+    def build(self, tiles, inversion_data, mesh, active_cells):  # pylint: disable=arguments-differ
         global_misfit = super().build(
             tiles=tiles,
             inversion_data=inversion_data,
