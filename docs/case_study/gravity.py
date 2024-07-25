@@ -16,19 +16,36 @@
 #
 # # Gravity Inversion
 #
-# This section focuses on the inversion of airborne tensor and ground gravity data.
+# This section focuses on the inversion of airborne tensor and ground gravity data generated from the Flin Flon density model.
+#
+# ```{figure} ./images/gravity/grav_model.png
+# ---
+# scale: 25%
+# name: grav_model
+# ---
+# [Download here](https://github.com/MiraGeoscience/simpeg-drivers/blob/develop/simpeg_drivers-assets/inversion_demo.geoh5)
+# ```
 #
 #
 #
 # <p style="page-break-after:always;"></p>
 
-# ## Ground gravity data
+# ## Forward simulation
 #
+# A ground gravity survey was simulated on sparsely sampled 200 m grid of stations.
 #
-# A ground gravity survey was simulated on sparsely sampled 200 m grid of stations. The data are provided a terrain corrected with
-# reference density of 2.67 g/cc.
+# The following parameters were used for the forward simulation:
 #
-# ```{figure} ./images/GZ_data.png
+# ```{figure} ./images/gravity/grav_forward.png
+# ---
+# scale: 50%
+# name: grav_forward
+# ---
+# ```
+#
+# After running the forward simulation, we obtain gravity corrected data as shown in [Figure 14](gz_data). The data are provided a terrain corrected with reference density of 2.67 g/cc. The gravity survey appears to be mostly influenced by the large formations, with little signal apparent from the ore body.
+#
+# ```{figure} ./images/gravity/gz_data.png
 # ---
 # scale: 50%
 # name: gz_data
@@ -37,62 +54,108 @@
 # ```
 #
 
-# ## Unconstrained ground gravity
+# ## Mesh creation
 #
-# The ground gravity data (terrain corrected at 2.67 g/cc) were also inverted in the same fashion. A floor uncertainty value of 0.05 mGal was assigned.
+# In preparation for the inversion, we create an octree mesh optimized for the gravity survey.
 #
+# The core param are as follow:
 #
-#
-# ```{figure} ./images/ground_grav_model_TOP.png
+# ```{figure} ./images/magnetics/mesh_core.png
 # ---
-# height: 400px
-# name: ground_grav_model_TOP
+# scale: 50%
+# name: mag_core
 # ---
-# (Top) (left) Observed and (right) predicted gz data after convergence of the L2 (smooth) solution. Most of the data is well recovered.
-#
-# (Bottom) Horizontal slice for (left) the smooth and (right) L1-norm density contrast models.
+# Core mesh parameters.
 # ```
 #
-# [Add more here]
+# - The first refinement "horizon" is used to get a core region at depth with increasing cell size directly below the survey. This is our volume of interest most strongly influence by the data. We use a maximum distance of 100 m to limit the refinement near each station.
 #
-# We note a slight correlation to the shape of the known ore body
+# - A second refinement is used along topography to get a coarse but continuous air-ground interface outside the area or interest.
 #
+#
+# ```{figure} ./images/magnetics/mesh_refinement.png
+# ---
+# scale: 50%
+# name: mag_refinement
+# ---
+# Refinement strategy used for the magnetic modeling.
+# ```
+#
+# See [Mesh creation](../inversion/mesh_design.ipynb) section for general details on the parameters.
+#
+
+# ## Ground gravity
+#
+# The ground gravity data are assigned a constant floor uncertainty value of 0.1 mGal. We apply the the following inversion parameters:
+#
+# ```{figure} ./images/gravity/gz_input.png
+# ---
+# scale: 50%
+# name: gz_input
+# ---
+# ```
+#
+# After running the inversion we obtain:
+#
+#
+# ```{figure} ./images/gravity/gz_no_ref.png
+# ---
+# name: gz_no_ref
+#
+# ---
+# (Top) (left) Predicted and (right) residuals data after reaching target misfit (iteration 5).
+#
+# (Bottom) Slices through the recovered relative density model: (left) at 175 m elevation and (right) at 6072150 m N.
+# Ore shell is shown for reference.
+# ```
+#
+# Notice that the inversion resolves the boundaries between the rhyolite unit and host mafic units, but poorly recovers the ore body. That is, the ore body does not generate a gravity anomaly strong enough within the host geology to be detected by the ground gravity survey.
 
 # (ftg-data)=
 #
 # ## Tensor gravity gradiometry (FTG)
 #
-# An airborne fixed-wing full-tensor gravity gradiometry (FTG) survey was simulated at a nominal drape height of 60 m above topography.
+# We now look at the airborne fixed-wing full-tensor gravity gradiometry (FTG) data. The FTG system measures six independent components of the gradient tensor: $g_{xx},\; g_{xy},\; g_{xz},\; g_{yy},\; g_{yz}$ and $g_{zz}$. We generate a survey flown at 45 degree azimuth, 200 m line spacing, at a nominal drape height of 60 m above topography.
 #
-# The FTG system measures six independent components of the gradient tensor: $g_{xx},\; g_{xy},\; g_{xz},\; g_{yy},\; g_{yz}$ and $g_{zz}$. Data were leveled, free-air and terrain corrected with 2.67 g/cc reference density.
+# Using the same relative density model as previously, we run the forward simulation and obtain terrain-corrected data show below.
 #
 #
-# ```{figure} ./images/GG_data.png
+# ```{figure} ./images/gravity/gg_data.png
 # ---
-# scale: 50%
-# name: ftg_data
+# name: gg_data
+#
 # ---
-# (Top) Components of the gravity gradiometry data measured over the zone of interest. (Bottom) The green and red marker indicate the flight direction.
+# (Top) Components of the gravity gradiometry data measured over the zone of interest. (Bottom) Plan view of the density model and flight lines. The green and red marker indicate the flight direction.
 # ```
+#
 #
 
 # ## Unconstrained FTG
 #
-# The airborne tensor gravity data (terrain corrected at 2.67 g/cc) were also inverted in the same fashion. A floor uncertainty value of 0.2 Eotvos was assigned to all the components.
+# We repeat the same inverse process as for the ground gravity data, but this time with the airborne survey. A floor uncertainty value of 0.1 Eotvos was assigned to all the components. After running the inversion with obtain.
 #
 #
-#
-# ```{figure} ./images/grav_gradio_model_TOP.png
+# ```{figure} ./images/gravity/gg_no_ref.png
 # ---
-# height: 400px
-# name: grav_gradio_model_TOP
-# ---
-# (Top) (left) Observed and (right) predicted gxx data after convergence of the L2 (smooth) solution. Most of the data is well recovered.
+# name: gg_no_ref
 #
-# (Bottom) Horizontal slice for (left) the smooth and (right) L1-norm density contrast models.
+# ---
+# (Top) (left) Predicted and (right) residuals data after reaching target misfit (iteration 7).
+#
+# (Bottom) Slices through the recovered relative density model: (left) at 175 m elevation and (right) at 6072150 m N.
+# Ore shell is shown for reference.
 # ```
 #
-# We note a slight correlation to the shape of the known ore body
+# Just like the ground gravity result, the airborne inversion recovers well the boundary between the rhyolite and host mafic rocks. The ore body is also imaged on the top 200 m. In addition, we recover density structures within the Hidden Formation related to the overburden layer.
 #
 #
 # <p style="page-break-after:always;"></p>
+
+# ## Detrending
+#
+# Section to explain different strategies for regional signal removal
+#
+# - Polynomial
+#
+#
+# - Scooping method
