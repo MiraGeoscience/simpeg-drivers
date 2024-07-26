@@ -49,7 +49,7 @@
 #
 # For simplicity, the simulation assumes a purely induced response. By omitting to supply values/models for the inclination and declination of magnetization, the forward routine uses the inducing field parameters instead.
 #
-# After running the forward simulation, we obtain RMI data as shown in [Figure 9](mag_data). We note the strong correlation between the amplitude of the signal and the horizontal position of the ore body. There is also a significant long wavelength East-West trend, due to the large but weakly magnetic Hidden Formation.
+# After running the forward simulation, we obtain RMI data as shown below. We note the strong correlation between the amplitude of the signal and the horizontal position of the ore body. There is also a significant long wavelength East-West trend, due to the large but weakly magnetic Hidden Formation.
 #
 #
 # ```{figure} ./images/magnetics/MAG_data.png
@@ -64,7 +64,8 @@
 
 # ## Mesh creation
 #
-# In preparation for the inversion, we create an octree mesh optimized for the magnetic survey. [Figure 10](mag_core) shows the parameters used.
+# In preparation for the inversion, we create an octree mesh optimized for the magnetic survey.
+# The following parameters are used based on the original Flin Flon model.
 #
 # ```{figure} ./images/magnetics/mesh_core.png
 # ---
@@ -73,6 +74,8 @@
 # ---
 # Core mesh parameters.
 # ```
+#
+# ### Refinements
 #
 # - For the first refinement, we insert two cells around our survey lines. The refinement is done radially around the segments of the curve to assure that the air-ground interface near the receivers are modeled with the finest cell size.
 #
@@ -95,7 +98,16 @@
 #
 # **Runtime: ~1 min**
 #
-# As a first pass, we invert the data with default parameters shown in [Figure 12](mag_default). We use a constant 25 nT floor uncertainty, determined empirically to achieve good fit. After running the inversion we obtain:
+# As a first pass, we invert the data with default parameters. We use a constant 25 nT floor uncertainty, determined empirically to achieve good fit.
+#
+# ```{figure} ./images/magnetics/base_reg.png
+# ---
+# scale: 50%
+# name: mag_input
+# ---
+# ```
+#
+# After running the inversion we obtain:
 #
 # ```{figure} ./images/magnetics/mag_model_default.png
 # ---
@@ -106,7 +118,9 @@
 # (Bottom) Slices through the recovered susceptibility model: (left) at 175 m elevation and (right) at 6072150 m N.
 # ```
 #
-# We note that our model predicts the data within our uncertainty floor of 25 nT. In plan view, the model shows a clear North-West trend corresponding to the ore body. On the vertical section we recover an isolate body at depth. We note that large portions of the model in the padding cells have no anomalies. All the magnetic signal is confined to a region directly below the survey lines. This is somewhat surprising given the large East-West trend in the data, which would be better explain by a large body extending beyond the extent of our survey.
+# We note that our model predicts the data within our uncertainty floor of 25 nT. In plan view, the model shows a clear North-West trend corresponding to the ore body. On the vertical section we recover an isolate body at depth. We note that large portions of the model in the padding cells have no anomalies. All the magnetic signal is confined to a region directly below the survey lines.
+#
+# This is somewhat surprising given the large East-West trend in the data, which would be better explain by a large body extending beyond the extent of our survey. Let's confirm this solution with a second inversion.
 #
 #
 # ### No reference model
@@ -119,7 +133,7 @@
 # name: no_ref_input
 # ```
 #
-# The model shown in [Figure 13](mag_no_ref) generally agrees with the position of the strongly magnetic ore body, but changes greatly outside the survey area. Since we have not imposed any constraints on the background value, the inversion is free to extend the smoothout the eastern anomaly both at depth and in the padding region. This is in better agreement with our known geological knowledge.
+# The model shown below generally agrees with the position of the strongly magnetic ore body, but changes greatly outside the survey area. Since we have not imposed any constraints on the background value, the inversion is free to extend the smoothout the eastern anomaly both at depth and in the padding region. This is in better agreement with our known geological knowledge.
 #
 #
 # ```{figure} ./images/magnetics/mag_model_no_ref.png

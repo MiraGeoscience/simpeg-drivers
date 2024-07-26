@@ -77,6 +77,8 @@
 # Core mesh parameters.
 # ```
 #
+# ### Refinements
+#
 # - The first refinement adds more cells around each pole location, radially outward. This assures good numerical accuracy, espatially on the outer boundary of the survey area.
 #
 # - A second refinement is used along topography to get a coarse but continuous air-ground interface outside the area or interest.

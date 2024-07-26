@@ -5,7 +5,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.16.1
+#       jupytext_version: 1.16.2
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -59,6 +59,8 @@
 # ### Padding cells
 #
 # The area of interest covers roughly 2 km in width. As a general rule of thumb, the padding region should be at least as wide as the data extent in order to easily model features with wavelengths that may extend beyond the surveyed area.
+#
+# (diffusion-distance)=
 #
 # In the case of EM modeling, we also need to consider the diffusion distance of the EM fields. The [skin depth](http://em.geosci.xyz/content/maxwell1_fundamentals/harmonic_planewaves_homogeneous/skindepth.html?highlight=skin%20depth#approximations) can be estimated by
 #

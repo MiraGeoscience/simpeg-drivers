@@ -43,7 +43,7 @@
 # ---
 # ```
 #
-# After running the forward simulation, we obtain gravity corrected data as shown in [Figure 14](gz_data). The data are provided a terrain corrected with reference density of 2.67 g/cc. The gravity survey appears to be mostly influenced by the large formations, with little signal apparent from the ore body.
+# After running the forward simulation, we obtain gravity corrected data as shown below. The gravity survey appears to be mostly influenced by the large formations, with little signal apparent from the ore body. Since we have used relative densities, the simulated data is equivalent to a terrain correction with reference density, of 2.67 g/cc in this case.
 #
 # ```{figure} ./images/gravity/gz_data.png
 # ---
@@ -67,6 +67,8 @@
 # ---
 # Core mesh parameters.
 # ```
+#
+# ### Refinements
 #
 # - The first refinement "horizon" is used to get a core region at depth with increasing cell size directly below the survey. This is our volume of interest most strongly influence by the data. We use a maximum distance of 100 m to limit the refinement near each station.
 #
