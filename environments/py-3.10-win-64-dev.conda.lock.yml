@@ -4,6 +4,7 @@
 
 channels:
   - conda-forge
+  - nodefaults
 dependencies:
   - accessible-pygments=0.0.5=pyhd8ed1ab_0
   - alabaster=0.7.16=pyhd8ed1ab_0
