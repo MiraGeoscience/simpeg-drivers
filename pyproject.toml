@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "simpeg-drivers"
-version = "0.1.0"
+version = "0.1.1"
 description = "Application to run SimPEG inversions with geoh5 files from Geoscience Analyst."
 license = "MIT"
 authors = ["Mira Geoscience <support@mirageoscience.com>"]
@@ -54,8 +54,9 @@ mira-simpeg = {version = ">=0.19.0.8,<0.19.0.9.dev", source = "pypi", allow-prer
 #mira-simpeg = {url = "https://github.com/MiraGeoscience/simpeg/archive/refs/heads/release/0.19.0.8.zip#sha256="}
 #mira-simpeg = {url = "http://localhost:8888/mira-simpeg.tar.gz#sha256="}
 
-param-sweeps = {version = "~0.1.7", source = "pypi", allow-prereleases = true}
-#param-sweeps = {url = "https://github.com/MiraGeoscience/param-sweeps/archive/refs/heads/release/0.1.7.zip#sha256="}
+param-sweeps = {version = "~0.1.8", source = "pypi", allow-prereleases = true}
+#param-sweeps = {url = "https://github.com/MiraGeoscience/param-sweeps/archive/refs/heads/release/0.1.8.zip#sha256="}
+#param-sweeps = {git = "https://github.com/MiraGeoscience/param-sweeps.git", rev = "hotfix/0.1.8"}
 #param-sweeps = {url = "http://localhost:8888/param-sweeps.tar.gz#sha256="}
 
 ## indirect dependencies, forcing them here for installation through Conda not pip
@@ -75,6 +76,7 @@ tqdm = "^4.66.1"  # from simpeg
 
 # force some versions to resolve incompatible resolution between PyPI and Conda
 #------------------------------------------------------------------------------
+tbb = "2021.12.*"  # through mkl from SimPEG
 tzdata = "2023.4"  # through pandas from SimPEG
 
 ## about pip dependencies
