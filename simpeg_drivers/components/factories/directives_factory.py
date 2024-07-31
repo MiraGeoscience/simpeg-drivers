@@ -29,6 +29,7 @@ from SimPEG.utils.mat_utils import cartesian2amplitude_dip_azimuth
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 
+
 if TYPE_CHECKING:
     from simpeg_drivers.driver import InversionDriver
 

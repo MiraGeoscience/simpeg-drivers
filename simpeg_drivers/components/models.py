@@ -31,6 +31,7 @@ from SimPEG.utils.mat_utils import (
     mkvc,
 )
 
+
 if TYPE_CHECKING:
     from simpeg_drivers.driver import InversionDriver
 

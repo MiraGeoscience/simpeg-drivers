@@ -20,8 +20,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+
 if TYPE_CHECKING:
     from geoh5py.workspace import Workspace
+
     from simpeg_drivers.params import InversionBaseParams
 
 from copy import deepcopy

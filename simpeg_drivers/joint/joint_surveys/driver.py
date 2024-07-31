@@ -58,11 +58,7 @@ class JointSurveyDriver(BaseJointDriver):
                 if self.drivers[0].models.is_sigma:
                     model = np.exp(model)
 
-                setattr(
-                    getattr(self.models, f"_{model_type}"),
-                    "model",
-                    model,
-                )
+                getattr(self.models, f"_{model_type}").model = model
 
     @property
     def wires(self):

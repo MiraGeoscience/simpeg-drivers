@@ -194,15 +194,15 @@ def slice_and_map(obj: np.ndarray, slicer: np.ndarray | Callable):
     if isinstance(slicer, np.ndarray):
         if slicer.dtype == bool:
             sliced_object = obj[slicer]
-            g2l = dict(zip(np.where(slicer)[0], np.arange(len(obj))))
+            g2l = dict(zip(np.where(slicer)[0], np.arange(len(obj)), strict=False))
         else:
             sliced_object = obj[slicer]
-            g2l = dict(zip(slicer, np.arange(len(slicer))))
+            g2l = dict(zip(slicer, np.arange(len(slicer)), strict=False))
 
     elif callable(slicer):
         slicer = np.array([slicer(k) for k in obj])
         sliced_object = obj[slicer]
-        g2l = dict(zip(np.where(slicer)[0], np.arange(len(obj))))
+        g2l = dict(zip(np.where(slicer)[0], np.arange(len(obj)), strict=False))
 
     else:
         raise TypeError("Slicer must be a boolean array or callable.")

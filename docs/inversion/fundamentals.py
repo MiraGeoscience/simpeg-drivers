@@ -73,6 +73,7 @@
 
 import numpy as np
 
+
 F = np.c_[1, 2]
 
 # For given values for $\mathbf{m}$, we have a way to compute data $\mathbf{d}$. For example, for

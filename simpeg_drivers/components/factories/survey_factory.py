@@ -23,6 +23,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+
 if TYPE_CHECKING:
     from geoapps_utils.driver.params import BaseParams
 
@@ -374,7 +375,7 @@ class SurveyFactory(SimPEGFactory):
         tx_list = []
         rx_factory = ReceiversFactory(self.params)
         tx_factory = SourcesFactory(self.params)
-        for tx_locs, rx_ids in zip(tx_locs, rx_lookup):
+        for tx_locs, rx_ids in zip(tx_locs, rx_lookup, strict=False):
             locs = receivers.vertices[rx_ids, :]
 
             rx_list = []

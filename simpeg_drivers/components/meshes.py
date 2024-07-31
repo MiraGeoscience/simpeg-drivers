@@ -29,6 +29,7 @@ from octree_creation_app.utils import octree_2_treemesh, treemesh_2_octree
 
 from simpeg_drivers.utils.utils import drape_2_tensor
 
+
 if TYPE_CHECKING:
     from simpeg_drivers.components.data import InversionData
     from simpeg_drivers.components.topography import InversionTopography
@@ -183,7 +184,7 @@ class InversionMesh:
             raise ValueError("Cannot convert negative cell sizes for rotated mesh.")
 
         cell_sizes, origin = [], []
-        for axis, dim in zip("xyz", "uvw"):
+        for axis, dim in zip("xyz", "uvw", strict=False):
             n_cells = getattr(mesh, f"{dim}_count")
             cell_size = getattr(mesh, f"{dim}_cell_size")
             if cell_size < 0:

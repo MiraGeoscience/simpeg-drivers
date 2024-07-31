@@ -25,6 +25,7 @@ from geoh5py.objects.surveys.electromagnetics.tipper import TipperReceivers
 import simpeg_drivers
 from simpeg_drivers import default_ui_json as base_default_ui_json
 
+
 inversion_defaults = {
     "version": simpeg_drivers.__version__,
     "title": "Tipper Inversion",

@@ -20,9 +20,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+
 if TYPE_CHECKING:
-    from geoh5py.workspace import Workspace
     from geoapps_utils.driver.params import BaseParams
+    from geoh5py.workspace import Workspace
 
 import numpy as np
 from geoh5py.objects import Grid2D, PotentialElectrode

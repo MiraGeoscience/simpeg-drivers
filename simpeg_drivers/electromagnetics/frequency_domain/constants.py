@@ -26,6 +26,7 @@ import simpeg_drivers
 from simpeg_drivers import default_ui_json as base_default_ui_json
 from simpeg_drivers.constants import validations as base_validations
 
+
 inversion_defaults = {
     "version": simpeg_drivers.__version__,
     "title": "Frequency-domain EM (FEM) Inversion",

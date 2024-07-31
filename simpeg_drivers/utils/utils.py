@@ -42,6 +42,7 @@ from SimPEG.electromagnetics.time_domain.sources import LineCurrent as TEMLineCu
 from SimPEG.survey import BaseSurvey
 from SimPEG.utils import mkvc
 
+
 if TYPE_CHECKING:
     from simpeg_drivers.components.data import InversionData
 
@@ -114,7 +115,7 @@ def calculate_2D_trend(
 
     polynomial = []
     xx, yy = np.triu_indices(order + 1)
-    for x, y in zip(xx, yy):
+    for x, y in zip(xx, yy, strict=False):
         polynomial.append(
             (loc_xy[:, 0] - center_x) ** float(x)
             * (loc_xy[:, 1] - center_y) ** float(y - x)
@@ -129,7 +130,7 @@ def calculate_2D_trend(
 
     params, _, _, _ = np.linalg.lstsq(polynomial, values, rcond=None)
     data_trend = np.zeros(points.shape[0])
-    for count, (x, y) in enumerate(zip(xx, yy)):
+    for count, (x, y) in enumerate(zip(xx, yy, strict=False)):
         data_trend += (
             params[count]
             * (points[:, 0] - center_x) ** float(x)
@@ -459,7 +460,7 @@ def get_inversion_output(h5file: str | Workspace, inversion_group: str | UUID):
     ][:-1]
     cols = out.pop(0).split(" ")
     out = [[string_to_numeric(k) for k in elem.split(" ")] for elem in out]
-    out = dict(zip(cols, list(map(list, zip(*out)))))
+    out = dict(zip(cols, list(map(list, zip(*out, strict=False))), strict=False))
 
     return out
 

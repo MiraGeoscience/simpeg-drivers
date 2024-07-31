@@ -54,7 +54,7 @@ class BaseJointDriver(InversionDriver):
         if getattr(self, "_data_misfit", None) is None and self.drivers is not None:
             objective_functions = []
             multipliers = []
-            for label, driver in zip("abc", self.drivers):
+            for label, driver in zip("abc", self.drivers, strict=False):
                 if driver.data_misfit is not None:
                     objective_functions += driver.data_misfit.objfcts
                     multipliers += [
@@ -124,7 +124,7 @@ class BaseJointDriver(InversionDriver):
             global_actives |= local_actives
 
         self.models.active_cells = global_actives
-        for driver, wire in zip(self.drivers, self.wires):
+        for driver, wire in zip(self.drivers, self.wires, strict=False):
             projection = TileMap(
                 self.inversion_mesh.mesh,
                 global_actives,
@@ -178,7 +178,7 @@ class BaseJointDriver(InversionDriver):
             [driver.inversion_mesh.entity for driver in self.drivers],
         )
         for driver in self.drivers:
-            setattr(driver.inversion_mesh, "_mesh", None)
+            driver.inversion_mesh._mesh = None
 
     def validate_create_models(self):
         """Construct models from the local drivers."""
@@ -205,7 +205,7 @@ class BaseJointDriver(InversionDriver):
                 self.models.starting, compute_J=False
             )
 
-            for sub, driver in zip(predicted, self.drivers):
+            for sub, driver in zip(predicted, self.drivers, strict=False):
                 SaveIterationGeoh5Factory(driver.params).build(
                     inversion_object=driver.inversion_data,
                     sorting=np.argsort(np.hstack(driver.sorting)),

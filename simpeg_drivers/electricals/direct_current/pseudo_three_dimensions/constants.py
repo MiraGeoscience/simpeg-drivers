@@ -27,6 +27,7 @@ from simpeg_drivers import assets_path
 from simpeg_drivers import default_ui_json as base_default_ui_json
 from simpeg_drivers.constants import validations as base_validations
 
+
 inversion_defaults = {
     "version": simpeg_drivers.__version__,
     "title": "Direct Current (DC) 2D Batch Inversion",

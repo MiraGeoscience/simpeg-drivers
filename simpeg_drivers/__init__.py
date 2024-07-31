@@ -17,12 +17,14 @@
 
 from __future__ import annotations
 
+
 __version__ = "0.1.0"
 
 from pathlib import Path
 
 from simpeg_drivers.constants import default_ui_json
 from simpeg_drivers.params import InversionBaseParams
+
 
 __all__ = [
     "DRIVER_MAP",
