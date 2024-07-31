@@ -4,6 +4,7 @@
 
 channels:
   - conda-forge
+  - nodefaults
 dependencies:
   - _libgcc_mutex=0.1=conda_forge
   - _openmp_mutex=4.5=2_kmp_llvm
@@ -13,7 +14,7 @@ dependencies:
   - brotli-bin=1.1.0=hd590300_1
   - brotli-python=1.1.0=py310hc6cd4ac_1
   - bzip2=1.0.8=h4bc722e_7
-  - c-ares=1.32.2=h4bc722e_0
+  - c-ares=1.32.3=h4bc722e_0
   - ca-certificates=2024.7.4=hbcca054_0
   - cached-property=1.5.2=hd8ed1ab_1
   - cached_property=1.5.2=pyha770c72_1
@@ -39,8 +40,8 @@ dependencies:
   - hpack=4.0.0=pyh9f0ad1d_0
   - hyperframe=6.0.1=pyhd8ed1ab_0
   - icu=75.1=he02047a_0
-  - importlib-metadata=8.0.0=pyha770c72_0
-  - importlib_metadata=8.0.0=hd8ed1ab_0
+  - importlib-metadata=8.2.0=pyha770c72_0
+  - importlib_metadata=8.2.0=hd8ed1ab_0
   - jinja2=3.1.4=pyhd8ed1ab_0
   - joblib=1.4.2=pyhd8ed1ab_0
   - keyutils=1.6.1=h166bdaf_0
@@ -55,7 +56,7 @@ dependencies:
   - libbrotlidec=1.1.0=hd590300_1
   - libbrotlienc=1.1.0=hd590300_1
   - libcblas=3.9.0=20_linux64_mkl
-  - libcurl=8.8.0=hca28451_1
+  - libcurl=8.9.0=hdb1bdb2_0
   - libdeflate=1.20=hd590300_0
   - libdlf=0.2.0=pyhd8ed1ab_0
   - libedit=3.1.20191231=he28a2e2_2
@@ -145,12 +146,12 @@ dependencies:
   - pip:
       - empymod === 2.3.1
       - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils@e0cc6f5178fec820647f088f348a2f8db81c58a2
-      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@21ce81d279c206ce0a279377168ce50e0a35d3d2
+      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@b5064fb631056dcaa57e379719e923fcd1195f6b
       - llvmlite === 0.43.0
       - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg@b643f1cb9a9fee76b5e4bd7ed4f1b7a65d1646ec
       - numba === 0.60.0
       - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app@7248a2568f3a3fd9b69b14da0b7257c7eeec2ac8
-      - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps@24e15f3ecd3b86851087a395966cbf828ce6570f
+      - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps@1bf3fdeee1ad44d0fd38c97e99081a3541f8bcac
       - scooby === 0.10.0
 
 variables:
