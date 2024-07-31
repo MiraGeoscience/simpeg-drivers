@@ -69,7 +69,6 @@ class DirectivesFactory:
     def directive_list(self):
         """List of directives to be used in inversion."""
         if self._directive_list is None:
-
             if not self.params.forward_only:
                 self._directive_list = self.inversion_directives + self.save_directives
             else:
