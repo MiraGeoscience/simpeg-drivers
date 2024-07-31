@@ -18,7 +18,7 @@
 
 from __future__ import annotations
 
-from SimPEG import maps
+from simpeg import maps
 
 from simpeg_drivers.driver import InversionDriver
 

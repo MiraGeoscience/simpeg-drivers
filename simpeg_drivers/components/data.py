@@ -32,8 +32,8 @@ from re import findall
 import numpy as np
 from discretize import TreeMesh
 from scipy.spatial import cKDTree
-from SimPEG import maps
-from SimPEG.electromagnetics.static.utils.static_utils import geometric_factor
+from simpeg import maps
+from simpeg.electromagnetics.static.utils.static_utils import geometric_factor
 
 from simpeg_drivers.utils.utils import create_nested_mesh, drape_2_tensor
 

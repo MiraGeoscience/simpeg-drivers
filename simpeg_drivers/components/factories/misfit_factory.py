@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from geoapps_utils.driver.params import BaseParams
 
 import numpy as np
-from SimPEG import data, data_misfit, objective_function
+from simpeg import data, data_misfit, objective_function
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 

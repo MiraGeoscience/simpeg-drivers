@@ -24,8 +24,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
-from SimPEG import directives, maps
-from SimPEG.utils.mat_utils import cartesian2amplitude_dip_azimuth
+from simpeg import directives, maps
+from simpeg.utils.mat_utils import cartesian2amplitude_dip_azimuth
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 
@@ -58,8 +58,8 @@ class DirectivesFactory:
             and self._beta_estimate_by_eigenvalues_directive is None
         ):
             self._beta_estimate_by_eigenvalues_directive = (
-                directives.BetaEstimate_ByEig(
-                    beta0_ratio=self.params.initial_beta_ratio, method="ratio", seed=0
+                directives.BetaEstimateDerivative(
+                    beta0_ratio=self.params.initial_beta_ratio, seed=0
                 )
             )
 
@@ -69,10 +69,11 @@ class DirectivesFactory:
     def directive_list(self):
         """List of directives to be used in inversion."""
         if self._directive_list is None:
-            self._directive_list = self.save_directives
 
             if not self.params.forward_only:
-                self._directive_list += self.inversion_directives
+                self._directive_list = self.inversion_directives + self.save_directives
+            else:
+                self._directive_list = self.save_directives
 
         return self._directive_list
 
@@ -356,16 +357,24 @@ class SaveIterationGeoh5Factory(SimPEGFactory):
                     active_cells_map,
                 ]
 
-            if self.factory_type in [
-                "direct current 3d",
-                "direct current 2d",
-                "magnetotellurics",
-                "tipper",
-                "tdem",
-                "fem",
-            ]:
+            if (
+                self.factory_type
+                in [
+                    "direct current 3d",
+                    "direct current 2d",
+                    "magnetotellurics",
+                    "tipper",
+                    "tdem",
+                    "fem",
+                ]
+                and name != "Sensitivities"
+            ):
                 expmap = maps.ExpMap(inversion_object.mesh)
                 kwargs["transforms"] = [expmap * active_cells_map]
+
+            if name == "Sensitivities":
+                kwargs["attribute_type"] = "sensitivities"
+                kwargs["label"] = "J"
 
         return kwargs
 

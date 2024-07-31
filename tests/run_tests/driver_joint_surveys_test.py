@@ -32,7 +32,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.2997791602206556, "phi_d": 705.5, "phi_m": 36.17}
+target_run = {"data_norm": 0.2997791602206556, "phi_d": 705.3, "phi_m": 74.54}
 
 
 def test_joint_surveys_fwr_run(
@@ -115,6 +115,7 @@ def test_joint_surveys_inv_run(
         topography = geoh5.get_entity("topography")[0]
         drivers = []
         orig_data = []
+        mesh = None
         for ind in range(2):
             group = geoh5.get_entity(f"Gravity Forward [{ind}]")[0]
             survey = geoh5.get_entity(group.options["data_object"]["value"])[0]
@@ -125,7 +126,8 @@ def test_joint_surveys_inv_run(
                 else:
                     survey = child
 
-            assert mesh is not None, "Mesh not found in group."
+            if mesh is None:
+                raise ValueError("No mesh found in the group.")
 
             gz = survey.get_data("Iteration_0_gz")[0]
             orig_data.append(gz.values)
