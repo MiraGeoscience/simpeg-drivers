@@ -51,7 +51,7 @@ dependencies:
   - libbrotlidec=1.1.0=hcfcfb64_1
   - libbrotlienc=1.1.0=hcfcfb64_1
   - libcblas=3.9.0=20_win64_mkl
-  - libcurl=8.9.0=h18fefc2_0
+  - libcurl=8.9.1=h18fefc2_0
   - libdeflate=1.20=hcfcfb64_0
   - libdlf=0.2.0=pyhd8ed1ab_0
   - libffi=3.4.2=h8ffe710_5
@@ -87,7 +87,7 @@ dependencies:
   - pandas=2.2.2=py310hb4db72f_1
   - partd=1.4.2=pyhd8ed1ab_0
   - pillow=10.3.0=py310h3e38d90_1
-  - pip=24.0=pyhd8ed1ab_0
+  - pip=24.2=pyhd8ed1ab_0
   - psutil=6.0.0=py310ha8f682b_0
   - pthread-stubs=0.4=hcd874cb_1001
   - pthreads-win32=2.9.1=hfa6e2cd_3
@@ -107,7 +107,7 @@ dependencies:
   - pyyaml=6.0.1=py310h8d17308_1
   - scikit-learn=1.4.2=py310hf2a6c47_1
   - scipy=1.14.0=py310h46043a1_1
-  - setuptools=71.0.4=pyhd8ed1ab_0
+  - setuptools=72.1.0=pyhd8ed1ab_0
   - six=1.16.0=pyh6c4a22f_0
   - sortedcontainers=2.4.0=pyhd8ed1ab_0
   - tbb=2021.12.0=hc790b64_3
@@ -139,13 +139,13 @@ dependencies:
   - zstd=1.5.6=h0ea2cb4_0
   - pip:
       - empymod === 2.3.1
-      - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils@e0cc6f5178fec820647f088f348a2f8db81c58a2
-      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@b5064fb631056dcaa57e379719e923fcd1195f6b
+      - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils@2bc1ea4dbea2a026ec37eb00180e8ed4423a9f6a
+      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@f95bdfb2ab74f30b0d0d67abc398370c261d1823
       - llvmlite === 0.43.0
-      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg@b643f1cb9a9fee76b5e4bd7ed4f1b7a65d1646ec
+      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg@5cf52f6d8d0cd9ccb36ffc26eb3196e9fc37b4d9
       - numba === 0.60.0
-      - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app@7248a2568f3a3fd9b69b14da0b7257c7eeec2ac8
-      - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps@1bf3fdeee1ad44d0fd38c97e99081a3541f8bcac
+      - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app@a88c1e341d173bd26f4f321c47433c6964aa24f4
+      - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps@8263b65c79cbc80058bd153f3e8231e73992dccd
       - scooby === 0.10.0
 
 variables:
