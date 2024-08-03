@@ -44,7 +44,7 @@ dependencies:
   - cytoolz=0.12.3=py310h2372a71_0
   - dask-core=2024.6.2=pyhd8ed1ab_0
   - dataclasses=0.8=pyhc8e2a94_3
-  - debugpy=1.8.2=py310h76e45a6_0
+  - debugpy=1.8.3=py310hea249c9_0
   - decorator=5.1.1=pyhd8ed1ab_0
   - defusedxml=0.7.1=pyhd8ed1ab_0
   - dill=0.3.8=pyhd8ed1ab_0
@@ -293,9 +293,9 @@ dependencies:
   - pip:
       - empymod === 2.3.1
       - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils@2bc1ea4dbea2a026ec37eb00180e8ed4423a9f6a
-      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@d351c4f3effbb3918f7b8f9e96f27a70202f2e8c
+      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@f95bdfb2ab74f30b0d0d67abc398370c261d1823
       - llvmlite === 0.43.0
-      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg@2492d3b603c32dd8dce5b440af048c907d8bb20c
+      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg@5cf52f6d8d0cd9ccb36ffc26eb3196e9fc37b4d9
       - numba === 0.60.0
       - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app@a88c1e341d173bd26f4f321c47433c6964aa24f4
       - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps@8263b65c79cbc80058bd153f3e8231e73992dccd

@@ -1035,22 +1035,23 @@ package:
   category: dev
   optional: true
 - name: debugpy
-  version: 1.8.2
+  version: 1.8.3
   manager: conda
   platform: linux-64
   dependencies:
+    __glibc: '>=2.17,<3.0.a0'
     libgcc-ng: '>=12'
     libstdcxx-ng: '>=12'
     python: '>=3.10,<3.11.0a0'
     python_abi: 3.10.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/debugpy-1.8.2-py310h76e45a6_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/debugpy-1.8.3-py310hea249c9_0.conda
   hash:
-    md5: 285568244bd06fbe2cccf2ee1617f582
-    sha256: 774223fe937ab70312502a0dede4a567d16f41ab034444965ba03e5e1b4928fa
+    md5: 83f5c0c233fa7b1fa6c97bfc6c6bcb2d
+    sha256: 310d2ab3922859a811eb305eb41deaac0a3340d98c5ac68db37046e455e2a5f2
   category: dev
   optional: true
 - name: debugpy
-  version: 1.8.2
+  version: 1.8.3
   manager: conda
   platform: win-64
   dependencies:
@@ -1059,10 +1060,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://conda.anaconda.org/conda-forge/win-64/debugpy-1.8.2-py310h9e98ed7_0.conda
+  url: https://conda.anaconda.org/conda-forge/win-64/debugpy-1.8.3-py310h9e98ed7_0.conda
   hash:
-    md5: 6edfa966360b5df86d7277b0a4829381
-    sha256: d9d3b4d1dd3b00a8fd2caae02285902a294aad8d633620f517ffcf89d38fb57a
+    md5: 621c228b485320dfc7c9f587aa7f0157
+    sha256: 0583870d5de14fa43db5f7aa079a31ee7557bd745c6b59b08f8453db5932baff
   category: dev
   optional: true
 - name: decorator
@@ -8199,13 +8200,13 @@ package:
     h5py: '>=3.2.1,<4.0.0'
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
-  url: git+https://github.com/MiraGeoscience/geoh5py.git@d351c4f3effbb3918f7b8f9e96f27a70202f2e8c
+  url: git+https://github.com/MiraGeoscience/geoh5py.git@f95bdfb2ab74f30b0d0d67abc398370c261d1823
   hash:
-    sha256: d351c4f3effbb3918f7b8f9e96f27a70202f2e8c
+    sha256: f95bdfb2ab74f30b0d0d67abc398370c261d1823
   category: main
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoh5py.git@d351c4f3effbb3918f7b8f9e96f27a70202f2e8c
+    url: git+https://github.com/MiraGeoscience/geoh5py.git@f95bdfb2ab74f30b0d0d67abc398370c261d1823
   optional: false
 - name: geoh5py
   version: 0.10.0a1
@@ -8216,13 +8217,13 @@ package:
     h5py: '>=3.2.1,<4.0.0'
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
-  url: git+https://github.com/MiraGeoscience/geoh5py.git@d351c4f3effbb3918f7b8f9e96f27a70202f2e8c
+  url: git+https://github.com/MiraGeoscience/geoh5py.git@f95bdfb2ab74f30b0d0d67abc398370c261d1823
   hash:
-    sha256: d351c4f3effbb3918f7b8f9e96f27a70202f2e8c
+    sha256: f95bdfb2ab74f30b0d0d67abc398370c261d1823
   category: main
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoh5py.git@d351c4f3effbb3918f7b8f9e96f27a70202f2e8c
+    url: git+https://github.com/MiraGeoscience/geoh5py.git@f95bdfb2ab74f30b0d0d67abc398370c261d1823
   optional: false
 - name: llvmlite
   version: 0.43.0
@@ -8245,7 +8246,7 @@ package:
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.21.2.1a1
+  version: 0.21.2.1.dev2+g5cf52f6d8
   manager: pip
   platform: linux-64
   dependencies:
@@ -8259,16 +8260,16 @@ package:
     pymatsolver: '>=0.2'
     scikit-learn: '>=1.2'
     scipy: '>=1.8.0'
-  url: git+https://github.com/MiraGeoscience/simpeg@2492d3b603c32dd8dce5b440af048c907d8bb20c
+  url: git+https://github.com/MiraGeoscience/simpeg@5cf52f6d8d0cd9ccb36ffc26eb3196e9fc37b4d9
   hash:
-    sha256: 2492d3b603c32dd8dce5b440af048c907d8bb20c
+    sha256: 5cf52f6d8d0cd9ccb36ffc26eb3196e9fc37b4d9
   category: main
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg@2492d3b603c32dd8dce5b440af048c907d8bb20c
+    url: git+https://github.com/MiraGeoscience/simpeg@5cf52f6d8d0cd9ccb36ffc26eb3196e9fc37b4d9
   optional: false
 - name: mira-simpeg
-  version: 0.21.2.1a1
+  version: 0.21.2.1.dev2+g5cf52f6d8
   manager: pip
   platform: win-64
   dependencies:
@@ -8282,13 +8283,13 @@ package:
     pymatsolver: '>=0.2'
     scikit-learn: '>=1.2'
     scipy: '>=1.8.0'
-  url: git+https://github.com/MiraGeoscience/simpeg@2492d3b603c32dd8dce5b440af048c907d8bb20c
+  url: git+https://github.com/MiraGeoscience/simpeg@5cf52f6d8d0cd9ccb36ffc26eb3196e9fc37b4d9
   hash:
-    sha256: 2492d3b603c32dd8dce5b440af048c907d8bb20c
+    sha256: 5cf52f6d8d0cd9ccb36ffc26eb3196e9fc37b4d9
   category: main
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg@2492d3b603c32dd8dce5b440af048c907d8bb20c
+    url: git+https://github.com/MiraGeoscience/simpeg@5cf52f6d8d0cd9ccb36ffc26eb3196e9fc37b4d9
   optional: false
 - name: numba
   version: 0.60.0
