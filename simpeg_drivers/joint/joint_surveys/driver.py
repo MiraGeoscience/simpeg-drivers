@@ -22,8 +22,9 @@ import numpy as np
 from geoh5py.shared.utils import fetch_active_workspace
 from simpeg import maps
 
-from ...components.factories import DirectivesFactory
-from ...joint.driver import BaseJointDriver
+from simpeg_drivers.components.factories import DirectivesFactory
+from simpeg_drivers.joint.driver import BaseJointDriver
+
 from .constants import validations
 from .params import JointSurveysParams
 
@@ -79,9 +80,7 @@ class JointSurveyDriver(BaseJointDriver):
                     driver_directives = DirectivesFactory(driver)
 
                     save_model = driver_directives.save_iteration_model_directive
-                    save_model.transforms = [
-                        driver.data_misfit.model_map
-                    ] + save_model.transforms
+                    save_model.transforms = [driver.data_misfit.model_map, *save_model.transforms]
                     directives_list.append(save_model)
 
                     n_tiles = len(driver.data_misfit.objfcts)
@@ -108,8 +107,6 @@ class JointSurveyDriver(BaseJointDriver):
                     ]
 
                 self._directives.directive_list = (
-                    self._directives.inversion_directives
-                    + [global_model_save]
-                    + directives_list
+                    [*self._directives.inversion_directives, global_model_save, *directives_list]
                 )
         return self._directives

@@ -74,11 +74,11 @@ class TipperParams(InversionBaseParams):
         if self.forward_only:
             return {k: None for k in frequencies}
         else:
-            group = [
+            group = next(
                 k
                 for k in self.data_object.property_groups
                 if k.uid == property_group.uid
-            ][0]
+            )
             property_names = [
                 self.geoh5.get_entity(p)[0].name for p in group.properties
             ]
@@ -86,7 +86,7 @@ class TipperParams(InversionBaseParams):
             for i, f in enumerate(frequencies):
                 try:
                     f_ind = property_names.index(
-                        [k for k in property_names if f"{f:.2e}" in k][0]
+                        next(k for k in property_names if f"{f:.2e}" in k)
                     )  # Safer if data was saved with geoapps naming convention
                     data[f] = properties[f_ind]
                 except IndexError:

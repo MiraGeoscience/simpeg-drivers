@@ -157,7 +157,7 @@ class InversionMesh:
 
     @entity.setter
     def entity(self, val: Octree | DrapeModel):
-        if not isinstance(val, (Octree, DrapeModel, type(None))):
+        if not isinstance(val, Octree | DrapeModel | type(None)):
             raise TypeError(
                 "Attribute 'entity' must be an Octree or DrapeModel object."
             )

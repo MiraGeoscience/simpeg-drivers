@@ -89,7 +89,7 @@ class TimeDomainElectromagneticsParams(InversionBaseParams):
             for i, f in enumerate(channels):
                 try:
                     f_ind = property_names.index(
-                        [k for k in property_names if f"{f:.2e}" in k][0]
+                        next(k for k in property_names if f"{f:.2e}" in k)
                     )  # Safer if data was saved with geoapps naming convention
                     data[f] = properties[f_ind]
                 except IndexError:

@@ -177,12 +177,12 @@ def create_nested_mesh(
     base_cell = np.min([base_mesh.h[0][0], base_mesh.h[1][0]])
     tx_loops = []
     for source in survey.source_list:
-        if isinstance(source, (TEMLineCurrent, FEMLineCurrent)):
+        if isinstance(source, TEMLineCurrent | FEMLineCurrent):
             mesh_indices = get_intersecting_cells(source.location, base_mesh)
             tx_loops.append(base_mesh.cell_centers[mesh_indices, :])
 
     if tx_loops:
-        locations = np.vstack([locations] + tx_loops)
+        locations = np.vstack([locations, *tx_loops])
 
     tree = cKDTree(locations[:, :2])
     rad, _ = tree.query(base_mesh.gridCC[:, :2])
@@ -320,7 +320,7 @@ def floating_active(mesh: TensorMesh | TreeMesh, active: np.ndarray):
     :param mesh: Tree mesh object
     :param active: active cells array
     """
-    if not isinstance(mesh, (TreeMesh, TensorMesh)):
+    if not isinstance(mesh, TreeMesh | TensorMesh):
         raise TypeError("Input mesh must be of type TreeMesh or TensorMesh.")
 
     if mesh.dim == 2:
@@ -455,9 +455,7 @@ def get_inversion_output(h5file: str | Workspace, inversion_group: str | UUID):
         ) from exc
 
     outfile = group.get_entity("SimPEG.out")[0]
-    out = [
-        elem for elem in outfile.values.decode("utf-8").replace("\r", "").split("\n")
-    ][:-1]
+    out = list(outfile.values.decode("utf-8").replace("\r", "").split("\n"))[:-1]
     cols = out.pop(0).split(" ")
     out = [[string_to_numeric(k) for k in elem.split(" ")] for elem in out]
     out = dict(zip(cols, list(map(list, zip(*out, strict=False))), strict=False))
@@ -784,7 +782,7 @@ def get_neighbouring_cells(mesh: TreeMesh, indices: list | np.ndarray) -> tuple:
         axis[1] = (south, north)
         axis[2] = (down, up)
     """
-    if not isinstance(indices, (list, np.ndarray)):
+    if not isinstance(indices, list | np.ndarray):
         raise TypeError("Input 'indices' must be a list or numpy.ndarray of indices.")
 
     if not isinstance(mesh, TreeMesh):

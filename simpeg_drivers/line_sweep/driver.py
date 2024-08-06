@@ -137,14 +137,14 @@ class LineSweepDriver(SweepDriver, InversionDriver):
         log_lines = []
         for line in np.unique(line_ids):
             with Workspace(f"{path / files[line]}.ui.geoh5") as ws:
-                out_group = [
+                out_group = next(
                     group for group in ws.groups if isinstance(group, SimPEGGroup)
-                ][0]
-                survey = [
+                )
+                survey = next(
                     child
                     for child in out_group.children
                     if isinstance(child, PotentialElectrode)
-                ][0]
+                )
                 line_data = survey.get_entity(self.pseudo3d_params.line_object.name)
 
                 if not line_data:
@@ -152,11 +152,11 @@ class LineSweepDriver(SweepDriver, InversionDriver):
 
                 line_indices = line_ids == line
                 data = self.collect_line_data(survey, line_indices, data)
-                mesh = [
+                mesh = next(
                     child
                     for child in out_group.children
                     if isinstance(child, DrapeModel)
-                ][0]
+                )
 
                 local_simpeg_group = mesh.parent.copy(
                     name=f"Line {line}",
