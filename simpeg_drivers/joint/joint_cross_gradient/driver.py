@@ -97,7 +97,10 @@ class JointCrossGradientDriver(BaseJointDriver):
 
                     save_model = driver_directives.save_iteration_model_directive
                     save_model.label = driver.params.physical_property
-                    save_model.transforms = [driver.data_misfit.model_map, *save_model.transforms]
+                    save_model.transforms = [
+                        driver.data_misfit.model_map,
+                        *save_model.transforms,
+                    ]
 
                     directives_list.append(save_model)
 
