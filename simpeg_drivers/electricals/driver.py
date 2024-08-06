@@ -20,11 +20,12 @@ from __future__ import annotations
 
 import sys
 import uuid
+import warnings
 from pathlib import Path
 
 import numpy as np
-from geoapps_utils.locations import get_locations
-from geoapps_utils.numerical import weighted_average
+from geoapps_utils.utils.locations import get_locations
+from geoapps_utils.utils.numerical import weighted_average
 from geoh5py.data import Data
 from geoh5py.objects import DrapeModel
 from geoh5py.workspace import Workspace
@@ -101,7 +102,15 @@ class BasePseudo3DDriver(LineSweepDriver):
                     continue
 
                 filepath = Path(self.working_directory) / f"{uid}.ui.geoh5"
-                with Workspace(filepath) as iter_workspace:
+
+                if filepath.exists():
+                    warnings.warn(
+                        f"File {filepath} already exists but 'status' marked as 'pending'. "
+                        "Over-writting file."
+                    )
+                    filepath.unlink()
+
+                with Workspace.create(filepath) as iter_workspace:
                     cell_mask: np.ndarray = (
                         self.pseudo3d_params.line_object.values == trial["line_id"]
                     )
