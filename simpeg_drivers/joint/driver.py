@@ -178,7 +178,7 @@ class BaseJointDriver(InversionDriver):
             [driver.inversion_mesh.entity for driver in self.drivers],
         )
         for driver in self.drivers:
-            driver.inversion_mesh._mesh = None
+            driver.inversion_mesh.mesh = None
 
     def validate_create_models(self):
         """Construct models from the local drivers."""
