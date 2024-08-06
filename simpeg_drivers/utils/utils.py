@@ -545,14 +545,13 @@ def tile_locations(
         # Test each refinement level for maximum space coverage
         nTx = 1
         nTy = 1
-        for ii in range(int(n_tiles + 1)):
+        for _ in range(int(n_tiles + 1)):
             nTx += 1
             nTy += 1
 
             testx = np.percentile(locations[:, 0], np.arange(0, 100, 100 / nTx))
             testy = np.percentile(locations[:, 1], np.arange(0, 100, 100 / nTy))
 
-            # if ii > 0:
             dx = testx[:-1] - testx[1:]
             dy = testy[:-1] - testy[1:]
 

@@ -72,6 +72,7 @@
 # $$
 
 import numpy as np
+from numpy.linalg import LinAlgError
 
 
 F = np.c_[1, 2]
@@ -180,7 +181,7 @@ np.dot(F, [0.5, 0.25])
 
 try:
     np.linalg.solve(np.dot(F.T, F), F.T * np.r_[1])
-except Exception as error:
+except LinAlgError as error:
     print(error)
 
 # We can get around this by adding a small value to `regularize` the system such that

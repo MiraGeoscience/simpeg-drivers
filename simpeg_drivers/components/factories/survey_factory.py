@@ -375,7 +375,7 @@ class SurveyFactory(SimPEGFactory):
         tx_list = []
         rx_factory = ReceiversFactory(self.params)
         tx_factory = SourcesFactory(self.params)
-        for tx_locs, rx_ids in zip(tx_locs, rx_lookup, strict=False):
+        for cur_tx_locs, rx_ids in zip(tx_locs, rx_lookup, strict=False):
             locs = receivers.vertices[rx_ids, :]
 
             rx_list = []
@@ -394,7 +394,7 @@ class SurveyFactory(SimPEGFactory):
                         self.ordering.append([time_id, component_id, rx_id])
 
             tx_list.append(
-                tx_factory.build(rx_list, locations=tx_locs, waveform=waveform)
+                tx_factory.build(rx_list, locations=cur_tx_locs, waveform=waveform)
             )
 
         return [tx_list]
