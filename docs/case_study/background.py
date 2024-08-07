@@ -17,7 +17,7 @@
 # # Introduction
 #
 #
-# This tutorial on geophysical inversion is framed around a well-known copper-zinc VMS deposit - the Flin Flon mine in northern Manitoba, Canada. Our goal is to provided a step-by-step process to invert data from various geophysical methods and to test their resolving capabilities within a semi-realistic exploration context.
+# This tutorial on geophysical inversion is framed around a well-known copper-zinc VMS deposit - the Flin Flon mine in northern Manitoba, Canada. Our goal is to provide a step-by-step process to invert data from various geophysical methods and to test their resolving capabilities within a semi-realistic exploration context.
 #
 # ```{figure} ./images/setup_flinflon.png
 # ---
@@ -29,7 +29,7 @@
 # ```
 #
 # The local geology of Flin Flon consists mainly of basalt and mafic volcanic formations (green and blue), with discrete occurrences of rhyolite units (yellow) that host the mineralization as shown in [Figure 6](setup_flinflon).
-# The entire region was later deformed by large tectonic events that over-thursted, folded and faulted the stratigraphy in its current form. The mineralization occurs along thin lences dipping steeply towards the South-East.
+# The entire region was later deformed by large tectonic events that over-thrusted, folded and faulted the stratigraphy into its current form. The mineralization occurs along thin lenses dipping steeply towards the South-East.
 #
 # The area has been studied extensively over the years, yielding large amount of petrophysical data made available by [Natural Resources Canada (NRCan)](https://ostrnrcan-dostrncan.canada.ca/entities/publication/73d767d8-ee1c-4bab-a2da-52dcf83faa06), as shown in [Figure 7](global_map).
 #

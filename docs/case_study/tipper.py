@@ -38,9 +38,9 @@
 #
 # ## Airborne tipper (Natural Source EM)
 #
-# We generated an airborne tipper survey over the main ore body. The survey lines are spaced at 400 m, oriented along East-West, at a drape height of 60 m.
+# We generated an airborne tipper survey over the main ore body. The survey lines are spaced at 400 m, oriented East-West, at a drape height of 60 m.
 #
-# Tipper systems collect three orthogonal components of the ambiant magnetic field ($H_x,\;H_y,\;H_z$). Similar to magnetotelluric surveys, the ratios of the components are used to circumvent the unknown source of the EM signal. The transfer functions, or tipper, are calculated by taking the ratio of the fields for two polarizations of the magnetic fields (EW and NS). The measurements are generally provided in the frequency-domain with both a real and an imaginary component. For more background information about natural source methods, see [em.geosci](https://em.geosci.xyz/content/geophysical_surveys/ztem/index.html)
+# Tipper systems collect three orthogonal components of the ambient magnetic field ($H_x,\;H_y,\;H_z$). Similar to magnetotelluric surveys, the ratios of the components are used to circumvent the unknown source of the EM signal. The transfer functions, or tipper, are calculated by taking the ratio of the fields for two polarizations of the magnetic fields (EW and NS). The measurements are generally provided in the frequency-domain with both a real and an imaginary component. For more background information about natural source methods, see [em.geosci](https://em.geosci.xyz/content/geophysical_surveys/ztem/index.html)
 #
 #
 # ```{figure} ./images/tipper/tipper_forward.png
@@ -50,7 +50,7 @@
 # ---
 # ```
 #
-# The survey used here mimics the commercial [ZTEM](https://geotech.ca/services/electromagnetic/ztem-z-axis-tipper-electromagnetic-system/) system that measures the vertical magnetic field ($H_z$) on a towed plateform at 6 frequencies (30, 45, 90, 180, 360 and 720 Hz). The horizontal fields ($H_x,y$) are measured at a fixed base station, which we located at the center of the survey area.
+# The survey used here mimics the commercial [ZTEM](https://geotech.ca/services/electromagnetic/ztem-z-axis-tipper-electromagnetic-system/) system that measures the vertical magnetic field ($H_z$) on a towed platform at 6 frequencies (30, 45, 90, 180, 360 and 720 Hz). The horizontal fields ($H_x,y$) are measured at a fixed base station located in the center of the survey area.
 #
 # ```{figure} ./images/tipper/tipper_data.png
 # ---
@@ -66,8 +66,7 @@
 
 # ## Mesh creation
 #
-# In preparation for the inversion, we create an octree mesh optimized for the tipper survey.
-# The following parameters are used based on the original Flin Flon model.
+# In preparation for the inversion, we create an octree mesh optimized for the tipper survey.  The mesh parameters are base on the original Flin Flon model.
 #
 # ```{figure} ./images/tipper/tipper_core.png
 # ---
@@ -77,16 +76,16 @@
 # Core mesh parameters.
 # ```
 #
-# Note that the padding distances are set substantially further than for the magnetics, gravity or dc-resistivity (1 km) inversions. This is because the [diffusion distance](diffusion-distance) for a background resistivity of $1000 \; \Omega .m$ for the lowest frequency (30 Hz) is roughly 3 km. This distance is important to satisfy [boundary conditions](https://em.geosci.xyz/content/maxwell1_fundamentals/solving_maxwells_equations.html?highlight=boundary%20conditions#boundary-and-initial-conditions) of the underlying differential equations.
+# Note that the padding distances are set substantially further than for the magnetics, gravity or dc-resistivity (1 km) inversions. This is because the [diffusion distance](diffusion-distance) for a background resistivity of $1000 \; \Omega .m$ for the lowest frequency (30 Hz) is roughly 3 km. This distance is important to satisfy the [boundary conditions](https://em.geosci.xyz/content/maxwell1_fundamentals/solving_maxwells_equations.html?highlight=boundary%20conditions#boundary-and-initial-conditions) of the underlying differential equations.
 #
 #
 # ### Refinements
 #
-# - For the first refinement, we insert 4 cells for the first three octree levels. The refinement is done radially around the segments of the curve to assure good numerical accuracy near the receiver locations. This is especially important for EM methods with low frequencies.
+# - For the first refinement, we insert 4 cells for the first three octree levels along the flight path. The refinement is done radially around the segments of the flight path curve to assure good numerical accuracy near the receiver locations. This is especially important for EM methods with low frequencies.
 #
-# - A second refinement is used along topography to get a coarse but continuous air-ground interface outside the area or interest.
+# - We use a second refinement along topography to get a coarse but continuous air-ground interface outside the area or interest.
 #
-# - The third refinement "horizon" is used to get a core region at depth with increasing cell size directly below the survey. This is our volume of interest most strongly influence by the data.
+# - Lastly, we refine a "horizon" get a core region at depth with increasing cell size directly below the survey. This is our volume of interest most strongly influenced by the data.
 #
 # ```{figure} ./images/tipper/tipper_refinement.png
 # ---
@@ -98,11 +97,12 @@
 #
 # See [Mesh creation](../inversion/mesh_design.ipynb) section for general details on the parameters.
 
+
 # ## Unconstrained inversion
 #
 # **Runtime: ~2.0 h**
 #
-# Tipper data involves 2 channels, with two components (real and imaginary) and measured over 6 frequencies. Balancing all this data can be challenging and time consuming. Here we adopt a variable floor strategy based on the 10th percentile of each each data layer.
+# Tipper data involves 2 receiver configuration (x and y), with two components (real and imaginary) and measured over 6 frequencies. Balancing all this data can be challenging and time consuming. Here we adopt a variable floor strategy based on the 10th percentile of each data layer.
 #
 # ```{figure} ./images/tipper/tipper_uncerts.png
 # ---
