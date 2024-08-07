@@ -118,6 +118,10 @@ def test_ground_tem_fwr_run(
     )
     params.workpath = tmp_path
     fwr_driver = TimeDomainElectromagneticsDriver(params)
+
+    survey.transmitters.remove_cells([15])
+    assert fwr_driver.inversion_data.survey.source_list[0].n_segments == 16
+
     fwr_driver.run()
 
 
