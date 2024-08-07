@@ -54,7 +54,7 @@ class BaseJointDriver(InversionDriver):
         if getattr(self, "_data_misfit", None) is None and self.drivers is not None:
             objective_functions = []
             multipliers = []
-            for label, driver in zip("abc", self.drivers, strict=True):
+            for label, driver in zip("abc", self.drivers, strict=False):
                 if driver.data_misfit is not None:
                     objective_functions += driver.data_misfit.objfcts
                     multipliers += [

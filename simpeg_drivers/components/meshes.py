@@ -92,7 +92,7 @@ class InversionMesh:
         self.params = params
         self.inversion_data = inversion_data
         self.inversion_topography = inversion_topography
-        self._mesh: TreeMesh | TensorMesh | None = None
+        self.mesh: TreeMesh | TensorMesh | None = None
         self.n_cells: int | None = None
         self.rotation: dict[str, float] | None = None
         self._permutation: np.ndarray | None = None
@@ -142,6 +142,13 @@ class InversionMesh:
                 )
 
         return self._mesh
+
+    @mesh.setter
+    def mesh(self, value: TreeMesh | TensorMesh | None):
+        if not isinstance(value, (TreeMesh | TensorMesh | type(None))):
+            raise TypeError("Attribute 'mesh' must be a TreeMesh or TensorMesh object.")
+
+        self._mesh = value
 
     @property
     def permutation(self) -> np.ndarray:
