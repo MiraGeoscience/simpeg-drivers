@@ -184,7 +184,7 @@ class InversionMesh:
             raise ValueError("Cannot convert negative cell sizes for rotated mesh.")
 
         cell_sizes, origin = [], []
-        for axis, dim in zip("xyz", "uvw", strict=False):
+        for axis, dim in zip("xyz", "uvw", strict=True):
             n_cells = getattr(mesh, f"{dim}_count")
             cell_size = getattr(mesh, f"{dim}_cell_size")
             if cell_size < 0:

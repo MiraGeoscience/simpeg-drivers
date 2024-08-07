@@ -375,7 +375,7 @@ class SurveyFactory(SimPEGFactory):
         tx_list = []
         rx_factory = ReceiversFactory(self.params)
         tx_factory = SourcesFactory(self.params)
-        for tx_locs, rx_ids in zip(tx_locs, rx_lookup, strict=False):
+        for tx_locs, rx_ids in zip(tx_locs, rx_lookup, strict=True):
             locs = receivers.vertices[rx_ids, :]
 
             rx_list = []
