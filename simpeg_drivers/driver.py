@@ -164,6 +164,15 @@ class InversionDriver(BaseDriver):
                 )
         return self._inversion_mesh
 
+    @inversion_mesh.setter
+    def inversion_mesh(self, value: InversionMesh | None):
+        if not isinstance(value, (InversionMesh, type(None))):
+            raise TypeError(
+                f"Expected an InversionMesh object. Got {type(value)} instead."
+            )
+
+        self._inversion_mesh = value
+
     @property
     def inversion_topography(self):
         """Inversion topography"""

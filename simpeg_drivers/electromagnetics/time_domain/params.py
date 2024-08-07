@@ -92,7 +92,7 @@ class TimeDomainElectromagneticsParams(InversionBaseParams):
                         next(k for k in property_names if f"{f:.2e}" in k)
                     )  # Safer if data was saved with geoapps naming convention
                     data[f] = properties[f_ind]
-                except IndexError:
+                except StopIteration:
                     data[f] = properties[i]  # in case of other naming conventions
 
             return data
