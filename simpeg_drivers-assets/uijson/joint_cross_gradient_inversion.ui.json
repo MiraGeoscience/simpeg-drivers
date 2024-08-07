@@ -1,5 +1,5 @@
 {
-    "version": "0.1.0-alpha.1",
+    "version": "0.2.0-alpha.1",
     "title": "SimPEG Joint Cross Gradient Inversion",
     "conda_environment": "simpeg_drivers",
     "run_command": "simpeg_drivers.driver",

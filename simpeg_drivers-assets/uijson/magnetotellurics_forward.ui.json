@@ -1,5 +1,5 @@
 {
-    "version": "0.1.0-alpha.1",
+    "version": "0.2.0-alpha.1",
     "title": "Magnetotellurics (MT) Forward",
     "icon": "surveymagnetotellurics",
     "conda_environment": "simpeg_drivers",

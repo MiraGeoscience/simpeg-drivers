@@ -22,10 +22,10 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from geoapps_utils.driver.driver import BaseDriver
-from geoapps_utils.numerical import weighted_average
-from geoapps_utils.transformations import rotate_xyz
+from geoapps_utils.utils.numerical import weighted_average
+from geoapps_utils.utils.transformations import rotate_xyz
 from geoh5py.data import NumericData
-from SimPEG.utils.mat_utils import (
+from simpeg.utils.mat_utils import (
     cartesian2amplitude_dip_azimuth,
     dip_azimuth2cartesian,
     mkvc,
@@ -446,7 +446,7 @@ class InversionModel:
 
         else:
             nc = self.driver.inversion_mesh.n_cells
-            if isinstance(model, (int, float)):
+            if isinstance(model, int | float):
                 model *= np.ones(nc)
 
         return model

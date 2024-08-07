@@ -25,8 +25,8 @@ from uuid import UUID
 import numpy as np
 from discretize import TensorMesh, TreeMesh
 from discretize.utils import mesh_utils
-from geoapps_utils.conversions import string_to_numeric
-from geoapps_utils.numerical import running_mean, traveling_salesman
+from geoapps_utils.utils.conversions import string_to_numeric
+from geoapps_utils.utils.numerical import running_mean, traveling_salesman
 from geoh5py import Workspace
 from geoh5py.groups import Group
 from geoh5py.objects import DrapeModel, Octree
@@ -35,12 +35,12 @@ from geoh5py.shared import INTEGER_NDV
 from octree_creation_app.utils import octree_2_treemesh
 from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator, interp1d
 from scipy.spatial import ConvexHull, Delaunay, cKDTree
-from SimPEG.electromagnetics.frequency_domain.sources import (
+from simpeg.electromagnetics.frequency_domain.sources import (
     LineCurrent as FEMLineCurrent,
 )
-from SimPEG.electromagnetics.time_domain.sources import LineCurrent as TEMLineCurrent
-from SimPEG.survey import BaseSurvey
-from SimPEG.utils import mkvc
+from simpeg.electromagnetics.time_domain.sources import LineCurrent as TEMLineCurrent
+from simpeg.survey import BaseSurvey
+from simpeg.utils import mkvc
 
 
 if TYPE_CHECKING:
@@ -177,12 +177,12 @@ def create_nested_mesh(
     base_cell = np.min([base_mesh.h[0][0], base_mesh.h[1][0]])
     tx_loops = []
     for source in survey.source_list:
-        if isinstance(source, (TEMLineCurrent, FEMLineCurrent)):
+        if isinstance(source, TEMLineCurrent | FEMLineCurrent):
             mesh_indices = get_intersecting_cells(source.location, base_mesh)
             tx_loops.append(base_mesh.cell_centers[mesh_indices, :])
 
     if tx_loops:
-        locations = np.vstack([locations] + tx_loops)
+        locations = np.vstack([locations, *tx_loops])
 
     tree = cKDTree(locations[:, :2])
     rad, _ = tree.query(base_mesh.gridCC[:, :2])
@@ -320,7 +320,7 @@ def floating_active(mesh: TensorMesh | TreeMesh, active: np.ndarray):
     :param mesh: Tree mesh object
     :param active: active cells array
     """
-    if not isinstance(mesh, (TreeMesh, TensorMesh)):
+    if not isinstance(mesh, TreeMesh | TensorMesh):
         raise TypeError("Input mesh must be of type TreeMesh or TensorMesh.")
 
     if mesh.dim == 2:
@@ -455,9 +455,7 @@ def get_inversion_output(h5file: str | Workspace, inversion_group: str | UUID):
         ) from exc
 
     outfile = group.get_entity("SimPEG.out")[0]
-    out = [
-        elem for elem in outfile.values.decode("utf-8").replace("\r", "").split("\n")
-    ][:-1]
+    out = list(outfile.values.decode("utf-8").replace("\r", "").split("\n"))[:-1]
     cols = out.pop(0).split(" ")
     out = [[string_to_numeric(k) for k in elem.split(" ")] for elem in out]
     out = dict(zip(cols, list(map(list, zip(*out, strict=True))), strict=True))
@@ -547,14 +545,13 @@ def tile_locations(
         # Test each refinement level for maximum space coverage
         nTx = 1
         nTy = 1
-        for ii in range(int(n_tiles + 1)):
+        for _ in range(int(n_tiles + 1)):
             nTx += 1
             nTy += 1
 
             testx = np.percentile(locations[:, 0], np.arange(0, 100, 100 / nTx))
             testy = np.percentile(locations[:, 1], np.arange(0, 100, 100 / nTy))
 
-            # if ii > 0:
             dx = testx[:-1] - testx[1:]
             dy = testy[:-1] - testy[1:]
 
@@ -784,7 +781,7 @@ def get_neighbouring_cells(mesh: TreeMesh, indices: list | np.ndarray) -> tuple:
         axis[1] = (south, north)
         axis[2] = (down, up)
     """
-    if not isinstance(indices, (list, np.ndarray)):
+    if not isinstance(indices, list | np.ndarray):
         raise TypeError("Input 'indices' must be a list or numpy.ndarray of indices.")
 
     if not isinstance(mesh, TreeMesh):

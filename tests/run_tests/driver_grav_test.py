@@ -31,7 +31,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.0028055269276044915, "phi_d": 3.974e-05, "phi_m": 0.001442}
+target_run = {"data_norm": 0.0028055269276044915, "phi_d": 4.158e-05, "phi_m": 0.002882}
 
 
 def test_gravity_fwr_run(
@@ -120,11 +120,11 @@ def test_gravity_run(
         residual = run_ws.get_entity("Iteration_1_gz_Residual")[0]
         assert np.isnan(residual.values).sum() == 1, "Number of nan residuals differ."
 
-        predicted = [
+        predicted = next(
             pred
             for pred in run_ws.get_entity("Iteration_0_gz")
             if pred.parent.parent.name == "Gravity Inversion"
-        ][0]
+        )
         assert not any(
             np.isnan(predicted.values)
         ), "Predicted data should not have nans."

@@ -40,7 +40,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 53.29600188902931, "phi_d": 500, "phi_m": 0.1585}
+target_run = {"data_norm": 53.29600188902931, "phi_d": 534.7, "phi_m": 0.2942}
 
 
 def test_joint_cross_gradient_fwr_run(
@@ -170,7 +170,8 @@ def test_joint_cross_gradient_inv_run(
                 if isinstance(child, FloatData):
                     data = child
 
-            assert data is not None, "Could not find data object."
+            if data is None:
+                raise ValueError("No data found in survey")
 
             orig_data.append(data.values)
 

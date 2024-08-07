@@ -157,7 +157,7 @@ class InversionMesh:
 
     @entity.setter
     def entity(self, val: Octree | DrapeModel):
-        if not isinstance(val, (Octree, DrapeModel, type(None))):
+        if not isinstance(val, Octree | DrapeModel | type(None)):
             raise TypeError(
                 "Attribute 'entity' must be an Octree or DrapeModel object."
             )
@@ -201,7 +201,7 @@ class InversionMesh:
         temp_workspace = Workspace()
         temp_octree = treemesh_2_octree(temp_workspace, treemesh)
 
-        mesh.octree_cells = np.vstack(temp_octree.octree_cells.tolist())
+        mesh.octree_cells = temp_octree.octree_cells
         mesh.origin = origin
         for dim in "uvw":
             attr = f"{dim}_cell_size"

@@ -24,9 +24,9 @@ from itertools import combinations
 
 import numpy as np
 from geoh5py.shared.utils import fetch_active_workspace
-from SimPEG import maps
-from SimPEG.objective_function import ComboObjectiveFunction
-from SimPEG.regularization import CrossGradient
+from simpeg import maps
+from simpeg.objective_function import ComboObjectiveFunction
+from simpeg.regularization import CrossGradient
 
 from simpeg_drivers.components.factories import (
     DirectivesFactory,
@@ -98,8 +98,9 @@ class JointCrossGradientDriver(BaseJointDriver):
                     save_model = driver_directives.save_iteration_model_directive
                     save_model.label = driver.params.physical_property
                     save_model.transforms = [
-                        driver.data_misfit.model_map
-                    ] + save_model.transforms
+                        driver.data_misfit.model_map,
+                        *save_model.transforms,
+                    ]
 
                     directives_list.append(save_model)
 
@@ -121,7 +122,7 @@ class JointCrossGradientDriver(BaseJointDriver):
                     )
 
                     model_directive.label = driver.params.physical_property
-                    model_directive.transforms = [wire] + model_directive.transforms
+                    model_directive.transforms = [wire, *model_directive.transforms]
                     directives_list.append(model_directive)
 
                 self._directives = DirectivesFactory(self)
@@ -168,15 +169,14 @@ class JointCrossGradientDriver(BaseJointDriver):
             # Deal with MVI components
             for mapping_a in driver_pairs[0].mapping:
                 for mapping_b in driver_pairs[1].mapping:
-                    wires = [
-                        self._mapping[driver_pairs[0], mapping_a],
-                        self._mapping[driver_pairs[1], mapping_b],
-                    ]
+                    wires = maps.Wires(
+                        ("a", self._mapping[driver_pairs[0], mapping_a]),
+                        ("b", self._mapping[driver_pairs[1], mapping_b]),
+                    )
                     reg_list.append(
                         CrossGradient(
                             self.inversion_mesh.mesh,
                             wires,
-                            normalize=True,
                             active_cells=self.models.active_cells,
                         )
                     )

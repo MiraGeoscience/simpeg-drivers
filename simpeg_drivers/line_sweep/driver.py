@@ -66,6 +66,7 @@ class LineSweepDriver(SweepDriver, InversionDriver):
                 self._out_group = SimPEGGroup.create(
                     self.pseudo3d_params.geoh5, name=name
                 )
+                self.pseudo3d_params.out_group = self._out_group
                 self.pseudo3d_params.update_group_options()
 
         return self._out_group
@@ -113,7 +114,7 @@ class LineSweepDriver(SweepDriver, InversionDriver):
             files = list(json.load(f))
 
         files = [f"{f}.ui.json" for f in files] + [f"{f}.ui.geoh5" for f in files]
-        files += ["lookup.json", "SimPEG.log", "SimPEG.out"]
+        files += ["lookup.json"]
         files += [f.name for f in path.glob("*_sweep.ui.json")]
 
         for file in files:
@@ -131,16 +132,19 @@ class LineSweepDriver(SweepDriver, InversionDriver):
         line_ids = self.pseudo3d_params.line_object.values
         data = {}
         drape_models = []
+
+        out_lines = []
+        log_lines = []
         for line in np.unique(line_ids):
             with Workspace(f"{path / files[line]}.ui.geoh5") as ws:
-                out_group = [
+                out_group = next(
                     group for group in ws.groups if isinstance(group, SimPEGGroup)
-                ][0]
-                survey = [
+                )
+                survey = next(
                     child
                     for child in out_group.children
                     if isinstance(child, PotentialElectrode)
-                ][0]
+                )
                 line_data = survey.get_entity(self.pseudo3d_params.line_object.name)
 
                 if not line_data:
@@ -148,24 +152,42 @@ class LineSweepDriver(SweepDriver, InversionDriver):
 
                 line_indices = line_ids == line
                 data = self.collect_line_data(survey, line_indices, data)
-                mesh = [
+                mesh = next(
                     child
                     for child in out_group.children
                     if isinstance(child, DrapeModel)
-                ][0]
-                filedata = [
-                    k for k in mesh.parent.children if isinstance(k, FilenameData)
-                ]
+                )
+
                 local_simpeg_group = mesh.parent.copy(
                     name=f"Line {line}",
                     parent=self.pseudo3d_params.out_group,
                     copy_children=False,
                 )
+                local_simpeg_group.options = mesh.parent.options
+                filedata = [
+                    k for k in out_group.children if isinstance(k, FilenameData)
+                ]
                 for fdat in filedata:
-                    fdat.copy(parent=local_simpeg_group)
+                    if ".out" in fdat.name:
+                        out_lines += [f"Line {line} from file {files[line]}\n"]
+                        out_lines += fdat.values.decode(encoding="utf8").split(sep="\n")
+                        out_lines += ["\n"]
 
-                mesh = mesh.copy(parent=local_simpeg_group)
-                drape_models.append(mesh)
+                    if ".log" in fdat.name:
+                        log_lines += fdat.values.decode(encoding="utf8").split(sep="\n")
+                        log_lines += ["\n"]
+
+                    fdat.copy(parent=out_group)
+
+                sub_mesh = mesh.copy(parent=local_simpeg_group)
+                drape_models.append(sub_mesh)
+
+        # Write new log files to disk
+        with open(ws.h5file.parent / "SimPEG.out", "w", encoding="utf8") as f:
+            f.write("".join(out_lines))
+
+        with open(ws.h5file.parent / "SimPEG.log", "w", encoding="utf8") as f:
+            f.write("".join(log_lines))
 
         self.pseudo3d_params.data_object.add_data(data)
 
