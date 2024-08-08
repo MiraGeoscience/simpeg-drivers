@@ -32,6 +32,7 @@ from simpeg_drivers.electricals.induced_polarization.pseudo_three_dimensions.par
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
+
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
@@ -133,12 +134,12 @@ def test_ip_p3d_run(
     basepath = workpath.parent
     with open(basepath / "lookup.json", encoding="utf8") as f:
         lookup = json.load(f)
-        middle_line_id = [k for k, v in lookup.items() if v["line_id"] == 101][0]
+        middle_line_id = next(k for k, v in lookup.items() if v["line_id"] == 101)
 
     with Workspace(basepath / f"{middle_line_id}.ui.geoh5", mode="r") as workspace:
-        middle_inversion_group = [
+        middle_inversion_group = next(
             k for k in workspace.groups if isinstance(k, SimPEGGroup)
-        ][0]
+        )
         filedata = middle_inversion_group.get_entity("SimPEG.out")[0]
 
         with driver.pseudo3d_params.out_group.workspace.open(mode="r+"):

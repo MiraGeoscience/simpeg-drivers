@@ -167,7 +167,7 @@ class InversionBaseParams(BaseParams):
             return val.values.astype(float)
         elif self.data(component) is not None:
             d = self.data(component)
-            if isinstance(val, (int, float)):
+            if isinstance(val, int | float):
                 return np.array([float(val)] * len(d))
             else:
                 return d * 0.0 + 1.0  # Default
@@ -199,10 +199,10 @@ class InversionBaseParams(BaseParams):
             0,
             0 if self.receivers_offset_z is None else self.receivers_offset_z,
         ]
-        is_offset = any([(k != 0) for k in offsets])
+        is_offset = any((k != 0) for k in offsets)
         offsets = offsets if is_offset else None
         r = self.receivers_radar_drape
-        if isinstance(r, (str, UUID)):
+        if isinstance(r, str | UUID):
             r = UUID(r) if isinstance(r, str) else r
             radar = self.geoh5.get_entity(r)
             radar = radar[0].values if radar else None

@@ -20,9 +20,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+
 if TYPE_CHECKING:
-    from geoh5py.workspace import Workspace
     from geoapps_utils.driver.params import BaseParams
+    from geoh5py.workspace import Workspace
+
     from simpeg_drivers.components.meshes import InversionMesh
 
 import warnings
@@ -127,7 +129,7 @@ class InversionTopography(InversionLocations):
         if self.params.topography is not None:
             if isinstance(self.params.topography, Entity):
                 elev = self.params.topography.values
-            elif isinstance(self.params.topography, (int, float)):
+            elif isinstance(self.params.topography, int | float):
                 elev = np.ones_like(locs[:, 2]) * self.params.topography
             else:
                 elev = self.params.topography.values  # Must be FloatData at this point

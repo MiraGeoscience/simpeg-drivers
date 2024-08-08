@@ -31,6 +31,7 @@ from simpeg.utils.mat_utils import (
     mkvc,
 )
 
+
 if TYPE_CHECKING:
     from simpeg_drivers.driver import InversionDriver
 
@@ -445,7 +446,7 @@ class InversionModel:
 
         else:
             nc = self.driver.inversion_mesh.n_cells
-            if isinstance(model, (int, float)):
+            if isinstance(model, int | float):
                 model *= np.ones(nc)
 
         return model

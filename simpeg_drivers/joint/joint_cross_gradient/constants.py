@@ -21,6 +21,7 @@ from __future__ import annotations
 from simpeg_drivers.constants import validations as base_validations
 from simpeg_drivers.joint.constants import default_ui_json as joint_default_ui_json
 
+
 inversion_defaults = {
     "title": "SimPEG Joint Cross Gradient Inversion",
     "inversion_type": "joint cross gradient",

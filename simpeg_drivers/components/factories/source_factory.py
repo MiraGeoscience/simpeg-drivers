@@ -20,6 +20,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+
 if TYPE_CHECKING:
     from geoapps_utils.driver.params import BaseParams
 
@@ -135,6 +136,7 @@ class SourcesFactory(SimPEGFactory):
                 zip(
                     ["amplitude", "inclination", "declination"],
                     self.params.inducing_field_aid(),
+                    strict=False,
                 )
             )
         if self.factory_type in ["magnetotellurics", "tipper"]:

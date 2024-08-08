@@ -33,6 +33,7 @@ from simpeg_drivers.natural_sources.magnetotellurics.params import (
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
+
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
@@ -135,7 +136,7 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
 
         data_kwargs = {}
         for comp, data_group, uncert_group in zip(
-            components, data_groups, uncert_groups
+            components, data_groups, uncert_groups, strict=True
         ):
             data_kwargs[f"{comp}_channel"] = data_group.uid
             data_kwargs[f"{comp}_uncertainty"] = uncert_group.uid

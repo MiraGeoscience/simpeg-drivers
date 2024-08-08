@@ -20,7 +20,8 @@ from __future__ import annotations
 
 from copy import deepcopy
 
-from ...params import Base2DParams
+from simpeg_drivers.electricals.params import Base2DParams
+
 from .constants import (
     default_ui_json,
     forward_defaults,
