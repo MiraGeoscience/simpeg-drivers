@@ -354,6 +354,13 @@ class SurveyFactory(SimPEGFactory):
                     np.all(tx_ind[transmitters.cells], axis=1), :
                 ]
                 loop_cells = counter_clockwise_sort(loop_cells, transmitters.vertices)
+
+                # Check for closed loop
+                if loop_cells[-1, 1] != loop_cells[0, 0]:
+                    loop_cells = np.vstack(
+                        [loop_cells, np.c_[loop_cells[-1, 1], loop_cells[0, 0]]]
+                    )
+
                 loop_ind = np.r_[loop_cells[:, 0], loop_cells[-1, 1]]
                 tx_locs.append(transmitters.vertices[loop_ind, :])
         else:
