@@ -29,6 +29,7 @@ from octree_creation_app.utils import octree_2_treemesh, treemesh_2_octree
 
 from simpeg_drivers.utils.utils import drape_2_tensor
 
+
 if TYPE_CHECKING:
     from simpeg_drivers.components.data import InversionData
     from simpeg_drivers.components.topography import InversionTopography
@@ -91,7 +92,7 @@ class InversionMesh:
         self.params = params
         self.inversion_data = inversion_data
         self.inversion_topography = inversion_topography
-        self._mesh: TreeMesh | TensorMesh | None = None
+        self.mesh: TreeMesh | TensorMesh | None = None
         self.n_cells: int | None = None
         self.rotation: dict[str, float] | None = None
         self._permutation: np.ndarray | None = None
@@ -142,6 +143,13 @@ class InversionMesh:
 
         return self._mesh
 
+    @mesh.setter
+    def mesh(self, value: TreeMesh | TensorMesh | None):
+        if not isinstance(value, (TreeMesh | TensorMesh | type(None))):
+            raise TypeError("Attribute 'mesh' must be a TreeMesh or TensorMesh object.")
+
+        self._mesh = value
+
     @property
     def permutation(self) -> np.ndarray:
         """Permutation vector between discretize and geoh5py/DrapeModel ordering."""
@@ -156,7 +164,7 @@ class InversionMesh:
 
     @entity.setter
     def entity(self, val: Octree | DrapeModel):
-        if not isinstance(val, (Octree, DrapeModel, type(None))):
+        if not isinstance(val, Octree | DrapeModel | type(None)):
             raise TypeError(
                 "Attribute 'entity' must be an Octree or DrapeModel object."
             )
@@ -183,7 +191,7 @@ class InversionMesh:
             raise ValueError("Cannot convert negative cell sizes for rotated mesh.")
 
         cell_sizes, origin = [], []
-        for axis, dim in zip("xyz", "uvw"):
+        for axis, dim in zip("xyz", "uvw", strict=True):
             n_cells = getattr(mesh, f"{dim}_count")
             cell_size = getattr(mesh, f"{dim}_cell_size")
             if cell_size < 0:

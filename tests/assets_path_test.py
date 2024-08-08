@@ -24,4 +24,4 @@ def test_assets_directory_exist():
 
 def test_uijson_files_exists():
     assert (assets_path() / "uijson").is_dir()
-    assert list((assets_path() / "uijson").iterdir())[0].is_file()
+    assert next(iter((assets_path() / "uijson").iterdir())).is_file()

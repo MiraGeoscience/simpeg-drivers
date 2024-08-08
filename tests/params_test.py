@@ -455,11 +455,9 @@ def test_validate_receivers_radar_drape(mvi_params):
         ("n_cpu", 12, "test", "type"),
     ],
 )
-def test_validate_inversion_parameters(
-    mvi_params, param, newval, value, error_type
-):  # pylint: disable=expression-not-assigned
+def test_validate_inversion_parameters(mvi_params, param, newval, value, error_type):
     param_test_generator(mvi_params, param, newval)
-    catch_invalid_generator(mvi_params, param, value, error_type),
+    catch_invalid_generator(mvi_params, param, value, error_type)
 
 
 def test_validate_geoh5(mvi_params):

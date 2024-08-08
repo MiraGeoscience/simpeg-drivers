@@ -22,8 +22,9 @@ import numpy as np
 from geoh5py.shared.utils import fetch_active_workspace
 from simpeg import maps
 
-from ...components.factories import DirectivesFactory
-from ...joint.driver import BaseJointDriver
+from simpeg_drivers.components.factories import DirectivesFactory
+from simpeg_drivers.joint.driver import BaseJointDriver
+
 from .constants import validations
 from .params import JointSurveysParams
 
@@ -58,11 +59,7 @@ class JointSurveyDriver(BaseJointDriver):
                 if self.drivers[0].models.is_sigma:
                     model = np.exp(model)
 
-                setattr(
-                    getattr(self.models, f"_{model_type}"),
-                    "model",
-                    model,
-                )
+                getattr(self.models, f"_{model_type}").model = model
 
     @property
     def wires(self):
@@ -84,8 +81,9 @@ class JointSurveyDriver(BaseJointDriver):
 
                     save_model = driver_directives.save_iteration_model_directive
                     save_model.transforms = [
-                        driver.data_misfit.model_map
-                    ] + save_model.transforms
+                        driver.data_misfit.model_map,
+                        *save_model.transforms,
+                    ]
                     directives_list.append(save_model)
 
                     n_tiles = len(driver.data_misfit.objfcts)
@@ -111,9 +109,9 @@ class JointSurveyDriver(BaseJointDriver):
                         maps.ExpMap(self.inversion_mesh.mesh)
                     ]
 
-                self._directives.directive_list = (
-                    self._directives.inversion_directives
-                    + [global_model_save]
-                    + directives_list
-                )
+                self._directives.directive_list = [
+                    *self._directives.inversion_directives,
+                    global_model_save,
+                    *directives_list,
+                ]
         return self._directives

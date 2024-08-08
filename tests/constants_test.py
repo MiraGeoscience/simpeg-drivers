@@ -23,6 +23,7 @@ from simpeg_drivers.potential_fields.magnetic_vector import (
     constants as magnetic_vector_constants,
 )
 
+
 constants = [
     gravity_constants,
     magnetic_scalar_constants,

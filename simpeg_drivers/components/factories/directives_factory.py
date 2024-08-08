@@ -29,6 +29,7 @@ from simpeg.utils.mat_utils import cartesian2amplitude_dip_azimuth
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 
+
 if TYPE_CHECKING:
     from simpeg_drivers.driver import InversionDriver
 
@@ -68,7 +69,6 @@ class DirectivesFactory:
     def directive_list(self):
         """List of directives to be used in inversion."""
         if self._directive_list is None:
-
             if not self.params.forward_only:
                 self._directive_list = self.inversion_directives + self.save_directives
             else:
