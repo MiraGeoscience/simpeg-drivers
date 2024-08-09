@@ -32,7 +32,7 @@
 # Discrete geological model of the ore deposit and host units.
 # ```
 #
-# The following sections provide details about the processing and results. A compilation `geoh5` project can be found in the `simpeg-drivers-assets` folder.
+# The following sections provide details about the processing and results. A compilation `geoh5` project can be found in the `simpeg-drivers-assets` folder or [download here](https://github.com/MiraGeoscience/simpeg-drivers/raw/develop/simpeg_drivers-assets/inversion_demo.geoh5?download=).
 #
 # - [Background information](background.ipynb)
 # - [Magnetic Total Field (TMI)](magnetic)

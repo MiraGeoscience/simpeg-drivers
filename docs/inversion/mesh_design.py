@@ -74,10 +74,16 @@
 #
 #
 # $$
-# \delta = \sqrt{\frac{2t \; \rho}{\mu_0}}
+# \delta = \sqrt{\frac{2t \; \rho}{\mu_0}} \approx 1261 \sqrt{t \; \rho}
 # $$
 #
-# where $t$ is the largest time measured by the system and $\mu_0$ is the permeability of free space ($4 \pi * 1e-7$).
+# where $t\;(sec)$ is the largest time measured by the system, $\rho \; (\Omega.m)$ is the expected resistivity of the background and $\mu_0 \; (4 \pi * 1e-7)$ is the permeability of free space.
+#
+#
+#
+#
+#
+#
 #
 #
 # ```{figure} ./images/mesh_core.png
