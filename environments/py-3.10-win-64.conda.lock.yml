@@ -4,7 +4,6 @@
 
 channels:
   - conda-forge
-  - nodefaults
 dependencies:
   - annotated-types=0.7.0=pyhd8ed1ab_0
   - asciitree=0.3.3=py_2

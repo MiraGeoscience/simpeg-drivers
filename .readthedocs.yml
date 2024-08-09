@@ -27,4 +27,4 @@ build:
       - "pip install . --no-deps"
 
 conda:
-  environment: environments/py-3.10-linux-64-dev.conda.lock.yml
+  environment: docs/environment.yml

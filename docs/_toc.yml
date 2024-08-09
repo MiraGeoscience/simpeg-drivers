@@ -9,11 +9,13 @@ chapters:
   - file: inversion/fundamentals
   - file: inversion/data_misfit
   - file: inversion/regularization
+  - file: inversion/mesh_design
   - file: inversion/joint_inversion
 - file: case_study/introduction
   sections:
   - file: case_study/background
-  - file: case_study/data
-  - file: case_study/mesh_design
-  - file: case_study/unconstrained_inversion
+  - file: case_study/magnetic
+  - file: case_study/gravity
+  - file: case_study/dc_resistivity
+  - file: case_study/tipper
   - file: case_study/joint_inversion
