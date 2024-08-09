@@ -85,6 +85,7 @@ libblas = "*=*mkl"  # because simpeg already brings in the MKL
 ## indirect dependencies, forcing them here for installation through Conda not pip
 #---------------------------------------------------------------------------------
 Pillow = ">=10.3.0, <10.4.0"  # from geoh5py
+empymod = ">=2.2.1, <2.3.0"  # from simpeg and geoana
 fsspec = "2022.*"  # from simpeg[dask]
 geoana = ">=0.5.0, <0.6.0"  # from simpeg
 h5py = ">=3.2.1, <4.0.0"  # from geoh5py
