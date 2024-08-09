@@ -50,7 +50,7 @@
 # ---
 # ```
 #
-# The survey used here mimics the commercial [ZTEM](https://geotech.ca/services/electromagnetic/ztem-z-axis-tipper-electromagnetic-system/) system that measures the vertical magnetic field ($H_z$) on a towed platform at 6 frequencies (30, 45, 90, 180, 360 and 720 Hz). The horizontal fields ($H_x,y$) are measured at a fixed base station located in the center of the survey area.
+# The survey used here mimics the commercial [ZTEM](https://geotech.ca/services/electromagnetic/ztem-z-axis-tipper-electromagnetic-system/) system that measures the vertical magnetic field ($H_z$) on a towed platform at 6 frequencies (30, 45, 90, 180, 360 and 720 Hz). The horizontal fields ($H_{x,y}$) are measured at a fixed base station located in the center of the survey area.
 #
 # ```{figure} ./images/tipper/tipper_data.png
 # ---
@@ -66,7 +66,7 @@
 
 # ## Mesh creation
 #
-# In preparation for the inversion, we create an octree mesh optimized for the tipper survey.  The mesh parameters are base on the original Flin Flon model.
+# In preparation for the inversion, we create an octree mesh optimized for the tipper survey.  The mesh parameters are based on the original Flin Flon model.
 #
 # ```{figure} ./images/tipper/tipper_core.png
 # ---
@@ -85,7 +85,7 @@
 #
 # - We use a second refinement along topography to get a coarse but continuous air-ground interface outside the area or interest.
 #
-# - Lastly, we refine a "horizon" get a core region at depth with increasing cell size directly below the survey. This is our volume of interest most strongly influenced by the data.
+# - Lastly, we refine a "horizon" to get a core region at depth with increasing cell size directly below the survey. This is our volume of interest most strongly influenced by the data.
 #
 # ```{figure} ./images/tipper/tipper_refinement.png
 # ---
@@ -125,4 +125,4 @@
 # (Right)(top) 2D profiles of observed versus predicted data for all 4 channels and 6 frequencies and (bottom) vertical section through the conductivity model below the same line.
 # ```
 #
-# Despite our simplistic floor uncertainties, the inversion managed to converge fairly quickly to a reasonable model that fits our data well. We have recovered a clear conductor at depth that overlaps with ore body. The inversion could not however resolve the thin conductive overburden layer, as expected by the low frequency range of the tipper system.
+# Despite our simplistic floor uncertainties, the inversion managed to converge fairly quickly to a reasonable model that fits our data well. We have recovered a clear conductor at depth that overlaps with the ore body. However, the inversion could not resolve the thin conductive overburden layer, as expected by the low frequency range of the tipper system.

@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: 06bc0c5aacb341cc3894ce763fdfa7a235dfcedf1ac3140e78797dcd913d8394
-    linux-64: a4e497e433232be256169bb07ab04bb593ae066ae5a6314d38e3a01547ec2c57
+    win-64: f86568a2a709ae96e77614476b1b4e14719cb36a85e1858c40ef5617a18ee9e6
+    linux-64: a441eaea1da8fd42a7fa6d9912034de50fa6340a0470d004175a2f5bb4db074c
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -1254,6 +1254,34 @@ package:
     sha256: a9c40df47e2c5eb8938198f8d2d90fb0d6342f2409f4283999be44fd5f58574f
   category: dev
   optional: true
+- name: empymod
+  version: 2.2.2
+  manager: conda
+  platform: linux-64
+  dependencies:
+    numba: '>=0.47'
+    python: '>=3.7'
+    scipy: '>=1.4.0'
+  url: https://conda.anaconda.org/conda-forge/noarch/empymod-2.2.2-pyhd8ed1ab_0.conda
+  hash:
+    md5: bebcf8f5112a7d755e2781fe9f87ae7b
+    sha256: c489c425cb75c30288516c140f47d109b4643ab31f17c3f230be38aae7d464f5
+  category: main
+  optional: false
+- name: empymod
+  version: 2.2.2
+  manager: conda
+  platform: win-64
+  dependencies:
+    python: '>=3.7'
+    scipy: '>=1.4.0'
+    numba: '>=0.47'
+  url: https://conda.anaconda.org/conda-forge/noarch/empymod-2.2.2-pyhd8ed1ab_0.conda
+  hash:
+    md5: bebcf8f5112a7d755e2781fe9f87ae7b
+    sha256: c489c425cb75c30288516c140f47d109b4643ab31f17c3f230be38aae7d464f5
+  category: main
+  optional: false
 - name: entrypoints
   version: '0.4'
   manager: conda
@@ -3500,6 +3528,20 @@ package:
     sha256: 7627ef580c26e48c3496b5885fd32be4e4db49fa1077eb21235dc638489565f6
   category: main
   optional: false
+- name: libllvm14
+  version: 14.0.6
+  manager: conda
+  platform: linux-64
+  dependencies:
+    libgcc-ng: '>=12'
+    libstdcxx-ng: '>=12'
+    libzlib: '>=1.2.13,<2.0.0a0'
+  url: https://conda.anaconda.org/conda-forge/linux-64/libllvm14-14.0.6-hcd5def8_4.conda
+  hash:
+    md5: 73301c133ded2bf71906aa2104edae8b
+    sha256: 225cc7c3b20ac1db1bdb37fa18c95bf8aecef4388e984ab2f7540a9f4382106a
+  category: main
+  optional: false
 - name: libnghttp2
   version: 1.58.0
   manager: conda
@@ -3869,6 +3911,41 @@ package:
   hash:
     md5: 322be9d39e030673e105b0abb320514e
     sha256: b620c51d91e55958c91014d89793cd705b1044b5ab157deae9bf8bdb2f11c5a3
+  category: main
+  optional: false
+- name: llvmlite
+  version: 0.43.0
+  manager: conda
+  platform: linux-64
+  dependencies:
+    libgcc-ng: '>=12'
+    libllvm14: '>=14.0.6,<14.1.0a0'
+    libstdcxx-ng: '>=12'
+    libzlib: '>=1.3.1,<2.0a0'
+    python: '>=3.10,<3.11.0a0'
+    python_abi: 3.10.*
+  url: https://conda.anaconda.org/conda-forge/linux-64/llvmlite-0.43.0-py310h4c7c693_0.conda
+  hash:
+    md5: f1d507e72dfd110f0953f92683de5822
+    sha256: 2acd87b1a332bd5ca5a729639688425980dae3586d5da0803c3a4f19c09e994c
+  category: main
+  optional: false
+- name: llvmlite
+  version: 0.43.0
+  manager: conda
+  platform: win-64
+  dependencies:
+    libzlib: '>=1.3.1,<2.0a0'
+    python: '>=3.10,<3.11.0a0'
+    python_abi: 3.10.*
+    ucrt: '>=10.0.20348.0'
+    vc: '>=14.2,<15'
+    vc14_runtime: '>=14.29.30139'
+    vs2015_runtime: ''
+  url: https://conda.anaconda.org/conda-forge/win-64/llvmlite-0.43.0-py310h0288bfe_0.conda
+  hash:
+    md5: 722927d5664ec4a7f7089a6e7fa165f7
+    sha256: e1bec0ef2aa9ceb6e38c45b1cfe4e32d4632c117af153cd353dee4901ab76765
   category: main
   optional: false
 - name: locket
@@ -4641,6 +4718,42 @@ package:
     sha256: 9b5fdef9ebe89222baa9da2796ebe7bc02ec6c5a1f61327b651d6b92cf9a0230
   category: dev
   optional: true
+- name: numba
+  version: 0.60.0
+  manager: conda
+  platform: linux-64
+  dependencies:
+    _openmp_mutex: '>=4.5'
+    libgcc-ng: '>=12'
+    libstdcxx-ng: '>=12'
+    llvmlite: '>=0.43.0,<0.44.0a0'
+    numpy: '>=1.22.3,<2.1'
+    python: '>=3.10,<3.11.0a0'
+    python_abi: 3.10.*
+  url: https://conda.anaconda.org/conda-forge/linux-64/numba-0.60.0-py310h5dc88bb_0.conda
+  hash:
+    md5: 73e2e2c0ffad216572ce01952ff0099c
+    sha256: c76c5baa087c2be3374bdb5eee37caf0c70f390c02a48aeb5e4337b600e5e319
+  category: main
+  optional: false
+- name: numba
+  version: 0.60.0
+  manager: conda
+  platform: win-64
+  dependencies:
+    llvmlite: '>=0.43.0,<0.44.0a0'
+    numpy: '>=1.22.3,<2.1'
+    python: '>=3.10,<3.11.0a0'
+    python_abi: 3.10.*
+    ucrt: '>=10.0.20348.0'
+    vc: '>=14.2,<15'
+    vc14_runtime: '>=14.29.30139'
+  url: https://conda.anaconda.org/conda-forge/win-64/numba-0.60.0-py310h7793332_0.conda
+  hash:
+    md5: 7bf58dbea05720f25c5b1fe99cac026c
+    sha256: 65cbc4fd3e29bb98f68fc694640546f37929c4766def46796579d7488ef9b714
+  category: main
+  optional: false
 - name: numcodecs
   version: 0.12.1
   manager: conda
@@ -8131,36 +8244,6 @@ package:
     sha256: 768e30dc513568491818fb068ee867c57c514b553915536da09e5d10b4ebf3c3
   category: main
   optional: false
-- name: empymod
-  version: 2.3.1
-  manager: pip
-  platform: linux-64
-  dependencies:
-    scipy: '>=1.9'
-    numpy: <2.0
-    numba: '>=0.53'
-    libdlf: '*'
-    scooby: '*'
-  url: https://files.pythonhosted.org/packages/42/f3/620141b1fe8f81d647e3a89fa2205abf16f4450dad87b12dadcb7f9f7b84/empymod-2.3.1-py3-none-any.whl
-  hash:
-    sha256: 310565fdb03d5e1da0022f84f74fbfc1c164de8c6a030a9ff20f676b6ea0208a
-  category: main
-  optional: false
-- name: empymod
-  version: 2.3.1
-  manager: pip
-  platform: win-64
-  dependencies:
-    scipy: '>=1.9'
-    numpy: <2.0
-    numba: '>=0.53'
-    libdlf: '*'
-    scooby: '*'
-  url: https://files.pythonhosted.org/packages/42/f3/620141b1fe8f81d647e3a89fa2205abf16f4450dad87b12dadcb7f9f7b84/empymod-2.3.1-py3-none-any.whl
-  hash:
-    sha256: 310565fdb03d5e1da0022f84f74fbfc1c164de8c6a030a9ff20f676b6ea0208a
-  category: main
-  optional: false
 - name: geoapps-utils
   version: 0.4.0a1
   manager: pip
@@ -8170,13 +8253,13 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: git+https://github.com/MiraGeoscience/geoapps-utils@2bc1ea4dbea2a026ec37eb00180e8ed4423a9f6a
+  url: git+https://github.com/MiraGeoscience/geoapps-utils@32e22d726e8158082e32ce0c2d2a1d7b9fcbce11
   hash:
-    sha256: 2bc1ea4dbea2a026ec37eb00180e8ed4423a9f6a
+    sha256: 32e22d726e8158082e32ce0c2d2a1d7b9fcbce11
   category: main
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoapps-utils@2bc1ea4dbea2a026ec37eb00180e8ed4423a9f6a
+    url: git+https://github.com/MiraGeoscience/geoapps-utils@32e22d726e8158082e32ce0c2d2a1d7b9fcbce11
   optional: false
 - name: geoapps-utils
   version: 0.4.0a1
@@ -8187,13 +8270,13 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: git+https://github.com/MiraGeoscience/geoapps-utils@2bc1ea4dbea2a026ec37eb00180e8ed4423a9f6a
+  url: git+https://github.com/MiraGeoscience/geoapps-utils@32e22d726e8158082e32ce0c2d2a1d7b9fcbce11
   hash:
-    sha256: 2bc1ea4dbea2a026ec37eb00180e8ed4423a9f6a
+    sha256: 32e22d726e8158082e32ce0c2d2a1d7b9fcbce11
   category: main
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoapps-utils@2bc1ea4dbea2a026ec37eb00180e8ed4423a9f6a
+    url: git+https://github.com/MiraGeoscience/geoapps-utils@32e22d726e8158082e32ce0c2d2a1d7b9fcbce11
   optional: false
 - name: geoh5py
   version: 0.10.0a1
@@ -8228,26 +8311,6 @@ package:
   source:
     type: url
     url: git+https://github.com/MiraGeoscience/geoh5py.git@f95bdfb2ab74f30b0d0d67abc398370c261d1823
-  optional: false
-- name: llvmlite
-  version: 0.43.0
-  manager: pip
-  platform: linux-64
-  dependencies: {}
-  url: https://files.pythonhosted.org/packages/c6/21/2ffbab5714e72f2483207b4a1de79b2eecd9debbf666ff4e7067bcc5c134/llvmlite-0.43.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-  hash:
-    sha256: 6912a87782acdff6eb8bf01675ed01d60ca1f2551f8176a300a886f09e836a6a
-  category: main
-  optional: false
-- name: llvmlite
-  version: 0.43.0
-  manager: pip
-  platform: win-64
-  dependencies: {}
-  url: https://files.pythonhosted.org/packages/f2/26/b5478037c453554a61625ef1125f7e12bb1429ae11c6376f47beba9b0179/llvmlite-0.43.0-cp310-cp310-win_amd64.whl
-  hash:
-    sha256: 14f0e4bf2fd2d9a75a3534111e8ebeb08eda2f33e9bdd6dfa13282afacdde0ed
-  category: main
   optional: false
 - name: mira-simpeg
   version: 0.21.2.1.dev2+g5cf52f6d8
@@ -8294,30 +8357,6 @@ package:
   source:
     type: url
     url: git+https://github.com/MiraGeoscience/simpeg@5cf52f6d8d0cd9ccb36ffc26eb3196e9fc37b4d9
-  optional: false
-- name: numba
-  version: 0.60.0
-  manager: pip
-  platform: linux-64
-  dependencies:
-    llvmlite: '>=0.43.0dev0,<0.44'
-    numpy: '>=1.22,<2.1'
-  url: https://files.pythonhosted.org/packages/79/58/cb4ac5b8f7ec64200460aef1fed88258fb872ceef504ab1f989d2ff0f684/numba-0.60.0-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
-  hash:
-    sha256: fe0b28abb8d70f8160798f4de9d486143200f34458d34c4a214114e445d7124e
-  category: main
-  optional: false
-- name: numba
-  version: 0.60.0
-  manager: pip
-  platform: win-64
-  dependencies:
-    llvmlite: '>=0.43.0dev0,<0.44'
-    numpy: '>=1.22,<2.1'
-  url: https://files.pythonhosted.org/packages/1c/b0/c61a93ca947d12233ff45de506ddbf52af3f752066a0b8be4d27426e16da/numba-0.60.0-cp310-cp310-win_amd64.whl
-  hash:
-    sha256: 19407ced081d7e2e4b8d8c36aa57b7452e0283871c296e12d798852bc7d7f198
-  category: main
   optional: false
 - name: octree-creation-app
   version: 0.2.0a1
@@ -8368,13 +8407,13 @@ package:
   dependencies:
     geoh5py: '>=0.9.1,<0.11'
     numpy: '>=1.26.0,<1.27.0'
-  url: git+https://github.com/MiraGeoscience/param-sweeps@8263b65c79cbc80058bd153f3e8231e73992dccd
+  url: git+https://github.com/MiraGeoscience/param-sweeps@ec6a4381a2148e941499c006d885e39989055004
   hash:
-    sha256: 8263b65c79cbc80058bd153f3e8231e73992dccd
+    sha256: ec6a4381a2148e941499c006d885e39989055004
   category: main
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/param-sweeps@8263b65c79cbc80058bd153f3e8231e73992dccd
+    url: git+https://github.com/MiraGeoscience/param-sweeps@ec6a4381a2148e941499c006d885e39989055004
   optional: false
 - name: param-sweeps
   version: 0.2.0a1
@@ -8383,31 +8422,11 @@ package:
   dependencies:
     geoh5py: '>=0.9.1,<0.11'
     numpy: '>=1.26.0,<1.27.0'
-  url: git+https://github.com/MiraGeoscience/param-sweeps@8263b65c79cbc80058bd153f3e8231e73992dccd
+  url: git+https://github.com/MiraGeoscience/param-sweeps@ec6a4381a2148e941499c006d885e39989055004
   hash:
-    sha256: 8263b65c79cbc80058bd153f3e8231e73992dccd
+    sha256: ec6a4381a2148e941499c006d885e39989055004
   category: main
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/param-sweeps@8263b65c79cbc80058bd153f3e8231e73992dccd
-  optional: false
-- name: scooby
-  version: 0.10.0
-  manager: pip
-  platform: linux-64
-  dependencies: {}
-  url: https://files.pythonhosted.org/packages/2f/4b/ea1c1c4ecaa97baf8001568d502eaff1bbc3d5c1b48cce3f3fd5a77b8f52/scooby-0.10.0-py3-none-any.whl
-  hash:
-    sha256: 0a3d7e304f8ebb16f69ff7f6360c345d7f50b45f2ddbf7c3d18a6a0dc2cb03a6
-  category: main
-  optional: false
-- name: scooby
-  version: 0.10.0
-  manager: pip
-  platform: win-64
-  dependencies: {}
-  url: https://files.pythonhosted.org/packages/2f/4b/ea1c1c4ecaa97baf8001568d502eaff1bbc3d5c1b48cce3f3fd5a77b8f52/scooby-0.10.0-py3-none-any.whl
-  hash:
-    sha256: 0a3d7e304f8ebb16f69ff7f6360c345d7f50b45f2ddbf7c3d18a6a0dc2cb03a6
-  category: main
+    url: git+https://github.com/MiraGeoscience/param-sweeps@ec6a4381a2148e941499c006d885e39989055004
   optional: false
