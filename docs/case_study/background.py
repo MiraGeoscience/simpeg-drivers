@@ -5,7 +5,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.16.1
+#       jupytext_version: 1.16.2
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -14,9 +14,24 @@
 
 # <p style="page-break-after:always;"></p>
 #
-# # Background
+# # Introduction
 #
-# The processing and inversion work focuses on ground and airborne datasets simulated over the Flin Flon model. Extensive drilling has been done over the deposit, as shown in [Figure 2](global_map).
+#
+# This tutorial on geophysical inversion is framed around a well-known copper-zinc VMS deposit - the Flin Flon mine in northern Manitoba, Canada. Our goal is to provide a step-by-step process to invert data from various geophysical methods and to test their resolving capabilities within a semi-realistic exploration context.
+#
+# ```{figure} ./images/setup_flinflon.png
+# ---
+# height: 400px
+# name: setup_flinflon
+# ---
+# Discrete geological and physical properties for the simplified [Flin Flon model](https://github.com/MiraGeoscience/simpeg-drivers/blob/develop/simpeg_drivers-assets/inversion_demo.geoh5).
+#
+# ```
+#
+# The local geology of Flin Flon consists mainly of basalt and mafic volcanic formations (green and blue), with discrete occurrences of rhyolite units (yellow) that host the mineralization as shown in [Figure 6](setup_flinflon).
+# The entire region was later deformed by large tectonic events that over-thrusted, folded and faulted the stratigraphy into its current form. The mineralization occurs along thin lenses dipping steeply towards the South-East.
+#
+# The area has been studied extensively over the years, yielding large amount of petrophysical data made available by [Natural Resources Canada (NRCan)](https://ostrnrcan-dostrncan.canada.ca/entities/publication/73d767d8-ee1c-4bab-a2da-52dcf83faa06), as shown in [Figure 7](global_map).
 #
 # ```{figure} ./images/map_flinflon.png
 # ---
@@ -26,19 +41,8 @@
 # Geological map and drillholes of the Flin Flon deposit. Outline of the main ore body (red) is shown for reference.
 # ```
 #
-# The synthetic block model was generated from open-source data made available by [Natural Resources Canada (NRCan)](https://ostrnrcan-dostrncan.canada.ca/entities/publication/73d767d8-ee1c-4bab-a2da-52dcf83faa06). The VMS deposit is hosted in rhyolite unit as indicated by yellow voxels [Figure 3](ore_body).
-#
-# ```{figure} ./images/ore_body.png
-# ---
-# height: 400px
-# name: ore_body
-# ---
-# Discrete geological model of the ore deposit and host units.
-# ```
-#
-#  [Table 1](phys_prop) summarizes the relative physical properties of the main rock units in the area.
-# The VMS ore is expected to be more conductive, dense and magnetic than host rhyolite unit. The background mafic rocks are generally non-magnetic and have moderate densities and resistivities. A thick (40 m) overburden layer of relatively low density and  low resistivity covers the survey area.
-#
+# [Table 1](phys_prop) summarizes the physical property contrasts of the main rock units in the area.
+# The mineralization is expected to be much more conductive, dense and magnetic than the host rhyolite unit. The background mafic rocks are generally non-magnetic and moderately dense and resistive. We omitted all late-stage intrusives from the modeling for simplicity.
 #
 # ```{table} Summary of expected physical properties
 # :name: phys_prop
@@ -50,7 +54,20 @@
 # | Mafic Dykes |  moderate    | low      | moderate     |
 # | Host Mafic |  moderate    | low      | moderate     |
 # | Basalt |  moderate    | moderate      | low     |
-# | Ore |  high    | high      | low     |
+# | Ore |  high    | high      | very low     |
 # | Overburden |  low    | low      | moderate     |
 # | Tailings |  low    | low      | low     |
+#
 # ```
+#
+# From this simplified (conceptual) model of Flin Flon, we created a 3D petrophysical model around the mineralization [Figure 8](ore_body). We added a thick (40 m) overburden layer (tailings) of relatively low density and low resistivity to test the depth of penetration of the various survey types.
+# ```{figure} ./images/ore_body.png
+# ---
+# height: 400px
+# name: ore_body
+# ---
+# Discrete geological and physical properties for the simplified [Flin Flon model](https://github.com/MiraGeoscience/simpeg-drivers/blob/develop/simpeg_drivers-assets/inversion_demo.geoh5).
+# ```
+#
+# This model was used to generate all the synthetic data used in this tutorial.
+#

@@ -5,7 +5,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.16.1
+#       jupytext_version: 1.16.2
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -14,9 +14,9 @@
 
 # (data_misfit)=
 #
-# # Data Misfit
+# # Data Fitting
 #
-# This section focuses on the misfit function $\phi_d$ and related data uncertainties. The data misfit function measures the quality of a model $\mathbf{m}$ at **fitting the observed data**. It generally takes the form
+# The data misfit function ($\phi_d$) measures the quality of a model $\mathbf{m}$ at **fitting the observed data**. It generally takes the form
 #
 # $$
 # \phi_d =\sum_{i=1}^{N}\left(\frac{d_i^{pred} - {d}_i^{obs}}{w_i}\right)^2 \;.
@@ -36,7 +36,7 @@
 #
 # In all cases, we may never expect the data residual to completely vanish, but we may allow it to be within an *acceptable* level of fitness for modelling purposes.
 
-# ## Data Uncertainties
+# ## Uncertainties
 #
 # As mentioned in the [Data Misfit](#Data-Misfit) section, we want to assign **data uncertainties** that reflect our inability to perfectly replicate the observed data, within an acceptable level. While many strategies can be used, we are going to demonstrate basic principles to assess the effectiveness of a chosen method. We will employ two basic strategies:
 #
