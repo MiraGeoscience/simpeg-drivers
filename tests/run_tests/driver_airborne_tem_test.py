@@ -21,6 +21,7 @@ from pathlib import Path
 
 import numpy as np
 from geoh5py.workspace import Workspace
+from pytest import raises
 
 from simpeg_drivers.electromagnetics.time_domain import TimeDomainElectromagneticsParams
 from simpeg_drivers.electromagnetics.time_domain.driver import (
@@ -73,6 +74,13 @@ def test_airborne_tem_fwr_run(
     )
     params.workpath = tmp_path
     fwr_driver = TimeDomainElectromagneticsDriver(params)
+
+    survey.channels[-1] = 1000.0
+
+    with raises(ValueError, match="The latest time"):
+        _ = fwr_driver.inversion_data
+
+    survey.channels[-1] = 1.2
     fwr_driver.run()
 
 
