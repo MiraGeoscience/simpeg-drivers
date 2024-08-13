@@ -51,7 +51,7 @@
 # Various ATEM source-receiver configurations. Borrowed from [em.geosci](https://em.geosci.xyz/content/geophysical_surveys/airborne_tdem/index.html#airborne-tdem).
 # ```
 #
-# For this tutorial, we generated an airborne time-domain EM survey over the main ore body. The survey lines are spaced at 400 m, oriented East-West, at a drape height of 60 m. The configuration used in this tutorial is a simplified version of typical airborne systems, with only 6 time channels measuring  $\frac{\delta B_z}{\delta t}$ between 0.5 to 5 milli-seconds.
+# For this tutorial, we generated an airborne time-domain EM survey over the main ore body. The survey lines are spaced at 400 m, oriented East-West, at a drape height of 60 m. The configuration used in this tutorial is a simplified version of typical airborne systems, with only five time channels measuring  $\frac{\delta B_z}{\delta t}$ between 1 to 10 milli-seconds.
 #
 # ### Waveform
 #
@@ -114,7 +114,7 @@
 # Core mesh parameters.
 # ```
 #
-# Note that the padding distances are set substantially further than for the magnetics, gravity or dc-resistivity (1 km) inversions. This is because the [diffusion distance](diffusion-distance) for a background resistivity of $1000 \; \Omega .m$ for the last time channel (5 msec) is roughly 3 km. This distance is important to satisfy the [boundary conditions](https://em.geosci.xyz/content/maxwell1_fundamentals/solving_maxwells_equations.html?highlight=boundary%20conditions#boundary-and-initial-conditions) of the underlying differential equations.
+# Note that the padding distances are set substantially further than for the magnetics, gravity or dc-resistivity (1 km) inversions. This is because the [diffusion distance](diffusion-distance) for a background resistivity of $1000 \; \Omega .m$ for the last time channel (10 msec) is roughly 3.3 km. This distance is important to satisfy the [boundary conditions](https://em.geosci.xyz/content/maxwell1_fundamentals/solving_maxwells_equations.html?highlight=boundary%20conditions#boundary-and-initial-conditions) of the underlying differential equations.
 #
 #
 # ### Refinements
@@ -144,7 +144,7 @@
 # ---
 # scale: 50%
 # ---
-# (Top) ATEM $\frac{\delta B_z}{\delta t}$ data displayed by the 2D Profiler at all 6 time channels. (Bottom) Survey lines relative to (left) the ore body and (right) the discrete conductivity model.
+# (Top) ATEM $\frac{\delta B_z}{\delta t}$ data displayed by the 2D Profiler at all 5 time channels. (Bottom) Survey lines relative to (left) the ore body and (right) the discrete conductivity model.
 # ```
 #
 # Note that the position of the known conductor correlates with large amplitude in the ATEM data .
@@ -155,7 +155,7 @@
 #
 # **Runtime: ~2.0 h**
 #
-# Tipper data involves 2 receiver configuration (x and y), with two components (real and imaginary) and measured over 6 frequencies. Balancing all this data can be challenging and time consuming. Here we adopt a variable floor strategy based on the 10th percentile of each data layer.
+# Time-domain EM data involves data measured over a wide range of time channels that decays over several orders of magnitude. Balancing all this data can be challenging and time consuming. Here we adopt a percentage and floor uncertainty strategy.
 #
 # ```{figure} ./images/atem/atem_uncerts.png
 # ---
@@ -175,7 +175,7 @@
 # ---
 # (Left) Horizontal section at 120 m elevation after reaching target misfit (iteration 5).
 #
-# (Right)(top) 2D profiles of observed versus predicted data for all 4 channels and 6 frequencies and (bottom) vertical section through the conductivity model below the same line.
+# (Right)(top) 2D profiles of (red) observed versus (black) predicted data for all 5 time channels. (bottom) Vertical section through the conductivity model below the same line.
 # ```
 #
-# Despite our simplistic floor uncertainties, the inversion managed to converge fairly quickly to a reasonable model that fits our data well. We have recovered a clear conductor at depth that overlaps with ore body. The inversion could not however resolve the thin conductive overburden layer, as expected by the low frequency range of the atem system.
+# Despite our simplistic floor uncertainties, the inversion managed to converge fairly quickly to a reasonable model that fits our data well. We have recovered a clear conductor at depth that overlaps with ore body. The inversion could resolve the conductive overburden layer, although the thickness is overestimated.
