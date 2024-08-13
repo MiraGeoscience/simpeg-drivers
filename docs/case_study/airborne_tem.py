@@ -39,9 +39,9 @@
 # Time-domain systems come in many configurations, but they are generally made up of
 #
 # - an horizontal transmitter loop
-# - a receiver coils.
+# - a receiver coil.
 #
-# The transmitter emits an EM pulse that propagates and interact with conductive structures. During the off-time, the receiver(s) records either components of the magnetic field ($H_x,\;H_y,\;H_z$), or more commonly the time-derivative ($\frac{\delta B_z}{\delta t}$) of the field over a range of time channels.
+# The transmitter emits an EM pulse that propagates and interacts with conductive structures. During the off-time, the receiver(s) records either components of the magnetic field ($H_x,\;H_y,\;H_z$), or more commonly the time-derivative ($\frac{\delta B_z}{\delta t}$) of the field over a range of time channels.
 # For more background information about airborne EM methods, see [em.geosci](https://em.geosci.xyz/content/geophysical_surveys/airborne_tdem/index.html#airborne-tdem)
 #
 # ```{figure} ./images/atem/atem_configs.jpg
@@ -123,7 +123,7 @@
 #
 # - We use a second refinement along topography to get a coarse but continuous air-ground interface outside the area or interest.
 #
-# - Lastly, we refine a "horizon" get a core region at depth with increasing cell size directly below the survey. This is our volume of interest most strongly influenced by the data.
+# - Lastly, we refine a "horizon" to get a core region at depth with increasing cell size directly below the survey. This is our volume of interest most strongly influenced by the data.
 #
 # ```{figure} ./images/atem/atem_refinement.png
 # ---
@@ -178,4 +178,4 @@
 # (Right)(top) 2D profiles of (red) observed versus (black) predicted data for all 5 time channels. (bottom) Vertical section through the conductivity model below the same line.
 # ```
 #
-# Despite our simplistic floor uncertainties, the inversion managed to converge fairly quickly to a reasonable model that fits our data well. We have recovered a clear conductor at depth that overlaps with ore body. The inversion could resolve the conductive overburden layer, although the thickness is overestimated.
+# Despite our simplistic floor uncertainties, the inversion managed to converge fairly quickly to a reasonable model that fits our data well. We have recovered a clear conductor at depth that overlaps with the ore body. The inversion could resolve the conductive overburden layer, although the thickness is overestimated.
