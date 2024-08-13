@@ -41,12 +41,9 @@ target_run = {
 }
 
 
-def test_airborne_tem_fwr_run(
-    tmp_path: Path,
-    n_grid_points=3,
-    refinement=(2,),
-):
-    # Run the forward
+def test_bad_waveform(tmp_path: Path):
+    n_grid_points = 3
+    refinement = (2,)
     geoh5, _, model, survey, topography = setup_inversion_workspace(
         tmp_path,
         background=0.001,
@@ -80,7 +77,40 @@ def test_airborne_tem_fwr_run(
     with raises(ValueError, match="The latest time"):
         _ = fwr_driver.inversion_data
 
-    survey.channels[-1] = 1.2
+
+def test_airborne_tem_fwr_run(
+    tmp_path: Path,
+    n_grid_points=3,
+    refinement=(2,),
+):
+    # Run the forward
+    geoh5, _, model, survey, topography = setup_inversion_workspace(
+        tmp_path,
+        background=0.001,
+        anomaly=1.0,
+        n_electrodes=n_grid_points,
+        n_lines=n_grid_points,
+        refinement=refinement,
+        inversion_type="airborne_tem",
+        drape_height=10.0,
+        padding_distance=400.0,
+        flatten=False,
+    )
+    params = TimeDomainElectromagneticsParams(
+        forward_only=True,
+        geoh5=geoh5,
+        mesh=model.parent.uid,
+        topography_object=topography.uid,
+        resolution=0.0,
+        z_from_topo=False,
+        data_object=survey.uid,
+        starting_model=model.uid,
+        x_channel_bool=True,
+        y_channel_bool=True,
+        z_channel_bool=True,
+    )
+    params.workpath = tmp_path
+    fwr_driver = TimeDomainElectromagneticsDriver(params)
     fwr_driver.run()
 
 
