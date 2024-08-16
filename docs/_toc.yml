@@ -18,4 +18,5 @@ chapters:
   - file: case_study/gravity
   - file: case_study/dc_resistivity
   - file: case_study/tipper
+  - file: case_study/airborne_tem
   - file: case_study/joint_inversion
