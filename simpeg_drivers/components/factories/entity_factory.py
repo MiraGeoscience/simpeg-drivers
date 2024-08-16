@@ -21,15 +21,25 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from warnings import warn
 
 
 if TYPE_CHECKING:
     from simpeg_drivers.components.data import InversionData
 
 import numpy as np
-from geoh5py.objects import CurrentElectrode, Curve, Grid2D, Points, PotentialElectrode
+from geoh5py.objects import (
+    CurrentElectrode,
+    Curve,
+    Grid2D,
+    LargeLoopGroundFEMTransmitters,
+    LargeLoopGroundTEMTransmitters,
+    Points,
+    PotentialElectrode,
+)
 
 from simpeg_drivers.components.factories.abstract_factory import AbstractFactory
+from simpeg_drivers.utils.surveys import counter_clockwise_sort
 
 
 class EntityFactory(AbstractFactory):
@@ -98,6 +108,13 @@ class EntityFactory(AbstractFactory):
             if tx_freq:
                 tx_freq[0].copy(parent=entity.transmitters)
 
+            if isinstance(
+                entity.transmitters,
+                LargeLoopGroundFEMTransmitters | LargeLoopGroundTEMTransmitters,
+            ):
+                cells = self._validate_large_loop_cells(entity.transmitters)
+                entity.transmitters.cells = cells
+
         if getattr(entity, "current_electrodes", None) is not None:
             entity.current_electrodes.vertices = inversion_data.apply_transformations(
                 entity.current_electrodes.vertices
@@ -112,3 +129,44 @@ class EntityFactory(AbstractFactory):
         locations = curve.vertices[uni_ids, :]
         cells = np.arange(uni_ids.shape[0], dtype="uint32")[ids].reshape((-1, 2))
         return locations, cells
+
+    @staticmethod
+    def _validate_large_loop_cells(
+        transmitter: LargeLoopGroundFEMTransmitters | LargeLoopGroundTEMTransmitters,
+    ) -> np.ndarray:
+        """
+        Validate that the transmitter loops are counter-clockwise sorted and closed.
+        """
+        if transmitter.receivers.tx_id_property is None:
+            raise ValueError(
+                "Transmitter ID property required for LargeLoopGroundTEMReceivers"
+            )
+
+        tx_rx = transmitter.receivers.tx_id_property.values
+        tx_ids = transmitter.get_data("Transmitter ID")[0].values
+
+        all_loops = []
+        for tx_id in np.unique(tx_rx):
+            messages = []
+
+            tx_ind = tx_ids == tx_id
+            loop_cells = transmitter.cells[np.all(tx_ind[transmitter.cells], axis=1), :]
+
+            ccw_loops = counter_clockwise_sort(loop_cells, transmitter.vertices)
+
+            if not np.all(ccw_loops == loop_cells):
+                messages.append("Counter-clockwise sorted, ")
+
+            # Check for closed loop
+            if ccw_loops[-1, 1] != ccw_loops[0, 0]:
+                messages.append("Closed loop")
+                ccw_loops = np.vstack(
+                    [ccw_loops, np.c_[ccw_loops[-1, 1], ccw_loops[0, 0]]]
+                )
+
+            if len(messages) > 0:
+                warn(f"Loop {tx_id} modified for: {', '.join(messages)}")
+
+            all_loops.append(ccw_loops)
+
+        return np.vstack(all_loops)
