@@ -21,6 +21,7 @@ from pathlib import Path
 
 import numpy as np
 from geoh5py.workspace import Workspace
+from pytest import raises
 
 from simpeg_drivers.electromagnetics.time_domain import TimeDomainElectromagneticsParams
 from simpeg_drivers.electromagnetics.time_domain.driver import (
@@ -38,6 +39,43 @@ target_run = {
     "phi_d": 15400,
     "phi_m": 718.9,
 }
+
+
+def test_bad_waveform(tmp_path: Path):
+    n_grid_points = 3
+    refinement = (2,)
+    geoh5, _, model, survey, topography = setup_inversion_workspace(
+        tmp_path,
+        background=0.001,
+        anomaly=1.0,
+        n_electrodes=n_grid_points,
+        n_lines=n_grid_points,
+        refinement=refinement,
+        inversion_type="airborne_tem",
+        drape_height=10.0,
+        padding_distance=400.0,
+        flatten=False,
+    )
+    params = TimeDomainElectromagneticsParams(
+        forward_only=True,
+        geoh5=geoh5,
+        mesh=model.parent.uid,
+        topography_object=topography.uid,
+        resolution=0.0,
+        z_from_topo=False,
+        data_object=survey.uid,
+        starting_model=model.uid,
+        x_channel_bool=True,
+        y_channel_bool=True,
+        z_channel_bool=True,
+    )
+    params.workpath = tmp_path
+    fwr_driver = TimeDomainElectromagneticsDriver(params)
+
+    survey.channels[-1] = 1000.0
+
+    with raises(ValueError, match="The latest time"):
+        _ = fwr_driver.inversion_data
 
 
 def test_airborne_tem_fwr_run(

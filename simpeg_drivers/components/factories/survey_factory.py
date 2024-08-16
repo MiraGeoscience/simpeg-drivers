@@ -337,6 +337,14 @@ class SurveyFactory(SimPEGFactory):
         receivers = data.entity
         transmitters = receivers.transmitters
 
+        if receivers.channels[-1] > (
+            receivers.waveform[:, 0].max() - receivers.timing_mark
+        ):
+            raise ValueError(
+                f"The latest time channel {receivers.channels[-1]} exceeds "
+                f"the waveform discretization. Revise waveform."
+            )
+
         if isinstance(transmitters, LargeLoopGroundTEMTransmitters):
             if receivers.tx_id_property is None:
                 raise ValueError(
