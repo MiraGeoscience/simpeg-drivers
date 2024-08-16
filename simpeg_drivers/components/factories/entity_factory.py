@@ -143,7 +143,7 @@ class EntityFactory(AbstractFactory):
             )
 
         tx_rx = transmitter.receivers.tx_id_property.values
-        tx_ids = transmitter.get_data("Transmitter ID")[0].values
+        tx_ids = transmitter.tx_id_property.values
 
         all_loops = []
         for tx_id in np.unique(tx_rx):

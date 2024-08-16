@@ -343,7 +343,7 @@ class SurveyFactory(SimPEGFactory):
                 )
 
             tx_rx = receivers.tx_id_property.values[self.local_index]
-            tx_ids = transmitters.get_data("Transmitter ID")[0].values
+            tx_ids = transmitters.tx_id_property.values
             rx_lookup = []
             tx_locs = []
             for tx_id in np.unique(tx_rx):
