@@ -41,6 +41,7 @@ jobs:
       python_ver: '["3.10"]'
       cache_number: 1
       codecov_reference_python_ver: '3.10'
+      timeout_minutes: 40
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   call-workflow-pytest-on-unix-os:
