@@ -172,9 +172,27 @@ class InversionMesh:
         self._entity = val
 
         if isinstance(self._entity, Octree):
-            if any(getattr(self._entity, f"{axis}_cell_size") < 0 for axis in "uvw"):
-                self._mesh = InversionMesh.ensure_cell_convention(self._entity)
+            if not InversionMesh.is_conventional(self._entity):
+                self._mesh = octree_2_treemesh(self._entity)
                 self._permutation = np.arange(self.entity.n_cells)
+
+    @staticmethod
+    def is_conventional(mesh: Octree) -> bool:
+        """
+        Check if mesh has positive cell sizes and IJK ordering.
+
+        :param mesh: Input octree mesh object..
+        """
+
+        positive_cell_sizes = all(
+            getattr(mesh, f"{axis}_cell_size") > 0 for axis in "uvw"
+        )
+        if not positive_cell_sizes:
+            return False
+
+        ijk_ordering = np.allclose(mesh.centroids, octree_2_treemesh(mesh).cell_centers)
+
+        return ijk_ordering
 
     @staticmethod
     def ensure_cell_convention(mesh: Octree) -> TreeMesh | None:

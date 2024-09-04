@@ -24,7 +24,7 @@ import pytest
 from discretize import TreeMesh
 from geoh5py import Workspace
 from geoh5py.objects import Octree
-from octree_creation_app.utils import treemesh_2_octree
+from octree_creation_app.utils import octree_2_treemesh, treemesh_2_octree
 
 from simpeg_drivers.components import InversionData, InversionMesh, InversionTopography
 from simpeg_drivers.potential_fields import MagneticVectorParams
@@ -106,6 +106,88 @@ def test_ensure_cell_convention(tmp_path):
     test_mesh = treemesh_2_octree(workspace, treemesh)
     new_centroids = test_mesh.centroids.copy()
     assert np.allclose(np.sort(old_centroids.flat), np.sort(new_centroids.flat))
+
+
+def test_is_conventional(tmp_path):
+    workspace = Workspace(tmp_path / "test_octree.geoh5")
+
+    # Positive cells sizes and IJK ordering
+    cells = np.array(
+        [
+            [0, 0, 0, 1],
+            [1, 0, 0, 1],
+            [0, 1, 0, 1],
+            [1, 1, 0, 1],
+            [0, 0, 1, 1],
+            [1, 0, 1, 1],
+            [0, 1, 1, 1],
+            [1, 1, 1, 1],
+        ]
+    )
+    octree = Octree.create(
+        workspace,
+        u_count=2,
+        v_count=2,
+        w_count=2,
+        u_cell_size=1,
+        v_cell_size=1,
+        w_cell_size=1,
+        octree_cells=cells,
+        name="All is well",
+    )
+    assert InversionMesh.is_conventional(octree)
+
+    # Z ordering
+    cells = np.array(
+        [
+            [0, 0, 0, 1],
+            [0, 0, 1, 1],
+            [0, 1, 0, 1],
+            [0, 1, 1, 1],
+            [1, 0, 0, 1],
+            [1, 0, 1, 1],
+            [1, 1, 0, 1],
+            [1, 1, 1, 1],
+        ]
+    )
+    octree = Octree.create(
+        workspace,
+        u_count=2,
+        v_count=2,
+        w_count=2,
+        u_cell_size=1,
+        v_cell_size=1,
+        w_cell_size=1,
+        octree_cells=cells,
+        name="Uh oh",
+    )
+    assert not InversionMesh.is_conventional(octree)
+
+    # Negative cell sizes
+    cells = np.array(
+        [
+            [0, 0, 1, 1],
+            [1, 0, 1, 1],
+            [0, 1, 1, 1],
+            [1, 1, 1, 1],
+            [0, 0, 0, 1],
+            [1, 0, 0, 1],
+            [0, 1, 0, 1],
+            [1, 1, 0, 1],
+        ]
+    )
+    octree = Octree.create(
+        workspace,
+        u_count=2,
+        v_count=2,
+        w_count=2,
+        u_cell_size=1,
+        v_cell_size=1,
+        w_cell_size=-1,
+        octree_cells=cells,
+        name="All is well",
+    )
+    assert not InversionMesh.is_conventional(octree)
 
 
 def test_raise_on_rotated_negative_cell_size(tmp_path):
