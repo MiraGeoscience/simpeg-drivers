@@ -170,11 +170,15 @@ class LineSweepDriver(SweepDriver, InversionDriver):
                 for fdat in filedata:
                     if ".out" in fdat.name:
                         out_lines += [f"Line {line} from file {files[line]}\n"]
-                        out_lines += fdat.values.decode(encoding="utf8").split(sep="\n")
+                        out_lines += fdat.file_bytes.decode(encoding="utf8").split(
+                            sep="\n"
+                        )
                         out_lines += ["\n"]
 
                     if ".log" in fdat.name:
-                        log_lines += fdat.values.decode(encoding="utf8").split(sep="\n")
+                        log_lines += fdat.file_bytes.decode(encoding="utf8").split(
+                            sep="\n"
+                        )
                         log_lines += ["\n"]
 
                     fdat.copy(parent=out_group)
