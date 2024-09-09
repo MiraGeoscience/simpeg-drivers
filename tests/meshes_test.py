@@ -129,9 +129,9 @@ def test_is_conventional(tmp_path):
         u_count=2,
         v_count=2,
         w_count=2,
-        u_cell_size=1.,
-        v_cell_size=1.,
-        w_cell_size=1.,
+        u_cell_size=1.0,
+        v_cell_size=1.0,
+        w_cell_size=1.0,
         octree_cells=cells,
         name="All is well",
     )
