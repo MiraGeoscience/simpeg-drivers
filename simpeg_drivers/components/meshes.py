@@ -172,9 +172,11 @@ class InversionMesh:
         self._entity = val
 
         if isinstance(self._entity, Octree):
+            self._permutation = np.arange(self.entity.n_cells)
             if not InversionMesh.is_conventional(self._entity):
+                self._mesh = InversionMesh.ensure_cell_convention(self._entity)
+            else:
                 self._mesh = octree_2_treemesh(self._entity)
-                self._permutation = np.arange(self.entity.n_cells)
 
     @staticmethod
     def is_conventional(mesh: Octree) -> bool:
