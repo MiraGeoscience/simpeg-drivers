@@ -97,23 +97,41 @@ class EntityFactory(AbstractFactory):
                 else:
                     kwargs.update({"mask": inversion_data.mask})
 
-            entity = self.params.data_object.copy(**kwargs)
+            entity = self.params.data_object.copy(copy_complement=False, **kwargs)
             entity.vertices = inversion_data.apply_transformations(entity.vertices)
 
-        if getattr(entity, "transmitters", None) is not None:
-            entity.transmitters.vertices = inversion_data.apply_transformations(
-                entity.transmitters.vertices
+        if getattr(self.params.data_object, "transmitters", None) is not None:
+            vertices = inversion_data.apply_transformations(
+                self.params.data_object.transmitters.vertices
             )
+            cells = self.params.data_object.transmitters.cells
+
+            if getattr(self.params.data_object, "tx_id_property", None) is not None:
+                self.params.data_object.tx_id_property.copy(parent=entity)
+
+            if isinstance(
+                self.params.data_object.transmitters,
+                LargeLoopGroundFEMTransmitters | LargeLoopGroundTEMTransmitters,
+            ):
+                cells = self._validate_large_loop_cells(
+                    self.params.data_object.transmitters
+                )
+
+            entity.transmitters = self.params.data_object.transmitters.copy(
+                copy_complement=False, vertices=vertices, cells=cells
+            )
+
+            if (
+                getattr(self.params.data_object.transmitters, "tx_id_property", None)
+                is not None
+            ):
+                self.params.data_object.transmitters.tx_id_property.copy(
+                    parent=entity.transmitters
+                )
+
             tx_freq = self.params.data_object.transmitters.get_data("Tx frequency")
             if tx_freq:
                 tx_freq[0].copy(parent=entity.transmitters)
-
-            if isinstance(
-                entity.transmitters,
-                LargeLoopGroundFEMTransmitters | LargeLoopGroundTEMTransmitters,
-            ):
-                cells = self._validate_large_loop_cells(entity.transmitters)
-                entity.transmitters.cells = cells
 
         if getattr(entity, "current_electrodes", None) is not None:
             entity.current_electrodes.vertices = inversion_data.apply_transformations(

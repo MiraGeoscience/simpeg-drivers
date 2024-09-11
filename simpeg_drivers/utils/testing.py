@@ -315,10 +315,8 @@ def setup_inversion_workspace(
                 "Tx frequency": {
                     "values": freqs,
                     "association": "VERTEX",
-                    "entity_type": {
-                        "primitive_type": "REFERENCED",
-                        "value_map": {k: str(k) for k in freqs},
-                    },
+                    "primitive_type": "REFERENCED",
+                    "value_map": {k: str(k) for k in freqs},
                 }
             }
         )
