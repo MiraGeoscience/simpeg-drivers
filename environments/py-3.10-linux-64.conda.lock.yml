@@ -40,8 +40,8 @@ dependencies:
   - hpack=4.0.0=pyh9f0ad1d_0
   - hyperframe=6.0.1=pyhd8ed1ab_0
   - icu=75.1=he02047a_0
-  - importlib-metadata=8.4.0=pyha770c72_0
-  - importlib_metadata=8.4.0=hd8ed1ab_0
+  - importlib-metadata=8.5.0=pyha770c72_0
+  - importlib_metadata=8.5.0=hd8ed1ab_0
   - jinja2=3.1.4=pyhd8ed1ab_0
   - joblib=1.4.2=pyhd8ed1ab_0
   - keyutils=1.6.1=h166bdaf_0
@@ -151,7 +151,7 @@ dependencies:
   - zstd=1.5.6=ha6fb4c9_0
   - pip:
       - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils@4bc408affcf5ad5e8539014f229c1a36c6a66698
-      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@dad308ee33bbbd44d896b8123eb993cbdd94801a
+      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@771ba5fba8a17f49ac785e536d752a9d1bf356c7
       - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg@ca62fe25606824677fcde9111d48c0fffcb6ef1c
       - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app@d61e0b3658861e6dc1f402531a2bd256f38df1d4
       - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps@ec6a4381a2148e941499c006d885e39989055004
