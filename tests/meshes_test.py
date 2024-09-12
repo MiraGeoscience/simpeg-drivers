@@ -71,6 +71,91 @@ def test_initialize(tmp_path: Path):
     assert isinstance(inversion_mesh.mesh, TreeMesh)
 
 
+def test_is_conventional(tmp_path):
+    workspace = Workspace(tmp_path / "test_octree.geoh5")
+
+    # Positive cells sizes and IJK ordering
+    cells = np.array(
+        [
+            [0, 0, 0, 1],
+            [1, 0, 0, 1],
+            [0, 1, 0, 1],
+            [1, 1, 0, 1],
+            [0, 0, 1, 1],
+            [1, 0, 1, 1],
+            [0, 1, 1, 1],
+            [1, 1, 1, 1],
+        ]
+    )
+    octree = Octree.create(
+        workspace,
+        u_count=2,
+        v_count=2,
+        w_count=2,
+        u_cell_size=1,
+        v_cell_size=1,
+        w_cell_size=1,
+        octree_cells=cells,
+        name="All is well",
+    )
+    mesh = InversionMesh.to_treemesh(octree)
+    assert np.allclose(mesh.cell_centers, octree.centroids)
+
+    # Z ordering
+    cells = np.array(
+        [
+            [0, 0, 0, 1],
+            [0, 0, 1, 1],
+            [0, 1, 0, 1],
+            [0, 1, 1, 1],
+            [1, 0, 0, 1],
+            [1, 0, 1, 1],
+            [1, 1, 0, 1],
+            [1, 1, 1, 1],
+        ]
+    )
+    octree = Octree.create(
+        workspace,
+        u_count=2,
+        v_count=2,
+        w_count=2,
+        u_cell_size=1,
+        v_cell_size=1,
+        w_cell_size=1,
+        octree_cells=cells,
+        name="Uh oh",
+    )
+    mesh = InversionMesh.to_treemesh(octree)
+    assert np.allclose(mesh.cell_centers, octree.centroids)
+
+    # Negative cell sizes
+    cells = np.array(
+        [
+            [0, 0, 1, 1],
+            [1, 0, 1, 1],
+            [0, 1, 1, 1],
+            [1, 1, 1, 1],
+            [0, 0, 0, 1],
+            [1, 0, 0, 1],
+            [0, 1, 0, 1],
+            [1, 1, 0, 1],
+        ]
+    )
+    octree = Octree.create(
+        workspace,
+        u_count=2,
+        v_count=2,
+        w_count=2,
+        u_cell_size=1,
+        v_cell_size=1,
+        w_cell_size=-1,
+        octree_cells=cells,
+        name="All is well",
+    )
+    mesh = InversionMesh.to_treemesh(octree)
+    assert np.allclose(mesh.cell_centers, octree.centroids)
+
+
 def test_ensure_cell_convention(tmp_path):
     workspace = Workspace(tmp_path / "test_octree.geoh5")
     octree_cells = np.array(
