@@ -76,7 +76,7 @@ DRIVER_MAP = {
         "JointSurveyDriver",
     ),
     "fem": (
-        "simpeg_drivers.airborne_electromagnetics.frequency_domain.driver",
+        "simpeg_drivers.electromagnetics.frequency_domain.driver",
         "FrequencyDomainElectromagneticsDriver",
     ),
     "joint cross gradient": (
