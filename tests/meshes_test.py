@@ -71,7 +71,7 @@ def test_initialize(tmp_path: Path):
     assert isinstance(inversion_mesh.mesh, TreeMesh)
 
 
-def test_is_conventional(tmp_path):
+def test_to_treemesh(tmp_path):
     workspace = Workspace(tmp_path / "test_octree.geoh5")
 
     # Positive cells sizes and IJK ordering
