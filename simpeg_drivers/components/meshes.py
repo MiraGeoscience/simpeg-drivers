@@ -173,14 +173,7 @@ class InversionMesh:
 
         if isinstance(self._entity, Octree):
             self._permutation = np.arange(self.entity.n_cells)
-            if any(getattr(self._entity, f"{axis}_cell_size") < 0 for axis in "uvw"):
-                self._mesh = InversionMesh.ensure_cell_convention(self._entity)
-            else:
-                mesh = octree_2_treemesh(self._entity)
-                if not np.allclose(self._entity.centroids, mesh.cell_centers):
-                    self._mesh = InversionMesh.ensure_cell_convention(self._entity)
-                else:
-                    self._mesh = mesh
+            self._mesh = self.to_treemesh(self._entity)
 
     @staticmethod
     def to_treemesh(octree):

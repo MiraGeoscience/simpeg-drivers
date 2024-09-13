@@ -74,7 +74,7 @@ def test_initialize(tmp_path: Path):
 def test_to_treemesh(tmp_path):
     workspace = Workspace(tmp_path / "test_octree.geoh5")
 
-    # Positive cells sizes and IJK ordering
+    # Positive cells sizes and Z ordering
     cells = np.array(
         [
             [0, 0, 0, 1],
@@ -101,7 +101,7 @@ def test_to_treemesh(tmp_path):
     mesh = InversionMesh.to_treemesh(octree)
     assert np.allclose(mesh.cell_centers, octree.centroids)
 
-    # Z ordering
+    # IJK ordering
     cells = np.array(
         [
             [0, 0, 0, 1],
