@@ -50,7 +50,7 @@ def receiver_group(txi, potential_electrodes):
     :return: ids : list of ids of potential electrodes used with transmitter txi.
     """
 
-    index_map = potential_electrodes.ab_map.map
+    index_map = potential_electrodes.ab_map()
     index_map = {int(v): k for k, v in index_map.items() if v != "Unknown"}
     ids = np.where(
         potential_electrodes.ab_cell_id.values.astype(int) == index_map[txi]

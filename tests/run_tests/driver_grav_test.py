@@ -75,6 +75,13 @@ def test_gravity_run(
         gz = geoh5.get_entity("Iteration_0_gz")[0]
         orig_gz = gz.values.copy()
         mesh = geoh5.get_entity("mesh")[0]
+        model = mesh.get_entity("starting_model")[0]
+
+        # Test mesh UBC ordered
+        ind = np.argsort(mesh.octree_cells, order=["K", "J", "I"])
+        mesh.octree_cells = mesh.octree_cells[ind]
+        model.values = model.values[ind]
+
         topography = geoh5.get_entity("topography")[0]
 
         # Turn some values to nan
