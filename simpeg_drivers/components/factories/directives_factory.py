@@ -187,7 +187,9 @@ class DirectivesFactory:
     def scale_misfits(self):
         if self._scale_misfits is None:
             if len(self.driver.data_misfit.objfcts) > 1:
-                self._scale_misfits = directives.ScaleMisfits(self.params.chi_factor)
+                self._scale_misfits = directives.ScaleMisfitMultipliers(
+                    self.params.chi_factor, self.params.out_group
+                )
         return self._scale_misfits
 
     @property
