@@ -125,7 +125,7 @@ select = [
     "E",  # pycodestyle errors
     "F",  # pyflakes
     "I",  # isort
-    "RUF",  # ruff rules,
+    "RUF",  # ruff rules
     "TID", # flake8-tidy-imports
     "UP",  # pyupgrade
     "W",  # pycodestyle warnings
