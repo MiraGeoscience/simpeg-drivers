@@ -118,7 +118,10 @@ class EntityFactory(AbstractFactory):
                 )
 
             entity.transmitters = self.params.data_object.transmitters.copy(
-                copy_complement=False, vertices=vertices, cells=cells
+                copy_complement=False,
+                vertices=vertices,
+                cells=cells,
+                parent=self.params.out_group,
             )
 
             if (
