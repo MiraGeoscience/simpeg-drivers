@@ -20,12 +20,8 @@
 
 from __future__ import annotations
 
+from logging import getLogger
 from typing import TYPE_CHECKING
-from warnings import warn
-
-
-if TYPE_CHECKING:
-    from simpeg_drivers.components.data import InversionData
 
 import numpy as np
 from geoh5py.objects import (
@@ -40,6 +36,12 @@ from geoh5py.objects import (
 
 from simpeg_drivers.components.factories.abstract_factory import AbstractFactory
 from simpeg_drivers.utils.surveys import counter_clockwise_sort
+
+
+logger = getLogger(__name__)
+
+if TYPE_CHECKING:
+    from simpeg_drivers.components.data import InversionData
 
 
 class EntityFactory(AbstractFactory):
@@ -173,17 +175,17 @@ class EntityFactory(AbstractFactory):
             ccw_loops = counter_clockwise_sort(loop_cells, transmitter.vertices)
 
             if not np.all(ccw_loops == loop_cells):
-                messages.append("Counter-clockwise sorted, ")
+                messages.append("'counter-clockwise sorting'")
 
             # Check for closed loop
             if ccw_loops[-1, 1] != ccw_loops[0, 0]:
-                messages.append("Closed loop")
+                messages.append("'closed loop'")
                 ccw_loops = np.vstack(
                     [ccw_loops, np.c_[ccw_loops[-1, 1], ccw_loops[0, 0]]]
                 )
 
             if len(messages) > 0:
-                warn(f"Loop {tx_id} modified for: {', '.join(messages)}")
+                logger.info("Loop %i modified for: %s", tx_id, ", ".join(messages))
 
             all_loops.append(ccw_loops)
 
