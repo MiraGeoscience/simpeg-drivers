@@ -21,7 +21,9 @@
             "{48f5054a-1c5c-4ca4-9048-80f36dc60a06}",
             "{b020a277-90e2-4cd7-84d6-612ee3f25051}"
         ],
-        "value": ""
+        "value": "",
+        "optional": true,
+        "enabled": true
     },
     "topography": {
         "association": [
@@ -38,6 +40,22 @@
         "parent": "topography_object",
         "value": "",
         "verbose": 2
+    },
+    "active_model": {
+        "association": "Cell",
+        "dataType": [
+            "Referenced",
+            "Boolean",
+            "Integer"
+        ],
+        "group": "Topography",
+        "main": true,
+        "enabled": false,
+        "optional": true,
+        "label": "Active model",
+        "tooltip": "Boolean model on the input 'mesh' defining [0] air or [1] ground.",
+        "parent": "mesh",
+        "value": ""
     },
     "data_object": {
         "main": true,
