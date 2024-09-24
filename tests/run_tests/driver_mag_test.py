@@ -87,14 +87,14 @@ def test_susceptibility_run(
         tmi = geoh5.get_entity("Iteration_0_tmi")[0]
         orig_tmi = tmi.values.copy()
         mesh = geoh5.get_entity("mesh")[0]
-        topography = geoh5.get_entity("topography")[0]
+        active_cells = mesh.get_entity("active_cells")[0]
         inducing_field = (50000.0, 90.0, 0.0)
 
         # Run the inverse
         params = MagneticScalarParams(
             geoh5=geoh5,
             mesh=mesh.uid,
-            topography_object=topography.uid,
+            active_cells=active_cells.uid,
             inducing_field_strength=inducing_field[0],
             inducing_field_inclination=inducing_field[1],
             inducing_field_declination=inducing_field[2],
