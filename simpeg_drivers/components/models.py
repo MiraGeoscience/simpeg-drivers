@@ -117,7 +117,7 @@ class InversionModelCollection:
             return
 
         if isinstance(active_cells, NumericData):
-            active_cells = active_cells.values
+            active_cells = active_cells.values.astype(bool)
 
         if not isinstance(active_cells, np.ndarray) or active_cells.dtype != bool:
             raise ValueError("active_cells must be a boolean numpy array.")

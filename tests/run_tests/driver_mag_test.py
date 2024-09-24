@@ -94,7 +94,7 @@ def test_susceptibility_run(
         params = MagneticScalarParams(
             geoh5=geoh5,
             mesh=mesh.uid,
-            active_cells=active_cells.uid,
+            active_model=active_cells.uid,
             inducing_field_strength=inducing_field[0],
             inducing_field_inclination=inducing_field[1],
             inducing_field_declination=inducing_field[2],

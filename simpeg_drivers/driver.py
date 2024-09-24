@@ -157,10 +157,7 @@ class InversionDriver(BaseDriver):
         if getattr(self, "_inversion_mesh", None) is None:
             with fetch_active_workspace(self.workspace, mode="r+"):
                 self._inversion_mesh = InversionMesh(
-                    self.workspace,
-                    self.params,
-                    self.inversion_data,
-                    self.inversion_topography,
+                    self.workspace, self.params, self.inversion_data
                 )
         return self._inversion_mesh
 

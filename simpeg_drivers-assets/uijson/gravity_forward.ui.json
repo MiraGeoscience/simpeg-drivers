@@ -22,8 +22,6 @@
             "{b020a277-90e2-4cd7-84d6-612ee3f25051}"
         ],
         "value": "",
-        "dependency": "active",
-        "dependencyType": "disabled",
         "optional": true,
         "enabled": true
     },
@@ -37,11 +35,11 @@
         "main": true,
         "optional": true,
         "enabled": false,
-        "dependency": "active",
-        "dependencyType": "disabled",
         "label": "Elevation channel",
         "tooltip": "Set elevation from channel",
         "parent": "topography_object",
+        "dependency": "topography_object",
+        "dependencyType": "enabled",
         "value": "",
         "verbose": 2
     },
@@ -55,9 +53,10 @@
         "group": "Topography",
         "main": true,
         "enabled": false,
-        "optional": true,
+        "dependency": "topography_object",
+        "dependencyType": "disabled",
         "label": "Active model",
-        "tooltip": "Boolean model on the input 'mesh' defining [0] air or [1] ground.",
+        "tooltip": "Bool model on the input 'mesh' defining air/ground cells",
         "parent": "mesh",
         "value": ""
     },

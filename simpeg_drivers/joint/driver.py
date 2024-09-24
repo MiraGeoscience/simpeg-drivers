@@ -132,6 +132,7 @@ class BaseJointDriver(InversionDriver):
                 enforce_active=False,
                 components=3 if driver.inversion_data.vector else 1,
             )
+            driver.params.active_model = None
             driver.models.active_cells = projection.local_active
             driver.data_misfit.model_map = projection * wire
 
@@ -159,7 +160,6 @@ class BaseJointDriver(InversionDriver):
                 self.workspace,
                 self.params,
                 self.inversion_data,
-                self.inversion_topography,
             )
         return self._inversion_mesh
 

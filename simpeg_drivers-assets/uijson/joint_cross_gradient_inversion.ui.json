@@ -36,6 +36,8 @@
         "label": "Elevation channel",
         "tooltip": "Set elevation from channel",
         "parent": "topography_object",
+        "dependency": "topography_object",
+        "dependencyType": "enabled",
         "value": "",
         "verbose": 2
     },
@@ -49,9 +51,10 @@
         "group": "Topography",
         "main": true,
         "enabled": false,
-        "optional": true,
+        "dependency": "topography_object",
+        "dependencyType": "disabled",
         "label": "Active model",
-        "tooltip": "Boolean model on the input 'mesh' defining [0] air or [1] ground.",
+        "tooltip": "Bool model on the input 'mesh' defining air/ground cells",
         "parent": "mesh",
         "value": ""
     },
