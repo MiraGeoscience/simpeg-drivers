@@ -31,10 +31,14 @@ from simpeg_drivers.constants import validations as base_validations
 inversion_defaults = {
     "version": simpeg_drivers.__version__,
     "title": "Direct Current (DC) 3D Inversion",
-    "documentation": "https://simpeg-drivers.readthedocs.io/en/stable/content/applications/dcip_inversion.html",
     "icon": "PotentialElectrode",
-    "inversion_type": "direct current 3d",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
+    "conda_environment": "simpeg_drivers",
+    "run_command": "simpeg_drivers.driver",
     "geoh5": None,  # Must remain at top of list for notebook app initialization
+    "monitoring_directory": None,
+    "workspace_geoh5": None,
+    "inversion_type": "direct current 3d",
     "forward_only": False,
     "topography_object": None,
     "topography": None,
@@ -89,10 +93,6 @@ inversion_defaults = {
     "chunk_by_rows": True,
     "out_group": None,
     "generate_sweep": False,
-    "monitoring_directory": None,
-    "workspace_geoh5": None,
-    "run_command": "simpeg_drivers.driver",
-    "conda_environment": "simpeg_drivers",
     "distributed_workers": None,
     "potential_channel_bool": True,
 }

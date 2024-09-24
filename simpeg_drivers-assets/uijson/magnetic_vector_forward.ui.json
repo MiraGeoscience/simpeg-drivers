@@ -2,7 +2,7 @@
     "version": "0.2.0-alpha.1",
     "title": "Magnetic Vector (MVI) Forward",
     "icon": "surveyairbornemagnetics",
-    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/",
+    "documentation": "https://geoapps.readthedocs.io/en/stable/content/applications/grav_mag_inversion.html",
     "conda_environment": "simpeg_drivers",
     "run_command": "simpeg_drivers.driver",
     "geoh5": "",

@@ -30,8 +30,13 @@ inversion_defaults = {
     "version": simpeg_drivers.__version__,
     "title": "Tipper Inversion",
     "icon": "surveyztem",
-    "inversion_type": "tipper",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
+    "conda_environment": "simpeg_drivers",
+    "run_command": "simpeg_drivers.driver",
     "geoh5": None,  # Must remain at top of list for notebook app initialization
+    "monitoring_directory": None,
+    "workspace_geoh5": None,
+    "inversion_type": "tipper",
     "forward_only": False,
     "topography_object": None,
     "topography": None,
@@ -93,10 +98,6 @@ inversion_defaults = {
     "chunk_by_rows": True,
     "out_group": None,
     "generate_sweep": False,
-    "monitoring_directory": None,
-    "workspace_geoh5": None,
-    "run_command": "simpeg_drivers.driver",
-    "conda_environment": "simpeg_drivers",
     "distributed_workers": None,
 }
 forward_defaults = {
@@ -138,6 +139,7 @@ forward_defaults = {
 default_ui_json = {
     "title": "Tipper Inversion",
     "icon": "surveyztem",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
     "inversion_type": "tipper",
     "data_object": {
         "main": True,

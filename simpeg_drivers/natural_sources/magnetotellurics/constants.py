@@ -34,8 +34,13 @@ inversion_defaults = {
     "version": simpeg_drivers.__version__,
     "title": "Magnetotellurics (MT) Inversion",
     "icon": "surveymagnetotellurics",
-    "inversion_type": "magnetotellurics",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
+    "conda_environment": "simpeg_drivers",
+    "run_command": "simpeg_drivers.driver",
     "geoh5": None,  # Must remain at top of list for notebook app initialization
+    "monitoring_directory": None,
+    "workspace_geoh5": None,
+    "inversion_type": "magnetotellurics",
     "forward_only": False,
     "topography_object": None,
     "topography": None,
@@ -105,10 +110,6 @@ inversion_defaults = {
     "chunk_by_rows": True,
     "out_group": None,
     "generate_sweep": False,
-    "monitoring_directory": None,
-    "workspace_geoh5": None,
-    "run_command": "simpeg_drivers.driver",
-    "conda_environment": "simpeg_drivers",
     "distributed_workers": None,
 }
 forward_defaults = {
