@@ -28,6 +28,8 @@ from time import time
 import numpy as np
 from dask import config as dconf
 from geoapps_utils.driver.driver import BaseDriver
+
+from geoh5py.data import Data
 from geoh5py.groups import SimPEGGroup
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
@@ -271,7 +273,8 @@ class InversionDriver(BaseDriver):
     @property
     def regularization(self):
         if getattr(self, "_regularization", None) is None:
-            self._regularization = self.get_regularization()
+            with fetch_active_workspace(self.workspace, mode="r"):
+                self._regularization = self.get_regularization()
 
         return self._regularization
 
@@ -404,7 +407,15 @@ class InversionDriver(BaseDriver):
                     )
 
                 if getattr(self.params, f"{comp}_norm") is not None:
-                    norms.append(getattr(self.params, f"{comp}_norm"))
+                    norm = getattr(self.params, f"{comp}_norm")
+                    if isinstance(norm, Data):
+                        norm = norm.values[self.models.active_cells]
+                        if comp in "xyz":
+                            norm = (
+                                getattr(reg.regularization_mesh, f"aveCC2F{comp}")
+                                * norm
+                            )
+                    norms.append(norm)
 
             if norms:
                 reg.norms = norms
