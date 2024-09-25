@@ -40,7 +40,7 @@ default_ui_json = {
         ],
         "value": "",
         "optional": True,
-        "enabled": False,
+        "enabled": True,
     },
     "topography": {
         "association": ["Vertex", "Cell"],

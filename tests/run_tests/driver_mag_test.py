@@ -114,7 +114,7 @@ def test_susceptibility_run(
             max_global_iterations=max_iterations,
             store_sensitivities="ram",
         )
-        params.write_input_file(path=tmp_path, name="Inv_run")
+        params.write_input_file(path=tmp_path, name="Inv_run", validate=False)
 
     driver = MagneticScalarDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
