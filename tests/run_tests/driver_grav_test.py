@@ -145,6 +145,7 @@ def test_gravity_run(
             inactive_ind = run_ws.get_entity("active_cells")[0].values == 0
             assert np.all(nan_ind == inactive_ind)
 
+
 def test_gravity_run_heterogeneous_norms(
     tmp_path: Path,
     max_iterations=1,
@@ -164,14 +165,7 @@ def test_gravity_run_heterogeneous_norms(
         inds = (mesh.centroids[:, 0] > -30) & (mesh.centroids[:, 0] < 30)
         norms = np.ones(mesh.n_cells) * 2
         norms[inds] = 0
-        gradient_norms = mesh.add_data(
-            {
-                "norms": {
-                    "values": norms
-                }
-            }
-        )
-
+        gradient_norms = mesh.add_data({"norms": {"values": norms}})
 
         # Run the inverse
         params = GravityParams(
@@ -199,7 +193,6 @@ def test_gravity_run_heterogeneous_norms(
         params.write_input_file(path=tmp_path, name="Inv_run")
 
     driver = GravityDriver.start(str(tmp_path / "Inv_run.ui.json"))
-
 
     with Workspace(driver.params.geoh5.h5file) as run_ws:
         output = get_inversion_output(
