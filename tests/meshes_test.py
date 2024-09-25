@@ -66,8 +66,7 @@ def setup_params(tmp_path):
 def test_initialize(tmp_path: Path):
     ws, params = setup_params(tmp_path)
     inversion_data = InversionData(ws, params)
-    inversion_topography = InversionTopography(ws, params)
-    inversion_mesh = InversionMesh(ws, params, inversion_data, inversion_topography)
+    inversion_mesh = InversionMesh(ws, params, inversion_data)
     assert isinstance(inversion_mesh.mesh, TreeMesh)
 
 
