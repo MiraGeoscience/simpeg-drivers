@@ -80,7 +80,7 @@ class MisfitFactory(SimPEGFactory):
 
         tile_num = 0
         data_count = 0
-        for local_index in tiles:
+        for tile_count, local_index in enumerate(tiles):
             if len(local_index) == 0:
                 continue
 
@@ -136,7 +136,14 @@ class MisfitFactory(SimPEGFactory):
                         model_map=local_map,
                     )
                     lmisfit.W = 1 / survey.std
+                    name = self.params.inversion_type
 
+                    if len(tiles) > 1:
+                        name += f": Tile {tile_count + 1}"
+                    if len(channels) > 1:
+                        name += f": Channel {channel}"
+
+                    lmisfit.name = name
                 local_misfits.append(lmisfit)
                 self.ordering.append(ordering)
                 tile_num += 1

@@ -34,13 +34,15 @@ default_ui_json = {
         "group": "Topography",
         "label": "Topography",
         "meshType": [
-            "{202C5DB1-A56D-4004-9CAD-BAAFD8899406}",
-            "{6A057FDC-B355-11E3-95BE-FD84A7FFCB88}",
-            "{F26FEBA3-ADED-494B-B9E9-B2BBCBE298E1}",
-            "{48F5054A-1C5C-4CA4-9048-80F36DC60A06}",
+            "{202c5db1-a56d-4004-9cad-baafd8899406}",
+            "{6a057fdc-b355-11e3-95be-fd84a7ffcb88}",
+            "{f26feba3-aded-494b-b9e9-b2bbcbe298e1}",
+            "{48f5054a-1c5c-4ca4-9048-80f36dc60a06}",
             "{b020a277-90e2-4cd7-84d6-612ee3f25051}",
         ],
-        "value": None,
+        "value": "",
+        "optional": True,
+        "enabled": True,
     },
     "topography": {
         "association": ["Vertex", "Cell"],
@@ -52,8 +54,23 @@ default_ui_json = {
         "label": "Elevation channel",
         "tooltip": "Set elevation from channel",
         "parent": "topography_object",
+        "dependency": "topography_object",
+        "dependencyType": "enabled",
         "value": "",
         "verbose": 2,
+    },
+    "active_model": {
+        "association": "Cell",
+        "dataType": ["Referenced", "Boolean", "Integer"],
+        "group": "Topography",
+        "main": True,
+        "enabled": False,
+        "dependency": "topography_object",
+        "dependencyType": "disabled",
+        "label": "Active model",
+        "tooltip": "Bool model on the input 'mesh' defining air/ground cells",
+        "parent": "mesh",
+        "value": "",
     },
     "data_object": {
         "main": True,
@@ -496,7 +513,7 @@ default_ui_json = {
 
 validations = {
     "topography_object": {
-        "types": [str, UUID, Surface, Points, Grid2D, Curve],
+        "types": [str, UUID, Surface, Points, Grid2D, Curve, type(None)],
     },
     "alpha_s": {"types": [int, float]},
     "length_scale_x": {"types": [int, float]},

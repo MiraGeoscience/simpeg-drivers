@@ -80,7 +80,6 @@ class InversionMesh:
         workspace: Workspace,
         params: OctreeParams,
         inversion_data: InversionData | None,
-        inversion_topography: InversionTopography,
     ) -> None:
         """
         :param workspace: Workspace object containing mesh data.
@@ -91,7 +90,6 @@ class InversionMesh:
         self.workspace = workspace
         self.params = params
         self.inversion_data = inversion_data
-        self.inversion_topography = inversion_topography
         self.mesh: TreeMesh | TensorMesh | None = None
         self.n_cells: int | None = None
         self.rotation: dict[str, float] | None = None

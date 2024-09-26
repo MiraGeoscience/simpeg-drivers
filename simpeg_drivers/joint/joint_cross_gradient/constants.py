@@ -37,6 +37,7 @@ inversion_defaults = {
     "forward_only": False,
     "topography_object": None,
     "topography": None,
+    "active_model": None,
     "group_a": None,
     "group_a_multiplier": 1.0,
     "group_b": None,

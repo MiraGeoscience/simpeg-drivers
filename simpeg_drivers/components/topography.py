@@ -31,6 +31,7 @@ import warnings
 
 import numpy as np
 from discretize import TreeMesh
+from geoh5py.data import NumericData
 from geoh5py.objects.surveys.electromagnetics.base import LargeLoopGroundEMSurvey
 from geoh5py.shared import Entity
 
@@ -74,11 +75,14 @@ class InversionTopography(InversionLocations):
         """
         super().__init__(workspace, params)
         self.locations: np.ndarray | None = None
+        self._active_cells: np.ndarray | None = None
 
-        self._initialize()
+        if self.params.topography_object is not None:
+            self.locations = self.get_locations(self.params.topography_object)
 
-    def _initialize(self):
-        self.locations = self.get_locations(self.params.topography_object)
+        elif isinstance(self.params.active_model, NumericData):
+            self.locations = None
+            self._active_cells = self.params.active_model.values.astype(bool)
 
     def active_cells(self, mesh: InversionMesh, data: InversionData) -> np.ndarray:
         """
@@ -88,19 +92,22 @@ class InversionTopography(InversionLocations):
         :return: active_cells: Mask that restricts a model to the set of
             earth cells that are active in the inversion (beneath topography).
         """
-        forced_to_surface = self.params.inversion_type in [
+        forced_to_surface: bool = self.params.inversion_type in [
             "magnetotellurics",
             "direct current 3d",
             "direct current 2d",
             "induced polarization 3d",
             "induced polarization 2d",
         ] or isinstance(data.entity, LargeLoopGroundEMSurvey)
-        active_cells = active_from_xyz(
-            mesh.entity,
-            self.locations,
-            grid_reference="bottom" if forced_to_surface else "center",
-        )
-        active_cells = active_cells[np.argsort(mesh.permutation)]
+
+        if self._active_cells is None:
+            self._active_cells = active_from_xyz(
+                mesh.entity,
+                self.locations,
+                grid_reference="bottom" if forced_to_surface else "center",
+            )
+
+        active_cells = self._active_cells[np.argsort(mesh.permutation)]
 
         if forced_to_surface:
             active_cells = self.expand_actives(active_cells, mesh, data)
