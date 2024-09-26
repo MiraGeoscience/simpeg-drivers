@@ -633,6 +633,38 @@
         "lineEdit": false,
         "enabled": true
     },
+    "cell_weights": {
+        "association": "Cell",
+        "dataType": "Float",
+        "group": "Regularization",
+        "label": "Cell weights",
+        "parent": "mesh",
+        "value": ""
+    },
+    "x_face_weights": {
+        "association": "Cell",
+        "dataType": "Float",
+        "group": "Regularization",
+        "label": "X-face weights",
+        "parent": "mesh",
+        "value": ""
+    },
+    "y_face_weights": {
+        "association": "Cell",
+        "dataType": "Float",
+        "group": "Regularization",
+        "label": "Y-face weights",
+        "parent": "mesh",
+        "value": ""
+    },
+    "z_face_weights": {
+        "association": "Cell",
+        "dataType": "Float",
+        "group": "Regularization",
+        "label": "Z-face weights",
+        "parent": "mesh",
+        "value": ""
+    },
     "gradient_type": {
         "choiceList": [
             "total",
