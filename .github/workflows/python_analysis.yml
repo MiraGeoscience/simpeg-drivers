@@ -16,6 +16,7 @@ on:
       - release/**
       - feature/**
       - hotfix/**
+      - DEVOPS-506 # Temporary branch for testing
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
