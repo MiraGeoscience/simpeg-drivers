@@ -477,7 +477,9 @@ class InversionModel:
         """
         xyz_out = self.driver.inversion_mesh.entity.centroids
 
-        if hasattr(parent, "centroids"):
+        if hasattr(parent, "vertices"):
+            xyz_in = parent.vertices
+        else:
             xyz_in = parent.centroids
             if self.driver.inversion_mesh.rotation is not None:
                 xyz_out = rotate_xyz(
@@ -485,9 +487,6 @@ class InversionModel:
                     self.driver.inversion_mesh.rotation["origin"],
                     self.driver.inversion_mesh.rotation["angle"],
                 )
-
-        else:
-            xyz_in = parent.vertices
 
         full_vector = weighted_average(xyz_in, xyz_out, [obj], n=1)[0]
 
