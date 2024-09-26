@@ -127,7 +127,7 @@ forward_defaults = {
     "version": simpeg_drivers.__version__,
     "title": "Magnetic Vector (MVI) Forward",
     "icon": "surveyairbornemagnetics",
-    "documentation": "https://geoapps.readthedocs.io/en/stable/content/applications/grav_mag_inversion.html",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
     "conda_environment": "simpeg_drivers",
     "run_command": "simpeg_drivers.driver",
     "geoh5": None,  # Must remain at top of list for notebook app initialization
