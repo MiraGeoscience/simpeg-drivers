@@ -33,7 +33,7 @@ inversion_defaults = {
     "version": simpeg_drivers.__version__,
     "title": "Magnetic Vector (MVI) Inversion",
     "icon": "surveyairbornemagnetics",
-    "documentation": "https://geoapps.readthedocs.io/en/stable/content/applications/grav_mag_inversion.html",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
     "conda_environment": "simpeg_drivers",
     "run_command": "simpeg_drivers.driver",
     "geoh5": None,  # Must remain at top of list for notebook app initialization
@@ -174,7 +174,7 @@ forward_defaults = {
 
 default_ui_json = {
     "title": "Magnetic Vector (MVI) Inversion",
-    "documentation": "https://geoapps.readthedocs.io/en/stable/content/applications/grav_mag_inversion.html",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
     "icon": "surveyairbornegravity",
     "inversion_type": "magnetic vector",
     "inducing_field_strength": {
