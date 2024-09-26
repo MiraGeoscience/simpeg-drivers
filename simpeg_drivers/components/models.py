@@ -59,7 +59,7 @@ class InversionModelCollection:
         :param driver: Parental InversionDriver class.
         """
         self._driver: InversionDriver
-        self._active_cells = None
+        self._active_cells: np.ndarray | None = None
 
         self.driver = driver
         self.is_sigma = self.driver.params.physical_property == "conductivity"
@@ -69,11 +69,14 @@ class InversionModelCollection:
         self.n_blocks = (
             3 if self.driver.params.inversion_type == "magnetic vector" else 1
         )
+
         self._starting = InversionModel(driver, "starting")
         self._reference = InversionModel(driver, "reference")
         self._lower_bound = InversionModel(driver, "lower_bound")
         self._upper_bound = InversionModel(driver, "upper_bound")
         self._conductivity = InversionModel(driver, "conductivity")
+
+        self.active_cells = driver.params.active_model
 
     @property
     def n_active(self) -> int:
@@ -106,9 +109,15 @@ class InversionModelCollection:
         return self._active_cells
 
     @active_cells.setter
-    def active_cells(self, active_cells):
+    def active_cells(self, active_cells: np.ndarray | NumericData | None):
         if self._active_cells is not None:
             raise ValueError("'active_cells' can only be set once.")
+
+        if active_cells is None:
+            return
+
+        if isinstance(active_cells, NumericData):
+            active_cells = active_cells.values.astype(bool)
 
         if not isinstance(active_cells, np.ndarray) or active_cells.dtype != bool:
             raise ValueError("active_cells must be a boolean numpy array.")
@@ -117,7 +126,12 @@ class InversionModelCollection:
         self.edit_ndv_model(active_cells[permutation])
         self.remove_air(active_cells)
         self.driver.inversion_mesh.entity.add_data(
-            {"active_cells": {"values": active_cells[permutation].astype(np.int32)}}
+            {
+                "active_cells": {
+                    "values": active_cells[permutation],
+                    "primitive_type": "boolean",
+                }
+            }
         )
         self._active_cells = active_cells
 

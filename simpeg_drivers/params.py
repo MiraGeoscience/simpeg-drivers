@@ -50,6 +50,7 @@ class InversionBaseParams(BaseParams):
         self._forward_only: bool = (
             forward_only if input_file is None else input_file.data["forward_only"]
         )
+        self._active_model: UUID = None
         self._topography_object: UUID = None
         self._topography: UUID | float = None
         self._data_object: UUID = None
@@ -244,6 +245,14 @@ class InversionBaseParams(BaseParams):
                 "the child inversion class."
             )
         return self._inversion_defaults
+
+    @property
+    def active_model(self):
+        return self._active_model
+
+    @active_model.setter
+    def active_model(self, val):
+        self.setter_validator("active_model", val, fun=self._uuid_promoter)
 
     @property
     def topography_object(self):

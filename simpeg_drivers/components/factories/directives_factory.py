@@ -49,6 +49,7 @@ class DirectivesFactory:
         self._save_iteration_data_directive = None
         self._save_iteration_residual_directive = None
         self._save_iteration_apparent_resistivity_directive = None
+        self._scale_misfits = None
 
     @property
     def beta_estimate_by_eigenvalues_directive(self):
@@ -97,6 +98,7 @@ class DirectivesFactory:
             "update_sensitivity_weights_directive",
             "beta_estimate_by_eigenvalues_directive",
             "update_preconditioner_directive",
+            "scale_misfits",
         ]:
             if getattr(self, directive) is not None:
                 directives_list.append(getattr(self, directive))
@@ -180,6 +182,15 @@ class DirectivesFactory:
                 name="Residual",
             )
         return self._save_iteration_residual_directive
+
+    @property
+    def scale_misfits(self):
+        if self._scale_misfits is None:
+            if len(self.driver.data_misfit.objfcts) > 1:
+                self._scale_misfits = directives.ScaleMisfitMultipliers(
+                    self.params.geoh5.h5file.parent
+                )
+        return self._scale_misfits
 
     @property
     def update_irls_directive(self):

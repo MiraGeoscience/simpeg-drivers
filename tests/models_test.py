@@ -104,9 +104,7 @@ def test_model_from_object(tmp_path: Path):
     ws, params = setup_params(tmp_path)
     driver = MagneticVectorDriver(params)
 
-    inversion_mesh = InversionMesh(
-        ws, params, driver.inversion_data, driver.inversion_topography
-    )
+    inversion_mesh = InversionMesh(ws, params, driver.inversion_data)
     cc = inversion_mesh.mesh.cell_centers
     m0 = np.array([2.0, 3.0, 1.0])
     vals = (m0[0] * cc[:, 0]) + (m0[1] * cc[:, 1]) + (m0[2] * cc[:, 2])
