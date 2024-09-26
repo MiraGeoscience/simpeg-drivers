@@ -28,14 +28,14 @@ env:
 jobs:
   call-workflow-static-analysis:
     name: Static analysis
-    uses: MiraGeoscience/CI-tools/.github/workflows/reusable-python-static_analysis.yml@main
+    uses: MiraGeoscience/CI-tools/.github/workflows/reusable-python-static_analysis.yml@DEVOPS-506
     with:
       package_manager: 'conda'
       app_name: ${{ github.env.app_name }}
       python_vers: '3.10'
   call-workflow-pytest-on-windows:
     name: Pytest on Windows
-    uses: MiraGeoscience/CI-tools/.github/workflows/reusable-python-pytest_windows.yml@main
+    uses: MiraGeoscience/CI-tools/.github/workflows/reusable-python-pytest_windows.yml@DEVOPS-506
     with:
       package_manager: 'conda'
       python_ver: '["3.10"]'
@@ -46,7 +46,7 @@ jobs:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   call-workflow-pytest-on-unix-os:
     name: Pytest on Unix OS
-    uses: MiraGeoscience/CI-tools/.github/workflows/reusable-python-pytest_unix_os.yml@main
+    uses: MiraGeoscience/CI-tools/.github/workflows/reusable-python-pytest_unix_os.yml@DEVOPS-506
     with:
       package_manager: 'conda'
       python_ver: '["3.10"]'
