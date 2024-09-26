@@ -37,7 +37,7 @@ dependencies:
   - cloudpickle=3.0.0=pyhd8ed1ab_0
   - colorama=0.4.6=pyhd8ed1ab_0
   - comm=0.2.2=pyhd8ed1ab_0
-  - contourpy=1.3.0=py310h3788b33_1
+  - contourpy=1.3.0=py310h3788b33_2
   - coverage=7.6.1=py310ha75aee5_1
   - cycler=0.12.1=pyhd8ed1ab_0
   - cytoolz=0.12.3=py310h2372a71_0
@@ -108,7 +108,7 @@ dependencies:
   - krb5=1.21.3=h659f571_0
   - latexcodec=2.0.1=pyh9f0ad1d_0
   - lcms2=2.16=hb7c19ff_0
-  - ld_impl_linux-64=2.43=h712a8e2_0
+  - ld_impl_linux-64=2.43=h712a8e2_1
   - lerc=4.0.0=h27087fc_0
   - libaec=1.1.3=h59595ed_0
   - libblas=3.9.0=20_linux64_mkl
@@ -143,7 +143,7 @@ dependencies:
   - libtiff=4.7.0=h6565414_0
   - libuuid=2.38.1=h0b41bf4_0
   - libwebp-base=1.4.0=hd590300_0
-  - libxcb=1.16=hb9d3cd8_1
+  - libxcb=1.17.0=h8a09558_0
   - libxcrypt=4.4.36=hd590300_1
   - libxml2=2.12.7=he7c6b58_4
   - libzlib=1.3.1=h4ab18f5_1
@@ -193,7 +193,7 @@ dependencies:
   - platformdirs=4.3.6=pyhd8ed1ab_0
   - pluggy=1.5.0=pyhd8ed1ab_0
   - prometheus_client=0.21.0=pyhd8ed1ab_0
-  - prompt-toolkit=3.0.47=pyha770c72_0
+  - prompt-toolkit=3.0.48=pyha770c72_0
   - psutil=6.0.0=py310ha75aee5_1
   - pthread-stubs=0.4=hb9d3cd8_1002
   - ptyprocess=0.7.0=pyhd3deb0d_0
@@ -298,7 +298,7 @@ dependencies:
   - zstd=1.5.6=ha6fb4c9_0
   - pip:
       - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils@8726c9a369a76235db07363f035cbdd669629a37
-      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@b3967e206e42cb5182fff6194c38f30d777f8116
+      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@1d057e0dd3c7cec71e2d39e4f0a6283f12ef140c
       - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg@e02d6313a17a22e63a02b542c06de52358ede830
       - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app@c3ae5ea68e7e517c0ac33efdf58f27380aec3b7c
       - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps@e3be50dd098fe1d72d666704cbe65611386c8f23
