@@ -113,8 +113,13 @@ forward_defaults = {
     "version": simpeg_drivers.__version__,
     "title": "Direct Current (DC) 2D Batch Forward",
     "icon": "PotentialElectrode",
-    "inversion_type": "direct current pseudo 3d",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
+    "conda_environment": "simpeg_drivers",
+    "run_command": "simpeg_drivers.driver",
     "geoh5": None,  # Must remain at top of list for notebook app initialization
+    "monitoring_directory": None,
+    "workspace_geoh5": None,
+    "inversion_type": "direct current pseudo 3d",
     "forward_only": True,
     "topography_object": None,
     "topography": None,
@@ -144,11 +149,6 @@ forward_defaults = {
     "generate_sweep": False,
     "files_only": False,
     "cleanup": False,
-    "monitoring_directory": None,
-    "workspace_geoh5": None,
-    "run_command": "simpeg_drivers.driver",
-    "run_command_boolean": False,
-    "conda_environment": "simpeg_drivers",
     "distributed_workers": None,
 }
 
