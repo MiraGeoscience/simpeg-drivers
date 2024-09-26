@@ -152,17 +152,6 @@ class BaseJointDriver(InversionDriver):
         """Inversion data"""
         return self._inversion_data
 
-    @property
-    def inversion_mesh(self):
-        """Inversion mesh"""
-        if getattr(self, "_inversion_mesh", None) is None:
-            self._inversion_mesh = InversionMesh(
-                self.workspace,
-                self.params,
-                self.inversion_data,
-            )
-        return self._inversion_mesh
-
     def validate_create_mesh(self):
         """Function to validate and create the inversion mesh."""
 

@@ -37,6 +37,7 @@ from geoh5py.shared import Entity
 
 from simpeg_drivers.components.data import InversionData
 from simpeg_drivers.components.locations import InversionLocations
+from simpeg_drivers.components.models import InversionModel
 from simpeg_drivers.utils.utils import (
     active_from_xyz,
     floating_active,
@@ -75,14 +76,9 @@ class InversionTopography(InversionLocations):
         """
         super().__init__(workspace, params)
         self.locations: np.ndarray | None = None
-        self._active_cells: np.ndarray | None = None
 
         if self.params.topography_object is not None:
             self.locations = self.get_locations(self.params.topography_object)
-
-        elif isinstance(self.params.active_model, NumericData):
-            self.locations = None
-            self._active_cells = self.params.active_model.values.astype(bool)
 
     def active_cells(self, mesh: InversionMesh, data: InversionData) -> np.ndarray:
         """
@@ -100,14 +96,18 @@ class InversionTopography(InversionLocations):
             "induced polarization 2d",
         ] or isinstance(data.entity, LargeLoopGroundEMSurvey)
 
-        if self._active_cells is None:
-            self._active_cells = active_from_xyz(
+        if isinstance(self.params.active_model, NumericData):
+            active_cells = InversionModel.obj_2_mesh(
+                self.params.active_model, mesh.entity
+            )
+        else:
+            active_cells = active_from_xyz(
                 mesh.entity,
                 self.locations,
                 grid_reference="bottom" if forced_to_surface else "center",
             )
 
-        active_cells = self._active_cells[np.argsort(mesh.permutation)]
+        active_cells = active_cells[np.argsort(mesh.permutation)].astype(bool)
 
         if forced_to_surface:
             active_cells = self.expand_actives(active_cells, mesh, data)
