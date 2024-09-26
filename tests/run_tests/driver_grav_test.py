@@ -77,10 +77,16 @@ def test_gravity_run(
         mesh = geoh5.get_entity("mesh")[0]
         model = mesh.get_entity("starting_model")[0]
 
+        inds = (mesh.centroids[:, 0] > -30) & (mesh.centroids[:, 0] < 30)
+        norms = np.ones(mesh.n_cells) * 2
+        norms[inds] = 0
+        gradient_norms = mesh.add_data({"norms": {"values": norms}})
+
         # Test mesh UBC ordered
         ind = np.argsort(mesh.octree_cells, order=["K", "J", "I"])
         mesh.octree_cells = mesh.octree_cells[ind]
         model.values = model.values[ind]
+        gradient_norms.values = gradient_norms.values[ind]
 
         topography = geoh5.get_entity("topography")[0]
 
@@ -98,9 +104,9 @@ def test_gravity_run(
             starting_model=1e-4,
             reference_model=0.0,
             s_norm=0.0,
-            x_norm=0.0,
-            y_norm=0.0,
-            z_norm=0.0,
+            x_norm=gradient_norms,
+            y_norm=gradient_norms,
+            z_norm=gradient_norms,
             gradient_type="components",
             gz_channel_bool=True,
             z_from_topo=False,
@@ -144,64 +150,6 @@ def test_gravity_run(
             nan_ind = np.isnan(run_ws.get_entity("Iteration_0_model")[0].values)
             inactive_ind = run_ws.get_entity("active_cells")[0].values == 0
             assert np.all(nan_ind == inactive_ind)
-
-
-def test_gravity_run_heterogeneous_norms(
-    tmp_path: Path,
-    max_iterations=1,
-    pytest=True,
-):
-    workpath = tmp_path / "inversion_test.ui.geoh5"
-    if pytest:
-        workpath = tmp_path.parent / "test_gravity_fwr_run0" / "inversion_test.ui.geoh5"
-
-    with Workspace(workpath) as geoh5:
-        gz = geoh5.get_entity("Iteration_0_gz")[0]
-        orig_gz = gz.values.copy()
-        mesh = geoh5.get_entity("mesh")[0]
-        model = mesh.get_entity("starting_model")[0]
-        topography = geoh5.get_entity("topography")[0]
-
-        inds = (mesh.centroids[:, 0] > -30) & (mesh.centroids[:, 0] < 30)
-        norms = np.ones(mesh.n_cells) * 2
-        norms[inds] = 0
-        gradient_norms = mesh.add_data({"norms": {"values": norms}})
-
-        # Run the inverse
-        params = GravityParams(
-            geoh5=geoh5,
-            mesh=mesh.uid,
-            topography_object=topography.uid,
-            data_object=gz.parent.uid,
-            starting_model=1e-4,
-            reference_model=0.0,
-            s_norm=0.0,
-            x_norm=gradient_norms.uid,
-            y_norm=gradient_norms.uid,
-            z_norm=gradient_norms.uid,
-            gradient_type="components",
-            gz_channel_bool=True,
-            z_from_topo=False,
-            gz_channel=gz.uid,
-            gz_uncertainty=2e-3,
-            lower_bound=0.0,
-            max_global_iterations=max_iterations,
-            initial_beta_ratio=1e-2,
-            prctile=100,
-            store_sensitivities="ram",
-        )
-        params.write_input_file(path=tmp_path, name="Inv_run")
-
-    driver = GravityDriver.start(str(tmp_path / "Inv_run.ui.json"))
-
-    with Workspace(driver.params.geoh5.h5file) as run_ws:
-        output = get_inversion_output(
-            driver.params.geoh5.h5file, driver.params.out_group.uid
-        )
-        output["data"] = orig_gz
-
-        if pytest:
-            check_target(output, target_run)
 
 
 if __name__ == "__main__":
