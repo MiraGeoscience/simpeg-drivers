@@ -2,6 +2,7 @@
     "version": "0.2.0-alpha.1",
     "title": "Time-domain EM (TEM) Forward",
     "icon": "surveyairborneem",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
     "conda_environment": "simpeg_drivers",
     "run_command": "simpeg_drivers.driver",
     "geoh5": "",
@@ -22,7 +23,7 @@
         ],
         "value": "",
         "optional": true,
-        "enabled": true
+        "enabled": false
     },
     "topography": {
         "association": [

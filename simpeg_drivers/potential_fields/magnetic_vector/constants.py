@@ -32,7 +32,7 @@ from simpeg_drivers.constants import validations as base_validations
 inversion_defaults = {
     "version": simpeg_drivers.__version__,
     "title": "Magnetic Vector (MVI) Inversion",
-    "icon": "surveyairbornegravity",
+    "icon": "surveyairbornemagnetics",
     "documentation": "https://geoapps.readthedocs.io/en/stable/content/applications/grav_mag_inversion.html",
     "conda_environment": "simpeg_drivers",
     "run_command": "simpeg_drivers.driver",
@@ -126,10 +126,14 @@ inversion_defaults = {
 forward_defaults = {
     "version": simpeg_drivers.__version__,
     "title": "Magnetic Vector (MVI) Forward",
-    "documentation": "https://geoapps.readthedocs.io/en/stable/content/applications/grav_mag_inversion.html",
     "icon": "surveyairbornemagnetics",
-    "inversion_type": "magnetic vector",
+    "documentation": "https://geoapps.readthedocs.io/en/stable/content/applications/grav_mag_inversion.html",
+    "conda_environment": "simpeg_drivers",
+    "run_command": "simpeg_drivers.driver",
     "geoh5": None,  # Must remain at top of list for notebook app initialization
+    "monitoring_directory": None,
+    "workspace_geoh5": None,
+    "inversion_type": "magnetic vector",
     "forward_only": True,
     "inducing_field_strength": 50000.0,
     "inducing_field_inclination": 90.0,
@@ -165,10 +169,6 @@ forward_defaults = {
     "out_group": None,
     "ga_group": None,
     "generate_sweep": False,
-    "monitoring_directory": None,
-    "workspace_geoh5": None,
-    "run_command": "simpeg_drivers.driver",
-    "conda_environment": "simpeg_drivers",
     "distributed_workers": None,
 }
 
