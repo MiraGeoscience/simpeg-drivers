@@ -57,6 +57,10 @@ class BaseJointDriver(InversionDriver):
             for label, driver in zip("abc", self.drivers, strict=False):
                 if driver.data_misfit is not None:
                     objective_functions += driver.data_misfit.objfcts
+
+                    for fun in driver.data_misfit.objfcts:
+                        fun.name = f"Group {label.upper()} {fun.name}"
+
                     multipliers += [
                         getattr(self.params, f"group_{label}_multiplier") ** 2.0
                     ] * len(driver.data_misfit.objfcts)
