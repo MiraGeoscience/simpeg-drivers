@@ -427,6 +427,10 @@ class InversionModel:
                     {f"{self.model_type}_declination": {"values": aid[:, 2]}}
                 )
                 remapped_model = aid[:, 0]
+            elif "norm" in self.model_type:
+                remapped_model = np.mean(
+                    remapped_model.reshape((-1, 3), order="F"), axis=1
+                )
             else:
                 remapped_model = np.linalg.norm(
                     remapped_model.reshape((-1, 3), order="F"), axis=1
