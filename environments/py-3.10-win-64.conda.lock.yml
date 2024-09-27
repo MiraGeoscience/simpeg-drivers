@@ -19,7 +19,7 @@ dependencies:
   - click=8.1.7=win_pyh7428d3b_0
   - cloudpickle=3.0.0=pyhd8ed1ab_0
   - colorama=0.4.6=pyhd8ed1ab_0
-  - contourpy=1.3.0=py310hc19bc0b_1
+  - contourpy=1.3.0=py310hc19bc0b_2
   - cycler=0.12.1=pyhd8ed1ab_0
   - cytoolz=0.12.3=py310h8d17308_0
   - dask-core=2024.6.2=pyhd8ed1ab_0
@@ -27,7 +27,7 @@ dependencies:
   - distributed=2024.6.2=pyhd8ed1ab_0
   - empymod=2.2.2=pyhd8ed1ab_0
   - fasteners=0.17.3=pyhd8ed1ab_0
-  - fonttools=4.53.1=py310ha8f682b_1
+  - fonttools=4.54.1=py310ha8f682b_0
   - freetype=2.12.1=hdaf720e_2
   - fsspec=2022.11.0=pyhd8ed1ab_0
   - geoana=0.5.0=py310h4856b71_4
@@ -51,7 +51,7 @@ dependencies:
   - libbrotlidec=1.1.0=h2466b09_2
   - libbrotlienc=1.1.0=h2466b09_2
   - libcblas=3.9.0=20_win64_mkl
-  - libcurl=8.10.0=h1ee3ff0_0
+  - libcurl=8.10.1=h1ee3ff0_0
   - libdeflate=1.21=h2466b09_0
   - libdlf=0.2.0=pyhd8ed1ab_0
   - libffi=3.4.2=h8ffe710_5
@@ -59,10 +59,10 @@ dependencies:
   - libiconv=1.17=hcfcfb64_2
   - libjpeg-turbo=3.0.0=hcfcfb64_1
   - liblapack=3.9.0=20_win64_mkl
-  - libpng=1.6.43=h19919ed_0
+  - libpng=1.6.44=h3ca93ac_0
   - libsqlite=3.46.1=h2466b09_0
   - libssh2=1.11.0=h7dfc565_0
-  - libtiff=4.6.0=hb151862_4
+  - libtiff=4.7.0=hb151862_0
   - libwebp-base=1.4.0=hcfcfb64_0
   - libxcb=1.16=h013a479_1
   - libxml2=2.12.7=h0f24e4e_4
@@ -86,7 +86,7 @@ dependencies:
   - openjpeg=2.5.2=h3d672ee_0
   - openssl=3.3.2=h2466b09_0
   - packaging=24.1=pyhd8ed1ab_0
-  - pandas=2.2.2=py310hb4db72f_1
+  - pandas=2.2.3=py310hb4db72f_1
   - partd=1.4.2=pyhd8ed1ab_0
   - pillow=10.3.0=py310h3e38d90_1
   - pip=24.2=pyh8b19718_1
@@ -94,22 +94,22 @@ dependencies:
   - pthread-stubs=0.4=hcd874cb_1001
   - pthreads-win32=2.9.1=hfa6e2cd_3
   - pycparser=2.22=pyhd8ed1ab_0
-  - pydantic=2.9.1=pyhd8ed1ab_0
-  - pydantic-core=2.23.3=py310hc226416_0
+  - pydantic=2.9.2=pyhd8ed1ab_0
+  - pydantic-core=2.23.4=py310hc226416_0
   - pydiso=0.0.5=py310hafb2880_1
   - pymatsolver=0.2.0=ha770c72_3
   - pymatsolver-base=0.2.0=pyh44b312d_3
   - pyparsing=3.1.4=pyhd8ed1ab_0
   - pysocks=1.7.1=pyh0701188_6
-  - python=3.10.14=h4de0772_0_cpython
+  - python=3.10.15=hfaddaf0_0_cpython
   - python-dateutil=2.9.0=pyhd8ed1ab_0
   - python-tzdata=2023.4=pyhd8ed1ab_0
   - python_abi=3.10=5_cp310
-  - pytz=2024.2=pyhd8ed1ab_0
+  - pytz=2024.1=pyhd8ed1ab_0
   - pyyaml=6.0.2=py310ha8f682b_1
   - scikit-learn=1.4.2=py310hf2a6c47_1
   - scipy=1.14.1=py310h46043a1_0
-  - setuptools=73.0.1=pyhd8ed1ab_0
+  - setuptools=75.1.0=pyhd8ed1ab_0
   - six=1.16.0=pyh6c4a22f_0
   - sortedcontainers=2.4.0=pyhd8ed1ab_0
   - tbb=2021.12.0=hc790b64_4
@@ -124,27 +124,31 @@ dependencies:
   - tzdata=2024a=h8827d51_1
   - ucrt=10.0.22621.0=h57928b3_0
   - unicodedata2=15.1.0=py310h8d17308_0
-  - urllib3=2.2.2=pyhd8ed1ab_1
+  - urllib3=2.2.3=pyhd8ed1ab_0
   - vc=14.3=h8a93ad2_21
   - vc14_runtime=14.40.33810=ha82c5b3_21
   - vs2015_runtime=14.40.33810=h3bf8584_21
   - wheel=0.44.0=pyhd8ed1ab_0
   - win_inet_pton=1.1.0=pyhd8ed1ab_6
+  - xorg-kbproto=1.0.7=hcd874cb_1002
+  - xorg-libx11=1.8.9=h0076a8d_1
   - xorg-libxau=1.0.11=hcd874cb_0
   - xorg-libxdmcp=1.1.3=hcd874cb_0
+  - xorg-xextproto=7.3.0=hcd874cb_1003
+  - xorg-xproto=7.0.31=hcd874cb_1007
   - xz=5.2.6=h8d14728_0
   - yaml=0.2.5=h8ffe710_2
   - zarr=2.14.2=pyhd8ed1ab_0
   - zict=3.0.0=pyhd8ed1ab_0
-  - zipp=3.20.1=pyhd8ed1ab_0
+  - zipp=3.20.2=pyhd8ed1ab_0
   - zstandard=0.23.0=py310he5e10e1_1
   - zstd=1.5.6=h0ea2cb4_0
   - pip:
-      - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils@4bc408affcf5ad5e8539014f229c1a36c6a66698
-      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@771ba5fba8a17f49ac785e536d752a9d1bf356c7
-      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg@ca62fe25606824677fcde9111d48c0fffcb6ef1c
-      - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app@d61e0b3658861e6dc1f402531a2bd256f38df1d4
-      - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps@ec6a4381a2148e941499c006d885e39989055004
+      - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils@8726c9a369a76235db07363f035cbdd669629a37
+      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@1d057e0dd3c7cec71e2d39e4f0a6283f12ef140c
+      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg@e02d6313a17a22e63a02b542c06de52358ede830
+      - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app@c3ae5ea68e7e517c0ac33efdf58f27380aec3b7c
+      - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps@e3be50dd098fe1d72d666704cbe65611386c8f23
 
 variables:
   KMP_WARNINGS: 0

@@ -164,7 +164,7 @@ class JointCrossGradientDriver(BaseJointDriver):
             driver.regularization = ComboObjectiveFunction(objfcts=reg_block)
 
         for label, driver_pairs in zip(
-            ["a_b", "c_a", "c_b"], combinations(self.drivers, 2), strict=True
+            ["a_b", "c_a", "c_b"], combinations(self.drivers, 2), strict=False
         ):
             # Deal with MVI components
             for mapping_a in driver_pairs[0].mapping:
