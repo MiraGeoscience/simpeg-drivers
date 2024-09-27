@@ -143,7 +143,7 @@ class MisfitFactory(SimPEGFactory):
                     if len(channels) > 1:
                         name += f": Channel {channel}"
 
-                    lmisfit.name = name
+                    lmisfit.name = f"{name}"
                 local_misfits.append(lmisfit)
                 self.ordering.append(ordering)
                 tile_num += 1
