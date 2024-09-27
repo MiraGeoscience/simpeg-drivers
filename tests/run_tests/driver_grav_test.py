@@ -77,7 +77,7 @@ def test_gravity_run(
         mesh = geoh5.get_entity("mesh")[0]
         model = mesh.get_entity("starting_model")[0]
 
-        inds = (mesh.centroids[:, 0] > -30) & (mesh.centroids[:, 0] < 30)
+        inds = (mesh.centroids[:, 0] > -35) & (mesh.centroids[:, 0] < 35)
         norms = np.ones(mesh.n_cells) * 2
         norms[inds] = 0
         gradient_norms = mesh.add_data({"norms": {"values": norms}})

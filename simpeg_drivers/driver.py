@@ -401,16 +401,11 @@ class InversionDriver(BaseDriver):
                         getattr(self.params, f"length_scale_{comp}"),
                     )
 
-                if getattr(self.params, f"{comp}_norm") is not None:
-                    norm = getattr(self.params, f"{comp}_norm")
-                    if isinstance(norm, Data):
-                        norm = norm.values[self.models.active_cells]
-                        if comp in "xyz":
-                            norm = (
-                                getattr(reg.regularization_mesh, f"aveCC2F{comp}")
-                                * norm
-                            )
-                    norms.append(norm)
+                norm = getattr(self.models, f"{comp}_norm")
+                if comp in "xyz":
+                    norm = getattr(reg.regularization_mesh, f"aveCC2F{comp}") * norm
+
+                norms.append(norm)
 
             if norms:
                 reg.norms = norms

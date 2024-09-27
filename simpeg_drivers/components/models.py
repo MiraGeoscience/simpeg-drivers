@@ -52,6 +52,10 @@ class InversionModelCollection:
         "lower_bound",
         "upper_bound",
         "conductivity",
+        "s_norm",
+        "x_norm",
+        "y_norm",
+        "z_norm",
     ]
 
     def __init__(self, driver: InversionDriver):
@@ -72,6 +76,10 @@ class InversionModelCollection:
         self._lower_bound = InversionModel(driver, "lower_bound")
         self._upper_bound = InversionModel(driver, "upper_bound")
         self._conductivity = InversionModel(driver, "conductivity")
+        self._s_norm = InversionModel(driver, "s_norm")
+        self._x_norm = InversionModel(driver, "x_norm")
+        self._y_norm = InversionModel(driver, "y_norm")
+        self._z_norm = InversionModel(driver, "z_norm")
 
     @property
     def n_active(self) -> int:
@@ -188,6 +196,37 @@ class InversionModelCollection:
 
         return mstart
 
+    @property
+    def s_norm(self) -> np.ndarray | None:
+        if self._s_norm.model is None:
+            return None
+
+        return self._s_norm.model.copy()
+
+    @property
+    def x_norm(self) -> np.ndarray | None:
+        if self._x_norm.model is None:
+            return None
+
+        x_norm = self._x_norm.model.copy()
+        return x_norm
+
+    @property
+    def y_norm(self) -> np.ndarray | None:
+        if self._y_norm.model is None:
+            return None
+
+        y_norm = self._y_norm.model.copy()
+        return y_norm
+
+    @property
+    def z_norm(self) -> np.ndarray | None:
+        if self._z_norm.model is None:
+            return None
+
+        z_norm = self._z_norm.model.copy()
+        return z_norm
+
     def _model_method_wrapper(self, method, name=None, **kwargs):
         """wraps individual model's specific method and applies in loop over model types."""
         returned_items = {}
@@ -254,6 +293,10 @@ class InversionModel:
         "lower_bound",
         "upper_bound",
         "conductivity",
+        "s_norm",
+        "x_norm",
+        "y_norm",
+        "z_norm",
     ]
 
     def __init__(
