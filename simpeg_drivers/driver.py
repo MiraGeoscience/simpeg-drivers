@@ -403,7 +403,7 @@ class InversionDriver(BaseDriver):
                         getattr(self.params, f"length_scale_{comp}"),
                     )
 
-                norm = getattr(self.models, f"{comp}_norm")
+                norm = self.mapping * getattr(self.models, f"{comp}_norm")
                 if comp in "xyz":
                     norm = getattr(reg.regularization_mesh, f"aveCC2F{avg_comp}") * norm
 
