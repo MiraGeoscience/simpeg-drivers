@@ -27,6 +27,7 @@ from geoh5py.objects import DrapeModel, Octree
 from octree_creation_app.params import OctreeParams
 from octree_creation_app.utils import octree_2_treemesh, treemesh_2_octree
 
+from simpeg_drivers.params import InversionBaseParams
 from simpeg_drivers.utils.utils import drape_2_tensor
 
 
@@ -78,20 +79,14 @@ class InversionMesh:
     def __init__(
         self,
         workspace: Workspace,
-        params: OctreeParams,
-        inversion_data: InversionData | None,
-        inversion_topography: InversionTopography,
+        params: InversionBaseParams,
     ) -> None:
         """
         :param workspace: Workspace object containing mesh data.
         :param params: Params object containing mesh parameters.
-        :param window: Center and size defining window for data, topography, etc.
-
         """
         self.workspace = workspace
         self.params = params
-        self.inversion_data = inversion_data
-        self.inversion_topography = inversion_topography
         self.mesh: TreeMesh | TensorMesh | None = None
         self.n_cells: int | None = None
         self.rotation: dict[str, float] | None = None
@@ -115,14 +110,6 @@ class InversionMesh:
                 parent=self.params.out_group, copy_children=False
             )
             self.params.mesh = self.entity
-
-        if (
-            getattr(self.entity, "rotation", None)
-            and self.inversion_data is not None
-            and self.inversion_data.has_tensor
-        ):
-            msg = "Cannot use tensor components with rotated mesh."
-            raise NotImplementedError(msg)
 
         self.uid = self.entity.uid
         self.n_cells = self.entity.n_cells

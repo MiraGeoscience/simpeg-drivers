@@ -143,7 +143,7 @@ class InversionDriver(BaseDriver):
         return self._inversion
 
     @property
-    def inversion_data(self):
+    def inversion_data(self) -> InversionData:
         """Inversion data"""
         if getattr(self, "_inversion_data", None) is None:
             with fetch_active_workspace(self.workspace, mode="r+"):
@@ -152,16 +152,11 @@ class InversionDriver(BaseDriver):
         return self._inversion_data
 
     @property
-    def inversion_mesh(self):
+    def inversion_mesh(self) -> InversionMesh:
         """Inversion mesh"""
         if getattr(self, "_inversion_mesh", None) is None:
             with fetch_active_workspace(self.workspace, mode="r+"):
-                self._inversion_mesh = InversionMesh(
-                    self.workspace,
-                    self.params,
-                    self.inversion_data,
-                    self.inversion_topography,
-                )
+                self._inversion_mesh = InversionMesh(self.workspace, self.params)
         return self._inversion_mesh
 
     @property

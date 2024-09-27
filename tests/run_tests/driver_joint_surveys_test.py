@@ -112,7 +112,6 @@ def test_joint_surveys_inv_run(
         )
 
     with Workspace(workpath) as geoh5:
-        topography = geoh5.get_entity("topography")[0]
         drivers = []
         orig_data = []
         mesh = None
@@ -129,12 +128,13 @@ def test_joint_surveys_inv_run(
             if mesh is None:
                 raise ValueError("No mesh found in the group.")
 
+            active_model = mesh.get_entity("active_cells")[0]
             gz = survey.get_data("Iteration_0_gz")[0]
             orig_data.append(gz.values)
             params = GravityParams(
                 geoh5=geoh5,
                 mesh=mesh.uid,
-                topography_object=topography.uid,
+                active_model=active_model.uid,
                 data_object=survey.uid,
                 gz_channel=gz.uid,
                 gz_uncertainty=np.var(gz.values) * 2.0,
@@ -142,10 +142,11 @@ def test_joint_surveys_inv_run(
             )
             drivers.append(GravityDriver(params))
 
+        active_model = drivers[0].params.mesh.get_entity("active_cells")[0]
         # Run the inverse
         joint_params = JointSurveysParams(
             geoh5=geoh5,
-            topography_object=topography.uid,
+            activate_model=active_model,
             mesh=drivers[0].params.mesh,
             group_a=drivers[0].params.out_group,
             group_b=drivers[1].params.out_group,

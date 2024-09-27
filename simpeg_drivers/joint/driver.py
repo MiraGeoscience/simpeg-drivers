@@ -136,6 +136,7 @@ class BaseJointDriver(InversionDriver):
                 enforce_active=False,
                 components=3 if driver.inversion_data.vector else 1,
             )
+            driver.params.active_model = None
             driver.models.active_cells = projection.local_active
             driver.data_misfit.model_map = projection * wire
 
@@ -154,18 +155,6 @@ class BaseJointDriver(InversionDriver):
     def inversion_data(self):
         """Inversion data"""
         return self._inversion_data
-
-    @property
-    def inversion_mesh(self):
-        """Inversion mesh"""
-        if getattr(self, "_inversion_mesh", None) is None:
-            self._inversion_mesh = InversionMesh(
-                self.workspace,
-                self.params,
-                self.inversion_data,
-                self.inversion_topography,
-            )
-        return self._inversion_mesh
 
     def validate_create_mesh(self):
         """Function to validate and create the inversion mesh."""
