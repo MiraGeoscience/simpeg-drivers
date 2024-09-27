@@ -18,6 +18,7 @@
 
 from __future__ import annotations
 
+import simpeg_drivers
 from simpeg_drivers.constants import validations as base_validations
 from simpeg_drivers.joint.constants import default_ui_json as joint_default_ui_json
 
@@ -25,9 +26,16 @@ from simpeg_drivers.joint.constants import default_ui_json as joint_default_ui_j
 ################# defaults ##################
 
 inversion_defaults = {
+    "version": simpeg_drivers.__version__,
     "title": "SimPEG Joint Surveys Inversion",
-    "inversion_type": "joint surveys",
+    "icon": "",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
+    "conda_environment": "simpeg_drivers",
+    "run_command": "simpeg_drivers.driver",
     "geoh5": None,  # Must remain at top of list for notebook app initialization
+    "monitoring_directory": None,
+    "workspace_geoh5": None,
+    "inversion_type": "joint surveys",
     "forward_only": False,
     "topography_object": None,
     "topography": None,
@@ -81,10 +89,6 @@ inversion_defaults = {
     "chunk_by_rows": True,
     "out_group": None,
     "generate_sweep": False,
-    "monitoring_directory": None,
-    "workspace_geoh5": None,
-    "run_command": "simpeg_drivers.driver",
-    "conda_environment": "simpeg_drivers",
     "distributed_workers": None,
 }
 

@@ -28,6 +28,8 @@ from time import time
 import numpy as np
 from dask import config as dconf
 from geoapps_utils.driver.driver import BaseDriver
+
+from geoh5py.data import Data
 from geoh5py.groups import SimPEGGroup
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
@@ -266,7 +268,8 @@ class InversionDriver(BaseDriver):
     @property
     def regularization(self):
         if getattr(self, "_regularization", None) is None:
-            self._regularization = self.get_regularization()
+            with fetch_active_workspace(self.workspace, mode="r"):
+                self._regularization = self.get_regularization()
 
         return self._regularization
 
@@ -390,7 +393,9 @@ class InversionDriver(BaseDriver):
             )
             norms = []
             # Adjustment for 2D versus 3D problems
-            for comp in ["s", "x", "y", "z"]:
+            comps = "sxz" if "2d" in self.params.inversion_type else "sxyz"
+            avg_comps = "sxy" if "2d" in self.params.inversion_type else "sxyz"
+            for comp, avg_comp in zip(comps, avg_comps):
                 if getattr(self.params, f"length_scale_{comp}", None) is not None:
                     setattr(
                         reg,
@@ -398,8 +403,11 @@ class InversionDriver(BaseDriver):
                         getattr(self.params, f"length_scale_{comp}"),
                     )
 
-                if getattr(self.params, f"{comp}_norm") is not None:
-                    norms.append(getattr(self.params, f"{comp}_norm"))
+                norm = mapping * getattr(self.models, f"{comp}_norm")
+                if comp in "xyz":
+                    norm = getattr(reg.regularization_mesh, f"aveCC2F{avg_comp}") * norm
+
+                norms.append(norm)
 
             if norms:
                 reg.norms = norms

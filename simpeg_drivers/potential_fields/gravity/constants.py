@@ -32,10 +32,14 @@ from simpeg_drivers.constants import validations as base_validations
 inversion_defaults = {
     "version": simpeg_drivers.__version__,
     "title": "Gravity Inversion",
-    "documentation": "https://geoapps.readthedocs.io/en/stable/content/applications/grav_mag_inversion.html",
     "icon": "surveyairbornegravity",
-    "inversion_type": "gravity",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
+    "conda_environment": "simpeg_drivers",
+    "run_command": "simpeg_drivers.driver",
     "geoh5": None,  # Must remain at top of list for notebook app initialization
+    "monitoring_directory": None,
+    "workspace_geoh5": None,
+    "inversion_type": "gravity",
     "forward_only": False,
     "topography_object": None,
     "topography": None,
@@ -110,19 +114,19 @@ inversion_defaults = {
     "out_group": None,
     "ga_group": None,
     "generate_sweep": False,
-    "monitoring_directory": None,
-    "workspace_geoh5": None,
-    "run_command": "simpeg_drivers.driver",
-    "conda_environment": "simpeg_drivers",
     "distributed_workers": None,
 }
 forward_defaults = {
     "version": simpeg_drivers.__version__,
     "title": "Gravity Forward",
-    "documentation": "https://geoapps.readthedocs.io/en/stable/content/applications/grav_mag_inversion.html",
     "icon": "surveyairbornegravity",
-    "inversion_type": "gravity",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
+    "conda_environment": "simpeg_drivers",
+    "run_command": "simpeg_drivers.driver",
     "geoh5": None,  # Must remain at top of list for notebook app initialization
+    "monitoring_directory": None,
+    "workspace_geoh5": None,
+    "inversion_type": "gravity",
     "forward_only": True,
     "topography_object": None,
     "topography": None,
@@ -153,10 +157,6 @@ forward_defaults = {
     "out_group": None,
     "ga_group": None,
     "generate_sweep": False,
-    "monitoring_directory": None,
-    "workspace_geoh5": None,
-    "run_command": "simpeg_drivers.driver",
-    "conda_environment": "simpeg_drivers",
     "distributed_workers": None,
 }
 

@@ -30,10 +30,14 @@ from simpeg_drivers import default_ui_json as base_default_ui_json
 inversion_defaults = {
     "version": simpeg_drivers.__version__,
     "title": "Induced Polarization (IP) 3D Inversion",
-    "documentation": "https://geoapps.readthedocs.io/en/stable/content/applications/dcip_inversion.html",
     "icon": "PotentialElectrode",
-    "inversion_type": "induced polarization 3d",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
+    "conda_environment": "simpeg_drivers",
+    "run_command": "simpeg_drivers.driver",
     "geoh5": None,  # Must remain at top of list for notebook app initialization
+    "monitoring_directory": None,
+    "workspace_geoh5": None,
+    "inversion_type": "induced polarization 3d",
     "forward_only": False,
     "topography_object": None,
     "topography": None,
@@ -90,10 +94,6 @@ inversion_defaults = {
     "chunk_by_rows": True,
     "out_group": None,
     "generate_sweep": False,
-    "monitoring_directory": None,
-    "workspace_geoh5": None,
-    "run_command": "simpeg_drivers.driver",
-    "conda_environment": "simpeg_drivers",
     "distributed_workers": None,
     "chargeability_channel_bool": True,
 }
@@ -101,10 +101,14 @@ inversion_defaults = {
 forward_defaults = {
     "version": simpeg_drivers.__version__,
     "title": "Induced Polarization (IP) 3D Forward",
-    "documentation": "https://geoapps.readthedocs.io/en/stable/content/applications/dcip_inversion.html",
     "icon": "PotentialElectrode",
-    "inversion_type": "induced polarization 3d",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
+    "conda_environment": "simpeg_drivers",
+    "run_command": "simpeg_drivers.driver",
     "geoh5": None,  # Must remain at top of list for notebook app initialization
+    "monitoring_directory": None,
+    "workspace_geoh5": None,
+    "inversion_type": "induced polarization 3d",
     "forward_only": True,
     "topography_object": None,
     "topography": None,
@@ -126,10 +130,6 @@ forward_defaults = {
     "chunk_by_rows": True,
     "out_group": None,
     "generate_sweep": False,
-    "monitoring_directory": None,
-    "workspace_geoh5": None,
-    "run_command": "simpeg_drivers.driver",
-    "conda_environment": "simpeg_drivers",
     "distributed_workers": None,
 }
 
