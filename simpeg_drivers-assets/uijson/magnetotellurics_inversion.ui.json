@@ -10,56 +10,6 @@
     "workspace_geoh5": "",
     "inversion_type": "magnetotellurics",
     "forward_only": false,
-    "topography_object": {
-        "main": true,
-        "group": "Topography",
-        "label": "Topography",
-        "meshType": [
-            "{202c5db1-a56d-4004-9cad-baafd8899406}",
-            "{6a057fdc-b355-11e3-95be-fd84a7ffcb88}",
-            "{f26feba3-aded-494b-b9e9-b2bbcbe298e1}",
-            "{48f5054a-1c5c-4ca4-9048-80f36dc60a06}",
-            "{b020a277-90e2-4cd7-84d6-612ee3f25051}"
-        ],
-        "value": "",
-        "optional": true,
-        "enabled": false
-    },
-    "topography": {
-        "association": [
-            "Vertex",
-            "Cell"
-        ],
-        "dataType": "Float",
-        "group": "Topography",
-        "main": true,
-        "optional": true,
-        "enabled": false,
-        "label": "Elevation channel",
-        "tooltip": "Set elevation from channel",
-        "parent": "topography_object",
-        "dependency": "topography_object",
-        "dependencyType": "enabled",
-        "value": "",
-        "verbose": 2
-    },
-    "active_model": {
-        "association": "Cell",
-        "dataType": [
-            "Referenced",
-            "Boolean",
-            "Integer"
-        ],
-        "group": "Topography",
-        "main": true,
-        "enabled": false,
-        "dependency": "topography_object",
-        "dependencyType": "disabled",
-        "label": "Active model",
-        "tooltip": "Bool model on the input 'mesh' defining air/ground cells",
-        "parent": "mesh",
-        "value": ""
-    },
     "data_object": {
         "main": true,
         "group": "Data",
@@ -72,7 +22,8 @@
         "label": "Take z from topography",
         "tooltip": "Sets survey elevation to topography before any offsets are applied.",
         "value": false,
-        "verbose": 3
+        "verbose": 3,
+        "visible": false
     },
     "receivers_radar_drape": {
         "association": [
@@ -87,7 +38,8 @@
         "parent": "data_object",
         "value": "",
         "enabled": false,
-        "verbose": 3
+        "verbose": 3,
+        "visible": false
     },
     "receivers_offset_z": {
         "group": "Data pre-processing",
@@ -95,7 +47,8 @@
         "optional": true,
         "enabled": false,
         "value": 0.0,
-        "verbose": 3
+        "verbose": 3,
+        "visible": false
     },
     "gps_receivers_offset": "",
     "zxx_real_channel": {
@@ -385,6 +338,8 @@
         "parent": "mesh",
         "label": "Reference conductivity (S/m)",
         "property": "",
+        "optional": true,
+        "enabled": false,
         "value": 0.001
     },
     "lower_bound": {
@@ -419,99 +374,66 @@
         "value": 100.0,
         "enabled": false
     },
-    "output_tile_files": false,
-    "inversion_style": "voxel",
-    "chi_factor": {
-        "min": 0.1,
-        "max": 20.0,
-        "precision": 1,
-        "lineEdit": false,
-        "group": "Optimization",
-        "label": "Chi factor",
-        "value": 1.0,
+    "topography_object": {
+        "main": true,
+        "group": "Topography",
+        "label": "Topography",
+        "meshType": [
+            "{202c5db1-a56d-4004-9cad-baafd8899406}",
+            "{6a057fdc-b355-11e3-95be-fd84a7ffcb88}",
+            "{f26feba3-aded-494b-b9e9-b2bbcbe298e1}",
+            "{48f5054a-1c5c-4ca4-9048-80f36dc60a06}",
+            "{b020a277-90e2-4cd7-84d6-612ee3f25051}"
+        ],
+        "value": "{00000000-0000-0000-0000-000000000000}",
+        "optional": true,
         "enabled": true
     },
-    "initial_beta_ratio": {
-        "min": 0.0,
-        "precision": 2,
-        "group": "Optimization",
-        "optional": true,
-        "enabled": true,
-        "label": "Initial beta ratio",
-        "value": 100.0,
-        "verbose": 2
-    },
-    "initial_beta": {
-        "min": 0.0,
-        "group": "Optimization",
+    "topography": {
+        "association": [
+            "Vertex",
+            "Cell"
+        ],
+        "dataType": "Float",
+        "group": "Topography",
+        "main": true,
         "optional": true,
         "enabled": false,
-        "dependency": "initial_beta_ratio",
+        "label": "Elevation channel",
+        "tooltip": "Set elevation from channel",
+        "parent": "topography_object",
+        "dependency": "topography_object",
+        "dependencyType": "enabled",
+        "value": "",
+        "verbose": 2
+    },
+    "active_model": {
+        "association": "Cell",
+        "dataType": [
+            "Referenced",
+            "Boolean",
+            "Integer"
+        ],
+        "group": "Topography",
+        "main": true,
+        "enabled": false,
+        "dependency": "topography_object",
         "dependencyType": "disabled",
-        "label": "Initial beta",
-        "value": 1.0,
-        "verbose": 2
+        "label": "Active model",
+        "tooltip": "Bool model on the input 'mesh' defining air/ground cells",
+        "parent": "mesh",
+        "value": ""
     },
-    "coolingRate": {
-        "group": "Optimization",
-        "label": "Iterations per beta",
-        "value": 4,
-        "min": 1,
-        "LineEdit": false,
-        "max": 10,
-        "precision": 1,
-        "verbose": 2
-    },
-    "coolingFactor": {
-        "group": "Optimization",
-        "label": "Beta cooling factor",
-        "tooltip": "Each beta cooling step will be calculated by dividing the current beta by this factor.",
-        "value": 2.0,
-        "min": 1.1,
-        "max": 100,
-        "precision": 1,
-        "lineEdit": false,
-        "verbose": 2
-    },
-    "max_global_iterations": {
-        "min": 1,
-        "lineEdit": false,
-        "group": "Optimization",
-        "label": "Maximum iterations",
-        "tooltip": "Number of L2 and IRLS iterations combined",
-        "value": 50,
-        "enabled": true
-    },
-    "max_line_search_iterations": {
-        "group": "Optimization",
-        "label": "Maximum number of line searches",
-        "value": 20,
-        "min": 1,
-        "enabled": true,
-        "verbose": 3
-    },
-    "max_cg_iterations": {
-        "min": 0,
-        "group": "Optimization",
-        "label": "Maximum CG iterations",
-        "value": 50,
-        "enabled": true,
-        "verbose": 2
-    },
-    "tol_cg": {
-        "min": 0,
-        "group": "Optimization",
-        "label": "Conjugate gradient tolerance",
-        "value": 0.0001,
-        "enabled": true,
-        "verbose": 3
-    },
+    "output_tile_files": false,
+    "inversion_style": "voxel",
     "alpha_s": {
         "min": 0.0,
         "group": "Regularization",
-        "label": "Smallness weight",
-        "value": 0.0,
+        "label": "Reference weight",
+        "value": 1.0,
         "tooltip": "Constant ratio compared to other weights. Larger values result in models that remain close to the reference model",
+        "dependency": "reference_model",
+        "dependencyType": "enabled",
         "enabled": true
     },
     "length_scale_x": {
@@ -541,7 +463,7 @@
     "s_norm": {
         "association": "Cell",
         "dataType": "Float",
-        "group": "Regularization",
+        "group": "Sparse/blocky model",
         "label": "Smallness norm",
         "isValue": true,
         "parent": "mesh",
@@ -551,12 +473,14 @@
         "max": 2.0,
         "precision": 2,
         "lineEdit": true,
-        "enabled": true
+        "enabled": false,
+        "dependency": "reference_model",
+        "dependencyType": "enabled"
     },
     "x_norm": {
         "association": "Cell",
         "dataType": "Float",
-        "group": "Regularization",
+        "group": "Sparse/blocky model",
         "label": "X-smoothness norm",
         "isValue": true,
         "parent": "mesh",
@@ -571,7 +495,7 @@
     "y_norm": {
         "association": "Cell",
         "dataType": "Float",
-        "group": "Regularization",
+        "group": "Sparse/blocky model",
         "label": "Y-smoothness norm",
         "isValue": true,
         "parent": "mesh",
@@ -586,7 +510,7 @@
     "z_norm": {
         "association": "Cell",
         "dataType": "Float",
-        "group": "Regularization",
+        "group": "Sparse/blocky model",
         "label": "Z-smoothness norm",
         "isValue": true,
         "parent": "mesh",
@@ -603,34 +527,26 @@
             "total",
             "components"
         ],
-        "group": "Regularization",
+        "group": "Sparse/blocky model",
         "label": "Gradient type",
         "value": "total",
         "verbose": 3
     },
     "max_irls_iterations": {
         "min": 0,
-        "group": "Update IRLS directive",
-        "label": "Maximum number of IRLS iterations",
+        "group": "Sparse/blocky model",
+        "label": "Maximum IRLS iterations",
         "tooltip": "Incomplete Re-weighted Least Squares iterations for non-L2 problems",
         "value": 25,
         "enabled": true,
         "verbose": 2
     },
     "starting_chi_factor": {
-        "group": "Update IRLS directive",
+        "group": "Sparse/blocky model",
         "label": "IRLS start chi factor",
-        "optional": true,
-        "enabled": false,
-        "value": 1.0,
+        "enabled": true,
+        "value": 2.0,
         "tooltip": "This chi factor will be used to determine the misfit threshold after which IRLS iterations begin.",
-        "verbose": 3
-    },
-    "f_min_change": {
-        "group": "Update IRLS directive",
-        "label": "f min change",
-        "value": 0.0001,
-        "min": 1e-06,
         "verbose": 3
     },
     "beta_tol": {
@@ -638,7 +554,8 @@
         "label": "Beta tolerance",
         "value": 0.5,
         "min": 0.0001,
-        "verbose": 3
+        "verbose": 3,
+        "visible": false
     },
     "prctile": {
         "group": "Update IRLS directive",
@@ -646,34 +563,113 @@
         "value": 95,
         "max": 100,
         "min": 5,
+        "verbose": 3,
+        "visible": false
+    },
+    "chi_factor": {
+        "min": 0.1,
+        "max": 20.0,
+        "precision": 1,
+        "lineEdit": false,
+        "group": "Cooling schedule/target",
+        "label": "Chi factor",
+        "value": 1.0,
+        "enabled": true
+    },
+    "initial_beta_ratio": {
+        "min": 0.0,
+        "precision": 2,
+        "group": "Cooling schedule/target",
+        "optional": true,
+        "enabled": true,
+        "label": "Initial beta ratio",
+        "value": 100.0,
+        "verbose": 2
+    },
+    "initial_beta": {
+        "min": 0.0,
+        "group": "Cooling schedule/target",
+        "optional": true,
+        "enabled": false,
+        "dependency": "initial_beta_ratio",
+        "dependencyType": "disabled",
+        "label": "Initial beta",
+        "value": 1.0,
+        "verbose": 2
+    },
+    "coolingFactor": {
+        "group": "Cooling schedule/target",
+        "label": "Beta cooling factor",
+        "tooltip": "Each beta cooling step will be calculated by dividing the current beta by this factor.",
+        "value": 2.0,
+        "min": 1.1,
+        "max": 100,
+        "precision": 1,
+        "lineEdit": false,
+        "verbose": 2
+    },
+    "coolingRate": {
+        "group": "Optimization",
+        "label": "Iterations per beta",
+        "value": 2,
+        "min": 1,
+        "LineEdit": false,
+        "max": 10,
+        "precision": 1,
+        "verbose": 2,
+        "enabled": true
+    },
+    "max_global_iterations": {
+        "min": 1,
+        "lineEdit": false,
+        "group": "Optimization",
+        "label": "Maximum iterations",
+        "tooltip": "Number of L2 and IRLS iterations combined",
+        "value": 50,
+        "enabled": true
+    },
+    "max_line_search_iterations": {
+        "group": "Optimization",
+        "label": "Maximum number of line searches",
+        "value": 20,
+        "min": 1,
+        "enabled": true,
         "verbose": 3
     },
-    "coolEps_q": {
-        "group": "Update IRLS directive",
-        "label": "Cool epsilon q",
-        "value": true,
+    "max_cg_iterations": {
+        "min": 0,
+        "group": "Optimization",
+        "label": "Maximum CG iterations",
+        "value": 30,
+        "enabled": true,
+        "verbose": 2
+    },
+    "tol_cg": {
+        "min": 0,
+        "group": "Optimization",
+        "label": "Conjugate gradient tolerance",
+        "value": 0.0001,
+        "enabled": true,
         "verbose": 3
     },
-    "coolEpsFact": {
-        "group": "Update IRLS directive",
-        "label": "Cool epsilon fact",
-        "value": 1.2,
-        "verbose": 3
-    },
-    "beta_search": {
-        "group": "Update IRLS directive",
-        "label": "Perform beta search",
-        "value": false,
-        "verbose": 3
+    "f_min_change": {
+        "group": "Optimization",
+        "label": "Minimum change in objective function",
+        "value": 0.0001,
+        "min": 1e-06,
+        "verbose": 3,
+        "optional": true,
+        "enabled": false
     },
     "sens_wts_threshold": {
         "group": "Update sensitivity weights directive",
         "tooltip": "Update sensitivity weight threshold",
         "label": "Threshold (%)",
-        "value": 0.001,
-        "max": 1.0,
+        "value": 1.0,
+        "max": 100.0,
         "min": 0.0,
-        "precision": 5,
+        "precision": 3,
+        "enabled": true,
         "verbose": 2
     },
     "every_iteration_bool": {
@@ -681,12 +677,14 @@
         "tooltip": "Update weights at every iteration",
         "label": "Every iteration",
         "value": true,
-        "verbose": 2
+        "verbose": 2,
+        "enabled": true
     },
     "parallelized": {
         "group": "Compute",
         "label": "Use parallelization",
-        "value": true
+        "value": true,
+        "visible": false
     },
     "n_cpu": {
         "min": 1,
@@ -696,7 +694,8 @@
         "optional": true,
         "enabled": false,
         "label": "Number of CPUs",
-        "value": 1
+        "value": 1,
+        "visible": false
     },
     "tile_spatial": {
         "group": "Compute",
@@ -727,13 +726,15 @@
         "enabled": true,
         "label": "Maximum chunk size",
         "value": 128,
-        "verbose": 3
+        "verbose": 3,
+        "visible": false
     },
     "chunk_by_rows": {
         "group": "Compute",
         "label": "Chunk by rows",
         "value": true,
-        "verbose": 3
+        "verbose": 3,
+        "visible": false
     },
     "out_group": {
         "label": "SimPEG group",
