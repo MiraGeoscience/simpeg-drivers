@@ -4,6 +4,7 @@
 
 channels:
   - conda-forge
+  - nodefaults
 dependencies:
   - annotated-types=0.7.0=pyhd8ed1ab_0
   - asciitree=0.3.3=py_2
@@ -101,7 +102,7 @@ dependencies:
   - pymatsolver-base=0.2.0=pyh44b312d_3
   - pyparsing=3.1.4=pyhd8ed1ab_0
   - pysocks=1.7.1=pyh0701188_6
-  - python=3.10.15=hfaddaf0_0_cpython
+  - python=3.10.15=hfaddaf0_1_cpython
   - python-dateutil=2.9.0=pyhd8ed1ab_0
   - python-tzdata=2023.4=pyhd8ed1ab_0
   - python_abi=3.10=5_cp310
@@ -129,13 +130,9 @@ dependencies:
   - vc14_runtime=14.40.33810=ha82c5b3_21
   - vs2015_runtime=14.40.33810=h3bf8584_21
   - wheel=0.44.0=pyhd8ed1ab_0
-  - win_inet_pton=1.1.0=pyhd8ed1ab_6
-  - xorg-kbproto=1.0.7=hcd874cb_1002
-  - xorg-libx11=1.8.9=h0076a8d_1
+  - win_inet_pton=1.1.0=pyh7428d3b_7
   - xorg-libxau=1.0.11=hcd874cb_0
   - xorg-libxdmcp=1.1.3=hcd874cb_0
-  - xorg-xextproto=7.3.0=hcd874cb_1003
-  - xorg-xproto=7.0.31=hcd874cb_1007
   - xz=5.2.6=h8d14728_0
   - yaml=0.2.5=h8ffe710_2
   - zarr=2.14.2=pyhd8ed1ab_0
@@ -144,11 +141,11 @@ dependencies:
   - zstandard=0.23.0=py310he5e10e1_1
   - zstd=1.5.6=h0ea2cb4_0
   - pip:
-      - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils@8726c9a369a76235db07363f035cbdd669629a37
+      - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils@693a3f3f2521b10997abf9d4796ea5bbbd54acff
       - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@1d057e0dd3c7cec71e2d39e4f0a6283f12ef140c
       - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg@e4effeea85a290af87d1f1deaf204a47894cff10
-      - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app@c3ae5ea68e7e517c0ac33efdf58f27380aec3b7c
-      - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps@e3be50dd098fe1d72d666704cbe65611386c8f23
+      - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app@3a1e73a4a657335496b116a690fac6884019f13b
+      - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps@1ad6378120dde7c075cf989283e6a977800d2158
 
 variables:
   KMP_WARNINGS: 0
