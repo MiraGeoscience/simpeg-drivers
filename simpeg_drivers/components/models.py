@@ -151,7 +151,7 @@ class InversionModelCollection:
         if mref is None or (self.is_sigma and all(mref == 0)):
             self.driver.params.alpha_s = 0.0
 
-            return self.starting.copy()
+            return None
 
         ref_model = mref.copy()
         ref_model = np.log(ref_model) if self.is_sigma else ref_model

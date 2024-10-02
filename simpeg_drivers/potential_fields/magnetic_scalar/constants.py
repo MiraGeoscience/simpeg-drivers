@@ -97,7 +97,7 @@ inversion_defaults = {
     "max_line_search_iterations": 20,
     "max_cg_iterations": 30,
     "tol_cg": 1e-4,
-    "f_min_change": None,
+    "f_min_change": 0.01,
     "sens_wts_threshold": 1.0,
     "every_iteration_bool": False,
     "parallelized": True,

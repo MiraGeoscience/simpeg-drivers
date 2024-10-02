@@ -384,11 +384,10 @@ default_ui_json = {
     "f_min_change": {
         "group": "Optimization",
         "label": "Minimum change in objective function",
-        "value": 0.0001,
+        "value": 0.01,
         "min": 1e-06,
         "verbose": 3,
-        "optional": True,
-        "enabled": False,
+        "enabled": True,
     },
     "beta_tol": {
         "group": "Update IRLS directive",
