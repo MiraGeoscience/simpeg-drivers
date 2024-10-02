@@ -211,6 +211,8 @@ default_ui_json = {
     "u_cell_size": {
         "min": 0.0,
         "group": "Mesh and models",
+        "dependency": "mesh",
+        "dependencyType": "disabled",
         "main": True,
         "enabled": True,
         "label": "Easting core cell size (m)",
@@ -219,6 +221,8 @@ default_ui_json = {
     "v_cell_size": {
         "min": 0.0,
         "group": "Mesh and models",
+        "dependency": "mesh",
+        "dependencyType": "disabled",
         "main": True,
         "enabled": True,
         "label": "Northing core cell size (m)",
@@ -227,6 +231,8 @@ default_ui_json = {
     "depth_core": {
         "min": 0.0,
         "group": "Mesh and models",
+        "dependency": "mesh",
+        "dependencyType": "disabled",
         "main": True,
         "enabled": True,
         "label": "Depth of core (m)",
@@ -235,6 +241,8 @@ default_ui_json = {
     "horizontal_padding": {
         "min": 0.0,
         "group": "Mesh and models",
+        "dependency": "mesh",
+        "dependencyType": "disabled",
         "main": True,
         "enabled": True,
         "label": "Horizontal padding (m)",
@@ -243,14 +251,17 @@ default_ui_json = {
     "vertical_padding": {
         "min": 0.0,
         "group": "Mesh and models",
-        "main": True,
+        "dependency": "mesh",
         "dependencyType": "disabled",
+        "main": True,
         "label": "Vertical padding (m)",
         "value": 1000.0,
     },
     "expansion_factor": {
         "main": True,
         "group": "Mesh and models",
+        "dependency": "mesh",
+        "dependencyType": "disabled",
         "label": "Expansion factor",
         "value": 1.1,
     },
