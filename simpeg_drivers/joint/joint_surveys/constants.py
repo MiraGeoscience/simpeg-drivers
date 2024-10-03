@@ -70,7 +70,7 @@ inversion_defaults = {
     "initial_beta_ratio": 1e2,
     "initial_beta": None,
     "coolingFactor": 2.0,
-    "coolingRate": 2,
+    "coolingRate": 1,
     "max_global_iterations": 50,
     "max_line_search_iterations": 20,
     "max_cg_iterations": 30,
