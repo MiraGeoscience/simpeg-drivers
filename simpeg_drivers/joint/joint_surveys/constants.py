@@ -18,8 +18,6 @@
 
 from __future__ import annotations
 
-from uuid import UUID
-
 import simpeg_drivers
 from simpeg_drivers.constants import validations as base_validations
 from simpeg_drivers.joint.constants import default_ui_json as joint_default_ui_json
@@ -39,7 +37,7 @@ inversion_defaults = {
     "workspace_geoh5": None,
     "inversion_type": "joint surveys",
     "forward_only": False,
-    "topography_object": UUID("{00000000-0000-0000-0000-000000000000}"),
+    "topography_object": None,
     "topography": None,
     "active_model": None,
     "group_a": None,
@@ -59,7 +57,7 @@ inversion_defaults = {
     "length_scale_x": 1.0,
     "length_scale_y": 1.0,
     "length_scale_z": 1.0,
-    "s_norm": None,
+    "s_norm": 0.0,
     "x_norm": 2.0,
     "y_norm": 2.0,
     "z_norm": 2.0,
@@ -78,7 +76,7 @@ inversion_defaults = {
     "max_cg_iterations": 30,
     "tol_cg": 1e-4,
     "f_min_change": 0.01,
-    "sens_wts_threshold": 1.0,
+    "sens_wts_threshold": 0.001,
     "every_iteration_bool": True,
     "parallelized": True,
     "n_cpu": None,
