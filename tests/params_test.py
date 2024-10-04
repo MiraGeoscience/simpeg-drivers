@@ -162,7 +162,7 @@ def catch_invalid_generator(params, field, invalid_value, validation_type):
     elif validation_type == "association":
         err = AssociationValidationError
     else:
-        raise ValueError("Validation type not recognized")
+        raise ValueError(f"'validation_type' {validation_type} not recognized.")
 
     with pytest.raises(err):
         setattr(params, field, invalid_value)
@@ -200,6 +200,7 @@ def test_params_initialize():
                 "starting_model",
                 "conductivity_model",
                 "min_value",
+                "generate_sweep",
             ]:
                 continue
             check.append(getattr(params, k) == v)
@@ -236,6 +237,7 @@ def test_input_file_construction(tmp_path: Path):
                     "reference_model",
                     "conductivity_model",
                     "min_value",
+                    "generate_sweep",
                 ]:
                     continue
                 check.append(getattr(params, k) == v)
@@ -404,17 +406,9 @@ def test_validate_tile_spatial(mvi_params):
     catch_invalid_generator(mvi_params, param, invalidval, "type")
 
 
-def test_validate_receivers_radar_drape(mvi_params):
-    param = "receivers_radar_drape"
-    newval = uuid4()
-    catch_invalid_generator(mvi_params, param, newval, "association")
-    catch_invalid_generator(mvi_params, param, {}, "type")
-
-
 @pytest.mark.parametrize(
     "param,newval,value,error_type",
     [
-        ("receivers_offset_z", 99.0, "test", "type"),
         ("max_chunk_size", 256, "asdf", "type"),
         ("chunk_by_rows", True, "sdf", "type"),
         ("output_tile_files", True, "sdf", "type"),
@@ -427,9 +421,6 @@ def test_validate_receivers_radar_drape(mvi_params):
         ("prctile", 90, "test", "type"),
         ("coolingRate", 3, "test", "type"),
         ("coolingFactor", 4.0, "test", "type"),
-        ("coolEps_q", False, "test", "type"),
-        ("coolEpsFact", 1.1, "test", "type"),
-        ("beta_search", True, "test", "type"),
         ("starting_chi_factor", 2.0, "test", "type"),
         ("max_global_iterations", 2, "test", "type"),
         ("max_irls_iterations", 1, "test", "type"),
@@ -441,10 +432,10 @@ def test_validate_receivers_radar_drape(mvi_params):
         ("length_scale_x", 0.1, "test", "type"),
         ("length_scale_y", 0.1, "test", "type"),
         ("length_scale_z", 0.1, "test", "type"),
-        ("s_norm", 0.5, "test", "type"),
-        ("x_norm", 0.5, "test", "type"),
-        ("y_norm", 0.5, "test", "type"),
-        ("z_norm", 0.5, "test", "type"),
+        ("s_norm", 0.5, {}, "type"),
+        ("x_norm", 0.5, {}, "type"),
+        ("y_norm", 0.5, {}, "type"),
+        ("z_norm", 0.5, {}, "type"),
         ("reference_model", 99.0, {}, "type"),
         ("reference_inclination", 99.0, {}, "type"),
         ("reference_declination", 99.0, {}, "type"),
@@ -455,11 +446,9 @@ def test_validate_receivers_radar_drape(mvi_params):
         ("n_cpu", 12, "test", "type"),
     ],
 )
-def test_validate_inversion_parameters(
-    mvi_params, param, newval, value, error_type
-):  # pylint: disable=expression-not-assigned
+def test_validate_inversion_parameters(mvi_params, param, newval, value, error_type):
     param_test_generator(mvi_params, param, newval)
-    catch_invalid_generator(mvi_params, param, value, error_type),
+    catch_invalid_generator(mvi_params, param, value, error_type)
 
 
 def test_validate_geoh5(mvi_params):

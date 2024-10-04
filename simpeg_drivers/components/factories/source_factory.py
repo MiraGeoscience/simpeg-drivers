@@ -20,11 +20,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+
 if TYPE_CHECKING:
     from geoapps_utils.driver.params import BaseParams
 
 import numpy as np
-from geoapps_utils.transformations import rotate_xyz
+from geoapps_utils.utils.transformations import rotate_xyz
 from geoh5py.objects import LargeLoopGroundTEMReceivers
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
@@ -135,6 +136,7 @@ class SourcesFactory(SimPEGFactory):
                 zip(
                     ["amplitude", "inclination", "declination"],
                     self.params.inducing_field_aid(),
+                    strict=False,
                 )
             )
         if self.factory_type in ["magnetotellurics", "tipper"]:

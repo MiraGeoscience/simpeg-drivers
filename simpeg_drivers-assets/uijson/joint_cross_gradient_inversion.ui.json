@@ -1,6 +1,8 @@
 {
     "version": "0.2.0-alpha.1",
     "title": "SimPEG Joint Cross Gradient Inversion",
+    "icon": "",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
     "conda_environment": "simpeg_drivers",
     "run_command": "simpeg_drivers.driver",
     "geoh5": "",
@@ -19,7 +21,9 @@
             "{48f5054a-1c5c-4ca4-9048-80f36dc60a06}",
             "{b020a277-90e2-4cd7-84d6-612ee3f25051}"
         ],
-        "value": ""
+        "value": "",
+        "optional": true,
+        "enabled": true
     },
     "topography": {
         "association": [
@@ -34,8 +38,27 @@
         "label": "Elevation channel",
         "tooltip": "Set elevation from channel",
         "parent": "topography_object",
+        "dependency": "topography_object",
+        "dependencyType": "enabled",
         "value": "",
         "verbose": 2
+    },
+    "active_model": {
+        "association": "Cell",
+        "dataType": [
+            "Referenced",
+            "Boolean",
+            "Integer"
+        ],
+        "group": "Topography",
+        "main": true,
+        "enabled": false,
+        "dependency": "topography_object",
+        "dependencyType": "disabled",
+        "label": "Active model",
+        "tooltip": "Bool model on the input 'mesh' defining air/ground cells",
+        "parent": "mesh",
+        "value": ""
     },
     "group_a": {
         "main": true,
@@ -71,7 +94,7 @@
         "min": 0.0,
         "group": "Joint",
         "label": "A x B Coupling Scale",
-        "value": 1.0,
+        "value": 1000000.0,
         "main": true,
         "lineEdit": false,
         "tooltip": "Weight applied to the cross gradient regularizations (1: equal weight with the standard Smallness and Smoothness terms.)"
@@ -99,7 +122,7 @@
         "min": 0.0,
         "group": "Joint",
         "label": "A x C Coupling Scale",
-        "value": 1.0,
+        "value": 1000000.0,
         "main": true,
         "lineEdit": false,
         "dependency": "group_c",
@@ -110,7 +133,7 @@
         "min": 0.0,
         "group": "Joint",
         "label": "B x C Coupling Scale",
-        "value": 1.0,
+        "value": 1000000.0,
         "main": true,
         "lineEdit": false,
         "dependency": "group_c",
@@ -128,12 +151,130 @@
     },
     "output_tile_files": false,
     "inversion_style": "voxel",
+    "alpha_s": {
+        "min": 0.0,
+        "group": "Regularization",
+        "groupOptional": true,
+        "label": "Smallness weight",
+        "value": 1.0,
+        "tooltip": "Constant ratio compared to other weights. Larger values result in models that remain close to the reference model",
+        "enabled": true
+    },
+    "length_scale_x": {
+        "min": 0.0,
+        "group": "Regularization",
+        "label": "X-smoothness weight",
+        "tooltip": "Larger values relative to other smoothness weights will result in x biased smoothness",
+        "value": 1.0,
+        "enabled": true
+    },
+    "length_scale_y": {
+        "min": 0.0,
+        "group": "Regularization",
+        "label": "Y-smoothness weight",
+        "tooltip": "Larger values relative to other smoothness weights will result in y biased smoothness",
+        "value": 1.0,
+        "enabled": true
+    },
+    "length_scale_z": {
+        "min": 0.0,
+        "group": "Regularization",
+        "label": "Z-smoothness weight",
+        "tooltip": "Larger values relative to other smoothness weights will result in z biased smoothess",
+        "value": 1.0,
+        "enabled": true
+    },
+    "s_norm": {
+        "min": 0.0,
+        "max": 2.0,
+        "group": "Regularization",
+        "label": "Smallness norm",
+        "value": 1.0,
+        "precision": 2,
+        "lineEdit": false,
+        "enabled": true
+    },
+    "x_norm": {
+        "min": 0.0,
+        "max": 2.0,
+        "group": "Regularization",
+        "label": "X-smoothness norm",
+        "value": 2.0,
+        "precision": 2,
+        "lineEdit": false,
+        "enabled": true
+    },
+    "y_norm": {
+        "min": 0.0,
+        "max": 2.0,
+        "group": "Regularization",
+        "label": "Y-smoothness norm",
+        "value": 2.0,
+        "precision": 2,
+        "lineEdit": false,
+        "enabled": true
+    },
+    "z_norm": {
+        "min": 0.0,
+        "max": 2.0,
+        "group": "Regularization",
+        "label": "Z-smoothness norm",
+        "value": 2.0,
+        "precision": 2,
+        "lineEdit": false,
+        "enabled": true
+    },
+    "gradient_type": {
+        "choiceList": [
+            "total",
+            "components"
+        ],
+        "group": "Regularization",
+        "label": "Gradient type",
+        "value": "total",
+        "verbose": 3,
+        "enabled": true
+    },
+    "max_irls_iterations": {
+        "min": 0,
+        "group": "Sparse/blocky model",
+        "label": "Maximum IRLS iterations",
+        "tooltip": "Incomplete Re-weighted Least Squares iterations for non-L2 problems",
+        "value": 25,
+        "enabled": true,
+        "verbose": 2
+    },
+    "starting_chi_factor": {
+        "group": "Sparse/blocky model",
+        "label": "IRLS start chi factor",
+        "enabled": true,
+        "value": 2.0,
+        "tooltip": "This chi factor will be used to determine the misfit threshold after which IRLS iterations begin.",
+        "verbose": 3
+    },
+    "beta_tol": {
+        "group": "Update IRLS directive",
+        "label": "Beta tolerance",
+        "value": 0.5,
+        "min": 0.0001,
+        "verbose": 3,
+        "visible": false
+    },
+    "prctile": {
+        "group": "Update IRLS directive",
+        "label": "Percentile",
+        "value": 95,
+        "max": 100,
+        "min": 5,
+        "verbose": 3,
+        "visible": false
+    },
     "chi_factor": {
         "min": 0.1,
         "max": 20.0,
         "precision": 1,
         "lineEdit": false,
-        "group": "Optimization",
+        "group": "Cooling schedule/target",
         "label": "Chi factor",
         "value": 1.0,
         "enabled": true
@@ -141,16 +282,16 @@
     "initial_beta_ratio": {
         "min": 0.0,
         "precision": 2,
-        "group": "Optimization",
+        "group": "Cooling schedule/target",
         "optional": true,
         "enabled": true,
         "label": "Initial beta ratio",
-        "value": 10.0,
+        "value": 100.0,
         "verbose": 2
     },
     "initial_beta": {
         "min": 0.0,
-        "group": "Optimization",
+        "group": "Cooling schedule/target",
         "optional": true,
         "enabled": false,
         "dependency": "initial_beta_ratio",
@@ -159,18 +300,8 @@
         "value": 1.0,
         "verbose": 2
     },
-    "coolingRate": {
-        "group": "Optimization",
-        "label": "Iterations per beta",
-        "value": 1,
-        "min": 1,
-        "LineEdit": false,
-        "max": 10,
-        "precision": 1,
-        "verbose": 2
-    },
     "coolingFactor": {
-        "group": "Optimization",
+        "group": "Cooling schedule/target",
         "label": "Beta cooling factor",
         "tooltip": "Each beta cooling step will be calculated by dividing the current beta by this factor.",
         "value": 2.0,
@@ -180,13 +311,24 @@
         "lineEdit": false,
         "verbose": 2
     },
+    "coolingRate": {
+        "group": "Optimization",
+        "label": "Iterations per beta",
+        "value": 2,
+        "min": 1,
+        "LineEdit": false,
+        "max": 10,
+        "precision": 1,
+        "verbose": 2,
+        "enabled": true
+    },
     "max_global_iterations": {
         "min": 1,
         "lineEdit": false,
         "group": "Optimization",
         "label": "Maximum iterations",
         "tooltip": "Number of L2 and IRLS iterations combined",
-        "value": 100,
+        "value": 50,
         "enabled": true
     },
     "max_line_search_iterations": {
@@ -213,156 +355,23 @@
         "enabled": true,
         "verbose": 3
     },
-    "alpha_s": {
-        "min": 0.0,
-        "group": "Regularization",
-        "groupOptional": true,
-        "label": "Smallness weight",
-        "value": 1.0,
-        "tooltip": "Constant ratio compared to other weights. Larger values result in models that remain close to the reference model",
-        "enabled": false
-    },
-    "length_scale_x": {
-        "min": 0.0,
-        "group": "Regularization",
-        "label": "X-smoothness weight",
-        "tooltip": "Larger values relative to other smoothness weights will result in x biased smoothness",
-        "value": 1.0,
-        "enabled": false
-    },
-    "length_scale_y": {
-        "min": 0.0,
-        "group": "Regularization",
-        "label": "Y-smoothness weight",
-        "tooltip": "Larger values relative to other smoothness weights will result in y biased smoothness",
-        "value": 1.0,
-        "enabled": false
-    },
-    "length_scale_z": {
-        "min": 0.0,
-        "group": "Regularization",
-        "label": "Z-smoothness weight",
-        "tooltip": "Larger values relative to other smoothness weights will result in z biased smoothess",
-        "value": 1.0,
-        "enabled": false
-    },
-    "s_norm": {
-        "min": 0.0,
-        "max": 2.0,
-        "group": "Regularization",
-        "label": "Smallness norm",
-        "value": 0.0,
-        "precision": 2,
-        "lineEdit": false,
-        "enabled": false
-    },
-    "x_norm": {
-        "min": 0.0,
-        "max": 2.0,
-        "group": "Regularization",
-        "label": "X-smoothness norm",
-        "value": 2.0,
-        "precision": 2,
-        "lineEdit": false,
-        "enabled": false
-    },
-    "y_norm": {
-        "min": 0.0,
-        "max": 2.0,
-        "group": "Regularization",
-        "label": "Y-smoothness norm",
-        "value": 2.0,
-        "precision": 2,
-        "lineEdit": false,
-        "enabled": false
-    },
-    "z_norm": {
-        "min": 0.0,
-        "max": 2.0,
-        "group": "Regularization",
-        "label": "Z-smoothness norm",
-        "value": 2.0,
-        "precision": 2,
-        "lineEdit": false,
-        "enabled": false
-    },
-    "gradient_type": {
-        "choiceList": [
-            "total",
-            "components"
-        ],
-        "group": "Regularization",
-        "label": "Gradient type",
-        "value": "total",
-        "verbose": 3,
-        "enabled": false
-    },
-    "max_irls_iterations": {
-        "min": 0,
-        "group": "Update IRLS directive",
-        "label": "Maximum number of IRLS iterations",
-        "tooltip": "Incomplete Re-weighted Least Squares iterations for non-L2 problems",
-        "value": 25,
-        "enabled": true,
-        "verbose": 2
-    },
-    "starting_chi_factor": {
-        "group": "Update IRLS directive",
-        "label": "IRLS start chi factor",
-        "optional": true,
-        "enabled": false,
-        "value": 1.0,
-        "tooltip": "This chi factor will be used to determine the misfit threshold after which IRLS iterations begin.",
-        "verbose": 3
-    },
     "f_min_change": {
-        "group": "Update IRLS directive",
-        "label": "f min change",
-        "value": 0.0001,
+        "group": "Optimization",
+        "label": "Minimum change in objective function",
+        "value": 0.01,
         "min": 1e-06,
-        "verbose": 3
-    },
-    "beta_tol": {
-        "group": "Update IRLS directive",
-        "label": "Beta tolerance",
-        "value": 0.5,
-        "min": 0.0001,
-        "verbose": 3
-    },
-    "prctile": {
-        "group": "Update IRLS directive",
-        "label": "Percentile",
-        "value": 95,
-        "max": 100,
-        "min": 5,
-        "verbose": 3
-    },
-    "coolEps_q": {
-        "group": "Update IRLS directive",
-        "label": "Cool epsilon q",
-        "value": true,
-        "verbose": 3
-    },
-    "coolEpsFact": {
-        "group": "Update IRLS directive",
-        "label": "Cool epsilon fact",
-        "value": 1.2,
-        "verbose": 3
-    },
-    "beta_search": {
-        "group": "Update IRLS directive",
-        "label": "Perform beta search",
-        "value": false,
-        "verbose": 3
+        "verbose": 3,
+        "enabled": true
     },
     "sens_wts_threshold": {
         "group": "Update sensitivity weights directive",
         "tooltip": "Update sensitivity weight threshold",
         "label": "Threshold (%)",
         "value": 0.001,
-        "max": 1.0,
+        "max": 100.0,
         "min": 0.0,
-        "precision": 5,
+        "precision": 3,
+        "enabled": true,
         "verbose": 2
     },
     "every_iteration_bool": {
@@ -370,12 +379,14 @@
         "tooltip": "Update weights at every iteration",
         "label": "Every iteration",
         "value": true,
-        "verbose": 2
+        "verbose": 2,
+        "enabled": true
     },
     "parallelized": {
         "group": "Compute",
         "label": "Use parallelization",
-        "value": true
+        "value": true,
+        "visible": false
     },
     "n_cpu": {
         "min": 1,
@@ -385,7 +396,8 @@
         "optional": true,
         "enabled": false,
         "label": "Number of CPUs",
-        "value": 1
+        "value": 1,
+        "visible": false
     },
     "store_sensitivities": {
         "choiceList": [
@@ -405,13 +417,15 @@
         "enabled": true,
         "label": "Maximum chunk size",
         "value": 128,
-        "verbose": 3
+        "verbose": 3,
+        "visible": false
     },
     "chunk_by_rows": {
         "group": "Compute",
         "label": "Chunk by rows",
         "value": true,
-        "verbose": 3
+        "verbose": 3,
+        "visible": false
     },
     "out_group": {
         "label": "SimPEG group",

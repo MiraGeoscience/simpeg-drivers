@@ -20,20 +20,24 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+
 if TYPE_CHECKING:
-    from geoh5py.workspace import Workspace
     from geoapps_utils.driver.params import BaseParams
+    from geoh5py.workspace import Workspace
+
     from simpeg_drivers.components.meshes import InversionMesh
 
 import warnings
 
 import numpy as np
 from discretize import TreeMesh
+from geoh5py.data import NumericData
 from geoh5py.objects.surveys.electromagnetics.base import LargeLoopGroundEMSurvey
 from geoh5py.shared import Entity
 
 from simpeg_drivers.components.data import InversionData
 from simpeg_drivers.components.locations import InversionLocations
+from simpeg_drivers.components.models import InversionModel
 from simpeg_drivers.utils.utils import (
     active_from_xyz,
     floating_active,
@@ -73,10 +77,8 @@ class InversionTopography(InversionLocations):
         super().__init__(workspace, params)
         self.locations: np.ndarray | None = None
 
-        self._initialize()
-
-    def _initialize(self):
-        self.locations = self.get_locations(self.params.topography_object)
+        if self.params.topography_object is not None:
+            self.locations = self.get_locations(self.params.topography_object)
 
     def active_cells(self, mesh: InversionMesh, data: InversionData) -> np.ndarray:
         """
@@ -86,19 +88,26 @@ class InversionTopography(InversionLocations):
         :return: active_cells: Mask that restricts a model to the set of
             earth cells that are active in the inversion (beneath topography).
         """
-        forced_to_surface = self.params.inversion_type in [
+        forced_to_surface: bool = self.params.inversion_type in [
             "magnetotellurics",
             "direct current 3d",
             "direct current 2d",
             "induced polarization 3d",
             "induced polarization 2d",
         ] or isinstance(data.entity, LargeLoopGroundEMSurvey)
-        active_cells = active_from_xyz(
-            mesh.entity,
-            self.locations,
-            grid_reference="bottom" if forced_to_surface else "center",
-        )
-        active_cells = active_cells[np.argsort(mesh.permutation)]
+
+        if isinstance(self.params.active_model, NumericData):
+            active_cells = InversionModel.obj_2_mesh(
+                self.params.active_model, mesh.entity
+            )
+        else:
+            active_cells = active_from_xyz(
+                mesh.entity,
+                self.locations,
+                grid_reference="bottom" if forced_to_surface else "center",
+            )
+
+        active_cells = active_cells[np.argsort(mesh.permutation)].astype(bool)
 
         if forced_to_surface:
             active_cells = self.expand_actives(active_cells, mesh, data)
@@ -127,7 +136,7 @@ class InversionTopography(InversionLocations):
         if self.params.topography is not None:
             if isinstance(self.params.topography, Entity):
                 elev = self.params.topography.values
-            elif isinstance(self.params.topography, (int, float)):
+            elif isinstance(self.params.topography, int | float):
                 elev = np.ones_like(locs[:, 2]) * self.params.topography
             else:
                 elev = self.params.topography.values  # Must be FloatData at this point

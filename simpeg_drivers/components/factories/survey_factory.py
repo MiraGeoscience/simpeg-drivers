@@ -23,6 +23,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+
 if TYPE_CHECKING:
     from geoapps_utils.driver.params import BaseParams
 
@@ -36,7 +37,6 @@ from scipy.interpolate import interp1d
 from simpeg_drivers.components.factories.receiver_factory import ReceiversFactory
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 from simpeg_drivers.components.factories.source_factory import SourcesFactory
-from simpeg_drivers.utils.surveys import counter_clockwise_sort
 
 
 def receiver_group(txi, potential_electrodes):
@@ -50,7 +50,7 @@ def receiver_group(txi, potential_electrodes):
     :return: ids : list of ids of potential electrodes used with transmitter txi.
     """
 
-    index_map = potential_electrodes.ab_map.map
+    index_map = potential_electrodes.ab_map()
     index_map = {int(v): k for k, v in index_map.items() if v != "Unknown"}
     ids = np.where(
         potential_electrodes.ab_cell_id.values.astype(int) == index_map[txi]
@@ -336,15 +336,22 @@ class SurveyFactory(SimPEGFactory):
         receivers = data.entity
         transmitters = receivers.transmitters
 
-        if isinstance(transmitters, LargeLoopGroundTEMTransmitters):
+        if receivers.channels[-1] > (
+            receivers.waveform[:, 0].max() - receivers.timing_mark
+        ):
+            raise ValueError(
+                f"The latest time channel {receivers.channels[-1]} exceeds "
+                f"the waveform discretization. Revise waveform."
+            )
 
+        if isinstance(transmitters, LargeLoopGroundTEMTransmitters):
             if receivers.tx_id_property is None:
                 raise ValueError(
                     "Transmitter ID property required for LargeLoopGroundTEMReceivers"
                 )
 
             tx_rx = receivers.tx_id_property.values[self.local_index]
-            tx_ids = transmitters.get_data("Transmitter ID")[0].values
+            tx_ids = transmitters.tx_id_property.values
             rx_lookup = []
             tx_locs = []
             for tx_id in np.unique(tx_rx):
@@ -353,7 +360,6 @@ class SurveyFactory(SimPEGFactory):
                 loop_cells = transmitters.cells[
                     np.all(tx_ind[transmitters.cells], axis=1), :
                 ]
-                loop_cells = counter_clockwise_sort(loop_cells, transmitters.vertices)
                 loop_ind = np.r_[loop_cells[:, 0], loop_cells[-1, 1]]
                 tx_locs.append(transmitters.vertices[loop_ind, :])
         else:
@@ -375,7 +381,7 @@ class SurveyFactory(SimPEGFactory):
         tx_list = []
         rx_factory = ReceiversFactory(self.params)
         tx_factory = SourcesFactory(self.params)
-        for tx_locs, rx_ids in zip(tx_locs, rx_lookup):
+        for cur_tx_locs, rx_ids in zip(tx_locs, rx_lookup, strict=True):
             locs = receivers.vertices[rx_ids, :]
 
             rx_list = []
@@ -394,7 +400,7 @@ class SurveyFactory(SimPEGFactory):
                         self.ordering.append([time_id, component_id, rx_id])
 
             tx_list.append(
-                tx_factory.build(rx_list, locations=tx_locs, waveform=waveform)
+                tx_factory.build(rx_list, locations=cur_tx_locs, waveform=waveform)
             )
 
         return [tx_list]

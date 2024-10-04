@@ -5,14 +5,14 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.16.1
+#       jupytext_version: 1.16.2
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
 
-# # Inversion Fundamentals
+# # Background
 #
 # This section provides the mathematical background to understand the inversion algorithm. We are going to use standard terminology and nomenclature used in the literature as a framework. Even though we are going to use mathematical expressions, it is only a vehicle to help in understanding the influence of different parameters controlling the outcome of an inversion.
 
@@ -72,6 +72,8 @@
 # $$
 
 import numpy as np
+from numpy.linalg import LinAlgError
+
 
 F = np.c_[1, 2]
 
@@ -179,7 +181,7 @@ np.dot(F, [0.5, 0.25])
 
 try:
     np.linalg.solve(np.dot(F.T, F), F.T * np.r_[1])
-except Exception as error:
+except LinAlgError as error:
     print(error)
 
 # We can get around this by adding a small value to `regularize` the system such that

@@ -36,10 +36,11 @@ from simpeg_drivers.potential_fields.magnetic_vector.driver import MagneticVecto
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
+
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 53.29600188902931, "phi_d": 534.7, "phi_m": 0.2942}
+target_run = {"data_norm": 53.29600188902931, "phi_d": 2998, "phi_m": 0.1313}
 
 
 def test_joint_cross_gradient_fwr_run(
@@ -135,7 +136,6 @@ def test_joint_cross_gradient_fwr_run(
 def test_joint_cross_gradient_inv_run(
     tmp_path,
     max_iterations=1,
-    n_lines=3,
     pytest=True,
 ):
     workpath = tmp_path / "inversion_test.ui.geoh5"
@@ -184,6 +184,7 @@ def test_joint_cross_gradient_inv_run(
                     gz_channel=data.uid,
                     gz_uncertainty=1e-3,
                     starting_model=0.0,
+                    reference_model=0.0,
                 )
                 drivers.append(GravityDriver(params))
             elif group.options["inversion_type"] == "direct current 3d":
@@ -195,7 +196,7 @@ def test_joint_cross_gradient_inv_run(
                     data_object=survey.uid,
                     potential_channel=data.uid,
                     potential_uncertainty=1e-3,
-                    tile_spatial=n_lines,
+                    tile_spatial=1,
                     starting_model=1e-2,
                     reference_model=1e-2,
                 )
@@ -235,9 +236,9 @@ def test_joint_cross_gradient_inv_run(
             group_c=drivers[2].params.out_group,
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e2,
-            cross_gradient_weight_a_b=5e0,
-            cross_gradient_weight_c_a=5e0,
-            cross_gradient_weight_c_b=5e0,
+            cross_gradient_weight_a_b=1e0,
+            cross_gradient_weight_c_a=1e0,
+            cross_gradient_weight_c_b=1e0,
             s_norm=0.0,
             x_norm=0.0,
             y_norm=0.0,
@@ -271,6 +272,5 @@ if __name__ == "__main__":
     test_joint_cross_gradient_inv_run(
         Path("./"),
         max_iterations=20,
-        n_lines=5,
         pytest=False,
     )

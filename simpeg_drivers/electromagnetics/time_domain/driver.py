@@ -68,7 +68,7 @@ class TimeDomainElectromagneticsDriver(InversionDriver):
         )
         receivers_tx_ids = self.params.data_object.tx_id_property.values
         tiles = []
-        for t_id, group in enumerate(tx_tiles):
+        for _t_id, group in enumerate(tx_tiles):
             sub_group = []
             for value in group:
                 receiver_ind = receivers_tx_ids == unique_tile_ids[value]

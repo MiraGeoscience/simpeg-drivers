@@ -14,7 +14,7 @@
 #  not be provided or otherwise made available to any other person.
 #
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
+# flake8: noqa
 
 from __future__ import annotations
 
@@ -28,11 +28,14 @@ from time import time
 import numpy as np
 from dask import config as dconf
 from geoapps_utils.driver.driver import BaseDriver
+
+from geoh5py.data import Data
 from geoh5py.groups import SimPEGGroup
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
 from param_sweeps.driver import SweepParams
 from simpeg import (
+    dask,
     directives,
     inverse_problem,
     inversion,
@@ -142,7 +145,7 @@ class InversionDriver(BaseDriver):
         return self._inversion
 
     @property
-    def inversion_data(self):
+    def inversion_data(self) -> InversionData:
         """Inversion data"""
         if getattr(self, "_inversion_data", None) is None:
             with fetch_active_workspace(self.workspace, mode="r+"):
@@ -151,16 +154,11 @@ class InversionDriver(BaseDriver):
         return self._inversion_data
 
     @property
-    def inversion_mesh(self):
+    def inversion_mesh(self) -> InversionMesh:
         """Inversion mesh"""
         if getattr(self, "_inversion_mesh", None) is None:
             with fetch_active_workspace(self.workspace, mode="r+"):
-                self._inversion_mesh = InversionMesh(
-                    self.workspace,
-                    self.params,
-                    self.inversion_data,
-                    self.inversion_topography,
-                )
+                self._inversion_mesh = InversionMesh(self.workspace, self.params)
         return self._inversion_mesh
 
     @property
@@ -270,7 +268,8 @@ class InversionDriver(BaseDriver):
     @property
     def regularization(self):
         if getattr(self, "_regularization", None) is None:
-            self._regularization = self.get_regularization()
+            with fetch_active_workspace(self.workspace, mode="r"):
+                self._regularization = self.get_regularization()
 
         return self._regularization
 
@@ -389,12 +388,14 @@ class InversionDriver(BaseDriver):
                 self.inversion_mesh.mesh,
                 active_cells=self.models.active_cells,
                 mapping=mapping,
-                alpha_s=self.params.alpha_s,
                 reference_model=self.models.reference,
+                alpha_s=self.params.alpha_s,
             )
             norms = []
             # Adjustment for 2D versus 3D problems
-            for comp in ["s", "x", "y", "z"]:
+            comps = "sxz" if "2d" in self.params.inversion_type else "sxyz"
+            avg_comps = "sxy" if "2d" in self.params.inversion_type else "sxyz"
+            for comp, avg_comp in zip(comps, avg_comps):
                 if getattr(self.params, f"length_scale_{comp}", None) is not None:
                     setattr(
                         reg,
@@ -402,8 +403,11 @@ class InversionDriver(BaseDriver):
                         getattr(self.params, f"length_scale_{comp}"),
                     )
 
-                if getattr(self.params, f"{comp}_norm") is not None:
-                    norms.append(getattr(self.params, f"{comp}_norm"))
+                norm = mapping * getattr(self.models, f"{comp}_norm")
+                if comp in "xyz":
+                    norm = getattr(reg.regularization_mesh, f"aveCC2F{avg_comp}") * norm
+
+                norms.append(norm)
 
             if norms:
                 reg.norms = norms
@@ -447,7 +451,7 @@ class InversionDriver(BaseDriver):
         _ = driver_class
 
         ifile = InputFile.read_ui_json(filepath)
-        inversion_type = ifile.data["inversion_type"]
+        inversion_type = ifile.ui_json.get("inversion_type", None)
         if inversion_type not in DRIVER_MAP:
             msg = f"Inversion type {inversion_type} is not supported."
             msg += f" Valid inversions are: {*list(DRIVER_MAP), }."

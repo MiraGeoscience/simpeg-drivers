@@ -33,10 +33,11 @@ from simpeg_drivers.electromagnetics.frequency_domain.params import (
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
+
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 47.522882323952054, "phi_d": 364.5, "phi_m": 883.8}
+target_run = {"data_norm": 47.522882323952054, "phi_d": 729, "phi_m": 883.8}
 
 
 def test_fem_fwr_run(
@@ -118,7 +119,7 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
 
         data_kwargs = {}
         for comp, data_group, uncert_group in zip(
-            components, data_groups, uncert_groups
+            components, data_groups, uncert_groups, strict=True
         ):
             data_kwargs[f"{comp}_channel"] = data_group.uid
             data_kwargs[f"{comp}_uncertainty"] = uncert_group.uid

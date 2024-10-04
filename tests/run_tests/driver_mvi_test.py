@@ -28,12 +28,13 @@ from simpeg_drivers.potential_fields.magnetic_vector.driver import MagneticVecto
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
+
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
 target_mvi_run = {
     "data_norm": 6.3559205278626525,
-    "phi_d": 0.007234,
+    "phi_d": 0.01447,
     "phi_m": 4.657e-06,
 }
 

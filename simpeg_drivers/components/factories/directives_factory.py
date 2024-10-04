@@ -29,6 +29,7 @@ from simpeg.utils.mat_utils import cartesian2amplitude_dip_azimuth
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 
+
 if TYPE_CHECKING:
     from simpeg_drivers.driver import InversionDriver
 
@@ -48,7 +49,7 @@ class DirectivesFactory:
         self._save_iteration_data_directive = None
         self._save_iteration_residual_directive = None
         self._save_iteration_apparent_resistivity_directive = None
-        self._save_iteration_sensitivity_directive = None
+        self._scale_misfits = None
 
     @property
     def beta_estimate_by_eigenvalues_directive(self):
@@ -69,7 +70,6 @@ class DirectivesFactory:
     def directive_list(self):
         """List of directives to be used in inversion."""
         if self._directive_list is None:
-
             if not self.params.forward_only:
                 self._directive_list = self.inversion_directives + self.save_directives
             else:
@@ -98,6 +98,7 @@ class DirectivesFactory:
             "update_sensitivity_weights_directive",
             "beta_estimate_by_eigenvalues_directive",
             "update_preconditioner_directive",
+            "scale_misfits",
         ]:
             if getattr(self, directive) is not None:
                 directives_list.append(getattr(self, directive))
@@ -112,7 +113,6 @@ class DirectivesFactory:
             "save_iteration_data_directive",
             "save_iteration_residual_directive",
             "save_iteration_apparent_resistivity_directive",
-            # "save_iteration_sensitivity_directive",
         ]:
             if getattr(self, directive) is not None:
                 directives_list.append(getattr(self, directive))
@@ -166,20 +166,6 @@ class DirectivesFactory:
         return self._save_iteration_model_directive
 
     @property
-    def save_iteration_sensitivity_directive(self):
-        """"""
-        if self._save_iteration_sensitivity_directive is None:
-            self._save_iteration_sensitivity_directive = SaveIterationGeoh5Factory(
-                self.params
-            ).build(
-                inversion_object=self.driver.inversion_mesh,
-                active_cells=self.driver.models.active_cells,
-                save_objective_function=True,
-                name="Sensitivities",
-            )
-        return self._save_iteration_sensitivity_directive
-
-    @property
     def save_iteration_residual_directive(self):
         """"""
         if (
@@ -196,6 +182,15 @@ class DirectivesFactory:
                 name="Residual",
             )
         return self._save_iteration_residual_directive
+
+    @property
+    def scale_misfits(self):
+        if self._scale_misfits is None:
+            if len(self.driver.data_misfit.objfcts) > 1:
+                self._scale_misfits = directives.ScaleMisfitMultipliers(
+                    self.params.geoh5.h5file.parent
+                )
+        return self._scale_misfits
 
     @property
     def update_irls_directive(self):

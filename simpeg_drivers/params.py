@@ -18,6 +18,7 @@
 
 from __future__ import annotations
 
+import warnings
 from copy import deepcopy
 from uuid import UUID
 
@@ -50,6 +51,7 @@ class InversionBaseParams(BaseParams):
         self._forward_only: bool = (
             forward_only if input_file is None else input_file.data["forward_only"]
         )
+        self._active_model: UUID = None
         self._topography_object: UUID = None
         self._topography: UUID | float = None
         self._data_object: UUID = None
@@ -72,10 +74,10 @@ class InversionBaseParams(BaseParams):
         self._prctile: float = None
         self._coolingRate: float = None
         self._coolingFactor: float = None
-        self._coolEps_q: bool = None
-        self._coolEpsFact: float = None
-        self._beta_search: bool = None
-        self._starting_chi_factor: float = None
+        self._coolEps_q: bool = True
+        self._coolEpsFact: float = 1.2
+        self._beta_search: bool = False
+        self._starting_chi_factor: float = 2.0
         self._max_irls_iterations: int = None
         self._max_global_iterations: int = None
         self._max_line_search_iterations: int = None
@@ -104,6 +106,7 @@ class InversionBaseParams(BaseParams):
         self._no_data_value: float = None
         self._distributed_workers = None
         self._documentation: str = ""
+        self._generate_sweep: bool = False
         self._icon: str = ""
         self._defaults = (
             self._forward_defaults if self.forward_only else self._inversion_defaults
@@ -167,7 +170,7 @@ class InversionBaseParams(BaseParams):
             return val.values.astype(float)
         elif self.data(component) is not None:
             d = self.data(component)
-            if isinstance(val, (int, float)):
+            if isinstance(val, int | float):
                 return np.array([float(val)] * len(d))
             else:
                 return d * 0.0 + 1.0  # Default
@@ -199,10 +202,10 @@ class InversionBaseParams(BaseParams):
             0,
             0 if self.receivers_offset_z is None else self.receivers_offset_z,
         ]
-        is_offset = any([(k != 0) for k in offsets])
+        is_offset = any((k != 0) for k in offsets)
         offsets = offsets if is_offset else None
         r = self.receivers_radar_drape
-        if isinstance(r, (str, UUID)):
+        if isinstance(r, str | UUID):
             r = UUID(r) if isinstance(r, str) else r
             radar = self.geoh5.get_entity(r)
             radar = radar[0].values if radar else None
@@ -244,6 +247,14 @@ class InversionBaseParams(BaseParams):
                 "the child inversion class."
             )
         return self._inversion_defaults
+
+    @property
+    def active_model(self):
+        return self._active_model
+
+    @active_model.setter
+    def active_model(self, val):
+        self.setter_validator("active_model", val, fun=self._uuid_promoter)
 
     @property
     def topography_object(self):
@@ -300,6 +311,10 @@ class InversionBaseParams(BaseParams):
     @receivers_radar_drape.setter
     def receivers_radar_drape(self, val):
         self.setter_validator("receivers_radar_drape", val, fun=self._uuid_promoter)
+        warnings.warn(
+            "The use of 'receivers_radar_drape' will be deprecated in future release.",
+            DeprecationWarning,
+        )
 
     @property
     def receivers_offset_z(self):
@@ -308,6 +323,18 @@ class InversionBaseParams(BaseParams):
     @receivers_offset_z.setter
     def receivers_offset_z(self, val):
         self.setter_validator("receivers_offset_z", val)
+        warnings.warn(
+            "The use of 'receiver_offset_z' will be deprecated in future release.",
+            DeprecationWarning,
+        )
+
+    @property
+    def generate_sweep(self):
+        return self._generate_sweep
+
+    @generate_sweep.setter
+    def generate_sweep(self, val):
+        self.setter_validator("generate_sweep", val)
 
     @property
     def gps_receivers_offset(self):
@@ -445,6 +472,10 @@ class InversionBaseParams(BaseParams):
     @coolEps_q.setter
     def coolEps_q(self, val):
         self.setter_validator("coolEps_q", val)
+        warnings.warn(
+            "The use of 'coolEps_q' will be deprecated in future release.",
+            DeprecationWarning,
+        )
 
     @property
     def coolEpsFact(self):
@@ -453,6 +484,10 @@ class InversionBaseParams(BaseParams):
     @coolEpsFact.setter
     def coolEpsFact(self, val):
         self.setter_validator("coolEpsFact", val)
+        warnings.warn(
+            "The use of 'coolEpsFact' will be deprecated in future release.",
+            DeprecationWarning,
+        )
 
     @property
     def beta_search(self):
@@ -461,6 +496,10 @@ class InversionBaseParams(BaseParams):
     @beta_search.setter
     def beta_search(self, val):
         self.setter_validator("beta_search", val)
+        warnings.warn(
+            "The use of 'beta_search' will be deprecated in future release.",
+            DeprecationWarning,
+        )
 
     @property
     def starting_chi_factor(self):

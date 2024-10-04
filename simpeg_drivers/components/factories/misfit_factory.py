@@ -20,6 +20,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+
 if TYPE_CHECKING:
     from geoapps_utils.driver.params import BaseParams
 
@@ -46,9 +47,7 @@ class MisfitFactory(SimPEGFactory):
     def concrete_object(self):
         return objective_function.ComboObjectiveFunction
 
-    def build(
-        self, tiles, inversion_data, mesh, active_cells
-    ):  # pylint: disable=arguments-differ
+    def build(self, tiles, inversion_data, mesh, active_cells):  # pylint: disable=arguments-differ
         global_misfit = super().build(
             tiles=tiles,
             inversion_data=inversion_data,
@@ -81,7 +80,7 @@ class MisfitFactory(SimPEGFactory):
 
         tile_num = 0
         data_count = 0
-        for local_index in tiles:
+        for tile_count, local_index in enumerate(tiles):
             if len(local_index) == 0:
                 continue
 
@@ -137,7 +136,14 @@ class MisfitFactory(SimPEGFactory):
                         model_map=local_map,
                     )
                     lmisfit.W = 1 / survey.std
+                    name = self.params.inversion_type
 
+                    if len(tiles) > 1:
+                        name += f": Tile {tile_count + 1}"
+                    if len(channels) > 1:
+                        name += f": Channel {channel}"
+
+                    lmisfit.name = f"{name}"
                 local_misfits.append(lmisfit)
                 self.ordering.append(ordering)
                 tile_num += 1

@@ -71,11 +71,7 @@ class JointCrossGradientDriver(BaseJointDriver):
                     model += (projection * model_local_values) / (norm + 1e-8)
 
             if model is not None:
-                setattr(
-                    getattr(self.models, f"_{model_type}"),
-                    "model",
-                    model,
-                )
+                getattr(self.models, f"_{model_type}").model = model
 
     @property
     def directives(self):
@@ -102,22 +98,20 @@ class JointCrossGradientDriver(BaseJointDriver):
                     save_model = driver_directives.save_iteration_model_directive
                     save_model.label = driver.params.physical_property
                     save_model.transforms = [
-                        driver.data_misfit.model_map
-                    ] + save_model.transforms
+                        driver.data_misfit.model_map,
+                        *save_model.transforms,
+                    ]
 
                     directives_list.append(save_model)
 
-                    if (
-                        getattr(driver_directives, "vector_inversion_directive")
-                        is not None
-                    ):
+                    if driver_directives.vector_inversion_directive is not None:
                         directives_list.append(
-                            getattr(driver_directives, "vector_inversion_directive")
+                            driver_directives.vector_inversion_directive
                         )
 
                     count += n_tiles
 
-                for driver, wire in zip(self.drivers, self.wires):
+                for driver, wire in zip(self.drivers, self.wires, strict=True):
                     factory = SaveIterationGeoh5Factory(self.params)
                     factory.factory_type = driver.params.inversion_type
                     model_directive = factory.build(
@@ -128,7 +122,7 @@ class JointCrossGradientDriver(BaseJointDriver):
                     )
 
                     model_directive.label = driver.params.physical_property
-                    model_directive.transforms = [wire] + model_directive.transforms
+                    model_directive.transforms = [wire, *model_directive.transforms]
                     directives_list.append(model_directive)
 
                 self._directives = DirectivesFactory(self)
@@ -170,7 +164,7 @@ class JointCrossGradientDriver(BaseJointDriver):
             driver.regularization = ComboObjectiveFunction(objfcts=reg_block)
 
         for label, driver_pairs in zip(
-            ["a_b", "c_a", "c_b"], combinations(self.drivers, 2)
+            ["a_b", "c_a", "c_b"], combinations(self.drivers, 2), strict=False
         ):
             # Deal with MVI components
             for mapping_a in driver_pairs[0].mapping:

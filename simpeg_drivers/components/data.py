@@ -20,8 +20,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+
 if TYPE_CHECKING:
     from geoh5py.workspace import Workspace
+
     from simpeg_drivers.params import InversionBaseParams
 
 from copy import deepcopy
@@ -231,9 +233,9 @@ class InversionData(InversionLocations):
                         data_channel, f"{basename}_{component}"
                     )
                     if not self.params.forward_only:
-                        self._observed_data_types[component][
-                            f"[{ind}]"
-                        ] = data_channel.entity_type
+                        self._observed_data_types[component][f"[{ind}]"] = (
+                            data_channel.entity_type
+                        )
                         uncerts = np.abs(
                             self.uncertainties[component][channel].copy()
                             / self.normalizations[channel][component]

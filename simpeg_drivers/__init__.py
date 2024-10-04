@@ -15,19 +15,27 @@
 #
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-# pylint: disable=unused-import
-# flake8: noqa
-
 from __future__ import annotations
+
 
 __version__ = "0.2.0-alpha.1"
 
-from pathlib import Path
 
-from simpeg import dask
+import logging
+from pathlib import Path
 
 from simpeg_drivers.constants import default_ui_json
 from simpeg_drivers.params import InversionBaseParams
+
+
+logging.basicConfig(level=logging.INFO)
+
+__all__ = [
+    "DRIVER_MAP",
+    "InversionBaseParams",
+    "assets_path",
+    "default_ui_json",
+]
 
 
 def assets_path() -> Path:
@@ -72,7 +80,7 @@ DRIVER_MAP = {
         "JointSurveyDriver",
     ),
     "fem": (
-        "simpeg_drivers.airborne_electromagnetics.frequency_domain.driver",
+        "simpeg_drivers.electromagnetics.frequency_domain.driver",
         "FrequencyDomainElectromagneticsDriver",
     ),
     "joint cross gradient": (

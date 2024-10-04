@@ -195,7 +195,10 @@ def setup_inversion_workspace(
     geoh5=None,
 ):
     if geoh5 is None:
-        geoh5 = Workspace.create(Path(work_dir) / "inversion_test.ui.geoh5")
+        if (Path(work_dir) / "inversion_test.ui.geoh5").is_file():
+            geoh5 = Workspace(Path(work_dir) / "inversion_test.ui.geoh5")
+        else:
+            geoh5 = Workspace.create(Path(work_dir) / "inversion_test.ui.geoh5")
     # Topography
     xx, yy = np.meshgrid(np.linspace(-200.0, 200.0, 50), np.linspace(-200.0, 200.0, 50))
 
@@ -315,10 +318,8 @@ def setup_inversion_workspace(
                 "Tx frequency": {
                     "values": freqs,
                     "association": "VERTEX",
-                    "entity_type": {
-                        "primitive_type": "REFERENCED",
-                        "value_map": {k: str(k) for k in freqs},
-                    },
+                    "primitive_type": "REFERENCED",
+                    "value_map": {k: str(k) for k in freqs},
                 }
             }
         )

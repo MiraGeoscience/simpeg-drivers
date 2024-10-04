@@ -54,9 +54,13 @@ class BaseJointDriver(InversionDriver):
         if getattr(self, "_data_misfit", None) is None and self.drivers is not None:
             objective_functions = []
             multipliers = []
-            for label, driver in zip("abc", self.drivers):
+            for label, driver in zip("abc", self.drivers, strict=False):
                 if driver.data_misfit is not None:
                     objective_functions += driver.data_misfit.objfcts
+
+                    for fun in driver.data_misfit.objfcts:
+                        fun.name = f"Group {label.upper()} {fun.name}"
+
                     multipliers += [
                         getattr(self.params, f"group_{label}_multiplier") ** 2.0
                     ] * len(driver.data_misfit.objfcts)
@@ -124,7 +128,7 @@ class BaseJointDriver(InversionDriver):
             global_actives |= local_actives
 
         self.models.active_cells = global_actives
-        for driver, wire in zip(self.drivers, self.wires):
+        for driver, wire in zip(self.drivers, self.wires, strict=True):
             projection = TileMap(
                 self.inversion_mesh.mesh,
                 global_actives,
@@ -132,6 +136,7 @@ class BaseJointDriver(InversionDriver):
                 enforce_active=False,
                 components=3 if driver.inversion_data.vector else 1,
             )
+            driver.params.active_model = None
             driver.models.active_cells = projection.local_active
             driver.data_misfit.model_map = projection * wire
 
@@ -151,18 +156,6 @@ class BaseJointDriver(InversionDriver):
         """Inversion data"""
         return self._inversion_data
 
-    @property
-    def inversion_mesh(self):
-        """Inversion mesh"""
-        if getattr(self, "_inversion_mesh", None) is None:
-            self._inversion_mesh = InversionMesh(
-                self.workspace,
-                self.params,
-                self.inversion_data,
-                self.inversion_topography,
-            )
-        return self._inversion_mesh
-
     def validate_create_mesh(self):
         """Function to validate and create the inversion mesh."""
 
@@ -178,7 +171,7 @@ class BaseJointDriver(InversionDriver):
             [driver.inversion_mesh.entity for driver in self.drivers],
         )
         for driver in self.drivers:
-            setattr(driver.inversion_mesh, "_mesh", None)
+            driver.inversion_mesh.mesh = None
 
     def validate_create_models(self):
         """Construct models from the local drivers."""
@@ -205,7 +198,7 @@ class BaseJointDriver(InversionDriver):
                 self.models.starting, compute_J=False
             )
 
-            for sub, driver in zip(predicted, self.drivers):
+            for sub, driver in zip(predicted, self.drivers, strict=True):
                 SaveIterationGeoh5Factory(driver.params).build(
                     inversion_object=driver.inversion_data,
                     sorting=np.argsort(np.hstack(driver.sorting)),
