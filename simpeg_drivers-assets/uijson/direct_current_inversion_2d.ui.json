@@ -261,6 +261,11 @@
         "tooltip": "Constant ratio compared to other weights. Larger values result in models that remain close to the reference model",
         "dependency": "reference_model",
         "dependencyType": "enabled",
+        "isValue": true,
+        "parent": "mesh",
+        "association": "Cell",
+        "dataType": "Float",
+        "property": "",
         "enabled": true
     },
     "length_scale_x": {
@@ -269,6 +274,11 @@
         "label": "X-smoothness weight",
         "tooltip": "Larger values relative to other smoothness weights will result in x biased smoothness",
         "value": 1.0,
+        "isValue": true,
+        "parent": "mesh",
+        "association": "Cell",
+        "dataType": "Float",
+        "property": "",
         "enabled": true
     },
     "length_scale_z": {
@@ -277,6 +287,11 @@
         "label": "Z-smoothness weight",
         "tooltip": "Larger values relative to other smoothness weights will result in z biased smoothess",
         "value": 1.0,
+        "isValue": true,
+        "parent": "mesh",
+        "association": "Cell",
+        "dataType": "Float",
+        "property": "",
         "enabled": true
     },
     "s_norm": {
@@ -287,7 +302,7 @@
         "isValue": true,
         "parent": "mesh",
         "property": "",
-        "value": 1.0,
+        "value": 0.0,
         "min": 0.0,
         "max": 2.0,
         "precision": 2,

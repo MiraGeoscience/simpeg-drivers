@@ -189,7 +189,7 @@
         "max": 2.0,
         "group": "Regularization",
         "label": "Smallness norm",
-        "value": 1.0,
+        "value": 0.0,
         "precision": 2,
         "lineEdit": false,
         "enabled": true
@@ -314,7 +314,7 @@
     "coolingRate": {
         "group": "Optimization",
         "label": "Iterations per beta",
-        "value": 2,
+        "value": 1,
         "min": 1,
         "LineEdit": false,
         "max": 10,
