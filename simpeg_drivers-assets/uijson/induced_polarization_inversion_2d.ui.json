@@ -96,6 +96,8 @@
     "u_cell_size": {
         "min": 0.0,
         "group": "Mesh and models",
+        "dependency": "mesh",
+        "dependencyType": "disabled",
         "main": true,
         "enabled": true,
         "label": "Easting core cell size (m)",
@@ -104,6 +106,8 @@
     "v_cell_size": {
         "min": 0.0,
         "group": "Mesh and models",
+        "dependency": "mesh",
+        "dependencyType": "disabled",
         "main": true,
         "enabled": true,
         "label": "Northing core cell size (m)",
@@ -112,6 +116,8 @@
     "depth_core": {
         "min": 0.0,
         "group": "Mesh and models",
+        "dependency": "mesh",
+        "dependencyType": "disabled",
         "main": true,
         "enabled": true,
         "label": "Depth of core (m)",
@@ -120,6 +126,8 @@
     "horizontal_padding": {
         "min": 0.0,
         "group": "Mesh and models",
+        "dependency": "mesh",
+        "dependencyType": "disabled",
         "main": true,
         "enabled": true,
         "label": "Horizontal padding (m)",
@@ -128,14 +136,17 @@
     "vertical_padding": {
         "min": 0.0,
         "group": "Mesh and models",
-        "main": true,
+        "dependency": "mesh",
         "dependencyType": "disabled",
+        "main": true,
         "label": "Vertical padding (m)",
         "value": 1000.0
     },
     "expansion_factor": {
         "main": true,
         "group": "Mesh and models",
+        "dependency": "mesh",
+        "dependencyType": "disabled",
         "label": "Expansion factor",
         "value": 1.1
     },
@@ -211,7 +222,7 @@
             "{48f5054a-1c5c-4ca4-9048-80f36dc60a06}",
             "{b020a277-90e2-4cd7-84d6-612ee3f25051}"
         ],
-        "value": "{00000000-0000-0000-0000-000000000000}",
+        "value": "",
         "optional": true,
         "enabled": true
     },
@@ -286,12 +297,12 @@
         "isValue": true,
         "parent": "mesh",
         "property": "",
-        "value": 0.0,
+        "value": 1.0,
         "min": 0.0,
         "max": 2.0,
         "precision": 2,
         "lineEdit": true,
-        "enabled": false,
+        "enabled": true,
         "dependency": "reference_model",
         "dependencyType": "enabled"
     },
@@ -458,17 +469,16 @@
     "f_min_change": {
         "group": "Optimization",
         "label": "Minimum change in objective function",
-        "value": 0.0001,
+        "value": 0.01,
         "min": 1e-06,
         "verbose": 3,
-        "optional": true,
-        "enabled": false
+        "enabled": true
     },
     "sens_wts_threshold": {
         "group": "Update sensitivity weights directive",
         "tooltip": "Update sensitivity weight threshold",
         "label": "Threshold (%)",
-        "value": 1.0,
+        "value": 0.001,
         "max": 100.0,
         "min": 0.0,
         "precision": 3,

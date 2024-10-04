@@ -21,7 +21,7 @@
             "{48f5054a-1c5c-4ca4-9048-80f36dc60a06}",
             "{b020a277-90e2-4cd7-84d6-612ee3f25051}"
         ],
-        "value": "{00000000-0000-0000-0000-000000000000}",
+        "value": "",
         "optional": true,
         "enabled": true
     },
@@ -189,7 +189,7 @@
         "max": 2.0,
         "group": "Regularization",
         "label": "Smallness norm",
-        "value": "",
+        "value": 1.0,
         "precision": 2,
         "lineEdit": false,
         "enabled": true
@@ -358,17 +358,16 @@
     "f_min_change": {
         "group": "Optimization",
         "label": "Minimum change in objective function",
-        "value": 0.0001,
+        "value": 0.01,
         "min": 1e-06,
         "verbose": 3,
-        "optional": true,
-        "enabled": false
+        "enabled": true
     },
     "sens_wts_threshold": {
         "group": "Update sensitivity weights directive",
         "tooltip": "Update sensitivity weight threshold",
         "label": "Threshold (%)",
-        "value": 1.0,
+        "value": 0.001,
         "max": 100.0,
         "min": 0.0,
         "precision": 3,

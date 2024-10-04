@@ -173,7 +173,10 @@ def write_default_uijson(path: str | Path):
                     if form:
                         form["enabled"] = True
 
-        params.write_input_file(name=filename, path=path, validate=False)
+        ifile = params.input_file
+        ifile.validate = False
+        ifile.ui_json["topography_object"]["enabled"] = True
+        ifile.write_ui_json(name=filename, path=path)
 
 
 if __name__ == "__main__":
