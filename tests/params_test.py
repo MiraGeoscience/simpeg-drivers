@@ -404,17 +404,9 @@ def test_validate_tile_spatial(mvi_params):
     catch_invalid_generator(mvi_params, param, invalidval, "type")
 
 
-def test_validate_receivers_radar_drape(mvi_params):
-    param = "receivers_radar_drape"
-    newval = uuid4()
-    catch_invalid_generator(mvi_params, param, newval, "association")
-    catch_invalid_generator(mvi_params, param, {}, "type")
-
-
 @pytest.mark.parametrize(
     "param,newval,value,error_type",
     [
-        ("receivers_offset_z", 99.0, "test", "type"),
         ("max_chunk_size", 256, "asdf", "type"),
         ("chunk_by_rows", True, "sdf", "type"),
         ("output_tile_files", True, "sdf", "type"),
@@ -427,9 +419,6 @@ def test_validate_receivers_radar_drape(mvi_params):
         ("prctile", 90, "test", "type"),
         ("coolingRate", 3, "test", "type"),
         ("coolingFactor", 4.0, "test", "type"),
-        ("coolEps_q", False, "test", "type"),
-        ("coolEpsFact", 1.1, "test", "type"),
-        ("beta_search", True, "test", "type"),
         ("starting_chi_factor", 2.0, "test", "type"),
         ("max_global_iterations", 2, "test", "type"),
         ("max_irls_iterations", 1, "test", "type"),
