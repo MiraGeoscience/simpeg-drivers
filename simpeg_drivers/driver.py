@@ -145,7 +145,7 @@ class InversionDriver(BaseDriver):
         return self._inversion
 
     @property
-    def inversion_data(self):
+    def inversion_data(self) -> InversionData:
         """Inversion data"""
         if getattr(self, "_inversion_data", None) is None:
             with fetch_active_workspace(self.workspace, mode="r+"):
@@ -154,13 +154,11 @@ class InversionDriver(BaseDriver):
         return self._inversion_data
 
     @property
-    def inversion_mesh(self):
+    def inversion_mesh(self) -> InversionMesh:
         """Inversion mesh"""
         if getattr(self, "_inversion_mesh", None) is None:
             with fetch_active_workspace(self.workspace, mode="r+"):
-                self._inversion_mesh = InversionMesh(
-                    self.workspace, self.params, self.inversion_data
-                )
+                self._inversion_mesh = InversionMesh(self.workspace, self.params)
         return self._inversion_mesh
 
     @property
@@ -395,7 +393,9 @@ class InversionDriver(BaseDriver):
             )
             norms = []
             # Adjustment for 2D versus 3D problems
-            for comp in ["s", "x", "y", "z"]:
+            comps = "sxz" if "2d" in self.params.inversion_type else "sxyz"
+            avg_comps = "sxy" if "2d" in self.params.inversion_type else "sxyz"
+            for comp, avg_comp in zip(comps, avg_comps):
                 if getattr(self.params, f"length_scale_{comp}", None) is not None:
                     setattr(
                         reg,
@@ -403,16 +403,11 @@ class InversionDriver(BaseDriver):
                         getattr(self.params, f"length_scale_{comp}"),
                     )
 
-                if getattr(self.params, f"{comp}_norm") is not None:
-                    norm = getattr(self.params, f"{comp}_norm")
-                    if isinstance(norm, Data):
-                        norm = norm.values[self.models.active_cells]
-                        if comp in "xyz":
-                            norm = (
-                                getattr(reg.regularization_mesh, f"aveCC2F{comp}")
-                                * norm
-                            )
-                    norms.append(norm)
+                norm = mapping * getattr(self.models, f"{comp}_norm")
+                if comp in "xyz":
+                    norm = getattr(reg.regularization_mesh, f"aveCC2F{avg_comp}") * norm
+
+                norms.append(norm)
 
             if norms:
                 reg.norms = norms

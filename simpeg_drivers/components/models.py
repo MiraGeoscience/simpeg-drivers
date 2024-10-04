@@ -52,16 +52,18 @@ class InversionModelCollection:
         "lower_bound",
         "upper_bound",
         "conductivity",
+        "s_norm",
+        "x_norm",
+        "y_norm",
+        "z_norm",
     ]
 
     def __init__(self, driver: InversionDriver):
         """
         :param driver: Parental InversionDriver class.
         """
-        self._driver: InversionDriver
         self._active_cells: np.ndarray | None = None
-
-        self.driver = driver
+        self._driver = driver
         self.is_sigma = self.driver.params.physical_property == "conductivity"
         self.is_vector = (
             True if self.driver.params.inversion_type == "magnetic vector" else False
@@ -69,14 +71,15 @@ class InversionModelCollection:
         self.n_blocks = (
             3 if self.driver.params.inversion_type == "magnetic vector" else 1
         )
-
         self._starting = InversionModel(driver, "starting")
         self._reference = InversionModel(driver, "reference")
         self._lower_bound = InversionModel(driver, "lower_bound")
         self._upper_bound = InversionModel(driver, "upper_bound")
         self._conductivity = InversionModel(driver, "conductivity")
-
-        self.active_cells = driver.params.active_model
+        self._s_norm = InversionModel(driver, "s_norm")
+        self._x_norm = InversionModel(driver, "x_norm")
+        self._y_norm = InversionModel(driver, "y_norm")
+        self._z_norm = InversionModel(driver, "z_norm")
 
     @property
     def n_active(self) -> int:
@@ -85,27 +88,18 @@ class InversionModelCollection:
 
     @property
     def driver(self):
+        """
+        Parental InversionDriver class.
+        """
         return self._driver
-
-    @driver.setter
-    def driver(self, driver):
-        if not isinstance(driver, BaseDriver):
-            raise ValueError("'driver' must be an InversionDriver object.")
-
-        self._driver = driver
 
     @property
     def active_cells(self):
         """Active cells vector."""
         if self._active_cells is None:
-            # Build active cells array and reduce models active set
-            if (
-                self.driver.inversion_mesh is not None
-                and self.driver.inversion_data is not None
-            ):
-                self.active_cells = self.driver.inversion_topography.active_cells(
-                    self.driver.inversion_mesh, self.driver.inversion_data
-                )
+            self.active_cells = self.driver.inversion_topography.active_cells(
+                self.driver.inversion_mesh, self.driver.inversion_data
+            )
         return self._active_cells
 
     @active_cells.setter
@@ -202,6 +196,37 @@ class InversionModelCollection:
 
         return mstart
 
+    @property
+    def s_norm(self) -> np.ndarray | None:
+        if self._s_norm.model is None:
+            return None
+
+        return self._s_norm.model.copy()
+
+    @property
+    def x_norm(self) -> np.ndarray | None:
+        if self._x_norm.model is None:
+            return None
+
+        x_norm = self._x_norm.model.copy()
+        return x_norm
+
+    @property
+    def y_norm(self) -> np.ndarray | None:
+        if self._y_norm.model is None:
+            return None
+
+        y_norm = self._y_norm.model.copy()
+        return y_norm
+
+    @property
+    def z_norm(self) -> np.ndarray | None:
+        if self._z_norm.model is None:
+            return None
+
+        z_norm = self._z_norm.model.copy()
+        return z_norm
+
     def _model_method_wrapper(self, method, name=None, **kwargs):
         """wraps individual model's specific method and applies in loop over model types."""
         returned_items = {}
@@ -268,6 +293,10 @@ class InversionModel:
         "lower_bound",
         "upper_bound",
         "conductivity",
+        "s_norm",
+        "x_norm",
+        "y_norm",
+        "z_norm",
     ]
 
     def __init__(
@@ -398,6 +427,10 @@ class InversionModel:
                     {f"{self.model_type}_declination": {"values": aid[:, 2]}}
                 )
                 remapped_model = aid[:, 0]
+            elif "norm" in self.model_type:
+                remapped_model = np.mean(
+                    remapped_model.reshape((-1, 3), order="F"), axis=1
+                )
             else:
                 remapped_model = np.linalg.norm(
                     remapped_model.reshape((-1, 3), order="F"), axis=1
@@ -456,8 +489,8 @@ class InversionModel:
             the number of cells in the inversion mesh.
         """
         if isinstance(model, NumericData):
-            model = self._obj_2_mesh(model.values, model.parent)
-
+            model = self.obj_2_mesh(model, self.driver.inversion_mesh.entity)
+            model = model[np.argsort(self.driver.inversion_mesh.permutation)]
         else:
             nc = self.driver.inversion_mesh.n_cells
             if isinstance(model, int | float):
@@ -465,33 +498,22 @@ class InversionModel:
 
         return model
 
-    def _obj_2_mesh(self, obj, parent) -> np.ndarray:
+    @staticmethod
+    def obj_2_mesh(data, destination) -> np.ndarray:
         """
         Interpolates obj into inversion mesh using nearest neighbors of parent.
 
-        :param obj: geoh5 entity object containing model data
-        :param parent: parent geoh5 entity to model containing location data.
+        :param data: Data entity containing model values
+        :param destination: Destination object containing locations.
         :return: Vector of values nearest neighbor interpolated into
             inversion mesh.
 
         """
-        xyz_out = self.driver.inversion_mesh.entity.centroids
+        xyz_out = destination.locations
+        xyz_in = data.parent.locations
+        full_vector = weighted_average(xyz_in, xyz_out, [data.values], n=1)[0]
 
-        if hasattr(parent, "centroids"):
-            xyz_in = parent.centroids
-            if self.driver.inversion_mesh.rotation is not None:
-                xyz_out = rotate_xyz(
-                    xyz_out,
-                    self.driver.inversion_mesh.rotation["origin"],
-                    self.driver.inversion_mesh.rotation["angle"],
-                )
-
-        else:
-            xyz_in = parent.vertices
-
-        full_vector = weighted_average(xyz_in, xyz_out, [obj], n=1)[0]
-
-        return full_vector[np.argsort(self.driver.inversion_mesh.permutation)]
+        return full_vector
 
     @property
     def model_type(self):

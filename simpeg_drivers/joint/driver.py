@@ -57,6 +57,10 @@ class BaseJointDriver(InversionDriver):
             for label, driver in zip("abc", self.drivers, strict=False):
                 if driver.data_misfit is not None:
                     objective_functions += driver.data_misfit.objfcts
+
+                    for fun in driver.data_misfit.objfcts:
+                        fun.name = f"Group {label.upper()} {fun.name}"
+
                     multipliers += [
                         getattr(self.params, f"group_{label}_multiplier") ** 2.0
                     ] * len(driver.data_misfit.objfcts)
@@ -151,17 +155,6 @@ class BaseJointDriver(InversionDriver):
     def inversion_data(self):
         """Inversion data"""
         return self._inversion_data
-
-    @property
-    def inversion_mesh(self):
-        """Inversion mesh"""
-        if getattr(self, "_inversion_mesh", None) is None:
-            self._inversion_mesh = InversionMesh(
-                self.workspace,
-                self.params,
-                self.inversion_data,
-            )
-        return self._inversion_mesh
 
     def validate_create_mesh(self):
         """Function to validate and create the inversion mesh."""

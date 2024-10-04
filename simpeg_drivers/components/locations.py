@@ -106,9 +106,7 @@ class InversionLocations:
         :return: Array shape(*, 3) of x, y, z location data
 
         """
-        if hasattr(entity, "centroids"):
-            locations = entity.centroids
-        elif hasattr(entity, "vertices"):
+        if hasattr(entity, "vertices"):
             if isinstance(entity, BaseElectrode):
                 potentials = entity.potential_electrodes
                 locations = np.mean(
@@ -120,7 +118,8 @@ class InversionLocations:
                 )
             else:
                 locations = entity.vertices
-
+        elif hasattr(entity, "centroids"):
+            locations = entity.centroids
         else:
             msg = f"Workspace object {entity} 'vertices' attribute is None."
             msg += " Object type should be Grid2D or point-like."
