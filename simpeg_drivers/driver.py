@@ -451,7 +451,7 @@ class InversionDriver(BaseDriver):
         _ = driver_class
 
         ifile = InputFile.read_ui_json(filepath)
-        inversion_type = ifile.data["inversion_type"]
+        inversion_type = ifile.ui_json.get("inversion_type", None)
         if inversion_type not in DRIVER_MAP:
             msg = f"Inversion type {inversion_type} is not supported."
             msg += f" Valid inversions are: {*list(DRIVER_MAP), }."

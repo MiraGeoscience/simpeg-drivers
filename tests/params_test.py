@@ -200,6 +200,7 @@ def test_params_initialize():
                 "starting_model",
                 "conductivity_model",
                 "min_value",
+                "generate_sweep",
             ]:
                 continue
             check.append(getattr(params, k) == v)
@@ -236,6 +237,7 @@ def test_input_file_construction(tmp_path: Path):
                     "reference_model",
                     "conductivity_model",
                     "min_value",
+                    "generate_sweep",
                 ]:
                     continue
                 check.append(getattr(params, k) == v)

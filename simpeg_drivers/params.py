@@ -106,6 +106,7 @@ class InversionBaseParams(BaseParams):
         self._no_data_value: float = None
         self._distributed_workers = None
         self._documentation: str = ""
+        self._generate_sweep: bool = False
         self._icon: str = ""
         self._defaults = (
             self._forward_defaults if self.forward_only else self._inversion_defaults
@@ -326,6 +327,14 @@ class InversionBaseParams(BaseParams):
             "The use of 'receiver_offset_z' will be deprecated in future release.",
             DeprecationWarning,
         )
+
+    @property
+    def generate_sweep(self):
+        return self._generate_sweep
+
+    @generate_sweep.setter
+    def generate_sweep(self, val):
+        self.setter_validator("generate_sweep", val)
 
     @property
     def gps_receivers_offset(self):
