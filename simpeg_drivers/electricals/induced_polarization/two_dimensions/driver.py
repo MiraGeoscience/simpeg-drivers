@@ -18,13 +18,13 @@
 
 from __future__ import annotations
 
-from simpeg_drivers.driver import InversionDriver
+from simpeg_drivers.electricals.driver import Base2DDriver
 
 from .constants import validations
 from .params import InducedPolarization2DParams
 
 
-class InducedPolarization2DDriver(InversionDriver):
+class InducedPolarization2DDriver(Base2DDriver):
     _params_class = InducedPolarization2DParams
     _validations = validations
 
