@@ -46,6 +46,7 @@ class DirectivesFactory:
         self._beta_estimate_by_eigenvalues_directive = None
         self._update_preconditioner_directive = None
         self._save_iteration_model_directive = None
+        self._save_sensitivities_directive = None
         self._save_iteration_data_directive = None
         self._save_iteration_residual_directive = None
         self._save_iteration_apparent_resistivity_directive = None
@@ -112,6 +113,7 @@ class DirectivesFactory:
             "save_iteration_model_directive",
             "save_iteration_data_directive",
             "save_iteration_residual_directive",
+            "save_sensitivities_directive",
             "save_iteration_apparent_resistivity_directive",
         ]:
             if getattr(self, directive) is not None:
@@ -134,6 +136,23 @@ class DirectivesFactory:
                 )
             )
         return self._save_iteration_apparent_resistivity_directive
+
+    @property
+    def save_sensitivities_directive(self):
+        """"""
+        if (
+            self._save_sensitivities_directive is None
+            and self.params.save_sensitivities
+        ):
+            self._save_sensitivities_directive = SaveIterationGeoh5Factory(
+                self.params
+            ).build(
+                inversion_object=self.driver.inversion_mesh,
+                active_cells=self.driver.models.active_cells,
+                global_misfit=self.driver.data_misfit,
+                name="Sensitivities",
+            )
+        return self._save_sensitivities_directive
 
     @property
     def save_iteration_data_directive(self):
@@ -356,6 +375,7 @@ class SaveIterationGeoh5Factory(SimPEGFactory):
                 "save_objective_function": save_objective_function,
                 "label": "model",
                 "association": "CEll",
+                "dmisfit": global_misfit,
                 "transforms": [active_cells_map],
                 "sorting": sorting,
             }
@@ -384,7 +404,7 @@ class SaveIterationGeoh5Factory(SimPEGFactory):
 
             if name == "Sensitivities":
                 kwargs["attribute_type"] = "sensitivities"
-                kwargs["label"] = "J"
+                kwargs["label"] = "sensitivities"
 
         return kwargs
 

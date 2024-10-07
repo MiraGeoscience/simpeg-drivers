@@ -101,6 +101,7 @@ class InversionBaseParams(BaseParams):
         self._n_cpu: int = None
         self._max_ram: float = None
         self._store_sensitivities: str = None
+        self._save_sensitivities: bool = False
         self._out_group = None
         self._ga_group = None
         self._no_data_value: float = None
@@ -697,6 +698,14 @@ class InversionBaseParams(BaseParams):
     @store_sensitivities.setter
     def store_sensitivities(self, val):
         self.setter_validator("store_sensitivities", val)
+
+    @property
+    def save_sensitivities(self):
+        return self._save_sensitivities
+
+    @save_sensitivities.setter
+    def save_sensitivities(self, val):
+        self.setter_validator("save_sensitivities", val)
 
     @property
     def out_group(self) -> SimPEGGroup | None:

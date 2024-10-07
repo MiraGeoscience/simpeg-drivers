@@ -199,6 +199,7 @@ def test_joint_cross_gradient_inv_run(
                     tile_spatial=1,
                     starting_model=1e-2,
                     reference_model=1e-2,
+                    save_sensitivities=True,
                 )
                 drivers.append(DirectCurrent3DDriver(params))
             else:
