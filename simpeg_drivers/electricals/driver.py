@@ -32,6 +32,7 @@ from geoh5py.ui_json.ui_json import fetch_active_workspace
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.components.data import InversionData
+from simpeg_drivers.components.meshes import InversionMesh
 from simpeg_drivers.components.topography import InversionTopography
 from simpeg_drivers.components.windows import InversionWindow
 from simpeg_drivers.driver import InversionDriver
@@ -43,16 +44,15 @@ from simpeg_drivers.utils.utils import get_drape_model
 
 class Base2DDriver(InversionDriver):
     @property
-    def inversion_data(self) -> InversionData:
-        """Inversion data"""
-        if getattr(self, "_inversion_data", None) is None:
+    def inversion_mesh(self) -> InversionMesh:
+        """Inversion mesh"""
+        if getattr(self, "_inversion_mesh", None) is None:
             with fetch_active_workspace(self.workspace, mode="r+"):
                 if self.params.mesh is None:
                     self.params.mesh = self.create_drape_mesh()
 
-                self._inversion_data = InversionData(self.workspace, self.params)
-
-        return self._inversion_data
+                self._inversion_mesh = InversionMesh(self.workspace, self.params)
+        return self._inversion_mesh
 
     def create_drape_mesh(self) -> DrapeModel:
         """Create a drape mesh for the inversion."""
