@@ -488,7 +488,7 @@
         "isValue": true,
         "parent": "mesh",
         "property": "",
-        "value": 1.0,
+        "value": 0.0,
         "min": 0.0,
         "max": 2.0,
         "precision": 2,
@@ -699,6 +699,12 @@
         "value": false,
         "verbose": 2,
         "enabled": true
+    },
+    "save_sensitivities": {
+        "group": "Update sensitivity weights directive",
+        "label": "Save sensitivities",
+        "tooltip": "Save the summed square row sensitivities to geoh5.",
+        "value": false
     },
     "parallelized": {
         "group": "Compute",

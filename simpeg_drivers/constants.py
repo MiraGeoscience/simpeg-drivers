@@ -481,6 +481,12 @@ default_ui_json = {
         "tooltip": "Use disk on a fast local SSD, and RAM elsewhere",
         "value": "ram",
     },
+    "save_sensitivities": {
+        "group": "Update sensitivity weights directive",
+        "label": "Save sensitivities",
+        "tooltip": "Save the summed square row sensitivities to geoh5.",
+        "value": False,
+    },
     "max_chunk_size": {
         "min": 0,
         "group": "Compute",
