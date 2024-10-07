@@ -132,6 +132,7 @@ class BasePseudo3DDriver(LineSweepDriver):
         with self.workspace.open(mode="r+"):
             self._window = InversionWindow(self.workspace, self.pseudo3d_params)
             self._inversion_data = InversionData(self.workspace, self.pseudo3d_params)
+            self._inversion_data.save_data()
             self._inversion_topography = InversionTopography(
                 self.workspace, self.pseudo3d_params
             )
