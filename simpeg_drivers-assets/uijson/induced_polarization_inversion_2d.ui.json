@@ -195,8 +195,8 @@
         "label": "Lower bound (V/V)",
         "property": "",
         "optional": true,
-        "value": 0,
-        "enabled": false
+        "value": 0.0,
+        "enabled": true
     },
     "upper_bound": {
         "association": "Cell",

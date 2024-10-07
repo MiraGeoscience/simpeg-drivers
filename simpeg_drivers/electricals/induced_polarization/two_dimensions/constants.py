@@ -59,7 +59,7 @@ inversion_defaults = {
     "conductivity_model": 1e-3,
     "starting_model": None,
     "reference_model": None,
-    "lower_bound": None,
+    "lower_bound": 0.0,
     "upper_bound": None,
     "topography_object": None,
     "topography": None,
