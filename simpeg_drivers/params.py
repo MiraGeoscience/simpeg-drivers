@@ -18,6 +18,7 @@
 
 from __future__ import annotations
 
+import warnings
 from copy import deepcopy
 from uuid import UUID
 
@@ -105,6 +106,7 @@ class InversionBaseParams(BaseParams):
         self._no_data_value: float = None
         self._distributed_workers = None
         self._documentation: str = ""
+        self._generate_sweep: bool = False
         self._icon: str = ""
         self._defaults = (
             self._forward_defaults if self.forward_only else self._inversion_defaults
@@ -309,6 +311,10 @@ class InversionBaseParams(BaseParams):
     @receivers_radar_drape.setter
     def receivers_radar_drape(self, val):
         self.setter_validator("receivers_radar_drape", val, fun=self._uuid_promoter)
+        warnings.warn(
+            "The use of 'receivers_radar_drape' will be deprecated in future release.",
+            DeprecationWarning,
+        )
 
     @property
     def receivers_offset_z(self):
@@ -317,6 +323,18 @@ class InversionBaseParams(BaseParams):
     @receivers_offset_z.setter
     def receivers_offset_z(self, val):
         self.setter_validator("receivers_offset_z", val)
+        warnings.warn(
+            "The use of 'receiver_offset_z' will be deprecated in future release.",
+            DeprecationWarning,
+        )
+
+    @property
+    def generate_sweep(self):
+        return self._generate_sweep
+
+    @generate_sweep.setter
+    def generate_sweep(self, val):
+        self.setter_validator("generate_sweep", val)
 
     @property
     def gps_receivers_offset(self):
@@ -454,6 +472,10 @@ class InversionBaseParams(BaseParams):
     @coolEps_q.setter
     def coolEps_q(self, val):
         self.setter_validator("coolEps_q", val)
+        warnings.warn(
+            "The use of 'coolEps_q' will be deprecated in future release.",
+            DeprecationWarning,
+        )
 
     @property
     def coolEpsFact(self):
@@ -462,6 +484,10 @@ class InversionBaseParams(BaseParams):
     @coolEpsFact.setter
     def coolEpsFact(self, val):
         self.setter_validator("coolEpsFact", val)
+        warnings.warn(
+            "The use of 'coolEpsFact' will be deprecated in future release.",
+            DeprecationWarning,
+        )
 
     @property
     def beta_search(self):
@@ -470,6 +496,10 @@ class InversionBaseParams(BaseParams):
     @beta_search.setter
     def beta_search(self, val):
         self.setter_validator("beta_search", val)
+        warnings.warn(
+            "The use of 'beta_search' will be deprecated in future release.",
+            DeprecationWarning,
+        )
 
     @property
     def starting_chi_factor(self):
