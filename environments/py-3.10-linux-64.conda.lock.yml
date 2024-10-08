@@ -4,6 +4,7 @@
 
 channels:
   - conda-forge
+  - nodefaults
 dependencies:
   - _libgcc_mutex=0.1=conda_forge
   - _openmp_mutex=4.5=2_kmp_llvm
@@ -86,7 +87,7 @@ dependencies:
   - libxcrypt=4.4.36=hd590300_1
   - libxml2=2.12.7=he7c6b58_4
   - libzlib=1.3.1=h4ab18f5_1
-  - llvm-openmp=18.1.8=hf5423f3_1
+  - llvm-openmp=19.1.0=h84d6215_0
   - llvmlite=0.43.0=py310h1a6248f_1
   - locket=1.0.0=pyhd8ed1ab_0
   - markupsafe=2.1.5=py310ha75aee5_1
@@ -115,7 +116,7 @@ dependencies:
   - pymatsolver-base=0.2.0=pyh44b312d_3
   - pyparsing=3.1.4=pyhd8ed1ab_0
   - pysocks=1.7.1=pyha2e5f31_6
-  - python=3.10.15=h4a871b0_0_cpython
+  - python=3.10.15=h4a871b0_1_cpython
   - python-dateutil=2.9.0=pyhd8ed1ab_0
   - python-tzdata=2023.4=pyhd8ed1ab_0
   - python_abi=3.10=5_cp310
@@ -141,7 +142,7 @@ dependencies:
   - urllib3=2.2.3=pyhd8ed1ab_0
   - wheel=0.44.0=pyhd8ed1ab_0
   - xorg-libxau=1.0.11=hb9d3cd8_1
-  - xorg-libxdmcp=1.1.3=hb9d3cd8_1
+  - xorg-libxdmcp=1.1.5=hb9d3cd8_0
   - xz=5.2.6=h166bdaf_0
   - yaml=0.2.5=h7f98852_2
   - zarr=2.14.2=pyhd8ed1ab_0
@@ -150,11 +151,11 @@ dependencies:
   - zstandard=0.23.0=py310ha39cb0e_1
   - zstd=1.5.6=ha6fb4c9_0
   - pip:
-      - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils@8726c9a369a76235db07363f035cbdd669629a37
+      - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils@693a3f3f2521b10997abf9d4796ea5bbbd54acff
       - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@1d057e0dd3c7cec71e2d39e4f0a6283f12ef140c
       - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg@e4effeea85a290af87d1f1deaf204a47894cff10
-      - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app@c3ae5ea68e7e517c0ac33efdf58f27380aec3b7c
-      - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps@e3be50dd098fe1d72d666704cbe65611386c8f23
+      - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app@3a1e73a4a657335496b116a690fac6884019f13b
+      - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps@1ad6378120dde7c075cf989283e6a977800d2158
 
 variables:
   KMP_WARNINGS: 0
