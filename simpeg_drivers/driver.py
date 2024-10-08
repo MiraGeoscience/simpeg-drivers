@@ -394,14 +394,16 @@ class InversionDriver(BaseDriver):
             # Adjustment for 2D versus 3D problems
             comps = "sxz" if "2d" in self.params.inversion_type else "sxyz"
             avg_comps = "sxy" if "2d" in self.params.inversion_type else "sxyz"
-            weights = ["alpha_s"] + [f"length_scale_{k}" for k in "xyz"]
+            weights = ["alpha_s"] + [f"length_scale_{k}" for k in comps[1:]]
             for comp, avg_comp, objfct, weight in zip(
                 comps, avg_comps, reg.objfcts, weights
             ):
                 weight = mapping * getattr(self.models, weight)
                 norm = mapping * getattr(self.models, f"{comp}_norm")
                 if comp in "xyz":
-                    weight = getattr(reg.regularization_mesh, f"aveCC2F{comp}") * weight
+                    weight = (
+                        getattr(reg.regularization_mesh, f"aveCC2F{avg_comp}") * weight
+                    )
                     norm = getattr(reg.regularization_mesh, f"aveCC2F{avg_comp}") * norm
 
                 objfct.set_weights(**{comp: weight})
