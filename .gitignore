@@ -144,3 +144,4 @@ dmypy.json
 
 # tempory generated files
 pyproject-sha.toml
+/.jfrog/projects/poetry.yaml
