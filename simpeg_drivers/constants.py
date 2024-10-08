@@ -41,6 +41,7 @@ default_ui_json = {
             "{b020a277-90e2-4cd7-84d6-612ee3f25051}",
         ],
         "value": None,
+        "tooltip": "Select an object containing survey geometry and data for inversion.",
     },
     "z_from_topo": {
         "group": "Data pre-processing",
@@ -79,6 +80,7 @@ default_ui_json = {
         "label": "Mesh",
         "meshType": "{4ea87376-3ece-438b-bf12-3479733ded46}",
         "value": "",
+        "tooltip": "Select a mesh for the inversion.",
     },
     "starting_model": {
         "association": ["Cell", "Vertex"],
@@ -90,6 +92,7 @@ default_ui_json = {
         "label": "Initial conductivity (S/m)",
         "property": "",
         "value": 0.001,
+        "tooltip": "Select a model to start the inversion.",
     },
     "lower_bound": {
         "association": ["Cell", "Vertex"],
@@ -103,6 +106,7 @@ default_ui_json = {
         "optional": True,
         "value": 1e-08,
         "enabled": False,
+        "tooltip": "Minimum value that the model will contain after inversion.",
     },
     "upper_bound": {
         "association": ["Cell", "Vertex"],
@@ -116,6 +120,7 @@ default_ui_json = {
         "optional": True,
         "value": 100.0,
         "enabled": False,
+        "tooltip": "Maximum value that the model will contain after inversion.",
     },
     "topography_object": {
         "main": True,
@@ -131,6 +136,7 @@ default_ui_json = {
         "value": "",
         "optional": True,
         "enabled": True,
+        "tooltip": "Select a topography object to define the active cells for inversion.  The user may also provide active cells directly by disabling the parameter.  If no elevation channel is selected, the topography will be set from the geometry of the selected object.",
     },
     "topography": {
         "association": ["Vertex", "Cell"],
@@ -140,7 +146,7 @@ default_ui_json = {
         "optional": True,
         "enabled": False,
         "label": "Elevation channel",
-        "tooltip": "Set elevation from channel",
+        "tooltip": "Set elevation from channel.  If not set the topography will be set from the geometry of the selected 'topography' object.",
         "parent": "topography_object",
         "dependency": "topography_object",
         "dependencyType": "enabled",
@@ -156,7 +162,7 @@ default_ui_json = {
         "dependency": "topography_object",
         "dependencyType": "disabled",
         "label": "Active model",
-        "tooltip": "Bool model on the input 'mesh' defining air/ground cells",
+        "tooltip": "Bool model on the input 'mesh' defining air/ground cells.  May only be set if the 'topography' object has been disabled.",
         "parent": "mesh",
         "value": "",
     },
@@ -232,6 +238,7 @@ default_ui_json = {
         "enabled": False,
         "dependency": "reference_model",
         "dependencyType": "enabled",
+        "tooltip": "Lp-norm used in the objective function.  0.0 is equivalent to the L0-norm, and 2.0 is equivalent to the L2-norm, but any values in between are also valid.  May be provided as either a float or a model living on th cells of the selected mesh.",
     },
     "x_norm": {
         "association": "Cell",
@@ -247,6 +254,7 @@ default_ui_json = {
         "precision": 2,
         "lineEdit": False,
         "enabled": True,
+        "tooltip": "Lp-norm used in the objective function.  0.0 is equivalent to the L0-norm, and 2.0 is equivalent to the L2-norm, but any values in between are also valid.  May be provided as either a float or a model living on th cells of the selected mesh.",
     },
     "y_norm": {
         "association": "Cell",
@@ -262,6 +270,7 @@ default_ui_json = {
         "precision": 2,
         "lineEdit": False,
         "enabled": True,
+        "tooltip": "Lp-norm used in the objective function.  0.0 is equivalent to the L0-norm, and 2.0 is equivalent to the L2-norm, but any values in between are also valid.  May be provided as either a float or a model living on th cells of the selected mesh.",
     },
     "z_norm": {
         "association": "Cell",
@@ -277,6 +286,7 @@ default_ui_json = {
         "precision": 2,
         "lineEdit": False,
         "enabled": True,
+        "tooltip": "Lp-norm used in the objective function.  0.0 is equivalent to the L0-norm, and 2.0 is equivalent to the L2-norm, but any values in between are also valid.  May be provided as either a float or a model living on th cells of the selected mesh.",
     },
     "reference_model": {
         "association": ["Cell", "Vertex"],
@@ -290,6 +300,7 @@ default_ui_json = {
         "label": "Reference",
         "property": None,
         "value": 0.0,
+        "tooltip": "Reference model used to push the inversion towards a desired result.  May be used in conjunction with the 'alpha_s' parameter to fine-tune the amount by which the inversion will be pushed towards and stay close to the reference model.",
     },
     "gradient_type": {
         "choiceList": ["total", "components"],
@@ -297,6 +308,7 @@ default_ui_json = {
         "label": "Gradient type",
         "value": "total",
         "verbose": 3,
+        "tooltip": "This property specifies whether the IRLS weights for sparse smoothness regularization(s) terms are updated using the total gradient (*'total'*) or using the partial gradients along their smoothing orientations (*'components'*).",
     },
     "max_irls_iterations": {
         "min": 0,
@@ -312,7 +324,7 @@ default_ui_json = {
         "label": "IRLS start chi factor",
         "enabled": True,
         "value": 2.0,
-        "tooltip": "This chi factor will be used to determine the misfit threshold after which IRLS iterations begin.",
+        "tooltip": "This chi factor will be used to determine the misfit threshold after which IRLS iterations begin.  If different from the global chi-factor, the inversion will continue to push the data misfit towards the target in the 'Chi factor' parameter.",
         "verbose": 3,
     },
     "chi_factor": {
@@ -324,6 +336,7 @@ default_ui_json = {
         "label": "Chi factor",
         "value": 1.0,
         "enabled": True,
+        "tooltip": "The global target data misfit value.",
     },
     "initial_beta_ratio": {
         "min": 0.0,
@@ -334,6 +347,7 @@ default_ui_json = {
         "label": "Initial beta ratio",
         "value": 10.0,
         "verbose": 2,
+        "tooltip": "Estimate the trade-off parameter by scaling the ratio between the largest derivatives in the gradient of the data misfit and model objective function.",
     },
     "initial_beta": {
         "min": 0.0,
@@ -345,6 +359,7 @@ default_ui_json = {
         "label": "Initial beta",
         "value": 1.0,
         "verbose": 2,
+        "tooltip": "Trade-off parameter between data misfit and regularization.",
     },
     "coolingFactor": {
         "group": "Cooling schedule/target",
@@ -367,6 +382,7 @@ default_ui_json = {
         "precision": 1,
         "verbose": 2,
         "enabled": True,
+        "tooltip": "Sets the number of successive iterations before the trade-off parameter is reduced. Use *1* for linear least-squares optimization problems. Use *2* for weakly non-linear optimization problems. Use *3* for general non-linear optimization problems.",
     },
     "max_global_iterations": {
         "min": 1,
@@ -384,6 +400,7 @@ default_ui_json = {
         "min": 1,
         "enabled": True,
         "verbose": 3,
+        "tooltip": "Perform an Armijo backtracking linesearch for the provided number of iterations.",
     },
     "max_cg_iterations": {
         "min": 0,
@@ -408,6 +425,7 @@ default_ui_json = {
         "min": 1e-06,
         "verbose": 3,
         "enabled": True,
+        "tooltip": "Minimum decrease in regularization beyond which the IRLS procedure is deemed to have completed.",
     },
     "beta_tol": {
         "group": "Update IRLS directive",
@@ -446,6 +464,7 @@ default_ui_json = {
         "value": False,
         "verbose": 3,
         "visible": False,
+        "tooltip": "Whether to perform a beta search.",
     },
     "sens_wts_threshold": {
         "group": "Update sensitivity weights directive",
@@ -493,6 +512,7 @@ default_ui_json = {
         "min": 1,
         "max": 1000,
         "verbose": 2,
+        "tooltip": "Splits the objective function into spatial tiles for distributed computation using the Dask library.",
     },
     "store_sensitivities": {
         "choiceList": ["disk", "ram"],
@@ -506,10 +526,11 @@ default_ui_json = {
         "group": "Compute",
         "optional": True,
         "enabled": True,
-        "label": "Maximum chunk size",
+        "label": "Maximum chunk size (Mb)",
         "value": 128,
         "verbose": 3,
         "visible": False,
+        "tooltip": "Limit the chunk size used by Dask for distributed computation.",
     },
     "chunk_by_rows": {
         "group": "Compute",
@@ -526,12 +547,14 @@ default_ui_json = {
         "visible": True,
         "optional": True,
         "enabled": False,
+        "tooltip": "Optionally set the SimPEG group to which results will be saved.",
     },
     "generate_sweep": {
         "label": "Generate sweep file",
         "group": "Python run preferences",
         "main": True,
         "value": False,
+        "tooltip": "Generates a sweep file instead of running the application. Sweep parameters can then be set and run from the resulting file.",
     },
     "fix_aspect_ratio": True,
     "colorbar": False,

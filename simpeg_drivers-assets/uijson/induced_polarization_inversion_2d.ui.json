@@ -31,14 +31,16 @@
         "main": true,
         "label": "Line ID",
         "parent": "data_object",
-        "value": ""
+        "value": "",
+        "tooltip": "Selects the data representing the different lines in the survey."
     },
     "line_id": {
         "group": "Data",
         "main": true,
         "min": 1,
         "label": "Line number",
-        "value": 1
+        "value": 1,
+        "tooltip": "Selects the line of data to be processed."
     },
     "receivers_radar_drape": {
         "association": [
@@ -224,7 +226,8 @@
         ],
         "value": "",
         "optional": true,
-        "enabled": true
+        "enabled": true,
+        "tooltip": "Select a topography object to define the active cells for inversion.  The user may also provide active cells directly by disabling the parameter.  If no elevation channel is selected, the topography will be set from the geometry of the selected object."
     },
     "topography": {
         "association": [
@@ -237,7 +240,7 @@
         "optional": true,
         "enabled": false,
         "label": "Elevation channel",
-        "tooltip": "Set elevation from channel",
+        "tooltip": "Set elevation from channel.  If not set the topography will be set from the geometry of the selected 'topography' object.",
         "parent": "topography_object",
         "dependency": "topography_object",
         "dependencyType": "enabled",
@@ -257,7 +260,7 @@
         "dependency": "topography_object",
         "dependencyType": "disabled",
         "label": "Active model",
-        "tooltip": "Bool model on the input 'mesh' defining air/ground cells",
+        "tooltip": "Bool model on the input 'mesh' defining air/ground cells.  May only be set if the 'topography' object has been disabled.",
         "parent": "mesh",
         "value": ""
     },
@@ -319,7 +322,8 @@
         "lineEdit": true,
         "enabled": true,
         "dependency": "reference_model",
-        "dependencyType": "enabled"
+        "dependencyType": "enabled",
+        "tooltip": "Lp-norm used in the objective function.  0.0 is equivalent to the L0-norm, and 2.0 is equivalent to the L2-norm, but any values in between are also valid.  May be provided as either a float or a model living on th cells of the selected mesh."
     },
     "x_norm": {
         "association": "Cell",
@@ -334,7 +338,8 @@
         "max": 2.0,
         "precision": 2,
         "lineEdit": false,
-        "enabled": true
+        "enabled": true,
+        "tooltip": "Lp-norm used in the objective function.  0.0 is equivalent to the L0-norm, and 2.0 is equivalent to the L2-norm, but any values in between are also valid.  May be provided as either a float or a model living on th cells of the selected mesh."
     },
     "z_norm": {
         "association": "Cell",
@@ -349,7 +354,8 @@
         "max": 2.0,
         "precision": 2,
         "lineEdit": false,
-        "enabled": true
+        "enabled": true,
+        "tooltip": "Lp-norm used in the objective function.  0.0 is equivalent to the L0-norm, and 2.0 is equivalent to the L2-norm, but any values in between are also valid.  May be provided as either a float or a model living on th cells of the selected mesh."
     },
     "gradient_type": {
         "choiceList": [
@@ -359,7 +365,8 @@
         "group": "Sparse/blocky model",
         "label": "Gradient type",
         "value": "total",
-        "verbose": 3
+        "verbose": 3,
+        "tooltip": "This property specifies whether the IRLS weights for sparse smoothness regularization(s) terms are updated using the total gradient (*'total'*) or using the partial gradients along their smoothing orientations (*'components'*)."
     },
     "max_irls_iterations": {
         "min": 0,
@@ -375,7 +382,7 @@
         "label": "IRLS start chi factor",
         "enabled": true,
         "value": 2.0,
-        "tooltip": "This chi factor will be used to determine the misfit threshold after which IRLS iterations begin.",
+        "tooltip": "This chi factor will be used to determine the misfit threshold after which IRLS iterations begin.  If different from the global chi-factor, the inversion will continue to push the data misfit towards the target in the 'Chi factor' parameter.",
         "verbose": 3
     },
     "beta_tol": {
@@ -403,7 +410,8 @@
         "group": "Cooling schedule/target",
         "label": "Chi factor",
         "value": 1.0,
-        "enabled": true
+        "enabled": true,
+        "tooltip": "The global target data misfit value."
     },
     "initial_beta_ratio": {
         "min": 0.0,
@@ -413,7 +421,8 @@
         "enabled": true,
         "label": "Initial beta ratio",
         "value": 100.0,
-        "verbose": 2
+        "verbose": 2,
+        "tooltip": "Estimate the trade-off parameter by scaling the ratio between the largest derivatives in the gradient of the data misfit and model objective function."
     },
     "initial_beta": {
         "min": 0.0,
@@ -424,7 +433,8 @@
         "dependencyType": "disabled",
         "label": "Initial beta",
         "value": 1.0,
-        "verbose": 2
+        "verbose": 2,
+        "tooltip": "Trade-off parameter between data misfit and regularization."
     },
     "coolingFactor": {
         "group": "Cooling schedule/target",
@@ -446,7 +456,8 @@
         "max": 10,
         "precision": 1,
         "verbose": 2,
-        "enabled": true
+        "enabled": true,
+        "tooltip": "Sets the number of successive iterations before the trade-off parameter is reduced. Use *1* for linear least-squares optimization problems. Use *2* for weakly non-linear optimization problems. Use *3* for general non-linear optimization problems."
     },
     "max_global_iterations": {
         "min": 1,
@@ -463,7 +474,8 @@
         "value": 20,
         "min": 1,
         "enabled": true,
-        "verbose": 3
+        "verbose": 3,
+        "tooltip": "Perform an Armijo backtracking linesearch for the provided number of iterations."
     },
     "max_cg_iterations": {
         "min": 0,
@@ -487,7 +499,8 @@
         "value": 0.01,
         "min": 1e-06,
         "verbose": 3,
-        "enabled": true
+        "enabled": true,
+        "tooltip": "Minimum decrease in regularization beyond which the IRLS procedure is deemed to have completed."
     },
     "sens_wts_threshold": {
         "group": "Update sensitivity weights directive",
@@ -542,10 +555,11 @@
         "group": "Compute",
         "optional": true,
         "enabled": true,
-        "label": "Maximum chunk size",
+        "label": "Maximum chunk size (Mb)",
         "value": 128,
         "verbose": 3,
-        "visible": false
+        "visible": false,
+        "tooltip": "Limit the chunk size used by Dask for distributed computation."
     },
     "chunk_by_rows": {
         "group": "Compute",
@@ -561,13 +575,15 @@
         "group": "Drag-and-drop options",
         "visible": true,
         "optional": true,
-        "enabled": false
+        "enabled": false,
+        "tooltip": "Optionally set the SimPEG group to which results will be saved."
     },
     "generate_sweep": {
         "label": "Generate sweep file",
         "group": "Python run preferences",
         "main": true,
-        "value": false
+        "value": false,
+        "tooltip": "Generates a sweep file instead of running the application. Sweep parameters can then be set and run from the resulting file."
     },
     "distributed_workers": "",
     "chargeability_channel_bool": true
