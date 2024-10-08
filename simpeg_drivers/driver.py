@@ -104,6 +104,8 @@ class InversionDriver(BaseDriver):
                 )
                 print("Done.")
 
+                self.inversion_data.save_data()
+
                 # Re-scale misfits by problem size
                 multipliers = []
                 for mult, func in self._data_misfit:
