@@ -435,15 +435,13 @@ class SurveyFactory(SimPEGFactory):
             receiver_groups[receiver_id] = receivers
 
         ordering = np.vstack(ordering)
+        self.ordering = []
         for frequency in frequencies:
             frequency_id = np.where(frequency == channels)[0][0]
             self.ordering.append(
                 np.hstack([np.ones((ordering.shape[0], 1)) * frequency_id, ordering])
             )
 
-        self.ordering = np.vstack(self.ordering).astype(int)
-
-        for frequency in frequencies:
             for receiver_id, receivers in receiver_groups.items():
                 locs = tx_locs[frequency == freqs, :][receiver_id, :]
                 sources.append(
@@ -454,6 +452,8 @@ class SurveyFactory(SimPEGFactory):
                     )
                 )
 
+        self.ordering = np.vstack(self.ordering).astype(int)
+
         return [sources]
 
     def _naturalsource_arguments(self, data=None, mesh=None, frequency=None):
@@ -461,7 +461,9 @@ class SurveyFactory(SimPEGFactory):
         sources = []
         rx_factory = ReceiversFactory(self.params)
         tx_factory = SourcesFactory(self.params)
-        for comp in data.components:
+        ordering = []
+        channels = np.array(data.entity.channels)
+        for component_id, comp in enumerate(data.components):
             receivers.append(
                 rx_factory.build(
                     locations=data.locations,
@@ -471,12 +473,26 @@ class SurveyFactory(SimPEGFactory):
                     component=comp,
                 )
             )
+            ordering.append(
+                np.c_[np.ones_like(self.local_index) * component_id, self.local_index]
+            )
 
+        ordering = np.vstack(ordering)
+        self.ordering = []
         if frequency is None:
-            frequencies = np.unique([list(v) for v in data.observed.values()])
-            for frequency in frequencies:
-                sources.append(tx_factory.build(receivers, frequency=frequency))
+            frequencies = channels
         else:
+            frequencies = (
+                [frequency] if isinstance(frequency, int | float) else frequency
+            )
+
+        for frequency in frequencies:
             sources.append(tx_factory.build(receivers, frequency=frequency))
+            frequency_id = np.where(frequency == channels)[0][0]
+            self.ordering.append(
+                np.hstack([np.ones((ordering.shape[0], 1)) * frequency_id, ordering])
+            )
+
+        self.ordering = np.vstack(self.ordering).astype(int)
 
         return [sources]
