@@ -109,7 +109,7 @@ class InversionData(InversionLocations):
         self.entity = None
         self.data_entity = None
         self._observed_data_types = {}
-        self.survey = None
+        self._survey = None
 
         self._initialize()
 
@@ -143,14 +143,6 @@ class InversionData(InversionLocations):
         self.entity = self.write_entity()
         self.params.data_object = self.entity
         self.locations = super().get_locations(self.entity)
-        self.survey, self.local_index, _ = self.create_survey()
-
-        if "direct current" in self.params.inversion_type:
-            self.transformations["apparent resistivity"] = 1 / (
-                geometric_factor(self.survey)[np.argsort(self.local_index)] + 1e-10
-            )
-
-        self.save_data(self.entity)
 
     def drape_locations(self, locations: np.ndarray) -> np.ndarray:
         """
@@ -214,7 +206,7 @@ class InversionData(InversionLocations):
 
         return entity
 
-    def save_data(self, entity):
+    def save_data(self):
         """Write out the data to geoh5"""
         data = self.predicted if self.params.forward_only else self.observed
         basename = "Predicted" if self.params.forward_only else "Observed"
@@ -226,10 +218,10 @@ class InversionData(InversionLocations):
             for component, channels in data.items():
                 for ind, (channel, values) in enumerate(channels.items()):
                     dnorm = values / self.normalizations[channel][component]
-                    data_channel = entity.add_data(
+                    data_channel = self.entity.add_data(
                         {f"{basename}_{component}_[{ind}]": {"values": dnorm}}
                     )
-                    data_dict[component] = entity.add_data_to_group(
+                    data_dict[component] = self.entity.add_data_to_group(
                         data_channel, f"{basename}_{component}"
                     )
                     if not self.params.forward_only:
@@ -241,16 +233,16 @@ class InversionData(InversionLocations):
                             / self.normalizations[channel][component]
                         )
                         uncerts[np.isinf(uncerts)] = np.nan
-                        uncert_entity = entity.add_data(
+                        uncert_entity = self.entity.add_data(
                             {f"Uncertainties_{component}_[{ind}]": {"values": uncerts}}
                         )
-                        uncert_dict[component] = entity.add_data_to_group(
+                        uncert_dict[component] = self.entity.add_data_to_group(
                             uncert_entity, f"Uncertainties_{component}"
                         )
         else:
             for component in data:
                 dnorm = data[component] / self.normalizations[None][component]
-                data_dict[component] = entity.add_data(
+                data_dict[component] = self.entity.add_data(
                     {f"{basename}_{component}": {"values": dnorm}}
                 )
 
@@ -264,15 +256,15 @@ class InversionData(InversionLocations):
                     )
                     uncerts[np.isinf(uncerts)] = np.nan
 
-                    uncert_dict[component] = entity.add_data(
+                    uncert_dict[component] = self.entity.add_data(
                         {f"Uncertainties_{component}": {"values": uncerts}}
                     )
 
                 if "direct current" in self.params.inversion_type:
                     apparent_property = data[component].copy()
-                    apparent_property *= self.transformations["apparent resistivity"]
+                    apparent_property *= self.survey.apparent_resistivity
 
-                    data_dict["apparent_resistivity"] = entity.add_data(
+                    data_dict["apparent_resistivity"] = self.entity.add_data(
                         {
                             f"{basename}_apparent_resistivity": {
                                 "values": apparent_property,
@@ -393,14 +385,19 @@ class InversionData(InversionLocations):
         """
 
         survey_factory = SurveyFactory(self.params)
-        survey = survey_factory.build(
+        survey, local_index, ordering = survey_factory.build(
             data=self,
             mesh=mesh,
             local_index=local_index,
             channel=channel,
         )
 
-        return survey
+        if "direct current" in self.params.inversion_type:
+            survey.apparent_resistivity = 1 / (
+                geometric_factor(survey)[np.argsort(local_index)] + 1e-10
+            )
+
+        return survey, local_index, ordering
 
     def simulation(
         self,
@@ -529,3 +526,10 @@ class InversionData(InversionLocations):
                 parent=self.entity, values=self.params.line_object.values[self.mask]
             )
             self.params.line_object = new_line
+
+    @property
+    def survey(self):
+        if self._survey is None:
+            self._survey, _, _ = self.create_survey()
+
+        return self._survey

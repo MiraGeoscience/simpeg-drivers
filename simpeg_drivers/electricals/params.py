@@ -127,32 +127,6 @@ class Base2DParams(Core2DParams):
     def line_id(self, val):
         self._line_id = val
 
-    @property
-    def mesh(self):
-        if self._mesh is None and self.geoh5 is not None:
-            current_entity = self.data_object.current_electrodes
-            receiver_locs = np.vstack(
-                [self.data_object.vertices, current_entity.vertices]
-            )
-            self._mesh = get_drape_model(
-                self.geoh5,
-                "Models",
-                receiver_locs,
-                [
-                    self.u_cell_size,
-                    self.v_cell_size,
-                ],
-                self.depth_core,
-                [self.horizontal_padding] * 2 + [self.vertical_padding, 1],
-                self.expansion_factor,
-            )[0]
-
-        return self._mesh
-
-    @mesh.setter
-    def mesh(self, val):
-        self.setter_validator("mesh", val, fun=self._uuid_promoter)
-
 
 class BasePseudo3DParams(Core2DParams):
     """

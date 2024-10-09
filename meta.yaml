@@ -42,7 +42,7 @@ requirements:
     - pydiso >=0.0.5,<0.1.0
     - pymatsolver >=0.2.0,<0.3.0
     - scikit-learn >=1.4.0,<1.5.0
-    - tqdm >=4.66.1,<5.0.0 
+    - tqdm >=4.66.1,<5.0.0
     - zarr >=2.14.2,<2.15.0
   run_constrained:
     - tbb 2021.12.*
@@ -58,7 +58,7 @@ test:
 
 about:
   license: MIT
-  license_file: 
+  license_file:
     - LICENSE
 
 extra:
