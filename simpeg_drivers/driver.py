@@ -104,6 +104,8 @@ class InversionDriver(BaseDriver):
                 )
                 print("Done.")
 
+                self.inversion_data.save_data()
+
                 # Re-scale misfits by problem size
                 multipliers = []
                 for mult, func in self._data_misfit:
@@ -388,8 +390,8 @@ class InversionDriver(BaseDriver):
                 self.inversion_mesh.mesh,
                 active_cells=self.models.active_cells,
                 mapping=mapping,
-                alpha_s=self.params.alpha_s,
                 reference_model=self.models.reference,
+                alpha_s=self.params.alpha_s,
             )
             norms = []
             # Adjustment for 2D versus 3D problems
@@ -451,7 +453,7 @@ class InversionDriver(BaseDriver):
         _ = driver_class
 
         ifile = InputFile.read_ui_json(filepath)
-        inversion_type = ifile.data["inversion_type"]
+        inversion_type = ifile.ui_json.get("inversion_type", None)
         if inversion_type not in DRIVER_MAP:
             msg = f"Inversion type {inversion_type} is not supported."
             msg += f" Valid inversions are: {*list(DRIVER_MAP), }."

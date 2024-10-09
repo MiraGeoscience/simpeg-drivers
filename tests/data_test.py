@@ -20,6 +20,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+import pytest
 import simpeg
 from discretize.utils import mesh_builder_xyz
 from geoh5py.objects import Points
@@ -126,25 +127,29 @@ def test_survey_data(tmp_path: Path):
         )
 
         mesh = treemesh_2_octree(workspace, mesh)
-        params = MagneticVectorParams(
-            forward_only=False,
-            geoh5=workspace,
-            data_object=test_data_object.uid,
-            topography_object=test_topo_object.uid,
-            topography=topo,
-            bxx_channel=bxx_data.uid,
-            bxx_uncertainty=0.1,
-            byy_channel=byy_data.uid,
-            byy_uncertainty=0.2,
-            bzz_channel=bzz_data.uid,
-            bzz_uncertainty=0.3,
-            mesh=mesh.uid,
-            starting_model=0.0,
-            tile_spatial=2,
-            z_from_topo=True,
-            receivers_offset_z=50.0,
-            resolution=0.0,
-        )
+        with pytest.warns(
+            DeprecationWarning,
+            match="The use of 'receiver_offset_z' will be deprecated in future release.",
+        ):
+            params = MagneticVectorParams(
+                forward_only=False,
+                geoh5=workspace,
+                data_object=test_data_object.uid,
+                topography_object=test_topo_object.uid,
+                topography=topo,
+                bxx_channel=bxx_data.uid,
+                bxx_uncertainty=0.1,
+                byy_channel=byy_data.uid,
+                byy_uncertainty=0.2,
+                bzz_channel=bzz_data.uid,
+                bzz_uncertainty=0.3,
+                mesh=mesh.uid,
+                starting_model=0.0,
+                tile_spatial=2,
+                z_from_topo=True,
+                receivers_offset_z=50.0,
+                resolution=0.0,
+            )
 
         driver = MagneticVectorDriver(params)
 

@@ -75,7 +75,7 @@ def test_bad_waveform(tmp_path: Path):
     survey.channels[-1] = 1000.0
 
     with raises(ValueError, match="The latest time"):
-        _ = fwr_driver.inversion_data
+        _ = fwr_driver.inversion_data.survey
 
 
 def test_airborne_tem_fwr_run(

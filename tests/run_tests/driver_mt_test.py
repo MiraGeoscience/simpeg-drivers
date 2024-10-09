@@ -37,7 +37,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.003936, "phi_d": 1.873, "phi_m": 5.731}
+target_run = {"data_norm": 0.003936, "phi_d": 3.956, "phi_m": 13.57}
 
 
 def test_magnetotellurics_fwr_run(

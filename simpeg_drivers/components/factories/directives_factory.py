@@ -480,9 +480,7 @@ class SaveIterationGeoh5Factory(SimPEGFactory):
         if is_dc and name == "Apparent Resistivity":
             kwargs["transforms"].insert(
                 0,
-                inversion_object.transformations["apparent resistivity"][
-                    np.argsort(sorting)
-                ],
+                inversion_object.survey.apparent_resistivity[np.argsort(sorting)],
             )
             kwargs["channels"] = ["apparent_resistivity"]
             observed = self.params.geoh5.get_entity("Observed_apparent_resistivity")[0]
