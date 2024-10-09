@@ -10,56 +10,6 @@
     "workspace_geoh5": "",
     "inversion_type": "magnetotellurics",
     "forward_only": true,
-    "topography_object": {
-        "main": true,
-        "group": "Topography",
-        "label": "Topography",
-        "meshType": [
-            "{202c5db1-a56d-4004-9cad-baafd8899406}",
-            "{6a057fdc-b355-11e3-95be-fd84a7ffcb88}",
-            "{f26feba3-aded-494b-b9e9-b2bbcbe298e1}",
-            "{48f5054a-1c5c-4ca4-9048-80f36dc60a06}",
-            "{b020a277-90e2-4cd7-84d6-612ee3f25051}"
-        ],
-        "value": "",
-        "optional": true,
-        "enabled": false
-    },
-    "topography": {
-        "association": [
-            "Vertex",
-            "Cell"
-        ],
-        "dataType": "Float",
-        "group": "Topography",
-        "main": true,
-        "optional": true,
-        "enabled": false,
-        "label": "Elevation channel",
-        "tooltip": "Set elevation from channel",
-        "parent": "topography_object",
-        "dependency": "topography_object",
-        "dependencyType": "enabled",
-        "value": "",
-        "verbose": 2
-    },
-    "active_model": {
-        "association": "Cell",
-        "dataType": [
-            "Referenced",
-            "Boolean",
-            "Integer"
-        ],
-        "group": "Topography",
-        "main": true,
-        "enabled": false,
-        "dependency": "topography_object",
-        "dependencyType": "disabled",
-        "label": "Active model",
-        "tooltip": "Bool model on the input 'mesh' defining air/ground cells",
-        "parent": "mesh",
-        "value": ""
-    },
     "data_object": {
         "main": true,
         "group": "Survey",
@@ -72,7 +22,8 @@
         "label": "Take z from topography",
         "tooltip": "Sets survey elevation to topography before any offsets are applied.",
         "value": false,
-        "verbose": 3
+        "verbose": 3,
+        "visible": false
     },
     "receivers_radar_drape": {
         "association": [
@@ -87,7 +38,8 @@
         "parent": "data_object",
         "value": "",
         "enabled": false,
-        "verbose": 3
+        "verbose": 3,
+        "visible": false
     },
     "receivers_offset_z": {
         "group": "Data pre-processing",
@@ -95,7 +47,8 @@
         "optional": true,
         "enabled": false,
         "value": 0.0,
-        "verbose": 3
+        "verbose": 3,
+        "visible": false
     },
     "gps_receivers_offset": "",
     "zxx_real_channel_bool": {
@@ -181,11 +134,62 @@
         "property": "",
         "value": 0.001
     },
+    "topography_object": {
+        "main": true,
+        "group": "Topography",
+        "label": "Topography",
+        "meshType": [
+            "{202c5db1-a56d-4004-9cad-baafd8899406}",
+            "{6a057fdc-b355-11e3-95be-fd84a7ffcb88}",
+            "{f26feba3-aded-494b-b9e9-b2bbcbe298e1}",
+            "{48f5054a-1c5c-4ca4-9048-80f36dc60a06}",
+            "{b020a277-90e2-4cd7-84d6-612ee3f25051}"
+        ],
+        "value": "",
+        "optional": true,
+        "enabled": true
+    },
+    "topography": {
+        "association": [
+            "Vertex",
+            "Cell"
+        ],
+        "dataType": "Float",
+        "group": "Topography",
+        "main": true,
+        "optional": true,
+        "enabled": false,
+        "label": "Elevation channel",
+        "tooltip": "Set elevation from channel",
+        "parent": "topography_object",
+        "dependency": "topography_object",
+        "dependencyType": "enabled",
+        "value": "",
+        "verbose": 2
+    },
+    "active_model": {
+        "association": "Cell",
+        "dataType": [
+            "Referenced",
+            "Boolean",
+            "Integer"
+        ],
+        "group": "Topography",
+        "main": true,
+        "enabled": false,
+        "dependency": "topography_object",
+        "dependencyType": "disabled",
+        "label": "Active model",
+        "tooltip": "Bool model on the input 'mesh' defining air/ground cells",
+        "parent": "mesh",
+        "value": ""
+    },
     "output_tile_files": false,
     "parallelized": {
         "group": "Compute",
         "label": "Use parallelization",
-        "value": true
+        "value": true,
+        "visible": false
     },
     "n_cpu": {
         "min": 1,
@@ -195,7 +199,8 @@
         "optional": true,
         "enabled": false,
         "label": "Number of CPUs",
-        "value": 1
+        "value": 1,
+        "visible": false
     },
     "tile_spatial": {
         "group": "Compute",
@@ -215,13 +220,15 @@
         "enabled": true,
         "label": "Maximum chunk size",
         "value": 128,
-        "verbose": 3
+        "verbose": 3,
+        "visible": false
     },
     "chunk_by_rows": {
         "group": "Compute",
         "label": "Chunk by rows",
         "value": true,
-        "verbose": 3
+        "verbose": 3,
+        "visible": false
     },
     "out_group": {
         "label": "SimPEG group",
