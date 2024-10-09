@@ -154,7 +154,7 @@
         "value": "",
         "optional": true,
         "enabled": true,
-        "tooltip": "Select a topography object to define the active cells for inversion.  The user may also provide active cells directly by disabling the parameter.  If no elevation channel is selected, the topography will be set from the geometry of the selected object."
+        "tooltip": "Select a topography object to define the active cells for inversion."
     },
     "topography": {
         "association": [
@@ -187,7 +187,7 @@
         "dependency": "topography_object",
         "dependencyType": "disabled",
         "label": "Active model",
-        "tooltip": "Bool model on the input 'mesh' defining air/ground cells.  May only be set if the 'topography' object has been disabled.",
+        "tooltip": "Provide the active cell boolean model directly if topography not set.",
         "parent": "mesh",
         "value": ""
     },
@@ -243,7 +243,7 @@
         "group": "Python run preferences",
         "main": true,
         "value": false,
-        "tooltip": "Generates a sweep file instead of running the application. Sweep parameters can then be set and run from the resulting file."
+        "tooltip": "Generates a file for sweeping parameters instead of running the application."
     },
     "files_only": {
         "label": "Generate files only",

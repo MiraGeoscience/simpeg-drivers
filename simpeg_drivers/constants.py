@@ -136,7 +136,7 @@ default_ui_json = {
         "value": "",
         "optional": True,
         "enabled": True,
-        "tooltip": "Select a topography object to define the active cells for inversion.  The user may also provide active cells directly by disabling the parameter.  If no elevation channel is selected, the topography will be set from the geometry of the selected object.",
+        "tooltip": "Select a topography object to define the active cells for inversion.",
     },
     "topography": {
         "association": ["Vertex", "Cell"],
@@ -162,7 +162,7 @@ default_ui_json = {
         "dependency": "topography_object",
         "dependencyType": "disabled",
         "label": "Active model",
-        "tooltip": "Bool model on the input 'mesh' defining air/ground cells.  May only be set if the 'topography' object has been disabled.",
+        "tooltip": "Provide the active cell boolean model directly if topography not set.",
         "parent": "mesh",
         "value": "",
     },
@@ -238,7 +238,7 @@ default_ui_json = {
         "enabled": False,
         "dependency": "reference_model",
         "dependencyType": "enabled",
-        "tooltip": "Lp-norm used in the objective function.  0.0 is equivalent to the L0-norm, and 2.0 is equivalent to the L2-norm, but any values in between are also valid.  May be provided as either a float or a model living on th cells of the selected mesh.",
+        "tooltip": "Lp-norm used in the smallness term of the objective function.",
     },
     "x_norm": {
         "association": "Cell",
@@ -254,7 +254,7 @@ default_ui_json = {
         "precision": 2,
         "lineEdit": False,
         "enabled": True,
-        "tooltip": "Lp-norm used in the objective function.  0.0 is equivalent to the L0-norm, and 2.0 is equivalent to the L2-norm, but any values in between are also valid.  May be provided as either a float or a model living on th cells of the selected mesh.",
+        "tooltip": "Lp-norm used in the x-smoothness term of the objective function.",
     },
     "y_norm": {
         "association": "Cell",
@@ -270,7 +270,7 @@ default_ui_json = {
         "precision": 2,
         "lineEdit": False,
         "enabled": True,
-        "tooltip": "Lp-norm used in the objective function.  0.0 is equivalent to the L0-norm, and 2.0 is equivalent to the L2-norm, but any values in between are also valid.  May be provided as either a float or a model living on th cells of the selected mesh.",
+        "tooltip": "Lp-norm used in the y-smoothness term of the objective function.",
     },
     "z_norm": {
         "association": "Cell",
@@ -286,7 +286,7 @@ default_ui_json = {
         "precision": 2,
         "lineEdit": False,
         "enabled": True,
-        "tooltip": "Lp-norm used in the objective function.  0.0 is equivalent to the L0-norm, and 2.0 is equivalent to the L2-norm, but any values in between are also valid.  May be provided as either a float or a model living on th cells of the selected mesh.",
+        "tooltip": "Lp-norm used in the z-smoothness term of the objective function.",
     },
     "reference_model": {
         "association": ["Cell", "Vertex"],
@@ -300,7 +300,7 @@ default_ui_json = {
         "label": "Reference",
         "property": None,
         "value": 0.0,
-        "tooltip": "Reference model used to push the inversion towards a desired result.  May be used in conjunction with the 'alpha_s' parameter to fine-tune the amount by which the inversion will be pushed towards and stay close to the reference model.",
+        "tooltip": "Reference model used to push the inversion towards a desired result.",
     },
     "gradient_type": {
         "choiceList": ["total", "components"],
@@ -308,7 +308,7 @@ default_ui_json = {
         "label": "Gradient type",
         "value": "total",
         "verbose": 3,
-        "tooltip": "This property specifies whether the IRLS weights for sparse smoothness regularization(s) terms are updated using the total gradient (*'total'*) or using the partial gradients along their smoothing orientations (*'components'*).",
+        "tooltip": "Choose whether the IRLS weights for regularization terms are updated using total or partial gradients.",
     },
     "max_irls_iterations": {
         "min": 0,
@@ -324,7 +324,7 @@ default_ui_json = {
         "label": "IRLS start chi factor",
         "enabled": True,
         "value": 2.0,
-        "tooltip": "This chi factor will be used to determine the misfit threshold after which IRLS iterations begin.  If different from the global chi-factor, the inversion will continue to push the data misfit towards the target in the 'Chi factor' parameter.",
+        "tooltip": "This chi factor will be used to determine the misfit threshold after which IRLS iterations begin.",
         "verbose": 3,
     },
     "chi_factor": {
@@ -347,7 +347,7 @@ default_ui_json = {
         "label": "Initial beta ratio",
         "value": 10.0,
         "verbose": 2,
-        "tooltip": "Estimate the trade-off parameter by scaling the ratio between the largest derivatives in the gradient of the data misfit and model objective function.",
+        "tooltip": "Estimate the trade-off parameter by scaling the ratio between the largest derivatives in the objective function gradients.",
     },
     "initial_beta": {
         "min": 0.0,
@@ -382,7 +382,7 @@ default_ui_json = {
         "precision": 1,
         "verbose": 2,
         "enabled": True,
-        "tooltip": "Sets the number of successive iterations before the trade-off parameter is reduced. Use *1* for linear least-squares optimization problems. Use *2* for weakly non-linear optimization problems. Use *3* for general non-linear optimization problems.",
+        "tooltip": "Set the number of iterations per beta value. Use higher values for more non-linear optimization problems.",
     },
     "max_global_iterations": {
         "min": 1,
@@ -554,7 +554,7 @@ default_ui_json = {
         "group": "Python run preferences",
         "main": True,
         "value": False,
-        "tooltip": "Generates a sweep file instead of running the application. Sweep parameters can then be set and run from the resulting file.",
+        "tooltip": "Generates a file for sweeping parameters instead of running the application.",
     },
     "fix_aspect_ratio": True,
     "colorbar": False,
