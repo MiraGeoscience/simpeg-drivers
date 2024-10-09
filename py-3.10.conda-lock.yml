@@ -8371,13 +8371,13 @@ package:
     h5py: '>=3.2.1,<4.0.0'
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
-  url: git+https://github.com/MiraGeoscience/geoh5py.git@3a35129784ced0bd8252996d28d3909940abd994
+  url: git+https://github.com/MiraGeoscience/geoh5py.git@dcc8c89c553015910eca4f16adaa44b066b495c7
   hash:
-    sha256: 3a35129784ced0bd8252996d28d3909940abd994
+    sha256: dcc8c89c553015910eca4f16adaa44b066b495c7
   category: main
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoh5py.git@3a35129784ced0bd8252996d28d3909940abd994
+    url: git+https://github.com/MiraGeoscience/geoh5py.git@dcc8c89c553015910eca4f16adaa44b066b495c7
   optional: false
 - name: geoh5py
   version: 0.10.0a1
@@ -8388,16 +8388,16 @@ package:
     h5py: '>=3.2.1,<4.0.0'
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
-  url: git+https://github.com/MiraGeoscience/geoh5py.git@3a35129784ced0bd8252996d28d3909940abd994
+  url: git+https://github.com/MiraGeoscience/geoh5py.git@dcc8c89c553015910eca4f16adaa44b066b495c7
   hash:
-    sha256: 3a35129784ced0bd8252996d28d3909940abd994
+    sha256: dcc8c89c553015910eca4f16adaa44b066b495c7
   category: main
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoh5py.git@3a35129784ced0bd8252996d28d3909940abd994
+    url: git+https://github.com/MiraGeoscience/geoh5py.git@dcc8c89c553015910eca4f16adaa44b066b495c7
   optional: false
 - name: mira-simpeg
-  version: 0.21.2.1.dev19+ge4effeea8
+  version: 0.21.2.1.dev23+g3e62dde93
   manager: pip
   platform: linux-64
   dependencies:
@@ -8411,16 +8411,16 @@ package:
     pymatsolver: '>=0.2'
     scikit-learn: '>=1.2'
     scipy: '>=1.8.0'
-  url: git+https://github.com/MiraGeoscience/simpeg@e4effeea85a290af87d1f1deaf204a47894cff10
+  url: git+https://github.com/MiraGeoscience/simpeg@3e62dde93c022c5217851817f639be8a18dfadf5
   hash:
-    sha256: e4effeea85a290af87d1f1deaf204a47894cff10
+    sha256: 3e62dde93c022c5217851817f639be8a18dfadf5
   category: main
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg@e4effeea85a290af87d1f1deaf204a47894cff10
+    url: git+https://github.com/MiraGeoscience/simpeg@3e62dde93c022c5217851817f639be8a18dfadf5
   optional: false
 - name: mira-simpeg
-  version: 0.21.2.1.dev19+ge4effeea8
+  version: 0.21.2.1.dev23+g3e62dde93
   manager: pip
   platform: win-64
   dependencies:
@@ -8434,13 +8434,13 @@ package:
     pymatsolver: '>=0.2'
     scikit-learn: '>=1.2'
     scipy: '>=1.8.0'
-  url: git+https://github.com/MiraGeoscience/simpeg@e4effeea85a290af87d1f1deaf204a47894cff10
+  url: git+https://github.com/MiraGeoscience/simpeg@3e62dde93c022c5217851817f639be8a18dfadf5
   hash:
-    sha256: e4effeea85a290af87d1f1deaf204a47894cff10
+    sha256: 3e62dde93c022c5217851817f639be8a18dfadf5
   category: main
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg@e4effeea85a290af87d1f1deaf204a47894cff10
+    url: git+https://github.com/MiraGeoscience/simpeg@3e62dde93c022c5217851817f639be8a18dfadf5
   optional: false
 - name: octree-creation-app
   version: 0.3.0a1
