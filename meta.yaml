@@ -6,8 +6,6 @@ package:
   version: {{ version }}
 
 source:
-  # url: https://github.com/MiraGeoscience/simpeg/archive/v0.19.0.8+mira.tar.gz
-  # sha256: f48e21e1e3d1df79be0baad2bc0b91f83714ddf53780a6849f9a60f9418a735b
   path: ../{{ name }}
 
 build:
@@ -32,7 +30,7 @@ requirements:
     - octree-creation-app >=0.2.0a0.dev0,<0.3.0
     - geoapps-utils >=0.4.0a0.dev0,<0.5.0
     - mira-simpeg >=0.21.2.1a0.dev0,<0.22.0
-    - param-sweeps >=0.1.8a0.dev0,<0.1.9
+    - param-sweeps >=0.2.0a0.dev0,<0.2.1
     - pillow >=10.3.0
     - empymod >=2.2.1,<2.3.0
     - geoana >=0.5.0,<0.6.0
