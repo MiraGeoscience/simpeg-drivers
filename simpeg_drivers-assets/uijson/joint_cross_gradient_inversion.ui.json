@@ -10,56 +10,6 @@
     "workspace_geoh5": "",
     "inversion_type": "joint cross gradient",
     "forward_only": false,
-    "topography_object": {
-        "main": true,
-        "group": "Topography",
-        "label": "Topography",
-        "meshType": [
-            "{202c5db1-a56d-4004-9cad-baafd8899406}",
-            "{6a057fdc-b355-11e3-95be-fd84a7ffcb88}",
-            "{f26feba3-aded-494b-b9e9-b2bbcbe298e1}",
-            "{48f5054a-1c5c-4ca4-9048-80f36dc60a06}",
-            "{b020a277-90e2-4cd7-84d6-612ee3f25051}"
-        ],
-        "value": "",
-        "optional": true,
-        "enabled": true
-    },
-    "topography": {
-        "association": [
-            "Vertex",
-            "Cell"
-        ],
-        "dataType": "Float",
-        "group": "Topography",
-        "main": true,
-        "optional": true,
-        "enabled": false,
-        "label": "Elevation channel",
-        "tooltip": "Set elevation from channel",
-        "parent": "topography_object",
-        "dependency": "topography_object",
-        "dependencyType": "enabled",
-        "value": "",
-        "verbose": 2
-    },
-    "active_model": {
-        "association": "Cell",
-        "dataType": [
-            "Referenced",
-            "Boolean",
-            "Integer"
-        ],
-        "group": "Topography",
-        "main": true,
-        "enabled": false,
-        "dependency": "topography_object",
-        "dependencyType": "disabled",
-        "label": "Active model",
-        "tooltip": "Bool model on the input 'mesh' defining air/ground cells",
-        "parent": "mesh",
-        "value": ""
-    },
     "group_a": {
         "main": true,
         "group": "Joint",
@@ -149,6 +99,56 @@
         "enabled": false,
         "optional": true
     },
+    "topography_object": {
+        "main": true,
+        "group": "Topography",
+        "label": "Topography",
+        "meshType": [
+            "{202c5db1-a56d-4004-9cad-baafd8899406}",
+            "{6a057fdc-b355-11e3-95be-fd84a7ffcb88}",
+            "{f26feba3-aded-494b-b9e9-b2bbcbe298e1}",
+            "{48f5054a-1c5c-4ca4-9048-80f36dc60a06}",
+            "{b020a277-90e2-4cd7-84d6-612ee3f25051}"
+        ],
+        "value": "",
+        "optional": true,
+        "enabled": true
+    },
+    "topography": {
+        "association": [
+            "Vertex",
+            "Cell"
+        ],
+        "dataType": "Float",
+        "group": "Topography",
+        "main": true,
+        "optional": true,
+        "enabled": false,
+        "label": "Elevation channel",
+        "tooltip": "Set elevation from channel",
+        "parent": "topography_object",
+        "dependency": "topography_object",
+        "dependencyType": "enabled",
+        "value": "",
+        "verbose": 2
+    },
+    "active_model": {
+        "association": "Cell",
+        "dataType": [
+            "Referenced",
+            "Boolean",
+            "Integer"
+        ],
+        "group": "Topography",
+        "main": true,
+        "enabled": false,
+        "dependency": "topography_object",
+        "dependencyType": "disabled",
+        "label": "Active model",
+        "tooltip": "Bool model on the input 'mesh' defining air/ground cells",
+        "parent": "mesh",
+        "value": ""
+    },
     "output_tile_files": false,
     "inversion_style": "voxel",
     "alpha_s": {
@@ -158,7 +158,7 @@
         "label": "Smallness weight",
         "value": 1.0,
         "tooltip": "Constant ratio compared to other weights. Larger values result in models that remain close to the reference model",
-        "enabled": true
+        "enabled": false
     },
     "length_scale_x": {
         "min": 0.0,
@@ -166,7 +166,7 @@
         "label": "X-smoothness weight",
         "tooltip": "Larger values relative to other smoothness weights will result in x biased smoothness",
         "value": 1.0,
-        "enabled": true
+        "enabled": false
     },
     "length_scale_y": {
         "min": 0.0,
@@ -174,7 +174,7 @@
         "label": "Y-smoothness weight",
         "tooltip": "Larger values relative to other smoothness weights will result in y biased smoothness",
         "value": 1.0,
-        "enabled": true
+        "enabled": false
     },
     "length_scale_z": {
         "min": 0.0,
@@ -182,7 +182,7 @@
         "label": "Z-smoothness weight",
         "tooltip": "Larger values relative to other smoothness weights will result in z biased smoothess",
         "value": 1.0,
-        "enabled": true
+        "enabled": false
     },
     "s_norm": {
         "min": 0.0,
@@ -192,7 +192,7 @@
         "value": 0.0,
         "precision": 2,
         "lineEdit": false,
-        "enabled": true
+        "enabled": false
     },
     "x_norm": {
         "min": 0.0,
@@ -202,7 +202,7 @@
         "value": 2.0,
         "precision": 2,
         "lineEdit": false,
-        "enabled": true
+        "enabled": false
     },
     "y_norm": {
         "min": 0.0,
@@ -212,7 +212,7 @@
         "value": 2.0,
         "precision": 2,
         "lineEdit": false,
-        "enabled": true
+        "enabled": false
     },
     "z_norm": {
         "min": 0.0,
@@ -222,7 +222,7 @@
         "value": 2.0,
         "precision": 2,
         "lineEdit": false,
-        "enabled": true
+        "enabled": false
     },
     "gradient_type": {
         "choiceList": [
@@ -233,7 +233,7 @@
         "label": "Gradient type",
         "value": "total",
         "verbose": 3,
-        "enabled": true
+        "enabled": false
     },
     "max_irls_iterations": {
         "min": 0,
@@ -381,12 +381,6 @@
         "value": true,
         "verbose": 2,
         "enabled": true
-    },
-    "save_sensitivities": {
-        "group": "Update sensitivity weights directive",
-        "label": "Save sensitivities",
-        "tooltip": "Save the summed square row sensitivities to geoh5.",
-        "value": false
     },
     "parallelized": {
         "group": "Compute",

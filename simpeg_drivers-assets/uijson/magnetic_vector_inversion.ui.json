@@ -731,7 +731,6 @@
         "max": 10,
         "precision": 1,
         "verbose": 2,
-        "groupOptional": true,
         "enabled": true
     },
     "max_global_iterations": {
