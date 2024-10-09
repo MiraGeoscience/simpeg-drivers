@@ -482,9 +482,7 @@ class SurveyFactory(SimPEGFactory):
         if frequency is None:
             frequencies = channels
         else:
-            frequencies = (
-                [frequency] if isinstance(frequency, int | float) else frequency
-            )
+            frequencies = [frequency] if not isinstance(frequency, list) else frequency
 
         for frequency in frequencies:
             sources.append(tx_factory.build(receivers, frequency=frequency))
