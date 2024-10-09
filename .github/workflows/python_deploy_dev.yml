@@ -12,7 +12,7 @@ jobs:
     with:
       package-name: 'simpeg-drivers'
       python-version: '3.10'
-      virtual-repo-names: '["public-pypi-dev"]'
+      virtual-repo-names: '["public-conda-dev"]'
     secrets:
       JFROG_ARTIFACTORY_URL: ${{ secrets.JFROG_ARTIFACTORY_URL }}
       JFROG_ARTIFACTORY_TOKEN: ${{ secrets.JFROG_ARTIFACTORY_TOKEN }}
