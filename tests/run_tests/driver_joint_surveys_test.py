@@ -114,7 +114,7 @@ def test_joint_surveys_inv_run(
     with Workspace(workpath) as geoh5:
         drivers = []
         orig_data = []
-        mesh = None
+
         for ind in range(2):
             group = geoh5.get_entity(f"Gravity Forward [{ind}]")[0]
             survey = geoh5.get_entity(group.options["data_object"]["value"])[0]
