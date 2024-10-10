@@ -14,7 +14,7 @@ dependencies:
   - brotli-bin=1.1.0=hb9d3cd8_2
   - brotli-python=1.1.0=py310hf71b8c6_2
   - bzip2=1.0.8=h4bc722e_7
-  - c-ares=1.33.1=heb4867d_0
+  - c-ares=1.34.1=heb4867d_0
   - ca-certificates=2024.8.30=hbcca054_0
   - cached-property=1.5.2=hd8ed1ab_1
   - cached_property=1.5.2=pyha770c72_1
@@ -87,7 +87,7 @@ dependencies:
   - libxcrypt=4.4.36=hd590300_1
   - libxml2=2.12.7=he7c6b58_4
   - libzlib=1.3.1=hb9d3cd8_2
-  - llvm-openmp=19.1.0=h024ca30_1
+  - llvm-openmp=19.1.1=h024ca30_0
   - llvmlite=0.43.0=py310h1a6248f_1
   - locket=1.0.0=pyhd8ed1ab_0
   - markupsafe=3.0.1=py310h89163eb_1
@@ -97,7 +97,7 @@ dependencies:
   - munkres=1.1.4=pyh9f0ad1d_0
   - ncurses=6.5=he02047a_1
   - numba=0.60.0=py310h5dc88bb_0
-  - numcodecs=0.13.0=py310h0cd1892_0
+  - numcodecs=0.13.1=py310h5eaa309_0
   - numpy=1.26.4=py310hb13e2d6_0
   - openjpeg=2.5.2=h488ebb8_0
   - openssl=3.3.2=hb9d3cd8_0
@@ -152,7 +152,7 @@ dependencies:
   - zstd=1.5.6=ha6fb4c9_0
   - pip:
       - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@9542e371603a7018dcc86e7b5c0de13a48b58f4b
-      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@dcc8c89c553015910eca4f16adaa44b066b495c7
+      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@c7b8520dda3e023e29a2c5afa5ab18062f5a589f
       - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@3e62dde93c022c5217851817f639be8a18dfadf5
       - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app.git@1f471ffba99522a3cdb7422db9aab8ddec752ef1
       - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps.git@7ffcedc692bea8de4c2c9eca479b50231e2d22bd
