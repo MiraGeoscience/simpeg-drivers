@@ -151,6 +151,7 @@ default_ui_json = {
         "label": "Line ID",
         "parent": "data_object",
         "value": None,
+        "tooltip": "Selects the data representing the different lines in the survey.",
     },
     "data_object": {
         "main": True,

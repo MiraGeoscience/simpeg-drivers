@@ -176,7 +176,8 @@
         "main": true,
         "label": "Mesh",
         "meshType": "{4ea87376-3ece-438b-bf12-3479733ded46}",
-        "value": ""
+        "value": "",
+        "tooltip": "Select a mesh for the inversion."
     },
     "background_conductivity": {
         "association": [
@@ -267,7 +268,8 @@
         ],
         "value": "",
         "optional": true,
-        "enabled": true
+        "enabled": true,
+        "tooltip": "Select a topography object to define the active cells for inversion."
     },
     "topography": {
         "association": [
@@ -280,7 +282,7 @@
         "optional": true,
         "enabled": false,
         "label": "Elevation channel",
-        "tooltip": "Set elevation from channel",
+        "tooltip": "Set elevation from channel.  If not set the topography will be set from the geometry of the selected 'topography' object.",
         "parent": "topography_object",
         "dependency": "topography_object",
         "dependencyType": "enabled",
@@ -300,7 +302,7 @@
         "dependency": "topography_object",
         "dependencyType": "disabled",
         "label": "Active model",
-        "tooltip": "Bool model on the input 'mesh' defining air/ground cells",
+        "tooltip": "Provide the active cell boolean model directly if topography not set.",
         "parent": "mesh",
         "value": ""
     },
@@ -375,7 +377,8 @@
         "lineEdit": true,
         "enabled": true,
         "dependency": "reference_model",
-        "dependencyType": "enabled"
+        "dependencyType": "enabled",
+        "tooltip": "Lp-norm used in the smallness term of the objective function."
     },
     "x_norm": {
         "association": "Cell",
@@ -390,7 +393,8 @@
         "max": 2.0,
         "precision": 2,
         "lineEdit": false,
-        "enabled": true
+        "enabled": true,
+        "tooltip": "Lp-norm used in the x-smoothness term of the objective function."
     },
     "y_norm": {
         "association": "Cell",
@@ -405,7 +409,8 @@
         "max": 2.0,
         "precision": 2,
         "lineEdit": false,
-        "enabled": true
+        "enabled": true,
+        "tooltip": "Lp-norm used in the y-smoothness term of the objective function."
     },
     "z_norm": {
         "association": "Cell",
@@ -420,7 +425,8 @@
         "max": 2.0,
         "precision": 2,
         "lineEdit": false,
-        "enabled": true
+        "enabled": true,
+        "tooltip": "Lp-norm used in the z-smoothness term of the objective function."
     },
     "gradient_type": {
         "choiceList": [
@@ -430,7 +436,8 @@
         "group": "Sparse/blocky model",
         "label": "Gradient type",
         "value": "total",
-        "verbose": 3
+        "verbose": 3,
+        "tooltip": "Choose whether the IRLS weights for regularization terms are updated using total or partial gradients."
     },
     "max_irls_iterations": {
         "min": 0,
@@ -474,7 +481,8 @@
         "group": "Cooling schedule/target",
         "label": "Chi factor",
         "value": 1.0,
-        "enabled": true
+        "enabled": true,
+        "tooltip": "The global target data misfit value."
     },
     "initial_beta_ratio": {
         "min": 0.0,
@@ -484,7 +492,8 @@
         "enabled": true,
         "label": "Initial beta ratio",
         "value": 100.0,
-        "verbose": 2
+        "verbose": 2,
+        "tooltip": "Estimate the trade-off parameter by scaling the ratio between the largest derivatives in the objective function gradients."
     },
     "initial_beta": {
         "min": 0.0,
@@ -495,7 +504,8 @@
         "dependencyType": "disabled",
         "label": "Initial beta",
         "value": 1.0,
-        "verbose": 2
+        "verbose": 2,
+        "tooltip": "Trade-off parameter between data misfit and regularization."
     },
     "coolingFactor": {
         "group": "Cooling schedule/target",
@@ -517,7 +527,8 @@
         "max": 10,
         "precision": 1,
         "verbose": 2,
-        "enabled": true
+        "enabled": true,
+        "tooltip": "Set the number of iterations per beta value. Use higher values for more non-linear optimization problems."
     },
     "max_global_iterations": {
         "min": 1,
@@ -534,7 +545,8 @@
         "value": 20,
         "min": 1,
         "enabled": true,
-        "verbose": 3
+        "verbose": 3,
+        "tooltip": "Perform an Armijo backtracking linesearch for the provided number of iterations."
     },
     "max_cg_iterations": {
         "min": 0,
@@ -558,7 +570,8 @@
         "value": 0.01,
         "min": 1e-06,
         "verbose": 3,
-        "enabled": true
+        "enabled": true,
+        "tooltip": "Minimum decrease in regularization beyond which the IRLS procedure is deemed to have completed."
     },
     "sens_wts_threshold": {
         "group": "Update sensitivity weights directive",
@@ -611,7 +624,8 @@
         "value": 1,
         "min": 1,
         "max": 1000,
-        "verbose": 2
+        "verbose": 2,
+        "tooltip": "Splits the objective function into spatial tiles for distributed computation using the Dask library."
     },
     "max_ram": "",
     "store_sensitivities": {
@@ -629,10 +643,11 @@
         "group": "Compute",
         "optional": true,
         "enabled": true,
-        "label": "Maximum chunk size",
+        "label": "Maximum chunk size (Mb)",
         "value": 128,
         "verbose": 3,
-        "visible": false
+        "visible": false,
+        "tooltip": "Limit the chunk size used by Dask for distributed computation."
     },
     "chunk_by_rows": {
         "group": "Compute",
@@ -648,13 +663,15 @@
         "group": "Drag-and-drop options",
         "visible": true,
         "optional": true,
-        "enabled": false
+        "enabled": false,
+        "tooltip": "Optionally set the SimPEG group to which results will be saved."
     },
     "generate_sweep": {
         "label": "Generate sweep file",
         "group": "Python run preferences",
         "main": true,
-        "value": false
+        "value": false,
+        "tooltip": "Generates a file for sweeping parameters instead of running the application."
     },
     "distributed_workers": ""
 }
