@@ -52,6 +52,10 @@ class InversionModelCollection:
         "lower_bound",
         "upper_bound",
         "conductivity",
+        "alpha_s",
+        "length_scale_x",
+        "length_scale_y",
+        "length_scale_z",
         "s_norm",
         "x_norm",
         "y_norm",
@@ -76,6 +80,10 @@ class InversionModelCollection:
         self._lower_bound = InversionModel(driver, "lower_bound")
         self._upper_bound = InversionModel(driver, "upper_bound")
         self._conductivity = InversionModel(driver, "conductivity")
+        self._alpha_s = InversionModel(driver, "alpha_s")
+        self._length_scale_x = InversionModel(driver, "length_scale_x")
+        self._length_scale_y = InversionModel(driver, "length_scale_y")
+        self._length_scale_z = InversionModel(driver, "length_scale_z")
         self._s_norm = InversionModel(driver, "s_norm")
         self._x_norm = InversionModel(driver, "x_norm")
         self._y_norm = InversionModel(driver, "y_norm")
@@ -197,11 +205,40 @@ class InversionModelCollection:
         return mstart
 
     @property
+    def alpha_s(self) -> np.ndarray | None:
+        if self._alpha_s.model is None:
+            return None
+
+        return self._alpha_s.model.copy()
+
+    @property
+    def length_scale_x(self) -> np.ndarray | None:
+        if self._length_scale_x.model is None:
+            return None
+
+        return self._length_scale_x.model.copy()
+
+    @property
+    def length_scale_y(self) -> np.ndarray | None:
+        if self._length_scale_y.model is None:
+            return None
+
+        return self._length_scale_y.model.copy()
+
+    @property
+    def length_scale_z(self) -> np.ndarray | None:
+        if self._length_scale_z.model is None:
+            return None
+
+        return self._length_scale_z.model.copy()
+
+    @property
     def s_norm(self) -> np.ndarray | None:
         if self._s_norm.model is None:
             return None
 
-        return self._s_norm.model.copy()
+        s_norm = self._s_norm.model.copy()
+        return s_norm
 
     @property
     def x_norm(self) -> np.ndarray | None:
@@ -293,6 +330,10 @@ class InversionModel:
         "lower_bound",
         "upper_bound",
         "conductivity",
+        "alpha_s",
+        "length_scale_x",
+        "length_scale_y",
+        "length_scale_z",
         "s_norm",
         "x_norm",
         "y_norm",
@@ -522,6 +563,6 @@ class InversionModel:
     @model_type.setter
     def model_type(self, v):
         if v not in self.model_types:
-            msg = f"Invalid 'model_type'. Must be one of {*self.model_types, }."
+            msg = f"Invalid model_type: {v}. Must be one of {*self.model_types, }."
             raise ValueError(msg)
         self._model_type = v
