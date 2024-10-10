@@ -101,6 +101,7 @@ class JointCrossGradientDriver(BaseJointDriver):
                         driver.data_misfit.model_map,
                         *save_model.transforms,
                     ]
+                    save_model.save_objective_function = False
 
                     directives_list.append(save_model)
 
@@ -111,13 +112,15 @@ class JointCrossGradientDriver(BaseJointDriver):
 
                     count += n_tiles
 
-                for driver, wire in zip(self.drivers, self.wires, strict=True):
+                for count, (driver, wire) in enumerate(
+                    zip(self.drivers, self.wires, strict=True)
+                ):
                     factory = SaveIterationGeoh5Factory(self.params)
                     factory.factory_type = driver.params.inversion_type
                     model_directive = factory.build(
                         inversion_object=self.inversion_mesh,
                         active_cells=self.models.active_cells,
-                        save_objective_function=True,
+                        save_objective_function=count == 0,
                         name="Model",
                     )
 
