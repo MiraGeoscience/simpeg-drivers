@@ -79,6 +79,7 @@ inversion_defaults = {
     "f_min_change": 0.01,
     "sens_wts_threshold": 1.0,
     "every_iteration_bool": True,
+    "save_sensitivities": False,
     "parallelized": True,
     "n_cpu": None,
     "tile_spatial": 1,
