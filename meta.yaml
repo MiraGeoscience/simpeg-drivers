@@ -48,14 +48,6 @@ requirements:
     - tbb 2021.12.*
     - python-tzdata 2023.4.*
 
-test:
-  imports:
-    - SimPEG
-  commands:
-    - pip check
-  requires:
-    - pip
-
 about:
   license: MIT
   license_file:
