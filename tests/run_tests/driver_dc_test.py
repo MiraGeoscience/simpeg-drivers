@@ -124,6 +124,7 @@ def test_dc_3d_run(
             upper_bound=10,
             tile_spatial=n_lines,
             store_sensitivities="ram",
+            save_sensitivities=True,
             coolingRate=1,
             chi_factor=0.5,
         )
@@ -138,6 +139,9 @@ def test_dc_3d_run(
         output["data"] = potential.values
     if pytest:
         check_target(output, target_run)
+
+    with Workspace(workpath) as geoh5:
+        assert geoh5.get_entity("Iteration_1_sensitivities")[0] is not None
 
 
 def test_dc_single_line_fwr_run(

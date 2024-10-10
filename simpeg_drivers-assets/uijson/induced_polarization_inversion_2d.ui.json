@@ -195,8 +195,8 @@
         "label": "Lower bound (V/V)",
         "property": "",
         "optional": true,
-        "value": 0,
-        "enabled": false
+        "value": 0.0,
+        "enabled": true
     },
     "upper_bound": {
         "association": "Cell",
@@ -297,7 +297,7 @@
         "isValue": true,
         "parent": "mesh",
         "property": "",
-        "value": 1.0,
+        "value": 0.0,
         "min": 0.0,
         "max": 2.0,
         "precision": 2,
@@ -492,6 +492,12 @@
         "value": true,
         "verbose": 2,
         "enabled": true
+    },
+    "save_sensitivities": {
+        "group": "Update sensitivity weights directive",
+        "label": "Save sensitivities",
+        "tooltip": "Save the summed square row sensitivities to geoh5.",
+        "value": false
     },
     "parallelized": {
         "group": "Compute",

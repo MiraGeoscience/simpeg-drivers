@@ -97,6 +97,7 @@ inversion_defaults = {
     "f_min_change": 0.01,
     "sens_wts_threshold": 0.001,
     "every_iteration_bool": False,
+    "save_sensitivities": False,
     "parallelized": True,
     "n_cpu": None,
     "tile_spatial": 1,
@@ -482,8 +483,7 @@ default_ui_json = {
         "max": 10,
         "precision": 1,
         "verbose": 2,
-        "groupOptional": True,
-        "enabled": False,
+        "enabled": True,
     },
     "starting_model": {
         "association": ["Cell", "Vertex"],

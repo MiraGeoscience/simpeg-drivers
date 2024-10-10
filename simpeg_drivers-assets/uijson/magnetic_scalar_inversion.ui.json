@@ -40,56 +40,6 @@
         "label": "Declination (deg)",
         "value": 0.0
     },
-    "topography_object": {
-        "main": true,
-        "group": "Topography",
-        "label": "Topography",
-        "meshType": [
-            "{202c5db1-a56d-4004-9cad-baafd8899406}",
-            "{6a057fdc-b355-11e3-95be-fd84a7ffcb88}",
-            "{f26feba3-aded-494b-b9e9-b2bbcbe298e1}",
-            "{48f5054a-1c5c-4ca4-9048-80f36dc60a06}",
-            "{b020a277-90e2-4cd7-84d6-612ee3f25051}"
-        ],
-        "value": "",
-        "optional": true,
-        "enabled": true
-    },
-    "topography": {
-        "association": [
-            "Vertex",
-            "Cell"
-        ],
-        "dataType": "Float",
-        "group": "Topography",
-        "main": true,
-        "optional": true,
-        "enabled": false,
-        "label": "Elevation channel",
-        "tooltip": "Set elevation from channel",
-        "parent": "topography_object",
-        "dependency": "topography_object",
-        "dependencyType": "enabled",
-        "value": "",
-        "verbose": 2
-    },
-    "active_model": {
-        "association": "Cell",
-        "dataType": [
-            "Referenced",
-            "Boolean",
-            "Integer"
-        ],
-        "group": "Topography",
-        "main": true,
-        "enabled": false,
-        "dependency": "topography_object",
-        "dependencyType": "disabled",
-        "label": "Active model",
-        "tooltip": "Bool model on the input 'mesh' defining air/ground cells",
-        "parent": "mesh",
-        "value": ""
-    },
     "data_object": {
         "main": true,
         "group": "Data",
@@ -474,6 +424,56 @@
         "value": 1.0,
         "enabled": false
     },
+    "topography_object": {
+        "main": true,
+        "group": "Topography",
+        "label": "Topography",
+        "meshType": [
+            "{202c5db1-a56d-4004-9cad-baafd8899406}",
+            "{6a057fdc-b355-11e3-95be-fd84a7ffcb88}",
+            "{f26feba3-aded-494b-b9e9-b2bbcbe298e1}",
+            "{48f5054a-1c5c-4ca4-9048-80f36dc60a06}",
+            "{b020a277-90e2-4cd7-84d6-612ee3f25051}"
+        ],
+        "value": "",
+        "optional": true,
+        "enabled": true
+    },
+    "topography": {
+        "association": [
+            "Vertex",
+            "Cell"
+        ],
+        "dataType": "Float",
+        "group": "Topography",
+        "main": true,
+        "optional": true,
+        "enabled": false,
+        "label": "Elevation channel",
+        "tooltip": "Set elevation from channel",
+        "parent": "topography_object",
+        "dependency": "topography_object",
+        "dependencyType": "enabled",
+        "value": "",
+        "verbose": 2
+    },
+    "active_model": {
+        "association": "Cell",
+        "dataType": [
+            "Referenced",
+            "Boolean",
+            "Integer"
+        ],
+        "group": "Topography",
+        "main": true,
+        "enabled": false,
+        "dependency": "topography_object",
+        "dependencyType": "disabled",
+        "label": "Active model",
+        "tooltip": "Bool model on the input 'mesh' defining air/ground cells",
+        "parent": "mesh",
+        "value": ""
+    },
     "output_tile_files": false,
     "inversion_style": "voxel",
     "alpha_s": {
@@ -518,7 +518,7 @@
         "isValue": true,
         "parent": "mesh",
         "property": "",
-        "value": 1.0,
+        "value": 0.0,
         "min": 0.0,
         "max": 2.0,
         "precision": 2,
@@ -667,7 +667,6 @@
         "max": 10,
         "precision": 1,
         "verbose": 2,
-        "groupOptional": true,
         "enabled": true
     },
     "max_global_iterations": {
@@ -729,6 +728,12 @@
         "value": false,
         "verbose": 2,
         "enabled": true
+    },
+    "save_sensitivities": {
+        "group": "Update sensitivity weights directive",
+        "label": "Save sensitivities",
+        "tooltip": "Save the summed square row sensitivities to geoh5.",
+        "value": false
     },
     "parallelized": {
         "group": "Compute",
