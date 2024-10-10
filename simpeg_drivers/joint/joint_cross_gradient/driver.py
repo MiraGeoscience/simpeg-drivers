@@ -109,6 +109,14 @@ class JointCrossGradientDriver(BaseJointDriver):
                             driver_directives.vector_inversion_directive
                         )
 
+                    save_sensitivities = driver_directives.save_sensitivities_directive
+                    if save_sensitivities is not None:
+                        save_sensitivities.transforms = [
+                            driver.data_misfit.model_map,
+                            *save_sensitivities.transforms,
+                        ]
+                        directives_list.append(save_sensitivities)
+
                     count += n_tiles
 
                 for driver, wire in zip(self.drivers, self.wires, strict=True):
