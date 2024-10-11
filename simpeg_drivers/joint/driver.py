@@ -212,3 +212,15 @@ class BaseJointDriver(InversionDriver):
         self.logger.end()
         sys.stdout = self.logger.terminal
         self.logger.log.close()
+        self._update_log()
+
+    def _update_log(self):
+        """Update the log with the inversion results."""
+        filepath = Path(self.workspace.h5file).parent / "SimPEG.log"
+        with fetch_active_workspace(self.workspace, mode="r+"):
+            with open(filepath, "rb") as file:
+                file_bytes = file.read()
+
+            file_entities = self.workspace.get_entity("SimPEG.log")
+            file_entity = next(k for k in file_entities if "Joint" in k.parent.name)
+            file_entity.file_bytes = file_bytes
