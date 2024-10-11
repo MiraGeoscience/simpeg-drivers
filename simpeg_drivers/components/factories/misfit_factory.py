@@ -90,7 +90,12 @@ class MisfitFactory(SimPEGFactory):
                 )
 
                 if count == 0:
-                    if self.factory_type in ["fem", "tdem"]:
+                    if self.factory_type in [
+                        "fem",
+                        "tdem",
+                        "magnetotellurics",
+                        "tipper",
+                    ]:
                         self.sorting.append(
                             np.arange(
                                 data_count,
