@@ -323,15 +323,11 @@ class InversionDriver(BaseDriver):
         self.logger.log.close()
 
         if self.params.forward_only:
-            self.directives.save_directives[1].save_components(0, predicted)
-            self.directives.save_directives[1].save_log()
-        else:
-            for directive in self.directives.save_directives:
-                if (
-                    isinstance(directive, directives.SaveIterationsGeoH5)
-                    and directive.save_objective_function
-                ):
-                    directive.save_log()
+            self.directives.save_directives[1].write(0, predicted)
+
+        for directive in self.directives.save_directives:
+            if isinstance(directive, directives.SaveLogFilesGeoH5):
+                directive.save_log()
 
     def start_inversion_message(self):
         # SimPEG reports half phi_d, so we scale to match

@@ -109,6 +109,8 @@ class JointSurveyDriver(BaseJointDriver):
                         maps.ExpMap(self.inversion_mesh.mesh)
                     ]
 
+                directives_list.append(self._directives.save_iteration_log_files)
+
                 self._directives.directive_list = [
                     *self._directives.inversion_directives,
                     global_model_save,

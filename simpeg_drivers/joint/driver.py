@@ -204,7 +204,7 @@ class BaseJointDriver(InversionDriver):
                     inversion_object=driver.inversion_data,
                     sorting=np.argsort(np.hstack(driver.sorting)),
                     ordering=driver.ordering,
-                ).save_components(0, sub)
+                ).write(0, sub)
         else:
             # Run the inversion
             self.start_inversion_message()
@@ -218,8 +218,5 @@ class BaseJointDriver(InversionDriver):
     def _update_log(self):
         """Update the log with the inversion results."""
         for directive in self.directives.directive_list:
-            if (
-                isinstance(directive, directives.SaveIterationsGeoH5)
-                and directive.save_objective_function
-            ):
+            if isinstance(directive, directives.SaveLogFilesGeoH5):
                 directive.save_log()

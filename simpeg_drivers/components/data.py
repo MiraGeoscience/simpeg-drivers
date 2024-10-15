@@ -483,7 +483,7 @@ class InversionData(InversionLocations):
                 sorting=np.argsort(np.hstack(sorting)),
                 ordering=ordering,
             )
-            save_directive.save_components(0, dpred)
+            save_directive.write(0, dpred)
 
         inverse_problem.dpred = dpred
 

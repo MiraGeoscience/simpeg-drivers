@@ -49,6 +49,7 @@ class DirectivesFactory:
         self._save_sensitivities_directive = None
         self._save_iteration_data_directive = None
         self._save_iteration_residual_directive = None
+        self._save_iteration_log_files = None
         self._save_iteration_apparent_resistivity_directive = None
         self._scale_misfits = None
 
@@ -114,6 +115,7 @@ class DirectivesFactory:
             "save_iteration_data_directive",
             "save_iteration_residual_directive",
             "save_sensitivities_directive",
+            "save_iteration_log_files",
             "save_iteration_apparent_resistivity_directive",
         ]:
             if getattr(self, directive) is not None:
@@ -179,10 +181,18 @@ class DirectivesFactory:
             ).build(
                 inversion_object=self.driver.inversion_mesh,
                 active_cells=self.driver.models.active_cells,
-                save_objective_function=True,
                 name="Model",
             )
         return self._save_iteration_model_directive
+
+    @property
+    def save_iteration_log_files(self):
+        """"""
+        if self._save_iteration_log_files is None:
+            self._save_iteration_log_files = directives.SaveLogFilesGeoH5(
+                self.driver.out_group,
+            )
+        return self._save_iteration_log_files
 
     @property
     def save_iteration_residual_directive(self):
@@ -290,7 +300,6 @@ class SaveIterationGeoh5Factory(SimPEGFactory):
         sorting=None,
         ordering=None,
         transform=None,
-        save_objective_function=False,
         global_misfit=None,
         name=None,
     ):
@@ -303,7 +312,6 @@ class SaveIterationGeoh5Factory(SimPEGFactory):
         sorting=None,
         ordering=None,
         transform=None,
-        save_objective_function=False,
         global_misfit=None,
         name=None,
     ):
@@ -317,7 +325,6 @@ class SaveIterationGeoh5Factory(SimPEGFactory):
                     sorting=sorting,
                     ordering=ordering,
                     transform=transform,
-                    save_objective_function=save_objective_function,
                     global_misfit=global_misfit,
                     name=name,
                 )
@@ -333,7 +340,6 @@ class SaveIterationGeoh5Factory(SimPEGFactory):
                     active_cells=active_cells,
                     sorting=sorting,
                     transform=transform,
-                    save_objective_function=save_objective_function,
                     global_misfit=global_misfit,
                     name=name,
                 )
@@ -344,7 +350,6 @@ class SaveIterationGeoh5Factory(SimPEGFactory):
                     active_cells=active_cells,
                     sorting=sorting,
                     transform=transform,
-                    save_objective_function=save_objective_function,
                     global_misfit=global_misfit,
                     name=name,
                 )
@@ -360,7 +365,6 @@ class SaveIterationGeoh5Factory(SimPEGFactory):
             )
             sorting = inversion_object.permutation
             kwargs = {
-                "save_objective_function": save_objective_function,
                 "label": "model",
                 "association": "CEll",
                 "dmisfit": global_misfit,
@@ -402,14 +406,12 @@ class SaveIterationGeoh5Factory(SimPEGFactory):
         active_cells=None,
         sorting=None,
         transform=None,
-        save_objective_function=False,
         global_misfit=None,
         name=None,
     ):
         components = list(inversion_object.observed)
         channels = [None]
         kwargs = {
-            "save_objective_function": save_objective_function,
             "attribute_type": "predicted",
             "data_type": {
                 comp: {channel: dtype for channel in channels}
@@ -455,7 +457,6 @@ class SaveIterationGeoh5Factory(SimPEGFactory):
         active_cells=None,
         sorting=None,
         transform=None,
-        save_objective_function=False,
         global_misfit=None,
         name=None,
     ):
@@ -464,7 +465,6 @@ class SaveIterationGeoh5Factory(SimPEGFactory):
         is_dc = True if "direct current" in self.factory_type else False
         component = "dc" if is_dc else "ip"
         kwargs = {
-            "save_objective_function": save_objective_function,
             "attribute_type": "predicted",
             "data_type": {
                 comp: {channel: dtype for channel in channels}
@@ -519,7 +519,6 @@ class SaveIterationGeoh5Factory(SimPEGFactory):
         sorting=None,
         ordering=None,
         transform=None,
-        save_objective_function=False,
         global_misfit=None,
         name=None,
     ):
@@ -539,7 +538,6 @@ class SaveIterationGeoh5Factory(SimPEGFactory):
         kwargs = {
             "data_type": inversion_object.observed_data_types,
             "attribute_type": "predicted",
-            "save_objective_function": save_objective_function,
             "association": "VERTEX",
             "transforms": np.hstack(
                 [
