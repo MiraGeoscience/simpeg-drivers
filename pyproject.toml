@@ -37,24 +37,30 @@ scipy = "~1.14.0"
 
 ## Pip dependencies from Git repositories
 #----------------------------------------
-geoh5py = {version = "~0.10.0-alpha.1", allow-prereleases = true}
-#geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "release/0.10.0"}
+#geoh5py = {version = "~0.10.0-alpha.1", allow-prereleases = true}
+geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "release/0.10.0"}
+#geoh5py = {version = "~0.10.0-alpha.1", allow-prereleases = true}
 
-octree-creation-app = {version = "~0.2.0-alpha.1", allow-prereleases = true}
-#octree-creation-app = {git = "https://github.com/MiraGeoscience/octree-creation-app.git", rev = "develop"}
+#octree-creation-app = {version = "~0.2.0-alpha.1", source = "pypi", allow-prereleases = true}
+octree-creation-app = {git = "https://github.com/MiraGeoscience/octree-creation-app.git", rev = "release/0.4.0"}
+#octree-creation-app = {version = "~0.2.0-alpha.1", allow-prereleases = true}
 
-geoapps-utils = {version = "~0.4.0-alpha.1", allow-prereleases = true}
-#geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "release/0.4.0"}
+#geoapps-utils = {version = "~0.4.0-alpha.1", source = "pypi", allow-prereleases = true}
+geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "release/0.4.0"}
+#geoapps-utils = {version = "~0.4.0-alpha.1", allow-prereleases = true}
 
-#mira-simpeg = {version = ">=0.21.2.1-alpha.1, <0.21.2.2.dev", allow-prereleases = true}
+#mira-simpeg = {version = ">=0.21.2.1-alpha.1, <0.21.2.2.dev", source = "pypi", allow-prereleases = true}
 mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", rev = "develop"}
+#mira-simpeg = {version = ">=0.21.2.1-alpha.1, <0.21.2.2.dev", allow-prereleases = true}
 
-param-sweeps = {version = "~0.2.0-alpha.1", allow-prereleases = true}
-#param-sweeps = {git = "https://github.com/MiraGeoscience/param-sweeps.git", rev = "develop"}
+#param-sweeps = {version = "~0.2.0-alpha.1", source = "pypi", allow-prereleases = true}
+param-sweeps = {git = "https://github.com/MiraGeoscience/param-sweeps.git", rev = "release/0.2.0"}
+#param-sweeps = {version = "~0.2.0-alpha.1", allow-prereleases = true}
 
 ## about pip dependencies
 # to be specified to work with conda-lock
 # - from PyPI: my_package = { version = "1.2.3", source = "pypi" }
+# - from Artifactory : my_package = { version = "1.2.3" }
 # - from URL: !!! no actual lock, as tag or branch can move and installation will fetch current !!!
 #   - for a tag:    my_package = { url = "https://github.com/ORGANISATION/REPO/archive/refs/tags/TAG.tar.gz" }
 #   - for a branch: my_package = { url = "https://github.com/ORGANISATION/REPO/archive/refs/heads/BRANCH.tar.gz" }
