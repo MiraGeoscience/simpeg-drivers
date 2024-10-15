@@ -400,6 +400,10 @@ class InversionDriver(BaseDriver):
             for comp, avg_comp, objfct, weight in zip(
                 comps, avg_comps, reg.objfcts, weights
             ):
+                if getattr(self.models, weight) is None:
+                    setattr(reg, weight, 0.0)
+                    continue
+
                 weight = mapping * getattr(self.models, weight)
                 norm = mapping * getattr(self.models, f"{comp}_norm")
                 if comp in "xyz":
