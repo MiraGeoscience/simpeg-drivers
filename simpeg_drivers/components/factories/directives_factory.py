@@ -25,9 +25,10 @@ from abc import ABC
 from typing import TYPE_CHECKING
 
 import numpy as np
+from geoh5py.groups.property_group import GroupTypeEnum
 from simpeg import directives, maps
 from simpeg.utils.mat_utils import cartesian2amplitude_dip_azimuth
-from geoh5py.groups.property_group import GroupTypeEnum
+
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 
 
@@ -125,7 +126,10 @@ class DirectivesFactory:
             if save_directive is not None:
                 directives_list.append(getattr(self, directive))
 
-                if isinstance(save_directive, directives.SaveDataGeoH5) and len(save_directive.channels) > 1:
+                if (
+                    isinstance(save_directive, directives.SaveDataGeoH5)
+                    and len(save_directive.channels) > 1
+                ):
                     save_group = directives.SavePropertyGroup(
                         self.driver.inversion_data.entity,
                         channels=save_directive.channels,

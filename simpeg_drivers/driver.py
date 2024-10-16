@@ -326,7 +326,10 @@ class InversionDriver(BaseDriver):
             self.directives.save_iteration_data_directive.write(0, predicted)
 
             if (
-                isinstance(self.directives.save_iteration_data_directive, directives.SaveDataGeoH5)
+                isinstance(
+                    self.directives.save_iteration_data_directive,
+                    directives.SaveDataGeoH5,
+                )
                 and len(self.directives.save_iteration_data_directive.channels) > 1
             ):
                 directives.SavePropertyGroup(
