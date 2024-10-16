@@ -86,6 +86,9 @@ class JointSurveyDriver(BaseJointDriver):
                     ]
                     directives_list.append(save_model)
 
+                    if driver_directives.save_property_group is not None:
+                        directives_list.append(driver_directives.save_property_group)
+
                     n_tiles = len(driver.data_misfit.objfcts)
                     for name in [
                         "save_iteration_data_directive",
@@ -108,6 +111,9 @@ class JointSurveyDriver(BaseJointDriver):
                     global_model_save.transforms += [
                         maps.ExpMap(self.inversion_mesh.mesh)
                     ]
+
+                if self._directives.save_property_group is not None:
+                    directives_list.append(self._directives.save_property_group)
 
                 directives_list.append(self._directives.save_iteration_log_files)
 

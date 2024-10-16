@@ -323,7 +323,7 @@ class InversionDriver(BaseDriver):
         self.logger.log.close()
 
         if self.params.forward_only:
-            self.directives.save_directives[1].write(0, predicted)
+            self.directives.save_iteration_data_directive.write(0, predicted)
 
         for directive in self.directives.save_directives:
             if isinstance(directive, directives.SaveLogFilesGeoH5):

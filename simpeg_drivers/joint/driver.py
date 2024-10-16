@@ -36,8 +36,7 @@ from simpeg.maps import TileMap
 from simpeg.objective_function import ComboObjectiveFunction
 
 from simpeg_drivers import DRIVER_MAP
-from simpeg_drivers.components.factories import SaveIterationGeoh5Factory
-from simpeg_drivers.components.meshes import InversionMesh
+from simpeg_drivers.components.factories import SaveDataGeoh5Factory
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.joint.params import BaseJointParams
 
@@ -200,7 +199,7 @@ class BaseJointDriver(InversionDriver):
             )
 
             for sub, driver in zip(predicted, self.drivers, strict=True):
-                SaveIterationGeoh5Factory(driver.params).build(
+                SaveDataGeoh5Factory(driver.params).build(
                     inversion_object=driver.inversion_data,
                     sorting=np.argsort(np.hstack(driver.sorting)),
                     ordering=driver.ordering,
