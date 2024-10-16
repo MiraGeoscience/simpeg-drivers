@@ -27,7 +27,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 from simpeg import directives, maps
 from simpeg.utils.mat_utils import cartesian2amplitude_dip_azimuth
-
+from geoh5py.groups.property_group import GroupTypeEnum
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 
 
@@ -121,8 +121,18 @@ class DirectivesFactory:
             "save_iteration_log_files",
             "save_iteration_apparent_resistivity_directive",
         ]:
-            if getattr(self, directive) is not None:
+            save_directive = getattr(self, directive)
+            if save_directive is not None:
                 directives_list.append(getattr(self, directive))
+
+                if isinstance(save_directive, directives.SaveDataGeoH5) and len(save_directive.channels) > 1:
+                    save_group = directives.SavePropertyGroup(
+                        self.driver.inversion_data.entity,
+                        channels=save_directive.channels,
+                        components=save_directive.components,
+                    )
+                    directives_list.append(save_group)
+
         return directives_list
 
     @property
@@ -150,6 +160,7 @@ class DirectivesFactory:
         ):
             self._save_property_group = directives.SavePropertyGroup(
                 self.driver.inversion_mesh.entity,
+                group_type=GroupTypeEnum.DIPDIR,
                 channels=["declination", "inclination"],
             )
         return self._save_property_group
@@ -407,7 +418,6 @@ class SaveSensitivitiesGeoh5Factory(SaveGeoh5Factory):
                 active_cells_map,
             ]
 
-        kwargs["attribute_type"] = "sensitivities"
         kwargs["label"] = "sensitivities"
 
         return kwargs
@@ -485,7 +495,6 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
         components = list(inversion_object.observed)
         channels = [None]
         kwargs = {
-            "attribute_type": "predicted",
             "data_type": {
                 comp: {channel: dtype for channel in channels}
                 for comp, dtype in inversion_object.observed_data_types.items()
@@ -538,7 +547,6 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
         is_dc = True if "direct current" in self.factory_type else False
         component = "dc" if is_dc else "ip"
         kwargs = {
-            "attribute_type": "predicted",
             "data_type": {
                 comp: {channel: dtype for channel in channels}
                 for comp, dtype in inversion_object.observed_data_types.items()
@@ -610,7 +618,6 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
 
         kwargs = {
             "data_type": inversion_object.observed_data_types,
-            "attribute_type": "predicted",
             "association": "VERTEX",
             "transforms": np.hstack(
                 [
