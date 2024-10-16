@@ -37,12 +37,12 @@ scipy = "~1.14.0"
 
 ## Pip dependencies from Git repositories
 #----------------------------------------
-#geoh5py = {version = "~0.10.0-alpha.1", allow-prereleases = true}
+#geoh5py = {version = "~0.10.0-alpha.1", source = "pypi", allow-prereleases = true}
 geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "release/0.10.0"}
 #geoh5py = {version = "~0.10.0-alpha.1", allow-prereleases = true}
 
 #octree-creation-app = {version = "~0.2.0-alpha.1", source = "pypi", allow-prereleases = true}
-octree-creation-app = {git = "https://github.com/MiraGeoscience/octree-creation-app.git", rev = "release/0.4.0"}
+octree-creation-app = {git = "https://github.com/MiraGeoscience/octree-creation-app.git", rev = "release/0.2.0"}
 #octree-creation-app = {version = "~0.2.0-alpha.1", allow-prereleases = true}
 
 #geoapps-utils = {version = "~0.4.0-alpha.1", source = "pypi", allow-prereleases = true}
@@ -54,7 +54,7 @@ mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", rev = "deve
 #mira-simpeg = {version = ">=0.21.2.1-alpha.1, <0.21.2.2.dev", allow-prereleases = true}
 
 #param-sweeps = {version = "~0.2.0-alpha.1", source = "pypi", allow-prereleases = true}
-param-sweeps = {git = "https://github.com/MiraGeoscience/param-sweeps.git", rev = "release/0.2.0"}
+param-sweeps = {git = "https://github.com/MiraGeoscience/param-sweeps.git", rev = "develop"}
 #param-sweeps = {version = "~0.2.0-alpha.1", allow-prereleases = true}
 
 ## about pip dependencies
@@ -67,10 +67,13 @@ param-sweeps = {git = "https://github.com/MiraGeoscience/param-sweeps.git", rev 
 # - to actually lock on a revision: my_package = { git = "https://github.com/ORGANISATION/REPO.git", rev = "GIT_REV" }
 #   (where rev value is a tag, a branch name or a commit hash). Can also use ``branch`` or ``tag`` instead of ``rev``
 
+# indirect package to avoid conflict
+pymatsolver = { version = ">=0.2.0, <0.3.0", source = "pypi" }
+
 [tool.poetry.group.dev.dependencies]
 Pygments = "*"
 ipywidgets = "^7.6.5"
-jupyter-book = "^0.14"
+jupyter-book = "*"
 jupytext = "^1.14"
 pylint = "*"
 pytest = "*"
