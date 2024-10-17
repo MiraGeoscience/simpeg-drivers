@@ -39,7 +39,7 @@ from simpeg_drivers.utils.utils import create_nested_mesh, drape_2_tensor
 
 from .factories import (
     EntityFactory,
-    SaveIterationGeoh5Factory,
+    SaveDataGeoh5Factory,
     SimulationFactory,
     SurveyFactory,
 )
@@ -478,12 +478,12 @@ class InversionData(InversionLocations):
             model, compute_J=False if self.params.forward_only else True
         )
         if self.params.forward_only:
-            save_directive = SaveIterationGeoh5Factory(self.params).build(
+            save_directive = SaveDataGeoh5Factory(self.params).build(
                 inversion_object=self,
                 sorting=np.argsort(np.hstack(sorting)),
                 ordering=ordering,
             )
-            save_directive.save_components(0, dpred)
+            save_directive.write(0, dpred)
 
         inverse_problem.dpred = dpred
 

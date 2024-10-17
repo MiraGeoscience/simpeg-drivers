@@ -20,6 +20,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 from pytest import raises
 
@@ -122,7 +123,11 @@ def test_airborne_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         )
 
     with Workspace(workpath) as geoh5:
-        survey = geoh5.get_entity("Airborne_rx")[0]
+        survey = next(
+            child
+            for child in geoh5.get_entity("Airborne_rx")
+            if not isinstance(child.parent, SimPEGGroup)
+        )
         mesh = geoh5.get_entity("mesh")[0]
         topography = geoh5.get_entity("topography")[0]
 
@@ -157,7 +162,7 @@ def test_airborne_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         data_kwargs = {}
         for comp in components:
             data_kwargs[f"{comp}_channel"] = survey.find_or_create_property_group(
-                name=f"Iteration_0_{comp}"
+                name=f"dB{comp}dt"
             )
             data_kwargs[f"{comp}_uncertainty"] = survey.find_or_create_property_group(
                 name=f"dB{comp}dt uncertainties"
