@@ -46,6 +46,7 @@ class DirectivesFactory:
         self._beta_estimate_by_eigenvalues_directive = None
         self._update_preconditioner_directive = None
         self._save_iteration_model_directive = None
+        self._save_sensitivities_directive = None
         self._save_iteration_data_directive = None
         self._save_iteration_residual_directive = None
         self._save_iteration_apparent_resistivity_directive = None
@@ -112,6 +113,7 @@ class DirectivesFactory:
             "save_iteration_model_directive",
             "save_iteration_data_directive",
             "save_iteration_residual_directive",
+            "save_sensitivities_directive",
             "save_iteration_apparent_resistivity_directive",
         ]:
             if getattr(self, directive) is not None:
@@ -134,6 +136,23 @@ class DirectivesFactory:
                 )
             )
         return self._save_iteration_apparent_resistivity_directive
+
+    @property
+    def save_sensitivities_directive(self):
+        """"""
+        if (
+            self._save_sensitivities_directive is None
+            and self.params.save_sensitivities
+        ):
+            self._save_sensitivities_directive = SaveIterationGeoh5Factory(
+                self.params
+            ).build(
+                inversion_object=self.driver.inversion_mesh,
+                active_cells=self.driver.models.active_cells,
+                global_misfit=self.driver.data_misfit,
+                name="Sensitivities",
+            )
+        return self._save_sensitivities_directive
 
     @property
     def save_iteration_data_directive(self):
@@ -170,7 +189,7 @@ class DirectivesFactory:
         """"""
         if (
             self._save_iteration_residual_directive is None
-            and self.factory_type not in ["tdem", "fem"]
+            and self.factory_type not in ["tdem", "fem", "magnetotellurics", "tipper"]
         ):
             self._save_iteration_residual_directive = SaveIterationGeoh5Factory(
                 self.params
@@ -291,19 +310,7 @@ class SaveIterationGeoh5Factory(SimPEGFactory):
         object_type = "mesh" if hasattr(inversion_object, "mesh") else "data"
 
         if object_type == "data":
-            if self.factory_type in ["magnetotellurics", "tipper"]:
-                kwargs = self.assemble_data_keywords_naturalsource(
-                    inversion_object=inversion_object,
-                    active_cells=active_cells,
-                    sorting=sorting,
-                    ordering=ordering,
-                    transform=transform,
-                    save_objective_function=save_objective_function,
-                    global_misfit=global_misfit,
-                    name=name,
-                )
-
-            elif self.factory_type in ["fem", "tdem"]:
+            if self.factory_type in ["fem", "tdem", "magnetotellurics", "tipper"]:
                 kwargs = self.assemble_data_keywords_em(
                     inversion_object=inversion_object,
                     active_cells=active_cells,
@@ -356,6 +363,7 @@ class SaveIterationGeoh5Factory(SimPEGFactory):
                 "save_objective_function": save_objective_function,
                 "label": "model",
                 "association": "CEll",
+                "dmisfit": global_misfit,
                 "transforms": [active_cells_map],
                 "sorting": sorting,
             }
@@ -384,7 +392,7 @@ class SaveIterationGeoh5Factory(SimPEGFactory):
 
             if name == "Sensitivities":
                 kwargs["attribute_type"] = "sensitivities"
-                kwargs["label"] = "J"
+                kwargs["label"] = "sensitivities"
 
         return kwargs
 
@@ -423,6 +431,7 @@ class SaveIterationGeoh5Factory(SimPEGFactory):
                 (len(channels), len(components), -1), order="F"
             ),
         }
+
         if sorting is not None:
             kwargs["sorting"] = np.hstack(sorting)
 
@@ -500,60 +509,6 @@ class SaveIterationGeoh5Factory(SimPEGFactory):
 
             kwargs["transforms"].insert(0, dcip_transform)
             kwargs.pop("data_type")
-
-        return kwargs
-
-    def assemble_data_keywords_naturalsource(
-        self,
-        inversion_object=None,
-        active_cells=None,
-        sorting=None,
-        ordering=None,
-        transform=None,
-        save_objective_function=False,
-        global_misfit=None,
-        name=None,
-    ):
-        components = list(inversion_object.observed)
-        channels = np.unique([list(v) for k, v in inversion_object.observed.items()])
-
-        kwargs = {
-            "save_objective_function": save_objective_function,
-            "attribute_type": "predicted",
-            "data_type": inversion_object.observed_data_types,
-            "association": "VERTEX",
-            "transforms": [
-                np.hstack(
-                    [
-                        inversion_object.normalizations[chan][comp]
-                        for chan in channels
-                        for comp in components
-                    ]
-                )
-            ],
-            "channels": [f"[{ind}]" for ind in range(len(channels))],
-            "components": components,
-            "reshape": lambda x: x.reshape((len(channels), len(components), -1)),
-        }
-
-        if sorting is not None:
-            kwargs["sorting"] = np.hstack(sorting)
-
-        if name == "Residual":
-            kwargs["label"] = name
-            obs = inversion_object.normalize(inversion_object.observed)
-            data = {}
-            for f in channels:
-                for c in components:
-                    data["_".join([str(f), str(c)])] = obs[c][f]
-
-            def natsource_transform(x):
-                data_stack = np.row_stack(list(data.values()))
-                data_stack = data_stack[:, np.argsort(sorting)]
-                return data_stack.ravel() - x
-
-            kwargs.pop("data_type")
-            kwargs["transforms"].append(natsource_transform)
 
         return kwargs
 

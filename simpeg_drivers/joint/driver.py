@@ -31,6 +31,7 @@ from octree_creation_app.utils import (
     create_octree_from_octrees,
     treemesh_2_octree,
 )
+from simpeg import directives
 from simpeg.maps import TileMap
 from simpeg.objective_function import ComboObjectiveFunction
 
@@ -212,3 +213,13 @@ class BaseJointDriver(InversionDriver):
         self.logger.end()
         sys.stdout = self.logger.terminal
         self.logger.log.close()
+        self._update_log()
+
+    def _update_log(self):
+        """Update the log with the inversion results."""
+        for directive in self.directives.directive_list:
+            if (
+                isinstance(directive, directives.SaveIterationsGeoH5)
+                and directive.save_objective_function
+            ):
+                directive.save_log()

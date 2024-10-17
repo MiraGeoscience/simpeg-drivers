@@ -88,6 +88,7 @@ inversion_defaults = {
     "f_min_change": 0.01,
     "sens_wts_threshold": 0.001,
     "every_iteration_bool": True,
+    "save_sensitivities": False,
     "parallelized": True,
     "n_cpu": None,
     "tile_spatial": 1,
@@ -155,6 +156,7 @@ default_ui_json = {
         "label": "Line ID",
         "parent": "data_object",
         "value": None,
+        "tooltip": "Selects the data representing the different lines in the survey.",
     },
     "line_id": {
         "group": "Data",
@@ -162,6 +164,7 @@ default_ui_json = {
         "min": 1,
         "label": "Line number",
         "value": 1,
+        "tooltip": "Selects the line of data to be processed.",
     },
     "data_object": {
         "main": True,
