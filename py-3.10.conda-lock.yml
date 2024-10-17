@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: e86cf39f3b5712b28a08b239ca27de9b6d6db9d0b582d8574f308dfb485fec0c
-    linux-64: 9272c26e12e91a4b742b85342700f3cc80f8714a5e5077abdccafbe7f1d46b28
+    win-64: ae7fb6db8a7ac7c5b00e2d7aefbfc1ce1c929b3927609782c786b35bd7226640
+    linux-64: aa2bb273cd07d1c0c3d1ff96f765134d832936b840a8a64be893480ed9a214e8
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -5684,24 +5684,25 @@ package:
   category: dev
   optional: true
 - name: pydiso
-  version: 0.0.5
+  version: 0.1.2
   manager: conda
   platform: linux-64
   dependencies:
-    libgcc-ng: '>=12'
+    __glibc: '>=2.17,<3.0.a0'
+    libgcc: '>=13'
     mkl: '>=2023.2.0,<2024.0a0'
     numpy: '>=1.19,<3'
     python: '>=3.10,<3.11.0a0'
     python_abi: 3.10.*
     scipy: '>=0.13'
-  url: https://conda.anaconda.org/conda-forge/linux-64/pydiso-0.0.5-py310h4fb8009_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/pydiso-0.1.2-py310h7b68af5_0.conda
   hash:
-    md5: a2f5fd3d7e3264a2262ca812fbbba7b4
-    sha256: e67817ba65763c2a6c22844a08a1be392310b59c23d5a36ee47ce9fa02f579d1
+    md5: d70757c06c05a699982906150738d0fa
+    sha256: 620757472baf508531f142611d409ebd0d21cb3cacf8fa2488a33dc8fe1292b7
   category: main
   optional: false
 - name: pydiso
-  version: 0.0.5
+  version: 0.1.2
   manager: conda
   platform: win-64
   dependencies:
@@ -5713,10 +5714,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://conda.anaconda.org/conda-forge/win-64/pydiso-0.0.5-py310hafb2880_1.conda
+  url: https://conda.anaconda.org/conda-forge/win-64/pydiso-0.1.2-py310h5da8fee_0.conda
   hash:
-    md5: 53b03f9b3a8007d17319e8af42e6d4c6
-    sha256: f1bd1b59292fa320d0714d8a6b1d431e9b5656b957adb242b0f760007e7585a6
+    md5: aeb651d2c58b022f815fd488c9ae0e2d
+    sha256: 4398403f1dfde0db3a4c42d88f6f61f1ba7070766aa0eec4231af761fd68f91f
   category: main
   optional: false
 - name: pygments
@@ -8348,7 +8349,7 @@ package:
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.21.2.1.dev24+g61e50d11b
+  version: 0.21.2.1.dev36+g7a5835109
   manager: pip
   platform: linux-64
   dependencies:
@@ -8371,7 +8372,7 @@ package:
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.21.2.1.dev24+g61e50d11b
+  version: 0.21.2.1.dev36+g7a5835109
   manager: pip
   platform: win-64
   dependencies:
@@ -8473,7 +8474,7 @@ package:
     numpy: '>=1.21'
     packaging: '*'
     scipy: '>=1.8'
-  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/d9/e8/3fd89c623e1d8ecd37b6674d21e627c829cd6d4e8e770afd41b3ec75fc26/pymatsolver-0.3.1.tar.gz
+  url: https://files.pythonhosted.org/packages/d9/e8/3fd89c623e1d8ecd37b6674d21e627c829cd6d4e8e770afd41b3ec75fc26/pymatsolver-0.3.1.tar.gz
   hash:
     sha256: 24b02d1022eaca2ec0199fa25052f5c0fa8ebee73ab26523c441385b4ece0651
   category: main
@@ -8486,7 +8487,7 @@ package:
     numpy: '>=1.21'
     packaging: '*'
     scipy: '>=1.8'
-  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/d9/e8/3fd89c623e1d8ecd37b6674d21e627c829cd6d4e8e770afd41b3ec75fc26/pymatsolver-0.3.1.tar.gz
+  url: https://files.pythonhosted.org/packages/d9/e8/3fd89c623e1d8ecd37b6674d21e627c829cd6d4e8e770afd41b3ec75fc26/pymatsolver-0.3.1.tar.gz
   hash:
     sha256: 24b02d1022eaca2ec0199fa25052f5c0fa8ebee73ab26523c441385b4ece0651
   category: main
