@@ -452,7 +452,7 @@
         "optional": true,
         "enabled": false,
         "label": "Elevation channel",
-        "tooltip": "Set elevation from channel",
+        "tooltip": "Set elevation from channel.  If not set the topography will be set from the geometry of the selected 'topography' object.",
         "parent": "topography_object",
         "dependency": "topography_object",
         "dependencyType": "enabled",

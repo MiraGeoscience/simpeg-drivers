@@ -104,10 +104,11 @@ def test_dc_2d_run(tmp_path: Path, max_iterations=1, pytest=True):
             data_object=potential.parent.uid,
             potential_channel=potential.uid,
             potential_uncertainty=1e-3,
+            model_type="Resistivity (Ohm-m)",
             line_object=geoh5.get_entity("line_ids")[0].uid,
             line_id=101,
-            starting_model=1e-2,
-            reference_model=1e-2,
+            starting_model=100.0,
+            reference_model=100.0,
             s_norm=0.0,
             x_norm=1.0,
             y_norm=1.0,
@@ -119,7 +120,7 @@ def test_dc_2d_run(tmp_path: Path, max_iterations=1, pytest=True):
             initial_beta=None,
             initial_beta_ratio=1e0,
             prctile=100,
-            upper_bound=10,
+            upper_bound=0.1,
             coolingRate=1,
         )
         params.write_input_file(path=tmp_path, name="Inv_run")

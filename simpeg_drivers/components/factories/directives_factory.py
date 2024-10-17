@@ -384,6 +384,8 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
             expmap = maps.ExpMap(inversion_object.mesh)
             kwargs["transforms"] = [expmap * active_cells_map]
 
+            if self.params.model_type == "Resistivity (Ohm-m)":
+                kwargs["transforms"].append(lambda x: 1 / x)
         return kwargs
 
 
