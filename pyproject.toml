@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "simpeg-drivers"
-version = "0.3.0-alpha.1"
+version = "0.2.0-alpha.1"
 description = "Application to run SimPEG inversions with geoh5 files from Geoscience Analyst."
 license = "MIT"
 authors = ["Mira Geoscience <support@mirageoscience.com>"]
@@ -53,9 +53,9 @@ geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", re
 mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", rev = "develop"}
 #mira-simpeg = {version = ">=0.21.2.1-alpha.1, <0.21.2.2.dev", allow-prereleases = true}
 
-#param-sweeps = {version = "~0.2.0-alpha.1", source = "pypi", allow-prereleases = true}
+#param-sweeps = {version = "~0.1.8-alpha.1", source = "pypi", allow-prereleases = true}
 param-sweeps = {git = "https://github.com/MiraGeoscience/param-sweeps.git", rev = "develop"}
-#param-sweeps = {version = "~0.2.0-alpha.1", allow-prereleases = true}
+#param-sweeps = {version = "~0.1.8-alpha.1", allow-prereleases = true}
 
 ## about pip dependencies
 # to be specified to work with conda-lock
@@ -66,9 +66,6 @@ param-sweeps = {git = "https://github.com/MiraGeoscience/param-sweeps.git", rev 
 #   - for a branch: my_package = { url = "https://github.com/ORGANISATION/REPO/archive/refs/heads/BRANCH.tar.gz" }
 # - to actually lock on a revision: my_package = { git = "https://github.com/ORGANISATION/REPO.git", rev = "GIT_REV" }
 #   (where rev value is a tag, a branch name or a commit hash). Can also use ``branch`` or ``tag`` instead of ``rev``
-
-# indirect package to avoid conflict
-pymatsolver = { version = ">=0.2.0, <0.3.0", source = "pypi" }
 
 [tool.poetry.group.dev.dependencies]
 Pygments = "*"
@@ -93,6 +90,10 @@ channels = ['conda-forge']
 [tool.conda-lock.dependencies]
 libblas = "*=*mkl"  # because simpeg already brings in the MKL
 
+# force some versions to resolve incompatible resolution between PyPI and Conda
+#-------------------------------------------------------------------------------
+pymatsolver = { version = ">=0.2.0, <0.3.0", source = "pypi" }
+
 ## indirect dependencies, forcing them here for installation through Conda not pip
 #---------------------------------------------------------------------------------
 Pillow = ">=10.3.0, <10.4.0"  # from geoh5py
@@ -105,7 +106,6 @@ mkl = "2023.2, <2024.1"  # from simpeg
 pandas = ">=2.2.1, <2.3.0"  # from SimPEG, also used by targeting-workflow, petro-lingo
 pydantic = ">=2.5.2, <3.0.0"  # from geoh5py, geoapps-utils
 pydiso = ">=0.0.5, <0.1.0"  # from simpeg
-pymatsolver = ">=0.2.0, <0.3.0"  # from simpeg
 scikit-learn = ">=1.4.0, <1.5.0"  # from SimPEG, also used by geo-unsup-mapper, petro-lingo
 tqdm = ">=4.66.1, <5.0.0"  # from simpeg
 zarr = ">=2.14.2, <2.15.0"  # from simpeg[dask]

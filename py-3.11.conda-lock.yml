@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: 60e1a029fed55ecdedeabad8ba38bdfbb73af9aeeafa8ab5aa1c8c0672d077d5
-    linux-64: 557dd4d9a8f40f96bf405b3d10626d1c26800d051cad43bfcd65828b0023b9a4
+    win-64: bb308077e45c27585c84de298904c5f8cd10d17eb7577cc073953ec26bcabbd6
+    linux-64: b74dc404d08223d771b28f697491675eba15b0c312592475acf6390bffc06812
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -1636,7 +1636,7 @@ package:
   category: main
   optional: false
 - name: h5py
-  version: 3.11.0
+  version: 3.12.1
   manager: conda
   platform: linux-64
   dependencies:
@@ -1647,14 +1647,14 @@ package:
     numpy: '>=1.19,<3'
     python: '>=3.11,<3.12.0a0'
     python_abi: 3.11.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/h5py-3.11.0-nompi_py311hb639ac4_103.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/h5py-3.12.1-nompi_py311hb639ac4_100.conda
   hash:
-    md5: 95e1e4972b1b68f7dee4ebe401fe7d2e
-    sha256: 218e018c00c03aa2c33840b2cbfa0d064e0400593cd3ac25306d789ee4739878
+    md5: 4a51742012213f78157d8712eb93556f
+    sha256: bc927298b6ffb4911dea6dc8183793df592bb0ce5b2e10a6fa0628c2809ff86c
   category: main
   optional: false
 - name: h5py
-  version: 3.11.0
+  version: 3.12.1
   manager: conda
   platform: win-64
   dependencies:
@@ -1666,10 +1666,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://conda.anaconda.org/conda-forge/win-64/h5py-3.11.0-nompi_py311h67016bb_103.conda
+  url: https://conda.anaconda.org/conda-forge/win-64/h5py-3.12.1-nompi_py311h67016bb_100.conda
   hash:
-    md5: 31fde8dbb7bcf5f30d86e900dd6f660b
-    sha256: 8a718c4db2f6267906240f4d88ad1f57ad0402eea40bd866129f31aae9f3116e
+    md5: d6e2e9e14dd8620d3c7eaf04b45dfb20
+    sha256: 3a408e2310418a85c047b46a6c2cd9e5459c42e50a5f203e3d98300ca7dba908
   category: main
   optional: false
 - name: hdf5
@@ -3995,15 +3995,15 @@ package:
   category: dev
   optional: true
 - name: llvm-openmp
-  version: 19.1.1
+  version: 19.1.2
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/llvm-openmp-19.1.1-h024ca30_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/llvm-openmp-19.1.2-h024ca30_0.conda
   hash:
-    md5: ea889be010d5d66a7e6dd5e1b04c70d7
-    sha256: 780739b625ce1836fde67884b34abb6e193402de297d25aab81c21467210fd74
+    md5: 51ee2f29348ec593205c30ebc52aa0c0
+    sha256: 77ef4713b1762ec2c0326400e5009e15595d3c27a10e5bbe91a29d63c99ee9b9
   category: main
   optional: false
 - name: llvmlite
@@ -5808,60 +5808,6 @@ package:
     sha256: 35c0b0f3b8b0585fee0966f5a09b7bd43519a5bca58a9f29f502dd8442a9b14c
   category: dev
   optional: true
-- name: pymatsolver
-  version: 0.2.0
-  manager: conda
-  platform: linux-64
-  dependencies:
-    pydiso: ''
-    pymatsolver-base: 0.2.0
-  url: https://conda.anaconda.org/conda-forge/noarch/pymatsolver-0.2.0-ha770c72_3.conda
-  hash:
-    md5: 71c5698e2f1f19b16164bae528b143ca
-    sha256: 8d16b3c276ffd5f35890bba6539f3f526cc93061b0320eee2c8d488e7d5089de
-  category: main
-  optional: false
-- name: pymatsolver
-  version: 0.2.0
-  manager: conda
-  platform: win-64
-  dependencies:
-    pydiso: ''
-    pymatsolver-base: 0.2.0
-  url: https://conda.anaconda.org/conda-forge/noarch/pymatsolver-0.2.0-ha770c72_3.conda
-  hash:
-    md5: 71c5698e2f1f19b16164bae528b143ca
-    sha256: 8d16b3c276ffd5f35890bba6539f3f526cc93061b0320eee2c8d488e7d5089de
-  category: main
-  optional: false
-- name: pymatsolver-base
-  version: 0.2.0
-  manager: conda
-  platform: linux-64
-  dependencies:
-    numpy: ''
-    python: ''
-    scipy: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/pymatsolver-base-0.2.0-pyh44b312d_3.conda
-  hash:
-    md5: d3843c2374465a0d1a0eb15cc87669c4
-    sha256: d03fd3f24f87d7c07675b15129b6e481485500304e03aae35eb93224e2f757b1
-  category: main
-  optional: false
-- name: pymatsolver-base
-  version: 0.2.0
-  manager: conda
-  platform: win-64
-  dependencies:
-    numpy: ''
-    python: ''
-    scipy: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/pymatsolver-base-0.2.0-pyh44b312d_3.conda
-  hash:
-    md5: d3843c2374465a0d1a0eb15cc87669c4
-    sha256: d03fd3f24f87d7c07675b15129b6e481485500304e03aae35eb93224e2f757b1
-  category: main
-  optional: false
 - name: pyparsing
   version: 3.2.0
   manager: conda
@@ -8337,12 +8283,12 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@9542e371603a7018dcc86e7b5c0de13a48b58f4b
+  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@ea741c90e542ff8c25175d3e6496eae9474d9bf5
   hash:
-    sha256: 9542e371603a7018dcc86e7b5c0de13a48b58f4b
+    sha256: ea741c90e542ff8c25175d3e6496eae9474d9bf5
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@9542e371603a7018dcc86e7b5c0de13a48b58f4b
+    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@ea741c90e542ff8c25175d3e6496eae9474d9bf5
   category: main
   optional: false
 - name: geoapps-utils
@@ -8354,12 +8300,12 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@9542e371603a7018dcc86e7b5c0de13a48b58f4b
+  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@ea741c90e542ff8c25175d3e6496eae9474d9bf5
   hash:
-    sha256: 9542e371603a7018dcc86e7b5c0de13a48b58f4b
+    sha256: ea741c90e542ff8c25175d3e6496eae9474d9bf5
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@9542e371603a7018dcc86e7b5c0de13a48b58f4b
+    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@ea741c90e542ff8c25175d3e6496eae9474d9bf5
   category: main
   optional: false
 - name: geoh5py
@@ -8371,12 +8317,12 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pillow: '>=10.3.0,<10.4.0'
     pydantic: '>=2.5.2,<3.0.0'
-  url: git+https://github.com/MiraGeoscience/geoh5py.git@c7fb34e93e900b02246aa7567b6b69abcaccec89
+  url: git+https://github.com/MiraGeoscience/geoh5py.git@682271009d7f94a136f082798f52f722d00534d7
   hash:
-    sha256: c7fb34e93e900b02246aa7567b6b69abcaccec89
+    sha256: 682271009d7f94a136f082798f52f722d00534d7
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoh5py.git@c7fb34e93e900b02246aa7567b6b69abcaccec89
+    url: git+https://github.com/MiraGeoscience/geoh5py.git@682271009d7f94a136f082798f52f722d00534d7
   category: main
   optional: false
 - name: geoh5py
@@ -8388,12 +8334,12 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pillow: '>=10.3.0,<10.4.0'
     pydantic: '>=2.5.2,<3.0.0'
-  url: git+https://github.com/MiraGeoscience/geoh5py.git@c7fb34e93e900b02246aa7567b6b69abcaccec89
+  url: git+https://github.com/MiraGeoscience/geoh5py.git@682271009d7f94a136f082798f52f722d00534d7
   hash:
-    sha256: c7fb34e93e900b02246aa7567b6b69abcaccec89
+    sha256: 682271009d7f94a136f082798f52f722d00534d7
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoh5py.git@c7fb34e93e900b02246aa7567b6b69abcaccec89
+    url: git+https://github.com/MiraGeoscience/geoh5py.git@682271009d7f94a136f082798f52f722d00534d7
   category: main
   optional: false
 - name: mira-simpeg
@@ -8411,12 +8357,12 @@ package:
     pymatsolver: '>=0.2'
     scikit-learn: '>=1.2'
     scipy: '>=1.8.0'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@61e50d11b437f44bc9e91f56d210185ccf8b9733
+  url: git+https://github.com/MiraGeoscience/simpeg.git@7a5835109cde1fca5d5c34b7558d5c43c018d4d2
   hash:
-    sha256: 61e50d11b437f44bc9e91f56d210185ccf8b9733
+    sha256: 7a5835109cde1fca5d5c34b7558d5c43c018d4d2
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@61e50d11b437f44bc9e91f56d210185ccf8b9733
+    url: git+https://github.com/MiraGeoscience/simpeg.git@7a5835109cde1fca5d5c34b7558d5c43c018d4d2
   category: main
   optional: false
 - name: mira-simpeg
@@ -8434,12 +8380,12 @@ package:
     pymatsolver: '>=0.2'
     scikit-learn: '>=1.2'
     scipy: '>=1.8.0'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@61e50d11b437f44bc9e91f56d210185ccf8b9733
+  url: git+https://github.com/MiraGeoscience/simpeg.git@7a5835109cde1fca5d5c34b7558d5c43c018d4d2
   hash:
-    sha256: 61e50d11b437f44bc9e91f56d210185ccf8b9733
+    sha256: 7a5835109cde1fca5d5c34b7558d5c43c018d4d2
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@61e50d11b437f44bc9e91f56d210185ccf8b9733
+    url: git+https://github.com/MiraGeoscience/simpeg.git@7a5835109cde1fca5d5c34b7558d5c43c018d4d2
   category: main
   optional: false
 - name: octree-creation-app
@@ -8491,12 +8437,12 @@ package:
   dependencies:
     geoh5py: 0.10.0-alpha.1
     numpy: '>=1.26.0,<1.27.0'
-  url: git+https://github.com/MiraGeoscience/param-sweeps.git@ac5762e186ed7566ebedc672b6aace46807692db
+  url: git+https://github.com/MiraGeoscience/param-sweeps.git@4480c1ff82bb0e67d6fe78369b9a0661c17a47f9
   hash:
-    sha256: ac5762e186ed7566ebedc672b6aace46807692db
+    sha256: 4480c1ff82bb0e67d6fe78369b9a0661c17a47f9
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/param-sweeps.git@ac5762e186ed7566ebedc672b6aace46807692db
+    url: git+https://github.com/MiraGeoscience/param-sweeps.git@4480c1ff82bb0e67d6fe78369b9a0661c17a47f9
   category: main
   optional: false
 - name: param-sweeps
@@ -8506,11 +8452,37 @@ package:
   dependencies:
     geoh5py: 0.10.0-alpha.1
     numpy: '>=1.26.0,<1.27.0'
-  url: git+https://github.com/MiraGeoscience/param-sweeps.git@ac5762e186ed7566ebedc672b6aace46807692db
+  url: git+https://github.com/MiraGeoscience/param-sweeps.git@4480c1ff82bb0e67d6fe78369b9a0661c17a47f9
   hash:
-    sha256: ac5762e186ed7566ebedc672b6aace46807692db
+    sha256: 4480c1ff82bb0e67d6fe78369b9a0661c17a47f9
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/param-sweeps.git@ac5762e186ed7566ebedc672b6aace46807692db
+    url: git+https://github.com/MiraGeoscience/param-sweeps.git@4480c1ff82bb0e67d6fe78369b9a0661c17a47f9
+  category: main
+  optional: false
+- name: pymatsolver
+  version: 0.3.1
+  manager: pip
+  platform: linux-64
+  dependencies:
+    numpy: '>=1.21'
+    packaging: '*'
+    scipy: '>=1.8'
+  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/d9/e8/3fd89c623e1d8ecd37b6674d21e627c829cd6d4e8e770afd41b3ec75fc26/pymatsolver-0.3.1.tar.gz
+  hash:
+    sha256: 24b02d1022eaca2ec0199fa25052f5c0fa8ebee73ab26523c441385b4ece0651
+  category: main
+  optional: false
+- name: pymatsolver
+  version: 0.3.1
+  manager: pip
+  platform: win-64
+  dependencies:
+    numpy: '>=1.21'
+    packaging: '*'
+    scipy: '>=1.8'
+  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/d9/e8/3fd89c623e1d8ecd37b6674d21e627c829cd6d4e8e770afd41b3ec75fc26/pymatsolver-0.3.1.tar.gz
+  hash:
+    sha256: 24b02d1022eaca2ec0199fa25052f5c0fa8ebee73ab26523c441385b4ece0651
   category: main
   optional: false
