@@ -547,7 +547,10 @@ default_ui_json = {
     "out_group": {
         "label": "SimPEG group",
         "value": "",
-        "groupType": "{55ed3daf-c192-4d4b-a439-60fa987fe2b8}",
+        "groupType": [
+            "{55ed3daf-c192-4d4b-a439-60fa987fe2b8}",
+            "{BB50AC61-A657-4926-9C82-067658E246A0}",
+        ],
         "group": "Drag-and-drop options",
         "visible": True,
         "optional": True,

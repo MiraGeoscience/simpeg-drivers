@@ -38,6 +38,7 @@ class Core2DParams(InversionBaseParams):
         self._horizontal_padding: float = 100.0
         self._vertical_padding: float = 100.0
         self._expansion_factor: float = 100.0
+        self._model_type = "Conductivity (S/m)"
 
         super().__init__(input_file=input_file, forward_only=forward_only, **kwargs)
 
@@ -52,6 +53,15 @@ class Core2DParams(InversionBaseParams):
 
         if isinstance(val, Data) and val.association is not DataAssociationEnum.CELL:
             raise ValueError("Line identifier must be associated with cells.")
+
+    @property
+    def model_type(self):
+        """Model units."""
+        return self._model_type
+
+    @model_type.setter
+    def model_type(self, val):
+        self.setter_validator("model_type", val)
 
     @property
     def u_cell_size(self):
