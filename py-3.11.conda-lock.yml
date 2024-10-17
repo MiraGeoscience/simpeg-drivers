@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: cc9a7e8edb45f8e40e93ef00e622c2f371ebb0fdafbaa9200e60403e0114042b
-    linux-64: 281d2bc90fa90b139277f0e4eaf1cf17b7a2daf6b895468daf51d0c09f8adffe
+    win-64: d60720f24ba4ca4bec7f7cde140649161312bd441dd61b8933c02e1cbcc404e0
+    linux-64: e759344876e84974270c95e55ab070d6e8408a5e0a0eaac15df8d9caacedf810
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -5707,24 +5707,25 @@ package:
   category: dev
   optional: true
 - name: pydiso
-  version: 0.0.5
+  version: 0.1.2
   manager: conda
   platform: linux-64
   dependencies:
-    libgcc-ng: '>=12'
+    __glibc: '>=2.17,<3.0.a0'
+    libgcc: '>=13'
     mkl: '>=2023.2.0,<2024.0a0'
     numpy: '>=1.19,<3'
     python: '>=3.11,<3.12.0a0'
     python_abi: 3.11.*
     scipy: '>=0.13'
-  url: https://conda.anaconda.org/conda-forge/linux-64/pydiso-0.0.5-py311h211344e_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/pydiso-0.1.2-py311h979a38d_0.conda
   hash:
-    md5: 6fd46937276833aaf06622d88a14f2d7
-    sha256: 0aa117b95a64510ac546c009be02ba5459cb2dc88fa5b5cdb7feaeca721c3bc7
+    md5: b95de0fa0dd8d8ec06be59b212f2e06a
+    sha256: 567eff98ec44e1ebee2dc326f371615c7cd6419817ee070f3d1aba0e929ee5ac
   category: main
   optional: false
 - name: pydiso
-  version: 0.0.5
+  version: 0.1.2
   manager: conda
   platform: win-64
   dependencies:
@@ -5736,10 +5737,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://conda.anaconda.org/conda-forge/win-64/pydiso-0.0.5-py311h0265073_1.conda
+  url: https://conda.anaconda.org/conda-forge/win-64/pydiso-0.1.2-py311h6340b4d_0.conda
   hash:
-    md5: fc72e3d6be2d3694721b371b65a217dd
-    sha256: 369ece7058167c41fb5e9aa88daf6c576f95fe3d8ac1861fb57d6f499434d381
+    md5: 442ca13ff6a08fe31945472d6b1b2fe5
+    sha256: 9c6fc6b81a595d3631c267ad96c0931fe5e6c726a58ff47680da61bf10a78001
   category: main
   optional: false
 - name: pygments
