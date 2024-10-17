@@ -85,7 +85,7 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
     with Workspace(workpath) as geoh5:
         survey = next(
             child
-            for child in geoh5.get_entity("survey")
+            for child in geoh5.get_entity("Airborne_rx")
             if not isinstance(child.parent, SimPEGGroup)
         )
         mesh = geoh5.get_entity("mesh")[0]
