@@ -284,7 +284,7 @@ def setup_inversion_workspace(
             axis=1,
         )
         # survey.cells = survey.cells[dist < 100.0, :]
-        survey.remove_cells(np.where(dist > 100)[0])
+        survey.remove_cells(np.where(dist > 200)[0])
 
     elif inversion_type == "fem":
         survey = AirborneFEMReceivers.create(

@@ -21,9 +21,11 @@
 
 from __future__ import annotations
 
+from abc import ABC
 from typing import TYPE_CHECKING
 
 import numpy as np
+from geoh5py.groups.property_group import GroupTypeEnum
 from simpeg import directives, maps
 from simpeg.utils.mat_utils import cartesian2amplitude_dip_azimuth
 
@@ -46,9 +48,11 @@ class DirectivesFactory:
         self._beta_estimate_by_eigenvalues_directive = None
         self._update_preconditioner_directive = None
         self._save_iteration_model_directive = None
+        self._save_property_group = None
         self._save_sensitivities_directive = None
         self._save_iteration_data_directive = None
         self._save_iteration_residual_directive = None
+        self._save_iteration_log_files = None
         self._save_iteration_apparent_resistivity_directive = None
         self._scale_misfits = None
 
@@ -114,10 +118,25 @@ class DirectivesFactory:
             "save_iteration_data_directive",
             "save_iteration_residual_directive",
             "save_sensitivities_directive",
+            "save_property_group",
+            "save_iteration_log_files",
             "save_iteration_apparent_resistivity_directive",
         ]:
-            if getattr(self, directive) is not None:
+            save_directive = getattr(self, directive)
+            if save_directive is not None:
                 directives_list.append(getattr(self, directive))
+
+                if (
+                    isinstance(save_directive, directives.SaveDataGeoH5)
+                    and len(save_directive.channels) > 1
+                ):
+                    save_group = directives.SavePropertyGroup(
+                        self.driver.inversion_data.entity,
+                        channels=save_directive.channels,
+                        components=save_directive.components,
+                    )
+                    directives_list.append(save_group)
+
         return directives_list
 
     @property
@@ -127,15 +146,28 @@ class DirectivesFactory:
             self._save_iteration_apparent_resistivity_directive is None
             and "direct current" in self.factory_type
         ):
-            self._save_iteration_apparent_resistivity_directive = (
-                SaveIterationGeoh5Factory(self.params).build(
-                    inversion_object=self.driver.inversion_data,
-                    active_cells=self.driver.models.active_cells,
-                    sorting=np.argsort(np.hstack(self.driver.sorting)),
-                    name="Apparent Resistivity",
-                )
+            self._save_iteration_apparent_resistivity_directive = SaveDataGeoh5Factory(
+                self.params
+            ).build(
+                inversion_object=self.driver.inversion_data,
+                active_cells=self.driver.models.active_cells,
+                sorting=np.argsort(np.hstack(self.driver.sorting)),
+                name="Apparent Resistivity",
             )
         return self._save_iteration_apparent_resistivity_directive
+
+    @property
+    def save_property_group(self):
+        if (
+            self._save_property_group is None
+            and self.params.inversion_type == "magnetic vector"
+        ):
+            self._save_property_group = directives.SavePropertyGroup(
+                self.driver.inversion_mesh.entity,
+                group_type=GroupTypeEnum.DIPDIR,
+                channels=["declination", "inclination"],
+            )
+        return self._save_property_group
 
     @property
     def save_sensitivities_directive(self):
@@ -144,7 +176,7 @@ class DirectivesFactory:
             self._save_sensitivities_directive is None
             and self.params.save_sensitivities
         ):
-            self._save_sensitivities_directive = SaveIterationGeoh5Factory(
+            self._save_sensitivities_directive = SaveSensitivitiesGeoh5Factory(
                 self.params
             ).build(
                 inversion_object=self.driver.inversion_mesh,
@@ -158,7 +190,7 @@ class DirectivesFactory:
     def save_iteration_data_directive(self):
         """"""
         if self._save_iteration_data_directive is None:
-            self._save_iteration_data_directive = SaveIterationGeoh5Factory(
+            self._save_iteration_data_directive = SaveDataGeoh5Factory(
                 self.params
             ).build(
                 inversion_object=self.driver.inversion_data,
@@ -174,15 +206,23 @@ class DirectivesFactory:
     def save_iteration_model_directive(self):
         """"""
         if self._save_iteration_model_directive is None:
-            self._save_iteration_model_directive = SaveIterationGeoh5Factory(
-                self.params
-            ).build(
+            model_directive = SaveModelGeoh5Factory(self.params).build(
                 inversion_object=self.driver.inversion_mesh,
                 active_cells=self.driver.models.active_cells,
-                save_objective_function=True,
                 name="Model",
             )
+            self._save_iteration_model_directive = model_directive
+
         return self._save_iteration_model_directive
+
+    @property
+    def save_iteration_log_files(self):
+        """"""
+        if self._save_iteration_log_files is None:
+            self._save_iteration_log_files = directives.SaveLogFilesGeoH5(
+                self.driver.out_group,
+            )
+        return self._save_iteration_log_files
 
     @property
     def save_iteration_residual_directive(self):
@@ -191,7 +231,7 @@ class DirectivesFactory:
             self._save_iteration_residual_directive is None
             and self.factory_type not in ["tdem", "fem", "magnetotellurics", "tipper"]
         ):
-            self._save_iteration_residual_directive = SaveIterationGeoh5Factory(
+            self._save_iteration_residual_directive = SaveDataGeoh5Factory(
                 self.params
             ).build(
                 inversion_object=self.driver.inversion_data,
@@ -275,13 +315,15 @@ class DirectivesFactory:
         return self._vector_inversion_directive
 
 
-class SaveIterationGeoh5Factory(SimPEGFactory):
+class SaveGeoh5Factory(SimPEGFactory, ABC):
+    _concrete_object = None
+
     def __init__(self, params):
         super().__init__(params)
         self.simpeg_object = self.concrete_object()
 
     def concrete_object(self):
-        return directives.SaveIterationsGeoH5
+        return self._concrete_object
 
     def assemble_arguments(
         self,
@@ -290,11 +332,18 @@ class SaveIterationGeoh5Factory(SimPEGFactory):
         sorting=None,
         ordering=None,
         transform=None,
-        save_objective_function=False,
         global_misfit=None,
         name=None,
     ):
         return [inversion_object.entity]
+
+
+class SaveModelGeoh5Factory(SaveGeoh5Factory):
+    """
+    Factory to create a SaveModelGeoH5 directive.
+    """
+
+    _concrete_object = directives.SaveModelGeoH5
 
     def assemble_keyword_arguments(
         self,
@@ -303,96 +352,138 @@ class SaveIterationGeoh5Factory(SimPEGFactory):
         sorting=None,
         ordering=None,
         transform=None,
-        save_objective_function=False,
         global_misfit=None,
         name=None,
     ):
-        object_type = "mesh" if hasattr(inversion_object, "mesh") else "data"
+        active_cells_map = maps.InjectActiveCells(
+            inversion_object.mesh, active_cells, np.nan
+        )
+        sorting = inversion_object.permutation
+        kwargs = {
+            "label": "model",
+            "association": "CEll",
+            "transforms": [active_cells_map],
+            "sorting": sorting,
+        }
 
-        if object_type == "data":
-            if self.factory_type in ["fem", "tdem", "magnetotellurics", "tipper"]:
-                kwargs = self.assemble_data_keywords_em(
-                    inversion_object=inversion_object,
-                    active_cells=active_cells,
-                    sorting=sorting,
-                    ordering=ordering,
-                    transform=transform,
-                    save_objective_function=save_objective_function,
-                    global_misfit=global_misfit,
-                    name=name,
-                )
+        if self.factory_type == "magnetic vector":
+            kwargs["channels"] = ["amplitude", "inclination", "declination"]
+            kwargs["transforms"] = [
+                cartesian2amplitude_dip_azimuth,
+                active_cells_map,
+            ]
 
-            elif self.factory_type in [
-                "direct current 3d",
-                "direct current 2d",
-                "induced polarization 3d",
-                "induced polarization 2d",
-            ]:
-                kwargs = self.assemble_data_keywords_dcip(
-                    inversion_object=inversion_object,
-                    active_cells=active_cells,
-                    sorting=sorting,
-                    transform=transform,
-                    save_objective_function=save_objective_function,
-                    global_misfit=global_misfit,
-                    name=name,
-                )
+        if self.factory_type in [
+            "direct current 3d",
+            "direct current 2d",
+            "magnetotellurics",
+            "tipper",
+            "tdem",
+            "fem",
+        ]:
+            expmap = maps.ExpMap(inversion_object.mesh)
+            kwargs["transforms"] = [expmap * active_cells_map]
 
-            elif self.factory_type in ["gravity", "magnetic scalar", "magnetic vector"]:
-                kwargs = self.assemble_data_keywords_potential_fields(
-                    inversion_object=inversion_object,
-                    active_cells=active_cells,
-                    sorting=sorting,
-                    transform=transform,
-                    save_objective_function=save_objective_function,
-                    global_misfit=global_misfit,
-                    name=name,
-                )
-            else:
-                return None
+        return kwargs
 
-            if transform is not None:
-                kwargs["transforms"].append(transform)
 
-        else:
-            active_cells_map = maps.InjectActiveCells(
-                inversion_object.mesh, active_cells, np.nan
+class SaveSensitivitiesGeoh5Factory(SaveGeoh5Factory):
+    """
+    Factory to create a SaveModelGeoH5 directive.
+    """
+
+    _concrete_object = directives.SaveSensitivityGeoH5
+
+    def assemble_keyword_arguments(
+        self,
+        inversion_object=None,
+        active_cells=None,
+        sorting=None,
+        ordering=None,
+        transform=None,
+        global_misfit=None,
+        name=None,
+    ):
+        active_cells_map = maps.InjectActiveCells(
+            inversion_object.mesh, active_cells, np.nan
+        )
+        sorting = inversion_object.permutation
+        kwargs = {
+            "label": "model",
+            "association": "CEll",
+            "dmisfit": global_misfit,
+            "transforms": [active_cells_map],
+            "sorting": sorting,
+        }
+
+        if self.factory_type == "magnetic vector":
+            kwargs["channels"] = ["amplitude", "inclination", "declination"]
+            kwargs["transforms"] = [
+                active_cells_map,
+            ]
+
+        kwargs["label"] = "sensitivities"
+
+        return kwargs
+
+
+class SaveDataGeoh5Factory(SaveGeoh5Factory):
+    """
+    Factory to create a SaveDataGeoH5 directive.
+    """
+
+    _concrete_object = directives.SaveDataGeoH5
+
+    def assemble_keyword_arguments(
+        self,
+        inversion_object=None,
+        active_cells=None,
+        sorting=None,
+        ordering=None,
+        transform=None,
+        global_misfit=None,
+        name=None,
+    ):
+        if self.factory_type in ["fem", "tdem", "magnetotellurics", "tipper"]:
+            kwargs = self.assemble_data_keywords_em(
+                inversion_object=inversion_object,
+                active_cells=active_cells,
+                sorting=sorting,
+                ordering=ordering,
+                transform=transform,
+                global_misfit=global_misfit,
+                name=name,
             )
-            sorting = inversion_object.permutation
-            kwargs = {
-                "save_objective_function": save_objective_function,
-                "label": "model",
-                "association": "CEll",
-                "dmisfit": global_misfit,
-                "transforms": [active_cells_map],
-                "sorting": sorting,
-            }
 
-            if self.factory_type == "magnetic vector":
-                kwargs["channels"] = ["amplitude", "inclination", "declination"]
-                kwargs["transforms"] = [
-                    cartesian2amplitude_dip_azimuth,
-                    active_cells_map,
-                ]
+        elif self.factory_type in [
+            "direct current 3d",
+            "direct current 2d",
+            "induced polarization 3d",
+            "induced polarization 2d",
+        ]:
+            kwargs = self.assemble_data_keywords_dcip(
+                inversion_object=inversion_object,
+                active_cells=active_cells,
+                sorting=sorting,
+                transform=transform,
+                global_misfit=global_misfit,
+                name=name,
+            )
 
-            if (
-                self.factory_type
-                in [
-                    "direct current 3d",
-                    "direct current 2d",
-                    "magnetotellurics",
-                    "tipper",
-                    "tdem",
-                    "fem",
-                ]
-                and name != "Sensitivities"
-            ):
-                expmap = maps.ExpMap(inversion_object.mesh)
-                kwargs["transforms"] = [expmap * active_cells_map]
+        elif self.factory_type in ["gravity", "magnetic scalar", "magnetic vector"]:
+            kwargs = self.assemble_data_keywords_potential_fields(
+                inversion_object=inversion_object,
+                active_cells=active_cells,
+                sorting=sorting,
+                transform=transform,
+                global_misfit=global_misfit,
+                name=name,
+            )
+        else:
+            return None
 
-            if name == "Sensitivities":
-                kwargs["attribute_type"] = "sensitivities"
-                kwargs["label"] = "sensitivities"
+        if transform is not None:
+            kwargs["transforms"].append(transform)
 
         return kwargs
 
@@ -402,15 +493,12 @@ class SaveIterationGeoh5Factory(SimPEGFactory):
         active_cells=None,
         sorting=None,
         transform=None,
-        save_objective_function=False,
         global_misfit=None,
         name=None,
     ):
         components = list(inversion_object.observed)
         channels = [None]
         kwargs = {
-            "save_objective_function": save_objective_function,
-            "attribute_type": "predicted",
             "data_type": {
                 comp: {channel: dtype for channel in channels}
                 for comp, dtype in inversion_object.observed_data_types.items()
@@ -455,7 +543,6 @@ class SaveIterationGeoh5Factory(SimPEGFactory):
         active_cells=None,
         sorting=None,
         transform=None,
-        save_objective_function=False,
         global_misfit=None,
         name=None,
     ):
@@ -464,8 +551,6 @@ class SaveIterationGeoh5Factory(SimPEGFactory):
         is_dc = True if "direct current" in self.factory_type else False
         component = "dc" if is_dc else "ip"
         kwargs = {
-            "save_objective_function": save_objective_function,
-            "attribute_type": "predicted",
             "data_type": {
                 comp: {channel: dtype for channel in channels}
                 for comp, dtype in inversion_object.observed_data_types.items()
@@ -519,7 +604,6 @@ class SaveIterationGeoh5Factory(SimPEGFactory):
         sorting=None,
         ordering=None,
         transform=None,
-        save_objective_function=False,
         global_misfit=None,
         name=None,
     ):
@@ -538,8 +622,6 @@ class SaveIterationGeoh5Factory(SimPEGFactory):
 
         kwargs = {
             "data_type": inversion_object.observed_data_types,
-            "attribute_type": "predicted",
-            "save_objective_function": save_objective_function,
             "association": "VERTEX",
             "transforms": np.hstack(
                 [

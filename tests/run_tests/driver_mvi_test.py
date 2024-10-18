@@ -20,6 +20,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+from geoh5py.groups.property_group import GroupTypeEnum
 from geoh5py.objects import Curve
 from geoh5py.workspace import Workspace
 
@@ -140,6 +141,12 @@ def test_magnetic_vector_run(
             )
             inactive_ind = run_ws.get_entity("active_cells")[0].values == 0
             assert np.all(nan_ind == inactive_ind)
+
+        out_group = run_ws.get_entity("Magnetic vector Inversion")[0]
+        mesh = out_group.get_entity("mesh")[0]
+        assert len(mesh.property_groups) == 2
+        assert len(mesh.property_groups[0].properties) == 2
+        assert mesh.property_groups[1].property_group_type == GroupTypeEnum.DIPDIR
 
 
 if __name__ == "__main__":

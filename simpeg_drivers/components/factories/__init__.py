@@ -18,7 +18,11 @@
 
 from __future__ import annotations
 
-from .directives_factory import DirectivesFactory, SaveIterationGeoh5Factory
+from .directives_factory import (
+    DirectivesFactory,
+    SaveDataGeoh5Factory,
+    SaveModelGeoh5Factory,
+)
 from .entity_factory import EntityFactory
 from .misfit_factory import MisfitFactory
 from .simulation_factory import SimulationFactory
