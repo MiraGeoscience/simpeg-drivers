@@ -107,6 +107,17 @@
         "value": "",
         "tooltip": "Select a mesh for the inversion."
     },
+    "model_type": {
+        "choiceList": [
+            "Conductivity (S/m)",
+            "Resistivity (Ohm-m)"
+        ],
+        "main": true,
+        "group": "Mesh and models",
+        "label": "Model units",
+        "tooltip": "Select the units of the model.",
+        "value": "Conductivity (S/m)"
+    },
     "background_conductivity": {
         "association": [
             "Cell",
@@ -117,7 +128,7 @@
         "main": true,
         "isValue": true,
         "parent": "mesh",
-        "label": "Background conductivity (S/m)",
+        "label": "Background",
         "property": "",
         "value": 0.001
     },
@@ -131,7 +142,7 @@
         "main": true,
         "isValue": true,
         "parent": "mesh",
-        "label": "Conductivity (s/m)",
+        "label": "Value(s)",
         "property": "",
         "value": 0.001
     },

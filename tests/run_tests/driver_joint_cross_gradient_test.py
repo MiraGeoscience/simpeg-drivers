@@ -195,10 +195,11 @@ def test_joint_cross_gradient_inv_run(
                     topography_object=topography.uid,
                     data_object=survey.uid,
                     potential_channel=data.uid,
+                    model_type="Resistivity (Ohm-m)",
                     potential_uncertainty=1e-3,
                     tile_spatial=1,
-                    starting_model=1e-2,
-                    reference_model=1e-2,
+                    starting_model=100.0,
+                    reference_model=100.0,
                     save_sensitivities=True,
                 )
                 drivers.append(DirectCurrent3DDriver(params))

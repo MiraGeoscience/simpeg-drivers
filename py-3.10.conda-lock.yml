@@ -3597,20 +3597,21 @@ package:
   category: main
   optional: false
 - name: libnghttp2
-  version: 1.58.0
+  version: 1.63.0
   manager: conda
   platform: linux-64
   dependencies:
-    c-ares: '>=1.23.0,<2.0a0'
+    __glibc: '>=2.17,<3.0.a0'
+    c-ares: '>=1.32.3,<2.0a0'
     libev: '>=4.33,<5.0a0'
-    libgcc-ng: '>=12'
-    libstdcxx-ng: '>=12'
-    libzlib: '>=1.2.13,<2.0.0a0'
-    openssl: '>=3.2.0,<4.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libnghttp2-1.58.0-h47da74e_1.conda
+    libgcc: '>=13'
+    libstdcxx: '>=13'
+    libzlib: '>=1.3.1,<2.0a0'
+    openssl: '>=3.3.2,<4.0a0'
+  url: https://conda.anaconda.org/conda-forge/linux-64/libnghttp2-1.63.0-h161d5f1_0.conda
   hash:
-    md5: 700ac6ea6d53d5510591c4344d5c989a
-    sha256: 1910c5306c6aa5bcbd623c3c930c440e9c77a5a019008e1487810e3c1d3716cb
+    md5: d67a39118ce9f7ac18f139e1f7fc43cb
+    sha256: 11c2180b8f66f52a1eea18df8a05558037eeb6268da825645b7876ee72db6618
   category: main
   optional: false
 - name: libnsl
@@ -4139,7 +4140,7 @@ package:
   category: dev
   optional: true
 - name: markupsafe
-  version: 3.0.1
+  version: 3.0.2
   manager: conda
   platform: linux-64
   dependencies:
@@ -4147,14 +4148,14 @@ package:
     libgcc: '>=13'
     python: '>=3.10,<3.11.0a0'
     python_abi: 3.10.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/markupsafe-3.0.1-py310h89163eb_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/markupsafe-3.0.2-py310h89163eb_0.conda
   hash:
-    md5: 7d6206ca7c2b3f4663fdce7afdd71ead
-    sha256: 7a9746f19052288bc2b137952be868143e207d0d8cbc08bc55e63ccb55daf532
+    md5: 5415555830a54d9b4a1307e3e9d942c7
+    sha256: cd30ab169cf8685a405d5ff65d6b6887603b5d3c9acfc844b5ff5ff09de21213
   category: main
   optional: false
 - name: markupsafe
-  version: 3.0.1
+  version: 3.0.2
   manager: conda
   platform: win-64
   dependencies:
@@ -4163,10 +4164,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://conda.anaconda.org/conda-forge/win-64/markupsafe-3.0.1-py310h38315fa_1.conda
+  url: https://conda.anaconda.org/conda-forge/win-64/markupsafe-3.0.2-py310h38315fa_0.conda
   hash:
-    md5: 00ef9769e33394ca8b0feb554a85ccf6
-    sha256: 93d54a6caddc23abd7ecb84bbdc4d655e9ec2d2414e6987004721287d8a96322
+    md5: d67a799792d5d5d7b1dcf6fd4e35c6c7
+    sha256: 5b36e67eb43cafb8ea219aeda792a9623b1f5fb1778457f814442ed434e78c25
   category: main
   optional: false
 - name: matplotlib-base
@@ -6486,18 +6487,18 @@ package:
     __glibc: '>=2.17,<3.0.a0'
     libblas: '>=3.9.0,<4.0a0'
     libcblas: '>=3.9.0,<4.0a0'
-    libgcc-ng: '>=13'
-    libgfortran-ng: ''
+    libgcc: '>=13'
+    libgfortran: ''
     libgfortran5: '>=13.3.0'
     liblapack: '>=3.9.0,<4.0a0'
-    libstdcxx-ng: '>=13'
+    libstdcxx: '>=13'
     numpy: '>=1.23.5'
     python: '>=3.10,<3.11.0a0'
     python_abi: 3.10.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/scipy-1.14.1-py310ha3fb0e1_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/scipy-1.14.1-py310hfcf56fc_1.conda
   hash:
-    md5: dcca3051fda0f861e8111c6368842a28
-    sha256: abd577d8a89cb6d4f21ac07bdf9fbc2d105794ed4e1348482d5f3819eea83d09
+    md5: d9b1b75a227dbc42f3fe0e8bc852b805
+    sha256: df95244cd5faf7ede8560081db49892cb8ae99e202044d9eb00e4792d9d29af0
   category: main
   optional: false
 - name: scipy
@@ -6514,10 +6515,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://conda.anaconda.org/conda-forge/win-64/scipy-1.14.1-py310h46043a1_0.conda
+  url: https://conda.anaconda.org/conda-forge/win-64/scipy-1.14.1-py310hbd0dde3_1.conda
   hash:
-    md5: 3f957422c7a31c21641c0a032dbb4b06
-    sha256: f9d5f582e255cf6333bf7e81c141e1d4578123dbd914bed0c60785847fb34178
+    md5: 40856f1a065530263c38af13fe7d8f25
+    sha256: 6ba7d1ab0cc549931bb5979c5230d3fa64791a23a23dd8142813da9759ba2b1a
   category: main
   optional: false
 - name: send2trash
@@ -8403,7 +8404,7 @@ package:
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.21.2.1.dev44+g75da3b3f6
+  version: 0.21.2.1.dev24+g61e50d11b
   manager: pip
   platform: linux-64
   dependencies:
@@ -8414,19 +8415,19 @@ package:
     matplotlib: '*'
     numpy: '>=1.20'
     pandas: '*'
-    pymatsolver: '>=0.2,<0.3.0'
+    pymatsolver: '>=0.2'
     scikit-learn: '>=1.2'
     scipy: '>=1.8.0'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@75da3b3f62ca59c5b87c9739633e2fa68939f99b
+  url: git+https://github.com/MiraGeoscience/simpeg.git@498069a8f486f9ca418914112220eef0d92084ee
   hash:
-    sha256: 75da3b3f62ca59c5b87c9739633e2fa68939f99b
+    sha256: 498069a8f486f9ca418914112220eef0d92084ee
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@75da3b3f62ca59c5b87c9739633e2fa68939f99b
+    url: git+https://github.com/MiraGeoscience/simpeg.git@498069a8f486f9ca418914112220eef0d92084ee
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.21.2.1.dev44+g75da3b3f6
+  version: 0.21.2.1.dev24+g61e50d11b
   manager: pip
   platform: win-64
   dependencies:
@@ -8437,15 +8438,15 @@ package:
     matplotlib: '*'
     numpy: '>=1.20'
     pandas: '*'
-    pymatsolver: '>=0.2,<0.3.0'
+    pymatsolver: '>=0.2'
     scikit-learn: '>=1.2'
     scipy: '>=1.8.0'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@75da3b3f62ca59c5b87c9739633e2fa68939f99b
+  url: git+https://github.com/MiraGeoscience/simpeg.git@498069a8f486f9ca418914112220eef0d92084ee
   hash:
-    sha256: 75da3b3f62ca59c5b87c9739633e2fa68939f99b
+    sha256: 498069a8f486f9ca418914112220eef0d92084ee
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@75da3b3f62ca59c5b87c9739633e2fa68939f99b
+    url: git+https://github.com/MiraGeoscience/simpeg.git@498069a8f486f9ca418914112220eef0d92084ee
   category: main
   optional: false
 - name: octree-creation-app

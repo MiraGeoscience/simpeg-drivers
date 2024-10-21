@@ -75,7 +75,7 @@ dependencies:
   - m2w64-gcc-libs-core=5.3.0=7
   - m2w64-gmp=6.1.0=2
   - m2w64-libwinpthread-git=5.0.0.4634.697f757=2
-  - markupsafe=3.0.1=py310h38315fa_1
+  - markupsafe=3.0.2=py310h38315fa_0
   - matplotlib-base=3.8.4=py310hadb10a8_2
   - mkl=2023.2.0=h6a75c08_50497
   - msgpack-python=1.1.0=py310hc19bc0b_0
@@ -109,7 +109,7 @@ dependencies:
   - pytz=2024.1=pyhd8ed1ab_0
   - pyyaml=6.0.2=py310ha8f682b_1
   - scikit-learn=1.4.2=py310hf2a6c47_1
-  - scipy=1.14.1=py310h46043a1_0
+  - scipy=1.14.1=py310hbd0dde3_1
   - setuptools=75.1.0=pyhd8ed1ab_0
   - six=1.16.0=pyh6c4a22f_0
   - sortedcontainers=2.4.0=pyhd8ed1ab_0
@@ -143,7 +143,7 @@ dependencies:
   - pip:
       - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@ea741c90e542ff8c25175d3e6496eae9474d9bf5
       - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@682271009d7f94a136f082798f52f722d00534d7
-      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@75da3b3f62ca59c5b87c9739633e2fa68939f99b
+      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@498069a8f486f9ca418914112220eef0d92084ee
       - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app.git@d5f7b1bd9335803b4602f95e27a171462e65a955
       - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps.git@0593ba343681cf2bc7edd2916f2755896899b3fa
 
