@@ -39,23 +39,22 @@ scipy = "~1.14.0"
 #----------------------------------------
 #geoh5py = {version = "~0.10.0-alpha.1", source = "pypi", allow-prereleases = true}
 geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "release/0.10.0"}
-#geoh5py = {version = "~0.10.0-alpha.1", allow-prereleases = true}
 
 #octree-creation-app = {version = "~0.2.0-alpha.1", source = "pypi", allow-prereleases = true}
 octree-creation-app = {git = "https://github.com/MiraGeoscience/octree-creation-app.git", rev = "release/0.2.0"}
-#octree-creation-app = {version = "~0.2.0-alpha.1", allow-prereleases = true}
 
 #geoapps-utils = {version = "~0.4.0-alpha.1", source = "pypi", allow-prereleases = true}
 geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "release/0.4.0"}
-#geoapps-utils = {version = "~0.4.0-alpha.1", allow-prereleases = true}
 
-#mira-simpeg = {version = ">=0.21.2.1-alpha.1, <0.21.2.2.dev", source = "pypi", allow-prereleases = true}
-mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", rev = "GEOPY-1787"}
-#mira-simpeg = {version = ">=0.21.2.1-alpha.1, <0.21.2.2.dev", allow-prereleases = true}
+#mira-simpeg = {version = ">=0.21.2.1-alpha.1, <0.21.2.2.dev", source="pypi", allow-prereleases = true, extras = ["dask"]}
+mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", rev = "release/0.21.2.1", extras = ["dask"]}
 
-#param-sweeps = {version = "~0.1.8-alpha.1", source = "pypi", allow-prereleases = true}
+#param-sweeps = {version = "~0.2.0-alpha.1", source = "pypi", allow-prereleases = true}
 param-sweeps = {git = "https://github.com/MiraGeoscience/param-sweeps.git", rev = "release/0.2.0"}
-#param-sweeps = {version = "~0.1.8-alpha.1", allow-prereleases = true}
+
+## force some versions to resolve incompatible resolution between PyPI and Conda
+#-------------------------------------------------------------------------------
+pymatsolver = {version = "~0.2.0", source = "pypi"}
 
 ## about pip dependencies
 # to be specified to work with conda-lock
@@ -90,10 +89,6 @@ channels = ['conda-forge']
 [tool.conda-lock.dependencies]
 libblas = "*=*mkl"  # because simpeg already brings in the MKL
 
-# force some versions to resolve incompatible resolution between PyPI and Conda
-#-------------------------------------------------------------------------------
-pymatsolver = { version = ">=0.2.0, <0.3.0", source = "pypi" }
-
 ## indirect dependencies, forcing them here for installation through Conda not pip
 #---------------------------------------------------------------------------------
 Pillow = ">=10.3.0, <10.4.0"  # from geoh5py
@@ -106,6 +101,7 @@ mkl = "2023.2, <2024.1"  # from simpeg
 pandas = ">=2.2.1, <2.3.0"  # from SimPEG, also used by targeting-workflow, petro-lingo
 pydantic = ">=2.5.2, <3.0.0"  # from geoh5py, geoapps-utils
 pydiso = ">=0.1.0, <0.2.0"  # from simpeg
+pymatsolver = ">=0.2.0, <0.3.0"  # from simpeg
 scikit-learn = ">=1.4.0, <1.5.0"  # from SimPEG, also used by geo-unsup-mapper, petro-lingo
 tqdm = ">=4.66.1, <5.0.0"  # from simpeg
 zarr = ">=2.14.2, <2.15.0"  # from simpeg[dask]
