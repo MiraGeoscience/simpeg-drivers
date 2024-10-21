@@ -123,7 +123,7 @@ class JointCrossGradientDriver(BaseJointDriver):
                     count += n_tiles
 
                 for driver, wire in zip(self.drivers, self.wires, strict=True):
-                    factory = SaveModelGeoh5Factory(self.params)
+                    factory = SaveModelGeoh5Factory(driver.params)
                     factory.factory_type = driver.params.inversion_type
                     model_directive = factory.build(
                         inversion_object=self.inversion_mesh,
