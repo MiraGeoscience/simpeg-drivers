@@ -24,13 +24,13 @@ from itertools import combinations
 
 import numpy as np
 from geoh5py.shared.utils import fetch_active_workspace
-from simpeg import maps
+from simpeg import directives, maps
 from simpeg.objective_function import ComboObjectiveFunction
 from simpeg.regularization import CrossGradient
 
 from simpeg_drivers.components.factories import (
     DirectivesFactory,
-    SaveIterationGeoh5Factory,
+    SaveModelGeoh5Factory,
 )
 from simpeg_drivers.joint.driver import BaseJointDriver
 
@@ -101,7 +101,6 @@ class JointCrossGradientDriver(BaseJointDriver):
                         driver.data_misfit.model_map,
                         *save_model.transforms,
                     ]
-                    save_model.save_objective_function = False
 
                     directives_list.append(save_model)
 
@@ -109,6 +108,9 @@ class JointCrossGradientDriver(BaseJointDriver):
                         directives_list.append(
                             driver_directives.vector_inversion_directive
                         )
+
+                    if driver_directives.save_property_group is not None:
+                        directives_list.append(driver_directives.save_property_group)
 
                     save_sensitivities = driver_directives.save_sensitivities_directive
                     if save_sensitivities is not None:
@@ -120,15 +122,12 @@ class JointCrossGradientDriver(BaseJointDriver):
 
                     count += n_tiles
 
-                for count, (driver, wire) in enumerate(
-                    zip(self.drivers, self.wires, strict=True)
-                ):
-                    factory = SaveIterationGeoh5Factory(self.params)
+                for driver, wire in zip(self.drivers, self.wires, strict=True):
+                    factory = SaveModelGeoh5Factory(self.params)
                     factory.factory_type = driver.params.inversion_type
                     model_directive = factory.build(
                         inversion_object=self.inversion_mesh,
                         active_cells=self.models.active_cells,
-                        save_objective_function=count == 0,
                         name="Model",
                     )
 
@@ -136,7 +135,16 @@ class JointCrossGradientDriver(BaseJointDriver):
                     model_directive.transforms = [wire, *model_directive.transforms]
                     directives_list.append(model_directive)
 
+                    if driver.directives.save_property_group is not None:
+                        directives_list.append(
+                            directives.SavePropertyGroup(
+                                self.inversion_mesh.entity,
+                                channels=["declination", "inclination"],
+                            )
+                        )
+
                 self._directives = DirectivesFactory(self)
+                directives_list.append(self._directives.save_iteration_log_files)
                 self._directives.directive_list = (
                     self._directives.inversion_directives + directives_list
                 )
