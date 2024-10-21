@@ -151,7 +151,7 @@
         "main": true,
         "isValue": true,
         "parent": "mesh",
-        "label": "Conductivity (s/m)",
+        "label": "Value(s)",
         "property": "",
         "value": 0.001
     },

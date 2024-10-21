@@ -92,7 +92,7 @@
         "main": true,
         "isValue": true,
         "parent": "mesh",
-        "label": "Chargeability (v/v)",
+        "label": "Value(s)",
         "property": "",
         "min": 0.0,
         "max": 10000.0,

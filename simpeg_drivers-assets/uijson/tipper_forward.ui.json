@@ -104,7 +104,7 @@
         "main": true,
         "isValue": true,
         "parent": "mesh",
-        "label": "Background conductivity (S/m)",
+        "label": "Background",
         "property": "",
         "value": 0.001
     },
@@ -118,7 +118,7 @@
         "main": true,
         "isValue": true,
         "parent": "mesh",
-        "label": "Conductivity (s/m)",
+        "label": "Value(s)",
         "property": "",
         "value": 0.001
     },
