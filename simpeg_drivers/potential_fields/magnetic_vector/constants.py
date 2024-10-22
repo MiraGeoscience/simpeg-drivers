@@ -521,8 +521,7 @@ default_ui_json = {
         "max": 10,
         "precision": 1,
         "verbose": 2,
-        "groupOptional": True,
-        "enabled": False,
+        "enabled": True,
     },
     "starting_model": {
         "association": ["Cell", "Vertex"],

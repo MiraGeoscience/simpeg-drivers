@@ -164,9 +164,14 @@ def write_default_uijson(path: str | Path):
                 ]:
                     if param in params.input_file.ui_json:
                         form = params.input_file.ui_json[param]
-                        form["label"] = (
-                            form["label"].replace("Initial ", "").capitalize()
-                        )
+
+                        # Exception for forward sigma models
+                        if "model_type" in params.input_file.ui_json:
+                            form["label"] = "Value(s)"
+                        else:
+                            form["label"] = (
+                                form["label"].replace("Initial ", "").capitalize()
+                            )
             elif params.data_object is None:
                 for channel in active_data_channels:
                     form = params.input_file.ui_json.get(channel, None)

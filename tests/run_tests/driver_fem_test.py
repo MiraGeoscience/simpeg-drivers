@@ -23,6 +23,7 @@ from pathlib import Path
 
 import numpy as np
 from geoh5py import Workspace
+from geoh5py.groups import SimPEGGroup
 
 from simpeg_drivers.electromagnetics.frequency_domain.driver import (
     FrequencyDomainElectromagneticsDriver,
@@ -82,7 +83,11 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
         workpath = tmp_path.parent / "test_fem_fwr_run0" / "inversion_test.ui.geoh5"
 
     with Workspace(workpath) as geoh5:
-        survey = geoh5.get_entity("Airborne_rx")[0].copy(copy_children=False)
+        survey = next(
+            child
+            for child in geoh5.get_entity("Airborne_rx")
+            if not isinstance(child.parent, SimPEGGroup)
+        )
         mesh = geoh5.get_entity("mesh")[0]
         topography = geoh5.get_entity("topography")[0]
         data = {}

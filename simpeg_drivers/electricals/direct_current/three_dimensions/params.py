@@ -46,6 +46,7 @@ class DirectCurrent3DParams(InversionBaseParams):
         self._potential_channel_bool = None
         self._potential_channel = None
         self._potential_uncertainty = None
+        self._model_type = "Conductivity (S/m)"
 
         super().__init__(input_file=input_file, forward_only=forward_only, **kwargs)
 
@@ -56,6 +57,15 @@ class DirectCurrent3DParams(InversionBaseParams):
     @inversion_type.setter
     def inversion_type(self, val):
         self.setter_validator("inversion_type", val)
+
+    @property
+    def model_type(self):
+        """Model units."""
+        return self._model_type
+
+    @model_type.setter
+    def model_type(self, val):
+        self.setter_validator("model_type", val)
 
     @property
     def potential_channel_bool(self):

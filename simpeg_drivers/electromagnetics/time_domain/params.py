@@ -54,6 +54,8 @@ class TimeDomainElectromagneticsParams(InversionBaseParams):
         self._y_channel_bool = None
         self._y_channel = None
         self._y_uncertainty = None
+        self._inversion_type = "tipper"
+        self._model_type = "Conductivity (S/m)"
 
         super().__init__(input_file=input_file, forward_only=forward_only, **kwargs)
 
@@ -96,6 +98,15 @@ class TimeDomainElectromagneticsParams(InversionBaseParams):
                     data[f] = properties[i]  # in case of other naming conventions
 
             return data
+
+    @property
+    def model_type(self):
+        """Model units."""
+        return self._model_type
+
+    @model_type.setter
+    def model_type(self, val):
+        self.setter_validator("model_type", val)
 
     @property
     def unit_conversion(self):
