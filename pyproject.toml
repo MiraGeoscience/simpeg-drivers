@@ -30,9 +30,10 @@ include = [
 python = "^3.10, <3.12"  # geoana does not support 3.12 yet
 
 dask = {version = "2024.6.*", extras = ["distributed"]}  # also in simpeg[dask]
-discretize = "~0.10.0"  # also in simpeg, octree-creation-app
+discretize = "0.10.*"  # also in simpeg, octree-creation-app
 distributed = "2024.6.*"  # because conda-lock doesn't take dask extras into account
 numpy = "~1.26.0" # also in geoh5py, simpeg
+pydiso = "0.1.*"  # not imported, but required at runtime for simpeg
 scipy = "~1.14.0"
 
 ## Pip dependencies from Git repositories

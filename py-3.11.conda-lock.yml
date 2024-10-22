@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: 44eefcf2f75ca43b365a00d2b3ec3083dbb9458b5d88f4c9226c03066839e8ee
-    linux-64: 98251c26549a8d98b5b1f9fbc741517e1df835eab1de23934a8d5e4c197eb0b6
+    win-64: 5accd000ff770c315403fd80300e6e1db14f158d18ee83720b35d23bf86b1f6f
+    linux-64: 22a6d270b453d226118fc3521f57d6766a38555f1de746f1c7e95e97561409c8
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -2123,7 +2123,7 @@ package:
   category: dev
   optional: true
 - name: ipywidgets
-  version: 7.8.4
+  version: 7.8.5
   manager: conda
   platform: linux-64
   dependencies:
@@ -2133,15 +2133,15 @@ package:
     jupyterlab_widgets: '>=1.0.0,<3'
     python: '>=3.3'
     traitlets: '>=4.3.1'
-    widgetsnbextension: '>=3.6.9,<3.7.0'
-  url: https://conda.anaconda.org/conda-forge/noarch/ipywidgets-7.8.4-pyhd8ed1ab_0.conda
+    widgetsnbextension: '>=3.6.10,<3.7.0'
+  url: https://conda.anaconda.org/conda-forge/noarch/ipywidgets-7.8.5-pyhd8ed1ab_0.conda
   hash:
-    md5: c47caff12aa8b8fecb4b8b9b1884d8a5
-    sha256: a811aa22f1234ec2f53ccaeec657b15bacb5176bc5feeee5cbc8ddf570627668
+    md5: 47672c493015ab57d5fcde9531ab18ef
+    sha256: 8cc67e44137bb779c76d92952fdc4d8cd475605f4f0d13e8d0f04f25c056939b
   category: dev
   optional: true
 - name: ipywidgets
-  version: 7.8.4
+  version: 7.8.5
   manager: conda
   platform: win-64
   dependencies:
@@ -2151,11 +2151,11 @@ package:
     jupyterlab_widgets: '>=1.0.0,<3'
     python: '>=3.3'
     traitlets: '>=4.3.1'
-    widgetsnbextension: '>=3.6.9,<3.7.0'
-  url: https://conda.anaconda.org/conda-forge/noarch/ipywidgets-7.8.4-pyhd8ed1ab_0.conda
+    widgetsnbextension: '>=3.6.10,<3.7.0'
+  url: https://conda.anaconda.org/conda-forge/noarch/ipywidgets-7.8.5-pyhd8ed1ab_0.conda
   hash:
-    md5: c47caff12aa8b8fecb4b8b9b1884d8a5
-    sha256: a811aa22f1234ec2f53ccaeec657b15bacb5176bc5feeee5cbc8ddf570627668
+    md5: 47672c493015ab57d5fcde9531ab18ef
+    sha256: 8cc67e44137bb779c76d92952fdc4d8cd475605f4f0d13e8d0f04f25c056939b
   category: dev
   optional: true
 - name: isoduration
@@ -2885,27 +2885,27 @@ package:
   category: dev
   optional: true
 - name: jupyterlab_widgets
-  version: 1.1.10
+  version: 1.1.11
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.7'
-  url: https://conda.anaconda.org/conda-forge/noarch/jupyterlab_widgets-1.1.10-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/jupyterlab_widgets-1.1.11-pyhd8ed1ab_0.conda
   hash:
-    md5: e22fb9edd9f5819f6e0ed3acd250ee77
-    sha256: 03d75edecf19cf5f1f301952f7348265848b3d2857a42a41348921e90e9fa814
+    md5: 05a08b368343304618b6a88425aa851a
+    sha256: 639544e96969c7513b33bf3201a4dc3095625e34cff16c187f5dec9bee2dfb2f
   category: dev
   optional: true
 - name: jupyterlab_widgets
-  version: 1.1.10
+  version: 1.1.11
   manager: conda
   platform: win-64
   dependencies:
     python: '>=3.7'
-  url: https://conda.anaconda.org/conda-forge/noarch/jupyterlab_widgets-1.1.10-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/jupyterlab_widgets-1.1.11-pyhd8ed1ab_0.conda
   hash:
-    md5: e22fb9edd9f5819f6e0ed3acd250ee77
-    sha256: 03d75edecf19cf5f1f301952f7348265848b3d2857a42a41348921e90e9fa814
+    md5: 05a08b368343304618b6a88425aa851a
+    sha256: 639544e96969c7513b33bf3201a4dc3095625e34cff16c187f5dec9bee2dfb2f
   category: dev
   optional: true
 - name: jupytext
@@ -3622,7 +3622,7 @@ package:
   category: main
   optional: false
 - name: libnghttp2
-  version: 1.63.0
+  version: 1.64.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -3633,10 +3633,10 @@ package:
     libstdcxx: '>=13'
     libzlib: '>=1.3.1,<2.0a0'
     openssl: '>=3.3.2,<4.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libnghttp2-1.63.0-h161d5f1_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libnghttp2-1.64.0-h161d5f1_0.conda
   hash:
-    md5: d67a39118ce9f7ac18f139e1f7fc43cb
-    sha256: 11c2180b8f66f52a1eea18df8a05558037eeb6268da825645b7876ee72db6618
+    md5: 19e57602824042dfd0446292ef90488b
+    sha256: b0f2b3695b13a989f75d8fd7f4778e1c7aabe3b36db83f0fe80b2cd812c0e975
   category: main
   optional: false
 - name: libnsl
@@ -3707,31 +3707,31 @@ package:
   category: dev
   optional: true
 - name: libsqlite
-  version: 3.46.1
+  version: 3.47.0
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     libgcc: '>=13'
     libzlib: '>=1.3.1,<2.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libsqlite-3.46.1-hadc24fc_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libsqlite-3.47.0-hadc24fc_0.conda
   hash:
-    md5: 36f79405ab16bf271edb55b213836dac
-    sha256: 9851c049abafed3ee329d6c7c2033407e2fc269d33a75c071110ab52300002b0
+    md5: 540296f0ce9d3352188c15a89b30b9ac
+    sha256: 76ffc7a5823b51735c11d535f3666b3c9c7d1519f9fbb6fa9cdff79db01960b9
   category: main
   optional: false
 - name: libsqlite
-  version: 3.46.1
+  version: 3.47.0
   manager: conda
   platform: win-64
   dependencies:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://conda.anaconda.org/conda-forge/win-64/libsqlite-3.46.1-h2466b09_0.conda
+  url: https://conda.anaconda.org/conda-forge/win-64/libsqlite-3.47.0-h2466b09_0.conda
   hash:
-    md5: 8a7c1ad01f58623bfbae8d601db7cf3b
-    sha256: ef83f90961630bc54a95e48062b05cf9c9173a822ea01784288029613a45eea4
+    md5: 964bef59135d876c596ae67b3315e812
+    sha256: 4f3cd0477c831eab48fb7fa3ed91d918aeb644fad9b4014726d445339750cdcc
   category: main
   optional: false
 - name: libssh2
@@ -8036,29 +8036,29 @@ package:
   category: main
   optional: false
 - name: widgetsnbextension
-  version: 3.6.9
+  version: 3.6.10
   manager: conda
   platform: linux-64
   dependencies:
     notebook: '>=4.4.1'
     python: '>=3.7'
-  url: https://conda.anaconda.org/conda-forge/noarch/widgetsnbextension-3.6.9-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/widgetsnbextension-3.6.10-pyhd8ed1ab_0.conda
   hash:
-    md5: a296fc31edd9b04a157a7b97ac1c5ab8
-    sha256: ba1bd841aca3abe6bf21b8bcb84721de5ce8c48894c1c80edaf27db06f0e04e0
+    md5: 4d52bbdb661dc1b5a1c2aeb1afcd9a67
+    sha256: 6aeb16d2aacdae68ba7afd980925264f5d0459dd165e3406f13f23949df346c1
   category: dev
   optional: true
 - name: widgetsnbextension
-  version: 3.6.9
+  version: 3.6.10
   manager: conda
   platform: win-64
   dependencies:
     notebook: '>=4.4.1'
     python: '>=3.7'
-  url: https://conda.anaconda.org/conda-forge/noarch/widgetsnbextension-3.6.9-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/widgetsnbextension-3.6.10-pyhd8ed1ab_0.conda
   hash:
-    md5: a296fc31edd9b04a157a7b97ac1c5ab8
-    sha256: ba1bd841aca3abe6bf21b8bcb84721de5ce8c48894c1c80edaf27db06f0e04e0
+    md5: 4d52bbdb661dc1b5a1c2aeb1afcd9a67
+    sha256: 6aeb16d2aacdae68ba7afd980925264f5d0459dd165e3406f13f23949df346c1
   category: dev
   optional: true
 - name: win_inet_pton
@@ -8405,12 +8405,12 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pillow: '>=10.3.0,<10.4.0'
     pydantic: '>=2.5.2,<3.0.0'
-  url: git+https://github.com/MiraGeoscience/geoh5py.git@d5196d4237822961acd874a272796799d83af219
+  url: git+https://github.com/MiraGeoscience/geoh5py.git@5663add313d93eb38fa7fc25203d360c39698713
   hash:
-    sha256: d5196d4237822961acd874a272796799d83af219
+    sha256: 5663add313d93eb38fa7fc25203d360c39698713
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoh5py.git@d5196d4237822961acd874a272796799d83af219
+    url: git+https://github.com/MiraGeoscience/geoh5py.git@5663add313d93eb38fa7fc25203d360c39698713
   category: main
   optional: false
 - name: geoh5py
@@ -8422,12 +8422,12 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pillow: '>=10.3.0,<10.4.0'
     pydantic: '>=2.5.2,<3.0.0'
-  url: git+https://github.com/MiraGeoscience/geoh5py.git@d5196d4237822961acd874a272796799d83af219
+  url: git+https://github.com/MiraGeoscience/geoh5py.git@5663add313d93eb38fa7fc25203d360c39698713
   hash:
-    sha256: d5196d4237822961acd874a272796799d83af219
+    sha256: 5663add313d93eb38fa7fc25203d360c39698713
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoh5py.git@d5196d4237822961acd874a272796799d83af219
+    url: git+https://github.com/MiraGeoscience/geoh5py.git@5663add313d93eb38fa7fc25203d360c39698713
   category: main
   optional: false
 - name: mira-simpeg
