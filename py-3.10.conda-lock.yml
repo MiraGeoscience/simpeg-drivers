@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: 1823c3998747eba31d64db5b95935d6add527f669046f56f5e8936e795c5900f
-    linux-64: 0ab29233bd15aa83ef478ad2755e94afb5fb35798dc6de28966e722c87a6b975
+    win-64: 9bf33ea4391ba0cf2ed52287fc5b24c5008bffe6fed7c55803477143b8471cbf
+    linux-64: 68c12073cb9377a71e57e2eedc31efe1ca05b51e2747f9eed6cc9a2ed9aa5768
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -588,16 +588,16 @@ package:
   category: main
   optional: false
 - name: c-ares
-  version: 1.34.2
+  version: 1.32.3
   manager: conda
   platform: linux-64
   dependencies:
-    __glibc: '>=2.28,<3.0.a0'
-    libgcc: '>=13'
-  url: https://conda.anaconda.org/conda-forge/linux-64/c-ares-1.34.2-heb4867d_0.conda
+    __glibc: '>=2.17,<3.0.a0'
+    libgcc-ng: '>=12'
+  url: https://conda.anaconda.org/conda-forge/linux-64/c-ares-1.32.3-h4bc722e_0.conda
   hash:
-    md5: 2b780c0338fc0ffa678ac82c54af51fd
-    sha256: c2a515e623ac3e17a56027c06098fbd5ab47afefefbd386b4c21289f2ec55139
+    md5: 7624e34ee6baebfc80d67bac76cc9d9d
+    sha256: 3c5a844bb60b0d52d89c3f1bd828c9856417fe33a6102fd8bbd5c13c3351704a
   category: main
   optional: false
 - name: ca-certificates
@@ -888,7 +888,7 @@ package:
   category: main
   optional: false
 - name: coverage
-  version: 7.6.3
+  version: 7.6.4
   manager: conda
   platform: linux-64
   dependencies:
@@ -897,14 +897,14 @@ package:
     python: '>=3.10,<3.11.0a0'
     python_abi: 3.10.*
     tomli: ''
-  url: https://conda.anaconda.org/conda-forge/linux-64/coverage-7.6.3-py310h89163eb_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/coverage-7.6.4-py310h89163eb_0.conda
   hash:
-    md5: 24770578b1413dfbfedc865fd72cc298
-    sha256: 53b497f02743ef0609c89e2a5f3cec5a2713d17ed39176cf5e5061a77cb7d6bf
+    md5: 5222543cdb180f0fecc0d4b9f6b4a225
+    sha256: b4df2e45f8c43bc47c1695bfbd4c526ce5224812f9c41d9451c88541c36655ea
   category: dev
   optional: true
 - name: coverage
-  version: 7.6.3
+  version: 7.6.4
   manager: conda
   platform: win-64
   dependencies:
@@ -914,10 +914,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://conda.anaconda.org/conda-forge/win-64/coverage-7.6.3-py310h38315fa_1.conda
+  url: https://conda.anaconda.org/conda-forge/win-64/coverage-7.6.4-py310h38315fa_0.conda
   hash:
-    md5: fae4f76cd69477dd64b4d2e16fc88419
-    sha256: 6b87b8efd96afec06568522a13e2c3ff83abf8eaf91777421abb19285d9cd8d2
+    md5: f9fbf2c23507d4bd03ccb19760194b54
+    sha256: 119e078840f9920c72dc6188649412ec6525af38a1a99cad7310a2e56a898729
   category: dev
   optional: true
 - name: cpython
@@ -1651,10 +1651,10 @@ package:
     numpy: '>=1.19,<3'
     python: '>=3.10,<3.11.0a0'
     python_abi: 3.10.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/h5py-3.12.1-nompi_py310h60e0fe6_101.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/h5py-3.12.1-nompi_py310h60e0fe6_102.conda
   hash:
-    md5: 8ee4ca6844998c3f6b19fc9d72dda865
-    sha256: 6aef3ed53ebc39eac4e60b0baab69e3fe92b8102febb8130eee59b3542bcc58e
+    md5: bbd9033531b34e220e3ff09312e91137
+    sha256: 15b07c1a1daf1a39ca9f6a7ceaef55b160ce20a9464b368eb093c31b4d538b9a
   category: main
   optional: false
 - name: h5py
@@ -1670,10 +1670,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://conda.anaconda.org/conda-forge/win-64/h5py-3.12.1-nompi_py310h2b0be38_101.conda
+  url: https://conda.anaconda.org/conda-forge/win-64/h5py-3.12.1-nompi_py310h2b0be38_102.conda
   hash:
-    md5: 2c618d00fca29ae9a4c436c17ef8728d
-    sha256: fd79a0cffe175c850b2c910ae3c3fb1ba03822966037fea10ac4f2e32b717dac
+    md5: 92f7ac9267c827a69613d684110cc1f7
+    sha256: 3a564c0951719f5b6ac3b7e4f7da5d3f00f4b596ef5036089c87c557e2b53692
   category: main
   optional: false
 - name: hdf5
@@ -8378,12 +8378,12 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pillow: '>=10.3.0,<10.4.0'
     pydantic: '>=2.5.2,<3.0.0'
-  url: git+https://github.com/MiraGeoscience/geoh5py.git@5663add313d93eb38fa7fc25203d360c39698713
+  url: git+https://github.com/MiraGeoscience/geoh5py.git@4148dd974ddc45cc25895bccb2be9f3ec6972a19
   hash:
-    sha256: 5663add313d93eb38fa7fc25203d360c39698713
+    sha256: 4148dd974ddc45cc25895bccb2be9f3ec6972a19
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoh5py.git@5663add313d93eb38fa7fc25203d360c39698713
+    url: git+https://github.com/MiraGeoscience/geoh5py.git@4148dd974ddc45cc25895bccb2be9f3ec6972a19
   category: main
   optional: false
 - name: geoh5py
@@ -8395,12 +8395,12 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pillow: '>=10.3.0,<10.4.0'
     pydantic: '>=2.5.2,<3.0.0'
-  url: git+https://github.com/MiraGeoscience/geoh5py.git@5663add313d93eb38fa7fc25203d360c39698713
+  url: git+https://github.com/MiraGeoscience/geoh5py.git@4148dd974ddc45cc25895bccb2be9f3ec6972a19
   hash:
-    sha256: 5663add313d93eb38fa7fc25203d360c39698713
+    sha256: 4148dd974ddc45cc25895bccb2be9f3ec6972a19
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoh5py.git@5663add313d93eb38fa7fc25203d360c39698713
+    url: git+https://github.com/MiraGeoscience/geoh5py.git@4148dd974ddc45cc25895bccb2be9f3ec6972a19
   category: main
   optional: false
 - name: mira-simpeg
