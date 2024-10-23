@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from geoapps_utils.driver.params import BaseParams
 
 import numpy as np
-from simpeg import data, data_misfit, objective_function
+from simpeg import data, data_misfit, maps, objective_function
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 
@@ -72,12 +72,6 @@ class MisfitFactory(SimPEGFactory):
         local_misfits = []
         self.sorting = []
         self.ordering = []
-        padding_cells = 4 if self.factory_type in ["fem", "tdem"] else 6
-
-        # Keep whole mesh for 1 tile
-        if len(tiles) == 1:
-            padding_cells = 100
-
         tile_num = 0
         data_count = 0
         for tile_count, local_index in enumerate(tiles):
@@ -111,10 +105,24 @@ class MisfitFactory(SimPEGFactory):
                     mesh,
                     active_cells,
                     survey,
-                    self.models,
                     tile_id=tile_num,
-                    padding_cells=padding_cells,
+                    padding_cells=self.params.padding_cells,
                 )
+
+                if "induced polarization" in self.params.inversion_type:
+                    if "2d" in self.params.inversion_type:
+                        proj = maps.InjectActiveCells(
+                            mesh, active_cells, valInactive=1e-8
+                        )
+                    else:
+                        proj = maps.InjectActiveCells(
+                            local_map.local_mesh,
+                            local_map.local_active,
+                            valInactive=1e-8,
+                        )
+
+                    # TODO this should be done in the simulation factory
+                    local_sim.sigma = proj * local_map * self.models.conductivity
 
                 # TODO add option to export tile meshes
                 # from octree_creation_app.utils import treemesh_2_octree
