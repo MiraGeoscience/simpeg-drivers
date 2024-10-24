@@ -24,7 +24,8 @@
         "main": true,
         "label": "Line ID",
         "parent": "data_object",
-        "value": ""
+        "value": "",
+        "tooltip": "Selects the data representing the different lines in the survey."
     },
     "z_from_topo": {
         "group": "Data pre-processing",
@@ -136,6 +137,17 @@
         "value": "",
         "visible": true
     },
+    "model_type": {
+        "choiceList": [
+            "Conductivity (S/m)",
+            "Resistivity (Ohm-m)"
+        ],
+        "main": true,
+        "group": "Mesh and models",
+        "label": "Model units",
+        "tooltip": "Select the units of the model.",
+        "value": "Conductivity (S/m)"
+    },
     "conductivity_model": {
         "association": "Cell",
         "dataType": "Float",
@@ -181,8 +193,8 @@
         "label": "Lower bound (V/V)",
         "property": "",
         "optional": true,
-        "value": 1e-08,
-        "enabled": false
+        "value": 0.0,
+        "enabled": true
     },
     "upper_bound": {
         "association": "Cell",
@@ -210,7 +222,8 @@
         ],
         "value": "",
         "optional": true,
-        "enabled": true
+        "enabled": true,
+        "tooltip": "Select a topography object to define the active cells for inversion."
     },
     "topography": {
         "association": [
@@ -223,7 +236,7 @@
         "optional": true,
         "enabled": false,
         "label": "Elevation channel",
-        "tooltip": "Set elevation from channel",
+        "tooltip": "Set elevation from channel.  If not set the topography will be set from the geometry of the selected 'topography' object.",
         "parent": "topography_object",
         "dependency": "topography_object",
         "dependencyType": "enabled",
@@ -243,7 +256,7 @@
         "dependency": "topography_object",
         "dependencyType": "disabled",
         "label": "Active model",
-        "tooltip": "Bool model on the input 'mesh' defining air/ground cells",
+        "tooltip": "Provide the active cell boolean model directly if topography not set.",
         "parent": "mesh",
         "value": ""
     },
@@ -257,6 +270,11 @@
         "tooltip": "Constant ratio compared to other weights. Larger values result in models that remain close to the reference model",
         "dependency": "reference_model",
         "dependencyType": "enabled",
+        "isValue": true,
+        "parent": "mesh",
+        "association": "Cell",
+        "dataType": "Float",
+        "property": "",
         "enabled": true
     },
     "length_scale_x": {
@@ -265,6 +283,11 @@
         "label": "X-smoothness weight",
         "tooltip": "Larger values relative to other smoothness weights will result in x biased smoothness",
         "value": 1.0,
+        "isValue": true,
+        "parent": "mesh",
+        "association": "Cell",
+        "dataType": "Float",
+        "property": "",
         "enabled": true
     },
     "length_scale_z": {
@@ -273,6 +296,11 @@
         "label": "Z-smoothness weight",
         "tooltip": "Larger values relative to other smoothness weights will result in z biased smoothess",
         "value": 1.0,
+        "isValue": true,
+        "parent": "mesh",
+        "association": "Cell",
+        "dataType": "Float",
+        "property": "",
         "enabled": true
     },
     "s_norm": {
@@ -283,14 +311,15 @@
         "isValue": true,
         "parent": "mesh",
         "property": "",
-        "value": 1.0,
+        "value": 0.0,
         "min": 0.0,
         "max": 2.0,
         "precision": 2,
         "lineEdit": true,
         "enabled": true,
         "dependency": "reference_model",
-        "dependencyType": "enabled"
+        "dependencyType": "enabled",
+        "tooltip": "Lp-norm used in the smallness term of the objective function."
     },
     "x_norm": {
         "association": "Cell",
@@ -305,7 +334,8 @@
         "max": 2.0,
         "precision": 2,
         "lineEdit": false,
-        "enabled": true
+        "enabled": true,
+        "tooltip": "Lp-norm used in the x-smoothness term of the objective function."
     },
     "z_norm": {
         "association": "Cell",
@@ -320,7 +350,8 @@
         "max": 2.0,
         "precision": 2,
         "lineEdit": false,
-        "enabled": true
+        "enabled": true,
+        "tooltip": "Lp-norm used in the z-smoothness term of the objective function."
     },
     "gradient_type": {
         "choiceList": [
@@ -330,7 +361,8 @@
         "group": "Sparse/blocky model",
         "label": "Gradient type",
         "value": "total",
-        "verbose": 3
+        "verbose": 3,
+        "tooltip": "Choose whether the IRLS weights for regularization terms are updated using total or partial gradients."
     },
     "max_irls_iterations": {
         "min": 0,
@@ -374,7 +406,8 @@
         "group": "Cooling schedule/target",
         "label": "Chi factor",
         "value": 1.0,
-        "enabled": true
+        "enabled": true,
+        "tooltip": "The global target data misfit value."
     },
     "initial_beta_ratio": {
         "min": 0.0,
@@ -384,7 +417,8 @@
         "enabled": true,
         "label": "Initial beta ratio",
         "value": 100.0,
-        "verbose": 2
+        "verbose": 2,
+        "tooltip": "Estimate the trade-off parameter by scaling the ratio between the largest derivatives in the objective function gradients."
     },
     "initial_beta": {
         "min": 0.0,
@@ -395,7 +429,8 @@
         "dependencyType": "disabled",
         "label": "Initial beta",
         "value": 1.0,
-        "verbose": 2
+        "verbose": 2,
+        "tooltip": "Trade-off parameter between data misfit and regularization."
     },
     "coolingFactor": {
         "group": "Cooling schedule/target",
@@ -417,7 +452,8 @@
         "max": 10,
         "precision": 1,
         "verbose": 2,
-        "enabled": true
+        "enabled": true,
+        "tooltip": "Set the number of iterations per beta value. Use higher values for more non-linear optimization problems."
     },
     "max_global_iterations": {
         "min": 1,
@@ -434,7 +470,8 @@
         "value": 20,
         "min": 1,
         "enabled": true,
-        "verbose": 3
+        "verbose": 3,
+        "tooltip": "Perform an Armijo backtracking linesearch for the provided number of iterations."
     },
     "max_cg_iterations": {
         "min": 0,
@@ -458,7 +495,8 @@
         "value": 0.01,
         "min": 1e-06,
         "verbose": 3,
-        "enabled": true
+        "enabled": true,
+        "tooltip": "Minimum decrease in regularization beyond which the IRLS procedure is deemed to have completed."
     },
     "sens_wts_threshold": {
         "group": "Update sensitivity weights directive",
@@ -478,6 +516,12 @@
         "value": true,
         "verbose": 2,
         "enabled": true
+    },
+    "save_sensitivities": {
+        "group": "Update sensitivity weights directive",
+        "label": "Save sensitivities",
+        "tooltip": "Save the summed square row sensitivities to geoh5.",
+        "value": false
     },
     "parallelized": {
         "group": "Compute",
@@ -513,10 +557,11 @@
         "group": "Compute",
         "optional": true,
         "enabled": true,
-        "label": "Maximum chunk size",
+        "label": "Maximum chunk size (Mb)",
         "value": 128,
         "verbose": 3,
-        "visible": false
+        "visible": false,
+        "tooltip": "Limit the chunk size used by Dask for distributed computation."
     },
     "chunk_by_rows": {
         "group": "Compute",
@@ -532,13 +577,15 @@
         "group": "Drag-and-drop options",
         "visible": true,
         "optional": true,
-        "enabled": false
+        "enabled": false,
+        "tooltip": "Optionally set the SimPEG group to which results will be saved."
     },
     "generate_sweep": {
         "label": "Generate sweep file",
         "group": "Python run preferences",
         "main": true,
-        "value": false
+        "value": false,
+        "tooltip": "Generates a file for sweeping parameters instead of running the application."
     },
     "files_only": {
         "label": "Generate files only",

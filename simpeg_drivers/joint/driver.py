@@ -31,12 +31,12 @@ from octree_creation_app.utils import (
     create_octree_from_octrees,
     treemesh_2_octree,
 )
+from simpeg import directives
 from simpeg.maps import TileMap
 from simpeg.objective_function import ComboObjectiveFunction
 
 from simpeg_drivers import DRIVER_MAP
-from simpeg_drivers.components.factories import SaveIterationGeoh5Factory
-from simpeg_drivers.components.meshes import InversionMesh
+from simpeg_drivers.components.factories import SaveDataGeoh5Factory
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.joint.params import BaseJointParams
 
@@ -199,11 +199,11 @@ class BaseJointDriver(InversionDriver):
             )
 
             for sub, driver in zip(predicted, self.drivers, strict=True):
-                SaveIterationGeoh5Factory(driver.params).build(
+                SaveDataGeoh5Factory(driver.params).build(
                     inversion_object=driver.inversion_data,
                     sorting=np.argsort(np.hstack(driver.sorting)),
                     ordering=driver.ordering,
-                ).save_components(0, sub)
+                ).write(0, sub)
         else:
             # Run the inversion
             self.start_inversion_message()
@@ -212,3 +212,10 @@ class BaseJointDriver(InversionDriver):
         self.logger.end()
         sys.stdout = self.logger.terminal
         self.logger.log.close()
+        self._update_log()
+
+    def _update_log(self):
+        """Update the log with the inversion results."""
+        for directive in self.directives.directive_list:
+            if isinstance(directive, directives.SaveLogFilesGeoH5):
+                directive.save_log()

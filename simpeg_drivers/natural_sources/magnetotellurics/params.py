@@ -69,6 +69,7 @@ class MagnetotelluricsParams(InversionBaseParams):
         self._zyy_imag_channel = None
         self._zyy_imag_uncertainty = None
         self._background_conductivity = None
+        self._model_type = "Conductivity (S/m)"
 
         super().__init__(input_file=input_file, forward_only=forward_only, **kwargs)
 
@@ -115,6 +116,15 @@ class MagnetotelluricsParams(InversionBaseParams):
         """Returns uncertainty for chosen data component."""
         uid = self.uncertainty_channel(component)
         return self.property_group_data(uid)
+
+    @property
+    def model_type(self):
+        """Model units."""
+        return self._model_type
+
+    @model_type.setter
+    def model_type(self, val):
+        self.setter_validator("model_type", val)
 
     @property
     def zxx_real_channel_bool(self):

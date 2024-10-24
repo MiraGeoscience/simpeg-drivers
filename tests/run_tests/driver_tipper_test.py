@@ -20,6 +20,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.natural_sources import TipperParams
@@ -51,6 +52,7 @@ def test_tipper_fwr_run(
         drape_height=15.0,
         flatten=False,
     )
+    model.values = 1.0 / model.values
     params = TipperParams(
         forward_only=True,
         geoh5=geoh5,
@@ -60,7 +62,8 @@ def test_tipper_fwr_run(
         z_from_topo=False,
         data_object=survey.uid,
         starting_model=model.uid,
-        conductivity_model=1e-3,
+        model_type="Resistivity (Ohm-m)",
+        conductivity_model=100.0,
         txz_real_channel_bool=True,
         txz_imag_channel_bool=True,
         tyz_real_channel_bool=True,
@@ -68,6 +71,10 @@ def test_tipper_fwr_run(
     )
     params.workpath = tmp_path
     fwr_driver = TipperDriver(params)
+
+    assert not np.any(
+        np.exp(fwr_driver.models.starting) > 1.01
+    )  # Should always be returning conductivity
     fwr_driver.run()
 
 
@@ -77,7 +84,11 @@ def test_tipper_run(tmp_path: Path, max_iterations=1, pytest=True):
         workpath = tmp_path.parent / "test_tipper_fwr_run0" / "inversion_test.ui.geoh5"
 
     with Workspace(workpath) as geoh5:
-        survey = geoh5.get_entity("survey")[0]
+        survey = next(
+            child
+            for child in geoh5.get_entity("survey")
+            if not isinstance(child.parent, SimPEGGroup)
+        )
         mesh = geoh5.get_entity("mesh")[0]
         topography = geoh5.get_entity("topography")[0]
 

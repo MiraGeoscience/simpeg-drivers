@@ -323,15 +323,24 @@ class InversionDriver(BaseDriver):
         self.logger.log.close()
 
         if self.params.forward_only:
-            self.directives.save_directives[1].save_components(0, predicted)
-            self.directives.save_directives[1].save_log()
-        else:
-            for directive in self.directives.save_directives:
-                if (
-                    isinstance(directive, directives.SaveIterationsGeoH5)
-                    and directive.save_objective_function
-                ):
-                    directive.save_log()
+            self.directives.save_iteration_data_directive.write(0, predicted)
+
+            if (
+                isinstance(
+                    self.directives.save_iteration_data_directive,
+                    directives.SaveDataGeoH5,
+                )
+                and len(self.directives.save_iteration_data_directive.channels) > 1
+            ):
+                directives.SavePropertyGroup(
+                    self.inversion_data.entity,
+                    channels=self.directives.save_iteration_data_directive.channels,
+                    components=self.directives.save_iteration_data_directive.components,
+                ).write(0)
+
+        for directive in self.directives.save_directives:
+            if isinstance(directive, directives.SaveLogFilesGeoH5):
+                directive.save_log()
 
     def start_inversion_message(self):
         # SimPEG reports half phi_d, so we scale to match
@@ -391,28 +400,29 @@ class InversionDriver(BaseDriver):
                 active_cells=self.models.active_cells,
                 mapping=mapping,
                 reference_model=self.models.reference,
-                alpha_s=self.params.alpha_s,
             )
-            norms = []
+
             # Adjustment for 2D versus 3D problems
             comps = "sxz" if "2d" in self.params.inversion_type else "sxyz"
             avg_comps = "sxy" if "2d" in self.params.inversion_type else "sxyz"
-            for comp, avg_comp in zip(comps, avg_comps):
-                if getattr(self.params, f"length_scale_{comp}", None) is not None:
-                    setattr(
-                        reg,
-                        f"length_scale_{comp}",
-                        getattr(self.params, f"length_scale_{comp}"),
-                    )
+            weights = ["alpha_s"] + [f"length_scale_{k}" for k in comps[1:]]
+            for comp, avg_comp, objfct, weight in zip(
+                comps, avg_comps, reg.objfcts, weights
+            ):
+                if getattr(self.models, weight) is None:
+                    setattr(reg, weight, 0.0)
+                    continue
 
+                weight = mapping * getattr(self.models, weight)
                 norm = mapping * getattr(self.models, f"{comp}_norm")
                 if comp in "xyz":
+                    weight = (
+                        getattr(reg.regularization_mesh, f"aveCC2F{avg_comp}") * weight
+                    )
                     norm = getattr(reg.regularization_mesh, f"aveCC2F{avg_comp}") * norm
 
-                norms.append(norm)
-
-            if norms:
-                reg.norms = norms
+                objfct.set_weights(**{comp: weight})
+                objfct.norm = norm
 
             if getattr(self.params, "gradient_type") is not None:
                 setattr(

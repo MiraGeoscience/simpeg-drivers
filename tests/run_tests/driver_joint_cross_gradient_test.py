@@ -40,7 +40,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 53.29600188902931, "phi_d": 2998, "phi_m": 0.1313}
+target_run = {"data_norm": 53.296011, "phi_d": 950.5, "phi_m": 0.2365}
 
 
 def test_joint_cross_gradient_fwr_run(
@@ -195,10 +195,12 @@ def test_joint_cross_gradient_inv_run(
                     topography_object=topography.uid,
                     data_object=survey.uid,
                     potential_channel=data.uid,
+                    model_type="Resistivity (Ohm-m)",
                     potential_uncertainty=1e-3,
                     tile_spatial=1,
-                    starting_model=1e-2,
-                    reference_model=1e-2,
+                    starting_model=100.0,
+                    reference_model=100.0,
+                    save_sensitivities=True,
                 )
                 drivers.append(DirectCurrent3DDriver(params))
             else:
