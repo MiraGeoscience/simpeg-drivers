@@ -15,13 +15,14 @@
 #
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 import sys
+from copy import deepcopy
 from pathlib import Path
 
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
 from geoapps_utils.driver.data import BaseData
-from geoh5py.groups import SimPEGGroup
+from geoh5py.groups import SimPEGGroup, UIJsonGroup
 from geoh5py.ui_json import InputFile
 from geoh5py.ui_json.utils import fetch_active_workspace, monitored_directory_copy
 from scipy.interpolate import interp1d
@@ -63,7 +64,7 @@ def tile_estimator(file_path: Path):
     ifile = InputFile.read_ui_json(file_path)
     params = parameters.build(ifile)
 
-    driver_dict = params.simulation.options
+    driver_dict = deepcopy(params.simulation.options)
     driver_dict["geoh5"] = params.geoh5
 
     with fetch_active_workspace(params.geoh5, mode="r+"):
@@ -97,8 +98,8 @@ def tile_estimator(file_path: Path):
                 count,
                 method="kmeans",
             )
-            # Get the median tile
-            ind = np.argsort([len(tile) for tile in tiles])[int(count / 2)]
+            # Get the largest tile
+            ind = np.argsort([len(tile) for tile in tiles])[-1]
             survey, _, _ = driver.inversion_data.create_survey(
                 mesh=mesh, local_index=tiles[ind]
             )
@@ -128,7 +129,7 @@ def tile_estimator(file_path: Path):
         axis = np.r_[x0, y0]
         axis /= np.linalg.norm(axis)
 
-        optimal = int((x0 - axis[0] * rad)[0] * tile_counts.max())
+        optimal = np.max([1, int((x0 - axis[0] * rad)[0] * tile_counts.max())])
         ax.plot(tile_counts, problem_sizes)
         ax.plot(optimal, fun(optimal), "ro")
         ax.set_xlabel("Number of tiles")
@@ -151,11 +152,15 @@ def tile_estimator(file_path: Path):
 
         figure.savefig(file_path.parent / "tile_estimator.png")
 
-        new_out_group = driver.out_group.copy(copy_children=False)
-        driver_params.tile_spatial = count
+        new_out_group = params.simulation.copy(copy_children=False)
+        driver_params.tile_spatial = optimal
         driver_params.out_group = new_out_group
         new_out_group.options = driver_params.to_dict(ui_json_format=True)
+        new_out_group.metadata = None
         new_out_group.add_file(file_path.parent / "tile_estimator.png")
+
+        if params.out_group is not None:
+            new_out_group.parent = params.out_group
 
         if params.monitoring_directory is not None:
             monitored_directory_copy(params.monitoring_directory, new_out_group)
@@ -167,10 +172,11 @@ class parameters(BaseData):
     """
 
     simulation: SimPEGGroup
+    out_group: UIJsonGroup | None = None
 
 
 if __name__ == "__main__":
     file = Path(sys.argv[1]).resolve()
-    # file = r"C:\Users\dominiquef\Desktop\Tests\tile_estimator.ui.json"
+    # file = Path(r"C:\Users\dominiquef\Desktop\Tests\tile_estimator.ui.json")
     tile_estimator(file)
     sys.stdout.close()
