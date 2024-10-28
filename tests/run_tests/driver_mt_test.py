@@ -164,7 +164,7 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
             z_norm=1.0,
             gradient_type="components",
             z_from_topo=False,
-            upper_bound=0.75,
+            lower_bound=0.75,
             model_type="Resistivity (Ohm-m)",
             conductivity_model=100.0,
             max_global_iterations=max_iterations,
