@@ -103,17 +103,7 @@ class InversionDriver(BaseDriver):
                     self.models.active_cells,
                 )
                 print("Done.")
-
                 self.inversion_data.save_data()
-
-                # Re-scale misfits by problem size
-                multipliers = []
-                for mult, func in self._data_misfit:
-                    multipliers.append(
-                        mult * (func.model_map.shape[0] / func.model_map.shape[1])
-                    )
-
-                self._data_misfit.multipliers = multipliers
 
         return self._data_misfit
 
