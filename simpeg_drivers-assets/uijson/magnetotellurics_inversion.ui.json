@@ -311,15 +311,8 @@
         "value": "Conductivity (S/m)"
     },
     "background_conductivity": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
         "group": "Mesh and models",
         "main": true,
-        "isValue": true,
-        "parent": "mesh",
         "label": "Background",
         "property": "",
         "value": 0.001
