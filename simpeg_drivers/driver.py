@@ -103,7 +103,11 @@ class InversionDriver(BaseDriver):
                     self.models.active_cells,
                 )
                 print("Done.")
+
                 self.inversion_data.save_data()
+                self._data_misfit.multipliers = np.asarray(
+                    self._data_misfit.multipliers, dtype=float
+                )
 
         return self._data_misfit
 
