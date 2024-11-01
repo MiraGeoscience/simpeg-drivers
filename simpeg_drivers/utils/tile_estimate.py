@@ -69,8 +69,8 @@ class TileEstimator:
                 count,
                 method="kmeans",
             )
-            # Get the largest tile
-            ind = np.argsort([len(tile) for tile in tiles])[-1]
+            # Get the median tile
+            ind = np.argsort([len(tile) for tile in tiles])[int(count / 2)]
             survey, _, _ = driver.inversion_data.create_survey(
                 mesh=mesh, local_index=tiles[ind]
             )
@@ -107,12 +107,15 @@ class TileEstimator:
             monitored_directory_copy(self.params.monitoring_directory, new_out_group)
 
     @staticmethod
-    def estimate_optimal_tile(results) -> int:
+    def estimate_optimal_tile(results: dict) -> int:
         """
         Estimate the optimal number of tiles to use using a circle fit.
+
+        :param results: Dictionary of tile counts and problem sizes.
         """
         tile_counts = np.array(list(results.keys()))
         problem_sizes = np.array(list(results.values()))
+        problem_sizes -= problem_sizes.min()
         rad, x0, y0 = fit_circle(
             tile_counts / tile_counts.max(), problem_sizes / problem_sizes.max()
         )
@@ -126,17 +129,22 @@ class TileEstimator:
     def plot(results: dict, locations: np.ndarray, optimal: int):
         """
         Plot the results of the tile estimator.
+
+        :param results: Dictionary of tile counts and problem sizes.
+        :param locations: Array of receiver locations.
+        :param optimal: Optimal number of tiles.
         """
         tile_counts = np.array(list(results.keys()))
         problem_sizes = np.array(list(results.values()))
         fun = interp1d(tile_counts, problem_sizes)
 
-        figure = plt.figure(figsize=(12, 10))
+        figure = plt.figure(figsize=(7.5, 11))
         ax = plt.subplot(2, 1, 1)
 
         ax.plot(tile_counts, problem_sizes)
         ax.plot(optimal, fun(optimal), "ro")
         ax.set_xlabel("Number of tiles")
+        ax.set_aspect(tile_counts.max() / problem_sizes.max())
         ax.set_ylabel("Est. total size (Gb)")
 
         ax2 = plt.subplot(2, 1, 2)
@@ -168,7 +176,6 @@ class TileParameters(BaseData):
 
 if __name__ == "__main__":
     file = Path(sys.argv[1]).resolve()
-    # file = Path(r"C:\Users\dominiquef\Desktop\Tests\tile_estimator.ui.json")
     tile_driver = TileEstimator(file)
 
     with fetch_active_workspace(tile_driver.params.geoh5, mode="r+"):
