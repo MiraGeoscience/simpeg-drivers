@@ -32,7 +32,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.0020959218368283884, "phi_d": 0.3008, "phi_m": 7209}
+target_run = {"data_norm": 0.0055932, "phi_d": 7.346, "phi_m": 472.2}
 
 
 def test_tipper_fwr_run(
@@ -72,9 +72,8 @@ def test_tipper_fwr_run(
     params.workpath = tmp_path
     fwr_driver = TipperDriver(params)
 
-    assert not np.any(
-        np.exp(fwr_driver.models.starting) > 1.01
-    )  # Should be returning resistivity values
+    # Should always be returning conductivity for simpeg simulations
+    assert not np.any(np.exp(fwr_driver.models.starting) > 1.01)
     fwr_driver.run()
 
 
@@ -114,7 +113,7 @@ def test_tipper_run(tmp_path: Path, max_iterations=1, pytest=True):
                     {
                         f"uncertainty_{comp}_[{ind}]": {
                             "values": np.ones_like(data_entity.values)
-                            * np.percentile(np.abs(data_entity.values), 5)
+                            * np.percentile(np.abs(data_entity.values), 1)
                         }
                     }
                 )
@@ -152,10 +151,12 @@ def test_tipper_run(tmp_path: Path, max_iterations=1, pytest=True):
             z_from_topo=False,
             lower_bound=0.75,
             max_global_iterations=max_iterations,
-            initial_beta_ratio=1e2,
-            coolingRate=2,
+            initial_beta_ratio=1e3,
+            starting_chi_factor=1.0,
+            coolingRate=1,
             prctile=100,
-            chi_factor=0.1,
+            chi_factor=1.0,
+            max_line_search_iterations=5,
             store_sensitivities="ram",
             **data_kwargs,
         )
