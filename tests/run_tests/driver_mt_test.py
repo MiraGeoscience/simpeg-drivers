@@ -67,7 +67,7 @@ def test_magnetotellurics_fwr_run(
         z_from_topo=False,
         data_object=survey.uid,
         starting_model=model.uid,
-        conductivity_model=1e-2,
+        background_conductivity=1e-2,
         zxx_real_channel_bool=True,
         zxx_imag_channel_bool=True,
         zxy_real_channel_bool=True,
@@ -164,9 +164,9 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
             z_norm=1.0,
             gradient_type="components",
             z_from_topo=False,
-            upper_bound=0.75,
+            lower_bound=0.75,
             model_type="Resistivity (Ohm-m)",
-            conductivity_model=100.0,
+            background_conductivity=100.0,
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e2,
             prctile=100,
@@ -198,7 +198,6 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
         starting_model=0.01,
         conductivity_model=1e-2,
         max_global_iterations=0,
-        # store_sensitivities="ram",
         **data_kwargs,
     )
     params.write_input_file(path=tmp_path, name="Inv_run")

@@ -43,7 +43,7 @@ def test_tipper_fwr_run(
     # Run the forward
     geoh5, _, model, survey, topography = setup_inversion_workspace(
         tmp_path,
-        background=1e-3,
+        background=100,
         anomaly=1.0,
         n_electrodes=n_grid_points,
         n_lines=n_grid_points,
@@ -52,7 +52,7 @@ def test_tipper_fwr_run(
         drape_height=15.0,
         flatten=False,
     )
-    model.values = 1.0 / model.values
+
     params = TipperParams(
         forward_only=True,
         geoh5=geoh5,
@@ -63,7 +63,7 @@ def test_tipper_fwr_run(
         data_object=survey.uid,
         starting_model=model.uid,
         model_type="Resistivity (Ohm-m)",
-        conductivity_model=100.0,
+        background_conductivity=1e2,
         txz_real_channel_bool=True,
         txz_imag_channel_bool=True,
         tyz_real_channel_bool=True,
@@ -74,7 +74,7 @@ def test_tipper_fwr_run(
 
     assert not np.any(
         np.exp(fwr_driver.models.starting) > 1.01
-    )  # Should always be returning conductivity
+    )  # Should be returning resistivity values
     fwr_driver.run()
 
 
@@ -139,17 +139,18 @@ def test_tipper_run(tmp_path: Path, max_iterations=1, pytest=True):
             topography_object=topography.uid,
             resolution=0.0,
             data_object=survey.uid,
-            starting_model=0.001,
-            reference_model=0.001,
-            conductivity_model=1e-3,
+            starting_model=1e2,
+            reference_model=1e2,
+            background_conductivity=1e2,
             s_norm=1.0,
             x_norm=1.0,
             y_norm=1.0,
             z_norm=1.0,
             alpha_s=1.0,
             gradient_type="components",
+            model_type="Resistivity (Ohm-m)",
             z_from_topo=False,
-            upper_bound=0.75,
+            lower_bound=0.75,
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e2,
             coolingRate=2,
