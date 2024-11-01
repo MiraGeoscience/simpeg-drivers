@@ -74,6 +74,7 @@ class TileEstimator:
             survey, _, _ = driver.inversion_data.create_survey(
                 mesh=mesh, local_index=tiles[ind]
             )
+            driver_params.tile_spatial = int(count)
             local_sim, local_map = driver.inversion_data.simulation(
                 mesh,
                 active_cells,
@@ -149,7 +150,6 @@ class TileEstimator:
 
         ax2.set_xlabel("Easting (m)")
         ax2.set_ylabel("Northing (m)")
-        ax2.set_title(f"Data distribution for {optimal} tiles")
         ax2.set_aspect("equal")
         plt.show()
 
