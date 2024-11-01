@@ -342,7 +342,7 @@ default_ui_json = {
         "label": "Auto-scale misfits",
         "value": True,
         "verbose": 3,
-        "visible": False,
+        "visible": True,
         "tooltip": "Whether to auto-scale misfits functions (tile, frequency, joint methods) based on chi-factor.",
     },
     "initial_beta_ratio": {
