@@ -18,7 +18,6 @@ import sys
 from copy import deepcopy
 from pathlib import Path
 
-import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
 from geoapps_utils.driver.data import BaseData
@@ -28,71 +27,43 @@ from geoh5py.ui_json.utils import fetch_active_workspace, monitored_directory_co
 from scipy.interpolate import interp1d
 from tqdm import tqdm
 
-from simpeg_drivers.driver import DRIVER_MAP
-from simpeg_drivers.utils.utils import active_from_xyz, tile_locations
+from simpeg_drivers.driver import DRIVER_MAP, InversionDriver
+from simpeg_drivers.utils.utils import (
+    active_from_xyz,
+    fibonacci_series,
+    fit_circle,
+    tile_locations,
+)
 
 
-def fit_sphere(x_val: np.ndarray, y_val) -> tuple:
-    """
-    Compute the least-square sphere fit to a set of points.
+class TileEstimator:
+    def __init__(self, filepath: str | Path):
+        ifile = InputFile.read_ui_json(filepath)
+        self.params = TileParameters.build(ifile)
 
-    :param x_val: x-coordinates of the points
-    :param y_val: y-coordinates of the points
-
-    :return: radius, x0, y0
-    """
-    # Build linear system
-    A = np.c_[x_val * 2, y_val * 2, np.ones_like(x_val)]
-
-    # Right-hand side
-    f = np.zeros((len(x_val), 1))
-    f[:, 0] = (x_val * x_val) + (y_val * y_val)
-
-    # Find the least-square solution
-    coef, _, _, _ = np.linalg.lstsq(A, f, rcond=None)
-
-    # Compute radius
-    radius = (coef[0] ** 2.0 + coef[1] ** 2.0 + coef[2]) ** 0.5
-
-    return radius, coef[0], coef[1]
-
-
-def tile_estimator(file_path: Path):
-    """
-    Estimate the number of tiles required to process a large file.
-    """
-    ifile = InputFile.read_ui_json(file_path)
-    params = parameters.build(ifile)
-
-    driver_dict = deepcopy(params.simulation.options)
-    driver_dict["geoh5"] = params.geoh5
-
-    with fetch_active_workspace(params.geoh5, mode="r+"):
-        driver_inputs = InputFile(ui_json=driver_dict)
-        inversion_type = driver_inputs.data["inversion_type"]
+        driver_dict = deepcopy(self.params.simulation.options)
+        driver_dict["geoh5"] = self.params.geoh5
+        self.driver_inputs = InputFile(ui_json=driver_dict)
+        inversion_type = self.driver_inputs.ui_json["inversion_type"]
 
         mod_name, class_name = DRIVER_MAP.get(inversion_type)
         module = __import__(mod_name, fromlist=[class_name])
-        driver_class = getattr(module, class_name)
+        self.driver_class: type[InversionDriver] = getattr(module, class_name)
 
-        print("Initializing base driver application . . .")
-
-        driver_params = driver_class._params_class.build(driver_inputs)
-        driver = driver_class(driver_params)
+    def start(self):
+        """
+        Run the tile estimator.
+        """
+        driver_params = self.driver_class._params_class.build(self.driver_inputs)  # pylint: disable=protected-access
+        driver = self.driver_class(driver_params)
         mesh = driver.inversion_mesh.mesh
         locations = driver.inversion_data.locations
         active_cells = active_from_xyz(
             driver.inversion_mesh.entity, locations, method="nearest"
         )
-        problem_sizes = []
-        tile_counts = []
-        fob_1, fob_2 = 0, 1
-        for _ in tqdm(range(8), desc="Estimating tiles:"):
-            count = fob_1 + fob_2
-
-            if count > len(locations):
-                break
-
+        results = {}
+        counts = fibonacci_series(10)[2:]
+        for count in tqdm(counts, desc="Estimating tiles:"):
             tiles = tile_locations(
                 locations,
                 count,
@@ -110,26 +81,58 @@ def tile_estimator(file_path: Path):
                 padding_cells=driver_params.padding_cells,
                 tile_id=count,
             )
-            problem_sizes.append(
-                float(survey.nD) * local_map.shape[0] * count * 8 * 1e-9
-            )
-            tile_counts.append(count)
-            fob_1, fob_2 = fob_2, count
+            results[count] = float(survey.nD) * local_map.shape[0] * count * 8 * 1e-9
 
-        tile_counts = np.array(tile_counts)
-        problem_sizes = np.array(problem_sizes)
-        fun = interp1d(tile_counts, problem_sizes)
+        print(f"Computed tile sizes: {results}")
 
-        figure = plt.figure(figsize=(12, 10))
-        ax = plt.subplot(2, 1, 1)
+        optimal = self.estimate_optimal_tile(results)
 
-        rad, x0, y0 = fit_sphere(
+        new_out_group = self.params.simulation.copy(copy_children=False)
+        driver_params.tile_spatial = optimal
+        driver_params.out_group = new_out_group
+        new_out_group.options = driver_params.to_dict(ui_json_format=True)
+        new_out_group.metadata = None
+
+        if self.params.out_group is not None:
+            new_out_group.parent = self.params.out_group
+
+        if self.params.render_plot:
+            figure = self.plot(results, locations, optimal)
+            path = self.params.geoh5.h5file.parent / "tile_estimator.png"
+            new_out_group.add_file(path)
+            figure.savefig(path)
+
+        if self.params.monitoring_directory is not None:
+            monitored_directory_copy(self.params.monitoring_directory, new_out_group)
+
+    @staticmethod
+    def estimate_optimal_tile(results) -> int:
+        """
+        Estimate the optimal number of tiles to use using a circle fit.
+        """
+        tile_counts = np.array(list(results.keys()))
+        problem_sizes = np.array(list(results.values()))
+        rad, x0, y0 = fit_circle(
             tile_counts / tile_counts.max(), problem_sizes / problem_sizes.max()
         )
         axis = np.r_[x0, y0]
         axis /= np.linalg.norm(axis)
 
         optimal = np.max([1, int((x0 - axis[0] * rad)[0] * tile_counts.max())])
+        return int(optimal)
+
+    @staticmethod
+    def plot(results: dict, locations: np.ndarray, optimal: int):
+        """
+        Plot the results of the tile estimator.
+        """
+        tile_counts = np.array(list(results.keys()))
+        problem_sizes = np.array(list(results.values()))
+        fun = interp1d(tile_counts, problem_sizes)
+
+        figure = plt.figure(figsize=(12, 10))
+        ax = plt.subplot(2, 1, 1)
+
         ax.plot(tile_counts, problem_sizes)
         ax.plot(optimal, fun(optimal), "ro")
         ax.set_xlabel("Number of tiles")
@@ -150,33 +153,23 @@ def tile_estimator(file_path: Path):
         ax2.set_aspect("equal")
         plt.show()
 
-        figure.savefig(file_path.parent / "tile_estimator.png")
-
-        new_out_group = params.simulation.copy(copy_children=False)
-        driver_params.tile_spatial = optimal
-        driver_params.out_group = new_out_group
-        new_out_group.options = driver_params.to_dict(ui_json_format=True)
-        new_out_group.metadata = None
-        new_out_group.add_file(file_path.parent / "tile_estimator.png")
-
-        if params.out_group is not None:
-            new_out_group.parent = params.out_group
-
-        if params.monitoring_directory is not None:
-            monitored_directory_copy(params.monitoring_directory, new_out_group)
+        return figure
 
 
-class parameters(BaseData):
+class TileParameters(BaseData):
     """
     Parameters for the tile estimator.
     """
 
     simulation: SimPEGGroup
+    render_plot: bool = True
     out_group: UIJsonGroup | None = None
 
 
 if __name__ == "__main__":
     file = Path(sys.argv[1]).resolve()
     # file = Path(r"C:\Users\dominiquef\Desktop\Tests\tile_estimator.ui.json")
-    tile_estimator(file)
-    sys.stdout.close()
+    tile_driver = TileEstimator(file)
+
+    with fetch_active_workspace(tile_driver.params.geoh5, mode="r+"):
+        tile_driver.start()

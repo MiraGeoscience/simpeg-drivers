@@ -10,10 +10,14 @@
     "workspace_geoh5": "",
     "simulation": {
         "main": true,
-        "group": "Joint",
         "label": "Group A",
         "groupType": "{55ed3daf-c192-4d4b-a439-60fa987fe2b8}",
         "value": ""
+    },
+    "render_plot": {
+        "main": true,
+        "label": "Render Plot",
+        "value": true
     },
     "out_group": {
         "label": "UIJson group",
