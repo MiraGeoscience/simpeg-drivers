@@ -52,7 +52,7 @@ class InversionBaseParams(BaseParams):
             forward_only if input_file is None else input_file.data["forward_only"]
         )
         self._active_model: UUID = None
-        self._auto_scale_misfits: bool = True
+        self._auto_scale_misfits: bool = False  # Default to previous versions
         self._topography_object: UUID = None
         self._topography: UUID | float = None
         self._data_object: UUID = None
