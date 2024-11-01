@@ -32,7 +32,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.0020959218368283884, "phi_d": 0.3008, "phi_m": 7209}
+target_run = {"data_norm": 0.0055932, "phi_d": 7.346, "phi_m": 472.2}
 
 
 def test_tipper_fwr_run(
@@ -43,7 +43,7 @@ def test_tipper_fwr_run(
     # Run the forward
     geoh5, _, model, survey, topography = setup_inversion_workspace(
         tmp_path,
-        background=1e-3,
+        background=100,
         anomaly=1.0,
         n_electrodes=n_grid_points,
         n_lines=n_grid_points,
@@ -52,7 +52,7 @@ def test_tipper_fwr_run(
         drape_height=15.0,
         flatten=False,
     )
-    model.values = 1.0 / model.values
+
     params = TipperParams(
         forward_only=True,
         geoh5=geoh5,
@@ -63,7 +63,7 @@ def test_tipper_fwr_run(
         data_object=survey.uid,
         starting_model=model.uid,
         model_type="Resistivity (Ohm-m)",
-        conductivity_model=100.0,
+        background_conductivity=1e2,
         txz_real_channel_bool=True,
         txz_imag_channel_bool=True,
         tyz_real_channel_bool=True,
@@ -72,9 +72,8 @@ def test_tipper_fwr_run(
     params.workpath = tmp_path
     fwr_driver = TipperDriver(params)
 
-    assert not np.any(
-        np.exp(fwr_driver.models.starting) > 1.01
-    )  # Should always be returning conductivity
+    # Should always be returning conductivity for simpeg simulations
+    assert not np.any(np.exp(fwr_driver.models.starting) > 1.01)
     fwr_driver.run()
 
 
@@ -114,7 +113,7 @@ def test_tipper_run(tmp_path: Path, max_iterations=1, pytest=True):
                     {
                         f"uncertainty_{comp}_[{ind}]": {
                             "values": np.ones_like(data_entity.values)
-                            * np.percentile(np.abs(data_entity.values), 5)
+                            * np.percentile(np.abs(data_entity.values), 1)
                         }
                     }
                 )
@@ -139,22 +138,25 @@ def test_tipper_run(tmp_path: Path, max_iterations=1, pytest=True):
             topography_object=topography.uid,
             resolution=0.0,
             data_object=survey.uid,
-            starting_model=0.001,
-            reference_model=0.001,
-            conductivity_model=1e-3,
+            starting_model=1e2,
+            reference_model=1e2,
+            background_conductivity=1e2,
             s_norm=1.0,
             x_norm=1.0,
             y_norm=1.0,
             z_norm=1.0,
             alpha_s=1.0,
             gradient_type="components",
+            model_type="Resistivity (Ohm-m)",
             z_from_topo=False,
-            upper_bound=0.75,
+            lower_bound=0.75,
             max_global_iterations=max_iterations,
-            initial_beta_ratio=1e2,
-            coolingRate=2,
+            initial_beta_ratio=1e3,
+            starting_chi_factor=1.0,
+            coolingRate=1,
             prctile=100,
-            chi_factor=0.1,
+            chi_factor=1.0,
+            max_line_search_iterations=5,
             store_sensitivities="ram",
             **data_kwargs,
         )
