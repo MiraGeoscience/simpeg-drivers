@@ -38,7 +38,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.003936, "phi_d": 3.956, "phi_m": 13.57}
+target_run = {"data_norm": 0.0042988, "phi_d": 50.2, "phi_m": 11.1}
 
 
 def test_magnetotellurics_fwr_run(
@@ -128,7 +128,7 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
                     {
                         f"uncertainty_{comp}_[{ind}]": {
                             "values": np.ones_like(data_entity.values)
-                            * np.percentile(np.abs(data_entity.values), 10)
+                            * np.percentile(np.abs(data_entity.values), 5)
                         }
                     }
                 )
@@ -164,11 +164,12 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
             z_norm=1.0,
             gradient_type="components",
             z_from_topo=False,
+            coolingRate=1,
             lower_bound=0.75,
             model_type="Resistivity (Ohm-m)",
             background_conductivity=100.0,
             max_global_iterations=max_iterations,
-            initial_beta_ratio=1e2,
+            initial_beta_ratio=1e3,
             prctile=100,
             store_sensitivities="ram",
             **data_kwargs,
