@@ -337,6 +337,14 @@ default_ui_json = {
         "enabled": True,
         "tooltip": "The global target data misfit value.",
     },
+    "auto_scale_misfits": {
+        "group": "Cooling schedule/target",
+        "label": "Auto-scale misfits",
+        "value": True,
+        "verbose": 3,
+        "visible": False,
+        "tooltip": "Whether to auto-scale misfits functions (tile, frequency, joint methods) based on chi-factor.",
+    },
     "initial_beta_ratio": {
         "min": 0.0,
         "precision": 2,

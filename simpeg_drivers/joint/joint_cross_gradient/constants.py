@@ -64,6 +64,7 @@ inversion_defaults = {
     "beta_tol": 0.5,
     "prctile": 95,
     "chi_factor": 1.0,
+    "auto_scale_misfits": True,
     "initial_beta_ratio": 1e2,
     "initial_beta": None,
     "coolingFactor": 2.0,
