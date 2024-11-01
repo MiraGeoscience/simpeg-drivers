@@ -89,7 +89,7 @@ inversion_defaults = {
     "z_norm": 2.0,
     "gradient_type": "total",
     "max_irls_iterations": 25,
-    "starting_chi_factor": 2.0,
+    "starting_chi_factor": 1.0,
     "beta_tol": 0.5,
     "prctile": 95,
     "chi_factor": 1.0,

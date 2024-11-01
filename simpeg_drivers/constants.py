@@ -322,7 +322,7 @@ default_ui_json = {
         "group": "Sparse/blocky model",
         "label": "IRLS start chi factor",
         "enabled": True,
-        "value": 2.0,
+        "value": 1.0,
         "tooltip": "This chi factor will be used to determine the misfit threshold after which IRLS iterations begin.",
         "verbose": 3,
     },

@@ -77,7 +77,7 @@ class InversionBaseParams(BaseParams):
         self._coolEps_q: bool = True
         self._coolEpsFact: float = 1.2
         self._beta_search: bool = False
-        self._starting_chi_factor: float = 2.0
+        self._starting_chi_factor: float = 1.0
         self._max_irls_iterations: int = None
         self._max_global_iterations: int = None
         self._max_line_search_iterations: int = None
