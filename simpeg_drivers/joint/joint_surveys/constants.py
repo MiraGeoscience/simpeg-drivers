@@ -44,6 +44,7 @@ inversion_defaults = {
     "group_c": None,
     "group_c_multiplier": 1.0,
     "mesh": None,
+    "model_type": "Conductivity (S/m)",
     "starting_model": None,
     "reference_model": None,
     "lower_bound": None,
@@ -93,6 +94,14 @@ inversion_defaults = {
 default_ui_json = {
     "title": "SimPEG Joint Surveys Inversion",
     "inversion_type": "joint surveys",
+    "model_type": {
+        "choiceList": ["Conductivity (S/m)", "Resistivity (Ohm-m)"],
+        "main": True,
+        "group": "Mesh and Models",
+        "label": "Model units",
+        "tooltip": "Select the units of the model.",
+        "value": "Conductivity (S/m)",
+    },
     "starting_model": {
         "association": "Cell",
         "dataType": "Float",
@@ -136,7 +145,7 @@ default_ui_json = {
         "association": "Cell",
         "main": True,
         "dataType": "Float",
-        "group": "Mesh and models",
+        "group": "Mesh and Models",
         "isValue": False,
         "parent": "mesh",
         "label": "Reference",

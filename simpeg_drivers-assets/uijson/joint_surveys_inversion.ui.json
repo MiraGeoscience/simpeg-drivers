@@ -68,6 +68,17 @@
         "enabled": false,
         "optional": true
     },
+    "model_type": {
+        "choiceList": [
+            "Conductivity (S/m)",
+            "Resistivity (Ohm-m)"
+        ],
+        "main": true,
+        "group": "Mesh and Models",
+        "label": "Model units",
+        "tooltip": "Select the units of the model.",
+        "value": "Conductivity (S/m)"
+    },
     "starting_model": {
         "association": "Cell",
         "dataType": "Float",
@@ -85,7 +96,7 @@
         "association": "Cell",
         "main": true,
         "dataType": "Float",
-        "group": "Mesh and models",
+        "group": "Mesh and Models",
         "isValue": true,
         "parent": "mesh",
         "label": "Reference",
