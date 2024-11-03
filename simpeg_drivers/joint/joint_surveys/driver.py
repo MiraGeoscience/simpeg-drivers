@@ -18,15 +18,20 @@
 
 from __future__ import annotations
 
+from logging import getLogger
+
 import numpy as np
 from geoh5py.shared.utils import fetch_active_workspace
 from simpeg import maps
 
-from simpeg_drivers.components.factories import DirectivesFactory
+from simpeg_drivers.components.factories import DirectivesFactory, SaveModelGeoh5Factory
 from simpeg_drivers.joint.driver import BaseJointDriver
 
 from .constants import validations
 from .params import JointSurveysParams
+
+
+logger = getLogger(__name__)
 
 
 class JointSurveyDriver(BaseJointDriver):
@@ -56,8 +61,24 @@ class JointSurveyDriver(BaseJointDriver):
                 norm = np.array(np.sum(projection, axis=1)).flatten()
                 model = (projection * model_local_values) / (norm + 1e-8)
 
-                if self.drivers[0].models.is_sigma:
+                if self.drivers[0].models.is_sigma and model_type in [
+                    "starting",
+                    "reference",
+                    "lower_bound",
+                    "upper_bound",
+                    "conductivity",
+                ]:
                     model = np.exp(model)
+                    if (
+                        getattr(self.params, "model_type", None)
+                        == "Resistivity (Ohm-m)"
+                    ):
+                        logger.info(
+                            "Converting input %s model to %s",
+                            model_type,
+                            getattr(self.params, "model_type", None),
+                        )
+                        model = 1.0 / model
 
                 getattr(self.models, f"_{model_type}").model = model
 
@@ -77,6 +98,9 @@ class JointSurveyDriver(BaseJointDriver):
                 directives_list = []
                 count = 0
                 for driver in self.drivers:
+                    if getattr(driver.params, "model_type", None) is not None:
+                        driver.params.model_type = self.params.model_type
+
                     driver_directives = DirectivesFactory(driver)
 
                     save_model = driver_directives.save_iteration_model_directive
@@ -84,6 +108,7 @@ class JointSurveyDriver(BaseJointDriver):
                         driver.data_misfit.model_map,
                         *save_model.transforms,
                     ]
+
                     directives_list.append(save_model)
 
                     if driver_directives.save_property_group is not None:
@@ -105,13 +130,15 @@ class JointSurveyDriver(BaseJointDriver):
 
                     count += n_tiles
 
-                self._directives = DirectivesFactory(self)
-                global_model_save = self._directives.save_iteration_model_directive
-                if self.models.is_sigma:
-                    global_model_save.transforms += [
-                        maps.ExpMap(self.inversion_mesh.mesh)
-                    ]
+                model_factory = SaveModelGeoh5Factory(self.params)
+                model_factory.factory_type = self.drivers[0].params.inversion_type
+                global_model_save = model_factory.build(
+                    inversion_object=self.inversion_mesh,
+                    active_cells=self.models.active_cells,
+                    name="Model",
+                )
 
+                self._directives = DirectivesFactory(self)
                 if self._directives.save_property_group is not None:
                     directives_list.append(self._directives.save_property_group)
 
