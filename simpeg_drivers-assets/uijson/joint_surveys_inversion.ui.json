@@ -68,6 +68,17 @@
         "enabled": false,
         "optional": true
     },
+    "model_type": {
+        "choiceList": [
+            "Conductivity (S/m)",
+            "Resistivity (Ohm-m)"
+        ],
+        "main": true,
+        "group": "Mesh and Models",
+        "label": "Model units",
+        "tooltip": "Select the units of the model.",
+        "value": "Conductivity (S/m)"
+    },
     "starting_model": {
         "association": "Cell",
         "dataType": "Float",
@@ -85,7 +96,7 @@
         "association": "Cell",
         "main": true,
         "dataType": "Float",
-        "group": "Mesh and models",
+        "group": "Mesh and Models",
         "isValue": true,
         "parent": "mesh",
         "label": "Reference",
@@ -317,7 +328,7 @@
         "group": "Sparse/blocky model",
         "label": "IRLS start chi factor",
         "enabled": true,
-        "value": 2.0,
+        "value": 1.0,
         "tooltip": "This chi factor will be used to determine the misfit threshold after which IRLS iterations begin.",
         "verbose": 3
     },
@@ -348,6 +359,14 @@
         "value": 1.0,
         "enabled": true,
         "tooltip": "The global target data misfit value."
+    },
+    "auto_scale_misfits": {
+        "group": "Cooling schedule/target",
+        "label": "Auto-scale misfits",
+        "value": true,
+        "verbose": 3,
+        "visible": true,
+        "tooltip": "Whether to auto-scale misfits functions (tile, frequency, joint methods) based on chi-factor."
     },
     "initial_beta_ratio": {
         "min": 0.0,

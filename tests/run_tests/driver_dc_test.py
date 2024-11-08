@@ -124,6 +124,7 @@ def test_dc_3d_run(
             upper_bound=10,
             tile_spatial=n_lines,
             store_sensitivities="ram",
+            auto_scale_misfits=False,
             save_sensitivities=True,
             coolingRate=1,
             chi_factor=0.5,
@@ -131,7 +132,8 @@ def test_dc_3d_run(
         params.write_input_file(path=tmp_path, name="Inv_run")
 
     driver = DirectCurrent3DDriver.start(str(tmp_path / "Inv_run.ui.json"))
-
+    # Should not be auto-scaling
+    np.testing.assert_allclose(driver.data_misfit.multipliers, [1, 1, 1])
     output = get_inversion_output(
         driver.params.geoh5.h5file, driver.params.out_group.uid
     )

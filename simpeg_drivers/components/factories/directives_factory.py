@@ -244,11 +244,14 @@ class DirectivesFactory:
 
     @property
     def scale_misfits(self):
-        if self._scale_misfits is None:
-            if len(self.driver.data_misfit.objfcts) > 1:
-                self._scale_misfits = directives.ScaleMisfitMultipliers(
-                    self.params.geoh5.h5file.parent
-                )
+        if (
+            self._scale_misfits is None
+            and self.params.auto_scale_misfits
+            and len(self.driver.data_misfit.objfcts) > 1
+        ):
+            self._scale_misfits = directives.ScaleMisfitMultipliers(
+                self.params.geoh5.h5file.parent
+            )
         return self._scale_misfits
 
     @property

@@ -145,7 +145,7 @@ class InversionModelCollection:
         mstart = self._starting.model.copy()
 
         if mstart is not None and self.is_sigma:
-            if self.driver.params.model_type == "Resistivity (Ohm-m)":
+            if getattr(self.driver.params, "model_type", None) == "Resistivity (Ohm-m)":
                 mstart = 1 / mstart
 
             mstart = np.log(mstart)
@@ -166,7 +166,10 @@ class InversionModelCollection:
 
         ref_model = mref.copy()
 
-        if self.is_sigma and self.driver.params.model_type == "Resistivity (Ohm-m)":
+        if (
+            self.is_sigma
+            and getattr(self.driver.params, "model_type", None) == "Resistivity (Ohm-m)"
+        ):
             ref_model = 1 / ref_model
 
         ref_model = np.log(ref_model) if self.is_sigma else ref_model
@@ -188,7 +191,7 @@ class InversionModelCollection:
         if self.is_sigma:
             is_finite = np.isfinite(lbound)
 
-            if self.driver.params.model_type == "Resistivity (Ohm-m)":
+            if getattr(self.driver.params, "model_type", None) == "Resistivity (Ohm-m)":
                 lbound[is_finite] = 1 / lbound[is_finite]
 
             lbound[is_finite] = np.log(lbound[is_finite])
@@ -210,7 +213,7 @@ class InversionModelCollection:
         if self.is_sigma:
             is_finite = np.isfinite(ubound)
 
-            if self.driver.params.model_type == "Resistivity (Ohm-m)":
+            if getattr(self.driver.params, "model_type", None) == "Resistivity (Ohm-m)":
                 ubound[is_finite] = 1 / ubound[is_finite]
 
             ubound[is_finite] = np.log(ubound[is_finite])
@@ -225,7 +228,7 @@ class InversionModelCollection:
         mstart = self._conductivity.model.copy()
 
         if mstart is not None and self.is_sigma:
-            if self.driver.params.model_type == "Resistivity (Ohm-m)":
+            if getattr(self.driver.params, "model_type", None) == "Resistivity (Ohm-m)":
                 mstart = 1 / mstart
 
             mstart = np.log(mstart)

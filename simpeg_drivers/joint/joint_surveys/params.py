@@ -37,8 +37,18 @@ class JointSurveysParams(BaseJointParams):
         self._inversion_defaults = deepcopy(inversion_defaults)
         self._inversion_type = "joint surveys"
         self._validations = validations
+        self._model_type = "Conductivity (S/m)"
 
         super().__init__(input_file=input_file, forward_only=forward_only, **kwargs)
+
+    @property
+    def model_type(self):
+        """Model units."""
+        return self._model_type
+
+    @model_type.setter
+    def model_type(self, val):
+        self.setter_validator("model_type", val)
 
     @property
     def physical_property(self):
