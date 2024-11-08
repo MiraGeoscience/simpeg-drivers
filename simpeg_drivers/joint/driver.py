@@ -25,7 +25,6 @@ from pathlib import Path
 
 import numpy as np
 from geoh5py.shared.utils import fetch_active_workspace
-from geoh5py.ui_json import InputFile
 from octree_creation_app.utils import (
     collocate_octrees,
     create_octree_from_octrees,
@@ -35,10 +34,10 @@ from simpeg import directives
 from simpeg.maps import TileMap
 from simpeg.objective_function import ComboObjectiveFunction
 
-from simpeg_drivers import DRIVER_MAP
 from simpeg_drivers.components.factories import SaveDataGeoh5Factory
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.joint.params import BaseJointParams
+from simpeg_drivers.utils.utils import simpeg_group_to_driver
 
 
 class BaseJointDriver(InversionDriver):
@@ -82,18 +81,9 @@ class BaseJointDriver(InversionDriver):
                 _ = group.options  # Triggers something... otherwise ui_json is empty
                 group = group.copy(parent=self.params.out_group)
 
-                ui_json = group.options
-                ui_json["geoh5"] = self.workspace
+                driver = simpeg_group_to_driver(group, self.workspace)
 
-                ifile = InputFile(ui_json=ui_json)
-                mod_name, class_name = DRIVER_MAP.get(ui_json["inversion_type"])
-                module = __import__(mod_name, fromlist=[class_name])
-                inversion_driver = getattr(module, class_name)
-                params = inversion_driver._params_class(  # pylint: disable=W0212
-                    ifile, out_group=group
-                )
-                driver = inversion_driver(params)
-                physical_property.append(params.physical_property)
+                physical_property.append(driver.params.physical_property)
                 drivers.append(driver)
 
             self._drivers = drivers

@@ -15,54 +15,52 @@
 #
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 import sys
-from copy import deepcopy
 from pathlib import Path
+from typing import ClassVar
 
 import matplotlib.pyplot as plt
 import numpy as np
 from geoapps_utils.driver.data import BaseData
+from geoapps_utils.utils.numerical import fibonacci_series, fit_circle
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
 from geoh5py.ui_json import InputFile
 from geoh5py.ui_json.utils import fetch_active_workspace, monitored_directory_copy
 from scipy.interpolate import interp1d
 from tqdm import tqdm
 
+from simpeg_drivers import assets_path
 from simpeg_drivers.driver import DRIVER_MAP, InversionDriver
 from simpeg_drivers.utils.utils import (
     active_from_xyz,
-    fibonacci_series,
-    fit_circle,
+    simpeg_group_to_driver,
     tile_locations,
 )
 
 
 class TileEstimator:
-    def __init__(self, filepath: str | Path):
-        ifile = InputFile.read_ui_json(filepath)
-        self.params = TileParameters.build(ifile)
+    def __init__(self, input_file: str | Path | InputFile):
+        if isinstance(input_file, str | Path):
+            input_file = InputFile.read_ui_json(input_file)
 
-        driver_dict = deepcopy(self.params.simulation.options)
-        driver_dict["geoh5"] = self.params.geoh5
-        self.driver_inputs = InputFile(ui_json=driver_dict)
-        inversion_type = self.driver_inputs.ui_json["inversion_type"]
+        if not isinstance(input_file, InputFile):
+            raise ValueError(
+                "Input must be a path to a UI JSON file or an InputFile instance."
+            )
 
-        mod_name, class_name = DRIVER_MAP.get(inversion_type)
-        module = __import__(mod_name, fromlist=[class_name])
-        self.driver_class: type[InversionDriver] = getattr(module, class_name)
+        self.params = TileParameters.build(input_file)
 
-    def start(self):
+    def start(self) -> SimPEGGroup:
         """
         Run the tile estimator.
         """
-        driver_params = self.driver_class._params_class.build(self.driver_inputs)  # pylint: disable=protected-access
-        driver = self.driver_class(driver_params)
+        driver = simpeg_group_to_driver(self.params.simulation, self.params.geoh5)
         mesh = driver.inversion_mesh.mesh
         locations = driver.inversion_data.locations
         active_cells = active_from_xyz(
             driver.inversion_mesh.entity, locations, method="nearest"
         )
         results = {}
-        counts = fibonacci_series(10)[2:]
+        counts = fibonacci_series(15)[2:]
         for count in tqdm(counts, desc="Estimating tiles:"):
             tiles = tile_locations(
                 locations,
@@ -74,12 +72,12 @@ class TileEstimator:
             survey, _, _ = driver.inversion_data.create_survey(
                 mesh=mesh, local_index=tiles[ind]
             )
-            driver_params.tile_spatial = int(count)
+            driver.params.tile_spatial = int(count)
             local_sim, local_map = driver.inversion_data.simulation(
                 mesh,
                 active_cells,
                 survey,
-                padding_cells=driver_params.padding_cells,
+                padding_cells=driver.params.padding_cells,
                 tile_id=count,
             )
             results[count] = float(survey.nD) * local_map.shape[0] * count * 8 * 1e-9
@@ -89,9 +87,9 @@ class TileEstimator:
         optimal = self.estimate_optimal_tile(results)
 
         new_out_group = self.params.simulation.copy(copy_children=False)
-        driver_params.tile_spatial = optimal
-        driver_params.out_group = new_out_group
-        new_out_group.options = driver_params.to_dict(ui_json_format=True)
+        driver.params.tile_spatial = optimal
+        driver.params.out_group = new_out_group
+        new_out_group.options = driver.params.to_dict(ui_json_format=True)
         new_out_group.metadata = None
 
         if self.params.out_group is not None:
@@ -100,11 +98,14 @@ class TileEstimator:
         if self.params.render_plot:
             figure = self.plot(results, locations, optimal)
             path = self.params.geoh5.h5file.parent / "tile_estimator.png"
+            figure.savefig(path)
             new_out_group.add_file(path)
             figure.savefig(path)
 
         if self.params.monitoring_directory is not None:
             monitored_directory_copy(self.params.monitoring_directory, new_out_group)
+
+        return new_out_group
 
     @staticmethod
     def estimate_optimal_tile(results: dict) -> int:
@@ -115,14 +116,15 @@ class TileEstimator:
         """
         tile_counts = np.array(list(results.keys()))
         problem_sizes = np.array(list(results.values()))
-        problem_sizes -= problem_sizes.min()
-        rad, x0, y0 = fit_circle(
-            tile_counts / tile_counts.max(), problem_sizes / problem_sizes.max()
-        )
-        axis = np.r_[x0, y0]
-        axis /= np.linalg.norm(axis)
 
-        optimal = np.max([1, int((x0 - axis[0] * rad)[0] * tile_counts.max())])
+        radiis = [np.inf]
+        for ind in range(1, len(problem_sizes) - 1):
+            size = problem_sizes[ind - 1 : ind + 2]
+            counts = tile_counts[ind - 1 : ind + 2]
+            rad, _, _ = fit_circle(counts / counts.max(), size / size.max())
+            radiis.append(rad[0])
+
+        optimal = tile_counts[np.argmin(radiis)]
         return int(optimal)
 
     @staticmethod
@@ -168,6 +170,8 @@ class TileParameters(BaseData):
     """
     Parameters for the tile estimator.
     """
+
+    default_ui_json: ClassVar[Path] = assets_path() / "uijson/tile_estimator.ui.json"
 
     simulation: SimPEGGroup
     render_plot: bool = True
