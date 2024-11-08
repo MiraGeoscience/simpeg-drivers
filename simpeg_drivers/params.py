@@ -52,6 +52,7 @@ class InversionBaseParams(BaseParams):
             forward_only if input_file is None else input_file.data["forward_only"]
         )
         self._active_model: UUID = None
+        self._auto_scale_misfits: bool = False  # Default to previous versions
         self._topography_object: UUID = None
         self._topography: UUID | float = None
         self._data_object: UUID = None
@@ -77,7 +78,7 @@ class InversionBaseParams(BaseParams):
         self._coolEps_q: bool = True
         self._coolEpsFact: float = 1.2
         self._beta_search: bool = False
-        self._starting_chi_factor: float = 2.0
+        self._starting_chi_factor: float = 1.0
         self._max_irls_iterations: int = None
         self._max_global_iterations: int = None
         self._max_line_search_iterations: int = None
@@ -256,6 +257,14 @@ class InversionBaseParams(BaseParams):
     @active_model.setter
     def active_model(self, val):
         self.setter_validator("active_model", val, fun=self._uuid_promoter)
+
+    @property
+    def auto_scale_misfits(self):
+        return self._auto_scale_misfits
+
+    @auto_scale_misfits.setter
+    def auto_scale_misfits(self, val):
+        self.setter_validator("auto_scale_misfits", val)
 
     @property
     def topography_object(self):

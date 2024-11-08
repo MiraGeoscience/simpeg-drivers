@@ -322,7 +322,7 @@ default_ui_json = {
         "group": "Sparse/blocky model",
         "label": "IRLS start chi factor",
         "enabled": True,
-        "value": 2.0,
+        "value": 1.0,
         "tooltip": "This chi factor will be used to determine the misfit threshold after which IRLS iterations begin.",
         "verbose": 3,
     },
@@ -336,6 +336,14 @@ default_ui_json = {
         "value": 1.0,
         "enabled": True,
         "tooltip": "The global target data misfit value.",
+    },
+    "auto_scale_misfits": {
+        "group": "Cooling schedule/target",
+        "label": "Auto-scale misfits",
+        "value": True,
+        "verbose": 3,
+        "visible": True,
+        "tooltip": "Whether to auto-scale misfits functions (tile, frequency, joint methods) based on chi-factor.",
     },
     "initial_beta_ratio": {
         "min": 0.0,
