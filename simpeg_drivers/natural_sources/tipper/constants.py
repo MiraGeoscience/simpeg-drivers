@@ -304,12 +304,8 @@ default_ui_json = {
         "value": 1e-3,
     },
     "background_conductivity": {
-        "association": ["Cell", "Vertex"],
-        "dataType": "Float",
         "group": "Mesh and models",
         "main": True,
-        "isValue": True,
-        "parent": "mesh",
         "label": "Background",
         "property": None,
         "value": 1e-3,
