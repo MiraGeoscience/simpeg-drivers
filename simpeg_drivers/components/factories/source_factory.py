@@ -24,6 +24,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from geoapps_utils.driver.params import BaseParams
 
+from copy import deepcopy
+
 import numpy as np
 from geoapps_utils.utils.transformations import rotate_xyz
 from geoh5py.objects import LargeLoopGroundTEMReceivers
@@ -140,7 +142,13 @@ class SourcesFactory(SimPEGFactory):
                 )
             )
         if self.factory_type in ["magnetotellurics", "tipper"]:
-            kwargs["sigma_primary"] = [self.params.background_conductivity]
+            background = deepcopy(self.params.background_conductivity)
+
+            if getattr(self.params, "model_type", None) == "Resistivity (Ohm-m)":
+                background **= -1.0
+
+            kwargs["sigma_primary"] = [background]
+
         if self.factory_type in ["fem"]:
             kwargs["location"] = locations
         if self.factory_type in ["tdem"]:
