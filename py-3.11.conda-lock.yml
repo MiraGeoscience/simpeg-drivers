@@ -1045,7 +1045,7 @@ package:
   category: dev
   optional: true
 - name: debugpy
-  version: 1.8.7
+  version: 1.8.8
   manager: conda
   platform: linux-64
   dependencies:
@@ -1054,14 +1054,14 @@ package:
     libstdcxx: '>=13'
     python: '>=3.11,<3.12.0a0'
     python_abi: 3.11.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/debugpy-1.8.7-py311hfdbb021_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/debugpy-1.8.8-py311hfdbb021_0.conda
   hash:
-    md5: e02dac14097eb3605342cd35c13f0a26
-    sha256: 540d6b509d68ba77f6ad06f3bc419ba42930f1b3139ab4fda0476e12de8d7f4d
+    md5: 698c1e95b2af120f318a0bdec35552b6
+    sha256: 4a326b01252ebae38a84cb8c37470283ebb37fd1db71469e0e23ca253a0fbe83
   category: dev
   optional: true
 - name: debugpy
-  version: 1.8.7
+  version: 1.8.8
   manager: conda
   platform: win-64
   dependencies:
@@ -1070,10 +1070,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://conda.anaconda.org/conda-forge/win-64/debugpy-1.8.7-py311hda3d55a_0.conda
+  url: https://conda.anaconda.org/conda-forge/win-64/debugpy-1.8.8-py311hda3d55a_0.conda
   hash:
-    md5: 351ff5f8591856aa848a2cc89ca53957
-    sha256: 714deaaa5ed757b259062f7979c2ed5e9fea66361ef72a5b63c644ea4b75232d
+    md5: 77d256e98801d3f1066993c6602579c0
+    sha256: ee15fa3cb625d02cba59cb8b60575de721d44798029be8b2c961a613f714ff7e
   category: dev
   optional: true
 - name: decorator

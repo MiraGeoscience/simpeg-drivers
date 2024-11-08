@@ -17,7 +17,7 @@ repos:
     -   id: pycln
         args: [--config=pyproject.toml]
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.7.0
+    rev: v0.7.2
     hooks:
     -   id: ruff
         args:
@@ -37,7 +37,7 @@ repos:
 #        ]
 #        exclude: ^(docs|simpeg_drivers-assets)/
 -   repo: https://github.com/codingjoe/relint
-    rev: 3.3.0
+    rev: 3.3.1
     hooks:
     -   id: relint
         args: [-W]  # to fail on warnings

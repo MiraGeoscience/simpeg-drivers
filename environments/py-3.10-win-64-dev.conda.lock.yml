@@ -42,7 +42,7 @@ dependencies:
   - cytoolz=1.0.0=py310ha8f682b_1
   - dask-core=2024.6.2=pyhd8ed1ab_0
   - dataclasses=0.8=pyhc8e2a94_3
-  - debugpy=1.8.7=py310h9e98ed7_0
+  - debugpy=1.8.8=py310h9e98ed7_0
   - decorator=5.1.1=pyhd8ed1ab_0
   - defusedxml=0.7.1=pyhd8ed1ab_0
   - dill=0.3.9=pyhd8ed1ab_0

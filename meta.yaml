@@ -1,5 +1,5 @@
 {% set name = "simpeg-drivers" %}
-{% set version = "0.2.0a1" %}
+{% set version = "0.3.0a1" %}
 
 package:
   name: {{ name|lower }}
@@ -47,7 +47,7 @@ requirements:
   run_constrained:
     - tbb 2021.12.*
     - python-tzdata 2023.4.*
-    - glibc 2.17.*
+    - __glibc 2.17.*
 
 about:
   license: MIT
