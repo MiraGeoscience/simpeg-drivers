@@ -132,6 +132,12 @@ class JointCrossGradientDriver(BaseJointDriver):
                     )
 
                     model_directive.label = driver.params.physical_property
+                    if (
+                        getattr(driver.params, "model_type", None)
+                        == "Resistivity (Ohm-m)"
+                    ):
+                        model_directive.label = "resistivity"
+
                     model_directive.transforms = [wire, *model_directive.transforms]
                     directives_list.append(model_directive)
 

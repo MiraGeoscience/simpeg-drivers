@@ -178,10 +178,15 @@ class InversionModelCollection:
 
     @property
     def lower_bound(self) -> np.ndarray | None:
-        if self._lower_bound.model is None:
+        if getattr(self.driver.params, "model_type", None) == "Resistivity (Ohm-m)":
+            bound_model = self._upper_bound.model
+        else:
+            bound_model = self._lower_bound.model
+
+        if bound_model is None:
             return -np.inf
 
-        lbound = self._lower_bound.model.copy()
+        lbound = bound_model.copy()
 
         if self.is_sigma:
             is_finite = np.isfinite(lbound)
@@ -195,10 +200,15 @@ class InversionModelCollection:
 
     @property
     def upper_bound(self) -> np.ndarray | None:
-        if self._upper_bound.model is None:
+        if getattr(self.driver.params, "model_type", None) == "Resistivity (Ohm-m)":
+            bound_model = self._lower_bound.model
+        else:
+            bound_model = self._upper_bound.model
+
+        if bound_model is None:
             return np.inf
 
-        ubound = self._upper_bound.model.copy()
+        ubound = bound_model.copy()
 
         if self.is_sigma:
             is_finite = np.isfinite(ubound)

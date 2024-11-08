@@ -40,7 +40,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 53.296011, "phi_d": 950.5, "phi_m": 0.2365}
+target_run = {"data_norm": 53.296011, "phi_d": 10950, "phi_m": 0.09101}
 
 
 def test_joint_cross_gradient_fwr_run(
@@ -175,28 +175,30 @@ def test_joint_cross_gradient_inv_run(
             orig_data.append(data.values)
 
             if group.options["inversion_type"] == "gravity":
+                data.values = data.values + np.random.randn(data.values.size) * 1e-2
                 params = GravityParams(
                     geoh5=geoh5,
                     mesh=mesh.uid,
-                    alpha_s=0.0,
+                    alpha_s=1.0,
                     topography_object=topography.uid,
                     data_object=survey.uid,
                     gz_channel=data.uid,
-                    gz_uncertainty=1e-3,
+                    gz_uncertainty=1e-2,
                     starting_model=0.0,
                     reference_model=0.0,
                 )
                 drivers.append(GravityDriver(params))
             elif group.options["inversion_type"] == "direct current 3d":
+                data.values = data.values + np.random.randn(data.values.size) * 5e-4
                 params = DirectCurrent3DParams(
                     geoh5=geoh5,
                     mesh=mesh.uid,
-                    alpha_s=0.0,
+                    alpha_s=1.0,
                     topography_object=topography.uid,
                     data_object=survey.uid,
                     potential_channel=data.uid,
                     model_type="Resistivity (Ohm-m)",
-                    potential_uncertainty=1e-3,
+                    potential_uncertainty=5e-4,
                     tile_spatial=1,
                     starting_model=100.0,
                     reference_model=100.0,
@@ -204,10 +206,11 @@ def test_joint_cross_gradient_inv_run(
                 )
                 drivers.append(DirectCurrent3DDriver(params))
             else:
+                data.values = data.values + np.random.randn(data.values.size) * 10.0
                 params = MagneticVectorParams(
                     geoh5=geoh5,
                     mesh=mesh.uid,
-                    alpha_s=0.0,
+                    alpha_s=1.0,
                     topography_object=topography.uid,
                     inducing_field_strength=group.options["inducing_field_strength"][
                         "value"
@@ -223,7 +226,7 @@ def test_joint_cross_gradient_inv_run(
                     reference_model=0.0,
                     tile_spatial=1,
                     tmi_channel=data.uid,
-                    tmi_uncertainty=1e0,
+                    tmi_uncertainty=1e1,
                 )
                 drivers.append(MagneticVectorDriver(params))
 
@@ -232,12 +235,12 @@ def test_joint_cross_gradient_inv_run(
             geoh5=geoh5,
             topography_object=topography.uid,
             group_a=drivers[0].params.out_group,
-            group_a_multiplier=1e-2,
+            group_a_multiplier=1.0,
             group_b=drivers[1].params.out_group,
-            group_b_multiplier=1e-2,
+            group_b_multiplier=1.0,
             group_c=drivers[2].params.out_group,
             max_global_iterations=max_iterations,
-            initial_beta_ratio=1e2,
+            initial_beta_ratio=1e1,
             cross_gradient_weight_a_b=1e0,
             cross_gradient_weight_c_a=1e0,
             cross_gradient_weight_c_b=1e0,
