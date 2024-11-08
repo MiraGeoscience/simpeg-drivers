@@ -20,6 +20,7 @@ from typing import ClassVar
 
 import matplotlib.pyplot as plt
 import numpy as np
+from discretize import TreeMesh
 from geoapps_utils.driver.data import BaseData
 from geoapps_utils.utils.numerical import fibonacci_series, fit_circle
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
@@ -39,6 +40,11 @@ from simpeg_drivers.utils.utils import (
 
 class TileEstimator:
     def __init__(self, input_file: str | Path | InputFile):
+        self._driver: InversionDriver | None = None
+        self._mesh: TreeMesh | None = None
+        self._locations: np.ndarray | None = None
+        self._active_cells: np.ndarray | None = None
+
         if isinstance(input_file, str | Path):
             input_file = InputFile.read_ui_json(input_file)
 
@@ -53,31 +59,25 @@ class TileEstimator:
         """
         Run the tile estimator.
         """
-        driver = simpeg_group_to_driver(self.params.simulation, self.params.geoh5)
-        mesh = driver.inversion_mesh.mesh
-        locations = driver.inversion_data.locations
-        active_cells = active_from_xyz(
-            driver.inversion_mesh.entity, locations, method="nearest"
-        )
         results = {}
         counts = fibonacci_series(15)[2:]
         for count in tqdm(counts, desc="Estimating tiles:"):
             tiles = tile_locations(
-                locations,
+                self.locations,
                 count,
                 method="kmeans",
             )
             # Get the median tile
             ind = np.argsort([len(tile) for tile in tiles])[int(count / 2)]
-            survey, _, _ = driver.inversion_data.create_survey(
-                mesh=mesh, local_index=tiles[ind]
+            survey, _, _ = self.driver.inversion_data.create_survey(
+                mesh=self.mesh, local_index=tiles[ind]
             )
-            driver.params.tile_spatial = int(count)
-            local_sim, local_map = driver.inversion_data.simulation(
-                mesh,
-                active_cells,
+            self.driver.params.tile_spatial = int(count)
+            local_sim, local_map = self.driver.inversion_data.simulation(
+                self.mesh,
+                self.active_cells,
                 survey,
-                padding_cells=driver.params.padding_cells,
+                padding_cells=self.driver.params.padding_cells,
                 tile_id=count,
             )
             results[count] = float(survey.nD) * local_map.shape[0] * count * 8 * 1e-9
@@ -87,16 +87,16 @@ class TileEstimator:
         optimal = self.estimate_optimal_tile(results)
 
         new_out_group = self.params.simulation.copy(copy_children=False)
-        driver.params.tile_spatial = optimal
-        driver.params.out_group = new_out_group
-        new_out_group.options = driver.params.to_dict(ui_json_format=True)
+        self.driver.params.tile_spatial = optimal
+        self.driver.params.out_group = new_out_group
+        new_out_group.options = self.driver.params.to_dict(ui_json_format=True)
         new_out_group.metadata = None
 
         if self.params.out_group is not None:
             new_out_group.parent = self.params.out_group
 
         if self.params.render_plot:
-            figure = self.plot(results, locations, optimal)
+            figure = self.plot(results, self.locations, optimal)
             path = self.params.geoh5.h5file.parent / "tile_estimator.png"
             figure.savefig(path)
             new_out_group.add_file(path)
@@ -106,6 +106,48 @@ class TileEstimator:
             monitored_directory_copy(self.params.monitoring_directory, new_out_group)
 
         return new_out_group
+
+    @property
+    def driver(self) -> InversionDriver:
+        """
+        Return the driver instance.
+        """
+        if self._driver is None:
+            self._driver = simpeg_group_to_driver(
+                self.params.simulation, self.params.geoh5
+            )
+
+        return self._driver
+
+    @property
+    def mesh(self) -> TreeMesh:
+        """
+        The input Octree mesh.
+        """
+        if self._mesh is None:
+            self._mesh = self.driver.inversion_mesh.mesh
+        return self._mesh
+
+    @property
+    def locations(self) -> np.ndarray:
+        """
+        All receiver locations.
+        """
+        if self._locations is None:
+            self._locations = self.driver.inversion_data.locations
+
+        return self._locations
+
+    @property
+    def active_cells(self) -> np.ndarray:
+        """
+        Active cells in the mesh.
+        """
+        if self._active_cells is None:
+            self._active_cells = active_from_xyz(
+                self.driver.inversion_mesh.entity, self.locations, method="nearest"
+            )
+        return self._active_cells
 
     @staticmethod
     def estimate_optimal_tile(results: dict) -> int:
