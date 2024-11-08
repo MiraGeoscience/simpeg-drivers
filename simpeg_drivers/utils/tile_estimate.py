@@ -30,7 +30,8 @@ from scipy.interpolate import interp1d
 from tqdm import tqdm
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.driver import DRIVER_MAP, InversionDriver
+from simpeg_drivers.components.factories.misfit_factory import MisfitFactory
+from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.utils.utils import (
     active_from_xyz,
     simpeg_group_to_driver,
@@ -69,43 +70,34 @@ class TileEstimator:
             )
             # Get the median tile
             ind = np.argsort([len(tile) for tile in tiles])[int(count / 2)]
-            survey, _, _ = self.driver.inversion_data.create_survey(
-                mesh=self.mesh, local_index=tiles[ind]
-            )
             self.driver.params.tile_spatial = int(count)
-            local_sim, local_map = self.driver.inversion_data.simulation(
+            sim, _, _, mapping = MisfitFactory.create_nested_simulation(
+                self.driver.inversion_data,
                 self.mesh,
                 self.active_cells,
-                survey,
+                tiles[ind],
+                tile_id=ind,
                 padding_cells=self.driver.params.padding_cells,
-                tile_id=count,
             )
-            results[count] = float(survey.nD) * local_map.shape[0] * count * 8 * 1e-9
+
+            # Estimate total size in Gb
+            results[count] = float(sim.survey.nD) * mapping.shape[0] * count * 8 * 1e-9
 
         print(f"Computed tile sizes: {results}")
 
         optimal = self.estimate_optimal_tile(results)
-
-        new_out_group = self.params.simulation.copy(copy_children=False)
-        self.driver.params.tile_spatial = optimal
-        self.driver.params.out_group = new_out_group
-        new_out_group.options = self.driver.params.to_dict(ui_json_format=True)
-        new_out_group.metadata = None
-
-        if self.params.out_group is not None:
-            new_out_group.parent = self.params.out_group
+        out_group = self.generate_optimal_group(optimal)
 
         if self.params.render_plot:
-            figure = self.plot(results, self.locations, optimal)
             path = self.params.geoh5.h5file.parent / "tile_estimator.png"
+            figure = self.plot(results, self.locations, optimal)
             figure.savefig(path)
-            new_out_group.add_file(path)
-            figure.savefig(path)
+            out_group.add_file(path)
 
         if self.params.monitoring_directory is not None:
-            monitored_directory_copy(self.params.monitoring_directory, new_out_group)
+            monitored_directory_copy(self.params.monitoring_directory, out_group)
 
-        return new_out_group
+        return out_group
 
     @property
     def driver(self) -> InversionDriver:
@@ -168,6 +160,21 @@ class TileEstimator:
 
         optimal = tile_counts[np.argmin(radiis)]
         return int(optimal)
+
+    def generate_optimal_group(self, optimal: int):
+        """
+        Generate a new SimPEGGroup with the optimal number of tiles.
+        """
+        out_group = self.params.simulation.copy(copy_children=False)
+        self.driver.params.tile_spatial = optimal
+        self.driver.params.out_group = out_group
+        out_group.options = self.driver.params.to_dict(ui_json_format=True)
+        out_group.metadata = None
+
+        if self.params.out_group is not None:
+            out_group.parent = self.params.out_group
+
+        return out_group
 
     @staticmethod
     def plot(results: dict, locations: np.ndarray, optimal: int):
