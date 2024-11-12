@@ -26,15 +26,9 @@ from simpeg_drivers.utils.tile_estimate import TileEstimator, TileParameters
 from simpeg_drivers.utils.utils import simpeg_group_to_driver
 
 
-# To test the full run and validate the inversion.
-# Move this file out of the test directory and run.
-
-target_run = {"data_norm": 8.71227951689941, "phi_d": 37.52, "phi_m": 5.717e-06}
-
-
 def test_tile_estimator_run(
     tmp_path: Path,
-    n_grid_points=4,
+    n_grid_points=16,
     refinement=(2,),
 ):
     inducing_field = (49999.8, 90.0, 0.0)
@@ -64,12 +58,16 @@ def test_tile_estimator_run(
 
     driver = MagneticScalarDriver(params)
     tile_params = TileParameters(geoh5=geoh5, simulation=driver.out_group)
-    estimator = TileEstimator(tile_params.input_file)
+    estimator = TileEstimator(tile_params)
 
-    group = estimator.start()
+    assert len(estimator.get_results(max_tiles=32)) == 8
 
-    driver = simpeg_group_to_driver(group, geoh5)
+    simpeg_group = estimator.run()
+    driver = simpeg_group_to_driver(simpeg_group, geoh5)
 
     assert driver.inversion_type == "magnetic scalar"
-    assert driver.params.tile_spatial == 3
-    assert len(group.children) == 1 and group.children[0].name == "tile_estimator.png"
+    assert driver.params.tile_spatial == 2
+    assert (
+        len(simpeg_group.children) == 2
+        and simpeg_group.children[0].name == "tile_estimator.png"
+    )

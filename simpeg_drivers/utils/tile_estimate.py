@@ -22,10 +22,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from discretize import TreeMesh
 from geoapps_utils.driver.data import BaseData
+from geoapps_utils.driver.driver import BaseDriver
 from geoapps_utils.utils.numerical import fibonacci_series, fit_circle
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
-from geoh5py.ui_json import InputFile
-from geoh5py.ui_json.utils import fetch_active_workspace, monitored_directory_copy
 from scipy.interpolate import interp1d
 from tqdm import tqdm
 
@@ -39,7 +38,19 @@ from simpeg_drivers.utils.utils import (
 )
 
 
-class TileEstimator:
+class TileParameters(BaseData):
+    """
+    Parameters for the tile estimator.
+    """
+
+    default_ui_json: ClassVar[Path] = assets_path() / "uijson/tile_estimator.ui.json"
+
+    simulation: SimPEGGroup
+    render_plot: bool = True
+    out_group: UIJsonGroup | None = None
+
+
+class TileEstimator(BaseDriver):
     """
     Class to estimate the optimal number of tiles for a given mesh and receiver locations.
 
@@ -48,32 +59,29 @@ class TileEstimator:
     of maximum curvature using a circle fit. This assumes a point of
     diminishing returns in terms of problem size and the overall cost of
     creating more tiles.
-
-    :param input_file: The path to the UI JSON file containing the parameters.
     """
 
-    def __init__(self, input_file: str | Path | InputFile):
+    _params_class = TileParameters
+
+    def __init__(self, params: TileParameters):
         self._driver: InversionDriver | None = None
         self._mesh: TreeMesh | None = None
         self._locations: np.ndarray | None = None
         self._active_cells: np.ndarray | None = None
 
-        if isinstance(input_file, str | Path):
-            input_file = InputFile.read_ui_json(input_file)
+        super().__init__(params)
 
-        if not isinstance(input_file, InputFile):
-            raise ValueError(
-                "Input must be a path to a UI JSON file or an InputFile instance."
-            )
-
-        self.params = TileParameters.build(input_file)
-
-    def start(self) -> SimPEGGroup:
+    def get_results(self, max_tiles: int = 13) -> dict:
         """
-        Run the tile estimator.
+        Run the tile estimator over a Fibonacci series up to
+        the maximum number of tiles.
         """
         results = {}
-        counts = fibonacci_series(15)[2:]
+        counts = fibonacci_series(max_tiles)[2:].tolist()
+
+        if counts[-1] < max_tiles:
+            counts.append(max_tiles)
+
         for count in tqdm(counts, desc="Estimating tiles:"):
             tiles = tile_locations(
                 self.locations,
@@ -95,10 +103,21 @@ class TileEstimator:
             # Estimate total size in Gb
             results[count] = float(sim.survey.nD) * mapping.shape[0] * count * 8 * 1e-9
 
+        return results
+
+    def run(self) -> SimPEGGroup:
+        """
+        Run the tile estimator.
+        """
+        results = self.get_results()
+
         print(f"Computed tile sizes: {results}")
 
         optimal = self.estimate_optimal_tile(results)
         out_group = self.generate_optimal_group(optimal)
+
+        if self.params.out_group is not None:
+            out_group = self.params.out_group
 
         if self.params.render_plot:
             path = self.params.geoh5.h5file.parent / "tile_estimator.png"
@@ -106,8 +125,7 @@ class TileEstimator:
             figure.savefig(path)
             out_group.add_file(path)
 
-        if self.params.monitoring_directory is not None:
-            monitored_directory_copy(self.params.monitoring_directory, out_group)
+        self.update_monitoring_directory(out_group)
 
         return out_group
 
@@ -165,9 +183,13 @@ class TileEstimator:
 
         radiis = [np.inf]
         for ind in range(1, len(problem_sizes) - 1):
-            size = problem_sizes[ind - 1 : ind + 2]
-            counts = tile_counts[ind - 1 : ind + 2]
-            rad, _, _ = fit_circle(counts / counts.max(), size / size.max())
+            size = problem_sizes[ind - 1 : ind + 2].copy()
+            size -= size.min()
+            size /= size.max()
+            counts = tile_counts[ind - 1 : ind + 2].astype(float)
+            counts -= counts.min()
+            counts /= counts.max()
+            rad, _, _ = fit_circle(counts, size)
             radiis.append(rad[0])
 
         optimal = tile_counts[np.argmin(radiis)]
@@ -227,19 +249,6 @@ class TileEstimator:
         return figure
 
 
-class TileParameters(BaseData):
-    """
-    Parameters for the tile estimator.
-    """
-
-    default_ui_json: ClassVar[Path] = assets_path() / "uijson/tile_estimator.ui.json"
-
-    simulation: SimPEGGroup
-    render_plot: bool = True
-    out_group: UIJsonGroup | None = None
-
-
 if __name__ == "__main__":
     file = Path(sys.argv[1]).resolve()
-    tile_driver = TileEstimator(file)
-    tile_driver.start()
+    TileEstimator.start(file)
