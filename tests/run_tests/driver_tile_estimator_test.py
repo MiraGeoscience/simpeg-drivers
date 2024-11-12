@@ -19,6 +19,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import numpy as np
+
 from simpeg_drivers.potential_fields import MagneticScalarParams
 from simpeg_drivers.potential_fields.magnetic_scalar.driver import MagneticScalarDriver
 from simpeg_drivers.utils.testing import setup_inversion_workspace
@@ -71,3 +73,12 @@ def test_tile_estimator_run(
         len(simpeg_group.children) == 2
         and simpeg_group.children[0].name == "tile_estimator.png"
     )
+
+
+def test_optimal_tile_size():
+    tile = 10.0 ** np.arange(-1, 1, 0.25)
+    size = 1.0 / tile
+    results = dict(zip(tile, size, strict=False))
+    optimal = TileEstimator.estimate_optimal_tile(results)
+
+    assert optimal == 1
