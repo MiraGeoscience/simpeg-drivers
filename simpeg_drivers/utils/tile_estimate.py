@@ -69,7 +69,7 @@ class TileEstimator:
                 method="kmeans",
             )
             # Get the median tile
-            ind = np.argsort([len(tile) for tile in tiles])[int(count / 2)]
+            ind = int(np.argsort([len(tile) for tile in tiles])[int(count / 2)])
             self.driver.params.tile_spatial = int(count)
             sim, _, _, mapping = MisfitFactory.create_nested_simulation(
                 self.driver.inversion_data,
@@ -142,7 +142,7 @@ class TileEstimator:
         return self._active_cells
 
     @staticmethod
-    def estimate_optimal_tile(results: dict) -> int:
+    def estimate_optimal_tile(results: dict[int, int]) -> int:
         """
         Estimate the optimal number of tiles to use using a circle fit.
 
