@@ -40,6 +40,18 @@ from simpeg_drivers.utils.utils import (
 
 
 class TileEstimator:
+    """
+    Class to estimate the optimal number of tiles for a given mesh and receiver locations.
+
+    The driver loops over a range of tile counts and estimates the total problem size
+    for each count. The optimal number of tiles is estimated from the point
+    of maximum curvature using a circle fit. This assumes a point of
+    diminishing returns in terms of problem size and the overall cost of
+    creating more tiles.
+
+    :param input_file: The path to the UI JSON file containing the parameters.
+    """
+
     def __init__(self, input_file: str | Path | InputFile):
         self._driver: InversionDriver | None = None
         self._mesh: TreeMesh | None = None
@@ -230,6 +242,4 @@ class TileParameters(BaseData):
 if __name__ == "__main__":
     file = Path(sys.argv[1]).resolve()
     tile_driver = TileEstimator(file)
-
-    with fetch_active_workspace(tile_driver.params.geoh5, mode="r+"):
-        tile_driver.start()
+    tile_driver.start()
