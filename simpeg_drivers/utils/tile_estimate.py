@@ -14,6 +14,7 @@
 #  not be provided or otherwise made available to any other person.
 #
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+import logging
 import sys
 from pathlib import Path
 from typing import ClassVar
@@ -36,6 +37,9 @@ from simpeg_drivers.utils.utils import (
     simpeg_group_to_driver,
     tile_locations,
 )
+
+
+logger = logging.getLogger(__name__)
 
 
 class TileParameters(BaseData):
@@ -114,7 +118,7 @@ class TileEstimator(BaseDriver):
         """
         results = self.get_results()
 
-        print(f"Computed tile sizes: {results}")
+        logger.info("Computed tile sizes: %s", results)
 
         optimal = self.estimate_optimal_tile(results)
         out_group = self.generate_optimal_group(optimal)
