@@ -30,6 +30,7 @@ from geoapps_utils.utils.numerical import running_mean, traveling_salesman
 from geoh5py import Workspace
 from geoh5py.groups import Group
 from geoh5py.objects import DrapeModel, Octree
+from geoh5py.objects.surveys.direct_current import PotentialElectrode
 from geoh5py.objects.surveys.electromagnetics.base import LargeLoopGroundEMSurvey
 from geoh5py.shared import INTEGER_NDV
 from octree_creation_app.utils import octree_2_treemesh
@@ -635,8 +636,15 @@ def get_containing_cells(
     :param data: Inversion data object
     """
     if isinstance(mesh, TreeMesh):
+        if isinstance(data.entity, PotentialElectrode):
+            potentials = data.entity.vertices
+            currents = data.entity.current_electrodes.vertices
+            locations = np.unique(np.r_[potentials, currents], axis=0)
+        else:
+            locations = data.locations
+
         inds = mesh._get_containing_cell_indexes(  # pylint: disable=protected-access
-            data.locations
+            locations
         )
 
         if isinstance(data.entity, LargeLoopGroundEMSurvey):
