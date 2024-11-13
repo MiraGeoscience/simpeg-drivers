@@ -64,15 +64,15 @@ def test_tile_estimator_run(
 
     assert len(estimator.get_results(max_tiles=32)) == 8
 
-    estimator.run()
-    # driver = simpeg_group_to_driver(simpeg_group, geoh5)
-    #
-    # assert driver.inversion_type == "magnetic scalar"
-    # assert driver.params.tile_spatial == 2
-    # assert (
-    #     len(simpeg_group.children) == 2
-    #     and simpeg_group.children[0].name == "tile_estimator.png"
-    # )
+    simpeg_group = estimator.run()
+    driver = simpeg_group_to_driver(simpeg_group, geoh5)
+
+    assert driver.inversion_type == "magnetic scalar"
+    assert driver.params.tile_spatial == 2
+    assert (
+        len(simpeg_group.children) == 2
+        and simpeg_group.children[0].name == "tile_estimator.png"
+    )
 
 
 def test_optimal_tile_size():
