@@ -58,11 +58,11 @@ def test_tile_estimator_run(
     )
     params.workpath = tmp_path
 
-    # driver = MagneticScalarDriver(params)
-    # tile_params = TileParameters(geoh5=geoh5, simulation=driver.out_group)
-    # estimator = TileEstimator(tile_params)
+    driver = MagneticScalarDriver(params)
+    tile_params = TileParameters(geoh5=geoh5, simulation=driver.out_group)
+    estimator = TileEstimator(tile_params)
 
-    # assert len(estimator.get_results(max_tiles=32)) == 8
+    assert len(estimator.get_results(max_tiles=32)) == 8
     #
     # simpeg_group = estimator.run()
     # driver = simpeg_group_to_driver(simpeg_group, geoh5)
@@ -75,10 +75,10 @@ def test_tile_estimator_run(
     # )
 
 
-# def test_optimal_tile_size():
-#     tile = 10.0 ** np.arange(-1, 1, 0.25)
-#     size = 1.0 / tile
-#     results = dict(zip(tile, size, strict=False))
-#     optimal = TileEstimator.estimate_optimal_tile(results)
-#
-#     assert optimal == 1
+def test_optimal_tile_size():
+    tile = 10.0 ** np.arange(-1, 1, 0.25)
+    size = 1.0 / tile
+    results = dict(zip(tile, size, strict=False))
+    optimal = TileEstimator.estimate_optimal_tile(results)
+
+    assert optimal == 1
