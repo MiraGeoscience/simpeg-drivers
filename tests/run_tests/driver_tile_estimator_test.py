@@ -63,8 +63,8 @@ def test_tile_estimator_run(
     estimator = TileEstimator(tile_params)
 
     assert len(estimator.get_results(max_tiles=32)) == 8
-    #
-    # simpeg_group = estimator.run()
+
+    estimator.run()
     # driver = simpeg_group_to_driver(simpeg_group, geoh5)
     #
     # assert driver.inversion_type == "magnetic scalar"
