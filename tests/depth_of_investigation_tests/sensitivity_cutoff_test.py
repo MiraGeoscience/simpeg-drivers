@@ -89,7 +89,8 @@ def test_scale_sensitivity(tmp_path):
 
 def test_driver(tmp_path):
     """
-    Idea:
+    Explanation
+    -----------
 
     The sensitivity we use scales with elevation and cell size. The program
     rescales the sensitivities to remove the cell size bias leaving the just

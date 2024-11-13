@@ -21,6 +21,7 @@ from typing import ClassVar
 from geoapps_utils.driver.data import BaseData
 from geoh5py.data import FloatData
 from geoh5py.objects import Octree
+from pydantic import field_validator
 
 from simpeg_drivers import assets_path
 
@@ -47,3 +48,11 @@ class SensitivityCutoffParams(BaseData):
     mesh: Octree
     sensitivity_model: FloatData
     sensitivity_cutoff: float = 0.1
+    mask_name: str | None = "Sensitivity Cutoff"
+
+    @field_validator("mask_name")
+    @classmethod
+    def default_mask_name(cls, value):
+        if value is None:
+            value = "Sensitivity Cutoff"
+        return value

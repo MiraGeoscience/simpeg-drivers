@@ -15,12 +15,20 @@
 #
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
+import logging
+import sys
+
 import numpy as np
 from geoapps_utils.driver.driver import BaseDriver
 from geoh5py.data import FloatData
 from geoh5py.objects import Octree
+from geoh5py.shared.utils import fetch_active_workspace
 
 from .params import SensitivityCutoffParams
+
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 def scale_sensitivity(sensitivity: FloatData) -> np.ndarray:
@@ -39,24 +47,36 @@ def scale_sensitivity(sensitivity: FloatData) -> np.ndarray:
         * mesh.w_cell_size
     )
     out = sensitivity.values / cell_sizes
-    out *= 100 / np.max(out)
+    out *= 100 / np.nanmax(out)
 
     return out
 
 
 class SensitivityCutoffDriver(BaseDriver):
+    _params_class = SensitivityCutoffParams
+
     def __init__(self, params: SensitivityCutoffParams):
         super().__init__(params)
 
     def run(self):
-        scaled_sensitivity = scale_sensitivity(self.params.sensitivity_model)
-        cutoff_mask = self.params.mesh.add_data(
-            {
-                "sensitivity_cutoff": {
-                    "association": "CELL",
-                    "values": scaled_sensitivity > self.params.sensitivity_cutoff,
+        with fetch_active_workspace(self.params.geoh5, mode="r+"):
+            logger.info("Scaling sensitivities . . .")
+            scaled_sensitivity = scale_sensitivity(self.params.sensitivity_model)
+            logger.info("Creating cutoff mask '%s'", self.params.mask_name)
+            cutoff_mask = self.params.mesh.add_data(
+                {
+                    self.params.mask_name: {
+                        "association": "CELL",
+                        "values": scaled_sensitivity > self.params.sensitivity_cutoff,
+                    }
                 }
-            }
-        )
+            )
+
+            self.update_monitoring_directory(self.params.mesh)
 
         return cutoff_mask
+
+
+if __name__ == "__main__":
+    file = sys.argv[1]
+    SensitivityCutoffDriver.start(file)
