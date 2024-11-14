@@ -18,22 +18,14 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import numpy as np
 from discretize import TensorMesh, TreeMesh
 from geoh5py import Workspace
 from geoh5py.objects import DrapeModel, Octree
-from octree_creation_app.params import OctreeParams
 from octree_creation_app.utils import octree_2_treemesh, treemesh_2_octree
 
 from simpeg_drivers.params import InversionBaseParams
 from simpeg_drivers.utils.utils import drape_2_tensor
-
-
-if TYPE_CHECKING:
-    from simpeg_drivers.components.data import InversionData
-    from simpeg_drivers.components.topography import InversionTopography
 
 
 # TODO: Import this from newer octree-creation-app release
@@ -109,7 +101,6 @@ class InversionMesh:
             self.entity = self.params.mesh.copy(
                 parent=self.params.out_group, copy_children=False
             )
-            self.params.mesh = self.entity
 
         self.uid = self.entity.uid
         self.n_cells = self.entity.n_cells
