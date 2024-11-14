@@ -26,6 +26,28 @@ from scipy.spatial import cKDTree
 from simpeg.survey import BaseSurvey
 
 
+def station_spacing(
+    locations: np.ndarray,
+    statistic: str = "median",
+) -> float:
+    """
+    Compute smallest station spacings and return statistic on the collection.
+
+    :param locations: Array of locations representing a geophysical survey.
+    :param statistic: Name of numpy statistic to compute on the collection.
+    """
+
+    tree = cKDTree(locations)
+    distances, _ = tree.query(locations, k=2)
+
+    if statistic not in ["median", "mean", "min", "max"]:
+        raise ValueError(
+            "Invalid statistic.  Options include 'median', 'mean', 'min', 'max'."
+        )
+
+    return getattr(np, statistic)(distances[:, 1])
+
+
 def counter_clockwise_sort(segments: np.ndarray, vertices: np.ndarray) -> np.ndarray:
     """
     Sort segments in counter-clockwise order.
