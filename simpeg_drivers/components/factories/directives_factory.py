@@ -22,6 +22,7 @@
 from __future__ import annotations
 
 from abc import ABC
+from math import sqrt
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -412,12 +413,13 @@ class SaveSensitivitiesGeoh5Factory(SaveGeoh5Factory):
         active_cells_map = maps.InjectActiveCells(
             inversion_object.mesh, active_cells, np.nan
         )
+
         sorting = inversion_object.permutation
         kwargs = {
             "label": "model",
             "association": "CEll",
             "dmisfit": global_misfit,
-            "transforms": [active_cells_map],
+            "transforms": [active_cells_map, sqrt],
             "sorting": sorting,
         }
 
