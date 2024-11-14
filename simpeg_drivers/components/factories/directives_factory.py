@@ -22,11 +22,11 @@
 from __future__ import annotations
 
 from abc import ABC
-from math import sqrt
 from typing import TYPE_CHECKING
 
 import numpy as np
 from geoh5py.groups.property_group import GroupTypeEnum
+from numpy import sqrt
 from simpeg import directives, maps
 from simpeg.utils.mat_utils import cartesian2amplitude_dip_azimuth
 
