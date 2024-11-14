@@ -118,16 +118,24 @@ class TileEstimator(BaseDriver):
         """
         results = self.get_results()
 
-        logger.info("Computed tile sizes: %s", results)
+        logger.info(
+            "Estimates:\n%s\n%s",
+            "Tiling \t Total size (Gb) ",
+            "\n".join(f"{key} \t {value:.2e}" for key, value in results.items()),
+        )
 
         optimal = self.estimate_optimal_tile(results)
         out_group = self.generate_optimal_group(optimal)
+
+        logger.info("Optimal number of tile(s): %i", optimal)
 
         if self.params.out_group is not None:
             out_group = self.params.out_group
 
         if self.params.render_plot:
-            path = self.params.geoh5.h5file.parent / "tile_estimator.png"
+            fig_name = "tile_estimator.png"
+            logger.info("Saving figure '%s' to disk and to geoh5.", fig_name)
+            path = self.params.geoh5.h5file.parent / fig_name
             figure = self.plot(results, self.locations, optimal)
             figure.savefig(path)
             out_group.add_file(path)
