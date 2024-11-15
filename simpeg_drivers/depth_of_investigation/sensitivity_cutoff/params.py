@@ -32,7 +32,7 @@ class SensitivityCutoffParams(BaseData):
 
     :param mesh: Octree mesh containing saved sensitivities.
     :param sensitivity_model: Saved row-sum-squared sensitivity data.
-    :param sensitivity_cutoff: Sensitivity percentile below which the
+    :param sensitivity_cutoff: Sensitivity percentage below which the
         model's influence to the data is considered negligible.
     :param mask_name: Base name given to the mask and scaled
         sensitivities.

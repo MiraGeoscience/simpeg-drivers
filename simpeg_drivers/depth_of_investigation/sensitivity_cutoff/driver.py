@@ -53,6 +53,14 @@ def scale_sensitivity(sensitivity: FloatData) -> np.ndarray:
 
 
 class SensitivityCutoffDriver(BaseDriver):
+    """
+    Creates a mask to filter sensitivities below a cutoff value.
+
+    Sensitivities will be normalized by cell volumes and scaled as a
+    percentage.  A mask will then be created to filter out sensitivities
+    below the provided cutoff percentage.
+    """
+
     _params_class = SensitivityCutoffParams
 
     def __init__(self, params: SensitivityCutoffParams):
