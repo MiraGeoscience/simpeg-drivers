@@ -756,3 +756,14 @@ class InversionBaseParams(BaseParams):
                 ui_json = self.to_dict(ui_json_format=True)
                 self._out_group.options = ui_json
                 self._out_group.metadata = None
+
+    @property
+    def padding_cells(self) -> int:
+        """
+        Default padding cells used for tiling.
+        """
+        # Keep whole mesh for 1 tile
+        if self.tile_spatial == 1:
+            return 100
+
+        return 4 if self.inversion_type in ["fem", "tdem"] else 6
