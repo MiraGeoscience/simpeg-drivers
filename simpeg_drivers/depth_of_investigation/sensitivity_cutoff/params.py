@@ -39,7 +39,7 @@ class SensitivityCutoffParams(BaseData):
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/sensitivity_cutoff.ui.json"
     )
-    title: ClassVar[str] = "Sensitivity Cutoff Depth of Investigation"
+    title: ClassVar[str] = "Depth of Investigation: Sensitivity Cutoff"
     run_command: ClassVar[str] = (
         "simpeg_drivers.depth_of_investigation.sensitivity_cutoff.driver"
     )

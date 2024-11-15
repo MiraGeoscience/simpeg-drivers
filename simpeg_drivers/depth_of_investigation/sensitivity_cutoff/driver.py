@@ -64,10 +64,14 @@ class SensitivityCutoffDriver(BaseDriver):
         logger.info("Creating cutoff mask '%s'", self.params.mask_name)
         cutoff_mask = self.params.mesh.add_data(
             {
-                self.params.mask_name: {
+                f"{self.params.mask_name} (mask)": {
                     "association": "CELL",
                     "values": scaled_sensitivity > self.params.sensitivity_cutoff,
-                }
+                },
+                f"{self.params.mask_name} (scaled sensitivities)": {
+                    "association": "CELL",
+                    "values": scaled_sensitivity,
+                },
             }
         )
 

@@ -1,6 +1,6 @@
 {
     "version": "0.3.0-alpha.1",
-    "title": "Sensitivity Cutoff Depth of Investigation",
+    "title": "Depth of Investigation: Sensitivity Cutoff",
     "icon": "",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
     "conda_environment": "simpeg_drivers",
