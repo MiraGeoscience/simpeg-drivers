@@ -59,20 +59,19 @@ class SensitivityCutoffDriver(BaseDriver):
         super().__init__(params)
 
     def run(self):
-        with fetch_active_workspace(self.params.geoh5, mode="r+"):
-            logger.info("Scaling sensitivities . . .")
-            scaled_sensitivity = scale_sensitivity(self.params.sensitivity_model)
-            logger.info("Creating cutoff mask '%s'", self.params.mask_name)
-            cutoff_mask = self.params.mesh.add_data(
-                {
-                    self.params.mask_name: {
-                        "association": "CELL",
-                        "values": scaled_sensitivity > self.params.sensitivity_cutoff,
-                    }
+        logger.info("Scaling sensitivities . . .")
+        scaled_sensitivity = scale_sensitivity(self.params.sensitivity_model)
+        logger.info("Creating cutoff mask '%s'", self.params.mask_name)
+        cutoff_mask = self.params.mesh.add_data(
+            {
+                self.params.mask_name: {
+                    "association": "CELL",
+                    "values": scaled_sensitivity > self.params.sensitivity_cutoff,
                 }
-            )
+            }
+        )
 
-            self.update_monitoring_directory(self.params.mesh)
+        self.update_monitoring_directory(self.params.mesh)
 
         return cutoff_mask
 
