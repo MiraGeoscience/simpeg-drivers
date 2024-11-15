@@ -28,11 +28,14 @@ from simpeg_drivers import assets_path
 
 class SensitivityCutoffParams(BaseData):
     """
-    Contour parameters for use with `contours.driver`.
+    Sensitivity cutoff parameters for depth of investigation studies.
 
-    :param contours: Contouring parameters.
-    :param source: Parameters for the source object and data.
-    :param output: Output
+    :param mesh: Octree mesh containing saved sensitivities.
+    :param sensitivity_model: Saved row-sum-squared sensitivity data.
+    :param sensitivity_cutoff: Sensitivity percentile below which the
+        model's influence to the data is considered negligible.
+    :param mask_name: Base name given to the mask and scaled
+        sensitivities.
     """
 
     name: ClassVar[str] = "sensitivity_cutoff"
