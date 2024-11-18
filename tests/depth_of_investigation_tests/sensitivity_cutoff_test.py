@@ -93,8 +93,8 @@ def test_driver(tmp_path):
     -----------
 
     The sensitivity we use scales with elevation and cell size. The program
-    rescales the sensitivities to remove the cell size bias leaving the just
-    the elvation dependence. With a 10% cutoff, we can predict that the mask
+    rescales the sensitivities to remove the cell size bias leaving just the
+    elevation dependence. With a 10% cutoff, we can predict that the mask
     will remove the cells with the lowest 10% of elevations.
     """
 
