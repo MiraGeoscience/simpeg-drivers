@@ -16,6 +16,7 @@
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 import numpy as np
+from discretize import TreeMesh
 from geoh5py.objects import ObjectBase, Octree
 from geoh5py.shared.utils import fetch_active_workspace
 from octree_creation_app.driver import OctreeDriver
@@ -53,7 +54,7 @@ def auto_mesh(
     survey_refinement: list[int] | None = None,
     topography_refinement: int = 2,
     cell_size_factor: int = 2,
-) -> Octree:
+) -> TreeMesh:
     """
     Return a mesh optimized for the provided data extents and spacing.
 
@@ -95,10 +96,6 @@ def auto_mesh(
             "minimum_level": 8,
         }
         params = OctreeParams(**params_dict)
-        params.write_input_file(
-            name="automesh", path=workspace.h5file.parent, validate=False
-        )
-        driver = OctreeDriver(params)
-        mesh = driver.run()
+        treemesh = OctreeDriver.treemesh_from_params(params)
 
-        return mesh
+        return treemesh

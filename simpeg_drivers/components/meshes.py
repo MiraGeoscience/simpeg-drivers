@@ -18,6 +18,7 @@
 
 from __future__ import annotations
 
+from logging import getLogger
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -28,9 +29,11 @@ from octree_creation_app.params import OctreeParams
 from octree_creation_app.utils import octree_2_treemesh, treemesh_2_octree
 
 from simpeg_drivers.params import InversionBaseParams
+from simpeg_drivers.utils.meshes import auto_mesh
 from simpeg_drivers.utils.utils import drape_2_tensor
 
 
+logger = getLogger(__name__)
 if TYPE_CHECKING:
     from simpeg_drivers.components.data import InversionData
     from simpeg_drivers.components.topography import InversionTopography
@@ -104,7 +107,19 @@ class InversionMesh:
         """
 
         if self.params.mesh is None:
-            raise ValueError("Must pass pre-constructed mesh.")
+            logger.info(
+                "No mesh provided. Creating optimized mesh from data and topography."
+            )
+            self._mesh = auto_mesh(
+                self.params.data_object, self.params.topography_object
+            )
+            self._entity = treemesh_2_octree(
+                self.params.geoh5,
+                self._mesh,
+                parent=self.params.out_group,
+                name="AutoMesh",
+            )
+            self._permutation = np.arange(self.entity.n_cells)
         else:
             self.entity = self.params.mesh.copy(
                 parent=self.params.out_group, copy_children=False
