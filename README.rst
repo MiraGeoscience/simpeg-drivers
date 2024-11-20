@@ -34,9 +34,12 @@
    :alt: Maintainability
 
 
-simpeg-drivers: # TODO: SHORT DESCRIPTION
-=========================================================================
-The **simpeg-drivers** library # TODO: PACKAGE DESCRIPTION
+simpeg-drivers: run SimPEG inversions on GEOH5 files
+====================================================
+Application to run `SimPEG <https://simpeg.xyz/>`_ inversions
+on `GEOH5 files <https://mirageoscience-geoh5py.readthedocs-hosted.com/en/stable/content/geoh5_format/>`_.
+Users will be able to directly leverage the powerful visualization
+capabilities of `Geoscience ANALYST <https://mirageoscience.com/mining-industry-software/geoscience-analyst/>`_.
 
 .. contents:: Table of Contents
    :local:
@@ -44,7 +47,7 @@ The **simpeg-drivers** library # TODO: PACKAGE DESCRIPTION
 
 Documentation
 ^^^^^^^^^^^^^
-`Online documentation <https://simpeg-drivers.readthedocs.io/en/latest/>`_
+`Online documentation <https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/>`_
 
 
 Installation
@@ -133,7 +136,25 @@ To configure the development environment and tools, please see `README-dev.rst`_
 
 License
 ^^^^^^^
-# TODO: ADD LICENSE TERMS
+MIT License
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
 Third Party Software
 ^^^^^^^^^^^^^^^^^^^^
