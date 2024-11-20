@@ -1,9 +1,9 @@
 |coverage| |maintainability| |precommit_ci| |docs| |style| |version| |status| |pyversions|
 
 
-.. |docs| image:: https://readthedocs.org/projects/simpeg-drivers/badge/
+.. |docs| image:: https://readthedocs.com/projects/mirageoscience-simpeg-drivers/badge/?version=latest
     :alt: Documentation Status
-    :target: https://simpeg-drivers.readthedocs.io/en/latest/?badge=latest
+    :target: https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/?badge=latest
 
 .. |coverage| image:: https://codecov.io/gh/MiraGeoscience/simpeg-drivers/branch/develop/graph/badge.svg
     :alt: Code coverage
