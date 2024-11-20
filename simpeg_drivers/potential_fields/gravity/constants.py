@@ -157,7 +157,7 @@ forward_defaults = {
 
 default_ui_json = {
     "title": "Gravity Inversion",
-    "documentation": "https://geoapps.readthedocs.io/en/stable/content/applications/grav_mag_inversion.html",
+    "documentation": "https://mirageoscience-geoapps.readthedocs-hosted.com/en/stable/content/applications/grav_mag_inversion.html",
     "icon": "surveyairbornegravity",
     "inversion_type": "gravity",
     "data_object": {

@@ -128,7 +128,7 @@ forward_defaults = {
 
 default_ui_json = {
     "title": "Direct Current (DC) 3D Inversion",
-    "documentation": "https://geoapps.readthedocs.io/en/stable/content/applications/dcip_inversion.html",
+    "documentation": "https://mirageoscience-geoapps.readthedocs-hosted.com/en/stable/content/applications/dcip_inversion.html",
     "icon": "PotentialElectrode",
     "inversion_type": "direct current 3d",
     "data_object": {
