@@ -57,21 +57,12 @@ def generate_sensitivity(workspace: Workspace, depth_scaling=False):
     )
     mesh = OctreeDriver.octree_from_params(octree_params)
 
-    values = (
-        mesh.octree_cells["NCells"]
-        * mesh.u_cell_size
-        * mesh.octree_cells["NCells"]
-        * mesh.v_cell_size
-        * mesh.octree_cells["NCells"]
-        * mesh.w_cell_size
-    )
+    values = np.ones(len(mesh.centroids))
 
     if depth_scaling:
         z = mesh.centroids[:, 2]
         z += np.abs(z.min())
         values *= z
-        # depths = z.max() - z + 100
-        # values /= depths
 
     sensitivity = mesh.add_data(
         {"sensitivity": {"association": "Cell", "values": values}}
