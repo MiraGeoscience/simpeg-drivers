@@ -11,6 +11,7 @@ maintainers = [
 repository = "https://github.com/MiraGeoscience/simpeg-drivers"
 documentation = "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/"
 homepage = "https://www.mirageoscience.com/mining-industry-software/python-integration/"
+readme = "package.rst"
 
 packages = [
      { include = "simpeg_drivers" },
