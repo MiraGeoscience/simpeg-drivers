@@ -33,20 +33,11 @@ logger.setLevel(logging.INFO)
 
 def scale_sensitivity(sensitivity: FloatData) -> np.ndarray:
     """
-    Normalize sensitivities by cell sizes and scale as percentage.
+    Normalize sensitivity and convert to percentage.
 
     :param sensitivity: Sum squared sensitivity matrix.
     """
-    mesh = sensitivity.parent
-    cell_sizes = (
-        mesh.octree_cells["NCells"]
-        * mesh.u_cell_size
-        * mesh.octree_cells["NCells"]
-        * mesh.v_cell_size
-        * mesh.octree_cells["NCells"]
-        * mesh.w_cell_size
-    )
-    out = sensitivity.values / cell_sizes
+    out = sensitivity.values
     out *= 100 / np.nanmax(out)
 
     return out
@@ -70,15 +61,11 @@ class SensitivityCutoffDriver(BaseDriver):
         logger.info("Scaling sensitivities . . .")
         scaled_sensitivity = scale_sensitivity(self.params.sensitivity_model)
         logger.info("Creating cutoff mask '%s'", self.params.mask_name)
-        cutoff_mask, scaled_sensitivities = self.params.mesh.add_data(
+        cutoff_mask = self.params.mesh.add_data(
             {
-                f"{self.params.mask_name} (mask)": {
+                f"{self.params.mask_name}": {
                     "association": "CELL",
                     "values": scaled_sensitivity > self.params.sensitivity_cutoff,
-                },
-                f"{self.params.mask_name} (scaled sensitivities)": {
-                    "association": "CELL",
-                    "values": scaled_sensitivity,
                 },
             }
         )

@@ -414,13 +414,15 @@ class SaveSensitivitiesGeoh5Factory(SaveGeoh5Factory):
             inversion_object.mesh, active_cells, np.nan
         )
 
-        sorting = inversion_object.permutation
+        def volume_normalization(val):
+            return val / inversion_object.mesh.cell_volumes
+
         kwargs = {
             "label": "model",
             "association": "CEll",
             "dmisfit": global_misfit,
-            "transforms": [active_cells_map, sqrt],
-            "sorting": sorting,
+            "transforms": [active_cells_map, sqrt, volume_normalization],
+            "sorting": inversion_object.permutation,
         }
 
         if self.factory_type == "magnetic vector":
