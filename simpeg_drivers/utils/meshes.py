@@ -16,10 +16,8 @@
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 import numpy as np
-from discretize import TreeMesh
-from geoh5py.objects import ObjectBase, Octree
+from geoh5py.objects import ObjectBase
 from geoh5py.shared.utils import fetch_active_workspace
-from octree_creation_app.driver import OctreeDriver
 from octree_creation_app.params import OctreeParams
 
 from simpeg_drivers.utils.surveys import station_spacing
@@ -48,13 +46,13 @@ def auto_pad(survey, factor=3) -> tuple[list[float], list[float]]:
     return [horizontal_padding] * 4, [200.0] * 2
 
 
-def auto_mesh(
+def auto_mesh_parameters(
     survey: ObjectBase,
     topography: ObjectBase,
     survey_refinement: list[int] | None = None,
     topography_refinement: int = 2,
     cell_size_factor: int = 2,
-) -> TreeMesh:
+) -> OctreeParams:
     """
     Return a mesh optimized for the provided data extents and spacing.
 
@@ -95,7 +93,5 @@ def auto_mesh(
             "Refinement B horizon": True,
             "minimum_level": 8,
         }
-        params = OctreeParams(**params_dict)
-        treemesh = OctreeDriver.treemesh_from_params(params)
 
-        return treemesh
+        return OctreeParams(**params_dict)

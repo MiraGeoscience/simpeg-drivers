@@ -21,7 +21,7 @@ from geoh5py.objects import Points
 from perlin_noise import PerlinNoise
 from scipy.interpolate import LinearNDInterpolator
 
-from simpeg_drivers.utils.meshes import auto_mesh, auto_pad
+from simpeg_drivers.utils.meshes import auto_mesh_parameters, auto_pad
 from tests.utils_surveys_test import create_test_survey
 
 
@@ -71,7 +71,7 @@ def test_auto_pad():
     # TODO make sense of the padding and add an assertion
 
 
-def test_auto_mesh(tmp_path):
+def test_auto_mesh_parameters(tmp_path):
     ws = Workspace(tmp_path / "test.geoh5")
     locs = create_test_survey()
     locs, topo = generate_random_topography(locs, drape_survey=0)
@@ -79,9 +79,20 @@ def test_auto_mesh(tmp_path):
     survey = Points.create(ws, name="survey", vertices=locs)
     topo = Points.create(ws, name="topography", vertices=topo)
 
-    mesh = auto_mesh(survey, topo)
+    mesh = auto_mesh_parameters(survey, topo)
 
     assert mesh.u_cell_size == 10
     assert mesh.v_cell_size == 10
     assert mesh.w_cell_size == 10
     assert True
+
+
+def test_auto_mesh_parameters_ui_json(tmp_path):
+    ws = Workspace(tmp_path / "test.geoh5")
+    locs = create_test_survey()
+    locs, topo = generate_random_topography(locs, drape_survey=0)
+
+    survey = Points.create(ws, name="survey", vertices=locs)
+    topo = Points.create(ws, name="topography", vertices=topo)
+
+    auto_mesh_parameters(survey, topo)
