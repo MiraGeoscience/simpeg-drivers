@@ -37,7 +37,7 @@ def scale_sensitivity(sensitivity: FloatData) -> np.ndarray:
 
     :param sensitivity: Sum squared sensitivity matrix.
     """
-    out = sensitivity.values
+    out = sensitivity.values.copy()
     out *= 100 / np.nanmax(out)
 
     return out
