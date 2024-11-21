@@ -23,7 +23,7 @@ from octree_creation_app.params import OctreeParams
 from simpeg_drivers.utils.surveys import station_spacing
 
 
-def auto_pad(survey, factor=3) -> tuple[list[float], list[float]]:
+def auto_pad(survey, factor=2) -> tuple[list[float], list[float]]:
     """
     Estimate horizontal padding as a fraction of the survey extent.
 
