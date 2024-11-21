@@ -26,6 +26,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from geoh5py.groups.property_group import GroupTypeEnum
+from numpy import sqrt
 from simpeg import directives, maps
 from simpeg.utils.mat_utils import cartesian2amplitude_dip_azimuth
 
@@ -412,13 +413,16 @@ class SaveSensitivitiesGeoh5Factory(SaveGeoh5Factory):
         active_cells_map = maps.InjectActiveCells(
             inversion_object.mesh, active_cells, np.nan
         )
-        sorting = inversion_object.permutation
+
+        def volume_normalization(val):
+            return val / inversion_object.mesh.cell_volumes
+
         kwargs = {
             "label": "model",
             "association": "CEll",
             "dmisfit": global_misfit,
-            "transforms": [active_cells_map],
-            "sorting": sorting,
+            "transforms": [active_cells_map, sqrt, volume_normalization],
+            "sorting": inversion_object.permutation,
         }
 
         if self.factory_type == "magnetic vector":
