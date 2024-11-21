@@ -68,6 +68,7 @@ class SensitivityCutoffDriver(BaseDriver):
                 },
                 f"{self.params.sensitivity_model.name} + _'normalized'": {
                     "values": scaled_sensitivity
+                },
             }
         )
 
