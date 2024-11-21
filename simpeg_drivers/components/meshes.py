@@ -117,7 +117,6 @@ class InversionMesh:
             self.entity = self.params.mesh.copy(
                 parent=self.params.out_group, copy_children=False
             )
-            self.params.mesh = self.entity
 
         self.uid = self.entity.uid
         self.n_cells = self.entity.n_cells
