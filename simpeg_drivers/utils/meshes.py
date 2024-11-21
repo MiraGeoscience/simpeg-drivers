@@ -37,17 +37,16 @@ def auto_pad(survey, factor=2) -> tuple[list[float], list[float]]:
 
     lower = survey[:, :2].min(axis=0)
     upper = survey[:, :2].max(axis=0)
-    max_dim = np.max(upper - lower)
-    horizontal_padding = np.max([xrange, yrange]) / factor
+    padding = np.max(upper - lower) / factor
 
-    return [horizontal_padding] * 4, [200.0] * 2
+    return ([padding] * 4, [padding] * 2)
 
 
 def auto_mesh_parameters(
     survey: ObjectBase,
     topography: ObjectBase,
     survey_refinement: list[int] | None = None,
-    topography_refinement: int = 2,
+    topography_refinement: list[int] | None = None,
     cell_size_factor: int = 2,
 ) -> OctreeParams:
     """
@@ -67,6 +66,9 @@ def auto_mesh_parameters(
     if survey_refinement is None:
         survey_refinement = [4, 4, 4]
 
+    if topography_refinement is None:
+        topography_refinement = [0, 0, 2]
+
     with fetch_active_workspace(survey.workspace, mode="r+") as workspace:
         spacing = station_spacing(survey.locations) / cell_size_factor
         base_cell_size = np.round(spacing)
@@ -80,15 +82,15 @@ def auto_mesh_parameters(
             "w_cell_size": base_cell_size,
             "horizontal_padding": horizontal_padding,
             "vertical_padding": vertical_padding,
-            "depth_core": 500,
+            "depth_core": 500.0,
             "diagonal_balance": True,
             "Refinement A object": survey,
             "Refinement A levels": survey_refinement,
             "Refinement A horizon": False,
             "Refinement B object": topography,
-            "Refinement B levels": [0, 0, topography_refinement],
+            "Refinement B levels": topography_refinement,
             "Refinement B horizon": True,
-            "minimum_level": 8,
+            "minimum_level": 6,
         }
 
         return OctreeParams(**params_dict)

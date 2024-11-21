@@ -18,14 +18,17 @@
 import numpy as np
 from geoh5py import Workspace
 from geoh5py.objects import Points
-from perlin_noise import PerlinNoise
+from octree_creation_app.driver import OctreeDriver
 from scipy.interpolate import LinearNDInterpolator
+from scipy.ndimage import gaussian_filter
 
 from simpeg_drivers.utils.meshes import auto_mesh_parameters, auto_pad
 from tests.utils_surveys_test import create_test_survey
 
 
-def generate_random_topography(survey: np.ndarray, drape_survey: float | None = None):
+def generate_random_topography(
+    survey: np.ndarray, drape_survey: float | None = None
+) -> tuple[np.ndarray, np.ndarray]:
     """
     Generate random topography over the survey area with optional drape.
 
@@ -45,11 +48,9 @@ def generate_random_topography(survey: np.ndarray, drape_survey: float | None = 
     topo_y = np.linspace(ymin - 0.5 * yrange, ymax + 0.5 * yrange, 100)
     topo_grid_x, topo_grid_y = np.meshgrid(topo_x, topo_y)
 
-    noise = PerlinNoise(octaves=5, seed=1)
-    xpix, ypix = topo_grid_x.shape[0], topo_grid_x.shape[1]
-    elevs = 200 * np.vstack(
-        [[noise([i / xpix, j / ypix]) for j in range(xpix)] for i in range(ypix)]
-    )
+    elevs = 200 * np.random.randn(topo_grid_x.shape[0], topo_grid_x.shape[1])
+    elevs = gaussian_filter(elevs, 2)
+
     topo = np.c_[topo_grid_x.flatten(), topo_grid_y.flatten(), elevs.flatten()]
 
     if drape_survey is not None:
@@ -65,10 +66,9 @@ def test_auto_pad():
     x_grid, y_grid = np.meshgrid(x, y)
     z = np.ones_like(x_grid)
     survey = np.c_[x_grid.flatten(), y_grid.flatten(), z.flatten()]
-    horizontal_padding, vertical_padding = auto_pad(survey, factor=2)
+    horizontal_padding, vertical_padding = auto_pad(survey)
     assert horizontal_padding == [500, 500, 500, 500]
-    assert vertical_padding == [200, 200]
-    # TODO make sense of the padding and add an assertion
+    assert vertical_padding == [500, 500]
 
 
 def test_auto_mesh_parameters(tmp_path):
@@ -79,20 +79,11 @@ def test_auto_mesh_parameters(tmp_path):
     survey = Points.create(ws, name="survey", vertices=locs)
     topo = Points.create(ws, name="topography", vertices=topo)
 
-    mesh = auto_mesh_parameters(survey, topo)
+    params = auto_mesh_parameters(survey, topo)
+    mesh = OctreeDriver.octree_from_params(params)
 
     assert mesh.u_cell_size == 10
     assert mesh.v_cell_size == 10
     assert mesh.w_cell_size == 10
     assert True
-
-
-def test_auto_mesh_parameters_ui_json(tmp_path):
-    ws = Workspace(tmp_path / "test.geoh5")
-    locs = create_test_survey()
-    locs, topo = generate_random_topography(locs, drape_survey=0)
-
-    survey = Points.create(ws, name="survey", vertices=locs)
-    topo = Points.create(ws, name="topography", vertices=topo)
-
-    auto_mesh_parameters(survey, topo)
+    # TODO make sense of the padding and add an assertion

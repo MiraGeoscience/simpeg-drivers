@@ -134,11 +134,9 @@ class InversionMesh:
         mesh_group = UIJsonGroup.create(
             self.workspace, name="AutoMesh", parent=self.params.out_group
         )
-        ifile = params.input_file
-        ifile.write_ui_json(name="AutoMesh")
-        mesh_group.options = ifile.stringify(ifile.demote(ifile.ui_json))
-        mesh_group.add_ui_json(name="AutoMesh")
-        # mesh_group.metadata = None
+        # TODO: Update Octree params to BaseData and use it to handle out group
+        # and saving options.
+
         self._entity = treemesh_2_octree(
             self.params.geoh5,
             self._mesh,
