@@ -39,7 +39,7 @@ def auto_pad(survey, factor=2) -> tuple[list[float], list[float]]:
     upper = survey[:, :2].max(axis=0)
     padding = np.max(upper - lower) / factor
 
-    return ([padding] * 4, [padding] * 2)
+    return padding
 
 
 def auto_mesh_parameters(
@@ -72,7 +72,7 @@ def auto_mesh_parameters(
     with fetch_active_workspace(survey.workspace, mode="r+") as workspace:
         spacing = station_spacing(survey.locations) / cell_size_factor
         base_cell_size = np.round(spacing)
-        horizontal_padding, vertical_padding = auto_pad(survey.locations)
+        padding = auto_pad(survey.locations)
 
         params_dict = {
             "geoh5": workspace,
@@ -80,8 +80,8 @@ def auto_mesh_parameters(
             "u_cell_size": base_cell_size,
             "v_cell_size": base_cell_size,
             "w_cell_size": base_cell_size,
-            "horizontal_padding": horizontal_padding,
-            "vertical_padding": vertical_padding,
+            "horizontal_padding": padding,
+            "vertical_padding": padding,
             "depth_core": 500.0,
             "diagonal_balance": True,
             "Refinement A object": survey,

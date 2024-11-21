@@ -66,9 +66,8 @@ def test_auto_pad():
     x_grid, y_grid = np.meshgrid(x, y)
     z = np.ones_like(x_grid)
     survey = np.c_[x_grid.flatten(), y_grid.flatten(), z.flatten()]
-    horizontal_padding, vertical_padding = auto_pad(survey)
-    assert horizontal_padding == [500, 500, 500, 500]
-    assert vertical_padding == [500, 500]
+    padding = auto_pad(survey)
+    assert padding == 500
 
 
 def test_auto_mesh_parameters(tmp_path):
@@ -85,5 +84,3 @@ def test_auto_mesh_parameters(tmp_path):
     assert mesh.u_cell_size == 10
     assert mesh.v_cell_size == 10
     assert mesh.w_cell_size == 10
-    assert True
-    # TODO make sense of the padding and add an assertion
