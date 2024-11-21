@@ -35,12 +35,9 @@ def auto_pad(survey, factor=3) -> tuple[list[float], list[float]]:
     :returns vertical_padding: List of vertical padding values
     """
 
-    xmin = survey[:, 0].min()
-    xmax = survey[:, 0].max()
-    ymin = survey[:, 1].min()
-    ymax = survey[:, 1].max()
-    xrange = xmax - xmin
-    yrange = ymax - ymin
+    lower = survey[:, :2].min(axis=0)
+    upper = survey[:, :2].max(axis=0)
+    max_dim = np.max(upper - lower)
     horizontal_padding = np.max([xrange, yrange]) / factor
 
     return [horizontal_padding] * 4, [200.0] * 2
