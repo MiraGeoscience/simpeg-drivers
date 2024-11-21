@@ -80,6 +80,8 @@ default_ui_json = {
         "label": "Mesh",
         "meshType": "{4ea87376-3ece-438b-bf12-3479733ded46}",
         "value": "",
+        "optional": True,
+        "enabled": False,
         "tooltip": "Select a mesh for the inversion.",
     },
     "starting_model": {

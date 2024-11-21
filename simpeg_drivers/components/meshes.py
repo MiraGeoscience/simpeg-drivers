@@ -18,14 +18,27 @@
 
 from __future__ import annotations
 
+from logging import getLogger
+from typing import TYPE_CHECKING
+
 import numpy as np
 from discretize import TensorMesh, TreeMesh
 from geoh5py import Workspace
+from geoh5py.groups import UIJsonGroup
 from geoh5py.objects import DrapeModel, Octree
+from octree_creation_app.driver import OctreeDriver
+from octree_creation_app.params import OctreeParams
 from octree_creation_app.utils import octree_2_treemesh, treemesh_2_octree
 
 from simpeg_drivers.params import InversionBaseParams
+from simpeg_drivers.utils.meshes import auto_mesh_parameters
 from simpeg_drivers.utils.utils import drape_2_tensor
+
+
+logger = getLogger(__name__)
+if TYPE_CHECKING:
+    from simpeg_drivers.components.data import InversionData
+    from simpeg_drivers.components.topography import InversionTopography
 
 
 # TODO: Import this from newer octree-creation-app release
@@ -96,7 +109,10 @@ class InversionMesh:
         """
 
         if self.params.mesh is None:
-            raise ValueError("Must pass pre-constructed mesh.")
+            logger.info(
+                "No mesh provided. Creating optimized mesh from data and topography."
+            )
+            self._auto_mesh()
         else:
             self.entity = self.params.mesh.copy(
                 parent=self.params.out_group, copy_children=False
@@ -104,6 +120,28 @@ class InversionMesh:
 
         self.uid = self.entity.uid
         self.n_cells = self.entity.n_cells
+
+    def _auto_mesh(self):
+        """Automate meshing based on data and topography objects."""
+
+        params = auto_mesh_parameters(
+            self.params.data_object, self.params.topography_object
+        )
+        self._mesh = OctreeDriver.treemesh_from_params(params)
+
+        mesh_group = UIJsonGroup.create(
+            self.workspace, name="AutoMesh", parent=self.params.out_group
+        )
+        # TODO: Update Octree params to BaseData and use it to handle out group
+        # and saving options.
+
+        self._entity = treemesh_2_octree(
+            self.params.geoh5,
+            self._mesh,
+            parent=mesh_group,
+            name="OctreeMesh",
+        )
+        self._permutation = np.arange(self.entity.n_cells)
 
     @property
     def mesh(self) -> TreeMesh | TensorMesh:
