@@ -23,7 +23,7 @@ dependencies:
   - click=8.1.7=unix_pyh707e725_0
   - cloudpickle=3.1.0=pyhd8ed1ab_1
   - colorama=0.4.6=pyhd8ed1ab_0
-  - contourpy=1.3.0=py311hd18a35c_2
+  - contourpy=1.3.1=py311hd18a35c_0
   - cycler=0.12.1=pyhd8ed1ab_0
   - cytoolz=1.0.0=py311h9ecbd09_1
   - dask-core=2024.6.2=pyhd8ed1ab_0
@@ -31,7 +31,7 @@ dependencies:
   - distributed=2024.6.2=pyhd8ed1ab_0
   - empymod=2.2.2=pyhd8ed1ab_0
   - fasteners=0.17.3=pyhd8ed1ab_0
-  - fonttools=4.54.1=py311h2dc5d0c_1
+  - fonttools=4.55.0=py311h2dc5d0c_0
   - freetype=2.12.1=h267a509_2
   - fsspec=2022.11.0=pyhd8ed1ab_0
   - geoana=0.5.0=py311h92ebd52_4
@@ -85,7 +85,7 @@ dependencies:
   - libwebp-base=1.4.0=hd590300_0
   - libxcb=1.17.0=h8a09558_0
   - libxcrypt=4.4.36=hd590300_1
-  - libxml2=2.13.4=h064dc61_2
+  - libxml2=2.13.5=h064dc61_0
   - libzlib=1.3.1=hb9d3cd8_2
   - llvm-openmp=19.1.3=h024ca30_0
   - llvmlite=0.43.0=py311h9c9ff8c_1
@@ -100,8 +100,8 @@ dependencies:
   - numcodecs=0.13.1=py311h7db5c69_0
   - numpy=1.26.4=py311h64a7726_0
   - openjpeg=2.5.2=h488ebb8_0
-  - openssl=3.3.2=hb9d3cd8_0
-  - packaging=24.1=pyhd8ed1ab_0
+  - openssl=3.4.0=hb9d3cd8_0
+  - packaging=24.2=pyhff2d567_1
   - pandas=2.2.3=py311h7db5c69_1
   - partd=1.4.2=pyhd8ed1ab_0
   - pillow=10.3.0=py311h82a398c_1
@@ -125,7 +125,7 @@ dependencies:
   - readline=8.2=h8228510_1
   - scikit-learn=1.4.2=py311he08f58d_1
   - scipy=1.14.1=py311he9a78e4_1
-  - setuptools=75.3.0=pyhd8ed1ab_0
+  - setuptools=75.5.0=pyhff2d567_0
   - six=1.16.0=pyh6c4a22f_0
   - sortedcontainers=2.4.0=pyhd8ed1ab_0
   - tbb=2021.12.0=h84d6215_4
@@ -140,22 +140,22 @@ dependencies:
   - tzdata=2024b=hc8b5060_0
   - unicodedata2=15.1.0=py311h9ecbd09_1
   - urllib3=2.2.3=pyhd8ed1ab_0
-  - wheel=0.44.0=pyhd8ed1ab_0
+  - wheel=0.45.0=pyhd8ed1ab_0
   - xorg-libxau=1.0.11=hb9d3cd8_1
   - xorg-libxdmcp=1.1.5=hb9d3cd8_0
   - xz=5.2.6=h166bdaf_0
   - yaml=0.2.5=h7f98852_2
   - zarr=2.14.2=pyhd8ed1ab_0
   - zict=3.0.0=pyhd8ed1ab_0
-  - zipp=3.20.2=pyhd8ed1ab_0
+  - zipp=3.21.0=pyhd8ed1ab_0
   - zstandard=0.23.0=py311hbc35293_1
   - zstd=1.5.6=ha6fb4c9_0
   - pip:
-      - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@daf7667fcbbe1aba8e38e19e6a7812a06790b334
-      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@0f1e08d3b2ef6f54af1cb8830b23278824db7a46
-      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@6ea9a4599a0ab75be55e531e2aa9cfd933345f19
-      - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app.git@6f9365847870e744177ca80a3b5170387fcee082
-      - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps.git@b8758293c7c610300acab780d2eb5db64ba7862c
+      - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@2a9d77a577fadf9c1256b0385e588e499f7f0dcf
+      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@11960119d833a447e025ff31109f2140096ac692
+      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@93c899f2a81f89ee3bacee492327824e13e6451e
+      - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app.git@aea6d6f9e704ff810269095e35bc24597352f943
+      - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps.git@644febfba1e81b1777a8ebf86744541c8e1fce09
 
 variables:
   KMP_WARNINGS: 0

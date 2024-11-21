@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import warnings
+from copy import deepcopy
 from typing import TYPE_CHECKING
 from uuid import UUID
 
@@ -28,10 +29,12 @@ from discretize.utils import mesh_utils
 from geoapps_utils.utils.conversions import string_to_numeric
 from geoapps_utils.utils.numerical import running_mean, traveling_salesman
 from geoh5py import Workspace
-from geoh5py.groups import Group
+from geoh5py.groups import Group, SimPEGGroup
 from geoh5py.objects import DrapeModel, Octree
+from geoh5py.objects.surveys.direct_current import PotentialElectrode
 from geoh5py.objects.surveys.electromagnetics.base import LargeLoopGroundEMSurvey
 from geoh5py.shared import INTEGER_NDV
+from geoh5py.ui_json import InputFile
 from octree_creation_app.utils import octree_2_treemesh
 from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator, interp1d
 from scipy.spatial import ConvexHull, Delaunay, cKDTree
@@ -42,9 +45,12 @@ from simpeg.electromagnetics.time_domain.sources import LineCurrent as TEMLineCu
 from simpeg.survey import BaseSurvey
 from simpeg.utils import mkvc
 
+from simpeg_drivers import DRIVER_MAP
+
 
 if TYPE_CHECKING:
     from simpeg_drivers.components.data import InversionData
+    from simpeg_drivers.driver import InversionDriver
 
 from simpeg_drivers.utils.surveys import (
     compute_alongline_distance,
@@ -635,8 +641,15 @@ def get_containing_cells(
     :param data: Inversion data object
     """
     if isinstance(mesh, TreeMesh):
+        if isinstance(data.entity, PotentialElectrode):
+            potentials = data.entity.vertices
+            currents = data.entity.current_electrodes.vertices
+            locations = np.unique(np.r_[potentials, currents], axis=0)
+        else:
+            locations = data.locations
+
         inds = mesh._get_containing_cell_indexes(  # pylint: disable=protected-access
-            data.locations
+            locations
         )
 
         if isinstance(data.entity, LargeLoopGroundEMSurvey):
@@ -798,3 +811,24 @@ def get_neighbouring_cells(mesh: TreeMesh, indices: list | np.ndarray) -> tuple:
         (np.r_[tuple(neighbors[ax][0])], np.r_[tuple(neighbors[ax][1])])
         for ax in range(mesh.dim)
     )
+
+
+def simpeg_group_to_driver(group: SimPEGGroup, workspace: Workspace) -> InversionDriver:
+    """
+    Utility to generate an inversion driver from a SimPEG group options.
+
+    :param group: SimPEGGroup object.
+    :param workspace: Workspace object.
+    """
+
+    ui_json = deepcopy(group.options)
+    ui_json["geoh5"] = workspace
+
+    ifile = InputFile(ui_json=ui_json)
+    mod_name, class_name = DRIVER_MAP.get(ui_json["inversion_type"])
+    module = __import__(mod_name, fromlist=[class_name])
+    inversion_driver = getattr(module, class_name)
+    params = inversion_driver._params_class(  # pylint: disable=W0212
+        ifile, out_group=group
+    )
+    return inversion_driver(params)

@@ -26,7 +26,6 @@ from discretize import TensorMesh, TreeMesh
 from geoh5py import Workspace
 from geoh5py.groups import UIJsonGroup
 from geoh5py.objects import DrapeModel, Octree
-from geoh5py.shared.utils import stringify
 from octree_creation_app.driver import OctreeDriver
 from octree_creation_app.params import OctreeParams
 from octree_creation_app.utils import octree_2_treemesh, treemesh_2_octree

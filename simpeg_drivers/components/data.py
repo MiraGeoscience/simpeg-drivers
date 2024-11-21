@@ -34,6 +34,7 @@ from discretize import TreeMesh
 from scipy.spatial import cKDTree
 from simpeg import maps
 from simpeg.electromagnetics.static.utils.static_utils import geometric_factor
+from simpeg.simulation import BaseSimulation
 
 from simpeg_drivers.utils.utils import create_nested_mesh, drape_2_tensor
 
@@ -404,10 +405,9 @@ class InversionData(InversionLocations):
         mesh: TreeMesh,
         active_cells: np.ndarray,
         survey,
-        models,
         tile_id: int | None = None,
         padding_cells: int = 6,
-    ):
+    ) -> tuple[BaseSimulation, maps.IdentityMap]:
         """
         Generates SimPEG simulation object.
 
@@ -428,7 +428,7 @@ class InversionData(InversionLocations):
 
         if tile_id is None or "2d" in self.params.inversion_type:
             mapping = maps.IdentityMap(nP=int(self.n_blocks * active_cells.sum()))
-            sim = simulation_factory.build(
+            simulation = simulation_factory.build(
                 survey=survey,
                 global_mesh=mesh,
                 active_cells=active_cells,
@@ -449,7 +449,7 @@ class InversionData(InversionLocations):
                 enforce_active=True,
                 components=3 if self.vector else 1,
             )
-            sim = simulation_factory.build(
+            simulation = simulation_factory.build(
                 survey=survey,
                 receivers=self.entity,
                 global_mesh=mesh,
@@ -459,18 +459,7 @@ class InversionData(InversionLocations):
                 tile_id=tile_id,
             )
 
-        if "induced polarization" in self.params.inversion_type:
-            if "2d" in self.params.inversion_type:
-                proj = maps.InjectActiveCells(mesh, active_cells, valInactive=1e-8)
-            else:
-                proj = maps.InjectActiveCells(
-                    nested_mesh, mapping.local_active, valInactive=1e-8
-                )
-
-            # TODO this should be done in the simulation factory
-            sim.sigma = proj * mapping * models.conductivity
-
-        return sim, mapping
+        return simulation, mapping
 
     def simulate(self, model, inverse_problem, sorting, ordering):
         """Simulate fields for a particular model."""
