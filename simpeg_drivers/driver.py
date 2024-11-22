@@ -29,6 +29,8 @@ import numpy as np
 from dask import config as dconf
 from geoapps_utils.driver.driver import BaseDriver
 
+from dask.diagnostics import visualize, Profiler, ResourceProfiler, CacheProfiler
+
 from geoh5py.data import Data
 from geoh5py.groups import SimPEGGroup
 from geoh5py.shared.utils import fetch_active_workspace
@@ -310,7 +312,14 @@ class InversionDriver(BaseDriver):
         else:
             # Run the inversion
             self.start_inversion_message()
-            simpeg_inversion.run(self.models.starting)
+            with Profiler() as prof, ResourceProfiler(dt=0.25) as rprof:
+                simpeg_inversion.run(self.models.starting)
+
+            visualize(
+                [prof, rprof],
+                filename=Path(self.params.input_file.path) / "dask_profile.html",
+                show=False,
+            )
 
         self.logger.end()
         sys.stdout = self.logger.terminal
