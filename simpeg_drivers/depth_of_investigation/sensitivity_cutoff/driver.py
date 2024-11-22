@@ -66,7 +66,7 @@ class SensitivityCutoffDriver(BaseDriver):
                 f"{self.params.mask_name}": {
                     "values": scaled_sensitivity > self.params.sensitivity_cutoff,
                 },
-                f"{self.params.sensitivity_model.name} + _'normalized'": {
+                f"{self.params.sensitivity_model.name}_normalized": {
                     "values": scaled_sensitivity
                 },
             }
