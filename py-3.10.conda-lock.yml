@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: 8f37d20dfde0ac60e6494e7387751dc78ee1f1ab9f448f29ed76df9e5ea76cff
-    linux-64: ea7bba63f8bea4adce2ab0249d73d4600bd44e222856bd6fee64de5f9375d605
+    win-64: 7327ab4f094c7c6278c24834b48028199bfe4438b048751196b4e832ee329eef
+    linux-64: ca22b3cf594fe1241f8f87f565fd22f40f4228a4f15b395006f4324731b6a772
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -580,16 +580,16 @@ package:
   category: main
   optional: false
 - name: c-ares
-  version: 1.32.3
+  version: 1.34.3
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
-    libgcc-ng: '>=12'
-  url: https://conda.anaconda.org/conda-forge/linux-64/c-ares-1.32.3-h4bc722e_0.conda
+    libgcc: '>=13'
+  url: https://conda.anaconda.org/conda-forge/linux-64/c-ares-1.34.3-hb9d3cd8_1.conda
   hash:
-    md5: 7624e34ee6baebfc80d67bac76cc9d9d
-    sha256: 3c5a844bb60b0d52d89c3f1bd828c9856417fe33a6102fd8bbd5c13c3351704a
+    md5: ee228789a85f961d14567252a03e725f
+    sha256: 732571ba6286dbccbf4c6450078a581b7a5620204faf876ff0ef282d77a6bfa8
   category: main
   optional: false
 - name: ca-certificates
@@ -880,7 +880,7 @@ package:
   category: main
   optional: false
 - name: coverage
-  version: 7.6.7
+  version: 7.6.8
   manager: conda
   platform: linux-64
   dependencies:
@@ -889,14 +889,14 @@ package:
     python: '>=3.10,<3.11.0a0'
     python_abi: 3.10.*
     tomli: ''
-  url: https://conda.anaconda.org/conda-forge/linux-64/coverage-7.6.7-py310h89163eb_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/coverage-7.6.8-py310h89163eb_0.conda
   hash:
-    md5: edced792209b5a2591ebccad19955a59
-    sha256: 9f2eac7b7b148bf48adaa946d331103bcd5306b588f319b21166c4f5851d5086
+    md5: 1109af252e695897f5acc7c1578202cd
+    sha256: bf344cd5cba14409c422022dcacdf030f66ed325493ecb6f6bf6f22b7e0ee39b
   category: dev
   optional: true
 - name: coverage
-  version: 7.6.7
+  version: 7.6.8
   manager: conda
   platform: win-64
   dependencies:
@@ -906,10 +906,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://conda.anaconda.org/conda-forge/win-64/coverage-7.6.7-py310h38315fa_0.conda
+  url: https://conda.anaconda.org/conda-forge/win-64/coverage-7.6.8-py310h38315fa_0.conda
   hash:
-    md5: 43c66f538fcbc63d499ce1050bc69e92
-    sha256: ce137eef8cd129d4a8adf3bbaa92c0d007116deb636b193462f086548e5e2099
+    md5: 981d75123a07437c07181d5919a6c2af
+    sha256: 26f7df3758c5a6fbca73b76ee415eb0581fe40dd0734c99220cf88b76b18e2ba
   category: dev
   optional: true
 - name: cpython
@@ -1047,7 +1047,7 @@ package:
   category: dev
   optional: true
 - name: debugpy
-  version: 1.8.8
+  version: 1.8.9
   manager: conda
   platform: linux-64
   dependencies:
@@ -1056,14 +1056,14 @@ package:
     libstdcxx: '>=13'
     python: '>=3.10,<3.11.0a0'
     python_abi: 3.10.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/debugpy-1.8.8-py310hf71b8c6_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/debugpy-1.8.9-py310hf71b8c6_0.conda
   hash:
-    md5: 1e12c55d575c0820836bf008f12cd98c
-    sha256: 7f41768a009d06f7551e86fd38e7c95c32a7620b559f46dfb78c9e2d1f54c86a
+    md5: 83920a2c090a02d77d2a1dfbd0d9f0a3
+    sha256: c433606433a7683e13c56ec369a848c7ba6fc64a2b6fbd03664f916f44139ab1
   category: dev
   optional: true
 - name: debugpy
-  version: 1.8.8
+  version: 1.8.9
   manager: conda
   platform: win-64
   dependencies:
@@ -1072,10 +1072,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://conda.anaconda.org/conda-forge/win-64/debugpy-1.8.8-py310h9e98ed7_0.conda
+  url: https://conda.anaconda.org/conda-forge/win-64/debugpy-1.8.9-py310h9e98ed7_0.conda
   hash:
-    md5: 4639298197f4e09b47b166412dd92b5c
-    sha256: 090fa899742496e0b23e973a5324615628e5271d156015a15c01a85592ddcdd2
+    md5: 85292b2b0fdca947c417ca3ebbb6b0a5
+    sha256: c439ecf453cc3255da3d33215d4e00494cbd9752d483fde2f7077a2f414fb64f
   category: dev
   optional: true
 - name: decorator
@@ -3686,33 +3686,34 @@ package:
   category: main
   optional: false
 - name: libssh2
-  version: 1.11.0
+  version: 1.11.1
   manager: conda
   platform: linux-64
   dependencies:
-    libgcc-ng: '>=12'
-    libzlib: '>=1.2.13,<2.0.0a0'
-    openssl: '>=3.1.1,<4.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libssh2-1.11.0-h0841786_0.conda
+    __glibc: '>=2.17,<3.0.a0'
+    libgcc: '>=13'
+    libzlib: '>=1.3.1,<2.0a0'
+    openssl: '>=3.4.0,<4.0a0'
+  url: https://conda.anaconda.org/conda-forge/linux-64/libssh2-1.11.1-hf672d98_0.conda
   hash:
-    md5: 1f5a58e686b13bcfde88b93f547d23fe
-    sha256: 50e47fd9c4f7bf841a11647ae7486f65220cfc988ec422a4475fe8d5a823824d
+    md5: be2de152d8073ef1c01b7728475f2fe7
+    sha256: 0407ac9fda2bb67e11e357066eff144c845801d00b5f664efbc48813af1e7bb9
   category: main
   optional: false
 - name: libssh2
-  version: 1.11.0
+  version: 1.11.1
   manager: conda
   platform: win-64
   dependencies:
-    libzlib: '>=1.2.13,<2.0.0a0'
-    openssl: '>=3.1.1,<4.0a0'
+    libzlib: '>=1.3.1,<2.0a0'
+    openssl: '>=3.4.0,<4.0a0'
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://conda.anaconda.org/conda-forge/win-64/libssh2-1.11.0-h7dfc565_0.conda
+  url: https://conda.anaconda.org/conda-forge/win-64/libssh2-1.11.1-he619c9f_0.conda
   hash:
-    md5: dc262d03aae04fe26825062879141a41
-    sha256: 813fd04eed2a2d5d9c36e53c554f9c1f08e9324e2922bd60c9c52dbbed2dbcec
+    md5: af0cbf037dd614c34399b3b3e568c557
+    sha256: 4b3256bd2b4e4b3183005d3bd8826d651eccd1a4740b70625afa2b7e7123d191
   category: main
   optional: false
 - name: libstdcxx
@@ -5557,39 +5558,39 @@ package:
   category: main
   optional: false
 - name: pydantic
-  version: 2.10.0
+  version: 2.10.1
   manager: conda
   platform: linux-64
   dependencies:
     annotated-types: '>=0.6.0'
-    pydantic-core: 2.27.0
+    pydantic-core: 2.27.1
     python: '>=3.9'
     typing-extensions: '>=4.6.1'
     typing_extensions: '>=4.12.2'
-  url: https://conda.anaconda.org/conda-forge/noarch/pydantic-2.10.0-pyh10f6f8f_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/pydantic-2.10.1-pyh10f6f8f_0.conda
   hash:
-    md5: c8d0d99422d56d42185f43e1d4808cb5
-    sha256: fbb18b5d24acad15c452d1d4467999d1a6cbc7b3a89771c0b2424031ddc303b4
+    md5: c15343c9dbdb30766a07e5b70e46c7d3
+    sha256: b1872231d26ee3ded32bd1fe3ee1b3c7d9834ad72bf28aed70e5cd1235341584
   category: main
   optional: false
 - name: pydantic
-  version: 2.10.0
+  version: 2.10.1
   manager: conda
   platform: win-64
   dependencies:
     annotated-types: '>=0.6.0'
-    pydantic-core: 2.27.0
+    pydantic-core: 2.27.1
     python: '>=3.9'
     typing-extensions: '>=4.6.1'
     typing_extensions: '>=4.12.2'
-  url: https://conda.anaconda.org/conda-forge/noarch/pydantic-2.10.0-pyh10f6f8f_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/pydantic-2.10.1-pyh10f6f8f_0.conda
   hash:
-    md5: c8d0d99422d56d42185f43e1d4808cb5
-    sha256: fbb18b5d24acad15c452d1d4467999d1a6cbc7b3a89771c0b2424031ddc303b4
+    md5: c15343c9dbdb30766a07e5b70e46c7d3
+    sha256: b1872231d26ee3ded32bd1fe3ee1b3c7d9834ad72bf28aed70e5cd1235341584
   category: main
   optional: false
 - name: pydantic-core
-  version: 2.27.0
+  version: 2.27.1
   manager: conda
   platform: linux-64
   dependencies:
@@ -5598,14 +5599,14 @@ package:
     python: '>=3.10,<3.11.0a0'
     python_abi: 3.10.*
     typing-extensions: '>=4.6.0,!=4.7.0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/pydantic-core-2.27.0-py310h505e2c1_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/pydantic-core-2.27.1-py310h505e2c1_0.conda
   hash:
-    md5: 29aa0b33281f033f7ac314fb262da662
-    sha256: 3cfc57e7ac1c26030cc614aedc59f81f25fe7833fdd73a7c387c5923415266fe
+    md5: 9493c5caf801dfc328f74c1000e9be4e
+    sha256: 74078f74b6d1509df6f3eb587ede3a54b1cf55acf772370735d8364c3f0b347c
   category: main
   optional: false
 - name: pydantic-core
-  version: 2.27.0
+  version: 2.27.1
   manager: conda
   platform: win-64
   dependencies:
@@ -5615,10 +5616,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://conda.anaconda.org/conda-forge/win-64/pydantic-core-2.27.0-py310hc226416_0.conda
+  url: https://conda.anaconda.org/conda-forge/win-64/pydantic-core-2.27.1-py310hc226416_0.conda
   hash:
-    md5: a449676c94bba5ccbcef1dc6420d240d
-    sha256: 4d4519361d6cb483e295564419560dfaa5986cad1cca7e8229bbc490761ccacd
+    md5: 4170e7c93ba4045f6ee3f89de1d040d5
+    sha256: 4e41503706f55429f0abda0d6f4d0509d0a215b51c5587628c201c3d0014836a
   category: main
   optional: false
 - name: pydata-sphinx-theme
@@ -7541,29 +7542,29 @@ package:
   category: main
   optional: false
 - name: tqdm
-  version: 4.67.0
+  version: 4.67.1
   manager: conda
   platform: linux-64
   dependencies:
     colorama: ''
     python: '>=3.7'
-  url: https://conda.anaconda.org/conda-forge/noarch/tqdm-4.67.0-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/tqdm-4.67.1-pyhd8ed1ab_0.conda
   hash:
-    md5: 196a9e6ab4e036ceafa516ea036619b0
-    sha256: fb25b18cec1ebae56e7d7ebbd3e504f063b61a0fac17b1ca798fcaf205bdc874
+    md5: 4085c9db273a148e149c03627350e22c
+    sha256: 5673b7104350a6998cb86cccf1d0058217d86950e8d6c927d8530606028edb1d
   category: main
   optional: false
 - name: tqdm
-  version: 4.67.0
+  version: 4.67.1
   manager: conda
   platform: win-64
   dependencies:
     colorama: ''
     python: '>=3.7'
-  url: https://conda.anaconda.org/conda-forge/noarch/tqdm-4.67.0-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/tqdm-4.67.1-pyhd8ed1ab_0.conda
   hash:
-    md5: 196a9e6ab4e036ceafa516ea036619b0
-    sha256: fb25b18cec1ebae56e7d7ebbd3e504f063b61a0fac17b1ca798fcaf205bdc874
+    md5: 4085c9db273a148e149c03627350e22c
+    sha256: 5673b7104350a6998cb86cccf1d0058217d86950e8d6c927d8530606028edb1d
   category: main
   optional: false
 - name: traitlets
@@ -7963,27 +7964,27 @@ package:
   category: dev
   optional: true
 - name: wheel
-  version: 0.45.0
+  version: 0.45.1
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.8'
-  url: https://conda.anaconda.org/conda-forge/noarch/wheel-0.45.0-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/wheel-0.45.1-pyhd8ed1ab_0.conda
   hash:
-    md5: f9751d7c71df27b2d29f5cab3378982e
-    sha256: 8a51067f8e1a2cb0b5e89672dbcc0369e344a92e869c38b2946584aa09ab7088
+    md5: bdb2f437ce62fd2f1fef9119a37a12d9
+    sha256: 24f6851a336a50c53d6b50b142c1654872494a62528d57c3ff40240cbd8b13be
   category: main
   optional: false
 - name: wheel
-  version: 0.45.0
+  version: 0.45.1
   manager: conda
   platform: win-64
   dependencies:
     python: '>=3.8'
-  url: https://conda.anaconda.org/conda-forge/noarch/wheel-0.45.0-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/wheel-0.45.1-pyhd8ed1ab_0.conda
   hash:
-    md5: f9751d7c71df27b2d29f5cab3378982e
-    sha256: 8a51067f8e1a2cb0b5e89672dbcc0369e344a92e869c38b2946584aa09ab7088
+    md5: bdb2f437ce62fd2f1fef9119a37a12d9
+    sha256: 24f6851a336a50c53d6b50b142c1654872494a62528d57c3ff40240cbd8b13be
   category: main
   optional: false
 - name: widgetsnbextension
@@ -8440,12 +8441,12 @@ package:
     pillow: '>=10.3.0,<10.4.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: git+https://github.com/MiraGeoscience/octree-creation-app.git@4954ecf06f215b1d2d3b3e6dfba2178467dd2c2d
+  url: git+https://github.com/MiraGeoscience/octree-creation-app.git@8cf9eb474930e3d901a8a66737d896c4fb63f4fb
   hash:
-    sha256: 4954ecf06f215b1d2d3b3e6dfba2178467dd2c2d
+    sha256: 8cf9eb474930e3d901a8a66737d896c4fb63f4fb
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/octree-creation-app.git@4954ecf06f215b1d2d3b3e6dfba2178467dd2c2d
+    url: git+https://github.com/MiraGeoscience/octree-creation-app.git@8cf9eb474930e3d901a8a66737d896c4fb63f4fb
   category: main
   optional: false
 - name: octree-creation-app
@@ -8461,12 +8462,12 @@ package:
     pillow: '>=10.3.0,<10.4.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: git+https://github.com/MiraGeoscience/octree-creation-app.git@4954ecf06f215b1d2d3b3e6dfba2178467dd2c2d
+  url: git+https://github.com/MiraGeoscience/octree-creation-app.git@8cf9eb474930e3d901a8a66737d896c4fb63f4fb
   hash:
-    sha256: 4954ecf06f215b1d2d3b3e6dfba2178467dd2c2d
+    sha256: 8cf9eb474930e3d901a8a66737d896c4fb63f4fb
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/octree-creation-app.git@4954ecf06f215b1d2d3b3e6dfba2178467dd2c2d
+    url: git+https://github.com/MiraGeoscience/octree-creation-app.git@8cf9eb474930e3d901a8a66737d896c4fb63f4fb
   category: main
   optional: false
 - name: param-sweeps
