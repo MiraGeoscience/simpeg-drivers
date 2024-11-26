@@ -21,44 +21,38 @@ import sys
 import numpy as np
 from geoapps_utils.driver.driver import BaseDriver
 from geoh5py.data import FloatData
-from geoh5py.objects import Octree
-from geoh5py.shared.utils import fetch_active_workspace
 
-from .params import SensitivityCutoffParams
+from simpeg_drivers.depth_of_investigation.sensitivity_cutoff.params import (
+    SensitivityCutoffParams,
+)
 
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-def scale_sensitivity(sensitivity: np.ndarray) -> np.ndarray:
-    """
-    Normalize sensitivity and convert to percentage.
-
-    :param sensitivity: Sum squared sensitivity matrix.
-    """
-    out = sensitivity.copy()
-    out -= np.nanmin(out)
-    out *= 100 / np.nanmax(out)
-
-    return out
-
-
 def apply_cutoff(
     sensitivity: FloatData, cutoff: float, method: str = "percentile"
 ) -> np.ndarray:
+    """
+    Create cutoff mask for one of 'percentile', 'percent', or 'log_percent' methods.
+
+    :param sensitivity: Sensitivity data object.
+    :param cutoff: Cutoff value.
+    :param method: Cutoffs methods can be lower 'percentile', 'percent', or 'log_percent'.
+    """
     values = sensitivity.values.copy()
-    values = values[np.isfinite(values)]
 
     if method == "percentile":
-        cutoff_value = np.percentile(values, cutoff)
+        finite_values = values[~np.isnan(values)]
+        cutoff_value = np.percentile(finite_values, cutoff)
         mask = values > cutoff_value
     elif method == "percent":
-        scaled_sensitivity = scale_sensitivity(values)
+        scaled_sensitivity = values * 100 / np.nanmax(values)
         mask = scaled_sensitivity > cutoff
     elif method == "log_percent":
-        log_sensitivity = np.log10(values)
-        scaled_sensitivity = scale_sensitivity(log_sensitivity)
+        log_values = np.log10(values + 1)
+        scaled_sensitivity = log_values * 100 / np.nanmax(log_values)
         mask = scaled_sensitivity > cutoff
     else:
         raise ValueError(
