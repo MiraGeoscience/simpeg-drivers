@@ -71,7 +71,7 @@ def auto_mesh_parameters(
 
     with fetch_active_workspace(survey.workspace, mode="r+") as workspace:
         spacing = station_spacing(survey.locations) / cell_size_factor
-        base_cell_size = np.round(spacing)
+        base_cell_size = np.round(spacing / 5) * 5
         padding = auto_pad(survey.locations)
 
         params_dict = {
