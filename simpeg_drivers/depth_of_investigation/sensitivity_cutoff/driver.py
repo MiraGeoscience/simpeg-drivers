@@ -31,16 +31,41 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-def scale_sensitivity(sensitivity: FloatData) -> np.ndarray:
+def scale_sensitivity(sensitivity: np.ndarray) -> np.ndarray:
     """
     Normalize sensitivity and convert to percentage.
 
     :param sensitivity: Sum squared sensitivity matrix.
     """
-    out = sensitivity.values.copy()
+    out = sensitivity.copy()
+    out -= np.nanmin(out)
     out *= 100 / np.nanmax(out)
 
     return out
+
+
+def apply_cutoff(
+    sensitivity: FloatData, cutoff: float, method: str = "percentile"
+) -> np.ndarray:
+    values = sensitivity.values.copy()
+    values = values[np.isfinite(values)]
+
+    if method == "percentile":
+        cutoff_value = np.percentile(values, cutoff)
+        mask = values > cutoff_value
+    elif method == "percent":
+        scaled_sensitivity = scale_sensitivity(values)
+        mask = scaled_sensitivity > cutoff
+    elif method == "log_percent":
+        log_sensitivity = np.log10(values)
+        scaled_sensitivity = scale_sensitivity(log_sensitivity)
+        mask = scaled_sensitivity > cutoff
+    else:
+        raise ValueError(
+            "Invalid method. Must be 'percentile', 'percent', or 'log_percent'."
+        )
+
+    return mask
 
 
 class SensitivityCutoffDriver(BaseDriver):
@@ -59,17 +84,14 @@ class SensitivityCutoffDriver(BaseDriver):
 
     def run(self):
         logger.info("Scaling sensitivities . . .")
-        scaled_sensitivity = scale_sensitivity(self.params.sensitivity_model)
+        mask = apply_cutoff(
+            self.params.sensitivity_model,
+            self.params.sensitivity_cutoff,
+            self.params.cutoff_method,
+        )
         logger.info("Creating cutoff mask '%s'", self.params.mask_name)
-        cutoff_mask, normalized_sensitivities = self.params.mesh.add_data(
-            {
-                f"{self.params.mask_name}": {
-                    "values": scaled_sensitivity > self.params.sensitivity_cutoff,
-                },
-                f"{self.params.sensitivity_model.name}_normalized": {
-                    "values": scaled_sensitivity
-                },
-            }
+        cutoff_mask = self.params.mesh.add_data(
+            {f"{self.params.mask_name}": {"values": mask, "association": "CELL"}}
         )
 
         self.update_monitoring_directory(self.params.mesh)
