@@ -23,6 +23,11 @@ from octree_creation_app.params import OctreeParams
 from simpeg_drivers.utils.surveys import station_spacing
 
 
+def round_nearest(data: np.ndarray, integer: int) -> np.ndarray:
+    """Round data to the nearest integer value."""
+    return np.round(data / integer) * integer
+
+
 def auto_pad(survey, factor=2) -> tuple[list[float], list[float]]:
     """
     Estimate horizontal padding as a fraction of the survey extent.
@@ -71,7 +76,7 @@ def auto_mesh_parameters(
 
     with fetch_active_workspace(survey.workspace, mode="r+") as workspace:
         spacing = station_spacing(survey.locations) / cell_size_factor
-        base_cell_size = np.round(spacing / 5) * 5
+        base_cell_size = round_nearest(spacing, 5)
         padding = auto_pad(survey.locations)
 
         params_dict = {
