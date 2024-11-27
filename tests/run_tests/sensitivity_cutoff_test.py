@@ -154,4 +154,4 @@ def test_gravity_run(
 
     with Workspace(workpath) as geoh5:
         mask = geoh5.get_entity("5 percent log cutoff")[0]
-        assert mask.values.sum() == 1409
+        assert mask.values.sum() == 23144

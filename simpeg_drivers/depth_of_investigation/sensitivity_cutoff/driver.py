@@ -31,7 +31,42 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-def apply_cutoff(
+def lower_percentile_mask(data: np.ndarray, cutoff: float) -> np.ndarray:
+    """
+    Create mask for data to remove lower percentile values.
+
+    :param data: Data.
+    :param cutoff: lower percentile below which the mask will filter values.
+    """
+    finite_data = data[~np.isnan(data)]
+    cutoff_value = np.percentile(finite_data, cutoff)
+    mask = data > cutoff_value
+
+    return mask
+
+
+def lower_percent_mask(data: np.ndarray, cutoff: float, logspace=False) -> np.ndarray:
+    """
+    Create mask for data to remove bottom ten percent of normalized values.
+
+    :param data: Data.
+    :param cutoff: Data are normalized into the range [0, 100] so that the
+        cutoff value eliminates the bottom n percent of data.
+    :param logspace: Applies cutoff on log10(data).
+    """
+
+    if logspace:
+        data[data == 0] = np.nan
+        data = np.log10(data)
+        data -= np.nanmin(data)
+
+    scaled_data = data * 100 / np.nanmax(data)
+    mask = scaled_data > cutoff
+
+    return mask
+
+
+def sensitivity_mask(
     sensitivity: FloatData, cutoff: float, method: str = "percentile"
 ) -> np.ndarray:
     """
@@ -44,16 +79,11 @@ def apply_cutoff(
     values = sensitivity.values.copy()
 
     if method == "percentile":
-        finite_values = values[~np.isnan(values)]
-        cutoff_value = np.percentile(finite_values, cutoff)
-        mask = values > cutoff_value
+        mask = lower_percentile_mask(values, cutoff)
     elif method == "percent":
-        scaled_sensitivity = values * 100 / np.nanmax(values)
-        mask = scaled_sensitivity > cutoff
+        mask = lower_percent_mask(values, cutoff)
     elif method == "log_percent":
-        log_values = np.log10(values + 1)
-        scaled_sensitivity = log_values * 100 / np.nanmax(log_values)
-        mask = scaled_sensitivity > cutoff
+        mask = lower_percent_mask(values, cutoff, logspace=True)
     else:
         raise ValueError(
             "Invalid method. Must be 'percentile', 'percent', or 'log_percent'."
@@ -78,7 +108,7 @@ class SensitivityCutoffDriver(BaseDriver):
 
     def run(self):
         logger.info("Scaling sensitivities . . .")
-        mask = apply_cutoff(
+        mask = sensitivity_mask(
             self.params.sensitivity_model,
             self.params.sensitivity_cutoff,
             self.params.cutoff_method,
