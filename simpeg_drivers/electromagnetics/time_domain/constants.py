@@ -300,7 +300,7 @@ default_ui_json = {
         "enabled": False,
     },
     "store_sensitivities": {
-        "choiceList": ["ram"],
+        "choiceList": ["ram", "disk"],
         "group": "Compute",
         "label": "Storage device",
         "tooltip": "Only RAM storage available for now.",
