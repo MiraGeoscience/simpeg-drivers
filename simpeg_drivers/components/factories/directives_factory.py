@@ -422,8 +422,10 @@ class SaveSensitivitiesGeoh5Factory(SaveGeoh5Factory):
         }
 
         if self.factory_type == "magnetic vector":
-            kwargs["channels"] = ["amplitude", "inclination", "declination"]
+            kwargs["channels"] = [""]
             kwargs["transforms"] = [
+                lambda x: x.reshape((-1, 3), order="F"),
+                lambda x: np.linalg.norm(x, axis=1),
                 active_cells_map,
             ]
 
