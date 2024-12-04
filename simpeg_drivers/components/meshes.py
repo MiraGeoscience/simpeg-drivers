@@ -131,18 +131,7 @@ class InversionMesh:
 
         mesh = driver.run()
         self.entity = mesh.copy(parent=self.params.out_group)
-
-        # self._mesh = OctreeDriver.treemesh_from_params(params)
-
-
-        #
-        # self._entity = treemesh_2_octree(
-        #     self.params.geoh5,
-        #     self._mesh,
-        #     parent=mesh_group,
-        #     name="OctreeMesh",
-        # )
-        # self._permutation = np.arange(self.entity.n_cells)
+        
 
     @property
     def mesh(self) -> TreeMesh | TensorMesh:
