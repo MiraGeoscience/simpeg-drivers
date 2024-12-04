@@ -219,7 +219,7 @@ class SimulationFactory(SimPEGFactory):
 
     def _get_sensitivity_path(self, tile_id: int) -> str:
         """Build path to destination of on-disk sensitivities."""
-        out_dir = Path(self.params.workpath) / "SimPEG_PFInversion"
+        out_dir = Path(self.params.workpath) / "sensitivities"
 
         if tile_id is None:
             sens_path = out_dir / "Tile.zarr"
