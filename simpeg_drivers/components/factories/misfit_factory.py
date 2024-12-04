@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 
 import numpy as np
 from geoh5py.objects import Octree
-from simpeg import data, data_misfit, maps, objective_function
+from simpeg import data, data_misfit, maps, meta, objective_function
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 
@@ -135,21 +135,19 @@ class MisfitFactory(SimPEGFactory):
                 #     treemesh_2_octree(ws, local_sim.mesh)
 
                 # TODO Parse workers to simulations
-                local_sim.workers = self.params.distributed_workers
+                meta_simulation = meta.simulation.MetaSimulation([local_sim], [mapping])
+                # local_sim.workers = self.params.distributed_workers
                 local_data = data.Data(local_sim.survey)
 
                 if self.params.forward_only:
-                    lmisfit = data_misfit.L2DataMisfit(
-                        local_data, local_sim, model_map=mapping
-                    )
+                    lmisfit = data_misfit.L2DataMisfit(local_data, meta_simulation)
 
                 else:
                     local_data.dobs = local_sim.survey.dobs
                     local_data.standard_deviation = local_sim.survey.std
                     lmisfit = data_misfit.L2DataMisfit(
-                        data=local_data,
-                        simulation=local_sim,
-                        model_map=mapping,
+                        local_data,
+                        meta_simulation,
                     )
                     lmisfit.W = 1 / local_sim.survey.std
                     name = self.params.inversion_type
