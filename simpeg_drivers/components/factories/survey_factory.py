@@ -214,8 +214,8 @@ class SurveyFactory(SimPEGFactory):
                 dobs.append(data_stack[component_id][channel_id, rx_id])
                 uncerts.append(uncert_stack[component_id][channel_id, rx_id])
 
-            survey.dobs = np.vstack([dobs]).flatten()
-            survey.std = np.vstack([uncerts]).flatten()
+            data_vec = np.vstack([dobs]).flatten()
+            uncertainty_vec = np.vstack([uncerts]).flatten()
 
         elif self.factory_type in ["magnetotellurics", "tipper"]:
             local_data = {}
@@ -235,12 +235,6 @@ class SurveyFactory(SimPEGFactory):
 
             data_vec = self._stack_channels(local_data, "row")
             uncertainty_vec = self._stack_channels(local_uncertainties, "row")
-            uncertainty_vec[np.isnan(data_vec)] = np.inf
-            data_vec[np.isnan(data_vec)] = (
-                self.dummy
-            )  # Nan's handled by inf uncertainties
-            survey.dobs = data_vec
-            survey.std = uncertainty_vec
 
         else:
             local_data = {k: v[local_index] for k, v in data.observed.items()}
@@ -250,12 +244,11 @@ class SurveyFactory(SimPEGFactory):
 
             data_vec = self._stack_channels(local_data, "column")
             uncertainty_vec = self._stack_channels(local_uncertainties, "column")
-            uncertainty_vec[np.isnan(data_vec)] = np.inf
-            data_vec[np.isnan(data_vec)] = (
-                self.dummy
-            )  # Nan's handled by inf uncertainties
-            survey.dobs = data_vec
-            survey.std = uncertainty_vec
+
+        uncertainty_vec[np.isnan(data_vec)] = np.inf
+        data_vec[np.isnan(data_vec)] = self.dummy  # Nan's handled by inf uncertainties
+        survey.dobs = data_vec
+        survey.std = uncertainty_vec
 
     def _stack_channels(self, channel_data: dict[str, np.ndarray], mode: str):
         """
