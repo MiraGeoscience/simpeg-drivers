@@ -51,6 +51,7 @@ class SensitivityCutoffParams(BaseData):
     mesh: Octree
     sensitivity_model: FloatData
     sensitivity_cutoff: float = 0.1
+    cutoff_method: str = "percentile"
     mask_name: str | None = "Sensitivity Cutoff"
 
     @field_validator("mask_name")

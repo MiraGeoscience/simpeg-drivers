@@ -22,7 +22,7 @@ from octree_creation_app.driver import OctreeDriver
 from scipy.interpolate import LinearNDInterpolator
 from scipy.ndimage import gaussian_filter
 
-from simpeg_drivers.utils.meshes import auto_mesh_parameters, auto_pad
+from simpeg_drivers.utils.meshes import auto_mesh_parameters, auto_pad, round_nearest
 from tests.utils_surveys_test import create_test_survey
 
 
@@ -58,6 +58,12 @@ def generate_random_topography(
         survey[:, 2] = interp(survey[:, :2]) + drape_survey
 
     return survey, topo
+
+
+def test_round_nearest():
+    data = np.arange(11)
+    rounded = round_nearest(data, 5)
+    assert np.allclose(rounded, np.array([0, 0, 0, 5, 5, 5, 5, 5, 10, 10, 10]))
 
 
 def test_auto_pad():
