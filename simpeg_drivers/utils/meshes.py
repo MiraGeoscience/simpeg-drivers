@@ -106,7 +106,28 @@ def auto_mesh_parameters(
             "out_group":  out_group
         }
         params = OctreeParams(**params_dict)
-        dump = params.input_file.demote(params.input_file.stringify(params.model_dump()))
-        print(dump)
-        params.out_group.options = dump
+        dump = params.model_dump()
+        ifile = params.input_file
+        ifile.data = dump
+        options = ifile.stringify(ifile.demote(ifile.ui_json))
+        options = bool_to_string(options)
+        params.out_group.options = options
+        params.out_group.metadata = None
+        print(params.out_group.options)
+
         return params
+
+
+def bool_to_string(data: dict) -> dict:
+    """
+    Recurse through dictionary and convert all boolean values to a string 'true' or 'false'.
+
+    :param data: Nested dictionary with boolearn values.
+    """
+    for key, value in data.items():
+        if isinstance(value, dict):
+            data[key] = bool_to_string(value)
+        elif isinstance(value, bool):
+            data[key] = str(value).lower()
+    return data
+
