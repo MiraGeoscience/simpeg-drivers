@@ -54,7 +54,7 @@ class TimeDomainElectromagneticsParams(InversionBaseParams):
         self._y_channel_bool = None
         self._y_channel = None
         self._y_uncertainty = None
-        self._inversion_type = "tipper"
+
         self._model_type = "Conductivity (S/m)"
 
         super().__init__(input_file=input_file, forward_only=forward_only, **kwargs)

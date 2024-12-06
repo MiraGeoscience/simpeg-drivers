@@ -126,14 +126,6 @@ class EntityFactory(AbstractFactory):
                 parent=self.params.out_group,
             )
 
-            if (
-                getattr(self.params.data_object.transmitters, "tx_id_property", None)
-                is not None
-            ):
-                self.params.data_object.transmitters.tx_id_property.copy(
-                    parent=entity.transmitters
-                )
-
             tx_freq = self.params.data_object.transmitters.get_data("Tx frequency")
             if tx_freq:
                 tx_freq[0].copy(parent=entity.transmitters)
