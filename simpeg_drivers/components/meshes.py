@@ -131,7 +131,6 @@ class InversionMesh:
 
         mesh = driver.run()
         self.entity = mesh.copy(parent=self.params.out_group)
-        
 
     @property
     def mesh(self) -> TreeMesh | TensorMesh:
