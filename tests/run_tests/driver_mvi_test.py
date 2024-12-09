@@ -123,6 +123,7 @@ def test_magnetic_vector_run(
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e1,
             store_sensitivities="ram",
+            save_sensitivities=True,
             prctile=100,
         )
         params.write_input_file(path=tmp_path, name="Inv_run")
