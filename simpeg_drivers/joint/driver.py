@@ -132,9 +132,13 @@ class BaseJointDriver(InversionDriver):
 
             multipliers = []
             for mult, func in driver.data_misfit:
-                func.model_map = func.model_map * driver.data_misfit.model_map
+                mappings = []
+                for mapping in func.simulation.mappings:
+                    mappings.append(mapping * projection * wire)
+
+                func.simulation.mappings = mappings
                 multipliers.append(
-                    mult * (func.model_map.shape[0] / projection.shape[1])
+                    mult * (func.simulation.mappings[0].shape[0] / projection.shape[1])
                 )
 
             driver.data_misfit.multipliers = multipliers
