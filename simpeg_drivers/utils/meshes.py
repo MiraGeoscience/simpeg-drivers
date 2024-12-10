@@ -50,7 +50,10 @@ def auto_pad(survey, factor=2) -> tuple[list[float], list[float]]:
 def use_vertical_padding(inversion_type):
     """Return true for all electrical and potential field methods."""
     out = True
-    if any(k in inversion_type for k in ["direct current", "induced polarization", "gravity", "magnetic"]):
+    if any(
+        k in inversion_type
+        for k in ["direct current", "induced polarization", "gravity", "magnetic"]
+    ):
         out = False
     return out
 
