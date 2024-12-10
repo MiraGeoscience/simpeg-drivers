@@ -100,7 +100,7 @@ def auto_mesh_parameters(
             "w_cell_size": base_cell_size,
             "horizontal_padding": padding,
             "vertical_padding": padding if vertical_padding else 0,
-            "depth_core": padding,
+            "depth_core": padding if not vertical_padding else 0,
             "diagonal_balance": True,
             "Refinement A object": survey,
             "Refinement A levels": survey_refinement,
