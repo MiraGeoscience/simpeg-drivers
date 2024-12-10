@@ -106,6 +106,8 @@ def auto_mesh_parameters(
             "out_group": out_group,
         }
         params = OctreeParams(**params_dict)
-        params.add_options()
+        options = params.serialize()
+        options.pop("out_group")
+        out_group.options = options
 
         return params
