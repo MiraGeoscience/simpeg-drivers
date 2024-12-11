@@ -56,7 +56,7 @@ dependencies:
   - exceptiongroup=1.2.2=pyhd8ed1ab_1
   - executing=2.1.0=pyhd8ed1ab_1
   - fasteners=0.17.3=pyhd8ed1ab_0
-  - fonttools=4.55.2=py310h89163eb_0
+  - fonttools=4.55.3=py310h89163eb_0
   - fqdn=1.5.1=pyhd8ed1ab_1
   - freetype=2.12.1=h267a509_2
   - fsspec=2022.11.0=pyhd8ed1ab_0
@@ -156,7 +156,7 @@ dependencies:
   - matplotlib-base=3.8.4=py310hef631a5_2
   - matplotlib-inline=0.1.7=pyhd8ed1ab_1
   - mccabe=0.7.0=pyhd8ed1ab_1
-  - mdit-py-plugins=0.4.2=pyhd8ed1ab_0
+  - mdit-py-plugins=0.4.2=pyhd8ed1ab_1
   - mdurl=0.1.2=pyhd8ed1ab_1
   - mistune=3.0.2=pyhd8ed1ab_1
   - mkl=2023.2.0=h84fe81f_50496
@@ -198,7 +198,7 @@ dependencies:
   - pthread-stubs=0.4=hb9d3cd8_1002
   - ptyprocess=0.7.0=pyhd8ed1ab_1
   - pure_eval=0.2.3=pyhd8ed1ab_1
-  - pybtex=0.24.0=pyhd8ed1ab_2
+  - pybtex=0.24.0=pyhd8ed1ab_3
   - pybtex-docutils=1.0.3=py310hff52083_2
   - pycparser=2.22=pyh29332c3_1
   - pydantic=2.10.3=pyh3cfb1c2_0
@@ -296,7 +296,7 @@ dependencies:
   - zstandard=0.23.0=py310ha39cb0e_1
   - zstd=1.5.6=ha6fb4c9_0
   - pip:
-      - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@8b639f035603f72bb0427f621c00876185760da8
+      - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@286b783369303403467a3715f6cba5eef6cb7e1f
       - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@fe9db0338ad1f77427f1e5e64bf49356d0c14c18
       - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@59133afc4586f2924236098f5f001d402f162667
       - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app.git@1d6becd648f94cd089c44b3c009d9c1c8263616e

@@ -28,7 +28,7 @@ dependencies:
   - distributed=2024.6.2=pyhd8ed1ab_0
   - empymod=2.2.2=pyhd8ed1ab_0
   - fasteners=0.17.3=pyhd8ed1ab_0
-  - fonttools=4.55.2=py310h38315fa_0
+  - fonttools=4.55.3=py310h38315fa_0
   - freetype=2.12.1=hdaf720e_2
   - fsspec=2022.11.0=pyhd8ed1ab_0
   - geoana=0.5.0=py310h4856b71_4
@@ -141,7 +141,7 @@ dependencies:
   - zstandard=0.23.0=py310he5e10e1_1
   - zstd=1.5.6=h0ea2cb4_0
   - pip:
-      - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@8b639f035603f72bb0427f621c00876185760da8
+      - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@286b783369303403467a3715f6cba5eef6cb7e1f
       - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@fe9db0338ad1f77427f1e5e64bf49356d0c14c18
       - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@59133afc4586f2924236098f5f001d402f162667
       - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app.git@1d6becd648f94cd089c44b3c009d9c1c8263616e

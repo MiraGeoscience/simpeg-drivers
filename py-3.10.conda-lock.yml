@@ -1390,7 +1390,7 @@ package:
   category: main
   optional: false
 - name: fonttools
-  version: 4.55.2
+  version: 4.55.3
   manager: conda
   platform: linux-64
   dependencies:
@@ -1401,14 +1401,14 @@ package:
     python: '>=3.10,<3.11.0a0'
     python_abi: 3.10.*
     unicodedata2: '>=15.1.0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/fonttools-4.55.2-py310h89163eb_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/fonttools-4.55.3-py310h89163eb_0.conda
   hash:
-    md5: ba7233e0e73010b3a6469c3476254139
-    sha256: 32aabdb0cfef576186fab4feae104991f87f00e44c44cd0af3bf437977530133
+    md5: edd1be5d8c667f5e53667433e84efabc
+    sha256: 82aa35dc32b53f1553b68d714e74fdbe41a73fd1bd058da019536049a1e7a8f5
   category: main
   optional: false
 - name: fonttools
-  version: 4.55.2
+  version: 4.55.3
   manager: conda
   platform: win-64
   dependencies:
@@ -1420,10 +1420,10 @@ package:
     unicodedata2: '>=15.1.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://conda.anaconda.org/conda-forge/win-64/fonttools-4.55.2-py310h38315fa_0.conda
+  url: https://conda.anaconda.org/conda-forge/win-64/fonttools-4.55.3-py310h38315fa_0.conda
   hash:
-    md5: e5b62dbd279159b3badb83f7b153338d
-    sha256: d4b7446b0dc62b927b0805a23801e044b965bcd2e8c19cf396f958d86aeda1c4
+    md5: 1a7c85a5dc2cca557de839ceb144ea16
+    sha256: b5fd15b93b1f4359873e733a07672bc1f2e8729182fedd1ca3f3b50ec0cdc696
   category: main
   optional: false
 - name: fqdn
@@ -4268,11 +4268,11 @@ package:
   platform: linux-64
   dependencies:
     markdown-it-py: '>=1.0.0,<4.0.0'
-    python: '>=3.8'
-  url: https://conda.anaconda.org/conda-forge/noarch/mdit-py-plugins-0.4.2-pyhd8ed1ab_0.conda
+    python: '>=3.9'
+  url: https://conda.anaconda.org/conda-forge/noarch/mdit-py-plugins-0.4.2-pyhd8ed1ab_1.conda
   hash:
-    md5: 5387f2cfa28f8a3afa3368bb4ba201e8
-    sha256: 5cedc99412278b37e9596f1f991d49f5a1663fe79767cf814a288134a1400ba9
+    md5: af2060041d4f3250a7eb6ab3ec0e549b
+    sha256: c63ed79d9745109c0a70397713b0c07f06e7d3561abcb122cfc80a141ab3b449
   category: dev
   optional: true
 - name: mdit-py-plugins
@@ -4281,11 +4281,11 @@ package:
   platform: win-64
   dependencies:
     markdown-it-py: '>=1.0.0,<4.0.0'
-    python: '>=3.8'
-  url: https://conda.anaconda.org/conda-forge/noarch/mdit-py-plugins-0.4.2-pyhd8ed1ab_0.conda
+    python: '>=3.9'
+  url: https://conda.anaconda.org/conda-forge/noarch/mdit-py-plugins-0.4.2-pyhd8ed1ab_1.conda
   hash:
-    md5: 5387f2cfa28f8a3afa3368bb4ba201e8
-    sha256: 5cedc99412278b37e9596f1f991d49f5a1663fe79767cf814a288134a1400ba9
+    md5: af2060041d4f3250a7eb6ab3ec0e549b
+    sha256: c63ed79d9745109c0a70397713b0c07f06e7d3561abcb122cfc80a141ab3b449
   category: dev
   optional: true
 - name: mdurl
@@ -5490,14 +5490,14 @@ package:
   platform: linux-64
   dependencies:
     latexcodec: '>=1.0.4'
-    python: '>=3.6'
+    python: '>=3.9'
     pyyaml: '>=3.01'
     setuptools: ''
     six: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/pybtex-0.24.0-pyhd8ed1ab_2.tar.bz2
+  url: https://conda.anaconda.org/conda-forge/noarch/pybtex-0.24.0-pyhd8ed1ab_3.conda
   hash:
-    md5: 2099b86a7399c44c0c61cdb6de6915ba
-    sha256: 258fbf46050bbd51fbaa504116e56e8f3064156f0e08cad4e2fec97f5f29e6dc
+    md5: 556a52a96313364aa79990ed1337b9a5
+    sha256: c87615fcc7327c5dcc247f309731c98f7b9867a48e6265e9584af6dc8cd82345
   category: dev
   optional: true
 - name: pybtex
@@ -5506,14 +5506,14 @@ package:
   platform: win-64
   dependencies:
     latexcodec: '>=1.0.4'
-    python: '>=3.6'
+    python: '>=3.9'
     pyyaml: '>=3.01'
     setuptools: ''
     six: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/pybtex-0.24.0-pyhd8ed1ab_2.tar.bz2
+  url: https://conda.anaconda.org/conda-forge/noarch/pybtex-0.24.0-pyhd8ed1ab_3.conda
   hash:
-    md5: 2099b86a7399c44c0c61cdb6de6915ba
-    sha256: 258fbf46050bbd51fbaa504116e56e8f3064156f0e08cad4e2fec97f5f29e6dc
+    md5: 556a52a96313364aa79990ed1337b9a5
+    sha256: c87615fcc7327c5dcc247f309731c98f7b9867a48e6265e9584af6dc8cd82345
   category: dev
   optional: true
 - name: pybtex-docutils
@@ -8313,12 +8313,12 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@8b639f035603f72bb0427f621c00876185760da8
+  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@286b783369303403467a3715f6cba5eef6cb7e1f
   hash:
-    sha256: 8b639f035603f72bb0427f621c00876185760da8
+    sha256: 286b783369303403467a3715f6cba5eef6cb7e1f
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@8b639f035603f72bb0427f621c00876185760da8
+    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@286b783369303403467a3715f6cba5eef6cb7e1f
   category: main
   optional: false
 - name: geoapps-utils
@@ -8330,12 +8330,12 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@8b639f035603f72bb0427f621c00876185760da8
+  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@286b783369303403467a3715f6cba5eef6cb7e1f
   hash:
-    sha256: 8b639f035603f72bb0427f621c00876185760da8
+    sha256: 286b783369303403467a3715f6cba5eef6cb7e1f
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@8b639f035603f72bb0427f621c00876185760da8
+    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@286b783369303403467a3715f6cba5eef6cb7e1f
   category: main
   optional: false
 - name: geoh5py
