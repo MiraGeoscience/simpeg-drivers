@@ -186,6 +186,9 @@ class BaseJointDriver(InversionDriver):
             with fetch_active_workspace(self.workspace, mode="r+"):
                 self.out_group.add_file(self.params.input_file.path_name)
 
+        if self.params.distributed_workers:
+            self.distributed_misfits()
+
         if self.params.forward_only:
             print("Running the forward simulation ...")
             predicted = self.inverse_problem.get_dpred(

@@ -67,7 +67,7 @@ class SimulationFactory(SimPEGFactory):
             return simulation.Simulation3DIntegral
 
         if self.factory_type == "gravity":
-            from simpeg.potential_fields.gravity import simulation
+            from simpeg.dask.potential_fields.gravity import simulation
 
             return simulation.Simulation3DIntegral
 

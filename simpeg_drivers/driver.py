@@ -27,6 +27,7 @@ from time import time
 
 import numpy as np
 from dask import config as dconf
+from dask.distributed import get_client
 from geoapps_utils.driver.driver import BaseDriver
 
 from geoh5py.data import Data
@@ -44,7 +45,7 @@ from simpeg import (
     optimization,
 )
 from simpeg.regularization import BaseRegularization, Sparse
-
+from simpeg.meta.dask_sim import DaskMetaSimulation
 from simpeg_drivers import DRIVER_MAP
 from simpeg_drivers.components import (
     InversionData,
@@ -117,6 +118,25 @@ class InversionDriver(BaseDriver):
             with fetch_active_workspace(self.workspace, mode="r+"):
                 self._directives = DirectivesFactory(self)
         return self._directives
+
+    def distributed_misfits(self):
+        """
+        Method to convert MetaSimulations to DaskMetaSimulations with futures.
+        """
+        client = get_client()
+        workers = list(client.scheduler_info()["workers"])
+        worker_count = 0
+        # if workers is not None:
+        for obj in self.data_misfit.objfcts:
+            # Assumes a single simulation and mapping per misfit object
+            for sim, mapping in zip(
+                obj.simulation.simulations, obj.simulation.mappings
+            ):
+                future_sim = client.scatter([sim], workers=workers[worker_count])
+                future_map = client.scatter([mapping], workers=workers[worker_count])
+                meta_simulation = DaskMetaSimulation(future_sim, future_map, client)
+
+            obj.simulation = meta_simulation  # worker_count += 1
 
     @property
     def inverse_problem(self):
@@ -300,6 +320,9 @@ class InversionDriver(BaseDriver):
         if Path(self.params.input_file.path_name).is_file():
             with fetch_active_workspace(self.workspace, mode="r+"):
                 self.out_group.add_file(self.params.input_file.path_name)
+
+        if self.params.distributed_workers:
+            self.distributed_misfits()
 
         predicted = None
         if self.params.forward_only:
