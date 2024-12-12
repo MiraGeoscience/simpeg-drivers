@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: 5ffc651c21d79f4646f5306be92e248da2e48cbd48d2267296642361c3d4db54
-    linux-64: c7b988407738db6b5ec0e16e7072a8a35c88942bb1648e8633efeae5b4acede5
+    win-64: dfb2441740d8a6ccd0cae412e3d5a2bc212589ce6860e33261da362b7bd058b9
+    linux-64: 997ba03c5e150d084199fafa3b0f829be633e3a6b869405f7d8825f3380ec7ca
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -1043,7 +1043,7 @@ package:
   category: dev
   optional: true
 - name: debugpy
-  version: 1.8.9
+  version: 1.8.10
   manager: conda
   platform: linux-64
   dependencies:
@@ -1052,14 +1052,14 @@ package:
     libstdcxx: '>=13'
     python: '>=3.11,<3.12.0a0'
     python_abi: 3.11.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/debugpy-1.8.9-py311hfdbb021_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/debugpy-1.8.10-py311hfdbb021_0.conda
   hash:
-    md5: e1d95dce136e7d0f6a9d7cd9b6dca985
-    sha256: cc2e120f53571e19ee6ea062e85e256fce6550ee139d8127cfb24d7ba015f2ae
+    md5: 379b7e1321342eb277f1e413b2f4b802
+    sha256: 76a0e759ddd8714222fe74687aa2a4dd4a6fd01ebbda8cc45a32f3ddaec74e05
   category: dev
   optional: true
 - name: debugpy
-  version: 1.8.9
+  version: 1.8.10
   manager: conda
   platform: win-64
   dependencies:
@@ -1068,10 +1068,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://conda.anaconda.org/conda-forge/win-64/debugpy-1.8.9-py311hda3d55a_0.conda
+  url: https://conda.anaconda.org/conda-forge/win-64/debugpy-1.8.10-py311hda3d55a_0.conda
   hash:
-    md5: 0f21eefbe9b04632c4e0e17636be84d3
-    sha256: 04db57c1b8fa22d17399c8df03e0d62b365a1315318b59009980672762a6ed87
+    md5: b7bb77a1a2bd654c9e465289f5daf088
+    sha256: c849b579cbb73d13a9c975f8b1b62f7a6f59aaf4bdc5e79ee1ff7a96752f73db
   category: dev
   optional: true
 - name: decorator
@@ -8340,12 +8340,12 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@286b783369303403467a3715f6cba5eef6cb7e1f
+  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@ee7fbd119f62a71ad1eb7380421f2cccb9e52477
   hash:
-    sha256: 286b783369303403467a3715f6cba5eef6cb7e1f
+    sha256: ee7fbd119f62a71ad1eb7380421f2cccb9e52477
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@286b783369303403467a3715f6cba5eef6cb7e1f
+    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@ee7fbd119f62a71ad1eb7380421f2cccb9e52477
   category: main
   optional: false
 - name: geoapps-utils
@@ -8357,12 +8357,12 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@286b783369303403467a3715f6cba5eef6cb7e1f
+  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@ee7fbd119f62a71ad1eb7380421f2cccb9e52477
   hash:
-    sha256: 286b783369303403467a3715f6cba5eef6cb7e1f
+    sha256: ee7fbd119f62a71ad1eb7380421f2cccb9e52477
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@286b783369303403467a3715f6cba5eef6cb7e1f
+    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@ee7fbd119f62a71ad1eb7380421f2cccb9e52477
   category: main
   optional: false
 - name: geoh5py
@@ -8458,12 +8458,12 @@ package:
     pillow: '>=10.3.0,<10.4.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: git+https://github.com/MiraGeoscience/octree-creation-app.git@1d6becd648f94cd089c44b3c009d9c1c8263616e
+  url: git+https://github.com/MiraGeoscience/octree-creation-app.git@e2192866e360874ba072231c677b6f0daf5154fd
   hash:
-    sha256: 1d6becd648f94cd089c44b3c009d9c1c8263616e
+    sha256: e2192866e360874ba072231c677b6f0daf5154fd
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/octree-creation-app.git@1d6becd648f94cd089c44b3c009d9c1c8263616e
+    url: git+https://github.com/MiraGeoscience/octree-creation-app.git@e2192866e360874ba072231c677b6f0daf5154fd
   category: main
   optional: false
 - name: octree-creation-app
@@ -8479,12 +8479,12 @@ package:
     pillow: '>=10.3.0,<10.4.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: git+https://github.com/MiraGeoscience/octree-creation-app.git@1d6becd648f94cd089c44b3c009d9c1c8263616e
+  url: git+https://github.com/MiraGeoscience/octree-creation-app.git@e2192866e360874ba072231c677b6f0daf5154fd
   hash:
-    sha256: 1d6becd648f94cd089c44b3c009d9c1c8263616e
+    sha256: e2192866e360874ba072231c677b6f0daf5154fd
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/octree-creation-app.git@1d6becd648f94cd089c44b3c009d9c1c8263616e
+    url: git+https://github.com/MiraGeoscience/octree-creation-app.git@e2192866e360874ba072231c677b6f0daf5154fd
   category: main
   optional: false
 - name: param-sweeps
