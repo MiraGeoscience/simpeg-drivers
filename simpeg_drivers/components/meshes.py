@@ -129,21 +129,10 @@ class InversionMesh:
             self.params.topography_object,
             inversion_type=self.params.inversion_type,
         )
-        self._mesh = OctreeDriver.treemesh_from_params(params)
+        driver = OctreeDriver(params)
 
-        mesh_group = UIJsonGroup.create(
-            self.workspace, name="AutoMesh", parent=self.params.out_group
-        )
-        # TODO: Update Octree params to BaseData and use it to handle out group
-        # and saving options.
-
-        self._entity = treemesh_2_octree(
-            self.params.geoh5,
-            self._mesh,
-            parent=mesh_group,
-            name="OctreeMesh",
-        )
-        self._permutation = np.arange(self.entity.n_cells)
+        mesh = driver.run()
+        self.entity = mesh.copy(parent=self.params.out_group)
 
     @property
     def mesh(self) -> TreeMesh | TensorMesh:

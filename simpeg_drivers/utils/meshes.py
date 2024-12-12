@@ -16,6 +16,7 @@
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 import numpy as np
+from geoh5py.groups import UIJsonGroup
 from geoh5py.objects import ObjectBase
 from geoh5py.shared.utils import fetch_active_workspace
 from octree_creation_app.params import OctreeParams
@@ -91,6 +92,7 @@ def auto_mesh_parameters(
         base_cell_size = round_nearest(spacing, 5)
         padding = auto_pad(survey.locations)
         vertical_padding = use_vertical_padding(inversion_type)
+        out_group = UIJsonGroup.create(workspace, name="AutoMesh")
 
         params_dict = {
             "geoh5": workspace,
@@ -102,13 +104,24 @@ def auto_mesh_parameters(
             "vertical_padding": padding if vertical_padding else 0,
             "depth_core": padding if not vertical_padding else 0,
             "diagonal_balance": True,
-            "Refinement A object": survey,
-            "Refinement A levels": survey_refinement,
-            "Refinement A horizon": False,
-            "Refinement B object": topography,
-            "Refinement B levels": topography_refinement,
-            "Refinement B horizon": True,
             "minimum_level": 6,
+            "refinements": [
+                {
+                    "refinement_object": survey,
+                    "levels": survey_refinement,
+                    "horizon": False,
+                },
+                {
+                    "refinement_object": topography,
+                    "levels": topography_refinement,
+                    "horizon": True,
+                },
+            ],
+            "out_group": out_group,
         }
+        params = OctreeParams(**params_dict)
+        options = params.serialize()
+        options.pop("out_group")
+        out_group.options = options
 
-        return OctreeParams(**params_dict)
+        return params
