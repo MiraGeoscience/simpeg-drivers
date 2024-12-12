@@ -328,9 +328,7 @@ class InversionDriver(BaseDriver):
         if self.params.forward_only:
             print("Running the forward simulation ...")
             predicted = simpeg_inversion.invProb.get_dpred(
-                self.models.starting,
-                [None] * len(self.data_misfit.objfcts),
-                compute_J=False,
+                self.models.starting, [None] * len(self.data_misfit.objfcts)
             )
         else:
             # Run the inversion

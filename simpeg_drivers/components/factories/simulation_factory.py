@@ -62,7 +62,7 @@ class SimulationFactory(SimPEGFactory):
 
     def concrete_object(self):
         if self.factory_type in ["magnetic scalar", "magnetic vector"]:
-            from simpeg.potential_fields.magnetics import simulation
+            from simpeg.dask.potential_fields.magnetics import simulation
 
             return simulation.Simulation3DIntegral
 
@@ -72,12 +72,12 @@ class SimulationFactory(SimPEGFactory):
             return simulation.Simulation3DIntegral
 
         if self.factory_type in ["direct current 3d", "direct current pseudo 3d"]:
-            from simpeg.electromagnetics.static.resistivity import simulation
+            from simpeg.dask.electromagnetics.static.resistivity import simulation
 
             return simulation.Simulation3DNodal
 
         if self.factory_type == "direct current 2d":
-            from simpeg.electromagnetics.static.resistivity import simulation_2d
+            from simpeg.dask.electromagnetics.static.resistivity import simulation_2d
 
             return simulation_2d.Simulation2DNodal
 
@@ -85,29 +85,31 @@ class SimulationFactory(SimPEGFactory):
             "induced polarization 3d",
             "induced polarization pseudo 3d",
         ]:
-            from simpeg.electromagnetics.static.induced_polarization import simulation
+            from simpeg.dask.electromagnetics.static.induced_polarization import (
+                simulation,
+            )
 
             return simulation.Simulation3DNodal
 
         if self.factory_type == "induced polarization 2d":
-            from simpeg.electromagnetics.static.induced_polarization.simulation import (
+            from simpeg.dask.electromagnetics.static.induced_polarization.simulation_2d import (
                 Simulation2DNodal,
             )
 
             return Simulation2DNodal
 
         if self.factory_type in ["magnetotellurics", "tipper"]:
-            from simpeg.electromagnetics.natural_source import simulation
+            from simpeg.dask.electromagnetics.frequency_domain import simulation
 
             return simulation.Simulation3DPrimarySecondary
 
         if self.factory_type in ["fem"]:
-            from simpeg.electromagnetics.frequency_domain import simulation
+            from simpeg.dask.electromagnetics.frequency_domain import simulation
 
             return simulation.Simulation3DMagneticFluxDensity
 
         if self.factory_type in ["tdem"]:
-            from simpeg.electromagnetics.time_domain import simulation
+            from simpeg.dask.electromagnetics.time_domain import simulation
 
             return simulation.Simulation3DMagneticFluxDensity
 
