@@ -130,6 +130,7 @@ def test_ground_tem_fwr_run(
     fwr_driver = TimeDomainElectromagneticsDriver(params)
 
     survey.transmitters.remove_cells([15])
+    survey.tx_id_property.name = "tx_id"
     assert fwr_driver.inversion_data.survey.source_list[0].n_segments == 16
 
     if pytest:
@@ -232,6 +233,7 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         output = get_inversion_output(
             driver.params.geoh5.h5file, driver.params.out_group.uid
         )
+        assert driver.inversion_data.entity.tx_id_property.name == "tx_id"
         output["data"] = orig_dBzdt
         if pytest:
             check_target(output, target_run, tolerance=0.5)
