@@ -85,6 +85,11 @@ class InversionDriver(BaseDriver):
         self._ordering: list[np.ndarray] | None = None
         self._window = None
 
+        try:
+            self.client = get_client()
+        except ValueError:
+            self.client = None
+
     @property
     def data_misfit(self):
         """The Simpeg.data_misfit class"""
@@ -123,8 +128,7 @@ class InversionDriver(BaseDriver):
         """
         Method to convert MetaSimulations to DaskMetaSimulations with futures.
         """
-        client = get_client()
-        workers = list(client.scheduler_info()["workers"])
+        workers = list(self.client.scheduler_info()["workers"])
         worker_count = 0
         # if workers is not None:
         for obj in self.data_misfit.objfcts:
@@ -132,9 +136,13 @@ class InversionDriver(BaseDriver):
             for sim, mapping in zip(
                 obj.simulation.simulations, obj.simulation.mappings
             ):
-                future_sim = client.scatter([sim], workers=workers[worker_count])
-                future_map = client.scatter([mapping], workers=workers[worker_count])
-                meta_simulation = DaskMetaSimulation(future_sim, future_map, client)
+                future_sim = self.client.scatter([sim], workers=workers[worker_count])
+                future_map = self.client.scatter(
+                    [mapping], workers=workers[worker_count]
+                )
+                meta_simulation = DaskMetaSimulation(
+                    future_sim, future_map, self.client
+                )
 
             obj.simulation = meta_simulation  # worker_count += 1
 
@@ -321,7 +329,7 @@ class InversionDriver(BaseDriver):
             with fetch_active_workspace(self.workspace, mode="r+"):
                 self.out_group.add_file(self.params.input_file.path_name)
 
-        if self.params.distributed_workers:
+        if self.client:
             self.distributed_misfits()
 
         predicted = None
@@ -468,11 +476,14 @@ class InversionDriver(BaseDriver):
     def configure_dask(self):
         """Sets Dask config settings."""
 
-        if self.params.parallelized:
-            if self.params.n_cpu is None:
-                self.params.n_cpu = int(multiprocessing.cpu_count())
+        if self.client:
+            dconf.set(scheduler=self.client)
+        else:
+            dconf.set(scheduler="threads")
+            n_cpu = self.params.n_cpu
+            if n_cpu is None:
+                n_cpu = int(multiprocessing.cpu_count())
 
-            dconf.set({"array.chunk-size": str(self.params.max_chunk_size) + "MiB"})
             dconf.set(scheduler="threads", pool=ThreadPool(self.params.n_cpu))
 
     @classmethod

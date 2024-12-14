@@ -186,7 +186,7 @@ class BaseJointDriver(InversionDriver):
             with fetch_active_workspace(self.workspace, mode="r+"):
                 self.out_group.add_file(self.params.input_file.path_name)
 
-        if self.params.distributed_workers:
+        if self.client:
             self.distributed_misfits()
 
         if self.params.forward_only:
