@@ -23,14 +23,12 @@ homepage = "https://www.mirageoscience.com/mining-industry-software/python-integ
 [tool.setuptools_scm]
 version_file = "simpeg_drivers/_version.py"
 
-[tool.setuptools]
-include-package-data = false
-
 [tool.setuptools.packages.find]
-include = [
-    "simpeg_driver",
-    "simpeg_drivers.*",
-    ]
+include = ["simpeg_drivers"]
+
+[tool.setuptools]
+license-files = ["LICENSE", "THIRD_PARTY_SOFTWARE.rst"]
+include-package-data = false
 
 [build-system]
 requires = ["setuptools>=64", "setuptools_scm>=8"]

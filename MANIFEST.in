@@ -1,0 +1,16 @@
+prune .github
+prune .idea
+prune devtools
+prune docs
+prune tests
+prune environments
+prune simpeg_drivers.egg-info
+exclude simpeg_drivers.egg-info/*
+exclude .*
+exclude *.bat*
+exclude *.yml
+exclude *.yaml
+exclude pylintrc
+exclude setup.cfg
+exclude *-dev.rst
+exclude MANIFEST.in
