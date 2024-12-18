@@ -27,7 +27,6 @@
 
 from __future__ import annotations
 
-import re
 from pathlib import Path
 
 import tomli as toml
@@ -36,6 +35,7 @@ from jinja2 import Template
 from packaging.version import Version
 
 import simpeg_drivers
+
 
 def get_conda_recipe_version():
     path = Path(__file__).resolve().parents[1] / "meta.yaml"

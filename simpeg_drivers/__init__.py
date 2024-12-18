@@ -16,20 +16,23 @@
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 from __future__ import annotations
+
 import logging
-from importlib.metadata import version, PackageNotFoundError
+from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
+
 try:
-    from simpeg_drivers._version import __version__
-    from simpeg_drivers._version import __version_tuple__
+    from simpeg_drivers._version import __version__, __version_tuple__
 except PackageNotFoundError:
     from datetime import datetime
+
     __version__ = "unknown-" + datetime.today().strftime("%Y%m%d")
     __version_tuple__ = (0, 0, 0, "unknown", "unknown")
 
 from simpeg_drivers.constants import default_ui_json
 from simpeg_drivers.params import InversionBaseParams
+
 
 logging.basicConfig(level=logging.INFO)
 

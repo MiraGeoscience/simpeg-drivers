@@ -4,7 +4,7 @@ description = "Application to run SimPEG inversions with geoh5 files from Geosci
 readme = "package.rst"
 requires-python = ">=3.10, <3.12"  # geoana does not support 3.12 yet
 license = {file = "LICENSE"}
-authors = [ 
+authors = [
     { name = "Mira Geoscience", email = "support@mirageoscience.com" }
 ]
 maintainers = [
