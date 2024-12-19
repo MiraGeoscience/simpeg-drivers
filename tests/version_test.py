@@ -38,7 +38,7 @@ from packaging.version import Version
 import simpeg_drivers
 
 
-def get_version():
+def get_pyproject_version():
     path = Path(__file__).resolve().parents[1] / "pyproject.toml"
 
     with open(str(path), encoding="utf-8") as file:
@@ -62,7 +62,10 @@ def get_conda_recipe_version():
 
 
 def test_version_is_consistent():
-    assert simpeg_drivers.__version__ == get_version()
+    assert simpeg_drivers.__version__ == get_pyproject_version()
+    normalized_conda_version = Version(get_conda_recipe_version())
+    normalized_version = Version(simpeg_drivers.__version__)
+    assert normalized_conda_version == normalized_version
 
 
 def test_conda_version_is_pep440():
