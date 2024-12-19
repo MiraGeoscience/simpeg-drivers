@@ -5366,8 +5366,8 @@ packages:
   timestamp: 1732632769210
 - pypi: .
   name: simpeg-drivers
-  version: 0.2.0b3.dev113+ge91c36f.d20241219
-  sha256: 1e4a5c62edcd6ac95cd3099bf98b4c0a52efa52ca7e6746eaf359e07a02da419
+  version: 0.2.0b3.dev116+g496fa5e.d20241219
+  sha256: fe061bde2407a92ad8c30a00e8e7e68fc0601e2eac613b1fc50573179e1dba8f
   requires_python: '>=3.10,<3.12'
   editable: true
 - conda: https://conda.anaconda.org/conda-forge/noarch/six-1.17.0-pyhd8ed1ab_0.conda

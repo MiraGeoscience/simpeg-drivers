@@ -97,9 +97,6 @@ mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", branch = "d
 
 param-sweeps = {git = "https://github.com/MiraGeoscience/param-sweeps.git", branch = "develop"}
 
-## force some versions to resolve incompatible resolution between PyPI and Conda
-#-------------------------------------------------------------------------------
-
 
 [tool.pixi.environments]
 default = ["test", "build"]
