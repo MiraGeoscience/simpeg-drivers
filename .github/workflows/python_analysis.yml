@@ -26,14 +26,14 @@ jobs:
     name: Static analysis
     uses: MiraGeoscience/CI-tools/.github/workflows/reusable-python-static_analysis.yml@DEVOPS-584
     with:
-      package-manager: 'conda'
+      package-manager: 'pixi'
       app-name: 'simpeg_drivers'
       python-version: '3.10'
   call-workflow-pytest:
     name: Pytest
     uses: MiraGeoscience/CI-tools/.github/workflows/reusable-python-pytest.yml@DEVOPS-584
     with:
-      package-manager: 'conda'
+      package-manager: 'pixi'
       python-versions: '["3.10", "3.11"]'
       os: '["ubuntu-latest", "windows-latest"]'
       cache-number: 1
