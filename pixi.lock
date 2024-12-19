@@ -151,7 +151,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/b5/fd/afcd0496feca3276f509df3dbd5dae726fcc756f1a08d9e25abe1733f962/executing-2.1.0-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/90/2b/0817a2b257fe88725c25589d89aec060581aabf668707a8d03b2e9e0cb2a/fastjsonschema-2.21.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/cf/58/8acf1b3e91c58313ce5cb67df61001fc9dcd21be4fadb76c1a2d540e09ed/fqdn-1.5.1-py3-none-any.whl
-      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git@ee7fbd119f62a71ad1eb7380421f2cccb9e52477
+      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git@c170fc9eecc73d5a37fd72b443afdc18dc8c4bf0
       - pypi: git+https://github.com/MiraGeoscience/geoh5py.git@a3163a4f1761211e2789da1e1f90cf5f1aaef3d6
       - pypi: https://files.pythonhosted.org/packages/f7/4b/1c9695aa24f808e156c8f4813f685d975ca73c000c2a5056c514c64980f6/greenlet-3.1.1-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/95/04/ff642e65ad6b90db43e668d70ffb6736436c7ce41fcc549f4e9472234127/h11-0.14.0-py3-none-any.whl
@@ -432,7 +432,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/b5/fd/afcd0496feca3276f509df3dbd5dae726fcc756f1a08d9e25abe1733f962/executing-2.1.0-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/90/2b/0817a2b257fe88725c25589d89aec060581aabf668707a8d03b2e9e0cb2a/fastjsonschema-2.21.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/cf/58/8acf1b3e91c58313ce5cb67df61001fc9dcd21be4fadb76c1a2d540e09ed/fqdn-1.5.1-py3-none-any.whl
-      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git@ee7fbd119f62a71ad1eb7380421f2cccb9e52477
+      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git@c170fc9eecc73d5a37fd72b443afdc18dc8c4bf0
       - pypi: git+https://github.com/MiraGeoscience/geoh5py.git@a3163a4f1761211e2789da1e1f90cf5f1aaef3d6
       - pypi: https://files.pythonhosted.org/packages/12/da/b9ed5e310bb8b89661b80cbcd4db5a067903bbcd7fc854923f5ebb4144f0/greenlet-3.1.1-cp311-cp311-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/95/04/ff642e65ad6b90db43e668d70ffb6736436c7ce41fcc549f4e9472234127/h11-0.14.0-py3-none-any.whl
@@ -700,7 +700,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/3a/46/9ea782eb1accabad0931d80818fcf8b286bdd1b457ae9c718f039430c489/dask-2024.12.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4e/38/b46d786b1cc49116fb1c0025e653e758795a30dddd7a79f94279a585a681/discretize-0.10.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/93/ef/f0a96745cabeda5735d456403a007c2f9b6ac64a0f4c5fa4faf9d41f70dc/distributed-2024.12.0-py3-none-any.whl
-      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git@ee7fbd119f62a71ad1eb7380421f2cccb9e52477
+      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git@c170fc9eecc73d5a37fd72b443afdc18dc8c4bf0
       - pypi: git+https://github.com/MiraGeoscience/geoh5py.git@a3163a4f1761211e2789da1e1f90cf5f1aaef3d6
       - pypi: https://files.pythonhosted.org/packages/a0/d9/a1e041c5e7caa9a05c925f4bdbdfb7f006d1f74996af53467bc394c97be7/importlib_metadata-8.5.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/31/80/3a54838c3fb461f6fec263ebf3a3a41771bd05190238de3486aae8540c36/jinja2-3.1.4-py3-none-any.whl
@@ -828,7 +828,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/3a/46/9ea782eb1accabad0931d80818fcf8b286bdd1b457ae9c718f039430c489/dask-2024.12.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/46/98/3f14b2512436ae944ba3562bf2aafb62321232d687596ebeef8121bb1ace/discretize-0.10.0-cp311-cp311-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/93/ef/f0a96745cabeda5735d456403a007c2f9b6ac64a0f4c5fa4faf9d41f70dc/distributed-2024.12.0-py3-none-any.whl
-      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git@ee7fbd119f62a71ad1eb7380421f2cccb9e52477
+      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git@c170fc9eecc73d5a37fd72b443afdc18dc8c4bf0
       - pypi: git+https://github.com/MiraGeoscience/geoh5py.git@a3163a4f1761211e2789da1e1f90cf5f1aaef3d6
       - pypi: https://files.pythonhosted.org/packages/a0/d9/a1e041c5e7caa9a05c925f4bdbdfb7f006d1f74996af53467bc394c97be7/importlib_metadata-8.5.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/31/80/3a54838c3fb461f6fec263ebf3a3a41771bd05190238de3486aae8540c36/jinja2-3.1.4-py3-none-any.whl
@@ -1754,7 +1754,7 @@ packages:
   - pkg:pypi/geoana?source=hash-mapping
   size: 220157
   timestamp: 1695216511139
-- pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git@ee7fbd119f62a71ad1eb7380421f2cccb9e52477
+- pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git@c170fc9eecc73d5a37fd72b443afdc18dc8c4bf0
   name: geoapps-utils
   version: 0.5.0a1
   requires_dist:
@@ -5366,8 +5366,8 @@ packages:
   timestamp: 1732632769210
 - pypi: .
   name: simpeg-drivers
-  version: 0.2.0b3.dev112+g07e6025.d20241215
-  sha256: b56e9267a2a7909c353fe450ca79af0450cf4ef7447504bd716141c6ae5398cd
+  version: 0.2.0b3.dev113+ge91c36f.d20241219
+  sha256: 1e4a5c62edcd6ac95cd3099bf98b4c0a52efa52ca7e6746eaf359e07a02da419
   requires_python: '>=3.10,<3.12'
   editable: true
 - conda: https://conda.anaconda.org/conda-forge/noarch/six-1.17.0-pyhd8ed1ab_0.conda

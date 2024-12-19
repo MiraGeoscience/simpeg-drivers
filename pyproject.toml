@@ -20,19 +20,34 @@ repository = "https://github.com/MiraGeoscience/simpeg-drivers"
 documentation = "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/"
 homepage = "https://www.mirageoscience.com/mining-industry-software/python-integration/"
 
-[tool.setuptools_scm]
-version_file = "simpeg_drivers/_version.py"
+[tool.hatch.build.targets.sdist]
+packages = [
+    "simpeg_drivers",
+    "simpeg_drivers-assets",
+    "THIRD_PARTY_SOFTWARE.rst",
+    "README.rst",
+    "LICENSE",
+]
 
-[tool.setuptools.packages.find]
-include = ["simpeg_drivers"]
+[tool.hatch.build.targets.wheel]
+packages = [
+    "simpeg_drivers",
+    "simpeg_drivers-assets",
+    "THIRD_PARTY_SOFTWARE.rst",
+    "README.rst",
+    "LICENSE",
+]
 
-[tool.setuptools]
-license-files = ["LICENSE", "THIRD_PARTY_SOFTWARE.rst"]
-include-package-data = false
+[tool.hatch.version]
+path = "simpeg_drivers/_version.py"
+source = "vcs"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "simpeg_drivers/_version.py"
 
 [build-system]
-requires = ["setuptools>=64", "setuptools_scm>=8"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
 
 [tool.pixi.project]
 channels = ["conda-forge"]
@@ -92,7 +107,10 @@ production = []
 
 [tool.pixi.feature.build]
 pypi-dependencies = { build = "*", twine = "*"}
-tasks = { build = "python -m build"}
+
+[tool.pixi.feature.build.tasks]
+build = "hatch build"
+publish = "hatch publish"
 
 [tool.pixi.feature.test.pypi-dependencies]
 Pygments = "*"
