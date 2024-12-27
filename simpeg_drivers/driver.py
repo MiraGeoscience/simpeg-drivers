@@ -27,7 +27,8 @@ from time import time
 
 import numpy as np
 from dask import config as dconf
-from dask.distributed import get_client
+from dask.diagnostics import visualize, Profiler, ResourceProfiler, CacheProfiler
+from dask.distributed import get_client, LocalCluster
 from geoapps_utils.driver.driver import BaseDriver
 
 from geoh5py.data import Data
@@ -45,7 +46,7 @@ from simpeg import (
     optimization,
 )
 from simpeg.regularization import BaseRegularization, Sparse
-from simpeg.meta.dask_sim import DaskMetaSimulation
+from simpeg.meta.dask_sim import DaskMetaSimulationExplicit
 from simpeg_drivers import DRIVER_MAP
 from simpeg_drivers.components import (
     InversionData,
@@ -136,11 +137,13 @@ class InversionDriver(BaseDriver):
             for sim, mapping in zip(
                 obj.simulation.simulations, obj.simulation.mappings
             ):
+                # sim.client = self.client
+                sim.worker = workers[worker_count]
                 future_sim = self.client.scatter([sim], workers=workers[worker_count])
                 future_map = self.client.scatter(
                     [mapping], workers=workers[worker_count]
                 )
-                meta_simulation = DaskMetaSimulation(
+                meta_simulation = DaskMetaSimulationExplicit(
                     future_sim, future_map, self.client
                 )
 
@@ -553,5 +556,11 @@ class InversionLogger:
 
 if __name__ == "__main__":
     file = str(Path(sys.argv[1]).resolve())
-    InversionDriver.start(file)
+    cluster = LocalCluster(processes=False, n_workers=1, threads_per_worker=24)
+    client = cluster.get_client()
+
+    # Full run
+    with Profiler() as prof, ResourceProfiler(dt=0.25) as rprof:
+        InversionDriver.start(file)
+
     sys.stdout.close()
