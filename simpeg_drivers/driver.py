@@ -563,4 +563,10 @@ if __name__ == "__main__":
     with Profiler() as prof, ResourceProfiler(dt=0.25) as rprof:
         InversionDriver.start(file)
 
+    visualize(
+        [prof, rprof],
+        filename=Path("./dask_profile.html"),
+        show=False,
+    )
+
     sys.stdout.close()
