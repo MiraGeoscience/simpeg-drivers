@@ -27,8 +27,9 @@ from time import time
 
 import numpy as np
 from dask import config as dconf
-from dask.diagnostics import visualize, Profiler, ResourceProfiler, CacheProfiler
-from dask.distributed import get_client, LocalCluster
+
+# from dask.diagnostics import visualize, Profiler, ResourceProfiler, CacheProfiler
+from dask.distributed import get_client, LocalCluster, performance_report
 from geoapps_utils.driver.driver import BaseDriver
 
 from geoh5py.data import Data
@@ -46,7 +47,7 @@ from simpeg import (
     optimization,
 )
 from simpeg.regularization import BaseRegularization, Sparse
-from simpeg.meta.dask_sim import DaskMetaSimulationExplicit
+from simpeg.meta.dask_sim import DaskMetaSimulation
 from simpeg_drivers import DRIVER_MAP
 from simpeg_drivers.components import (
     InversionData,
@@ -131,6 +132,8 @@ class InversionDriver(BaseDriver):
         """
         workers = list(self.client.scheduler_info()["workers"])
         worker_count = 0
+        simulations = []
+        mappings = []
         # if workers is not None:
         for obj in self.data_misfit.objfcts:
             # Assumes a single simulation and mapping per misfit object
@@ -139,13 +142,12 @@ class InversionDriver(BaseDriver):
             ):
                 # sim.client = self.client
                 sim.worker = workers[worker_count]
-                future_sim = self.client.scatter([sim], workers=workers[worker_count])
-                future_map = self.client.scatter(
+                simulations += self.client.scatter([sim], workers=workers[worker_count])
+                mappings += self.client.scatter(
                     [mapping], workers=workers[worker_count]
                 )
-                meta_simulation = DaskMetaSimulationExplicit(
-                    future_sim, future_map, self.client
-                )
+
+            meta_simulation = DaskMetaSimulation(simulations, mappings, self.client)
 
             obj.simulation = meta_simulation  # worker_count += 1
 
@@ -555,18 +557,18 @@ class InversionLogger:
 
 
 if __name__ == "__main__":
-    file = str(Path(sys.argv[1]).resolve())
-    cluster = LocalCluster(processes=False, n_workers=1, threads_per_worker=24)
+    file = Path(sys.argv[1]).resolve()
+    cluster = LocalCluster(processes=True, n_workers=1, threads_per_worker=48)
     client = cluster.get_client()
-
+    print(f"Running local cluster.\n Saving to {file.parent / 'dask_profile.html'}")
     # Full run
-    with Profiler() as prof, ResourceProfiler(dt=0.25) as rprof:
+    with performance_report(filename=Path(file.parent / "dask_profile.html")):
         InversionDriver.start(file)
 
-    visualize(
-        [prof, rprof],
-        filename=Path("./dask_profile.html"),
-        show=False,
-    )
+    # visualize(
+    #     [prof, rprof],
+    #     filename=Path(file.parent / "dask_profile.html"),
+    #     show=False,
+    # )
 
     sys.stdout.close()

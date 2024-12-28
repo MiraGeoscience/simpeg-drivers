@@ -72,7 +72,11 @@ class MisfitFactory(SimPEGFactory):
         else:
             channels = [None]
 
-        local_misfits = []
+        simulations = []
+        mappings = []
+        data_arrays = []
+        uncertainties = []
+
         self.sorting = []
         self.ordering = []
         tile_num = 0
@@ -135,21 +139,19 @@ class MisfitFactory(SimPEGFactory):
                 #     treemesh_2_octree(ws, local_sim.mesh)
 
                 # TODO Parse workers to simulations
-                meta_simulation = meta.simulation.MetaSimulation([local_sim], [mapping])
+                # meta_simulation = meta.simulation.MetaSimulation([local_sim], [mapping])
                 # local_sim.workers = self.params.distributed_workers
-                local_data = data.Data(local_sim.survey)
+                # local_data = data.Data(local_sim.survey)
 
-                if self.params.forward_only:
-                    lmisfit = data_misfit.L2DataMisfit(local_data, meta_simulation)
-
-                else:
-                    local_data.dobs = local_sim.survey.dobs
-                    local_data.standard_deviation = local_sim.survey.std
-                    lmisfit = data_misfit.L2DataMisfit(
-                        local_data,
-                        meta_simulation,
-                    )
-                    lmisfit.W = 1 / local_sim.survey.std
+                # lmisfit = data_misfit.L2DataMisfit(local_data, meta_simulation)
+                if not self.params.forward_only:
+                    data_arrays.append(local_sim.survey.dobs)
+                    uncertainties.append(local_sim.survey.std)
+                    # lmisfit = data_misfit.L2DataMisfit(
+                    #     local_data,
+                    #     meta_simulation,
+                    # )
+                    # lmisfit.W = 1 / local_sim.survey.std
                     name = self.params.inversion_type
 
                     if len(tiles) > 1:
@@ -157,12 +159,25 @@ class MisfitFactory(SimPEGFactory):
                     if len(channels) > 1:
                         name += f": Channel {channel}"
 
-                    lmisfit.name = f"{name}"
-                local_misfits.append(lmisfit)
+                    local_sim.name = f"{name}"
+                # local_misfits.append(lmisfit)
+
+                simulations.append(local_sim)
+                mappings.append(mapping)
                 self.ordering.append(ordering)
                 tile_num += 1
 
-        return [local_misfits]
+        meta_simulation = meta.simulation.MetaSimulation(simulations, mappings)
+        local_data = data.Data(meta_simulation.survey)
+        if not self.params.forward_only:
+            local_data.dobs = np.hstack(data_arrays)
+            local_data.standard_deviation = np.hstack(uncertainties)
+        lmisfit = data_misfit.L2DataMisfit(
+            local_data,
+            meta_simulation,
+        )
+
+        return [[lmisfit]]
 
     def assemble_keyword_arguments(self, **_):
         """Implementation of abstract method from SimPEGFactory."""
