@@ -1,5 +1,5 @@
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
+#  Copyright (c) 2025 Mira Geoscience Ltd.
 #  All rights reserved.
 #
 #  This file is part of simpeg-drivers.
@@ -14,6 +14,7 @@
 #  not be provided or otherwise made available to any other person.
 #
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
 # flake8: noqa
 
 from __future__ import annotations
@@ -85,6 +86,7 @@ class InversionDriver(BaseDriver):
         self._regularization: None = None
         self._sorting: list[np.ndarray] | None = None
         self._ordering: list[np.ndarray] | None = None
+        self._mappings: list[maps.IdentityMap] | None = None
         self._window = None
 
         try:
@@ -117,6 +119,9 @@ class InversionDriver(BaseDriver):
                     self._data_misfit.multipliers, dtype=float
                 )
 
+            if self.client:
+                self.distributed_misfits()
+
         return self._data_misfit
 
     @property
@@ -130,26 +135,12 @@ class InversionDriver(BaseDriver):
         """
         Method to convert MetaSimulations to DaskMetaSimulations with futures.
         """
-        workers = list(self.client.scheduler_info()["workers"])
-        worker_count = 0
-        simulations = []
-        mappings = []
-        # if workers is not None:
-        for obj in self.data_misfit.objfcts:
-            # Assumes a single simulation and mapping per misfit object
-            for sim, mapping in zip(
-                obj.simulation.simulations, obj.simulation.mappings
-            ):
-                # sim.client = self.client
-                sim.worker = workers[worker_count]
-                simulations += self.client.scatter([sim], workers=workers[worker_count])
-                mappings += self.client.scatter(
-                    [mapping], workers=workers[worker_count]
-                )
-
-            meta_simulation = DaskMetaSimulation(simulations, mappings, self.client)
-
-            obj.simulation = meta_simulation  # worker_count += 1
+        distributed_misfits = dask.objective_function.DaskComboMisfits(
+            self.data_misfit.objfcts,
+            multipliers=self.data_misfit.multipliers,
+            client=self.client,
+        )
+        self._data_misfit = distributed_misfits
 
     @property
     def inverse_problem(self):
@@ -334,15 +325,10 @@ class InversionDriver(BaseDriver):
             with fetch_active_workspace(self.workspace, mode="r+"):
                 self.out_group.add_file(self.params.input_file.path_name)
 
-        if self.client:
-            self.distributed_misfits()
-
         predicted = None
         if self.params.forward_only:
             print("Running the forward simulation ...")
-            predicted = simpeg_inversion.invProb.get_dpred(
-                self.models.starting, [None] * len(self.data_misfit.objfcts)
-            )
+            predicted = simpeg_inversion.invProb.get_dpred(self.models.starting, None)
         else:
             # Run the inversion
             self.start_inversion_message()
