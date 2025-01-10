@@ -587,6 +587,6 @@ class InversionModel:
     @model_type.setter
     def model_type(self, v):
         if v not in self.model_types:
-            msg = f"Invalid model_type: {v}. Must be one of {*self.model_types, }."
+            msg = f"Invalid model_type: {v}. Must be one of {(*self.model_types,)}."
             raise ValueError(msg)
         self._model_type = v

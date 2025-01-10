@@ -131,9 +131,9 @@ def test_gravity_run(
             for pred in run_ws.get_entity("Iteration_0_gz")
             if pred.parent.parent.name == "Gravity Inversion"
         )
-        assert not any(
-            np.isnan(predicted.values)
-        ), "Predicted data should not have nans."
+        assert not any(np.isnan(predicted.values)), (
+            "Predicted data should not have nans."
+        )
         output["data"] = orig_gz
 
         assert len(run_ws.get_entity("SimPEG.log")) == 2
