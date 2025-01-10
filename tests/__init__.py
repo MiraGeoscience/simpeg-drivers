@@ -14,9 +14,3 @@
 #  not be provided or otherwise made available to any other person.            '
 #                                                                              '
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-#
-#  This file is part of simpeg-drivers.
-#
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''

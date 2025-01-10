@@ -15,12 +15,6 @@
 #                                                                              '
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-#
-#  This file is part of simpeg-drivers.
-#
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
 from __future__ import annotations
 
 from logging import INFO, getLogger

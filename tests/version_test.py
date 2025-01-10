@@ -15,21 +15,6 @@
 #                                                                              '
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-#
-#  This file is part of simpeg-drivers.
-#
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-#
-#  This file is part of simpeg-drivers.
-#
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#
-#  This file is part of simpeg_drivers package.
-#
-#  All rights reserved.
 
 from __future__ import annotations
 
