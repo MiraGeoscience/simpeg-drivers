@@ -42,11 +42,14 @@ repos:
     -   id: relint
         args: [-W]  # to fail on warnings
 -   repo: https://github.com/MiraGeoscience/pre-commit-hooks
-    rev: v1.0.2
+    rev: v1.1.0
     hooks:
     -   id: check-copyright
         files: (^package\.rst|LICENSE|^README(|-dev).rst|^docs/intro\.md|\.py|\.pyi)$
         exclude: (^\.|^docs/(?!intro\.md))
+        args:
+        -   --full-scan-files
+        -   intro.md
     -   id: prepare-commit-msg
     -   id: check-commit-msg
 -   repo: local
