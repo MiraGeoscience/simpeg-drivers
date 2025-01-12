@@ -1,19 +1,12 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part simpeg-drivers package.                                        '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
 from __future__ import annotations
@@ -97,8 +90,7 @@ def calculate_2D_trend(
     """
     if not isinstance(order, int) or order < 0:
         raise ValueError(
-            "Polynomial 'order' should be an integer > 0. "
-            f"Value of {order} provided."
+            f"Polynomial 'order' should be an integer > 0. Value of {order} provided."
         )
 
     ind_nan = ~np.isnan(values)
@@ -112,7 +104,7 @@ def calculate_2D_trend(
         values = values[hull.vertices]
     elif method != "all":
         raise ValueError(
-            "'method' must be either 'all', or 'perimeter'. " f"Value {method} provided"
+            f"'method' must be either 'all', or 'perimeter'. Value {method} provided"
         )
 
     # Compute center of mass
