@@ -81,12 +81,14 @@ class MisfitFactory(SimPEGFactory):
         for tile_count, local_index in enumerate(tiles):
             if len(local_index) == 0:
                 continue
+            local_mesh = None
 
             for count, channel in enumerate(channels):
                 local_sim, local_index, ordering, mapping = (
                     self.create_nested_simulation(
                         inversion_data,
                         mesh,
+                        local_mesh,
                         active_cells,
                         local_index,
                         channel=channel,
@@ -94,6 +96,8 @@ class MisfitFactory(SimPEGFactory):
                         padding_cells=self.params.padding_cells,
                     )
                 )
+
+                local_mesh = local_sim.mesh
 
                 if count == 0:
                     if self.factory_type in [
@@ -176,7 +180,8 @@ class MisfitFactory(SimPEGFactory):
     @staticmethod
     def create_nested_simulation(
         inversion_data: InversionData,
-        mesh: Octree,
+        global_mesh: Octree,
+        local_mesh: Octree | None,
         active_cells: np.ndarray,
         indices: np.ndarray,
         *,
@@ -196,10 +201,11 @@ class MisfitFactory(SimPEGFactory):
         :param padding_cells: Number of padding cells around the local survey.
         """
         survey, indices, ordering = inversion_data.create_survey(
-            mesh=mesh, local_index=indices, channel=channel
+            mesh=global_mesh, local_index=indices, channel=channel
         )
         local_sim, mapping = inversion_data.simulation(
-            mesh,
+            global_mesh,
+            local_mesh,
             active_cells,
             survey,
             tile_id=tile_id,

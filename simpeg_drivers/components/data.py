@@ -403,6 +403,7 @@ class InversionData(InversionLocations):
     def simulation(
         self,
         mesh: TreeMesh,
+        local_mesh: TreeMesh | None,
         active_cells: np.ndarray,
         survey,
         tile_id: int | None = None,
@@ -436,16 +437,17 @@ class InversionData(InversionLocations):
             )
 
         else:
-            nested_mesh = create_nested_mesh(
-                survey,
-                mesh,
-                minimum_level=3,
-                padding_cells=padding_cells,
-            )
+            if local_mesh is None:
+                local_mesh = create_nested_mesh(
+                    survey,
+                    mesh,
+                    minimum_level=3,
+                    padding_cells=padding_cells,
+                )
             mapping = maps.TileMap(
                 mesh,
                 active_cells,
-                nested_mesh,
+                local_mesh,
                 enforce_active=True,
                 components=3 if self.vector else 1,
             )
@@ -453,7 +455,7 @@ class InversionData(InversionLocations):
                 survey=survey,
                 receivers=self.entity,
                 global_mesh=mesh,
-                local_mesh=nested_mesh,
+                local_mesh=local_mesh,
                 active_cells=mapping.local_active,
                 mapping=mapping,
                 tile_id=tile_id,
