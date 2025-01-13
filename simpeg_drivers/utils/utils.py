@@ -729,7 +729,8 @@ def active_from_xyz(
     else:
         raise ValueError("'grid_reference' must be one of 'center', 'top', or 'bottom'")
 
-    z_locations = z_interpolate(locations[:, :2])
+    unique_locs, inds = np.unique(locations[:, :2].round(), axis=0, return_inverse=True)
+    z_locations = z_interpolate(unique_locs)[inds]
 
     # Apply nearest neighbour if in extrapolation
     ind_nan = np.isnan(z_locations)

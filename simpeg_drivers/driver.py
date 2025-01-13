@@ -18,10 +18,15 @@
 # flake8: noqa
 
 from __future__ import annotations
+import os
 
+os.environ["OMP_NUM_THREADS"] = "12"
+os.environ["MKL_NUM_THREADS"] = "12"
+os.environ["OPENBLAS_NUM_THREADS"] = "12"
 import multiprocessing
 import sys
 from datetime import datetime, timedelta
+import logging
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
 from time import time
@@ -29,8 +34,7 @@ from time import time
 import numpy as np
 from dask import config as dconf
 
-# from dask.diagnostics import visualize, Profiler, ResourceProfiler, CacheProfiler
-from dask.distributed import get_client, LocalCluster, performance_report
+from dask.distributed import get_client, Client, LocalCluster, performance_report
 from geoapps_utils.driver.driver import BaseDriver
 
 from geoh5py.data import Data
@@ -48,7 +52,7 @@ from simpeg import (
     optimization,
 )
 from simpeg.regularization import BaseRegularization, Sparse
-from simpeg.meta.dask_sim import DaskMetaSimulation
+
 from simpeg_drivers import DRIVER_MAP
 from simpeg_drivers.components import (
     InversionData,
@@ -60,6 +64,9 @@ from simpeg_drivers.components import (
 from simpeg_drivers.components.factories import DirectivesFactory, MisfitFactory
 from simpeg_drivers.params import InversionBaseParams
 from simpeg_drivers.utils.utils import tile_locations
+
+mlogger = logging.getLogger("distributed")
+mlogger.setLevel(logging.WARNING)
 
 
 class InversionDriver(BaseDriver):
@@ -88,11 +95,18 @@ class InversionDriver(BaseDriver):
         self._ordering: list[np.ndarray] | None = None
         self._mappings: list[maps.IdentityMap] | None = None
         self._window = None
+        self._client: Client | None = None
 
-        try:
-            self.client = get_client()
-        except ValueError:
-            self.client = None
+    @property
+    def client(self):
+        if self._client is None:
+            try:
+                self._client = get_client()
+                # self._workers = [worker.worker_address for worker in self.client.cluster.workers.values()]
+            except ValueError:
+                self._client = False
+
+        return self._client
 
     @property
     def data_misfit(self):
@@ -135,6 +149,18 @@ class InversionDriver(BaseDriver):
         """
         Method to convert MetaSimulations to DaskMetaSimulations with futures.
         """
+        # meshes = {}
+        # workers = []
+        # for count, objfct in enumerate(self.data_misfit.objfcts):
+        #
+        #     worker = self.workers[count % len(self.workers)]
+        #     mesh = objfct.simulation.simulations[0].mesh
+        #     if mesh not in meshes:
+        #         meshes[mesh] = self.client.scatter(mesh, workers=(worker,))
+        #
+        #     objfct.simulation.simulations[0]._mesh = meshes[mesh]
+        #     workers.append(worker)
+
         distributed_misfits = dask.objective_function.DaskComboMisfits(
             self.data_misfit.objfcts,
             multipliers=self.data_misfit.multipliers,
@@ -544,7 +570,8 @@ class InversionLogger:
 
 if __name__ == "__main__":
     file = Path(sys.argv[1]).resolve()
-    cluster = LocalCluster(processes=True, n_workers=1, threads_per_worker=48)
+    # file = Path(r"C:/Users/dominiquef/Desktop/Tests/Dug/Forrestania_MVI_Unconstrained_vDF_test_2_tiles.ui.json")
+    cluster = LocalCluster(processes=False, n_workers=1, threads_per_worker=12)
     client = cluster.get_client()
     print(f"Running local cluster.\n Saving to {file.parent / 'dask_profile.html'}")
     # Full run
