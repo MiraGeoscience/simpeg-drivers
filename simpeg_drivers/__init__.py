@@ -19,7 +19,7 @@ import logging
 from pathlib import Path
 
 from simpeg_drivers.constants import default_ui_json
-from simpeg_drivers.params import InversionBaseParams
+# from simpeg_drivers.params import InversionBaseParams
 
 
 logging.basicConfig(level=logging.INFO)

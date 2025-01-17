@@ -12,16 +12,306 @@
 from __future__ import annotations
 
 import warnings
+from pathlib import Path
 from copy import deepcopy
 from uuid import UUID
 
 import numpy as np
+from typing import ClassVar
+from pydantic import BaseModel, ConfigDict, field_validator, model_validator
+
+from geoapps_utils.driver.data import BaseData
 from geoapps_utils.driver.params import BaseParams
-from geoh5py.data import NumericData
-from geoh5py.groups import SimPEGGroup
-from geoh5py.objects import Octree
+from geoh5py.data import NumericData, BooleanData
+from geoh5py.groups import SimPEGGroup, UIJsonGroup
+from geoh5py.objects import Octree, DrapeModel, Points
+from geoh5py.data import FloatData
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
+
+from simpeg_drivers import assets_path
+
+
+class ActiveCellsData(BaseModel):
+    """
+    Active cells data as a topography surface or 3d model.
+
+    :param topography_object: Topography object.
+    :param topography: Topography data.
+    :param active_model: Topography
+    """
+    model_config = ConfigDict(
+        # frozen=True,
+        arbitrary_types_allowed=True,
+    )
+    topography_object: Points# | None = None
+    # topography: FloatData | None = None
+    # active_model: BooleanData | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def at_least_one(cls, data):
+        if all(v is None for v in data.values()):
+            raise ValueError("Must provide either topography or active model.")
+        return data
+
+
+
+class CoreData(BaseModel):
+    """
+    Core parameters shared by inverse and forward operations.
+
+    :param run_command: Command (module name) used to run the application from
+        command line.
+    :param conda_environment: Name of the conda environment used to run the
+        application with all of its dependencies.
+    :param data_object: Data object containing survey geometry and data
+        channels.
+    :param mesh: Mesh object containing models (starting, reference, active, etc..).
+    :param starting_model: Starting model used to start inversion or for simulating
+        data in the forward operation.
+    :param topography_object: Topography object used to define the active cells of
+        the model.
+    """
+    model_config = ConfigDict(
+        frozen=True,
+        arbitrary_types_allowed=True,
+    )
+    run_command: ClassVar[str] = "simpeg_drivers.driver"
+    conda_environment: str = "simpeg_drivers"
+    data_object: Points
+    mesh: Octree | None
+    starting_model: float | FloatData
+    active: ActiveCellsData
+    tile_spatial: int = 1
+    out_group: SimPEGGroup | UIJsonGroup | None = None
+    generate_sweep: bool = False
+
+    @field_validator("mesh", mode="before")
+    @classmethod
+    def mesh_cannot_be_rotated(cls, value: Octree):
+        if isinstance(value, Octree) and value.rotation not in [0.0, None]:
+            raise ValueError(
+                "Rotated meshes are not supported. Please use a mesh with an angle of 0.0."
+            )
+
+    @property
+    def channels(self) -> list[str]:
+        return [k for k in self.__dict__ if "channel" in k]
+
+    @property
+    def padding_cells(self) -> int:
+        """
+        Default padding cells used for tiling.
+        """
+        # Keep whole mesh for 1 tile
+        if self.tile_spatial == 1:
+            return 100
+
+        return 4 if self.inversion_type in ["fem", "tdem"] else 6
+
+
+class BaseForwardData(BaseData, CoreData):
+    """
+    Base class for forward parameters.
+
+    :param name: Name of the application.
+    :param title: Title of the application
+    :param core: Core parameters for forward (data, mesh, starting model, active).
+    """
+
+    forward_only: bool = True
+
+    @property
+    def default_ui_json(self) -> Path:
+        name = '_'.join(self.title.lower().split())
+        return assets_path() / "ui_json" / f"{name}_forward.ui.json"
+
+    @property
+    def components(self) -> list[str]:
+        """Retrieve component names used to index channel and uncertainty data."""
+        comps = []
+        for c in self.channels:
+            if getattr(self, f"{c}_channel_bool", None) is not None:
+                comps.append(c)
+
+        return comps
+
+
+class BaseInversionData(BaseData, CoreData):
+    """
+    Base class for inversion parameters.
+
+    :param core: Core parameters for inversion (data, mesh, starting model, active).
+
+    :param reference_model: Reference model.
+    :param lower_bound: Lower bound.
+    :param upper_bound: Upper bound.
+
+    :param alpha_s: Alpha s.
+    :param length_scale_x: Length scale x.
+    :param length_scale_y: Length scale y.
+    :param length_scale_z: Length scale z.
+
+    :param s_norm: S norm.
+    :param x_norm: X norm.
+    :param y_norm: Y norm.
+    :param z_norm: Z norm.
+    :param gradient_type: Gradient type.
+    :param max_irls_iterations: Maximum IRLS iterations.
+    :param starting_chi_factor: Starting chi factor.
+
+    :param prctile: Prctile.
+    :param beta_tol: Beta tolerance.
+
+    :param chi_factor: Chi factor.
+    :param auto_scale_misfits: Automatically scale misfits.
+    :param initial_beta: Initial beta.
+    :param initial_beta_ratio: Initial beta ratio.
+    :param coolingFactor: Cooling factor.
+
+    :param coolingRate: Cooling rate.
+    :param max_global_iterations: Maximum global iterations.
+    :param max_line_search_iterations: Maximum line search iterations.
+    :param max_cg_iterations: Maximum CG iterations.
+    :param tol_cg: Tolerance CG.
+    :param f_min_change: F min change.
+
+    :param sens_wts_threshold: Sensitivity weights threshold.
+    :param every_iteration_bool: Every iteration bool.
+    :param save_sensitivities: Save sensitivities.
+
+    :param parallelized: Parallelized.
+    :param n_cpu: Number of CPUs.
+    :param tile_spatial: Tile the data spatially.
+    :param store_sensitivities: Store sensitivities.
+    :param max_chunk_size: Maximum chunk size.
+    :param chunk_by_rows: Chunk by rows.
+
+    :param out_group: Output group.
+
+    :param generate_sweep: Generate sweep.
+
+    :param output_tile_files: Output tile files.
+    :param inversion_style: Inversion style.
+    :param max_ram: Maximum RAM.    :param coolEps_q: Cool eps q.
+    :param coolEpsFact: Cool eps fact.
+    :param beta_search: Beta search.
+    :param ga_group: GA group.
+    :param distributed_workers: Distributed workers.
+    :param no_data_value: No data value.
+    """
+
+    model_config = ConfigDict(
+        frozen=True,
+        arbitrary_types_allowed=True,
+    )
+
+    name: ClassVar[str] = "Inversion"
+    title: ClassVar[str] = "Geophysical inversion"
+    run_command: ClassVar[str] = "simpeg_drivers.driver"
+
+    conda_environment: str = "simpeg_drivers"
+    reference_model: float | FloatData | None
+    lower_bound: float | FloatData | None
+    upper_bound: float | FloatData | None
+
+    forward_only: bool = False
+
+    topography: FloatData | None
+    active_model: BooleanData | None
+
+    alpha_s: float | FloatData = 1.0
+    length_scale_x: float | FloatData = 1.0
+    length_scale_y: float | FloatData = 1.0
+    length_scale_z: float | FloatData = 1.0
+
+    s_norm: float | FloatData = 0.0
+    x_norm: float | FloatData = 2.0
+    y_norm: float | FloatData = 2.0
+    z_norm: float | FloatData = 2.0
+    gradient_type: str = "total"
+    max_irls_iterations: int = 25
+    starting_chi_factor: float = 1.0
+
+    chi_factor: float = 1.0
+    auto_scale_misfits: bool = True
+    initial_beta_ratio: float | None = 100.0
+    initial_beta: float | None = None
+    coolingFactor: float = 2.0
+
+    coolingRate: float = 2.0
+    max_global_iterations: int = 50
+    max_line_search_iterations: int = 20
+    max_cg_iterations: int = 30
+    tol_cg: float = 1e-4
+    f_min_change: float = 1e-2
+    sens_wts_threshold: float
+    every_iteration_bool: bool
+    save_sensitivities: bool
+
+    sens_wts_threshold: float = 1e-3
+    every_iteration_bool: bool = True
+    save_sensitivities: bool = False
+
+    tile_spatial: int = 1
+    store_sensitivities: str = "ram"
+
+    parallelized: bool
+    n_cpu: int
+    max_chunk_size: int
+    chunk_by_rows: bool
+    prctile: float
+    beta_tol: float
+    output_tile_files: bool
+    inversion_style: str
+    max_ram: float
+    ga_group: SimPEGGroup
+    distributed_workers: int
+    no_data_value: float
+
+    @property
+    def default_ui_json(self) -> Path:
+        return assets_path() / "ui_json" / f"{'_'.join(self.title.lower().split())}_inversion.ui.json"
+
+    def data_channel(self, component: str) -> NumericData | None:
+        """Return the data object associated with the component."""
+        return getattr(self, "_".join([component, "channel"]), None)
+
+    def uncertainty_channel(self, component: str) -> NumericData | None:
+        """Return the uncertainty object associated with the component."""
+        return getattr(self, "_".join([component, "uncertainty"]), None)
+
+    def data(self, component: str) -> np.ndarray | None:
+        """Returns array of data for chosen data component if it exists."""
+        data_entity = self.data_channel(component)
+        if isinstance(data_entity, NumericData):
+            return data_entity.values.astype(float)
+        return None
+
+    def uncertainty(self, component: str) -> np.ndarray | None:
+        """Returns uncertainty for chosen data component if it exists."""
+        uncertainty_entity = self.uncertainty_channel(component)
+        if isinstance(uncertainty_entity, NumericData):
+            return uncertainty_entity.values.astype(float)
+        elif self.data(component) is not None:
+            d = self.data(component)
+            if isinstance(uncertainty_entity, int | float):
+                return np.array([float(uncertainty_entity)] * len(d))
+            else:
+                return d * 0.0 + 1.0  # Default
+        else:
+            return None
+
+    def model_norms(self) -> list[float]:
+        """Returns model norm components as a list."""
+        return [
+            self.s_norm,
+            self.x_norm,
+            self.y_norm,
+            self.z_norm,
+        ]
+
 
 
 class InversionBaseParams(BaseParams):

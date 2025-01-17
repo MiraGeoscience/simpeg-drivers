@@ -16,6 +16,7 @@ from pathlib import Path
 from uuid import UUID, uuid4
 
 import pytest
+from geoh5py.objects import DrapeModel
 from geoh5py.shared.exceptions import (
     AssociationValidationError,
     OptionalValidationError,
@@ -35,7 +36,7 @@ from simpeg_drivers.electricals.induced_polarization.three_dimensions import (
     InducedPolarization3DParams,
 )
 from simpeg_drivers.potential_fields import (
-    GravityParams,
+    GravityInversionParams,
     MagneticScalarParams,
     MagneticVectorParams,
 )
@@ -582,3 +583,51 @@ def test_conductivity_model(ip_params):
         match="Must be one of: 'str', 'UUID', 'int', 'float', 'Entity'.",
     ):
         ip_params.conductivity_model = ip_params.geoh5
+
+def test_active_cells_data(tmp_path):
+    from simpeg_drivers.params import ActiveCellsData
+    from geoh5py import Workspace
+    from geoh5py.objects import Points
+    import numpy as np
+
+    ws = Workspace(tmp_path / "test.geoh5")
+    pts = Points.create(ws, vertices=np.random.rand(10, 3))
+    data = ActiveCellsData(topography_object=pts)
+    assert True
+
+def test_something(tmp_path):
+
+    from typing import ClassVar
+    from geoh5py import Workspace
+    from geoh5py.objects import Points, Octree
+    from pydantic import BaseModel, ConfigDict
+    from geoapps_utils.driver.data import BaseData
+
+    ws = Workspace(tmp_path / "test.geoh5")
+
+    class CoreData(BaseModel):
+        model_config = ConfigDict(
+            frozen=True,
+            arbitrary_types_allowed=True,
+        )
+        run_command: ClassVar[str] = "simpeg_drivers.driver"
+        conda_environment: str = "simpeg_drivers"
+        data_object: Points | None
+        mesh: Octree | None
+
+    class GravityData(BaseData, CoreData):
+        model_config = ConfigDict(
+            frozen=True,
+            arbitrary_types_allowed=True,
+        )
+        mesh: DrapeModel | None
+        myparam: int = 1
+
+    data = GravityData(
+        geoh5 = ws,
+        data_object = None,
+        mesh = None,
+        myparam = 2
+    )
+
+    assert True
