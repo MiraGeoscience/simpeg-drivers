@@ -22,6 +22,7 @@ from time import time
 import numpy as np
 from dask import config as dconf
 from geoapps_utils.driver.driver import BaseDriver
+from geoapps_utils.driver.data import BaseData
 
 from geoh5py.data import Data
 from geoh5py.groups import SimPEGGroup
@@ -248,8 +249,8 @@ class InversionDriver(BaseDriver):
         return self._params
 
     @params.setter
-    def params(self, val: (InversionBaseParams, SweepParams)):
-        if not isinstance(val, (InversionBaseParams, SweepParams)):
+    def params(self, val: BaseInversionData | InversionBaseParams | SweepParams):
+        if not isinstance(val, (BaseData, InversionBaseParams, SweepParams)):
             raise TypeError(
                 "Parameters must be of type 'InversionBaseParams' or 'SweepParams'."
             )

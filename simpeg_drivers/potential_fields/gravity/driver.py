@@ -14,12 +14,13 @@ from __future__ import annotations
 from simpeg_drivers.driver import InversionDriver
 
 from .constants import validations
-from .params import GravityParams
+from .params import GravityForwardParams, GravityInversionParams
+from geoapps_utils.driver.data import BaseData
 
 
 class GravityDriver(InversionDriver):
-    _params_class = GravityParams
+    _params_class = BaseData
     _validations = validations
 
-    def __init__(self, params: GravityParams):
+    def __init__(self, params: GravityForwardParams | GravityInversionParams):
         super().__init__(params)

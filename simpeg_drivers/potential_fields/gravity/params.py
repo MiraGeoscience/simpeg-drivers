@@ -12,7 +12,6 @@
 from __future__ import annotations
 
 from typing import ClassVar
-from copy import deepcopy
 
 from geoh5py.data import FloatData
 
@@ -24,6 +23,7 @@ from .constants import (
     inversion_defaults,
     validations,
 )
+
 
 class GravityForwardParams(BaseForwardData):
     """
@@ -39,6 +39,7 @@ class GravityForwardParams(BaseForwardData):
     :param gyz_channel_bool: gyz channel boolean.
     :param gzz_channel_bool: gzz channel boolean.
     """
+
 
 class GravityInversionParams(BaseInversionData):
     """

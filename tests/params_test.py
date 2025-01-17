@@ -584,24 +584,27 @@ def test_conductivity_model(ip_params):
     ):
         ip_params.conductivity_model = ip_params.geoh5
 
+
 def test_active_cells_data(tmp_path):
-    from simpeg_drivers.params import ActiveCellsData
+    import numpy as np
     from geoh5py import Workspace
     from geoh5py.objects import Points
-    import numpy as np
+
+    from simpeg_drivers.params import ActiveCellsData
 
     ws = Workspace(tmp_path / "test.geoh5")
     pts = Points.create(ws, vertices=np.random.rand(10, 3))
     data = ActiveCellsData(topography_object=pts)
     assert True
 
-def test_something(tmp_path):
 
+def test_something(tmp_path):
     from typing import ClassVar
-    from geoh5py import Workspace
-    from geoh5py.objects import Points, Octree
-    from pydantic import BaseModel, ConfigDict
+
     from geoapps_utils.driver.data import BaseData
+    from geoh5py import Workspace
+    from geoh5py.objects import Octree, Points
+    from pydantic import BaseModel, ConfigDict
 
     ws = Workspace(tmp_path / "test.geoh5")
 
@@ -623,11 +626,6 @@ def test_something(tmp_path):
         mesh: DrapeModel | None
         myparam: int = 1
 
-    data = GravityData(
-        geoh5 = ws,
-        data_object = None,
-        mesh = None,
-        myparam = 2
-    )
+    data = GravityData(geoh5=ws, data_object=None, mesh=None, myparam=2)
 
     assert True

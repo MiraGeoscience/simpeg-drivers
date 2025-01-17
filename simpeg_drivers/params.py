@@ -12,22 +12,20 @@
 from __future__ import annotations
 
 import warnings
-from pathlib import Path
 from copy import deepcopy
+from pathlib import Path
+from typing import ClassVar
 from uuid import UUID
 
 import numpy as np
-from typing import ClassVar
-from pydantic import BaseModel, ConfigDict, field_validator, model_validator
-
 from geoapps_utils.driver.data import BaseData
 from geoapps_utils.driver.params import BaseParams
-from geoh5py.data import NumericData, BooleanData
+from geoh5py.data import BooleanData, FloatData, NumericData
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
-from geoh5py.objects import Octree, DrapeModel, Points
-from geoh5py.data import FloatData
+from geoh5py.objects import DrapeModel, Octree, Points
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
+from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
 from simpeg_drivers import assets_path
 
@@ -40,11 +38,12 @@ class ActiveCellsData(BaseModel):
     :param topography: Topography data.
     :param active_model: Topography
     """
+
     model_config = ConfigDict(
         # frozen=True,
         arbitrary_types_allowed=True,
     )
-    topography_object: Points# | None = None
+    topography_object: Points  # | None = None
     # topography: FloatData | None = None
     # active_model: BooleanData | None = None
 
@@ -54,7 +53,6 @@ class ActiveCellsData(BaseModel):
         if all(v is None for v in data.values()):
             raise ValueError("Must provide either topography or active model.")
         return data
-
 
 
 class CoreData(BaseModel):
@@ -73,6 +71,7 @@ class CoreData(BaseModel):
     :param topography_object: Topography object used to define the active cells of
         the model.
     """
+
     model_config = ConfigDict(
         frozen=True,
         arbitrary_types_allowed=True,
@@ -124,7 +123,7 @@ class BaseForwardData(BaseData, CoreData):
 
     @property
     def default_ui_json(self) -> Path:
-        name = '_'.join(self.title.lower().split())
+        name = "_".join(self.title.lower().split())
         return assets_path() / "ui_json" / f"{name}_forward.ui.json"
 
     @property
@@ -272,7 +271,11 @@ class BaseInversionData(BaseData, CoreData):
 
     @property
     def default_ui_json(self) -> Path:
-        return assets_path() / "ui_json" / f"{'_'.join(self.title.lower().split())}_inversion.ui.json"
+        return (
+            assets_path()
+            / "ui_json"
+            / f"{'_'.join(self.title.lower().split())}_inversion.ui.json"
+        )
 
     def data_channel(self, component: str) -> NumericData | None:
         """Return the data object associated with the component."""
@@ -311,7 +314,6 @@ class BaseInversionData(BaseData, CoreData):
             self.y_norm,
             self.z_norm,
         ]
-
 
 
 class InversionBaseParams(BaseParams):
