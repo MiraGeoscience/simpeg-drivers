@@ -40,6 +40,8 @@ class GravityForwardParams(BaseForwardData):
     :param gzz_channel_bool: gzz channel boolean.
     """
 
+    inversion_type: str = "gravity"
+    physical_property: str = "density"
 
 class GravityInversionParams(BaseInversionData):
     """

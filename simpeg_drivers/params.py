@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 import warnings
+import multiprocessing
 from copy import deepcopy
 from pathlib import Path
 from typing import ClassVar
@@ -78,13 +79,25 @@ class CoreData(BaseModel):
     )
     run_command: ClassVar[str] = "simpeg_drivers.driver"
     conda_environment: str = "simpeg_drivers"
+    inversion_type: str
+    physical_property: str
     data_object: Points
+    z_from_topo: bool = False
     mesh: Octree | None
     starting_model: float | FloatData
     active: ActiveCellsData
     tile_spatial: int = 1
+    parallelized: bool = True
+    n_cpu: int | None = None
+    max_chunk_size: int = 128
     out_group: SimPEGGroup | UIJsonGroup | None = None
     generate_sweep: bool = False
+
+    @field_validator("n_cpu", mode="before")
+    def maximize_cpu_if_none(cls, value):
+        if value is None:
+            value = int(multiprocessing.cpu_count())
+        return value
 
     @field_validator("mesh", mode="before")
     @classmethod
@@ -464,6 +477,7 @@ class InversionBaseParams(BaseParams):
         else:
             return None
 
+    @property
     def components(self) -> list[str]:
         """Retrieve component names used to index channel and uncertainty data."""
         comps = []
@@ -482,23 +496,6 @@ class InversionBaseParams(BaseParams):
 
         return comps
 
-    def offset(self) -> tuple[list[float], UUID]:
-        """Returns offset components as list and drape data."""
-        offsets = [
-            0,
-            0,
-            0 if self.receivers_offset_z is None else self.receivers_offset_z,
-        ]
-        is_offset = any((k != 0) for k in offsets)
-        offsets = offsets if is_offset else None
-        r = self.receivers_radar_drape
-        if isinstance(r, str | UUID):
-            r = UUID(r) if isinstance(r, str) else r
-            radar = self.geoh5.get_entity(r)
-            radar = radar[0].values if radar else None
-        else:
-            radar = None
-        return offsets, radar
 
     def model_norms(self) -> list[float]:
         """Returns model norm components as a list."""
@@ -971,6 +968,8 @@ class InversionBaseParams(BaseParams):
 
     @property
     def n_cpu(self):
+        if self._n_cpu is None:
+            self._n_cpu = multiprocessing.cpu_count()
         return self._n_cpu
 
     @n_cpu.setter

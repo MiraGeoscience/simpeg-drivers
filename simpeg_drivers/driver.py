@@ -441,9 +441,6 @@ class InversionDriver(BaseDriver):
         """Sets Dask config settings."""
 
         if self.params.parallelized:
-            if self.params.n_cpu is None:
-                self.params.n_cpu = int(multiprocessing.cpu_count())
-
             dconf.set({"array.chunk-size": str(self.params.max_chunk_size) + "MiB"})
             dconf.set(scheduler="threads", pool=ThreadPool(self.params.n_cpu))
 
