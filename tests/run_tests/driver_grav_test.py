@@ -17,7 +17,7 @@ from geoh5py.workspace import Workspace
 
 from simpeg_drivers.params import ActiveCellsData
 from simpeg_drivers.potential_fields import GravityForwardParams, GravityInversionParams
-from simpeg_drivers.potential_fields.gravity.driver import GravityDriver
+from simpeg_drivers.potential_fields.gravity.driver import GravityForwardDriver, GravityInversionDriver
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
@@ -55,7 +55,7 @@ def test_gravity_fwr_run(
         starting_model=model,
         gz_channel_bool=True
     )
-    fwr_driver = GravityDriver(params)
+    fwr_driver = GravityForwardDriver(params)
     fwr_driver.run()
 
 
@@ -120,7 +120,7 @@ def test_gravity_run(
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
         # params.write_input_file(path=tmp_path, name="Inv_run")
 
-    driver = GravityDriver.start(str(tmp_path / "Inv_run.ui.json"))
+    driver = GravityDriverInversion.start(str(tmp_path / "Inv_run.ui.json"))
 
     assert driver.params.data_object.uid != gz.parent.uid
     assert driver.models.upper_bound is np.inf

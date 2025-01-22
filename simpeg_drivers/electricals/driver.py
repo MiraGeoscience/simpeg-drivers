@@ -49,9 +49,9 @@ class Base2DDriver(InversionDriver):
 
     def create_drape_mesh(self) -> DrapeModel:
         """Create a drape mesh for the inversion."""
-        current_entity = self.params.mutations["data_object"].current_electrodes
+        current_entity = self.params.data_object.current_electrodes
         receiver_locs = np.vstack(
-            [self.params.mutations["data_object"].vertices, current_entity.vertices]
+            [self.params.data_object.vertices, current_entity.vertices]
         )
         with fetch_active_workspace(self.workspace):
             mesh = get_drape_model(

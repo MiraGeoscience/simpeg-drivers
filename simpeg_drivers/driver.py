@@ -453,20 +453,23 @@ class InversionDriver(BaseDriver):
         forward_only = ifile.data["forward_only"]
         inversion_type = ifile.ui_json.get("inversion_type", None)
 
-
         driver_name = (inversion_type + "driver").capitalize()
-        if forward_only:
-            driver_name += "Forward"
-
         if inversion_type not in DRIVER_MAP:
             msg = f"Inversion type {inversion_type} is not supported."
             msg += f" Valid inversions are: {(*list(DRIVER_MAP),)}."
             raise NotImplementedError(msg)
 
-        mod_name, class_name = DRIVER_MAP.get(inversion_type)
+        mod_name, classes = DRIVER_MAP.get(inversion_type)
+        if forward_only:
+            class_name = classes.get("forward", "inversion")
+        else:
+            class_name = classes.get("inversion")
         module = __import__(mod_name, fromlist=[class_name])
-        inversion_driver = getattr(module, class_name)
-        driver = BaseDriver.start(filepath, driver_class=inversion_driver)
+        driver_class = getattr(module, class_name)
+        with ifile.data["geoh5"].open(mode="r+"):
+            params = driver_class._params_class.build(ifile)
+            driver = driver_class(params)
+            driver.run()
 
         return driver
 

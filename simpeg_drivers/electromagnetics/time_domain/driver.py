@@ -38,17 +38,17 @@ class TimeDomainElectromagneticsDriver(InversionDriver):
         Second, if the number of groups is less than the number of 'tile_spatial' value, the groups are
         further divided into groups based on the clustering of receiver locations.
         """
-        if not isinstance(self.params.mutations["data_object"], LargeLoopGroundTEMReceivers):
+        if not isinstance(self.params.data_object, LargeLoopGroundTEMReceivers):
             return super().get_tiles()
 
-        tx_ids = self.params.mutations["data_object"].transmitters.tx_id_property.values
+        tx_ids = self.params.data_object.transmitters.tx_id_property.values
         unique_tile_ids = np.unique(tx_ids)
         n_groups = np.min([len(unique_tile_ids), self.params.tile_spatial])
         locations = []
         for uid in unique_tile_ids:
             locations.append(
                 np.mean(
-                    self.params.mutations["data_object"].transmitters.vertices[tx_ids == uid],
+                    self.params.data_object.transmitters.vertices[tx_ids == uid],
                     axis=0,
                 )
             )
@@ -59,7 +59,7 @@ class TimeDomainElectromagneticsDriver(InversionDriver):
             n_groups,
             method="kmeans",
         )
-        receivers_tx_ids = self.params.mutations["data_object"].tx_id_property.values
+        receivers_tx_ids = self.params.data_object.tx_id_property.values
         tiles = []
         for _t_id, group in enumerate(tx_tiles):
             sub_group = []
@@ -74,7 +74,7 @@ class TimeDomainElectromagneticsDriver(InversionDriver):
             largest_group = np.argmax([len(tile) for tile in tiles])
             tile = tiles.pop(largest_group)
             new_tiles = tile_locations(
-                self.params.mutations["data_object"].vertices[tile],
+                self.params.data_object.vertices[tile],
                 2,
                 method="kmeans",
             )

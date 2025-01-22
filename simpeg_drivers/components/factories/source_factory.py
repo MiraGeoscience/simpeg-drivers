@@ -66,7 +66,7 @@ class SourcesFactory(SimPEGFactory):
         elif "tdem" in self.factory_type:
             from simpeg.electromagnetics.time_domain import sources
 
-            if isinstance(self.params.mutations["data_object"], LargeLoopGroundTEMReceivers):
+            if isinstance(self.params.data_object, LargeLoopGroundTEMReceivers):
                 return sources.LineCurrent
             else:
                 return sources.MagDipole

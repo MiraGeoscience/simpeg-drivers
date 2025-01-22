@@ -19,28 +19,17 @@ from geoapps_utils.driver.data import BaseData
 from geoh5py.ui_json import InputFile
 from simpeg_drivers import DRIVER_MAP
 
-class GravityDriverForward():
+class GravityForwardDriver(InversionDriver):
     _params_class = GravityForwardParams
+    _validation = validations
 
-class GravityDriver(InversionDriver):
+    def __init__(self, params):
+        super().__init__(params)
+
+class GravityInversionDriver(InversionDriver):
     _params_class = GravityInversionParams
     _validations = validations
 
     def __init__(self, params):
         super().__init__(params)
-    #
-    # @classmethod
-    # def start(cls, filepath: str | Path, driver_class=None):
-    #
-    #
-    #     ifile = InputFile.read_ui_json(filepath)
-    #     with ifile.data["geoh5"].open(mode="r+"):
-    #         params = (
-    #             GravityForwardParams.build(ifile)
-    #             if ifile.data["forward_only"]
-    #             else GravityInversionParams.build(ifile)
-    #         )
-    #         driver = cls(params)
-    #         driver.run()
-    #
-    #     return driver
+

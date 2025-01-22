@@ -153,9 +153,9 @@ class ReceiversFactory(SimPEGFactory):
 
         if (
             self.factory_type in ["tipper"]
-            and getattr(self.params.mutations["data_object"], "base_stations", None) is not None
+            and getattr(self.params.data_object, "base_stations", None) is not None
         ):
-            stations = self.params.mutations["data_object"].base_stations.vertices
+            stations = self.params.data_object.base_stations.vertices
             if stations is not None:
                 if getattr(self.params.mesh, "rotation", None):
                     rotate_xyz(
@@ -165,7 +165,7 @@ class ReceiversFactory(SimPEGFactory):
                     )
 
                 if stations.shape[0] == 1:
-                    stations = np.tile(stations.T, self.params.mutations["data_object"].n_vertices).T
+                    stations = np.tile(stations.T, self.params.data_object.n_vertices).T
 
                 receivers.reference_locations = stations[local_index, :]
 

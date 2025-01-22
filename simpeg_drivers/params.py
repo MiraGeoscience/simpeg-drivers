@@ -97,7 +97,6 @@ class CoreData(BaseModel):
     save_sensitivities: bool = False
     out_group: SimPEGGroup | UIJsonGroup | None = None
     generate_sweep: bool = False
-    mutations: dict = Field(default_factory=lambda: {})
 
     @field_validator("n_cpu", mode="before")
     def maximize_cpu_if_none(cls, value):
