@@ -1,17 +1,20 @@
-{% set name = "simpeg-drivers" %}
-{% set version = "0.2.0b4" %}
+schema_version: 1
+
+context:
+  name: simpeg-drivers
+  version: 0.2.0b4
 
 package:
-  name: {{ name|lower }}
-  version: {{ version }}
+  name: ${{ name|lower }}
+  version: ${{ version }}
 
 source:
-  path: ../{{ name }}
+  path: ../${{ name }}
 
 build:
-  noarch: python
-  script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
   number: 0
+  noarch: python
+  script: ${{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
 
 requirements:
   host:
@@ -44,7 +47,7 @@ requirements:
     - scikit-learn >=1.4.0,<1.5.0
     - tqdm >=4.66.1,<5.0.0
     - zarr >=2.14.2,<2.15.0
-  run_constrained:
+  run_constraints:
     - tbb 2021.12.*
     - python-tzdata 2023.4.*
     - __glibc >=2.17
@@ -58,3 +61,4 @@ extra:
   recipe-maintainers:
     - SophieCurinier
     - sebhmg
+
