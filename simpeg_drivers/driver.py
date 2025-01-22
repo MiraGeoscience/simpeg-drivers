@@ -122,7 +122,7 @@ class InversionDriver(BaseDriver):
                 self.optimization,
             )
 
-            if self.params.initial_beta:
+            if not self.params.forward_only and self.params.initial_beta:
                 self._inverse_problem.beta = self.params.initial_beta
 
         return self._inverse_problem
@@ -446,10 +446,18 @@ class InversionDriver(BaseDriver):
 
     @classmethod
     def start(cls, filepath: str | Path, driver_class=None):
+
         _ = driver_class
 
         ifile = InputFile.read_ui_json(filepath)
+        forward_only = ifile.data["forward_only"]
         inversion_type = ifile.ui_json.get("inversion_type", None)
+
+
+        driver_name = (inversion_type + "driver").capitalize()
+        if forward_only:
+            driver_name += "Forward"
+
         if inversion_type not in DRIVER_MAP:
             msg = f"Inversion type {inversion_type} is not supported."
             msg += f" Valid inversions are: {(*list(DRIVER_MAP),)}."
@@ -459,6 +467,7 @@ class InversionDriver(BaseDriver):
         module = __import__(mod_name, fromlist=[class_name])
         inversion_driver = getattr(module, class_name)
         driver = BaseDriver.start(filepath, driver_class=inversion_driver)
+
         return driver
 
 

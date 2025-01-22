@@ -77,7 +77,7 @@ class InversionWindow:
         """Get params.window data."""
         if self._window is None:
             if self.is_empty():
-                data_object = self.params.data_object
+                data_object = self.params.mutations["data_object"]
                 if isinstance(data_object, Grid2D):
                     locs = data_object.centroids
                 elif isinstance(data_object, PotentialElectrode):

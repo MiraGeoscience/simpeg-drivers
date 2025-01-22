@@ -629,3 +629,27 @@ def test_something(tmp_path):
     data = GravityData(geoh5=ws, data_object=None, mesh=None, myparam=2)
 
     assert True
+
+def test_something_else():
+    from pydantic import BaseModel, ConfigDict
+    class MyData(BaseModel):
+        model_config = ConfigDict(frozen=True, extra="allow")
+        a: int
+        b: str
+
+    data = MyData(a=1, b='2')
+    data.e = 3
+    assert data.e == 3
+
+def test_something_related():
+    from pydantic import BaseModel, ConfigDict, Field, computed_field
+    class MyData(BaseModel):
+        model_config = ConfigDict(frozen=True, extra="allow")
+        a: int
+        b: str
+
+
+    data = MyData(a=1, b="string")
+    data.c = "other_string"
+    assert data.b == "string"
+    assert data.c == "other_string"

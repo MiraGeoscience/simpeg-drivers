@@ -26,7 +26,7 @@ from geoh5py.groups import SimPEGGroup, UIJsonGroup
 from geoh5py.objects import DrapeModel, Octree, Points
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
-from pydantic import BaseModel, ConfigDict, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from simpeg_drivers import assets_path
 
@@ -45,8 +45,8 @@ class ActiveCellsData(BaseModel):
         arbitrary_types_allowed=True,
     )
     topography_object: Points  # | None = None
-    # topography: FloatData | None = None
-    # active_model: BooleanData | None = None
+    topography: FloatData | None = None
+    active_model: BooleanData | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -73,9 +73,13 @@ class CoreData(BaseModel):
         the model.
     """
 
+    # TODO: Refactor to allow frozen True.  Currently params.data_object is
+    # updated after z_from_topo applied in entity_factory.py.  See
+    # simpeg_drivers/components/data.py ln. 127
     model_config = ConfigDict(
-        frozen=True,
+        frozen=False,
         arbitrary_types_allowed=True,
+        extra="allow"
     )
     run_command: ClassVar[str] = "simpeg_drivers.driver"
     conda_environment: str = "simpeg_drivers"
@@ -90,8 +94,10 @@ class CoreData(BaseModel):
     parallelized: bool = True
     n_cpu: int | None = None
     max_chunk_size: int = 128
+    save_sensitivities: bool = False
     out_group: SimPEGGroup | UIJsonGroup | None = None
     generate_sweep: bool = False
+    mutations: dict = Field(default_factory=lambda: {})
 
     @field_validator("n_cpu", mode="before")
     def maximize_cpu_if_none(cls, value):
@@ -106,10 +112,66 @@ class CoreData(BaseModel):
             raise ValueError(
                 "Rotated meshes are not supported. Please use a mesh with an angle of 0.0."
             )
+        return value
+
+    @model_validator(mode="before")
+    @classmethod
+    def out_group_if_none(cls, data) -> SimPEGGroup:
+
+        group = data.get("out_group", None)
+
+        if isinstance(group, UIJsonGroup):
+            group = SimPEGGroup.create(data["geoh5"], name=group.name)
+
+        elif group is None:
+            group = SimPEGGroup.create(data["geoh5"], name=cls.title)
+
+        group.metadata = None
+        data["out_group"] = group
+
+        return data
+
+    @model_validator(mode="after")
+    def update_out_group_options(self):
+        self.out_group.options = self.serialize()
+        return self
+
+    @property
+    def workpath(self):
+        return Path(self.geoh5.h5file).parent
 
     @property
     def channels(self) -> list[str]:
-        return [k for k in self.__dict__ if "channel" in k]
+        return [k.split("_")[0] for k in self.__dict__ if "channel" in k]
+
+    def data_channel(self, component: str) -> NumericData | None:
+        """Return the data object associated with the component."""
+        return getattr(self, "_".join([component, "channel"]), None)
+
+    def uncertainty_channel(self, component: str) -> NumericData | None:
+        """Return the uncertainty object associated with the component."""
+        return getattr(self, "_".join([component, "uncertainty"]), None)
+
+    def data(self, component: str) -> np.ndarray | None:
+        """Returns array of data for chosen data component if it exists."""
+        data_entity = self.data_channel(component)
+        if isinstance(data_entity, NumericData):
+            return data_entity.values.astype(float)
+        return None
+
+    def uncertainty(self, component: str) -> np.ndarray | None:
+        """Returns uncertainty for chosen data component if it exists."""
+        uncertainty_entity = self.uncertainty_channel(component)
+        if isinstance(uncertainty_entity, NumericData):
+            return uncertainty_entity.values.astype(float)
+        elif self.data(component) is not None:
+            d = self.data(component)
+            if isinstance(uncertainty_entity, int | float):
+                return np.array([float(uncertainty_entity)] * len(d))
+            else:
+                return d * 0.0 + 1.0  # Default
+        else:
+            return None
 
     @property
     def padding_cells(self) -> int:
@@ -135,16 +197,11 @@ class BaseForwardData(BaseData, CoreData):
     forward_only: bool = True
 
     @property
-    def default_ui_json(self) -> Path:
-        name = "_".join(self.title.lower().split())
-        return assets_path() / "ui_json" / f"{name}_forward.ui.json"
-
-    @property
     def components(self) -> list[str]:
         """Retrieve component names used to index channel and uncertainty data."""
         comps = []
         for c in self.channels:
-            if getattr(self, f"{c}_channel_bool", None) is not None:
+            if getattr(self, f"{c}_channel_bool", False):
                 comps.append(c)
 
         return comps
@@ -215,7 +272,7 @@ class BaseInversionData(BaseData, CoreData):
     """
 
     model_config = ConfigDict(
-        frozen=True,
+        frozen=False,
         arbitrary_types_allowed=True,
     )
 
@@ -223,15 +280,11 @@ class BaseInversionData(BaseData, CoreData):
     title: ClassVar[str] = "Geophysical inversion"
     run_command: ClassVar[str] = "simpeg_drivers.driver"
 
-    conda_environment: str = "simpeg_drivers"
-    reference_model: float | FloatData | None
-    lower_bound: float | FloatData | None
-    upper_bound: float | FloatData | None
-
     forward_only: bool = False
-
-    topography: FloatData | None
-    active_model: BooleanData | None
+    conda_environment: str = "simpeg_drivers"
+    reference_model: float | FloatData | None = None
+    lower_bound: float | FloatData | None = None
+    upper_bound: float | FloatData | None = None
 
     alpha_s: float | FloatData = 1.0
     length_scale_x: float | FloatData = 1.0
@@ -258,9 +311,6 @@ class BaseInversionData(BaseData, CoreData):
     max_cg_iterations: int = 30
     tol_cg: float = 1e-4
     f_min_change: float = 1e-2
-    sens_wts_threshold: float
-    every_iteration_bool: bool
-    save_sensitivities: bool
 
     sens_wts_threshold: float = 1e-3
     every_iteration_bool: bool = True
@@ -269,26 +319,29 @@ class BaseInversionData(BaseData, CoreData):
     tile_spatial: int = 1
     store_sensitivities: str = "ram"
 
-    parallelized: bool
-    n_cpu: int
-    max_chunk_size: int
-    chunk_by_rows: bool
-    prctile: float
-    beta_tol: float
-    output_tile_files: bool
-    inversion_style: str
-    max_ram: float
-    ga_group: SimPEGGroup
-    distributed_workers: int
-    no_data_value: float
+    beta_tol: float = 0.5
+    prctile: float = 95.0
+    coolEps_q: bool = True
+    coolEpsFact: float = 1.2
+    beta_search: bool = False
+
+    chunk_by_rows: bool = True
+    output_tile_files: bool = False
+    inversion_style: str = "voxel"
+    max_ram: float | None = None
+    ga_group: SimPEGGroup | None = None
+    distributed_workers: int | None = None
+    no_data_value: float | None = None
 
     @property
-    def default_ui_json(self) -> Path:
-        return (
-            assets_path()
-            / "ui_json"
-            / f"{'_'.join(self.title.lower().split())}_inversion.ui.json"
-        )
+    def components(self) -> list[str]:
+        """Retrieve component names used to index channel and uncertainty data."""
+        comps = []
+        for c in self.channels:
+            if getattr(self, f"{c}_channel", False):
+                comps.append(c)
+
+        return comps
 
     def data_channel(self, component: str) -> NumericData | None:
         """Return the data object associated with the component."""
@@ -430,6 +483,14 @@ class InversionBaseParams(BaseParams):
             for key in self.__dict__:
                 if "channel_bool" in key and getattr(self, key[:-5], None) is not None:
                     setattr(self, key, True)
+
+    @property
+    def active(self):
+        return ActiveCellsData(
+            topography_object=self.topography_object,
+            topography=self.topography,
+            active_model=self.active_model,
+        )
 
     def data_channel(self, component: str):
         """Return uuid of data channel."""

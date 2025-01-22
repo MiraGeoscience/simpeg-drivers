@@ -53,6 +53,7 @@ def test_gravity_fwr_run(
         z_from_topo=False,
         data_object=survey,
         starting_model=model,
+        gz_channel_bool=True
     )
     fwr_driver = GravityDriver(params)
     fwr_driver.run()
@@ -92,10 +93,11 @@ def test_gravity_run(
         gz.values = values
 
         # Run the inverse
+        active = ActiveCellsData(topography_object=topography)
         params = GravityInversionParams(
             geoh5=geoh5,
             mesh=mesh,
-            topography_object=topography,
+            active=active,
             data_object=gz.parent,
             starting_model=1e-4,
             reference_model=0.0,
@@ -115,7 +117,8 @@ def test_gravity_run(
             store_sensitivities="ram",
             save_sensitivities=True,
         )
-        params.write_input_file(path=tmp_path, name="Inv_run")
+        params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
+        # params.write_input_file(path=tmp_path, name="Inv_run")
 
     driver = GravityDriver.start(str(tmp_path / "Inv_run.ui.json"))
 

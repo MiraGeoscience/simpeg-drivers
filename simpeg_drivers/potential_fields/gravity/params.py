@@ -11,18 +11,13 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import ClassVar
 
 from geoh5py.data import FloatData
 
+from simpeg_drivers import assets_path
 from simpeg_drivers.params import BaseForwardData, BaseInversionData
-
-from .constants import (
-    default_ui_json,
-    forward_defaults,
-    inversion_defaults,
-    validations,
-)
 
 
 class GravityForwardParams(BaseForwardData):
@@ -40,8 +35,22 @@ class GravityForwardParams(BaseForwardData):
     :param gzz_channel_bool: gzz channel boolean.
     """
 
+    name: ClassVar[str] = "Gravity Forward"
+    title: ClassVar[str] = "Gravity Forward"
+    default_ui_json: ClassVar[Path] = assets_path() / "uijson/gravity_forward.ui.json"
+
     inversion_type: str = "gravity"
     physical_property: str = "density"
+    gx_channel_bool: bool = False
+    gy_channel_bool: bool = False
+    gz_channel_bool: bool = True
+    gxx_channel_bool: bool = False
+    gxy_channel_bool: bool = False
+    gxz_channel_bool: bool = False
+    gyy_channel_bool: bool = False
+    gyz_channel_bool: bool = False
+    gzz_channel_bool: bool = False
+
 
 class GravityInversionParams(BaseInversionData):
     """
@@ -69,6 +78,7 @@ class GravityInversionParams(BaseInversionData):
 
     name: ClassVar[str] = "Gravity Inversion"
     title: ClassVar[str] = "Gravity Inversion"
+    default_ui_json: ClassVar[Path] =  assets_path() / "uijson/gravity_inversion.ui.json"
 
     inversion_type: str = "gravity"
     physical_property: str = "density"
@@ -81,15 +91,15 @@ class GravityInversionParams(BaseInversionData):
     gyy_channel: FloatData | None = None
     gyz_channel: FloatData | None = None
     gzz_channel: FloatData | None = None
-    gx_uncertainty: FloatData | None = None
-    gy_uncertainty: FloatData | None = None
-    gz_uncertainty: FloatData | None = None
-    gxx_uncertainty: FloatData | None = None
-    gxy_uncertainty: FloatData | None = None
-    gxz_uncertainty: FloatData | None = None
-    gyy_uncertainty: FloatData | None = None
-    gyz_uncertainty: FloatData | None = None
-    gzz_uncertainty: FloatData | None = None
+    gx_uncertainty: FloatData | float | None = None
+    gy_uncertainty: FloatData | float | None = None
+    gz_uncertainty: FloatData | float | None = None
+    gxx_uncertainty: FloatData | float | None = None
+    gxy_uncertainty: FloatData | float | None = None
+    gxz_uncertainty: FloatData | float | None = None
+    gyy_uncertainty: FloatData | float | None = None
+    gyz_uncertainty: FloatData | float | None = None
+    gzz_uncertainty: FloatData | float | None = None
 
 
 # class GravityParams(InversionBaseParams):

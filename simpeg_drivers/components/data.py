@@ -124,7 +124,7 @@ class InversionData(InversionLocations):
         self.observed = self.normalize(self.observed)
         self.uncertainties = self.normalize(self.uncertainties, absolute=True)
         self.entity = self.write_entity()
-        self.params.data_object = self.entity
+        self.params.mutations["data_object"] = self.entity
         self.locations = super().get_locations(self.entity)
 
     def drape_locations(self, locations: np.ndarray) -> np.ndarray:
@@ -460,10 +460,9 @@ class InversionData(InversionLocations):
         Update pointers to newly created object and data.
         """
 
-        components = self.params.components()
-        self.params.data_object = self.entity
+        self.params.mutations["data_object"] = self.entity
 
-        for comp in components:
+        for comp in self.params.components:
             if getattr(self.params, "_".join([comp, "channel"]), None) is None:
                 continue
 

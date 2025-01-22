@@ -118,8 +118,8 @@ class InversionMesh:
         """Automate meshing based on data and topography objects."""
 
         params = auto_mesh_parameters(
-            self.params.data_object,
-            self.params.topography_object,
+            self.params.mutations["data_object"],
+            self.params.active.topography_object,
             inversion_type=self.params.inversion_type,
         )
         driver = OctreeDriver(params)
