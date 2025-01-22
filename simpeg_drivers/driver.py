@@ -20,9 +20,9 @@
 from __future__ import annotations
 import os
 
-os.environ["OMP_NUM_THREADS"] = "12"
-os.environ["MKL_NUM_THREADS"] = "12"
-os.environ["OPENBLAS_NUM_THREADS"] = "12"
+os.environ["OMP_NUM_THREADS"] = "11"
+os.environ["MKL_NUM_THREADS"] = "11"
+os.environ["OPENBLAS_NUM_THREADS"] = "11"
 import multiprocessing
 import sys
 from datetime import datetime, timedelta
@@ -570,18 +570,15 @@ class InversionLogger:
 
 if __name__ == "__main__":
     file = Path(sys.argv[1]).resolve()
-    # file = Path(r"C:/Users/dominiquef/Desktop/Tests/Dug/Forrestania_MVI_Unconstrained_vDF_test_2_tiles.ui.json")
-    cluster = LocalCluster(processes=False, n_workers=1, threads_per_worker=12)
-    client = cluster.get_client()
-    print(f"Running local cluster.\n Saving to {file.parent / 'dask_profile.html'}")
-    # Full run
-    with performance_report(filename=Path(file.parent / "dask_profile.html")):
-        InversionDriver.start(file)
+    # file = Path(r"C:/Users/dominiquef/Desktop/Tests/Dug/PowerMetal_middle_ones_test_100m.ui.json")
+    cluster = LocalCluster(processes=True, n_workers=4, threads_per_worker=11)
 
-    # visualize(
-    #     [prof, rprof],
-    #     filename=Path(file.parent / "dask_profile.html"),
-    #     show=False,
-    # )
+    diagnostics = file.stem.replace(".ui", "") + "_diagnostics.html"
+    with cluster.get_client():
+        # client = cluster.get_client()
+        print(f"Running local cluster.\n Saving to {file.parent / diagnostics}")
+        # Full run
+        with performance_report(filename=file.parent / diagnostics):
+            InversionDriver.start(file)
 
     sys.stdout.close()
