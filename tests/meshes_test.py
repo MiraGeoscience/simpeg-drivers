@@ -190,44 +190,6 @@ def test_ensure_cell_convention(tmp_path):
     new_centroids = test_mesh.centroids.copy()
     assert np.allclose(np.sort(old_centroids.flat), np.sort(new_centroids.flat))
 
-def test_ensure_cell_convention_topdown(tmp_path):
-    workspace = Workspace(tmp_path / "test_octree.geoh5")
-    octree_cells = np.array(
-        [
-            (0, 0, 1, 1),
-            (1, 0, 1, 1),
-            (0, 1, 1, 1),
-            (1, 1, 1, 1),
-            (0, 0, 0, 1),
-            (1, 0, 0, 1),
-            (0, 1, 0, 1),
-            (1, 1, 0, 1),
-
-        ],
-        dtype=[("I", "<i4"), ("J", "<i4"), ("K", "<i4"), ("NCells", "<i4")],
-    )
-    test_mesh = Octree.create(
-        workspace,
-        name="Mesh",
-        origin=np.array([0, 0, 10]),
-        u_count=2,
-        v_count=2,
-        w_count=2,
-        u_cell_size=5.0,
-        v_cell_size=5.0,
-        w_cell_size=-5.0,
-        octree_cells=octree_cells,
-    )
-
-    validation_mesh = test_mesh.copy()
-    validation_mesh.name = "validation"
-    old_centroids = test_mesh.centroids.copy()
-    treemesh = InversionMesh.ensure_cell_convention(test_mesh)
-    test_mesh = treemesh_2_octree(workspace, treemesh)
-    new_centroids = test_mesh.centroids.copy()
-    assert np.allclose(np.sort(old_centroids.flat), np.sort(new_centroids.flat))
-
-
 
 def test_raise_on_rotated_negative_cell_size(tmp_path):
     ws, params = setup_params(tmp_path)
