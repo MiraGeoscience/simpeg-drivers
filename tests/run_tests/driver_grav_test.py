@@ -118,9 +118,8 @@ def test_gravity_run(
             save_sensitivities=True,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
-        # params.write_input_file(path=tmp_path, name="Inv_run")
 
-    driver = GravityDriverInversion.start(str(tmp_path / "Inv_run.ui.json"))
+    driver = GravityInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
     assert driver.params.data_object.uid != gz.parent.uid
     assert driver.models.upper_bound is np.inf

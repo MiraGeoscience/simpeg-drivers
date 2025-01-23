@@ -41,7 +41,6 @@ class ActiveCellsData(BaseModel):
     """
 
     model_config = ConfigDict(
-        # frozen=True,
         arbitrary_types_allowed=True,
     )
     topography_object: Points  # | None = None
@@ -271,7 +270,6 @@ class BaseInversionData(BaseData, CoreData):
     """
 
     model_config = ConfigDict(
-        frozen=False,
         arbitrary_types_allowed=True,
     )
 

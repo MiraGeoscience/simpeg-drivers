@@ -94,7 +94,7 @@ DRIVER_MAP = {
     "tipper": ("simpeg_drivers.natural_sources.tipper.driver",
                {"inversion": "TipperDriver"}),
     "gravity": ("simpeg_drivers.potential_fields.gravity.driver",
-                {"inversion": "GravityDriver", "forward": "GravityForwardDriver"}),
+                {"inversion": "GravityInversionDriver", "forward": "GravityForwardDriver"}),
     "magnetic scalar": (
         "simpeg_drivers.potential_fields.magnetic_scalar.driver",
         {"inversion": "MagneticScalarDriver"},
