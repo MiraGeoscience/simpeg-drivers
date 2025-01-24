@@ -461,7 +461,7 @@ class InversionDriver(BaseDriver):
 
         mod_name, classes = DRIVER_MAP.get(inversion_type)
         if forward_only:
-            class_name = classes.get("forward", "inversion")
+            class_name = classes.get("forward", classes["inversion"])
         else:
             class_name = classes.get("inversion")
         module = __import__(mod_name, fromlist=[class_name])

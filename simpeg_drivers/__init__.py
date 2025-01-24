@@ -49,7 +49,7 @@ def assets_path() -> Path:
 DRIVER_MAP = {
     "direct current 3d": (
         "simpeg_drivers.electricals.direct_current.three_dimensions.driver",
-        {"inversion": "DirectCurrent3DDriver"}
+        {"inversion": "DirectCurrent3DDriver"},
     ),
     "direct current 2d": (
         "simpeg_drivers.electricals.direct_current.two_dimensions.driver",
@@ -91,10 +91,14 @@ DRIVER_MAP = {
         "simpeg_drivers.natural_sources.magnetotellurics.driver",
         {"inversion": "MagnetotelluricsDriver"},
     ),
-    "tipper": ("simpeg_drivers.natural_sources.tipper.driver",
-               {"inversion": "TipperDriver"}),
-    "gravity": ("simpeg_drivers.potential_fields.gravity.driver",
-                {"inversion": "GravityInversionDriver", "forward": "GravityForwardDriver"}),
+    "tipper": (
+        "simpeg_drivers.natural_sources.tipper.driver",
+        {"inversion": "TipperDriver"},
+    ),
+    "gravity": (
+        "simpeg_drivers.potential_fields.gravity.driver",
+        {"inversion": "GravityInversionDriver", "forward": "GravityForwardDriver"},
+    ),
     "magnetic scalar": (
         "simpeg_drivers.potential_fields.magnetic_scalar.driver",
         {"inversion": "MagneticScalarDriver"},

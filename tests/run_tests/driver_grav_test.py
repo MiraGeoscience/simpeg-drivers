@@ -17,7 +17,10 @@ from geoh5py.workspace import Workspace
 
 from simpeg_drivers.params import ActiveCellsData
 from simpeg_drivers.potential_fields import GravityForwardParams, GravityInversionParams
-from simpeg_drivers.potential_fields.gravity.driver import GravityForwardDriver, GravityInversionDriver
+from simpeg_drivers.potential_fields.gravity.driver import (
+    GravityForwardDriver,
+    GravityInversionDriver,
+)
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
@@ -53,7 +56,7 @@ def test_gravity_fwr_run(
         z_from_topo=False,
         data_object=survey,
         starting_model=model,
-        gz_channel_bool=True
+        gz_channel_bool=True,
     )
     fwr_driver = GravityForwardDriver(params)
     fwr_driver.run()

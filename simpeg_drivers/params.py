@@ -11,8 +11,8 @@
 
 from __future__ import annotations
 
-import warnings
 import multiprocessing
+import warnings
 from copy import deepcopy
 from pathlib import Path
 from typing import ClassVar
@@ -43,8 +43,8 @@ class ActiveCellsData(BaseModel):
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
     )
-    topography_object: Points  # | None = None
-    topography: FloatData | None = None
+    topography_object: Points | None = None
+    topography: FloatData | float | None = None
     active_model: BooleanData | None = None
 
     @model_validator(mode="before")
@@ -75,11 +75,7 @@ class CoreData(BaseModel):
     # TODO: Refactor to allow frozen True.  Currently params.data_object is
     # updated after z_from_topo applied in entity_factory.py.  See
     # simpeg_drivers/components/data.py ln. 127
-    model_config = ConfigDict(
-        frozen=False,
-        arbitrary_types_allowed=True,
-        extra="allow"
-    )
+    model_config = ConfigDict(frozen=False, arbitrary_types_allowed=True, extra="allow")
     run_command: ClassVar[str] = "simpeg_drivers.driver"
     conda_environment: str = "simpeg_drivers"
     inversion_type: str
@@ -115,7 +111,6 @@ class CoreData(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def out_group_if_none(cls, data) -> SimPEGGroup:
-
         group = data.get("out_group", None)
 
         if isinstance(group, UIJsonGroup):
@@ -553,7 +548,6 @@ class InversionBaseParams(BaseParams):
                 comps.append(c)
 
         return comps
-
 
     def model_norms(self) -> list[float]:
         """Returns model norm components as a list."""

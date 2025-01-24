@@ -817,7 +817,12 @@ def simpeg_group_to_driver(group: SimPEGGroup, workspace: Workspace) -> Inversio
     ui_json["geoh5"] = workspace
 
     ifile = InputFile(ui_json=ui_json)
-    mod_name, class_name = DRIVER_MAP.get(ui_json["inversion_type"])
+    forward_only = ui_json["forward_only"]
+    mod_name, classes = DRIVER_MAP.get(ui_json["inversion_type"])
+    if forward_only:
+        class_name = classes.get("forward", classes["inversion"])
+    else:
+        class_name = classes.get("inversion")
     module = __import__(mod_name, fromlist=[class_name])
     inversion_driver = getattr(module, class_name)
     params = inversion_driver._params_class(  # pylint: disable=W0212

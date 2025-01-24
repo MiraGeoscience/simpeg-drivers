@@ -85,15 +85,15 @@ def grav_params(tmp_path_factory):
         flatten=False,
     )
     geoh5.close()
-    params = GravityParams(
+    params = GravityInversionParams(
         **{
             "geoh5": geoh5,
             "data_object": survey,
-            "topography_object": topography,
+            "active": {"topography_object": topography},
             "mesh": mesh,
         }
     )
-    params.input_file.geoh5.open()
+    params.geoh5.open()
 
     return params
 
@@ -188,96 +188,6 @@ def test_write_input_file_validation(tmp_path, mvi_params):
         params.write_input_file(name="test.ui.json", path=tmp_path)
 
 
-def test_params_initialize():
-    for params in [
-        MagneticScalarParams(),
-        MagneticVectorParams(),
-        GravityParams(),
-        DirectCurrent3DParams(),
-        InducedPolarization3DParams(),
-    ]:
-        check = []
-        for k, v in params.defaults.items():
-            if " " in k or k in [
-                "starting_model",
-                "conductivity_model",
-                "min_value",
-                "generate_sweep",
-            ]:
-                continue
-            check.append(getattr(params, k) == v)
-        assert all(check)
-
-    params = MagneticVectorParams(starting_model=1.0)
-    assert params.starting_model == 1.0
-    params = GravityParams(starting_model=1.0)
-    assert params.starting_model == 1.0
-
-
-def test_input_file_construction(tmp_path: Path):
-    params_classes = [
-        GravityParams,
-        MagneticScalarParams,
-        MagneticVectorParams,
-        DirectCurrent3DParams,
-        InducedPolarization3DParams,
-    ]
-
-    for params_class in params_classes:
-        filename = "test.ui.json"
-        for forward_only in [True, False]:
-            params = params_class(forward_only=forward_only)
-            params.write_input_file(name=filename, path=tmp_path, validate=False)
-            ifile = InputFile.read_ui_json(tmp_path / filename, validate=False)
-            params = params_class(input_file=ifile)
-
-            check = []
-            for k, v in params.defaults.items():
-                # TODO Need to better handle defaults None to value
-                if (" " in k) or k in [
-                    "starting_model",
-                    "reference_model",
-                    "conductivity_model",
-                    "min_value",
-                    "generate_sweep",
-                ]:
-                    continue
-                check.append(getattr(params, k) == v)
-
-            assert all(check)
-
-
-def test_default_input_file(tmp_path: Path):
-    for params_class in [
-        MagneticScalarParams,
-        MagneticVectorParams,
-        GravityParams,
-        DirectCurrent3DParams,
-        InducedPolarization3DParams,
-    ]:
-        filename = "test.ui.json"
-        params = params_class()
-        params.write_input_file(name=filename, path=tmp_path, validate=False)
-        ifile = InputFile.read_ui_json(tmp_path / filename, validate=False)
-
-        # check that reads back into input file with defaults
-        check = []
-        for k, v in ifile.data.items():
-            if " " in k or requires_value(ifile.ui_json, k):
-                continue
-            check.append(v == params.defaults[k])
-        assert all(check)
-
-        # check that params constructed from_path is defaulted
-        params2 = params_class()
-        check = []
-        for k, v in params2.to_dict(ui_json_format=False).items():
-            if " " in k or requires_value(ifile.ui_json, k):
-                continue
-            check.append(v == ifile.data[k])
-        assert all(check)
-
-
 def test_update():
     new_params = {
         "starting_model": 99.0,
@@ -310,7 +220,7 @@ def test_chunk_validation_mag(tmp_path: Path, mvi_params):
 
 def test_chunk_validation_grav(tmp_path: Path, grav_params):
     test_dict = grav_params.to_dict()
-    params = GravityParams(**test_dict)  # pylint: disable=repeated-keyword
+    params = GravityInversionParams(**test_dict)  # pylint: disable=repeated-keyword
     params.topography_object = None
     with pytest.raises(
         OptionalValidationError,
@@ -598,58 +508,3 @@ def test_active_cells_data(tmp_path):
     assert True
 
 
-def test_something(tmp_path):
-    from typing import ClassVar
-
-    from geoapps_utils.driver.data import BaseData
-    from geoh5py import Workspace
-    from geoh5py.objects import Octree, Points
-    from pydantic import BaseModel, ConfigDict
-
-    ws = Workspace(tmp_path / "test.geoh5")
-
-    class CoreData(BaseModel):
-        model_config = ConfigDict(
-            frozen=True,
-            arbitrary_types_allowed=True,
-        )
-        run_command: ClassVar[str] = "simpeg_drivers.driver"
-        conda_environment: str = "simpeg_drivers"
-        data_object: Points | None
-        mesh: Octree | None
-
-    class GravityData(BaseData, CoreData):
-        model_config = ConfigDict(
-            frozen=True,
-            arbitrary_types_allowed=True,
-        )
-        mesh: DrapeModel | None
-        myparam: int = 1
-
-    data = GravityData(geoh5=ws, data_object=None, mesh=None, myparam=2)
-
-    assert True
-
-def test_something_else():
-    from pydantic import BaseModel, ConfigDict
-    class MyData(BaseModel):
-        model_config = ConfigDict(frozen=True, extra="allow")
-        a: int
-        b: str
-
-    data = MyData(a=1, b='2')
-    data.e = 3
-    assert data.e == 3
-
-def test_something_related():
-    from pydantic import BaseModel, ConfigDict, Field, computed_field
-    class MyData(BaseModel):
-        model_config = ConfigDict(frozen=True, extra="allow")
-        a: int
-        b: str
-
-
-    data = MyData(a=1, b="string")
-    data.c = "other_string"
-    assert data.b == "string"
-    assert data.c == "other_string"

@@ -16,10 +16,11 @@ from geoh5py.workspace import Workspace
 
 from simpeg_drivers.joint.joint_surveys import JointSurveysParams
 from simpeg_drivers.joint.joint_surveys.driver import JointSurveyDriver
-from simpeg_drivers.potential_fields import GravityParams
-from simpeg_drivers.potential_fields.gravity.driver import GravityDriver
+from simpeg_drivers.potential_fields import GravityForwardParams, GravityInversionParams
+from simpeg_drivers.potential_fields.gravity.driver import GravityInversionDriver
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
+from simpeg_drivers.params import ActiveCellsData
 
 
 # To test the full run and validate the inversion.
@@ -42,17 +43,18 @@ def test_joint_surveys_fwr_run(
         n_electrodes=n_grid_points,
         n_lines=n_grid_points,
     )
-    params = GravityParams(
+    active = ActiveCellsData(topography_object=topography)
+    params = GravityForwardParams(
         forward_only=True,
         geoh5=geoh5,
-        mesh=model.parent.uid,
-        topography_object=topography.uid,
+        mesh=model.parent,
+        active=active,
         resolution=0.0,
         z_from_topo=False,
-        data_object=survey.uid,
-        starting_model=model.uid,
+        data_object=survey,
+        starting_model=model,
     )
-    fwr_driver_a = GravityDriver(params)
+    fwr_driver_a = GravityInversionDriver(params)
     fwr_driver_a.out_group.name = "Gravity Forward [0]"
 
     # Create local problem B
@@ -67,17 +69,18 @@ def test_joint_surveys_fwr_run(
         geoh5=geoh5,
         drape_height=10.0,
     )
-    params = GravityParams(
+    active = ActiveCellsData(topography_object=topography)
+    params = GravityForwardParams(
         forward_only=True,
         geoh5=geoh5,
-        mesh=model.parent.uid,
-        topography_object=topography.uid,
+        mesh=model.parent,
+        active=active,
         resolution=0.0,
         z_from_topo=False,
-        data_object=survey.uid,
-        starting_model=model.uid,
+        data_object=survey,
+        starting_model=model,
     )
-    fwr_driver_b = GravityDriver(params)
+    fwr_driver_b = GravityInversionDriver(params)
     fwr_driver_b.out_group.name = "Gravity Forward [1]"
 
     # Force co-location of meshes
@@ -124,16 +127,17 @@ def test_joint_surveys_inv_run(
             active_model = mesh.get_entity("active_cells")[0]
             gz = survey.get_data("Iteration_0_gz")[0]
             orig_data.append(gz.values)
-            params = GravityParams(
+            active = ActiveCellsData(active_model=active_model)
+            params = GravityInversionParams(
                 geoh5=geoh5,
-                mesh=mesh.uid,
-                active_model=active_model.uid,
-                data_object=survey.uid,
-                gz_channel=gz.uid,
+                mesh=mesh,
+                active=active,
+                data_object=survey,
+                gz_channel=gz,
                 gz_uncertainty=np.var(gz.values) * 2.0,
                 starting_model=0.0,
             )
-            drivers.append(GravityDriver(params))
+            drivers.append(GravityInversionDriver(params))
 
         active_model = drivers[0].params.mesh.get_entity("active_cells")[0]
         # Run the inverse

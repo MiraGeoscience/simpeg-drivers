@@ -186,7 +186,7 @@ class LineSweepDriver(SweepDriver, InversionDriver):
         with open(ws.h5file.parent / "SimPEG.log", "w", encoding="utf8") as f:
             f.write("".join(log_lines))
 
-        self.pseudo3d_params.data_entity.add_data(data)
+        self.pseudo3d_params.data_object.add_data(data)
 
         if self.pseudo3d_params.mesh is None:
             return

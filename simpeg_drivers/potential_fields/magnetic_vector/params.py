@@ -76,8 +76,9 @@ class MagneticVectorParams(InversionBaseParams):
 
         super().__init__(input_file=input_file, forward_only=forward_only, **kwargs)
 
+    @property
     def components(self) -> list[str]:
-        comps = super().components()
+        comps = super().components
         if self.forward_only:
             if len(comps) == 0:
                 comps = ["tmi"]
