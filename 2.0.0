@@ -1,0 +1,5 @@
+Looking in indexes: https://analyst-user-role:****@mirageoscienceltd.jfrog.io/artifactory/api/pypi/geology-pypi-dev/simple, http://pypi.org/simple
+Collecting poetry-core
+  Using cached https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/geology-pypi-dev/packages/packages/99/9e/b2d13aecfd3a7ea05e6eeddff7c450b8ff5233e5d0da834fbfd81b19acaf/poetry_core-2.0.1-py3-none-any.whl (544 kB)
+Installing collected packages: poetry-core
+Successfully installed poetry-core-2.0.1

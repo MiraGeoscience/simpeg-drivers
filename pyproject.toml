@@ -20,34 +20,31 @@ repository = "https://github.com/MiraGeoscience/simpeg-drivers"
 documentation = "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/"
 homepage = "https://www.mirageoscience.com/mining-industry-software/python-integration/"
 
-[tool.hatch.build.targets.sdist]
-packages = [
-    "simpeg_drivers",
-    "simpeg_drivers-assets",
-    "THIRD_PARTY_SOFTWARE.rst",
-    "README.rst",
-    "LICENSE",
-]
+[tool.poetry]
+version = "0.0.0"
 
-[tool.hatch.build.targets.wheel]
-packages = [
-    "simpeg_drivers",
-    "simpeg_drivers-assets",
-    "THIRD_PARTY_SOFTWARE.rst",
-    "README.rst",
-    "LICENSE",
-]
+[tool.poetry-dynamic-versioning]
+enable = true
+vcs = "git"
+style = "semver"
 
-[tool.hatch.version]
-path = "simpeg_drivers/_version.py"
-source = "vcs"
+[tool.poetry-dynamic-versioning.substitution]
+files = ["simpeg_drivers/_version.py"]
+
+[tool.poetry-dynamic-versioning.files."simpeg_drivers/_version.py"]
+persistent-substitution = true
+initial-content = """
+  # These version placeholders will be replaced later during substitution.
+  __version__ = "0.0.0"
+  __version_tuple__ = (0, 0, 0)
+"""
 
 [tool.hatch.build.hooks.vcs]
 version-file = "simpeg_drivers/_version.py"
 
 [build-system]
-requires = ["hatchling", "hatch-vcs"]
-build-backend = "hatchling.build"
+requires = ["poetry-core>=2.0.0,<3.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
+build-backend = "poetry_dynamic_versioning.backend"
 
 [tool.pixi.project]
 channels = ["conda-forge"]
@@ -77,8 +74,9 @@ zarr = ">=2.14.2, <2.15.0"  # from simpeg[dask]
 tbb = "2021.12.*"  # through mkl from SimPEG
 python-tzdata = "2023.4.*"  # through pandas from SimPEG
 
-# [tool.pixi.pypi-options]
-# index-url = "https://sophiec@mirageoscience.com@mirageoscienceltd.jfrog.io/artifactory/pypi/public-pypi-dev/simple"
+[tool.pixi.pypi-options]
+index-url = "https://mirageoscienceltd.jfrog.io/artifactory/pypi/public-pypi-dev/simple"
+extra-index-urls = ["https://pypi.org/simple"]
 
 [tool.pixi.pypi-dependencies]
 ## Package installation from src
@@ -87,15 +85,15 @@ simpeg-drivers = { path = ".", editable = true }
 
 ## Pip dependencies from Git repositories
 #----------------------------------------
-geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", branch = "develop"}
+# geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", branch = "develop"}
 
-octree-creation-app = {git = "https://github.com/MiraGeoscience/octree-creation-app.git", branch = "develop"}
+# octree-creation-app = {git = "https://github.com/MiraGeoscience/octree-creation-app.git", branch = "develop"}
 
-geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", branch = "develop"}
+# geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", branch = "develop"}
 
-mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", branch = "develop", extras = ["dask"]}
+# mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", branch = "develop", extras = ["dask"]}
 
-param-sweeps = {git = "https://github.com/MiraGeoscience/param-sweeps.git", branch = "develop"}
+# param-sweeps = {git = "https://github.com/MiraGeoscience/param-sweeps.git", branch = "develop"}
 
 
 [tool.pixi.environments]
@@ -104,10 +102,6 @@ production = []
 
 [tool.pixi.feature.build]
 pypi-dependencies = { build = "*", twine = "*"}
-
-[tool.pixi.feature.build.tasks]
-build = "hatch build"
-publish = "hatch publish"
 
 [tool.pixi.feature.test.pypi-dependencies]
 Pygments = "*"
@@ -127,6 +121,9 @@ nbconvert = ">=7.16.4,<7.17.0"
 
 [tool.pixi.feature.test.tasks]
 test = "pytest --cov --cov-report=xml"
+
+[tool.poetry.requires-plugins]
+poetry-dynamic-versioning = { version = ">=1.0.0,<2.0.0", extras = ["plugin"] }
 
 [tool.ruff]
 target-version = "py310"
