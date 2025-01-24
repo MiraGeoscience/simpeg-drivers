@@ -39,9 +39,6 @@ initial-content = """
   __version_tuple__ = (0, 0, 0)
 """
 
-[tool.hatch.build.hooks.vcs]
-version-file = "simpeg_drivers/_version.py"
-
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
 build-backend = "poetry_dynamic_versioning.backend"
