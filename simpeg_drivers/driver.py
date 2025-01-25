@@ -20,9 +20,9 @@
 from __future__ import annotations
 import os
 
-os.environ["OMP_NUM_THREADS"] = "11"
-os.environ["MKL_NUM_THREADS"] = "11"
-os.environ["OPENBLAS_NUM_THREADS"] = "11"
+os.environ["OMP_NUM_THREADS"] = "12"
+os.environ["MKL_NUM_THREADS"] = "12"
+os.environ["OPENBLAS_NUM_THREADS"] = "12"
 import multiprocessing
 import sys
 from datetime import datetime, timedelta
@@ -393,10 +393,10 @@ class InversionDriver(BaseDriver):
 
         if getattr(self, "drivers", None) is not None:  # joint problem
             data_count = np.sum(
-                [len(d.inversion_data.survey.std) for d in getattr(self, "drivers")]
+                [d.inversion_data.n_data for d in getattr(self, "drivers")]
             )
         else:
-            data_count = len(self.inversion_data.survey.std)
+            data_count = self.inversion_data.n_data
 
         print(
             f"Target Misfit: {self.params.chi_factor * data_count:.2e} ({data_count} data "
@@ -569,9 +569,9 @@ class InversionLogger:
 
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
-    # file = Path(r"C:/Users/dominiquef/Desktop/Tests/Dug/PowerMetal_middle_ones_test_100m.ui.json")
-    cluster = LocalCluster(processes=True, n_workers=4, threads_per_worker=11)
+    # file = Path(sys.argv[1]).resolve()
+    file = Path(r"C:\Users\dominiquef\Desktop\Tests\Dug/PowerMetal_AFEM_fwr.ui.json")
+    cluster = LocalCluster(processes=True, n_workers=1, threads_per_worker=12)
 
     diagnostics = file.stem.replace(".ui", "") + "_diagnostics.html"
     with cluster.get_client():

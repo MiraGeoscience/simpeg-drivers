@@ -524,3 +524,15 @@ class InversionData(InversionLocations):
             self._survey, _, _ = self.create_survey()
 
         return self._survey
+
+    @property
+    def n_data(self):
+        n_data = 0
+        for comp in self.components:
+            if isinstance(self.observed[comp], dict):
+                for channel in self.observed[comp]:
+                    n_data += len(self.observed[comp][channel])
+            else:
+                n_data += len(self.observed[comp])
+
+        return n_data

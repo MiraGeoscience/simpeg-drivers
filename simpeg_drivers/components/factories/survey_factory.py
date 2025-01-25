@@ -1,5 +1,5 @@
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
+#  Copyright (c) 2023-2025 Mira Geoscience Ltd.
 #  All rights reserved.
 #
 #  This file is part of simpeg-drivers.
@@ -411,19 +411,27 @@ class SurveyFactory(SimPEGFactory):
         rx_factory = ReceiversFactory(self.params)
         tx_factory = SourcesFactory(self.params)
 
+        # Compute projections here
+        projections = {}
+        for comp in data.components:
+            if comp[0] not in projections:
+                projections[comp[0]] = mesh.get_interpolation_matrix(
+                    rx_locs, "faces_" + comp[0]
+                )
+
         receiver_groups = {}
         ordering = []
         for receiver_id in self.local_index:
             receivers = []
             for component_id, component in enumerate(data.components):
-                receivers.append(
-                    rx_factory.build(
-                        locations=rx_locs[receiver_id, :],
-                        data=data,
-                        mesh=mesh,
-                        component=component,
-                    )
+                receiver = rx_factory.build(
+                    locations=rx_locs[receiver_id, :],
+                    data=data,
+                    mesh=mesh,
+                    component=component,
                 )
+                receiver._Ps["F"] = projections[component[0]][receiver_id, :]  # pylint: disable=protected-access
+                receivers.append(receiver)
                 ordering.append([component_id, receiver_id])
             receiver_groups[receiver_id] = receivers
 
