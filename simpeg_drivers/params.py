@@ -98,7 +98,8 @@ class CoreData(BaseModel):
     generate_sweep: bool = False
 
     @field_validator("n_cpu", mode="before")
-    def maximize_cpu_if_none(self, value):
+    @classmethod
+    def maximize_cpu_if_none(cls, value):
         if value is None:
             value = int(multiprocessing.cpu_count())
         return value
