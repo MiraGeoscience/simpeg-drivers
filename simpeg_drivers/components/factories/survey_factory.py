@@ -386,6 +386,7 @@ class SurveyFactory(SimPEGFactory):
                     mesh=mesh,
                     component=component,
                 )
+                rx_obj.local_index = rx_ids
                 rx_list.append(rx_obj)
 
                 for time_id in range(len(receivers.channels)):
@@ -411,14 +412,6 @@ class SurveyFactory(SimPEGFactory):
         rx_factory = ReceiversFactory(self.params)
         tx_factory = SourcesFactory(self.params)
 
-        # Compute projections here
-        projections = {}
-        for comp in data.components:
-            if comp[0] not in projections:
-                projections[comp[0]] = mesh.get_interpolation_matrix(
-                    rx_locs, "faces_" + comp[0]
-                )
-
         receiver_groups = {}
         ordering = []
         for receiver_id in self.local_index:
@@ -430,7 +423,8 @@ class SurveyFactory(SimPEGFactory):
                     mesh=mesh,
                     component=component,
                 )
-                receiver._Ps["F"] = projections[component[0]][receiver_id, :]  # pylint: disable=protected-access
+
+                receiver.local_index = receiver_id
                 receivers.append(receiver)
                 ordering.append([component_id, receiver_id])
             receiver_groups[receiver_id] = receivers

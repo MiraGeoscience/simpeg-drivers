@@ -28,6 +28,7 @@ if TYPE_CHECKING:
 
 import numpy as np
 from geoh5py.objects import Octree
+from scipy.sparse import csr_matrix
 from simpeg import data, data_misfit, maps, meta, objective_function
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
@@ -211,5 +212,28 @@ class MisfitFactory(SimPEGFactory):
             tile_id=tile_id,
             padding_cells=padding_cells,
         )
+        if inversion_data.params.inversion_type in ["fem", "tdem"]:
+            compute_projections(inversion_data, local_sim)
 
         return local_sim, indices, ordering, mapping
+
+
+def compute_projections(inversion_data, simulation):
+    """
+    Pre-compute projections for the receivers for efficiency.
+    """
+    rx_locs = inversion_data.entity.vertices
+    projections = {}
+    for comp in "xyz":
+        projections[comp] = simulation.mesh.get_interpolation_matrix(
+            rx_locs, "faces_" + comp[0]
+        )
+
+    for source in simulation.survey.source_list:
+        for receiver in source.receiver_list:
+            proj = 0.0
+            for ori, comp in zip(receiver.orientation, "xyz", strict=False):
+                if ori == 0:
+                    continue
+                proj += ori * projections[comp][receiver.local_index, :]
+            receiver.spatialP = proj
