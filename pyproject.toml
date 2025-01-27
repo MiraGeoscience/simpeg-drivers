@@ -59,7 +59,7 @@ files = ["simpeg_drivers/_version.py", "recipe.yaml"]
 patterns = [
     '''(^__version__\s*(?::.*?)?=\s*['"])[^'"]*(['"])''',
     '''(^\s*version\s*(?::.*?)?:\s*['"])[^'"]*(['"])''',
-    { value = '''(^__version_tuple__\s*(?::.*?)?=\s*\()[^)]*(\))''', mode = "tuple" },
+    '''(^__version_tuple__\s*(?::.*?)?=\s*\()[^)]*(\))''',
 ]
 
 [tool.poetry-dynamic-versioning.files."simpeg_drivers/_version.py"]
