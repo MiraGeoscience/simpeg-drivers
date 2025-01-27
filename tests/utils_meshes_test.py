@@ -1,6 +1,12 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2024 Mira Geoscience Ltd.
-#  All rights reserved.
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2024-2025 Mira Geoscience Ltd.                                     '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 #
 #  This file is part of simpeg-drivers.
 #
@@ -67,7 +73,7 @@ def test_round_nearest():
 
 
 def test_auto_pad():
-    x = np.linspace(0, 1000, 101)
+    x = np.linspace(0, 975, 101)
     y = np.linspace(0, 500, 501)
     x_grid, y_grid = np.meshgrid(x, y)
     z = np.ones_like(x_grid)
@@ -84,9 +90,10 @@ def test_auto_mesh_parameters(tmp_path):
     survey = Points.create(ws, name="survey", vertices=locs)
     topo = Points.create(ws, name="topography", vertices=topo)
 
-    params = auto_mesh_parameters(survey, topo)
+    params = auto_mesh_parameters(survey, topo, inversion_type="gravity")
     mesh = OctreeDriver.octree_from_params(params)
 
     assert mesh.u_cell_size == 10
     assert mesh.v_cell_size == 10
     assert mesh.w_cell_size == 10
+    assert params.vertical_padding == 0

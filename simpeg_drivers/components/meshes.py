@@ -1,19 +1,12 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
 from __future__ import annotations
@@ -125,23 +118,14 @@ class InversionMesh:
         """Automate meshing based on data and topography objects."""
 
         params = auto_mesh_parameters(
-            self.params.data_object, self.params.topography_object
+            self.params.data_object,
+            self.params.topography_object,
+            inversion_type=self.params.inversion_type,
         )
-        self._mesh = OctreeDriver.treemesh_from_params(params)
+        driver = OctreeDriver(params)
 
-        mesh_group = UIJsonGroup.create(
-            self.workspace, name="AutoMesh", parent=self.params.out_group
-        )
-        # TODO: Update Octree params to BaseData and use it to handle out group
-        # and saving options.
-
-        self._entity = treemesh_2_octree(
-            self.params.geoh5,
-            self._mesh,
-            parent=mesh_group,
-            name="OctreeMesh",
-        )
-        self._permutation = np.arange(self.entity.n_cells)
+        mesh = driver.run()
+        self.entity = mesh.copy(parent=self.params.out_group)
 
     @property
     def mesh(self) -> TreeMesh | TensorMesh:

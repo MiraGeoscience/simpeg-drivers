@@ -1,28 +1,22 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
 
 # flake8: noqa
 
 from __future__ import annotations
 import os
 
-os.environ["OMP_NUM_THREADS"] = "12"
-os.environ["MKL_NUM_THREADS"] = "12"
-os.environ["OPENBLAS_NUM_THREADS"] = "12"
+os.environ["OMP_NUM_THREADS"] = "11"
+os.environ["MKL_NUM_THREADS"] = "11"
+os.environ["OPENBLAS_NUM_THREADS"] = "11"
 import multiprocessing
 import sys
 from datetime import datetime, timedelta
@@ -511,7 +505,7 @@ class InversionDriver(BaseDriver):
         inversion_type = ifile.ui_json.get("inversion_type", None)
         if inversion_type not in DRIVER_MAP:
             msg = f"Inversion type {inversion_type} is not supported."
-            msg += f" Valid inversions are: {*list(DRIVER_MAP), }."
+            msg += f" Valid inversions are: {(*list(DRIVER_MAP),)}."
             raise NotImplementedError(msg)
 
         mod_name, class_name = DRIVER_MAP.get(inversion_type)
@@ -569,9 +563,9 @@ class InversionLogger:
 
 
 if __name__ == "__main__":
-    # file = Path(sys.argv[1]).resolve()
-    file = Path(r"C:\Users\dominiquef\Desktop\Tests\Dug/PowerMetal_AFEM_fwr.ui.json")
-    cluster = LocalCluster(processes=True, n_workers=1, threads_per_worker=12)
+    file = Path(sys.argv[1]).resolve()
+    # file = Path(r"")
+    cluster = LocalCluster(processes=True, n_workers=4, threads_per_worker=11)
 
     diagnostics = file.stem.replace(".ui", "") + "_diagnostics.html"
     with cluster.get_client():
