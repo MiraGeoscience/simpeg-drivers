@@ -31,6 +31,10 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 from simpeg_drivers import assets_path
 
 
+# pylint: disable=too-many-lines
+# TODO: Remove this disable when all params are BaseData
+
+
 class ActiveCellsData(BaseModel):
     """
     Active cells data as a topography surface or 3d model.
@@ -94,7 +98,7 @@ class CoreData(BaseModel):
     generate_sweep: bool = False
 
     @field_validator("n_cpu", mode="before")
-    def maximize_cpu_if_none(cls, value):
+    def maximize_cpu_if_none(self, value):
         if value is None:
             value = int(multiprocessing.cpu_count())
         return value

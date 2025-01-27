@@ -11,25 +11,23 @@
 
 from __future__ import annotations
 
-from simpeg_drivers.driver import InversionDriver
-
-from .constants import validations
-from .params import GravityForwardParams, GravityInversionParams
 from geoapps_utils.driver.data import BaseData
 from geoh5py.ui_json import InputFile
+
 from simpeg_drivers import DRIVER_MAP
+from simpeg_drivers.driver import InversionDriver
+from simpeg_drivers.potential_fields.gravity.constants import validations
+from simpeg_drivers.potential_fields.gravity.params import (
+    GravityForwardParams,
+    GravityInversionParams,
+)
+
 
 class GravityForwardDriver(InversionDriver):
     _params_class = GravityForwardParams
     _validation = validations
 
-    def __init__(self, params):
-        super().__init__(params)
 
 class GravityInversionDriver(InversionDriver):
     _params_class = GravityInversionParams
     _validations = validations
-
-    def __init__(self, params):
-        super().__init__(params)
-

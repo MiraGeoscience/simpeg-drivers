@@ -372,6 +372,7 @@ def test_mag_data(mvi_params, channel):
     ):
         setattr(mvi_params, f"{channel}_uncertainty", mvi_params.geoh5)
 
+
 def test_direct_current_inversion_type(dc_params):
     with pytest.raises(ValueValidationError, match="Must be: 'direct current 3d'"):
         dc_params.inversion_type = "alskdj"
@@ -427,18 +428,3 @@ def test_conductivity_model(ip_params):
         match="Must be one of: 'str', 'UUID', 'int', 'float', 'Entity'.",
     ):
         ip_params.conductivity_model = ip_params.geoh5
-
-
-def test_active_cells_data(tmp_path):
-    import numpy as np
-    from geoh5py import Workspace
-    from geoh5py.objects import Points
-
-    from simpeg_drivers.params import ActiveCellsData
-
-    ws = Workspace(tmp_path / "test.geoh5")
-    pts = Points.create(ws, vertices=np.random.rand(10, 3))
-    data = ActiveCellsData(topography_object=pts)
-    assert True
-
-

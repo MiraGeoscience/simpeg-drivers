@@ -12,7 +12,6 @@
 
 from __future__ import annotations
 
-import multiprocessing
 import sys
 from datetime import datetime, timedelta
 from multiprocessing.pool import ThreadPool
@@ -49,7 +48,7 @@ from simpeg_drivers.components import (
     InversionWindow,
 )
 from simpeg_drivers.components.factories import DirectivesFactory, MisfitFactory
-from simpeg_drivers.params import InversionBaseParams
+from simpeg_drivers.params import InversionBaseParams, BaseInversionData
 from simpeg_drivers.utils.utils import tile_locations
 
 
@@ -446,7 +445,6 @@ class InversionDriver(BaseDriver):
 
     @classmethod
     def start(cls, filepath: str | Path, driver_class=None):
-
         _ = driver_class
 
         ifile = InputFile.read_ui_json(filepath)
