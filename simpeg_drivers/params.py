@@ -114,12 +114,15 @@ class CoreData(BaseModel):
         group = data.get("out_group", None)
 
         if isinstance(group, UIJsonGroup):
-            group = SimPEGGroup.create(data["geoh5"], name=group.name)
+            with fetch_active_workspace(data["geoh5"], mode="r+") as geoh5:
+                group = SimPEGGroup.create(geoh5, name=group.name)
+                group.metadata = None
 
         elif group is None:
-            group = SimPEGGroup.create(data["geoh5"], name=cls.title)
+            with fetch_active_workspace(data["geoh5"], mode="r+") as geoh5:
+                group = SimPEGGroup.create(geoh5, name=cls.title)
+                group.metadata = None
 
-        group.metadata = None
         data["out_group"] = group
 
         return data

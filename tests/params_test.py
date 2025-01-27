@@ -75,30 +75,6 @@ def mvi_params(tmp_path_factory):
 
 
 @pytest.fixture(scope="session")
-def grav_params(tmp_path_factory):
-    geoh5, mesh, model, survey, topography = setup_inversion_workspace(
-        tmp_path_factory.mktemp("gravity"),
-        background=0.01,
-        anomaly=10,
-        n_electrodes=2,
-        n_lines=2,
-        flatten=False,
-    )
-    geoh5.close()
-    params = GravityInversionParams(
-        **{
-            "geoh5": geoh5,
-            "data_object": survey,
-            "active": {"topography_object": topography},
-            "mesh": mesh,
-        }
-    )
-    params.geoh5.open()
-
-    return params
-
-
-@pytest.fixture(scope="session")
 def dc_params(tmp_path_factory):
     geoh5, mesh, model, survey, topography = setup_inversion_workspace(
         tmp_path_factory.mktemp("dcr"),
@@ -214,17 +190,6 @@ def test_chunk_validation_mag(tmp_path: Path, mvi_params):
     with pytest.raises(
         OptionalValidationError,
         match="Cannot set a None value to non-optional parameter: inducing_field_strength.",
-    ):
-        params.write_input_file(name="test.ui.json", path=tmp_path)
-
-
-def test_chunk_validation_grav(tmp_path: Path, grav_params):
-    test_dict = grav_params.to_dict()
-    params = GravityInversionParams(**test_dict)  # pylint: disable=repeated-keyword
-    params.topography_object = None
-    with pytest.raises(
-        OptionalValidationError,
-        match="Cannot set a None value to non-optional parameter: topography_object.",
     ):
         params.write_input_file(name="test.ui.json", path=tmp_path)
 
@@ -406,37 +371,6 @@ def test_mag_data(mvi_params, channel):
         match="Must be one of: 'str', 'UUID', 'int', 'float', 'Entity', 'NoneType'.",
     ):
         setattr(mvi_params, f"{channel}_uncertainty", mvi_params.geoh5)
-
-
-def test_gravity_inversion_type(grav_params):
-    with pytest.raises(
-        ValueValidationError, match="'inversion_type' is invalid. Must be: 'gravity'"
-    ):
-        grav_params.inversion_type = "alskdj"
-
-
-@pytest.mark.parametrize(
-    "channel", ["gz", "gy", "gz", "guv", "gxy", "gxz", "gyz", "gxx", "gyy", "gzz"]
-)
-def test_grav_data(grav_params, channel):
-    with pytest.raises(AssociationValidationError):
-        setattr(grav_params, f"{channel}_channel", uuid4())
-
-    with pytest.raises(
-        TypeValidationError,
-        match="Must be one of: 'str', 'UUID', 'Entity', 'NoneType'.",
-    ):
-        setattr(grav_params, f"{channel}_channel", 4)
-
-    with pytest.raises(AssociationValidationError):
-        setattr(grav_params, f"{channel}_uncertainty", uuid4())
-
-    with pytest.raises(
-        TypeValidationError,
-        match="Must be one of: 'str', 'UUID', 'int', 'float', 'Entity', 'NoneType'.",
-    ):
-        setattr(grav_params, f"{channel}_uncertainty", grav_params.geoh5)
-
 
 def test_direct_current_inversion_type(dc_params):
     with pytest.raises(ValueValidationError, match="Must be: 'direct current 3d'"):

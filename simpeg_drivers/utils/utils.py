@@ -45,6 +45,7 @@ if TYPE_CHECKING:
     from simpeg_drivers.components.data import InversionData
     from simpeg_drivers.driver import InversionDriver
 
+from geoapps_utils.driver.data import BaseData
 from simpeg_drivers.utils.surveys import (
     compute_alongline_distance,
     get_intersecting_cells,
@@ -825,7 +826,12 @@ def simpeg_group_to_driver(group: SimPEGGroup, workspace: Workspace) -> Inversio
         class_name = classes.get("inversion")
     module = __import__(mod_name, fromlist=[class_name])
     inversion_driver = getattr(module, class_name)
-    params = inversion_driver._params_class(  # pylint: disable=W0212
-        ifile, out_group=group
-    )
+    # TODO: Remove logic when all params classes are converted to BaseData.
+    if issubclass(inversion_driver._params_class, BaseData):
+        ifile.set_data_value("out_group", group)
+        params = inversion_driver._params_class.build(ifile)
+    else:
+        params = inversion_driver._params_class(  # pylint: disable=W0212
+            ifile, out_group=group
+        )
     return inversion_driver(params)

@@ -91,7 +91,7 @@ class InversionTopography(InversionLocations):
 
         if isinstance(self.params.active.active_model, NumericData):
             active_cells = InversionModel.obj_2_mesh(
-                self.params.active_model, mesh.entity
+                self.params.active.active_model, mesh.entity
             )
         else:
             active_cells = active_from_xyz(

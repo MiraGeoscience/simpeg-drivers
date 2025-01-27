@@ -15,6 +15,7 @@ from geoh5py.data import FloatData
 from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 
+from simpeg_drivers.params import ActiveCellsData
 from simpeg_drivers.electricals.direct_current.three_dimensions import (
     DirectCurrent3DParams,
 )
@@ -23,7 +24,7 @@ from simpeg_drivers.electricals.direct_current.three_dimensions.driver import (
 )
 from simpeg_drivers.joint.joint_cross_gradient import JointCrossGradientParams
 from simpeg_drivers.joint.joint_cross_gradient.driver import JointCrossGradientDriver
-from simpeg_drivers.potential_fields import GravityInversionParams, MagneticVectorParams
+from simpeg_drivers.potential_fields import GravityForwardParams, GravityInversionParams, MagneticVectorParams
 from simpeg_drivers.potential_fields.gravity.driver import GravityInversionDriver
 from simpeg_drivers.potential_fields.magnetic_vector.driver import MagneticVectorDriver
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
@@ -52,15 +53,16 @@ def test_joint_cross_gradient_fwr_run(
         n_electrodes=n_grid_points,
         n_lines=n_grid_points,
     )
-    params = GravityInversionParams(
+    active = ActiveCellsData(topography_object=topography)
+    params = GravityForwardParams(
         forward_only=True,
         geoh5=geoh5,
-        mesh=model.parent.uid,
-        topography_object=topography.uid,
+        mesh=model.parent,
+        active=active,
         resolution=0.0,
         z_from_topo=False,
-        data_object=survey.uid,
-        starting_model=model.uid,
+        data_object=survey,
+        starting_model=model,
     )
     fwr_driver_a = GravityInversionDriver(params)
 
@@ -169,13 +171,14 @@ def test_joint_cross_gradient_inv_run(
 
             if group.options["inversion_type"] == "gravity":
                 data.values = data.values + np.random.randn(data.values.size) * 1e-2
+                active = ActiveCellsData(topography_object=topography)
                 params = GravityInversionParams(
                     geoh5=geoh5,
-                    mesh=mesh.uid,
+                    mesh=mesh,
                     alpha_s=1.0,
-                    topography_object=topography.uid,
-                    data_object=survey.uid,
-                    gz_channel=data.uid,
+                    active=active,
+                    data_object=survey,
+                    gz_channel=data,
                     gz_uncertainty=1e-2,
                     starting_model=0.0,
                     reference_model=0.0,

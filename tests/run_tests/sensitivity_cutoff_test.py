@@ -50,8 +50,8 @@ def setup_inversion_results(
     params = GravityInversionParams(
         geoh5=geoh5,
         mesh=mesh,
-        topography_object=topography,
-        data_object=gz.parent.uid,
+        active=active,
+        data_object=gz.parent,
         starting_model=1e-4,
         reference_model=0.0,
         s_norm=0.0,
@@ -67,7 +67,7 @@ def setup_inversion_results(
         store_sensitivities="ram",
         save_sensitivities=True,
     )
-    params.write_input_file(path=tmp_path, name="Inv_run")
+    params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
     GravityInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
 
