@@ -52,10 +52,15 @@ param-sweeps = {git = "https://github.com/MiraGeoscience/param-sweeps.git", bran
 [tool.poetry-dynamic-versioning]
 enable = true
 vcs = "git"
-style = "semver"
+style = "pep440"
 
 [tool.poetry-dynamic-versioning.substitution]
-files = ["simpeg_drivers/_version.py"]
+files = ["simpeg_drivers/_version.py", "recipe.yaml"]
+patterns = [
+    '''(^__version__\s*(?::.*?)?=\s*['"])[^'"]*(['"])''',
+    '''(^\s*version\s*(?::.*?)?:\s*['"])[^'"]*(['"])''',
+    { value = '''(^__version_tuple__\s*(?::.*?)?=\s*\()[^)]*(\))''', mode = "tuple" },
+]
 
 [tool.poetry-dynamic-versioning.files."simpeg_drivers/_version.py"]
 persistent-substitution = true
@@ -64,6 +69,9 @@ initial-content = """
   __version__ = "0.0.0"
   __version_tuple__ = (0, 0, 0)
 """
+
+[tool.poetry-dynamic-versioning.files."recipe.yaml"]
+persistent-substitution = true
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
