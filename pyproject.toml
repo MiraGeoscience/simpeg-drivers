@@ -82,15 +82,15 @@ simpeg-drivers = { path = ".", editable = true }
 
 ## Pip dependencies from Git repositories
 #----------------------------------------
-# geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", branch = "develop"}
+geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", branch = "develop"}
 
-# octree-creation-app = {git = "https://github.com/MiraGeoscience/octree-creation-app.git", branch = "develop"}
+octree-creation-app = {git = "https://github.com/MiraGeoscience/octree-creation-app.git", branch = "develop"}
 
-# geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", branch = "develop"}
+geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", branch = "develop"}
 
-# mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", branch = "develop", extras = ["dask"]}
+mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", branch = "develop", extras = ["dask"]}
 
-# param-sweeps = {git = "https://github.com/MiraGeoscience/param-sweeps.git", branch = "develop"}
+param-sweeps = {git = "https://github.com/MiraGeoscience/param-sweeps.git", branch = "develop"}
 
 
 [tool.pixi.environments]
