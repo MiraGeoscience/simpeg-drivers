@@ -12,8 +12,8 @@ maintainers = [
     { name = "Benjamin Kary", email = "benjamink@mirageoscience.com" },
     { name = "Dominique Fournier", email = "dominiquef@mirageoscience.com"}
 ]
-keywords = []
-classifiers = []
+keywords = [] # TODO
+classifiers = [] # TODO
 dynamic = ["version", "dependencies"]
 
 [project.urls]
@@ -22,6 +22,10 @@ documentation = "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/"
 homepage = "https://www.mirageoscience.com/mining-industry-software/python-integration/"
 
 [tool.poetry]
+packages = [
+     { include = "simpeg_drivers" },
+     { include = "simpeg_drivers-assets" },
+]
 include = [
     { path = "COPYING" },
     { path = "COPYING.LESSER" },

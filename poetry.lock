@@ -900,7 +900,7 @@ dev = ["meson-python (>=0.13.1,<0.17.0)", "pybind11 (>=2.13.2,!=2.13.3)", "setup
 
 [[package]]
 name = "mira-simpeg"
-version = "0.21.2.1b2.post2.dev6+g59133afc4"
+version = "0.21.2.2a1.dev7+g0074bae22"
 description = "Mira Geoscience fork of SimPEG: Simulation and Parameter Estimation in Geophysics"
 optional = false
 python-versions = ">=3.10"

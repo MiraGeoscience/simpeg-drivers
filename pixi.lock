@@ -5396,8 +5396,8 @@ packages:
   timestamp: 1732632769210
 - pypi: .
   name: simpeg-drivers
-  version: 0.2.0rc1.post153+d0f5e7a
-  sha256: a6e15bfd9606baacab4439e22a3d27f7d2de10891616569a0bf71c25d2e4808c
+  version: 0.2.0rc1.post155+482a3e8
+  sha256: a54617a98bc2e22c5778535eb69a0269b75f54708087297b7e65f52bc91f73e0
   requires_dist:
   - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@develop
   - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@develop
