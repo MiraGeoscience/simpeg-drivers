@@ -78,7 +78,7 @@ class GravityInversionParams(BaseInversionData):
 
     name: ClassVar[str] = "Gravity Inversion"
     title: ClassVar[str] = "Gravity Inversion"
-    default_ui_json: ClassVar[Path] =  assets_path() / "uijson/gravity_inversion.ui.json"
+    default_ui_json: ClassVar[Path] = assets_path() / "uijson/gravity_inversion.ui.json"
 
     inversion_type: str = "gravity"
     physical_property: str = "density"

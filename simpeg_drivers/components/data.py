@@ -264,7 +264,6 @@ class InversionData(InversionLocations):
 
         return locations
 
-
     def normalize(
         self, data: dict[str, np.ndarray], absolute=False
     ) -> dict[str, np.ndarray]:

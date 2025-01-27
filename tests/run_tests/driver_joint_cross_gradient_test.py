@@ -15,7 +15,6 @@ from geoh5py.data import FloatData
 from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.params import ActiveCellsData
 from simpeg_drivers.electricals.direct_current.three_dimensions import (
     DirectCurrent3DParams,
 )
@@ -24,7 +23,12 @@ from simpeg_drivers.electricals.direct_current.three_dimensions.driver import (
 )
 from simpeg_drivers.joint.joint_cross_gradient import JointCrossGradientParams
 from simpeg_drivers.joint.joint_cross_gradient.driver import JointCrossGradientDriver
-from simpeg_drivers.potential_fields import GravityForwardParams, GravityInversionParams, MagneticVectorParams
+from simpeg_drivers.params import ActiveCellsData
+from simpeg_drivers.potential_fields import (
+    GravityForwardParams,
+    GravityInversionParams,
+    MagneticVectorParams,
+)
 from simpeg_drivers.potential_fields.gravity.driver import GravityInversionDriver
 from simpeg_drivers.potential_fields.magnetic_vector.driver import MagneticVectorDriver
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace

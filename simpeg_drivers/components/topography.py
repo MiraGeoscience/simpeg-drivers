@@ -132,7 +132,9 @@ class InversionTopography(InversionLocations):
             elif isinstance(self.params.active.topography, int | float):
                 elev = np.ones_like(locs[:, 2]) * self.params.active.topography
             else:
-                elev = self.params.active.topography.values  # Must be FloatData at this point
+                elev = (
+                    self.params.active.topography.values
+                )  # Must be FloatData at this point
 
             if not np.all(locs[:, 2] == elev):
                 locs[:, 2] = elev

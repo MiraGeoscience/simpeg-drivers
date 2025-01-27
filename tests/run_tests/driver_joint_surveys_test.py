@@ -16,11 +16,11 @@ from geoh5py.workspace import Workspace
 
 from simpeg_drivers.joint.joint_surveys import JointSurveysParams
 from simpeg_drivers.joint.joint_surveys.driver import JointSurveyDriver
+from simpeg_drivers.params import ActiveCellsData
 from simpeg_drivers.potential_fields import GravityForwardParams, GravityInversionParams
 from simpeg_drivers.potential_fields.gravity.driver import GravityInversionDriver
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
-from simpeg_drivers.params import ActiveCellsData
 
 
 # To test the full run and validate the inversion.

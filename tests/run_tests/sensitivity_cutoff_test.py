@@ -15,14 +15,12 @@ from pathlib import Path
 import numpy as np
 from geoh5py.workspace import Workspace
 
-
 from simpeg_drivers.depth_of_investigation.sensitivity_cutoff.driver import (
     SensitivityCutoffDriver,
 )
 from simpeg_drivers.depth_of_investigation.sensitivity_cutoff.params import (
     SensitivityCutoffParams,
 )
-
 from simpeg_drivers.params import ActiveCellsData
 from simpeg_drivers.potential_fields import GravityInversionParams
 from simpeg_drivers.potential_fields.gravity.driver import GravityInversionDriver
