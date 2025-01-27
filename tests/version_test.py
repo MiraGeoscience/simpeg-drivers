@@ -37,13 +37,12 @@ def get_conda_recipe_version():
 
 def test_version_is_consistent():
     conda_version = Version(get_conda_recipe_version())
-    project_verion = Version(simpeg_drivers.__version__)
-    assert conda_version.base_version == project_verion.base_version
-    assert conda_version.is_prerelease == project_verion.is_prerelease
-    assert conda_version.is_postrelease == project_verion.is_postrelease
+    project_version = Version(simpeg_drivers.__version__)
+    assert conda_version.base_version == project_version.base_version
+    assert conda_version.is_prerelease == project_version.is_prerelease
+    assert conda_version.is_postrelease == project_version.is_postrelease
 
 
 def test_conda_version_is_pep440():
     version = Version(get_conda_recipe_version())
-    print(version)
     assert version is not None

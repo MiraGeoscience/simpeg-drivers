@@ -3,7 +3,8 @@ name = "simpeg-drivers"
 description = "Application to run SimPEG inversions with geoh5 files from Geoscience Analyst."
 readme = "package.rst"
 requires-python = ">=3.10, <3.12"  # geoana does not support 3.12 yet
-license = {file = "LICENSE"}
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [
     { name = "Mira Geoscience", email = "support@mirageoscience.com" }
 ]
@@ -13,7 +14,7 @@ maintainers = [
 ]
 keywords = []
 classifiers = []
-dynamic = ["version"]
+dynamic = ["version", "dependencies"]
 
 [project.urls]
 repository = "https://github.com/MiraGeoscience/simpeg-drivers"
@@ -21,7 +22,28 @@ documentation = "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/"
 homepage = "https://www.mirageoscience.com/mining-industry-software/python-integration/"
 
 [tool.poetry]
+include = [
+    { path = "COPYING" },
+    { path = "COPYING.LESSER" },
+    { path = "LICENSE" },
+    { path = "README.rst" },
+    { path = "THIRD_PARTY_SOFTWARE.rst" },
+    { path = "docs/**/THIRD_PARTY_SOFTWARE.rst" },
+]
 version = "0.0.0"
+
+[tool.poetry.dependencies]
+## Pip dependencies from Git repositories
+#----------------------------------------
+geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", branch = "develop"}
+
+octree-creation-app = {git = "https://github.com/MiraGeoscience/octree-creation-app.git", branch = "develop"}
+
+geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", branch = "develop"}
+
+mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", branch = "develop", extras = ["dask"]}
+
+param-sweeps = {git = "https://github.com/MiraGeoscience/param-sweeps.git", branch = "develop"}
 
 [tool.poetry-dynamic-versioning]
 enable = true
@@ -48,7 +70,7 @@ channels = ["conda-forge"]
 platforms = ["win-64", "linux-64"]
 
 [tool.pixi.dependencies]
-libblas = { version = "*", build = "*mkl" }
+libblas = { version = "*", build = "*mkl" } # because simpeg already brings in the MKL
 
 ## indirect dependencies, forcing them here for installation through Conda not pip
 #---------------------------------------------------------------------------------
@@ -79,19 +101,6 @@ extra-index-urls = ["https://pypi.org/simple"]
 ## Package installation from src
 # ------------------------------
 simpeg-drivers = { path = ".", editable = true }
-
-## Pip dependencies from Git repositories
-#----------------------------------------
-geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", branch = "develop"}
-
-octree-creation-app = {git = "https://github.com/MiraGeoscience/octree-creation-app.git", branch = "develop"}
-
-geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", branch = "develop"}
-
-mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", branch = "develop", extras = ["dask"]}
-
-param-sweeps = {git = "https://github.com/MiraGeoscience/param-sweeps.git", branch = "develop"}
-
 
 [tool.pixi.environments]
 default = ["test", "build"]
