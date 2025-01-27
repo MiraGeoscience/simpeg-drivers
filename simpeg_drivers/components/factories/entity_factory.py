@@ -102,7 +102,8 @@ class EntityFactory(AbstractFactory):
             cells = self.params.data_object.transmitters.cells
 
             if getattr(self.params.data_object, "tx_id_property", None) is not None:
-                self.params.data_object.tx_id_property.copy(parent=entity)
+                tx_id = self.params.data_object.tx_id_property.copy(parent=entity)
+                entity.tx_id_property = tx_id
 
             if isinstance(
                 self.params.data_object.transmitters,
@@ -112,12 +113,24 @@ class EntityFactory(AbstractFactory):
                     self.params.data_object.transmitters
                 )
 
-            entity.transmitters = self.params.data_object.transmitters.copy(
+            transmitters = self.params.data_object.transmitters.copy(
                 copy_complement=False,
                 vertices=vertices,
                 cells=cells,
                 parent=self.params.out_group,
+                copy_children=False,
             )
+
+            if (
+                getattr(self.params.data_object.transmitters, "tx_id_property", None)
+                is not None
+            ):
+                tx_id = self.params.data_object.transmitters.tx_id_property.copy(
+                    parent=transmitters
+                )
+                transmitters.tx_id_property = tx_id
+
+            entity.transmitters = transmitters
 
             tx_freq = self.params.data_object.transmitters.get_data("Tx frequency")
             if tx_freq:
