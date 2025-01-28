@@ -134,6 +134,7 @@ class CoreData(BaseData):
 
     @model_validator(mode="after")
     def update_out_group_options(self):
+        assert self.out_group is not None
         self.out_group.options = self.serialize()
         return self
 
@@ -162,17 +163,19 @@ class CoreData(BaseData):
 
     def uncertainty(self, component: str) -> np.ndarray | None:
         """Returns uncertainty for chosen data component if it exists."""
+
         uncertainty_entity = self.uncertainty_channel(component)
         if isinstance(uncertainty_entity, NumericData):
             return uncertainty_entity.values.astype(float)
-        elif self.data(component) is not None:
-            d = self.data(component)
+
+        data = self.data(component)
+        if data is not None:
             if isinstance(uncertainty_entity, int | float):
-                return np.array([float(uncertainty_entity)] * len(d))
+                return np.array([float(uncertainty_entity)] * len(data))
             else:
-                return d * 0.0 + 1.0  # Default
-        else:
-            return None
+                return data * 0.0 + 1.0  # type: ignore
+
+        return None
 
     @property
     def padding_cells(self) -> int:
@@ -360,26 +363,19 @@ class BaseInversionData(CoreData):
 
     def uncertainty(self, component: str) -> np.ndarray | None:
         """Returns uncertainty for chosen data component if it exists."""
+
         uncertainty_entity = self.uncertainty_channel(component)
         if isinstance(uncertainty_entity, NumericData):
             return uncertainty_entity.values.astype(float)
-        elif self.data(component) is not None:
-            d = self.data(component)
-            if isinstance(uncertainty_entity, int | float):
-                return np.array([float(uncertainty_entity)] * len(d))
-            else:
-                return d * 0.0 + 1.0  # Default
-        else:
-            return None
 
-    def model_norms(self) -> list[float]:
-        """Returns model norm components as a list."""
-        return [
-            self.s_norm,
-            self.x_norm,
-            self.y_norm,
-            self.z_norm,
-        ]
+        data = self.data(component)
+        if data is not None:
+            if isinstance(uncertainty_entity, int | float):
+                return np.array([float(uncertainty_entity)] * len(data))
+            else:
+                return data * 0.0 + 1.0  # Default
+
+        return None
 
 
 class InversionBaseParams(BaseParams):
