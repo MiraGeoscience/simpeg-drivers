@@ -17,8 +17,15 @@ from geoh5py.groups.property_group import GroupTypeEnum
 from geoh5py.objects import Curve
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.potential_fields import MagneticVectorParams
-from simpeg_drivers.potential_fields.magnetic_vector.driver import MagneticVectorDriver
+from simpeg_drivers.params import ActiveCellsData
+from simpeg_drivers.potential_fields import (
+    MagneticVectorForwardParams,
+    MagneticVectorInversionParams,
+)
+from simpeg_drivers.potential_fields.magnetic_vector.driver import (
+    MagneticVectorForwardDriver,
+    MagneticVectorInversionDriver,
+)
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
@@ -38,7 +45,6 @@ def test_magnetic_vector_fwr_run(
     n_grid_points=2,
     refinement=(2,),
 ):
-    inducing_field = (50000.0, 90.0, 0.0)
     # Run the forward
     geoh5, _, model, points, topography = setup_inversion_workspace(
         tmp_path,
@@ -52,24 +58,24 @@ def test_magnetic_vector_fwr_run(
     # Unitest dealing with Curve
     survey = Curve.create(geoh5, name=points.name, vertices=points.vertices)
     geoh5.remove_entity(points)
-
-    params = MagneticVectorParams(
+    inducing_field = (50000.0, 90.0, 0.0)
+    active = ActiveCellsData(topography_object=topography)
+    params = MagneticVectorForwardParams(
         forward_only=True,
         geoh5=geoh5,
-        mesh=model.parent.uid,
-        topography_object=topography.uid,
+        mesh=model.parent,
+        active=active,
         inducing_field_strength=inducing_field[0],
         inducing_field_inclination=inducing_field[1],
         inducing_field_declination=inducing_field[2],
         z_from_topo=False,
-        data_object=survey.uid,
-        starting_model_object=model.parent.uid,
-        starting_model=model.uid,
+        data_object=survey,
+        starting_model_object=model.parent,
+        starting_model=model,
         starting_inclination=45,
         starting_declination=270,
     )
-    fwr_driver = MagneticVectorDriver(params)
-
+    fwr_driver = MagneticVectorForwardDriver(params)
     fwr_driver.run()
 
 
@@ -94,14 +100,15 @@ def test_magnetic_vector_run(
         inducing_field = (50000.0, 90.0, 0.0)
 
         # Run the inverse
-        params = MagneticVectorParams(
+        active = ActiveCellsData(topography_object=topography)
+        params = MagneticVectorInversionParams(
             geoh5=geoh5,
-            mesh=mesh.uid,
-            topography_object=topography.uid,
+            mesh=mesh,
+            active=active,
             inducing_field_strength=inducing_field[0],
             inducing_field_inclination=inducing_field[1],
             inducing_field_declination=inducing_field[2],
-            data_object=tmi.parent.uid,
+            data_object=tmi.parent,
             starting_model=1e-4,
             reference_model=0.0,
             s_norm=0.0,
@@ -111,7 +118,7 @@ def test_magnetic_vector_run(
             gradient_type="components",
             tmi_channel_bool=True,
             z_from_topo=False,
-            tmi_channel=tmi.uid,
+            tmi_channel=tmi,
             tmi_uncertainty=4.0,
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e1,
@@ -119,8 +126,9 @@ def test_magnetic_vector_run(
             save_sensitivities=True,
             prctile=100,
         )
-        params.write_input_file(path=tmp_path, name="Inv_run")
-        driver = MagneticVectorDriver.start(str(tmp_path / "Inv_run.ui.json"))
+        params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
+
+    driver = MagneticVectorInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
     with Workspace(driver.params.geoh5.h5file) as run_ws:
         # Re-open the workspace and get iterations
@@ -136,7 +144,7 @@ def test_magnetic_vector_run(
             inactive_ind = run_ws.get_entity("active_cells")[0].values == 0
             assert np.all(nan_ind == inactive_ind)
 
-        out_group = run_ws.get_entity("Magnetic vector Inversion")[0]
+        out_group = run_ws.get_entity("Magnetic Vector Inversion")[0]
         mesh = out_group.get_entity("mesh")[0]
         assert len(mesh.property_groups) == 2
         assert len(mesh.property_groups[0].properties) == 2
