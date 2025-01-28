@@ -67,13 +67,23 @@ class CoreData(BaseData):
         command line.
     :param conda_environment: Name of the conda environment used to run the
         application with all of its dependencies.
+    :param inversion_type: Type of inversion.
+    :param physical_property: Physical property of the model.
     :param data_object: Data object containing survey geometry and data
         channels.
+    :param z_from_topo: If True, the z values of the data object are set to the
+        topography surface.
     :param mesh: Mesh object containing models (starting, reference, active, etc..).
     :param starting_model: Starting model used to start inversion or for simulating
         data in the forward operation.
-    :param topography_object: Topography object used to define the active cells of
-        the model.
+    :param active: Active cell data as either a topography surface/data or a 3D model.
+    :param tile_spatial: Number of tiles to split the data.
+    :param parallelized: Parallelize the inversion/forward operation.
+    :param n_cpu: Number of CPUs to use if parallelized.  If None, all cpu will be used.
+    :param max_chunk_size: Maximum chunk size used for parallel operations.
+    :param save_sensitivities: Save sensitivities to file.
+    :param out_group: Output group to save results.
+    :param generate_sweep: Generate sweep file instead of running the app.
     """
 
     # TODO: Refactor to allow frozen True.  Currently params.data_object is
@@ -193,10 +203,7 @@ class BaseForwardData(CoreData):
     """
     Base class for forward parameters.
 
-    :param name: Name of the application.
-    :param title: Title of the application
-    :param core: Core parameters for forward (data, mesh, starting model, active).
-    """
+    See CoreData class docstring for addition parameters descriptions."""
 
     forward_only: bool = True
 
@@ -215,7 +222,7 @@ class BaseInversionData(CoreData):
     """
     Base class for inversion parameters.
 
-    :param core: Core parameters for inversion (data, mesh, starting model, active).
+    See CoreData class docstring for addition parameters descriptions.
 
     :param reference_model: Reference model.
     :param lower_bound: Lower bound.
@@ -285,6 +292,7 @@ class BaseInversionData(CoreData):
 
     forward_only: bool = False
     conda_environment: str = "simpeg_drivers"
+
     reference_model: float | FloatData | None = None
     lower_bound: float | FloatData | None = None
     upper_bound: float | FloatData | None = None
