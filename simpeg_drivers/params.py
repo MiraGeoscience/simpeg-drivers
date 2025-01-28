@@ -59,7 +59,7 @@ class ActiveCellsData(BaseModel):
         return data
 
 
-class CoreData(BaseModel):
+class CoreData(BaseData):
     """
     Core parameters shared by inverse and forward operations.
 
@@ -186,7 +186,7 @@ class CoreData(BaseModel):
         return 4 if self.inversion_type in ["fem", "tdem"] else 6
 
 
-class BaseForwardData(BaseData, CoreData):
+class BaseForwardData(CoreData):
     """
     Base class for forward parameters.
 
@@ -208,7 +208,7 @@ class BaseForwardData(BaseData, CoreData):
         return comps
 
 
-class BaseInversionData(BaseData, CoreData):
+class BaseInversionData(CoreData):
     """
     Base class for inversion parameters.
 
