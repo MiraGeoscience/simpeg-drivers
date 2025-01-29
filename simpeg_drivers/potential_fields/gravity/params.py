@@ -41,6 +41,7 @@ class GravityForwardParams(BaseForwardData):
 
     inversion_type: str = "gravity"
     physical_property: str = "density"
+
     gx_channel_bool: bool = False
     gy_channel_bool: bool = False
     gz_channel_bool: bool = True
@@ -82,6 +83,7 @@ class GravityInversionParams(BaseInversionData):
 
     inversion_type: str = "gravity"
     physical_property: str = "density"
+
     gx_channel: FloatData | None = None
     gy_channel: FloatData | None = None
     gz_channel: FloatData | None = None

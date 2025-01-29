@@ -43,12 +43,12 @@ def test_joint_surveys_fwr_run(
         n_electrodes=n_grid_points,
         n_lines=n_grid_points,
     )
-    active = ActiveCellsData(topography_object=topography)
+    active_cells = ActiveCellsData(topography_object=topography)
     params = GravityForwardParams(
         forward_only=True,
         geoh5=geoh5,
         mesh=model.parent,
-        active=active,
+        active_cells=active_cells,
         resolution=0.0,
         z_from_topo=False,
         data_object=survey,
@@ -69,12 +69,12 @@ def test_joint_surveys_fwr_run(
         geoh5=geoh5,
         drape_height=10.0,
     )
-    active = ActiveCellsData(topography_object=topography)
+    active_cells = ActiveCellsData(topography_object=topography)
     params = GravityForwardParams(
         forward_only=True,
         geoh5=geoh5,
         mesh=model.parent,
-        active=active,
+        active_cells=active_cells,
         resolution=0.0,
         z_from_topo=False,
         data_object=survey,
@@ -127,11 +127,11 @@ def test_joint_surveys_inv_run(
             active_model = mesh.get_entity("active_cells")[0]
             gz = survey.get_data("Iteration_0_gz")[0]
             orig_data.append(gz.values)
-            active = ActiveCellsData(active_model=active_model)
+            active_cells = ActiveCellsData(active_model=active_model)
             params = GravityInversionParams(
                 geoh5=geoh5,
                 mesh=mesh,
-                active=active,
+                active_cells=active_cells,
                 data_object=survey,
                 gz_channel=gz,
                 gz_uncertainty=np.var(gz.values) * 2.0,

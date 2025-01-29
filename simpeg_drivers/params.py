@@ -67,13 +67,23 @@ class CoreData(BaseData):
         command line.
     :param conda_environment: Name of the conda environment used to run the
         application with all of its dependencies.
+    :param inversion_type: Type of inversion.
+    :param physical_property: Physical property of the model.
     :param data_object: Data object containing survey geometry and data
         channels.
+    :param z_from_topo: If True, the z values of the data object are set to the
+        topography surface.
     :param mesh: Mesh object containing models (starting, reference, active, etc..).
     :param starting_model: Starting model used to start inversion or for simulating
         data in the forward operation.
-    :param topography_object: Topography object used to define the active cells of
-        the model.
+    :param active_cells: Active cell data as either a topography surface/data or a 3D model.
+    :param tile_spatial: Number of tiles to split the data.
+    :param parallelized: Parallelize the inversion/forward operation.
+    :param n_cpu: Number of CPUs to use if parallelized.  If None, all cpu will be used.
+    :param max_chunk_size: Maximum chunk size used for parallel operations.
+    :param save_sensitivities: Save sensitivities to file.
+    :param out_group: Output group to save results.
+    :param generate_sweep: Generate sweep file instead of running the app.
     """
 
     # TODO: Refactor to allow frozen True.  Currently params.data_object is
@@ -88,7 +98,7 @@ class CoreData(BaseData):
     z_from_topo: bool = False
     mesh: Octree | None
     starting_model: float | FloatData
-    active: ActiveCellsData
+    active_cells: ActiveCellsData
     tile_spatial: int = 1
     parallelized: bool = True
     n_cpu: int | None = None
@@ -118,15 +128,10 @@ class CoreData(BaseData):
     def out_group_if_none(cls, data) -> SimPEGGroup:
         group = data.get("out_group", None)
 
-        if isinstance(group, UIJsonGroup):
+        if isinstance(group, UIJsonGroup | type(None)):
+            name = cls.title if group is None else group.name
             with fetch_active_workspace(data["geoh5"], mode="r+") as geoh5:
-                group = SimPEGGroup.create(geoh5, name=group.name)
-                group.metadata = None
-
-        elif group is None:
-            with fetch_active_workspace(data["geoh5"], mode="r+") as geoh5:
-                group = SimPEGGroup.create(geoh5, name=cls.title)
-                group.metadata = None
+                group = SimPEGGroup.create(geoh5, name=name)
 
         data["out_group"] = group
 
@@ -136,6 +141,7 @@ class CoreData(BaseData):
     def update_out_group_options(self):
         assert self.out_group is not None
         self.out_group.options = self.serialize()
+        self.out_group.metadata = None
         return self
 
     @property
@@ -150,16 +156,16 @@ class CoreData(BaseData):
         """Return the data object associated with the component."""
         return getattr(self, "_".join([component, "channel"]), None)
 
-    def uncertainty_channel(self, component: str) -> NumericData | None:
-        """Return the uncertainty object associated with the component."""
-        return getattr(self, "_".join([component, "uncertainty"]), None)
-
     def data(self, component: str) -> np.ndarray | None:
         """Returns array of data for chosen data component if it exists."""
         data_entity = self.data_channel(component)
         if isinstance(data_entity, NumericData):
             return data_entity.values.astype(float)
         return None
+
+    def uncertainty_channel(self, component: str) -> NumericData | None:
+        """Return the uncertainty object associated with the component."""
+        return getattr(self, "_".join([component, "uncertainty"]), None)
 
     def uncertainty(self, component: str) -> np.ndarray | None:
         """Returns uncertainty for chosen data component if it exists."""
@@ -173,7 +179,7 @@ class CoreData(BaseData):
             if isinstance(uncertainty_entity, int | float):
                 return np.array([float(uncertainty_entity)] * len(data))
             else:
-                return data * 0.0 + 1.0  # type: ignore
+                return data * 0.0 + 1.0  # Default
 
         return None
 
@@ -193,10 +199,7 @@ class BaseForwardData(CoreData):
     """
     Base class for forward parameters.
 
-    :param name: Name of the application.
-    :param title: Title of the application
-    :param core: Core parameters for forward (data, mesh, starting model, active).
-    """
+    See CoreData class docstring for addition parameters descriptions."""
 
     forward_only: bool = True
 
@@ -215,7 +218,7 @@ class BaseInversionData(CoreData):
     """
     Base class for inversion parameters.
 
-    :param core: Core parameters for inversion (data, mesh, starting model, active).
+    See CoreData class docstring for addition parameters descriptions.
 
     :param reference_model: Reference model.
     :param lower_bound: Lower bound.
@@ -285,6 +288,7 @@ class BaseInversionData(CoreData):
 
     forward_only: bool = False
     conda_environment: str = "simpeg_drivers"
+
     reference_model: float | FloatData | None = None
     lower_bound: float | FloatData | None = None
     upper_bound: float | FloatData | None = None
@@ -345,37 +349,6 @@ class BaseInversionData(CoreData):
                 comps.append(c)
 
         return comps
-
-    def data_channel(self, component: str) -> NumericData | None:
-        """Return the data object associated with the component."""
-        return getattr(self, "_".join([component, "channel"]), None)
-
-    def uncertainty_channel(self, component: str) -> NumericData | None:
-        """Return the uncertainty object associated with the component."""
-        return getattr(self, "_".join([component, "uncertainty"]), None)
-
-    def data(self, component: str) -> np.ndarray | None:
-        """Returns array of data for chosen data component if it exists."""
-        data_entity = self.data_channel(component)
-        if isinstance(data_entity, NumericData):
-            return data_entity.values.astype(float)
-        return None
-
-    def uncertainty(self, component: str) -> np.ndarray | None:
-        """Returns uncertainty for chosen data component if it exists."""
-
-        uncertainty_entity = self.uncertainty_channel(component)
-        if isinstance(uncertainty_entity, NumericData):
-            return uncertainty_entity.values.astype(float)
-
-        data = self.data(component)
-        if data is not None:
-            if isinstance(uncertainty_entity, int | float):
-                return np.array([float(uncertainty_entity)] * len(data))
-            else:
-                return data * 0.0 + 1.0  # Default
-
-        return None
 
 
 class InversionBaseParams(BaseParams):
@@ -481,7 +454,7 @@ class InversionBaseParams(BaseParams):
                     setattr(self, key, True)
 
     @property
-    def active(self):
+    def active_cells(self):
         return ActiveCellsData(
             topography_object=self.topography_object,
             topography=self.topography,

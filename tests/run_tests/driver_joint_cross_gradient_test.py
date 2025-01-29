@@ -57,12 +57,12 @@ def test_joint_cross_gradient_fwr_run(
         n_electrodes=n_grid_points,
         n_lines=n_grid_points,
     )
-    active = ActiveCellsData(topography_object=topography)
+    active_cells = ActiveCellsData(topography_object=topography)
     params = GravityForwardParams(
         forward_only=True,
         geoh5=geoh5,
         mesh=model.parent,
-        active=active,
+        active_cells=active_cells,
         resolution=0.0,
         z_from_topo=False,
         data_object=survey,
@@ -175,12 +175,12 @@ def test_joint_cross_gradient_inv_run(
 
             if group.options["inversion_type"] == "gravity":
                 data.values = data.values + np.random.randn(data.values.size) * 1e-2
-                active = ActiveCellsData(topography_object=topography)
+                active_cells = ActiveCellsData(topography_object=topography)
                 params = GravityInversionParams(
                     geoh5=geoh5,
                     mesh=mesh,
                     alpha_s=1.0,
-                    active=active,
+                    active_cells=active_cells,
                     data_object=survey,
                     gz_channel=data,
                     gz_uncertainty=1e-2,
