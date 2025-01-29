@@ -128,7 +128,7 @@ class MisfitFactory(SimPEGFactory):
                 #     treemesh_2_octree(ws, local_sim.mesh)
 
                 # TODO Parse workers to simulations
-                local_sim.workers = self.params.distributed_workers
+                # local_sim.workers = self.params.distributed_workers
                 local_data = data.Data(local_sim.survey)
 
                 if self.params.forward_only:

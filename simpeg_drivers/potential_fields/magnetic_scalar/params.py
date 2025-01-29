@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 
-from simpeg_drivers import InversionBaseParams
+from simpeg_drivers.params import InversionBaseParams
 
 from .constants import (
     default_ui_json,
@@ -76,9 +76,10 @@ class MagneticScalarParams(InversionBaseParams):
 
         super().__init__(input_file=input_file, forward_only=forward_only, **kwargs)
 
+    @property
     def components(self) -> list[str]:
         """Retrieve component names used to index channel and uncertainty data."""
-        comps = super().components()
+        comps = super().components
         if self.forward_only:
             if len(comps) == 0:
                 comps = ["tmi"]

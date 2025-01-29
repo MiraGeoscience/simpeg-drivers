@@ -70,8 +70,10 @@ class InversionTopography(InversionLocations):
         super().__init__(workspace, params)
         self.locations: np.ndarray | None = None
 
-        if self.params.topography_object is not None:
-            self.locations = self.get_locations(self.params.topography_object)
+        if self.params.active_cells.topography_object is not None:
+            self.locations = self.get_locations(
+                self.params.active_cells.topography_object
+            )
 
     def active_cells(self, mesh: InversionMesh, data: InversionData) -> np.ndarray:
         """
@@ -89,9 +91,9 @@ class InversionTopography(InversionLocations):
             "induced polarization 2d",
         ] or isinstance(data.entity, LargeLoopGroundEMSurvey)
 
-        if isinstance(self.params.active_model, NumericData):
+        if isinstance(self.params.active_cells.active_model, NumericData):
             active_cells = InversionModel.obj_2_mesh(
-                self.params.active_model, mesh.entity
+                self.params.active_cells.active_model, mesh.entity
             )
         else:
             active_cells = active_from_xyz(
@@ -126,13 +128,15 @@ class InversionTopography(InversionLocations):
 
         locs = super().get_locations(entity)
 
-        if self.params.topography is not None:
-            if isinstance(self.params.topography, Entity):
-                elev = self.params.topography.values
-            elif isinstance(self.params.topography, int | float):
-                elev = np.ones_like(locs[:, 2]) * self.params.topography
+        if self.params.active_cells.topography is not None:
+            if isinstance(self.params.active_cells.topography, Entity):
+                elev = self.params.active_cells.topography.values
+            elif isinstance(self.params.active_cells.topography, int | float):
+                elev = np.ones_like(locs[:, 2]) * self.params.active_cells.topography
             else:
-                elev = self.params.topography.values  # Must be FloatData at this point
+                elev = (
+                    self.params.active_cells.topography.values
+                )  # Must be FloatData at this point
 
             if not np.all(locs[:, 2] == elev):
                 locs[:, 2] = elev

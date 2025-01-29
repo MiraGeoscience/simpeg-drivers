@@ -23,8 +23,13 @@ from simpeg_drivers.electricals.direct_current.three_dimensions.driver import (
 )
 from simpeg_drivers.joint.joint_cross_gradient import JointCrossGradientParams
 from simpeg_drivers.joint.joint_cross_gradient.driver import JointCrossGradientDriver
-from simpeg_drivers.potential_fields import GravityParams, MagneticVectorParams
-from simpeg_drivers.potential_fields.gravity.driver import GravityDriver
+from simpeg_drivers.params import ActiveCellsData
+from simpeg_drivers.potential_fields import (
+    GravityForwardParams,
+    GravityInversionParams,
+    MagneticVectorParams,
+)
+from simpeg_drivers.potential_fields.gravity.driver import GravityInversionDriver
 from simpeg_drivers.potential_fields.magnetic_vector.driver import MagneticVectorDriver
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
@@ -52,17 +57,18 @@ def test_joint_cross_gradient_fwr_run(
         n_electrodes=n_grid_points,
         n_lines=n_grid_points,
     )
-    params = GravityParams(
+    active_cells = ActiveCellsData(topography_object=topography)
+    params = GravityForwardParams(
         forward_only=True,
         geoh5=geoh5,
-        mesh=model.parent.uid,
-        topography_object=topography.uid,
+        mesh=model.parent,
+        active_cells=active_cells,
         resolution=0.0,
         z_from_topo=False,
-        data_object=survey.uid,
-        starting_model=model.uid,
+        data_object=survey,
+        starting_model=model,
     )
-    fwr_driver_a = GravityDriver(params)
+    fwr_driver_a = GravityInversionDriver(params)
 
     _, _, model, survey, _ = setup_inversion_workspace(
         tmp_path,
@@ -169,18 +175,19 @@ def test_joint_cross_gradient_inv_run(
 
             if group.options["inversion_type"] == "gravity":
                 data.values = data.values + np.random.randn(data.values.size) * 1e-2
-                params = GravityParams(
+                active_cells = ActiveCellsData(topography_object=topography)
+                params = GravityInversionParams(
                     geoh5=geoh5,
-                    mesh=mesh.uid,
+                    mesh=mesh,
                     alpha_s=1.0,
-                    topography_object=topography.uid,
-                    data_object=survey.uid,
-                    gz_channel=data.uid,
+                    active_cells=active_cells,
+                    data_object=survey,
+                    gz_channel=data,
                     gz_uncertainty=1e-2,
                     starting_model=0.0,
                     reference_model=0.0,
                 )
-                drivers.append(GravityDriver(params))
+                drivers.append(GravityInversionDriver(params))
             elif group.options["inversion_type"] == "direct current 3d":
                 data.values = data.values + np.random.randn(data.values.size) * 5e-4
                 params = DirectCurrent3DParams(
