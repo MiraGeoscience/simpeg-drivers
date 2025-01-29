@@ -128,15 +128,10 @@ class CoreData(BaseData):
     def out_group_if_none(cls, data) -> SimPEGGroup:
         group = data.get("out_group", None)
 
-        if isinstance(group, UIJsonGroup):
+        if isinstance(group, UIJsonGroup | type(None)):
+            name = cls.title if group is None else group.name
             with fetch_active_workspace(data["geoh5"], mode="r+") as geoh5:
-                group = SimPEGGroup.create(geoh5, name=group.name)
-                group.metadata = None
-
-        elif group is None:
-            with fetch_active_workspace(data["geoh5"], mode="r+") as geoh5:
-                group = SimPEGGroup.create(geoh5, name=cls.title)
-                group.metadata = None
+                group = SimPEGGroup.create(geoh5, name=name)
 
         data["out_group"] = group
 
@@ -146,6 +141,7 @@ class CoreData(BaseData):
     def update_out_group_options(self):
         assert self.out_group is not None
         self.out_group.options = self.serialize()
+        self.out_group.metadata = None
         return self
 
     @property
