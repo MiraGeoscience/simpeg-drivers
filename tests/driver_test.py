@@ -34,11 +34,11 @@ def test_smallness_terms(tmp_path: Path):
 
     gz = survey.add_data({"gz": {"values": np.ones(survey.n_vertices)}})
     mesh = model.parent
-    active = ActiveCellsData(topography_object=topography)
+    active_cells = ActiveCellsData(topography_object=topography)
     params = GravityInversionParams(
         geoh5=geoh5,
         mesh=mesh,
-        active=active,
+        active_cells=active_cells,
         data_object=gz.parent,
         starting_model=1e-4,
         reference_model=0.0,

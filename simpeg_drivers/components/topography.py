@@ -93,7 +93,7 @@ class InversionTopography(InversionLocations):
 
         if isinstance(self.params.active_cells.active_model, NumericData):
             active_cells = InversionModel.obj_2_mesh(
-                self.params.active.active_model, mesh.entity
+                self.params.active_cells.active_model, mesh.entity
             )
         else:
             active_cells = active_from_xyz(
@@ -128,14 +128,14 @@ class InversionTopography(InversionLocations):
 
         locs = super().get_locations(entity)
 
-        if self.params.active.topography is not None:
-            if isinstance(self.params.active.topography, Entity):
-                elev = self.params.active.topography.values
-            elif isinstance(self.params.active.topography, int | float):
-                elev = np.ones_like(locs[:, 2]) * self.params.active.topography
+        if self.params.active_cells.topography is not None:
+            if isinstance(self.params.active_cells.topography, Entity):
+                elev = self.params.active_cells.topography.values
+            elif isinstance(self.params.active_cells.topography, int | float):
+                elev = np.ones_like(locs[:, 2]) * self.params.active_cells.topography
             else:
                 elev = (
-                    self.params.active.topography.values
+                    self.params.active_cells.topography.values
                 )  # Must be FloatData at this point
 
             if not np.all(locs[:, 2] == elev):

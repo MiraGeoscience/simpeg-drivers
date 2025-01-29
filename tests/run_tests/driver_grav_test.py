@@ -47,11 +47,11 @@ def test_gravity_fwr_run(
         flatten=False,
     )
 
-    active = ActiveCellsData(topography_object=topography)
+    active_cells = ActiveCellsData(topography_object=topography)
     params = GravityForwardParams(
         geoh5=geoh5,
         mesh=model.parent,
-        active=active,
+        active_cells=active_cells,
         topography_object=topography,
         z_from_topo=False,
         data_object=survey,
@@ -96,11 +96,11 @@ def test_gravity_run(
         gz.values = values
 
         # Run the inverse
-        active = ActiveCellsData(topography_object=topography)
+        active_cells = ActiveCellsData(topography_object=topography)
         params = GravityInversionParams(
             geoh5=geoh5,
             mesh=mesh,
-            active=active,
+            active_cells=active_cells,
             data_object=gz.parent,
             starting_model=1e-4,
             reference_model=0.0,

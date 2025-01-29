@@ -44,11 +44,11 @@ def setup_inversion_results(
 
     # Run the inverse with save_sensitivities=True
     gz = survey.add_data({"gz": {"values": np.random.randn(len(survey.vertices))}})
-    active = ActiveCellsData(topography_object=topography)
+    active_cells = ActiveCellsData(topography_object=topography)
     params = GravityInversionParams(
         geoh5=geoh5,
         mesh=mesh,
-        active=active,
+        active_cells=active_cells,
         data_object=gz.parent,
         starting_model=1e-4,
         reference_model=0.0,
