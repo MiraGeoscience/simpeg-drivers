@@ -76,7 +76,7 @@ class CoreData(BaseData):
     :param mesh: Mesh object containing models (starting, reference, active, etc..).
     :param starting_model: Starting model used to start inversion or for simulating
         data in the forward operation.
-    :param active: Active cell data as either a topography surface/data or a 3D model.
+    :param active_cells: Active cell data as either a topography surface/data or a 3D model.
     :param tile_spatial: Number of tiles to split the data.
     :param parallelized: Parallelize the inversion/forward operation.
     :param n_cpu: Number of CPUs to use if parallelized.  If None, all cpu will be used.
@@ -98,7 +98,7 @@ class CoreData(BaseData):
     z_from_topo: bool = False
     mesh: Octree | None
     starting_model: float | FloatData
-    active: ActiveCellsData
+    active_cells: ActiveCellsData
     tile_spatial: int = 1
     parallelized: bool = True
     n_cpu: int | None = None
@@ -155,37 +155,6 @@ class CoreData(BaseData):
     @property
     def channels(self) -> list[str]:
         return [k.split("_")[0] for k in self.__dict__ if "channel" in k]
-
-    def data_channel(self, component: str) -> NumericData | None:
-        """Return the data object associated with the component."""
-        return getattr(self, "_".join([component, "channel"]), None)
-
-    def uncertainty_channel(self, component: str) -> NumericData | None:
-        """Return the uncertainty object associated with the component."""
-        return getattr(self, "_".join([component, "uncertainty"]), None)
-
-    def data(self, component: str) -> np.ndarray | None:
-        """Returns array of data for chosen data component if it exists."""
-        data_entity = self.data_channel(component)
-        if isinstance(data_entity, NumericData):
-            return data_entity.values.astype(float)
-        return None
-
-    def uncertainty(self, component: str) -> np.ndarray | None:
-        """Returns uncertainty for chosen data component if it exists."""
-
-        uncertainty_entity = self.uncertainty_channel(component)
-        if isinstance(uncertainty_entity, NumericData):
-            return uncertainty_entity.values.astype(float)
-
-        data = self.data(component)
-        if data is not None:
-            if isinstance(uncertainty_entity, int | float):
-                return np.array([float(uncertainty_entity)] * len(data))
-            else:
-                return data * 0.0 + 1.0  # type: ignore
-
-        return None
 
     @property
     def padding_cells(self) -> int:
@@ -489,7 +458,7 @@ class InversionBaseParams(BaseParams):
                     setattr(self, key, True)
 
     @property
-    def active(self):
+    def active_cells(self):
         return ActiveCellsData(
             topography_object=self.topography_object,
             topography=self.topography,

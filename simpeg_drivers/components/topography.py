@@ -70,8 +70,10 @@ class InversionTopography(InversionLocations):
         super().__init__(workspace, params)
         self.locations: np.ndarray | None = None
 
-        if self.params.active.topography_object is not None:
-            self.locations = self.get_locations(self.params.active.topography_object)
+        if self.params.active_cells.topography_object is not None:
+            self.locations = self.get_locations(
+                self.params.active_cells.topography_object
+            )
 
     def active_cells(self, mesh: InversionMesh, data: InversionData) -> np.ndarray:
         """
@@ -89,7 +91,7 @@ class InversionTopography(InversionLocations):
             "induced polarization 2d",
         ] or isinstance(data.entity, LargeLoopGroundEMSurvey)
 
-        if isinstance(self.params.active.active_model, NumericData):
+        if isinstance(self.params.active_cells.active_model, NumericData):
             active_cells = InversionModel.obj_2_mesh(
                 self.params.active.active_model, mesh.entity
             )
