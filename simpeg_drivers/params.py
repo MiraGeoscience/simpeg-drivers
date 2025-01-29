@@ -152,6 +152,37 @@ class CoreData(BaseData):
     def channels(self) -> list[str]:
         return [k.split("_")[0] for k in self.__dict__ if "channel" in k]
 
+    def data_channel(self, component: str) -> NumericData | None:
+        """Return the data object associated with the component."""
+        return getattr(self, "_".join([component, "channel"]), None)
+
+    def data(self, component: str) -> np.ndarray | None:
+        """Returns array of data for chosen data component if it exists."""
+        data_entity = self.data_channel(component)
+        if isinstance(data_entity, NumericData):
+            return data_entity.values.astype(float)
+        return None
+
+    def uncertainty_channel(self, component: str) -> NumericData | None:
+        """Return the uncertainty object associated with the component."""
+        return getattr(self, "_".join([component, "uncertainty"]), None)
+
+    def uncertainty(self, component: str) -> np.ndarray | None:
+        """Returns uncertainty for chosen data component if it exists."""
+
+        uncertainty_entity = self.uncertainty_channel(component)
+        if isinstance(uncertainty_entity, NumericData):
+            return uncertainty_entity.values.astype(float)
+
+        data = self.data(component)
+        if data is not None:
+            if isinstance(uncertainty_entity, int | float):
+                return np.array([float(uncertainty_entity)] * len(data))
+            else:
+                return data * 0.0 + 1.0  # Default
+
+        return None
+
     @property
     def padding_cells(self) -> int:
         """
@@ -318,37 +349,6 @@ class BaseInversionData(CoreData):
                 comps.append(c)
 
         return comps
-
-    def data_channel(self, component: str) -> NumericData | None:
-        """Return the data object associated with the component."""
-        return getattr(self, "_".join([component, "channel"]), None)
-
-    def uncertainty_channel(self, component: str) -> NumericData | None:
-        """Return the uncertainty object associated with the component."""
-        return getattr(self, "_".join([component, "uncertainty"]), None)
-
-    def data(self, component: str) -> np.ndarray | None:
-        """Returns array of data for chosen data component if it exists."""
-        data_entity = self.data_channel(component)
-        if isinstance(data_entity, NumericData):
-            return data_entity.values.astype(float)
-        return None
-
-    def uncertainty(self, component: str) -> np.ndarray | None:
-        """Returns uncertainty for chosen data component if it exists."""
-
-        uncertainty_entity = self.uncertainty_channel(component)
-        if isinstance(uncertainty_entity, NumericData):
-            return uncertainty_entity.values.astype(float)
-
-        data = self.data(component)
-        if data is not None:
-            if isinstance(uncertainty_entity, int | float):
-                return np.array([float(uncertainty_entity)] * len(data))
-            else:
-                return data * 0.0 + 1.0  # Default
-
-        return None
 
 
 class InversionBaseParams(BaseParams):
