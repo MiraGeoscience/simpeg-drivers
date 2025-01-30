@@ -1,24 +1,18 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
 from __future__ import annotations
 
 import warnings
+from copy import deepcopy
 from typing import TYPE_CHECKING
 from uuid import UUID
 
@@ -28,11 +22,12 @@ from discretize.utils import mesh_utils
 from geoapps_utils.utils.conversions import string_to_numeric
 from geoapps_utils.utils.numerical import running_mean, traveling_salesman
 from geoh5py import Workspace
-from geoh5py.groups import Group
+from geoh5py.groups import Group, SimPEGGroup
 from geoh5py.objects import DrapeModel, Octree
 from geoh5py.objects.surveys.direct_current import PotentialElectrode
 from geoh5py.objects.surveys.electromagnetics.base import LargeLoopGroundEMSurvey
 from geoh5py.shared import INTEGER_NDV
+from geoh5py.ui_json import InputFile
 from octree_creation_app.utils import octree_2_treemesh
 from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator, interp1d
 from scipy.spatial import ConvexHull, Delaunay, cKDTree
@@ -46,7 +41,11 @@ from simpeg.utils import mkvc
 
 if TYPE_CHECKING:
     from simpeg_drivers.components.data import InversionData
+    from simpeg_drivers.driver import InversionDriver
 
+from geoapps_utils.driver.data import BaseData
+
+from simpeg_drivers import DRIVER_MAP
 from simpeg_drivers.utils.surveys import (
     compute_alongline_distance,
     get_intersecting_cells,
@@ -92,8 +91,7 @@ def calculate_2D_trend(
     """
     if not isinstance(order, int) or order < 0:
         raise ValueError(
-            "Polynomial 'order' should be an integer > 0. "
-            f"Value of {order} provided."
+            f"Polynomial 'order' should be an integer > 0. Value of {order} provided."
         )
 
     ind_nan = ~np.isnan(values)
@@ -107,7 +105,7 @@ def calculate_2D_trend(
         values = values[hull.vertices]
     elif method != "all":
         raise ValueError(
-            "'method' must be either 'all', or 'perimeter'. " f"Value {method} provided"
+            f"'method' must be either 'all', or 'perimeter'. Value {method} provided"
         )
 
     # Compute center of mass
@@ -806,3 +804,34 @@ def get_neighbouring_cells(mesh: TreeMesh, indices: list | np.ndarray) -> tuple:
         (np.r_[tuple(neighbors[ax][0])], np.r_[tuple(neighbors[ax][1])])
         for ax in range(mesh.dim)
     )
+
+
+def simpeg_group_to_driver(group: SimPEGGroup, workspace: Workspace) -> InversionDriver:
+    """
+    Utility to generate an inversion driver from a SimPEG group options.
+
+    :param group: SimPEGGroup object.
+    :param workspace: Workspace object.
+    """
+
+    ui_json = deepcopy(group.options)
+    ui_json["geoh5"] = workspace
+
+    ifile = InputFile(ui_json=ui_json)
+    forward_only = ui_json["forward_only"]
+    mod_name, classes = DRIVER_MAP.get(ui_json["inversion_type"])
+    if forward_only:
+        class_name = classes.get("forward", classes["inversion"])
+    else:
+        class_name = classes.get("inversion")
+    module = __import__(mod_name, fromlist=[class_name])
+    inversion_driver = getattr(module, class_name)
+    # TODO: Remove logic when all params classes are converted to BaseData.
+    if issubclass(inversion_driver._params_class, BaseData):  # pylint: disable=W0212
+        ifile.set_data_value("out_group", group)
+        params = inversion_driver._params_class.build(ifile)  # pylint: disable=W0212
+    else:
+        params = inversion_driver._params_class(  # pylint: disable=W0212
+            ifile, out_group=group
+        )
+    return inversion_driver(params)

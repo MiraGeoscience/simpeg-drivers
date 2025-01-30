@@ -1,36 +1,34 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
 from __future__ import annotations
 
+from logging import getLogger
 from typing import TYPE_CHECKING
 
 import numpy as np
 from discretize import TensorMesh, TreeMesh
 from geoh5py import Workspace
+from geoh5py.groups import UIJsonGroup
 from geoh5py.objects import DrapeModel, Octree
+from octree_creation_app.driver import OctreeDriver
 from octree_creation_app.params import OctreeParams
 from octree_creation_app.utils import octree_2_treemesh, treemesh_2_octree
 
 from simpeg_drivers.params import InversionBaseParams
+from simpeg_drivers.utils.meshes import auto_mesh_parameters
 from simpeg_drivers.utils.utils import drape_2_tensor
 
 
+logger = getLogger(__name__)
 if TYPE_CHECKING:
     from simpeg_drivers.components.data import InversionData
     from simpeg_drivers.components.topography import InversionTopography
@@ -104,15 +102,30 @@ class InversionMesh:
         """
 
         if self.params.mesh is None:
-            raise ValueError("Must pass pre-constructed mesh.")
+            logger.info(
+                "No mesh provided. Creating optimized mesh from data and topography."
+            )
+            self._auto_mesh()
         else:
             self.entity = self.params.mesh.copy(
                 parent=self.params.out_group, copy_children=False
             )
-            self.params.mesh = self.entity
 
         self.uid = self.entity.uid
         self.n_cells = self.entity.n_cells
+
+    def _auto_mesh(self):
+        """Automate meshing based on data and topography objects."""
+
+        params = auto_mesh_parameters(
+            self.params.data_object,
+            self.params.active_cells.topography_object,
+            inversion_type=self.params.inversion_type,
+        )
+        driver = OctreeDriver(params)
+
+        mesh = driver.run()
+        self.entity = mesh.copy(parent=self.params.out_group)
 
     @property
     def mesh(self) -> TreeMesh | TensorMesh:

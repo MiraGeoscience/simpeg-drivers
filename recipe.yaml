@@ -2,7 +2,7 @@ schema_version: 1
 
 context:
   name: simpeg-drivers
-  version: 0.2.0b4
+  version: 0.3.0a1
 
 package:
   name: ${{ name|lower }}
@@ -29,11 +29,11 @@ requirements:
     - distributed >=2024.06.*
     - numpy >=1.26.0,<1.27.0
     - scipy >=1.14.0,<1.15.0
-    - geoh5py >=0.10.0b1,<0.11.0a.dev
-    - octree-creation-app >=0.2.0b1,<0.3.0a.dev
-    - geoapps-utils >=0.4.0b1,<0.5.0a.dev
-    - mira-simpeg >=0.21.2.1b1,<0.22.0a.dev
-    - param-sweeps >=0.2.0b1,<0.2.1a.dev
+    - geoh5py >=0.11.0a1,<0.12.0a.dev
+    - octree-creation-app >=0.3.0a1,<0.4.0a.dev
+    - geoapps-utils >=0.5.0a1,<0.6.0a.dev
+    - mira-simpeg >=0.22.0.1a1,<0.22.1a.dev
+    - param-sweeps >=0.3.0a1,<0.4.0a.dev
     - pillow >=10.3.0
     - empymod >=2.2.1,<2.3.0
     - geoana >=0.5.0,<0.6.0

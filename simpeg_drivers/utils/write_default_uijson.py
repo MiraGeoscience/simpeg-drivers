@@ -1,19 +1,13 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
 
 from __future__ import annotations
 
@@ -46,7 +40,6 @@ from simpeg_drivers.joint.joint_cross_gradient import JointCrossGradientParams
 from simpeg_drivers.joint.joint_surveys import JointSurveysParams
 from simpeg_drivers.natural_sources import MagnetotelluricsParams, TipperParams
 from simpeg_drivers.potential_fields import (
-    GravityParams,
     MagneticScalarParams,
     MagneticVectorParams,
 )
@@ -75,8 +68,6 @@ active_data_channels = [
 
 def write_default_uijson(path: str | Path):
     filedict = {
-        "gravity_inversion.ui.json": GravityParams(validate=False),
-        "gravity_forward.ui.json": GravityParams(forward_only=True, validate=False),
         "magnetic_scalar_inversion.ui.json": MagneticScalarParams(validate=False),
         "magnetic_scalar_forward.ui.json": MagneticScalarParams(
             forward_only=True, validate=False

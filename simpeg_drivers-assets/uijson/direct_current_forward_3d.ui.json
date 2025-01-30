@@ -1,5 +1,5 @@
 {
-    "version": "0.2.0-alpha.1",
+    "version": "0.3.0-alpha.1",
     "title": "Direct Current (DC) 3D Forward",
     "icon": "PotentialElectrode",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
@@ -31,6 +31,8 @@
         "label": "Mesh",
         "meshType": "{4ea87376-3ece-438b-bf12-3479733ded46}",
         "value": "",
+        "optional": true,
+        "enabled": false,
         "tooltip": "Select a mesh for the inversion."
     },
     "model_type": {

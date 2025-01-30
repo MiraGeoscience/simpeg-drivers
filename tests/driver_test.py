@@ -1,26 +1,20 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 from pathlib import Path
 
 import numpy as np
 
-from simpeg_drivers.potential_fields import GravityParams
-from simpeg_drivers.potential_fields.gravity.driver import GravityDriver
+from simpeg_drivers.params import ActiveCellsData
+from simpeg_drivers.potential_fields import GravityInversionParams
+from simpeg_drivers.potential_fields.gravity.driver import GravityInversionDriver
 from simpeg_drivers.utils.testing import setup_inversion_workspace
 
 
@@ -40,11 +34,12 @@ def test_smallness_terms(tmp_path: Path):
 
     gz = survey.add_data({"gz": {"values": np.ones(survey.n_vertices)}})
     mesh = model.parent
-    params = GravityParams(
+    active_cells = ActiveCellsData(topography_object=topography)
+    params = GravityInversionParams(
         geoh5=geoh5,
-        mesh=mesh.uid,
-        topography_object=topography.uid,
-        data_object=gz.parent.uid,
+        mesh=mesh,
+        active_cells=active_cells,
+        data_object=gz.parent,
         starting_model=1e-4,
         reference_model=0.0,
         alpha_s=1.0,
@@ -52,7 +47,7 @@ def test_smallness_terms(tmp_path: Path):
         gradient_type="components",
         gz_channel_bool=True,
         z_from_topo=False,
-        gz_channel=gz.uid,
+        gz_channel=gz,
         gz_uncertainty=2e-3,
         lower_bound=0.0,
         max_global_iterations=1,
@@ -61,5 +56,5 @@ def test_smallness_terms(tmp_path: Path):
         store_sensitivities="ram",
     )
     params.alpha_s = None
-    driver = GravityDriver(params)
+    driver = GravityInversionDriver(params)
     assert driver.regularization.objfcts[0].alpha_s == 0.0

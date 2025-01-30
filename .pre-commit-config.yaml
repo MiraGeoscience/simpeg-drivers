@@ -12,12 +12,12 @@ ci:
 
 repos:
 -   repo: https://github.com/hadialqattan/pycln
-    rev: v2.4.0
+    rev: v2.5.0
     hooks:
     -   id: pycln
         args: [--config=pyproject.toml]
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.7.0
+    rev: v0.9.1
     hooks:
     -   id: ruff
         args:
@@ -37,16 +37,19 @@ repos:
 #        ]
 #        exclude: ^(docs|simpeg_drivers-assets)/
 -   repo: https://github.com/codingjoe/relint
-    rev: 3.3.0
+    rev: 3.3.1
     hooks:
     -   id: relint
         args: [-W]  # to fail on warnings
 -   repo: https://github.com/MiraGeoscience/pre-commit-hooks
-    rev: v1.0.1
+    rev: v1.1.0
     hooks:
     -   id: check-copyright
-        files: (^LICENSE|^README(|-dev).rst|\.py|\.pyi)$
-        exclude: (^\.|^docs/)
+        files: (^package\.rst|LICENSE|^README(|-dev).rst|^docs/intro\.md|\.py|\.pyi)$
+        exclude: (^\.|^docs/(?!intro\.md))
+        args:
+        -   --full-scan-files
+        -   intro.md
     -   id: prepare-commit-msg
     -   id: check-commit-msg
 -   repo: local

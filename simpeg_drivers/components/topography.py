@@ -1,19 +1,12 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
 from __future__ import annotations
@@ -77,8 +70,10 @@ class InversionTopography(InversionLocations):
         super().__init__(workspace, params)
         self.locations: np.ndarray | None = None
 
-        if self.params.topography_object is not None:
-            self.locations = self.get_locations(self.params.topography_object)
+        if self.params.active_cells.topography_object is not None:
+            self.locations = self.get_locations(
+                self.params.active_cells.topography_object
+            )
 
     def active_cells(self, mesh: InversionMesh, data: InversionData) -> np.ndarray:
         """
@@ -96,9 +91,9 @@ class InversionTopography(InversionLocations):
             "induced polarization 2d",
         ] or isinstance(data.entity, LargeLoopGroundEMSurvey)
 
-        if isinstance(self.params.active_model, NumericData):
+        if isinstance(self.params.active_cells.active_model, NumericData):
             active_cells = InversionModel.obj_2_mesh(
-                self.params.active_model, mesh.entity
+                self.params.active_cells.active_model, mesh.entity
             )
         else:
             active_cells = active_from_xyz(
@@ -133,13 +128,15 @@ class InversionTopography(InversionLocations):
 
         locs = super().get_locations(entity)
 
-        if self.params.topography is not None:
-            if isinstance(self.params.topography, Entity):
-                elev = self.params.topography.values
-            elif isinstance(self.params.topography, int | float):
-                elev = np.ones_like(locs[:, 2]) * self.params.topography
+        if self.params.active_cells.topography is not None:
+            if isinstance(self.params.active_cells.topography, Entity):
+                elev = self.params.active_cells.topography.values
+            elif isinstance(self.params.active_cells.topography, int | float):
+                elev = np.ones_like(locs[:, 2]) * self.params.active_cells.topography
             else:
-                elev = self.params.topography.values  # Must be FloatData at this point
+                elev = (
+                    self.params.active_cells.topography.values
+                )  # Must be FloatData at this point
 
             if not np.all(locs[:, 2] == elev):
                 locs[:, 2] = elev

@@ -1,24 +1,17 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
 # flake8: noqa
 
 from __future__ import annotations
 
-import multiprocessing
 import sys
 from datetime import datetime, timedelta
 from multiprocessing.pool import ThreadPool
@@ -28,6 +21,7 @@ from time import time
 import numpy as np
 from dask import config as dconf
 from geoapps_utils.driver.driver import BaseDriver
+from geoapps_utils.driver.data import BaseData
 
 from geoh5py.data import Data
 from geoh5py.groups import SimPEGGroup
@@ -54,7 +48,7 @@ from simpeg_drivers.components import (
     InversionWindow,
 )
 from simpeg_drivers.components.factories import DirectivesFactory, MisfitFactory
-from simpeg_drivers.params import InversionBaseParams
+from simpeg_drivers.params import InversionBaseParams, BaseInversionData
 from simpeg_drivers.utils.utils import tile_locations
 
 
@@ -127,7 +121,7 @@ class InversionDriver(BaseDriver):
                 self.optimization,
             )
 
-            if self.params.initial_beta:
+            if not self.params.forward_only and self.params.initial_beta:
                 self._inverse_problem.beta = self.params.initial_beta
 
         return self._inverse_problem
@@ -254,8 +248,8 @@ class InversionDriver(BaseDriver):
         return self._params
 
     @params.setter
-    def params(self, val: (InversionBaseParams, SweepParams)):
-        if not isinstance(val, (InversionBaseParams, SweepParams)):
+    def params(self, val: BaseInversionData | InversionBaseParams | SweepParams):
+        if not isinstance(val, (BaseData, InversionBaseParams, SweepParams)):
             raise TypeError(
                 "Parameters must be of type 'InversionBaseParams' or 'SweepParams'."
             )
@@ -446,9 +440,6 @@ class InversionDriver(BaseDriver):
         """Sets Dask config settings."""
 
         if self.params.parallelized:
-            if self.params.n_cpu is None:
-                self.params.n_cpu = int(multiprocessing.cpu_count())
-
             dconf.set({"array.chunk-size": str(self.params.max_chunk_size) + "MiB"})
             dconf.set(scheduler="threads", pool=ThreadPool(self.params.n_cpu))
 
@@ -457,16 +448,27 @@ class InversionDriver(BaseDriver):
         _ = driver_class
 
         ifile = InputFile.read_ui_json(filepath)
+        forward_only = ifile.data["forward_only"]
         inversion_type = ifile.ui_json.get("inversion_type", None)
+
+        driver_name = (inversion_type + "driver").capitalize()
         if inversion_type not in DRIVER_MAP:
             msg = f"Inversion type {inversion_type} is not supported."
-            msg += f" Valid inversions are: {*list(DRIVER_MAP), }."
+            msg += f" Valid inversions are: {(*list(DRIVER_MAP),)}."
             raise NotImplementedError(msg)
 
-        mod_name, class_name = DRIVER_MAP.get(inversion_type)
+        mod_name, classes = DRIVER_MAP.get(inversion_type)
+        if forward_only:
+            class_name = classes.get("forward", classes["inversion"])
+        else:
+            class_name = classes.get("inversion")
         module = __import__(mod_name, fromlist=[class_name])
-        inversion_driver = getattr(module, class_name)
-        driver = BaseDriver.start(filepath, driver_class=inversion_driver)
+        driver_class = getattr(module, class_name)
+        with ifile.data["geoh5"].open(mode="r+"):
+            params = driver_class._params_class.build(ifile)
+            driver = driver_class(params)
+            driver.run()
+
         return driver
 
 

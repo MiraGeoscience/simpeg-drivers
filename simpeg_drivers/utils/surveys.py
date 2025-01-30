@@ -1,19 +1,13 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
 
 from __future__ import annotations
 
@@ -24,6 +18,28 @@ from geoh5py import Workspace
 from geoh5py.objects import PotentialElectrode
 from scipy.spatial import cKDTree
 from simpeg.survey import BaseSurvey
+
+
+def station_spacing(
+    locations: np.ndarray,
+    statistic: str = "median",
+) -> float:
+    """
+    Compute smallest station spacings and return statistic on the collection.
+
+    :param locations: Array of locations representing a geophysical survey.
+    :param statistic: Name of numpy statistic to compute on the collection.
+    """
+
+    tree = cKDTree(locations)
+    distances, _ = tree.query(locations, k=2)
+
+    if statistic not in ["median", "mean", "min", "max"]:
+        raise ValueError(
+            "Invalid statistic.  Options include 'median', 'mean', 'min', 'max'."
+        )
+
+    return getattr(np, statistic)(distances[:, 1])
 
 
 def counter_clockwise_sort(segments: np.ndarray, vertices: np.ndarray) -> np.ndarray:

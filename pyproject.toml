@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "simpeg-drivers"
-version = "0.2.0-beta.4"
+version = "0.3.0-alpha.1"
 description = "Application to run SimPEG inversions with geoh5 files from Geoscience Analyst."
 license = "MIT"
 authors = ["Mira Geoscience <support@mirageoscience.com>"]
@@ -39,20 +39,20 @@ scipy = "~1.14.0"
 
 ## Pip dependencies from Git repositories
 #----------------------------------------
-geoh5py = {version = ">=0.10.0b4, <0.11.0a.dev", source = "pypi", allow-prereleases = true}
-#geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "release/0.10.0"}
+#geoh5py = {version = ">=0.10.0rc1, <0.11.0a.dev", source = "pypi", allow-prereleases = true}
+geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "develop"}
 
-octree-creation-app = {version = ">=0.2.0b2, <0.3.0a.dev", source = "pypi", allow-prereleases = true}
-#octree-creation-app = {git = "https://github.com/MiraGeoscience/octree-creation-app.git", rev = "release/0.2.0"}
+#octree-creation-app = {version = ">=0.2.0rc1, <0.3.0a.dev", source = "pypi", allow-prereleases = true}
+octree-creation-app = {git = "https://github.com/MiraGeoscience/octree-creation-app.git", rev = "develop"}
 
-geoapps-utils = {version = ">=0.4.0b1, <0.5.0a.dev", source = "pypi", allow-prereleases = true}
-#geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "release/0.4.0"}
+#geoapps-utils = {version = ">=0.4.0rc1, <0.5.0a.dev", source = "pypi", allow-prereleases = true}
+geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "develop"}
 
-mira-simpeg = {version = ">=0.21.2.1b3, <0.21.2.2a.dev", source="pypi", allow-prereleases = true, extras = ["dask"]}
-#mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", rev = "release/0.21.2.1", extras = ["dask"]}
+#mira-simpeg = {version = ">=0.21.2.1rc1, <0.21.2.2a.dev", source="pypi", allow-prereleases = true, extras = ["dask"]}
+mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", rev = "develop", extras = ["dask"]}
 
-param-sweeps = {version = ">=0.2.0b1, <0.3.0a.dev", source = "pypi", allow-prereleases = true}
-#param-sweeps = {git = "https://github.com/MiraGeoscience/param-sweeps.git", rev = "release/0.2.0"}
+#param-sweeps = {version = ">=0.2.0rc1, <0.3.0a.dev", source = "pypi", allow-prereleases = true}
+param-sweeps = {git = "https://github.com/MiraGeoscience/param-sweeps.git", rev = "develop"}
 
 ## force some versions to resolve incompatible resolution between PyPI and Conda
 #-------------------------------------------------------------------------------

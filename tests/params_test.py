@@ -1,11 +1,12 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2024 Mira Geoscience Ltd.                                     '
-#                                                                              '
-#  This file is part of geoapps.                                               '
-#                                                                              '
-#  geoapps is distributed under the terms and conditions of the MIT License    '
-#  (see LICENSE file at the root of this source code package).                 '
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2024-2025 Mira Geoscience Ltd.                                     '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 # pylint: disable=redefined-outer-name
 
@@ -15,6 +16,7 @@ from pathlib import Path
 from uuid import UUID, uuid4
 
 import pytest
+from geoh5py.objects import DrapeModel
 from geoh5py.shared.exceptions import (
     AssociationValidationError,
     OptionalValidationError,
@@ -34,7 +36,7 @@ from simpeg_drivers.electricals.induced_polarization.three_dimensions import (
     InducedPolarization3DParams,
 )
 from simpeg_drivers.potential_fields import (
-    GravityParams,
+    GravityInversionParams,
     MagneticScalarParams,
     MagneticVectorParams,
 )
@@ -66,30 +68,6 @@ def mvi_params(tmp_path_factory):
         starting_model=model.uid,
         starting_inclination=45,
         starting_declination=270,
-    )
-    params.input_file.geoh5.open()
-
-    return params
-
-
-@pytest.fixture(scope="session")
-def grav_params(tmp_path_factory):
-    geoh5, mesh, model, survey, topography = setup_inversion_workspace(
-        tmp_path_factory.mktemp("gravity"),
-        background=0.01,
-        anomaly=10,
-        n_electrodes=2,
-        n_lines=2,
-        flatten=False,
-    )
-    geoh5.close()
-    params = GravityParams(
-        **{
-            "geoh5": geoh5,
-            "data_object": survey,
-            "topography_object": topography,
-            "mesh": mesh,
-        }
     )
     params.input_file.geoh5.open()
 
@@ -186,96 +164,6 @@ def test_write_input_file_validation(tmp_path, mvi_params):
         params.write_input_file(name="test.ui.json", path=tmp_path)
 
 
-def test_params_initialize():
-    for params in [
-        MagneticScalarParams(),
-        MagneticVectorParams(),
-        GravityParams(),
-        DirectCurrent3DParams(),
-        InducedPolarization3DParams(),
-    ]:
-        check = []
-        for k, v in params.defaults.items():
-            if " " in k or k in [
-                "starting_model",
-                "conductivity_model",
-                "min_value",
-                "generate_sweep",
-            ]:
-                continue
-            check.append(getattr(params, k) == v)
-        assert all(check)
-
-    params = MagneticVectorParams(starting_model=1.0)
-    assert params.starting_model == 1.0
-    params = GravityParams(starting_model=1.0)
-    assert params.starting_model == 1.0
-
-
-def test_input_file_construction(tmp_path: Path):
-    params_classes = [
-        GravityParams,
-        MagneticScalarParams,
-        MagneticVectorParams,
-        DirectCurrent3DParams,
-        InducedPolarization3DParams,
-    ]
-
-    for params_class in params_classes:
-        filename = "test.ui.json"
-        for forward_only in [True, False]:
-            params = params_class(forward_only=forward_only)
-            params.write_input_file(name=filename, path=tmp_path, validate=False)
-            ifile = InputFile.read_ui_json(tmp_path / filename, validate=False)
-            params = params_class(input_file=ifile)
-
-            check = []
-            for k, v in params.defaults.items():
-                # TODO Need to better handle defaults None to value
-                if (" " in k) or k in [
-                    "starting_model",
-                    "reference_model",
-                    "conductivity_model",
-                    "min_value",
-                    "generate_sweep",
-                ]:
-                    continue
-                check.append(getattr(params, k) == v)
-
-            assert all(check)
-
-
-def test_default_input_file(tmp_path: Path):
-    for params_class in [
-        MagneticScalarParams,
-        MagneticVectorParams,
-        GravityParams,
-        DirectCurrent3DParams,
-        InducedPolarization3DParams,
-    ]:
-        filename = "test.ui.json"
-        params = params_class()
-        params.write_input_file(name=filename, path=tmp_path, validate=False)
-        ifile = InputFile.read_ui_json(tmp_path / filename, validate=False)
-
-        # check that reads back into input file with defaults
-        check = []
-        for k, v in ifile.data.items():
-            if " " in k or requires_value(ifile.ui_json, k):
-                continue
-            check.append(v == params.defaults[k])
-        assert all(check)
-
-        # check that params constructed from_path is defaulted
-        params2 = params_class()
-        check = []
-        for k, v in params2.to_dict(ui_json_format=False).items():
-            if " " in k or requires_value(ifile.ui_json, k):
-                continue
-            check.append(v == ifile.data[k])
-        assert all(check)
-
-
 def test_update():
     new_params = {
         "starting_model": 99.0,
@@ -302,17 +190,6 @@ def test_chunk_validation_mag(tmp_path: Path, mvi_params):
     with pytest.raises(
         OptionalValidationError,
         match="Cannot set a None value to non-optional parameter: inducing_field_strength.",
-    ):
-        params.write_input_file(name="test.ui.json", path=tmp_path)
-
-
-def test_chunk_validation_grav(tmp_path: Path, grav_params):
-    test_dict = grav_params.to_dict()
-    params = GravityParams(**test_dict)  # pylint: disable=repeated-keyword
-    params.topography_object = None
-    with pytest.raises(
-        OptionalValidationError,
-        match="Cannot set a None value to non-optional parameter: topography_object.",
     ):
         params.write_input_file(name="test.ui.json", path=tmp_path)
 
@@ -494,36 +371,6 @@ def test_mag_data(mvi_params, channel):
         match="Must be one of: 'str', 'UUID', 'int', 'float', 'Entity', 'NoneType'.",
     ):
         setattr(mvi_params, f"{channel}_uncertainty", mvi_params.geoh5)
-
-
-def test_gravity_inversion_type(grav_params):
-    with pytest.raises(
-        ValueValidationError, match="'inversion_type' is invalid. Must be: 'gravity'"
-    ):
-        grav_params.inversion_type = "alskdj"
-
-
-@pytest.mark.parametrize(
-    "channel", ["gz", "gy", "gz", "guv", "gxy", "gxz", "gyz", "gxx", "gyy", "gzz"]
-)
-def test_grav_data(grav_params, channel):
-    with pytest.raises(AssociationValidationError):
-        setattr(grav_params, f"{channel}_channel", uuid4())
-
-    with pytest.raises(
-        TypeValidationError,
-        match="Must be one of: 'str', 'UUID', 'Entity', 'NoneType'.",
-    ):
-        setattr(grav_params, f"{channel}_channel", 4)
-
-    with pytest.raises(AssociationValidationError):
-        setattr(grav_params, f"{channel}_uncertainty", uuid4())
-
-    with pytest.raises(
-        TypeValidationError,
-        match="Must be one of: 'str', 'UUID', 'int', 'float', 'Entity', 'NoneType'.",
-    ):
-        setattr(grav_params, f"{channel}_uncertainty", grav_params.geoh5)
 
 
 def test_direct_current_inversion_type(dc_params):

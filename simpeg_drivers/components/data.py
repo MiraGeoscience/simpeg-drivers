@@ -1,19 +1,12 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
 from __future__ import annotations
@@ -34,6 +27,7 @@ from discretize import TreeMesh
 from scipy.spatial import cKDTree
 from simpeg import maps
 from simpeg.electromagnetics.static.utils.static_utils import geometric_factor
+from simpeg.simulation import BaseSimulation
 
 from simpeg_drivers.utils.utils import create_nested_mesh, drape_2_tensor
 
@@ -53,10 +47,6 @@ class InversionData(InversionLocations):
     Parameters
     ---------
 
-    offset :
-        Static receivers location offsets.
-    radar :
-        Radar channel address used to drape receiver locations over topography.
     locations :
         Data locations.
     mask :
@@ -93,8 +83,6 @@ class InversionData(InversionLocations):
         :param: params: Params object containing location based data parameters.
         """
         super().__init__(workspace, params)
-        self.offset: list[float] | None = None
-        self.radar: np.ndarray | None = None
         self.locations: np.ndarray | None = None
         self.mask: np.ndarray | None = None
         self.indices: np.ndarray | None = None
@@ -119,7 +107,6 @@ class InversionData(InversionLocations):
         self.n_blocks = 3 if self.params.inversion_type == "magnetic vector" else 1
         self.components, self.observed, self.uncertainties = self.get_data()
         self.has_tensor = InversionData.check_tensor(self.components)
-        self.offset, self.radar = self.params.offset()
         self.locations = super().get_locations(self.params.data_object)
 
         if (
@@ -130,11 +117,7 @@ class InversionData(InversionLocations):
         else:
             self.mask = np.ones(len(self.locations), dtype=bool)
 
-        if self.radar is not None and any(np.isnan(self.radar)):
-            self.mask[np.isnan(self.radar)] = False
-
         self.observed = self.filter(self.observed)
-        self.radar = self.filter(self.radar)
         self.uncertainties = self.filter(self.uncertainties)
 
         self.normalizations = self.get_normalizations()
@@ -189,11 +172,10 @@ class InversionData(InversionLocations):
             associated uncertainties.
         """
 
-        components = self.params.components()
         data = {}
         uncertainties = {}
 
-        for comp in components:
+        for comp in self.params.components:
             data.update({comp: self.params.data(comp)})
             uncertainties.update({comp: self.params.uncertainty(comp)})
 
@@ -279,30 +261,8 @@ class InversionData(InversionLocations):
         """Apply all coordinate transformations to locations"""
         if self.params.z_from_topo:
             locations = super().set_z_from_topo(locations)
-        if self.offset is not None:
-            locations = self.displace(locations, self.offset)
-        if self.radar is not None:
-            locations = self.drape(locations, self.radar)
 
         return locations
-
-    def displace(self, locs: np.ndarray, offset: np.ndarray) -> np.ndarray:
-        """Offset data locations in all three dimensions."""
-        if locs is None:
-            return None
-        else:
-            return locs + offset if offset is not None else 0
-
-    def drape(self, locs: np.ndarray, radar_offset: np.ndarray) -> np.ndarray:
-        """Drape data locations using radar channel offsets."""
-
-        if locs is None:
-            return None
-
-        radar_offset_pad = np.zeros((len(radar_offset), 3))
-        radar_offset_pad[:, 2] = radar_offset
-
-        return self.displace(locs, radar_offset_pad)
 
     def normalize(
         self, data: dict[str, np.ndarray], absolute=False
@@ -404,10 +364,9 @@ class InversionData(InversionLocations):
         mesh: TreeMesh,
         active_cells: np.ndarray,
         survey,
-        models,
         tile_id: int | None = None,
         padding_cells: int = 6,
-    ):
+    ) -> tuple[BaseSimulation, maps.IdentityMap]:
         """
         Generates SimPEG simulation object.
 
@@ -428,7 +387,7 @@ class InversionData(InversionLocations):
 
         if tile_id is None or "2d" in self.params.inversion_type:
             mapping = maps.IdentityMap(nP=int(self.n_blocks * active_cells.sum()))
-            sim = simulation_factory.build(
+            simulation = simulation_factory.build(
                 survey=survey,
                 global_mesh=mesh,
                 active_cells=active_cells,
@@ -449,7 +408,7 @@ class InversionData(InversionLocations):
                 enforce_active=True,
                 components=3 if self.vector else 1,
             )
-            sim = simulation_factory.build(
+            simulation = simulation_factory.build(
                 survey=survey,
                 receivers=self.entity,
                 global_mesh=mesh,
@@ -459,18 +418,7 @@ class InversionData(InversionLocations):
                 tile_id=tile_id,
             )
 
-        if "induced polarization" in self.params.inversion_type:
-            if "2d" in self.params.inversion_type:
-                proj = maps.InjectActiveCells(mesh, active_cells, valInactive=1e-8)
-            else:
-                proj = maps.InjectActiveCells(
-                    nested_mesh, mapping.local_active, valInactive=1e-8
-                )
-
-            # TODO this should be done in the simulation factory
-            sim.sigma = proj * mapping * models.conductivity
-
-        return sim, mapping
+        return simulation, mapping
 
     def simulate(self, model, inverse_problem, sorting, ordering):
         """Simulate fields for a particular model."""
@@ -511,10 +459,9 @@ class InversionData(InversionLocations):
         Update pointers to newly created object and data.
         """
 
-        components = self.params.components()
         self.params.data_object = self.entity
 
-        for comp in components:
+        for comp in self.params.components:
             if getattr(self.params, "_".join([comp, "channel"]), None) is None:
                 continue
 

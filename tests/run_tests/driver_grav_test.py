@@ -1,19 +1,12 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 from __future__ import annotations
 
@@ -22,8 +15,12 @@ from pathlib import Path
 import numpy as np
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.potential_fields import GravityParams
-from simpeg_drivers.potential_fields.gravity.driver import GravityDriver
+from simpeg_drivers.params import ActiveCellsData
+from simpeg_drivers.potential_fields import GravityForwardParams, GravityInversionParams
+from simpeg_drivers.potential_fields.gravity.driver import (
+    GravityForwardDriver,
+    GravityInversionDriver,
+)
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
@@ -49,16 +46,19 @@ def test_gravity_fwr_run(
         refinement=refinement,
         flatten=False,
     )
-    params = GravityParams(
-        forward_only=True,
+
+    active_cells = ActiveCellsData(topography_object=topography)
+    params = GravityForwardParams(
         geoh5=geoh5,
-        mesh=model.parent.uid,
-        topography_object=topography.uid,
+        mesh=model.parent,
+        active_cells=active_cells,
+        topography_object=topography,
         z_from_topo=False,
-        data_object=survey.uid,
-        starting_model=model.uid,
+        data_object=survey,
+        starting_model=model,
+        gz_channel_bool=True,
     )
-    fwr_driver = GravityDriver(params)
+    fwr_driver = GravityForwardDriver(params)
     fwr_driver.run()
 
 
@@ -96,11 +96,12 @@ def test_gravity_run(
         gz.values = values
 
         # Run the inverse
-        params = GravityParams(
+        active_cells = ActiveCellsData(topography_object=topography)
+        params = GravityInversionParams(
             geoh5=geoh5,
-            mesh=mesh.uid,
-            topography_object=topography.uid,
-            data_object=gz.parent.uid,
+            mesh=mesh,
+            active_cells=active_cells,
+            data_object=gz.parent,
             starting_model=1e-4,
             reference_model=0.0,
             s_norm=0.0,
@@ -110,17 +111,18 @@ def test_gravity_run(
             gradient_type="components",
             gz_channel_bool=True,
             z_from_topo=False,
-            gz_channel=gz.uid,
+            gz_channel=gz,
             gz_uncertainty=2e-3,
             lower_bound=0.0,
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e-2,
             prctile=100,
             store_sensitivities="ram",
+            save_sensitivities=True,
         )
-        params.write_input_file(path=tmp_path, name="Inv_run")
+        params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    driver = GravityDriver.start(str(tmp_path / "Inv_run.ui.json"))
+    driver = GravityInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
     assert driver.params.data_object.uid != gz.parent.uid
     assert driver.models.upper_bound is np.inf
@@ -138,9 +140,9 @@ def test_gravity_run(
             for pred in run_ws.get_entity("Iteration_0_gz")
             if pred.parent.parent.name == "Gravity Inversion"
         )
-        assert not any(
-            np.isnan(predicted.values)
-        ), "Predicted data should not have nans."
+        assert not any(np.isnan(predicted.values)), (
+            "Predicted data should not have nans."
+        )
         output["data"] = orig_gz
 
         assert len(run_ws.get_entity("SimPEG.log")) == 2
