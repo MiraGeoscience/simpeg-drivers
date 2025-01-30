@@ -58,7 +58,7 @@ def get_conda_recipe_version():
 
     recipe = yaml.safe_load(rendered_yaml)
 
-    return recipe["package"]["version"]
+    return recipe["context"]["version"]
 
 
 def test_version_is_consistent():
