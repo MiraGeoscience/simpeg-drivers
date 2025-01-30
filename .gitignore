@@ -144,3 +144,9 @@ dmypy.json
 
 # tempory generated files
 pyproject-sha.toml
+
+# pixi environments
+.pixi
+*.egg-info
+
+/simpeg_drivers/_version.py

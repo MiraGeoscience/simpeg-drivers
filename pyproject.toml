@@ -1,23 +1,31 @@
-[tool.poetry]
+[project]
 name = "simpeg-drivers"
-version = "0.3.0-alpha.1"
 description = "Application to run SimPEG inversions with geoh5 files from Geoscience Analyst."
+readme = "package.rst"
+requires-python = ">=3.10, <3.12"  # geoana does not support 3.12 yet
 license = "MIT"
-authors = ["Mira Geoscience <support@mirageoscience.com>"]
-maintainers = [
-    "Benjamin Kary <benjamink@mirageoscience.com>",
-    "Dominique Fournier <dominiquef@mirageoscience.com>",
+license-files = ["LICENSE"]
+authors = [
+    { name = "Mira Geoscience", email = "support@mirageoscience.com" }
 ]
+maintainers = [
+    { name = "Benjamin Kary", email = "benjamink@mirageoscience.com" },
+    { name = "Dominique Fournier", email = "dominiquef@mirageoscience.com"}
+]
+keywords = [] # TODO
+classifiers = [] # TODO
+dynamic = ["version", "dependencies"]
+
+[project.urls]
 repository = "https://github.com/MiraGeoscience/simpeg-drivers"
 documentation = "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/"
 homepage = "https://www.mirageoscience.com/mining-industry-software/python-integration/"
-readme = "package.rst"
 
+[tool.poetry]
 packages = [
      { include = "simpeg_drivers" },
      { include = "simpeg_drivers-assets" },
 ]
-
 include = [
     { path = "COPYING" },
     { path = "COPYING.LESSER" },
@@ -26,70 +34,72 @@ include = [
     { path = "THIRD_PARTY_SOFTWARE.rst" },
     { path = "docs/**/THIRD_PARTY_SOFTWARE.rst" },
 ]
+version = "0.0.0"
 
 [tool.poetry.dependencies]
-python = "^3.10, <3.12"  # geoana does not support 3.12 yet
 
 dask = {version = "2024.6.*", extras = ["distributed"]}  # also in simpeg[dask]
 discretize = "0.10.*"  # also in simpeg, octree-creation-app
-distributed = "2024.6.*"  # because conda-lock doesn't take dask extras into account
 numpy = "~1.26.0" # also in geoh5py, simpeg
 pydiso = "0.1.*"  # not imported, but required at runtime for simpeg
 scipy = "~1.14.0"
+tqdm = ">=4.66.1, <5.0.0"
 
 ## Pip dependencies from Git repositories
 #----------------------------------------
-#geoh5py = {version = ">=0.10.0rc1, <0.11.0a.dev", source = "pypi", allow-prereleases = true}
-geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "develop"}
+geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", branch = "develop"}
 
-#octree-creation-app = {version = ">=0.2.0rc1, <0.3.0a.dev", source = "pypi", allow-prereleases = true}
-octree-creation-app = {git = "https://github.com/MiraGeoscience/octree-creation-app.git", rev = "develop"}
+octree-creation-app = {git = "https://github.com/MiraGeoscience/octree-creation-app.git", branch = "develop"}
 
-#geoapps-utils = {version = ">=0.4.0rc1, <0.5.0a.dev", source = "pypi", allow-prereleases = true}
-geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "develop"}
+geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", branch = "develop"}
 
-#mira-simpeg = {version = ">=0.21.2.1rc1, <0.21.2.2a.dev", source="pypi", allow-prereleases = true, extras = ["dask"]}
-mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", rev = "develop", extras = ["dask"]}
+mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", branch = "develop", extras = ["dask"]}
 
-#param-sweeps = {version = ">=0.2.0rc1, <0.3.0a.dev", source = "pypi", allow-prereleases = true}
-param-sweeps = {git = "https://github.com/MiraGeoscience/param-sweeps.git", rev = "develop"}
+param-sweeps = {git = "https://github.com/MiraGeoscience/param-sweeps.git", branch = "develop"}
 
-## force some versions to resolve incompatible resolution between PyPI and Conda
-#-------------------------------------------------------------------------------
-pymatsolver = {version = "0.2.*", source = "pypi"}
+[tool.poetry-dynamic-versioning]
+enable = true
+vcs = "git"
+style = "pep440"
 
-## about pip dependencies
-# to be specified to work with conda-lock
-# - from PyPI: my_package = { version = "1.2.3", source = "pypi" }
-# - from Artifactory : my_package = { version = "1.2.3" }
-# - from URL: !!! no actual lock, as tag or branch can move and installation will fetch current !!!
-#   - for a tag:    my_package = { url = "https://github.com/ORGANISATION/REPO/archive/refs/tags/TAG.tar.gz" }
-#   - for a branch: my_package = { url = "https://github.com/ORGANISATION/REPO/archive/refs/heads/BRANCH.tar.gz" }
-# - to actually lock on a revision: my_package = { git = "https://github.com/ORGANISATION/REPO.git", rev = "GIT_REV" }
-#   (where rev value is a tag, a branch name or a commit hash). Can also use ``branch`` or ``tag`` instead of ``rev``
+[tool.poetry-dynamic-versioning.substitution]
+files = ["simpeg_drivers/_version.py", "recipe.yaml"]
+patterns = [
+    { value = '''(^__version__\s*(?::.*?)?=\s*['"])[^'"]*(['"])''', mode = "str" },
+    { value = '''(^\s*version\s*(?::.*?)?:\s*['"])[^'"]*(['"])''', mode = "str" },
+    { value = '''(^__version_tuple__\s*(?::.*?)?=\s*\()[^)]*(\))''', mode = "tuple" },
+]
 
-[tool.poetry.group.dev.dependencies]
-Pygments = "*"
-ipywidgets = "^7.6.5"
-jupyter-book = "*"
-jupytext = "^1.14"
-pylint = "*"
-pytest = "*"
-pytest-cov = "*"
-pyyaml = '*'
-jinja2 = '*'
-packaging = '*'
-readthedocs-sphinx-ext = "*"
-sphinx = "^5.0"
-tomli = "*"
-nbconvert = "~7.16.4"
+[tool.poetry-dynamic-versioning.files."simpeg_drivers/_version.py"]
+persistent-substitution = true
+initial-content = """
+  # These version placeholders will be replaced later during substitution.
+  __version__ = "0.0.0"
+  __version_tuple__ = (0, 0, 0)
+"""
 
-[tool.conda-lock]
-platforms = ['win-64', 'linux-64']
-channels = ['conda-forge']
+[tool.poetry-dynamic-versioning.files."recipe.yaml"]
+persistent-substitution = true
 
-[tool.conda-lock.dependencies]
-libblas = "*=*mkl"  # because simpeg already brings in the MKL
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
+build-backend = "poetry_dynamic_versioning.backend"
+
+[tool.pixi.project]
+channels = ["conda-forge"]
+platforms = ["win-64", "linux-64"]
+
+[tool.pixi.dependencies]
+## direct dependencies, forcing them here for installation through Conda not pip
+#------------------------------------------------------------------------------
+dask-core = "2024.6.*" # also in simpeg[dask]
+discretize = "0.10.*"  # also in simpeg, octree-creation-app
+numpy = ">=1.26.0, <1.27"
+pydiso = "0.1.*"  # not imported, but required at runtime for simpeg
+scipy = ">=1.14.0, <1.15.0"
+tqdm = ">=4.66.1, <5.0.0"
+
+libblas = { version = "*", build = "*mkl" } # because simpeg already brings in the MKL
 
 ## indirect dependencies, forcing them here for installation through Conda not pip
 #---------------------------------------------------------------------------------
@@ -99,19 +109,53 @@ fsspec = "2022.*"  # from simpeg[dask]
 geoana = ">=0.5.0, <0.6.0"  # from simpeg
 h5py = ">=3.2.1, <4.0.0"  # from geoh5py
 matplotlib-base = ">=3.8.4, <3.9.0"  # from simpeg
-mkl = "2023.2, <2024.1"  # from simpeg
+mkl = ">=2023.2, <2024.1"  # from simpeg
 pandas = ">=2.2.1, <2.3.0"  # from SimPEG, also used by targeting-workflow, petro-lingo
 pydantic = ">=2.5.2, <3.0.0"  # from geoh5py, geoapps-utils
-pydiso = ">=0.1.0, <0.2.0"  # from simpeg
 pymatsolver = ">=0.2.0, <0.3.0"  # from simpeg
 scikit-learn = ">=1.4.0, <1.5.0"  # from SimPEG, also used by geo-unsup-mapper, petro-lingo
-tqdm = ">=4.66.1, <5.0.0"  # from simpeg
 zarr = ">=2.14.2, <2.15.0"  # from simpeg[dask]
 
 # force some versions to resolve incompatible resolution between PyPI and Conda
 #------------------------------------------------------------------------------
 tbb = "2021.12.*"  # through mkl from SimPEG
 python-tzdata = "2023.4.*"  # through pandas from SimPEG
+
+[tool.pixi.pypi-options]
+index-url = "https://mirageoscienceltd.jfrog.io/artifactory/pypi/public-pypi-dev/simple"
+extra-index-urls = ["https://pypi.org/simple"]
+
+[tool.pixi.pypi-dependencies]
+simpeg-drivers = { path = ".", editable = true }
+
+[tool.pixi.environments]
+default = ["test", "build"]
+production = []
+
+[tool.pixi.feature.build]
+pypi-dependencies = { build = "*", twine = "*"}
+
+[tool.pixi.feature.test.pypi-dependencies]
+Pygments = "*"
+ipywidgets = ">=7.6.5,<8.0.0"
+jupyter-book = "*"
+jupytext = ">=1.14,<2.0"
+pylint = "*"
+pytest = "*"
+pytest-cov = "*"
+pyyaml = '*'
+jinja2 = '*'
+packaging = '*'
+readthedocs-sphinx-ext = "*"
+sphinx = ">=5.0,<6.0"
+tomli = "*"
+nbconvert = ">=7.16.4,<7.17.0"
+
+[tool.pixi.feature.test.tasks]
+test = "pytest --cov --cov-report=xml"
+
+[tool.poetry.requires-plugins]
+poetry-dynamic-versioning = { version = ">=1.0.0,<2.0.0", extras = ["plugin"] }
 
 [tool.ruff]
 target-version = "py310"
@@ -179,7 +223,3 @@ fail_under = 90
 [tool.coverage.html]
 skip_empty = true
 skip_covered = true
-
-[build-system]
-requires = ["poetry-core>=1.0.0", "setuptools"]
-build-backend = "poetry.core.masonry.api"
