@@ -37,6 +37,14 @@ include = [
 version = "0.0.0"
 
 [tool.poetry.dependencies]
+
+dask = {version = "2024.6.*", extras = ["distributed"]}  # also in simpeg[dask]
+discretize = "0.10.*"  # also in simpeg, octree-creation-app
+numpy = "~1.26.0" # also in geoh5py, simpeg
+pydiso = "0.1.*"  # not imported, but required at runtime for simpeg
+scipy = "~1.14.0"
+tqdm = ">=4.66.1, <5.0.0"
+
 ## Pip dependencies from Git repositories
 #----------------------------------------
 geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", branch = "develop"}
@@ -82,6 +90,15 @@ channels = ["conda-forge"]
 platforms = ["win-64", "linux-64"]
 
 [tool.pixi.dependencies]
+## direct dependencies, forcing them here for installation through Conda not pip
+#------------------------------------------------------------------------------
+dask-core = "2024.6.*" # also in simpeg[dask]
+discretize = "0.10.*"  # also in simpeg, octree-creation-app
+numpy = ">=1.26.0, <1.27"
+pydiso = "0.1.*"  # not imported, but required at runtime for simpeg
+scipy = ">=1.14.0, <1.15.0"
+tqdm = ">=4.66.1, <5.0.0"
+
 libblas = { version = "*", build = "*mkl" } # because simpeg already brings in the MKL
 
 ## indirect dependencies, forcing them here for installation through Conda not pip
@@ -97,7 +114,6 @@ pandas = ">=2.2.1, <2.3.0"  # from SimPEG, also used by targeting-workflow, petr
 pydantic = ">=2.5.2, <3.0.0"  # from geoh5py, geoapps-utils
 pymatsolver = ">=0.2.0, <0.3.0"  # from simpeg
 scikit-learn = ">=1.4.0, <1.5.0"  # from SimPEG, also used by geo-unsup-mapper, petro-lingo
-tqdm = ">=4.66.1, <5.0.0"  # from simpeg
 zarr = ">=2.14.2, <2.15.0"  # from simpeg[dask]
 
 # force some versions to resolve incompatible resolution between PyPI and Conda
@@ -110,8 +126,6 @@ index-url = "https://mirageoscienceltd.jfrog.io/artifactory/pypi/public-pypi-dev
 extra-index-urls = ["https://pypi.org/simple"]
 
 [tool.pixi.pypi-dependencies]
-## Package installation from src
-# ------------------------------
 simpeg-drivers = { path = ".", editable = true }
 
 [tool.pixi.environments]
