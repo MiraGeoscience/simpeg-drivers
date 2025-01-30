@@ -20,11 +20,12 @@ from geoh5py.objects import Octree
 from octree_creation_app.utils import treemesh_2_octree
 
 from simpeg_drivers.components import InversionMesh
-from simpeg_drivers.potential_fields import MagneticVectorParams
+from simpeg_drivers.params import ActiveCellsData
+from simpeg_drivers.potential_fields import MagneticVectorInversionParams
 from simpeg_drivers.utils.testing import Geoh5Tester, setup_inversion_workspace
 
 
-def setup_params(tmp_path):
+def get_mvi_params(tmp_path: Path) -> MagneticVectorInversionParams:
     geoh5, entity, model, survey, topography = setup_inversion_workspace(
         tmp_path,
         background=0.0,
@@ -36,7 +37,6 @@ def setup_params(tmp_path):
     )
 
     mesh = model.parent
-
     tmi_channel, gyz_channel = survey.add_data(
         {
             "tmi": {"values": np.random.rand(survey.n_vertices)},
@@ -47,18 +47,23 @@ def setup_params(tmp_path):
         {"elevation": {"values": topography.vertices[:, 2]}}
     )
     elevation = topography.children[0]
-    geotest = Geoh5Tester(geoh5, tmp_path, "test.geoh5", MagneticVectorParams)
-    geotest.set_param("mesh", str(mesh.uid))
-    geotest.set_param("data_object", str(survey.uid))
-    geotest.set_param("topography_object", str(topography.uid))
-    geotest.set_param("tmi_channel", str(tmi_channel.uid))
-    geotest.set_param("topography", str(elevation.uid))
-    return geotest.make()
+    params = MagneticVectorInversionParams(
+        geoh5=geoh5,
+        data_object=survey,
+        tmi_channel=tmi_channel,
+        active_cells=ActiveCellsData(
+            topography_object=topography, topography=elevation
+        ),
+        mesh=mesh,
+        starting_model=model,
+    )
+    return params
 
 
 def test_initialize(tmp_path: Path):
-    ws, params = setup_params(tmp_path)
-    inversion_mesh = InversionMesh(ws, params)
+    params = get_mvi_params(tmp_path)
+    geoh5 = params.geoh5
+    inversion_mesh = InversionMesh(geoh5, params)
     assert isinstance(inversion_mesh.mesh, TreeMesh)
 
 
@@ -192,7 +197,7 @@ def test_ensure_cell_convention(tmp_path):
 
 
 def test_raise_on_rotated_negative_cell_size(tmp_path):
-    ws, params = setup_params(tmp_path)
+    params = get_mvi_params(tmp_path)
     mesh = params.mesh
     mesh.rotation = 20.0
     mesh.w_cell_size *= -1

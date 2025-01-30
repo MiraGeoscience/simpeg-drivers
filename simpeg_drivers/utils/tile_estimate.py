@@ -122,6 +122,9 @@ class TileEstimator(BaseDriver):
         """
         Run the tile estimator.
         """
+        # TODO find out why this is needed. Without I get an error because the
+        # data_object is no longer the parent of tmi_channel.
+        _ = self.driver.inversion  # Triggers creation of something
         results = self.get_results()
 
         logger.info(
@@ -219,7 +222,7 @@ class TileEstimator(BaseDriver):
         out_group = self.params.simulation.copy(copy_children=False)
         self.driver.params.tile_spatial = optimal
         self.driver.params.out_group = out_group
-        out_group.options = self.driver.params.to_dict(ui_json_format=True)
+        out_group.options = self.driver.params.serialize()
         out_group.metadata = None
 
         if self.params.out_group is not None:

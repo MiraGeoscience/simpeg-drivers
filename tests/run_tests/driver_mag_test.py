@@ -50,12 +50,12 @@ def test_susceptibility_fwr_run(
         flatten=False,
     )
     inducing_field = (49999.8, 90.0, 0.0)
-    active = ActiveCellsData(topography_object=topography)
+    active_cells = ActiveCellsData(topography_object=topography)
     params = MagneticScalarForwardParams(
         forward_only=True,
         geoh5=geoh5,
         mesh=model.parent,
-        active=active,
+        active_cells=active_cells,
         inducing_field_strength=inducing_field[0],
         inducing_field_inclination=inducing_field[1],
         inducing_field_declination=inducing_field[2],
@@ -92,11 +92,11 @@ def test_susceptibility_run(
         inducing_field = (50000.0, 90.0, 0.0)
 
         # Run the inverse
-        active = ActiveCellsData(active_model=active_cells)
+        active_cells = ActiveCellsData(active_model=active_cells)
         params = MagneticScalarInversionParams(
             geoh5=geoh5,
             mesh=mesh,
-            active=active,
+            active_cells=active_cells,
             inducing_field_strength=inducing_field[0],
             inducing_field_inclination=inducing_field[1],
             inducing_field_declination=inducing_field[2],

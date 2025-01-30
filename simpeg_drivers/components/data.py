@@ -24,6 +24,7 @@ from re import findall
 
 import numpy as np
 from discretize import TreeMesh
+from geoh5py.shared.utils import fetch_active_workspace
 from scipy.spatial import cKDTree
 from simpeg import maps
 from simpeg.electromagnetics.static.utils.static_utils import geometric_factor

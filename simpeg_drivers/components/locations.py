@@ -167,12 +167,12 @@ class InversionLocations:
         if locs is None:
             return None
 
-        topo = self.get_locations(self.params.topography_object)
-        if self.params.topography is not None:
-            if isinstance(self.params.topography, Entity):
-                z = self.params.topography.values
+        topo = self.get_locations(self.params.active_cells.topography_object)
+        if self.params.active_cells.topography is not None:
+            if isinstance(self.params.active_cells.topography, Entity):
+                z = self.params.active_cells.topography.values
             else:
-                z = np.ones_like(topo[:, 2]) * self.params.topography
+                z = np.ones_like(topo[:, 2]) * self.params.active_cells.topography
 
             topo[:, 2] = z
 

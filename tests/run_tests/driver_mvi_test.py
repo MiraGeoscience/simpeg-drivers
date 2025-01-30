@@ -59,12 +59,12 @@ def test_magnetic_vector_fwr_run(
     survey = Curve.create(geoh5, name=points.name, vertices=points.vertices)
     geoh5.remove_entity(points)
     inducing_field = (50000.0, 90.0, 0.0)
-    active = ActiveCellsData(topography_object=topography)
+    active_cells = ActiveCellsData(topography_object=topography)
     params = MagneticVectorForwardParams(
         forward_only=True,
         geoh5=geoh5,
         mesh=model.parent,
-        active=active,
+        active_cells=active_cells,
         inducing_field_strength=inducing_field[0],
         inducing_field_inclination=inducing_field[1],
         inducing_field_declination=inducing_field[2],
@@ -100,11 +100,11 @@ def test_magnetic_vector_run(
         inducing_field = (50000.0, 90.0, 0.0)
 
         # Run the inverse
-        active = ActiveCellsData(topography_object=topography)
+        active_cells = ActiveCellsData(topography_object=topography)
         params = MagneticVectorInversionParams(
             geoh5=geoh5,
             mesh=mesh,
-            active=active,
+            active_cells=active_cells,
             inducing_field_strength=inducing_field[0],
             inducing_field_inclination=inducing_field[1],
             inducing_field_declination=inducing_field[2],

@@ -140,8 +140,9 @@ class CoreData(BaseData):
     @model_validator(mode="after")
     def update_out_group_options(self):
         assert self.out_group is not None
-        self.out_group.options = self.serialize()
-        self.out_group.metadata = None
+        with fetch_active_workspace(self.geoh5):
+            self.out_group.options = self.serialize()
+            self.out_group.metadata = None
         return self
 
     @property
