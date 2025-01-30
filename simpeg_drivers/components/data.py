@@ -47,10 +47,6 @@ class InversionData(InversionLocations):
     Parameters
     ---------
 
-    offset :
-        Static receivers location offsets.
-    radar :
-        Radar channel address used to drape receiver locations over topography.
     locations :
         Data locations.
     mask :
@@ -87,8 +83,6 @@ class InversionData(InversionLocations):
         :param: params: Params object containing location based data parameters.
         """
         super().__init__(workspace, params)
-        self.offset: list[float] | None = None
-        self.radar: np.ndarray | None = None
         self.locations: np.ndarray | None = None
         self.mask: np.ndarray | None = None
         self.indices: np.ndarray | None = None
@@ -113,7 +107,6 @@ class InversionData(InversionLocations):
         self.n_blocks = 3 if self.params.inversion_type == "magnetic vector" else 1
         self.components, self.observed, self.uncertainties = self.get_data()
         self.has_tensor = InversionData.check_tensor(self.components)
-        self.offset, self.radar = self.params.offset()
         self.locations = super().get_locations(self.params.data_object)
 
         if (
@@ -124,11 +117,7 @@ class InversionData(InversionLocations):
         else:
             self.mask = np.ones(len(self.locations), dtype=bool)
 
-        if self.radar is not None and any(np.isnan(self.radar)):
-            self.mask[np.isnan(self.radar)] = False
-
         self.observed = self.filter(self.observed)
-        self.radar = self.filter(self.radar)
         self.uncertainties = self.filter(self.uncertainties)
 
         self.normalizations = self.get_normalizations()
@@ -183,11 +172,10 @@ class InversionData(InversionLocations):
             associated uncertainties.
         """
 
-        components = self.params.components()
         data = {}
         uncertainties = {}
 
-        for comp in components:
+        for comp in self.params.components:
             data.update({comp: self.params.data(comp)})
             uncertainties.update({comp: self.params.uncertainty(comp)})
 
@@ -273,30 +261,8 @@ class InversionData(InversionLocations):
         """Apply all coordinate transformations to locations"""
         if self.params.z_from_topo:
             locations = super().set_z_from_topo(locations)
-        if self.offset is not None:
-            locations = self.displace(locations, self.offset)
-        if self.radar is not None:
-            locations = self.drape(locations, self.radar)
 
         return locations
-
-    def displace(self, locs: np.ndarray, offset: np.ndarray) -> np.ndarray:
-        """Offset data locations in all three dimensions."""
-        if locs is None:
-            return None
-        else:
-            return locs + offset if offset is not None else 0
-
-    def drape(self, locs: np.ndarray, radar_offset: np.ndarray) -> np.ndarray:
-        """Drape data locations using radar channel offsets."""
-
-        if locs is None:
-            return None
-
-        radar_offset_pad = np.zeros((len(radar_offset), 3))
-        radar_offset_pad[:, 2] = radar_offset
-
-        return self.displace(locs, radar_offset_pad)
 
     def normalize(
         self, data: dict[str, np.ndarray], absolute=False
@@ -493,10 +459,9 @@ class InversionData(InversionLocations):
         Update pointers to newly created object and data.
         """
 
-        components = self.params.components()
         self.params.data_object = self.entity
 
-        for comp in components:
+        for comp in self.params.components:
             if getattr(self.params, "_".join([comp, "channel"]), None) is None:
                 continue
 

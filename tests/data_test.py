@@ -120,29 +120,24 @@ def test_survey_data(tmp_path: Path):
         )
 
         mesh = treemesh_2_octree(workspace, mesh)
-        with pytest.warns(
-            DeprecationWarning,
-            match="The use of 'receiver_offset_z' will be deprecated in future release.",
-        ):
-            params = MagneticVectorParams(
-                forward_only=False,
-                geoh5=workspace,
-                data_object=test_data_object.uid,
-                topography_object=test_topo_object.uid,
-                topography=topo,
-                bxx_channel=bxx_data.uid,
-                bxx_uncertainty=0.1,
-                byy_channel=byy_data.uid,
-                byy_uncertainty=0.2,
-                bzz_channel=bzz_data.uid,
-                bzz_uncertainty=0.3,
-                mesh=mesh.uid,
-                starting_model=0.0,
-                tile_spatial=2,
-                z_from_topo=True,
-                receivers_offset_z=50.0,
-                resolution=0.0,
-            )
+        params = MagneticVectorParams(
+            forward_only=False,
+            geoh5=workspace,
+            data_object=test_data_object.uid,
+            topography_object=test_topo_object.uid,
+            topography=topo,
+            bxx_channel=bxx_data.uid,
+            bxx_uncertainty=0.1,
+            byy_channel=byy_data.uid,
+            byy_uncertainty=0.2,
+            bzz_channel=bzz_data.uid,
+            bzz_uncertainty=0.3,
+            mesh=mesh.uid,
+            starting_model=0.0,
+            tile_spatial=2,
+            z_from_topo=True,
+            resolution=0.0,
+        )
 
         driver = MagneticVectorDriver(params)
 
@@ -159,10 +154,8 @@ def test_survey_data(tmp_path: Path):
     np.testing.assert_array_equal(
         verts[driver.sorting[1], :2], local_survey_b.receiver_locations[:, :2]
     )
-    assert all(
-        local_survey_a.receiver_locations[:, 2] == 150.0
-    )  # 150 = 100 (z_from_topo) + 50 (receivers_offset_z)
-    assert all(local_survey_b.receiver_locations[:, 2] == 150.0)
+    assert all(local_survey_a.receiver_locations[:, 2] == 100.0)
+    assert all(local_survey_b.receiver_locations[:, 2] == 100.0)
 
     # test observed data
     sorting = np.hstack(driver.sorting)
@@ -229,55 +222,6 @@ def test_get_uncertainty_component(tmp_path: Path):
     assert len(np.unique(unc)) == 1
     assert np.unique(unc)[0] == 1
     assert len(unc) == data.entity.n_vertices
-
-
-def test_displace(tmp_path: Path):
-    ws, params = setup_params(tmp_path)
-    locs = params.data_object.vertices
-    params.update(
-        {
-            "window_center_x": np.mean(locs[:, 0]),
-            "window_center_y": np.mean(locs[:, 1]),
-            "window_width": 100.0,
-            "window_height": 100.0,
-        }
-    )
-    data = InversionData(ws, params)
-    test_locs = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]])
-    test_offset = np.array([[1.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
-    expected_locs = np.array([[2.0, 2.0, 3.0], [5.0, 5.0, 6.0], [8.0, 8.0, 9.0]])
-    displaced_locs = data.displace(test_locs, test_offset)
-    assert np.all(displaced_locs == expected_locs)
-
-    test_offset = np.array([[0.0, 1.0, 0.0], [0.0, 1.0, 0.0], [0.0, 1.0, 0.0]])
-    expected_locs = np.array([[1.0, 3.0, 3.0], [4.0, 6.0, 6.0], [7.0, 9.0, 9.0]])
-    displaced_locs = data.displace(test_locs, test_offset)
-    assert np.all(displaced_locs == expected_locs)
-
-    test_offset = np.array([[0.0, 0.0, 1.0], [0.0, 0.0, 1.0], [0.0, 0.0, 1.0]])
-    expected_locs = np.array([[1.0, 2.0, 4.0], [4.0, 5.0, 7.0], [7.0, 8.0, 10.0]])
-    displaced_locs = data.displace(test_locs, test_offset)
-    assert np.all(displaced_locs == expected_locs)
-
-
-def test_drape(tmp_path: Path):
-    ws, params = setup_params(tmp_path)
-    locs = params.data_object.vertices
-    params.update(
-        {
-            "window_center_x": np.mean(locs[:, 0]),
-            "window_center_y": np.mean(locs[:, 1]),
-            "window_width": 100.0,
-            "window_height": 100.0,
-        }
-    )
-    data = InversionData(ws, params)
-    test_locs = np.array([[1.0, 2.0, 1.0], [2.0, 1.0, 1.0], [8.0, 9.0, 1.0]])
-    radar_ch = np.array([1.0, 2.0, 3.0])
-    expected_locs = np.array([[1.0, 2.0, 2.0], [2.0, 1.0, 3.0], [8.0, 9.0, 4.0]])
-    draped_locs = data.drape(test_locs, radar_ch)
-
-    assert np.all(draped_locs == expected_locs)
 
 
 def test_normalize(tmp_path: Path):

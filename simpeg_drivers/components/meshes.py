@@ -119,7 +119,7 @@ class InversionMesh:
 
         params = auto_mesh_parameters(
             self.params.data_object,
-            self.params.topography_object,
+            self.params.active_cells.topography_object,
             inversion_type=self.params.inversion_type,
         )
         driver = OctreeDriver(params)
