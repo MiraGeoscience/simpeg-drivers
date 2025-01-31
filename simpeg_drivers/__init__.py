@@ -97,10 +97,16 @@ DRIVER_MAP = {
     ),
     "magnetic scalar": (
         "simpeg_drivers.potential_fields.magnetic_scalar.driver",
-        {"inversion": "MagneticScalarDriver"},
+        {
+            "forward": "MagneticScalarForwardDriver",
+            "inversion": "MagneticScalarInversionDriver",
+        },
     ),
     "magnetic vector": (
         "simpeg_drivers.potential_fields.magnetic_vector.driver",
-        {"inversion": "MagneticVectorDriver"},
+        {
+            "forward": "MagneticScalarForwardDriver",
+            "inversion": "MagneticVectorInversionDriver",
+        },
     ),
 }

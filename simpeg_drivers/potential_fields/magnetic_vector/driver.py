@@ -16,15 +16,17 @@ from simpeg import maps
 from simpeg_drivers.driver import InversionDriver
 
 from .constants import validations
-from .params import MagneticVectorParams
+from .params import MagneticVectorForwardParams, MagneticVectorInversionParams
 
 
-class MagneticVectorDriver(InversionDriver):
-    _params_class = MagneticVectorParams
+class MagneticVectorForwardDriver(InversionDriver):
+    _params_class = MagneticVectorForwardParams
     _validations = validations
 
-    def __init__(self, params: MagneticVectorParams):
-        super().__init__(params)
+
+class MagneticVectorInversionDriver(InversionDriver):
+    _params_class = MagneticVectorInversionParams
+    _validations = validations
 
     @property
     def mapping(self) -> list[maps.Projection] | None:

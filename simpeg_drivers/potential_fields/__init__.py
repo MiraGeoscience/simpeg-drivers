@@ -10,8 +10,14 @@
 
 
 from .gravity.params import GravityForwardParams, GravityInversionParams
-from .magnetic_scalar.params import MagneticScalarParams
-from .magnetic_vector.params import MagneticVectorParams
+from .magnetic_scalar.params import (
+    MagneticScalarForwardParams,
+    MagneticScalarInversionParams,
+)
+from .magnetic_vector.params import (
+    MagneticVectorForwardParams,
+    MagneticVectorInversionParams,
+)
 
 # pylint: disable=unused-import
 # flake8: noqa
