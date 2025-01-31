@@ -11,75 +11,56 @@
 
 from __future__ import annotations
 
-from copy import deepcopy
+from pathlib import Path
+from typing import ClassVar
 
-from simpeg_drivers.params import InversionBaseParams
+from geoh5py.data import FloatData
 
-from .constants import (
-    default_ui_json,
-    forward_defaults,
-    inversion_defaults,
-    validations,
-)
+from simpeg_drivers import assets_path
+from simpeg_drivers.params import BaseForwardData, BaseInversionData
 
 
-class DirectCurrent3DParams(InversionBaseParams):
+class DirectCurrent3DForwardParams(BaseForwardData):
     """
-    Parameter class for electrical->conductivity inversion.
+    Direct current 3D forward parameters.
+
+    :param potential_channel_bool: Potential channel boolean.
+    :param model_type: Specify whether the models are provided in
+        resistivity or conductivity.
     """
 
-    _physical_property = "conductivity"
+    name: ClassVar[str] = "Direct Current 3D Forward"
+    title: ClassVar[str] = "Direct Current 3D Forward"
+    default_ui_json: ClassVar[Path] = (
+        assets_path() / "uijson/direct_current_3d_forward.ui.json"
+    )
 
-    def __init__(self, input_file=None, forward_only=False, **kwargs):
-        self._default_ui_json = deepcopy(default_ui_json)
-        self._forward_defaults = deepcopy(forward_defaults)
-        self._inversion_defaults = deepcopy(inversion_defaults)
-        self._inversion_type = "direct current 3d"
-        self._validations = validations
-        self._potential_channel_bool = None
-        self._potential_channel = None
-        self._potential_uncertainty = None
-        self._model_type = "Conductivity (S/m)"
+    inversion_type: str = "direct current 3d"
+    physical_property: str = "conductivity"
 
-        super().__init__(input_file=input_file, forward_only=forward_only, **kwargs)
+    potential_channel_bool: bool = True
+    model_type: str = "Conductivity (S/m)"
 
-    @property
-    def inversion_type(self):
-        return self._inversion_type
 
-    @inversion_type.setter
-    def inversion_type(self, val):
-        self.setter_validator("inversion_type", val)
+class DirectCurrent3DInversionParams(BaseInversionData):
+    """
+    Direct current 3D inversion parameters.
 
-    @property
-    def model_type(self):
-        """Model units."""
-        return self._model_type
+    :param potential_channel: Potential data channel.
+    :param potential_uncertainty: Potential data uncertainty channel.
+    :param model_type: Specify whether the models are provided in
+        resistivity or conductivity.
+    """
 
-    @model_type.setter
-    def model_type(self, val):
-        self.setter_validator("model_type", val)
+    name: ClassVar[str] = "Direct Current 3D Inversion"
+    title: ClassVar[str] = "Direct Current 3D Inversion"
+    default_ui_json: ClassVar[Path] = (
+        assets_path() / "uijson/direct_current_3d_inversion.ui.json"
+    )
 
-    @property
-    def potential_channel_bool(self):
-        return self._potential_channel_bool
+    inversion_type: str = "direct current 3d"
+    physical_property: str = "conductivity"
 
-    @potential_channel_bool.setter
-    def potential_channel_bool(self, val):
-        self.setter_validator("potential_channel_bool", val)
-
-    @property
-    def potential_channel(self):
-        return self._potential_channel
-
-    @potential_channel.setter
-    def potential_channel(self, val):
-        self.setter_validator("potential_channel", val, fun=self._uuid_promoter)
-
-    @property
-    def potential_uncertainty(self):
-        return self._potential_uncertainty
-
-    @potential_uncertainty.setter
-    def potential_uncertainty(self, val):
-        self.setter_validator("potential_uncertainty", val, fun=self._uuid_promoter)
+    potential_channel: FloatData
+    potential_uncertainty: float | FloatData | None = None
+    model_type: str = "Conductivity (S/m)"

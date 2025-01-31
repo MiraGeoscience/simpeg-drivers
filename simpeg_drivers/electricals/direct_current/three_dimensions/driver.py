@@ -14,12 +14,14 @@ from __future__ import annotations
 from simpeg_drivers.driver import InversionDriver
 
 from .constants import validations
-from .params import DirectCurrent3DParams
+from .params import DirectCurrent3DForwardParams, DirectCurrent3DInversionParams
 
 
-class DirectCurrent3DDriver(InversionDriver):
-    _params_class = DirectCurrent3DParams
-    _validations = validations
+class DirectCurrent3DForwardDriver(InversionDriver):
+    _params_class = DirectCurrent3DForwardParams
+    _validation = validations
 
-    def __init__(self, params: DirectCurrent3DParams):
-        super().__init__(params)
+
+class DirectCurrent3DInversionDriver(InversionDriver):
+    _params_class = DirectCurrent3DInversionParams
+    _validation = validations

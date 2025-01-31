@@ -11,10 +11,6 @@
 
 from __future__ import annotations
 
-from geoapps_utils.driver.data import BaseData
-from geoh5py.ui_json import InputFile
-
-from simpeg_drivers import DRIVER_MAP
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.potential_fields.gravity.constants import validations
 from simpeg_drivers.potential_fields.gravity.params import (

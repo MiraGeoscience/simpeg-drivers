@@ -45,7 +45,10 @@ def assets_path() -> Path:
 DRIVER_MAP = {
     "direct current 3d": (
         "simpeg_drivers.electricals.direct_current.three_dimensions.driver",
-        {"inversion": "DirectCurrent3DDriver"},
+        {
+            "forward": "DirectCurrent3DForwardDriver",
+            "inversion": "DirectCurrent3DInversionDriver",
+        },
     ),
     "direct current 2d": (
         "simpeg_drivers.electricals.direct_current.two_dimensions.driver",
