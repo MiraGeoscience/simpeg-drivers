@@ -128,6 +128,9 @@ class CoreData(BaseData):
     def out_group_if_none(cls, data) -> SimPEGGroup:
         group = data.get("out_group", None)
 
+        if isinstance(group, SimPEGGroup):
+            return data
+
         if isinstance(group, UIJsonGroup | type(None)):
             name = cls.title if group is None else group.name
             with fetch_active_workspace(data["geoh5"], mode="r+") as geoh5:

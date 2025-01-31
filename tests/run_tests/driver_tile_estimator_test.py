@@ -62,7 +62,7 @@ def test_tile_estimator_run(
     tile_params = TileParameters(geoh5=geoh5, simulation=driver.out_group)
     estimator = TileEstimator(tile_params)
 
-    # assert len(estimator.get_results(max_tiles=32)) == 8
+    assert len(estimator.get_results(max_tiles=32)) == 8
 
     simpeg_group = estimator.run()
 
