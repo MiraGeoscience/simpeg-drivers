@@ -119,6 +119,6 @@ class MagneticScalarInversionParams(BaseInversionData):
     byy_uncertainty: float | FloatData | None = None
     byz_uncertainty: float | FloatData | None = None
     bzz_uncertainty: float | FloatData | None = None
-    inducing_field_strength: float | FloatData = 50000.0
-    inducing_field_inclination: float | FloatData = 90.0
-    inducing_field_declination: float | FloatData = 0.0
+    inducing_field_strength: float | FloatData
+    inducing_field_inclination: float | FloatData
+    inducing_field_declination: float | FloatData
