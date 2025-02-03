@@ -193,6 +193,9 @@ class SurveyFactory(SimPEGFactory):
         return local_data, local_uncertainties
 
     def _add_data(self, survey, data, local_index, channel):
+        if isinstance(local_index, list):
+            local_index = np.hstack(local_index)
+
         if self.factory_type in ["fem", "tdem"]:
             dobs = []
             uncerts = []
@@ -312,8 +315,6 @@ class SurveyFactory(SimPEGFactory):
 
             sources.append(source)
             self.local_index.append(receiver_indices)
-
-        self.local_index = np.hstack(self.local_index)
 
         return [sources]
 

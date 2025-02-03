@@ -388,7 +388,7 @@ class InversionData(InversionLocations):
 
         if "direct current" in self.params.inversion_type:
             survey.apparent_resistivity = 1 / (
-                geometric_factor(survey)[np.argsort(local_index)] + 1e-10
+                geometric_factor(survey)[np.argsort(np.hstack(local_index))] + 1e-10
             )
 
         return survey, local_index, ordering

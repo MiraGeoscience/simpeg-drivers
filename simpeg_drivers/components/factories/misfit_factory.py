@@ -205,13 +205,17 @@ class MisfitFactory(SimPEGFactory):
             tile_id=tile_id,
             padding_cells=padding_cells,
         )
-        if inversion_data.params.inversion_type in ["fem", "tdem"]:
-            compute_projections(inversion_data, local_sim)
+        inv_type = inversion_data.params.inversion_type
+        if inv_type in ["fem", "tdem"]:
+            compute_em_projections(inversion_data, local_sim)
+        elif ("current" in inv_type or "polarization" in inv_type) and (
+            "2d" not in inv_type or "pseudo" in inv_type
+        ):
+            compute_dc_projections(inversion_data, local_sim, indices)
+        return local_sim, np.hstack(indices), ordering, mapping
 
-        return local_sim, indices, ordering, mapping
 
-
-def compute_projections(inversion_data, simulation):
+def compute_em_projections(inversion_data, simulation):
     """
     Pre-compute projections for the receivers for efficiency.
     """
@@ -230,3 +234,19 @@ def compute_projections(inversion_data, simulation):
                     continue
                 proj += ori * projections[comp][receiver.local_index, :]
             receiver.spatialP = proj
+
+
+def compute_dc_projections(inversion_data, simulation, indices):
+    """
+    Pre-compute projections for the receivers for efficiency.
+    """
+    rx_locs = inversion_data.entity.vertices
+    mn_pairs = inversion_data.entity.cells
+    projection = simulation.mesh.get_interpolation_matrix(rx_locs, "nodes")
+
+    for source, ind in zip(simulation.survey.source_list, indices, strict=False):
+        proj_mn = projection[mn_pairs[ind, 0], :]
+
+        if not np.all(mn_pairs[ind, 0] == mn_pairs[ind, 1]):
+            proj_mn -= projection[mn_pairs[ind, 1], :]
+        source.receiver_list[0]._Ps[simulation.mesh.n_cells] = proj_mn  # pylint: disable=protected-access
