@@ -18,12 +18,19 @@ from simpeg_drivers.electricals.direct_current.pseudo_three_dimensions.params im
     DirectCurrentPseudo3DParams,
 )
 from simpeg_drivers.electricals.direct_current.two_dimensions.params import (
-    DirectCurrent2DParams,
+    DirectCurrent2DForwardParams,
+    DirectCurrent2DInversionParams,
 )
 from simpeg_drivers.electricals.driver import BasePseudo3DDriver
 
 
+class DirectCurrentPseudo3DForwardDriver(BasePseudo3DDriver):
+    _params_class = DirectCurrentPseudo3DParams
+    _params_2d_class = DirectCurrent2DForwardParams
+    _validations = validations
+
+
 class DirectCurrentPseudo3DDriver(BasePseudo3DDriver):
     _params_class = DirectCurrentPseudo3DParams
-    _params_2d_class = DirectCurrent2DParams
+    _params_2d_class = DirectCurrent2DInversionParams
     _validations = validations
