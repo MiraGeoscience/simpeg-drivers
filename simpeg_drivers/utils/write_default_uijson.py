@@ -17,20 +17,8 @@ from pathlib import Path
 from simpeg_drivers.electricals.direct_current.pseudo_three_dimensions.params import (
     DirectCurrentPseudo3DParams,
 )
-from simpeg_drivers.electricals.direct_current.three_dimensions import (
-    DirectCurrent3DParams,
-)
-from simpeg_drivers.electricals.direct_current.two_dimensions import (
-    DirectCurrent2DParams,
-)
 from simpeg_drivers.electricals.induced_polarization.pseudo_three_dimensions.params import (
     InducedPolarizationPseudo3DParams,
-)
-from simpeg_drivers.electricals.induced_polarization.three_dimensions import (
-    InducedPolarization3DParams,
-)
-from simpeg_drivers.electricals.induced_polarization.two_dimensions import (
-    InducedPolarization2DParams,
 )
 from simpeg_drivers.electromagnetics.frequency_domain import (
     FrequencyDomainElectromagneticsParams,
@@ -64,30 +52,10 @@ active_data_channels = [
 
 def write_default_uijson(path: str | Path):
     filedict = {
-        "direct_current_inversion_2d.ui.json": DirectCurrent2DParams(validate=False),
-        "direct_current_forward_2d.ui.json": DirectCurrent2DParams(
-            forward_only=True, validate=False
-        ),
-        "direct_current_inversion_3d.ui.json": DirectCurrent3DParams(validate=False),
-        "direct_current_forward_3d.ui.json": DirectCurrent3DParams(
-            forward_only=True, validate=False
-        ),
         "direct_current_inversion_pseudo3d.ui.json": DirectCurrentPseudo3DParams(
             validate=False
         ),
         "direct_current_forward_pseudo3d.ui.json": DirectCurrentPseudo3DParams(
-            forward_only=True, validate=False
-        ),
-        "induced_polarization_inversion_2d.ui.json": InducedPolarization2DParams(
-            validate=False
-        ),
-        "induced_polarization_forward_2d.ui.json": InducedPolarization2DParams(
-            forward_only=True, validate=False
-        ),
-        "induced_polarization_inversion_3d.ui.json": InducedPolarization3DParams(
-            validate=False
-        ),
-        "induced_polarization_forward_3d.ui.json": InducedPolarization3DParams(
             forward_only=True, validate=False
         ),
         "induced_polarization_inversion_pseudo3d.ui.json": InducedPolarizationPseudo3DParams(

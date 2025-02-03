@@ -59,13 +59,13 @@ class Base2DDriver(InversionDriver):
                 "Models",
                 receiver_locs,
                 [
-                    self.params.u_cell_size,
-                    self.params.v_cell_size,
+                    self.params.drape_model.u_cell_size,
+                    self.params.drape_model.v_cell_size,
                 ],
-                self.params.depth_core,
-                [self.params.horizontal_padding] * 2
-                + [self.params.vertical_padding, 1],
-                self.params.expansion_factor,
+                self.params.drape_model.depth_core,
+                [self.params.drape_model.horizontal_padding] * 2
+                + [self.params.drape_model.vertical_padding, 1],
+                self.params.drape_model.expansion_factor,
             )[0]
 
         return mesh

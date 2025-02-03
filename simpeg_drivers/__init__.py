@@ -52,7 +52,10 @@ DRIVER_MAP = {
     ),
     "direct current 2d": (
         "simpeg_drivers.electricals.direct_current.two_dimensions.driver",
-        {"inversion": "DirectCurrent2DDriver"},
+        {
+            "forward": "DirectCurrent2DForwardDriver",
+            "inversion": "DirectCurrent2DInversionDriver",
+        },
     ),
     "direct current pseudo 3d": (
         "simpeg_drivers.electricals.direct_current.pseudo_three_dimensions.driver",

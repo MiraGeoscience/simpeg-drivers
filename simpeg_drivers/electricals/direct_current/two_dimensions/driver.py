@@ -14,12 +14,14 @@ from __future__ import annotations
 from simpeg_drivers.electricals.driver import Base2DDriver
 
 from .constants import validations
-from .params import DirectCurrent2DParams
+from .params import DirectCurrent2DForwardParams, DirectCurrent2DInversionParams
 
 
-class DirectCurrent2DDriver(Base2DDriver):
-    _params_class = DirectCurrent2DParams
+class DirectCurrent2DForwardDriver(Base2DDriver):
+    _params_class = DirectCurrent2DForwardParams
     _validations = validations
 
-    def __init__(self, params: DirectCurrent2DParams):
-        super().__init__(params)
+
+class DirectCurrent2DInversionDriver(Base2DDriver):
+    _params_class = DirectCurrent2DInversionParams
+    _validations = validations

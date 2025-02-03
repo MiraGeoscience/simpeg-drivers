@@ -12,7 +12,7 @@
 from __future__ import annotations
 
 import numpy as np
-from geoh5py.data import Data, DataAssociationEnum
+from geoh5py.data import Data, DataAssociationEnum, ReferencedData
 
 from simpeg_drivers.params import InversionBaseParams
 from simpeg_drivers.utils.utils import get_drape_model
