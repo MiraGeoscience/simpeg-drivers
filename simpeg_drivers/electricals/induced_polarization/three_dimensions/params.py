@@ -11,84 +11,55 @@
 
 from __future__ import annotations
 
-from copy import deepcopy
+from pathlib import Path
+from typing import ClassVar
 
-from simpeg_drivers.params import InversionBaseParams
+from geoh5py.data import FloatData
 
-from .constants import (
-    default_ui_json,
-    forward_defaults,
-    inversion_defaults,
-    validations,
-)
+from simpeg_drivers import assets_path
+from simpeg_drivers.params import BaseForwardData, BaseInversionData
 
 
-class InducedPolarization3DParams(InversionBaseParams):
+class InducedPolarization3DForwardParams(BaseForwardData):
     """
-    Parameter class for electrical-induced polarization (IP) inversion.
+    Induced polarization 3D forward parameters.
+
+    :param chargeability_channel_bool: Chargeability channel boolean.
+    :param conductivity_model: Conductivity model.
     """
 
-    _physical_property = "chargeability"
+    name: ClassVar[str] = "Induced Polarization 3D Forward"
+    title: ClassVar[str] = "Induced Polarization 3D Forward"
+    default_ui_json: ClassVar[Path] = (
+        assets_path() / "uijson/induced_polarization_3d_forward.ui.json"
+    )
 
-    def __init__(self, input_file=None, forward_only=False, **kwargs):
-        self._default_ui_json = deepcopy(default_ui_json)
-        self._forward_defaults = deepcopy(forward_defaults)
-        self._inversion_defaults = deepcopy(inversion_defaults)
-        self._inversion_type = "induced polarization 3d"
-        self._validations = validations
-        self._chargeability_channel_bool = None
-        self._chargeability_channel = None
-        self._chargeability_uncertainty = None
-        self._conductivity_model = None
-        self._model_type = "Conductivity (S/m)"
+    inversion_type: str = "induced polarization 3d"
+    physical_property: str = "chargeability"
 
-        super().__init__(input_file=input_file, forward_only=forward_only, **kwargs)
+    chargeability_channel_bool: bool = True
+    conductivity_model: float | FloatData
 
-    @property
-    def inversion_type(self):
-        return self._inversion_type
 
-    @inversion_type.setter
-    def inversion_type(self, val):
-        self.setter_validator("inversion_type", val)
+class InducedPolarization3DInversionParams(BaseInversionData):
+    """
+    Induced polarization 3D inversion parameters.
 
-    @property
-    def chargeability_channel_bool(self):
-        return self._chargeability_channel_bool
+    :param chargeability_channel: Chargeability data channel.
+    :param chargeability_uncertainty: Chargeability data uncertainty channel.
+    :param conductivity_model: Conductivity model.
+    """
 
-    @chargeability_channel_bool.setter
-    def chargeability_channel_bool(self, val):
-        self.setter_validator("chargeability_channel_bool", val)
+    name: ClassVar[str] = "Induced Polarization 3D Inversion"
+    title: ClassVar[str] = "Induced Polarization 3D Inversion"
+    default_ui_json: ClassVar[Path] = (
+        assets_path() / "uijson/induced_polarization_3d_inversion.ui.json"
+    )
 
-    @property
-    def chargeability_channel(self):
-        return self._chargeability_channel
+    inversion_type: str = "induced polarization 3d"
+    physical_property: str = "chargeability"
 
-    @chargeability_channel.setter
-    def chargeability_channel(self, val):
-        self.setter_validator("chargeability_channel", val, fun=self._uuid_promoter)
-
-    @property
-    def chargeability_uncertainty(self):
-        return self._chargeability_uncertainty
-
-    @chargeability_uncertainty.setter
-    def chargeability_uncertainty(self, val):
-        self.setter_validator("chargeability_uncertainty", val, fun=self._uuid_promoter)
-
-    @property
-    def conductivity_model(self):
-        return self._conductivity_model
-
-    @conductivity_model.setter
-    def conductivity_model(self, val):
-        self.setter_validator("conductivity_model", val, fun=self._uuid_promoter)
-
-    @property
-    def model_type(self):
-        """Model units."""
-        return self._model_type
-
-    @model_type.setter
-    def model_type(self, val):
-        self.setter_validator("model_type", val)
+    chargeability_channel: FloatData
+    chargeability_uncertainty: float | FloatData | None = None
+    conductivity_model: float | FloatData
+    lower_bound: float | FloatData | None = 0.0

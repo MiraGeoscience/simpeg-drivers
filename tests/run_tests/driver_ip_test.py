@@ -15,11 +15,14 @@ from pathlib import Path
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.electricals.induced_polarization.three_dimensions import (
-    InducedPolarization3DParams,
+    InducedPolarization3DForwardParams,
+    InducedPolarization3DInversionParams,
 )
 from simpeg_drivers.electricals.induced_polarization.three_dimensions.driver import (
-    InducedPolarization3DDriver,
+    InducedPolarization3DForwardDriver,
+    InducedPolarization3DInversionDriver,
 )
+from simpeg_drivers.params import ActiveCellsData
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
@@ -48,18 +51,17 @@ def test_ip_3d_fwr_run(
         inversion_type="dcip",
         flatten=False,
     )
-    params = InducedPolarization3DParams(
-        forward_only=True,
+    params = InducedPolarization3DForwardParams(
         geoh5=geoh5,
-        mesh=model.parent.uid,
-        topography_object=topography.uid,
+        mesh=model.parent,
+        active_cells=ActiveCellsData(topography_object=topography),
         z_from_topo=True,
-        data_object=survey.uid,
-        starting_model=model.uid,
+        data_object=survey,
+        starting_model=model,
         conductivity_model=1e-2,
     )
-    params.workpath = tmp_path
-    fwr_driver = InducedPolarization3DDriver(params)
+
+    fwr_driver = InducedPolarization3DForwardDriver(params)
     fwr_driver.run()
 
 
@@ -79,11 +81,11 @@ def test_ip_3d_run(
         topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
-        params = InducedPolarization3DParams(
+        params = InducedPolarization3DInversionParams(
             geoh5=geoh5,
-            mesh=mesh.uid,
-            topography_object=topography.uid,
-            data_object=potential.parent.uid,
+            mesh=mesh,
+            active_cells=ActiveCellsData(topography_object=topography),
+            data_object=potential.parent,
             conductivity_model=1e-2,
             reference_model=1e-6,
             starting_model=1e-6,
@@ -92,9 +94,8 @@ def test_ip_3d_run(
             y_norm=0.0,
             z_norm=0.0,
             gradient_type="components",
-            chargeability_channel_bool=True,
             z_from_topo=False,
-            chargeability_channel=potential.uid,
+            chargeability_channel=potential,
             chargeability_uncertainty=2e-4,
             max_global_iterations=max_iterations,
             initial_beta=None,
@@ -105,8 +106,11 @@ def test_ip_3d_run(
             store_sensitivities="ram",
             coolingRate=1,
         )
-        params.write_input_file(path=tmp_path, name="Inv_run")
-    driver = InducedPolarization3DDriver.start(str(tmp_path / "Inv_run.ui.json"))
+        params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
+
+    driver = InducedPolarization3DInversionDriver.start(
+        str(tmp_path / "Inv_run.ui.json")
+    )
 
     output = get_inversion_output(
         driver.params.geoh5.h5file, driver.params.out_group.uid

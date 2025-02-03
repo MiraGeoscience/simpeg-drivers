@@ -63,7 +63,10 @@ DRIVER_MAP = {
     ),
     "induced polarization 3d": (
         "simpeg_drivers.electricals.induced_polarization.three_dimensions.driver",
-        {"inversion": "InducedPolarization3DDriver"},
+        {
+            "forward": "InducedPolarization3DForwardDriver",
+            "inversion": "InducedPolarization3DInversionDriver",
+        },
     ),
     "induced polarization 2d": (
         "simpeg_drivers.electricals.induced_polarization.two_dimensions.driver",

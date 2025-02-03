@@ -109,7 +109,6 @@ def test_dc_3d_run(
             y_norm=1.0,
             z_norm=1.0,
             gradient_type="components",
-            potential_channel_bool=True,
             z_from_topo=False,
             potential_channel=potential,
             potential_uncertainty=1e-3,
