@@ -28,11 +28,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {
-    "data_norm": 2.81018e-10,
-    "phi_d": 15400,
-    "phi_m": 718.9,
-}
+target_run = {"data_norm": 7.05481e-08, "phi_d": 198200000, "phi_m": 7806}
 
 
 def test_bad_waveform(tmp_path: Path):
@@ -76,6 +72,7 @@ def test_airborne_tem_fwr_run(
     tmp_path: Path,
     n_grid_points=3,
     refinement=(2,),
+    cell_size=(20.0, 20.0, 20.0),
 ):
     # Run the forward
     geoh5, _, model, survey, topography = setup_inversion_workspace(
@@ -84,6 +81,7 @@ def test_airborne_tem_fwr_run(
         anomaly=1.0,
         n_electrodes=n_grid_points,
         n_lines=n_grid_points,
+        cell_size=cell_size,
         refinement=refinement,
         inversion_type="airborne_tem",
         drape_height=10.0,
@@ -200,7 +198,7 @@ def test_airborne_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         )
         output["data"] = orig_dBzdt
         if pytest:
-            check_target(output, target_run, tolerance=0.5)
+            check_target(output, target_run, tolerance=0.1)
             nan_ind = np.isnan(run_ws.get_entity("Iteration_0_model")[0].values)
             inactive_ind = run_ws.get_entity("active_cells")[0].values == 0
             assert np.all(nan_ind == inactive_ind)
@@ -208,7 +206,9 @@ def test_airborne_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
 
 if __name__ == "__main__":
     # Full run
-    test_airborne_tem_fwr_run(Path("./"), n_grid_points=5, refinement=(0, 0, 4))
+    test_airborne_tem_fwr_run(
+        Path("./"), n_grid_points=5, cell_size=(5.0, 5.0, 5.0), refinement=(0, 0, 4)
+    )
     test_airborne_tem_run(
         Path("./"),
         max_iterations=15,

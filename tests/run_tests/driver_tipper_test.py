@@ -25,13 +25,14 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.0055932, "phi_d": 7.346, "phi_m": 472.2}
+target_run = {"data_norm": 0.006549595043425509, "phi_d": 221.4, "phi_m": 270.5}
 
 
 def test_tipper_fwr_run(
     tmp_path: Path,
     n_grid_points=2,
     refinement=(2,),
+    cell_size=(20.0, 20.0, 20.0),
 ):
     # Run the forward
     geoh5, _, model, survey, topography = setup_inversion_workspace(
@@ -41,6 +42,7 @@ def test_tipper_fwr_run(
         n_electrodes=n_grid_points,
         n_lines=n_grid_points,
         refinement=refinement,
+        cell_size=cell_size,
         inversion_type="tipper",
         drape_height=15.0,
         flatten=False,
@@ -162,7 +164,7 @@ def test_tipper_run(tmp_path: Path, max_iterations=1, pytest=True):
         )
         output["data"] = orig_tyz_real_1
         if pytest:
-            check_target(output, target_run, tolerance=0.5)
+            check_target(output, target_run, tolerance=0.1)
             nan_ind = np.isnan(run_ws.get_entity("Iteration_0_model")[0].values)
             inactive_ind = run_ws.get_entity("active_cells")[0].values == 0
             assert np.all(nan_ind == inactive_ind)
@@ -170,7 +172,9 @@ def test_tipper_run(tmp_path: Path, max_iterations=1, pytest=True):
 
 if __name__ == "__main__":
     # Full run
-    test_tipper_fwr_run(Path("./"), n_grid_points=8, refinement=(4, 4))
+    test_tipper_fwr_run(
+        Path("./"), n_grid_points=8, cell_size=(5.0, 5.0, 5.0), refinement=(4, 4)
+    )
     test_tipper_run(
         Path("./"),
         max_iterations=15,

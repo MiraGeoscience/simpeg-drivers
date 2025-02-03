@@ -30,11 +30,7 @@ logger = getLogger(__name__)
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {
-    "data_norm": 5.95181e-7,
-    "phi_d": 86.58,
-    "phi_m": 443.1,
-}
+target_run = {"data_norm": 8.806897e-07, "phi_d": 152.8, "phi_m": 12850}
 
 
 def test_tiling_ground_tem(
@@ -89,6 +85,7 @@ def test_ground_tem_fwr_run(
     caplog,
     n_grid_points=4,
     refinement=(2,),
+    cell_size=(20.0, 20.0, 20.0),
     pytest=True,
 ):
     if pytest:
@@ -103,6 +100,7 @@ def test_ground_tem_fwr_run(
         refinement=refinement,
         inversion_type="ground_tem",
         drape_height=5.0,
+        cell_size=cell_size,
         padding_distance=1000.0,
         flatten=True,
     )
@@ -229,7 +227,7 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         assert driver.inversion_data.entity.tx_id_property.name == "tx_id"
         output["data"] = orig_dBzdt
         if pytest:
-            check_target(output, target_run, tolerance=0.5)
+            check_target(output, target_run, tolerance=0.1)
             nan_ind = np.isnan(run_ws.get_entity("Iteration_0_model")[0].values)
             inactive_ind = run_ws.get_entity("active_cells")[0].values == 0
             assert np.all(nan_ind == inactive_ind)
@@ -238,7 +236,12 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
 if __name__ == "__main__":
     # Full run
     test_ground_tem_fwr_run(
-        Path("./"), None, n_grid_points=5, refinement=(2, 2, 2), pytest=False
+        Path("./"),
+        None,
+        n_grid_points=5,
+        refinement=(2, 2, 2),
+        cell_size=(5.0, 5.0, 5.0),
+        pytest=False,
     )
     test_ground_tem_run(
         Path("./"),
