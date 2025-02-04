@@ -14,8 +14,11 @@ from pathlib import Path
 
 import numpy as np
 
-from simpeg_drivers.potential_fields import MagneticScalarParams
-from simpeg_drivers.potential_fields.magnetic_scalar.driver import MagneticScalarDriver
+from simpeg_drivers.params import ActiveCellsData
+from simpeg_drivers.potential_fields import MagneticScalarInversionParams
+from simpeg_drivers.potential_fields.magnetic_scalar.driver import (
+    MagneticScalarInversionDriver,
+)
 from simpeg_drivers.utils.testing import setup_inversion_workspace
 from simpeg_drivers.utils.tile_estimate import TileEstimator, TileParameters
 from simpeg_drivers.utils.utils import simpeg_group_to_driver
@@ -37,27 +40,32 @@ def test_tile_estimator_run(
         n_lines=n_grid_points,
         flatten=False,
     )
-    params = MagneticScalarParams(
-        forward_only=True,
+    tmi_channel = survey.add_data(
+        {
+            "tmi": {"values": np.random.rand(survey.n_vertices)},
+        }
+    )
+    params = MagneticScalarInversionParams(
         geoh5=geoh5,
-        mesh=model.parent.uid,
-        topography_object=topography.uid,
+        mesh=model.parent,
+        active_cells=ActiveCellsData(topography_object=topography),
         inducing_field_strength=inducing_field[0],
         inducing_field_inclination=inducing_field[1],
         inducing_field_declination=inducing_field[2],
         z_from_topo=False,
-        data_object=survey.uid,
-        starting_model=model.uid,
+        data_object=survey,
+        tmi_channel=tmi_channel,
+        starting_model=model,
     )
-    params.workpath = tmp_path
 
-    driver = MagneticScalarDriver(params)
+    driver = MagneticScalarInversionDriver(params)
     tile_params = TileParameters(geoh5=geoh5, simulation=driver.out_group)
     estimator = TileEstimator(tile_params)
 
     assert len(estimator.get_results(max_tiles=32)) == 8
 
     simpeg_group = estimator.run()
+
     driver = simpeg_group_to_driver(simpeg_group, geoh5)
 
     assert driver.inversion_type == "magnetic scalar"

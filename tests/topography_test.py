@@ -15,11 +15,12 @@ from pathlib import Path
 import numpy as np
 
 from simpeg_drivers.components import InversionTopography
-from simpeg_drivers.potential_fields import MagneticVectorParams
+from simpeg_drivers.params import ActiveCellsData
+from simpeg_drivers.potential_fields import MagneticVectorInversionParams
 from simpeg_drivers.utils.testing import Geoh5Tester, setup_inversion_workspace
 
 
-def setup_params(tmp_path):
+def test_get_locations(tmp_path: Path):
     geoh5, entity, model, survey, topography = setup_inversion_workspace(
         tmp_path,
         background=0.0,
@@ -39,25 +40,24 @@ def setup_params(tmp_path):
     elevation = topography.add_data(
         {"elevation": {"values": topography.vertices[:, 2]}}
     )
-
-    geotest = Geoh5Tester(geoh5, tmp_path, "test.geoh5", MagneticVectorParams)
-    geotest.set_param("mesh", str(mesh.uid))
-    geotest.set_param("data_object", str(survey.uid))
-    geotest.set_param("tmi_channel", str(tmi_channel.uid))
-    geotest.set_param("topography_object", str(topography.uid))
-    geotest.set_param("topography", str(elevation.uid))
-    return geotest.make()
-
-
-def test_get_locations(tmp_path: Path):
-    ws, params = setup_params(tmp_path)
-    topo = InversionTopography(ws, params)
-    locs = topo.get_locations(params.topography_object)
+    params = MagneticVectorInversionParams(
+        geoh5=geoh5,
+        mesh=mesh,
+        data_object=survey,
+        tmi_channel=tmi_channel,
+        active_cells=ActiveCellsData(
+            topography_object=topography, topography=elevation
+        ),
+        starting_model=1.0,
+    )
+    geoh5 = params.geoh5
+    topo = InversionTopography(geoh5, params)
+    locs = topo.get_locations(params.active_cells.topography_object)
     np.testing.assert_allclose(
         locs[:, 2],
-        params.topography.values,
+        params.active_cells.topography.values,
     )
 
-    params.topography = 199.0
-    locs = topo.get_locations(params.topography_object)
+    params.active_cells.topography = 199.0
+    locs = topo.get_locations(params.active_cells.topography_object)
     np.testing.assert_allclose(locs[:, 2], np.ones_like(locs[:, 2]) * 199.0)

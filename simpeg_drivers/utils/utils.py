@@ -38,13 +38,14 @@ from simpeg.electromagnetics.time_domain.sources import LineCurrent as TEMLineCu
 from simpeg.survey import BaseSurvey
 from simpeg.utils import mkvc
 
-from simpeg_drivers import DRIVER_MAP
-
 
 if TYPE_CHECKING:
     from simpeg_drivers.components.data import InversionData
     from simpeg_drivers.driver import InversionDriver
 
+from geoapps_utils.driver.data import BaseData
+
+from simpeg_drivers import DRIVER_MAP
 from simpeg_drivers.utils.surveys import (
     compute_alongline_distance,
     get_intersecting_cells,
@@ -818,10 +819,20 @@ def simpeg_group_to_driver(group: SimPEGGroup, workspace: Workspace) -> Inversio
     ui_json["geoh5"] = workspace
 
     ifile = InputFile(ui_json=ui_json)
-    mod_name, class_name = DRIVER_MAP.get(ui_json["inversion_type"])
+    forward_only = ui_json.get("forward_only", False)
+    mod_name, classes = DRIVER_MAP.get(ui_json["inversion_type"])
+    if forward_only:
+        class_name = classes.get("forward", classes["inversion"])
+    else:
+        class_name = classes.get("inversion")
     module = __import__(mod_name, fromlist=[class_name])
     inversion_driver = getattr(module, class_name)
-    params = inversion_driver._params_class(  # pylint: disable=W0212
-        ifile, out_group=group
-    )
+    # TODO: Remove logic when all params classes are converted to BaseData.
+    if issubclass(inversion_driver._params_class, BaseData):  # pylint: disable=W0212
+        ifile.set_data_value("out_group", group)
+        params = inversion_driver._params_class.build(ifile)  # pylint: disable=W0212
+    else:
+        params = inversion_driver._params_class(  # pylint: disable=W0212
+            ifile, out_group=group
+        )
     return inversion_driver(params)

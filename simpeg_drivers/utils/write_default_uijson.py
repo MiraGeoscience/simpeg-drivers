@@ -39,11 +39,6 @@ from simpeg_drivers.electromagnetics.time_domain import TimeDomainElectromagneti
 from simpeg_drivers.joint.joint_cross_gradient import JointCrossGradientParams
 from simpeg_drivers.joint.joint_surveys import JointSurveysParams
 from simpeg_drivers.natural_sources import MagnetotelluricsParams, TipperParams
-from simpeg_drivers.potential_fields import (
-    GravityParams,
-    MagneticScalarParams,
-    MagneticVectorParams,
-)
 
 
 active_data_channels = [
@@ -69,16 +64,6 @@ active_data_channels = [
 
 def write_default_uijson(path: str | Path):
     filedict = {
-        "gravity_inversion.ui.json": GravityParams(validate=False),
-        "gravity_forward.ui.json": GravityParams(forward_only=True, validate=False),
-        "magnetic_scalar_inversion.ui.json": MagneticScalarParams(validate=False),
-        "magnetic_scalar_forward.ui.json": MagneticScalarParams(
-            forward_only=True, validate=False
-        ),
-        "magnetic_vector_inversion.ui.json": MagneticVectorParams(validate=False),
-        "magnetic_vector_forward.ui.json": MagneticVectorParams(
-            forward_only=True, validate=False
-        ),
         "direct_current_inversion_2d.ui.json": DirectCurrent2DParams(validate=False),
         "direct_current_forward_2d.ui.json": DirectCurrent2DParams(
             forward_only=True, validate=False

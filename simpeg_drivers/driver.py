@@ -14,10 +14,8 @@
 from __future__ import annotations
 import os
 
-os.environ["OMP_NUM_THREADS"] = "7"
-os.environ["MKL_NUM_THREADS"] = "7"
-os.environ["OPENBLAS_NUM_THREADS"] = "7"
 import multiprocessing
+
 import sys
 from datetime import datetime, timedelta
 import logging
@@ -30,6 +28,7 @@ from dask import config as dconf
 
 from dask.distributed import get_client, Client, LocalCluster, performance_report
 from geoapps_utils.driver.driver import BaseDriver
+from geoapps_utils.driver.data import BaseData
 
 from geoh5py.data import Data
 from geoh5py.groups import SimPEGGroup
@@ -56,7 +55,7 @@ from simpeg_drivers.components import (
     InversionWindow,
 )
 from simpeg_drivers.components.factories import DirectivesFactory, MisfitFactory
-from simpeg_drivers.params import InversionBaseParams
+from simpeg_drivers.params import InversionBaseParams, BaseInversionData
 from simpeg_drivers.utils.utils import tile_locations
 
 mlogger = logging.getLogger("distributed")
@@ -143,18 +142,6 @@ class InversionDriver(BaseDriver):
         """
         Method to convert MetaSimulations to DaskMetaSimulations with futures.
         """
-        # meshes = {}
-        # workers = []
-        # for count, objfct in enumerate(self.data_misfit.objfcts):
-        #
-        #     worker = self.workers[count % len(self.workers)]
-        #     mesh = objfct.simulation.simulations[0].mesh
-        #     if mesh not in meshes:
-        #         meshes[mesh] = self.client.scatter(mesh, workers=(worker,))
-        #
-        #     objfct.simulation.simulations[0]._mesh = meshes[mesh]
-        #     workers.append(worker)
-
         distributed_misfits = dask.objective_function.DaskComboMisfits(
             self.data_misfit.objfcts,
             multipliers=self.data_misfit.multipliers,
@@ -171,7 +158,7 @@ class InversionDriver(BaseDriver):
                 self.optimization,
             )
 
-            if self.params.initial_beta:
+            if not self.params.forward_only and self.params.initial_beta:
                 self._inverse_problem.beta = self.params.initial_beta
 
         return self._inverse_problem
@@ -298,8 +285,8 @@ class InversionDriver(BaseDriver):
         return self._params
 
     @params.setter
-    def params(self, val: (InversionBaseParams, SweepParams)):
-        if not isinstance(val, (InversionBaseParams, SweepParams)):
+    def params(self, val: BaseInversionData | InversionBaseParams | SweepParams):
+        if not isinstance(val, (BaseData, InversionBaseParams, SweepParams)):
             raise TypeError(
                 "Parameters must be of type 'InversionBaseParams' or 'SweepParams'."
             )
@@ -495,23 +482,36 @@ class InversionDriver(BaseDriver):
             if n_cpu is None:
                 n_cpu = int(multiprocessing.cpu_count())
 
+        if self.params.parallelized:
             dconf.set(scheduler="threads", pool=ThreadPool(self.params.n_cpu))
+
 
     @classmethod
     def start(cls, filepath: str | Path, driver_class=None):
         _ = driver_class
 
         ifile = InputFile.read_ui_json(filepath)
+        forward_only = ifile.data["forward_only"]
         inversion_type = ifile.ui_json.get("inversion_type", None)
+
+        driver_name = (inversion_type + "driver").capitalize()
         if inversion_type not in DRIVER_MAP:
             msg = f"Inversion type {inversion_type} is not supported."
             msg += f" Valid inversions are: {(*list(DRIVER_MAP),)}."
             raise NotImplementedError(msg)
 
-        mod_name, class_name = DRIVER_MAP.get(inversion_type)
+        mod_name, classes = DRIVER_MAP.get(inversion_type)
+        if forward_only:
+            class_name = classes.get("forward", classes["inversion"])
+        else:
+            class_name = classes.get("inversion")
         module = __import__(mod_name, fromlist=[class_name])
-        inversion_driver = getattr(module, class_name)
-        driver = BaseDriver.start(filepath, driver_class=inversion_driver)
+        driver_class = getattr(module, class_name)
+        with ifile.data["geoh5"].open(mode="r+"):
+            params = driver_class._params_class.build(ifile)
+            driver = driver_class(params)
+            driver.run()
+
         return driver
 
 

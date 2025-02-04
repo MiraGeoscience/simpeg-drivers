@@ -9,7 +9,7 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from .params import MagneticScalarParams
+from .params import MagneticScalarForwardParams, MagneticScalarInversionParams
 
 # pylint: disable=unused-import
 # flake8: noqa
