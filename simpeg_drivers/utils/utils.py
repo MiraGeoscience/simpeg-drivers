@@ -661,7 +661,7 @@ def get_containing_cells(
         locations = data.drape_locations(np.unique(data.locations, axis=0))
         xi = np.searchsorted(mesh.nodes_x, locations[:, 0]) - 1
         yi = np.searchsorted(mesh.nodes_y, locations[:, -1]) - 1
-        inds = xi * mesh.shape_cells[1] + yi
+        inds = xi + yi * mesh.shape_cells[0]
 
     else:
         raise TypeError("Mesh must be 'TreeMesh' or 'TensorMesh'")
