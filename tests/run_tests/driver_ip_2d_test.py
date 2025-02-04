@@ -16,11 +16,15 @@ import numpy as np
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.electricals.induced_polarization.two_dimensions import (
-    InducedPolarization2DParams,
+    InducedPolarization2DForwardParams,
+    InducedPolarization2DInversionParams,
 )
 from simpeg_drivers.electricals.induced_polarization.two_dimensions.driver import (
-    InducedPolarization2DDriver,
+    InducedPolarization2DForwardDriver,
+    InducedPolarization2DInversionDriver,
 )
+from simpeg_drivers.electricals.params import DrapeModelData, LineSelectionData
+from simpeg_drivers.params import ActiveCellsData
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
@@ -49,20 +53,21 @@ def test_ip_2d_fwr_run(
         flatten=False,
         drape_height=0.0,
     )
-    params = InducedPolarization2DParams(
-        forward_only=True,
+    params = InducedPolarization2DForwardParams(
         geoh5=geoh5,
-        data_object=survey.uid,
-        mesh=model.parent.uid,
-        topography_object=topography.uid,
+        data_object=survey,
+        mesh=model.parent,
+        active_cells=ActiveCellsData(topography_object=topography),
         z_from_topo=True,
-        starting_model=model.uid,
+        starting_model=model,
         conductivity_model=1e-2,
-        line_object=geoh5.get_entity("line_ids")[0].uid,
-        line_id=101,
+        line_selection=LineSelectionData(
+            line_object=geoh5.get_entity("line_ids")[0],
+            line_id=101,
+        ),
     )
-    params.workpath = tmp_path
-    fwr_driver = InducedPolarization2DDriver(params)
+
+    fwr_driver = InducedPolarization2DForwardDriver(params)
     fwr_driver.run()
 
 
@@ -81,15 +86,17 @@ def test_ip_2d_run(
         topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
-        params = InducedPolarization2DParams(
+        params = InducedPolarization2DInversionParams(
             geoh5=geoh5,
-            mesh=mesh.uid,
-            topography_object=topography.uid,
-            data_object=chargeability.parent.uid,
-            chargeability_channel=chargeability.uid,
+            mesh=mesh,
+            active_cells=ActiveCellsData(topography_object=topography),
+            data_object=chargeability.parent,
+            chargeability_channel=chargeability,
             chargeability_uncertainty=2e-4,
-            line_object=geoh5.get_entity("line_ids")[0].uid,
-            line_id=101,
+            line_selection=LineSelectionData(
+                line_object=geoh5.get_entity("line_ids")[0],
+                line_id=101,
+            ),
             starting_model=1e-6,
             reference_model=1e-6,
             conductivity_model=1e-2,
@@ -97,7 +104,6 @@ def test_ip_2d_run(
             x_norm=0.0,
             z_norm=0.0,
             gradient_type="components",
-            chargeability_channel_bool=True,
             z_from_topo=True,
             max_global_iterations=max_iterations,
             initial_beta=None,
@@ -107,9 +113,11 @@ def test_ip_2d_run(
             store_sensitivities="ram",
             coolingRate=1,
         )
-        params.write_input_file(path=tmp_path, name="Inv_run")
+        params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    driver = InducedPolarization2DDriver.start(str(tmp_path / "Inv_run.ui.json"))
+    driver = InducedPolarization2DInversionDriver.start(
+        str(tmp_path / "Inv_run.ui.json")
+    )
 
     output = get_inversion_output(
         driver.params.geoh5.h5file, driver.params.out_group.uid

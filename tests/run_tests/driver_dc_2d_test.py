@@ -24,9 +24,8 @@ from simpeg_drivers.electricals.direct_current.two_dimensions.driver import (
 from simpeg_drivers.electricals.direct_current.two_dimensions.params import (
     DirectCurrent2DForwardParams,
     DirectCurrent2DInversionParams,
-    DrapeModelData,
-    LineSelectionData,
 )
+from simpeg_drivers.electricals.params import DrapeModelData, LineSelectionData
 from simpeg_drivers.params import ActiveCellsData
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
