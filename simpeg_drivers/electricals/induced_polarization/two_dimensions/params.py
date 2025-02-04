@@ -69,7 +69,7 @@ class InducedPolarization2DInversionParams(BaseInversionData):
     physical_property: str = "chargeability"
 
     chargeability_channel: FloatData
-    potential_uncertainty: float | FloatData | None = None
+    chargeability_uncertainty: float | FloatData | None = None
     line_selection: LineSelectionData
     mesh: DrapeModel | None = None
     drape_model: DrapeModelData = DrapeModelData()

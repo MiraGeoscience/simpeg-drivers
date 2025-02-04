@@ -80,7 +80,10 @@ DRIVER_MAP = {
     ),
     "induced polarization pseudo 3d": (
         "simpeg_drivers.electricals.induced_polarization.pseudo_three_dimensions.driver",
-        {"inversion": "InducedPolarizationPseudo3DDriver"},
+        {
+            "forward": "InducedPolarizationPseudo3DForwardDriver",
+            "inversion": "InducedPolarizationPseudo3DInversionDriver",
+        },
     ),
     "joint surveys": (
         "simpeg_drivers.joint.joint_surveys.driver",

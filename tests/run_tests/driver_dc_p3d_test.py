@@ -18,7 +18,8 @@ from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.electricals.direct_current.pseudo_three_dimensions.driver import (
-    DirectCurrentPseudo3DDriver,
+    DirectCurrentPseudo3DForwardDriver,
+    DirectCurrentPseudo3DInversionDriver,
 )
 from simpeg_drivers.electricals.direct_current.pseudo_three_dimensions.params import (
     DirectCurrentPseudo3DParams,
@@ -68,7 +69,7 @@ def test_dc_p3d_fwr_run(
         cleanup=True,
     )
     params.workpath = tmp_path
-    fwr_driver = DirectCurrentPseudo3DDriver(params)
+    fwr_driver = DirectCurrentPseudo3DForwardDriver(params)
     fwr_driver.run()
 
 
@@ -120,7 +121,9 @@ def test_dc_p3d_run(
         )
         params.write_input_file(path=tmp_path, name="Inv_run")
 
-    driver = DirectCurrentPseudo3DDriver.start(str(tmp_path / "Inv_run.ui.json"))
+    driver = DirectCurrentPseudo3DInversionDriver.start(
+        str(tmp_path / "Inv_run.ui.json")
+    )
 
     basepath = workpath.parent
     with open(basepath / "lookup.json", encoding="utf8") as f:

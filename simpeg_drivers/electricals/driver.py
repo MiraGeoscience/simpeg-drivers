@@ -119,9 +119,7 @@ class BasePseudo3DDriver(LineSweepDriver):
     def write_files(self, lookup):
         """Write ui.geoh5 and ui.json files for sweep trials."""
 
-        forward_only = self.pseudo3d_params.forward_only
-        ifile = self._params_2d_class(forward_only=forward_only).input_file
-
+        ifile = self._params_2d_class().input_file
         with self.workspace.open(mode="r+"):
             self._window = InversionWindow(self.workspace, self.pseudo3d_params)
             self._inversion_data = InversionData(self.workspace, self.pseudo3d_params)

@@ -30,7 +30,7 @@ class DirectCurrentPseudo3DForwardDriver(BasePseudo3DDriver):
     _validations = validations
 
 
-class DirectCurrentPseudo3DDriver(BasePseudo3DDriver):
+class DirectCurrentPseudo3DInversionDriver(BasePseudo3DDriver):
     _params_class = DirectCurrentPseudo3DParams
     _params_2d_class = DirectCurrent2DInversionParams
     _validations = validations
