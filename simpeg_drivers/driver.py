@@ -12,7 +12,6 @@
 # flake8: noqa
 
 from __future__ import annotations
-import os
 
 import multiprocessing
 
@@ -484,7 +483,6 @@ class InversionDriver(BaseDriver):
 
         if self.params.parallelized:
             dconf.set(scheduler="threads", pool=ThreadPool(self.params.n_cpu))
-
 
     @classmethod
     def start(cls, filepath: str | Path, driver_class=None):
