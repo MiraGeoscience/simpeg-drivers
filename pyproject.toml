@@ -49,7 +49,7 @@ octree-creation-app = {git = "https://github.com/MiraGeoscience/octree-creation-
 geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "develop"}
 
 #mira-simpeg = {version = ">=0.21.2.1rc1, <0.21.2.2a.dev", source="pypi", allow-prereleases = true, extras = ["dask"]}
-mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", rev = "develop", extras = ["dask"]}
+mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", rev = "GEOPY-1879c", extras = ["dask"]}
 
 #param-sweeps = {version = ">=0.2.0rc1, <0.3.0a.dev", source = "pypi", allow-prereleases = true}
 param-sweeps = {git = "https://github.com/MiraGeoscience/param-sweeps.git", rev = "develop"}
