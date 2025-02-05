@@ -316,7 +316,7 @@ class BaseInversionData(CoreData):
     initial_beta: float | None = None
     coolingFactor: float = 2.0
 
-    coolingRate: float = 2.0
+    coolingRate: float = 1.0
     max_global_iterations: int = 50
     max_line_search_iterations: int = 20
     max_cg_iterations: int = 30
