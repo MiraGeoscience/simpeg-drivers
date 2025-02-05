@@ -39,12 +39,11 @@ class LineSelectionData(BaseModel):
             raise ValueError("Line identifier must be associated with cells.")
         return value
 
-    @model_validator(mode="before")
-    @classmethod
-    def line_id_referenced(cls, model):
-        if model["line_id"] not in model["line_object"]():
+    @model_validator(mode="after")
+    def line_id_referenced(self):
+        if self.line_id not in self.line_object.values:
             raise ValueError("Line id isn't referenced in the line object.")
-        return model
+        return self
 
 
 class DrapeModelData(BaseModel):

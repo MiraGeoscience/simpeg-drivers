@@ -110,7 +110,7 @@ class InversionData(InversionLocations):
         self.has_tensor = InversionData.check_tensor(self.components)
         self.locations = super().get_locations(self.params.data_object)
 
-        if getattr(self.params, "line_selection", None) is not None:
+        if "2d" in self.params.inversion_type:
             self.mask = (
                 self.params.line_selection.line_object.values
                 == self.params.line_selection.line_id

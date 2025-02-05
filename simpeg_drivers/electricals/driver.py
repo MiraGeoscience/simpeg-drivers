@@ -112,14 +112,14 @@ class BasePseudo3DDriver(LineSweepDriver):
                     model_values = model * np.ones(len(xyz_out))
 
                 model_object = mesh.add_data({name: {"values": model_values}})
-                models[name] = model_object.uid
+                models[name] = model_object
 
         return models
 
     def write_files(self, lookup):
         """Write ui.geoh5 and ui.json files for sweep trials."""
 
-        ifile = self._params_2d_class().input_file
+        kwargs_2d = {}
         with self.workspace.open(mode="r+"):
             self._window = InversionWindow(self.workspace, self.pseudo3d_params)
             self._inversion_data = InversionData(self.workspace, self.pseudo3d_params)
@@ -173,16 +173,16 @@ class BasePseudo3DDriver(LineSweepDriver):
 
                     model_parameters = self.transfer_models(mesh)
 
-                    for key in ifile.data:
+                    for key in self._params_2d_class.model_fields:
                         param = getattr(self.pseudo3d_params, key, None)
                         if key not in ["title", "inversion_type"]:
-                            ifile.data[key] = param
+                            kwargs_2d[key] = param
 
                     self.pseudo3d_params.topography_object.copy(
                         parent=iter_workspace, copy_children=True
                     )
 
-                    ifile.data.update(
+                    kwargs_2d.update(
                         dict(
                             **{
                                 "geoh5": iter_workspace,
@@ -195,9 +195,9 @@ class BasePseudo3DDriver(LineSweepDriver):
                         )
                     )
 
-                ifile.name = f"{uid}.ui.json"
-                ifile.path = self.working_directory  # pylint: disable=no-member
-                ifile.write_ui_json()
+                params = self._params_2d_class.build(kwargs_2d)
+                params.write_ui_json(Path(self.working_directory) / f"{uid}.ui.json")
+
                 lookup[uid]["status"] = "written"
 
         _ = self.update_lookup(lookup)  # pylint: disable=no-member

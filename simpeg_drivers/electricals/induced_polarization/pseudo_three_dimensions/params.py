@@ -19,7 +19,7 @@ from simpeg_drivers.electricals.induced_polarization.pseudo_three_dimensions.con
     inversion_defaults,
     validations,
 )
-from simpeg_drivers.electricals.params import BasePseudo3DParams
+from simpeg_drivers.electricals.params import BasePseudo3DParams, LineSelectionData
 
 
 class InducedPolarizationPseudo3DParams(BasePseudo3DParams):
@@ -41,6 +41,10 @@ class InducedPolarizationPseudo3DParams(BasePseudo3DParams):
         self._chargeability_uncertainty = None
 
         super().__init__(input_file=input_file, forward_only=forward_only, **kwargs)
+
+    @property
+    def line_selection(self):
+        return LineSelectionData(line_object=self.line_object, line_id=1)
 
     @property
     def conductivity_model(self):
