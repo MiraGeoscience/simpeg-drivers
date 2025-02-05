@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: d54de8417b963920c73996273ff9a0362e7b01abcbb969a7a7b70b2afb063fb3
-    linux-64: 283c20070b2a2889316e1cba6894f02c04af1c325087139ca22f8d6f79c7af96
+    win-64: 545961761a6fd7c3db8ccd2c6af47188a38d76093c7c2ecafb61582fdd424d2d
+    linux-64: d73ecef65ed7b0f752cc2f320c00b21f7170a26ac3e84514a882fcfe83a9605f
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -403,31 +403,31 @@ package:
   category: dev
   optional: true
 - name: beautifulsoup4
-  version: 4.13.2
+  version: 4.13.3
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.9'
     soupsieve: '>=1.2'
     typing-extensions: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/beautifulsoup4-4.13.2-pyha770c72_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/beautifulsoup4-4.13.3-pyha770c72_0.conda
   hash:
-    md5: 22b08b8f283909afee4cfff36b79f083
-    sha256: edc85562d1302c2f29005e23a71e1541b1c20647f47f9a1f690767e297f57b7b
+    md5: 373374a3ed20141090504031dc7b693e
+    sha256: 4ce42860292a57867cfc81a5d261fb9886fc709a34eca52164cc8bbf6d03de9f
   category: dev
   optional: true
 - name: beautifulsoup4
-  version: 4.13.2
+  version: 4.13.3
   manager: conda
   platform: win-64
   dependencies:
     python: '>=3.9'
     soupsieve: '>=1.2'
     typing-extensions: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/beautifulsoup4-4.13.2-pyha770c72_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/beautifulsoup4-4.13.3-pyha770c72_0.conda
   hash:
-    md5: 22b08b8f283909afee4cfff36b79f083
-    sha256: edc85562d1302c2f29005e23a71e1541b1c20647f47f9a1f690767e297f57b7b
+    md5: 373374a3ed20141090504031dc7b693e
+    sha256: 4ce42860292a57867cfc81a5d261fb9886fc709a34eca52164cc8bbf6d03de9f
   category: dev
   optional: true
 - name: bleach
@@ -2662,27 +2662,27 @@ package:
   category: dev
   optional: true
 - name: jupyter_events
-  version: 0.11.0
+  version: 0.12.0
   manager: conda
   platform: linux-64
   dependencies:
     jsonschema-with-format-nongpl: '>=4.18.0'
     packaging: ''
-    python: '>=3.9'
+    python: ''
     python-json-logger: '>=2.0.4'
     pyyaml: '>=5.3'
     referencing: ''
     rfc3339-validator: ''
     rfc3986-validator: '>=0.1.1'
     traitlets: '>=5.3'
-  url: https://conda.anaconda.org/conda-forge/noarch/jupyter_events-0.11.0-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/jupyter_events-0.12.0-pyh29332c3_0.conda
   hash:
-    md5: 2d8876ca6bda213622dfbc3d1da56ecb
-    sha256: eeb32aa58d37b130387628d5c151092f6d3fcf0a6964294bef06d6bac117f3c4
+    md5: f56000b36f09ab7533877e695e4e8cb0
+    sha256: 37e6ac3ccf7afcc730c3b93cb91a13b9ae827fd306f35dd28f958a74a14878b5
   category: dev
   optional: true
 - name: jupyter_events
-  version: 0.11.0
+  version: 0.12.0
   manager: conda
   platform: win-64
   dependencies:
@@ -2695,10 +2695,10 @@ package:
     rfc3339-validator: ''
     rfc3986-validator: '>=0.1.1'
     traitlets: '>=5.3'
-  url: https://conda.anaconda.org/conda-forge/noarch/jupyter_events-0.11.0-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/jupyter_events-0.12.0-pyh29332c3_0.conda
   hash:
-    md5: 2d8876ca6bda213622dfbc3d1da56ecb
-    sha256: eeb32aa58d37b130387628d5c151092f6d3fcf0a6964294bef06d6bac117f3c4
+    md5: f56000b36f09ab7533877e695e4e8cb0
+    sha256: 37e6ac3ccf7afcc730c3b93cb91a13b9ae827fd306f35dd28f958a74a14878b5
   category: dev
   optional: true
 - name: jupyter_server
@@ -8452,7 +8452,7 @@ package:
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.21.2.2a1.dev91+g1035c9339
+  version: 0.21.2.2a1.dev94+g5f245f913
   manager: pip
   platform: linux-64
   dependencies:
@@ -8466,16 +8466,16 @@ package:
     pymatsolver: '>=0.2,<0.3.0'
     scikit-learn: '>=1.2'
     scipy: '>=1.8.0'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@1035c9339c368100ad3227106d3010ff8b56f073
+  url: git+https://github.com/MiraGeoscience/simpeg.git@5f245f913c3040fe32759278066fffbc05e7fdac
   hash:
-    sha256: 1035c9339c368100ad3227106d3010ff8b56f073
+    sha256: 5f245f913c3040fe32759278066fffbc05e7fdac
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@1035c9339c368100ad3227106d3010ff8b56f073
+    url: git+https://github.com/MiraGeoscience/simpeg.git@5f245f913c3040fe32759278066fffbc05e7fdac
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.21.2.2a1.dev91+g1035c9339
+  version: 0.21.2.2a1.dev94+g5f245f913
   manager: pip
   platform: win-64
   dependencies:
@@ -8489,12 +8489,12 @@ package:
     pymatsolver: '>=0.2,<0.3.0'
     scikit-learn: '>=1.2'
     scipy: '>=1.8.0'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@1035c9339c368100ad3227106d3010ff8b56f073
+  url: git+https://github.com/MiraGeoscience/simpeg.git@5f245f913c3040fe32759278066fffbc05e7fdac
   hash:
-    sha256: 1035c9339c368100ad3227106d3010ff8b56f073
+    sha256: 5f245f913c3040fe32759278066fffbc05e7fdac
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@1035c9339c368100ad3227106d3010ff8b56f073
+    url: git+https://github.com/MiraGeoscience/simpeg.git@5f245f913c3040fe32759278066fffbc05e7fdac
   category: main
   optional: false
 - name: octree-creation-app
