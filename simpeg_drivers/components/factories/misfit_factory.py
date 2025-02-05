@@ -253,4 +253,4 @@ def compute_dc_projections(inversion_data, simulation, indices):
         if not np.all(mn_pairs[ind, 0] == mn_pairs[ind, 1]):
             proj_mn -= projection[mn_pairs[ind, 1], :]
 
-        source.receiver_list[0].spatialP[simulation.mesh.n_cells] = proj_mn  # pylint: disable=protected-access
+        source.receiver_list[0].spatialP = proj_mn  # pylint: disable=protected-access
