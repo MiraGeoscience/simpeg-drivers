@@ -29,6 +29,7 @@ from simpeg_drivers.components.meshes import InversionMesh
 from simpeg_drivers.components.topography import InversionTopography
 from simpeg_drivers.components.windows import InversionWindow
 from simpeg_drivers.driver import InversionDriver
+from simpeg_drivers.electricals.params import LineSelectionData
 from simpeg_drivers.line_sweep.driver import LineSweepDriver
 from simpeg_drivers.params import BaseParams
 from simpeg_drivers.utils.surveys import extract_dcip_survey
@@ -188,7 +189,12 @@ class BasePseudo3DDriver(LineSweepDriver):
                                 "geoh5": iter_workspace,
                                 "mesh": mesh,
                                 "data_object": receiver_entity,
-                                "line_id": trial["line_id"],
+                                "line_selection": LineSelectionData(
+                                    line_object=receiver_entity.get_data(
+                                        self.pseudo3d_params.line_object.name
+                                    )[0],
+                                    line_id=trial["line_id"],
+                                ),
                                 "out_group": None,
                             },
                             **model_parameters,

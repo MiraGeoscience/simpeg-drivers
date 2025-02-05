@@ -84,3 +84,5 @@ class DirectCurrent2DInversionParams(BaseInversionData):
     mesh: DrapeModel | None = None
     drape_model: DrapeModelData
     model_type: str = "Conductivity (S/m)"
+    length_scale_y: None = None
+    y_norm: None = None

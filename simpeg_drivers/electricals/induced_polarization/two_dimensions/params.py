@@ -75,3 +75,5 @@ class InducedPolarization2DInversionParams(BaseInversionData):
     drape_model: DrapeModelData = DrapeModelData()
     conductivity_model: float | FloatData
     lower_bound: float | FloatData | None = 0.0
+    length_scale_y: None = None
+    y_norm: None = None
