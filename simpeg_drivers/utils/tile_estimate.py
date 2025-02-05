@@ -107,6 +107,7 @@ class TileEstimator(BaseDriver):
             sim, _, _, mapping = MisfitFactory.create_nested_simulation(
                 self.driver.inversion_data,
                 self.mesh,
+                None,
                 self.active_cells,
                 tiles[ind],
                 tile_id=ind,
