@@ -134,8 +134,12 @@ def test_survey_data(tmp_path: Path):
 
     assert driver.inversion is not None
 
-    local_survey_a = driver.inverse_problem.dmisfit.objfcts[0].simulation.survey
-    local_survey_b = driver.inverse_problem.dmisfit.objfcts[1].simulation.survey
+    local_survey_a = (
+        driver.inverse_problem.dmisfit.objfcts[0].simulation.simulations[0].survey
+    )
+    local_survey_b = (
+        driver.inverse_problem.dmisfit.objfcts[1].simulation.simulations[0].survey
+    )
 
     # test locations
 
