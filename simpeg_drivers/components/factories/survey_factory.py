@@ -296,6 +296,9 @@ class SurveyFactory(SimPEGFactory):
             if local_index is not None:
                 receiver_indices = list(set(receiver_indices).intersection(local_index))
 
+            if len(receiver_indices) == 0:
+                continue
+
             receivers = ReceiversFactory(self.params).build(
                 locations=receiver_locations,
                 local_index=receiver_entity.cells[receiver_indices],
