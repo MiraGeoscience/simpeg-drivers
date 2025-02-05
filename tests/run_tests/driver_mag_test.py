@@ -13,6 +13,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+from dask.distributed import LocalCluster, performance_report
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.params import ActiveCellsData
@@ -139,5 +140,11 @@ def test_susceptibility_run(
 
 if __name__ == "__main__":
     # Full run
-    test_susceptibility_fwr_run(Path("./"), n_grid_points=20, refinement=(4, 8))
-    test_susceptibility_run(Path("./"), max_iterations=30, pytest=False)
+    with LocalCluster(processes=True, n_workers=2, threads_per_worker=6) as cluster:
+        with cluster.get_client():
+            # Full run
+            with performance_report(filename="diagnostics.html"):
+                test_susceptibility_fwr_run(
+                    Path("./"), n_grid_points=20, refinement=(4, 8)
+                )
+                test_susceptibility_run(Path("./"), max_iterations=30, pytest=False)

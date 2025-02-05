@@ -562,14 +562,5 @@ class InversionLogger:
 
 if __name__ == "__main__":
     file = Path(sys.argv[1]).resolve()
-    # file = Path(r"")
-    with LocalCluster(processes=True, n_workers=6, threads_per_worker=7) as cluster:
-        diagnostics = file.stem.replace(".ui", "") + "_diagnostics.html"
-        with cluster.get_client():
-            # client = cluster.get_client()
-            print(f"Running local cluster.\n Saving to {file.parent / diagnostics}")
-            # Full run
-            with performance_report(filename=file.parent / diagnostics):
-                InversionDriver.start(file)
-
-        sys.stdout.close()
+    InversionDriver.start(file)
+    sys.stdout.close()
