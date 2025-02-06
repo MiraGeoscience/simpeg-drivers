@@ -202,7 +202,7 @@ class BasePseudo3DDriver(LineSweepDriver):
                         )
                     )
 
-                params = self._params_2d_class.build(kwargs_2d)
+                params = self._params_2d_class(**kwargs_2d)
                 params.write_ui_json(Path(self.working_directory) / f"{uid}.ui.json")
 
                 lookup[uid]["status"] = "written"
