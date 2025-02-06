@@ -28,7 +28,8 @@ from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from simpeg_drivers import assets_path
+
+# from simpeg_drivers import assets_path
 
 
 # pylint: disable=too-many-lines
@@ -1083,4 +1084,4 @@ class InversionBaseParams(BaseParams):
         if self.tile_spatial == 1:
             return 100
 
-        return 4 if self.inversion_type in ["fem", "tdem"] else 6
+        return 4 if self.inversion_type in ["fem", "tdem"] else 8

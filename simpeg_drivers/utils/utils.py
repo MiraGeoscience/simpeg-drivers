@@ -145,7 +145,7 @@ def create_nested_mesh(
     survey: BaseSurvey,
     base_mesh: TreeMesh,
     padding_cells: int = 8,
-    minimum_level: int = 3,
+    minimum_level: int = 4,
     finalize: bool = True,
 ):
     """
