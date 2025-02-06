@@ -97,6 +97,7 @@ class InducedPolarizationPseudo3DInversionParams(BaseInversionData):
     mesh: Octree | None = None
     drape_model: DrapeModelData = DrapeModelData()
     conductivity_model: float | FloatData
+    lower_bound: float | FloatData | None = 0.0
     file_control: FileControlData = FileControlData()
     length_scale_y: None = None
     y_norm: None = None
