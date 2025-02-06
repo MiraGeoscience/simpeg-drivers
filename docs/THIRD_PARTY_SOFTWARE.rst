@@ -1,3 +1,6 @@
+Third Party Software
+====================
+
 The simpeg-drivers repository and source distributions bundle several libraries that are
 compatibly licensed.  We list these here.
 
@@ -8,7 +11,7 @@ compatibly licensed.  We list these here.
    * - Name
      - License
      - Description
-   * - `dask <https://github.com/dask/dask`_
+   * - `dask <https://github.com/dask/dask>`_
      - BSD-3-Clause
      - Parallel PyData with Task Scheduling
    * - `discretize <https://simpeg.xyz/>`_

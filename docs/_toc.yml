@@ -20,3 +20,4 @@ chapters:
   - file: case_study/tipper
   - file: case_study/airborne_tem
   - file: case_study/joint_inversion
+- file: THIRD_PARTY_SOFTWARE
