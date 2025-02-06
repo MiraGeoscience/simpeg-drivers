@@ -80,7 +80,7 @@ class BasePseudo3DDriver(LineSweepDriver):
 
     def __init__(self, params):
         super().__init__(params)
-        if params.files_only:
+        if params.file_control.files_only:
             sys.exit("Files written")
 
     def transfer_models(self, mesh: DrapeModel) -> dict[str, uuid.UUID | float]:
@@ -138,13 +138,14 @@ class BasePseudo3DDriver(LineSweepDriver):
                 if filepath.exists():
                     warnings.warn(
                         f"File {filepath} already exists but 'status' marked as 'pending'. "
-                        "Over-writting file."
+                        "Over-writing file."
                     )
                     filepath.unlink()
 
                 with Workspace.create(filepath) as iter_workspace:
                     cell_mask: np.ndarray = (
-                        self.pseudo3d_params.line_object.values == trial["line_id"]
+                        self.pseudo3d_params.line_selection.line_object.values
+                        == trial["line_id"]
                     )
 
                     if not np.any(cell_mask):
@@ -163,13 +164,13 @@ class BasePseudo3DDriver(LineSweepDriver):
                         "Models",
                         receiver_locs,
                         [
-                            self.pseudo3d_params.u_cell_size,
-                            self.pseudo3d_params.v_cell_size,
+                            self.pseudo3d_params.drape_model.u_cell_size,
+                            self.pseudo3d_params.drape_model.v_cell_size,
                         ],
-                        self.pseudo3d_params.depth_core,
-                        [self.pseudo3d_params.horizontal_padding] * 2
-                        + [self.pseudo3d_params.vertical_padding, 1],
-                        self.pseudo3d_params.expansion_factor,
+                        self.pseudo3d_params.drape_model.depth_core,
+                        [self.pseudo3d_params.drape_model.horizontal_padding] * 2
+                        + [self.pseudo3d_params.drape_model.vertical_padding, 1],
+                        self.pseudo3d_params.drape_model.expansion_factor,
                     )[0]
 
                     model_parameters = self.transfer_models(mesh)
@@ -179,7 +180,7 @@ class BasePseudo3DDriver(LineSweepDriver):
                         if key not in ["title", "inversion_type"]:
                             kwargs_2d[key] = param
 
-                    self.pseudo3d_params.topography_object.copy(
+                    self.pseudo3d_params.active_cells.topography_object.copy(
                         parent=iter_workspace, copy_children=True
                     )
 
@@ -191,7 +192,7 @@ class BasePseudo3DDriver(LineSweepDriver):
                                 "data_object": receiver_entity,
                                 "line_selection": LineSelectionData(
                                     line_object=receiver_entity.get_data(
-                                        self.pseudo3d_params.line_object.name
+                                        self.pseudo3d_params.line_selection.line_object.name
                                     )[0],
                                     line_id=trial["line_id"],
                                 ),

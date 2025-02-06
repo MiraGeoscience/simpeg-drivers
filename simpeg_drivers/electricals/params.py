@@ -30,7 +30,7 @@ class LineSelectionData(BaseModel):
     )
 
     line_object: ReferencedData
-    line_id: int
+    line_id: int = 1
 
     @field_validator("line_object", mode="before")
     @classmethod
@@ -64,6 +64,18 @@ class DrapeModelData(BaseModel):
     horizontal_padding: float = 100.0
     vertical_padding: float = 100.0
     expansion_factor: float = 100.0
+
+
+class FileControlData(BaseModel):
+    """
+    File control parameters for pseudo 3D simulations.
+
+    :param files_only: Boolean to only write files.
+    :param cleanup: Boolean to cleanup files.
+    """
+
+    files_only: bool = False
+    cleanup: bool = True
 
 
 class Core2DParams(InversionBaseParams):

@@ -22,8 +22,15 @@ from simpeg_drivers.electricals.direct_current.pseudo_three_dimensions.driver im
     DirectCurrentPseudo3DInversionDriver,
 )
 from simpeg_drivers.electricals.direct_current.pseudo_three_dimensions.params import (
-    DirectCurrentPseudo3DParams,
+    DirectCurrentPseudo3DForwardParams,
+    DirectCurrentPseudo3DInversionParams,
 )
+from simpeg_drivers.electricals.params import (
+    DrapeModelData,
+    FileControlData,
+    LineSelectionData,
+)
+from simpeg_drivers.params import ActiveCellsData
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
@@ -52,23 +59,23 @@ def test_dc_p3d_fwr_run(
         drape_height=0.0,
         flatten=False,
     )
-    params = DirectCurrentPseudo3DParams(
-        forward_only=True,
+    params = DirectCurrentPseudo3DForwardParams(
         geoh5=geoh5,
-        mesh=model.parent.uid,
-        u_cell_size=5.0,
-        v_cell_size=5.0,
-        depth_core=100.0,
-        expansion_factor=1.1,
-        padding_distance=100.0,
-        topography_object=topography.uid,
+        mesh=model.parent,
+        drape_model=DrapeModelData(
+            u_cell_size=5.0,
+            v_cell_size=5.0,
+            depth_core=100.0,
+            expansion_factor=1.1,
+            padding_distance=100.0,
+        ),
+        active_cells=ActiveCellsData(topography_object=topography),
         z_from_topo=False,
-        data_object=survey.uid,
-        starting_model=model.uid,
-        line_object=geoh5.get_entity("line_ids")[0].uid,
-        cleanup=True,
+        data_object=survey,
+        starting_model=model,
+        line_selection=LineSelectionData(line_object=geoh5.get_entity("line_ids")[0]),
     )
-    params.workpath = tmp_path
+
     fwr_driver = DirectCurrentPseudo3DForwardDriver(params)
     fwr_driver.run()
 
@@ -89,27 +96,29 @@ def test_dc_p3d_run(
         topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
-        params = DirectCurrentPseudo3DParams(
+        params = DirectCurrentPseudo3DInversionParams(
             geoh5=geoh5,
-            mesh=mesh.uid,
-            u_cell_size=5.0,
-            v_cell_size=5.0,
-            depth_core=100.0,
-            expansion_factor=1.1,
-            padding_distance=100.0,
-            topography_object=topography.uid,
-            data_object=potential.parent.uid,
-            potential_channel=potential.uid,
+            mesh=mesh,
+            drape_model=DrapeModelData(
+                u_cell_size=5.0,
+                v_cell_size=5.0,
+                depth_core=100.0,
+                expansion_factor=1.1,
+                padding_distance=100.0,
+            ),
+            active_cells=ActiveCellsData(topography_object=topography),
+            data_object=potential.parent,
+            potential_channel=potential,
             potential_uncertainty=1e-3,
-            line_object=geoh5.get_entity("line_ids")[0].uid,
+            line_selection=LineSelectionData(
+                line_object=geoh5.get_entity("line_ids")[0]
+            ),
             starting_model=1e-2,
             reference_model=1e-2,
             s_norm=0.0,
             x_norm=1.0,
-            y_norm=1.0,
             z_norm=1.0,
             gradient_type="components",
-            potential_channel_bool=True,
             z_from_topo=False,
             max_global_iterations=max_iterations,
             initial_beta=None,
@@ -117,9 +126,9 @@ def test_dc_p3d_run(
             prctile=100,
             upper_bound=10,
             coolingRate=1,
-            cleanup=False,
+            file_control=FileControlData(cleanup=False),
         )
-        params.write_input_file(path=tmp_path, name="Inv_run")
+        params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
     driver = DirectCurrentPseudo3DInversionDriver.start(
         str(tmp_path / "Inv_run.ui.json")
