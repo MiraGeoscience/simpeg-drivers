@@ -296,10 +296,10 @@ dependencies:
   - zstd=1.5.6=h0ea2cb4_0
   - pip:
       - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@e610b3d8ecaa5ce028b39f09e2902436b11d7af9
-      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@858013ba0b531a922cb45318b87a8db162223351
-      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@5f245f913c3040fe32759278066fffbc05e7fdac
+      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@a90ae78d14429009304cf6d6bac0c40e8b28c4a1
+      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@42d2b1adfeb065889ad0fd42bd2db0be4df1d7d6
       - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app.git@d12839a685d88445cbd502294204dbef55a25a4c
-      - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps.git@f94ca2757afd074c56c45a7c65dae468eefd7f9b
+      - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps.git@1d38d71ffd733e0a128db74b3406a6749ea8d4ac
 
 variables:
   KMP_WARNINGS: 0
