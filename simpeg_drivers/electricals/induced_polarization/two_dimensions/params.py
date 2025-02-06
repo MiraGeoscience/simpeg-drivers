@@ -29,8 +29,10 @@ class InducedPolarization2DForwardParams(BaseForwardData):
     Parameter class for two dimensional induced polarization forward simulation.
 
     :param chargeability_channel_bool: Chargeability channel boolean.
-    :param line_selection: Line selection parameters.
+    :param mesh: Optional mesh object if providing a heterogeneous model.
     :param drape_model: Drape model parameters.
+    :param line_selection: Line selection parameters.
+    :param conductivity_model: Conductivity model.
     """
 
     name: ClassVar[str] = "Induced Polarization 2D Forward"
@@ -57,6 +59,10 @@ class InducedPolarization2DInversionParams(BaseInversionData):
     :param chargeability_uncertainty: Chargeability data uncertainty channel.
     :param line_selection: Line selection parameters.
     :param drape_model: Drape model parameters.
+    :param conductivity_model: Conductivity model.
+    :param lower_bound: Lower bound for the inversion.
+    :param length_scale_y: Inactive length scale in the y direction.
+    :param y_norm: Inactive y normalization factor.
     """
 
     name: ClassVar[str] = "Induced Polarization 2D Inversion"

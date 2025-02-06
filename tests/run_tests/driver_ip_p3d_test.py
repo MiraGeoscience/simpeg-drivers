@@ -21,8 +21,15 @@ from simpeg_drivers.electricals.induced_polarization.pseudo_three_dimensions.dri
     InducedPolarizationPseudo3DInversionDriver,
 )
 from simpeg_drivers.electricals.induced_polarization.pseudo_three_dimensions.params import (
-    InducedPolarizationPseudo3DParams,
+    InducedPolarizationPseudo3DForwardParams,
+    InducedPolarizationPseudo3DInversionParams,
 )
+from simpeg_drivers.electricals.params import (
+    DrapeModelData,
+    FileControlData,
+    LineSelectionData,
+)
+from simpeg_drivers.params import ActiveCellsData
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
@@ -52,24 +59,27 @@ def test_ip_p3d_fwr_run(
         flatten=False,
     )
 
-    params = InducedPolarizationPseudo3DParams(
-        forward_only=True,
+    params = InducedPolarizationPseudo3DForwardParams(
         geoh5=geoh5,
-        mesh=model.parent.uid,
-        u_cell_size=5.0,
-        v_cell_size=5.0,
-        depth_core=100.0,
-        expansion_factor=1.1,
-        padding_distance=100.0,
-        topography_object=topography.uid,
+        mesh=model.parent,
+        drape_model=DrapeModelData(
+            u_cell_size=5.0,
+            v_cell_size=5.0,
+            depth_core=100.0,
+            expansion_factor=1.1,
+            horizontal_padding=100.0,
+            vertical_padding=100.0,
+        ),
+        active_cells=ActiveCellsData(
+            topography_object=topography,
+        ),
         z_from_topo=True,
-        data_object=survey.uid,
+        data_object=survey,
         conductivity_model=1e-2,
-        starting_model=model.uid,
-        line_object=geoh5.get_entity("line_ids")[0].uid,
-        cleanup=True,
+        starting_model=model,
+        line_selection=LineSelectionData(line_object=geoh5.get_entity("line_ids")[0]),
     )
-    params.workpath = tmp_path
+
     fwr_driver = InducedPolarizationPseudo3DForwardDriver(params)
     fwr_driver.run()
 
@@ -90,28 +100,31 @@ def test_ip_p3d_run(
         topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
-        params = InducedPolarizationPseudo3DParams(
+        params = InducedPolarizationPseudo3DInversionParams(
             geoh5=geoh5,
-            mesh=mesh.uid,
-            u_cell_size=5.0,
-            v_cell_size=5.0,
-            depth_core=100.0,
-            expansion_factor=1.1,
-            padding_distance=100.0,
-            topography_object=topography.uid,
-            data_object=chargeability.parent.uid,
-            chargeability_channel=chargeability.uid,
+            mesh=mesh,
+            drape_model=DrapeModelData(
+                u_cell_size=5.0,
+                v_cell_size=5.0,
+                depth_core=100.0,
+                expansion_factor=1.1,
+                horizontal_padding=1000.0,
+                vertical_padding=1000.0,
+            ),
+            active_cells=ActiveCellsData(topography_object=topography),
+            data_object=chargeability.parent,
+            chargeability_channel=chargeability,
             chargeability_uncertainty=2e-4,
-            line_object=geoh5.get_entity("line_ids")[0].uid,
+            line_selection=LineSelectionData(
+                line_object=geoh5.get_entity("line_ids")[0],
+            ),
             conductivity_model=1e-2,
             starting_model=1e-6,
             reference_model=1e-6,
             s_norm=0.0,
             x_norm=0.0,
-            y_norm=0.0,
             z_norm=0.0,
             length_scale_x=1.0,
-            length_scale_y=1.0,
             length_scale_z=1.0,
             gradient_type="components",
             chargeability_channel_bool=True,
@@ -122,9 +135,9 @@ def test_ip_p3d_run(
             prctile=100,
             upper_bound=0.1,
             coolingRate=1,
-            cleanup=False,
+            file_control=FileControlData(cleanup=False),
         )
-        params.write_input_file(path=tmp_path, name="Inv_run")
+        params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
     driver = InducedPolarizationPseudo3DInversionDriver.start(
         str(tmp_path / "Inv_run.ui.json")

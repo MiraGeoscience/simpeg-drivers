@@ -16,7 +16,8 @@ from simpeg_drivers.electricals.induced_polarization.pseudo_three_dimensions.con
     validations,
 )
 from simpeg_drivers.electricals.induced_polarization.pseudo_three_dimensions.params import (
-    InducedPolarizationPseudo3DParams,
+    InducedPolarizationPseudo3DForwardParams,
+    InducedPolarizationPseudo3DInversionParams,
 )
 from simpeg_drivers.electricals.induced_polarization.two_dimensions.params import (
     InducedPolarization2DForwardParams,
@@ -25,14 +26,14 @@ from simpeg_drivers.electricals.induced_polarization.two_dimensions.params impor
 
 
 class InducedPolarizationPseudo3DForwardDriver(BasePseudo3DDriver):
-    _params_class = InducedPolarizationPseudo3DParams
+    _params_class = InducedPolarizationPseudo3DForwardParams
     _params_2d_class = InducedPolarization2DForwardParams
     _validations = validations
     _model_list = ["conductivity_model"]
 
 
 class InducedPolarizationPseudo3DInversionDriver(BasePseudo3DDriver):
-    _params_class = InducedPolarizationPseudo3DParams
+    _params_class = InducedPolarizationPseudo3DInversionParams
     _params_2d_class = InducedPolarization2DInversionParams
     _validations = validations
     _model_list = ["conductivity_model"]

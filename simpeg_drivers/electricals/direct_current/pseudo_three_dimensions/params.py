@@ -39,11 +39,12 @@ class DirectCurrentPseudo3DForwardParams(BaseForwardData):
 
     :param data_object: DC survey object.
     :param potential_channel_bool: Potential channel boolean.
-    :param line_object: Data channel providing line ids.
+    :param line_selection: Line selection parameters.
     :param mesh: Optional mesh object if providing a heterogeneous model.
     :param drape_model: Drape model parameters common to all 2D simulations.
     :param model_type: Specify whether the models are provided in resistivity
         or conductivity.
+    :param file_control: File control parameters.
     """
 
     name: ClassVar[str] = "Direct Current Pseudo 3D Forward"
@@ -71,9 +72,14 @@ class DirectCurrentPseudo3DInversionParams(BaseInversionData):
     :param data_object: DC survey object.
     :param potential_channel: Potential data channel.
     :param potential_uncertainty: Potential data uncertainty channel.
-    :param line_object: Data channel providing line ids.
+    :param line_selection: Line selection parameters.
     :param mesh: Optional mesh object if providing a heterogeneous model.
     :param drape_model: Drape model parameters.
+    :param model_type: Specify whether the models are provided in resistivity
+        or conductivity.
+    :param file_control: File control parameters.
+    :param length_scale_y: Inactive length scale for y direction.
+    :param y_norm: Inactive y normalization factor.
     """
 
     name: ClassVar[str] = "Direct Current Pseudo 3D Inversion"
