@@ -1,31 +1,30 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
 from __future__ import annotations
 
+from logging import getLogger
+
 import numpy as np
 from geoh5py.shared.utils import fetch_active_workspace
-from SimPEG import maps
+from simpeg import maps
 
-from ...components.factories import DirectivesFactory
-from ...joint.driver import BaseJointDriver
+from simpeg_drivers.components.factories import DirectivesFactory, SaveModelGeoh5Factory
+from simpeg_drivers.joint.driver import BaseJointDriver
+
 from .constants import validations
 from .params import JointSurveysParams
+
+
+logger = getLogger(__name__)
 
 
 class JointSurveyDriver(BaseJointDriver):
@@ -55,14 +54,26 @@ class JointSurveyDriver(BaseJointDriver):
                 norm = np.array(np.sum(projection, axis=1)).flatten()
                 model = (projection * model_local_values) / (norm + 1e-8)
 
-                if self.drivers[0].models.is_sigma:
+                if self.drivers[0].models.is_sigma and model_type in [
+                    "starting",
+                    "reference",
+                    "lower_bound",
+                    "upper_bound",
+                    "conductivity",
+                ]:
                     model = np.exp(model)
+                    if (
+                        getattr(self.params, "model_type", None)
+                        == "Resistivity (Ohm-m)"
+                    ):
+                        logger.info(
+                            "Converting input %s model to %s",
+                            model_type,
+                            getattr(self.params, "model_type", None),
+                        )
+                        model = 1.0 / model
 
-                setattr(
-                    getattr(self.models, f"_{model_type}"),
-                    "model",
-                    model,
-                )
+                getattr(self.models, f"_{model_type}").model = model
 
     @property
     def wires(self):
@@ -80,13 +91,21 @@ class JointSurveyDriver(BaseJointDriver):
                 directives_list = []
                 count = 0
                 for driver in self.drivers:
+                    if getattr(driver.params, "model_type", None) is not None:
+                        driver.params.model_type = self.params.model_type
+
                     driver_directives = DirectivesFactory(driver)
 
                     save_model = driver_directives.save_iteration_model_directive
                     save_model.transforms = [
-                        driver.data_misfit.model_map
-                    ] + save_model.transforms
+                        driver.data_misfit.model_map,
+                        *save_model.transforms,
+                    ]
+
                     directives_list.append(save_model)
+
+                    if driver_directives.save_property_group is not None:
+                        directives_list.append(driver_directives.save_property_group)
 
                     n_tiles = len(driver.data_misfit.objfcts)
                     for name in [
@@ -104,16 +123,23 @@ class JointSurveyDriver(BaseJointDriver):
 
                     count += n_tiles
 
-                self._directives = DirectivesFactory(self)
-                global_model_save = self._directives.save_iteration_model_directive
-                if self.models.is_sigma:
-                    global_model_save.transforms += [
-                        maps.ExpMap(self.inversion_mesh.mesh)
-                    ]
-
-                self._directives.directive_list = (
-                    self._directives.inversion_directives
-                    + [global_model_save]
-                    + directives_list
+                model_factory = SaveModelGeoh5Factory(self.params)
+                model_factory.factory_type = self.drivers[0].params.inversion_type
+                global_model_save = model_factory.build(
+                    inversion_object=self.inversion_mesh,
+                    active_cells=self.models.active_cells,
+                    name="Model",
                 )
+
+                self._directives = DirectivesFactory(self)
+                if self._directives.save_property_group is not None:
+                    directives_list.append(self._directives.save_property_group)
+
+                directives_list.append(self._directives.save_iteration_log_files)
+
+                self._directives.directive_list = [
+                    *self._directives.inversion_directives,
+                    global_model_save,
+                    *directives_list,
+                ]
         return self._directives

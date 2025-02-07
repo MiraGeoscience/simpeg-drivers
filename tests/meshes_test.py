@@ -1,19 +1,12 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 from __future__ import annotations
 
@@ -24,7 +17,7 @@ import pytest
 from discretize import TreeMesh
 from geoh5py import Workspace
 from geoh5py.objects import Octree
-from octree_creation_app.utils import treemesh_2_octree
+from octree_creation_app.utils import octree_2_treemesh, treemesh_2_octree
 
 from simpeg_drivers.components import InversionData, InversionMesh, InversionTopography
 from simpeg_drivers.potential_fields import MagneticVectorParams
@@ -65,10 +58,93 @@ def setup_params(tmp_path):
 
 def test_initialize(tmp_path: Path):
     ws, params = setup_params(tmp_path)
-    inversion_data = InversionData(ws, params)
-    inversion_topography = InversionTopography(ws, params)
-    inversion_mesh = InversionMesh(ws, params, inversion_data, inversion_topography)
+    inversion_mesh = InversionMesh(ws, params)
     assert isinstance(inversion_mesh.mesh, TreeMesh)
+
+
+def test_to_treemesh(tmp_path):
+    workspace = Workspace(tmp_path / "test_octree.geoh5")
+
+    # Positive cells sizes and Z ordering
+    cells = np.array(
+        [
+            [0, 0, 0, 1],
+            [1, 0, 0, 1],
+            [0, 1, 0, 1],
+            [1, 1, 0, 1],
+            [0, 0, 1, 1],
+            [1, 0, 1, 1],
+            [0, 1, 1, 1],
+            [1, 1, 1, 1],
+        ]
+    )
+    octree = Octree.create(
+        workspace,
+        u_count=2,
+        v_count=2,
+        w_count=2,
+        u_cell_size=1,
+        v_cell_size=1,
+        w_cell_size=1,
+        octree_cells=cells,
+        name="All is well",
+    )
+    mesh = InversionMesh.to_treemesh(octree)
+    assert np.allclose(mesh.cell_centers, octree.centroids)
+
+    # IJK ordering
+    cells = np.array(
+        [
+            [0, 0, 0, 1],
+            [0, 0, 1, 1],
+            [0, 1, 0, 1],
+            [0, 1, 1, 1],
+            [1, 0, 0, 1],
+            [1, 0, 1, 1],
+            [1, 1, 0, 1],
+            [1, 1, 1, 1],
+        ]
+    )
+    octree = Octree.create(
+        workspace,
+        u_count=2,
+        v_count=2,
+        w_count=2,
+        u_cell_size=1,
+        v_cell_size=1,
+        w_cell_size=1,
+        octree_cells=cells,
+        name="Uh oh",
+    )
+    mesh = InversionMesh.to_treemesh(octree)
+    assert np.allclose(mesh.cell_centers, octree.centroids)
+
+    # Negative cell sizes
+    cells = np.array(
+        [
+            [0, 0, 1, 1],
+            [1, 0, 1, 1],
+            [0, 1, 1, 1],
+            [1, 1, 1, 1],
+            [0, 0, 0, 1],
+            [1, 0, 0, 1],
+            [0, 1, 0, 1],
+            [1, 1, 0, 1],
+        ]
+    )
+    octree = Octree.create(
+        workspace,
+        u_count=2,
+        v_count=2,
+        w_count=2,
+        u_cell_size=1,
+        v_cell_size=1,
+        w_cell_size=-1,
+        octree_cells=cells,
+        name="All is well",
+    )
+    mesh = InversionMesh.to_treemesh(octree)
+    assert np.allclose(mesh.cell_centers, octree.centroids)
 
 
 def test_ensure_cell_convention(tmp_path):

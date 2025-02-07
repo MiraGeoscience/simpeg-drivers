@@ -26,5 +26,10 @@ build:
       - "jupyter-book config sphinx docs/"
       - "pip install . --no-deps"
 
+sphinx:
+  builder: html
+  configuration: docs/conf.py
+  fail_on_warning: false
+
 conda:
-  environment: environments/py-3.10-linux-64-dev.conda.lock.yml
+  environment: docs/environment.yml

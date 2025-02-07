@@ -1,19 +1,12 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
 from __future__ import annotations
@@ -32,13 +25,14 @@ from simpeg_drivers.electricals.direct_current.two_dimensions.params import (
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
+
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
 target_run = {
     "data_norm": 0.59563,
-    "phi_d": 1400,
-    "phi_m": 8.004,
+    "phi_d": 2814,
+    "phi_m": 15.88,
 }
 
 
@@ -103,10 +97,11 @@ def test_dc_2d_run(tmp_path: Path, max_iterations=1, pytest=True):
             data_object=potential.parent.uid,
             potential_channel=potential.uid,
             potential_uncertainty=1e-3,
+            model_type="Resistivity (Ohm-m)",
             line_object=geoh5.get_entity("line_ids")[0].uid,
             line_id=101,
-            starting_model=1e-2,
-            reference_model=1e-2,
+            starting_model=100.0,
+            reference_model=100.0,
             s_norm=0.0,
             x_norm=1.0,
             y_norm=1.0,
@@ -118,7 +113,7 @@ def test_dc_2d_run(tmp_path: Path, max_iterations=1, pytest=True):
             initial_beta=None,
             initial_beta_ratio=1e0,
             prctile=100,
-            upper_bound=10,
+            lower_bound=0.1,
             coolingRate=1,
         )
         params.write_input_file(path=tmp_path, name="Inv_run")

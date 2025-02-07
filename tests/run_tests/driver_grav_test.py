@@ -1,19 +1,12 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 from __future__ import annotations
 
@@ -27,10 +20,11 @@ from simpeg_drivers.potential_fields.gravity.driver import GravityDriver
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
+
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.0028055269276044915, "phi_d": 3.974e-05, "phi_m": 0.001442}
+target_run = {"data_norm": 0.0028055269276044915, "phi_d": 8.315e-05, "phi_m": 0.002882}
 
 
 def test_gravity_fwr_run(
@@ -74,6 +68,19 @@ def test_gravity_run(
         gz = geoh5.get_entity("Iteration_0_gz")[0]
         orig_gz = gz.values.copy()
         mesh = geoh5.get_entity("mesh")[0]
+        model = mesh.get_entity("starting_model")[0]
+
+        inds = (mesh.centroids[:, 0] > -35) & (mesh.centroids[:, 0] < 35)
+        norms = np.ones(mesh.n_cells) * 2
+        norms[inds] = 0
+        gradient_norms = mesh.add_data({"norms": {"values": norms}})
+
+        # Test mesh UBC ordered
+        ind = np.argsort(mesh.octree_cells, order=["K", "J", "I"])
+        mesh.octree_cells = mesh.octree_cells[ind]
+        model.values = model.values[ind]
+        gradient_norms.values = gradient_norms.values[ind]
+
         topography = geoh5.get_entity("topography")[0]
 
         # Turn some values to nan
@@ -90,9 +97,9 @@ def test_gravity_run(
             starting_model=1e-4,
             reference_model=0.0,
             s_norm=0.0,
-            x_norm=0.0,
-            y_norm=0.0,
-            z_norm=0.0,
+            x_norm=gradient_norms,
+            y_norm=gradient_norms,
+            z_norm=gradient_norms,
             gradient_type="components",
             gz_channel_bool=True,
             z_from_topo=False,
@@ -119,14 +126,14 @@ def test_gravity_run(
         residual = run_ws.get_entity("Iteration_1_gz_Residual")[0]
         assert np.isnan(residual.values).sum() == 1, "Number of nan residuals differ."
 
-        predicted = [
+        predicted = next(
             pred
             for pred in run_ws.get_entity("Iteration_0_gz")
             if pred.parent.parent.name == "Gravity Inversion"
-        ][0]
-        assert not any(
-            np.isnan(predicted.values)
-        ), "Predicted data should not have nans."
+        )
+        assert not any(np.isnan(predicted.values)), (
+            "Predicted data should not have nans."
+        )
         output["data"] = orig_gz
 
         assert len(run_ws.get_entity("SimPEG.log")) == 2

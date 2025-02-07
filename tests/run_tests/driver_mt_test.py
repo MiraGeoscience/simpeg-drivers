@@ -1,19 +1,12 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 # pylint: disable=too-many-locals
 
@@ -22,6 +15,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.natural_sources.magnetotellurics.driver import (
@@ -33,10 +27,11 @@ from simpeg_drivers.natural_sources.magnetotellurics.params import (
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
+
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.003936, "phi_d": 1.824, "phi_m": 2.551}
+target_run = {"data_norm": 0.0042988, "phi_d": 50.2, "phi_m": 11.1}
 
 
 def test_magnetotellurics_fwr_run(
@@ -65,7 +60,7 @@ def test_magnetotellurics_fwr_run(
         z_from_topo=False,
         data_object=survey.uid,
         starting_model=model.uid,
-        conductivity_model=1e-2,
+        background_conductivity=1e-2,
         zxx_real_channel_bool=True,
         zxx_imag_channel_bool=True,
         zxy_real_channel_bool=True,
@@ -81,6 +76,7 @@ def test_magnetotellurics_fwr_run(
 
 
 def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
+    # pass
     workpath = tmp_path / "inversion_test.ui.geoh5"
     if pytest:
         workpath = (
@@ -90,7 +86,11 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
         )
 
     with Workspace(workpath) as geoh5:
-        survey = geoh5.get_entity("survey")[0].copy(copy_children=False)
+        survey = next(
+            child
+            for child in geoh5.get_entity("survey")
+            if not isinstance(child.parent, SimPEGGroup)
+        )
         mesh = geoh5.get_entity("mesh")[0]
         topography = geoh5.get_entity("topography")[0]
 
@@ -121,7 +121,7 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
                     {
                         f"uncertainty_{comp}_[{ind}]": {
                             "values": np.ones_like(data_entity.values)
-                            * np.percentile(np.abs(data_entity.values), 10)
+                            * np.percentile(np.abs(data_entity.values), 5)
                         }
                     }
                 )
@@ -134,7 +134,7 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
 
         data_kwargs = {}
         for comp, data_group, uncert_group in zip(
-            components, data_groups, uncert_groups
+            components, data_groups, uncert_groups, strict=True
         ):
             data_kwargs[f"{comp}_channel"] = data_group.uid
             data_kwargs[f"{comp}_uncertainty"] = uncert_group.uid
@@ -148,8 +148,8 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
             topography_object=topography.uid,
             resolution=0.0,
             data_object=survey.uid,
-            starting_model=0.01,
-            reference_model=0.01,
+            starting_model=100.0,
+            reference_model=100.0,
             alpha_s=1.0,
             s_norm=1.0,
             x_norm=1.0,
@@ -157,10 +157,12 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
             z_norm=1.0,
             gradient_type="components",
             z_from_topo=False,
-            upper_bound=0.75,
-            conductivity_model=1e-2,
+            coolingRate=1,
+            lower_bound=0.75,
+            model_type="Resistivity (Ohm-m)",
+            background_conductivity=100.0,
             max_global_iterations=max_iterations,
-            initial_beta_ratio=1e2,
+            initial_beta_ratio=1e3,
             prctile=100,
             store_sensitivities="ram",
             **data_kwargs,
@@ -190,7 +192,6 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
         starting_model=0.01,
         conductivity_model=1e-2,
         max_global_iterations=0,
-        # store_sensitivities="ram",
         **data_kwargs,
     )
     params.write_input_file(path=tmp_path, name="Inv_run")

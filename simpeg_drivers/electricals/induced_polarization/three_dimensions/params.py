@@ -1,19 +1,12 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
 from __future__ import annotations
@@ -47,6 +40,7 @@ class InducedPolarization3DParams(InversionBaseParams):
         self._chargeability_channel = None
         self._chargeability_uncertainty = None
         self._conductivity_model = None
+        self._model_type = "Conductivity (S/m)"
 
         super().__init__(input_file=input_file, forward_only=forward_only, **kwargs)
 
@@ -89,3 +83,12 @@ class InducedPolarization3DParams(InversionBaseParams):
     @conductivity_model.setter
     def conductivity_model(self, val):
         self.setter_validator("conductivity_model", val, fun=self._uuid_promoter)
+
+    @property
+    def model_type(self):
+        """Model units."""
+        return self._model_type
+
+    @model_type.setter
+    def model_type(self, val):
+        self.setter_validator("model_type", val)

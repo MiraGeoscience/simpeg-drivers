@@ -1,19 +1,12 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
 # pylint: disable=unexpected-keyword-arg, no-value-for-parameter
@@ -24,13 +17,13 @@ from itertools import combinations
 
 import numpy as np
 from geoh5py.shared.utils import fetch_active_workspace
-from SimPEG import maps
-from SimPEG.objective_function import ComboObjectiveFunction
-from SimPEG.regularization import CrossGradient
+from simpeg import directives, maps
+from simpeg.objective_function import ComboObjectiveFunction
+from simpeg.regularization import CrossGradient
 
 from simpeg_drivers.components.factories import (
     DirectivesFactory,
-    SaveIterationGeoh5Factory,
+    SaveModelGeoh5Factory,
 )
 from simpeg_drivers.joint.driver import BaseJointDriver
 
@@ -71,11 +64,7 @@ class JointCrossGradientDriver(BaseJointDriver):
                     model += (projection * model_local_values) / (norm + 1e-8)
 
             if model is not None:
-                setattr(
-                    getattr(self.models, f"_{model_type}"),
-                    "model",
-                    model,
-                )
+                getattr(self.models, f"_{model_type}").model = model
 
     @property
     def directives(self):
@@ -102,36 +91,59 @@ class JointCrossGradientDriver(BaseJointDriver):
                     save_model = driver_directives.save_iteration_model_directive
                     save_model.label = driver.params.physical_property
                     save_model.transforms = [
-                        driver.data_misfit.model_map
-                    ] + save_model.transforms
+                        driver.data_misfit.model_map,
+                        *save_model.transforms,
+                    ]
 
                     directives_list.append(save_model)
 
-                    if (
-                        getattr(driver_directives, "vector_inversion_directive")
-                        is not None
-                    ):
+                    if driver_directives.vector_inversion_directive is not None:
                         directives_list.append(
-                            getattr(driver_directives, "vector_inversion_directive")
+                            driver_directives.vector_inversion_directive
                         )
+
+                    if driver_directives.save_property_group is not None:
+                        directives_list.append(driver_directives.save_property_group)
+
+                    save_sensitivities = driver_directives.save_sensitivities_directive
+                    if save_sensitivities is not None:
+                        save_sensitivities.transforms = [
+                            driver.data_misfit.model_map,
+                            *save_sensitivities.transforms,
+                        ]
+                        directives_list.append(save_sensitivities)
 
                     count += n_tiles
 
-                for driver, wire in zip(self.drivers, self.wires):
-                    factory = SaveIterationGeoh5Factory(self.params)
+                for driver, wire in zip(self.drivers, self.wires, strict=True):
+                    factory = SaveModelGeoh5Factory(driver.params)
                     factory.factory_type = driver.params.inversion_type
                     model_directive = factory.build(
                         inversion_object=self.inversion_mesh,
                         active_cells=self.models.active_cells,
-                        save_objective_function=True,
                         name="Model",
                     )
 
                     model_directive.label = driver.params.physical_property
-                    model_directive.transforms = [wire] + model_directive.transforms
+                    if (
+                        getattr(driver.params, "model_type", None)
+                        == "Resistivity (Ohm-m)"
+                    ):
+                        model_directive.label = "resistivity"
+
+                    model_directive.transforms = [wire, *model_directive.transforms]
                     directives_list.append(model_directive)
 
+                    if driver.directives.save_property_group is not None:
+                        directives_list.append(
+                            directives.SavePropertyGroup(
+                                self.inversion_mesh.entity,
+                                channels=["declination", "inclination"],
+                            )
+                        )
+
                 self._directives = DirectivesFactory(self)
+                directives_list.append(self._directives.save_iteration_log_files)
                 self._directives.directive_list = (
                     self._directives.inversion_directives + directives_list
                 )
@@ -170,20 +182,19 @@ class JointCrossGradientDriver(BaseJointDriver):
             driver.regularization = ComboObjectiveFunction(objfcts=reg_block)
 
         for label, driver_pairs in zip(
-            ["a_b", "c_a", "c_b"], combinations(self.drivers, 2)
+            ["a_b", "c_a", "c_b"], combinations(self.drivers, 2), strict=False
         ):
             # Deal with MVI components
             for mapping_a in driver_pairs[0].mapping:
                 for mapping_b in driver_pairs[1].mapping:
-                    wires = [
-                        self._mapping[driver_pairs[0], mapping_a],
-                        self._mapping[driver_pairs[1], mapping_b],
-                    ]
+                    wires = maps.Wires(
+                        ("a", self._mapping[driver_pairs[0], mapping_a]),
+                        ("b", self._mapping[driver_pairs[1], mapping_b]),
+                    )
                     reg_list.append(
                         CrossGradient(
                             self.inversion_mesh.mesh,
                             wires,
-                            normalize=True,
                             active_cells=self.models.active_cells,
                         )
                     )

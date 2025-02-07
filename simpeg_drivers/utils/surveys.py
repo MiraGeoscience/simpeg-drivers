@@ -1,31 +1,23 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
 
 from __future__ import annotations
 
-from collections.abc import Callable
-
 import numpy as np
 from discretize import TreeMesh
-from geoapps_utils.numerical import traveling_salesman
+from geoapps_utils.utils.numerical import traveling_salesman
 from geoh5py import Workspace
 from geoh5py.objects import PotentialElectrode
 from scipy.spatial import cKDTree
-from SimPEG.survey import BaseSurvey
+from simpeg.survey import BaseSurvey
 
 
 def counter_clockwise_sort(segments: np.ndarray, vertices: np.ndarray) -> np.ndarray:
@@ -37,10 +29,12 @@ def counter_clockwise_sort(segments: np.ndarray, vertices: np.ndarray) -> np.nda
 
     :return: Sorted segments.
     """
+    center = np.mean(vertices, axis=0)
+    center_to_vertices = vertices[segments[:, 0], :2] - center[:2]
     deltas = vertices[segments[:, 1], :2] - vertices[segments[:, 0], :2]
-    cross = np.cross(deltas[:-1], deltas[1:])
+    cross = np.cross(center_to_vertices, deltas)
 
-    if np.sign(np.mean(cross[cross != 0])) < 0:
+    if np.mean(np.sign(cross[cross != 0])) < 0:
         segments = segments[::-1, ::-1]
 
     return segments
@@ -178,33 +172,3 @@ def new_neighbors(distances: np.ndarray, neighbors: np.ndarray, nodes: list[int]
         for i in neighbors
     ]
     return np.where(ind)[0].tolist()
-
-
-def slice_and_map(obj: np.ndarray, slicer: np.ndarray | Callable):
-    """
-    Slice an array and return both sliced array and global to local map.
-
-    :param object: Array to be sliced.
-    :param slicer: Boolean index array, Integer index array,  or callable
-        that provides a condition to keep or remove each row of object.
-    :return: Sliced array.
-    :return: Dictionary map from global to local indices.
-    """
-
-    if isinstance(slicer, np.ndarray):
-        if slicer.dtype == bool:
-            sliced_object = obj[slicer]
-            g2l = dict(zip(np.where(slicer)[0], np.arange(len(obj))))
-        else:
-            sliced_object = obj[slicer]
-            g2l = dict(zip(slicer, np.arange(len(slicer))))
-
-    elif callable(slicer):
-        slicer = np.array([slicer(k) for k in obj])
-        sliced_object = obj[slicer]
-        g2l = dict(zip(np.where(slicer)[0], np.arange(len(obj))))
-
-    else:
-        raise TypeError("Slicer must be a boolean array or callable.")
-
-    return sliced_object, g2l

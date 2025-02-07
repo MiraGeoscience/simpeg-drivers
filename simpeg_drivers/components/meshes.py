@@ -1,19 +1,12 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
 from __future__ import annotations
@@ -27,7 +20,9 @@ from geoh5py.objects import DrapeModel, Octree
 from octree_creation_app.params import OctreeParams
 from octree_creation_app.utils import octree_2_treemesh, treemesh_2_octree
 
+from simpeg_drivers.params import InversionBaseParams
 from simpeg_drivers.utils.utils import drape_2_tensor
+
 
 if TYPE_CHECKING:
     from simpeg_drivers.components.data import InversionData
@@ -77,21 +72,15 @@ class InversionMesh:
     def __init__(
         self,
         workspace: Workspace,
-        params: OctreeParams,
-        inversion_data: InversionData | None,
-        inversion_topography: InversionTopography,
+        params: InversionBaseParams,
     ) -> None:
         """
         :param workspace: Workspace object containing mesh data.
         :param params: Params object containing mesh parameters.
-        :param window: Center and size defining window for data, topography, etc.
-
         """
         self.workspace = workspace
         self.params = params
-        self.inversion_data = inversion_data
-        self.inversion_topography = inversion_topography
-        self._mesh: TreeMesh | TensorMesh | None = None
+        self.mesh: TreeMesh | TensorMesh | None = None
         self.n_cells: int | None = None
         self.rotation: dict[str, float] | None = None
         self._permutation: np.ndarray | None = None
@@ -115,14 +104,6 @@ class InversionMesh:
             )
             self.params.mesh = self.entity
 
-        if (
-            getattr(self.entity, "rotation", None)
-            and self.inversion_data is not None
-            and self.inversion_data.has_tensor
-        ):
-            msg = "Cannot use tensor components with rotated mesh."
-            raise NotImplementedError(msg)
-
         self.uid = self.entity.uid
         self.n_cells = self.entity.n_cells
 
@@ -142,6 +123,13 @@ class InversionMesh:
 
         return self._mesh
 
+    @mesh.setter
+    def mesh(self, value: TreeMesh | TensorMesh | None):
+        if not isinstance(value, (TreeMesh | TensorMesh | type(None))):
+            raise TypeError("Attribute 'mesh' must be a TreeMesh or TensorMesh object.")
+
+        self._mesh = value
+
     @property
     def permutation(self) -> np.ndarray:
         """Permutation vector between discretize and geoh5py/DrapeModel ordering."""
@@ -156,7 +144,7 @@ class InversionMesh:
 
     @entity.setter
     def entity(self, val: Octree | DrapeModel):
-        if not isinstance(val, (Octree, DrapeModel, type(None))):
+        if not isinstance(val, Octree | DrapeModel | type(None)):
             raise TypeError(
                 "Attribute 'entity' must be an Octree or DrapeModel object."
             )
@@ -164,9 +152,22 @@ class InversionMesh:
         self._entity = val
 
         if isinstance(self._entity, Octree):
-            if any(getattr(self._entity, f"{axis}_cell_size") < 0 for axis in "uvw"):
-                self._mesh = InversionMesh.ensure_cell_convention(self._entity)
-                self._permutation = np.arange(self.entity.n_cells)
+            self._permutation = np.arange(self.entity.n_cells)
+            self._mesh = self.to_treemesh(self._entity)
+
+    @staticmethod
+    def to_treemesh(octree):
+        """Ensures octree mesh is in IJK order and has positive cell sizes."""
+
+        if any(getattr(octree, f"{axis}_cell_size") < 0 for axis in "uvw"):
+            mesh = InversionMesh.ensure_cell_convention(octree)
+            return mesh
+
+        mesh = octree_2_treemesh(octree)
+        if not np.allclose(octree.centroids, mesh.cell_centers):
+            mesh = InversionMesh.ensure_cell_convention(octree)
+
+        return mesh
 
     @staticmethod
     def ensure_cell_convention(mesh: Octree) -> TreeMesh | None:
@@ -183,7 +184,7 @@ class InversionMesh:
             raise ValueError("Cannot convert negative cell sizes for rotated mesh.")
 
         cell_sizes, origin = [], []
-        for axis, dim in zip("xyz", "uvw"):
+        for axis, dim in zip("xyz", "uvw", strict=True):
             n_cells = getattr(mesh, f"{dim}_count")
             cell_size = getattr(mesh, f"{dim}_cell_size")
             if cell_size < 0:
@@ -200,7 +201,7 @@ class InversionMesh:
         temp_workspace = Workspace()
         temp_octree = treemesh_2_octree(temp_workspace, treemesh)
 
-        mesh.octree_cells = np.vstack(temp_octree.octree_cells.tolist())
+        mesh.octree_cells = temp_octree.octree_cells
         mesh.origin = origin
         for dim in "uvw":
             attr = f"{dim}_cell_size"

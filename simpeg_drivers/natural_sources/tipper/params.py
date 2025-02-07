@@ -1,19 +1,12 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
 from __future__ import annotations
@@ -57,6 +50,7 @@ class TipperParams(InversionBaseParams):
         self._tyz_imag_channel = None
         self._tyz_imag_uncertainty = None
         self._background_conductivity = None
+        self._model_type = "Conductivity (S/m)"
 
         super().__init__(input_file=input_file, forward_only=forward_only, **kwargs)
 
@@ -74,11 +68,11 @@ class TipperParams(InversionBaseParams):
         if self.forward_only:
             return {k: None for k in frequencies}
         else:
-            group = [
+            group = next(
                 k
                 for k in self.data_object.property_groups
                 if k.uid == property_group.uid
-            ][0]
+            )
             property_names = [
                 self.geoh5.get_entity(p)[0].name for p in group.properties
             ]
@@ -86,10 +80,10 @@ class TipperParams(InversionBaseParams):
             for i, f in enumerate(frequencies):
                 try:
                     f_ind = property_names.index(
-                        [k for k in property_names if f"{f:.2e}" in k][0]
+                        next(k for k in property_names if f"{f:.2e}" in k)
                     )  # Safer if data was saved with geoapps naming convention
                     data[f] = properties[f_ind]
-                except IndexError:
+                except StopIteration:
                     data[f] = properties[i]  # in case of other naming conventions
 
             return data
@@ -103,6 +97,15 @@ class TipperParams(InversionBaseParams):
         """Returns uncertainty for chosen data component."""
         uid = self.uncertainty_channel(component)
         return self.property_group_data(uid)
+
+    @property
+    def model_type(self):
+        """Model units."""
+        return self._model_type
+
+    @model_type.setter
+    def model_type(self, val):
+        self.setter_validator("model_type", val)
 
     @property
     def txz_real_channel_bool(self):

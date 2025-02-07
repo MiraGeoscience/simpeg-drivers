@@ -1,26 +1,20 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 from __future__ import annotations
 
 from pathlib import Path
 
 import numpy as np
-import SimPEG
+import pytest
+import simpeg
 from discretize.utils import mesh_builder_xyz
 from geoh5py.objects import Points
 from geoh5py.workspace import Workspace
@@ -126,27 +120,33 @@ def test_survey_data(tmp_path: Path):
         )
 
         mesh = treemesh_2_octree(workspace, mesh)
-        params = MagneticVectorParams(
-            forward_only=False,
-            geoh5=workspace,
-            data_object=test_data_object.uid,
-            topography_object=test_topo_object.uid,
-            topography=topo,
-            bxx_channel=bxx_data.uid,
-            bxx_uncertainty=0.1,
-            byy_channel=byy_data.uid,
-            byy_uncertainty=0.2,
-            bzz_channel=bzz_data.uid,
-            bzz_uncertainty=0.3,
-            mesh=mesh.uid,
-            starting_model=0.0,
-            tile_spatial=2,
-            z_from_topo=True,
-            receivers_offset_z=50.0,
-            resolution=0.0,
-        )
+        with pytest.warns(
+            DeprecationWarning,
+            match="The use of 'receiver_offset_z' will be deprecated in future release.",
+        ):
+            params = MagneticVectorParams(
+                forward_only=False,
+                geoh5=workspace,
+                data_object=test_data_object.uid,
+                topography_object=test_topo_object.uid,
+                topography=topo,
+                bxx_channel=bxx_data.uid,
+                bxx_uncertainty=0.1,
+                byy_channel=byy_data.uid,
+                byy_uncertainty=0.2,
+                bzz_channel=bzz_data.uid,
+                bzz_uncertainty=0.3,
+                mesh=mesh.uid,
+                starting_model=0.0,
+                tile_spatial=2,
+                z_from_topo=True,
+                receivers_offset_z=50.0,
+                resolution=0.0,
+            )
 
         driver = MagneticVectorDriver(params)
+
+    assert driver.inversion is not None
 
     local_survey_a = driver.inverse_problem.dmisfit.objfcts[0].simulation.survey
     local_survey_b = driver.inverse_problem.dmisfit.objfcts[1].simulation.survey
@@ -173,7 +173,7 @@ def test_survey_data(tmp_path: Path):
     np.testing.assert_array_equal(expected_dobs, np.hstack(survey_dobs))
 
     # test save geoh5 iteration data
-    driver.directives.directive_list[1].save_components(99, survey_dobs)
+    driver.directives.save_iteration_data_directive.write(99, survey_dobs)
 
     with workspace.open():
         bxx_test = workspace.get_entity("Iteration_99_bxx")[0].values
@@ -184,7 +184,7 @@ def test_survey_data(tmp_path: Path):
     np.testing.assert_array_equal(byy_test, byy_data.values)
     np.testing.assert_array_equal(bzz_test, bzz_data.values)
 
-    driver.directives.directive_list[2].save_components(99, survey_dobs)
+    driver.directives.save_iteration_residual_directive.write(99, survey_dobs)
 
     with workspace.open():
         assert np.all(
@@ -302,4 +302,4 @@ def test_get_survey(tmp_path: Path):
     ws, params = setup_params(tmp_path)
     data = InversionData(ws, params)
     survey = data.create_survey()
-    assert isinstance(survey[0], SimPEG.potential_fields.magnetics.Survey)
+    assert isinstance(survey[0], simpeg.potential_fields.magnetics.Survey)

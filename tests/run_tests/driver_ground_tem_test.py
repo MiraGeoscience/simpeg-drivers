@@ -1,22 +1,16 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 from __future__ import annotations
 
+from logging import INFO, getLogger
 from pathlib import Path
 
 import numpy as np
@@ -29,20 +23,26 @@ from simpeg_drivers.electromagnetics.time_domain.driver import (
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
+
+logger = getLogger(__name__)
+
+
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
 target_run = {
     "data_norm": 5.95181e-7,
-    "phi_d": 53.94,
-    "phi_m": 241.1,
+    "phi_d": 86.58,
+    "phi_m": 443.1,
 }
 
 
 def test_tiling_ground_tem(
     tmp_path: Path,
+    *,
     n_grid_points=4,
     refinement=(2,),
+    **_,
 ):
     # Run the forward
     geoh5, _, model, survey, topography = setup_inversion_workspace(
@@ -86,9 +86,13 @@ def test_tiling_ground_tem(
 
 def test_ground_tem_fwr_run(
     tmp_path: Path,
+    caplog,
     n_grid_points=4,
     refinement=(2,),
+    pytest=True,
 ):
+    if pytest:
+        caplog.set_level(INFO)
     # Run the forward
     geoh5, _, model, survey, topography = setup_inversion_workspace(
         tmp_path,
@@ -117,6 +121,19 @@ def test_ground_tem_fwr_run(
     )
     params.workpath = tmp_path
     fwr_driver = TimeDomainElectromagneticsDriver(params)
+
+    survey.transmitters.remove_cells([15])
+    survey.tx_id_property.name = "tx_id"
+    assert fwr_driver.inversion_data.survey.source_list[0].n_segments == 16
+
+    if pytest:
+        assert len(caplog.records) == 2
+        for record in caplog.records:
+            assert record.levelname == "INFO"
+            assert "counter-clockwise" in record.message
+
+        assert "closed" in caplog.records[0].message
+
     fwr_driver.run()
 
 
@@ -209,6 +226,7 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         output = get_inversion_output(
             driver.params.geoh5.h5file, driver.params.out_group.uid
         )
+        assert driver.inversion_data.entity.tx_id_property.name == "tx_id"
         output["data"] = orig_dBzdt
         if pytest:
             check_target(output, target_run, tolerance=0.5)
@@ -219,7 +237,9 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
 
 if __name__ == "__main__":
     # Full run
-    test_ground_tem_fwr_run(Path("./"), n_grid_points=5, refinement=(2, 2, 2))
+    test_ground_tem_fwr_run(
+        Path("./"), None, n_grid_points=5, refinement=(2, 2, 2), pytest=False
+    )
     test_ground_tem_run(
         Path("./"),
         max_iterations=15,

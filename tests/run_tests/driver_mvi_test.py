@@ -1,25 +1,19 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 from __future__ import annotations
 
 from pathlib import Path
 
 import numpy as np
+from geoh5py.groups.property_group import GroupTypeEnum
 from geoh5py.objects import Curve
 from geoh5py.workspace import Workspace
 
@@ -28,13 +22,14 @@ from simpeg_drivers.potential_fields.magnetic_vector.driver import MagneticVecto
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
+
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
 target_mvi_run = {
     "data_norm": 6.3559205278626525,
-    "phi_d": 0.004415,
-    "phi_m": 2.413e-06,
+    "phi_d": 0.01447,
+    "phi_m": 4.657e-06,
 }
 
 
@@ -121,6 +116,7 @@ def test_magnetic_vector_run(
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e1,
             store_sensitivities="ram",
+            save_sensitivities=True,
             prctile=100,
         )
         params.write_input_file(path=tmp_path, name="Inv_run")
@@ -139,6 +135,12 @@ def test_magnetic_vector_run(
             )
             inactive_ind = run_ws.get_entity("active_cells")[0].values == 0
             assert np.all(nan_ind == inactive_ind)
+
+        out_group = run_ws.get_entity("Magnetic vector Inversion")[0]
+        mesh = out_group.get_entity("mesh")[0]
+        assert len(mesh.property_groups) == 2
+        assert len(mesh.property_groups[0].properties) == 2
+        assert mesh.property_groups[1].property_group_type == GroupTypeEnum.DIPDIR
 
 
 if __name__ == "__main__":

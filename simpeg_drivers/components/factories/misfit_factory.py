@@ -1,30 +1,24 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+
 if TYPE_CHECKING:
     from geoapps_utils.driver.params import BaseParams
 
 import numpy as np
-from SimPEG import data, data_misfit, objective_function
+from simpeg import data, data_misfit, objective_function
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 
@@ -46,9 +40,7 @@ class MisfitFactory(SimPEGFactory):
     def concrete_object(self):
         return objective_function.ComboObjectiveFunction
 
-    def build(
-        self, tiles, inversion_data, mesh, active_cells
-    ):  # pylint: disable=arguments-differ
+    def build(self, tiles, inversion_data, mesh, active_cells):  # pylint: disable=arguments-differ
         global_misfit = super().build(
             tiles=tiles,
             inversion_data=inversion_data,
@@ -81,7 +73,7 @@ class MisfitFactory(SimPEGFactory):
 
         tile_num = 0
         data_count = 0
-        for local_index in tiles:
+        for tile_count, local_index in enumerate(tiles):
             if len(local_index) == 0:
                 continue
 
@@ -91,7 +83,12 @@ class MisfitFactory(SimPEGFactory):
                 )
 
                 if count == 0:
-                    if self.factory_type in ["fem", "tdem"]:
+                    if self.factory_type in [
+                        "fem",
+                        "tdem",
+                        "magnetotellurics",
+                        "tipper",
+                    ]:
                         self.sorting.append(
                             np.arange(
                                 data_count,
@@ -137,7 +134,14 @@ class MisfitFactory(SimPEGFactory):
                         model_map=local_map,
                     )
                     lmisfit.W = 1 / survey.std
+                    name = self.params.inversion_type
 
+                    if len(tiles) > 1:
+                        name += f": Tile {tile_count + 1}"
+                    if len(channels) > 1:
+                        name += f": Channel {channel}"
+
+                    lmisfit.name = f"{name}"
                 local_misfits.append(lmisfit)
                 self.ordering.append(ordering)
                 tile_num += 1

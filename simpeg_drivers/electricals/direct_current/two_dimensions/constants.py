@@ -1,19 +1,12 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
 from __future__ import annotations
@@ -27,15 +20,19 @@ from simpeg_drivers import assets_path
 from simpeg_drivers import default_ui_json as base_default_ui_json
 from simpeg_drivers.constants import validations as base_validations
 
+
 inversion_defaults = {
     "version": simpeg_drivers.__version__,
     "title": "Direct Current (DC) 2D Inversion",
     "icon": "PotentialElectrode",
-    "inversion_type": "direct current 2d",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
+    "conda_environment": "simpeg_drivers",
+    "run_command": "simpeg_drivers.driver",
     "geoh5": None,  # Must remain at top of list for notebook app initialization
+    "monitoring_directory": None,
+    "workspace_geoh5": None,
+    "inversion_type": "direct current 2d",
     "forward_only": False,
-    "topography_object": None,
-    "topography": None,
     "data_object": None,
     "z_from_topo": True,
     "line_object": None,
@@ -52,21 +49,16 @@ inversion_defaults = {
     "horizontal_padding": 1000.0,
     "vertical_padding": 1000.0,
     "expansion_factor": 1.1,
+    "model_type": "Conductivity (S/m)",
     "starting_model": 1e-3,
-    "reference_model": 1e-3,
+    "reference_model": None,
     "lower_bound": None,
     "upper_bound": None,
+    "topography_object": None,
+    "topography": None,
+    "active_model": None,
     "output_tile_files": False,
     "inversion_style": "voxel",
-    "chi_factor": 1.0,
-    "initial_beta_ratio": 10.0,
-    "initial_beta": None,
-    "coolingRate": 2,
-    "coolingFactor": 2.0,
-    "max_global_iterations": 50,
-    "max_line_search_iterations": 20,
-    "max_cg_iterations": 30,
-    "tol_cg": 1e-4,
     "alpha_s": 1.0,
     "length_scale_x": 1.0,
     "length_scale_z": 1.0,
@@ -75,15 +67,23 @@ inversion_defaults = {
     "z_norm": 2.0,
     "gradient_type": "total",
     "max_irls_iterations": 25,
-    "starting_chi_factor": None,
-    "f_min_change": 1e-4,
+    "starting_chi_factor": 1.0,
     "beta_tol": 0.5,
     "prctile": 95,
-    "coolEps_q": True,
-    "coolEpsFact": 1.2,
-    "beta_search": False,
+    "chi_factor": 1.0,
+    "auto_scale_misfits": True,
+    "initial_beta_ratio": 1e2,
+    "initial_beta": None,
+    "coolingFactor": 2.0,
+    "coolingRate": 2,
+    "max_global_iterations": 50,
+    "max_line_search_iterations": 20,
+    "max_cg_iterations": 30,
+    "tol_cg": 1e-4,
+    "f_min_change": 0.01,
     "sens_wts_threshold": 0.001,
     "every_iteration_bool": True,
+    "save_sensitivities": False,
     "parallelized": True,
     "n_cpu": None,
     "tile_spatial": 1,
@@ -93,10 +93,6 @@ inversion_defaults = {
     "chunk_by_rows": True,
     "out_group": None,
     "generate_sweep": False,
-    "monitoring_directory": None,
-    "workspace_geoh5": None,
-    "run_command": "simpeg_drivers.driver",
-    "conda_environment": "simpeg_drivers",
     "distributed_workers": None,
     "potential_channel_bool": True,
 }
@@ -104,11 +100,14 @@ forward_defaults = {
     "version": simpeg_drivers.__version__,
     "title": "Direct Current (DC) 2D Forward",
     "icon": "PotentialElectrode",
-    "inversion_type": "direct current 2d",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
+    "conda_environment": "simpeg_drivers",
+    "run_command": "simpeg_drivers.driver",
     "geoh5": None,  # Must remain at top of list for notebook app initialization
+    "monitoring_directory": None,
+    "workspace_geoh5": None,
+    "inversion_type": "direct current 2d",
     "forward_only": True,
-    "topography_object": None,
-    "topography": None,
     "data_object": None,
     "z_from_topo": True,
     "line_object": None,
@@ -124,7 +123,11 @@ forward_defaults = {
     "horizontal_padding": 1000.0,
     "vertical_padding": 1000.0,
     "expansion_factor": 1.1,
+    "model_type": "Conductivity (S/m)",
     "starting_model": 1e-3,
+    "topography_object": None,
+    "topography": None,
+    "active_model": None,
     "output_tile_files": False,
     "parallelized": True,
     "n_cpu": None,
@@ -133,10 +136,6 @@ forward_defaults = {
     "chunk_by_rows": True,
     "out_group": None,
     "generate_sweep": False,
-    "monitoring_directory": None,
-    "workspace_geoh5": None,
-    "run_command": "simpeg_drivers.driver",
-    "conda_environment": "simpeg_drivers",
     "distributed_workers": None,
     "gradient_type": "total",
 }
@@ -153,6 +152,7 @@ default_ui_json = {
         "label": "Line ID",
         "parent": "data_object",
         "value": None,
+        "tooltip": "Selects the data representing the different lines in the survey.",
     },
     "line_id": {
         "group": "Data",
@@ -160,6 +160,7 @@ default_ui_json = {
         "min": 1,
         "label": "Line number",
         "value": 1,
+        "tooltip": "Selects the line of data to be processed.",
     },
     "data_object": {
         "main": True,
@@ -209,6 +210,8 @@ default_ui_json = {
     "u_cell_size": {
         "min": 0.0,
         "group": "Mesh and models",
+        "dependency": "mesh",
+        "dependencyType": "disabled",
         "main": True,
         "enabled": True,
         "label": "Easting core cell size (m)",
@@ -217,6 +220,8 @@ default_ui_json = {
     "v_cell_size": {
         "min": 0.0,
         "group": "Mesh and models",
+        "dependency": "mesh",
+        "dependencyType": "disabled",
         "main": True,
         "enabled": True,
         "label": "Northing core cell size (m)",
@@ -225,6 +230,8 @@ default_ui_json = {
     "depth_core": {
         "min": 0.0,
         "group": "Mesh and models",
+        "dependency": "mesh",
+        "dependencyType": "disabled",
         "main": True,
         "enabled": True,
         "label": "Depth of core (m)",
@@ -233,6 +240,8 @@ default_ui_json = {
     "horizontal_padding": {
         "min": 0.0,
         "group": "Mesh and models",
+        "dependency": "mesh",
+        "dependencyType": "disabled",
         "main": True,
         "enabled": True,
         "label": "Horizontal padding (m)",
@@ -241,16 +250,27 @@ default_ui_json = {
     "vertical_padding": {
         "min": 0.0,
         "group": "Mesh and models",
-        "main": True,
+        "dependency": "mesh",
         "dependencyType": "disabled",
+        "main": True,
         "label": "Vertical padding (m)",
         "value": 1000.0,
     },
     "expansion_factor": {
         "main": True,
         "group": "Mesh and models",
+        "dependency": "mesh",
+        "dependencyType": "disabled",
         "label": "Expansion factor",
         "value": 1.1,
+    },
+    "model_type": {
+        "choiceList": ["Conductivity (S/m)", "Resistivity (Ohm-m)"],
+        "main": True,
+        "group": "Mesh and models",
+        "label": "Model units",
+        "tooltip": "Select the units of the model.",
+        "value": "Conductivity (S/m)",
     },
     "starting_model": {
         "association": "Cell",
@@ -259,7 +279,7 @@ default_ui_json = {
         "main": True,
         "isValue": False,
         "parent": "mesh",
-        "label": "Initial conductivity (S/m)",
+        "label": "Initial",
         "property": None,
         "value": 1e-3,
     },
@@ -270,8 +290,10 @@ default_ui_json = {
         "group": "Mesh and models",
         "isValue": True,
         "parent": "mesh",
-        "label": "Reference conductivity (S/m)",
+        "label": "Reference",
         "property": None,
+        "optional": True,
+        "enabled": False,
         "value": 1e-3,
     },
     "lower_bound": {
@@ -281,7 +303,7 @@ default_ui_json = {
         "group": "Mesh and models",
         "isValue": True,
         "parent": "mesh",
-        "label": "Lower bound (S/m)",
+        "label": "Lower bound",
         "property": None,
         "optional": True,
         "value": 1e-8,
@@ -294,7 +316,7 @@ default_ui_json = {
         "group": "Mesh and models",
         "isValue": True,
         "parent": "mesh",
-        "label": "Upper bound (S/m)",
+        "label": "Upper bound",
         "property": None,
         "optional": True,
         "value": 100.0,

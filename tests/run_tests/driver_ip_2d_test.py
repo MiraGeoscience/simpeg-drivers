@@ -1,19 +1,12 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 from __future__ import annotations
 
@@ -31,14 +24,11 @@ from simpeg_drivers.electricals.induced_polarization.two_dimensions.driver impor
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
+
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {
-    "data_norm": 0.09141,
-    "phi_d": 9934,
-    "phi_m": 0.08341,
-}
+target_run = {"data_norm": 0.091350, "phi_d": 25630, "phi_m": 0.1578}
 
 
 def test_ip_2d_fwr_run(
@@ -62,10 +52,10 @@ def test_ip_2d_fwr_run(
     params = InducedPolarization2DParams(
         forward_only=True,
         geoh5=geoh5,
+        data_object=survey.uid,
         mesh=model.parent.uid,
         topography_object=topography.uid,
         z_from_topo=True,
-        data_object=survey.uid,
         starting_model=model.uid,
         conductivity_model=1e-2,
         line_object=geoh5.get_entity("line_ids")[0].uid,

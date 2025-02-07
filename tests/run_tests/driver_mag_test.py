@@ -1,19 +1,12 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 from __future__ import annotations
 
@@ -27,10 +20,11 @@ from simpeg_drivers.potential_fields.magnetic_scalar.driver import MagneticScala
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
+
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 8.71227951689941, "phi_d": 19.01, "phi_m": 2.77e-06}
+target_run = {"data_norm": 8.71227951689941, "phi_d": 37.52, "phi_m": 5.717e-06}
 
 
 def test_susceptibility_fwr_run(
@@ -86,14 +80,14 @@ def test_susceptibility_run(
         tmi = geoh5.get_entity("Iteration_0_tmi")[0]
         orig_tmi = tmi.values.copy()
         mesh = geoh5.get_entity("mesh")[0]
-        topography = geoh5.get_entity("topography")[0]
+        active_cells = mesh.get_entity("active_cells")[0]
         inducing_field = (50000.0, 90.0, 0.0)
 
         # Run the inverse
         params = MagneticScalarParams(
             geoh5=geoh5,
             mesh=mesh.uid,
-            topography_object=topography.uid,
+            active_model=active_cells.uid,
             inducing_field_strength=inducing_field[0],
             inducing_field_inclination=inducing_field[1],
             inducing_field_declination=inducing_field[2],
@@ -104,6 +98,7 @@ def test_susceptibility_run(
             x_norm=1.0,
             y_norm=1.0,
             z_norm=1.0,
+            initial_beta_ratio=1e1,
             gradient_type="components",
             lower_bound=0.0,
             tmi_channel_bool=True,
@@ -113,7 +108,7 @@ def test_susceptibility_run(
             max_global_iterations=max_iterations,
             store_sensitivities="ram",
         )
-        params.write_input_file(path=tmp_path, name="Inv_run")
+        params.write_input_file(path=tmp_path, name="Inv_run", validate=False)
 
     driver = MagneticScalarDriver.start(str(tmp_path / "Inv_run.ui.json"))
 

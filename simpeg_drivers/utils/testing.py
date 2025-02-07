@@ -1,19 +1,13 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
 
 import warnings
 from pathlib import Path
@@ -40,7 +34,7 @@ from geoh5py.objects import (
 from octree_creation_app.driver import OctreeDriver
 from octree_creation_app.utils import treemesh_2_octree
 from scipy.spatial import Delaunay
-from SimPEG import utils
+from simpeg import utils
 
 from simpeg_drivers.utils.utils import active_from_xyz, get_drape_model
 
@@ -195,7 +189,10 @@ def setup_inversion_workspace(
     geoh5=None,
 ):
     if geoh5 is None:
-        geoh5 = Workspace.create(Path(work_dir) / "inversion_test.ui.geoh5")
+        if (Path(work_dir) / "inversion_test.ui.geoh5").is_file():
+            geoh5 = Workspace(Path(work_dir) / "inversion_test.ui.geoh5")
+        else:
+            geoh5 = Workspace.create(Path(work_dir) / "inversion_test.ui.geoh5")
     # Topography
     xx, yy = np.meshgrid(np.linspace(-200.0, 200.0, 50), np.linspace(-200.0, 200.0, 50))
 
@@ -281,7 +278,7 @@ def setup_inversion_workspace(
             axis=1,
         )
         # survey.cells = survey.cells[dist < 100.0, :]
-        survey.remove_cells(np.where(dist > 100)[0])
+        survey.remove_cells(np.where(dist > 200)[0])
 
     elif inversion_type == "fem":
         survey = AirborneFEMReceivers.create(
@@ -315,10 +312,8 @@ def setup_inversion_workspace(
                 "Tx frequency": {
                     "values": freqs,
                     "association": "VERTEX",
-                    "entity_type": {
-                        "primitive_type": "REFERENCED",
-                        "value_map": {k: str(k) for k in freqs},
-                    },
+                    "primitive_type": "REFERENCED",
+                    "value_map": {k: str(k) for k in freqs},
                 }
             }
         )

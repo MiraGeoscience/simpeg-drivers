@@ -1,27 +1,22 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+
 if TYPE_CHECKING:
     from geoh5py.workspace import Workspace
+
     from simpeg_drivers.params import InversionBaseParams
 
 import numpy as np
@@ -104,9 +99,7 @@ class InversionLocations:
         :return: Array shape(*, 3) of x, y, z location data
 
         """
-        if hasattr(entity, "centroids"):
-            locations = entity.centroids
-        elif hasattr(entity, "vertices"):
+        if hasattr(entity, "vertices"):
             if isinstance(entity, BaseElectrode):
                 potentials = entity.potential_electrodes
                 locations = np.mean(
@@ -118,7 +111,8 @@ class InversionLocations:
                 )
             else:
                 locations = entity.vertices
-
+        elif hasattr(entity, "centroids"):
+            locations = entity.centroids
         else:
             msg = f"Workspace object {entity} 'vertices' attribute is None."
             msg += " Object type should be Grid2D or point-like."

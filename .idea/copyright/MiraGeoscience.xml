@@ -1,6 +1,8 @@
 <component name="CopyrightManager">
   <copyright>
-    <option name="notice" value="Copyright (c) &amp;#36;originalComment.match(&quot;Copyright \(c\) (\d+)&quot;, 1, &quot;-&quot;, &quot;&amp;#36;today.year&quot;)&amp;#36;today.year Mira Geoscience Ltd.&#10;All rights reserved.&#10;&#10;This file is part of simpeg-drivers.&#10;&#10;The software and information contained herein are proprietary to, and&#10;comprise valuable trade secrets of, Mira Geoscience, which&#10;intend to preserve as trade secrets such software and information.&#10;This software is furnished pursuant to a written license agreement and&#10;may be used, copied, transmitted, and stored only in accordance with&#10;the terms of such license and with the inclusion of the above copyright&#10;notice.  This software and information or any other copies thereof may&#10;not be provided or otherwise made available to any other person.&#10;" />
+    <option name="allowReplaceRegexp" value="Copyright .*Mira Geoscience" />
+    <option name="keyword" value="Copyright .*" />
+    <option name="notice" value="Copyright (c) &amp;#36;originalComment.match(&quot;Copyright \(c\) (\d+)&quot;, 1, &quot;-&quot;, &quot;&amp;#36;today.year&quot;)&amp;#36;today.year Mira Geoscience Ltd.&#10;&#10;This file is part of simpeg-drivers package.&#10;&#10;simpeg-drivers is distributed under the terms and conditions of the MIT License&#10;(see LICENSE file at the root of this source code package).&#10;" />
     <option name="myName" value="MiraGeoscience" />
   </copyright>
 </component>

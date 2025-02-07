@@ -1,19 +1,13 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
 # flake8: noqa
 
 from __future__ import annotations
@@ -28,11 +22,13 @@ from time import time
 import numpy as np
 from dask import config as dconf
 from geoapps_utils.driver.driver import BaseDriver
+
+from geoh5py.data import Data
 from geoh5py.groups import SimPEGGroup
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
 from param_sweeps.driver import SweepParams
-from SimPEG import (
+from simpeg import (
     dask,
     directives,
     inverse_problem,
@@ -41,7 +37,7 @@ from SimPEG import (
     objective_function,
     optimization,
 )
-from SimPEG.regularization import BaseRegularization, Sparse
+from simpeg.regularization import BaseRegularization, Sparse
 
 from simpeg_drivers import DRIVER_MAP
 from simpeg_drivers.components import (
@@ -102,14 +98,10 @@ class InversionDriver(BaseDriver):
                 )
                 print("Done.")
 
-                # Re-scale misfits by problem size
-                multipliers = []
-                for mult, func in self._data_misfit:
-                    multipliers.append(
-                        mult * (func.model_map.shape[0] / func.model_map.shape[1])
-                    )
-
-                self._data_misfit.multipliers = multipliers
+                self.inversion_data.save_data()
+                self._data_misfit.multipliers = np.asarray(
+                    self._data_misfit.multipliers, dtype=float
+                )
 
         return self._data_misfit
 
@@ -143,7 +135,7 @@ class InversionDriver(BaseDriver):
         return self._inversion
 
     @property
-    def inversion_data(self):
+    def inversion_data(self) -> InversionData:
         """Inversion data"""
         if getattr(self, "_inversion_data", None) is None:
             with fetch_active_workspace(self.workspace, mode="r+"):
@@ -152,16 +144,11 @@ class InversionDriver(BaseDriver):
         return self._inversion_data
 
     @property
-    def inversion_mesh(self):
+    def inversion_mesh(self) -> InversionMesh:
         """Inversion mesh"""
         if getattr(self, "_inversion_mesh", None) is None:
             with fetch_active_workspace(self.workspace, mode="r+"):
-                self._inversion_mesh = InversionMesh(
-                    self.workspace,
-                    self.params,
-                    self.inversion_data,
-                    self.inversion_topography,
-                )
+                self._inversion_mesh = InversionMesh(self.workspace, self.params)
         return self._inversion_mesh
 
     @property
@@ -271,7 +258,8 @@ class InversionDriver(BaseDriver):
     @property
     def regularization(self):
         if getattr(self, "_regularization", None) is None:
-            self._regularization = self.get_regularization()
+            with fetch_active_workspace(self.workspace, mode="r"):
+                self._regularization = self.get_regularization()
 
         return self._regularization
 
@@ -323,15 +311,24 @@ class InversionDriver(BaseDriver):
         self.logger.log.close()
 
         if self.params.forward_only:
-            self.directives.save_directives[1].save_components(0, predicted)
-            self.directives.save_directives[1].save_log()
-        else:
-            for directive in self.directives.save_directives:
-                if (
-                    isinstance(directive, directives.SaveIterationsGeoH5)
-                    and directive.save_objective_function
-                ):
-                    directive.save_log()
+            self.directives.save_iteration_data_directive.write(0, predicted)
+
+            if (
+                isinstance(
+                    self.directives.save_iteration_data_directive,
+                    directives.SaveDataGeoH5,
+                )
+                and len(self.directives.save_iteration_data_directive.channels) > 1
+            ):
+                directives.SavePropertyGroup(
+                    self.inversion_data.entity,
+                    channels=self.directives.save_iteration_data_directive.channels,
+                    components=self.directives.save_iteration_data_directive.components,
+                ).write(0)
+
+        for directive in self.directives.save_directives:
+            if isinstance(directive, directives.SaveLogFilesGeoH5):
+                directive.save_log()
 
     def start_inversion_message(self):
         # SimPEG reports half phi_d, so we scale to match
@@ -348,12 +345,12 @@ class InversionDriver(BaseDriver):
             data_count = len(self.inversion_data.survey.std)
 
         print(
-            f"Target Misfit: {0.5 * self.params.chi_factor * data_count:.2e} ({data_count} data "
-            f"with chifact = {self.params.chi_factor}) / 2"
+            f"Target Misfit: {self.params.chi_factor * data_count:.2e} ({data_count} data "
+            f"with chifact = {self.params.chi_factor})"
         )
         print(
-            f"IRLS Start Misfit: {0.5 * chi_start * data_count:.2e} ({data_count} data "
-            f"with chifact = {chi_start}) / 2"
+            f"IRLS Start Misfit: {chi_start * data_count:.2e} ({data_count} data "
+            f"with chifact = {chi_start})"
         )
 
     @property
@@ -390,24 +387,30 @@ class InversionDriver(BaseDriver):
                 self.inversion_mesh.mesh,
                 active_cells=self.models.active_cells,
                 mapping=mapping,
-                alpha_s=self.params.alpha_s,
                 reference_model=self.models.reference,
             )
-            norms = []
+
             # Adjustment for 2D versus 3D problems
-            for comp in ["s", "x", "y", "z"]:
-                if getattr(self.params, f"length_scale_{comp}", None) is not None:
-                    setattr(
-                        reg,
-                        f"length_scale_{comp}",
-                        getattr(self.params, f"length_scale_{comp}"),
+            comps = "sxz" if "2d" in self.params.inversion_type else "sxyz"
+            avg_comps = "sxy" if "2d" in self.params.inversion_type else "sxyz"
+            weights = ["alpha_s"] + [f"length_scale_{k}" for k in comps[1:]]
+            for comp, avg_comp, objfct, weight in zip(
+                comps, avg_comps, reg.objfcts, weights
+            ):
+                if getattr(self.models, weight) is None:
+                    setattr(reg, weight, 0.0)
+                    continue
+
+                weight = mapping * getattr(self.models, weight)
+                norm = mapping * getattr(self.models, f"{comp}_norm")
+                if comp in "xyz":
+                    weight = (
+                        getattr(reg.regularization_mesh, f"aveCC2F{avg_comp}") * weight
                     )
+                    norm = getattr(reg.regularization_mesh, f"aveCC2F{avg_comp}") * norm
 
-                if getattr(self.params, f"{comp}_norm") is not None:
-                    norms.append(getattr(self.params, f"{comp}_norm"))
-
-            if norms:
-                reg.norms = norms
+                objfct.set_weights(**{comp: weight})
+                objfct.norm = norm
 
             if getattr(self.params, "gradient_type") is not None:
                 setattr(
@@ -448,10 +451,10 @@ class InversionDriver(BaseDriver):
         _ = driver_class
 
         ifile = InputFile.read_ui_json(filepath)
-        inversion_type = ifile.data["inversion_type"]
+        inversion_type = ifile.ui_json.get("inversion_type", None)
         if inversion_type not in DRIVER_MAP:
             msg = f"Inversion type {inversion_type} is not supported."
-            msg += f" Valid inversions are: {*list(DRIVER_MAP), }."
+            msg += f" Valid inversions are: {(*list(DRIVER_MAP),)}."
             raise NotImplementedError(msg)
 
         mod_name, class_name = DRIVER_MAP.get(inversion_type)

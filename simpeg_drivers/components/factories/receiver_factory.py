@@ -1,19 +1,12 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
 # pylint: disable=W0613
@@ -23,11 +16,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+
 if TYPE_CHECKING:
     from geoapps_utils.driver.params import BaseParams
 
 import numpy as np
-from geoapps_utils.transformations import rotate_xyz
+from geoapps_utils.utils.transformations import rotate_xyz
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 
@@ -45,32 +39,32 @@ class ReceiversFactory(SimPEGFactory):
 
     def concrete_object(self):
         if self.factory_type in ["magnetic vector", "magnetic scalar"]:
-            from SimPEG.potential_fields.magnetics import receivers
+            from simpeg.potential_fields.magnetics import receivers
 
             return receivers.Point
 
         elif self.factory_type == "gravity":
-            from SimPEG.potential_fields.gravity import receivers
+            from simpeg.potential_fields.gravity import receivers
 
             return receivers.Point
 
         elif "direct current" in self.factory_type:
-            from SimPEG.electromagnetics.static.resistivity import receivers
+            from simpeg.electromagnetics.static.resistivity import receivers
 
             return receivers.Dipole
 
         elif "induced polarization" in self.factory_type:
-            from SimPEG.electromagnetics.static.induced_polarization import receivers
+            from simpeg.electromagnetics.static.induced_polarization import receivers
 
             return receivers.Dipole
 
         elif "fem" in self.factory_type:
-            from SimPEG.electromagnetics.frequency_domain import receivers
+            from simpeg.electromagnetics.frequency_domain import receivers
 
             return receivers.PointMagneticFluxDensitySecondary
 
         elif "tdem" in self.factory_type:
-            from SimPEG.electromagnetics.time_domain import receivers
+            from simpeg.electromagnetics.time_domain import receivers
 
             if self.params.data_units == "dB/dt (T/s)":
                 return receivers.PointMagneticFluxTimeDerivative
@@ -80,12 +74,12 @@ class ReceiversFactory(SimPEGFactory):
                 return receivers.PointMagneticField
 
         elif self.factory_type == "magnetotellurics":
-            from SimPEG.electromagnetics.natural_source import receivers
+            from simpeg.electromagnetics.natural_source import receivers
 
             return receivers.PointNaturalSource
 
         elif self.factory_type == "tipper":
-            from SimPEG.electromagnetics.natural_source import receivers
+            from simpeg.electromagnetics.natural_source import receivers
 
             return receivers.Point3DTipper
 
@@ -186,9 +180,9 @@ class ReceiversFactory(SimPEGFactory):
 
         if np.all(locations_m == locations_n):
             if "direct current" in self.factory_type:
-                from SimPEG.electromagnetics.static.resistivity import receivers
+                from simpeg.electromagnetics.static.resistivity import receivers
             else:
-                from SimPEG.electromagnetics.static.induced_polarization import (
+                from simpeg.electromagnetics.static.induced_polarization import (
                     receivers,
                 )
             self.simpeg_object = receivers.Pole

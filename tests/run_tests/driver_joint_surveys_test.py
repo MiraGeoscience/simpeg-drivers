@@ -1,19 +1,12 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 from pathlib import Path
 
@@ -28,10 +21,11 @@ from simpeg_drivers.potential_fields.gravity.driver import GravityDriver
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
+
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.2997791602206556, "phi_d": 705.5, "phi_m": 36.17}
+target_run = {"data_norm": 0.2997791602206556, "phi_d": 1411, "phi_m": 74.54}
 
 
 def test_joint_surveys_fwr_run(
@@ -111,9 +105,9 @@ def test_joint_surveys_inv_run(
         )
 
     with Workspace(workpath) as geoh5:
-        topography = geoh5.get_entity("topography")[0]
         drivers = []
         orig_data = []
+
         for ind in range(2):
             group = geoh5.get_entity(f"Gravity Forward [{ind}]")[0]
             survey = geoh5.get_entity(group.options["data_object"]["value"])[0]
@@ -124,14 +118,16 @@ def test_joint_surveys_inv_run(
                 else:
                     survey = child
 
-            assert mesh is not None, "Mesh not found in group."
+            if mesh is None:
+                raise ValueError("No mesh found in the group.")
 
+            active_model = mesh.get_entity("active_cells")[0]
             gz = survey.get_data("Iteration_0_gz")[0]
             orig_data.append(gz.values)
             params = GravityParams(
                 geoh5=geoh5,
                 mesh=mesh.uid,
-                topography_object=topography.uid,
+                active_model=active_model.uid,
                 data_object=survey.uid,
                 gz_channel=gz.uid,
                 gz_uncertainty=np.var(gz.values) * 2.0,
@@ -139,10 +135,11 @@ def test_joint_surveys_inv_run(
             )
             drivers.append(GravityDriver(params))
 
+        active_model = drivers[0].params.mesh.get_entity("active_cells")[0]
         # Run the inverse
         joint_params = JointSurveysParams(
             geoh5=geoh5,
-            topography_object=topography.uid,
+            activate_model=active_model,
             mesh=drivers[0].params.mesh,
             group_a=drivers[0].params.out_group,
             group_b=drivers[1].params.out_group,

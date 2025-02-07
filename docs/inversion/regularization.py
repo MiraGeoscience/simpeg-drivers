@@ -5,18 +5,19 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.16.1
+#       jupytext_version: 1.16.2
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
 
-# # Regularization
+# # Constraints (Regularization)
 #
 # This section focuses on the regularization functions, or constraints, that can be used to inject "geological knowledge" into the inversion process. More specifically, this section covers the weighted least-squares regularization functions:
 #
 # - [Conventional L2-norm](l2-norm)
+#
 # - [General Lp-norms](lp-norm)
 #
 # While often referred to as an "unconstrained inversion", one could argue that the conventional model norm regularizations do still incorporate some degree of geological information, at least in the form of physical property distribution. Exactly what kind of a priori information is available dictates the complexity of the constraints. For more advanced petrophysical and/or geometric constraints, see the [Joint Inversion](#joint_inversion.ipynb) section.

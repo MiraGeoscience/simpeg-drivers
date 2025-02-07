@@ -1,19 +1,12 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 from __future__ import annotations
 
@@ -31,10 +24,11 @@ from simpeg_drivers.electricals.direct_current.three_dimensions.driver import (
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
+
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.15258, "phi_d": 31.85, "phi_m": 122.7}
+target_run = {"data_norm": 0.15043, "phi_d": 221.4, "phi_m": 358.6}
 
 
 def test_dc_3d_fwr_run(
@@ -123,13 +117,16 @@ def test_dc_3d_run(
             upper_bound=10,
             tile_spatial=n_lines,
             store_sensitivities="ram",
+            auto_scale_misfits=False,
+            save_sensitivities=True,
             coolingRate=1,
             chi_factor=0.5,
         )
         params.write_input_file(path=tmp_path, name="Inv_run")
 
     driver = DirectCurrent3DDriver.start(str(tmp_path / "Inv_run.ui.json"))
-
+    # Should not be auto-scaling
+    np.testing.assert_allclose(driver.data_misfit.multipliers, [1, 1, 1])
     output = get_inversion_output(
         driver.params.geoh5.h5file, driver.params.out_group.uid
     )
@@ -137,6 +134,9 @@ def test_dc_3d_run(
         output["data"] = potential.values
     if pytest:
         check_target(output, target_run)
+
+    with Workspace(workpath) as geoh5:
+        assert geoh5.get_entity("Iteration_1_sensitivities")[0] is not None
 
 
 def test_dc_single_line_fwr_run(

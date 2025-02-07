@@ -1,26 +1,21 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 from __future__ import annotations
 
 from pathlib import Path
 
 import numpy as np
+from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
+from pytest import raises
 
 from simpeg_drivers.electromagnetics.time_domain import TimeDomainElectromagneticsParams
 from simpeg_drivers.electromagnetics.time_domain.driver import (
@@ -28,6 +23,7 @@ from simpeg_drivers.electromagnetics.time_domain.driver import (
 )
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
+
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
@@ -37,6 +33,43 @@ target_run = {
     "phi_d": 15400,
     "phi_m": 718.9,
 }
+
+
+def test_bad_waveform(tmp_path: Path):
+    n_grid_points = 3
+    refinement = (2,)
+    geoh5, _, model, survey, topography = setup_inversion_workspace(
+        tmp_path,
+        background=0.001,
+        anomaly=1.0,
+        n_electrodes=n_grid_points,
+        n_lines=n_grid_points,
+        refinement=refinement,
+        inversion_type="airborne_tem",
+        drape_height=10.0,
+        padding_distance=400.0,
+        flatten=False,
+    )
+    params = TimeDomainElectromagneticsParams(
+        forward_only=True,
+        geoh5=geoh5,
+        mesh=model.parent.uid,
+        topography_object=topography.uid,
+        resolution=0.0,
+        z_from_topo=False,
+        data_object=survey.uid,
+        starting_model=model.uid,
+        x_channel_bool=True,
+        y_channel_bool=True,
+        z_channel_bool=True,
+    )
+    params.workpath = tmp_path
+    fwr_driver = TimeDomainElectromagneticsDriver(params)
+
+    survey.channels[-1] = 1000.0
+
+    with raises(ValueError, match="The latest time"):
+        _ = fwr_driver.inversion_data.survey
 
 
 def test_airborne_tem_fwr_run(
@@ -83,7 +116,11 @@ def test_airborne_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         )
 
     with Workspace(workpath) as geoh5:
-        survey = geoh5.get_entity("Airborne_rx")[0]
+        survey = next(
+            child
+            for child in geoh5.get_entity("Airborne_rx")
+            if not isinstance(child.parent, SimPEGGroup)
+        )
         mesh = geoh5.get_entity("mesh")[0]
         topography = geoh5.get_entity("topography")[0]
 
@@ -118,7 +155,7 @@ def test_airborne_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         data_kwargs = {}
         for comp in components:
             data_kwargs[f"{comp}_channel"] = survey.find_or_create_property_group(
-                name=f"Iteration_0_{comp}"
+                name=f"dB{comp}dt"
             )
             data_kwargs[f"{comp}_uncertainty"] = survey.find_or_create_property_group(
                 name=f"dB{comp}dt uncertainties"

@@ -1,19 +1,12 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
 from __future__ import annotations
@@ -28,24 +21,23 @@ from simpeg_drivers import assets_path
 from simpeg_drivers import default_ui_json as base_default_ui_json
 from simpeg_drivers.constants import validations as base_validations
 
+
 inversion_defaults = {
     "version": simpeg_drivers.__version__,
     "title": "Magnetic Vector (MVI) Inversion",
-    "documentation": "https://geoapps.readthedocs.io/en/stable/content/applications/grav_mag_inversion.html",
-    "icon": "surveyairbornegravity",
-    "inversion_type": "magnetic vector",
+    "icon": "surveyairbornemagnetics",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
+    "conda_environment": "simpeg_drivers",
+    "run_command": "simpeg_drivers.driver",
     "geoh5": None,  # Must remain at top of list for notebook app initialization
+    "monitoring_directory": None,
+    "workspace_geoh5": None,
+    "inversion_type": "magnetic vector",
     "forward_only": False,
     "inducing_field_strength": 50000.0,
     "inducing_field_inclination": 90.0,
     "inducing_field_declination": 0.0,
-    "topography_object": None,
-    "topography": None,
     "data_object": None,
-    "z_from_topo": False,
-    "receivers_offset_z": None,
-    "receivers_radar_drape": None,
-    "gps_receivers_offset": None,
     "tmi_channel": None,
     "tmi_uncertainty": 1.0,
     "bx_channel": None,
@@ -68,24 +60,18 @@ inversion_defaults = {
     "bzz_uncertainty": 1.0,
     "mesh": None,
     "starting_model": 1e-4,
-    "reference_model": 0.0,
+    "reference_model": None,
     "lower_bound": None,
     "upper_bound": None,
     "starting_inclination": None,
     "starting_declination": None,
     "reference_inclination": None,
     "reference_declination": None,
+    "topography_object": None,
+    "topography": None,
+    "active_model": None,
     "output_tile_files": False,
     "inversion_style": "voxel",
-    "chi_factor": 1.0,
-    "initial_beta_ratio": 100.0,
-    "initial_beta": None,
-    "coolingRate": 1,
-    "coolingFactor": 2.0,
-    "max_global_iterations": 100,
-    "max_line_search_iterations": 20,
-    "max_cg_iterations": 30,
-    "tol_cg": 1e-4,
     "alpha_s": 1.0,
     "length_scale_x": 1.0,
     "length_scale_y": 1.0,
@@ -96,15 +82,23 @@ inversion_defaults = {
     "z_norm": 2.0,
     "gradient_type": "total",
     "max_irls_iterations": 25,
-    "starting_chi_factor": None,
-    "f_min_change": 1e-4,
+    "starting_chi_factor": 1.0,
     "beta_tol": 0.5,
     "prctile": 95,
-    "coolEps_q": True,
-    "coolEpsFact": 1.2,
-    "beta_search": False,
+    "chi_factor": 1.0,
+    "auto_scale_misfits": True,
+    "initial_beta_ratio": 1e2,
+    "initial_beta": None,
+    "coolingFactor": 2.0,
+    "coolingRate": 1,
+    "max_global_iterations": 50,
+    "max_line_search_iterations": 20,
+    "max_cg_iterations": 30,
+    "tol_cg": 1e-4,
+    "f_min_change": 0.01,
     "sens_wts_threshold": 0.001,
     "every_iteration_bool": False,
+    "save_sensitivities": False,
     "parallelized": True,
     "n_cpu": None,
     "tile_spatial": 1,
@@ -115,30 +109,27 @@ inversion_defaults = {
     "out_group": None,
     "ga_group": None,
     "generate_sweep": False,
-    "monitoring_directory": None,
-    "workspace_geoh5": None,
-    "run_command": "simpeg_drivers.driver",
-    "conda_environment": "simpeg_drivers",
     "distributed_workers": None,
 }
 forward_defaults = {
     "version": simpeg_drivers.__version__,
     "title": "Magnetic Vector (MVI) Forward",
-    "documentation": "https://geoapps.readthedocs.io/en/stable/content/applications/grav_mag_inversion.html",
     "icon": "surveyairbornemagnetics",
-    "inversion_type": "magnetic vector",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
+    "conda_environment": "simpeg_drivers",
+    "run_command": "simpeg_drivers.driver",
     "geoh5": None,  # Must remain at top of list for notebook app initialization
+    "monitoring_directory": None,
+    "workspace_geoh5": None,
+    "inversion_type": "magnetic vector",
     "forward_only": True,
     "inducing_field_strength": 50000.0,
     "inducing_field_inclination": 90.0,
     "inducing_field_declination": 0.0,
     "topography_object": None,
     "topography": None,
+    "active_model": None,
     "data_object": None,
-    "z_from_topo": False,
-    "receivers_offset_z": None,
-    "receivers_radar_drape": None,
-    "gps_receivers_offset": None,
     "tmi_channel_bool": True,
     "bx_channel_bool": False,
     "by_channel_bool": False,
@@ -162,16 +153,12 @@ forward_defaults = {
     "out_group": None,
     "ga_group": None,
     "generate_sweep": False,
-    "monitoring_directory": None,
-    "workspace_geoh5": None,
-    "run_command": "simpeg_drivers.driver",
-    "conda_environment": "simpeg_drivers",
     "distributed_workers": None,
 }
 
 default_ui_json = {
     "title": "Magnetic Vector (MVI) Inversion",
-    "documentation": "https://geoapps.readthedocs.io/en/stable/content/applications/grav_mag_inversion.html",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
     "icon": "surveyairbornegravity",
     "inversion_type": "magnetic vector",
     "inducing_field_strength": {
@@ -518,6 +505,17 @@ default_ui_json = {
         "dependencyType": "enabled",
         "property": None,
         "value": 1.0,
+    },
+    "coolingRate": {
+        "group": "Optimization",
+        "label": "Iterations per beta",
+        "value": 1,
+        "min": 1,
+        "LineEdit": False,
+        "max": 10,
+        "precision": 1,
+        "verbose": 2,
+        "enabled": True,
     },
     "starting_model": {
         "association": ["Cell", "Vertex"],

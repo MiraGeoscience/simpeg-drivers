@@ -1,27 +1,22 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+
 if TYPE_CHECKING:
     from geoh5py.workspace import Workspace
+
     from simpeg_drivers.params import InversionBaseParams
 
 from copy import deepcopy
@@ -30,14 +25,14 @@ from re import findall
 import numpy as np
 from discretize import TreeMesh
 from scipy.spatial import cKDTree
-from SimPEG import maps
-from SimPEG.electromagnetics.static.utils.static_utils import geometric_factor
+from simpeg import maps
+from simpeg.electromagnetics.static.utils.static_utils import geometric_factor
 
 from simpeg_drivers.utils.utils import create_nested_mesh, drape_2_tensor
 
 from .factories import (
     EntityFactory,
-    SaveIterationGeoh5Factory,
+    SaveDataGeoh5Factory,
     SimulationFactory,
     SurveyFactory,
 )
@@ -107,7 +102,7 @@ class InversionData(InversionLocations):
         self.entity = None
         self.data_entity = None
         self._observed_data_types = {}
-        self.survey = None
+        self._survey = None
 
         self._initialize()
 
@@ -141,14 +136,6 @@ class InversionData(InversionLocations):
         self.entity = self.write_entity()
         self.params.data_object = self.entity
         self.locations = super().get_locations(self.entity)
-        self.survey, self.local_index, _ = self.create_survey()
-
-        if "direct current" in self.params.inversion_type:
-            self.transformations["apparent resistivity"] = 1 / (
-                geometric_factor(self.survey)[np.argsort(self.local_index)] + 1e-10
-            )
-
-        self.save_data(self.entity)
 
     def drape_locations(self, locations: np.ndarray) -> np.ndarray:
         """
@@ -212,7 +199,7 @@ class InversionData(InversionLocations):
 
         return entity
 
-    def save_data(self, entity):
+    def save_data(self):
         """Write out the data to geoh5"""
         data = self.predicted if self.params.forward_only else self.observed
         basename = "Predicted" if self.params.forward_only else "Observed"
@@ -224,31 +211,31 @@ class InversionData(InversionLocations):
             for component, channels in data.items():
                 for ind, (channel, values) in enumerate(channels.items()):
                     dnorm = values / self.normalizations[channel][component]
-                    data_channel = entity.add_data(
+                    data_channel = self.entity.add_data(
                         {f"{basename}_{component}_[{ind}]": {"values": dnorm}}
                     )
-                    data_dict[component] = entity.add_data_to_group(
+                    data_dict[component] = self.entity.add_data_to_group(
                         data_channel, f"{basename}_{component}"
                     )
                     if not self.params.forward_only:
-                        self._observed_data_types[component][
-                            f"[{ind}]"
-                        ] = data_channel.entity_type
+                        self._observed_data_types[component][f"[{ind}]"] = (
+                            data_channel.entity_type
+                        )
                         uncerts = np.abs(
                             self.uncertainties[component][channel].copy()
                             / self.normalizations[channel][component]
                         )
                         uncerts[np.isinf(uncerts)] = np.nan
-                        uncert_entity = entity.add_data(
+                        uncert_entity = self.entity.add_data(
                             {f"Uncertainties_{component}_[{ind}]": {"values": uncerts}}
                         )
-                        uncert_dict[component] = entity.add_data_to_group(
+                        uncert_dict[component] = self.entity.add_data_to_group(
                             uncert_entity, f"Uncertainties_{component}"
                         )
         else:
             for component in data:
                 dnorm = data[component] / self.normalizations[None][component]
-                data_dict[component] = entity.add_data(
+                data_dict[component] = self.entity.add_data(
                     {f"{basename}_{component}": {"values": dnorm}}
                 )
 
@@ -262,15 +249,15 @@ class InversionData(InversionLocations):
                     )
                     uncerts[np.isinf(uncerts)] = np.nan
 
-                    uncert_dict[component] = entity.add_data(
+                    uncert_dict[component] = self.entity.add_data(
                         {f"Uncertainties_{component}": {"values": uncerts}}
                     )
 
                 if "direct current" in self.params.inversion_type:
                     apparent_property = data[component].copy()
-                    apparent_property *= self.transformations["apparent resistivity"]
+                    apparent_property *= self.survey.apparent_resistivity
 
-                    data_dict["apparent_resistivity"] = entity.add_data(
+                    data_dict["apparent_resistivity"] = self.entity.add_data(
                         {
                             f"{basename}_apparent_resistivity": {
                                 "values": apparent_property,
@@ -391,14 +378,19 @@ class InversionData(InversionLocations):
         """
 
         survey_factory = SurveyFactory(self.params)
-        survey = survey_factory.build(
+        survey, local_index, ordering = survey_factory.build(
             data=self,
             mesh=mesh,
             local_index=local_index,
             channel=channel,
         )
 
-        return survey
+        if "direct current" in self.params.inversion_type:
+            survey.apparent_resistivity = 1 / (
+                geometric_factor(survey)[np.argsort(local_index)] + 1e-10
+            )
+
+        return survey, local_index, ordering
 
     def simulation(
         self,
@@ -479,12 +471,12 @@ class InversionData(InversionLocations):
             model, compute_J=False if self.params.forward_only else True
         )
         if self.params.forward_only:
-            save_directive = SaveIterationGeoh5Factory(self.params).build(
+            save_directive = SaveDataGeoh5Factory(self.params).build(
                 inversion_object=self,
                 sorting=np.argsort(np.hstack(sorting)),
                 ordering=ordering,
             )
-            save_directive.save_components(0, dpred)
+            save_directive.write(0, dpred)
 
         inverse_problem.dpred = dpred
 
@@ -527,3 +519,10 @@ class InversionData(InversionLocations):
                 parent=self.entity, values=self.params.line_object.values[self.mask]
             )
             self.params.line_object = new_line
+
+    @property
+    def survey(self):
+        if self._survey is None:
+            self._survey, _, _ = self.create_survey()
+
+        return self._survey

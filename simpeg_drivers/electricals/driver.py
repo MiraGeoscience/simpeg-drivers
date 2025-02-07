@@ -1,19 +1,12 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
 from __future__ import annotations
@@ -24,19 +17,58 @@ import warnings
 from pathlib import Path
 
 import numpy as np
-from geoapps_utils.locations import get_locations
-from geoapps_utils.numerical import weighted_average
+from geoapps_utils.utils.locations import get_locations
+from geoapps_utils.utils.numerical import weighted_average
 from geoh5py.data import Data
 from geoh5py.objects import DrapeModel
+from geoh5py.ui_json.ui_json import fetch_active_workspace
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.components.data import InversionData
+from simpeg_drivers.components.meshes import InversionMesh
 from simpeg_drivers.components.topography import InversionTopography
 from simpeg_drivers.components.windows import InversionWindow
+from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.line_sweep.driver import LineSweepDriver
 from simpeg_drivers.params import BaseParams
 from simpeg_drivers.utils.surveys import extract_dcip_survey
 from simpeg_drivers.utils.utils import get_drape_model
+
+
+class Base2DDriver(InversionDriver):
+    @property
+    def inversion_mesh(self) -> InversionMesh:
+        """Inversion mesh"""
+        if getattr(self, "_inversion_mesh", None) is None:
+            with fetch_active_workspace(self.workspace, mode="r+"):
+                if self.params.mesh is None:
+                    self.params.mesh = self.create_drape_mesh()
+
+                self._inversion_mesh = InversionMesh(self.workspace, self.params)
+        return self._inversion_mesh
+
+    def create_drape_mesh(self) -> DrapeModel:
+        """Create a drape mesh for the inversion."""
+        current_entity = self.params.data_object.current_electrodes
+        receiver_locs = np.vstack(
+            [self.params.data_object.vertices, current_entity.vertices]
+        )
+        with fetch_active_workspace(self.workspace):
+            mesh = get_drape_model(
+                self.workspace,
+                "Models",
+                receiver_locs,
+                [
+                    self.params.u_cell_size,
+                    self.params.v_cell_size,
+                ],
+                self.params.depth_core,
+                [self.params.horizontal_padding] * 2
+                + [self.params.vertical_padding, 1],
+                self.params.expansion_factor,
+            )[0]
+
+        return mesh
 
 
 class BasePseudo3DDriver(LineSweepDriver):
@@ -93,6 +125,7 @@ class BasePseudo3DDriver(LineSweepDriver):
         with self.workspace.open(mode="r+"):
             self._window = InversionWindow(self.workspace, self.pseudo3d_params)
             self._inversion_data = InversionData(self.workspace, self.pseudo3d_params)
+            self._inversion_data.save_data()
             self._inversion_topography = InversionTopography(
                 self.workspace, self.pseudo3d_params
             )

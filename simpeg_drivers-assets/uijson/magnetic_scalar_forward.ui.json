@@ -1,8 +1,8 @@
 {
-    "version": "0.1.0-alpha.1",
+    "version": "0.2.0-alpha.1",
     "title": "Magnetic Forward",
-    "icon": "surveyairbornegravity",
-    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/",
+    "icon": "surveyairbornemagnetics",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
     "conda_environment": "simpeg_drivers",
     "run_command": "simpeg_drivers.driver",
     "geoh5": "",
@@ -51,7 +51,10 @@
             "{48f5054a-1c5c-4ca4-9048-80f36dc60a06}",
             "{b020a277-90e2-4cd7-84d6-612ee3f25051}"
         ],
-        "value": ""
+        "value": "",
+        "optional": true,
+        "enabled": true,
+        "tooltip": "Select a topography object to define the active cells for inversion."
     },
     "topography": {
         "association": [
@@ -64,10 +67,29 @@
         "optional": true,
         "enabled": false,
         "label": "Elevation channel",
-        "tooltip": "Set elevation from channel",
+        "tooltip": "Set elevation from channel.  If not set the topography will be set from the geometry of the selected 'topography' object.",
         "parent": "topography_object",
+        "dependency": "topography_object",
+        "dependencyType": "enabled",
         "value": "",
         "verbose": 2
+    },
+    "active_model": {
+        "association": "Cell",
+        "dataType": [
+            "Referenced",
+            "Boolean",
+            "Integer"
+        ],
+        "group": "Topography",
+        "main": true,
+        "enabled": false,
+        "dependency": "topography_object",
+        "dependencyType": "disabled",
+        "label": "Active model",
+        "tooltip": "Provide the active cell boolean model directly if topography not set.",
+        "parent": "mesh",
+        "value": ""
     },
     "data_object": {
         "main": true,
@@ -84,37 +106,6 @@
         ],
         "value": ""
     },
-    "z_from_topo": {
-        "group": "Data pre-processing",
-        "label": "Take z from topography",
-        "tooltip": "Sets survey elevation to topography before any offsets are applied.",
-        "value": false,
-        "verbose": 3
-    },
-    "receivers_offset_z": {
-        "group": "Data pre-processing",
-        "label": "Z static offset",
-        "optional": true,
-        "enabled": false,
-        "value": 0.0,
-        "verbose": 3
-    },
-    "receivers_radar_drape": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data pre-processing",
-        "label": "Z radar offset",
-        "tooltip": "Apply a non-homogeneous offset to survey object from radar channel.",
-        "optional": true,
-        "parent": "data_object",
-        "value": "",
-        "enabled": false,
-        "verbose": 3
-    },
-    "gps_receivers_offset": "",
     "tmi_channel_bool": {
         "group": "Survey",
         "main": true,
@@ -180,7 +171,8 @@
         "main": true,
         "label": "Mesh",
         "meshType": "{4ea87376-3ece-438b-bf12-3479733ded46}",
-        "value": ""
+        "value": "",
+        "tooltip": "Select a mesh for the inversion."
     },
     "starting_model": {
         "association": [
@@ -200,7 +192,8 @@
     "parallelized": {
         "group": "Compute",
         "label": "Use parallelization",
-        "value": true
+        "value": true,
+        "visible": false
     },
     "n_cpu": {
         "min": 1,
@@ -210,7 +203,8 @@
         "optional": true,
         "enabled": false,
         "label": "Number of CPUs",
-        "value": 1
+        "value": 1,
+        "visible": false
     },
     "tile_spatial": {
         "group": "Compute",
@@ -221,22 +215,26 @@
         "value": 1,
         "min": 1,
         "max": 1000,
-        "verbose": 2
+        "verbose": 2,
+        "tooltip": "Splits the objective function into spatial tiles for distributed computation using the Dask library."
     },
     "max_chunk_size": {
         "min": 0,
         "group": "Compute",
         "optional": true,
         "enabled": true,
-        "label": "Maximum chunk size",
+        "label": "Maximum chunk size (Mb)",
         "value": 128,
-        "verbose": 3
+        "verbose": 3,
+        "visible": false,
+        "tooltip": "Limit the chunk size used by Dask for distributed computation."
     },
     "chunk_by_rows": {
         "group": "Compute",
         "label": "Chunk by rows",
         "value": true,
-        "verbose": 3
+        "verbose": 3,
+        "visible": false
     },
     "out_group": {
         "label": "SimPEG group",
@@ -245,14 +243,16 @@
         "group": "Drag-and-drop options",
         "visible": true,
         "optional": true,
-        "enabled": false
+        "enabled": false,
+        "tooltip": "Optionally set the SimPEG group to which results will be saved."
     },
     "ga_group": "",
     "generate_sweep": {
         "label": "Generate sweep file",
         "group": "Python run preferences",
         "main": true,
-        "value": false
+        "value": false,
+        "tooltip": "Generates a file for sweeping parameters instead of running the application."
     },
     "distributed_workers": ""
 }

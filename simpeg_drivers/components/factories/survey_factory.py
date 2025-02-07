@@ -1,19 +1,12 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
 # pylint: disable=W0613
@@ -23,11 +16,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+
 if TYPE_CHECKING:
     from geoapps_utils.driver.params import BaseParams
 
 import numpy as np
-import SimPEG.electromagnetics.time_domain as tdem
+import simpeg.electromagnetics.time_domain as tdem
 from geoh5py.objects.surveys.electromagnetics.ground_tem import (
     LargeLoopGroundTEMTransmitters,
 )
@@ -36,7 +30,6 @@ from scipy.interpolate import interp1d
 from simpeg_drivers.components.factories.receiver_factory import ReceiversFactory
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 from simpeg_drivers.components.factories.source_factory import SourcesFactory
-from simpeg_drivers.utils.surveys import counter_clockwise_sort
 
 
 def receiver_group(txi, potential_electrodes):
@@ -50,7 +43,7 @@ def receiver_group(txi, potential_electrodes):
     :return: ids : list of ids of potential electrodes used with transmitter txi.
     """
 
-    index_map = potential_electrodes.ab_map.map
+    index_map = potential_electrodes.ab_map()
     index_map = {int(v): k for k, v in index_map.items() if v != "Unknown"}
     ids = np.where(
         potential_electrodes.ab_cell_id.values.astype(int) == index_map[txi]
@@ -89,28 +82,28 @@ class SurveyFactory(SimPEGFactory):
 
     def concrete_object(self):
         if self.factory_type in ["magnetic vector", "magnetic scalar"]:
-            from SimPEG.potential_fields.magnetics import survey
+            from simpeg.potential_fields.magnetics import survey
 
         elif self.factory_type == "gravity":
-            from SimPEG.potential_fields.gravity import survey
+            from simpeg.potential_fields.gravity import survey
 
         elif "direct current" in self.factory_type:
-            from SimPEG.electromagnetics.static.resistivity import survey
+            from simpeg.electromagnetics.static.resistivity import survey
 
         elif "induced polarization" in self.factory_type:
-            from SimPEG.electromagnetics.static.induced_polarization import survey
+            from simpeg.electromagnetics.static.induced_polarization import survey
 
         elif "fem" in self.factory_type:
-            from SimPEG.electromagnetics.frequency_domain import survey
+            from simpeg.electromagnetics.frequency_domain import survey
 
         elif "tdem" in self.factory_type:
-            from SimPEG.electromagnetics.time_domain import survey
+            from simpeg.electromagnetics.time_domain import survey
 
         elif self.factory_type in ["magnetotellurics", "tipper"]:
-            from SimPEG.electromagnetics.natural_source import survey
+            from simpeg.electromagnetics.natural_source import survey
 
         else:
-            raise ValueError(f"Survey type {self.factory_type} not recognized.")
+            raise ValueError(f"Factory type '{self.factory_type}' not recognized.")
 
         return survey.Survey
 
@@ -214,8 +207,8 @@ class SurveyFactory(SimPEGFactory):
                 dobs.append(data_stack[component_id][channel_id, rx_id])
                 uncerts.append(uncert_stack[component_id][channel_id, rx_id])
 
-            survey.dobs = np.vstack([dobs]).flatten()
-            survey.std = np.vstack([uncerts]).flatten()
+            data_vec = np.vstack([dobs]).flatten()
+            uncertainty_vec = np.vstack([uncerts]).flatten()
 
         elif self.factory_type in ["magnetotellurics", "tipper"]:
             local_data = {}
@@ -235,12 +228,6 @@ class SurveyFactory(SimPEGFactory):
 
             data_vec = self._stack_channels(local_data, "row")
             uncertainty_vec = self._stack_channels(local_uncertainties, "row")
-            uncertainty_vec[np.isnan(data_vec)] = np.inf
-            data_vec[np.isnan(data_vec)] = (
-                self.dummy
-            )  # Nan's handled by inf uncertainties
-            survey.dobs = data_vec
-            survey.std = uncertainty_vec
 
         else:
             local_data = {k: v[local_index] for k, v in data.observed.items()}
@@ -250,12 +237,11 @@ class SurveyFactory(SimPEGFactory):
 
             data_vec = self._stack_channels(local_data, "column")
             uncertainty_vec = self._stack_channels(local_uncertainties, "column")
-            uncertainty_vec[np.isnan(data_vec)] = np.inf
-            data_vec[np.isnan(data_vec)] = (
-                self.dummy
-            )  # Nan's handled by inf uncertainties
-            survey.dobs = data_vec
-            survey.std = uncertainty_vec
+
+        uncertainty_vec[np.isnan(data_vec)] = np.inf
+        data_vec[np.isnan(data_vec)] = self.dummy  # Nan's handled by inf uncertainties
+        survey.dobs = data_vec
+        survey.std = uncertainty_vec
 
     def _stack_channels(self, channel_data: dict[str, np.ndarray], mode: str):
         """
@@ -336,15 +322,22 @@ class SurveyFactory(SimPEGFactory):
         receivers = data.entity
         transmitters = receivers.transmitters
 
-        if isinstance(transmitters, LargeLoopGroundTEMTransmitters):
+        if receivers.channels[-1] > (
+            receivers.waveform[:, 0].max() - receivers.timing_mark
+        ):
+            raise ValueError(
+                f"The latest time channel {receivers.channels[-1]} exceeds "
+                f"the waveform discretization. Revise waveform."
+            )
 
+        if isinstance(transmitters, LargeLoopGroundTEMTransmitters):
             if receivers.tx_id_property is None:
                 raise ValueError(
                     "Transmitter ID property required for LargeLoopGroundTEMReceivers"
                 )
 
             tx_rx = receivers.tx_id_property.values[self.local_index]
-            tx_ids = transmitters.get_data("Transmitter ID")[0].values
+            tx_ids = transmitters.tx_id_property.values
             rx_lookup = []
             tx_locs = []
             for tx_id in np.unique(tx_rx):
@@ -353,7 +346,6 @@ class SurveyFactory(SimPEGFactory):
                 loop_cells = transmitters.cells[
                     np.all(tx_ind[transmitters.cells], axis=1), :
                 ]
-                loop_cells = counter_clockwise_sort(loop_cells, transmitters.vertices)
                 loop_ind = np.r_[loop_cells[:, 0], loop_cells[-1, 1]]
                 tx_locs.append(transmitters.vertices[loop_ind, :])
         else:
@@ -375,7 +367,7 @@ class SurveyFactory(SimPEGFactory):
         tx_list = []
         rx_factory = ReceiversFactory(self.params)
         tx_factory = SourcesFactory(self.params)
-        for tx_locs, rx_ids in zip(tx_locs, rx_lookup):
+        for cur_tx_locs, rx_ids in zip(tx_locs, rx_lookup, strict=True):
             locs = receivers.vertices[rx_ids, :]
 
             rx_list = []
@@ -394,7 +386,7 @@ class SurveyFactory(SimPEGFactory):
                         self.ordering.append([time_id, component_id, rx_id])
 
             tx_list.append(
-                tx_factory.build(rx_list, locations=tx_locs, waveform=waveform)
+                tx_factory.build(rx_list, locations=cur_tx_locs, waveform=waveform)
             )
 
         return [tx_list]
@@ -429,15 +421,13 @@ class SurveyFactory(SimPEGFactory):
             receiver_groups[receiver_id] = receivers
 
         ordering = np.vstack(ordering)
+        self.ordering = []
         for frequency in frequencies:
             frequency_id = np.where(frequency == channels)[0][0]
             self.ordering.append(
                 np.hstack([np.ones((ordering.shape[0], 1)) * frequency_id, ordering])
             )
 
-        self.ordering = np.vstack(self.ordering).astype(int)
-
-        for frequency in frequencies:
             for receiver_id, receivers in receiver_groups.items():
                 locs = tx_locs[frequency == freqs, :][receiver_id, :]
                 sources.append(
@@ -448,6 +438,8 @@ class SurveyFactory(SimPEGFactory):
                     )
                 )
 
+        self.ordering = np.vstack(self.ordering).astype(int)
+
         return [sources]
 
     def _naturalsource_arguments(self, data=None, mesh=None, frequency=None):
@@ -455,7 +447,9 @@ class SurveyFactory(SimPEGFactory):
         sources = []
         rx_factory = ReceiversFactory(self.params)
         tx_factory = SourcesFactory(self.params)
-        for comp in data.components:
+        ordering = []
+        channels = np.array(data.entity.channels)
+        for component_id, comp in enumerate(data.components):
             receivers.append(
                 rx_factory.build(
                     locations=data.locations,
@@ -465,12 +459,24 @@ class SurveyFactory(SimPEGFactory):
                     component=comp,
                 )
             )
+            ordering.append(
+                np.c_[np.ones_like(self.local_index) * component_id, self.local_index]
+            )
 
+        ordering = np.vstack(ordering)
+        self.ordering = []
         if frequency is None:
-            frequencies = np.unique([list(v) for v in data.observed.values()])
-            for frequency in frequencies:
-                sources.append(tx_factory.build(receivers, frequency=frequency))
+            frequencies = channels
         else:
+            frequencies = [frequency] if not isinstance(frequency, list) else frequency
+
+        for frequency in frequencies:
             sources.append(tx_factory.build(receivers, frequency=frequency))
+            frequency_id = np.where(frequency == channels)[0][0]
+            self.ordering.append(
+                np.hstack([np.ones((ordering.shape[0], 1)) * frequency_id, ordering])
+            )
+
+        self.ordering = np.vstack(self.ordering).astype(int)
 
         return [sources]

@@ -1,4 +1,3 @@
-
 Setup for development
 =====================
 
@@ -335,4 +334,4 @@ Here is a suggestion for some plugins you can install in PyCharm.
 
 Copyright
 ^^^^^^^^^
-Copyright (c) 2024 Mira Geoscience Ltd.
+Copyright (c) 2023-2025 Mira Geoscience Ltd.

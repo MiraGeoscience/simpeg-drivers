@@ -1,25 +1,19 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 from __future__ import annotations
 
 from pathlib import Path
 
 import numpy as np
+from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.natural_sources import TipperParams
@@ -27,10 +21,11 @@ from simpeg_drivers.natural_sources.tipper.driver import TipperDriver
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
+
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.0020959218368283884, "phi_d": 0.3511, "phi_m": 3017}
+target_run = {"data_norm": 0.0055932, "phi_d": 7.346, "phi_m": 472.2}
 
 
 def test_tipper_fwr_run(
@@ -41,7 +36,7 @@ def test_tipper_fwr_run(
     # Run the forward
     geoh5, _, model, survey, topography = setup_inversion_workspace(
         tmp_path,
-        background=1e-3,
+        background=100,
         anomaly=1.0,
         n_electrodes=n_grid_points,
         n_lines=n_grid_points,
@@ -50,6 +45,7 @@ def test_tipper_fwr_run(
         drape_height=15.0,
         flatten=False,
     )
+
     params = TipperParams(
         forward_only=True,
         geoh5=geoh5,
@@ -59,7 +55,8 @@ def test_tipper_fwr_run(
         z_from_topo=False,
         data_object=survey.uid,
         starting_model=model.uid,
-        conductivity_model=1e-3,
+        model_type="Resistivity (Ohm-m)",
+        background_conductivity=1e2,
         txz_real_channel_bool=True,
         txz_imag_channel_bool=True,
         tyz_real_channel_bool=True,
@@ -67,6 +64,9 @@ def test_tipper_fwr_run(
     )
     params.workpath = tmp_path
     fwr_driver = TipperDriver(params)
+
+    # Should always be returning conductivity for simpeg simulations
+    assert not np.any(np.exp(fwr_driver.models.starting) > 1.01)
     fwr_driver.run()
 
 
@@ -76,7 +76,11 @@ def test_tipper_run(tmp_path: Path, max_iterations=1, pytest=True):
         workpath = tmp_path.parent / "test_tipper_fwr_run0" / "inversion_test.ui.geoh5"
 
     with Workspace(workpath) as geoh5:
-        survey = geoh5.get_entity("survey")[0]
+        survey = next(
+            child
+            for child in geoh5.get_entity("survey")
+            if not isinstance(child.parent, SimPEGGroup)
+        )
         mesh = geoh5.get_entity("mesh")[0]
         topography = geoh5.get_entity("topography")[0]
 
@@ -102,7 +106,7 @@ def test_tipper_run(tmp_path: Path, max_iterations=1, pytest=True):
                     {
                         f"uncertainty_{comp}_[{ind}]": {
                             "values": np.ones_like(data_entity.values)
-                            * np.percentile(np.abs(data_entity.values), 5)
+                            * np.percentile(np.abs(data_entity.values), 1)
                         }
                     }
                 )
@@ -113,7 +117,7 @@ def test_tipper_run(tmp_path: Path, max_iterations=1, pytest=True):
 
         data_kwargs = {}
         for comp, data_group, uncert_group in zip(
-            components, data_groups, uncert_groups
+            components, data_groups, uncert_groups, strict=True
         ):
             data_kwargs[f"{comp}_channel"] = data_group.uid
             data_kwargs[f"{comp}_uncertainty"] = uncert_group.uid
@@ -127,22 +131,25 @@ def test_tipper_run(tmp_path: Path, max_iterations=1, pytest=True):
             topography_object=topography.uid,
             resolution=0.0,
             data_object=survey.uid,
-            starting_model=0.001,
-            reference_model=0.001,
-            conductivity_model=1e-3,
+            starting_model=1e2,
+            reference_model=1e2,
+            background_conductivity=1e2,
             s_norm=1.0,
             x_norm=1.0,
             y_norm=1.0,
             z_norm=1.0,
             alpha_s=1.0,
             gradient_type="components",
+            model_type="Resistivity (Ohm-m)",
             z_from_topo=False,
-            upper_bound=0.75,
+            lower_bound=0.75,
             max_global_iterations=max_iterations,
-            initial_beta_ratio=1e2,
-            coolingRate=2,
+            initial_beta_ratio=1e3,
+            starting_chi_factor=1.0,
+            coolingRate=1,
             prctile=100,
-            chi_factor=0.1,
+            chi_factor=1.0,
+            max_line_search_iterations=5,
             store_sensitivities="ram",
             **data_kwargs,
         )

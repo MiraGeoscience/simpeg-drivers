@@ -1,19 +1,12 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
 # pylint: disable=W0613
@@ -23,13 +16,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+
 if TYPE_CHECKING:
     from geoapps_utils.driver.params import BaseParams
 
 from pathlib import Path
 
 import numpy as np
-from SimPEG import maps
+from simpeg import maps
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 
@@ -61,22 +55,22 @@ class SimulationFactory(SimPEGFactory):
 
     def concrete_object(self):
         if self.factory_type in ["magnetic scalar", "magnetic vector"]:
-            from SimPEG.potential_fields.magnetics import simulation
+            from simpeg.potential_fields.magnetics import simulation
 
             return simulation.Simulation3DIntegral
 
         if self.factory_type == "gravity":
-            from SimPEG.potential_fields.gravity import simulation
+            from simpeg.potential_fields.gravity import simulation
 
             return simulation.Simulation3DIntegral
 
         if self.factory_type in ["direct current 3d", "direct current pseudo 3d"]:
-            from SimPEG.electromagnetics.static.resistivity import simulation
+            from simpeg.electromagnetics.static.resistivity import simulation
 
             return simulation.Simulation3DNodal
 
         if self.factory_type == "direct current 2d":
-            from SimPEG.electromagnetics.static.resistivity import simulation_2d
+            from simpeg.electromagnetics.static.resistivity import simulation_2d
 
             return simulation_2d.Simulation2DNodal
 
@@ -84,29 +78,29 @@ class SimulationFactory(SimPEGFactory):
             "induced polarization 3d",
             "induced polarization pseudo 3d",
         ]:
-            from SimPEG.electromagnetics.static.induced_polarization import simulation
+            from simpeg.electromagnetics.static.induced_polarization import simulation
 
             return simulation.Simulation3DNodal
 
         if self.factory_type == "induced polarization 2d":
-            from SimPEG.electromagnetics.static.induced_polarization.simulation import (
+            from simpeg.electromagnetics.static.induced_polarization.simulation import (
                 Simulation2DNodal,
             )
 
             return Simulation2DNodal
 
         if self.factory_type in ["magnetotellurics", "tipper"]:
-            from SimPEG.electromagnetics.natural_source import simulation
+            from simpeg.electromagnetics.natural_source import simulation
 
             return simulation.Simulation3DPrimarySecondary
 
         if self.factory_type in ["fem"]:
-            from SimPEG.electromagnetics.frequency_domain import simulation
+            from simpeg.electromagnetics.frequency_domain import simulation
 
             return simulation.Simulation3DMagneticFluxDensity
 
         if self.factory_type in ["tdem"]:
-            from SimPEG.electromagnetics.time_domain import simulation
+            from simpeg.electromagnetics.time_domain import simulation
 
             return simulation.Simulation3DMagneticFluxDensity
 
@@ -141,7 +135,9 @@ class SimulationFactory(SimPEGFactory):
         kwargs["sensitivity_path"] = sensitivity_path
         kwargs["max_chunk_size"] = self.params.max_chunk_size
         kwargs["store_sensitivities"] = (
-            None if self.params.forward_only else self.params.store_sensitivities
+            "forward_only"
+            if self.params.forward_only
+            else self.params.store_sensitivities
         )
 
         if self.factory_type == "magnetic vector":
@@ -216,7 +212,7 @@ class SimulationFactory(SimPEGFactory):
 
     def _get_sensitivity_path(self, tile_id: int) -> str:
         """Build path to destination of on-disk sensitivities."""
-        out_dir = Path(self.params.workpath) / "SimPEG_PFInversion"
+        out_dir = Path(self.params.workpath) / "sensitivities"
 
         if tile_id is None:
             sens_path = out_dir / "Tile.zarr"

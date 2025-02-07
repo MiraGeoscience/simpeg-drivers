@@ -1,19 +1,12 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
 from __future__ import annotations
@@ -26,27 +19,36 @@ import simpeg_drivers
 from simpeg_drivers import default_ui_json as base_default_ui_json
 from simpeg_drivers.constants import validations as base_validations
 
+
 inversion_defaults = {
     "version": simpeg_drivers.__version__,
     "title": "Frequency-domain EM (FEM) Inversion",
     "icon": "surveyairborneem",
-    "inversion_type": "fem",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
+    "conda_environment": "simpeg_drivers",
+    "run_command": "simpeg_drivers.driver",
     "geoh5": None,  # Must remain at top of list for notebook app initialization
+    "monitoring_directory": None,
+    "workspace_geoh5": None,
+    "inversion_type": "fem",
     "forward_only": False,
-    "topography_object": None,
-    "topography": None,
     "data_object": None,
     "z_real_channel": None,
     "z_real_uncertainty": None,
     "z_imag_channel": None,
     "z_imag_uncertainty": None,
     "mesh": None,
+    "model_type": "Conductivity (S/m)",
     "starting_model": 1e-3,
-    "reference_model": 1e-3,
+    "reference_model": None,
     "lower_bound": None,
     "upper_bound": None,
+    "topography_object": None,
+    "topography": None,
+    "active_model": None,
     "output_tile_files": False,
     "inversion_style": "voxel",
+    "alpha_s": 1.0,
     "length_scale_x": 1.0,
     "length_scale_y": 1.0,
     "length_scale_z": 1.0,
@@ -55,26 +57,24 @@ inversion_defaults = {
     "y_norm": 2.0,
     "z_norm": 2.0,
     "gradient_type": "total",
-    "chi_factor": 1.0,
-    "initial_beta_ratio": 1e2,
-    "initial_beta": None,
-    "coolingRate": 2,
-    "coolingFactor": 2.0,
-    "max_global_iterations": 50,
-    "max_line_search_iterations": 20,
-    "max_cg_iterations": 50,
-    "tol_cg": 1e-4,
-    "alpha_s": 0.0,
     "max_irls_iterations": 25,
-    "starting_chi_factor": None,
-    "f_min_change": 1e-4,
+    "starting_chi_factor": 1.0,
     "beta_tol": 0.5,
     "prctile": 95,
-    "coolEps_q": True,
-    "coolEpsFact": 1.2,
-    "beta_search": False,
+    "chi_factor": 1.0,
+    "auto_scale_misfits": True,
+    "initial_beta_ratio": 1e2,
+    "initial_beta": None,
+    "coolingFactor": 2.0,
+    "coolingRate": 2,
+    "max_global_iterations": 50,
+    "max_line_search_iterations": 20,
+    "max_cg_iterations": 30,
+    "tol_cg": 1e-4,
+    "f_min_change": 0.01,
     "sens_wts_threshold": 1.0,
     "every_iteration_bool": True,
+    "save_sensitivities": False,
     "parallelized": True,
     "n_cpu": None,
     "tile_spatial": 1,
@@ -84,26 +84,29 @@ inversion_defaults = {
     "chunk_by_rows": True,
     "out_group": None,
     "generate_sweep": False,
-    "monitoring_directory": None,
-    "workspace_geoh5": None,
-    "run_command": "simpeg_drivers.driver",
-    "conda_environment": "simpeg_drivers",
     "distributed_workers": None,
 }
 forward_defaults = {
     "version": simpeg_drivers.__version__,
     "title": "Frequency-domain EM (FEM) Forward",
     "icon": "surveyairborneem",
-    "inversion_type": "fem",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
+    "conda_environment": "simpeg_drivers",
+    "run_command": "simpeg_drivers.driver",
     "geoh5": None,  # Must remain at top of list for notebook app initialization
+    "monitoring_directory": None,
+    "workspace_geoh5": None,
+    "inversion_type": "fem",
     "forward_only": True,
-    "topography_object": None,
-    "topography": None,
     "data_object": None,
     "z_real_channel_bool": True,
     "z_imag_channel_bool": True,
     "mesh": None,
+    "model_type": "Conductivity (S/m)",
     "starting_model": 1e-3,
+    "topography_object": None,
+    "topography": None,
+    "active_model": None,
     "output_tile_files": False,
     "parallelized": True,
     "n_cpu": None,
@@ -112,10 +115,6 @@ forward_defaults = {
     "chunk_by_rows": True,
     "out_group": None,
     "generate_sweep": False,
-    "monitoring_directory": None,
-    "workspace_geoh5": None,
-    "run_command": "simpeg_drivers.driver",
-    "conda_environment": "simpeg_drivers",
     "distributed_workers": None,
 }
 
@@ -192,6 +191,14 @@ default_ui_json = {
         "dependencyType": "enabled",
         "value": None,
     },
+    "model_type": {
+        "choiceList": ["Conductivity (S/m)", "Resistivity (Ohm-m)"],
+        "main": True,
+        "group": "Mesh and models",
+        "label": "Model units",
+        "tooltip": "Select the units of the model.",
+        "value": "Conductivity (S/m)",
+    },
     "starting_model": {
         "association": ["Cell", "Vertex"],
         "dataType": "Float",
@@ -199,7 +206,7 @@ default_ui_json = {
         "main": True,
         "isValue": False,
         "parent": "mesh",
-        "label": "Initial conductivity (S/m)",
+        "label": "Initial",
         "property": None,
         "value": 1e-3,
     },
@@ -210,8 +217,10 @@ default_ui_json = {
         "group": "Mesh and models",
         "isValue": True,
         "parent": "mesh",
-        "label": "Reference conductivity (S/m)",
+        "label": "Reference",
         "property": None,
+        "optional": True,
+        "enabled": False,
         "value": 1e-3,
     },
     "lower_bound": {
@@ -221,7 +230,7 @@ default_ui_json = {
         "group": "Mesh and models",
         "isValue": True,
         "parent": "mesh",
-        "label": "Lower bound (S/m)",
+        "label": "Lower bound",
         "property": None,
         "optional": True,
         "value": 1e-8,
@@ -234,7 +243,7 @@ default_ui_json = {
         "group": "Mesh and models",
         "isValue": True,
         "parent": "mesh",
-        "label": "Upper bound (S/m)",
+        "label": "Upper bound",
         "property": None,
         "optional": True,
         "value": 100.0,

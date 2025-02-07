@@ -5,23 +5,29 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.16.1
+#       jupytext_version: 1.16.2
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
 
-# # Theory
+# # Fundamentals
 #
-# This module documents the use of [SimPEG](simpeg.xyz) for geophysical data inversion with user-interface (UIjson) made available through the [Mira Geoscience-geoapps](https://geoapps.readthedocs.io/en/latest/) project. While the code itself has its own documentation, there is a need to demonstrate the effect of parameters controlling the inversion. This document is meant to be a reference guide with practical examples to help practitioners with their inversion work.
+# This module documents the use of [SimPEG](simpeg.xyz) for geophysical data inversion with user-interface (UIjson) made
+# available through the [Mira Geoscience-geoapps](https://mirageoscience-geoapps.readthedocs-hosted.com/) project.
+# While the code itself has its own documentation, there is a need to demonstrate the effect of parameters controlling
+# the inversion.
+# This document is meant to be a reference guide with practical examples to help practitioners with their inversion work.
 #
 #
-# - [Inversion Fundamentals](fundamentals.ipynb): An overview of the inversion framework.
+# - [Background](fundamentals.ipynb): An overview of the inversion framework.
 #
-# - [Data Misfit](data_misfit.ipynb): Assigning data uncertainties and target.
+# - [Data Fit](data_misfit.ipynb): Assigning uncertainties and global target (data misfit).
 #
-# - [Regularization](regularization.ipynb): Adding modeling constraints on the solution.
+# - [Constraints](regularization.ipynb): Adding modeling constraints (regularization).
+#
+# - [Mesh Design](mesh_design.ipynb): Designing an inversion mesh.
 #
 # - [Joint/Coupling Strategies](joint_inversion.ipynb): Inverting multiple geophysical surveys.
 #

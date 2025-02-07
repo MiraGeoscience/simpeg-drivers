@@ -1,19 +1,12 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
 from __future__ import annotations
@@ -137,14 +130,14 @@ class LineSweepDriver(SweepDriver, InversionDriver):
         log_lines = []
         for line in np.unique(line_ids):
             with Workspace(f"{path / files[line]}.ui.geoh5") as ws:
-                out_group = [
+                out_group = next(
                     group for group in ws.groups if isinstance(group, SimPEGGroup)
-                ][0]
-                survey = [
+                )
+                survey = next(
                     child
                     for child in out_group.children
                     if isinstance(child, PotentialElectrode)
-                ][0]
+                )
                 line_data = survey.get_entity(self.pseudo3d_params.line_object.name)
 
                 if not line_data:
@@ -152,11 +145,11 @@ class LineSweepDriver(SweepDriver, InversionDriver):
 
                 line_indices = line_ids == line
                 data = self.collect_line_data(survey, line_indices, data)
-                mesh = [
+                mesh = next(
                     child
                     for child in out_group.children
                     if isinstance(child, DrapeModel)
-                ][0]
+                )
 
                 local_simpeg_group = mesh.parent.copy(
                     name=f"Line {line}",
@@ -170,11 +163,15 @@ class LineSweepDriver(SweepDriver, InversionDriver):
                 for fdat in filedata:
                     if ".out" in fdat.name:
                         out_lines += [f"Line {line} from file {files[line]}\n"]
-                        out_lines += fdat.values.decode(encoding="utf8").split(sep="\n")
+                        out_lines += fdat.file_bytes.decode(encoding="utf8").split(
+                            sep="\n"
+                        )
                         out_lines += ["\n"]
 
                     if ".log" in fdat.name:
-                        log_lines += fdat.values.decode(encoding="utf8").split(sep="\n")
+                        log_lines += fdat.file_bytes.decode(encoding="utf8").split(
+                            sep="\n"
+                        )
                         log_lines += ["\n"]
 
                     fdat.copy(parent=out_group)

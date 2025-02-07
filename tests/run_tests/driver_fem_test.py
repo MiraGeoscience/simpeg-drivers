@@ -1,19 +1,12 @@
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2024 Mira Geoscience Ltd.
-#  All rights reserved.
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 # pylint: disable=too-many-locals
 
@@ -23,6 +16,7 @@ from pathlib import Path
 
 import numpy as np
 from geoh5py import Workspace
+from geoh5py.groups import SimPEGGroup
 
 from simpeg_drivers.electromagnetics.frequency_domain.driver import (
     FrequencyDomainElectromagneticsDriver,
@@ -33,10 +27,11 @@ from simpeg_drivers.electromagnetics.frequency_domain.params import (
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
+
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 47.522882323952054, "phi_d": 364.3, "phi_m": 443.3}
+target_run = {"data_norm": 47.522882323952054, "phi_d": 729, "phi_m": 883.8}
 
 
 def test_fem_fwr_run(
@@ -81,7 +76,11 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
         workpath = tmp_path.parent / "test_fem_fwr_run0" / "inversion_test.ui.geoh5"
 
     with Workspace(workpath) as geoh5:
-        survey = geoh5.get_entity("Airborne_rx")[0].copy(copy_children=False)
+        survey = next(
+            child
+            for child in geoh5.get_entity("Airborne_rx")
+            if not isinstance(child.parent, SimPEGGroup)
+        )
         mesh = geoh5.get_entity("mesh")[0]
         topography = geoh5.get_entity("topography")[0]
         data = {}
@@ -118,7 +117,7 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
 
         data_kwargs = {}
         for comp, data_group, uncert_group in zip(
-            components, data_groups, uncert_groups
+            components, data_groups, uncert_groups, strict=True
         ):
             data_kwargs[f"{comp}_channel"] = data_group.uid
             data_kwargs[f"{comp}_uncertainty"] = uncert_group.uid
