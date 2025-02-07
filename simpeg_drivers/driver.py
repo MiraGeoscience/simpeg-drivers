@@ -8,18 +8,24 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
+
 # flake8: noqa
 
 from __future__ import annotations
 
+import multiprocessing
+
 import sys
 from datetime import datetime, timedelta
+import logging
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
 from time import time
 
 import numpy as np
 from dask import config as dconf
+
+from dask.distributed import get_client, Client, LocalCluster, performance_report
 from geoapps_utils.driver.driver import BaseDriver
 from geoapps_utils.driver.data import BaseData
 
@@ -51,6 +57,9 @@ from simpeg_drivers.components.factories import DirectivesFactory, MisfitFactory
 from simpeg_drivers.params import InversionBaseParams, BaseInversionData
 from simpeg_drivers.utils.utils import tile_locations
 
+mlogger = logging.getLogger("distributed")
+mlogger.setLevel(logging.WARNING)
+
 
 class InversionDriver(BaseDriver):
     _params_class = InversionBaseParams  # pylint: disable=E0601
@@ -76,7 +85,20 @@ class InversionDriver(BaseDriver):
         self._regularization: None = None
         self._sorting: list[np.ndarray] | None = None
         self._ordering: list[np.ndarray] | None = None
+        self._mappings: list[maps.IdentityMap] | None = None
         self._window = None
+        self._client: Client | None = None
+
+    @property
+    def client(self):
+        if self._client is None:
+            try:
+                self._client = get_client()
+                # self._workers = [worker.worker_address for worker in self.client.cluster.workers.values()]
+            except ValueError:
+                self._client = False
+
+        return self._client
 
     @property
     def data_misfit(self):
@@ -103,6 +125,9 @@ class InversionDriver(BaseDriver):
                     self._data_misfit.multipliers, dtype=float
                 )
 
+            if self.client:
+                self.distributed_misfits()
+
         return self._data_misfit
 
     @property
@@ -111,6 +136,17 @@ class InversionDriver(BaseDriver):
             with fetch_active_workspace(self.workspace, mode="r+"):
                 self._directives = DirectivesFactory(self)
         return self._directives
+
+    def distributed_misfits(self):
+        """
+        Method to convert MetaSimulations to DaskMetaSimulations with futures.
+        """
+        distributed_misfits = dask.objective_function.DaskComboMisfits(
+            self.data_misfit.objfcts,
+            multipliers=self.data_misfit.multipliers,
+            client=self.client,
+        )
+        self._data_misfit = distributed_misfits
 
     @property
     def inverse_problem(self):
@@ -298,9 +334,7 @@ class InversionDriver(BaseDriver):
         predicted = None
         if self.params.forward_only:
             print("Running the forward simulation ...")
-            predicted = simpeg_inversion.invProb.get_dpred(
-                self.models.starting, compute_J=False
-            )
+            predicted = simpeg_inversion.invProb.get_dpred(self.models.starting, None)
         else:
             # Run the inversion
             self.start_inversion_message()
@@ -339,10 +373,10 @@ class InversionDriver(BaseDriver):
 
         if getattr(self, "drivers", None) is not None:  # joint problem
             data_count = np.sum(
-                [len(d.inversion_data.survey.std) for d in getattr(self, "drivers")]
+                [d.inversion_data.n_data for d in getattr(self, "drivers")]
             )
         else:
-            data_count = len(self.inversion_data.survey.std)
+            data_count = self.inversion_data.n_data
 
         print(
             f"Target Misfit: {self.params.chi_factor * data_count:.2e} ({data_count} data "
@@ -439,8 +473,15 @@ class InversionDriver(BaseDriver):
     def configure_dask(self):
         """Sets Dask config settings."""
 
+        if self.client:
+            dconf.set(scheduler=self.client)
+        else:
+            dconf.set(scheduler="threads")
+            n_cpu = self.params.n_cpu
+            if n_cpu is None:
+                n_cpu = int(multiprocessing.cpu_count())
+
         if self.params.parallelized:
-            dconf.set({"array.chunk-size": str(self.params.max_chunk_size) + "MiB"})
             dconf.set(scheduler="threads", pool=ThreadPool(self.params.n_cpu))
 
     @classmethod
@@ -520,6 +561,6 @@ class InversionLogger:
 
 
 if __name__ == "__main__":
-    file = str(Path(sys.argv[1]).resolve())
+    file = Path(sys.argv[1]).resolve()
     InversionDriver.start(file)
     sys.stdout.close()

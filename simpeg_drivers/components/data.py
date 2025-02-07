@@ -355,7 +355,7 @@ class InversionData(InversionLocations):
 
         if "direct current" in self.params.inversion_type:
             survey.apparent_resistivity = 1 / (
-                geometric_factor(survey)[np.argsort(local_index)] + 1e-10
+                geometric_factor(survey)[np.argsort(np.hstack(local_index))] + 1e-10
             )
 
         return survey, local_index, ordering
@@ -363,6 +363,7 @@ class InversionData(InversionLocations):
     def simulation(
         self,
         mesh: TreeMesh,
+        local_mesh: TreeMesh | None,
         active_cells: np.ndarray,
         survey,
         tile_id: int | None = None,
@@ -396,16 +397,17 @@ class InversionData(InversionLocations):
             )
 
         else:
-            nested_mesh = create_nested_mesh(
-                survey,
-                mesh,
-                minimum_level=3,
-                padding_cells=padding_cells,
-            )
+            if local_mesh is None:
+                local_mesh = create_nested_mesh(
+                    survey,
+                    mesh,
+                    minimum_level=3,
+                    padding_cells=padding_cells,
+                )
             mapping = maps.TileMap(
                 mesh,
                 active_cells,
-                nested_mesh,
+                local_mesh,
                 enforce_active=True,
                 components=3 if self.vector else 1,
             )
@@ -413,7 +415,7 @@ class InversionData(InversionLocations):
                 survey=survey,
                 receivers=self.entity,
                 global_mesh=mesh,
-                local_mesh=nested_mesh,
+                local_mesh=local_mesh,
                 active_cells=mapping.local_active,
                 mapping=mapping,
                 tile_id=tile_id,
@@ -481,3 +483,15 @@ class InversionData(InversionLocations):
             self._survey, _, _ = self.create_survey()
 
         return self._survey
+
+    @property
+    def n_data(self):
+        n_data = 0
+        for comp in self.components:
+            if isinstance(self.observed[comp], dict):
+                for channel in self.observed[comp]:
+                    n_data += len(self.observed[comp][channel])
+            else:
+                n_data += len(self.observed[comp])
+
+        return n_data

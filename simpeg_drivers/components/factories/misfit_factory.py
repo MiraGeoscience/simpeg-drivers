@@ -21,7 +21,8 @@ if TYPE_CHECKING:
 
 import numpy as np
 from geoh5py.objects import Octree
-from simpeg import data, data_misfit, maps, objective_function
+from scipy.sparse import csr_matrix
+from simpeg import data, data_misfit, maps, meta, objective_function
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 
@@ -66,6 +67,7 @@ class MisfitFactory(SimPEGFactory):
             channels = [None]
 
         local_misfits = []
+
         self.sorting = []
         self.ordering = []
         tile_num = 0
@@ -73,12 +75,14 @@ class MisfitFactory(SimPEGFactory):
         for tile_count, local_index in enumerate(tiles):
             if len(local_index) == 0:
                 continue
+            local_mesh = None
 
             for count, channel in enumerate(channels):
                 local_sim, local_index, ordering, mapping = (
                     self.create_nested_simulation(
                         inversion_data,
                         mesh,
+                        local_mesh,
                         active_cells,
                         local_index,
                         channel=channel,
@@ -86,6 +90,8 @@ class MisfitFactory(SimPEGFactory):
                         padding_cells=self.params.padding_cells,
                     )
                 )
+
+                local_mesh = local_sim.mesh
 
                 if count == 0:
                     if self.factory_type in [
@@ -129,22 +135,24 @@ class MisfitFactory(SimPEGFactory):
 
                 # TODO Parse workers to simulations
                 # local_sim.workers = self.params.distributed_workers
+
+                simulation = meta.MetaSimulation(
+                    simulations=[local_sim], mappings=[mapping]
+                )
+
                 local_data = data.Data(local_sim.survey)
 
                 if self.params.forward_only:
-                    lmisfit = data_misfit.L2DataMisfit(
-                        local_data, local_sim, model_map=mapping
-                    )
+                    lmisfit = data_misfit.L2DataMisfit(local_data, simulation)
 
                 else:
                     local_data.dobs = local_sim.survey.dobs
                     local_data.standard_deviation = local_sim.survey.std
                     lmisfit = data_misfit.L2DataMisfit(
-                        data=local_data,
-                        simulation=local_sim,
-                        model_map=mapping,
+                        local_data,
+                        simulation,
                     )
-                    lmisfit.W = 1 / local_sim.survey.std
+
                     name = self.params.inversion_type
 
                     if len(tiles) > 1:
@@ -153,8 +161,10 @@ class MisfitFactory(SimPEGFactory):
                         name += f": Channel {channel}"
 
                     lmisfit.name = f"{name}"
+
                 local_misfits.append(lmisfit)
                 self.ordering.append(ordering)
+
                 tile_num += 1
 
         return [local_misfits]
@@ -166,7 +176,8 @@ class MisfitFactory(SimPEGFactory):
     @staticmethod
     def create_nested_simulation(
         inversion_data: InversionData,
-        mesh: Octree,
+        global_mesh: Octree,
+        local_mesh: Octree | None,
         active_cells: np.ndarray,
         indices: np.ndarray,
         *,
@@ -186,14 +197,60 @@ class MisfitFactory(SimPEGFactory):
         :param padding_cells: Number of padding cells around the local survey.
         """
         survey, indices, ordering = inversion_data.create_survey(
-            mesh=mesh, local_index=indices, channel=channel
+            mesh=global_mesh, local_index=indices, channel=channel
         )
         local_sim, mapping = inversion_data.simulation(
-            mesh,
+            global_mesh,
+            local_mesh,
             active_cells,
             survey,
             tile_id=tile_id,
             padding_cells=padding_cells,
         )
+        inv_type = inversion_data.params.inversion_type
+        if inv_type in ["fem", "tdem"]:
+            compute_em_projections(inversion_data, local_sim)
+        elif ("current" in inv_type or "polarization" in inv_type) and (
+            "2d" not in inv_type or "pseudo" in inv_type
+        ):
+            compute_dc_projections(inversion_data, local_sim, indices)
+        return local_sim, np.hstack(indices), ordering, mapping
 
-        return local_sim, indices, ordering, mapping
+
+def compute_em_projections(inversion_data, simulation):
+    """
+    Pre-compute projections for the receivers for efficiency.
+    """
+    rx_locs = inversion_data.entity.vertices
+    projections = {}
+    for component in "xyz":
+        projections[component] = simulation.mesh.get_interpolation_matrix(
+            rx_locs, "faces_" + component[0]
+        )
+
+    for source in simulation.survey.source_list:
+        for receiver in source.receiver_list:
+            projection = 0.0
+            for orientation, comp in zip(receiver.orientation, "xyz", strict=True):
+                if orientation == 0:
+                    continue
+                projection += orientation * projections[comp][receiver.local_index, :]
+            receiver.spatialP = projection
+
+
+def compute_dc_projections(inversion_data, simulation, indices):
+    """
+    Pre-compute projections for the receivers for efficiency.
+    """
+    rx_locs = inversion_data.entity.vertices
+    mn_pairs = inversion_data.entity.cells
+    projection = simulation.mesh.get_interpolation_matrix(rx_locs, "nodes")
+
+    for source, ind in zip(simulation.survey.source_list, indices, strict=True):
+        proj_mn = projection[mn_pairs[ind, 0], :]
+
+        # Check if dipole receiver
+        if not np.all(mn_pairs[ind, 0] == mn_pairs[ind, 1]):
+            proj_mn -= projection[mn_pairs[ind, 1], :]
+
+        source.receiver_list[0].spatialP = proj_mn  # pylint: disable=protected-access

@@ -188,11 +188,11 @@ def setup_inversion_workspace(
     flatten=False,
     geoh5=None,
 ):
+    filepath = Path(work_dir) / "inversion_test.ui.geoh5"
     if geoh5 is None:
-        if (Path(work_dir) / "inversion_test.ui.geoh5").is_file():
-            geoh5 = Workspace(Path(work_dir) / "inversion_test.ui.geoh5")
-        else:
-            geoh5 = Workspace.create(Path(work_dir) / "inversion_test.ui.geoh5")
+        if filepath.is_file():
+            filepath.unlink()
+        geoh5 = Workspace.create(filepath)
     # Topography
     xx, yy = np.meshgrid(np.linspace(-200.0, 200.0, 50), np.linspace(-200.0, 200.0, 50))
 

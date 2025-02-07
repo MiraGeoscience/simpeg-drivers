@@ -125,9 +125,13 @@ class BaseJointDriver(InversionDriver):
 
             multipliers = []
             for mult, func in driver.data_misfit:
-                func.model_map = func.model_map * driver.data_misfit.model_map
+                mappings = []
+                for mapping in func.simulation.mappings:
+                    mappings.append(mapping * projection * wire)
+
+                func.simulation.mappings = mappings
                 multipliers.append(
-                    mult * (func.model_map.shape[0] / projection.shape[1])
+                    mult * (func.simulation.mappings[0].shape[0] / projection.shape[1])
                 )
 
             driver.data_misfit.multipliers = multipliers
@@ -174,6 +178,9 @@ class BaseJointDriver(InversionDriver):
         if Path(self.params.input_file.path_name).is_file():
             with fetch_active_workspace(self.workspace, mode="r+"):
                 self.out_group.add_file(self.params.input_file.path_name)
+
+        if self.client:
+            self.distributed_misfits()
 
         if self.params.forward_only:
             print("Running the forward simulation ...")
