@@ -14,12 +14,17 @@ from __future__ import annotations
 from simpeg_drivers.driver import InversionDriver
 
 from .constants import validations
-from .params import InducedPolarization3DParams
+from .params import (
+    InducedPolarization3DForwardParams,
+    InducedPolarization3DInversionParams,
+)
 
 
-class InducedPolarization3DDriver(InversionDriver):
-    _params_class = InducedPolarization3DParams
+class InducedPolarization3DForwardDriver(InversionDriver):
+    _params_class = InducedPolarization3DForwardParams
     _validations = validations
 
-    def __init__(self, params: InducedPolarization3DParams):
-        super().__init__(params)
+
+class InducedPolarization3DInversionDriver(InversionDriver):
+    _params_class = InducedPolarization3DInversionParams
+    _validations = validations

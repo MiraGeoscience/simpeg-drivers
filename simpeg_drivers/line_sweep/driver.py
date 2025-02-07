@@ -34,7 +34,7 @@ class LineSweepDriver(SweepDriver, InversionDriver):
         self._out_group = None
         self.workspace = params.geoh5
         self.pseudo3d_params = params
-        self.cleanup = params.cleanup
+        self.cleanup = params.file_control.cleanup
 
         if (
             hasattr(self.pseudo3d_params, "out_group")
@@ -78,9 +78,8 @@ class LineSweepDriver(SweepDriver, InversionDriver):
         )
         if not (ui_json_path).is_file():
             with self.workspace.open():
-                self.pseudo3d_params.write_input_file(
-                    name=ui_json_path.name,
-                    path=h5_file_path.parent,
+                self.pseudo3d_params.write_ui_json(
+                    path=h5_file_path.parent / ui_json_path.name
                 )
         generate(
             ui_json_path,
@@ -92,7 +91,7 @@ class LineSweepDriver(SweepDriver, InversionDriver):
             / (re.sub(r"\.ui$", "", h5_file_path.stem) + "_sweep.ui.json")
         )
         with self.workspace.open(mode="r"):
-            lines = self.pseudo3d_params.line_object.values
+            lines = self.pseudo3d_params.line_selection.line_object.values
         ifile.data["line_id_start"] = int(lines.min())
         ifile.data["line_id_end"] = int(lines.max())
         ifile.data["line_id_n"] = len(np.unique(lines))
@@ -122,7 +121,7 @@ class LineSweepDriver(SweepDriver, InversionDriver):
     def collect_results(self):
         path = Path(self.workspace.h5file).parent
         files = LineSweepDriver.line_files(str(path))
-        line_ids = self.pseudo3d_params.line_object.values
+        line_ids = self.pseudo3d_params.line_selection.line_object.values
         data = {}
         drape_models = []
 
@@ -138,7 +137,9 @@ class LineSweepDriver(SweepDriver, InversionDriver):
                     for child in out_group.children
                     if isinstance(child, PotentialElectrode)
                 )
-                line_data = survey.get_entity(self.pseudo3d_params.line_object.name)
+                line_data = survey.get_entity(
+                    self.pseudo3d_params.line_selection.line_object.name
+                )
 
                 if not line_data:
                     raise ValueError(f"Line {line} not found in {survey.name}")

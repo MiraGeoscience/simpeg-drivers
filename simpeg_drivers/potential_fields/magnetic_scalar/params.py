@@ -9,10 +9,6 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-# pylint: disable=too-many-public-methods
-# pylint: disable=too-many-instance-attributes
-
-
 from __future__ import annotations
 
 from pathlib import Path

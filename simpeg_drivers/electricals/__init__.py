@@ -11,8 +11,14 @@
 
 from __future__ import annotations
 
-from .direct_current.three_dimensions import DirectCurrent3DParams
-from .induced_polarization.three_dimensions.params import InducedPolarization3DParams
+from .direct_current.three_dimensions import (
+    DirectCurrent3DForwardParams,
+    DirectCurrent3DInversionParams,
+)
+from .induced_polarization.three_dimensions.params import (
+    InducedPolarization3DForwardParams,
+    InducedPolarization3DInversionParams,
+)
 
 # pylint: disable=unused-import
 # flake8: noqa

@@ -9,7 +9,10 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from .params import InducedPolarization3DParams
+from .params import (
+    InducedPolarization3DForwardParams,
+    InducedPolarization3DInversionParams,
+)
 
 # pylint: disable=unused-import
 # flake8: noqa

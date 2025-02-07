@@ -11,59 +11,78 @@
 
 from __future__ import annotations
 
-from copy import deepcopy
+from typing import ClassVar
 
-from simpeg_drivers.electricals.params import Base2DParams
+from geoh5py.data import DataAssociationEnum, FloatData, ReferencedData
+from geoh5py.objects import DrapeModel
+from pydantic import BaseModel, ConfigDict, field_validator, model_validator
+
+from simpeg_drivers import assets_path
+from simpeg_drivers.electricals.params import (
+    Base2DParams,
+    DrapeModelData,
+    LineSelectionData,
+)
+from simpeg_drivers.params import BaseForwardData, BaseInversionData
 
 from .constants import (
-    default_ui_json,
-    forward_defaults,
-    inversion_defaults,
     validations,
 )
 
 
-class DirectCurrent2DParams(Base2DParams):
+class DirectCurrent2DForwardParams(BaseForwardData):
     """
-    Parameter class for electrical->conductivity inversion.
+    Parameter class for two dimensional electrical->conductivity forward simulation.
+
+    :param potential_channel_bool: Potential channel boolean.
+    :param line_selection: Line selection parameters.
+    :param drape_model: Drape model parameters.
+    :param model_type: Specify whether the models are provided in
+        resistivity or conductivity.
     """
 
-    _physical_property = "conductivity"
+    name: ClassVar[str] = "Direct Current 2D Forward"
+    title: ClassVar[str] = "Direct Current 2D Forward"
+    default_ui_json: ClassVar[str] = (
+        assets_path() / "uijson/direct_current_2d_forward.ui.json"
+    )
 
-    def __init__(self, input_file=None, forward_only=False, **kwargs):
-        self._default_ui_json = deepcopy(default_ui_json)
-        self._forward_defaults = deepcopy(forward_defaults)
-        self._inversion_defaults = deepcopy(inversion_defaults)
-        self._inversion_type = "direct current 2d"
-        self._validations = validations
-        self._potential_channel_bool = None
-        self._potential_channel = None
-        self._potential_uncertainty = None
-        self._line_object = None
-        self._line_id = None
+    inversion_type: str = "direct current 2d"
+    physical_property: str = "conductivity"
 
-        super().__init__(input_file=input_file, forward_only=forward_only, **kwargs)
+    potential_channel_bool: bool = True
+    line_selection: LineSelectionData
+    mesh: DrapeModel | None = None
+    drape_model: DrapeModelData
+    model_type: str = "Conductivity (S/m)"
 
-    @property
-    def potential_channel_bool(self):
-        return self._potential_channel_bool
 
-    @potential_channel_bool.setter
-    def potential_channel_bool(self, val):
-        self.setter_validator("potential_channel_bool", val)
+class DirectCurrent2DInversionParams(BaseInversionData):
+    """
+    Parameter class for two dimensional electrical->conductivity forward simulation.
 
-    @property
-    def potential_channel(self):
-        return self._potential_channel
+    :param potential_channel: Potential data channel.
+    :param potential_uncertainty: Potential data uncertainty channel.
+    :param line_selection: Line selection parameters.
+    :param drape_model: Drape model parameters.
+    :param model_type: Specify whether the models are provided in
+        resistivity or conductivity.
+    """
 
-    @potential_channel.setter
-    def potential_channel(self, val):
-        self.setter_validator("potential_channel", val, fun=self._uuid_promoter)
+    name: ClassVar[str] = "Direct Current 2D Inversion"
+    title: ClassVar[str] = "Direct Current 2D Inversion"
+    default_ui_json: ClassVar[str] = (
+        assets_path() / "uijson/direct_current_2d_inversion.ui.json"
+    )
 
-    @property
-    def potential_uncertainty(self):
-        return self._potential_uncertainty
+    inversion_type: str = "direct current 2d"
+    physical_property: str = "conductivity"
 
-    @potential_uncertainty.setter
-    def potential_uncertainty(self, val):
-        self.setter_validator("potential_uncertainty", val, fun=self._uuid_promoter)
+    potential_channel: FloatData
+    potential_uncertainty: float | FloatData | None = None
+    line_selection: LineSelectionData
+    mesh: DrapeModel | None = None
+    drape_model: DrapeModelData
+    model_type: str = "Conductivity (S/m)"
+    length_scale_y: None = None
+    y_norm: None = None

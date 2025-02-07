@@ -11,77 +11,75 @@
 
 from __future__ import annotations
 
-from copy import deepcopy
+from typing import ClassVar
 
-from simpeg_drivers.electricals.params import Base2DParams
+from geoh5py.data import FloatData
+from geoh5py.objects import DrapeModel
 
-from .constants import (
-    default_ui_json,
-    forward_defaults,
-    inversion_defaults,
-    validations,
+from simpeg_drivers import assets_path
+from simpeg_drivers.electricals.params import (
+    DrapeModelData,
+    LineSelectionData,
 )
+from simpeg_drivers.params import BaseForwardData, BaseInversionData
 
 
-class InducedPolarization2DParams(Base2DParams):
+class InducedPolarization2DForwardParams(BaseForwardData):
     """
-    Parameter class for electrical->induced polarization (IP) inversion.
+    Parameter class for two dimensional induced polarization forward simulation.
+
+    :param chargeability_channel_bool: Chargeability channel boolean.
+    :param mesh: Optional mesh object if providing a heterogeneous model.
+    :param drape_model: Drape model parameters.
+    :param line_selection: Line selection parameters.
+    :param conductivity_model: Conductivity model.
     """
 
-    _physical_property = "chargeability"
+    name: ClassVar[str] = "Induced Polarization 2D Forward"
+    title: ClassVar[str] = "Induced Polarization 2D Forward"
+    default_ui_json: ClassVar[str] = (
+        assets_path() / "uijson/induced_polarization_2d_forward.ui.json"
+    )
 
-    def __init__(self, input_file=None, forward_only=False, **kwargs):
-        self._default_ui_json = deepcopy(default_ui_json)
-        self._forward_defaults = deepcopy(forward_defaults)
-        self._inversion_defaults = deepcopy(inversion_defaults)
-        self._inversion_type = "induced polarization 2d"
-        self._validations = validations
-        self._chargeability_channel_bool = None
-        self._chargeability_channel = None
-        self._chargeability_uncertainty = None
-        self._line_object = None
-        self._line_id = None
-        self._conductivity_model_object = None
-        self._conductivity_model = None
+    inversion_type: str = "induced polarization 2d"
+    physical_property: str = "chargeability"
 
-        super().__init__(input_file=input_file, forward_only=forward_only, **kwargs)
+    chargeability_channel_bool: bool = True
+    line_selection: LineSelectionData
+    mesh: DrapeModel | None = None
+    drape_model: DrapeModelData = DrapeModelData()
+    conductivity_model: float | FloatData
 
-    @property
-    def chargeability_channel_bool(self):
-        return self._chargeability_channel_bool
 
-    @chargeability_channel_bool.setter
-    def chargeability_channel_bool(self, val):
-        self.setter_validator("chargeability_channel_bool", val)
+class InducedPolarization2DInversionParams(BaseInversionData):
+    """
+    Parameter class for two dimensional induced polarization forward simulation.
 
-    @property
-    def chargeability_channel(self):
-        return self._chargeability_channel
+    :param chargeability_channel: Chargeability data channel.
+    :param chargeability_uncertainty: Chargeability data uncertainty channel.
+    :param line_selection: Line selection parameters.
+    :param drape_model: Drape model parameters.
+    :param conductivity_model: Conductivity model.
+    :param lower_bound: Lower bound for the inversion.
+    :param length_scale_y: Inactive length scale in the y direction.
+    :param y_norm: Inactive y normalization factor.
+    """
 
-    @chargeability_channel.setter
-    def chargeability_channel(self, val):
-        self.setter_validator("chargeability_channel", val, fun=self._uuid_promoter)
+    name: ClassVar[str] = "Induced Polarization 2D Inversion"
+    title: ClassVar[str] = "Induced Polarization 2D Inversion"
+    default_ui_json: ClassVar[str] = (
+        assets_path() / "uijson/induced_polarization_2d_inversion.ui.json"
+    )
 
-    @property
-    def chargeability_uncertainty(self):
-        return self._chargeability_uncertainty
+    inversion_type: str = "induced polarization 2d"
+    physical_property: str = "chargeability"
 
-    @chargeability_uncertainty.setter
-    def chargeability_uncertainty(self, val):
-        self.setter_validator("chargeability_uncertainty", val, fun=self._uuid_promoter)
-
-    @property
-    def conductivity_model_object(self):
-        return self._conductivity_model_object
-
-    @conductivity_model_object.setter
-    def conductivity_model_object(self, val):
-        self.setter_validator("conductivity_model_object", val, fun=self._uuid_promoter)
-
-    @property
-    def conductivity_model(self):
-        return self._conductivity_model
-
-    @conductivity_model.setter
-    def conductivity_model(self, val):
-        self.setter_validator("conductivity_model", val, fun=self._uuid_promoter)
+    chargeability_channel: FloatData
+    chargeability_uncertainty: float | FloatData | None = None
+    line_selection: LineSelectionData
+    mesh: DrapeModel | None = None
+    drape_model: DrapeModelData = DrapeModelData()
+    conductivity_model: float | FloatData
+    lower_bound: float | FloatData | None = 0.0
+    length_scale_y: None = None
+    y_norm: None = None

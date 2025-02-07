@@ -16,10 +16,12 @@ from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.electricals.direct_current.three_dimensions import (
-    DirectCurrent3DParams,
+    DirectCurrent3DForwardParams,
+    DirectCurrent3DInversionParams,
 )
 from simpeg_drivers.electricals.direct_current.three_dimensions.driver import (
-    DirectCurrent3DDriver,
+    DirectCurrent3DForwardDriver,
+    DirectCurrent3DInversionDriver,
 )
 from simpeg_drivers.joint.joint_cross_gradient import JointCrossGradientParams
 from simpeg_drivers.joint.joint_cross_gradient.driver import JointCrossGradientDriver
@@ -90,11 +92,9 @@ def test_joint_cross_gradient_fwr_run(
     )
     inducing_field = (50000.0, 90.0, 0.0)
     params = MagneticVectorForwardParams(
-        forward_only=True,
         geoh5=geoh5,
         mesh=model.parent,
         active_cells=ActiveCellsData(topography_object=topography),
-        topography_object=topography,
         inducing_field_strength=inducing_field[0],
         inducing_field_inclination=inducing_field[1],
         inducing_field_declination=inducing_field[2],
@@ -118,15 +118,14 @@ def test_joint_cross_gradient_fwr_run(
         inversion_type="dcip",
         flatten=False,
     )
-    params = DirectCurrent3DParams(
-        forward_only=True,
+    params = DirectCurrent3DForwardParams(
         geoh5=geoh5,
-        mesh=model.parent.uid,
-        topography_object=topography.uid,
-        data_object=survey.uid,
-        starting_model=model.uid,
+        mesh=model.parent,
+        active_cells=ActiveCellsData(topography_object=topography),
+        data_object=survey,
+        starting_model=model,
     )
-    fwr_driver_c = DirectCurrent3DDriver(params)
+    fwr_driver_c = DirectCurrent3DForwardDriver(params)
     fwr_driver_c.inversion_data.entity.name = "survey"
 
     # Force co-location of meshes
@@ -161,7 +160,7 @@ def test_joint_cross_gradient_inv_run(
         for group_name in [
             "Gravity Forward",
             "Magnetic Vector Forward",
-            "Direct current 3d Forward",
+            "Direct Current 3D Forward",
         ]:
             group = geoh5.get_entity(group_name)[0]
 
@@ -198,13 +197,14 @@ def test_joint_cross_gradient_inv_run(
                 drivers.append(GravityInversionDriver(params))
             elif group.options["inversion_type"] == "direct current 3d":
                 data.values = data.values + np.random.randn(data.values.size) * 5e-4
-                params = DirectCurrent3DParams(
+                active_cells = ActiveCellsData(topography_object=topography)
+                params = DirectCurrent3DInversionParams(
                     geoh5=geoh5,
-                    mesh=mesh.uid,
+                    mesh=mesh,
                     alpha_s=1.0,
-                    topography_object=topography.uid,
-                    data_object=survey.uid,
-                    potential_channel=data.uid,
+                    active_cells=active_cells,
+                    data_object=survey,
+                    potential_channel=data,
                     model_type="Resistivity (Ohm-m)",
                     potential_uncertainty=5e-4,
                     tile_spatial=1,
@@ -212,7 +212,7 @@ def test_joint_cross_gradient_inv_run(
                     reference_model=100.0,
                     save_sensitivities=True,
                 )
-                drivers.append(DirectCurrent3DDriver(params))
+                drivers.append(DirectCurrent3DInversionDriver(params))
             else:
                 data.values = data.values + np.random.randn(data.values.size) * 10.0
                 params = MagneticVectorInversionParams(

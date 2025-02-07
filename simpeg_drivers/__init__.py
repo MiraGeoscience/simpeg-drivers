@@ -45,27 +45,45 @@ def assets_path() -> Path:
 DRIVER_MAP = {
     "direct current 3d": (
         "simpeg_drivers.electricals.direct_current.three_dimensions.driver",
-        {"inversion": "DirectCurrent3DDriver"},
+        {
+            "forward": "DirectCurrent3DForwardDriver",
+            "inversion": "DirectCurrent3DInversionDriver",
+        },
     ),
     "direct current 2d": (
         "simpeg_drivers.electricals.direct_current.two_dimensions.driver",
-        {"inversion": "DirectCurrent2DDriver"},
+        {
+            "forward": "DirectCurrent2DForwardDriver",
+            "inversion": "DirectCurrent2DInversionDriver",
+        },
     ),
     "direct current pseudo 3d": (
         "simpeg_drivers.electricals.direct_current.pseudo_three_dimensions.driver",
-        {"inversion": "DirectCurrentPseudo3DDriver"},
+        {
+            "forward": "DirectCurrentPseudo3DForwardDriver",
+            "inversion": "DirectCurrentPseudo3DInversionDriver",
+        },
     ),
     "induced polarization 3d": (
         "simpeg_drivers.electricals.induced_polarization.three_dimensions.driver",
-        {"inversion": "InducedPolarization3DDriver"},
+        {
+            "forward": "InducedPolarization3DForwardDriver",
+            "inversion": "InducedPolarization3DInversionDriver",
+        },
     ),
     "induced polarization 2d": (
         "simpeg_drivers.electricals.induced_polarization.two_dimensions.driver",
-        {"inversion": "InducedPolarization2DDriver"},
+        {
+            "forward": "InducedPolarization2DForwardDriver",
+            "inversion": "InducedPolarization2DInversionDriver",
+        },
     ),
     "induced polarization pseudo 3d": (
         "simpeg_drivers.electricals.induced_polarization.pseudo_three_dimensions.driver",
-        {"inversion": "InducedPolarizationPseudo3DDriver"},
+        {
+            "forward": "InducedPolarizationPseudo3DForwardDriver",
+            "inversion": "InducedPolarizationPseudo3DInversionDriver",
+        },
     ),
     "joint surveys": (
         "simpeg_drivers.joint.joint_surveys.driver",

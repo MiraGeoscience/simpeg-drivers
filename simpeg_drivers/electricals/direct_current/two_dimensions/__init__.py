@@ -9,7 +9,7 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from .params import DirectCurrent2DParams
+from .params import DirectCurrent2DForwardParams, DirectCurrent2DInversionParams
 
 
-__all__ = ["DirectCurrent2DParams"]
+__all__ = ["DirectCurrent2DForwardParams", "DirectCurrent2DInversionParams"]

@@ -14,14 +14,19 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+from geoh5py.data import ReferencedData
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.electricals.direct_current.two_dimensions.driver import (
-    DirectCurrent2DDriver,
+    DirectCurrent2DForwardDriver,
+    DirectCurrent2DInversionDriver,
 )
 from simpeg_drivers.electricals.direct_current.two_dimensions.params import (
-    DirectCurrent2DParams,
+    DirectCurrent2DForwardParams,
+    DirectCurrent2DInversionParams,
 )
+from simpeg_drivers.electricals.params import DrapeModelData, LineSelectionData
+from simpeg_drivers.params import ActiveCellsData
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
@@ -54,24 +59,28 @@ def test_dc_2d_fwr_run(
         drape_height=0.0,
         flatten=False,
     )
-    params = DirectCurrent2DParams(
-        forward_only=True,
-        geoh5=geoh5,
-        u_cell_size=5.0,
-        v_cell_size=5.0,
-        depth_core=100.0,
-        horizontal_padding=100.0,
-        vertical_padding=100.0,
-        expansion_factor=1.1,
-        topography_object=topography.uid,
-        z_from_topo=False,
-        data_object=survey.uid,
-        starting_model=model.uid,
-        line_object=geoh5.get_entity("line_ids")[0].uid,
+    line_selection = LineSelectionData(
+        line_object=geoh5.get_entity("line_ids")[0],
         line_id=101,
     )
-    params.workpath = tmp_path
-    fwr_driver = DirectCurrent2DDriver(params)
+    params = DirectCurrent2DForwardParams(
+        geoh5=geoh5,
+        data_object=survey,
+        line_selection=line_selection,
+        drape_model=DrapeModelData(
+            u_cell_size=5.0,
+            v_cell_size=5.0,
+            depth_core=100.0,
+            horizontal_padding=100.0,
+            vertical_padding=100.0,
+            expansion_factor=1.1,
+        ),
+        starting_model=model,
+        active_cells=ActiveCellsData(topography_object=topography),
+        z_from_topo=False,
+    )
+
+    fwr_driver = DirectCurrent2DForwardDriver(params)
     fwr_driver.run()
 
 
@@ -85,26 +94,29 @@ def test_dc_2d_run(tmp_path: Path, max_iterations=1, pytest=True):
         topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
-        params = DirectCurrent2DParams(
+        params = DirectCurrent2DInversionParams(
             geoh5=geoh5,
-            u_cell_size=5.0,
-            v_cell_size=5.0,
-            depth_core=100.0,
-            horizontal_padding=100.0,
-            vertical_padding=100.0,
-            expansion_factor=1.1,
-            topography_object=topography.uid,
-            data_object=potential.parent.uid,
-            potential_channel=potential.uid,
+            drape_model=DrapeModelData(
+                u_cell_size=5.0,
+                v_cell_size=5.0,
+                depth_core=100.0,
+                horizontal_padding=100.0,
+                vertical_padding=100.0,
+                expansion_factor=1.1,
+            ),
+            active_cells=ActiveCellsData(topography_object=topography),
+            line_selection=LineSelectionData(
+                line_object=geoh5.get_entity("line_ids")[0],
+                line_id=101,
+            ),
+            data_object=potential.parent,
+            potential_channel=potential,
             potential_uncertainty=1e-3,
             model_type="Resistivity (Ohm-m)",
-            line_object=geoh5.get_entity("line_ids")[0].uid,
-            line_id=101,
             starting_model=100.0,
             reference_model=100.0,
             s_norm=0.0,
             x_norm=1.0,
-            y_norm=1.0,
             z_norm=1.0,
             gradient_type="components",
             potential_channel_bool=True,
@@ -116,9 +128,9 @@ def test_dc_2d_run(tmp_path: Path, max_iterations=1, pytest=True):
             lower_bound=0.1,
             coolingRate=1,
         )
-        params.write_input_file(path=tmp_path, name="Inv_run")
+        params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    driver = DirectCurrent2DDriver.start(str(tmp_path / "Inv_run.ui.json"))
+    driver = DirectCurrent2DInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
     output = get_inversion_output(
         driver.params.geoh5.h5file, driver.params.out_group.uid
