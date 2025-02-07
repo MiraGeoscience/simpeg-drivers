@@ -483,7 +483,7 @@ package:
   category: dev
   optional: true
 - name: bokeh
-  version: 3.6.2
+  version: 3.6.3
   manager: conda
   platform: linux-64
   dependencies:
@@ -497,14 +497,14 @@ package:
     pyyaml: '>=3.10'
     tornado: '>=6.2'
     xyzservices: '>=2021.09.1'
-  url: https://conda.anaconda.org/conda-forge/noarch/bokeh-3.6.2-pyhd8ed1ab_1.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/bokeh-3.6.3-pyhd8ed1ab_0.conda
   hash:
-    md5: 976ff24762f1f991b08f7a7a41875086
-    sha256: 66d2649b8b8f1ec58c83a9ff948aed4a3a86465ca6ccda686741797cae54b264
+    md5: 606498329a91bd9d5c0439fb2815816f
+    sha256: 6cc6841b1660cd3246890d4f601baf51367526afe6256dfd8a8d9a8f7db651fe
   category: main
   optional: false
 - name: bokeh
-  version: 3.6.2
+  version: 3.6.3
   manager: conda
   platform: win-64
   dependencies:
@@ -518,10 +518,10 @@ package:
     pyyaml: '>=3.10'
     tornado: '>=6.2'
     xyzservices: '>=2021.09.1'
-  url: https://conda.anaconda.org/conda-forge/noarch/bokeh-3.6.2-pyhd8ed1ab_1.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/bokeh-3.6.3-pyhd8ed1ab_0.conda
   hash:
-    md5: 976ff24762f1f991b08f7a7a41875086
-    sha256: 66d2649b8b8f1ec58c83a9ff948aed4a3a86465ca6ccda686741797cae54b264
+    md5: 606498329a91bd9d5c0439fb2815816f
+    sha256: 6cc6841b1660cd3246890d4f601baf51367526afe6256dfd8a8d9a8f7db651fe
   category: main
   optional: false
 - name: brotli
@@ -8452,7 +8452,7 @@ package:
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.21.2.2a1.dev96+g42d2b1adf
+  version: 0.21.2.2a1.dev98+g382516039
   manager: pip
   platform: linux-64
   dependencies:
@@ -8466,16 +8466,16 @@ package:
     pymatsolver: '>=0.2,<0.3.0'
     scikit-learn: '>=1.2'
     scipy: '>=1.8.0'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@42d2b1adfeb065889ad0fd42bd2db0be4df1d7d6
+  url: git+https://github.com/MiraGeoscience/simpeg.git@3825160397345dbeaddb9553aa59dab085fbf442
   hash:
-    sha256: 42d2b1adfeb065889ad0fd42bd2db0be4df1d7d6
+    sha256: 3825160397345dbeaddb9553aa59dab085fbf442
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@42d2b1adfeb065889ad0fd42bd2db0be4df1d7d6
+    url: git+https://github.com/MiraGeoscience/simpeg.git@3825160397345dbeaddb9553aa59dab085fbf442
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.21.2.2a1.dev96+g42d2b1adf
+  version: 0.21.2.2a1.dev98+g382516039
   manager: pip
   platform: win-64
   dependencies:
@@ -8489,12 +8489,12 @@ package:
     pymatsolver: '>=0.2,<0.3.0'
     scikit-learn: '>=1.2'
     scipy: '>=1.8.0'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@42d2b1adfeb065889ad0fd42bd2db0be4df1d7d6
+  url: git+https://github.com/MiraGeoscience/simpeg.git@3825160397345dbeaddb9553aa59dab085fbf442
   hash:
-    sha256: 42d2b1adfeb065889ad0fd42bd2db0be4df1d7d6
+    sha256: 3825160397345dbeaddb9553aa59dab085fbf442
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@42d2b1adfeb065889ad0fd42bd2db0be4df1d7d6
+    url: git+https://github.com/MiraGeoscience/simpeg.git@3825160397345dbeaddb9553aa59dab085fbf442
   category: main
   optional: false
 - name: octree-creation-app
@@ -8507,12 +8507,12 @@ package:
     geoh5py: 0.11.0-alpha.1
     numpy: '>=1.26.0,<1.27.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: git+https://github.com/MiraGeoscience/octree-creation-app.git@d12839a685d88445cbd502294204dbef55a25a4c
+  url: git+https://github.com/MiraGeoscience/octree-creation-app.git@7d5b68f580b24e1ac096e236d77f739e1465d90f
   hash:
-    sha256: d12839a685d88445cbd502294204dbef55a25a4c
+    sha256: 7d5b68f580b24e1ac096e236d77f739e1465d90f
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/octree-creation-app.git@d12839a685d88445cbd502294204dbef55a25a4c
+    url: git+https://github.com/MiraGeoscience/octree-creation-app.git@7d5b68f580b24e1ac096e236d77f739e1465d90f
   category: main
   optional: false
 - name: octree-creation-app
@@ -8525,12 +8525,12 @@ package:
     geoh5py: 0.11.0-alpha.1
     numpy: '>=1.26.0,<1.27.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: git+https://github.com/MiraGeoscience/octree-creation-app.git@d12839a685d88445cbd502294204dbef55a25a4c
+  url: git+https://github.com/MiraGeoscience/octree-creation-app.git@7d5b68f580b24e1ac096e236d77f739e1465d90f
   hash:
-    sha256: d12839a685d88445cbd502294204dbef55a25a4c
+    sha256: 7d5b68f580b24e1ac096e236d77f739e1465d90f
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/octree-creation-app.git@d12839a685d88445cbd502294204dbef55a25a4c
+    url: git+https://github.com/MiraGeoscience/octree-creation-app.git@7d5b68f580b24e1ac096e236d77f739e1465d90f
   category: main
   optional: false
 - name: param-sweeps

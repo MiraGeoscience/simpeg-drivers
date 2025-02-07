@@ -8,7 +8,7 @@ channels:
 dependencies:
   - annotated-types=0.7.0=pyhd8ed1ab_1
   - asciitree=0.3.3=py_2
-  - bokeh=3.6.2=pyhd8ed1ab_1
+  - bokeh=3.6.3=pyhd8ed1ab_0
   - brotli=1.1.0=h2466b09_2
   - brotli-bin=1.1.0=h2466b09_2
   - brotli-python=1.1.0=py310h9e98ed7_2
@@ -145,8 +145,8 @@ dependencies:
   - pip:
       - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@e610b3d8ecaa5ce028b39f09e2902436b11d7af9
       - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@a90ae78d14429009304cf6d6bac0c40e8b28c4a1
-      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@42d2b1adfeb065889ad0fd42bd2db0be4df1d7d6
-      - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app.git@d12839a685d88445cbd502294204dbef55a25a4c
+      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@3825160397345dbeaddb9553aa59dab085fbf442
+      - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app.git@7d5b68f580b24e1ac096e236d77f739e1465d90f
       - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps.git@1d38d71ffd733e0a128db74b3406a6749ea8d4ac
 
 variables:
