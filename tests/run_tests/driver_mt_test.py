@@ -31,13 +31,14 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.0042988, "phi_d": 50.2, "phi_m": 11.1}
+target_run = {"data_norm": 0.032649770, "phi_d": 6.676, "phi_m": 212.3}
 
 
 def test_magnetotellurics_fwr_run(
     tmp_path: Path,
     n_grid_points=2,
     refinement=(2,),
+    cell_size=(20.0, 20.0, 20.0),
 ):
     # Run the forward
     geoh5, _, model, survey, topography = setup_inversion_workspace(
@@ -47,6 +48,7 @@ def test_magnetotellurics_fwr_run(
         n_electrodes=n_grid_points,
         n_lines=n_grid_points,
         refinement=refinement,
+        cell_size=cell_size,
         drape_height=0.0,
         inversion_type="magnetotellurics",
         flatten=False,
@@ -200,7 +202,9 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
 
 if __name__ == "__main__":
     # Full run
-    test_magnetotellurics_fwr_run(Path("./"), n_grid_points=8, refinement=(4, 8))
+    test_magnetotellurics_fwr_run(
+        Path("./"), n_grid_points=8, cell_size=(5.0, 5.0, 5.0), refinement=(4, 8)
+    )
     test_magnetotellurics_run(
         Path("./"),
         max_iterations=15,
