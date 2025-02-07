@@ -174,11 +174,10 @@ class ReceiversFactory(SimPEGFactory):
     def _dcip_arguments(self, locations=None, local_index=None):
         args = []
         local_index = np.vstack(local_index)
-        locations_m = locations[local_index[:, 0], :]
-        locations_n = locations[local_index[:, 1], :]
-        args.append(locations_m)
 
-        if np.all(locations_m == locations_n):
+        args.append(locations[local_index[:, 0], :])
+
+        if np.all(local_index[:, 0] == local_index[:, 1]):
             if "direct current" in self.factory_type:
                 from simpeg.electromagnetics.static.resistivity import receivers
             else:
@@ -187,7 +186,7 @@ class ReceiversFactory(SimPEGFactory):
                 )
             self.simpeg_object = receivers.Pole
         else:
-            args.append(locations_n)
+            args.append(locations[local_index[:, 1], :])
 
         return args
 

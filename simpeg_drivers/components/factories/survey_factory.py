@@ -8,7 +8,6 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-
 # pylint: disable=W0613
 # pylint: disable=W0221
 
@@ -194,6 +193,9 @@ class SurveyFactory(SimPEGFactory):
         return local_data, local_uncertainties
 
     def _add_data(self, survey, data, local_index, channel):
+        if isinstance(local_index, list):
+            local_index = np.hstack(local_index)
+
         if self.factory_type in ["fem", "tdem"]:
             dobs = []
             uncerts = []
@@ -317,8 +319,6 @@ class SurveyFactory(SimPEGFactory):
             sources.append(source)
             self.local_index.append(receiver_indices)
 
-        self.local_index = np.hstack(self.local_index)
-
         return [sources]
 
     def _tdem_arguments(self, data=None, local_index=None, mesh=None):
@@ -382,6 +382,7 @@ class SurveyFactory(SimPEGFactory):
                     mesh=mesh,
                     component=component,
                 )
+                rx_obj.local_index = rx_ids
                 rx_list.append(rx_obj)
 
                 for time_id in range(len(receivers.channels)):
@@ -412,14 +413,15 @@ class SurveyFactory(SimPEGFactory):
         for receiver_id in self.local_index:
             receivers = []
             for component_id, component in enumerate(data.components):
-                receivers.append(
-                    rx_factory.build(
-                        locations=rx_locs[receiver_id, :],
-                        data=data,
-                        mesh=mesh,
-                        component=component,
-                    )
+                receiver = rx_factory.build(
+                    locations=rx_locs[receiver_id, :],
+                    data=data,
+                    mesh=mesh,
+                    component=component,
                 )
+
+                receiver.local_index = receiver_id
+                receivers.append(receiver)
                 ordering.append([component_id, receiver_id])
             receiver_groups[receiver_id] = receivers
 
