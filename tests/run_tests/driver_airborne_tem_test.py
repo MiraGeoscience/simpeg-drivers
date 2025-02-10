@@ -17,10 +17,15 @@ from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 from pytest import raises
 
-from simpeg_drivers.electromagnetics.time_domain import TimeDomainElectromagneticsParams
-from simpeg_drivers.electromagnetics.time_domain.driver import (
-    TimeDomainElectromagneticsDriver,
+from simpeg_drivers.electromagnetics.time_domain import (
+    TimeDomainElectromagneticsForwardParams,
+    TimeDomainElectromagneticsInversionParams,
 )
+from simpeg_drivers.electromagnetics.time_domain.driver import (
+    TimeDomainElectromagneticsForwardDriver,
+    TimeDomainElectromagneticsInversionDriver,
+)
+from simpeg_drivers.params import ActiveCellsData
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
@@ -46,21 +51,19 @@ def test_bad_waveform(tmp_path: Path):
         padding_distance=400.0,
         flatten=False,
     )
-    params = TimeDomainElectromagneticsParams(
-        forward_only=True,
+    params = TimeDomainElectromagneticsForwardParams(
         geoh5=geoh5,
-        mesh=model.parent.uid,
-        topography_object=topography.uid,
-        resolution=0.0,
+        mesh=model.parent,
+        active_cells=ActiveCellsData(topography_object=topography),
         z_from_topo=False,
-        data_object=survey.uid,
-        starting_model=model.uid,
+        data_object=survey,
+        starting_model=model,
         x_channel_bool=True,
         y_channel_bool=True,
         z_channel_bool=True,
     )
-    params.workpath = tmp_path
-    fwr_driver = TimeDomainElectromagneticsDriver(params)
+
+    fwr_driver = TimeDomainElectromagneticsForwardDriver(params)
 
     survey.channels[-1] = 1000.0
 
@@ -88,21 +91,19 @@ def test_airborne_tem_fwr_run(
         padding_distance=400.0,
         flatten=False,
     )
-    params = TimeDomainElectromagneticsParams(
-        forward_only=True,
+    params = TimeDomainElectromagneticsForwardParams(
         geoh5=geoh5,
-        mesh=model.parent.uid,
-        topography_object=topography.uid,
-        resolution=0.0,
+        mesh=model.parent,
+        active_cells=ActiveCellsData(topography_object=topography),
         z_from_topo=False,
-        data_object=survey.uid,
-        starting_model=model.uid,
+        data_object=survey,
+        starting_model=model,
         x_channel_bool=True,
         y_channel_bool=True,
         z_channel_bool=True,
     )
-    params.workpath = tmp_path
-    fwr_driver = TimeDomainElectromagneticsDriver(params)
+
+    fwr_driver = TimeDomainElectromagneticsForwardDriver(params)
     fwr_driver.run()
 
 
@@ -162,12 +163,11 @@ def test_airborne_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         orig_dBzdt = geoh5.get_entity("Iteration_0_z_[0]")[0].values
 
         # Run the inverse
-        params = TimeDomainElectromagneticsParams(
+        params = TimeDomainElectromagneticsInversionParams(
             geoh5=geoh5,
-            mesh=mesh.uid,
-            topography_object=topography.uid,
-            resolution=0.0,
-            data_object=survey.uid,
+            mesh=mesh,
+            active_cells=ActiveCellsData(topography_object=topography),
+            data_object=survey,
             starting_model=1e-3,
             reference_model=1e-3,
             chi_factor=1.0,
@@ -188,9 +188,11 @@ def test_airborne_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
             store_sensitivities="ram",
             **data_kwargs,
         )
-        params.write_input_file(path=tmp_path, name="Inv_run")
+        params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    driver = TimeDomainElectromagneticsDriver.start(str(tmp_path / "Inv_run.ui.json"))
+    driver = TimeDomainElectromagneticsInversionDriver.start(
+        str(tmp_path / "Inv_run.ui.json")
+    )
 
     with geoh5.open() as run_ws:
         output = get_inversion_output(

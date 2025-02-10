@@ -9,7 +9,10 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from .params import TimeDomainElectromagneticsParams
+from .params import (
+    TimeDomainElectromagneticsForwardParams,
+    TimeDomainElectromagneticsInversionParams,
+)
 
 # pylint: disable=unused-import
 # flake8: noqa

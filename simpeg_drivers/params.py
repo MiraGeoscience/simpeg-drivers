@@ -298,12 +298,12 @@ class BaseInversionData(CoreData):
     lower_bound: float | FloatData | None = None
     upper_bound: float | FloatData | None = None
 
-    alpha_s: float | FloatData = 1.0
+    alpha_s: float | FloatData | None = 1.0
     length_scale_x: float | FloatData = 1.0
     length_scale_y: float | FloatData = 1.0
     length_scale_z: float | FloatData = 1.0
 
-    s_norm: float | FloatData = 0.0
+    s_norm: float | FloatData | None = 0.0
     x_norm: float | FloatData = 2.0
     y_norm: float | FloatData = 2.0
     z_norm: float | FloatData = 2.0

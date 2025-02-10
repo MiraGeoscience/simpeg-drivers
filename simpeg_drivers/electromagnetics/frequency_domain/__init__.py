@@ -9,7 +9,10 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from .params import FrequencyDomainElectromagneticsParams
+from .params import (
+    FrequencyDomainElectromagneticsForwardParams,
+    FrequencyDomainElectromagneticsInversionParams,
+)
 
 # pylint: disable=unused-import
 # flake8: noqa

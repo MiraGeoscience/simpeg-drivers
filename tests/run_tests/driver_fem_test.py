@@ -19,11 +19,14 @@ from geoh5py import Workspace
 from geoh5py.groups import SimPEGGroup
 
 from simpeg_drivers.electromagnetics.frequency_domain.driver import (
-    FrequencyDomainElectromagneticsDriver,
+    FrequencyDomainElectromagneticsForwardDriver,
+    FrequencyDomainElectromagneticsInversionDriver,
 )
 from simpeg_drivers.electromagnetics.frequency_domain.params import (
-    FrequencyDomainElectromagneticsParams,
+    FrequencyDomainElectromagneticsForwardParams,
+    FrequencyDomainElectromagneticsInversionParams,
 )
+from simpeg_drivers.params import ActiveCellsData
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
@@ -54,20 +57,18 @@ def test_fem_fwr_run(
         inversion_type="fem",
         flatten=True,
     )
-    params = FrequencyDomainElectromagneticsParams(
-        forward_only=True,
+    params = FrequencyDomainElectromagneticsForwardParams(
         geoh5=geoh5,
-        mesh=model.parent.uid,
-        topography_object=topography.uid,
-        resolution=0.0,
+        mesh=model.parent,
+        active_cells=ActiveCellsData(topography_object=topography),
         z_from_topo=False,
-        data_object=survey.uid,
-        starting_model=model.uid,
+        data_object=survey,
+        starting_model=model,
         z_real_channel_bool=True,
         z_imag_channel_bool=True,
     )
-    params.workpath = tmp_path
-    fwr_driver = FrequencyDomainElectromagneticsDriver(params)
+
+    fwr_driver = FrequencyDomainElectromagneticsForwardDriver(params)
     fwr_driver.run()
     geoh5.close()
 
@@ -121,18 +122,17 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
         for comp, data_group, uncert_group in zip(
             components, data_groups, uncert_groups, strict=True
         ):
-            data_kwargs[f"{comp}_channel"] = data_group.uid
-            data_kwargs[f"{comp}_uncertainty"] = uncert_group.uid
+            data_kwargs[f"{comp}_channel"] = data_group
+            data_kwargs[f"{comp}_uncertainty"] = uncert_group
 
         orig_z_real_1 = geoh5.get_entity("Iteration_0_z_real_[0]")[0].values
 
         # Run the inverse
-        params = FrequencyDomainElectromagneticsParams(
+        params = FrequencyDomainElectromagneticsInversionParams(
             geoh5=geoh5,
-            mesh=mesh.uid,
-            topography_object=topography.uid,
-            resolution=0.0,
-            data_object=survey.uid,
+            mesh=mesh,
+            active_cells=ActiveCellsData(topography_object=topography),
+            data_object=survey,
             starting_model=1e-3,
             reference_model=1e-3,
             alpha_s=0.0,
@@ -152,8 +152,8 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
             sens_wts_threshold=1.0,
             **data_kwargs,
         )
-        params.write_input_file(path=tmp_path, name="Inv_run")
-        driver = FrequencyDomainElectromagneticsDriver(params)
+        params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
+        driver = FrequencyDomainElectromagneticsInversionDriver(params)
         driver.run()
 
     with geoh5.open() as run_ws:
