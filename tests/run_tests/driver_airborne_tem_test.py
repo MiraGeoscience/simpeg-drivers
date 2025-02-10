@@ -185,6 +185,7 @@ def test_airborne_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
             coolingRate=4,
             max_cg_iterations=200,
             prctile=5,
+            sens_wts_threshold=1.0,
             store_sensitivities="ram",
             **data_kwargs,
         )
