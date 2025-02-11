@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "simpeg-drivers"
-version = "0.2.0"
+version = "0.2.1-alpha.1"
 description = "Application to run SimPEG inversions with geoh5 files from Geoscience Analyst."
 license = "MIT"
 authors = ["Mira Geoscience <support@mirageoscience.com>"]
@@ -39,19 +39,19 @@ scipy = "~1.14.0"
 
 ## Pip dependencies from Git repositories
 #----------------------------------------
-geoh5py = {version = ">=0.10.1rc1, <0.11.0a.dev", source = "pypi", allow-prereleases = true}
+geoh5py = {version = ">=0.10.1rc1, <0.11.dev", source = "pypi", allow-prereleases = true}
 #geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "release/0.10.0"}
 
-octree-creation-app = {version = ">=0.2.0rc1, <0.3.0a.dev", source = "pypi", allow-prereleases = true}
+octree-creation-app = {version = ">=0.2.0rc1, <0.3.dev", source = "pypi", allow-prereleases = true}
 #octree-creation-app = {git = "https://github.com/MiraGeoscience/octree-creation-app.git", rev = "release/0.2.0"}
 
-geoapps-utils = {version = ">=0.4.0rc1, <0.5.0a.dev", source = "pypi", allow-prereleases = true}
+geoapps-utils = {version = ">=0.4.0rc1, <0.5.dev", source = "pypi", allow-prereleases = true}
 #geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "release/0.4.0"}
 
-mira-simpeg = {version = ">=0.21.2.1rc1, <0.21.2.2a.dev", source="pypi", allow-prereleases = true, extras = ["dask"]}
+mira-simpeg = {version = ">=0.21.2.1rc1, <0.21.2.2.dev", source="pypi", allow-prereleases = true, extras = ["dask"]}
 #mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", rev = "release/0.21.2.1", extras = ["dask"]}
 
-param-sweeps = {version = ">=0.2.0rc1, <0.3.0a.dev", source = "pypi", allow-prereleases = true}
+param-sweeps = {version = ">=0.2.0rc1, <0.3.dev", source = "pypi", allow-prereleases = true}
 #param-sweeps = {git = "https://github.com/MiraGeoscience/param-sweeps.git", rev = "release/0.2.0"}
 
 ## force some versions to resolve incompatible resolution between PyPI and Conda
@@ -99,7 +99,7 @@ fsspec = "2022.*"  # from simpeg[dask]
 geoana = ">=0.5.0, <0.6.0"  # from simpeg
 h5py = ">=3.2.1, <4.0.0"  # from geoh5py
 matplotlib-base = ">=3.8.4, <3.9.0"  # from simpeg
-mkl = "2023.2, <2024.1"  # from simpeg
+mkl = ">=2024.2.2, <2025.dev"  # from simpeg
 pandas = ">=2.2.1, <2.3.0"  # from SimPEG, also used by targeting-workflow, petro-lingo
 pydantic = ">=2.5.2, <3.0.0"  # from geoh5py, geoapps-utils
 pydiso = ">=0.1.0, <0.2.0"  # from simpeg
