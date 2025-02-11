@@ -15,6 +15,7 @@ from pathlib import Path
 
 import numpy as np
 from geoh5py.workspace import Workspace
+from pymatsolver.direct import Mumps
 
 from simpeg_drivers.electromagnetics.time_domain import TimeDomainElectromagneticsParams
 from simpeg_drivers.electromagnetics.time_domain.driver import (
@@ -134,6 +135,7 @@ def test_ground_tem_fwr_run(
 
         assert "closed" in caplog.records[0].message
 
+    fwr_driver.data_misfit.objfcts[0].simulation.solver = Mumps
     fwr_driver.run()
 
 
@@ -221,7 +223,7 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         params.write_input_file(path=tmp_path, name="Inv_run")
 
     driver = TimeDomainElectromagneticsDriver.start(str(tmp_path / "Inv_run.ui.json"))
-
+    driver.data_misfit.objfcts[0].simulation.solver = Mumps
     with geoh5.open() as run_ws:
         output = get_inversion_output(
             driver.params.geoh5.h5file, driver.params.out_group.uid
