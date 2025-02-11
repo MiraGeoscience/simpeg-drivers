@@ -191,8 +191,9 @@ def test_airborne_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         )
         params.write_input_file(path=tmp_path, name="Inv_run")
 
-    driver = TimeDomainElectromagneticsDriver.start(str(tmp_path / "Inv_run.ui.json"))
+    driver = TimeDomainElectromagneticsDriver(params)
     driver.data_misfit.objfcts[0].simulation.solver = Mumps
+    driver.run()
 
     with geoh5.open() as run_ws:
         output = get_inversion_output(
