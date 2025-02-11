@@ -14,12 +14,14 @@ from __future__ import annotations
 from simpeg_drivers.driver import InversionDriver
 
 from .constants import validations
-from .params import MagnetotelluricsParams
+from .params import MagnetotelluricsForwardParams, MagnetotelluricsInversionParams
 
 
-class MagnetotelluricsDriver(InversionDriver):
-    _params_class = MagnetotelluricsParams
+class MagnetotelluricsForwardDriver(InversionDriver):
+    _params_class = MagnetotelluricsForwardParams
     _validations = validations
 
-    def __init__(self, params: MagnetotelluricsParams):
-        super().__init__(params)
+
+class MagnetotelluricsInversionDriver(InversionDriver):
+    _params_class = MagnetotelluricsInversionParams
+    _validations = validations

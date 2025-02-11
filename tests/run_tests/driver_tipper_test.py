@@ -16,8 +16,15 @@ import numpy as np
 from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.natural_sources import TipperParams
-from simpeg_drivers.natural_sources.tipper.driver import TipperDriver
+from simpeg_drivers.natural_sources.tipper import (
+    TipperForwardParams,
+    TipperInversionParams,
+)
+from simpeg_drivers.natural_sources.tipper.driver import (
+    TipperForwardDriver,
+    TipperInversionDriver,
+)
+from simpeg_drivers.params import ActiveCellsData
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
@@ -48,15 +55,13 @@ def test_tipper_fwr_run(
         flatten=False,
     )
 
-    params = TipperParams(
-        forward_only=True,
+    params = TipperForwardParams(
         geoh5=geoh5,
-        mesh=model.parent.uid,
-        topography_object=topography.uid,
-        resolution=0.0,
+        mesh=model.parent,
+        active_cells=ActiveCellsData(topography_object=topography),
         z_from_topo=False,
-        data_object=survey.uid,
-        starting_model=model.uid,
+        data_object=survey,
+        starting_model=model,
         model_type="Resistivity (Ohm-m)",
         background_conductivity=1e2,
         txz_real_channel_bool=True,
@@ -64,8 +69,8 @@ def test_tipper_fwr_run(
         tyz_real_channel_bool=True,
         tyz_imag_channel_bool=True,
     )
-    params.workpath = tmp_path
-    fwr_driver = TipperDriver(params)
+
+    fwr_driver = TipperForwardDriver(params)
 
     # Should always be returning conductivity for simpeg simulations
     assert not np.any(np.exp(fwr_driver.models.starting) > 1.01)
@@ -121,18 +126,17 @@ def test_tipper_run(tmp_path: Path, max_iterations=1, pytest=True):
         for comp, data_group, uncert_group in zip(
             components, data_groups, uncert_groups, strict=True
         ):
-            data_kwargs[f"{comp}_channel"] = data_group.uid
-            data_kwargs[f"{comp}_uncertainty"] = uncert_group.uid
+            data_kwargs[f"{comp}_channel"] = data_group
+            data_kwargs[f"{comp}_uncertainty"] = uncert_group
 
         orig_tyz_real_1 = geoh5.get_entity("Iteration_0_tyz_real_[0]")[0].values
 
         # Run the inverse
-        params = TipperParams(
+        params = TipperInversionParams(
             geoh5=geoh5,
-            mesh=mesh.uid,
-            topography_object=topography.uid,
-            resolution=0.0,
-            data_object=survey.uid,
+            mesh=mesh,
+            active_cells=ActiveCellsData(topography_object=topography),
+            data_object=survey,
             starting_model=1e2,
             reference_model=1e2,
             background_conductivity=1e2,
@@ -155,8 +159,8 @@ def test_tipper_run(tmp_path: Path, max_iterations=1, pytest=True):
             store_sensitivities="ram",
             **data_kwargs,
         )
-        params.write_input_file(path=tmp_path, name="Inv_run")
-        driver = TipperDriver.start(str(tmp_path / "Inv_run.ui.json"))
+        params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
+        driver = TipperInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
     with geoh5.open() as run_ws:
         output = get_inversion_output(

@@ -9,8 +9,11 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from .magnetotellurics import MagnetotelluricsParams
-from .tipper import TipperParams
+from .magnetotellurics import (
+    MagnetotelluricsForwardParams,
+    MagnetotelluricsInversionParams,
+)
+from .tipper import TipperForwardParams, TipperInversionParams
 
 # pylint: disable=unused-import
 # flake8: noqa

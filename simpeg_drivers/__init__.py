@@ -109,15 +109,18 @@ DRIVER_MAP = {
     ),
     "magnetotellurics": (
         "simpeg_drivers.natural_sources.magnetotellurics.driver",
-        {"inversion": "MagnetotelluricsDriver"},
+        {
+            "forward": "MagnetotelluricsForwardDriver",
+            "inversion": "MagnetotelluricsInversionDriver",
+        },
     ),
     "tipper": (
         "simpeg_drivers.natural_sources.tipper.driver",
-        {"inversion": "TipperDriver"},
+        {"forward": "TipperForwardDriver", "inversion": "TipperInversionDriver"},
     ),
     "gravity": (
         "simpeg_drivers.potential_fields.gravity.driver",
-        {"inversion": "GravityInversionDriver", "forward": "GravityForwardDriver"},
+        {"forward": "GravityForwardDriver", "inversion": "GravityInversionDriver"},
     ),
     "magnetic scalar": (
         "simpeg_drivers.potential_fields.magnetic_scalar.driver",

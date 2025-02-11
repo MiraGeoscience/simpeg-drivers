@@ -19,11 +19,14 @@ from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.natural_sources.magnetotellurics.driver import (
-    MagnetotelluricsDriver,
+    MagnetotelluricsForwardDriver,
+    MagnetotelluricsInversionDriver,
 )
 from simpeg_drivers.natural_sources.magnetotellurics.params import (
-    MagnetotelluricsParams,
+    MagnetotelluricsForwardParams,
+    MagnetotelluricsInversionParams,
 )
+from simpeg_drivers.params import ActiveCellsData
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
@@ -53,15 +56,13 @@ def test_magnetotellurics_fwr_run(
         inversion_type="magnetotellurics",
         flatten=False,
     )
-    params = MagnetotelluricsParams(
-        forward_only=True,
+    params = MagnetotelluricsForwardParams(
         geoh5=geoh5,
-        mesh=model.parent.uid,
-        topography_object=topography.uid,
-        resolution=0.0,
+        mesh=model.parent,
+        active_cells=ActiveCellsData(topography_object=topography),
         z_from_topo=False,
-        data_object=survey.uid,
-        starting_model=model.uid,
+        data_object=survey,
+        starting_model=model,
         background_conductivity=1e-2,
         zxx_real_channel_bool=True,
         zxx_imag_channel_bool=True,
@@ -72,8 +73,8 @@ def test_magnetotellurics_fwr_run(
         zyy_real_channel_bool=True,
         zyy_imag_channel_bool=True,
     )
-    params.workpath = tmp_path
-    fwr_driver = MagnetotelluricsDriver(params)
+
+    fwr_driver = MagnetotelluricsForwardDriver(params)
     fwr_driver.run()
 
 
@@ -138,18 +139,17 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
         for comp, data_group, uncert_group in zip(
             components, data_groups, uncert_groups, strict=True
         ):
-            data_kwargs[f"{comp}_channel"] = data_group.uid
-            data_kwargs[f"{comp}_uncertainty"] = uncert_group.uid
+            data_kwargs[f"{comp}_channel"] = data_group
+            data_kwargs[f"{comp}_uncertainty"] = uncert_group
 
         orig_zyy_real_1 = geoh5.get_entity("Iteration_0_zyy_real_[0]")[0].values
 
         # Run the inverse
-        params = MagnetotelluricsParams(
+        params = MagnetotelluricsInversionParams(
             geoh5=geoh5,
-            mesh=mesh.uid,
-            topography_object=topography.uid,
-            resolution=0.0,
-            data_object=survey.uid,
+            mesh=mesh,
+            active_cells=ActiveCellsData(topography_object=topography),
+            data_object=survey,
             starting_model=100.0,
             reference_model=100.0,
             alpha_s=1.0,
@@ -169,8 +169,10 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
             store_sensitivities="ram",
             **data_kwargs,
         )
-        params.write_input_file(path=tmp_path, name="Inv_run")
-        driver = MagnetotelluricsDriver.start(str(tmp_path / "Inv_run.ui.json"))
+        params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
+        driver = MagnetotelluricsInversionDriver.start(
+            str(tmp_path / "Inv_run.ui.json")
+        )
 
     with geoh5.open() as run_ws:
         output = get_inversion_output(
@@ -186,18 +188,18 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
     # test that one channel works
     data_kwargs = {k: v for k, v in data_kwargs.items() if "zxx_real" in k}
     geoh5.open()
-    params = MagnetotelluricsParams(
+    params = MagnetotelluricsInversionParams(
         geoh5=geoh5,
-        mesh=geoh5.get_entity("mesh")[0].uid,
-        topography_object=topography.uid,
-        data_object=survey.uid,
+        mesh=geoh5.get_entity("mesh")[0],
+        active_cells=ActiveCellsData(topography_object=topography),
+        data_object=survey,
         starting_model=0.01,
-        conductivity_model=1e-2,
+        background_conductivity=1e-2,
         max_global_iterations=0,
         **data_kwargs,
     )
-    params.write_input_file(path=tmp_path, name="Inv_run")
-    MagnetotelluricsDriver.start(str(tmp_path / "Inv_run.ui.json"))
+    params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
+    MagnetotelluricsInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
 
 if __name__ == "__main__":
