@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: 20ef6db1946605493ccf0da10f2c4072f5a4917da4b424da9539e9e9cfa43811
-    linux-64: aa580c9389fce8c5110925c14e0ddf8f3683dd58b7d6e61e21c795e959b5a7e1
+    win-64: 916ddd337b49f22f16f37fc65fce871f2377ea96099a23688152bfc4810be3aa
+    linux-64: 66e9913a5ef1fb1332138c652310f05691ea42399acda2f2936b5613d53c3e03
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -3655,6 +3655,24 @@ package:
     sha256: c866cd79dce3f6478fa3b4bc625d5cbe0512720fd6f8d45718da9537292329cf
   category: main
   optional: false
+- name: libscotch
+  version: 7.0.6
+  manager: conda
+  platform: linux-64
+  dependencies:
+    __glibc: '>=2.17,<3.0.a0'
+    bzip2: '>=1.0.8,<2.0a0'
+    libgcc: '>=13'
+    libgfortran: ''
+    libgfortran5: '>=13.3.0'
+    liblzma: '>=5.6.3,<6.0a0'
+    libzlib: '>=1.3.1,<2.0a0'
+  url: https://conda.anaconda.org/conda-forge/linux-64/libscotch-7.0.6-hea33c07_1.conda
+  hash:
+    md5: 1b600d55dcd98c958192a69a79e6acd2
+    sha256: 8330bba8b7b3a37da6eca04bace985fb9f8d487d3249b8f690e8f4a3d8d3c7dc
+  category: main
+  optional: false
 - name: libsodium
   version: 1.0.20
   manager: conda
@@ -3983,6 +4001,20 @@ package:
   hash:
     md5: 9915f85a72472011550550623cce2d53
     sha256: 5383e32604e03814b6011fa01a5332057934181a7ea0e90abba7890c17cabce6
+  category: main
+  optional: false
+- name: llvm-openmp
+  version: 19.1.7
+  manager: conda
+  platform: win-64
+  dependencies:
+    ucrt: '>=10.0.20348.0'
+    vc: '>=14.2,<15'
+    vc14_runtime: '>=14.29.30139'
+  url: https://conda.anaconda.org/conda-forge/win-64/llvm-openmp-19.1.7-h30eaf37_0.conda
+  hash:
+    md5: f6076c844b630037f4a40fae12dc6e41
+    sha256: 0dca936d558f986c9100e731483f6c3dbab6a0d9648ec4d8fa6c6f97e18e0325
   category: main
   optional: false
 - name: llvmlite
@@ -4325,6 +4357,20 @@ package:
     sha256: 78c1bbe1723449c52b7a9df1af2ee5f005209f67e40b6e1d3c7619127c43b1c7
   category: dev
   optional: true
+- name: metis
+  version: 5.1.0
+  manager: conda
+  platform: linux-64
+  dependencies:
+    __glibc: '>=2.17,<3.0.a0'
+    libgcc: '>=13'
+    libstdcxx: '>=13'
+  url: https://conda.anaconda.org/conda-forge/linux-64/metis-5.1.0-hd0bcaf9_1007.conda
+  hash:
+    md5: 28eb714416de4eb83e2cbc47e99a1b45
+    sha256: e8a00971e6d00bd49f375c5d8d005b37a9abba0b1768533aed0f90a422bf5cc7
+  category: main
+  optional: false
 - name: mistune
   version: 3.1.1
   manager: conda
@@ -4419,6 +4465,55 @@ package:
   hash:
     md5: b0309b72560df66f71a9d5e34a5efdfa
     sha256: 99358d58d778abee4dca82ad29fb58058571f19b0f86138363c260049d4ac7f1
+  category: main
+  optional: false
+- name: mumps-include
+  version: 5.7.3
+  manager: conda
+  platform: linux-64
+  dependencies: {}
+  url: https://conda.anaconda.org/conda-forge/linux-64/mumps-include-5.7.3-ha770c72_7.conda
+  hash:
+    md5: dc10f13639b574503ededf0bb180d357
+    sha256: 714110d4704cd585fe0434fd99ae2e43132174a6609918c5939aa6aae947612a
+  category: main
+  optional: false
+- name: mumps-seq
+  version: 5.7.3
+  manager: conda
+  platform: linux-64
+  dependencies:
+    __glibc: '>=2.17,<3.0.a0'
+    _openmp_mutex: '>=4.5'
+    libblas: '>=3.9.0,<4.0a0'
+    libgcc: '>=13'
+    libgfortran: ''
+    libgfortran5: '>=13.3.0'
+    liblapack: '>=3.9.0,<4.0a0'
+    libscotch: '>=7.0.6,<7.0.7.0a0'
+    metis: '>=5.1.0,<5.1.1.0a0'
+    mumps-include: 5.7.3
+  url: https://conda.anaconda.org/conda-forge/linux-64/mumps-seq-5.7.3-h2064c95_7.conda
+  hash:
+    md5: 46523370432ffd9ed12a2aba5dda8db8
+    sha256: 4d8c076a3b7821dec3a753b4260737aed81c447a91baf50c38c095557e59bd90
+  category: main
+  optional: false
+- name: mumps-seq
+  version: 5.7.3
+  manager: conda
+  platform: win-64
+  dependencies:
+    libblas: '>=3.9.0,<4.0a0'
+    liblapack: '>=3.9.0,<4.0a0'
+    llvm-openmp: '>=19.1.7'
+    ucrt: '>=10.0.20348.0'
+    vc: '>=14.2,<15'
+    vc14_runtime: '>=14.29.30139'
+  url: https://conda.anaconda.org/conda-forge/win-64/mumps-seq-5.7.3-h9576071_7.conda
+  hash:
+    md5: 9483f654b63889300902eb57227c1faf
+    sha256: d8451cc9a924ae671cd4aab78fcdf16ab1fd0c8e2463b5f4bc78acd400e66b3b
   category: main
   optional: false
 - name: munkres
@@ -6068,6 +6163,43 @@ package:
     sha256: 4790787fe1f4e8da616edca4acf6a4f8ed4e7c6967aa31b920208fc8f95efcca
   category: dev
   optional: true
+- name: python-mumps
+  version: 0.0.3
+  manager: conda
+  platform: linux-64
+  dependencies:
+    __glibc: '>=2.17,<3.0.a0'
+    libgcc: '>=13'
+    mumps-seq: '>=5.7.3,<5.7.4.0a0'
+    numpy: '>=1.19,<3'
+    python: '>=3.10,<3.11.0a0'
+    python_abi: 3.10.*
+    scipy: '>=1.8'
+  url: https://conda.anaconda.org/conda-forge/linux-64/python-mumps-0.0.3-py310h6410a28_0.conda
+  hash:
+    md5: f7e3766b109232dadef0cc072e1e3cc6
+    sha256: bf869230e332833c9f9f1908731a859c3b39a612e74ae8f65b5338d67795c613
+  category: main
+  optional: false
+- name: python-mumps
+  version: 0.0.3
+  manager: conda
+  platform: win-64
+  dependencies:
+    mumps-seq: '>=5.7.3,<5.7.4.0a0'
+    numpy: '>=1.19,<3'
+    python: '>=3.10,<3.11.0a0'
+    python_abi: 3.10.*
+    scipy: '>=1.8'
+    ucrt: '>=10.0.20348.0'
+    vc: '>=14.2,<15'
+    vc14_runtime: '>=14.29.30139'
+  url: https://conda.anaconda.org/conda-forge/win-64/python-mumps-0.0.3-py310hb64895d_0.conda
+  hash:
+    md5: 477083091731501c8bef2fd4733ec23f
+    sha256: 1461a60b36aa7b2189ad3bd0ca9bb356d42ea2e54c8aaf122826e9f8bd33735c
+  category: main
+  optional: false
 - name: python-tzdata
   version: '2023.4'
   manager: conda
