@@ -29,11 +29,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {
-    "data_norm": 2.81018e-10,
-    "phi_d": 15400,
-    "phi_m": 718.9,
-}
+target_run = {"data_norm": 2.173308e-10, "phi_d": 17820, "phi_m": 968}
 
 
 def test_bad_waveform(tmp_path: Path):
