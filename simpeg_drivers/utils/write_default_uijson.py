@@ -14,15 +14,8 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from simpeg_drivers.electricals.direct_current.pseudo_three_dimensions.params import (
-    DirectCurrentPseudo3DParams,
-)
-from simpeg_drivers.electricals.induced_polarization.pseudo_three_dimensions.params import (
-    InducedPolarizationPseudo3DParams,
-)
 from simpeg_drivers.joint.joint_cross_gradient import JointCrossGradientParams
 from simpeg_drivers.joint.joint_surveys import JointSurveysParams
-from simpeg_drivers.natural_sources import MagnetotelluricsParams, TipperParams
 
 
 active_data_channels = [
