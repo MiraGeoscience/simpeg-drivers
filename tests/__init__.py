@@ -7,3 +7,8 @@
 #  (see LICENSE file at the root of this source code package).                      '
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#
+#  This file is part of simpeg-drivers.
+#
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License
+#  (see LICENSE file at the root of this source code package).
