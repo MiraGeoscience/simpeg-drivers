@@ -63,26 +63,6 @@ class MagnetotelluricsForwardParams(EMDataMixin, BaseForwardData):
     def channels(self) -> list[str]:
         return ["_".join(k.split("_")[:2]) for k in self.__dict__ if "channel" in k]
 
-    # def property_group_data(self, property_group: PropertyGroup):
-    #     """
-    #     Return dictionary of channel/data.
-    #
-    #     :param property_group: Property group uid
-    #     """
-    #     _ = property_group
-    #     frequencies = self.data_object.channels
-    #     return {k: None for k in frequencies}
-    #
-    # def data(self, component: str):
-    #     """Returns array of data for chosen data component."""
-    #     property_group = self.data_channel(component)
-    #     return self.property_group_data(property_group)
-    #
-    # def uncertainty(self, component: str) -> float:
-    #     """Returns uncertainty for chosen data component."""
-    #     uid = self.uncertainty_channel(component)
-    #     return self.property_group_data(uid)
-
 
 class MagnetotelluricsInversionParams(EMDataMixin, BaseInversionData):
     """
@@ -136,45 +116,3 @@ class MagnetotelluricsInversionParams(EMDataMixin, BaseInversionData):
     zyy_imag_uncertainty: PropertyGroup | None = None
     background_conductivity: float | FloatData
     model_type: str = "Conductivity (S/m)"
-
-    # @property
-    # def channels(self) -> list[str]:
-    #     return ["_".join(k.split("_")[:2]) for k in self.__dict__ if "channel" in k]
-    #
-    # def property_group_data(self, property_group: PropertyGroup):
-    #     """
-    #     Return dictionary of channel/data.
-    #
-    #     :param property_group: Property group uid
-    #     """
-    #     data = {}
-    #     frequencies = self.data_object.channels
-    #     if property_group is None:
-    #         return {k: None for k in frequencies}
-    #     group = next(
-    #         k for k in self.data_object.property_groups if k.uid == property_group.uid
-    #     )
-    #     property_names = [self.geoh5.get_entity(p)[0].name for p in group.properties]
-    #     properties = [self.geoh5.get_entity(p)[0].values for p in group.properties]
-    #     for i, f in enumerate(frequencies):
-    #         try:
-    #             f_ind = property_names.index(
-    #                 next(k for k in property_names if f"{f:.2e}" in k)
-    #             )  # Safer if data was saved with geoapps naming convention
-    #             data[f] = properties[f_ind]
-    #         except StopIteration:
-    #             data[f] = properties[i]  # in case of other naming conventions
-    #
-    #     return data
-
-    #
-    # @property
-    # def data(self, component: str):
-    #     """Returns array of data for chosen data component."""
-    #     property_group = self.data_channel(component)
-    #     return self.property_group_data(property_group)
-    # @property
-    # def uncertainty(self, component: str) -> float:
-    #     """Returns uncertainty for chosen data component."""
-    #     uid = self.uncertainty_channel(component)
-    #     return self.property_group_data(uid)
