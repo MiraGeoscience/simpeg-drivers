@@ -22,7 +22,7 @@ from geoh5py.objects import (
 )
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.params import BaseForwardData, BaseInversionData
+from simpeg_drivers.params import BaseForwardData, BaseInversionData, EMDataMixin
 
 
 Receivers: TypeAlias = (
@@ -30,7 +30,7 @@ Receivers: TypeAlias = (
 )
 
 
-class FrequencyDomainElectromagneticsForwardParams(BaseForwardData):
+class FrequencyDomainElectromagneticsForwardParams(EMDataMixin, BaseForwardData):
     """
     Parameter class for Frequency-domain Electromagnetic (FEM) simulation.
 
@@ -75,32 +75,32 @@ class FrequencyDomainElectromagneticsForwardParams(BaseForwardData):
         }
         return conversion[self.data_object.unit]
 
-    @property
-    def channels(self) -> list[str]:
-        return ["_".join(k.split("_")[:2]) for k in self.__dict__ if "channel" in k]
+    # @property
+    # def channels(self) -> list[str]:
+    #     return ["_".join(k.split("_")[:2]) for k in self.__dict__ if "channel" in k]
+    #
+    # def property_group_data(self, property_group: PropertyGroup):
+    #     """
+    #     Return dictionary of channel/data.
+    #
+    #     :param property_group: Property group uid
+    #     """
+    #     _ = property_group
+    #     channels = self.data_object.channels
+    #     return {k: None for k in channels}
+    #
+    # def data(self, component: str):
+    #     """Returns array of data for chosen data component."""
+    #     property_group = self.data_channel(component)
+    #     return self.property_group_data(property_group)
+    #
+    # def uncertainty(self, component: str) -> float:
+    #     """Returns uncertainty for chosen data component."""
+    #     uid = self.uncertainty_channel(component)
+    #     return self.property_group_data(uid)
 
-    def property_group_data(self, property_group: PropertyGroup):
-        """
-        Return dictionary of channel/data.
 
-        :param property_group: Property group uid
-        """
-        _ = property_group
-        channels = self.data_object.channels
-        return {k: None for k in channels}
-
-    def data(self, component: str):
-        """Returns array of data for chosen data component."""
-        property_group = self.data_channel(component)
-        return self.property_group_data(property_group)
-
-    def uncertainty(self, component: str) -> float:
-        """Returns uncertainty for chosen data component."""
-        uid = self.uncertainty_channel(component)
-        return self.property_group_data(uid)
-
-
-class FrequencyDomainElectromagneticsInversionParams(BaseInversionData):
+class FrequencyDomainElectromagneticsInversionParams(EMDataMixin, BaseInversionData):
     """
     Parameter class for Frequency-domain Electromagnetic (FEM) -> conductivity inversion.
 
@@ -149,29 +149,29 @@ class FrequencyDomainElectromagneticsInversionParams(BaseInversionData):
         }
         return conversion[self.data_object.unit]
 
-    @property
-    def channels(self) -> list[str]:
-        return ["_".join(k.split("_")[:2]) for k in self.__dict__ if "channel" in k]
-
-    def property_group_data(self, property_group: PropertyGroup):
-        """
-        Return dictionary of channel/data.
-
-        :param property_group: Property group containing TEM data.
-        """
-        channels = self.data_object.channels
-        group = self.data_object.fetch_property_group(name=property_group.name)
-        properties = [self.geoh5.get_entity(p)[0].values for p in group.properties]
-        data = {f: properties[i] for i, f in enumerate(channels)}
-
-        return data
-
-    def data(self, component: str):
-        """Returns array of data for chosen data component."""
-        property_group = self.data_channel(component)
-        return self.property_group_data(property_group)
-
-    def uncertainty(self, component: str) -> float:
-        """Returns uncertainty for chosen data component."""
-        uid = self.uncertainty_channel(component)
-        return self.property_group_data(uid)
+    # @property
+    # def channels(self) -> list[str]:
+    #     return ["_".join(k.split("_")[:2]) for k in self.__dict__ if "channel" in k]
+    #
+    # def property_group_data(self, property_group: PropertyGroup):
+    #     """
+    #     Return dictionary of channel/data.
+    #
+    #     :param property_group: Property group containing TEM data.
+    #     """
+    #     channels = self.data_object.channels
+    #     group = self.data_object.fetch_property_group(name=property_group.name)
+    #     properties = [self.geoh5.get_entity(p)[0].values for p in group.properties]
+    #     data = {f: properties[i] for i, f in enumerate(channels)}
+    #
+    #     return data
+    #
+    # def data(self, component: str):
+    #     """Returns array of data for chosen data component."""
+    #     property_group = self.data_channel(component)
+    #     return self.property_group_data(property_group)
+    #
+    # def uncertainty(self, component: str) -> float:
+    #     """Returns uncertainty for chosen data component."""
+    #     uid = self.uncertainty_channel(component)
+    #     return self.property_group_data(uid)

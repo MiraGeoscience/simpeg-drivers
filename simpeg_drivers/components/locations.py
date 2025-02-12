@@ -121,6 +121,8 @@ class InversionLocations:
         return locations
 
     def _filter(self, a, mask):
+        if a is None:
+            return None
         for k, v in a.items():
             if not isinstance(v, np.ndarray):
                 a.update({k: self._filter(v, mask)})

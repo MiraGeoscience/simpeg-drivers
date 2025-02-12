@@ -165,6 +165,7 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
             background_conductivity=100.0,
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e3,
+            sens_wts_threshold=1.0,
             prctile=100,
             store_sensitivities="ram",
             **data_kwargs,

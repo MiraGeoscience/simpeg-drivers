@@ -163,7 +163,11 @@ class CoreData(BaseData):
     @property
     def active_components(self) -> list[str]:
         """Return list of active components."""
-        return [k for k in self.components if self.component_data(k) is not None]
+        return [
+            k
+            for k in self.components
+            if getattr(self, "_".join([k, "channel"])) is not None
+        ]
 
     @property
     def data(self) -> InversionData:
