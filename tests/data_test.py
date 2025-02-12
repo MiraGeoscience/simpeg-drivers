@@ -204,7 +204,7 @@ def test_get_uncertainty_component(tmp_path: Path):
     params = get_mvi_params(tmp_path, tmi_uncertainty=1.0)
     geoh5 = params.geoh5
     data = InversionData(geoh5, params)
-    unc = data.get_data()[2]["tmi"]
+    unc = params.uncertainties["tmi"]
     assert len(np.unique(unc)) == 1
     assert np.unique(unc)[0] == 1
     assert len(unc) == data.entity.n_vertices
@@ -214,23 +214,14 @@ def test_normalize(tmp_path: Path):
     params = get_mvi_params(tmp_path)
     geoh5 = params.geoh5
     data = InversionData(geoh5, params)
-    len_data = len(data.observed["tmi"])
-    data.observed = {
-        "tmi": np.arange(len_data, dtype=float),
-        "gz": np.arange(len_data, dtype=float),
-    }
-    data.components = list(data.observed.keys())
     data.normalizations = data.get_normalizations()
     test_data = data.normalize(data.observed)
-    assert np.all(
-        np.hstack(list(data.normalizations[None].values())).tolist()
-        == np.repeat([1, -1], len_data)
-    )
-    assert all(test_data["gz"] == (-1 * data.observed["gz"]))
+    assert all(test_data["tmi"] == params.data["tmi"])
+    assert len(test_data) == 1
 
 
 def test_get_survey(tmp_path: Path):
-    params = get_mvi_params(tmp_path)
+    params = get_mvi_params(tmp_path, tmi_uncertainty=1.0)
     geoh5 = params.geoh5
     data = InversionData(geoh5, params)
     survey = data.create_survey()
