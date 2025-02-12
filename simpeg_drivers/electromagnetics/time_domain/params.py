@@ -22,7 +22,7 @@ from geoh5py.objects import (
 )
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.params import BaseForwardData, BaseInversionData
+from simpeg_drivers.params import BaseForwardData, BaseInversionData, EMDataMixin
 
 
 Receivers: TypeAlias = (
@@ -30,7 +30,7 @@ Receivers: TypeAlias = (
 )
 
 
-class TimeDomainElectromagneticsForwardParams(BaseForwardData):
+class TimeDomainElectromagneticsForwardParams(EMDataMixin, BaseForwardData):
     """
     Parameter class for Time-domain Electromagnetic (TEM) -> conductivity forward simulation.
 
@@ -77,18 +77,19 @@ class TimeDomainElectromagneticsForwardParams(BaseForwardData):
         channels = self.data_object.channels
         return {k: None for k in channels}
 
-    def data(self, component: str):
-        """Returns array of data for chosen data component."""
-        property_group = self.data_channel(component)
-        return self.property_group_data(property_group)
+    #
+    # def data(self, component: str):
+    #     """Returns array of data for chosen data component."""
+    #     property_group = self.data_channel(component)
+    #     return self.property_group_data(property_group)
+    #
+    # def uncertainty(self, component: str) -> float:
+    #     """Returns uncertainty for chosen data component."""
+    #     uid = self.uncertainty_channel(component)
+    #     return self.property_group_data(uid)
 
-    def uncertainty(self, component: str) -> float:
-        """Returns uncertainty for chosen data component."""
-        uid = self.uncertainty_channel(component)
-        return self.property_group_data(uid)
 
-
-class TimeDomainElectromagneticsInversionParams(BaseInversionData):
+class TimeDomainElectromagneticsInversionParams(EMDataMixin, BaseInversionData):
     """
     Parameter class for Time-domain Electromagnetic (TEM) -> conductivity inversion.
 

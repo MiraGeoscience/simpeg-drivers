@@ -162,8 +162,9 @@ class FrequencyDomainElectromagneticsInversionParams(BaseInversionData):
         channels = self.data_object.channels
         group = self.data_object.fetch_property_group(name=property_group.name)
         properties = [self.geoh5.get_entity(p)[0].values for p in group.properties]
+        data = {f: properties[i] for i, f in enumerate(channels)}
 
-        return {f: properties[i] for i, f in enumerate(channels)}
+        return data
 
     def data(self, component: str):
         """Returns array of data for chosen data component."""

@@ -113,14 +113,6 @@ class TipperInversionParams(BaseInversionData):
     def channels(self) -> list[str]:
         return ["_".join(k.split("_")[:2]) for k in self.__dict__ if "channel" in k]
 
-    def data_channel(self, component: str):
-        """Return uuid of data channel."""
-        return getattr(self, "_".join([component, "channel"]), None)
-
-    def uncertainty_channel(self, component: str):
-        """Return uuid of uncertainty channel."""
-        return getattr(self, "_".join([component, "uncertainty"]), None)
-
     def property_group_data(self, property_group: PropertyGroup):
         """
         Return dictionary of channel/data.

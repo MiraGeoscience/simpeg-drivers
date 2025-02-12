@@ -15,21 +15,23 @@ import multiprocessing
 import warnings
 from copy import deepcopy
 from pathlib import Path
-from typing import ClassVar
+from typing import ClassVar, TypeAlias
 from uuid import UUID
 
 import numpy as np
 from geoapps_utils.driver.data import BaseData
 from geoapps_utils.driver.params import BaseParams
 from geoh5py.data import BooleanData, FloatData, NumericData
-from geoh5py.groups import SimPEGGroup, UIJsonGroup
-from geoh5py.objects import DrapeModel, Octree, Points
+from geoh5py.groups import PropertyGroup, SimPEGGroup, UIJsonGroup
+from geoh5py.objects import Octree, Points
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
 
-# from simpeg_drivers import assets_path
+InversionData: TypeAlias = (
+    dict[str, np.ndarray | None] | dict[str, dict[float, np.ndarray | None]]
+)
 
 
 # pylint: disable=too-many-lines
@@ -154,39 +156,60 @@ class CoreData(BaseData):
         return Path(self.geoh5.h5file).parent
 
     @property
-    def channels(self) -> list[str]:
-        return [k.split("_")[0] for k in self.__dict__ if "channel" in k]
+    def components(self) -> list[str]:
+        """Return list of component names."""
+        return [self._component_name(k) for k in self.__dict__ if "channel" in k]
 
-    def data_channel(self, component: str) -> NumericData | None:
-        """Return the data object associated with the component."""
-        return getattr(self, "_".join([component, "channel"]), None)
+    @property
+    def active_components(self) -> list[str]:
+        """Return list of active components."""
+        return [k for k in self.components if self.component_data(k) is not None]
 
-    def data(self, component: str) -> np.ndarray | None:
-        """Returns array of data for chosen data component if it exists."""
-        data_entity = self.data_channel(component)
-        if isinstance(data_entity, NumericData):
-            return data_entity.values.astype(float)
-        return None
+    @property
+    def data(self) -> InversionData:
+        """Return dictionary of data components and associated values."""
+        out = {}
+        for k in self.active_components:
+            out[k] = self.component_data(k)
+        return out
 
-    def uncertainty_channel(self, component: str) -> NumericData | None:
-        """Return the uncertainty object associated with the component."""
-        return getattr(self, "_".join([component, "uncertainty"]), None)
+    @property
+    def uncertainties(self) -> InversionData:
+        """Return dictionary of unceratinty components and associated values."""
+        out = {}
+        for k in self.active_components:
+            out[k] = self.component_uncertainty(k)
+        return out
 
-    def uncertainty(self, component: str) -> np.ndarray | None:
-        """Returns uncertainty for chosen data component if it exists."""
+    def component_data(self, component: str) -> np.ndarray | None:
+        """Return data values associated with the component."""
+        data = getattr(self, "_".join([component, "channel"]), None)
+        if isinstance(data, NumericData):
+            data = data.values
+        return data
 
-        uncertainty_entity = self.uncertainty_channel(component)
-        if isinstance(uncertainty_entity, NumericData):
-            return uncertainty_entity.values.astype(float)
+    def component_uncertainty(self, component: str) -> np.ndarray | None:
+        """
+        Return uncertainty values associated with the component.
 
-        data = self.data(component)
-        if data is not None:
-            if isinstance(uncertainty_entity, int | float):
-                return np.array([float(uncertainty_entity)] * len(data))
-            else:
-                return data * 0.0 + 1.0  # Default
+        If the uncertainty is a float, it will be broadcasted to the same
+        shape as the data.
 
-        return None
+        :param component: Component name.
+        """
+        data = getattr(self, "_".join([component, "uncertainty"]), None)
+        if isinstance(data, NumericData):
+            data = data.values
+        elif isinstance(data, float):
+            data *= np.ones_like(self.component_data(component))
+
+        return data
+
+    def _component_name(self, component: str) -> str:
+        """Strip the '_channel' and '_channel_bool' suffixes from data name."""
+        return "_".join(
+            [k for k in component.split("_") if k not in ["channel", "bool"]]
+        )
 
     @property
     def padding_cells(self) -> int:
@@ -209,14 +232,9 @@ class BaseForwardData(CoreData):
     forward_only: bool = True
 
     @property
-    def components(self) -> list[str]:
-        """Retrieve component names used to index channel and uncertainty data."""
-        comps = []
-        for c in self.channels:
-            if getattr(self, f"{c}_channel_bool", False):
-                comps.append(c)
-
-        return comps
+    def active_components(self) -> list[str]:
+        """Return list of active components."""
+        return [k for k in self.components if getattr(self, f"{k}_channel_bool")]
 
 
 class BaseInversionData(CoreData):
@@ -345,15 +363,51 @@ class BaseInversionData(CoreData):
     distributed_workers: int | None = None
     no_data_value: float | None = None
 
-    @property
-    def components(self) -> list[str]:
-        """Retrieve component names used to index channel and uncertainty data."""
-        comps = []
-        for c in self.channels:
-            if getattr(self, f"{c}_channel", False):
-                comps.append(c)
 
-        return comps
+class EMDataMixin:
+    """
+    Mixin class to add data and uncertainty access from property groups.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def component_data(self, component: str):
+        """Return data values associated with the component."""
+        property_group = getattr(self, "_".join([component, "channel"]), None)
+        return self.property_group_data(property_group)
+
+    def component_uncertainty(self, component: str):
+        """Return uncertainty values associated with the component."""
+        property_group = getattr(self, "_".join([component, "uncertainty"]), None)
+        return self.property_group_data(property_group)
+
+    def property_group_data(self, property_group: PropertyGroup):
+        """
+        Return dictionary of channel/data.
+
+        :param property_group: Property group uid
+        """
+        frequencies = self.data_object.channels
+        if property_group is None:
+            return {f: None for f in frequencies}
+
+        data = {}
+        group = next(
+            k for k in self.data_object.property_groups if k.uid == property_group.uid
+        )
+        property_names = [self.geoh5.get_entity(p)[0].name for p in group.properties]
+        properties = [self.geoh5.get_entity(p)[0].values for p in group.properties]
+        for i, f in enumerate(frequencies):
+            try:
+                f_ind = property_names.index(
+                    next(k for k in property_names if f"{f:.2e}" in k)
+                )  # Safer if data was saved with geoapps naming convention
+                data[f] = properties[f_ind]
+            except StopIteration:
+                data[f] = properties[i]  # in case of other naming conventions
+
+        return data
 
 
 class InversionBaseParams(BaseParams):
