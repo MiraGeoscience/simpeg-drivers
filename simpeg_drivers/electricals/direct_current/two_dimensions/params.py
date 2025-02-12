@@ -19,7 +19,6 @@ from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.electricals.params import (
-    Base2DParams,
     DrapeModelData,
     LineSelectionData,
 )
