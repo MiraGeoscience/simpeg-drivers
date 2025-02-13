@@ -25,7 +25,7 @@ from simpeg_drivers.electricals.params import (
 from simpeg_drivers.params import BaseForwardData, BaseInversionData
 
 
-class InducedPolarizationPseudo3DForwardParams(BaseForwardData):
+class IPBatch2DForwardParams(BaseForwardData):
     """
     Parameter class for three dimensional induced polarization forward simulation.
 
@@ -42,7 +42,7 @@ class InducedPolarizationPseudo3DForwardParams(BaseForwardData):
     name: ClassVar[str] = "Induced Polarization Pseudo 3D Forward"
     title: ClassVar[str] = "Induced Polarization (IP) 2D Batch Forward"
     default_ui_json: ClassVar[str] = (
-        assets_path() / "uijson/induced_polarization_pseudo3d_forward.ui.json"
+        assets_path() / "uijson/induced_polarization_batch2d_forward.ui.json"
     )
 
     inversion_type: str = "induced polarization pseudo 3d"
@@ -57,7 +57,7 @@ class InducedPolarizationPseudo3DForwardParams(BaseForwardData):
     file_control: FileControlData = FileControlData()
 
 
-class InducedPolarizationPseudo3DInversionParams(BaseInversionData):
+class IPBatch2DInversionParams(BaseInversionData):
     """
     Parameter class for three dimensional induced polarization inversion.
 
@@ -76,7 +76,7 @@ class InducedPolarizationPseudo3DInversionParams(BaseInversionData):
     name: ClassVar[str] = "Induced Polarization Pseudo 3D Inversion"
     title: ClassVar[str] = "Induced Polarization (IP) 2D Batch Inversion"
     default_ui_json: ClassVar[str] = (
-        assets_path() / "uijson/induced_polarization_pseudo3d_inversion.ui.json"
+        assets_path() / "uijson/induced_polarization_batch2d_inversion.ui.json"
     )
 
     inversion_type: str = "induced polarization pseudo 3d"

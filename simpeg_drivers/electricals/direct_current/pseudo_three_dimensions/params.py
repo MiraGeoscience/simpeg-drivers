@@ -25,7 +25,7 @@ from simpeg_drivers.electricals.params import (
 from simpeg_drivers.params import BaseForwardData, BaseInversionData
 
 
-class DirectCurrentPseudo3DForwardParams(BaseForwardData):
+class DCBatch2DForwardParams(BaseForwardData):
     """
     Parameter class for three dimensional direct current forward simulation.
 
@@ -42,7 +42,7 @@ class DirectCurrentPseudo3DForwardParams(BaseForwardData):
     name: ClassVar[str] = "Direct Current Pseudo 3D Forward"
     title: ClassVar[str] = "Direct Current (DC) 2D Batch Forward"
     default_ui_json: ClassVar[str] = (
-        assets_path() / "uijson/direct_current_pseudo3d_forward.ui.json"
+        assets_path() / "uijson/direct_current_batch2d_forward.ui.json"
     )
 
     inversion_type: str = "direct current pseudo 3d"
@@ -57,7 +57,7 @@ class DirectCurrentPseudo3DForwardParams(BaseForwardData):
     file_control: FileControlData = FileControlData()
 
 
-class DirectCurrentPseudo3DInversionParams(BaseInversionData):
+class DCBatch2DInversionParams(BaseInversionData):
     """
     Parameter class for three dimensional direct current inversion.
 
@@ -77,7 +77,7 @@ class DirectCurrentPseudo3DInversionParams(BaseInversionData):
     name: ClassVar[str] = "Direct Current Pseudo 3D Inversion"
     title: ClassVar[str] = "Direct Current (DC) 2D Batch Inversion"
     default_ui_json: ClassVar[str] = (
-        assets_path() / "uijson/direct_current_pseudo3d_inversion.ui.json"
+        assets_path() / "uijson/direct_current_batch2d_inversion.ui.json"
     )
 
     inversion_type: str = "direct current pseudo 3d"

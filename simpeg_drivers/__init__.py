@@ -60,8 +60,8 @@ DRIVER_MAP = {
     "direct current pseudo 3d": (
         "simpeg_drivers.electricals.direct_current.pseudo_three_dimensions.driver",
         {
-            "forward": "DirectCurrentPseudo3DForwardDriver",
-            "inversion": "DirectCurrentPseudo3DInversionDriver",
+            "forward": "DCBatch2DForwardDriver",
+            "inversion": "DCBatch2DInversionDriver",
         },
     ),
     "induced polarization 3d": (
@@ -81,8 +81,8 @@ DRIVER_MAP = {
     "induced polarization pseudo 3d": (
         "simpeg_drivers.electricals.induced_polarization.pseudo_three_dimensions.driver",
         {
-            "forward": "InducedPolarizationPseudo3DForwardDriver",
-            "inversion": "InducedPolarizationPseudo3DInversionDriver",
+            "forward": "IPBatch2DForwardDriver",
+            "inversion": "IPBatch2DInversionDriver",
         },
     ),
     "joint surveys": (
