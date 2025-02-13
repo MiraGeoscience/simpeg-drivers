@@ -41,6 +41,7 @@ requirements:
     - pandas >=2.2.1,<2.3.dev
     - pydantic >=2.5.2,<3.0.dev
     - pydiso >=0.1.0, <0.2.dev
+    - python-mumps >=0.0.3, <0.0.4.dev
     - pymatsolver >=0.3.0,<0.4.dev
     - scikit-learn >=1.4.0,<1.5.dev
     - tqdm >=4.66.1,<5.0.dev
