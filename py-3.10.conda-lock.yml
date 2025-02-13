@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: a1386f6a5597c375e46c65575ae1508bc1288ef07c86da24a2b2cdff3cdcbeba
-    linux-64: 671fc6a54f205477c5a25985fa378d9224d5af168a123c9957d4a3097a38b751
+    win-64: fc66d6c7c5092b7d44d35ff62f799c0f98f2d53ac2d2f876c8eb336b987e6bb6
+    linux-64: d2583c018d31e37d8cb02de8c4df586f4dc84ae7c1d4a8e5c573ee1fe63825f7
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -8459,7 +8459,7 @@ package:
   category: main
   optional: false
 - name: geoh5py
-  version: 0.10.1rc1
+  version: 0.10.1
   manager: pip
   platform: linux-64
   dependencies:
@@ -8467,13 +8467,13 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pillow: '>=10.3.0,<10.4.0'
     pydantic: '>=2.5.2,<3.0.0'
-  url: https://files.pythonhosted.org/packages/50/88/da2de9f10dc64403aa11ace685713b1662babb9c53eadc75117f9ce05f5e/geoh5py-0.10.1rc1-py3-none-any.whl
+  url: https://files.pythonhosted.org/packages/e5/21/e2e42eab761b538f1a391396d845ad0c5f900e20d7a72aacc7da181d6ee8/geoh5py-0.10.1-py3-none-any.whl
   hash:
-    sha256: 17a94dabab81e686d3f8638c9f56573ae6d86dc699cf137a9b4b9d89f873ee25
+    sha256: 6ad70a64f5d5ae25c84c1d75f8142a0b34204027041a3edaf1b036fa9e571cf2
   category: main
   optional: false
 - name: geoh5py
-  version: 0.10.1rc1
+  version: 0.10.1
   manager: pip
   platform: win-64
   dependencies:
@@ -8481,9 +8481,9 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pillow: '>=10.3.0,<10.4.0'
     pydantic: '>=2.5.2,<3.0.0'
-  url: https://files.pythonhosted.org/packages/50/88/da2de9f10dc64403aa11ace685713b1662babb9c53eadc75117f9ce05f5e/geoh5py-0.10.1rc1-py3-none-any.whl
+  url: https://files.pythonhosted.org/packages/e5/21/e2e42eab761b538f1a391396d845ad0c5f900e20d7a72aacc7da181d6ee8/geoh5py-0.10.1-py3-none-any.whl
   hash:
-    sha256: 17a94dabab81e686d3f8638c9f56573ae6d86dc699cf137a9b4b9d89f873ee25
+    sha256: 6ad70a64f5d5ae25c84c1d75f8142a0b34204027041a3edaf1b036fa9e571cf2
   category: main
   optional: false
 - name: mira-simpeg
