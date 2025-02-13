@@ -56,7 +56,7 @@ param-sweeps = {version = ">=0.2.0rc1, <0.3.dev", source = "pypi", allow-prerele
 
 ## force some versions to resolve incompatible resolution between PyPI and Conda
 #-------------------------------------------------------------------------------
-pymatsolver = {version = "0.2.*", source = "pypi"}
+pymatsolver = {version = "0.3.*", source = "pypi"}
 
 ## about pip dependencies
 # to be specified to work with conda-lock
