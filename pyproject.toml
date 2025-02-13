@@ -42,7 +42,7 @@ python-mumps = ">=0.0.3, <0.0.4.dev"
 
 ## Pip dependencies from Git repositories
 #----------------------------------------
-geoh5py = {version = ">=0.10.1rc1, <0.11.dev", source = "pypi", allow-prereleases = true}
+geoh5py = {version = ">=0.10.1, <0.11.dev", source = "pypi", allow-prereleases = true}
 #geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "release/0.10.0"}
 
 octree-creation-app = {version = ">=0.2.0, <0.3.dev", source = "pypi", allow-prereleases = true}
