@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: b350326a06bd6fd57f16d744619d60e3a4f32a196af4a10723224b85ca45bd63
-    linux-64: 251e9f963814bf39cf25a6e9bf00b0d283187dd15be1d207db86a33589fb2d26
+    win-64: c84991c7f2dc15223ed7fb005e7951d35ccfa6a8ce292ad404a5f015ee04c4f3
+    linux-64: 5e109e5809ae5ad8f9fcd0504e766e226683d51f811daa54903572a71c8cf998
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -8573,7 +8573,7 @@ package:
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.21.2.1
+  version: 0.21.2.2a1
   manager: pip
   platform: linux-64
   dependencies:
@@ -8583,21 +8583,21 @@ package:
     empymod: '>=2.0.0'
     fsspec: '>=0.3.3'
     geoana: '>=0.5.0'
-    geoh5py: '>=0.10.0-alpha.1,<0.11'
+    geoh5py: '>=0.10.0,<0.11.dev'
     matplotlib: '*'
     numpy: '>=1.20'
     pandas: '*'
-    pymatsolver: '>=0.2,<0.3.0'
+    pymatsolver: '>=0.3,<0.4.dev'
     scikit-learn: '>=1.2'
     scipy: '>=1.8.0'
     zarr: '*'
-  url: https://files.pythonhosted.org/packages/db/d5/72a4d0f789a01686bd6f014d21ed25f42163bcef17dc7a2ae702da5815ab/mira_simpeg-0.21.2.1-py3-none-any.whl
+  url: https://files.pythonhosted.org/packages/3d/54/337c2ca2ac0511602a7e70b8d0a4d0f486a94dedf04ed17c634953e4c977/mira_simpeg-0.21.2.2a1-py3-none-any.whl
   hash:
-    sha256: 82451148ed720078308f5c3273fd78ce83167a214a0164c9956af2865315ab37
+    sha256: 03bfc83b5bbedc8f9e6423f005d4741f44c52b937d5181614d264a79e5623501
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.21.2.1
+  version: 0.21.2.2a1
   manager: pip
   platform: win-64
   dependencies:
@@ -8607,17 +8607,17 @@ package:
     empymod: '>=2.0.0'
     fsspec: '>=0.3.3'
     geoana: '>=0.5.0'
-    geoh5py: '>=0.10.0-alpha.1,<0.11'
+    geoh5py: '>=0.10.0,<0.11.dev'
     matplotlib: '*'
     numpy: '>=1.20'
     pandas: '*'
-    pymatsolver: '>=0.2,<0.3.0'
+    pymatsolver: '>=0.3,<0.4.dev'
     scikit-learn: '>=1.2'
     scipy: '>=1.8.0'
     zarr: '*'
-  url: https://files.pythonhosted.org/packages/db/d5/72a4d0f789a01686bd6f014d21ed25f42163bcef17dc7a2ae702da5815ab/mira_simpeg-0.21.2.1-py3-none-any.whl
+  url: https://files.pythonhosted.org/packages/3d/54/337c2ca2ac0511602a7e70b8d0a4d0f486a94dedf04ed17c634953e4c977/mira_simpeg-0.21.2.2a1-py3-none-any.whl
   hash:
-    sha256: 82451148ed720078308f5c3273fd78ce83167a214a0164c9956af2865315ab37
+    sha256: 03bfc83b5bbedc8f9e6423f005d4741f44c52b937d5181614d264a79e5623501
   category: main
   optional: false
 - name: octree-creation-app
