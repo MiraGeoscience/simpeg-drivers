@@ -508,8 +508,8 @@ class InversionDriver(BaseDriver):
         with ifile.data["geoh5"].open(mode="r+"):
             params = driver_class._params_class.build(ifile)
             driver = driver_class(params)
-            driver.run()
 
+        driver.run()
         return driver
 
 
