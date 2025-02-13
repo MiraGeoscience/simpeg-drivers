@@ -53,8 +53,8 @@ DRIVER_MAP = {
     "direct current 2d": (
         "simpeg_drivers.electricals.direct_current.two_dimensions.driver",
         {
-            "forward": "DirectCurrent2DForwardDriver",
-            "inversion": "DirectCurrent2DInversionDriver",
+            "forward": "DC2DForwardDriver",
+            "inversion": "DC2DInversionDriver",
         },
     ),
     "direct current pseudo 3d": (
@@ -110,8 +110,8 @@ DRIVER_MAP = {
     "magnetotellurics": (
         "simpeg_drivers.natural_sources.magnetotellurics.driver",
         {
-            "forward": "MagnetotelluricsForwardDriver",
-            "inversion": "MagnetotelluricsInversionDriver",
+            "forward": "MTForwardDriver",
+            "inversion": "MTInversionDriver",
         },
     ),
     "tipper": (
@@ -125,15 +125,15 @@ DRIVER_MAP = {
     "magnetic scalar": (
         "simpeg_drivers.potential_fields.magnetic_scalar.driver",
         {
-            "forward": "MagneticScalarForwardDriver",
-            "inversion": "MagneticScalarInversionDriver",
+            "forward": "MagneticForwardDriver",
+            "inversion": "MagneticInversionDriver",
         },
     ),
     "magnetic vector": (
         "simpeg_drivers.potential_fields.magnetic_vector.driver",
         {
-            "forward": "MagneticScalarForwardDriver",
-            "inversion": "MagneticVectorInversionDriver",
+            "forward": "MagneticForwardDriver",
+            "inversion": "MVIInversionDriver",
         },
     ),
 }

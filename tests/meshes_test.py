@@ -20,12 +20,12 @@ from geoh5py.objects import Octree
 from octree_creation_app.utils import treemesh_2_octree
 
 from simpeg_drivers.components import InversionMesh
-from simpeg_drivers.params import ActiveCellsData
-from simpeg_drivers.potential_fields import MagneticVectorInversionParams
+from simpeg_drivers.params import ActiveCellsOptions
+from simpeg_drivers.potential_fields import MVIInversionOptions
 from simpeg_drivers.utils.testing import Geoh5Tester, setup_inversion_workspace
 
 
-def get_mvi_params(tmp_path: Path) -> MagneticVectorInversionParams:
+def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
     geoh5, entity, model, survey, topography = setup_inversion_workspace(
         tmp_path,
         background=0.0,
@@ -47,11 +47,11 @@ def get_mvi_params(tmp_path: Path) -> MagneticVectorInversionParams:
         {"elevation": {"values": topography.vertices[:, 2]}}
     )
     elevation = topography.children[0]
-    params = MagneticVectorInversionParams(
+    params = MVIInversionOptions(
         geoh5=geoh5,
         data_object=survey,
         tmi_channel=tmi_channel,
-        active_cells=ActiveCellsData(
+        active_cells=ActiveCellsOptions(
             topography_object=topography, topography=elevation
         ),
         mesh=mesh,

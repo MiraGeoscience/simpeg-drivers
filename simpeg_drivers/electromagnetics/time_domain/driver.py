@@ -20,15 +20,15 @@ from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.utils.utils import tile_locations
 
 from .params import (
-    TDEMForwardParams,
-    TDEMInversionParams,
+    TDEMForwardOptions,
+    TDEMInversionOptions,
 )
 
 
 class TDEMForwardDriver(InversionDriver):
     """Time Domain Electromagnetic forward driver."""
 
-    _params_class = TDEMForwardParams
+    _params_class = TDEMForwardOptions
     _validations = {}
 
     def get_tiles(self) -> list[np.ndarray]:
@@ -87,7 +87,7 @@ class TDEMForwardDriver(InversionDriver):
 class TDEMInversionDriver(InversionDriver):
     """Time Domain Electromagnetic inversion driver."""
 
-    _params_class = TDEMInversionParams
+    _params_class = TDEMInversionOptions
     _validations = {}
 
     def get_tiles(self) -> list[np.ndarray]:

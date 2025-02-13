@@ -19,12 +19,12 @@ from geoh5py.groups import PropertyGroup
 from geoh5py.objects import MTReceivers
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.params import BaseForwardData, BaseInversionData, EMDataMixin
+from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions, EMDataMixin
 
 
-class MagnetotelluricsForwardParams(EMDataMixin, BaseForwardData):
+class MTForwardOptions(EMDataMixin, BaseForwardOptions):
     """
-    Parameter class for magnetotelluric->conductivity simulation.
+    Magnetotellurics forward options.
 
     :param zxx_real_channel_bool: Boolean for zxx real channel.
     :param zxx_imag_channel_bool: Boolean for zxx imaginary channel.
@@ -64,9 +64,9 @@ class MagnetotelluricsForwardParams(EMDataMixin, BaseForwardData):
         return ["_".join(k.split("_")[:2]) for k in self.__dict__ if "channel" in k]
 
 
-class MagnetotelluricsInversionParams(EMDataMixin, BaseInversionData):
+class MTInversionOptions(EMDataMixin, BaseInversionOptions):
     """
-    Parameter class for magnetotelluric->conductivity inversion.
+    Magnetotellurics inversion options.
 
     :param zxx_real_channel: Real component of Zxx data.
     :param zxx_real_uncertainty: Real component of Zxx uncertainty.

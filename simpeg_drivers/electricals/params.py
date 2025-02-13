@@ -15,7 +15,7 @@ from geoh5py.data import DataAssociationEnum, ReferencedData
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
 
-class LineSelectionData(BaseModel):
+class LineSelectionOptions(BaseModel):
     """
     Line selection parameters for 2D inversions.
 
@@ -44,7 +44,7 @@ class LineSelectionData(BaseModel):
         return self
 
 
-class DrapeModelData(BaseModel):
+class DrapeModelOptions(BaseModel):
     """
     Drape model parameters for 2D simulation/inversion].
 
@@ -64,7 +64,7 @@ class DrapeModelData(BaseModel):
     expansion_factor: float = 100.0
 
 
-class FileControlData(BaseModel):
+class FileControlOptions(BaseModel):
     """
     File control parameters for pseudo 3D simulations.
 

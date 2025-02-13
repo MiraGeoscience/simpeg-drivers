@@ -16,15 +16,15 @@ import numpy as np
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.electricals.induced_polarization.two_dimensions import (
-    IP2DForwardParams,
-    IP2DInversionParams,
+    IP2DForwardOptions,
+    IP2DInversionOptions,
 )
 from simpeg_drivers.electricals.induced_polarization.two_dimensions.driver import (
     IP2DForwardDriver,
     IP2DInversionDriver,
 )
-from simpeg_drivers.electricals.params import DrapeModelData, LineSelectionData
-from simpeg_drivers.params import ActiveCellsData
+from simpeg_drivers.electricals.params import DrapeModelOptions, LineSelectionOptions
+from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
@@ -53,15 +53,15 @@ def test_ip_2d_fwr_run(
         flatten=False,
         drape_height=0.0,
     )
-    params = IP2DForwardParams(
+    params = IP2DForwardOptions(
         geoh5=geoh5,
         data_object=survey,
         mesh=model.parent,
-        active_cells=ActiveCellsData(topography_object=topography),
+        active_cells=ActiveCellsOptions(topography_object=topography),
         z_from_topo=True,
         starting_model=model,
         conductivity_model=1e-2,
-        line_selection=LineSelectionData(
+        line_selection=LineSelectionOptions(
             line_object=geoh5.get_entity("line_ids")[0],
             line_id=101,
         ),
@@ -86,14 +86,14 @@ def test_ip_2d_run(
         topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
-        params = IP2DInversionParams(
+        params = IP2DInversionOptions(
             geoh5=geoh5,
             mesh=mesh,
-            active_cells=ActiveCellsData(topography_object=topography),
+            active_cells=ActiveCellsOptions(topography_object=topography),
             data_object=chargeability.parent,
             chargeability_channel=chargeability,
             chargeability_uncertainty=2e-4,
-            line_selection=LineSelectionData(
+            line_selection=LineSelectionOptions(
                 line_object=geoh5.get_entity("line_ids")[0],
                 line_id=101,
             ),

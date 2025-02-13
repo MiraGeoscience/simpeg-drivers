@@ -18,13 +18,13 @@ from geoh5py.objects import DrapeModel
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.electricals.params import (
-    DrapeModelData,
-    LineSelectionData,
+    DrapeModelOptions,
+    LineSelectionOptions,
 )
-from simpeg_drivers.params import BaseForwardData, BaseInversionData
+from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions
 
 
-class IP2DForwardParams(BaseForwardData):
+class IP2DForwardOptions(BaseForwardOptions):
     """
     Induced Polarization 2D forward options.
 
@@ -45,13 +45,13 @@ class IP2DForwardParams(BaseForwardData):
     physical_property: str = "chargeability"
 
     chargeability_channel_bool: bool = True
-    line_selection: LineSelectionData
+    line_selection: LineSelectionOptions
     mesh: DrapeModel | None = None
-    drape_model: DrapeModelData = DrapeModelData()
+    drape_model: DrapeModelOptions = DrapeModelOptions()
     conductivity_model: float | FloatData
 
 
-class IP2DInversionParams(BaseInversionData):
+class IP2DInversionOptions(BaseInversionOptions):
     """
     Induced Polarization 2D inversion options.
 
@@ -76,9 +76,9 @@ class IP2DInversionParams(BaseInversionData):
 
     chargeability_channel: FloatData
     chargeability_uncertainty: float | FloatData | None = None
-    line_selection: LineSelectionData
+    line_selection: LineSelectionOptions
     mesh: DrapeModel | None = None
-    drape_model: DrapeModelData = DrapeModelData()
+    drape_model: DrapeModelOptions = DrapeModelOptions()
     conductivity_model: float | FloatData
     lower_bound: float | FloatData | None = 0.0
     length_scale_y: None = None

@@ -13,18 +13,18 @@ from __future__ import annotations
 
 from simpeg_drivers.electricals.driver import Base2DDriver
 
-from .params import DirectCurrent2DForwardParams, DirectCurrent2DInversionParams
+from .params import DC2DForwardOptions, DC2DInversionOptions
 
 
-class DirectCurrent2DForwardDriver(Base2DDriver):
+class DC2DForwardDriver(Base2DDriver):
     """Direct Current 2D forward driver."""
 
-    _params_class = DirectCurrent2DForwardParams
+    _params_class = DC2DForwardOptions
     _validations = {}
 
 
-class DirectCurrent2DInversionDriver(Base2DDriver):
+class DC2DInversionDriver(Base2DDriver):
     """Direct Current 2D inversion driver."""
 
-    _params_class = DirectCurrent2DInversionParams
+    _params_class = DC2DInversionOptions
     _validations = {}

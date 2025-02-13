@@ -17,14 +17,14 @@ import numpy as np
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.electromagnetics.time_domain import (
-    TDEMForwardParams,
-    TDEMInversionParams,
+    TDEMForwardOptions,
+    TDEMInversionOptions,
 )
 from simpeg_drivers.electromagnetics.time_domain.driver import (
     TDEMForwardDriver,
     TDEMInversionDriver,
 )
-from simpeg_drivers.params import ActiveCellsData
+from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
@@ -59,10 +59,10 @@ def test_tiling_ground_tem(
         flatten=True,
     )
 
-    params = TDEMForwardParams(
+    params = TDEMForwardOptions(
         geoh5=geoh5,
         mesh=model.parent,
-        active_cells=ActiveCellsData(topography_object=topography),
+        active_cells=ActiveCellsOptions(topography_object=topography),
         z_from_topo=False,
         data_object=survey,
         starting_model=model,
@@ -107,10 +107,10 @@ def test_ground_tem_fwr_run(
         padding_distance=1000.0,
         flatten=True,
     )
-    params = TDEMForwardParams(
+    params = TDEMForwardOptions(
         geoh5=geoh5,
         mesh=model.parent,
-        active_cells=ActiveCellsData(topography_object=topography),
+        active_cells=ActiveCellsOptions(topography_object=topography),
         z_from_topo=False,
         data_object=survey,
         starting_model=model,
@@ -190,10 +190,10 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         orig_dBzdt = geoh5.get_entity("Iteration_0_z_[0]")[0].values
 
         # Run the inverse
-        params = TDEMInversionParams(
+        params = TDEMInversionOptions(
             geoh5=geoh5,
             mesh=mesh,
-            active_cells=ActiveCellsData(topography_object=topography),
+            active_cells=ActiveCellsOptions(topography_object=topography),
             data_object=survey,
             starting_model=1e-3,
             reference_model=1e-3,

@@ -9,7 +9,7 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from .params import DC3DForwardParams, DC3DInversionParams
+from .params import DC3DForwardOptions, DC3DInversionOptions
 
 # pylint: disable=unused-import
 # flake8: noqa

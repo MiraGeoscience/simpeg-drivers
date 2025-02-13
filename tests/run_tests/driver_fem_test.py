@@ -23,10 +23,10 @@ from simpeg_drivers.electromagnetics.frequency_domain.driver import (
     FDEMInversionDriver,
 )
 from simpeg_drivers.electromagnetics.frequency_domain.params import (
-    FDEMForwardParams,
-    FDEMInversionParams,
+    FDEMForwardOptions,
+    FDEMInversionOptions,
 )
-from simpeg_drivers.params import ActiveCellsData
+from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
@@ -57,10 +57,10 @@ def test_fem_fwr_run(
         inversion_type="fem",
         flatten=True,
     )
-    params = FDEMForwardParams(
+    params = FDEMForwardOptions(
         geoh5=geoh5,
         mesh=model.parent,
-        active_cells=ActiveCellsData(topography_object=topography),
+        active_cells=ActiveCellsOptions(topography_object=topography),
         z_from_topo=False,
         data_object=survey,
         starting_model=model,
@@ -128,10 +128,10 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
         orig_z_real_1 = geoh5.get_entity("Iteration_0_z_real_[0]")[0].values
 
         # Run the inverse
-        params = FDEMInversionParams(
+        params = FDEMInversionOptions(
             geoh5=geoh5,
             mesh=mesh,
-            active_cells=ActiveCellsData(topography_object=topography),
+            active_cells=ActiveCellsOptions(topography_object=topography),
             data_object=survey,
             starting_model=1e-3,
             reference_model=1e-3,

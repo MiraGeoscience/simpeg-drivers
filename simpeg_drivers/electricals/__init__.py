@@ -12,12 +12,12 @@
 from __future__ import annotations
 
 from .direct_current.three_dimensions import (
-    DC3DForwardParams,
-    DC3DInversionParams,
+    DC3DForwardOptions,
+    DC3DInversionOptions,
 )
 from .induced_polarization.three_dimensions.params import (
-    IP3DForwardParams,
-    IP3DInversionParams,
+    IP3DForwardOptions,
+    IP3DInversionOptions,
 )
 
 # pylint: disable=unused-import

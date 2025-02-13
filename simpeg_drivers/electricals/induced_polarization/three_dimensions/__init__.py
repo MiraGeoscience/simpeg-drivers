@@ -10,8 +10,8 @@
 
 
 from .params import (
-    IP3DForwardParams,
-    IP3DInversionParams,
+    IP3DForwardOptions,
+    IP3DInversionOptions,
 )
 
 # pylint: disable=unused-import

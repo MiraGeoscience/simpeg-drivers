@@ -10,10 +10,10 @@
 
 
 from .magnetotellurics import (
-    MagnetotelluricsForwardParams,
-    MagnetotelluricsInversionParams,
+    MTForwardOptions,
+    MTInversionOptions,
 )
-from .tipper import TipperForwardParams, TipperInversionParams
+from .tipper import TipperForwardOptions, TipperInversionOptions
 
 # pylint: disable=unused-import
 # flake8: noqa

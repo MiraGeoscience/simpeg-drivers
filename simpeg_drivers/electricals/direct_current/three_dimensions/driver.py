@@ -13,18 +13,18 @@ from __future__ import annotations
 
 from simpeg_drivers.driver import InversionDriver
 
-from .params import DC3DForwardParams, DC3DInversionParams
+from .params import DC3DForwardOptions, DC3DInversionOptions
 
 
 class DC3DForwardDriver(InversionDriver):
     """Direct Current 3D forward driver."""
 
-    _params_class = DC3DForwardParams
+    _params_class = DC3DForwardOptions
     _validation = {}
 
 
 class DC3DInversionDriver(InversionDriver):
     """Direct Current 3D inversion driver."""
 
-    _params_class = DC3DInversionParams
+    _params_class = DC3DInversionOptions
     _validation = {}

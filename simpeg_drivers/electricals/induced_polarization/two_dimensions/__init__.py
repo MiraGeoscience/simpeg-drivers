@@ -10,8 +10,8 @@
 
 
 from .params import (
-    IP2DForwardParams,
-    IP2DInversionParams,
+    IP2DForwardOptions,
+    IP2DInversionOptions,
 )
 
 # pylint: disable=unused-import

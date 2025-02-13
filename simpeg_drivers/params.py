@@ -29,7 +29,7 @@ from geoh5py.ui_json import InputFile
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
 
-InversionData: TypeAlias = (
+InversionDataDict: TypeAlias = (
     dict[str, np.ndarray | None] | dict[str, dict[float, np.ndarray | None]]
 )
 
@@ -38,7 +38,7 @@ InversionData: TypeAlias = (
 # TODO: Remove this disable when all params are BaseData
 
 
-class ActiveCellsData(BaseModel):
+class ActiveCellsOptions(BaseModel):
     """
     Active cells data as a topography surface or 3d model.
 
@@ -62,7 +62,7 @@ class ActiveCellsData(BaseModel):
         return data
 
 
-class CoreData(BaseData):
+class CoreOptions(BaseData):
     """
     Core parameters shared by inverse and forward operations.
 
@@ -101,7 +101,7 @@ class CoreData(BaseData):
     z_from_topo: bool = False
     mesh: Octree | None
     starting_model: float | FloatData
-    active_cells: ActiveCellsData
+    active_cells: ActiveCellsOptions
     tile_spatial: int = 1
     parallelized: bool = True
     n_cpu: int | None = None
@@ -170,7 +170,7 @@ class CoreData(BaseData):
         ]
 
     @property
-    def data(self) -> InversionData:
+    def data(self) -> InversionDataDict:
         """Return dictionary of data components and associated values."""
         out = {}
         for k in self.active_components:
@@ -178,7 +178,7 @@ class CoreData(BaseData):
         return out
 
     @property
-    def uncertainties(self) -> InversionData:
+    def uncertainties(self) -> InversionDataDict:
         """Return dictionary of unceratinty components and associated values."""
         out = {}
         for k in self.active_components:
@@ -227,7 +227,7 @@ class CoreData(BaseData):
         return 4 if self.inversion_type in ["fem", "tdem"] else 6
 
 
-class BaseForwardData(CoreData):
+class BaseForwardOptions(CoreOptions):
     """
     Base class for forward parameters.
 
@@ -241,7 +241,7 @@ class BaseForwardData(CoreData):
         return [k for k in self.components if getattr(self, f"{k}_channel_bool")]
 
 
-class BaseInversionData(CoreData):
+class BaseInversionOptions(CoreOptions):
     """
     Base class for inversion parameters.
 
@@ -518,7 +518,7 @@ class InversionBaseParams(BaseParams):
 
     @property
     def active_cells(self):
-        return ActiveCellsData(
+        return ActiveCellsOptions(
             topography_object=self.topography_object,
             topography=self.topography,
             active_model=self.active_model,

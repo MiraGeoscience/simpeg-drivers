@@ -15,14 +15,14 @@ from pathlib import Path
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.electricals.induced_polarization.three_dimensions import (
-    IP3DForwardParams,
-    IP3DInversionParams,
+    IP3DForwardOptions,
+    IP3DInversionOptions,
 )
 from simpeg_drivers.electricals.induced_polarization.three_dimensions.driver import (
     IP3DForwardDriver,
     IP3DInversionDriver,
 )
-from simpeg_drivers.params import ActiveCellsData
+from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
@@ -51,10 +51,10 @@ def test_ip_3d_fwr_run(
         inversion_type="dcip",
         flatten=False,
     )
-    params = IP3DForwardParams(
+    params = IP3DForwardOptions(
         geoh5=geoh5,
         mesh=model.parent,
-        active_cells=ActiveCellsData(topography_object=topography),
+        active_cells=ActiveCellsOptions(topography_object=topography),
         z_from_topo=True,
         data_object=survey,
         starting_model=model,
@@ -81,10 +81,10 @@ def test_ip_3d_run(
         topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
-        params = IP3DInversionParams(
+        params = IP3DInversionOptions(
             geoh5=geoh5,
             mesh=mesh,
-            active_cells=ActiveCellsData(topography_object=topography),
+            active_cells=ActiveCellsOptions(topography_object=topography),
             data_object=potential.parent,
             conductivity_model=1e-2,
             reference_model=1e-6,

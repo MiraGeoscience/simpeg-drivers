@@ -10,8 +10,8 @@
 
 
 from .params import (
-    TDEMForwardParams,
-    TDEMInversionParams,
+    TDEMForwardOptions,
+    TDEMInversionOptions,
 )
 
 # pylint: disable=unused-import

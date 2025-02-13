@@ -30,6 +30,8 @@ from simpeg_drivers.utils.utils import active_from_xyz, drape_to_octree
 
 
 class LineSweepDriver(SweepDriver, InversionDriver):
+    """Line Sweep driver for batch 2D forward and inversion drivers."""
+
     def __init__(self, params):
         self._out_group = None
         self.workspace = params.geoh5

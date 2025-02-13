@@ -15,8 +15,11 @@ from pathlib import Path
 import numpy as np
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.params import ActiveCellsData
-from simpeg_drivers.potential_fields import GravityForwardParams, GravityInversionParams
+from simpeg_drivers.params import ActiveCellsOptions
+from simpeg_drivers.potential_fields import (
+    GravityForwardOptions,
+    GravityInversionOptions,
+)
 from simpeg_drivers.potential_fields.gravity.driver import (
     GravityForwardDriver,
     GravityInversionDriver,
@@ -47,8 +50,8 @@ def test_gravity_fwr_run(
         flatten=False,
     )
 
-    active_cells = ActiveCellsData(topography_object=topography)
-    params = GravityForwardParams(
+    active_cells = ActiveCellsOptions(topography_object=topography)
+    params = GravityForwardOptions(
         geoh5=geoh5,
         mesh=model.parent,
         active_cells=active_cells,
@@ -96,8 +99,8 @@ def test_gravity_run(
         gz.values = values
 
         # Run the inverse
-        active_cells = ActiveCellsData(topography_object=topography)
-        params = GravityInversionParams(
+        active_cells = ActiveCellsOptions(topography_object=topography)
+        params = GravityInversionOptions(
             geoh5=geoh5,
             mesh=mesh,
             active_cells=active_cells,

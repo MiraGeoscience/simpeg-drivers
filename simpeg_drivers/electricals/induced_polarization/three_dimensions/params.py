@@ -17,10 +17,10 @@ from typing import ClassVar
 from geoh5py.data import FloatData
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.params import BaseForwardData, BaseInversionData
+from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions
 
 
-class IP3DForwardParams(BaseForwardData):
+class IP3DForwardOptions(BaseForwardOptions):
     """
     Induced Polarization 3D forward options.
 
@@ -41,7 +41,7 @@ class IP3DForwardParams(BaseForwardData):
     conductivity_model: float | FloatData
 
 
-class IP3DInversionParams(BaseInversionData):
+class IP3DInversionOptions(BaseInversionOptions):
     """
     Induced Polarization 3D inversion options.
 

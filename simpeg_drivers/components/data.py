@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from geoh5py.workspace import Workspace
 
-    from simpeg_drivers.params import InversionBaseParams
+    from simpeg_drivers.params import InversionBaseOptions
 
 from copy import deepcopy
 from re import findall
@@ -78,10 +78,10 @@ class InversionData(InversionLocations):
 
     """
 
-    def __init__(self, workspace: Workspace, params: InversionBaseParams):
+    def __init__(self, workspace: Workspace, params: InversionBaseOptions):
         """
         :param: workspace: :obj`geoh5py.workspace.Workspace` workspace object containing location based data.
-        :param: params: Params object containing location based data parameters.
+        :param: params: Options object containing location based data parameters.
         """
         super().__init__(workspace, params)
         self.locations: np.ndarray | None = None

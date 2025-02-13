@@ -21,15 +21,15 @@ from simpeg_drivers.electricals.induced_polarization.pseudo_three_dimensions.dri
     IPBatch2DInversionDriver,
 )
 from simpeg_drivers.electricals.induced_polarization.pseudo_three_dimensions.params import (
-    IPBatch2DForwardParams,
-    IPBatch2DInversionParams,
+    IPBatch2DForwardOptions,
+    IPBatch2DInversionOptions,
 )
 from simpeg_drivers.electricals.params import (
-    DrapeModelData,
-    FileControlData,
-    LineSelectionData,
+    DrapeModelOptions,
+    FileControlOptions,
+    LineSelectionOptions,
 )
-from simpeg_drivers.params import ActiveCellsData
+from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
@@ -59,10 +59,10 @@ def test_ip_p3d_fwr_run(
         flatten=False,
     )
 
-    params = IPBatch2DForwardParams(
+    params = IPBatch2DForwardOptions(
         geoh5=geoh5,
         mesh=model.parent,
-        drape_model=DrapeModelData(
+        drape_model=DrapeModelOptions(
             u_cell_size=5.0,
             v_cell_size=5.0,
             depth_core=100.0,
@@ -70,14 +70,16 @@ def test_ip_p3d_fwr_run(
             horizontal_padding=100.0,
             vertical_padding=100.0,
         ),
-        active_cells=ActiveCellsData(
+        active_cells=ActiveCellsOptions(
             topography_object=topography,
         ),
         z_from_topo=True,
         data_object=survey,
         conductivity_model=1e-2,
         starting_model=model,
-        line_selection=LineSelectionData(line_object=geoh5.get_entity("line_ids")[0]),
+        line_selection=LineSelectionOptions(
+            line_object=geoh5.get_entity("line_ids")[0]
+        ),
     )
 
     fwr_driver = IPBatch2DForwardDriver(params)
@@ -100,10 +102,10 @@ def test_ip_p3d_run(
         topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
-        params = IPBatch2DInversionParams(
+        params = IPBatch2DInversionOptions(
             geoh5=geoh5,
             mesh=mesh,
-            drape_model=DrapeModelData(
+            drape_model=DrapeModelOptions(
                 u_cell_size=5.0,
                 v_cell_size=5.0,
                 depth_core=100.0,
@@ -111,11 +113,11 @@ def test_ip_p3d_run(
                 horizontal_padding=1000.0,
                 vertical_padding=1000.0,
             ),
-            active_cells=ActiveCellsData(topography_object=topography),
+            active_cells=ActiveCellsOptions(topography_object=topography),
             data_object=chargeability.parent,
             chargeability_channel=chargeability,
             chargeability_uncertainty=2e-4,
-            line_selection=LineSelectionData(
+            line_selection=LineSelectionOptions(
                 line_object=geoh5.get_entity("line_ids")[0],
             ),
             conductivity_model=1e-2,
@@ -135,7 +137,7 @@ def test_ip_p3d_run(
             prctile=100,
             upper_bound=0.1,
             coolingRate=1,
-            file_control=FileControlData(cleanup=False),
+            file_control=FileControlOptions(cleanup=False),
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 

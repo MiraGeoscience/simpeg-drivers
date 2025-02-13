@@ -14,20 +14,20 @@ from __future__ import annotations
 from simpeg_drivers.driver import InversionDriver
 
 from .params import (
-    IP3DForwardParams,
-    IP3DInversionParams,
+    IP3DForwardOptions,
+    IP3DInversionOptions,
 )
 
 
 class IP3DForwardDriver(InversionDriver):
     """Induced Polarization 3D forward driver."""
 
-    _params_class = IP3DForwardParams
+    _params_class = IP3DForwardOptions
     _validations = {}
 
 
 class IP3DInversionDriver(InversionDriver):
     """Induced Polarization 3D inversion driver."""
 
-    _params_class = IP3DInversionParams
+    _params_class = IP3DInversionOptions
     _validations = {}

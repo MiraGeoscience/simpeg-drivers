@@ -22,7 +22,7 @@ from geoh5py.objects import (
 )
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.params import BaseForwardData, BaseInversionData, EMDataMixin
+from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions, EMDataMixin
 
 
 Receivers: TypeAlias = (
@@ -30,7 +30,7 @@ Receivers: TypeAlias = (
 )
 
 
-class FDEMForwardParams(EMDataMixin, BaseForwardData):
+class FDEMForwardOptions(EMDataMixin, BaseForwardOptions):
     """
     Frequency Domain Electromagnetic Forward options.
 
@@ -76,7 +76,7 @@ class FDEMForwardParams(EMDataMixin, BaseForwardData):
         return conversion[self.data_object.unit]
 
 
-class FDEMInversionParams(EMDataMixin, BaseInversionData):
+class FDEMInversionOptions(EMDataMixin, BaseInversionOptions):
     """
     Frequency Domain Electromagnetic Inversion options.
 

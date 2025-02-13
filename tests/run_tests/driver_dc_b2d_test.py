@@ -22,15 +22,15 @@ from simpeg_drivers.electricals.direct_current.pseudo_three_dimensions.driver im
     DCBatch2DInversionDriver,
 )
 from simpeg_drivers.electricals.direct_current.pseudo_three_dimensions.params import (
-    DCBatch2DForwardParams,
-    DCBatch2DInversionParams,
+    DCBatch2DForwardOptions,
+    DCBatch2DInversionOptions,
 )
 from simpeg_drivers.electricals.params import (
-    DrapeModelData,
-    FileControlData,
-    LineSelectionData,
+    DrapeModelOptions,
+    FileControlOptions,
+    LineSelectionOptions,
 )
-from simpeg_drivers.params import ActiveCellsData
+from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
@@ -59,10 +59,10 @@ def test_dc_p3d_fwr_run(
         drape_height=0.0,
         flatten=False,
     )
-    params = DCBatch2DForwardParams(
+    params = DCBatch2DForwardOptions(
         geoh5=geoh5,
         mesh=model.parent,
-        drape_model=DrapeModelData(
+        drape_model=DrapeModelOptions(
             u_cell_size=5.0,
             v_cell_size=5.0,
             depth_core=100.0,
@@ -70,11 +70,13 @@ def test_dc_p3d_fwr_run(
             horizontal_padding=1000.0,
             vertical_padding=1000.0,
         ),
-        active_cells=ActiveCellsData(topography_object=topography),
+        active_cells=ActiveCellsOptions(topography_object=topography),
         z_from_topo=False,
         data_object=survey,
         starting_model=model,
-        line_selection=LineSelectionData(line_object=geoh5.get_entity("line_ids")[0]),
+        line_selection=LineSelectionOptions(
+            line_object=geoh5.get_entity("line_ids")[0]
+        ),
     )
 
     fwr_driver = DCBatch2DForwardDriver(params)
@@ -97,10 +99,10 @@ def test_dc_p3d_run(
         topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
-        params = DCBatch2DInversionParams(
+        params = DCBatch2DInversionOptions(
             geoh5=geoh5,
             mesh=mesh,
-            drape_model=DrapeModelData(
+            drape_model=DrapeModelOptions(
                 u_cell_size=5.0,
                 v_cell_size=5.0,
                 depth_core=100.0,
@@ -108,11 +110,11 @@ def test_dc_p3d_run(
                 horizontal_padding=1000.0,
                 vertical_padding=1000.0,
             ),
-            active_cells=ActiveCellsData(topography_object=topography),
+            active_cells=ActiveCellsOptions(topography_object=topography),
             data_object=potential.parent,
             potential_channel=potential,
             potential_uncertainty=1e-3,
-            line_selection=LineSelectionData(
+            line_selection=LineSelectionOptions(
                 line_object=geoh5.get_entity("line_ids")[0]
             ),
             starting_model=1e-2,
@@ -128,7 +130,7 @@ def test_dc_p3d_run(
             prctile=100,
             upper_bound=10,
             coolingRate=1,
-            file_control=FileControlData(cleanup=False),
+            file_control=FileControlOptions(cleanup=False),
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 

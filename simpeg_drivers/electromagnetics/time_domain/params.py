@@ -22,7 +22,7 @@ from geoh5py.objects import (
 )
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.params import BaseForwardData, BaseInversionData, EMDataMixin
+from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions, EMDataMixin
 
 
 Receivers: TypeAlias = (
@@ -30,7 +30,7 @@ Receivers: TypeAlias = (
 )
 
 
-class TDEMForwardParams(EMDataMixin, BaseForwardData):
+class TDEMForwardOptions(EMDataMixin, BaseForwardOptions):
     """
     Time Domain Electromagnetic forward options.
 
@@ -68,7 +68,7 @@ class TDEMForwardParams(EMDataMixin, BaseForwardData):
         return conversion[self.data_object.unit]
 
 
-class TDEMInversionParams(EMDataMixin, BaseInversionData):
+class TDEMInversionOptions(EMDataMixin, BaseInversionOptions):
     """
     Time Domain Electromagnetic Inversion options.
 

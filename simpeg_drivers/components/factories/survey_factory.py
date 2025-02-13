@@ -19,6 +19,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from geoapps_utils.driver.params import BaseParams
 
+    from simpeg_drivers.params import BaseOptions
+
 import numpy as np
 import simpeg.electromagnetics.time_domain as tdem
 from geoh5py.objects.surveys.electromagnetics.ground_tem import (
@@ -69,9 +71,9 @@ class SurveyFactory(SimPEGFactory):
 
     dummy = -999.0
 
-    def __init__(self, params: BaseParams):
+    def __init__(self, params: BaseParams | BaseOptions):
         """
-        :param params: Params object containing SimPEG object parameters.
+        :param params: Options object containing SimPEG object parameters.
         """
         super().__init__(params)
         self.simpeg_object = self.concrete_object()

@@ -17,10 +17,10 @@ from typing import ClassVar
 from geoh5py.data import FloatData
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.params import BaseForwardData, BaseInversionData
+from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions
 
 
-class DC3DForwardParams(BaseForwardData):
+class DC3DForwardOptions(BaseForwardOptions):
     """
     Direct Current 3D forward options.
 
@@ -42,7 +42,7 @@ class DC3DForwardParams(BaseForwardData):
     model_type: str = "Conductivity (S/m)"
 
 
-class DC3DInversionParams(BaseInversionData):
+class DC3DInversionOptions(BaseInversionOptions):
     """
     Direct Current 3D inversion options.
 

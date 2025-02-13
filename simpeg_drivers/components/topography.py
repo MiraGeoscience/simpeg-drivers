@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from geoh5py.workspace import Workspace
 
     from simpeg_drivers.components.meshes import InversionMesh
+    from simpeg_drivers.params import BaseOptions
 
 import warnings
 
@@ -61,11 +62,11 @@ class InversionTopography(InversionLocations):
     def __init__(
         self,
         workspace: Workspace,
-        params: BaseParams,
+        params: BaseParams | BaseOptions,
     ):
         """
         :param: workspace: :obj`geoh5py.workspace.Workspace` object containing location based data.
-        :param: params: Params object containing location based data parameters.
+        :param: params: Options object containing location based data parameters.
         """
         super().__init__(workspace, params)
         self.locations: np.ndarray | None = None

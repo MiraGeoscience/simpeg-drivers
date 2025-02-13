@@ -18,14 +18,14 @@ from geoh5py.objects import Octree, PotentialElectrode
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.electricals.params import (
-    DrapeModelData,
-    FileControlData,
-    LineSelectionData,
+    DrapeModelOptions,
+    FileControlOptions,
+    LineSelectionOptions,
 )
-from simpeg_drivers.params import BaseForwardData, BaseInversionData
+from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions
 
 
-class DCBatch2DForwardParams(BaseForwardData):
+class DCBatch2DForwardOptions(BaseForwardOptions):
     """
     Direct Current batch 2D forward options.
 
@@ -50,14 +50,14 @@ class DCBatch2DForwardParams(BaseForwardData):
 
     data_object: PotentialElectrode
     potential_channel_bool: bool = True
-    line_selection: LineSelectionData
+    line_selection: LineSelectionOptions
     mesh: Octree | None = None
-    drape_model: DrapeModelData = DrapeModelData()
+    drape_model: DrapeModelOptions = DrapeModelOptions()
     model_type: str = "Conductivity (S/m)"
-    file_control: FileControlData = FileControlData()
+    file_control: FileControlOptions = FileControlOptions()
 
 
-class DCBatch2DInversionParams(BaseInversionData):
+class DCBatch2DInversionOptions(BaseInversionOptions):
     """
     Direct Current batch 2D Inversion options.
 
@@ -86,10 +86,10 @@ class DCBatch2DInversionParams(BaseInversionData):
     data_object: PotentialElectrode
     potential_channel: FloatData
     potential_uncertainty: float | FloatData
-    line_selection: LineSelectionData
+    line_selection: LineSelectionOptions
     mesh: Octree | None = None
-    drape_model: DrapeModelData = DrapeModelData()
+    drape_model: DrapeModelOptions = DrapeModelOptions()
     model_type: str = "Conductivity (S/m)"
-    file_control: FileControlData = FileControlData()
+    file_control: FileControlOptions = FileControlOptions()
     length_scale_y: None = None
     y_norm: None = None

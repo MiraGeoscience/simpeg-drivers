@@ -20,10 +20,10 @@ from simpeg_drivers.electricals.direct_current.three_dimensions.driver import (
     DC3DInversionDriver,
 )
 from simpeg_drivers.electricals.direct_current.three_dimensions.params import (
-    DC3DForwardParams,
-    DC3DInversionParams,
+    DC3DForwardOptions,
+    DC3DInversionOptions,
 )
-from simpeg_drivers.params import ActiveCellsData
+from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
@@ -66,8 +66,8 @@ def test_dc_3d_fwr_run(
 
     geoh5.close()
 
-    active_cells = ActiveCellsData(topography_object=topography)
-    params = DC3DForwardParams(
+    active_cells = ActiveCellsOptions(topography_object=topography)
+    params = DC3DForwardOptions(
         geoh5=geoh5,
         mesh=model.parent,
         active_cells=active_cells,
@@ -96,8 +96,8 @@ def test_dc_3d_run(
         topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
-        active_cells = ActiveCellsData(topography_object=topography)
-        params = DC3DInversionParams(
+        active_cells = ActiveCellsOptions(topography_object=topography)
+        params = DC3DInversionOptions(
             geoh5=geoh5,
             mesh=mesh,
             active_cells=active_cells,
@@ -159,8 +159,8 @@ def test_dc_single_line_fwr_run(
         inversion_type="dcip",
         flatten=False,
     )
-    active_cells = ActiveCellsData(topography_object=topography)
-    params = DC3DForwardParams(
+    active_cells = ActiveCellsOptions(topography_object=topography)
+    params = DC3DForwardOptions(
         geoh5=geoh5,
         mesh=model.parent,
         active_cells=active_cells,

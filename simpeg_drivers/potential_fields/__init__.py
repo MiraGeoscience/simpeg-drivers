@@ -9,14 +9,14 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from .gravity.params import GravityForwardParams, GravityInversionParams
+from .gravity.params import GravityForwardOptions, GravityInversionOptions
 from .magnetic_scalar.params import (
-    MagneticScalarForwardParams,
-    MagneticScalarInversionParams,
+    MagneticForwardOptions,
+    MagneticInversionOptions,
 )
 from .magnetic_vector.params import (
-    MagneticVectorForwardParams,
-    MagneticVectorInversionParams,
+    MVIForwardOptions,
+    MVIInversionOptions,
 )
 
 # pylint: disable=unused-import
