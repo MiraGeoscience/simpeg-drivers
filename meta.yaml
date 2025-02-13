@@ -25,31 +25,31 @@ requirements:
     - dask-core 2024.06.*
     - discretize >=0.10.0,<0.11.dev
     - distributed >=2024.06.*
-    - numpy >=1.26.0,<1.27.dev
-    - scipy >=1.14.0,<1.15.dev
-    - geoh5py >=0.10.0b1,<0.11.dev
-    - octree-creation-app >=0.2.0b1,<0.3.dev
-    - geoapps-utils >=0.4.0b1,<0.5.dev
-    - mira-simpeg >=0.21.2.1b1,<0.22.dev
-    - param-sweeps >=0.2.0b1,<0.2.1.dev
-    - pillow >=10.3.0
     - empymod >=2.2.1,<2.3.dev
     - geoana >=0.5.0,<0.6.dev
+    - geoapps-utils >=0.4.0b1,<0.5.dev
+    - geoh5py >=0.10.0b1,<0.11.dev
     - h5py >=3.2.1,<4.0.dev
     - matplotlib-base >=3.8.4,<3.9.dev
+    - mira-simpeg >=0.21.2.1b1,<0.22.dev
     - mkl >=2024.2.2, <2025.dev
+    - numpy >=1.26.0,<1.27.dev
+    - octree-creation-app >=0.2.0b1,<0.3.dev
     - pandas >=2.2.1,<2.3.dev
+    - param-sweeps >=0.2.0b1,<0.2.1.dev
+    - pillow >=10.3.0
     - pydantic >=2.5.2,<3.0.dev
     - pydiso >=0.1.0, <0.2.dev
-    - python-mumps >=0.0.3, <0.0.4.dev
     - pymatsolver >=0.3.0,<0.4.dev
+    - python-mumps >=0.0.3, <0.0.4.dev
     - scikit-learn >=1.4.0,<1.5.dev
+    - scipy >=1.14.0,<1.15.dev
     - tqdm >=4.66.1,<5.0.dev
     - zarr >=2.14.2,<2.15.dev
   run_constrained:
-    - tbb 2021.12.*
-    - python-tzdata 2023.4.*
     - __glibc >=2.17
+    - python-tzdata 2023.4.*
+    - tbb 2021.12.*
 
 about:
   license: MIT
