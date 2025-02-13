@@ -24,9 +24,9 @@ from simpeg_drivers.electricals.params import (
 from simpeg_drivers.params import BaseForwardData, BaseInversionData
 
 
-class InducedPolarization2DForwardParams(BaseForwardData):
+class IP2DForwardParams(BaseForwardData):
     """
-    Parameter class for two dimensional induced polarization forward simulation.
+    Induced Polarization 2D forward options.
 
     :param chargeability_channel_bool: Chargeability channel boolean.
     :param mesh: Optional mesh object if providing a heterogeneous model.
@@ -51,9 +51,9 @@ class InducedPolarization2DForwardParams(BaseForwardData):
     conductivity_model: float | FloatData
 
 
-class InducedPolarization2DInversionParams(BaseInversionData):
+class IP2DInversionParams(BaseInversionData):
     """
-    Parameter class for two dimensional induced polarization forward simulation.
+    Induced Polarization 2D inversion options.
 
     :param chargeability_channel: Chargeability data channel.
     :param chargeability_uncertainty: Chargeability data uncertainty channel.

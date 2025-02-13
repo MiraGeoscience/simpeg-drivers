@@ -46,8 +46,8 @@ DRIVER_MAP = {
     "direct current 3d": (
         "simpeg_drivers.electricals.direct_current.three_dimensions.driver",
         {
-            "forward": "DirectCurrent3DForwardDriver",
-            "inversion": "DirectCurrent3DInversionDriver",
+            "forward": "DC3DForwardDriver",
+            "inversion": "DC3DInversionDriver",
         },
     ),
     "direct current 2d": (
@@ -67,15 +67,15 @@ DRIVER_MAP = {
     "induced polarization 3d": (
         "simpeg_drivers.electricals.induced_polarization.three_dimensions.driver",
         {
-            "forward": "InducedPolarization3DForwardDriver",
-            "inversion": "InducedPolarization3DInversionDriver",
+            "forward": "IP3DForwardDriver",
+            "inversion": "IP3DInversionDriver",
         },
     ),
     "induced polarization 2d": (
         "simpeg_drivers.electricals.induced_polarization.two_dimensions.driver",
         {
-            "forward": "InducedPolarization2DForwardDriver",
-            "inversion": "InducedPolarization2DInversionDriver",
+            "forward": "IP2DForwardDriver",
+            "inversion": "IP2DInversionDriver",
         },
     ),
     "induced polarization pseudo 3d": (
@@ -93,7 +93,7 @@ DRIVER_MAP = {
         "simpeg_drivers.electromagnetics.frequency_domain.driver",
         {
             "forward": "FrequenceyDomainElectromagneticsForwardDriver",
-            "inversion": "FrequencyDomainElectromagneticsInversionDriver",
+            "inversion": "FDEMInversionDriver",
         },
     ),
     "joint cross gradient": (
@@ -103,8 +103,8 @@ DRIVER_MAP = {
     "tdem": (
         "simpeg_drivers.electromagnetics.time_domain.driver",
         {
-            "forward": "TimeDomainElectromagneticsForwardDriver",
-            "inversion": "TimeDomainElectromagneticsInversionDriver",
+            "forward": "TDEMForwardDriver",
+            "inversion": "TDEMInversionDriver",
         },
     ),
     "magnetotellurics": (

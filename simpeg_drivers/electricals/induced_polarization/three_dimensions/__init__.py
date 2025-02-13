@@ -10,8 +10,8 @@
 
 
 from .params import (
-    InducedPolarization3DForwardParams,
-    InducedPolarization3DInversionParams,
+    IP3DForwardParams,
+    IP3DInversionParams,
 )
 
 # pylint: disable=unused-import

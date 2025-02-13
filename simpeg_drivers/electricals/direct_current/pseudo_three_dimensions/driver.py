@@ -23,12 +23,16 @@ from simpeg_drivers.electricals.driver import BaseBatch2DDriver
 
 
 class DCBatch2DForwardDriver(BaseBatch2DDriver):
+    """Direct Current batch 2D forward driver."""
+
     _params_class = DCBatch2DForwardParams
     _params_2d_class = DirectCurrent2DForwardParams
     _validations = {}
 
 
 class DCBatch2DInversionDriver(BaseBatch2DDriver):
+    """Direct Current batch 2D inversion driver."""
+
     _params_class = DCBatch2DInversionParams
     _params_2d_class = DirectCurrent2DInversionParams
     _validations = {}

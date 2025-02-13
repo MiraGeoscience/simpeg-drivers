@@ -27,7 +27,7 @@ from simpeg_drivers.params import BaseForwardData, BaseInversionData
 
 class DCBatch2DForwardParams(BaseForwardData):
     """
-    Parameter class for three dimensional direct current forward simulation.
+    Direct Current batch 2D forward options.
 
     :param data_object: DC survey object.
     :param potential_channel_bool: Potential channel boolean.
@@ -59,7 +59,7 @@ class DCBatch2DForwardParams(BaseForwardData):
 
 class DCBatch2DInversionParams(BaseInversionData):
     """
-    Parameter class for three dimensional direct current inversion.
+    Direct Current batch 2D Inversion options.
 
     :param data_object: DC survey object.
     :param potential_channel: Potential data channel.

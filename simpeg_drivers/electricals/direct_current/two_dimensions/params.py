@@ -24,14 +24,10 @@ from simpeg_drivers.electricals.params import (
 )
 from simpeg_drivers.params import BaseForwardData, BaseInversionData
 
-from .constants import (
-    validations,
-)
-
 
 class DirectCurrent2DForwardParams(BaseForwardData):
     """
-    Parameter class for two dimensional electrical->conductivity forward simulation.
+    Direct Current 2D forward options.
 
     :param potential_channel_bool: Potential channel boolean.
     :param line_selection: Line selection parameters.
@@ -58,7 +54,7 @@ class DirectCurrent2DForwardParams(BaseForwardData):
 
 class DirectCurrent2DInversionParams(BaseInversionData):
     """
-    Parameter class for two dimensional electrical->conductivity forward simulation.
+    Direct Current 2D inversion options.
 
     :param potential_channel: Potential data channel.
     :param potential_uncertainty: Potential data uncertainty channel.

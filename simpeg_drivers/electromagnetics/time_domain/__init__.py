@@ -10,8 +10,8 @@
 
 
 from .params import (
-    TimeDomainElectromagneticsForwardParams,
-    TimeDomainElectromagneticsInversionParams,
+    TDEMForwardParams,
+    TDEMInversionParams,
 )
 
 # pylint: disable=unused-import

@@ -10,8 +10,8 @@
 
 
 from .params import (
-    FrequencyDomainElectromagneticsForwardParams,
-    FrequencyDomainElectromagneticsInversionParams,
+    FDEMForwardParams,
+    FDEMInversionParams,
 )
 
 # pylint: disable=unused-import

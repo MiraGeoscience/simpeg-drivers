@@ -27,7 +27,7 @@ from simpeg_drivers.params import BaseForwardData, BaseInversionData
 
 class IPBatch2DForwardParams(BaseForwardData):
     """
-    Parameter class for three dimensional induced polarization forward simulation.
+    Induced Polarization batch 2D forward options.
 
     :param data_object: DC/IP survey object.
     :param chargeability_channel_bool: Chargeability channel boolean.
@@ -59,7 +59,7 @@ class IPBatch2DForwardParams(BaseForwardData):
 
 class IPBatch2DInversionParams(BaseInversionData):
     """
-    Parameter class for three dimensional induced polarization inversion.
+    Induced Polarization batch 2D inversion options.
 
     :param data_object: DC/IP survey object.
     :param chargeability_channel: Chargeability data channel.

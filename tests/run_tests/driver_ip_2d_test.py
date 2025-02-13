@@ -16,12 +16,12 @@ import numpy as np
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.electricals.induced_polarization.two_dimensions import (
-    InducedPolarization2DForwardParams,
-    InducedPolarization2DInversionParams,
+    IP2DForwardParams,
+    IP2DInversionParams,
 )
 from simpeg_drivers.electricals.induced_polarization.two_dimensions.driver import (
-    InducedPolarization2DForwardDriver,
-    InducedPolarization2DInversionDriver,
+    IP2DForwardDriver,
+    IP2DInversionDriver,
 )
 from simpeg_drivers.electricals.params import DrapeModelData, LineSelectionData
 from simpeg_drivers.params import ActiveCellsData
@@ -53,7 +53,7 @@ def test_ip_2d_fwr_run(
         flatten=False,
         drape_height=0.0,
     )
-    params = InducedPolarization2DForwardParams(
+    params = IP2DForwardParams(
         geoh5=geoh5,
         data_object=survey,
         mesh=model.parent,
@@ -67,7 +67,7 @@ def test_ip_2d_fwr_run(
         ),
     )
 
-    fwr_driver = InducedPolarization2DForwardDriver(params)
+    fwr_driver = IP2DForwardDriver(params)
     fwr_driver.run()
 
 
@@ -86,7 +86,7 @@ def test_ip_2d_run(
         topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
-        params = InducedPolarization2DInversionParams(
+        params = IP2DInversionParams(
             geoh5=geoh5,
             mesh=mesh,
             active_cells=ActiveCellsData(topography_object=topography),
@@ -115,9 +115,7 @@ def test_ip_2d_run(
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    driver = InducedPolarization2DInversionDriver.start(
-        str(tmp_path / "Inv_run.ui.json")
-    )
+    driver = IP2DInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
     output = get_inversion_output(
         driver.params.geoh5.h5file, driver.params.out_group.uid

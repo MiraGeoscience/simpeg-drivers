@@ -37,6 +37,8 @@ from simpeg_drivers.utils.utils import get_drape_model
 
 
 class Base2DDriver(InversionDriver):
+    """Base class for 2D DC and IP forward and inversion drivers."""
+
     @property
     def inversion_mesh(self) -> InversionMesh:
         """Inversion mesh"""
@@ -73,6 +75,8 @@ class Base2DDriver(InversionDriver):
 
 
 class BaseBatch2DDriver(LineSweepDriver):
+    """Base class for batch 2D DC and IP forward and inversion drivers."""
+
     _params_class: type(BaseParams)
     _params_2d_class: type(BaseParams)
     _validations: dict

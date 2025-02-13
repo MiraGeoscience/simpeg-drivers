@@ -19,16 +19,17 @@ from geoh5py.objects.surveys.electromagnetics.ground_tem import (
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.utils.utils import tile_locations
 
-from .constants import validations
 from .params import (
-    TimeDomainElectromagneticsForwardParams,
-    TimeDomainElectromagneticsInversionParams,
+    TDEMForwardParams,
+    TDEMInversionParams,
 )
 
 
-class TimeDomainElectromagneticsForwardDriver(InversionDriver):
-    _params_class = TimeDomainElectromagneticsForwardParams
-    _validations = validations
+class TDEMForwardDriver(InversionDriver):
+    """Time Domain Electromagnetic forward driver."""
+
+    _params_class = TDEMForwardParams
+    _validations = {}
 
     def get_tiles(self) -> list[np.ndarray]:
         """
@@ -83,9 +84,11 @@ class TimeDomainElectromagneticsForwardDriver(InversionDriver):
         return tiles
 
 
-class TimeDomainElectromagneticsInversionDriver(InversionDriver):
-    _params_class = TimeDomainElectromagneticsInversionParams
-    _validations = validations
+class TDEMInversionDriver(InversionDriver):
+    """Time Domain Electromagnetic inversion driver."""
+
+    _params_class = TDEMInversionParams
+    _validations = {}
 
     def get_tiles(self) -> list[np.ndarray]:
         """

@@ -16,12 +16,12 @@ from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.electricals.direct_current.three_dimensions import (
-    DirectCurrent3DForwardParams,
-    DirectCurrent3DInversionParams,
+    DC3DForwardParams,
+    DC3DInversionParams,
 )
 from simpeg_drivers.electricals.direct_current.three_dimensions.driver import (
-    DirectCurrent3DForwardDriver,
-    DirectCurrent3DInversionDriver,
+    DC3DForwardDriver,
+    DC3DInversionDriver,
 )
 from simpeg_drivers.joint.joint_cross_gradient import JointCrossGradientParams
 from simpeg_drivers.joint.joint_cross_gradient.driver import JointCrossGradientDriver
@@ -118,14 +118,14 @@ def test_joint_cross_gradient_fwr_run(
         inversion_type="dcip",
         flatten=False,
     )
-    params = DirectCurrent3DForwardParams(
+    params = DC3DForwardParams(
         geoh5=geoh5,
         mesh=model.parent,
         active_cells=ActiveCellsData(topography_object=topography),
         data_object=survey,
         starting_model=model,
     )
-    fwr_driver_c = DirectCurrent3DForwardDriver(params)
+    fwr_driver_c = DC3DForwardDriver(params)
     fwr_driver_c.inversion_data.entity.name = "survey"
 
     # Force co-location of meshes
@@ -198,7 +198,7 @@ def test_joint_cross_gradient_inv_run(
             elif group.options["inversion_type"] == "direct current 3d":
                 data.values = data.values + np.random.randn(data.values.size) * 5e-4
                 active_cells = ActiveCellsData(topography_object=topography)
-                params = DirectCurrent3DInversionParams(
+                params = DC3DInversionParams(
                     geoh5=geoh5,
                     mesh=mesh,
                     alpha_s=1.0,
@@ -212,7 +212,7 @@ def test_joint_cross_gradient_inv_run(
                     reference_model=100.0,
                     save_sensitivities=True,
                 )
-                drivers.append(DirectCurrent3DInversionDriver(params))
+                drivers.append(DC3DInversionDriver(params))
             else:
                 data.values = data.values + np.random.randn(data.values.size) * 10.0
                 params = MagneticVectorInversionParams(

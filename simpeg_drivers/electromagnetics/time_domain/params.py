@@ -30,9 +30,9 @@ Receivers: TypeAlias = (
 )
 
 
-class TimeDomainElectromagneticsForwardParams(EMDataMixin, BaseForwardData):
+class TDEMForwardParams(EMDataMixin, BaseForwardData):
     """
-    Parameter class for Time-domain Electromagnetic (TEM) -> conductivity forward simulation.
+    Time Domain Electromagnetic forward options.
 
     :param z_channel_bool: Z-component data channel boolean.
     :param z_channel_uncertainty: Z-component data channel uncertainty.
@@ -68,9 +68,9 @@ class TimeDomainElectromagneticsForwardParams(EMDataMixin, BaseForwardData):
         return conversion[self.data_object.unit]
 
 
-class TimeDomainElectromagneticsInversionParams(EMDataMixin, BaseInversionData):
+class TDEMInversionParams(EMDataMixin, BaseInversionData):
     """
-    Parameter class for Time-domain Electromagnetic (TEM) -> conductivity inversion.
+    Time Domain Electromagnetic Inversion options.
 
     :param z_channel: Z-component data channel.
     :param z_uncertainty: Z-component data channel uncertainty.
