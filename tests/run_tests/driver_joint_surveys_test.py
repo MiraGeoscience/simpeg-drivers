@@ -14,7 +14,7 @@ import numpy as np
 from geoh5py.objects import Octree
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.joint.joint_surveys import JointSurveysParams
+from simpeg_drivers.joint.joint_surveys import JointSurveysOptions
 from simpeg_drivers.joint.joint_surveys.driver import JointSurveyDriver
 from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.potential_fields import (
@@ -48,11 +48,9 @@ def test_joint_surveys_fwr_run(
     )
     active_cells = ActiveCellsOptions(topography_object=topography)
     params = GravityForwardOptions(
-        forward_only=True,
         geoh5=geoh5,
         mesh=model.parent,
         active_cells=active_cells,
-        resolution=0.0,
         z_from_topo=False,
         data_object=survey,
         starting_model=model,
@@ -74,11 +72,9 @@ def test_joint_surveys_fwr_run(
     )
     active_cells = ActiveCellsOptions(topography_object=topography)
     params = GravityForwardOptions(
-        forward_only=True,
         geoh5=geoh5,
         mesh=model.parent,
         active_cells=active_cells,
-        resolution=0.0,
         z_from_topo=False,
         data_object=survey,
         starting_model=model,
@@ -144,9 +140,9 @@ def test_joint_surveys_inv_run(
 
         active_model = drivers[0].params.mesh.get_entity("active_cells")[0]
         # Run the inverse
-        joint_params = JointSurveysParams(
+        joint_params = JointSurveysOptions(
             geoh5=geoh5,
-            activate_model=active_model,
+            active_cells=ActiveCellsOptions(active_model=active_model),
             mesh=drivers[0].params.mesh,
             group_a=drivers[0].params.out_group,
             group_b=drivers[1].params.out_group,

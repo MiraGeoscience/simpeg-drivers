@@ -23,7 +23,7 @@ from simpeg_drivers.electricals.direct_current.three_dimensions.driver import (
     DC3DForwardDriver,
     DC3DInversionDriver,
 )
-from simpeg_drivers.joint.joint_cross_gradient import JointCrossGradientParams
+from simpeg_drivers.joint.joint_cross_gradient import JointCrossGradientOptions
 from simpeg_drivers.joint.joint_cross_gradient.driver import JointCrossGradientDriver
 from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.potential_fields import (
@@ -68,11 +68,9 @@ def test_joint_cross_gradient_fwr_run(
     )
     active_cells = ActiveCellsOptions(topography_object=topography)
     params = GravityForwardOptions(
-        forward_only=True,
         geoh5=geoh5,
         mesh=model.parent,
         active_cells=active_cells,
-        resolution=0.0,
         z_from_topo=False,
         data_object=survey,
         starting_model=model,
@@ -98,12 +96,10 @@ def test_joint_cross_gradient_fwr_run(
         inducing_field_strength=inducing_field[0],
         inducing_field_inclination=inducing_field[1],
         inducing_field_declination=inducing_field[2],
-        resolution=0.0,
         z_from_topo=False,
         data_object=survey,
         starting_model=model,
     )
-    # params.workpath = tmp_path
     fwr_driver_b = MVIForwardDriver(params)
 
     _, _, model, survey, _ = setup_inversion_workspace(
@@ -239,14 +235,15 @@ def test_joint_cross_gradient_inv_run(
                 drivers.append(MVIInversionDriver(params))
 
         # Run the inverse
-        joint_params = JointCrossGradientParams(
+        joint_params = JointCrossGradientOptions(
             geoh5=geoh5,
-            topography_object=topography.uid,
+            active_cells=ActiveCellsOptions(topography_object=topography),
             group_a=drivers[0].params.out_group,
             group_a_multiplier=1.0,
             group_b=drivers[1].params.out_group,
             group_b_multiplier=1.0,
             group_c=drivers[2].params.out_group,
+            group_c_multiplier=1.0,
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e1,
             cross_gradient_weight_a_b=1e0,

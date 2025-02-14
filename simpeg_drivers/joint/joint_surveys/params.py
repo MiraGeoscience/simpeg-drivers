@@ -11,49 +11,32 @@
 
 from __future__ import annotations
 
-from copy import deepcopy
+from pathlib import Path
+from typing import ClassVar
 
-from simpeg_drivers.joint.params import BaseJointParams
+from pydantic import model_validator
 
-from .constants import default_ui_json, inversion_defaults, validations
+from simpeg_drivers import assets_path
+from simpeg_drivers.joint.params import BaseJointOptions
 
 
-class JointSurveysParams(BaseJointParams):
-    """
-    Parameter class for gravity->density inversion.
-    """
+class JointSurveysOptions(BaseJointOptions):
+    """Joint Surveys inversion options."""
 
-    _physical_property = ""
+    name: ClassVar[str] = "Joint Surveys Inversion"
+    title: ClassVar[str] = "Joint Surveys Inversion"
+    default_ui_json: ClassVar[Path] = (
+        assets_path() / "uijson/joint_surveys_inversion.ui.json"
+    )
 
-    def __init__(self, input_file=None, forward_only=False, **kwargs):
-        self._default_ui_json = deepcopy(default_ui_json)
-        self._inversion_defaults = deepcopy(inversion_defaults)
-        self._inversion_type = "joint surveys"
-        self._validations = validations
-        self._model_type = "Conductivity (S/m)"
+    inversion_type: str = "joint surveys"
 
-        super().__init__(input_file=input_file, forward_only=forward_only, **kwargs)
-
-    @property
-    def model_type(self):
-        """Model units."""
-        return self._model_type
-
-    @model_type.setter
-    def model_type(self, val):
-        self.setter_validator("model_type", val)
-
-    @property
-    def physical_property(self):
-        """Physical property to invert."""
-        return self._physical_property
-
-    @physical_property.setter
-    def physical_property(self, val: list[str]):
-        unique_properties = list(set(val))
-        if len(unique_properties) > 1:
+    @model_validator(mode="after")
+    def all_groups_same_physical_property(self):
+        physical_properties = [k.options["physical_property"] for k in self.groups]
+        if len(list(set(physical_properties))) > 1:
             raise ValueError(
                 "All physical properties must be the same. "
-                f"Provided SimPEG groups for {unique_properties}."
+                f"Provided SimPEG groups for {physical_properties}."
             )
-        self._physical_property = unique_properties[0]
+        return self

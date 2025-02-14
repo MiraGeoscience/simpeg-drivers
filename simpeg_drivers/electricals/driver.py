@@ -77,9 +77,9 @@ class Base2DDriver(InversionDriver):
 class BaseBatch2DDriver(LineSweepDriver):
     """Base class for batch 2D DC and IP forward and inversion drivers."""
 
-    _params_class: type(BaseForwardOptions, BaseInversionOptions)
-    _params_2d_class: type(BaseForwardOptions, BaseInversionOptions)
-    _validations: dict
+    _params_class: type[BaseForwardOptions | BaseInversionOptions]
+    _params_2d_class: type[BaseForwardOptions | BaseInversionOptions]
+    _validations = None
     _model_list: list[str] = []
 
     def __init__(self, params):

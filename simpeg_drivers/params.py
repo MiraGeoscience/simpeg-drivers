@@ -23,7 +23,7 @@ from geoapps_utils.driver.data import BaseData
 from geoapps_utils.driver.params import BaseParams
 from geoh5py.data import BooleanData, FloatData, NumericData
 from geoh5py.groups import PropertyGroup, SimPEGGroup, UIJsonGroup
-from geoh5py.objects import Octree, Points
+from geoh5py.objects import DrapeModel, Octree, Points
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
@@ -99,7 +99,7 @@ class CoreOptions(BaseData):
     physical_property: str
     data_object: Points
     z_from_topo: bool = False
-    mesh: Octree | None
+    mesh: Octree | DrapeModel | None
     starting_model: float | FloatData
     active_cells: ActiveCellsOptions
     tile_spatial: int = 1
@@ -322,12 +322,12 @@ class BaseInversionOptions(CoreOptions):
 
     alpha_s: float | FloatData | None = 1.0
     length_scale_x: float | FloatData = 1.0
-    length_scale_y: float | FloatData = 1.0
+    length_scale_y: float | FloatData | None = 1.0
     length_scale_z: float | FloatData = 1.0
 
     s_norm: float | FloatData | None = 0.0
     x_norm: float | FloatData = 2.0
-    y_norm: float | FloatData = 2.0
+    y_norm: float | FloatData | None = 2.0
     z_norm: float | FloatData = 2.0
     gradient_type: str = "total"
     max_irls_iterations: int = 25

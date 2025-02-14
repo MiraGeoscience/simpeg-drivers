@@ -9,7 +9,7 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from .params import JointSurveysParams
+from .params import JointSurveysOptions
 
 # pylint: disable=unused-import
 # flake8: noqa

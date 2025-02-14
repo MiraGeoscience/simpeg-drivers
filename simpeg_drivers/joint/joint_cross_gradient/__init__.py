@@ -9,7 +9,7 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from .params import JointCrossGradientParams
+from .params import JointCrossGradientOptions
 
 # pylint: disable=unused-import
 # flake8: noqa
