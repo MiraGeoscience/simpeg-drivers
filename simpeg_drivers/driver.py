@@ -54,7 +54,11 @@ from simpeg_drivers.components import (
     InversionWindow,
 )
 from simpeg_drivers.components.factories import DirectivesFactory, MisfitFactory
-from simpeg_drivers.params import InversionBaseParams, BaseInversionData
+from simpeg_drivers.params import (
+    InversionBaseParams,
+    BaseForwardOptions,
+    BaseInversionOptions,
+)
 from simpeg_drivers.utils.utils import tile_locations
 
 mlogger = logging.getLogger("distributed")
@@ -62,11 +66,13 @@ mlogger.setLevel(logging.WARNING)
 
 
 class InversionDriver(BaseDriver):
-    _params_class = InversionBaseParams  # pylint: disable=E0601
+    _params_class = InversionBaseParams | BaseForwardOptions | BaseInversionOptions  # pylint: disable=E0601
     _inversion_type: str | None = None
     _validations = None
 
-    def __init__(self, params: InversionBaseParams):
+    def __init__(
+        self, params: InversionBaseParams | BaseForwardOptions | BaseInversionOptions
+    ):
         super().__init__(params)
 
         self.inversion_type = self.params.inversion_type
@@ -279,13 +285,27 @@ class InversionDriver(BaseDriver):
         return self._out_group
 
     @property
-    def params(self) -> InversionBaseParams:
+    def params(self) -> InversionBaseParams | BaseForwardOptions | BaseInversionOptions:
         """Application parameters."""
         return self._params
 
     @params.setter
-    def params(self, val: BaseInversionData | InversionBaseParams | SweepParams):
-        if not isinstance(val, (BaseData, InversionBaseParams, SweepParams)):
+    def params(
+        self,
+        val: BaseForwardOptions
+        | BaseInversionOptions
+        | InversionBaseParams
+        | SweepParams,
+    ):
+        if not isinstance(
+            val,
+            (
+                BaseForwardOptions,
+                BaseInversionOptions,
+                InversionBaseParams,
+                SweepParams,
+            ),
+        ):
             raise TypeError(
                 "Parameters must be of type 'InversionBaseParams' or 'SweepParams'."
             )
@@ -508,8 +528,8 @@ class InversionDriver(BaseDriver):
         with ifile.data["geoh5"].open(mode="r+"):
             params = driver_class._params_class.build(ifile)
             driver = driver_class(params)
-            driver.run()
 
+        driver.run()
         return driver
 
 

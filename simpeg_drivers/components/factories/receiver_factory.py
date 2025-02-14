@@ -20,6 +20,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from geoapps_utils.driver.params import BaseParams
 
+    from simpeg_drivers.params import BaseOptions
+
 import numpy as np
 from geoapps_utils.utils.transformations import rotate_xyz
 
@@ -29,9 +31,9 @@ from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 class ReceiversFactory(SimPEGFactory):
     """Build SimPEG receivers objects based on factory type."""
 
-    def __init__(self, params: BaseParams):
+    def __init__(self, params: BaseParams | BaseOptions):
         """
-        :param params: Params object containing SimPEG object parameters.
+        :param params: Options object containing SimPEG object parameters.
 
         """
         super().__init__(params)

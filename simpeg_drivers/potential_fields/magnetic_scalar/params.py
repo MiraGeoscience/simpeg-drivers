@@ -17,12 +17,12 @@ from typing import ClassVar
 from geoh5py.data import FloatData
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.params import BaseForwardData, BaseInversionData
+from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions
 
 
-class MagneticScalarForwardParams(BaseForwardData):
+class MagneticForwardOptions(BaseForwardOptions):
     """
-    Magnetic scalar forward parameters.
+    Magnetic forward options.
 
     :param tmi_channel_bool: Total magnetic intensity channel boolean.
     :param bx_channel_bool: bx channel boolean.
@@ -57,9 +57,9 @@ class MagneticScalarForwardParams(BaseForwardData):
     bzz_channel_bool: bool = False
 
 
-class MagneticScalarInversionParams(BaseInversionData):
+class MagneticInversionOptions(BaseInversionOptions):
     """
-    Magnetic scalar inversion parameters.
+    Magnetic inversion options.
 
     :param tmi_channel: Total magnetic intensity channel.
     :param bx_channel: bx channel.

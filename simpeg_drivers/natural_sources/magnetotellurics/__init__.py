@@ -9,7 +9,7 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from .params import MagnetotelluricsForwardParams, MagnetotelluricsInversionParams
+from .params import MTForwardOptions, MTInversionOptions
 
 # pylint: disable=unused-import
 # flake8: noqa

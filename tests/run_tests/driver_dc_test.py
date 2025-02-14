@@ -16,14 +16,14 @@ import numpy as np
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.electricals.direct_current.three_dimensions.driver import (
-    DirectCurrent3DForwardDriver,
-    DirectCurrent3DInversionDriver,
+    DC3DForwardDriver,
+    DC3DInversionDriver,
 )
 from simpeg_drivers.electricals.direct_current.three_dimensions.params import (
-    DirectCurrent3DForwardParams,
-    DirectCurrent3DInversionParams,
+    DC3DForwardOptions,
+    DC3DInversionOptions,
 )
-from simpeg_drivers.params import ActiveCellsData
+from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
@@ -66,8 +66,8 @@ def test_dc_3d_fwr_run(
 
     geoh5.close()
 
-    active_cells = ActiveCellsData(topography_object=topography)
-    params = DirectCurrent3DForwardParams(
+    active_cells = ActiveCellsOptions(topography_object=topography)
+    params = DC3DForwardOptions(
         geoh5=geoh5,
         mesh=model.parent,
         active_cells=active_cells,
@@ -76,7 +76,7 @@ def test_dc_3d_fwr_run(
         starting_model=model,
         resolution=None,
     )
-    fwr_driver = DirectCurrent3DForwardDriver(params)
+    fwr_driver = DC3DForwardDriver(params)
     fwr_driver.run()
 
 
@@ -96,8 +96,8 @@ def test_dc_3d_run(
         topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
-        active_cells = ActiveCellsData(topography_object=topography)
-        params = DirectCurrent3DInversionParams(
+        active_cells = ActiveCellsOptions(topography_object=topography)
+        params = DC3DInversionOptions(
             geoh5=geoh5,
             mesh=mesh,
             active_cells=active_cells,
@@ -126,7 +126,7 @@ def test_dc_3d_run(
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    driver = DirectCurrent3DInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
+    driver = DC3DInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
     # Should not be auto-scaling
     np.testing.assert_allclose(driver.data_misfit.multipliers, [1, 1, 1])
     output = get_inversion_output(
@@ -159,8 +159,8 @@ def test_dc_single_line_fwr_run(
         inversion_type="dcip",
         flatten=False,
     )
-    active_cells = ActiveCellsData(topography_object=topography)
-    params = DirectCurrent3DForwardParams(
+    active_cells = ActiveCellsOptions(topography_object=topography)
+    params = DC3DForwardOptions(
         geoh5=geoh5,
         mesh=model.parent,
         active_cells=active_cells,
@@ -170,7 +170,7 @@ def test_dc_single_line_fwr_run(
         resolution=None,
     )
 
-    fwr_driver = DirectCurrent3DForwardDriver(params)
+    fwr_driver = DC3DForwardDriver(params)
     assert np.all(fwr_driver.window.window["size"] > 0)
 
 

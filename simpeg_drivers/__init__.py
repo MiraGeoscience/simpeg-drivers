@@ -46,43 +46,43 @@ DRIVER_MAP = {
     "direct current 3d": (
         "simpeg_drivers.electricals.direct_current.three_dimensions.driver",
         {
-            "forward": "DirectCurrent3DForwardDriver",
-            "inversion": "DirectCurrent3DInversionDriver",
+            "forward": "DC3DForwardDriver",
+            "inversion": "DC3DInversionDriver",
         },
     ),
     "direct current 2d": (
         "simpeg_drivers.electricals.direct_current.two_dimensions.driver",
         {
-            "forward": "DirectCurrent2DForwardDriver",
-            "inversion": "DirectCurrent2DInversionDriver",
+            "forward": "DC2DForwardDriver",
+            "inversion": "DC2DInversionDriver",
         },
     ),
     "direct current pseudo 3d": (
         "simpeg_drivers.electricals.direct_current.pseudo_three_dimensions.driver",
         {
-            "forward": "DirectCurrentPseudo3DForwardDriver",
-            "inversion": "DirectCurrentPseudo3DInversionDriver",
+            "forward": "DCBatch2DForwardDriver",
+            "inversion": "DCBatch2DInversionDriver",
         },
     ),
     "induced polarization 3d": (
         "simpeg_drivers.electricals.induced_polarization.three_dimensions.driver",
         {
-            "forward": "InducedPolarization3DForwardDriver",
-            "inversion": "InducedPolarization3DInversionDriver",
+            "forward": "IP3DForwardDriver",
+            "inversion": "IP3DInversionDriver",
         },
     ),
     "induced polarization 2d": (
         "simpeg_drivers.electricals.induced_polarization.two_dimensions.driver",
         {
-            "forward": "InducedPolarization2DForwardDriver",
-            "inversion": "InducedPolarization2DInversionDriver",
+            "forward": "IP2DForwardDriver",
+            "inversion": "IP2DInversionDriver",
         },
     ),
     "induced polarization pseudo 3d": (
         "simpeg_drivers.electricals.induced_polarization.pseudo_three_dimensions.driver",
         {
-            "forward": "InducedPolarizationPseudo3DForwardDriver",
-            "inversion": "InducedPolarizationPseudo3DInversionDriver",
+            "forward": "IPBatch2DForwardDriver",
+            "inversion": "IPBatch2DInversionDriver",
         },
     ),
     "joint surveys": (
@@ -93,7 +93,7 @@ DRIVER_MAP = {
         "simpeg_drivers.electromagnetics.frequency_domain.driver",
         {
             "forward": "FrequenceyDomainElectromagneticsForwardDriver",
-            "inversion": "FrequencyDomainElectromagneticsInversionDriver",
+            "inversion": "FDEMInversionDriver",
         },
     ),
     "joint cross gradient": (
@@ -103,15 +103,15 @@ DRIVER_MAP = {
     "tdem": (
         "simpeg_drivers.electromagnetics.time_domain.driver",
         {
-            "forward": "TimeDomainElectromagneticsForwardDriver",
-            "inversion": "TimeDomainElectromagneticsInversionDriver",
+            "forward": "TDEMForwardDriver",
+            "inversion": "TDEMInversionDriver",
         },
     ),
     "magnetotellurics": (
         "simpeg_drivers.natural_sources.magnetotellurics.driver",
         {
-            "forward": "MagnetotelluricsForwardDriver",
-            "inversion": "MagnetotelluricsInversionDriver",
+            "forward": "MTForwardDriver",
+            "inversion": "MTInversionDriver",
         },
     ),
     "tipper": (
@@ -125,15 +125,15 @@ DRIVER_MAP = {
     "magnetic scalar": (
         "simpeg_drivers.potential_fields.magnetic_scalar.driver",
         {
-            "forward": "MagneticScalarForwardDriver",
-            "inversion": "MagneticScalarInversionDriver",
+            "forward": "MagneticForwardDriver",
+            "inversion": "MagneticInversionDriver",
         },
     ),
     "magnetic vector": (
         "simpeg_drivers.potential_fields.magnetic_vector.driver",
         {
-            "forward": "MagneticScalarForwardDriver",
-            "inversion": "MagneticVectorInversionDriver",
+            "forward": "MagneticForwardDriver",
+            "inversion": "MVIInversionDriver",
         },
     ),
 }

@@ -17,12 +17,12 @@ from typing import ClassVar
 from geoh5py.data import FloatData
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.params import BaseForwardData, BaseInversionData
+from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions
 
 
-class GravityForwardParams(BaseForwardData):
+class GravityForwardOptions(BaseForwardOptions):
     """
-    Gravity forward parameters.
+    Gravity forward options.
 
     :param gx_channel_bool: gx channel boolean.
     :param gy_channel_bool: gy channel boolean.
@@ -53,9 +53,9 @@ class GravityForwardParams(BaseForwardData):
     gzz_channel_bool: bool = False
 
 
-class GravityInversionParams(BaseInversionData):
+class GravityInversionOptions(BaseInversionOptions):
     """
-    Gravity inversion parameters.
+    Gravity inversion options.
 
     :param gx_channel: gx channel.
     :param gy_channel: gy channel.

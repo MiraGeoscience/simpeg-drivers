@@ -18,10 +18,10 @@ if TYPE_CHECKING:
     from geoapps_utils.driver.params import BaseParams
 
     from simpeg_drivers.components.data import InversionData
+    from simpeg_drivers.params import BaseOptions
 
 import numpy as np
 from geoh5py.objects import Octree
-from scipy.sparse import csr_matrix
 from simpeg import data, data_misfit, maps, meta, objective_function
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
@@ -30,9 +30,9 @@ from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 class MisfitFactory(SimPEGFactory):
     """Build SimPEG global misfit function."""
 
-    def __init__(self, params: BaseParams, models=None):
+    def __init__(self, params: BaseParams | BaseOptions, models=None):
         """
-        :param params: Params object containing SimPEG object parameters.
+        :param params: Options object containing SimPEG object parameters.
         """
         super().__init__(params)
         self.simpeg_object = self.concrete_object()

@@ -11,29 +11,30 @@
 
 from __future__ import annotations
 
-from simpeg_drivers.electricals.driver import BasePseudo3DDriver
-from simpeg_drivers.electricals.induced_polarization.pseudo_three_dimensions.constants import (
-    validations,
-)
+from simpeg_drivers.electricals.driver import BaseBatch2DDriver
 from simpeg_drivers.electricals.induced_polarization.pseudo_three_dimensions.params import (
-    InducedPolarizationPseudo3DForwardParams,
-    InducedPolarizationPseudo3DInversionParams,
+    IPBatch2DForwardOptions,
+    IPBatch2DInversionOptions,
 )
 from simpeg_drivers.electricals.induced_polarization.two_dimensions.params import (
-    InducedPolarization2DForwardParams,
-    InducedPolarization2DInversionParams,
+    IP2DForwardOptions,
+    IP2DInversionOptions,
 )
 
 
-class InducedPolarizationPseudo3DForwardDriver(BasePseudo3DDriver):
-    _params_class = InducedPolarizationPseudo3DForwardParams
-    _params_2d_class = InducedPolarization2DForwardParams
-    _validations = validations
+class IPBatch2DForwardDriver(BaseBatch2DDriver):
+    """Induced Polarization batch 2D forward driver."""
+
+    _params_class = IPBatch2DForwardOptions
+    _params_2d_class = IP2DForwardOptions
+    _validations = {}
     _model_list = ["conductivity_model"]
 
 
-class InducedPolarizationPseudo3DInversionDriver(BasePseudo3DDriver):
-    _params_class = InducedPolarizationPseudo3DInversionParams
-    _params_2d_class = InducedPolarization2DInversionParams
-    _validations = validations
+class IPBatch2DInversionDriver(BaseBatch2DDriver):
+    """Induced Polarization batch 2D inversion driver."""
+
+    _params_class = IPBatch2DInversionOptions
+    _params_2d_class = IP2DInversionOptions
+    _validations = {}
     _model_list = ["conductivity_model"]

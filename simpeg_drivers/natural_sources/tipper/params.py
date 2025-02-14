@@ -19,12 +19,12 @@ from geoh5py.groups import PropertyGroup
 from geoh5py.objects import TipperReceivers
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.params import BaseForwardData, BaseInversionData, EMDataMixin
+from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions, EMDataMixin
 
 
-class TipperForwardParams(EMDataMixin, BaseForwardData):
+class TipperForwardOptions(EMDataMixin, BaseForwardOptions):
     """
-    Parameter class for magnetotelluric->conductivity simulation.
+    Tipper forward options.
 
     :param txz_real_channel_bool: Boolean for txz real channel.
     :param txz_imag_channel_bool: Boolean for txz imaginary channel.
@@ -50,9 +50,9 @@ class TipperForwardParams(EMDataMixin, BaseForwardData):
     model_type: str = "Conductivity (S/m)"
 
 
-class TipperInversionParams(EMDataMixin, BaseInversionData):
+class TipperInversionOptions(EMDataMixin, BaseInversionOptions):
     """
-    Parameter class for magnetotelluric->conductivity inversion.
+    Tipper Inversion options.
 
     :param txz_real_channel: Real component of Txz tipper data.
     :param txz_real_uncertainty: Real component of Txz tipper uncertainty.

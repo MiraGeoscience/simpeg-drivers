@@ -22,7 +22,7 @@ from geoh5py.objects import (
 )
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.params import BaseForwardData, BaseInversionData, EMDataMixin
+from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions, EMDataMixin
 
 
 Receivers: TypeAlias = (
@@ -30,9 +30,9 @@ Receivers: TypeAlias = (
 )
 
 
-class FrequencyDomainElectromagneticsForwardParams(EMDataMixin, BaseForwardData):
+class FDEMForwardOptions(EMDataMixin, BaseForwardOptions):
     """
-    Parameter class for Frequency-domain Electromagnetic (FEM) simulation.
+    Frequency Domain Electromagnetic Forward options.
 
     :param z_real_channel_bool: Real impedance channel boolean.
     :param z_imag_channel_bool: Imaginary impedance channel boolean.
@@ -76,9 +76,9 @@ class FrequencyDomainElectromagneticsForwardParams(EMDataMixin, BaseForwardData)
         return conversion[self.data_object.unit]
 
 
-class FrequencyDomainElectromagneticsInversionParams(EMDataMixin, BaseInversionData):
+class FDEMInversionOptions(EMDataMixin, BaseInversionOptions):
     """
-    Parameter class for Frequency-domain Electromagnetic (FEM) -> conductivity inversion.
+    Frequency Domain Electromagnetic Inversion options.
 
     :param z_real_channel: Real impedance channel.
     :param z_real_uncertainty: Real impedance uncertainty channel.

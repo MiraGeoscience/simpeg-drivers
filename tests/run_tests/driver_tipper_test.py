@@ -17,14 +17,14 @@ from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.natural_sources.tipper import (
-    TipperForwardParams,
-    TipperInversionParams,
+    TipperForwardOptions,
+    TipperInversionOptions,
 )
 from simpeg_drivers.natural_sources.tipper.driver import (
     TipperForwardDriver,
     TipperInversionDriver,
 )
-from simpeg_drivers.params import ActiveCellsData
+from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
@@ -55,10 +55,10 @@ def test_tipper_fwr_run(
         flatten=False,
     )
 
-    params = TipperForwardParams(
+    params = TipperForwardOptions(
         geoh5=geoh5,
         mesh=model.parent,
-        active_cells=ActiveCellsData(topography_object=topography),
+        active_cells=ActiveCellsOptions(topography_object=topography),
         z_from_topo=False,
         data_object=survey,
         starting_model=model,
@@ -132,10 +132,10 @@ def test_tipper_run(tmp_path: Path, max_iterations=1, pytest=True):
         orig_tyz_real_1 = geoh5.get_entity("Iteration_0_tyz_real_[0]")[0].values
 
         # Run the inverse
-        params = TipperInversionParams(
+        params = TipperInversionOptions(
             geoh5=geoh5,
             mesh=mesh,
-            active_cells=ActiveCellsData(topography_object=topography),
+            active_cells=ActiveCellsOptions(topography_object=topography),
             data_object=survey,
             starting_model=1e2,
             reference_model=1e2,

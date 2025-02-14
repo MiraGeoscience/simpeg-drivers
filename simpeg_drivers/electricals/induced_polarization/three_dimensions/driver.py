@@ -13,18 +13,21 @@ from __future__ import annotations
 
 from simpeg_drivers.driver import InversionDriver
 
-from .constants import validations
 from .params import (
-    InducedPolarization3DForwardParams,
-    InducedPolarization3DInversionParams,
+    IP3DForwardOptions,
+    IP3DInversionOptions,
 )
 
 
-class InducedPolarization3DForwardDriver(InversionDriver):
-    _params_class = InducedPolarization3DForwardParams
-    _validations = validations
+class IP3DForwardDriver(InversionDriver):
+    """Induced Polarization 3D forward driver."""
+
+    _params_class = IP3DForwardOptions
+    _validations = {}
 
 
-class InducedPolarization3DInversionDriver(InversionDriver):
-    _params_class = InducedPolarization3DInversionParams
-    _validations = validations
+class IP3DInversionDriver(InversionDriver):
+    """Induced Polarization 3D inversion driver."""
+
+    _params_class = IP3DInversionOptions
+    _validations = {}

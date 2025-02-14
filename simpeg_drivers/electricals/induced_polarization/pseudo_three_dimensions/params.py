@@ -18,16 +18,16 @@ from geoh5py.objects import Octree, PotentialElectrode
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.electricals.params import (
-    DrapeModelData,
-    FileControlData,
-    LineSelectionData,
+    DrapeModelOptions,
+    FileControlOptions,
+    LineSelectionOptions,
 )
-from simpeg_drivers.params import BaseForwardData, BaseInversionData
+from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions
 
 
-class InducedPolarizationPseudo3DForwardParams(BaseForwardData):
+class IPBatch2DForwardOptions(BaseForwardOptions):
     """
-    Parameter class for three dimensional induced polarization forward simulation.
+    Induced Polarization batch 2D forward options.
 
     :param data_object: DC/IP survey object.
     :param chargeability_channel_bool: Chargeability channel boolean.
@@ -42,7 +42,7 @@ class InducedPolarizationPseudo3DForwardParams(BaseForwardData):
     name: ClassVar[str] = "Induced Polarization Pseudo 3D Forward"
     title: ClassVar[str] = "Induced Polarization (IP) 2D Batch Forward"
     default_ui_json: ClassVar[str] = (
-        assets_path() / "uijson/induced_polarization_pseudo3d_forward.ui.json"
+        assets_path() / "uijson/induced_polarization_batch2d_forward.ui.json"
     )
 
     inversion_type: str = "induced polarization pseudo 3d"
@@ -50,16 +50,16 @@ class InducedPolarizationPseudo3DForwardParams(BaseForwardData):
 
     data_object: PotentialElectrode
     chargeability_channel_bool: bool = True
-    line_selection: LineSelectionData
+    line_selection: LineSelectionOptions
     mesh: Octree | None = None
     conductivity_model: float | FloatData
-    drape_model: DrapeModelData = DrapeModelData()
-    file_control: FileControlData = FileControlData()
+    drape_model: DrapeModelOptions = DrapeModelOptions()
+    file_control: FileControlOptions = FileControlOptions()
 
 
-class InducedPolarizationPseudo3DInversionParams(BaseInversionData):
+class IPBatch2DInversionOptions(BaseInversionOptions):
     """
-    Parameter class for three dimensional induced polarization inversion.
+    Induced Polarization batch 2D inversion options.
 
     :param data_object: DC/IP survey object.
     :param chargeability_channel: Chargeability data channel.
@@ -76,7 +76,7 @@ class InducedPolarizationPseudo3DInversionParams(BaseInversionData):
     name: ClassVar[str] = "Induced Polarization Pseudo 3D Inversion"
     title: ClassVar[str] = "Induced Polarization (IP) 2D Batch Inversion"
     default_ui_json: ClassVar[str] = (
-        assets_path() / "uijson/induced_polarization_pseudo3d_inversion.ui.json"
+        assets_path() / "uijson/induced_polarization_batch2d_inversion.ui.json"
     )
 
     inversion_type: str = "induced polarization pseudo 3d"
@@ -85,11 +85,11 @@ class InducedPolarizationPseudo3DInversionParams(BaseInversionData):
     data_object: PotentialElectrode
     chargeability_channel: FloatData
     chargeability_uncertainty: float | FloatData
-    line_selection: LineSelectionData
+    line_selection: LineSelectionOptions
     mesh: Octree | None = None
-    drape_model: DrapeModelData = DrapeModelData()
+    drape_model: DrapeModelOptions = DrapeModelOptions()
     conductivity_model: float | FloatData
     lower_bound: float | FloatData | None = 0.0
-    file_control: FileControlData = FileControlData()
+    file_control: FileControlOptions = FileControlOptions()
     length_scale_y: None = None
     y_norm: None = None

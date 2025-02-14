@@ -17,6 +17,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from geoapps_utils.driver.params import BaseParams
 
+    from simpeg_drivers.params import BaseOptions
+
 from copy import deepcopy
 
 import numpy as np
@@ -29,9 +31,9 @@ from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 class SourcesFactory(SimPEGFactory):
     """Build SimPEG sources objects based on factory type."""
 
-    def __init__(self, params: BaseParams):
+    def __init__(self, params: BaseParams | BaseOptions):
         """
-        :param params: Params object containing SimPEG object parameters.
+        :param params: Options object containing SimPEG object parameters.
 
         """
         super().__init__(params)

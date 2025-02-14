@@ -9,7 +9,7 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from .params import TipperForwardParams, TipperInversionParams
+from .params import TipperForwardOptions, TipperInversionOptions
 
 # pylint: disable=unused-import
 # flake8: noqa

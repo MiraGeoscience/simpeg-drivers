@@ -13,15 +13,18 @@ from __future__ import annotations
 
 from simpeg_drivers.driver import InversionDriver
 
-from .constants import validations
-from .params import MagnetotelluricsForwardParams, MagnetotelluricsInversionParams
+from .params import MTForwardOptions, MTInversionOptions
 
 
-class MagnetotelluricsForwardDriver(InversionDriver):
-    _params_class = MagnetotelluricsForwardParams
-    _validations = validations
+class MTForwardDriver(InversionDriver):
+    """Magnetotellurics forward driver."""
+
+    _params_class = MTForwardOptions
+    _validations = {}
 
 
-class MagnetotelluricsInversionDriver(InversionDriver):
-    _params_class = MagnetotelluricsInversionParams
-    _validations = validations
+class MTInversionDriver(InversionDriver):
+    """Magnetotellurics inversion driver."""
+
+    _params_class = MTInversionOptions
+    _validations = {}

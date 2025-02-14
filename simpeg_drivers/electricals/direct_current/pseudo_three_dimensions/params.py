@@ -18,16 +18,16 @@ from geoh5py.objects import Octree, PotentialElectrode
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.electricals.params import (
-    DrapeModelData,
-    FileControlData,
-    LineSelectionData,
+    DrapeModelOptions,
+    FileControlOptions,
+    LineSelectionOptions,
 )
-from simpeg_drivers.params import BaseForwardData, BaseInversionData
+from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions
 
 
-class DirectCurrentPseudo3DForwardParams(BaseForwardData):
+class DCBatch2DForwardOptions(BaseForwardOptions):
     """
-    Parameter class for three dimensional direct current forward simulation.
+    Direct Current batch 2D forward options.
 
     :param data_object: DC survey object.
     :param potential_channel_bool: Potential channel boolean.
@@ -42,7 +42,7 @@ class DirectCurrentPseudo3DForwardParams(BaseForwardData):
     name: ClassVar[str] = "Direct Current Pseudo 3D Forward"
     title: ClassVar[str] = "Direct Current (DC) 2D Batch Forward"
     default_ui_json: ClassVar[str] = (
-        assets_path() / "uijson/direct_current_pseudo3d_forward.ui.json"
+        assets_path() / "uijson/direct_current_batch2d_forward.ui.json"
     )
 
     inversion_type: str = "direct current pseudo 3d"
@@ -50,16 +50,16 @@ class DirectCurrentPseudo3DForwardParams(BaseForwardData):
 
     data_object: PotentialElectrode
     potential_channel_bool: bool = True
-    line_selection: LineSelectionData
+    line_selection: LineSelectionOptions
     mesh: Octree | None = None
-    drape_model: DrapeModelData = DrapeModelData()
+    drape_model: DrapeModelOptions = DrapeModelOptions()
     model_type: str = "Conductivity (S/m)"
-    file_control: FileControlData = FileControlData()
+    file_control: FileControlOptions = FileControlOptions()
 
 
-class DirectCurrentPseudo3DInversionParams(BaseInversionData):
+class DCBatch2DInversionOptions(BaseInversionOptions):
     """
-    Parameter class for three dimensional direct current inversion.
+    Direct Current batch 2D Inversion options.
 
     :param data_object: DC survey object.
     :param potential_channel: Potential data channel.
@@ -77,7 +77,7 @@ class DirectCurrentPseudo3DInversionParams(BaseInversionData):
     name: ClassVar[str] = "Direct Current Pseudo 3D Inversion"
     title: ClassVar[str] = "Direct Current (DC) 2D Batch Inversion"
     default_ui_json: ClassVar[str] = (
-        assets_path() / "uijson/direct_current_pseudo3d_inversion.ui.json"
+        assets_path() / "uijson/direct_current_batch2d_inversion.ui.json"
     )
 
     inversion_type: str = "direct current pseudo 3d"
@@ -86,10 +86,10 @@ class DirectCurrentPseudo3DInversionParams(BaseInversionData):
     data_object: PotentialElectrode
     potential_channel: FloatData
     potential_uncertainty: float | FloatData
-    line_selection: LineSelectionData
+    line_selection: LineSelectionOptions
     mesh: Octree | None = None
-    drape_model: DrapeModelData = DrapeModelData()
+    drape_model: DrapeModelOptions = DrapeModelOptions()
     model_type: str = "Conductivity (S/m)"
-    file_control: FileControlData = FileControlData()
+    file_control: FileControlOptions = FileControlOptions()
     length_scale_y: None = None
     y_norm: None = None
