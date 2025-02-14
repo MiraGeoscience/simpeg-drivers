@@ -22,17 +22,17 @@ from octree_creation_app.driver import OctreeDriver
 from octree_creation_app.utils import treemesh_2_octree
 
 from simpeg_drivers.components import InversionData
-from simpeg_drivers.params import ActiveCellsData
+from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.potential_fields.magnetic_vector.driver import (
-    MagneticVectorInversionDriver,
+    MVIInversionDriver,
 )
 from simpeg_drivers.potential_fields.magnetic_vector.params import (
-    MagneticVectorInversionParams,
+    MVIInversionOptions,
 )
 from simpeg_drivers.utils.testing import Geoh5Tester, setup_inversion_workspace
 
 
-def get_mvi_params(tmp_path: Path, **kwargs) -> MagneticVectorInversionParams:
+def get_mvi_params(tmp_path: Path, **kwargs) -> MVIInversionOptions:
     geoh5, entity, model, survey, topography = setup_inversion_workspace(
         tmp_path,
         background=0.0,
@@ -45,11 +45,11 @@ def get_mvi_params(tmp_path: Path, **kwargs) -> MagneticVectorInversionParams:
     tmi_channel = survey.add_data(
         {"tmi": {"values": np.random.rand(survey.n_vertices)}}
     )
-    params = MagneticVectorInversionParams(
+    params = MVIInversionOptions(
         geoh5=geoh5,
         data_object=survey,
         tmi_channel=tmi_channel,
-        active_cells=ActiveCellsData(topography_object=topography),
+        active_cells=ActiveCellsOptions(topography_object=topography),
         mesh=model.parent,
         starting_model=model,
         **kwargs,
@@ -110,10 +110,10 @@ def test_survey_data(tmp_path: Path):
         )
 
         mesh = treemesh_2_octree(workspace, mesh)
-        active_cells = ActiveCellsData(
+        active_cells = ActiveCellsOptions(
             topography_object=test_topo_object, topography=topo
         )
-        params = MagneticVectorInversionParams(
+        params = MVIInversionOptions(
             geoh5=workspace,
             data_object=test_data_object,
             active_cells=active_cells,
@@ -130,7 +130,7 @@ def test_survey_data(tmp_path: Path):
             resolution=0.0,
         )
 
-        driver = MagneticVectorInversionDriver(params)
+        driver = MVIInversionDriver(params)
 
     assert driver.inversion is not None
 
@@ -204,7 +204,7 @@ def test_get_uncertainty_component(tmp_path: Path):
     params = get_mvi_params(tmp_path, tmi_uncertainty=1.0)
     geoh5 = params.geoh5
     data = InversionData(geoh5, params)
-    unc = data.get_data()[2]["tmi"]
+    unc = params.uncertainties["tmi"]
     assert len(np.unique(unc)) == 1
     assert np.unique(unc)[0] == 1
     assert len(unc) == data.entity.n_vertices
@@ -214,23 +214,14 @@ def test_normalize(tmp_path: Path):
     params = get_mvi_params(tmp_path)
     geoh5 = params.geoh5
     data = InversionData(geoh5, params)
-    len_data = len(data.observed["tmi"])
-    data.observed = {
-        "tmi": np.arange(len_data, dtype=float),
-        "gz": np.arange(len_data, dtype=float),
-    }
-    data.components = list(data.observed.keys())
     data.normalizations = data.get_normalizations()
     test_data = data.normalize(data.observed)
-    assert np.all(
-        np.hstack(list(data.normalizations[None].values())).tolist()
-        == np.repeat([1, -1], len_data)
-    )
-    assert all(test_data["gz"] == (-1 * data.observed["gz"]))
+    assert all(test_data["tmi"] == params.data["tmi"])
+    assert len(test_data) == 1
 
 
 def test_get_survey(tmp_path: Path):
-    params = get_mvi_params(tmp_path)
+    params = get_mvi_params(tmp_path, tmi_uncertainty=1.0)
     geoh5 = params.geoh5
     data = InversionData(geoh5, params)
     survey = data.create_survey()

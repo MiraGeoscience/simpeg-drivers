@@ -30,17 +30,19 @@ from simpeg_drivers.utils.utils import active_from_xyz, drape_to_octree
 
 
 class LineSweepDriver(SweepDriver, InversionDriver):
+    """Line Sweep driver for batch 2D forward and inversion drivers."""
+
     def __init__(self, params):
         self._out_group = None
         self.workspace = params.geoh5
-        self.pseudo3d_params = params
+        self.batch2d_params = params
         self.cleanup = params.file_control.cleanup
 
         if (
-            hasattr(self.pseudo3d_params, "out_group")
-            and self.pseudo3d_params.out_group is None
+            hasattr(self.batch2d_params, "out_group")
+            and self.batch2d_params.out_group is None
         ):
-            self.pseudo3d_params.out_group = self.out_group
+            self.batch2d_params.out_group = self.out_group
 
         super().__init__(self.setup_params())
 
@@ -49,18 +51,18 @@ class LineSweepDriver(SweepDriver, InversionDriver):
         """The SimPEGGroup"""
         if self._out_group is None:
             with fetch_active_workspace(self.workspace, mode="r+"):
-                name = self.pseudo3d_params.inversion_type.capitalize()
-                if self.pseudo3d_params.forward_only:
+                name = self.batch2d_params.inversion_type.capitalize()
+                if self.batch2d_params.forward_only:
                     name += "Forward"
                 else:
                     name += "Inversion"
 
                 # with fetch_active_workspace(self.geoh5, mode="r+"):
                 self._out_group = SimPEGGroup.create(
-                    self.pseudo3d_params.geoh5, name=name
+                    self.batch2d_params.geoh5, name=name
                 )
-                self.pseudo3d_params.out_group = self._out_group
-                self.pseudo3d_params.update_group_options()
+                self.batch2d_params.out_group = self._out_group
+                self.batch2d_params.update_group_options()
 
         return self._out_group
 
@@ -78,7 +80,7 @@ class LineSweepDriver(SweepDriver, InversionDriver):
         )
         if not (ui_json_path).is_file():
             with self.workspace.open():
-                self.pseudo3d_params.write_ui_json(
+                self.batch2d_params.write_ui_json(
                     path=h5_file_path.parent / ui_json_path.name
                 )
         generate(
@@ -91,7 +93,7 @@ class LineSweepDriver(SweepDriver, InversionDriver):
             / (re.sub(r"\.ui$", "", h5_file_path.stem) + "_sweep.ui.json")
         )
         with self.workspace.open(mode="r"):
-            lines = self.pseudo3d_params.line_selection.line_object.values
+            lines = self.batch2d_params.line_selection.line_object.values
         ifile.data["line_id_start"] = int(lines.min())
         ifile.data["line_id_end"] = int(lines.max())
         ifile.data["line_id_n"] = len(np.unique(lines))
@@ -121,7 +123,7 @@ class LineSweepDriver(SweepDriver, InversionDriver):
     def collect_results(self):
         path = Path(self.workspace.h5file).parent
         files = LineSweepDriver.line_files(str(path))
-        line_ids = self.pseudo3d_params.line_selection.line_object.values
+        line_ids = self.batch2d_params.line_selection.line_object.values
         data = {}
         drape_models = []
 
@@ -138,7 +140,7 @@ class LineSweepDriver(SweepDriver, InversionDriver):
                     if isinstance(child, PotentialElectrode)
                 )
                 line_data = survey.get_entity(
-                    self.pseudo3d_params.line_selection.line_object.name
+                    self.batch2d_params.line_selection.line_object.name
                 )
 
                 if not line_data:
@@ -154,7 +156,7 @@ class LineSweepDriver(SweepDriver, InversionDriver):
 
                 local_simpeg_group = mesh.parent.copy(
                     name=f"Line {line}",
-                    parent=self.pseudo3d_params.out_group,
+                    parent=self.batch2d_params.out_group,
                     copy_children=False,
                 )
                 local_simpeg_group.options = mesh.parent.options
@@ -187,21 +189,21 @@ class LineSweepDriver(SweepDriver, InversionDriver):
         with open(ws.h5file.parent / "SimPEG.log", "w", encoding="utf8") as f:
             f.write("".join(log_lines))
 
-        self.pseudo3d_params.data_object.add_data(data)
+        self.batch2d_params.data_object.add_data(data)
 
-        if self.pseudo3d_params.mesh is None:
+        if self.batch2d_params.mesh is None:
             return
 
         # interpolate drape model children common to all drape models into octree
         active = active_from_xyz(
-            self.pseudo3d_params.mesh, self.inversion_topography.locations
+            self.batch2d_params.mesh, self.inversion_topography.locations
         )
         common_children = set.intersection(
             *[{c.name for c in d.children} for d in drape_models]
         )
         children = {n: [n] * len(drape_models) for n in common_children}
         octree_model = drape_to_octree(
-            self.pseudo3d_params.mesh, drape_models, children, active, method="nearest"
+            self.batch2d_params.mesh, drape_models, children, active, method="nearest"
         )
 
         # interpolate last iterations for each drape model into octree
@@ -221,14 +223,14 @@ class LineSweepDriver(SweepDriver, InversionDriver):
                 label: [c[last_iterations[i]] for i, c in enumerate(iter_children)]
             }
             octree_model = drape_to_octree(
-                self.pseudo3d_params.mesh,
+                self.batch2d_params.mesh,
                 drape_models,
                 children,
                 active,
                 method="nearest",
             )
 
-        octree_model.copy(parent=self.pseudo3d_params.out_group)
+        octree_model.copy(parent=self.batch2d_params.out_group)
 
     def collect_line_data(self, survey, line_indices, data):
         """

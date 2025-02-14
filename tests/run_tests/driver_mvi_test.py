@@ -17,14 +17,14 @@ from geoh5py.groups.property_group import GroupTypeEnum
 from geoh5py.objects import Curve
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.params import ActiveCellsData
+from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.potential_fields import (
-    MagneticVectorForwardParams,
-    MagneticVectorInversionParams,
+    MVIForwardOptions,
+    MVIInversionOptions,
 )
 from simpeg_drivers.potential_fields.magnetic_vector.driver import (
-    MagneticVectorForwardDriver,
-    MagneticVectorInversionDriver,
+    MVIForwardDriver,
+    MVIInversionDriver,
 )
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
@@ -59,8 +59,8 @@ def test_magnetic_vector_fwr_run(
     survey = Curve.create(geoh5, name=points.name, vertices=points.vertices)
     geoh5.remove_entity(points)
     inducing_field = (50000.0, 90.0, 0.0)
-    active_cells = ActiveCellsData(topography_object=topography)
-    params = MagneticVectorForwardParams(
+    active_cells = ActiveCellsOptions(topography_object=topography)
+    params = MVIForwardOptions(
         forward_only=True,
         geoh5=geoh5,
         mesh=model.parent,
@@ -75,7 +75,7 @@ def test_magnetic_vector_fwr_run(
         starting_inclination=45,
         starting_declination=270,
     )
-    fwr_driver = MagneticVectorForwardDriver(params)
+    fwr_driver = MVIForwardDriver(params)
     fwr_driver.run()
 
 
@@ -100,8 +100,8 @@ def test_magnetic_vector_run(
         inducing_field = (50000.0, 90.0, 0.0)
 
         # Run the inverse
-        active_cells = ActiveCellsData(topography_object=topography)
-        params = MagneticVectorInversionParams(
+        active_cells = ActiveCellsOptions(topography_object=topography)
+        params = MVIInversionOptions(
             geoh5=geoh5,
             mesh=mesh,
             active_cells=active_cells,
@@ -128,7 +128,7 @@ def test_magnetic_vector_run(
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    driver = MagneticVectorInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
+    driver = MVIInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
     with Workspace(driver.params.geoh5.h5file) as run_ws:
         # Re-open the workspace and get iterations

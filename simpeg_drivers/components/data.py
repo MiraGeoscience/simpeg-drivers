@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from geoh5py.workspace import Workspace
 
-    from simpeg_drivers.params import InversionBaseParams
+    from simpeg_drivers.params import InversionBaseOptions
 
 from copy import deepcopy
 from re import findall
@@ -78,10 +78,10 @@ class InversionData(InversionLocations):
 
     """
 
-    def __init__(self, workspace: Workspace, params: InversionBaseParams):
+    def __init__(self, workspace: Workspace, params: InversionBaseOptions):
         """
         :param: workspace: :obj`geoh5py.workspace.Workspace` workspace object containing location based data.
-        :param: params: Params object containing location based data parameters.
+        :param: params: Options object containing location based data parameters.
         """
         super().__init__(workspace, params)
         self.locations: np.ndarray | None = None
@@ -89,7 +89,6 @@ class InversionData(InversionLocations):
         self.indices: np.ndarray | None = None
         self.vector: bool | None = None
         self.n_blocks: int | None = None
-        self.components: list[str] | None = None
         self.observed: dict[str, np.ndarray] = {}
         self.predicted: dict[str, np.ndarray] = {}
         self.uncertainties: dict[str, np.ndarray] = {}
@@ -106,8 +105,10 @@ class InversionData(InversionLocations):
         """Extract data from the workspace using params data."""
         self.vector = True if self.params.inversion_type == "magnetic vector" else False
         self.n_blocks = 3 if self.params.inversion_type == "magnetic vector" else 1
-        self.components, self.observed, self.uncertainties = self.get_data()
-        self.has_tensor = InversionData.check_tensor(self.components)
+        self.components = self.params.active_components
+        self.observed = self.params.data
+        self.uncertainties = self.params.uncertainties
+        self.has_tensor = InversionData.check_tensor(self.params.components)
         self.locations = super().get_locations(self.params.data_object)
 
         if "2d" in self.params.inversion_type:
@@ -280,7 +281,7 @@ class InversionData(InversionLocations):
         """
         d = deepcopy(data)
         for chan in getattr(self.params.data_object, "channels", [None]):
-            for comp in self.components:
+            for comp in self.params.active_components:
                 if isinstance(d[comp], dict):
                     if d[comp][chan] is not None:
                         d[comp][chan] *= self.normalizations[chan][comp]
@@ -298,7 +299,7 @@ class InversionData(InversionLocations):
         normalizations = {}
         for chan in getattr(self.params.data_object, "channels", [None]):
             normalizations[chan] = {}
-            for comp in self.components:
+            for comp in self.params.active_components:
                 normalizations[chan][comp] = np.ones(self.mask.sum())
                 if comp in ["potential", "chargeability"]:
                     normalizations[chan][comp] = 1
@@ -488,7 +489,7 @@ class InversionData(InversionLocations):
     @property
     def n_data(self):
         n_data = 0
-        for comp in self.components:
+        for comp in self.params.active_components:
             if isinstance(self.observed[comp], dict):
                 for channel in self.observed[comp]:
                     n_data += len(self.observed[comp][channel])

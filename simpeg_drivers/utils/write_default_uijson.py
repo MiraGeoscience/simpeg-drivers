@@ -14,19 +14,8 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from simpeg_drivers.electricals.direct_current.pseudo_three_dimensions.params import (
-    DirectCurrentPseudo3DParams,
-)
-from simpeg_drivers.electricals.induced_polarization.pseudo_three_dimensions.params import (
-    InducedPolarizationPseudo3DParams,
-)
-from simpeg_drivers.electromagnetics.frequency_domain import (
-    FrequencyDomainElectromagneticsParams,
-)
-from simpeg_drivers.electromagnetics.time_domain import TimeDomainElectromagneticsParams
 from simpeg_drivers.joint.joint_cross_gradient import JointCrossGradientParams
 from simpeg_drivers.joint.joint_surveys import JointSurveysParams
-from simpeg_drivers.natural_sources import MagnetotelluricsParams, TipperParams
 
 
 active_data_channels = [
@@ -52,38 +41,6 @@ active_data_channels = [
 
 def write_default_uijson(path: str | Path):
     filedict = {
-        "direct_current_inversion_pseudo3d.ui.json": DirectCurrentPseudo3DParams(
-            validate=False
-        ),
-        "direct_current_forward_pseudo3d.ui.json": DirectCurrentPseudo3DParams(
-            forward_only=True, validate=False
-        ),
-        "induced_polarization_inversion_pseudo3d.ui.json": InducedPolarizationPseudo3DParams(
-            validate=False
-        ),
-        "induced_polarization_forward_pseudo3d.ui.json": InducedPolarizationPseudo3DParams(
-            forward_only=True, validate=False
-        ),
-        "fem_inversion.ui.json": FrequencyDomainElectromagneticsParams(
-            forward_only=False, validate=False
-        ),
-        "fem_forward.ui.json": FrequencyDomainElectromagneticsParams(
-            forward_only=True, validate=False
-        ),
-        "tdem_inversion.ui.json": TimeDomainElectromagneticsParams(
-            forward_only=False, validate=False
-        ),
-        "tdem_forward.ui.json": TimeDomainElectromagneticsParams(
-            forward_only=True, validate=False
-        ),
-        "magnetotellurics_inversion.ui.json": MagnetotelluricsParams(
-            forward_only=False, validate=False
-        ),
-        "magnetotellurics_forward.ui.json": MagnetotelluricsParams(
-            forward_only=True, validate=False
-        ),
-        "tipper_inversion.ui.json": TipperParams(forward_only=False, validate=False),
-        "tipper_forward.ui.json": TipperParams(forward_only=True, validate=False),
         "joint_surveys_inversion.ui.json": JointSurveysParams(
             forward_only=False, validate=False
         ),

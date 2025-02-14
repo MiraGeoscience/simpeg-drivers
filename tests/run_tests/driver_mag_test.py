@@ -16,14 +16,14 @@ import numpy as np
 from dask.distributed import LocalCluster, performance_report
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.params import ActiveCellsData
+from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.potential_fields import (
-    MagneticScalarForwardParams,
-    MagneticScalarInversionParams,
+    MagneticForwardOptions,
+    MagneticInversionOptions,
 )
 from simpeg_drivers.potential_fields.magnetic_scalar.driver import (
-    MagneticScalarForwardDriver,
-    MagneticScalarInversionDriver,
+    MagneticForwardDriver,
+    MagneticInversionDriver,
 )
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
@@ -51,8 +51,8 @@ def test_susceptibility_fwr_run(
         flatten=False,
     )
     inducing_field = (49999.8, 90.0, 0.0)
-    active_cells = ActiveCellsData(topography_object=topography)
-    params = MagneticScalarForwardParams(
+    active_cells = ActiveCellsOptions(topography_object=topography)
+    params = MagneticForwardOptions(
         forward_only=True,
         geoh5=geoh5,
         mesh=model.parent,
@@ -65,7 +65,7 @@ def test_susceptibility_fwr_run(
         starting_model=model,
     )
     # params.workpath = tmp_path
-    fwr_driver = MagneticScalarForwardDriver(params)
+    fwr_driver = MagneticForwardDriver(params)
     fwr_driver.run()
 
     assert fwr_driver.inversion_data.survey.source_field.amplitude == inducing_field[0]
@@ -93,8 +93,8 @@ def test_susceptibility_run(
         inducing_field = (50000.0, 90.0, 0.0)
 
         # Run the inverse
-        active_cells = ActiveCellsData(active_model=active_cells)
-        params = MagneticScalarInversionParams(
+        active_cells = ActiveCellsOptions(active_model=active_cells)
+        params = MagneticInversionOptions(
             geoh5=geoh5,
             mesh=mesh,
             active_cells=active_cells,
@@ -119,7 +119,7 @@ def test_susceptibility_run(
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    driver = MagneticScalarInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
+    driver = MagneticInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
     with Workspace(driver.params.geoh5.h5file) as run_ws:
         output = get_inversion_output(

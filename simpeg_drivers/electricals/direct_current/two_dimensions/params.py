@@ -19,20 +19,15 @@ from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.electricals.params import (
-    Base2DParams,
-    DrapeModelData,
-    LineSelectionData,
+    DrapeModelOptions,
+    LineSelectionOptions,
 )
-from simpeg_drivers.params import BaseForwardData, BaseInversionData
-
-from .constants import (
-    validations,
-)
+from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions
 
 
-class DirectCurrent2DForwardParams(BaseForwardData):
+class DC2DForwardOptions(BaseForwardOptions):
     """
-    Parameter class for two dimensional electrical->conductivity forward simulation.
+    Direct Current 2D forward options.
 
     :param potential_channel_bool: Potential channel boolean.
     :param line_selection: Line selection parameters.
@@ -51,15 +46,15 @@ class DirectCurrent2DForwardParams(BaseForwardData):
     physical_property: str = "conductivity"
 
     potential_channel_bool: bool = True
-    line_selection: LineSelectionData
+    line_selection: LineSelectionOptions
     mesh: DrapeModel | None = None
-    drape_model: DrapeModelData
+    drape_model: DrapeModelOptions
     model_type: str = "Conductivity (S/m)"
 
 
-class DirectCurrent2DInversionParams(BaseInversionData):
+class DC2DInversionOptions(BaseInversionOptions):
     """
-    Parameter class for two dimensional electrical->conductivity forward simulation.
+    Direct Current 2D inversion options.
 
     :param potential_channel: Potential data channel.
     :param potential_uncertainty: Potential data uncertainty channel.
@@ -80,9 +75,9 @@ class DirectCurrent2DInversionParams(BaseInversionData):
 
     potential_channel: FloatData
     potential_uncertainty: float | FloatData | None = None
-    line_selection: LineSelectionData
+    line_selection: LineSelectionOptions
     mesh: DrapeModel | None = None
-    drape_model: DrapeModelData
+    drape_model: DrapeModelOptions
     model_type: str = "Conductivity (S/m)"
     length_scale_y: None = None
     y_norm: None = None

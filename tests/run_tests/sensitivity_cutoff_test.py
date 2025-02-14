@@ -21,8 +21,8 @@ from simpeg_drivers.depth_of_investigation.sensitivity_cutoff.driver import (
 from simpeg_drivers.depth_of_investigation.sensitivity_cutoff.params import (
     SensitivityCutoffParams,
 )
-from simpeg_drivers.params import ActiveCellsData
-from simpeg_drivers.potential_fields import GravityInversionParams
+from simpeg_drivers.params import ActiveCellsOptions
+from simpeg_drivers.potential_fields import GravityInversionOptions
 from simpeg_drivers.potential_fields.gravity.driver import GravityInversionDriver
 from simpeg_drivers.utils.testing import setup_inversion_workspace
 
@@ -44,8 +44,8 @@ def setup_inversion_results(
 
     # Run the inverse with save_sensitivities=True
     gz = survey.add_data({"gz": {"values": np.random.randn(len(survey.vertices))}})
-    active_cells = ActiveCellsData(topography_object=topography)
-    params = GravityInversionParams(
+    active_cells = ActiveCellsOptions(topography_object=topography)
+    params = GravityInversionOptions(
         geoh5=geoh5,
         mesh=mesh,
         active_cells=active_cells,

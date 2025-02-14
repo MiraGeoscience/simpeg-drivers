@@ -17,12 +17,12 @@ from typing import ClassVar
 from geoh5py.data import FloatData
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.params import BaseForwardData, BaseInversionData
+from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions
 
 
-class DirectCurrent3DForwardParams(BaseForwardData):
+class DC3DForwardOptions(BaseForwardOptions):
     """
-    Direct current 3D forward parameters.
+    Direct Current 3D forward options.
 
     :param potential_channel_bool: Potential channel boolean.
     :param model_type: Specify whether the models are provided in
@@ -42,9 +42,9 @@ class DirectCurrent3DForwardParams(BaseForwardData):
     model_type: str = "Conductivity (S/m)"
 
 
-class DirectCurrent3DInversionParams(BaseInversionData):
+class DC3DInversionOptions(BaseInversionOptions):
     """
-    Direct current 3D inversion parameters.
+    Direct Current 3D inversion options.
 
     :param potential_channel: Potential data channel.
     :param potential_uncertainty: Potential data uncertainty channel.

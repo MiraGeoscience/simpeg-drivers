@@ -16,8 +16,11 @@ from geoh5py.workspace import Workspace
 
 from simpeg_drivers.joint.joint_surveys import JointSurveysParams
 from simpeg_drivers.joint.joint_surveys.driver import JointSurveyDriver
-from simpeg_drivers.params import ActiveCellsData
-from simpeg_drivers.potential_fields import GravityForwardParams, GravityInversionParams
+from simpeg_drivers.params import ActiveCellsOptions
+from simpeg_drivers.potential_fields import (
+    GravityForwardOptions,
+    GravityInversionOptions,
+)
 from simpeg_drivers.potential_fields.gravity.driver import GravityInversionDriver
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
@@ -43,8 +46,8 @@ def test_joint_surveys_fwr_run(
         n_electrodes=n_grid_points,
         n_lines=n_grid_points,
     )
-    active_cells = ActiveCellsData(topography_object=topography)
-    params = GravityForwardParams(
+    active_cells = ActiveCellsOptions(topography_object=topography)
+    params = GravityForwardOptions(
         forward_only=True,
         geoh5=geoh5,
         mesh=model.parent,
@@ -69,8 +72,8 @@ def test_joint_surveys_fwr_run(
         geoh5=geoh5,
         drape_height=10.0,
     )
-    active_cells = ActiveCellsData(topography_object=topography)
-    params = GravityForwardParams(
+    active_cells = ActiveCellsOptions(topography_object=topography)
+    params = GravityForwardOptions(
         forward_only=True,
         geoh5=geoh5,
         mesh=model.parent,
@@ -127,8 +130,8 @@ def test_joint_surveys_inv_run(
             active_model = mesh.get_entity("active_cells")[0]
             gz = survey.get_data("Iteration_0_gz")[0]
             orig_data.append(gz.values)
-            active_cells = ActiveCellsData(active_model=active_model)
-            params = GravityInversionParams(
+            active_cells = ActiveCellsOptions(active_model=active_model)
+            params = GravityInversionOptions(
                 geoh5=geoh5,
                 mesh=mesh,
                 active_cells=active_cells,
