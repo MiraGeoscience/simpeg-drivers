@@ -231,7 +231,7 @@ class InversionMesh:
             attr = f"{dim}_cell_size"
             setattr(mesh, attr, np.abs(getattr(mesh, attr)))
 
-        indices = treemesh._get_containing_cell_indexes(  # pylint: disable=W0212
+        indices = treemesh.get_containing_cells(  # pylint: disable=W0212
             mesh.centroids
         )
         ind = np.argsort(indices)
