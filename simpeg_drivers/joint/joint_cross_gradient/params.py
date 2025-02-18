@@ -14,7 +14,6 @@ from __future__ import annotations
 from pathlib import Path
 from typing import ClassVar
 
-from geoh5py.data import FloatData
 from geoh5py.objects import Octree
 
 from simpeg_drivers import assets_path

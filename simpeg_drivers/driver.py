@@ -55,7 +55,6 @@ from simpeg_drivers.components import (
 )
 from simpeg_drivers.components.factories import DirectivesFactory, MisfitFactory
 from simpeg_drivers.params import (
-    InversionBaseParams,
     BaseForwardOptions,
     BaseInversionOptions,
 )
@@ -66,13 +65,11 @@ mlogger.setLevel(logging.WARNING)
 
 
 class InversionDriver(BaseDriver):
-    _params_class = InversionBaseParams | BaseForwardOptions | BaseInversionOptions  # pylint: disable=E0601
+    _params_class = BaseForwardOptions | BaseInversionOptions
     _inversion_type: str | None = None
     _validations = None
 
-    def __init__(
-        self, params: InversionBaseParams | BaseForwardOptions | BaseInversionOptions
-    ):
+    def __init__(self, params: BaseForwardOptions | BaseInversionOptions):
         super().__init__(params)
 
         self.inversion_type = self.params.inversion_type
@@ -285,29 +282,25 @@ class InversionDriver(BaseDriver):
         return self._out_group
 
     @property
-    def params(self) -> InversionBaseParams | BaseForwardOptions | BaseInversionOptions:
+    def params(self) -> BaseForwardOptions | BaseInversionOptions:
         """Application parameters."""
         return self._params
 
     @params.setter
     def params(
         self,
-        val: BaseForwardOptions
-        | BaseInversionOptions
-        | InversionBaseParams
-        | SweepParams,
+        val: BaseForwardOptions | BaseInversionOptions | SweepParams,
     ):
         if not isinstance(
             val,
             (
                 BaseForwardOptions,
                 BaseInversionOptions,
-                InversionBaseParams,
                 SweepParams,
             ),
         ):
             raise TypeError(
-                "Parameters must be of type 'InversionBaseParams' or 'SweepParams'."
+                "Parameters must be of type 'BaseInversionOptions', 'BaseForwardOptions' or 'SweepParams'."
             )
         self._params = val
 
