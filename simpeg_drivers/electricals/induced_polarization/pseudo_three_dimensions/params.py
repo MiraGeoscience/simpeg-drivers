@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import ClassVar
 
 from geoh5py.data import FloatData
@@ -41,7 +42,7 @@ class IPBatch2DForwardOptions(BaseForwardOptions):
 
     name: ClassVar[str] = "Induced Polarization Pseudo 3D Forward"
     title: ClassVar[str] = "Induced Polarization (IP) 2D Batch Forward"
-    default_ui_json: ClassVar[str] = (
+    default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/induced_polarization_batch2d_forward.ui.json"
     )
 
@@ -75,7 +76,7 @@ class IPBatch2DInversionOptions(BaseInversionOptions):
 
     name: ClassVar[str] = "Induced Polarization Pseudo 3D Inversion"
     title: ClassVar[str] = "Induced Polarization (IP) 2D Batch Inversion"
-    default_ui_json: ClassVar[str] = (
+    default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/induced_polarization_batch2d_inversion.ui.json"
     )
 

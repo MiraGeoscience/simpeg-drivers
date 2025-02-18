@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import ClassVar
 
 from geoh5py.data import FloatData
@@ -41,7 +42,7 @@ class DCBatch2DForwardOptions(BaseForwardOptions):
 
     name: ClassVar[str] = "Direct Current Pseudo 3D Forward"
     title: ClassVar[str] = "Direct Current (DC) 2D Batch Forward"
-    default_ui_json: ClassVar[str] = (
+    default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/direct_current_batch2d_forward.ui.json"
     )
 
@@ -76,7 +77,7 @@ class DCBatch2DInversionOptions(BaseInversionOptions):
 
     name: ClassVar[str] = "Direct Current Pseudo 3D Inversion"
     title: ClassVar[str] = "Direct Current (DC) 2D Batch Inversion"
-    default_ui_json: ClassVar[str] = (
+    default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/direct_current_batch2d_inversion.ui.json"
     )
 

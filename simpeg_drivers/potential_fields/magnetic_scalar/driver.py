@@ -22,11 +22,11 @@ class MagneticForwardDriver(InversionDriver):
     """Magnetic forward driver."""
 
     _params_class = MagneticForwardOptions
-    _validations = {}
+    _validations = None
 
 
 class MagneticInversionDriver(InversionDriver):
     """Magnetic inversion driver."""
 
     _params_class = MagneticInversionOptions
-    _validations = {}
+    _validations = None

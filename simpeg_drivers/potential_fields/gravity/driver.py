@@ -22,11 +22,11 @@ class GravityForwardDriver(InversionDriver):
     """Gravity forward driver."""
 
     _params_class = GravityForwardOptions
-    _validation = {}
+    _validations = None
 
 
 class GravityInversionDriver(InversionDriver):
     """Gravity inversion driver."""
 
     _params_class = GravityInversionOptions
-    _validations = {}
+    _validations = None

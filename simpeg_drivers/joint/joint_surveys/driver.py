@@ -20,18 +20,19 @@ from simpeg import maps
 from simpeg_drivers.components.factories import DirectivesFactory, SaveModelGeoh5Factory
 from simpeg_drivers.joint.driver import BaseJointDriver
 
-from .constants import validations
-from .params import JointSurveysParams
+from .params import JointSurveysOptions
 
 
 logger = getLogger(__name__)
 
 
 class JointSurveyDriver(BaseJointDriver):
-    _params_class = JointSurveysParams
-    _validations = validations
+    """Joint surveys inversion driver"""
 
-    def __init__(self, params: JointSurveysParams):
+    _params_class = JointSurveysOptions
+    _validations = None
+
+    def __init__(self, params: JointSurveysOptions):
         super().__init__(params)
 
         with fetch_active_workspace(self.workspace, mode="r+"):

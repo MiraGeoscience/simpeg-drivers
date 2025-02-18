@@ -29,7 +29,7 @@ class TDEMForwardDriver(InversionDriver):
     """Time Domain Electromagnetic forward driver."""
 
     _params_class = TDEMForwardOptions
-    _validations = {}
+    _validations = None
 
     def get_tiles(self) -> list[np.ndarray]:
         """
@@ -88,7 +88,7 @@ class TDEMInversionDriver(InversionDriver):
     """Time Domain Electromagnetic inversion driver."""
 
     _params_class = TDEMInversionOptions
-    _validations = {}
+    _validations = None
 
     def get_tiles(self) -> list[np.ndarray]:
         """

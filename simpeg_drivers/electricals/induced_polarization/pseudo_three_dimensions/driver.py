@@ -27,7 +27,7 @@ class IPBatch2DForwardDriver(BaseBatch2DDriver):
 
     _params_class = IPBatch2DForwardOptions
     _params_2d_class = IP2DForwardOptions
-    _validations = {}
+    _validations = None
     _model_list = ["conductivity_model"]
 
 
@@ -36,5 +36,5 @@ class IPBatch2DInversionDriver(BaseBatch2DDriver):
 
     _params_class = IPBatch2DInversionOptions
     _params_2d_class = IP2DInversionOptions
-    _validations = {}
+    _validations = None
     _model_list = ["conductivity_model"]

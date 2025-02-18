@@ -20,11 +20,11 @@ class DC3DForwardDriver(InversionDriver):
     """Direct Current 3D forward driver."""
 
     _params_class = DC3DForwardOptions
-    _validation = {}
+    _validation = None
 
 
 class DC3DInversionDriver(InversionDriver):
     """Direct Current 3D inversion driver."""
 
     _params_class = DC3DInversionOptions
-    _validation = {}
+    _validation = None
