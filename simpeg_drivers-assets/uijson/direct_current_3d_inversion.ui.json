@@ -17,13 +17,6 @@
         "meshType": "{275ecee9-9c24-4378-bf94-65f3c5fbe163}",
         "value": ""
     },
-    "z_from_topo": {
-        "group": "Data",
-        "main": true,
-        "label": "Surface survey",
-        "tooltip": "Uncheck if borehole data is present",
-        "value": true
-    },
     "potential_channel": {
         "association": [
             "Cell",

@@ -36,14 +36,6 @@ default_ui_json = {
         "value": None,
         "tooltip": "Select an object containing survey geometry and data for inversion.",
     },
-    "z_from_topo": {
-        "group": "Data pre-processing",
-        "label": "Take z from topography",
-        "tooltip": "Sets survey elevation to topography before any offsets are applied.",
-        "value": False,
-        "verbose": 3,
-        "visible": False,
-    },
     "receivers_offset_z": {
         "group": "Data pre-processing",
         "label": "Z static offset",

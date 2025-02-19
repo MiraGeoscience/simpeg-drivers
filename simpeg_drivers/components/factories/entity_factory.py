@@ -93,12 +93,8 @@ class EntityFactory(AbstractFactory):
                     kwargs.update({"mask": inversion_data.mask})
 
             entity = self.params.data_object.copy(copy_complement=False, **kwargs)
-            entity.vertices = inversion_data.apply_transformations(entity.vertices)
 
         if getattr(self.params.data_object, "transmitters", None) is not None:
-            vertices = inversion_data.apply_transformations(
-                self.params.data_object.transmitters.vertices
-            )
             cells = self.params.data_object.transmitters.cells
 
             if getattr(self.params.data_object, "tx_id_property", None) is not None:
@@ -115,7 +111,7 @@ class EntityFactory(AbstractFactory):
 
             transmitters = self.params.data_object.transmitters.copy(
                 copy_complement=False,
-                vertices=vertices,
+                vertices=self.params.data_object.transmitters.vertices,
                 cells=cells,
                 parent=self.params.out_group,
                 copy_children=False,
@@ -135,11 +131,6 @@ class EntityFactory(AbstractFactory):
             tx_freq = self.params.data_object.transmitters.get_data("Tx frequency")
             if tx_freq:
                 tx_freq[0].copy(parent=entity.transmitters)
-
-        if getattr(entity, "current_electrodes", None) is not None:
-            entity.current_electrodes.vertices = inversion_data.apply_transformations(
-                entity.current_electrodes.vertices
-            )
 
         return entity
 
