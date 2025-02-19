@@ -12,18 +12,17 @@
 from __future__ import annotations
 
 import multiprocessing
+import warnings
 from pathlib import Path
 from typing import ClassVar, TypeAlias
 
 import numpy as np
 from geoapps_utils.driver.data import BaseData
-from geoapps_utils.driver.params import BaseParams
 from geoh5py.data import BooleanData, FloatData, NumericData
 from geoh5py.groups import PropertyGroup, SimPEGGroup, UIJsonGroup
 from geoh5py.objects import DrapeModel, Octree, Points
 from geoh5py.shared.utils import fetch_active_workspace
-from geoh5py.ui_json import InputFile
-from pydantic import BaseModel, ConfigDict, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 InversionDataDict: TypeAlias = (
@@ -67,8 +66,6 @@ class CoreOptions(BaseData):
     :param physical_property: Physical property of the model.
     :param data_object: Data object containing survey geometry and data
         channels.
-    :param z_from_topo: If True, the z values of the data object are set to the
-        topography surface.
     :param mesh: Mesh object containing models (starting, reference, active, etc..).
     :param starting_model: Starting model used to start inversion or for simulating
         data in the forward operation.
@@ -91,7 +88,7 @@ class CoreOptions(BaseData):
     inversion_type: str
     physical_property: str
     data_object: Points
-    z_from_topo: bool = False
+    z_from_topo: bool = Field(default=False, deprecated=True)
     mesh: Octree | DrapeModel | None
     starting_model: float | FloatData
     active_cells: ActiveCellsOptions
@@ -102,6 +99,12 @@ class CoreOptions(BaseData):
     save_sensitivities: bool = False
     out_group: SimPEGGroup | UIJsonGroup | None = None
     generate_sweep: bool = False
+
+    @field_validator("z_from_topo", mode="before")
+    @classmethod
+    def deprecated(cls, v, info):
+        warnings.warn(f"Field '{info.field_name}' is deprecated.")
+        return v
 
     @field_validator("n_cpu", mode="before")
     @classmethod
@@ -121,7 +124,7 @@ class CoreOptions(BaseData):
 
     @model_validator(mode="before")
     @classmethod
-    def out_group_if_none(cls, data) -> SimPEGGroup:
+    def out_group_if_none(cls, data):
         group = data.get("out_group", None)
 
         if isinstance(group, SimPEGGroup):
