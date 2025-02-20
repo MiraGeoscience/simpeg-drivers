@@ -12,7 +12,6 @@
 from __future__ import annotations
 
 import multiprocessing
-import warnings
 from pathlib import Path
 from typing import ClassVar, TypeAlias
 
@@ -104,8 +103,9 @@ class CoreOptions(BaseData):
     @classmethod
     def deprecated(cls, v, info):
         logger.warning(
-            f"Field %s is deprecated. Since version 0.3.0, "
-            f"any data location adjustments must be done in pre-processing.", info.field_name
+            "Field %s is deprecated. Since version 0.3.0, "
+            "any data location adjustments must be done in pre-processing.",
+            info.field_name,
         )
         return v
 
