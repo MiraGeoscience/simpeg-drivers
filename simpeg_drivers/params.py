@@ -103,9 +103,9 @@ class CoreOptions(BaseData):
     @field_validator("z_from_topo", mode="before")
     @classmethod
     def deprecated(cls, v, info):
-        warnings.warn(
-            f"Field '{info.field_name}' is deprecated. Since version 0.3.0, "
-            f"any data location adjustments must be done in pre-processing."
+        logger.warning(
+            f"Field %s is deprecated. Since version 0.3.0, "
+            f"any data location adjustments must be done in pre-processing.", info.field_name
         )
         return v
 
