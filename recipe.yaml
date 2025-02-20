@@ -1,0 +1,65 @@
+schema_version: 1
+
+context:
+  name: "simpeg-drivers"
+  version: "0.2.1"
+  python_min: "3.10"
+
+package:
+  name: ${{ name|lower }}
+  version: ${{ version }}
+
+source:
+  path: ../${{ name }}
+
+build:
+  number: 0
+  noarch: python
+  script: ${{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
+
+requirements:
+  host:
+    - python 3.10.*
+    - poetry-core >=1.0.0
+    - setuptools
+    - pip
+  run:
+    - python >=${{ python_min }}
+    # Mira packages
+    - geoapps-utils >=0.4.0, <0.5.dev
+    - geoh5py >=0.10.1, <0.11.dev
+    - octree-creation-app >=0.2.0, <0.3.dev
+    - mira-simpeg >=0.21.2.2a1, <0.21.3.dev
+    - param-sweeps >=0.2.0, <0.2.1.dev
+    # direct dependencies
+    - dask-core >=2024.06, <2024.07.dev
+    - discretize >=0.10.0, <0.11.dev
+    - distributed >=2024.06, <2024.07.dev
+    - numpy >=1.26.0, <1.27.dev
+    - scipy >=1.14.0, <1.15.dev
+    - pydiso >=0.1.0, <0.2.dev
+    - python-mumps >=0.0.3, <0.0.4.dev
+    # indirect dependencies
+    - empymod >=2.2.1, <2.3.dev
+    - fsspec >=2022.0, <2023.0.dev
+    - geoana >=0.5.0, <0.6.dev
+    - matplotlib-base >=3.8.4, <3.9.dev
+    - pandas >=2.2.1, <2.3.dev
+    - pymatsolver >=0.3.0, <0.4.dev
+    - scikit-learn >=1.4.0, <1.5.dev
+    - tqdm >=4.66.1, <5.0.dev
+    - zarr >=2.14.2, <2.15.dev
+  run_constraints:
+    - __glibc >=2.17
+    - python-tzdata >=2023.4.0, <2023.5.dev
+    - tbb >=2021.12.0, <2021.13.dev
+
+about:
+  license: MIT
+  license_file:
+    - LICENSE
+
+extra:
+  recipe-maintainers:
+    - andrewg-mira
+    - sebhmg

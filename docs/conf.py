@@ -14,6 +14,11 @@ project = "simpeg-drivers"
 
 # The full version, including alpha/beta/rc tags.
 release = version("simpeg-drivers")
+# drop the post segment if any for release
+pep_version = Version(release)
+if pep_version.is_postrelease:
+    release = pep_version.base_version
+
 # The short X.Y.Z version.
 version = Version(release).base_version
 
