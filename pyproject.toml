@@ -84,8 +84,6 @@ readthedocs-sphinx-ext = "*"
 sphinx = "^5.0"
 tomli = "*"
 nbconvert = "~7.16.4"
-plantuml = "*"
-Graphviz = "*"
 
 [tool.conda-lock]
 platforms = ['win-64', 'linux-64']
