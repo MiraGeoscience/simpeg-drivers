@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import ClassVar
 
 from geoh5py.data import FloatData
@@ -18,15 +19,15 @@ from geoh5py.objects import DrapeModel
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.electricals.params import (
-    DrapeModelData,
-    LineSelectionData,
+    DrapeModelOptions,
+    LineSelectionOptions,
 )
-from simpeg_drivers.params import BaseForwardData, BaseInversionData
+from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions
 
 
-class InducedPolarization2DForwardParams(BaseForwardData):
+class IP2DForwardOptions(BaseForwardOptions):
     """
-    Parameter class for two dimensional induced polarization forward simulation.
+    Induced Polarization 2D forward options.
 
     :param chargeability_channel_bool: Chargeability channel boolean.
     :param mesh: Optional mesh object if providing a heterogeneous model.
@@ -37,7 +38,7 @@ class InducedPolarization2DForwardParams(BaseForwardData):
 
     name: ClassVar[str] = "Induced Polarization 2D Forward"
     title: ClassVar[str] = "Induced Polarization 2D Forward"
-    default_ui_json: ClassVar[str] = (
+    default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/induced_polarization_2d_forward.ui.json"
     )
 
@@ -45,15 +46,15 @@ class InducedPolarization2DForwardParams(BaseForwardData):
     physical_property: str = "chargeability"
 
     chargeability_channel_bool: bool = True
-    line_selection: LineSelectionData
+    line_selection: LineSelectionOptions
     mesh: DrapeModel | None = None
-    drape_model: DrapeModelData = DrapeModelData()
+    drape_model: DrapeModelOptions = DrapeModelOptions()
     conductivity_model: float | FloatData
 
 
-class InducedPolarization2DInversionParams(BaseInversionData):
+class IP2DInversionOptions(BaseInversionOptions):
     """
-    Parameter class for two dimensional induced polarization forward simulation.
+    Induced Polarization 2D inversion options.
 
     :param chargeability_channel: Chargeability data channel.
     :param chargeability_uncertainty: Chargeability data uncertainty channel.
@@ -67,7 +68,7 @@ class InducedPolarization2DInversionParams(BaseInversionData):
 
     name: ClassVar[str] = "Induced Polarization 2D Inversion"
     title: ClassVar[str] = "Induced Polarization 2D Inversion"
-    default_ui_json: ClassVar[str] = (
+    default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/induced_polarization_2d_inversion.ui.json"
     )
 
@@ -76,9 +77,9 @@ class InducedPolarization2DInversionParams(BaseInversionData):
 
     chargeability_channel: FloatData
     chargeability_uncertainty: float | FloatData | None = None
-    line_selection: LineSelectionData
+    line_selection: LineSelectionOptions
     mesh: DrapeModel | None = None
-    drape_model: DrapeModelData = DrapeModelData()
+    drape_model: DrapeModelOptions = DrapeModelOptions()
     conductivity_model: float | FloatData
     lower_bound: float | FloatData | None = 0.0
     length_scale_y: None = None

@@ -12,8 +12,6 @@
 from __future__ import annotations
 
 import simpeg_drivers
-from simpeg_drivers.constants import validations as base_validations
-from simpeg_drivers.joint.constants import default_ui_json as joint_default_ui_json
 
 
 ################# defaults ##################
@@ -83,78 +81,3 @@ inversion_defaults = {
     "generate_sweep": False,
     "distributed_workers": None,
 }
-
-default_ui_json = {
-    "title": "SimPEG Joint Surveys Inversion",
-    "inversion_type": "joint surveys",
-    "model_type": {
-        "choiceList": ["Conductivity (S/m)", "Resistivity (Ohm-m)"],
-        "main": True,
-        "group": "Mesh and Models",
-        "label": "Model units",
-        "tooltip": "Select the units of the model.",
-        "value": "Conductivity (S/m)",
-    },
-    "starting_model": {
-        "association": "Cell",
-        "dataType": "Float",
-        "group": "Mesh and Models",
-        "main": True,
-        "isValue": False,
-        "parent": "mesh",
-        "label": "Initial model",
-        "property": None,
-        "optional": True,
-        "enabled": False,
-        "value": 1e-4,
-    },
-    "lower_bound": {
-        "association": "Cell",
-        "main": True,
-        "dataType": "Float",
-        "group": "Mesh and Models",
-        "isValue": False,
-        "parent": "mesh",
-        "label": "Lower bound)",
-        "property": None,
-        "optional": True,
-        "value": -10.0,
-        "enabled": False,
-    },
-    "upper_bound": {
-        "association": "Cell",
-        "main": True,
-        "dataType": "Float",
-        "group": "Mesh and Models",
-        "isValue": False,
-        "parent": "mesh",
-        "label": "Upper bound",
-        "property": None,
-        "optional": True,
-        "value": 10.0,
-        "enabled": False,
-    },
-    "reference_model": {
-        "association": "Cell",
-        "main": True,
-        "dataType": "Float",
-        "group": "Mesh and Models",
-        "isValue": False,
-        "parent": "mesh",
-        "label": "Reference",
-        "property": None,
-        "optional": True,
-        "value": 1e-4,
-        "enabled": False,
-    },
-}
-default_ui_json = dict(joint_default_ui_json, **default_ui_json)
-validations = {
-    "inversion_type": {
-        "required": True,
-        "values": ["joint surveys"],
-    },
-}
-
-validations = dict(base_validations, **validations)
-app_initializer = {}

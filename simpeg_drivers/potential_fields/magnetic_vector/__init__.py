@@ -9,7 +9,7 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from .params import MagneticVectorForwardParams, MagneticVectorInversionParams
+from .params import MVIForwardOptions, MVIInversionOptions
 
 # pylint: disable=unused-import
 # flake8: noqa

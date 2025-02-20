@@ -18,6 +18,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from geoapps_utils.driver.params import BaseParams
 
+    from simpeg_drivers.params import BaseOptions
+
 # TODO Redesign simpeg factory to avoid pylint arguments-differ complaint
 
 
@@ -62,7 +64,7 @@ class SimPEGFactory(ABC):
         "joint cross gradient",
     ]
 
-    def __init__(self, params: BaseParams):
+    def __init__(self, params: BaseParams | BaseOptions):
         """
         :param params: Driver parameters object.
         """

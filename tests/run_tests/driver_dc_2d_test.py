@@ -18,15 +18,15 @@ from geoh5py.data import ReferencedData
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.electricals.direct_current.two_dimensions.driver import (
-    DirectCurrent2DForwardDriver,
-    DirectCurrent2DInversionDriver,
+    DC2DForwardDriver,
+    DC2DInversionDriver,
 )
 from simpeg_drivers.electricals.direct_current.two_dimensions.params import (
-    DirectCurrent2DForwardParams,
-    DirectCurrent2DInversionParams,
+    DC2DForwardOptions,
+    DC2DInversionOptions,
 )
-from simpeg_drivers.electricals.params import DrapeModelData, LineSelectionData
-from simpeg_drivers.params import ActiveCellsData
+from simpeg_drivers.electricals.params import DrapeModelOptions, LineSelectionOptions
+from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
@@ -59,15 +59,15 @@ def test_dc_2d_fwr_run(
         drape_height=0.0,
         flatten=False,
     )
-    line_selection = LineSelectionData(
+    line_selection = LineSelectionOptions(
         line_object=geoh5.get_entity("line_ids")[0],
         line_id=101,
     )
-    params = DirectCurrent2DForwardParams(
+    params = DC2DForwardOptions(
         geoh5=geoh5,
         data_object=survey,
         line_selection=line_selection,
-        drape_model=DrapeModelData(
+        drape_model=DrapeModelOptions(
             u_cell_size=5.0,
             v_cell_size=5.0,
             depth_core=100.0,
@@ -76,11 +76,11 @@ def test_dc_2d_fwr_run(
             expansion_factor=1.1,
         ),
         starting_model=model,
-        active_cells=ActiveCellsData(topography_object=topography),
+        active_cells=ActiveCellsOptions(topography_object=topography),
         z_from_topo=False,
     )
 
-    fwr_driver = DirectCurrent2DForwardDriver(params)
+    fwr_driver = DC2DForwardDriver(params)
     fwr_driver.run()
 
 
@@ -94,9 +94,9 @@ def test_dc_2d_run(tmp_path: Path, max_iterations=1, pytest=True):
         topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
-        params = DirectCurrent2DInversionParams(
+        params = DC2DInversionOptions(
             geoh5=geoh5,
-            drape_model=DrapeModelData(
+            drape_model=DrapeModelOptions(
                 u_cell_size=5.0,
                 v_cell_size=5.0,
                 depth_core=100.0,
@@ -104,8 +104,8 @@ def test_dc_2d_run(tmp_path: Path, max_iterations=1, pytest=True):
                 vertical_padding=100.0,
                 expansion_factor=1.1,
             ),
-            active_cells=ActiveCellsData(topography_object=topography),
-            line_selection=LineSelectionData(
+            active_cells=ActiveCellsOptions(topography_object=topography),
+            line_selection=LineSelectionOptions(
                 line_object=geoh5.get_entity("line_ids")[0],
                 line_id=101,
             ),
@@ -130,7 +130,7 @@ def test_dc_2d_run(tmp_path: Path, max_iterations=1, pytest=True):
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    driver = DirectCurrent2DInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
+    driver = DC2DInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
     output = get_inversion_output(
         driver.params.geoh5.h5file, driver.params.out_group.uid

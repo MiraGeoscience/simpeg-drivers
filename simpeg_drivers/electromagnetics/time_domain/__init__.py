@@ -9,7 +9,10 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from .params import TimeDomainElectromagneticsParams
+from .params import (
+    TDEMForwardOptions,
+    TDEMInversionOptions,
+)
 
 # pylint: disable=unused-import
 # flake8: noqa

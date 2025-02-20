@@ -11,60 +11,38 @@
 
 from __future__ import annotations
 
-from copy import deepcopy
+from pathlib import Path
+from typing import ClassVar
 
-from simpeg_drivers.joint.params import BaseJointParams
+from geoh5py.objects import Octree
 
-from .constants import default_ui_json, inversion_defaults, validations
+from simpeg_drivers import assets_path
+from simpeg_drivers.joint.params import BaseJointOptions
 
 
-class JointCrossGradientParams(BaseJointParams):
+class JointCrossGradientOptions(BaseJointOptions):
     """
-    Parameter class for joint cross-gradient inversion.
+    Joint Cross Gradient inversion options.
+
+    :param cross_gradient_weight_a_b:  Weight applied to the cross gradient
+        regularizations.
+    :param cross_gradient_weight_c_a:  Weight applied to the cross gradient
+        regularizations.
+    :param cross_gradient_weight_c_b:  Weight applied to the cross gradient
+        regularizations.
     """
 
-    _physical_property = [""]
+    name: ClassVar[str] = "Joint Cross Gradient Inversion"
+    title: ClassVar[str] = "Joint Cross Gradient Inversion"
+    default_ui_json: ClassVar[Path] = (
+        assets_path() / "uijson/joint_cross_gradient_inversion.ui.json"
+    )
 
-    def __init__(self, input_file=None, forward_only=False, **kwargs):
-        self._default_ui_json = deepcopy(default_ui_json)
-        self._inversion_defaults = deepcopy(inversion_defaults)
-        self._inversion_type = "joint cross gradient"
-        self._validations = validations
-        self._cross_gradient_weight_a_b = 1.0
-        self._cross_gradient_weight_c_a = 1.0
-        self._cross_gradient_weight_c_b = 1.0
+    inversion_type: str = "joint cross gradient"
 
-        super().__init__(input_file=input_file, forward_only=forward_only, **kwargs)
-
-    @property
-    def cross_gradient_weight_a_b(self):
-        return self._cross_gradient_weight_a_b
-
-    @cross_gradient_weight_a_b.setter
-    def cross_gradient_weight_a_b(self, val):
-        self.setter_validator("cross_gradient_weight_a_b", val)
-
-    @property
-    def cross_gradient_weight_c_a(self):
-        return self._cross_gradient_weight_c_a
-
-    @cross_gradient_weight_c_a.setter
-    def cross_gradient_weight_c_a(self, val):
-        self.setter_validator("cross_gradient_weight_c_a", val)
-
-    @property
-    def cross_gradient_weight_c_b(self):
-        return self._cross_gradient_weight_c_b
-
-    @cross_gradient_weight_c_b.setter
-    def cross_gradient_weight_c_b(self, val):
-        self.setter_validator("cross_gradient_weight_c_b", val)
-
-    @property
-    def physical_property(self):
-        """Physical property to invert."""
-        return self._physical_property
-
-    @physical_property.setter
-    def physical_property(self, val: list[str]):
-        self._physical_property = val
+    data_object: None = None
+    mesh: Octree | None = None
+    starting_model: None = None
+    cross_gradient_weight_a_b: float = 1.0
+    cross_gradient_weight_c_a: float | None = None
+    cross_gradient_weight_c_b: float | None = None

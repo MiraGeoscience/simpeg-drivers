@@ -13,13 +13,18 @@ from __future__ import annotations
 
 from simpeg_drivers.driver import InversionDriver
 
-from .constants import validations
-from .params import TipperParams
+from .params import TipperForwardOptions, TipperInversionOptions
 
 
-class TipperDriver(InversionDriver):
-    _params_class = TipperParams
-    _validations = validations
+class TipperForwardDriver(InversionDriver):
+    """Tipper forward driver."""
 
-    def __init__(self, params: TipperParams):
-        super().__init__(params)
+    _params_class = TipperForwardOptions
+    _validations = None
+
+
+class TipperInversionDriver(InversionDriver):
+    """Tipper inversion driver."""
+
+    _params_class = TipperInversionOptions
+    _validations = None

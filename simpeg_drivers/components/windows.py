@@ -18,6 +18,8 @@ if TYPE_CHECKING:
     from geoapps_utils.driver.params import BaseParams
     from geoh5py.workspace import Workspace
 
+    from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions
+
 import numpy as np
 from geoh5py.objects import Grid2D, PotentialElectrode
 
@@ -35,7 +37,7 @@ class InversionWindow:
     workspace:
         Geoh5py workspace object containing window data.
     params:
-        Params object containing window parameters.
+        Options object containing window parameters.
     window:
         Center and size defining window for data, topography, etc.
 
@@ -49,10 +51,14 @@ class InversionWindow:
 
     window_keys = ["center_x", "center_y", "height", "width", "size", "center"]
 
-    def __init__(self, workspace: Workspace, params: BaseParams):
+    def __init__(
+        self,
+        workspace: Workspace,
+        params: BaseParams | BaseForwardOptions | BaseInversionOptions,
+    ):
         """
         :param: workspace: Geoh5py workspace object containing window data.
-        :param: params: Params object containing window parameters.
+        :param: params: Options object containing window parameters.
         :param: window:
         """
         self.workspace = workspace

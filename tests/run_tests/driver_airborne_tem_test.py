@@ -18,10 +18,15 @@ from geoh5py.workspace import Workspace
 from pymatsolver.direct import Mumps
 from pytest import raises
 
-from simpeg_drivers.electromagnetics.time_domain import TimeDomainElectromagneticsParams
-from simpeg_drivers.electromagnetics.time_domain.driver import (
-    TimeDomainElectromagneticsDriver,
+from simpeg_drivers.electromagnetics.time_domain import (
+    TDEMForwardOptions,
+    TDEMInversionOptions,
 )
+from simpeg_drivers.electromagnetics.time_domain.driver import (
+    TDEMForwardDriver,
+    TDEMInversionDriver,
+)
+from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
@@ -47,21 +52,19 @@ def test_bad_waveform(tmp_path: Path):
         padding_distance=400.0,
         flatten=False,
     )
-    params = TimeDomainElectromagneticsParams(
-        forward_only=True,
+    params = TDEMForwardOptions(
         geoh5=geoh5,
-        mesh=model.parent.uid,
-        topography_object=topography.uid,
-        resolution=0.0,
+        mesh=model.parent,
+        active_cells=ActiveCellsOptions(topography_object=topography),
         z_from_topo=False,
-        data_object=survey.uid,
-        starting_model=model.uid,
+        data_object=survey,
+        starting_model=model,
         x_channel_bool=True,
         y_channel_bool=True,
         z_channel_bool=True,
     )
-    params.workpath = tmp_path
-    fwr_driver = TimeDomainElectromagneticsDriver(params)
+
+    fwr_driver = TDEMForwardDriver(params)
 
     survey.channels[-1] = 1000.0
 
@@ -89,21 +92,19 @@ def test_airborne_tem_fwr_run(
         padding_distance=400.0,
         flatten=False,
     )
-    params = TimeDomainElectromagneticsParams(
-        forward_only=True,
+    params = TDEMForwardOptions(
         geoh5=geoh5,
-        mesh=model.parent.uid,
-        topography_object=topography.uid,
-        resolution=0.0,
+        mesh=model.parent,
+        active_cells=ActiveCellsOptions(topography_object=topography),
         z_from_topo=False,
-        data_object=survey.uid,
-        starting_model=model.uid,
+        data_object=survey,
+        starting_model=model,
         x_channel_bool=True,
         y_channel_bool=True,
         z_channel_bool=True,
     )
-    params.workpath = tmp_path
-    fwr_driver = TimeDomainElectromagneticsDriver(params)
+
+    fwr_driver = TDEMForwardDriver(params)
 
     fwr_driver.data_misfit.objfcts[0].simulation.solver = Mumps
     fwr_driver.run()
@@ -165,12 +166,11 @@ def test_airborne_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         orig_dBzdt = geoh5.get_entity("Iteration_0_z_[0]")[0].values
 
         # Run the inverse
-        params = TimeDomainElectromagneticsParams(
+        params = TDEMInversionOptions(
             geoh5=geoh5,
-            mesh=mesh.uid,
-            topography_object=topography.uid,
-            resolution=0.0,
-            data_object=survey.uid,
+            mesh=mesh,
+            active_cells=ActiveCellsOptions(topography_object=topography),
+            data_object=survey,
             starting_model=1e-3,
             reference_model=1e-3,
             chi_factor=1.0,
@@ -188,12 +188,13 @@ def test_airborne_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
             coolingRate=4,
             max_cg_iterations=200,
             prctile=5,
+            sens_wts_threshold=1.0,
             store_sensitivities="ram",
             **data_kwargs,
         )
-        params.write_input_file(path=tmp_path, name="Inv_run")
+        params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    driver = TimeDomainElectromagneticsDriver(params)
+    driver = TDEMInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
     driver.data_misfit.objfcts[0].simulation.solver = Mumps
     driver.run()
 

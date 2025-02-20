@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from geoh5py.workspace import Workspace
 
-    from simpeg_drivers.params import InversionBaseParams
+    from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions
 
 import numpy as np
 from geoh5py.objects import ObjectBase, Points
@@ -47,13 +47,17 @@ class InversionLocations:
 
     """
 
-    def __init__(self, workspace: Workspace, params: InversionBaseParams):
+    def __init__(
+        self,
+        workspace: Workspace,
+        params: BaseForwardOptions | BaseInversionOptions,
+    ):
         """
         :param workspace: Geoh5py workspace object containing location based data.
-        :param params: Params object containing location based data parameters.
+        :param params: Options object containing location based data parameters.
         """
         self.workspace = workspace
-        self._params: InversionBaseParams = params
+        self._params: BaseForwardOptions | BaseInversionOptions = params
         self.mask: np.ndarray | None = None
         self.locations: np.ndarray | None = None
 
@@ -121,6 +125,8 @@ class InversionLocations:
         return locations
 
     def _filter(self, a, mask):
+        if a is None:
+            return None
         for k, v in a.items():
             if not isinstance(v, np.ndarray):
                 a.update({k: self._filter(v, mask)})

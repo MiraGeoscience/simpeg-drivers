@@ -43,7 +43,6 @@ if TYPE_CHECKING:
     from simpeg_drivers.components.data import InversionData
     from simpeg_drivers.driver import InversionDriver
 
-from geoapps_utils.driver.data import BaseData
 
 from simpeg_drivers import DRIVER_MAP
 from simpeg_drivers.utils.surveys import (
@@ -827,12 +826,8 @@ def simpeg_group_to_driver(group: SimPEGGroup, workspace: Workspace) -> Inversio
         class_name = classes.get("inversion")
     module = __import__(mod_name, fromlist=[class_name])
     inversion_driver = getattr(module, class_name)
-    # TODO: Remove logic when all params classes are converted to BaseData.
-    if issubclass(inversion_driver._params_class, BaseData):  # pylint: disable=W0212
-        ifile.set_data_value("out_group", group)
-        params = inversion_driver._params_class.build(ifile)  # pylint: disable=W0212
-    else:
-        params = inversion_driver._params_class(  # pylint: disable=W0212
-            ifile, out_group=group
-        )
+
+    ifile.set_data_value("out_group", group)
+    params = inversion_driver._params_class.build(ifile)  # pylint: disable=W0212
+
     return inversion_driver(params)

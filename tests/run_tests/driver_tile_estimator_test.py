@@ -14,10 +14,10 @@ from pathlib import Path
 
 import numpy as np
 
-from simpeg_drivers.params import ActiveCellsData
-from simpeg_drivers.potential_fields import MagneticScalarInversionParams
+from simpeg_drivers.params import ActiveCellsOptions
+from simpeg_drivers.potential_fields import MagneticInversionOptions
 from simpeg_drivers.potential_fields.magnetic_scalar.driver import (
-    MagneticScalarInversionDriver,
+    MagneticInversionDriver,
 )
 from simpeg_drivers.utils.testing import setup_inversion_workspace
 from simpeg_drivers.utils.tile_estimate import TileEstimator, TileParameters
@@ -45,10 +45,10 @@ def test_tile_estimator_run(
             "tmi": {"values": np.random.rand(survey.n_vertices)},
         }
     )
-    params = MagneticScalarInversionParams(
+    params = MagneticInversionOptions(
         geoh5=geoh5,
         mesh=model.parent,
-        active_cells=ActiveCellsData(topography_object=topography),
+        active_cells=ActiveCellsOptions(topography_object=topography),
         inducing_field_strength=inducing_field[0],
         inducing_field_inclination=inducing_field[1],
         inducing_field_declination=inducing_field[2],
@@ -58,7 +58,7 @@ def test_tile_estimator_run(
         starting_model=model,
     )
 
-    driver = MagneticScalarInversionDriver(params)
+    driver = MagneticInversionDriver(params)
     tile_params = TileParameters(geoh5=geoh5, simulation=driver.out_group)
     estimator = TileEstimator(tile_params)
 

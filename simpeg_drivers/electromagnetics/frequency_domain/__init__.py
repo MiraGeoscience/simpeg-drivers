@@ -9,7 +9,10 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from .params import FrequencyDomainElectromagneticsParams
+from .params import (
+    FDEMForwardOptions,
+    FDEMInversionOptions,
+)
 
 # pylint: disable=unused-import
 # flake8: noqa

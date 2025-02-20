@@ -23,7 +23,7 @@ from octree_creation_app.driver import OctreeDriver
 from octree_creation_app.params import OctreeParams
 from octree_creation_app.utils import octree_2_treemesh, treemesh_2_octree
 
-from simpeg_drivers.params import InversionBaseParams
+from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions
 from simpeg_drivers.utils.meshes import auto_mesh_parameters
 from simpeg_drivers.utils.utils import drape_2_tensor
 
@@ -77,11 +77,11 @@ class InversionMesh:
     def __init__(
         self,
         workspace: Workspace,
-        params: InversionBaseParams,
+        params: BaseForwardOptions | BaseInversionOptions,
     ) -> None:
         """
         :param workspace: Workspace object containing mesh data.
-        :param params: Params object containing mesh parameters.
+        :param params: Options object containing mesh parameters.
         """
         self.workspace = workspace
         self.params = params

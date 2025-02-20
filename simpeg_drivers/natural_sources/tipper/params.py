@@ -11,202 +11,76 @@
 
 from __future__ import annotations
 
-from copy import deepcopy
-from uuid import UUID
+from pathlib import Path
+from typing import ClassVar
 
-from simpeg_drivers.params import InversionBaseParams
+from geoh5py.data import FloatData
+from geoh5py.groups import PropertyGroup
+from geoh5py.objects import TipperReceivers
 
-from .constants import (
-    default_ui_json,
-    forward_defaults,
-    inversion_defaults,
-    validations,
-)
+from simpeg_drivers import assets_path
+from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions, EMDataMixin
 
 
-class TipperParams(InversionBaseParams):
+class TipperForwardOptions(EMDataMixin, BaseForwardOptions):
     """
-    Parameter class for magnetotelluric->conductivity inversion.
+    Tipper forward options.
+
+    :param txz_real_channel_bool: Boolean for txz real channel.
+    :param txz_imag_channel_bool: Boolean for txz imaginary channel.
+    :param tyz_real_channel_bool: Boolean for tyz real channel.
+    :param tyz_imag_channel_bool: Boolean for tyz imaginary channel.
+    :param background_conductivity: Background conductivity model.
+    :param model_type: Specify whether the models are provided in resistivity or conductivity.
     """
 
-    _physical_property = "conductivity"
+    name: ClassVar[str] = "Tipper Forward"
+    title: ClassVar[str] = "Tipper Forward"
+    default_ui_json: ClassVar[Path] = assets_path() / "uijson/tipper_forward.ui.json"
 
-    def __init__(self, input_file=None, forward_only=False, **kwargs):
-        self._default_ui_json = deepcopy(default_ui_json)
-        self._forward_defaults = deepcopy(forward_defaults)
-        self._inversion_defaults = deepcopy(inversion_defaults)
-        self._inversion_type = "tipper"
-        self._validations = validations
-        self._txz_real_channel_bool = None
-        self._txz_real_channel = None
-        self._txz_real_uncertainty = None
-        self._txz_imag_channel_bool = None
-        self._txz_imag_channel = None
-        self._txz_imag_uncertainty = None
-        self._tyz_real_channel_bool = None
-        self._tyz_real_channel = None
-        self._tyz_real_uncertainty = None
-        self._tyz_imag_channel_bool = None
-        self._tyz_imag_channel = None
-        self._tyz_imag_uncertainty = None
-        self._background_conductivity = None
-        self._model_type = "Conductivity (S/m)"
+    inversion_type: str = "tipper"
+    physical_property: str = "conductivity"
 
-        super().__init__(input_file=input_file, forward_only=forward_only, **kwargs)
+    data_object: TipperReceivers
+    txz_real_channel_bool: bool | None = None
+    txz_imag_channel_bool: bool | None = None
+    tyz_real_channel_bool: bool | None = None
+    tyz_imag_channel_bool: bool | None = None
+    background_conductivity: float | FloatData
+    model_type: str = "Conductivity (S/m)"
 
-    def data_channel(self, component: str):
-        """Return uuid of data channel."""
-        return getattr(self, "_".join([component, "channel"]), None)
 
-    def uncertainty_channel(self, component: str):
-        """Return uuid of uncertainty channel."""
-        return getattr(self, "_".join([component, "uncertainty"]), None)
+class TipperInversionOptions(EMDataMixin, BaseInversionOptions):
+    """
+    Tipper Inversion options.
 
-    def property_group_data(self, property_group: UUID):
-        data = {}
-        frequencies = self.data_object.channels
-        if self.forward_only:
-            return {k: None for k in frequencies}
-        else:
-            group = next(
-                k
-                for k in self.data_object.property_groups
-                if k.uid == property_group.uid
-            )
-            property_names = [
-                self.geoh5.get_entity(p)[0].name for p in group.properties
-            ]
-            properties = [self.geoh5.get_entity(p)[0].values for p in group.properties]
-            for i, f in enumerate(frequencies):
-                try:
-                    f_ind = property_names.index(
-                        next(k for k in property_names if f"{f:.2e}" in k)
-                    )  # Safer if data was saved with geoapps naming convention
-                    data[f] = properties[f_ind]
-                except StopIteration:
-                    data[f] = properties[i]  # in case of other naming conventions
+    :param txz_real_channel: Real component of Txz tipper data.
+    :param txz_real_uncertainty: Real component of Txz tipper uncertainty.
+    :param txz_imag_channel: Imaginary component of Txz tipper data.
+    :param txz_imag_uncertainty: Imaginary component of Txz tipper uncertainty.
+    :param tyz_real_channel: Real component of Tyz tipper data.
+    :param tyz_real_uncertainty: Real component of Tyz tipper uncertainty.
+    :param tyz_imag_channel: Imaginary component of Tyz tipper data.
+    :param tyz_imag_uncertainty: Imaginary component of Tyz tipper uncertainty.
+    :param background_conductivity: Background conductivity model.
+    :param model_type: Specify whether the models are provided in resistivity or conductivity.
+    """
 
-            return data
+    name: ClassVar[str] = "Tipper Inversion"
+    title: ClassVar[str] = "Tipper Inversion"
+    default_ui_json: ClassVar[Path] = assets_path() / "uijson/tipper_inversion.ui.json"
 
-    def data(self, component: str):
-        """Returns array of data for chosen data component."""
-        property_group = self.data_channel(component)
-        return self.property_group_data(property_group)
+    inversion_type: str = "tipper"
+    physical_property: str = "conductivity"
 
-    def uncertainty(self, component: str) -> float:
-        """Returns uncertainty for chosen data component."""
-        uid = self.uncertainty_channel(component)
-        return self.property_group_data(uid)
-
-    @property
-    def model_type(self):
-        """Model units."""
-        return self._model_type
-
-    @model_type.setter
-    def model_type(self, val):
-        self.setter_validator("model_type", val)
-
-    @property
-    def txz_real_channel_bool(self):
-        return self._txz_real_channel_bool
-
-    @txz_real_channel_bool.setter
-    def txz_real_channel_bool(self, val):
-        self.setter_validator("txz_real_channel_bool", val)
-
-    @property
-    def txz_real_channel(self):
-        return self._txz_real_channel
-
-    @txz_real_channel.setter
-    def txz_real_channel(self, val):
-        self.setter_validator("txz_real_channel", val, fun=self._uuid_promoter)
-
-    @property
-    def txz_real_uncertainty(self):
-        return self._txz_real_uncertainty
-
-    @txz_real_uncertainty.setter
-    def txz_real_uncertainty(self, val):
-        self.setter_validator("txz_real_uncertainty", val, fun=self._uuid_promoter)
-
-    @property
-    def txz_imag_channel_bool(self):
-        return self._txz_imag_channel_bool
-
-    @txz_imag_channel_bool.setter
-    def txz_imag_channel_bool(self, val):
-        self.setter_validator("txz_imag_channel_bool", val)
-
-    @property
-    def txz_imag_channel(self):
-        return self._txz_imag_channel
-
-    @txz_imag_channel.setter
-    def txz_imag_channel(self, val):
-        self.setter_validator("txz_imag_channel", val, fun=self._uuid_promoter)
-
-    @property
-    def txz_imag_uncertainty(self):
-        return self._txz_imag_uncertainty
-
-    @txz_imag_uncertainty.setter
-    def txz_imag_uncertainty(self, val):
-        self.setter_validator("txz_imag_uncertainty", val, fun=self._uuid_promoter)
-
-    @property
-    def tyz_real_channel_bool(self):
-        return self._tyz_real_channel_bool
-
-    @tyz_real_channel_bool.setter
-    def tyz_real_channel_bool(self, val):
-        self.setter_validator("tyz_real_channel_bool", val)
-
-    @property
-    def tyz_real_channel(self):
-        return self._tyz_real_channel
-
-    @tyz_real_channel.setter
-    def tyz_real_channel(self, val):
-        self.setter_validator("tyz_real_channel", val, fun=self._uuid_promoter)
-
-    @property
-    def tyz_real_uncertainty(self):
-        return self._tyz_real_uncertainty
-
-    @tyz_real_uncertainty.setter
-    def tyz_real_uncertainty(self, val):
-        self.setter_validator("tyz_real_uncertainty", val, fun=self._uuid_promoter)
-
-    @property
-    def tyz_imag_channel_bool(self):
-        return self._tyz_imag_channel_bool
-
-    @tyz_imag_channel_bool.setter
-    def tyz_imag_channel_bool(self, val):
-        self.setter_validator("tyz_imag_channel_bool", val)
-
-    @property
-    def tyz_imag_channel(self):
-        return self._tyz_imag_channel
-
-    @tyz_imag_channel.setter
-    def tyz_imag_channel(self, val):
-        self.setter_validator("tyz_imag_channel", val, fun=self._uuid_promoter)
-
-    @property
-    def tyz_imag_uncertainty(self):
-        return self._tyz_imag_uncertainty
-
-    @tyz_imag_uncertainty.setter
-    def tyz_imag_uncertainty(self, val):
-        self.setter_validator("tyz_imag_uncertainty", val, fun=self._uuid_promoter)
-
-    @property
-    def background_conductivity(self):
-        return self._background_conductivity
-
-    @background_conductivity.setter
-    def background_conductivity(self, val):
-        self.setter_validator("background_conductivity", val, fun=self._uuid_promoter)
+    data_object: TipperReceivers
+    txz_real_channel: PropertyGroup | None = None
+    txz_real_uncertainty: PropertyGroup | None = None
+    txz_imag_channel: PropertyGroup | None = None
+    txz_imag_uncertainty: PropertyGroup | None = None
+    tyz_real_channel: PropertyGroup | None = None
+    tyz_real_uncertainty: PropertyGroup | None = None
+    tyz_imag_channel: PropertyGroup | None = None
+    tyz_imag_uncertainty: PropertyGroup | None = None
+    background_conductivity: float | FloatData
+    model_type: str = "Conductivity (S/m)"

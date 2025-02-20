@@ -11,310 +11,108 @@
 
 from __future__ import annotations
 
-from copy import deepcopy
-from uuid import UUID
+from pathlib import Path
+from typing import ClassVar
 
-from simpeg_drivers.params import InversionBaseParams
+from geoh5py.data import FloatData
+from geoh5py.groups import PropertyGroup
+from geoh5py.objects import MTReceivers
 
-from .constants import (
-    default_ui_json,
-    forward_defaults,
-    inversion_defaults,
-    validations,
-)
+from simpeg_drivers import assets_path
+from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions, EMDataMixin
 
 
-class MagnetotelluricsParams(InversionBaseParams):
+class MTForwardOptions(EMDataMixin, BaseForwardOptions):
     """
-    Parameter class for magnetotelluric->conductivity inversion.
+    Magnetotellurics forward options.
+
+    :param zxx_real_channel_bool: Boolean for zxx real channel.
+    :param zxx_imag_channel_bool: Boolean for zxx imaginary channel.
+    :param zxy_real_channel_bool: Boolean for zxy real channel.
+    :param zxy_imag_channel_bool: Boolean for zxy imaginary channel.
+    :param zyx_real_channel_bool: Boolean for zyx real channel.
+    :param zyx_imag_channel_bool: Boolean for zyx imaginary channel.
+    :param zyy_real_channel_bool: Boolean for zyy real channel.
+    :param zyy_imag_channel_bool: Boolean for zyy imaginary channel.
+    :param background_conductivity: Background conductivity model.
+    :param model_type: Specify whether the models are provided in resistivity or conductivity.
     """
 
-    _physical_property = "conductivity"
+    name: ClassVar[str] = "Magnetotellurics Forward"
+    title: ClassVar[str] = "Magnetotellurics Forward"
+    default_ui_json: ClassVar[Path] = (
+        assets_path() / "uijson/magnetotellurics_forward.ui.json"
+    )
 
-    def __init__(self, input_file=None, forward_only=False, **kwargs):
-        self._default_ui_json = deepcopy(default_ui_json)
-        self._forward_defaults = deepcopy(forward_defaults)
-        self._inversion_defaults = deepcopy(inversion_defaults)
-        self._inversion_type = "magnetotellurics"
-        self._validations = validations
-        self._zxx_real_channel_bool = None
-        self._zxx_real_channel = None
-        self._zxx_real_uncertainty = None
-        self._zxx_imag_channel_bool = None
-        self._zxx_imag_channel = None
-        self._zxx_imag_uncertainty = None
-        self._zxy_real_channel_bool = None
-        self._zxy_real_channel = None
-        self._zxy_real_uncertainty = None
-        self._zxy_imag_channel_bool = None
-        self._zxy_imag_channel = None
-        self._zxy_imag_uncertainty = None
-        self._zyx_real_channel_bool = None
-        self._zyx_real_channel = None
-        self._zyx_real_uncertainty = None
-        self._zyx_imag_channel_bool = None
-        self._zyx_imag_channel = None
-        self._zyx_imag_uncertainty = None
-        self._zyy_real_channel_bool = None
-        self._zyy_real_channel = None
-        self._zyy_real_uncertainty = None
-        self._zyy_imag_channel_bool = None
-        self._zyy_imag_channel = None
-        self._zyy_imag_uncertainty = None
-        self._background_conductivity = None
-        self._model_type = "Conductivity (S/m)"
+    inversion_type: str = "magnetotellurics"
+    physical_property: str = "conductivity"
 
-        super().__init__(input_file=input_file, forward_only=forward_only, **kwargs)
-
-    def data_channel(self, component: str):
-        """Return uuid of data channel."""
-        return getattr(self, "_".join([component, "channel"]), None)
-
-    def uncertainty_channel(self, component: str):
-        """Return uuid of uncertainty channel."""
-        return getattr(self, "_".join([component, "uncertainty"]), None)
-
-    def property_group_data(self, property_group: UUID):
-        data = {}
-        frequencies = self.data_object.channels
-        if self.forward_only:
-            return {k: None for k in frequencies}
-        else:
-            group = next(
-                k
-                for k in self.data_object.property_groups
-                if k.uid == property_group.uid
-            )
-            property_names = [
-                self.geoh5.get_entity(p)[0].name for p in group.properties
-            ]
-            properties = [self.geoh5.get_entity(p)[0].values for p in group.properties]
-            for i, f in enumerate(frequencies):
-                try:
-                    f_ind = property_names.index(
-                        next(k for k in property_names if f"{f:.2e}" in k)
-                    )  # Safer if data was saved with geoapps naming convention
-                    data[f] = properties[f_ind]
-                except StopIteration:
-                    data[f] = properties[i]  # in case of other naming conventions
-
-            return data
-
-    def data(self, component: str):
-        """Returns array of data for chosen data component."""
-        property_group = self.data_channel(component)
-        return self.property_group_data(property_group)
-
-    def uncertainty(self, component: str) -> float:
-        """Returns uncertainty for chosen data component."""
-        uid = self.uncertainty_channel(component)
-        return self.property_group_data(uid)
+    data_object: MTReceivers
+    zxx_real_channel_bool: bool | None = None
+    zxx_imag_channel_bool: bool | None = None
+    zxy_real_channel_bool: bool | None = None
+    zxy_imag_channel_bool: bool | None = None
+    zyx_real_channel_bool: bool | None = None
+    zyx_imag_channel_bool: bool | None = None
+    zyy_real_channel_bool: bool | None = None
+    zyy_imag_channel_bool: bool | None = None
+    background_conductivity: float | FloatData
+    model_type: str = "Conductivity (S/m)"
 
     @property
-    def model_type(self):
-        """Model units."""
-        return self._model_type
+    def channels(self) -> list[str]:
+        return ["_".join(k.split("_")[:2]) for k in self.__dict__ if "channel" in k]
 
-    @model_type.setter
-    def model_type(self, val):
-        self.setter_validator("model_type", val)
 
-    @property
-    def zxx_real_channel_bool(self):
-        return self._zxx_real_channel_bool
+class MTInversionOptions(EMDataMixin, BaseInversionOptions):
+    """
+    Magnetotellurics inversion options.
 
-    @zxx_real_channel_bool.setter
-    def zxx_real_channel_bool(self, val):
-        self.setter_validator("zxx_real_channel_bool", val)
+    :param zxx_real_channel: Real component of Zxx data.
+    :param zxx_real_uncertainty: Real component of Zxx uncertainty.
+    :param zxx_imag_channel: Imaginary component of Zxx data.
+    :param zxx_imag_uncertainty: Imaginary component of Zxx uncertainty.
+    :param zxy_real_channel: Real component of Zxy data.
+    :param zxy_real_uncertainty: Real component of Zxy uncertainty.
+    :param zxy_imag_channel: Imaginary component of Zxy data.
+    :param zxy_imag_uncertainty: Imaginary component of Zxy uncertainty.
+    :param zyx_real_channel: Real component of Zyx data.
+    :param zyx_real_uncertainty: Real component of Zyx uncertainty.
+    :param zyx_imag_channel: Imaginary component of Zyx data.
+    :param zyx_imag_uncertainty: Imaginary component of Zyx uncertainty.
+    :param zyy_real_channel: Real component of Zyy data.
+    :param zyy_real_uncertainty: Real component of Zyy uncertainty.
+    :param zyy_imag_channel: Imaginary component of Zyy data.
+    :param zyy_imag_uncertainty: Imaginary component of Zyy uncertainty.
+    :param background_conductivity: Background conductivity model.
+    :param model_type: Specify whether the models are provided in resistivity or conductivity.
+    """
 
-    @property
-    def zxx_real_channel(self):
-        return self._zxx_real_channel
+    name: ClassVar[str] = "Magnetotellurics Inversion"
+    title: ClassVar[str] = "Magnetotellurics Inversion"
+    default_ui_json: ClassVar[Path] = (
+        assets_path() / "uijson/magnetotellurics_inversion.ui.json"
+    )
 
-    @zxx_real_channel.setter
-    def zxx_real_channel(self, val):
-        self.setter_validator("zxx_real_channel", val, fun=self._uuid_promoter)
+    inversion_type: str = "magnetotellurics"
+    physical_property: str = "conductivity"
 
-    @property
-    def zxx_real_uncertainty(self):
-        return self._zxx_real_uncertainty
-
-    @zxx_real_uncertainty.setter
-    def zxx_real_uncertainty(self, val):
-        self.setter_validator("zxx_real_uncertainty", val, fun=self._uuid_promoter)
-
-    @property
-    def zxx_imag_channel_bool(self):
-        return self._zxx_imag_channel_bool
-
-    @zxx_imag_channel_bool.setter
-    def zxx_imag_channel_bool(self, val):
-        self.setter_validator("zxx_imag_channel_bool", val)
-
-    @property
-    def zxx_imag_channel(self):
-        return self._zxx_imag_channel
-
-    @zxx_imag_channel.setter
-    def zxx_imag_channel(self, val):
-        self.setter_validator("zxx_imag_channel", val, fun=self._uuid_promoter)
-
-    @property
-    def zxx_imag_uncertainty(self):
-        return self._zxx_imag_uncertainty
-
-    @zxx_imag_uncertainty.setter
-    def zxx_imag_uncertainty(self, val):
-        self.setter_validator("zxx_imag_uncertainty", val, fun=self._uuid_promoter)
-
-    @property
-    def zxy_real_channel_bool(self):
-        return self._zxy_real_channel_bool
-
-    @zxy_real_channel_bool.setter
-    def zxy_real_channel_bool(self, val):
-        self.setter_validator("zxy_real_channel_bool", val)
-
-    @property
-    def zxy_real_channel(self):
-        return self._zxy_real_channel
-
-    @zxy_real_channel.setter
-    def zxy_real_channel(self, val):
-        self.setter_validator("zxy_real_channel", val, fun=self._uuid_promoter)
-
-    @property
-    def zxy_real_uncertainty(self):
-        return self._zxy_real_uncertainty
-
-    @zxy_real_uncertainty.setter
-    def zxy_real_uncertainty(self, val):
-        self.setter_validator("zxy_real_uncertainty", val, fun=self._uuid_promoter)
-
-    @property
-    def zxy_imag_channel_bool(self):
-        return self._zxy_imag_channel_bool
-
-    @zxy_imag_channel_bool.setter
-    def zxy_imag_channel_bool(self, val):
-        self.setter_validator("zxy_imag_channel_bool", val)
-
-    @property
-    def zxy_imag_channel(self):
-        return self._zxy_imag_channel
-
-    @zxy_imag_channel.setter
-    def zxy_imag_channel(self, val):
-        self.setter_validator("zxy_imag_channel", val, fun=self._uuid_promoter)
-
-    @property
-    def zxy_imag_uncertainty(self):
-        return self._zxy_imag_uncertainty
-
-    @zxy_imag_uncertainty.setter
-    def zxy_imag_uncertainty(self, val):
-        self.setter_validator("zxy_imag_uncertainty", val, fun=self._uuid_promoter)
-
-    @property
-    def zyx_real_channel_bool(self):
-        return self._zyx_real_channel_bool
-
-    @zyx_real_channel_bool.setter
-    def zyx_real_channel_bool(self, val):
-        self.setter_validator("zyx_real_channel_bool", val)
-
-    @property
-    def zyx_real_channel(self):
-        return self._zyx_real_channel
-
-    @zyx_real_channel.setter
-    def zyx_real_channel(self, val):
-        self.setter_validator("zyx_real_channel", val, fun=self._uuid_promoter)
-
-    @property
-    def zyx_real_uncertainty(self):
-        return self._zyx_real_uncertainty
-
-    @zyx_real_uncertainty.setter
-    def zyx_real_uncertainty(self, val):
-        self.setter_validator("zyx_real_uncertainty", val, fun=self._uuid_promoter)
-
-    @property
-    def zyx_imag_channel_bool(self):
-        return self._zyx_imag_channel_bool
-
-    @zyx_imag_channel_bool.setter
-    def zyx_imag_channel_bool(self, val):
-        self.setter_validator("zyx_imag_channel_bool", val)
-
-    @property
-    def zyx_imag_channel(self):
-        return self._zyx_imag_channel
-
-    @zyx_imag_channel.setter
-    def zyx_imag_channel(self, val):
-        self.setter_validator("zyx_imag_channel", val, fun=self._uuid_promoter)
-
-    @property
-    def zyx_imag_uncertainty(self):
-        return self._zyx_imag_uncertainty
-
-    @zyx_imag_uncertainty.setter
-    def zyx_imag_uncertainty(self, val):
-        self.setter_validator("zyx_imag_uncertainty", val, fun=self._uuid_promoter)
-
-    @property
-    def zyy_real_channel_bool(self):
-        return self._zyy_real_channel_bool
-
-    @zyy_real_channel_bool.setter
-    def zyy_real_channel_bool(self, val):
-        self.setter_validator("zyy_real_channel_bool", val)
-
-    @property
-    def zyy_real_channel(self):
-        return self._zyy_real_channel
-
-    @zyy_real_channel.setter
-    def zyy_real_channel(self, val):
-        self.setter_validator("zyy_real_channel", val, fun=self._uuid_promoter)
-
-    @property
-    def zyy_real_uncertainty(self):
-        return self._zyy_real_uncertainty
-
-    @zyy_real_uncertainty.setter
-    def zyy_real_uncertainty(self, val):
-        self.setter_validator("zyy_real_uncertainty", val, fun=self._uuid_promoter)
-
-    @property
-    def zyy_imag_channel_bool(self):
-        return self._zyy_imag_channel_bool
-
-    @zyy_imag_channel_bool.setter
-    def zyy_imag_channel_bool(self, val):
-        self.setter_validator("zyy_imag_channel_bool", val)
-
-    @property
-    def zyy_imag_channel(self):
-        return self._zyy_imag_channel
-
-    @zyy_imag_channel.setter
-    def zyy_imag_channel(self, val):
-        self.setter_validator("zyy_imag_channel", val, fun=self._uuid_promoter)
-
-    @property
-    def zyy_imag_uncertainty(self):
-        return self._zyy_imag_uncertainty
-
-    @zyy_imag_uncertainty.setter
-    def zyy_imag_uncertainty(self, val):
-        self.setter_validator("zyy_imag_uncertainty", val, fun=self._uuid_promoter)
-
-    @property
-    def background_conductivity(self):
-        return self._background_conductivity
-
-    @background_conductivity.setter
-    def background_conductivity(self, val):
-        self.setter_validator("background_conductivity", val, fun=self._uuid_promoter)
+    data_object: MTReceivers
+    zxx_real_channel: PropertyGroup | None = None
+    zxx_real_uncertainty: PropertyGroup | None = None
+    zxx_imag_channel: PropertyGroup | None = None
+    zxx_imag_uncertainty: PropertyGroup | None = None
+    zxy_real_channel: PropertyGroup | None = None
+    zxy_real_uncertainty: PropertyGroup | None = None
+    zxy_imag_channel: PropertyGroup | None = None
+    zxy_imag_uncertainty: PropertyGroup | None = None
+    zyx_real_channel: PropertyGroup | None = None
+    zyx_real_uncertainty: PropertyGroup | None = None
+    zyx_imag_channel: PropertyGroup | None = None
+    zyx_imag_uncertainty: PropertyGroup | None = None
+    zyy_real_channel: PropertyGroup | None = None
+    zyy_real_uncertainty: PropertyGroup | None = None
+    zyy_imag_channel: PropertyGroup | None = None
+    zyy_imag_uncertainty: PropertyGroup | None = None
+    background_conductivity: float | FloatData
+    model_type: str = "Conductivity (S/m)"

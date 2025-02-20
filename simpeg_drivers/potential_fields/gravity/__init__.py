@@ -9,7 +9,7 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from .params import GravityForwardParams, GravityInversionParams
+from .params import GravityForwardOptions, GravityInversionOptions
 
 # pylint: disable=unused-import
 # flake8: noqa

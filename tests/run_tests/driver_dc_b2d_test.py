@@ -18,19 +18,19 @@ from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.electricals.direct_current.pseudo_three_dimensions.driver import (
-    DirectCurrentPseudo3DForwardDriver,
-    DirectCurrentPseudo3DInversionDriver,
+    DCBatch2DForwardDriver,
+    DCBatch2DInversionDriver,
 )
 from simpeg_drivers.electricals.direct_current.pseudo_three_dimensions.params import (
-    DirectCurrentPseudo3DForwardParams,
-    DirectCurrentPseudo3DInversionParams,
+    DCBatch2DForwardOptions,
+    DCBatch2DInversionOptions,
 )
 from simpeg_drivers.electricals.params import (
-    DrapeModelData,
-    FileControlData,
-    LineSelectionData,
+    DrapeModelOptions,
+    FileControlOptions,
+    LineSelectionOptions,
 )
-from simpeg_drivers.params import ActiveCellsData
+from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
@@ -59,10 +59,10 @@ def test_dc_p3d_fwr_run(
         drape_height=0.0,
         flatten=False,
     )
-    params = DirectCurrentPseudo3DForwardParams(
+    params = DCBatch2DForwardOptions(
         geoh5=geoh5,
         mesh=model.parent,
-        drape_model=DrapeModelData(
+        drape_model=DrapeModelOptions(
             u_cell_size=5.0,
             v_cell_size=5.0,
             depth_core=100.0,
@@ -70,14 +70,16 @@ def test_dc_p3d_fwr_run(
             horizontal_padding=1000.0,
             vertical_padding=1000.0,
         ),
-        active_cells=ActiveCellsData(topography_object=topography),
+        active_cells=ActiveCellsOptions(topography_object=topography),
         z_from_topo=False,
         data_object=survey,
         starting_model=model,
-        line_selection=LineSelectionData(line_object=geoh5.get_entity("line_ids")[0]),
+        line_selection=LineSelectionOptions(
+            line_object=geoh5.get_entity("line_ids")[0]
+        ),
     )
 
-    fwr_driver = DirectCurrentPseudo3DForwardDriver(params)
+    fwr_driver = DCBatch2DForwardDriver(params)
     fwr_driver.run()
 
 
@@ -97,10 +99,10 @@ def test_dc_p3d_run(
         topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
-        params = DirectCurrentPseudo3DInversionParams(
+        params = DCBatch2DInversionOptions(
             geoh5=geoh5,
             mesh=mesh,
-            drape_model=DrapeModelData(
+            drape_model=DrapeModelOptions(
                 u_cell_size=5.0,
                 v_cell_size=5.0,
                 depth_core=100.0,
@@ -108,11 +110,11 @@ def test_dc_p3d_run(
                 horizontal_padding=1000.0,
                 vertical_padding=1000.0,
             ),
-            active_cells=ActiveCellsData(topography_object=topography),
+            active_cells=ActiveCellsOptions(topography_object=topography),
             data_object=potential.parent,
             potential_channel=potential,
             potential_uncertainty=1e-3,
-            line_selection=LineSelectionData(
+            line_selection=LineSelectionOptions(
                 line_object=geoh5.get_entity("line_ids")[0]
             ),
             starting_model=1e-2,
@@ -128,13 +130,11 @@ def test_dc_p3d_run(
             prctile=100,
             upper_bound=10,
             coolingRate=1,
-            file_control=FileControlData(cleanup=False),
+            file_control=FileControlOptions(cleanup=False),
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    driver = DirectCurrentPseudo3DInversionDriver.start(
-        str(tmp_path / "Inv_run.ui.json")
-    )
+    driver = DCBatch2DInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
     basepath = workpath.parent
     with open(basepath / "lookup.json", encoding="utf8") as f:
@@ -147,11 +147,11 @@ def test_dc_p3d_run(
         )
         filedata = middle_inversion_group.get_entity("SimPEG.out")[0]
 
-        with driver.pseudo3d_params.out_group.workspace.open(mode="r+"):
-            filedata.copy(parent=driver.pseudo3d_params.out_group)
+        with driver.batch2d_params.out_group.workspace.open(mode="r+"):
+            filedata.copy(parent=driver.batch2d_params.out_group)
 
     output = get_inversion_output(
-        driver.pseudo3d_params.geoh5.h5file, driver.pseudo3d_params.out_group.uid
+        driver.batch2d_params.geoh5.h5file, driver.batch2d_params.out_group.uid
     )
     if geoh5.open():
         output["data"] = potential.values

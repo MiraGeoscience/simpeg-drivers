@@ -29,14 +29,16 @@ from simpeg_drivers.components.meshes import InversionMesh
 from simpeg_drivers.components.topography import InversionTopography
 from simpeg_drivers.components.windows import InversionWindow
 from simpeg_drivers.driver import InversionDriver
-from simpeg_drivers.electricals.params import LineSelectionData
+from simpeg_drivers.electricals.params import LineSelectionOptions
 from simpeg_drivers.line_sweep.driver import LineSweepDriver
-from simpeg_drivers.params import BaseParams
+from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions, BaseParams
 from simpeg_drivers.utils.surveys import extract_dcip_survey
 from simpeg_drivers.utils.utils import get_drape_model
 
 
 class Base2DDriver(InversionDriver):
+    """Base class for 2D DC and IP forward and inversion drivers."""
+
     @property
     def inversion_mesh(self) -> InversionMesh:
         """Inversion mesh"""
@@ -72,10 +74,12 @@ class Base2DDriver(InversionDriver):
         return mesh
 
 
-class BasePseudo3DDriver(LineSweepDriver):
-    _params_class: type(BaseParams)
-    _params_2d_class: type(BaseParams)
-    _validations: dict
+class BaseBatch2DDriver(LineSweepDriver):
+    """Base class for batch 2D DC and IP forward and inversion drivers."""
+
+    _params_class: type[BaseForwardOptions | BaseInversionOptions]
+    _params_2d_class: type[BaseForwardOptions | BaseInversionOptions]
+    _validations = None
     _model_list: list[str] = []
 
     def __init__(self, params):
@@ -89,17 +93,17 @@ class BasePseudo3DDriver(LineSweepDriver):
 
         :param mesh: Destination DrapeModel object.
         """
-        models = {"starting_model": self.pseudo3d_params.starting_model}
+        models = {"starting_model": self.batch2d_params.starting_model}
 
         for model in self._model_list:
-            models[model] = getattr(self.pseudo3d_params, model)
+            models[model] = getattr(self.batch2d_params, model)
 
-        if not self.pseudo3d_params.forward_only:
+        if not self.batch2d_params.forward_only:
             for model in ["reference_model", "lower_bound", "upper_bound"]:
-                models[model] = getattr(self.pseudo3d_params, model)
+                models[model] = getattr(self.batch2d_params, model)
 
-        if self.pseudo3d_params.mesh is not None:
-            xyz_in = get_locations(self.workspace, self.pseudo3d_params.mesh)
+        if self.batch2d_params.mesh is not None:
+            xyz_in = get_locations(self.workspace, self.batch2d_params.mesh)
             xyz_out = mesh.centroids
 
             for name, model in models.items():
@@ -122,11 +126,11 @@ class BasePseudo3DDriver(LineSweepDriver):
 
         kwargs_2d = {}
         with self.workspace.open(mode="r+"):
-            self._window = InversionWindow(self.workspace, self.pseudo3d_params)
-            self._inversion_data = InversionData(self.workspace, self.pseudo3d_params)
+            self._window = InversionWindow(self.workspace, self.batch2d_params)
+            self._inversion_data = InversionData(self.workspace, self.batch2d_params)
             self._inversion_data.save_data()
             self._inversion_topography = InversionTopography(
-                self.workspace, self.pseudo3d_params
+                self.workspace, self.batch2d_params
             )
 
             for uid, trial in lookup.items():
@@ -144,7 +148,7 @@ class BasePseudo3DDriver(LineSweepDriver):
 
                 with Workspace.create(filepath) as iter_workspace:
                     cell_mask: np.ndarray = (
-                        self.pseudo3d_params.line_selection.line_object.values
+                        self.batch2d_params.line_selection.line_object.values
                         == trial["line_id"]
                     )
 
@@ -164,23 +168,23 @@ class BasePseudo3DDriver(LineSweepDriver):
                         "Models",
                         receiver_locs,
                         [
-                            self.pseudo3d_params.drape_model.u_cell_size,
-                            self.pseudo3d_params.drape_model.v_cell_size,
+                            self.batch2d_params.drape_model.u_cell_size,
+                            self.batch2d_params.drape_model.v_cell_size,
                         ],
-                        self.pseudo3d_params.drape_model.depth_core,
-                        [self.pseudo3d_params.drape_model.horizontal_padding] * 2
-                        + [self.pseudo3d_params.drape_model.vertical_padding, 1],
-                        self.pseudo3d_params.drape_model.expansion_factor,
+                        self.batch2d_params.drape_model.depth_core,
+                        [self.batch2d_params.drape_model.horizontal_padding] * 2
+                        + [self.batch2d_params.drape_model.vertical_padding, 1],
+                        self.batch2d_params.drape_model.expansion_factor,
                     )[0]
 
                     model_parameters = self.transfer_models(mesh)
 
                     for key in self._params_2d_class.model_fields:
-                        param = getattr(self.pseudo3d_params, key, None)
+                        param = getattr(self.batch2d_params, key, None)
                         if key not in ["title", "inversion_type"]:
                             kwargs_2d[key] = param
 
-                    self.pseudo3d_params.active_cells.topography_object.copy(
+                    self.batch2d_params.active_cells.topography_object.copy(
                         parent=iter_workspace, copy_children=True
                     )
 
@@ -190,9 +194,9 @@ class BasePseudo3DDriver(LineSweepDriver):
                                 "geoh5": iter_workspace,
                                 "mesh": mesh,
                                 "data_object": receiver_entity,
-                                "line_selection": LineSelectionData(
+                                "line_selection": LineSelectionOptions(
                                     line_object=receiver_entity.get_data(
-                                        self.pseudo3d_params.line_selection.line_object.name
+                                        self.batch2d_params.line_selection.line_object.name
                                     )[0],
                                     line_id=trial["line_id"],
                                 ),

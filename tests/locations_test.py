@@ -17,12 +17,12 @@ import pytest
 from geoh5py.objects import Grid2D, Points
 
 from simpeg_drivers.components.locations import InversionLocations
-from simpeg_drivers.params import ActiveCellsData
-from simpeg_drivers.potential_fields import MagneticVectorInversionParams
+from simpeg_drivers.params import ActiveCellsOptions
+from simpeg_drivers.potential_fields import MVIInversionOptions
 from simpeg_drivers.utils.testing import Geoh5Tester, setup_inversion_workspace
 
 
-def get_mvi_params(tmp_path: Path) -> MagneticVectorInversionParams:
+def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
     geoh5, enitiy, model, survey, topography = setup_inversion_workspace(
         tmp_path,
         background=0.0,
@@ -35,12 +35,12 @@ def get_mvi_params(tmp_path: Path) -> MagneticVectorInversionParams:
     tmi_channel = survey.add_data(
         {"tmi": {"values": np.random.rand(survey.n_vertices)}}
     )
-    params = MagneticVectorInversionParams(
+    params = MVIInversionOptions(
         geoh5=geoh5,
         data_object=survey,
         tmi_channel=tmi_channel,
         tmi_uncertainty=1.0,
-        active_cells=ActiveCellsData(topography_object=topography),
+        active_cells=ActiveCellsOptions(topography_object=topography),
         mesh=model.parent,
         starting_model=model,
     )

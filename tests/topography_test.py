@@ -15,8 +15,8 @@ from pathlib import Path
 import numpy as np
 
 from simpeg_drivers.components import InversionTopography
-from simpeg_drivers.params import ActiveCellsData
-from simpeg_drivers.potential_fields import MagneticVectorInversionParams
+from simpeg_drivers.params import ActiveCellsOptions
+from simpeg_drivers.potential_fields import MVIInversionOptions
 from simpeg_drivers.utils.testing import Geoh5Tester, setup_inversion_workspace
 
 
@@ -40,12 +40,12 @@ def test_get_locations(tmp_path: Path):
     elevation = topography.add_data(
         {"elevation": {"values": topography.vertices[:, 2]}}
     )
-    params = MagneticVectorInversionParams(
+    params = MVIInversionOptions(
         geoh5=geoh5,
         mesh=mesh,
         data_object=survey,
         tmi_channel=tmi_channel,
-        active_cells=ActiveCellsData(
+        active_cells=ActiveCellsOptions(
             topography_object=topography, topography=elevation
         ),
         starting_model=1.0,
