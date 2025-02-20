@@ -60,7 +60,6 @@ def test_susceptibility_fwr_run(
         inducing_field_strength=inducing_field[0],
         inducing_field_inclination=inducing_field[1],
         inducing_field_declination=inducing_field[2],
-        z_from_topo=False,
         data_object=survey,
         starting_model=model,
     )
@@ -111,7 +110,6 @@ def test_susceptibility_run(
             initial_beta_ratio=1e1,
             gradient_type="components",
             lower_bound=0.0,
-            z_from_topo=False,
             tmi_channel=tmi,
             tmi_uncertainty=1.0,
             max_global_iterations=max_iterations,

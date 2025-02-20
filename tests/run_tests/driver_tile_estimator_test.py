@@ -52,7 +52,6 @@ def test_tile_estimator_run(
         inducing_field_strength=inducing_field[0],
         inducing_field_inclination=inducing_field[1],
         inducing_field_declination=inducing_field[2],
-        z_from_topo=False,
         data_object=survey,
         tmi_channel=tmi_channel,
         starting_model=model,
