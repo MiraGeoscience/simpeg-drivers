@@ -111,7 +111,6 @@ class EntityFactory(AbstractFactory):
 
             transmitters = self.params.data_object.transmitters.copy(
                 copy_complement=False,
-                vertices=self.params.data_object.transmitters.vertices,
                 cells=cells,
                 parent=self.params.out_group,
                 copy_children=False,
