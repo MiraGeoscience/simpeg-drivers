@@ -126,7 +126,6 @@ def test_survey_data(tmp_path: Path):
             mesh=mesh,
             starting_model=0.0,
             tile_spatial=2,
-            z_from_topo=True,
             resolution=0.0,
         )
 
@@ -149,8 +148,8 @@ def test_survey_data(tmp_path: Path):
     np.testing.assert_array_equal(
         verts[driver.sorting[1], :2], local_survey_b.receiver_locations[:, :2]
     )
-    assert all(local_survey_a.receiver_locations[:, 2] == 100.0)
-    assert all(local_survey_b.receiver_locations[:, 2] == 100.0)
+    assert all(local_survey_a.receiver_locations[:, 2] == 0.0)
+    assert all(local_survey_b.receiver_locations[:, 2] == 0.0)
 
     # test observed data
     sorting = np.hstack(driver.sorting)
