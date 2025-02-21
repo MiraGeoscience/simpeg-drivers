@@ -1,0 +1,182 @@
+@startuml classes_gravity_params
+set namespaceSeparator none
+class "BaseData" as geoapps_utils.driver.data.BaseData {
+  conda_environment : str | None
+  default_ui_json : Optional[ClassVar[Path | None]]
+  geoh5 : Workspace
+  input_file
+  model_config
+  monitoring_directory : str | Path | None
+  name : ClassVar[str]
+  run_command : ClassVar[str]
+  title : ClassVar[str]
+  workspace_geoh5 : Path | None
+  build(input_data: InputFile | dict) -> Self
+  collect_input_from_dict(base_model: type[BaseModel], data: dict[str, Any]) -> dict[str, dict | Any]
+  flatten() -> dict
+  serialize()
+  write_ui_json(path: Path) -> None
+}
+class "BaseForwardOptions" as simpeg_drivers.params.BaseForwardOptions {
+  active_components
+  forward_only : bool
+}
+class "BaseInversionOptions" as simpeg_drivers.params.BaseInversionOptions {
+  alpha_s : float | FloatData | None
+  auto_scale_misfits : bool
+  beta_search : bool
+  beta_tol : float
+  chi_factor : float
+  chunk_by_rows : bool
+  conda_environment : str
+  coolEpsFact : float
+  coolEps_q : bool
+  coolingFactor : float
+  coolingRate : float
+  distributed_workers : int | None
+  every_iteration_bool : bool
+  f_min_change : float
+  forward_only : bool
+  ga_group : SimPEGGroup | None
+  gradient_type : str
+  initial_beta : float | None
+  initial_beta_ratio : float | None
+  inversion_style : str
+  length_scale_x : float | FloatData
+  length_scale_y : float | FloatData | None
+  length_scale_z : float | FloatData
+  lower_bound : float | FloatData | None
+  max_cg_iterations : int
+  max_global_iterations : int
+  max_irls_iterations : int
+  max_line_search_iterations : int
+  max_ram : float | None
+  model_config
+  name : ClassVar[str]
+  no_data_value : float | None
+  output_tile_files : bool
+  prctile : float
+  reference_model : float | FloatData | None
+  run_command : ClassVar[str]
+  s_norm : float | FloatData | None
+  save_sensitivities : bool
+  sens_wts_threshold : float
+  starting_chi_factor : float
+  store_sensitivities : str
+  tile_spatial : int
+  title : ClassVar[str]
+  tol_cg : float
+  upper_bound : float | FloatData | None
+  x_norm : float | FloatData
+  y_norm : float | FloatData | None
+  z_norm : float | FloatData
+}
+class "BaseModel" as pydantic.main.BaseModel {
+  model_computed_fields : ClassVar[dict[str, ComputedFieldInfo]]
+  model_config : ClassVar[ConfigDict]
+  model_extra
+  model_fields : ClassVar[dict[str, FieldInfo]]
+  model_fields_set
+  construct(_fields_set: set[str] | None) -> Self
+  copy() -> Self
+  dict() -> Dict[str, Any]
+  from_orm(obj: Any) -> Self
+  json() -> str
+  model_construct(_fields_set: set[str] | None) -> Self
+  model_copy() -> Self
+  model_dump() -> dict[str, Any]
+  model_dump_json() -> str
+  model_json_schema(by_alias: bool, ref_template: str, schema_generator: type[GenerateJsonSchema], mode: JsonSchemaMode) -> dict[str, Any]
+  model_parametrized_name(params: tuple[type[Any], ...]) -> str
+  {abstract}model_post_init(__context: Any) -> None
+  model_rebuild() -> bool | None
+  model_validate(obj: Any) -> Self
+  model_validate_json(json_data: str | bytes | bytearray) -> Self
+  model_validate_strings(obj: Any) -> Self
+  parse_file(path: str | Path) -> Self
+  parse_obj(obj: Any) -> Self
+  parse_raw(b: str | bytes) -> Self
+  schema(by_alias: bool, ref_template: str) -> Dict[str, Any]
+  schema_json() -> str
+  update_forward_refs() -> None
+  validate(value: Any) -> Self
+}
+class "CoreOptions" as simpeg_drivers.params.CoreOptions {
+  active_cells : ActiveCellsOptions
+  active_components
+  components
+  conda_environment : str
+  data
+  data_object : Points
+  generate_sweep : bool
+  inversion_type : str
+  max_chunk_size : int
+  mesh : Octree | DrapeModel | None
+  model_config
+  n_cpu : int | None
+  out_group : SimPEGGroup | UIJsonGroup | None
+  padding_cells
+  parallelized : bool
+  physical_property : str
+  run_command : ClassVar[str]
+  save_sensitivities : bool
+  starting_model : float | FloatData
+  tile_spatial : int
+  uncertainties
+  workpath
+  z_from_topo : bool
+  component_data(component: str) -> np.ndarray | None
+  component_uncertainty(component: str) -> np.ndarray | None
+  maximize_cpu_if_none(value)
+  mesh_cannot_be_rotated(value: Octree)
+  out_group_if_none(data) -> SimPEGGroup
+  update_out_group_options()
+}
+class "GravityForwardOptions" as simpeg_drivers.potential_fields.gravity.params.GravityForwardOptions {
+  default_ui_json : ClassVar[Path]
+  gx_channel_bool : bool
+  gxx_channel_bool : bool
+  gxy_channel_bool : bool
+  gxz_channel_bool : bool
+  gy_channel_bool : bool
+  gyy_channel_bool : bool
+  gyz_channel_bool : bool
+  gz_channel_bool : bool
+  gzz_channel_bool : bool
+  inversion_type : str
+  name : ClassVar[str]
+  physical_property : str
+  title : ClassVar[str]
+}
+class "GravityInversionOptions" as simpeg_drivers.potential_fields.gravity.params.GravityInversionOptions {
+  default_ui_json : ClassVar[Path]
+  gx_channel : FloatData | None
+  gx_uncertainty : FloatData | float | None
+  gxx_channel : FloatData | None
+  gxx_uncertainty : FloatData | float | None
+  gxy_channel : FloatData | None
+  gxy_uncertainty : FloatData | float | None
+  gxz_channel : FloatData | None
+  gxz_uncertainty : FloatData | float | None
+  gy_channel : FloatData | None
+  gy_uncertainty : FloatData | float | None
+  gyy_channel : FloatData | None
+  gyy_uncertainty : FloatData | float | None
+  gyz_channel : FloatData | None
+  gyz_uncertainty : FloatData | float | None
+  gz_channel : FloatData | None
+  gz_uncertainty : FloatData | float | None
+  gzz_channel : FloatData | None
+  gzz_uncertainty : FloatData | float | None
+  inversion_type : str
+  name : ClassVar[str]
+  physical_property : str
+  title : ClassVar[str]
+}
+geoapps_utils.driver.data.BaseData --|> pydantic.main.BaseModel
+simpeg_drivers.params.BaseForwardOptions --|> simpeg_drivers.params.CoreOptions
+simpeg_drivers.params.BaseInversionOptions --|> simpeg_drivers.params.CoreOptions
+simpeg_drivers.params.CoreOptions --|> geoapps_utils.driver.data.BaseData
+simpeg_drivers.potential_fields.gravity.params.GravityForwardOptions --|> simpeg_drivers.params.BaseForwardOptions
+simpeg_drivers.potential_fields.gravity.params.GravityInversionOptions --|> simpeg_drivers.params.BaseInversionOptions
+@enduml
