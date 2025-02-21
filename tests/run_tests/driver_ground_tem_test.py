@@ -132,7 +132,7 @@ def test_ground_tem_fwr_run(
 
         assert "closed" in caplog.records[0].message
 
-    fwr_driver.data_misfit.objfcts[0].simulation.solver = Mumps
+    # fwr_driver.data_misfit.objfcts[0].simulation.solver = Mumps
     fwr_driver.run()
 
 
