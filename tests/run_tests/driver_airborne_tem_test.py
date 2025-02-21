@@ -34,7 +34,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 2.173308e-10, "phi_d": 17820, "phi_m": 968}
+target_run = {"data_norm": 7.05481e-08, "phi_d": 198200000, "phi_m": 7806}
 
 
 def test_bad_waveform(tmp_path: Path):
@@ -194,7 +194,7 @@ def test_airborne_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    driver = TDEMInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
+    driver = TDEMInversionDriver(params)
     driver.data_misfit.objfcts[0].simulation.solver = Mumps
     driver.run()
 

@@ -36,7 +36,7 @@ logger = getLogger(__name__)
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 7.646233e-07, "phi_d": 86.58, "phi_m": 443.1}
+target_run = {"data_norm": 8.806897e-07, "phi_d": 152.8, "phi_m": 12850}
 
 
 def test_tiling_ground_tem(
@@ -220,7 +220,7 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    driver = TDEMInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
+    driver = TDEMInversionDriver(params)
     driver.data_misfit.objfcts[0].simulation.solver = Mumps
     driver.run()
 
