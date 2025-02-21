@@ -58,7 +58,6 @@ def test_ip_2d_fwr_run(
         data_object=survey,
         mesh=model.parent,
         active_cells=ActiveCellsOptions(topography_object=topography),
-        z_from_topo=True,
         starting_model=model,
         conductivity_model=1e-2,
         line_selection=LineSelectionOptions(
@@ -104,7 +103,6 @@ def test_ip_2d_run(
             x_norm=0.0,
             z_norm=0.0,
             gradient_type="components",
-            z_from_topo=True,
             max_global_iterations=max_iterations,
             initial_beta=None,
             initial_beta_ratio=1e0,

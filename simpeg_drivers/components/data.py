@@ -259,13 +259,6 @@ class InversionData(InversionLocations):
 
         self.update_params(data_dict, uncert_dict)
 
-    def apply_transformations(self, locations: np.ndarray):
-        """Apply all coordinate transformations to locations"""
-        if self.params.z_from_topo:
-            locations = super().set_z_from_topo(locations)
-
-        return locations
-
     def normalize(
         self, data: dict[str, np.ndarray], absolute=False
     ) -> dict[str, np.ndarray]:

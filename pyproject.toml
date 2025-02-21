@@ -40,6 +40,7 @@ scipy = "~1.14.0"
 pydiso = ">=0.1.0, <0.2.dev"
 python-mumps = ">=0.0.3, <0.0.4.dev"
 
+
 ## Pip dependencies from Git repositories
 #----------------------------------------
 #geoh5py = {version = ">=0.10.1, <0.11.dev", source = "pypi", allow-prereleases = true}
