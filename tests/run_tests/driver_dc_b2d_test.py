@@ -71,7 +71,6 @@ def test_dc_p3d_fwr_run(
             vertical_padding=1000.0,
         ),
         active_cells=ActiveCellsOptions(topography_object=topography),
-        z_from_topo=False,
         data_object=survey,
         starting_model=model,
         line_selection=LineSelectionOptions(
@@ -123,7 +122,6 @@ def test_dc_p3d_run(
             x_norm=1.0,
             z_norm=1.0,
             gradient_type="components",
-            z_from_topo=False,
             max_global_iterations=max_iterations,
             initial_beta=None,
             initial_beta_ratio=10.0,

@@ -71,7 +71,6 @@ def test_joint_cross_gradient_fwr_run(
         geoh5=geoh5,
         mesh=model.parent,
         active_cells=active_cells,
-        z_from_topo=False,
         data_object=survey,
         starting_model=model,
     )
@@ -96,7 +95,6 @@ def test_joint_cross_gradient_fwr_run(
         inducing_field_strength=inducing_field[0],
         inducing_field_inclination=inducing_field[1],
         inducing_field_declination=inducing_field[2],
-        z_from_topo=False,
         data_object=survey,
         starting_model=model,
     )

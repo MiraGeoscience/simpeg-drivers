@@ -27,14 +27,6 @@
         "value": "",
         "tooltip": "Selects the data representing the different lines in the survey."
     },
-    "z_from_topo": {
-        "group": "Data pre-processing",
-        "label": "Take z from topography",
-        "tooltip": "Sets survey elevation to topography before any offsets are applied.",
-        "value": false,
-        "verbose": 3,
-        "visible": false
-    },
     "potential_channel": {
         "association": "Cell",
         "dataType": "Float",

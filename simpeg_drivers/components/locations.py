@@ -167,32 +167,6 @@ class InversionLocations:
             else:
                 return obj[mask]
 
-    def set_z_from_topo(self, locs: np.ndarray):
-        """interpolate locations z data from topography."""
-
-        if locs is None:
-            return None
-
-        topo = self.get_locations(self.params.active_cells.topography_object)
-        if self.params.active_cells.topography is not None:
-            if isinstance(self.params.active_cells.topography, Entity):
-                z = self.params.active_cells.topography.values
-            else:
-                z = np.ones_like(topo[:, 2]) * self.params.active_cells.topography
-
-            topo[:, 2] = z
-
-        xyz = locs.copy()
-        topo_interpolator = LinearNDInterpolator(topo[:, :2], topo[:, 2])
-        z_topo = topo_interpolator(xyz[:, :2])
-        if np.any(np.isnan(z_topo)):
-            tree = cKDTree(topo[:, :2])
-            _, ind = tree.query(xyz[np.isnan(z_topo), :2])
-            z_topo[np.isnan(z_topo)] = topo[ind, 2]
-        xyz[:, 2] = z_topo
-
-        return xyz
-
     @property
     def params(self):
         """Associated parameters."""

@@ -73,7 +73,6 @@ def test_ip_p3d_fwr_run(
         active_cells=ActiveCellsOptions(
             topography_object=topography,
         ),
-        z_from_topo=True,
         data_object=survey,
         conductivity_model=1e-2,
         starting_model=model,
@@ -130,7 +129,6 @@ def test_ip_p3d_run(
             length_scale_z=1.0,
             gradient_type="components",
             chargeability_channel_bool=True,
-            z_from_topo=True,
             max_global_iterations=max_iterations,
             initial_beta=None,
             initial_beta_ratio=1e0,

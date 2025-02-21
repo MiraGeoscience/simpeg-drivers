@@ -51,7 +51,6 @@ def test_joint_surveys_fwr_run(
         geoh5=geoh5,
         mesh=model.parent,
         active_cells=active_cells,
-        z_from_topo=False,
         data_object=survey,
         starting_model=model,
     )
@@ -75,7 +74,6 @@ def test_joint_surveys_fwr_run(
         geoh5=geoh5,
         mesh=model.parent,
         active_cells=active_cells,
-        z_from_topo=False,
         data_object=survey,
         starting_model=model,
     )

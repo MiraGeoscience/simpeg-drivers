@@ -17,14 +17,6 @@
         "meshType": "{b99bd6e5-4fe1-45a5-bd2f-75fc31f91b38}",
         "value": ""
     },
-    "z_from_topo": {
-        "group": "Data pre-processing",
-        "label": "Take z from topography",
-        "tooltip": "Sets survey elevation to topography before any offsets are applied.",
-        "value": false,
-        "verbose": 3,
-        "visible": false
-    },
     "receivers_radar_drape": {
         "association": [
             "Cell",

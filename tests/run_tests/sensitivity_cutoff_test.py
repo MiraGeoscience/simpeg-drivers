@@ -55,7 +55,6 @@ def setup_inversion_results(
         s_norm=0.0,
         gradient_type="components",
         gz_channel_bool=True,
-        z_from_topo=False,
         gz_channel=gz,
         gz_uncertainty=2e-3,
         lower_bound=0.0,
