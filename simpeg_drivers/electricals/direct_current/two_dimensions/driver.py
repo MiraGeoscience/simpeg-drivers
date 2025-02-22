@@ -20,11 +20,11 @@ class DC2DForwardDriver(Base2DDriver):
     """Direct Current 2D forward driver."""
 
     _params_class = DC2DForwardOptions
-    _validations = {}
+    _validations = None
 
 
 class DC2DInversionDriver(Base2DDriver):
     """Direct Current 2D inversion driver."""
 
     _params_class = DC2DInversionOptions
-    _validations = {}
+    _validations = None

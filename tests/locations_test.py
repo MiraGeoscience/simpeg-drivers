@@ -98,16 +98,3 @@ def test_filter(tmp_path: Path):
     test_data = {"key": test_data}
     filtered_data = locations.filter(test_data)
     assert np.all(filtered_data["key"] == [2, 3, 4])
-
-
-def test_z_from_topo(tmp_path: Path):
-    params = get_mvi_params(tmp_path)
-    geoh5 = params.geoh5
-    locations = InversionLocations(geoh5, params)
-    locs = locations.set_z_from_topo(np.array([[0.0, 0.0, 0.0]]))
-    assert np.isclose(locs[0, 2], 49.91677)
-
-    params.active_cells.topography = 320.0
-    locations = InversionLocations(geoh5, params)
-    locs = locations.set_z_from_topo(np.array([[315674, 6070832, 0]]))
-    assert locs[0, 2] == 320.0

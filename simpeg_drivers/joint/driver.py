@@ -29,12 +29,12 @@ from simpeg.objective_function import ComboObjectiveFunction
 
 from simpeg_drivers.components.factories import SaveDataGeoh5Factory
 from simpeg_drivers.driver import InversionDriver
-from simpeg_drivers.joint.params import BaseJointParams
+from simpeg_drivers.joint.params import BaseJointOptions
 from simpeg_drivers.utils.utils import simpeg_group_to_driver
 
 
 class BaseJointDriver(InversionDriver):
-    def __init__(self, params: BaseJointParams):
+    def __init__(self, params: BaseJointOptions):
         self._directives = None
         self._drivers = None
         self._wires = None

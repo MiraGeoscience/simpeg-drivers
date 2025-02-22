@@ -17,11 +17,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from geoh5py.workspace import Workspace
 
-    from simpeg_drivers.params import (
-        BaseForwardOptions,
-        BaseInversionOptions,
-        InversionBaseParams,
-    )
+    from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions
 
 import numpy as np
 from geoh5py.objects import ObjectBase, Points
@@ -54,16 +50,14 @@ class InversionLocations:
     def __init__(
         self,
         workspace: Workspace,
-        params: InversionBaseParams | BaseForwardOptions | BaseInversionOptions,
+        params: BaseForwardOptions | BaseInversionOptions,
     ):
         """
         :param workspace: Geoh5py workspace object containing location based data.
         :param params: Options object containing location based data parameters.
         """
         self.workspace = workspace
-        self._params: (
-            InversionBaseParams | BaseForwardOptions | BaseInversionOptions
-        ) = params
+        self._params: BaseForwardOptions | BaseInversionOptions = params
         self.mask: np.ndarray | None = None
         self.locations: np.ndarray | None = None
 
@@ -172,32 +166,6 @@ class InversionLocations:
                 return None
             else:
                 return obj[mask]
-
-    def set_z_from_topo(self, locs: np.ndarray):
-        """interpolate locations z data from topography."""
-
-        if locs is None:
-            return None
-
-        topo = self.get_locations(self.params.active_cells.topography_object)
-        if self.params.active_cells.topography is not None:
-            if isinstance(self.params.active_cells.topography, Entity):
-                z = self.params.active_cells.topography.values
-            else:
-                z = np.ones_like(topo[:, 2]) * self.params.active_cells.topography
-
-            topo[:, 2] = z
-
-        xyz = locs.copy()
-        topo_interpolator = LinearNDInterpolator(topo[:, :2], topo[:, 2])
-        z_topo = topo_interpolator(xyz[:, :2])
-        if np.any(np.isnan(z_topo)):
-            tree = cKDTree(topo[:, :2])
-            _, ind = tree.query(xyz[np.isnan(z_topo), :2])
-            z_topo[np.isnan(z_topo)] = topo[ind, 2]
-        xyz[:, 2] = z_topo
-
-        return xyz
 
     @property
     def params(self):

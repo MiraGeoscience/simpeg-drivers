@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import ClassVar
 
 from geoh5py.data import DataAssociationEnum, FloatData, ReferencedData
@@ -38,7 +39,7 @@ class DC2DForwardOptions(BaseForwardOptions):
 
     name: ClassVar[str] = "Direct Current 2D Forward"
     title: ClassVar[str] = "Direct Current 2D Forward"
-    default_ui_json: ClassVar[str] = (
+    default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/direct_current_2d_forward.ui.json"
     )
 
@@ -66,7 +67,7 @@ class DC2DInversionOptions(BaseInversionOptions):
 
     name: ClassVar[str] = "Direct Current 2D Inversion"
     title: ClassVar[str] = "Direct Current 2D Inversion"
-    default_ui_json: ClassVar[str] = (
+    default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/direct_current_2d_inversion.ui.json"
     )
 

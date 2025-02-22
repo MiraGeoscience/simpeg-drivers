@@ -27,7 +27,7 @@ class DCBatch2DForwardDriver(BaseBatch2DDriver):
 
     _params_class = DCBatch2DForwardOptions
     _params_2d_class = DC2DForwardOptions
-    _validations = {}
+    _validations = None
 
 
 class DCBatch2DInversionDriver(BaseBatch2DDriver):
@@ -35,4 +35,4 @@ class DCBatch2DInversionDriver(BaseBatch2DDriver):
 
     _params_class = DCBatch2DInversionOptions
     _params_2d_class = DC2DInversionOptions
-    _validations = {}
+    _validations = None

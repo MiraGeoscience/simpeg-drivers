@@ -31,7 +31,7 @@ from simpeg_drivers.components.windows import InversionWindow
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.electricals.params import LineSelectionOptions
 from simpeg_drivers.line_sweep.driver import LineSweepDriver
-from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions, BaseParams
+from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions
 from simpeg_drivers.utils.surveys import extract_dcip_survey
 from simpeg_drivers.utils.utils import get_drape_model
 
@@ -77,9 +77,9 @@ class Base2DDriver(InversionDriver):
 class BaseBatch2DDriver(LineSweepDriver):
     """Base class for batch 2D DC and IP forward and inversion drivers."""
 
-    _params_class: type(BaseForwardOptions, BaseInversionOptions)
-    _params_2d_class: type(BaseForwardOptions, BaseInversionOptions)
-    _validations: dict
+    _params_class: type[BaseForwardOptions | BaseInversionOptions]
+    _params_2d_class: type[BaseForwardOptions | BaseInversionOptions]
+    _validations = None
     _model_list: list[str] = []
 
     def __init__(self, params):

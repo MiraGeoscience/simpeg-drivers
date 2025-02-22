@@ -1,8 +1,9 @@
 schema_version: 1
 
 context:
-  name: simpeg-drivers
-  version: 0.3.0a1
+  name: "simpeg-drivers"
+  version: "0.3.0a1"
+  python_min: "3.10"
 
 package:
   name: ${{ name|lower }}
@@ -18,39 +19,40 @@ build:
 
 requirements:
   host:
-    - python >=3.10, <3.11
+    - python 3.10.*
     - poetry-core >=1.0.0
     - setuptools
     - pip
   run:
-    - python >=3.10,<3.11
-    - dask-core 2024.06.*
-    - discretize >=0.10.0,<0.11.0
-    - distributed >=2024.06.*
-    - numpy >=1.26.0,<1.27.0
-    - scipy >=1.14.0,<1.15.0
-    - geoh5py >=0.11.0a1,<0.12.0a.dev
-    - octree-creation-app >=0.3.0a1,<0.4.0a.dev
-    - geoapps-utils >=0.5.0a1,<0.6.0a.dev
-    - mira-simpeg >=0.22.0.1a1,<0.22.1a.dev
-    - param-sweeps >=0.3.0a1,<0.4.0a.dev
-    - pillow >=10.3.0
-    - empymod >=2.2.1,<2.3.0
-    - geoana >=0.5.0,<0.6.0
-    - h5py >=3.2.1,<4.0.0
-    - matplotlib-base >=3.8.4,<3.9.0
-    - mkl >=2023.2, <2023.3
-    - pandas >=2.2.1,<2.3.0
-    - pydantic >=2.5.2,<3.0.0
-    - pydiso >=0.1.0, <0.2.0
-    - pymatsolver >=0.2.0,<0.3.0
-    - scikit-learn >=1.4.0,<1.5.0
-    - tqdm >=4.66.1,<5.0.0
-    - zarr >=2.14.2,<2.15.0
+    - python >=${{ python_min }}
+    # Mira packages
+    - geoapps-utils >=0.5.0a1, <0.6.dev
+    - geoh5py >=0.11.0a1, <0.12.dev
+    - octree-creation-app >=0.3.0a1, <0.4.dev
+    - mira-simpeg >=0.21.2.3a1, <0.21.4.dev
+    - param-sweeps >=0.3.0a1, <0.4.dev
+    # direct dependencies
+    - dask-core >=2024.06, <2024.07.dev
+    - discretize >=0.10.0, <0.11.dev
+    - distributed >=2024.06, <2024.07.dev
+    - numpy >=1.26.0, <1.27.dev
+    - scipy >=1.14.0, <1.15.dev
+    - pydiso >=0.1.0, <0.2.dev
+    - python-mumps >=0.0.3, <0.0.4.dev
+    # indirect dependencies
+    - empymod >=2.2.1, <2.3.dev
+    - fsspec >=2022.0, <2023.0.dev
+    - geoana >=0.5.0, <0.6.dev
+    - matplotlib-base >=3.8.4, <3.9.dev
+    - pandas >=2.2.1, <2.3.dev
+    - pymatsolver >=0.3.0, <0.4.dev
+    - scikit-learn >=1.4.0, <1.5.dev
+    - tqdm >=4.66.1, <5.0.dev
+    - zarr >=2.14.2, <2.15.dev
   run_constraints:
-    - tbb 2021.12.*
-    - python-tzdata 2023.4.*
     - __glibc >=2.17
+    - python-tzdata >=2023.4.0, <2023.5.dev
+    - tbb >=2021.12.0, <2021.13.dev
 
 about:
   license: MIT
@@ -59,5 +61,5 @@ about:
 
 extra:
   recipe-maintainers:
-    - SophieCurinier
+    - andrewg-mira
     - sebhmg

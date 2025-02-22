@@ -176,7 +176,6 @@ app_initializer = {
     "max_global_iterations": 25,
     "topography_object": UUID("{ab3c2083-6ea8-4d31-9230-7aad3ec09525}"),
     "topography": UUID("{a603a762-f6cb-4b21-afda-3160e725bf7d}"),
-    "z_from_topo": True,
     "receivers_offset_z": 60.0,
     "fix_aspect_ratio": True,
     "colorbar": False,

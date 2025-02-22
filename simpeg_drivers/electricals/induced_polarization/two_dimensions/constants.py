@@ -34,7 +34,6 @@ inversion_defaults = {
     "inversion_type": "induced polarization 2d",
     "forward_only": False,
     "data_object": None,
-    "z_from_topo": True,
     "line_object": None,
     "line_id": 1,
     "receivers_radar_drape": None,
@@ -110,7 +109,6 @@ forward_defaults = {
     "inversion_type": "induced polarization 2d",
     "forward_only": True,
     "data_object": None,
-    "z_from_topo": True,
     "line_object": None,
     "line_id": 1,
     "receivers_radar_drape": None,
@@ -159,6 +157,5 @@ app_initializer = {
     "max_global_iterations": 25,
     "topography_object": UUID("{ab3c2083-6ea8-4d31-9230-7aad3ec09525}"),
     "topography": UUID("{a603a762-f6cb-4b21-afda-3160e725bf7d}"),
-    "z_from_topo": True,
     "receivers_offset_z": 0.0,
 }

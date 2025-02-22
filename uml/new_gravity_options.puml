@@ -1,0 +1,201 @@
+@startuml
+
+class GravityForwardOptions {
+  default_ui_json : ClassVar[Path]
+  gx_channel_bool : bool
+  gxx_channel_bool : bool
+  gxy_channel_bool : bool
+  gxz_channel_bool : bool
+  gy_channel_bool : bool
+  gyy_channel_bool : bool
+  gyz_channel_bool : bool
+  gz_channel_bool : bool
+  gzz_channel_bool : bool
+  inversion_type : str
+  name : ClassVar[str]
+  physical_property : str
+  title : ClassVar[str]
+}
+
+class GravityInversionOptions {
+  default_ui_json : ClassVar[Path]
+  gx_channel : FloatData | None
+  gx_uncertainty : FloatData | float | None
+  gxx_channel : FloatData | None
+  gxx_uncertainty : FloatData | float | None
+  gxy_channel : FloatData | None
+  gxy_uncertainty : FloatData | float | None
+  gxz_channel : FloatData | None
+  gxz_uncertainty : FloatData | float | None
+  gy_channel : FloatData | None
+  gy_uncertainty : FloatData | float | None
+  gyy_channel : FloatData | None
+  gyy_uncertainty : FloatData | float | None
+  gyz_channel : FloatData | None
+  gyz_uncertainty : FloatData | float | None
+  gz_channel : FloatData | None
+  gz_uncertainty : FloatData | float | None
+  gzz_channel : FloatData | None
+  gzz_uncertainty : FloatData | float | None
+  inversion_type : str
+  name : ClassVar[str]
+  physical_property : str
+  title : ClassVar[str]
+}
+
+class BaseForwardOptions {
+  forward_only : bool
+  -------------- properties ----------------
+  active_components
+}
+
+class BaseInversionOptions {
+  name : ClassVar[str]
+  title : ClassVar[str]
+  run_command : ClassVar[str]
+  conda_environment : str
+  forward_only : bool
+  regularization: RegularizationOptions
+  irls: IRLSOptions
+  beta_cooling: BetaCoolingOptions
+  optimization: OptimizationOptions
+  sensitivity: SensitivityOptions
+  compute: ComputeOptions
+  inactive: InactiveOptions
+}
+
+class InactiveOptions {
+  no_data_value : float | None
+  inversion_style : str
+  ga_group : SimPEGGroup | None
+  distributed_workers : int | None
+}
+
+class ActiveCellsOptions {
+  topography_object : Points | None
+  topography: FloatData | float | None
+  active_cells: BooleanData | None
+  ---------------- model_validators ----------------
+  at_least_one
+}
+
+class RegularizationOptions {
+  reference_model: float | FloatData | None
+  alpha_s : float | FloatData | None
+  alpha_x : float | FloatData | None
+  alpha_y : float | FloatData | None
+  alpha_z : float | FloatData | None
+}
+
+class IRLSOptions {
+  s_norm : float | FloatData | None
+  x_norm : float | FloatData
+  y_norm : float | FloatData | None
+  z_norm : float | FloatData
+  gradient_type: str
+  max_irls_iterations : int
+  starting_chi_factor : float
+  beta_tol: float
+  prctile: float
+  coolEps_q: bool
+  coolEpsFact: float
+  beta_search: bool
+}
+
+class BetaCoolingOptions {
+  chi_factor: float
+  auto_scale_misfits: bool
+  initial_beta_ratio: float | None
+  initial_beta: float
+  coolingFactor: float
+}
+
+class OptimizationOptions {
+  lower_bound : float | FloatData | None
+  upper_bound : float | FloatData | None
+  coolingRate: float
+  max_global_iterations: int
+  max_line_search_iterations: int
+  max_cg_iterations: int
+  tol_cg: float
+  f_min_change: float
+}
+
+class SensitivityOptions {
+  sens_wts_threshold: float
+  every_iteration_bool: bool
+  save_sensitivity: bool
+}
+
+class ComputeOptions {
+  store_sensitivities: str
+  chunk_by_rows: bool
+  output_tile_files: bool
+  max_ram: float
+}
+
+class CoreOptions {
+  run_command : ClassVar[str]
+  conda_environment : str
+  inversion_type : str
+  physical_property : str
+  data_object : Points
+  z_from_topo : bool
+  mesh : Octree | DrapeModel | None
+  starting_model : float | FloatData
+  active_cells : ActiveCellsOptions
+  tile_spatial : int
+  parallelized : bool
+  n_cpu : int | None
+  max_chunk_size : int
+  save_sensitivities : bool
+  out_group : SimPEGGroup | UIJsonGroup | None
+  generate_sweep : bool
+  -------------------- properties -------------------------
+  workpath
+  components
+  active_components
+  data
+  uncertainties
+  padding_cells
+  -------------------- field_validators ----------------------
+  maximize_cpu_if_none
+  mesh_cannot_be_rotated
+  -------------------- model_validators ----------------------
+  out_group_if_none
+  update_out_group_options
+  component_data(component: str) -> np.ndarray | None
+  component_uncertainty(component: str) -> np.ndarray | None
+}
+class BaseData {
+  conda_environment : str | None
+  default_ui_json : Optional[ClassVar[Path | None]]
+  geoh5 : Workspace
+  input_file
+  model_config
+  monitoring_directory : str | Path | None
+  name : ClassVar[str]
+  run_command : ClassVar[str]
+  title : ClassVar[str]
+  workspace_geoh5 : Path | None
+  build(input_data: InputFile | dict) -> Self
+  collect_input_from_dict(base_model: type[BaseModel], data: dict[str, Any]) -> dict[str, dict | Any]
+  flatten() -> dict
+  serialize()
+  write_ui_json(path: Path) -> None
+}
+BaseData --|> BaseModel
+BaseForwardOptions --|> CoreOptions
+BaseInversionOptions --|> CoreOptions
+CoreOptions --|> BaseData
+ActiveCellsOptions --* CoreOptions
+RegularizationOptions --* BaseInversionOptions
+IRLSOptions --* BaseInversionOptions
+BetaCoolingOptions --* BaseInversionOptions
+OptimizationOptions --* BaseInversionOptions
+SensitivityOptions --* BaseInversionOptions
+ComputeOptions --* BaseInversionOptions
+InactiveOptions --* BaseInversionOptions
+GravityForwardOptions --|> BaseForwardOptions
+GravityInversionOptions --|> BaseInversionOptions
+@enduml
