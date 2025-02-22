@@ -34,30 +34,29 @@ dask = {version = "2024.6.*", extras = ["distributed"]}  # also in simpeg[dask]
 discretize = "0.10.*"  # also in simpeg, octree-creation-app
 distributed = "2024.6.*"  # because conda-lock doesn't take dask extras into account
 numpy = "~1.26.0" # also in geoh5py, simpeg
-pydiso = "0.1.*"  # not imported, but required at runtime for simpeg
 scipy = "~1.14.0"
+
+# solvers for simpeg: not imported, but at least one required at runtime
+pydiso = ">=0.1.0, <0.2.dev"
+python-mumps = ">=0.0.3, <0.0.4.dev"
 
 
 ## Pip dependencies from Git repositories
 #----------------------------------------
-#geoh5py = {version = ">=0.10.1rc1, <0.11.0a.dev", source = "pypi", allow-prereleases = true}
+#geoh5py = {version = ">=0.10.1, <0.11.dev", source = "pypi", allow-prereleases = true}
 geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "develop"}
 
-#octree-creation-app = {version = ">=0.2.0rc1, <0.3.0a.dev", source = "pypi", allow-prereleases = true}
+#octree-creation-app = {version = ">=0.2.0, <0.3.dev", source = "pypi", allow-prereleases = true}
 octree-creation-app = {git = "https://github.com/MiraGeoscience/octree-creation-app.git", rev = "develop"}
 
-#geoapps-utils = {version = ">=0.4.0rc1, <0.5.0a.dev", source = "pypi", allow-prereleases = true}
+#geoapps-utils = {version = ">=0.4.0, <0.5.dev", source = "pypi", allow-prereleases = true}
 geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "develop"}
 
-#mira-simpeg = {version = ">=0.21.2.1rc1, <0.21.2.2a.dev", source="pypi", allow-prereleases = true, extras = ["dask"]}
+#mira-simpeg = {version = ">=0.21.2.2a1, <0.21.3.dev", source="pypi", allow-prereleases = true, extras = ["dask"]}
 mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", rev = "develop", extras = ["dask"]}
 
-#param-sweeps = {version = ">=0.2.0rc1, <0.3.0a.dev", source = "pypi", allow-prereleases = true}
+#param-sweeps = {version = ">=0.2.0, <0.3.dev", source = "pypi", allow-prereleases = true}
 param-sweeps = {git = "https://github.com/MiraGeoscience/param-sweeps.git", rev = "develop"}
-
-## force some versions to resolve incompatible resolution between PyPI and Conda
-#-------------------------------------------------------------------------------
-pymatsolver = {version = "0.2.*", source = "pypi"}
 
 ## about pip dependencies
 # to be specified to work with conda-lock
@@ -94,21 +93,20 @@ libblas = "*=*mkl"  # because simpeg already brings in the MKL
 
 ## indirect dependencies, forcing them here for installation through Conda not pip
 #---------------------------------------------------------------------------------
-Pillow = ">=10.3.0, <10.4.0"  # from geoh5py
+empymod = ">=2.2.1, <2.3.dev"  # from simpeg and geoana
 bokeh = ">=3.6.0, <3.7.0"  # from simpeg
-empymod = ">=2.2.1, <2.3.0"  # from simpeg and geoana
 fsspec = "2022.*"  # from simpeg[dask]
-geoana = ">=0.5.0, <0.6.0"  # from simpeg
-h5py = ">=3.2.1, <4.0.0"  # from geoh5py
-matplotlib-base = ">=3.8.4, <3.9.0"  # from simpeg
-mkl = "2023.2, <2024.1"  # from simpeg
-pandas = ">=2.2.1, <2.3.0"  # from SimPEG, also used by targeting-workflow, petro-lingo
-pydantic = ">=2.5.2, <3.0.0"  # from geoh5py, geoapps-utils
-pydiso = ">=0.1.0, <0.2.0"  # from simpeg
-pymatsolver = ">=0.2.0, <0.3.0"  # from simpeg
-scikit-learn = ">=1.4.0, <1.5.0"  # from SimPEG, also used by geo-unsup-mapper, petro-lingo
-tqdm = ">=4.66.1, <5.0.0"  # from simpeg
-zarr = ">=2.14.2, <2.15.0"  # from simpeg[dask]
+geoana = ">=0.5.0, <0.6.dev"  # from simpeg
+h5py = ">=3.2.1, <4.0.dev"  # from geoh5py
+matplotlib-base = ">=3.8.4, <3.9.dev"  # from simpeg
+mkl = "2023.2, <2024.1"
+pandas = ">=2.2.1, <2.3.dev"  # from SimPEG, also used by targeting-workflow, petro-lingo
+Pillow = ">=10.3.0, <10.4.dev"  # from geoh5py
+pydantic = ">=2.5.2, <3.0.dev"  # from geoh5py, geoapps-utils
+pymatsolver = ">=0.3.0, <0.4.dev"  # from simpeg
+scikit-learn = ">=1.4.0, <1.5.dev"  # from SimPEG, also used by geo-unsup-mapper, petro-lingo
+tqdm = ">=4.66.1, <5.0.dev"  # from simpeg
+zarr = ">=2.14.2, <2.15.dev"  # from simpeg[dask]
 
 # force some versions to resolve incompatible resolution between PyPI and Conda
 #------------------------------------------------------------------------------
