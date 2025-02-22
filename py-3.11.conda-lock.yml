@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: c6d99c4080206a6985500566195081cbee7ef83f67dcba0b13ab0757aa9bfb77
-    linux-64: ccffba8d0ae8e720a8b58ff10c500924e5464136654551f2d25b30d05d85c2a2
+    win-64: 53f066e08b993746d861244be039bf23cd93075c2389e2245dbe627def8c59b2
+    linux-64: 1471200d59eb20e8684a4a95bc16cf082b72549423886d5ea8930f198df963fe
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -1243,38 +1243,39 @@ package:
   category: dev
   optional: true
 - name: discretize
-  version: 0.10.0
+  version: 0.11.2
   manager: conda
   platform: linux-64
   dependencies:
-    libgcc-ng: '>=12'
-    libstdcxx-ng: '>=12'
-    numpy: '>=1.23.5,<2.0a0'
+    __glibc: '>=2.17,<3.0.a0'
+    libgcc: '>=13'
+    libstdcxx: '>=13'
+    numpy: '>=1.22.4'
     python: '>=3.11,<3.12.0a0'
     python_abi: 3.11.*
     scipy: '>=1.8'
-  url: https://conda.anaconda.org/conda-forge/linux-64/discretize-0.10.0-py311h92ebd52_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/discretize-0.11.2-py311h5b7b71f_1.conda
   hash:
-    md5: 3d1d8f6df4a2427245c2a445669ed08a
-    sha256: 0742f151160f7c5a9fbb9edfadd492ae2b3f85c2e4032942c660c87ccf23192f
+    md5: 46691a03f4c2317ec8c798dc8575bf48
+    sha256: 147f8e5403fe7cc0cab3eb8e5cb362347728fe5e485e7c6ca76f5139447b1960
   category: main
   optional: false
 - name: discretize
-  version: 0.10.0
+  version: 0.11.2
   manager: conda
   platform: win-64
   dependencies:
-    numpy: '>=1.23.5,<2.0a0'
+    numpy: '>=1.22.4'
     python: '>=3.11,<3.12.0a0'
     python_abi: 3.11.*
     scipy: '>=1.8'
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://conda.anaconda.org/conda-forge/win-64/discretize-0.10.0-py311h12feb9d_1.conda
+  url: https://conda.anaconda.org/conda-forge/win-64/discretize-0.11.2-py311h9b10771_0.conda
   hash:
-    md5: ad0c71d1e3af6c3459045205abc165c8
-    sha256: 4abbbfabbc30bca363f6ce84bab881df07c95542dd5a82ba4b7c351509d0e66b
+    md5: 67a5b84650218196cfef1b647c6a9140
+    sha256: 0bda0975ae4898c3887be171c9888fd57a20379c129e3149a4708c9d3edf5a2b
   category: main
   optional: false
 - name: distributed

@@ -87,7 +87,7 @@ class BaseJointDriver(InversionDriver):
     def get_local_actives(self, driver: InversionDriver):
         """Get all local active cells within the global mesh for a given driver."""
 
-        in_local = driver.inversion_mesh.mesh._get_containing_cell_indexes(  # pylint: disable=W0212
+        in_local = driver.inversion_mesh.mesh.get_containing_cells(  # pylint: disable=W0212
             self.inversion_mesh.mesh.gridCC
         )
         local_actives = driver.inversion_topography.active_cells(
