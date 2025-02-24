@@ -259,9 +259,7 @@ def drape_to_octree(
             if method == "nearest":
                 octree_model.append(datum[0].values)
             else:
-                lookup_inds = mesh._get_containing_cell_indexes(  # pylint: disable=W0212
-                    model.centroids
-                )
+                lookup_inds = mesh.get_containing_cells(model.centroids)
                 octree_model[lookup_inds] = datum[0].values
 
         if method == "nearest":
@@ -640,9 +638,7 @@ def get_containing_cells(
         else:
             locations = data.locations
 
-        inds = mesh._get_containing_cell_indexes(  # pylint: disable=protected-access
-            locations
-        )
+        inds = mesh.get_containing_cells(locations)
 
         if isinstance(data.entity, LargeLoopGroundEMSurvey):
             line_ind = []
@@ -828,6 +824,6 @@ def simpeg_group_to_driver(group: SimPEGGroup, workspace: Workspace) -> Inversio
     inversion_driver = getattr(module, class_name)
 
     ifile.set_data_value("out_group", group)
-    params = inversion_driver._params_class.build(ifile)  # pylint: disable=W0212
+    params = inversion_driver._params_class.build(ifile)  # pylint: disable=protected-access
 
     return inversion_driver(params)
