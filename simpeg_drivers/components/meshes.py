@@ -227,9 +227,7 @@ class InversionMesh:
             attr = f"{dim}_cell_size"
             setattr(mesh, attr, np.abs(getattr(mesh, attr)))
 
-        indices = treemesh.get_containing_cells(
-            mesh.centroids
-        )
+        indices = treemesh.get_containing_cells(mesh.centroids)
         ind = np.argsort(indices)
         for child in mesh.children:
             if child.values is None or isinstance(child.values, np.ndarray):
