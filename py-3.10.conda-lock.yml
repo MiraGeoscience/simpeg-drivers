@@ -15,10 +15,12 @@
 version: 1
 metadata:
   content_hash:
-    win-64: 0d852099be807f95bca241635e52da6569ebdf2d04351127e00b6b7aa7eb7c7b
-    linux-64: 17857417d27d428057789120a0f069eb7b327a7011fd37401afcd9e52eb22c4b
+    win-64: fb667d7ecd40ffa28a83b638bc3a532349c8f14f9d3d2e41da16dc1ef6b8922d
+    linux-64: f39d0e50145913995309b3351ecd85215cdd2608ef353f901b8bf849e92e4104
   channels:
   - url: conda-forge
+    used_env_vars: []
+  - url: nodefaults
     used_env_vars: []
   platforms:
   - win-64
@@ -1217,38 +1219,39 @@ package:
   category: dev
   optional: true
 - name: discretize
-  version: 0.10.0
+  version: 0.11.2
   manager: conda
   platform: linux-64
   dependencies:
-    libgcc-ng: '>=12'
-    libstdcxx-ng: '>=12'
-    numpy: '>=1.22.4,<2.0a0'
+    __glibc: '>=2.17,<3.0.a0'
+    libgcc: '>=13'
+    libstdcxx: '>=13'
+    numpy: '>=1.22.4'
     python: '>=3.10,<3.11.0a0'
     python_abi: 3.10.*
     scipy: '>=1.8'
-  url: https://conda.anaconda.org/conda-forge/linux-64/discretize-0.10.0-py310hcb52e73_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/discretize-0.11.2-py310ha2bacc8_1.conda
   hash:
-    md5: 1f0f0e9eb694f1d36ea44e167622fd97
-    sha256: 3cfbc4e072448f7e1bbcfdff0c01b18ae67d6d83d12b7585567a4dd057b8c02e
+    md5: d32664b47026c5d23de390d8b46a2701
+    sha256: d065d856c25e199a77115a4d8fd54139ee699724a3f1dda6a3f45f33589a66a7
   category: main
   optional: false
 - name: discretize
-  version: 0.10.0
+  version: 0.11.2
   manager: conda
   platform: win-64
   dependencies:
-    numpy: '>=1.22.4,<2.0a0'
+    numpy: '>=1.22.4'
     python: '>=3.10,<3.11.0a0'
     python_abi: 3.10.*
     scipy: '>=1.8'
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://conda.anaconda.org/conda-forge/win-64/discretize-0.10.0-py310h4856b71_1.conda
+  url: https://conda.anaconda.org/conda-forge/win-64/discretize-0.11.2-py310h3e8ed56_1.conda
   hash:
-    md5: 7af88a12920a5b2b5ae459a5dd032019
-    sha256: 6170c71a13541cd570afde2d6acfb24f19ced2f3a082c94157ed31d34c92c563
+    md5: c9cecabe0352f8d1b7ff7e9d52df7270
+    sha256: e9b03398c7bd480b6e9e287fe673bf767694bdb96cc8d95bb9500bcd25766b5e
   category: main
   optional: false
 - name: distributed
@@ -8509,30 +8512,6 @@ package:
   hash:
     md5: bf190adcc22f146d8ec66da215c9d78b
     sha256: a59b096b95f20910158c927797e9144ed9c7970f1b4aca58e6d6c8db9f653006
-  category: main
-  optional: false
-- name: discretize
-  version: 0.11.2
-  manager: pip
-  platform: linux-64
-  dependencies:
-    numpy: '>=1.22.4'
-    scipy: '>=1.8'
-  url: https://files.pythonhosted.org/packages/ba/14/7e39708fa4c6803ec352ae39b9a1c33469a3908a2c5a9de0bf75673a7276/discretize-0.11.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-  hash:
-    sha256: 65ed8b386c4631557776dfc1dd51a33ce7ee8ec115ec38817556f5d2997e5200
-  category: main
-  optional: false
-- name: discretize
-  version: 0.11.2
-  manager: pip
-  platform: win-64
-  dependencies:
-    numpy: '>=1.22.4'
-    scipy: '>=1.8'
-  url: https://files.pythonhosted.org/packages/8b/62/1fb3bb5153b735906be8d68bf525e28953a57bc3ffcd5bb0fc51db884b36/discretize-0.11.2-cp310-cp310-win_amd64.whl
-  hash:
-    sha256: 7fee23239ad3c78e648bf0db4df35e14268aca7540e36e4f6e17bdf2919bd47a
   category: main
   optional: false
 - name: geoapps-utils

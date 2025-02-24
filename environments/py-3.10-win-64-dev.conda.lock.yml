@@ -45,7 +45,7 @@ dependencies:
   - dask-core=2024.6.2=pyhd8ed1ab_0
   - dataclasses=0.8=pyhc8e2a94_3
   - debugpy=1.8.12=py310h9e98ed7_0
-  - decorator=5.1.1=pyhd8ed1ab_1
+  - decorator=5.2.1=pyhd8ed1ab_0
   - defusedxml=0.7.1=pyhd8ed1ab_0
   - dill=0.3.9=pyhd8ed1ab_1
   - discretize=0.11.2=py310h3e8ed56_1
@@ -292,12 +292,12 @@ dependencies:
   - zict=3.0.0=pyhd8ed1ab_1
   - zipp=3.21.0=pyhd8ed1ab_1
   - zstandard=0.19.0=py310h8d17308_0
-  - zstd=1.5.7=hbeecb71_0
+  - zstd=1.5.7=hbeecb71_1
   - pip:
       - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@4d829b7b8759d7537a8184aa506548ddccf72041
       - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@99300455d1d5627d8a2e95a7217da2bab4921f48
-      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@77e2a29a990686274b1901c4d2aacb258a5689a0
-      - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app.git@171c86d5648d4d8636692b97b3a72296b9d3b262
+      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@42d85343d46e85faa8fd1f7ac8608a49fe1b4ced
+      - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app.git@3c479f5d098332ff1c6e0eca0d56be6cc01e0911
       - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps.git@39de1da1495aff6d16641d408317619e23adbdb4
 
 variables:
