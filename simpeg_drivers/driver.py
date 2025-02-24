@@ -277,7 +277,7 @@ class InversionDriver(BaseDriver):
 
                 self._out_group = SimPEGGroup.create(self.params.geoh5, name=name)
                 self.params.out_group = self._out_group
-                self.params.update_group_options()
+                self.params.update_out_group_options()
 
         return self._out_group
 
@@ -505,25 +505,33 @@ class InversionDriver(BaseDriver):
         forward_only = ifile.data["forward_only"]
         inversion_type = ifile.ui_json.get("inversion_type", None)
 
-        driver_name = (inversion_type + "driver").capitalize()
-        if inversion_type not in DRIVER_MAP:
-            msg = f"Inversion type {inversion_type} is not supported."
-            msg += f" Valid inversions are: {(*list(DRIVER_MAP),)}."
-            raise NotImplementedError(msg)
+        driver_class = cls.driver_class_from_name(
+            inversion_type, forward_only=forward_only
+        )
 
-        mod_name, classes = DRIVER_MAP.get(inversion_type)
-        if forward_only:
-            class_name = classes.get("forward", classes["inversion"])
-        else:
-            class_name = classes.get("inversion")
-        module = __import__(mod_name, fromlist=[class_name])
-        driver_class = getattr(module, class_name)
         with ifile.data["geoh5"].open(mode="r+"):
             params = driver_class._params_class.build(ifile)
             driver = driver_class(params)
 
         driver.run()
         return driver
+
+    @staticmethod
+    def driver_class_from_name(
+        name: str, forward_only: bool = False
+    ) -> InversionDriver:
+        if name not in DRIVER_MAP:
+            msg = f"Inversion type {name} is not supported."
+            msg += f" Valid inversions are: {(*list(DRIVER_MAP),)}."
+            raise NotImplementedError(msg)
+
+        mod_name, classes = DRIVER_MAP.get(name)
+        if forward_only:
+            class_name = classes.get("forward", classes["inversion"])
+        else:
+            class_name = classes.get("inversion")
+        module = __import__(mod_name, fromlist=[class_name])
+        return getattr(module, class_name)
 
 
 class InversionLogger:
