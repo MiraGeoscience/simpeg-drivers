@@ -35,27 +35,23 @@ class TDEMForwardOptions(EMDataMixin, BaseForwardOptions):
     Time Domain Electromagnetic forward options.
 
     :param z_channel_bool: Z-component data channel boolean.
-    :param z_channel_uncertainty: Z-component data channel uncertainty.
     :param x_channel_bool: X-component data channel boolean.
-    :param x_channel_uncertainty: X-component data channel uncertainty.
     :param y_channel_bool: Y-component data channel boolean.
-    :param y_channel_uncertainty: Y-component data channel uncertainty.
     :param model_type: Specify whether the models are provided in resistivity or conductivity.
     :param data_units: Units for the TEM data
     """
 
-    name: ClassVar[str] = "Time Domain Electromagnetics Forward"
-    title: ClassVar[str] = "Time-domain EM (TEM) Forward"
-    default_ui_json: ClassVar[Path] = assets_path() / "uijson/tdem_forward.ui.json"
-
-    inversion_type: str = "tdem"
-    physical_property: str = "conductivity"
-
     data_object: Receivers
-    z_channel_bool: bool | None = None
-    x_channel_bool: bool | None = None
     data_units: str = "dB/dt (T/s)"
+    default_ui_json: ClassVar[Path] = assets_path() / "uijson/tdem_forward.ui.json"
+    inversion_type: str = "tdem"
     model_type: str = "Conductivity (S/m)"
+    name: ClassVar[str] = "Time Domain Electromagnetics Forward"
+    physical_property: str = "conductivity"
+    title: ClassVar[str] = "Time-domain EM (TEM) Forward"
+    x_channel_bool: bool | None = None
+    y_channel_bool: bool | None = None
+    z_channel_bool: bool | None = None
 
     @property
     def unit_conversion(self):
@@ -82,22 +78,21 @@ class TDEMInversionOptions(EMDataMixin, BaseInversionOptions):
     :param data_units: Units for the TEM data
     """
 
-    name: ClassVar[str] = "Time Domain Electromagnetics Inversion"
-    title: ClassVar[str] = "Time-domain EM (TEM) Inversion"
-    default_ui_json: ClassVar[Path] = assets_path() / "uijson/tdem_inversion.ui.json"
-
-    inversion_type: str = "tdem"
-    physical_property: str = "conductivity"
-
     data_object: Receivers
-    z_channel: PropertyGroup | None = None
-    z_uncertainty: PropertyGroup | None = None
+    data_units: str = "dB/dt (T/s)"
+    default_ui_json: ClassVar[Path] = assets_path() / "uijson/tdem_inversion.ui.json"
+    inversion_type: str = "tdem"
+    model_type: str = "Conductivity (S/m)"
+    name: ClassVar[str] = "Time Domain Electromagnetics Inversion"
+    physical_property: str = "conductivity"
+    title: ClassVar[str] = "Time-domain EM (TEM) Inversion"
+
     x_channel: PropertyGroup | None = None
     x_uncertainty: PropertyGroup | None = None
     y_channel: PropertyGroup | None = None
     y_uncertainty: PropertyGroup | None = None
-    data_units: str = "dB/dt (T/s)"
-    model_type: str = "Conductivity (S/m)"
+    z_channel: PropertyGroup | None = None
+    z_uncertainty: PropertyGroup | None = None
 
     @property
     def unit_conversion(self):
