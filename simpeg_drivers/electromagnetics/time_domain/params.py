@@ -35,11 +35,8 @@ class TDEMForwardOptions(EMDataMixin, BaseForwardOptions):
     Time Domain Electromagnetic forward options.
 
     :param z_channel_bool: Z-component data channel boolean.
-    :param z_channel_uncertainty: Z-component data channel uncertainty.
     :param x_channel_bool: X-component data channel boolean.
-    :param x_channel_uncertainty: X-component data channel uncertainty.
     :param y_channel_bool: Y-component data channel boolean.
-    :param y_channel_uncertainty: Y-component data channel uncertainty.
     :param model_type: Specify whether the models are provided in resistivity or conductivity.
     :param data_units: Units for the TEM data
     """
@@ -54,6 +51,7 @@ class TDEMForwardOptions(EMDataMixin, BaseForwardOptions):
     data_object: Receivers
     z_channel_bool: bool | None = None
     x_channel_bool: bool | None = None
+    y_channel_bool: bool | None = None
     data_units: str = "dB/dt (T/s)"
     model_type: str = "Conductivity (S/m)"
 
