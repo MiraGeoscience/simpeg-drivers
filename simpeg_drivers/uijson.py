@@ -10,14 +10,9 @@
 
 import json
 import logging
-from pathlib import Path
-from typing import Annotated
 
-from geoh5py.groups import SimPEGGroup, UIJsonGroup
-from geoh5py.shared.validators import empty_string_to_none, none_to_empty_string
-from geoh5py.ui_json.enforcers import UUIDEnforcer
 from geoh5py.ui_json.ui_json import BaseUIJson
-from pydantic import BeforeValidator, PlainSerializer, field_validator
+from pydantic import field_validator
 
 import simpeg_drivers
 
@@ -25,23 +20,9 @@ import simpeg_drivers
 logger = logging.getLogger(__name__)
 
 
-OptionalPath = Annotated[
-    Path | None,
-    BeforeValidator(empty_string_to_none),
-    PlainSerializer(none_to_empty_string),
-]
-
-
 class SimPEGDriversUIJson(BaseUIJson):
-    version: str = simpeg_drivers.__version__
-    title: str
     icon: str
     documentation: str
-    conda_environment: str
-    run_command: str
-    geoh5: Path | None
-    monitoring_directory: OptionalPath
-    workspace_geoh5: OptionalPath
 
     @field_validator("version", mode="before")
     @classmethod

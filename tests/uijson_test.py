@@ -33,6 +33,8 @@ def test_version_warning(tmp_path, caplog):
         _ = SimPEGDriversUIJson(
             version="0.2.0",
             title="My app",
+            icon="",
+            documentation="",
             geoh5=str(workspace.h5file),
             run_command="myapp.driver",
             monitoring_directory="",
