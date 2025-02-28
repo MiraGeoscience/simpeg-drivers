@@ -59,4 +59,4 @@ def test_write_default(tmp_path):
     with open(default_path, encoding="utf-8") as f:
         data = json.load(f)
 
-    assert data["version"] == "0.3.0-alpha.1"
+    assert data["version"] == simpeg_drivers.__version__
