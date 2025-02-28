@@ -15,6 +15,7 @@ from typing import ClassVar
 
 from geoh5py import Workspace
 
+import simpeg_drivers
 from simpeg_drivers.uijson import CoreUIJson
 
 
