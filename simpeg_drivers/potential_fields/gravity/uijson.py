@@ -25,16 +25,55 @@ from geoh5py.ui_json.forms import (
 from geoh5py.ui_json.ui_json import BaseUIJson
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.uijson import BaseInversionUIJson, SimPEGDriversUIJson
+from simpeg_drivers.uijson import SimPEGDriversUIJson
 
 
 class GravityForwardUIJson(SimPEGDriversUIJson):
     """Gravity Forward UIJson."""
 
-    default_ui_json: ClassVar[Path] = assets_path / "gravity_forward.ui.json"
+    default_ui_json: ClassVar[Path] = assets_path() / "gravity_forward.ui.json"
 
     inversion_type: str
-    forward_only: str
+    forward_only: bool
+    data_object: ObjectForm
+    z_from_topo: BoolForm
+    receivers_radar_drape: DataForm
+    receivers_offset_z: FloatForm
+    gps_receivers_offset: str
+    gz_channel_bool: BoolForm
+    gx_channel_bool: BoolForm
+    gy_channel_bool: BoolForm
+    guv_channel_bool: BoolForm
+    gxy_channel_bool: BoolForm
+    gxx_channel_bool: BoolForm
+    gyy_channel_bool: BoolForm
+    gzz_channel_bool: BoolForm
+    gxz_channel_bool: BoolForm
+    gyz_channel_bool: BoolForm
+    mesh: ObjectForm
+    starting_model: DataForm
+    topography_object: ObjectForm
+    topography: DataForm
+    active_model: DataForm
+    output_tile_files: bool
+    parallelized: BoolForm
+    n_cpu: IntegerForm
+    tile_spatial: DataForm
+    max_chunk_size: IntegerForm
+    chunk_by_rows: BoolForm
+    out_group: GroupForm
+    ga_group: str
+    generate_sweep: BoolForm
+    distributed_workers: str
+
+
+class GravityInversionUIJson(SimPEGDriversUIJson):
+    """Gravity Inversion UIJson."""
+
+    default_ui_json: ClassVar[Path] = assets_path() / "gravity_inversionforward.ui.json"
+
+    inversion_type: str
+    forward_only: bool
     data_object: ObjectForm
     gz_channel: DataForm
     gz_uncertainty: DataForm
@@ -85,34 +124,22 @@ class GravityForwardUIJson(SimPEGDriversUIJson):
     initial_beta: FloatForm
     coolingFactor: FloatForm
     coolingRate: IntegerForm
-    max_global_iteration: IntegerForm
+    max_global_iterations: IntegerForm
     max_line_search_iterations: IntegerForm
     max_cg_iterations: IntegerForm
     tol_cg: FloatForm
     f_min_change: FloatForm
     sens_wts_threshold: FloatForm
     every_iteration_bool: BoolForm
-    save_sensitivity: BoolForm
+    save_sensitivities: BoolForm
     parallelized: BoolForm
     n_cpu: IntegerForm
-    tile_spatial: IntegerForm
+    tile_spatial: DataForm
     store_sensitivities: ChoiceForm
     max_ram: str
     max_chunk_size: IntegerForm
+    chunk_by_rows: BoolForm
     out_group: GroupForm
-
-
-class GravityInversionUIJson(SimPEGDriversUIJson):
-    default_ui_json: ClassVar[Path] = assets_path / "gravity_inversion.ui.json"
-    title: str = "Gravity Inversion"
-    inversion_type: str = "gravity"
-
-    gx_channel_bool: bool = False
-    gy_channel_bool: bool = False
-    gz_channel_bool: bool = True
-    gxx_channel_bool: bool = False
-    gxy_channel_bool: bool = False
-    gxz_channel_bool: bool = False
-    gyy_channel_bool: bool = False
-    gyz_channel_bool: bool = False
-    gzz_channel_bool: bool = False
+    ga_group: str
+    generate_sweep: BoolForm
+    distributed_workers: str
