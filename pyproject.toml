@@ -106,10 +106,6 @@ pymatsolver = ">=0.3.0, <0.4.dev"  # from simpeg
 tqdm = ">=4.66.1, <5.0.dev"  # from simpeg
 zarr = ">=2.14.2, <2.15.dev"  # from simpeg[dask]
 
-# force some versions to resolve incompatible resolution between PyPI and Conda
-#------------------------------------------------------------------------------
-tbb = "2021.12.*"  # through mkl from SimPEG
-
 [tool.ruff]
 target-version = "py310"
 
