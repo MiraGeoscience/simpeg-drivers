@@ -95,7 +95,7 @@ libblas = "*=*mkl"  # because simpeg already brings in the MKL
 ## indirect dependencies, forcing them here for installation through Conda not pip
 #---------------------------------------------------------------------------------
 bokeh = ">=3.6.0, <3.7.0"  # from simpeg
-fsspec = "2022.*"  # from simpeg[dask]
+fsspec = ">=2022.0"  # from simpeg[dask]
 geoana = ">=0.7.0, <0.8.dev"  # from simpeg
 h5py = ">=3.2.1, <4.0.dev"  # from geoh5py
 matplotlib-base = ">=3.8.4, <3.9.dev"  # from simpeg

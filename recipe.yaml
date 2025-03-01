@@ -48,7 +48,7 @@ requirements:
     - zarr >=2.14.2, <2.15.dev
   run_constraints:
     - __glibc >=2.17
-    - fsspec >=2022.0, <2023.0.dev
+    - fsspec >=2022.0
 
 about:
   license: MIT
