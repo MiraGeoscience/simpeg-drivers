@@ -99,7 +99,6 @@ fsspec = ">=2022.0"  # from simpeg[dask]
 geoana = ">=0.7.0, <0.8.dev"  # from simpeg
 h5py = ">=3.2.1, <4.0.dev"  # from geoh5py
 matplotlib-base = ">=3.8.4, <3.9.dev"  # from simpeg
-mkl = "2023.2, <2024.1"
 Pillow = ">=10.3.0, <10.4.dev"  # from geoh5py
 pydantic = ">=2.5.2, <3.0.dev"  # from geoh5py, geoapps-utils
 pymatsolver = ">=0.3.0, <0.4.dev"  # from simpeg
