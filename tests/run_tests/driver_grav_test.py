@@ -11,9 +11,12 @@
 from __future__ import annotations
 
 from pathlib import Path
+from unittest.mock import patch
 
 import numpy as np
+from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.workspace import Workspace
+from pytest import raises
 
 from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.potential_fields import (
@@ -64,6 +67,37 @@ def test_gravity_fwr_run(
     fwr_driver.run()
 
 
+def test_array_too_large_run(
+    tmp_path: Path,
+):
+    workpath = tmp_path.parent / "test_gravity_fwr_run0" / "inversion_test.ui.geoh5"
+
+    with Workspace(workpath) as geoh5:
+        gz = geoh5.get_entity("Iteration_0_gz")[0]
+        mesh = geoh5.get_entity("mesh")[0]
+        topography = geoh5.get_entity("topography")[0]
+
+        # Run the inverse
+        active_cells = ActiveCellsOptions(topography_object=topography)
+        params = GravityInversionOptions(
+            geoh5=geoh5,
+            mesh=mesh,
+            active_cells=active_cells,
+            data_object=gz.parent,
+            gz_channel=gz,
+            gz_uncertainty=1e-4,
+            starting_model=1e-4,
+        )
+
+    with patch(
+        "simpeg.inversion.BaseInversion.run",
+        side_effect=np.core._exceptions._ArrayMemoryError((0,), np.dtype("float64")),  # pylint: disable=protected-access
+    ):
+        with raises(GeoAppsError, match="Memory Error"):
+            driver = GravityInversionDriver(params)
+            driver.run()
+
+
 def test_gravity_run(
     tmp_path: Path,
     max_iterations=1,
@@ -111,7 +145,6 @@ def test_gravity_run(
             y_norm=gradient_norms,
             z_norm=gradient_norms,
             gradient_type="components",
-            gz_channel_bool=True,
             gz_channel=gz,
             gz_uncertainty=2e-3,
             lower_bound=0.0,
