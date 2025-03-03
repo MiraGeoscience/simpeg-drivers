@@ -35,7 +35,7 @@ jobs:
     with:
       package-manager: 'conda'
       python-versions: '["3.10", "3.11", "3.12"]'
-      os: '["ubuntu-latest", "windows-datascience-4cpu"]'
+      os: '["ubuntu-latest", "windows-2019", "windows-2025"]'
       cache-number: 1
       codecov-reference-python-version: '3.10'
       codecov-reference-os: '["windows-latest"]'
