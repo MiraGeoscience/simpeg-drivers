@@ -10,14 +10,12 @@
 
 from __future__ import annotations
 
-import sys
 from logging import INFO, getLogger
 from pathlib import Path
 
 import numpy as np
 from geoh5py.workspace import Workspace
 from pymatsolver.direct import Mumps
-from pytest import mark
 
 from simpeg_drivers.electromagnetics.time_domain import (
     TDEMForwardOptions,
@@ -118,6 +116,7 @@ def test_ground_tem_fwr_run(
         x_channel_bool=True,
         y_channel_bool=True,
         z_channel_bool=True,
+        solver_type="Mumps",
     )
 
     fwr_driver = TDEMForwardDriver(params)
@@ -134,13 +133,10 @@ def test_ground_tem_fwr_run(
 
         assert "closed" in caplog.records[0].message
 
-    fwr_driver.data_misfit.objfcts[0].simulation.solver = Mumps
+    assert fwr_driver.data_misfit.objfcts[0].simulation.simulations[0].solver == Mumps
     fwr_driver.run()
 
 
-@mark.skipif(
-    sys.platform.startswith("win"), reason="Skipping windows-only tests due to mkl 2024"
-)
 def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
     workpath = tmp_path / "inversion_test.ui.geoh5"
     if pytest:
@@ -218,12 +214,12 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
             prctile=100,
             sens_wts_threshold=1.0,
             store_sensitivities="ram",
+            solver_type="Mumps",
             **data_kwargs,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
     driver = TDEMInversionDriver(params)
-    driver.data_misfit.objfcts[0].simulation.solver = Mumps
     driver.run()
 
     with geoh5.open() as run_ws:
