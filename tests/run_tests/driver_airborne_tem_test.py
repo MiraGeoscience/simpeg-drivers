@@ -10,13 +10,14 @@
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 import numpy as np
 from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 from pymatsolver.direct import Mumps
-from pytest import raises
+from pytest import mark, raises
 
 from simpeg_drivers.electromagnetics.time_domain import (
     TDEMForwardOptions,
@@ -33,7 +34,6 @@ from simpeg_drivers.utils.utils import get_inversion_output
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
-
 target_run = {"data_norm": 7.05481e-08, "phi_d": 198200000, "phi_m": 7806}
 
 
@@ -108,6 +108,9 @@ def test_airborne_tem_fwr_run(
     fwr_driver.run()
 
 
+@mark.skipif(
+    sys.platform.startswith("win"), reason="Skipping windows-only tests due to mkl 2024"
+)
 def test_airborne_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
     workpath = tmp_path / "inversion_test.ui.geoh5"
     if pytest:
