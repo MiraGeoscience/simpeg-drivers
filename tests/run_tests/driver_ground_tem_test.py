@@ -10,12 +10,14 @@
 
 from __future__ import annotations
 
+import sys
 from logging import INFO, getLogger
 from pathlib import Path
 
 import numpy as np
 from geoh5py.workspace import Workspace
 from pymatsolver.direct import Mumps
+from pytest import mark
 
 from simpeg_drivers.electromagnetics.time_domain import (
     TDEMForwardOptions,
@@ -136,6 +138,9 @@ def test_ground_tem_fwr_run(
     fwr_driver.run()
 
 
+@mark.skipif(
+    sys.platform.startswith("win"), reason="Skipping windows-only tests due to mkl 2024"
+)
 def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
     workpath = tmp_path / "inversion_test.ui.geoh5"
     if pytest:
