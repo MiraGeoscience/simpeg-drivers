@@ -56,12 +56,12 @@ class DrapeModelOptions(BaseModel):
     :param expansion_factor: Expansion factor for the drape model.
     """
 
-    u_cell_size: float = 25.0
-    v_cell_size: float = 25.0
-    depth_core: float = 100.0
-    horizontal_padding: float = 100.0
-    vertical_padding: float = 100.0
-    expansion_factor: float = 100.0
+    u_cell_size: float | None = 25.0
+    v_cell_size: float | None = 25.0
+    depth_core: float | None = 100.0
+    horizontal_padding: float | None = 100.0
+    vertical_padding: float | None = 100.0
+    expansion_factor: float | None = 100.0
 
 
 class FileControlOptions(BaseModel):
