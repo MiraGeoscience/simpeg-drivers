@@ -10,12 +10,14 @@
 
 from __future__ import annotations
 
+import sys
 from logging import INFO, getLogger
 from pathlib import Path
 
 import numpy as np
 from geoh5py.workspace import Workspace
 from pymatsolver.direct import Mumps
+from pytest import skip
 
 from simpeg_drivers.electromagnetics.time_domain import (
     TDEMForwardOptions,
@@ -28,6 +30,10 @@ from simpeg_drivers.electromagnetics.time_domain.driver import (
 from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
+
+
+if not sys.platform.startswith("win"):
+    skip("Skipping windows-only tests due to mkl 2024", allow_module_level=True)
 
 
 logger = getLogger(__name__)

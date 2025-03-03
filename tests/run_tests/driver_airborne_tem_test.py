@@ -10,13 +10,14 @@
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 import numpy as np
 from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 from pymatsolver.direct import Mumps
-from pytest import raises
+from pytest import raises, skip
 
 from simpeg_drivers.electromagnetics.time_domain import (
     TDEMForwardOptions,
@@ -31,9 +32,11 @@ from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
 
+if not sys.platform.startswith("win"):
+    skip("Skipping windows-only tests due to mkl 2024", allow_module_level=True)
+
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
-
 target_run = {"data_norm": 7.05481e-08, "phi_d": 198200000, "phi_m": 7806}
 
 
