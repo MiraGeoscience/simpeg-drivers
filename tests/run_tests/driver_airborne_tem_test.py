@@ -32,7 +32,7 @@ from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
 
-if not sys.platform.startswith("win"):
+if sys.platform.startswith("win"):
     skip("Skipping windows-only tests due to mkl 2024", allow_module_level=True)
 
 # To test the full run and validate the inversion.
