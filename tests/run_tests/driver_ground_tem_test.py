@@ -17,7 +17,7 @@ from pathlib import Path
 import numpy as np
 from geoh5py.workspace import Workspace
 from pymatsolver.direct import Mumps
-from pytest import skip
+from pytest import mark
 
 from simpeg_drivers.electromagnetics.time_domain import (
     TDEMForwardOptions,
@@ -30,10 +30,6 @@ from simpeg_drivers.electromagnetics.time_domain.driver import (
 from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
-
-
-if sys.platform.startswith("win"):
-    skip("Skipping windows-only tests due to mkl 2024", allow_module_level=True)
 
 
 logger = getLogger(__name__)
@@ -142,6 +138,9 @@ def test_ground_tem_fwr_run(
     fwr_driver.run()
 
 
+@mark.skipif(
+    sys.platform.startswith("win"), reason="Skipping windows-only tests due to mkl 2024"
+)
 def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
     workpath = tmp_path / "inversion_test.ui.geoh5"
     if pytest:
