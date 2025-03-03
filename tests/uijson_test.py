@@ -98,4 +98,18 @@ def test_gravity_uijson(tmp_path):
     with open(uijson_path, encoding="utf-8") as f:
         uijson_data = json.load(f)
 
-    assert uijson_data == params_data
+    params_data_nobraces = {}
+    for param, data in params_data.items():
+        if isinstance(data, dict):
+            field_data_nobraces = {}
+            for field, value in data.items():
+                if isinstance(value, str):
+                    value = value.removeprefix("{").removesuffix("}")
+                if isinstance(value, list):
+                    value = [v.removeprefix("{").removesuffix("}") for v in value]
+                field_data_nobraces[field] = value
+        else:
+            field_data_nobraces = data
+        params_data_nobraces[param] = field_data_nobraces
+
+    assert uijson_data == params_data_nobraces
