@@ -12,7 +12,7 @@
 #     name: python3
 # ---
 
-# # Sensitivity Cutoff
+# # Depth of Investigation
 #
 # ![masked_model](./images/masked_model.png)
 #
@@ -65,5 +65,7 @@
 # ![mask](./images/sensitivity_mask.png)
 #
 # which can then be applied to any of the iterations to show only the cells that exceeded the sensitivity threshold.
+#
+# ![apply_mask](./images/apply_mask.png)
 #
 # ![masked_model](./images/masked_model.png)

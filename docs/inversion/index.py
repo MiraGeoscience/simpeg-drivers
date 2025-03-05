@@ -27,4 +27,6 @@
 #
 # - [Joint/Coupling Strategies](joint_inversion.ipynb): Inverting multiple geophysical surveys.
 #
+# - [Depth of Investigation](depth_of_investigation.ipynb): Using sensitivities to set depth extents
+#
 # ![inversion_ui](./images/inversion_ui.png)
