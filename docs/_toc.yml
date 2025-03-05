@@ -11,6 +11,7 @@ chapters:
   - file: inversion/regularization
   - file: inversion/mesh_design
   - file: inversion/joint_inversion
+  - file: inversion/depth_of_investigation
 - file: case_study/introduction
   sections:
   - file: case_study/background
