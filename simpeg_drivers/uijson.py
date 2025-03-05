@@ -20,8 +20,9 @@ import simpeg_drivers
 logger = logging.getLogger(__name__)
 
 
-class CoreUIJson(BaseUIJson):
-    version: str = simpeg_drivers.__version__
+class SimPEGDriversUIJson(BaseUIJson):
+    icon: str
+    documentation: str
 
     @field_validator("version", mode="before")
     @classmethod

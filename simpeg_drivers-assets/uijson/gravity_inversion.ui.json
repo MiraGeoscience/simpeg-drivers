@@ -19,9 +19,7 @@
             "{6a057fdc-b355-11e3-95be-fd84a7ffcb88}",
             "{f26feba3-aded-494b-b9e9-b2bbcbe298e1}",
             "{48f5054a-1c5c-4ca4-9048-80f36dc60a06}",
-            "{b020a277-90e2-4cd7-84d6-612ee3f25051}",
-            "{b54f6be6-0eb5-4a4e-887a-ba9d276f9a83}",
-            "{5ffa3816-358d-4cdd-9b7d-e1f7f5543e05}"
+            "{b020a277-90e2-4cd7-84d6-612ee3f25051}"
         ],
         "value": ""
     },
@@ -770,6 +768,11 @@
         "parent": "data_object",
         "isValue": true,
         "property": "",
+        "dataType": "Float",
+        "association": [
+            "Vertex",
+            "Cell"
+        ],
         "value": 1,
         "min": 1,
         "max": 1000,
