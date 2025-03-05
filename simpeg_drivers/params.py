@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 import multiprocessing
+from enum import Enum
 from logging import getLogger
 from pathlib import Path
 from typing import ClassVar, TypeAlias
@@ -56,6 +57,15 @@ class ActiveCellsOptions(BaseModel):
         return data
 
 
+class SolverType(str, Enum):
+    """
+    Supported solvers.
+    """
+
+    Pardiso = "Pardiso"
+    Mumps = "Mumps"
+
+
 class CoreOptions(BaseData):
     """
     Core parameters shared by inverse and forward operations.
@@ -94,6 +104,7 @@ class CoreOptions(BaseData):
     mesh: Octree | DrapeModel | None
     starting_model: float | FloatData
     active_cells: ActiveCellsOptions
+    solver_type: SolverType = SolverType.Pardiso
     tile_spatial: int = 1
     parallelized: bool = True
     n_cpu: int | None = None
