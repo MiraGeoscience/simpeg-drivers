@@ -192,13 +192,17 @@ class SimulationFactory(SimPEGFactory):
         mesh,
         active_cells=None,
     ):
-        etamap = maps.InjectActiveCells(mesh, indActive=active_cells, valInactive=0)
+        etamap = maps.InjectActiveCells(
+            mesh, active_cells=active_cells, value_inactive=0
+        )
         kwargs["etaMap"] = etamap
         kwargs["solver"] = self.solver
         return kwargs
 
     def _conductivity_keywords(self, kwargs, mesh, active_cells=None):
-        actmap = maps.InjectActiveCells(mesh, active_cells, valInactive=np.log(1e-8))
+        actmap = maps.InjectActiveCells(
+            mesh, active_cells=active_cells, value_inactive=np.log(1e-8)
+        )
         kwargs["sigmaMap"] = maps.ExpMap(mesh) * actmap
         kwargs["solver"] = self.solver
         return kwargs
