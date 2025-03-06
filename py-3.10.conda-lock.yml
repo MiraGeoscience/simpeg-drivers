@@ -1115,7 +1115,7 @@ package:
   category: dev
   optional: true
 - name: debugpy
-  version: 1.8.12
+  version: 1.8.13
   manager: conda
   platform: linux-64
   dependencies:
@@ -1124,14 +1124,14 @@ package:
     libstdcxx: '>=13'
     python: '>=3.10,<3.11.0a0'
     python_abi: 3.10.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/debugpy-1.8.12-py310hf71b8c6_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/debugpy-1.8.13-py310hf71b8c6_0.conda
   hash:
-    md5: 9b1dedfc47e1242253d6e2ca3b864693
-    sha256: 1de0f06d106d89355977e859320fb0412d757f62114597f9bd1c4f1b377440c3
+    md5: dc30b46d5b3ddccd3b3ac1b0bee17026
+    sha256: f02fb1862980595a310551f5cd35ddffa1f224e7d9c5aab6c3b9e37922a96e34
   category: dev
   optional: true
 - name: debugpy
-  version: 1.8.12
+  version: 1.8.13
   manager: conda
   platform: win-64
   dependencies:
@@ -1140,10 +1140,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://conda.anaconda.org/conda-forge/win-64/debugpy-1.8.12-py310h9e98ed7_0.conda
+  url: https://conda.anaconda.org/conda-forge/win-64/debugpy-1.8.13-py310h9e98ed7_0.conda
   hash:
-    md5: 6ce8c7ad37a65f7c39014a106e9c38e1
-    sha256: fa60c05e1ba14eab7f619a0416764e88c7bb8935b59ee936f2562493f6b5a1f5
+    md5: 136cdcd7b5c571c42d8c08730e8c4e0b
+    sha256: a98214b90b595cadb190359957ef046629a8d2e2ae6033e7304288dd65b33c43
   category: dev
   optional: true
 - name: decorator
@@ -2276,29 +2276,29 @@ package:
   category: dev
   optional: true
 - name: jinja2
-  version: 3.1.5
+  version: 3.1.6
   manager: conda
   platform: linux-64
   dependencies:
     markupsafe: '>=2.0'
     python: '>=3.9'
-  url: https://conda.anaconda.org/conda-forge/noarch/jinja2-3.1.5-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/jinja2-3.1.6-pyhd8ed1ab_0.conda
   hash:
-    md5: 2752a6ed44105bfb18c9bef1177d9dcd
-    sha256: 98977694b9ecaa3218662f843425f39501f81973c450f995eec68f1803ed71c3
+    md5: 446bd6c8cb26050d528881df495ce646
+    sha256: f1ac18b11637ddadc05642e8185a851c7fab5998c6f5470d716812fae943b2af
   category: main
   optional: false
 - name: jinja2
-  version: 3.1.5
+  version: 3.1.6
   manager: conda
   platform: win-64
   dependencies:
     markupsafe: '>=2.0'
     python: '>=3.9'
-  url: https://conda.anaconda.org/conda-forge/noarch/jinja2-3.1.5-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/jinja2-3.1.6-pyhd8ed1ab_0.conda
   hash:
-    md5: 2752a6ed44105bfb18c9bef1177d9dcd
-    sha256: 98977694b9ecaa3218662f843425f39501f81973c450f995eec68f1803ed71c3
+    md5: 446bd6c8cb26050d528881df495ce646
+    sha256: f1ac18b11637ddadc05642e8185a851c7fab5998c6f5470d716812fae943b2af
   category: main
   optional: false
 - name: joblib
@@ -8040,35 +8040,35 @@ package:
   manager: conda
   platform: win-64
   dependencies:
-    vc14_runtime: '>=14.40.33810'
-  url: https://conda.anaconda.org/conda-forge/win-64/vc-14.3-h5fd82a7_24.conda
+    vc14_runtime: '>=14.42.34438'
+  url: https://conda.anaconda.org/conda-forge/win-64/vc-14.3-hbf610ac_24.conda
   hash:
-    md5: 00cf3a61562bd53bd5ea99e6888793d0
-    sha256: 7ce178cf139ccea5079f9c353b3d8415d1d49b0a2f774662c355d3f89163d7b4
+    md5: 9098c5cfb418fc0b0204bf2efc1e9afa
+    sha256: 8ef83b62f9f0b885882d0dd41cbe47c2308f7ac0537fd508a5bbe6d3953a176e
   category: main
   optional: false
 - name: vc14_runtime
-  version: 14.42.34433
+  version: 14.42.34438
   manager: conda
   platform: win-64
   dependencies:
     ucrt: '>=10.0.20348.0'
-  url: https://conda.anaconda.org/conda-forge/win-64/vc14_runtime-14.42.34433-h6356254_24.conda
+  url: https://conda.anaconda.org/conda-forge/win-64/vc14_runtime-14.42.34438-hfd919c2_24.conda
   hash:
-    md5: 2441e010ee255e6a38bf16705a756e94
-    sha256: abda97b8728cf6e3c37df8f1178adde7219bed38b96e392cb3be66336386d32e
+    md5: 5fceb7d965d59955888d9a9732719aa8
+    sha256: fb36814355ac12dcb4a55b75b5ef0d49ec219ad9df30d7955f2ace88bd6919c4
   category: main
   optional: false
 - name: vs2015_runtime
-  version: 14.42.34433
+  version: 14.42.34438
   manager: conda
   platform: win-64
   dependencies:
-    vc14_runtime: '>=14.42.34433'
-  url: https://conda.anaconda.org/conda-forge/win-64/vs2015_runtime-14.42.34433-hfef2bbc_24.conda
+    vc14_runtime: '>=14.42.34438'
+  url: https://conda.anaconda.org/conda-forge/win-64/vs2015_runtime-14.42.34438-h7142326_24.conda
   hash:
-    md5: 117fcc5b86c48f3b322b0722258c7259
-    sha256: 09102e0bd283af65772c052d85028410b0c31989b3cd96c260485d28e270836e
+    md5: 1dd2e838eb13190ae1f1e2760c036fdc
+    sha256: a7104d3d605d191c8ee8d85d4175df3630d61830583494a5d1e62cd9f1260420
   category: main
   optional: false
 - name: wcwidth
@@ -8558,12 +8558,12 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pillow: '>=10.3.0,<10.4.0'
     pydantic: '>=2.5.2,<3.0.0'
-  url: git+https://github.com/MiraGeoscience/geoh5py.git@c5f762ae16395629d8a8e4e04dc7488a6c9c53f1
+  url: git+https://github.com/MiraGeoscience/geoh5py.git@ba95a86578f2f5f461994333cb0212efb8907e2d
   hash:
-    sha256: c5f762ae16395629d8a8e4e04dc7488a6c9c53f1
+    sha256: ba95a86578f2f5f461994333cb0212efb8907e2d
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoh5py.git@c5f762ae16395629d8a8e4e04dc7488a6c9c53f1
+    url: git+https://github.com/MiraGeoscience/geoh5py.git@ba95a86578f2f5f461994333cb0212efb8907e2d
   category: main
   optional: false
 - name: geoh5py
@@ -8575,12 +8575,12 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pillow: '>=10.3.0,<10.4.0'
     pydantic: '>=2.5.2,<3.0.0'
-  url: git+https://github.com/MiraGeoscience/geoh5py.git@c5f762ae16395629d8a8e4e04dc7488a6c9c53f1
+  url: git+https://github.com/MiraGeoscience/geoh5py.git@ba95a86578f2f5f461994333cb0212efb8907e2d
   hash:
-    sha256: c5f762ae16395629d8a8e4e04dc7488a6c9c53f1
+    sha256: ba95a86578f2f5f461994333cb0212efb8907e2d
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoh5py.git@c5f762ae16395629d8a8e4e04dc7488a6c9c53f1
+    url: git+https://github.com/MiraGeoscience/geoh5py.git@ba95a86578f2f5f461994333cb0212efb8907e2d
   category: main
   optional: false
 - name: mira-simpeg
@@ -8635,12 +8635,12 @@ package:
     geoh5py: 0.11.0-alpha.1
     numpy: '>=1.26.0,<1.27.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: git+https://github.com/MiraGeoscience/octree-creation-app.git@3c479f5d098332ff1c6e0eca0d56be6cc01e0911
+  url: git+https://github.com/MiraGeoscience/octree-creation-app.git@680a233e2d3380c084a05a6e3cb51b28e6b450ab
   hash:
-    sha256: 3c479f5d098332ff1c6e0eca0d56be6cc01e0911
+    sha256: 680a233e2d3380c084a05a6e3cb51b28e6b450ab
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/octree-creation-app.git@3c479f5d098332ff1c6e0eca0d56be6cc01e0911
+    url: git+https://github.com/MiraGeoscience/octree-creation-app.git@680a233e2d3380c084a05a6e3cb51b28e6b450ab
   category: main
   optional: false
 - name: octree-creation-app
@@ -8653,12 +8653,12 @@ package:
     geoh5py: 0.11.0-alpha.1
     numpy: '>=1.26.0,<1.27.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: git+https://github.com/MiraGeoscience/octree-creation-app.git@3c479f5d098332ff1c6e0eca0d56be6cc01e0911
+  url: git+https://github.com/MiraGeoscience/octree-creation-app.git@680a233e2d3380c084a05a6e3cb51b28e6b450ab
   hash:
-    sha256: 3c479f5d098332ff1c6e0eca0d56be6cc01e0911
+    sha256: 680a233e2d3380c084a05a6e3cb51b28e6b450ab
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/octree-creation-app.git@3c479f5d098332ff1c6e0eca0d56be6cc01e0911
+    url: git+https://github.com/MiraGeoscience/octree-creation-app.git@680a233e2d3380c084a05a6e3cb51b28e6b450ab
   category: main
   optional: false
 - name: param-sweeps
