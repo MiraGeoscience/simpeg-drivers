@@ -100,12 +100,12 @@ def test_survey_data(tmp_path: Path):
             [20, 20, 20],
             depth_core=50,
             mesh_type="TREE",
+            tree_diagonal_balance=False,
         )
         mesh = OctreeDriver.refine_tree_from_surface(
             mesh,
             test_topo_object,
             levels=[2],
-            diagonal_balance=False,
             finalize=True,
         )
 
