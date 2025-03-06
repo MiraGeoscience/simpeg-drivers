@@ -14,7 +14,7 @@
 
 # # Depth of Investigation
 #
-# One way to measure the depth of investigation of a sensitivity based inversion algorithm is to filter the model cells as a percentage (or percentile) of the sensitivity matrix.  SimPEG inversion routines calculate sensitivities at each iteration.  A mask can be calculated at each iteration by asking what cells in the inversion model are associated with a sensitivity that exceeds some threshold.  There are a number of ways to calculate a threshold including percentage, log percentage, and percentile.  In each calculation, the resulting mask should broadly look like a heterogeneous depth cutoff since the data are naturally less sensitive to deeper cells in all geophysical methods. In the following, we discuss the algorithm and implementation of the sensitivity cutoff strategy.
+# In geophysics, "depth of investigation" refers to the maximum depth below the surface from which a geophysical survey can reliably measure. It depends on factors like the survey design and physical properties of the subsurface material. Several strategies have been proposed to assess uncertainties in models recovered from inversion. Nabighian & Macnae (1989) used a skin depth approach for electromagnetic surveys, assuming a background halfspace resistivity. Li&O (1999) implemented a cut-off value based on two inverted models obtained with slightly different assumptions. Christiansen & Auken (2012) proposed a mask based on the sum-square of sensitivities to estimate a volume of low confidence. In the following, we discuss the algorithm and implementation of the sensitivity cutoff strategy.
 
 # ## Sensitivities
 #
@@ -24,15 +24,17 @@
 # \mathbf{J} = \frac{\mathbf\partial{F}(\mathbf{m})}{\partial{\mathbf{m}}}
 # $$
 #
-# where $\mathbf{m}$ is the model vector, and $\mathbf{F}(\mathbf{m})$ represents the forward modelling operation as a function of the model.  The dimensions of the sensitivity are $n\times m$ where $n$ is the number of data and $m$ are the number of mesh cells.
+# where $\mathbf{m}$ is the model vector, and $F(\mathbf{m})$ represents the forward modelling operation as a function of the model.  The sensitivity matrix $\mathbf{J}$ is a dense array with dimensions $N\times M$, where $N$ is the number of data and $M$ are the number of mesh cells.
 #
-# The depth of investigation mask is a property of the cells of the mesh only so the rows of the matrix (data) are sum-square normalized as follows.
+# The depth of investigation mask is a property of the cells of the mesh only so the rows of the sensitivity matrix (data) are sum-square normalized as follows.
 #
 # $$
-# \mathbf{J} = \Bigg|\frac{\mathbf\partial{F}_{n}(\mathbf{m})}{\partial{\mathbf{m}}}\Bigg|_{n=1:N}^{2}
+# \mathbf{J}_{norm} = \left[\sum_{n=1}^{N}\left(\frac{\mathbf{J}_{n:}}{w_n}\right)^{2}\right]^{(1/2)}
 # $$
 #
-# The resulting vector can then be thought of as the degree to which the aggregate data changes due to a small perturbation in each model cell.  The depth of investigation mask is then computed by thresholding those sensitivities
+# where $w_n$ are the data uncertainties associated with the $n^{th}$ datum.
+#
+# The resulting vector $J_{norm}$ can then be thought of as the degree to which the aggregate data changes due to a small perturbation in each model cell.  The depth of investigation mask is then computed by thresholding those sensitivities
 
 # ## Thresholding
 #
