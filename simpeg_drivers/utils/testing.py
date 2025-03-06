@@ -457,12 +457,12 @@ def setup_inversion_workspace(
             depth_core=100.0,
             padding_distance=padDist,
             mesh_type="TREE",
+            tree_diagonal_balance=False,
         )
         mesh = OctreeDriver.refine_tree_from_surface(
             mesh,
             topography,
             levels=refinement,
-            diagonal_balance=False,
             finalize=False,
         )
 
@@ -471,7 +471,6 @@ def setup_inversion_workspace(
                 mesh,
                 vertices,
                 levels=[2],
-                diagonal_balance=False,
                 finalize=False,
             )
 
