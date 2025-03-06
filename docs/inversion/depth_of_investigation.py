@@ -14,8 +14,6 @@
 
 # # Depth of Investigation
 #
-# ![masked_model](./images/masked_model.png)
-#
 # One way to measure the depth of investigation of a sensitivity based inversion algorithm is to filter the model cells as a percentage (or percentile) of the sensitivity matrix.  SimPEG inversion routines calculate sensitivities at each iteration.  A mask can be calculated at each iteration by asking what cells in the inversion model are associated with a sensitivity that exceeds some threshold.  There are a number of ways to calculate a threshold including percentage, log percentage, and percentile.  In each calculation, the resulting mask should broadly look like a heterogeneous depth cutoff since the data are naturally less sensitive to deeper cells in all geophysical methods. In the following, we discuss the algorithm and implementation of the sensitivity cutoff strategy.
 
 # ## Sensitivities
@@ -60,7 +58,11 @@
 #
 # ![interface](./images/uijson.png)
 #
-# It will create a sensitivity cutoff mask saved on the mesh
+# The cutoff methods are selectable in the dropdown
+#
+# ![cutoff_options](./images/cutoff_options.png)
+#
+# Whatever the options, the application will create a sensitivity cutoff mask saved on the mesh
 #
 # ![mask](./images/sensitivity_mask.png)
 #
