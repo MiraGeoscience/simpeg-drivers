@@ -105,9 +105,10 @@ class EntityFactory(AbstractFactory):
                 )
                 entity.transmitters.cells = cells
 
-            tx_freq = self.params.data_object.transmitters.get_data("Tx frequency")
-            if tx_freq:
-                tx_freq[0].copy(parent=entity.transmitters)
+            if self.params.data_object.transmitters is not None:
+                tx_freq = self.params.data_object.transmitters.get_data("Tx frequency")
+                if tx_freq:
+                    tx_freq[0].copy(parent=entity.transmitters)
 
         return entity
 
