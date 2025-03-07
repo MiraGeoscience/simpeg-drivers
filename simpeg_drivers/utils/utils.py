@@ -162,7 +162,9 @@ def create_nested_mesh(
     """
     locations = get_unique_locations(survey)
     nested_mesh = TreeMesh(
-        [base_mesh.h[0], base_mesh.h[1], base_mesh.h[2]], x0=base_mesh.x0
+        [base_mesh.h[0], base_mesh.h[1], base_mesh.h[2]],
+        x0=base_mesh.x0,
+        diagonal_balance=True,
     )
     base_level = base_mesh.max_level - minimum_level
     base_refinement = base_mesh.cell_levels_by_index(np.arange(base_mesh.nC))
