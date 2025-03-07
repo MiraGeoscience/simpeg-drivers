@@ -31,7 +31,7 @@ from simpeg_drivers.uijson import SimPEGDriversUIJson
 class GravityForwardUIJson(SimPEGDriversUIJson):
     """Gravity Forward UIJson."""
 
-    default_ui_json: ClassVar[Path] = assets_path() / "gravity_forward.ui.json"
+    default_ui_json: ClassVar[Path] = assets_path() / "uijson/gravity_forward.ui.json"
 
     inversion_type: str
     forward_only: bool
@@ -70,7 +70,7 @@ class GravityForwardUIJson(SimPEGDriversUIJson):
 class GravityInversionUIJson(SimPEGDriversUIJson):
     """Gravity Inversion UIJson."""
 
-    default_ui_json: ClassVar[Path] = assets_path() / "gravity_inversionforward.ui.json"
+    default_ui_json: ClassVar[Path] = assets_path() / "uijson/gravity_inversion.ui.json"
 
     inversion_type: str
     forward_only: bool
