@@ -168,20 +168,20 @@ class SimulationFactory(SimPEGFactory):
             )
 
     def _magnetic_vector_keywords(self, kwargs, active_cells=None):
-        kwargs["ind_active"] = active_cells
+        kwargs["active_cells"] = active_cells
         kwargs["chiMap"] = maps.IdentityMap(nP=int(active_cells.sum()) * 3)
         kwargs["model_type"] = "vector"
         kwargs["chunk_format"] = "row"
         return kwargs
 
     def _magnetic_scalar_keywords(self, kwargs, active_cells=None):
-        kwargs["ind_active"] = active_cells
+        kwargs["active_cells"] = active_cells
         kwargs["chiMap"] = maps.IdentityMap(nP=int(active_cells.sum()))
         kwargs["chunk_format"] = "row"
         return kwargs
 
     def _gravity_keywords(self, kwargs, active_cells=None):
-        kwargs["ind_active"] = active_cells
+        kwargs["active_cells"] = active_cells
         kwargs["rhoMap"] = maps.IdentityMap(nP=int(active_cells.sum()))
         kwargs["chunk_format"] = "row"
         return kwargs
@@ -192,13 +192,17 @@ class SimulationFactory(SimPEGFactory):
         mesh,
         active_cells=None,
     ):
-        etamap = maps.InjectActiveCells(mesh, indActive=active_cells, valInactive=0)
+        etamap = maps.InjectActiveCells(
+            mesh, active_cells=active_cells, value_inactive=0
+        )
         kwargs["etaMap"] = etamap
         kwargs["solver"] = self.solver
         return kwargs
 
     def _conductivity_keywords(self, kwargs, mesh, active_cells=None):
-        actmap = maps.InjectActiveCells(mesh, active_cells, valInactive=np.log(1e-8))
+        actmap = maps.InjectActiveCells(
+            mesh, active_cells=active_cells, value_inactive=np.log(1e-8)
+        )
         kwargs["sigmaMap"] = maps.ExpMap(mesh) * actmap
         kwargs["solver"] = self.solver
         return kwargs

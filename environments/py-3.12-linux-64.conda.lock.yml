@@ -44,7 +44,7 @@ dependencies:
   - icu=75.1=he02047a_0
   - importlib-metadata=8.6.1=pyha770c72_0
   - importlib_metadata=8.6.1=hd8ed1ab_0
-  - jinja2=3.1.5=pyhd8ed1ab_0
+  - jinja2=3.1.6=pyhd8ed1ab_0
   - joblib=1.4.2=pyhd8ed1ab_1
   - keyutils=1.6.1=h166bdaf_0
   - kiwisolver=1.4.8=py312h84d6215_0
@@ -156,9 +156,9 @@ dependencies:
   - zstd=1.5.6=ha6fb4c9_0
   - pip:
       - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@6ba24321d5311bbaf7ab460261ce6730ed541131
-      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@57e666e69f78e2961fdb54c715bce14b8d25ce4f
+      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@94e2e48fb93d9819a63f11f10cf11d487fbdb20f
       - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@275985aa18af76d70d55311e45dcfed149e62089
-      - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app.git@3c479f5d098332ff1c6e0eca0d56be6cc01e0911
+      - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app.git@680a233e2d3380c084a05a6e3cb51b28e6b450ab
       - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps.git@39de1da1495aff6d16641d408317619e23adbdb4
 
 variables:
