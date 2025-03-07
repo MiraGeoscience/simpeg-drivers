@@ -162,6 +162,16 @@
         "value": 1,
         "visible": false
     },
+    "solver_type": {
+        "choiceList": [
+            "Pardiso",
+            "Mumps"
+        ],
+        "group": "Compute",
+        "label": "Direct solver",
+        "tooltip": "Direct solver to use for the forward calculations",
+        "value": "Pardiso"
+    },
     "tile_spatial": {
         "group": "Compute",
         "label": "Number of tiles",

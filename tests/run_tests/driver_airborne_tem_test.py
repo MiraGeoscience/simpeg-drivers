@@ -15,7 +15,6 @@ from pathlib import Path
 import numpy as np
 from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
-from pymatsolver.direct import Mumps
 from pytest import raises
 
 from simpeg_drivers.electromagnetics.time_domain import (
@@ -33,7 +32,6 @@ from simpeg_drivers.utils.utils import get_inversion_output
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
-
 target_run = {"data_norm": 7.05481e-08, "phi_d": 198200000, "phi_m": 7806}
 
 
@@ -100,11 +98,11 @@ def test_airborne_tem_fwr_run(
         x_channel_bool=True,
         y_channel_bool=True,
         z_channel_bool=True,
+        solver_type="Mumps",
     )
 
     fwr_driver = TDEMForwardDriver(params)
 
-    fwr_driver.data_misfit.objfcts[0].simulation.solver = Mumps
     fwr_driver.run()
 
 
@@ -187,12 +185,12 @@ def test_airborne_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
             prctile=5,
             sens_wts_threshold=1.0,
             store_sensitivities="ram",
+            solver_type="Mumps",
             **data_kwargs,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
     driver = TDEMInversionDriver(params)
-    driver.data_misfit.objfcts[0].simulation.solver = Mumps
     driver.run()
 
     with geoh5.open() as run_ws:

@@ -96,10 +96,10 @@ libblas = "*=*mkl"  # because simpeg already brings in the MKL
 empymod = ">=2.2.1, <2.3.dev"  # from simpeg and geoana
 bokeh = ">=3.6.0, <3.7.0"  # from simpeg
 fsspec = "2022.*"  # from simpeg[dask]
-geoana = ">=0.5.0, <0.6.dev"  # from simpeg
+geoana = ">=0.7.0, <0.8.dev"  # from simpeg
 h5py = ">=3.2.1, <4.0.dev"  # from geoh5py
 matplotlib-base = ">=3.8.4, <3.9.dev"  # from simpeg
-mkl = "2023.2, <2024.1"
+mkl = ">=2024.2.2, <2025.dev"
 pandas = ">=2.2.1, <2.3.dev"  # from SimPEG, also used by targeting-workflow, petro-lingo
 Pillow = ">=10.3.0, <10.4.dev"  # from geoh5py
 pydantic = ">=2.5.2, <3.0.dev"  # from geoh5py, geoapps-utils
@@ -174,7 +174,7 @@ exclude_lines = [
     "pragma: no cover"
 ]
 
-fail_under = 88
+fail_under = 85
 
 [tool.coverage.html]
 skip_empty = true

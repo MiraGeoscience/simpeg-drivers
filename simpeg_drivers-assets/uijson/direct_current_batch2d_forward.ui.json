@@ -175,6 +175,16 @@
         "value": 1,
         "visible": false
     },
+    "solver_type": {
+        "choiceList": [
+            "Pardiso",
+            "Mumps"
+        ],
+        "group": "Compute",
+        "label": "Direct solver",
+        "tooltip": "Direct solver to use for the forward calculations",
+        "value": "Pardiso"
+    },
     "tile_spatial": 1,
     "max_chunk_size": {
         "min": 0,

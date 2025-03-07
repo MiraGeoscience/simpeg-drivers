@@ -27,9 +27,8 @@ from dask import config as dconf
 
 from dask.distributed import get_client, Client, LocalCluster, performance_report
 from geoapps_utils.driver.driver import BaseDriver
-from geoapps_utils.driver.data import BaseData
+from geoapps_utils.utils.importing import GeoAppsError
 
-from geoh5py.data import Data
 from geoh5py.groups import SimPEGGroup
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
@@ -345,13 +344,23 @@ class InversionDriver(BaseDriver):
                 self.out_group.add_file(self.params.input_file.path_name)
 
         predicted = None
-        if self.params.forward_only:
-            print("Running the forward simulation ...")
-            predicted = simpeg_inversion.invProb.get_dpred(self.models.starting, None)
-        else:
-            # Run the inversion
-            self.start_inversion_message()
-            simpeg_inversion.run(self.models.starting)
+        try:
+            if self.params.forward_only:
+                print("Running the forward simulation ...")
+                predicted = simpeg_inversion.invProb.get_dpred(
+                    self.models.starting, None
+                )
+            else:
+                # Run the inversion
+                self.start_inversion_message()
+                simpeg_inversion.run(self.models.starting)
+
+        except np.core._exceptions._ArrayMemoryError as error:  # pylint: disable=protected-access
+            raise GeoAppsError(
+                "Memory Error: Sensitivities too large for system. \n"
+                "Try reducing the number of data, reducing the number of cells in the mesh\n"
+                "or increase the number of tiles."
+            ) from error
 
         self.logger.end()
         sys.stdout = self.logger.terminal
