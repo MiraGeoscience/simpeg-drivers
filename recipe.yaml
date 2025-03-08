@@ -36,11 +36,10 @@ requirements:
     - discretize >=0.10.0, <0.11.dev
     - distributed >=2024.06, <2024.07.dev
     - numpy >=1.26.0, <1.27.dev
-    - scikit-learn >=1.4.0, <1.5.dev
-    - scipy >=1.14.0, <1.15.dev
     - pydiso >=0.1.0, <0.2.dev
     - python-mumps >=0.0.3, <0.0.4.dev
-    # constraint version for some indirect dependencies from SimPEG
+    - scikit-learn >=1.4.0, <1.5.dev
+    - scipy >=1.14.0, <1.15.dev
     - tqdm >=4.66.1, <5.0.dev
     # constrain version for some indirect dependencies from SimPEG
     - geoana >=0.7.0, <0.8.dev
