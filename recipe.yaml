@@ -48,6 +48,7 @@ requirements:
     - zarr >=2.14.2, <2.15.dev
   run_constraints:
     - __glibc >=2.17
+    - bokeh >=3.6.0, <3.7.dev
     - fsspec >=2022.0
 
 tests:
