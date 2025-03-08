@@ -36,6 +36,7 @@ distributed = "2024.6.*"  # because conda-lock doesn't take dask extras into acc
 numpy = "~1.26.0" # also in geoh5py, simpeg
 scikit-learn = "~1.4.0"
 scipy = "~1.14.0"
+tqdm = "^4.66.1"
 
 # solvers for simpeg: not imported, but at least one required at runtime
 pydiso = ">=0.1.0, <0.2.dev"
@@ -94,7 +95,7 @@ libblas = "*=*mkl"  # because simpeg already brings in the MKL
 
 ## indirect dependencies, forcing them here for installation through Conda not pip
 #---------------------------------------------------------------------------------
-bokeh = ">=3.6.0, <3.7.0"  # from simpeg
+bokeh = ">=3.6.0, <3.7.dev"  # from simpeg
 fsspec = ">=2022.0"  # from simpeg[dask]
 geoana = ">=0.7.0, <0.8.dev"  # from simpeg
 h5py = ">=3.2.1, <4.0.dev"  # from geoh5py
@@ -103,7 +104,6 @@ mkl = ">=2024.2.2"
 Pillow = ">=10.3.0, <10.4.dev"  # from geoh5py
 pydantic = ">=2.5.2, <3.0.dev"  # from geoh5py, geoapps-utils
 pymatsolver = ">=0.3.0, <0.4.dev"  # from simpeg
-tqdm = ">=4.66.1, <5.0.dev"  # from simpeg
 zarr = ">=2.14.2, <2.15.dev"  # from simpeg[dask]
 
 [tool.ruff]
