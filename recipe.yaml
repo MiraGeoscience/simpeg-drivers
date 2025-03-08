@@ -50,6 +50,19 @@ requirements:
     - __glibc >=2.17
     - fsspec >=2022.0
 
+tests:
+  - python:
+      imports:
+        -simpeg_drivers
+  - script:
+      - pytest ./tests
+    requirements:
+      run:
+        - pytest
+    files:
+      source:
+        - tests/
+
 about:
   license: MIT
   license_file:
