@@ -54,7 +54,7 @@ requirements:
 tests:
   - python:
       imports:
-        -simpeg_drivers
+        - simpeg_drivers
   - script:
       - pytest ./tests
     requirements:
