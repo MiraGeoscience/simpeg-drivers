@@ -114,13 +114,13 @@ class MisfitFactory(SimPEGFactory):
                 if "induced polarization" in self.params.inversion_type:
                     if "2d" in self.params.inversion_type:
                         proj = maps.InjectActiveCells(
-                            mesh, active_cells, valInactive=1e-8
+                            mesh, active_cells, value_inactive=1e-8
                         )
                     else:
                         proj = maps.InjectActiveCells(
                             mapping.local_mesh,
                             mapping.local_active,
-                            valInactive=1e-8,
+                            value_inactive=1e-8,
                         )
 
                     # TODO this should be done in the simulation factory

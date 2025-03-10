@@ -152,10 +152,10 @@ def test_airborne_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
 
         data_kwargs = {}
         for comp in components:
-            data_kwargs[f"{comp}_channel"] = survey.find_or_create_property_group(
+            data_kwargs[f"{comp}_channel"] = survey.fetch_property_group(
                 name=f"dB{comp}dt"
             )
-            data_kwargs[f"{comp}_uncertainty"] = survey.find_or_create_property_group(
+            data_kwargs[f"{comp}_uncertainty"] = survey.fetch_property_group(
                 name=f"dB{comp}dt uncertainties"
             )
 
