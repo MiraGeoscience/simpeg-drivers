@@ -276,29 +276,29 @@ package:
   category: main
   optional: false
 - name: astroid
-  version: 3.3.8
+  version: 3.3.9
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.11,<3.12.0a0'
     python_abi: 3.11.*
-  url: https://packages.prefix.dev/conda-forge/linux-64/astroid-3.3.8-py311h38be061_0.conda
+  url: https://packages.prefix.dev/conda-forge/linux-64/astroid-3.3.9-py311h38be061_0.conda
   hash:
-    md5: 1d40246388ce17d0ada77a5da37d72d8
-    sha256: f99e14e537e4d5a57275b788c2ac5ef19b7c2b00f706ab5262d27a5d5f85471e
+    md5: cabdabc18d53f957c01685765f24381a
+    sha256: cf6c649941832b7b2ed0bdd4e79093343468c3e1003fc78f53e2a1021cefbec4
   category: dev
   optional: true
 - name: astroid
-  version: 3.3.8
+  version: 3.3.9
   manager: conda
   platform: win-64
   dependencies:
     python: '>=3.11,<3.12.0a0'
     python_abi: 3.11.*
-  url: https://packages.prefix.dev/conda-forge/win-64/astroid-3.3.8-py311h1ea47a8_0.conda
+  url: https://packages.prefix.dev/conda-forge/win-64/astroid-3.3.9-py311h1ea47a8_0.conda
   hash:
-    md5: 1eb65d33ea4f51068bb40220d65c2f33
-    sha256: 47921cda617bf75c9005ba3f2844c46ceeb7beff37dc256a1c77e9bd00b6e2cd
+    md5: dcfa6fc2847f6d9395b210423ab13d1b
+    sha256: ce85abea60acda2e8d2c8bfbca7f1013e04a9b4b23d59b5e02a4b12de6ee1cf8
   category: dev
   optional: true
 - name: asttokens
@@ -5823,7 +5823,7 @@ package:
   category: dev
   optional: true
 - name: pylint
-  version: 3.3.4
+  version: 3.3.5
   manager: conda
   platform: linux-64
   dependencies:
@@ -5837,14 +5837,14 @@ package:
     tomli: '>=1.1.0'
     tomlkit: '>=0.10.1'
     typing_extensions: '>=3.10.0'
-  url: https://packages.prefix.dev/conda-forge/noarch/pylint-3.3.4-pyh29332c3_0.conda
+  url: https://packages.prefix.dev/conda-forge/noarch/pylint-3.3.5-pyh29332c3_0.conda
   hash:
-    md5: 3a865c9f5461a1f7b52ed535b03e9285
-    sha256: 05016f7826e099b30d6dc7a028169cbc39aa1594da99991311f51516de419310
+    md5: 639f1e50fb98d4a463aed89be112c932
+    sha256: 0e056af0894dd84079c8c8a483a24d3465c6ea9e26f04d6a8a0f9c5e87f2f724
   category: dev
   optional: true
 - name: pylint
-  version: 3.3.4
+  version: 3.3.5
   manager: conda
   platform: win-64
   dependencies:
@@ -5858,10 +5858,10 @@ package:
     tomli: '>=1.1.0'
     tomlkit: '>=0.10.1'
     typing_extensions: '>=3.10.0'
-  url: https://packages.prefix.dev/conda-forge/noarch/pylint-3.3.4-pyh29332c3_0.conda
+  url: https://packages.prefix.dev/conda-forge/noarch/pylint-3.3.5-pyh29332c3_0.conda
   hash:
-    md5: 3a865c9f5461a1f7b52ed535b03e9285
-    sha256: 05016f7826e099b30d6dc7a028169cbc39aa1594da99991311f51516de419310
+    md5: 639f1e50fb98d4a463aed89be112c932
+    sha256: 0e056af0894dd84079c8c8a483a24d3465c6ea9e26f04d6a8a0f9c5e87f2f724
   category: dev
   optional: true
 - name: pymatsolver
@@ -8581,12 +8581,12 @@ package:
     geoh5py: 0.11.0-alpha.1
     numpy: '>=1.26.0,<1.27.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: git+https://github.com/MiraGeoscience/octree-creation-app.git@7eace8d94fbbe8b88b01911e7011295b5a9b2fa0
+  url: git+https://github.com/MiraGeoscience/octree-creation-app.git@a99bbd282be7bce02254475e907b555767277820
   hash:
-    sha256: 7eace8d94fbbe8b88b01911e7011295b5a9b2fa0
+    sha256: a99bbd282be7bce02254475e907b555767277820
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/octree-creation-app.git@7eace8d94fbbe8b88b01911e7011295b5a9b2fa0
+    url: git+https://github.com/MiraGeoscience/octree-creation-app.git@a99bbd282be7bce02254475e907b555767277820
   category: main
   optional: false
 - name: octree-creation-app
@@ -8599,12 +8599,12 @@ package:
     geoh5py: 0.11.0-alpha.1
     numpy: '>=1.26.0,<1.27.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: git+https://github.com/MiraGeoscience/octree-creation-app.git@7eace8d94fbbe8b88b01911e7011295b5a9b2fa0
+  url: git+https://github.com/MiraGeoscience/octree-creation-app.git@a99bbd282be7bce02254475e907b555767277820
   hash:
-    sha256: 7eace8d94fbbe8b88b01911e7011295b5a9b2fa0
+    sha256: a99bbd282be7bce02254475e907b555767277820
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/octree-creation-app.git@7eace8d94fbbe8b88b01911e7011295b5a9b2fa0
+    url: git+https://github.com/MiraGeoscience/octree-creation-app.git@a99bbd282be7bce02254475e907b555767277820
   category: main
   optional: false
 - name: param-sweeps
