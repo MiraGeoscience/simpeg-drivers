@@ -56,7 +56,7 @@ def create_test_survey(
 def test_station_spacing(tmp_path):
     survey = create_test_survey(line_length=5000, n_lines=20, spacing=10, jitter=0.1)
 
-    with Workspace(tmp_path / "test.geoh5") as ws:
+    with Workspace.create(tmp_path / f"{__name__}.geoh5") as ws:
         _ = Points.create(ws, name="survey_jitter_0.5", vertices=survey)
 
         median_spacing = station_spacing(survey, "median")
