@@ -214,7 +214,7 @@ class InversionMesh:
                 origin.append(mesh.origin[axis])
                 cell_sizes.append([cell_size] * n_cells)
 
-        treemesh = TreeMesh(cell_sizes, origin)
+        treemesh = TreeMesh(cell_sizes, origin, diagonal_balance=False)
         levels = tree_levels(mesh)
         treemesh.insert_cells(points=mesh.centroids, levels=levels, finalize=True)
 

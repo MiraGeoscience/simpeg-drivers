@@ -56,8 +56,9 @@ def test_magnetic_vector_fwr_run(
     )
 
     # Unitest dealing with Curve
-    survey = Curve.create(geoh5, name=points.name, vertices=points.vertices)
-    geoh5.remove_entity(points)
+    with geoh5.open():
+        survey = Curve.create(geoh5, name=points.name, vertices=points.vertices)
+        geoh5.remove_entity(points)
     inducing_field = (50000.0, 90.0, 0.0)
     active_cells = ActiveCellsOptions(topography_object=topography)
     params = MVIForwardOptions(

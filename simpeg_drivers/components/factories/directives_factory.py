@@ -253,17 +253,14 @@ class DirectivesFactory:
         """Directive to update IRLS."""
         if self._update_irls_directive is None:
             has_chi_start = self.params.starting_chi_factor is not None
-            self._update_irls_directive = directives.Update_IRLS(
+            self._update_irls_directive = directives.UpdateIRLS(
                 f_min_change=self.params.f_min_change,
                 max_irls_iterations=self.params.max_irls_iterations,
-                max_beta_iterations=self.params.max_global_iterations,
-                beta_tol=self.params.beta_tol,
-                prctile=self.params.prctile,
-                coolingRate=self.params.coolingRate,
-                coolingFactor=self.params.coolingFactor,
-                coolEps_q=self.params.coolEps_q,
-                coolEpsFact=self.params.coolEpsFact,
-                beta_search=self.params.beta_search,
+                misfit_tolerance=self.params.beta_tol,
+                percentile=self.params.prctile,
+                cooling_rate=self.params.coolingRate,
+                cooling_factor=self.params.coolingFactor,
+                irls_cooling_factor=self.params.coolEpsFact,
                 chifact_start=(
                     self.params.starting_chi_factor
                     if has_chi_start

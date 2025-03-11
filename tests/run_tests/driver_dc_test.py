@@ -61,12 +61,12 @@ def test_dc_3d_fwr_run(
     tx_id = np.r_[survey.ab_cell_id.values[indices], survey.ab_cell_id.values[~indices]]
     cells = np.vstack([survey.cells[indices, :], survey.cells[~indices, :]])
 
-    survey.ab_cell_id = tx_id
-    survey.cells = cells
-
-    geoh5.close()
+    with survey.workspace.open():
+        survey.ab_cell_id = tx_id
+        survey.cells = cells
 
     active_cells = ActiveCellsOptions(topography_object=topography)
+
     params = DC3DForwardOptions(
         geoh5=geoh5,
         mesh=model.parent,

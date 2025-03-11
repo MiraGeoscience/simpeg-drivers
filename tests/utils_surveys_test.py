@@ -56,18 +56,18 @@ def create_test_survey(
 def test_station_spacing(tmp_path):
     survey = create_test_survey(line_length=5000, n_lines=20, spacing=10, jitter=0.1)
 
-    ws = Workspace(tmp_path / "test.geoh5")
-    _ = Points.create(ws, name="survey_jitter_0.5", vertices=survey)
+    with Workspace.create(tmp_path / f"{__name__}.geoh5") as ws:
+        _ = Points.create(ws, name="survey_jitter_0.5", vertices=survey)
 
-    median_spacing = station_spacing(survey, "median")
-    mean_spacing = station_spacing(survey, "mean")
-    min_spacing = station_spacing(survey, "min")
-    max_spacing = station_spacing(survey, "max")
+        median_spacing = station_spacing(survey, "median")
+        mean_spacing = station_spacing(survey, "mean")
+        min_spacing = station_spacing(survey, "min")
+        max_spacing = station_spacing(survey, "max")
 
-    assert np.isclose(median_spacing, 10, atol=2)
-    assert np.isclose(mean_spacing, 10, atol=2)
-    assert np.isclose(min_spacing, 10, atol=2)
-    assert np.isclose(max_spacing, 10, atol=2)
+        assert np.isclose(median_spacing, 10, atol=2)
+        assert np.isclose(mean_spacing, 10, atol=2)
+        assert np.isclose(min_spacing, 10, atol=2)
+        assert np.isclose(max_spacing, 10, atol=2)
 
 
 def test_counterclockwise_sort():

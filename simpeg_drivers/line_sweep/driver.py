@@ -68,7 +68,7 @@ class LineSweepDriver(SweepDriver, InversionDriver):
 
     def run(self):  # pylint: disable=W0221
         super().run()  # pylint: disable=W0221
-        with self.workspace.open(mode="r+"):
+        with fetch_active_workspace(self.workspace, mode="r+"):
             self.collect_results()
         if self.cleanup:
             self.file_cleanup()
@@ -79,7 +79,7 @@ class LineSweepDriver(SweepDriver, InversionDriver):
             re.sub(r"\.ui$", "", h5_file_path.stem) + ".ui.json"
         )
         if not (ui_json_path).is_file():
-            with self.workspace.open():
+            with fetch_active_workspace(self.workspace):
                 self.batch2d_params.write_ui_json(
                     path=h5_file_path.parent / ui_json_path.name
                 )
@@ -92,7 +92,7 @@ class LineSweepDriver(SweepDriver, InversionDriver):
             h5_file_path.parent
             / (re.sub(r"\.ui$", "", h5_file_path.stem) + "_sweep.ui.json")
         )
-        with self.workspace.open(mode="r"):
+        with fetch_active_workspace(self.workspace):
             lines = self.batch2d_params.line_selection.line_object.values
         ifile.data["line_id_start"] = int(lines.min())
         ifile.data["line_id_end"] = int(lines.max())
