@@ -16,7 +16,7 @@
 #
 # # Mesh design
 #
-# An appropriately designed computational mesh is an important component to the geophysical inversion.  There are both general and survey-specific strategies that may be used to design 'good' meshes for inversion.  This section is targeted to practitioners of geophysical inversion.  The details covered here are complementary to and extend the core [Octree creation](https://mirageoscience-octree-creation-app.readthedocs-hosted.com/en/latest) documentation, so readers may want to reference both.
+# An appropriately designed computational mesh is an important component to the geophysical inversion.  There are both general and survey-specific strategies that may be used to design 'good' meshes for inversion.  This section provides complementary details to the core [Octree creation](https://mirageoscience-octree-creation-app.readthedocs-hosted.com/en/latest) documentation, so readers may want to reference both.
 #
 #
 # ## Base parameters
@@ -32,7 +32,7 @@
 #
 # ### Mesh extent
 #
-# The mesh extent is provided as a `geoh5py.object` from which the bounding box is computed.  For geophysical inversion this will in most cases be the geophysical survey object so that core region of the mesh will be centered below the data.  For all `geoh5py.BaseSurvey` objects that contain a 'complement' object (transmitters, base stations, current electrodes), the extent will be computed from the superposition of the object and it's complement.
+# The mesh extent is provided as a `geoh5py.object` from which the bounding box is computed.  For geophysical inversion this will in most cases be the geophysical survey object so that core region of the mesh will be centered below the data.  For all `geoh5py.BaseSurvey` objects that contain a `complement` object (transmitters, base stations, current electrodes), the extent will be computed from the superposition of the object and it's complement.
 #
 # ### Base cell size
 #
@@ -49,7 +49,7 @@
 #
 # As a general rule of thumb, the padding region should be at least as wide as the data extent in order to easily model features with wavelengths that may extend beyond the surveyed area.
 #
-# In the case of EM modeling, we also need to consider the diffusion distance of the EM fields. The [skin depth](http://em.geosci.xyz/content/maxwell1_fundamentals/harmonic_planewaves_homogeneous/skindepth.html?highlight=skin%20depth#approximations) represent the distance over which the fields decay by a factor of $1/e$.  The skin depth can thus be used to add a padding distance that incorporates the minimum area within which the fields have any influence on the solution.  The skin depth can be calculated for the frequency-domain system by:
+# In the case of EM modeling, we also need to consider the diffusion distance of the EM fields. The [skin depth](http://em.geosci.xyz/content/maxwell1_fundamentals/harmonic_planewaves_homogeneous/skindepth.html?highlight=skin%20depth#approximations) represents the distance over which the fields decay by a factor of $1/e$.  The skin depth can thus be used to add a padding distance that incorporates the minimum area within which the fields have any influence on the solution.  The skin depth can be calculated for the frequency-domain system by:
 #
 # $$
 # \delta = 503 \sqrt{\frac{\rho}{f}}
