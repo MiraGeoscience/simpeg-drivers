@@ -78,7 +78,6 @@ def test_dc_2d_fwr_run(
         starting_model=model,
         active_cells=ActiveCellsOptions(topography_object=topography),
     )
-
     fwr_driver = DC2DForwardDriver(params)
     fwr_driver.run()
 

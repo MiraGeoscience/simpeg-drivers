@@ -43,7 +43,9 @@ def setup_inversion_results(
     )
 
     # Run the inverse with save_sensitivities=True
-    gz = survey.add_data({"gz": {"values": np.random.randn(len(survey.vertices))}})
+    with geoh5.open():
+        gz = survey.add_data({"gz": {"values": np.random.randn(len(survey.vertices))}})
+
     active_cells = ActiveCellsOptions(topography_object=topography)
     params = GravityInversionOptions(
         geoh5=geoh5,

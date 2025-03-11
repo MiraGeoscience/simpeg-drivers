@@ -121,9 +121,10 @@ def test_ground_tem_fwr_run(
 
     fwr_driver = TDEMForwardDriver(params)
 
-    survey.transmitters.remove_cells([15])
-    survey.tx_id_property.name = "tx_id"
-    assert fwr_driver.inversion_data.survey.source_list[0].n_segments == 16
+    with survey.workspace.open():
+        survey.transmitters.remove_cells([15])
+        survey.tx_id_property.name = "tx_id"
+        assert fwr_driver.inversion_data.survey.source_list[0].n_segments == 16
 
     if pytest:
         assert len(caplog.records) == 2

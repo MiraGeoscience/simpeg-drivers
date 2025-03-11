@@ -504,4 +504,5 @@ def setup_inversion_workspace(
 
     model[~active] = np.nan
     model = entity.add_data({"model": {"values": model}})
+    geoh5.close()
     return geoh5, entity, model, survey, topography
