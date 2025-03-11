@@ -77,7 +77,6 @@ def test_dc_p3d_fwr_run(
             line_object=geoh5.get_entity("line_ids")[0]
         ),
     )
-
     fwr_driver = DCBatch2DForwardDriver(params)
     fwr_driver.run()
 

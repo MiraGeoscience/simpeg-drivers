@@ -55,21 +55,25 @@ def test_joint_surveys_fwr_run(
         starting_model=model,
     )
     fwr_driver_a = GravityInversionDriver(params)
-    fwr_driver_a.out_group.name = "Gravity Forward [0]"
+
+    with fwr_driver_a.out_group.workspace.open():
+        fwr_driver_a.out_group.name = "Gravity Forward [0]"
 
     # Create local problem B
-    _, _, model, survey, _ = setup_inversion_workspace(
-        tmp_path,
-        background=0.0,
-        anomaly=0.75,
-        refinement=[0, 2],
-        n_electrodes=int(n_grid_points / 2),
-        n_lines=int(n_grid_points / 2),
-        flatten=False,
-        geoh5=geoh5,
-        drape_height=10.0,
-    )
+    with geoh5.open():
+        _, _, model, survey, _ = setup_inversion_workspace(
+            tmp_path,
+            background=0.0,
+            anomaly=0.75,
+            refinement=[0, 2],
+            n_electrodes=int(n_grid_points / 2),
+            n_lines=int(n_grid_points / 2),
+            flatten=False,
+            geoh5=geoh5,
+            drape_height=10.0,
+        )
     active_cells = ActiveCellsOptions(topography_object=topography)
+
     params = GravityForwardOptions(
         geoh5=geoh5,
         mesh=model.parent,
@@ -78,19 +82,19 @@ def test_joint_surveys_fwr_run(
         starting_model=model,
     )
     fwr_driver_b = GravityInversionDriver(params)
-    fwr_driver_b.out_group.name = "Gravity Forward [1]"
 
-    # Force co-location of meshes
-    fwr_driver_b.inversion_mesh.entity.origin = (
-        fwr_driver_a.inversion_mesh.entity.origin
-    )
-    fwr_driver_b.workspace.update_attribute(
-        fwr_driver_b.inversion_mesh.entity, "attributes"
-    )
-    fwr_driver_b.inversion_mesh._mesh = None  # pylint: disable=protected-access
+    with fwr_driver_b.out_group.workspace.open():
+        # Force co-location of meshes
+        fwr_driver_b.inversion_mesh.entity.origin = (
+            fwr_driver_a.inversion_mesh.entity.origin
+        )
+        fwr_driver_b.out_group.name = "Gravity Forward [1]"
+        fwr_driver_b.workspace.update_attribute(
+            fwr_driver_b.inversion_mesh.entity, "attributes"
+        )
+        fwr_driver_b.inversion_mesh._mesh = None  # pylint: disable=protected-access
     fwr_driver_a.run()
     fwr_driver_b.run()
-    geoh5.close()
 
 
 def test_joint_surveys_inv_run(

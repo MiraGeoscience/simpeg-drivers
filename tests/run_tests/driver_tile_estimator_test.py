@@ -40,11 +40,12 @@ def test_tile_estimator_run(
         n_lines=n_grid_points,
         flatten=False,
     )
-    tmi_channel = survey.add_data(
-        {
-            "tmi": {"values": np.random.rand(survey.n_vertices)},
-        }
-    )
+    with geoh5.open():
+        tmi_channel = survey.add_data(
+            {
+                "tmi": {"values": np.random.rand(survey.n_vertices)},
+            }
+        )
     params = MagneticInversionOptions(
         geoh5=geoh5,
         mesh=model.parent,
@@ -63,9 +64,9 @@ def test_tile_estimator_run(
 
     assert len(estimator.get_results(max_tiles=32)) == 8
 
-    simpeg_group = estimator.run()
-
-    driver = simpeg_group_to_driver(simpeg_group, geoh5)
+    with geoh5.open():
+        simpeg_group = estimator.run()
+        driver = simpeg_group_to_driver(simpeg_group, geoh5)
 
     assert driver.inversion_type == "magnetic scalar"
     assert driver.params.tile_spatial == 2
