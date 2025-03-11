@@ -73,14 +73,14 @@ def test_gravity_uijson(tmp_path):
     geoh5, _, starting_model, survey, topography = setup_inversion_workspace(
         tmp_path, background=0.0, anomaly=0.75, inversion_type="gravity"
     )
-
+    with geoh5.open():
+        gz_channel = survey.add_data({"gz": {"values": np.ones(survey.n_vertices)}})
+        gz_uncerts = survey.add_data({"gz_unc": {"values": np.ones(survey.n_vertices)}})
     opts = GravityInversionOptions(
         geoh5=geoh5,
         data_object=survey,
-        gz_channel=survey.add_data({"gz": {"values": np.ones(survey.n_vertices)}}),
-        gz_uncertainty=survey.add_data(
-            {"gz_unc": {"values": np.ones(survey.n_vertices)}}
-        ),
+        gz_channel=gz_channel,
+        gz_uncertainty=gz_uncerts,
         mesh=starting_model.parent,
         starting_model=starting_model,
         active_cells=ActiveCellsOptions(
