@@ -113,3 +113,42 @@ def test_gravity_uijson(tmp_path):
         params_data_nobraces[param] = field_data_nobraces
 
     assert uijson_data == params_data_nobraces
+
+
+def test_field_handling():
+    # TODO: This is was for prototyping and should be removed once the
+    # behaviours tested here are incorporated into the UIJson classes.
+
+    import warnings
+    from typing import Annotated, Any
+
+    from pydantic import AliasChoices, BaseModel, BeforeValidator, Field
+
+    def deprecate(value, info):
+        warnings.warn(  # will be a logging.warn in production
+            f"Field {info.field_name} is deprecated."
+        )
+        return value
+
+    Deprecated = Annotated[
+        Any,
+        Field(exclude=True),
+        BeforeValidator(deprecate),
+    ]
+
+    class MyClass(BaseModel):
+        a: int = 1  # Represents a newly added field with a default value.
+        b: int = Field(  # Represents a field with a name change.
+            validation_alias=AliasChoices("b", "bb")
+        )
+        c: Deprecated  # Represents a deprecated field.
+
+    test = MyClass(bb=2, c=3)
+    assert test.a == 1
+    assert test.b == 2
+
+    dump = test.model_dump()
+    assert "c" not in dump
+    assert "b" in dump
+    assert "bb" not in dump
+    assert dump["a"] == 1
