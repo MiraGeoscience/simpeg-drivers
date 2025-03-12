@@ -33,11 +33,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_mvi_run = {
-    "data_norm": 6.3559205278626525,
-    "phi_d": 0.01447,
-    "phi_m": 4.657e-06,
-}
+target_mvi_run = {"data_norm": 6.3559205278626525, "phi_d": 0.0143, "phi_m": 0.0009}
 
 
 def test_magnetic_vector_fwr_run(
@@ -145,8 +141,8 @@ def test_magnetic_vector_run(
 
         out_group = run_ws.get_entity("Magnetic Vector Inversion")[0]
         mesh = out_group.get_entity("mesh")[0]
-        assert len(mesh.property_groups) == 2
-        assert len(mesh.property_groups[0].properties) == 2
+        assert len(mesh.property_groups) == 3
+        assert len(mesh.property_groups[0].properties) == 3
         assert mesh.property_groups[1].property_group_type == GroupTypeEnum.DIPDIR
 
 
