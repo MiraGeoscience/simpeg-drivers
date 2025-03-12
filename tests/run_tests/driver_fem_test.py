@@ -69,7 +69,6 @@ def test_fem_fwr_run(
 
     fwr_driver = FDEMForwardDriver(params)
     fwr_driver.run()
-    geoh5.close()
 
 
 def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):

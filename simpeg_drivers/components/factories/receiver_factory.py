@@ -78,12 +78,12 @@ class ReceiversFactory(SimPEGFactory):
         elif self.factory_type == "magnetotellurics":
             from simpeg.electromagnetics.natural_source import receivers
 
-            return receivers.PointNaturalSource
+            return receivers.Impedance
 
         elif self.factory_type == "tipper":
             from simpeg.electromagnetics.natural_source import receivers
 
-            return receivers.Point3DTipper
+            return receivers.Tipper
 
     def assemble_arguments(
         self, locations=None, data=None, local_index=None, mesh=None, component=None

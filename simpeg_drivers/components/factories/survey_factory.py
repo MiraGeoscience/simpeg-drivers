@@ -312,10 +312,10 @@ class SurveyFactory(SimPEGFactory):
             if "induced polarization" in self.factory_type:
                 receivers.data_type = "apparent_chargeability"
 
-            cell_ind = int(np.where(currents.ab_cell_id.values == source_id)[0])
+            cell_ind = currents.ab_cell_id.values == source_id
             source = SourcesFactory(self.params).build(
                 receivers=receivers,
-                locations=source_locations[currents.cells[cell_ind]],
+                locations=source_locations[currents.cells[cell_ind].flatten()],
             )
 
             sources.append(source)

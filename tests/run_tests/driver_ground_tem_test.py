@@ -121,9 +121,10 @@ def test_ground_tem_fwr_run(
 
     fwr_driver = TDEMForwardDriver(params)
 
-    survey.transmitters.remove_cells([15])
-    survey.tx_id_property.name = "tx_id"
-    assert fwr_driver.inversion_data.survey.source_list[0].n_segments == 16
+    with survey.workspace.open():
+        survey.transmitters.remove_cells([15])
+        survey.tx_id_property.name = "tx_id"
+        assert fwr_driver.inversion_data.survey.source_list[0].n_segments == 16
 
     if pytest:
         assert len(caplog.records) == 2
@@ -181,10 +182,10 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
 
         data_kwargs = {}
         for comp in components:
-            data_kwargs[f"{comp}_channel"] = survey.find_or_create_property_group(
+            data_kwargs[f"{comp}_channel"] = survey.fetch_property_group(
                 name=f"Iteration_0_{comp}"
             )
-            data_kwargs[f"{comp}_uncertainty"] = survey.find_or_create_property_group(
+            data_kwargs[f"{comp}_uncertainty"] = survey.fetch_property_group(
                 name=f"dB{comp}dt uncertainties"
             )
 
