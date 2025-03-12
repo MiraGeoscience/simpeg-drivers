@@ -81,7 +81,7 @@ def test_magnetic_vector_fwr_run(
 
 def test_magnetic_vector_run(
     tmp_path: Path,
-    max_iterations=1,
+    max_iterations=2,
     pytest=True,
 ):
     workpath = tmp_path / "inversion_test.ui.geoh5"
