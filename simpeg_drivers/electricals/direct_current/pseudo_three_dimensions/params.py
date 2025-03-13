@@ -19,11 +19,14 @@ from geoh5py.objects import Octree, PotentialElectrode
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.electricals.params import (
-    DrapeModelOptions,
     FileControlOptions,
+)
+from simpeg_drivers.params import (
+    BaseForwardOptions,
+    BaseInversionOptions,
+    DrapeModelOptions,
     LineSelectionOptions,
 )
-from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions
 
 
 class DCBatch2DForwardOptions(BaseForwardOptions):

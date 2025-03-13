@@ -16,6 +16,7 @@ from pathlib import Path
 
 from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
+from params import DrapeModelOptions, LineSelectionOptions
 
 from simpeg_drivers.electricals.direct_current.pseudo_three_dimensions.driver import (
     DCBatch2DForwardDriver,
@@ -26,9 +27,7 @@ from simpeg_drivers.electricals.direct_current.pseudo_three_dimensions.params im
     DCBatch2DInversionOptions,
 )
 from simpeg_drivers.electricals.params import (
-    DrapeModelOptions,
     FileControlOptions,
-    LineSelectionOptions,
 )
 from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace

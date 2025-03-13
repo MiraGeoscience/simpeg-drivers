@@ -11,16 +11,23 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel
+from simpeg_drivers.driver import InversionDriver
+
+from .params import (
+    TDEM1DForwardOptions,
+    TDEM1DInversionOptions,
+)
 
 
-class FileControlOptions(BaseModel):
-    """
-    File control parameters for pseudo 3D simulations.
+class TDEM1DForwardDriver(InversionDriver):
+    """Time Domain Electromagnetic forward driver."""
 
-    :param files_only: Boolean to only write files.
-    :param cleanup: Boolean to cleanup files.
-    """
+    _params_class = TDEM1DForwardOptions
+    _validations = None
 
-    files_only: bool = False
-    cleanup: bool = True
+
+class TDEM1DInversionDriver(InversionDriver):
+    """Time Domain Electromagnetic inversion driver."""
+
+    _params_class = TDEM1DInversionOptions
+    _validations = None

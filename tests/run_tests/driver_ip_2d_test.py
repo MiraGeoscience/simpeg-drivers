@@ -14,6 +14,7 @@ from pathlib import Path
 
 import numpy as np
 from geoh5py.workspace import Workspace
+from params import DrapeModelOptions, LineSelectionOptions
 
 from simpeg_drivers.electricals.induced_polarization.two_dimensions import (
     IP2DForwardOptions,
@@ -23,7 +24,6 @@ from simpeg_drivers.electricals.induced_polarization.two_dimensions.driver impor
     IP2DForwardDriver,
     IP2DInversionDriver,
 )
-from simpeg_drivers.electricals.params import DrapeModelOptions, LineSelectionOptions
 from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output

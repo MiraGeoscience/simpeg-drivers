@@ -16,12 +16,9 @@ from typing import ClassVar
 
 from geoh5py.data import FloatData
 from geoh5py.objects import DrapeModel
+from params import DrapeModelOptions, LineSelectionOptions
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.electricals.params import (
-    DrapeModelOptions,
-    LineSelectionOptions,
-)
 from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions
 
 
