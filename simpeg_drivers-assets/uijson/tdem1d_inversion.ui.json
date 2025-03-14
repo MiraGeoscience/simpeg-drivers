@@ -8,7 +8,7 @@
     "geoh5": "",
     "monitoring_directory": "",
     "workspace_geoh5": "",
-    "inversion_type": "tdem",
+    "inversion_type": "tdem 1d",
     "forward_only": false,
     "data_object": {
         "main": true,

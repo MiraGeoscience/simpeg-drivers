@@ -27,7 +27,6 @@ from simpeg_drivers.params import (
     BaseInversionOptions,
     DrapeModelOptions,
     EMDataMixin,
-    LineSelectionOptions,
 )
 
 
@@ -48,17 +47,16 @@ class TDEM1DForwardOptions(EMDataMixin, BaseForwardOptions):
     """
 
     name: ClassVar[str] = "Time Domain Electromagnetics Forward"
-    title: ClassVar[str] = "Time-domain EM (TEM) Forward"
-    default_ui_json: ClassVar[Path] = assets_path() / "uijson/tdem_forward.ui.json"
+    title: ClassVar[str] = "Time-domain EM-1D (TEM-1D) Forward"
+    default_ui_json: ClassVar[Path] = assets_path() / "uijson/tdem1d_forward.ui.json"
 
-    inversion_type: str = "tdem"
+    inversion_type: str = "tdem 1d"
     physical_property: str = "conductivity"
 
     data_object: Receivers
-    line_selection: LineSelectionOptions
     z_channel_bool: bool | None = None
-    x_channel_bool: bool | None = None
-    y_channel_bool: bool | None = None
+    x_channel_bool: None = None
+    y_channel_bool: None = None
     data_units: str = "dB/dt (T/s)"
     model_type: str = "Conductivity (S/m)"
     drape_model: DrapeModelOptions = DrapeModelOptions()
@@ -89,20 +87,21 @@ class TDEM1DInversionOptions(EMDataMixin, BaseInversionOptions):
     """
 
     name: ClassVar[str] = "Time Domain Electromagnetics Inversion"
-    title: ClassVar[str] = "Time-domain EM (TEM) Inversion"
-    default_ui_json: ClassVar[Path] = assets_path() / "uijson/tdem_inversion.ui.json"
+    title: ClassVar[str] = "Time-domain EM-1D (TEM-1D) Inversion"
+    default_ui_json: ClassVar[Path] = assets_path() / "uijson/tdem1d_inversion.ui.json"
 
-    inversion_type: str = "tdem"
+    inversion_type: str = "tdem 1d"
     physical_property: str = "conductivity"
 
     data_object: Receivers
-    line_selection: LineSelectionOptions
     z_channel: PropertyGroup | None = None
     z_uncertainty: PropertyGroup | None = None
-    x_channel: PropertyGroup | None = None
-    x_uncertainty: PropertyGroup | None = None
-    y_channel: PropertyGroup | None = None
-    y_uncertainty: PropertyGroup | None = None
+    x_channel: None = None
+    x_uncertainty: None = None
+    y_channel: None = None
+    y_uncertainty: None = None
+    length_scale_y: None = None
+    y_norm: None = None
     data_units: str = "dB/dt (T/s)"
     model_type: str = "Conductivity (S/m)"
     drape_model: DrapeModelOptions = DrapeModelOptions()

@@ -1,6 +1,6 @@
 {
     "version": "0.3.0-alpha.1",
-    "title": "Time-domain EM 1D (TEM1D) Forward",
+    "title": "Time-domain EM-1D (TEM-1D) Forward",
     "icon": "surveyairborneem",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
     "conda_environment": "simpeg_drivers",
@@ -8,7 +8,7 @@
     "geoh5": "",
     "monitoring_directory": "",
     "workspace_geoh5": "",
-    "inversion_type": "tdem",
+    "inversion_type": "tdem 1d",
     "forward_only": true,
     "data_object": {
         "main": true,
