@@ -412,9 +412,6 @@ class InversionModel:
                         * self.driver.params.inducing_field_declination
                     )
 
-                if self.driver.inversion_mesh.rotation is not None:
-                    declination += self.driver.inversion_mesh.rotation["angle"]
-
                 inclination[np.isnan(inclination)] = 0
                 declination[np.isnan(declination)] = 0
                 field_vecs = dip_azimuth2cartesian(

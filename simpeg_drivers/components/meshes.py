@@ -78,6 +78,7 @@ class InversionMesh:
         self,
         workspace: Workspace,
         params: BaseForwardOptions | BaseInversionOptions,
+        entity: Octree | DrapeModel | None = None,
     ) -> None:
         """
         :param workspace: Workspace object containing mesh data.
@@ -85,14 +86,14 @@ class InversionMesh:
         """
         self.workspace = workspace
         self.params = params
-        self.mesh: TreeMesh | TensorMesh | None = None
-        self.n_cells: int | None = None
-        self.rotation: dict[str, float] | None = None
-        self._permutation: np.ndarray | None = None
-        self.entity: Octree | DrapeModel | None = None
-        self._initialize()
 
-    def _initialize(self) -> None:
+        if entity is None:
+            entity = self._initialize()
+
+        self.entity = entity
+        self.mesh, self._permutation = self.to_discretize(entity)
+
+    def _initialize(self) -> Octree | DrapeModel:
         """
         Collects mesh data stored in geoh5 workspace into TreeMesh object.
 
@@ -100,19 +101,17 @@ class InversionMesh:
         type required for SimPEG inversion and stores data needed to restore
         original the octree mesh type.
         """
-
         if self.params.mesh is None:
             logger.info(
                 "No mesh provided. Creating optimized mesh from data and topography."
             )
-            self._auto_mesh()
+            mesh_entity = self._auto_mesh()
         else:
-            self.entity = self.params.mesh.copy(
+            mesh_entity = self.params.mesh.copy(
                 parent=self.params.out_group, copy_children=False
             )
 
-        self.uid = self.entity.uid
-        self.n_cells = self.entity.n_cells
+        return mesh_entity
 
     def _auto_mesh(self):
         """Automate meshing based on data and topography objects."""
@@ -125,21 +124,36 @@ class InversionMesh:
         driver = OctreeDriver(params)
 
         mesh = driver.run()
-        self.entity = mesh.copy(parent=self.params.out_group)
+        return mesh.copy(parent=self.params.out_group)
+
+    @staticmethod
+    def to_discretize(
+        entity: Octree | DrapeModel,
+    ) -> tuple[TreeMesh | TensorMesh, np.ndarray]:
+        """
+        Converts mesh entity to its discretize equivalent.
+
+        :param entity: Octree or DrapeModel object containing mesh data.
+
+        :return: Tuple containing mesh object and permutation vector.
+        """
+
+        if isinstance(entity, Octree):
+            mesh = octree_2_treemesh(entity)
+            permutation = np.arange(entity.n_cells)
+        elif isinstance(entity, DrapeModel):
+            mesh, permutation = drape_2_tensor(entity, return_sorting=True)
+        else:
+            raise TypeError("Mesh object must be of type Octree or DrapeModel.")
+
+        return mesh, permutation
 
     @property
     def mesh(self) -> TreeMesh | TensorMesh:
         """TreeMesh or TensorMesh object containing mesh data."""
-
+        # In case the _mesh was reset by the driver.
         if self._mesh is None:
-            if isinstance(self._entity, Octree):
-                self._mesh = octree_2_treemesh(self._entity)
-                self._permutation = np.arange(self.entity.n_cells)
-
-            if isinstance(self.entity, DrapeModel) and self._mesh is None:
-                self._mesh, self._permutation = drape_2_tensor(
-                    self.entity, return_sorting=True
-                )
+            self.mesh, self._permutation = self.to_discretize(self.entity)
 
         return self._mesh
 
@@ -151,10 +165,13 @@ class InversionMesh:
         self._mesh = value
 
     @property
+    def n_cells(self) -> int:
+        """Number of cells in the mesh."""
+        return self.entity.n_cells
+
+    @property
     def permutation(self) -> np.ndarray:
         """Permutation vector between discretize and geoh5py/DrapeModel ordering."""
-        if self.mesh is None:
-            raise ValueError("A 'mesh' must be assigned before accessing permutation.")
         return self._permutation
 
     @property
@@ -163,17 +180,13 @@ class InversionMesh:
         return self._entity
 
     @entity.setter
-    def entity(self, val: Octree | DrapeModel):
-        if not isinstance(val, Octree | DrapeModel | type(None)):
+    def entity(self, entity: Octree | DrapeModel):
+        if not isinstance(entity, Octree | DrapeModel):
             raise TypeError(
                 "Attribute 'entity' must be an Octree or DrapeModel object."
             )
 
-        self._entity = val
-
-        if isinstance(self._entity, Octree):
-            self._permutation = np.arange(self.entity.n_cells)
-            self._mesh = self.to_treemesh(self._entity)
+        self._entity = entity
 
     @staticmethod
     def to_treemesh(octree):
