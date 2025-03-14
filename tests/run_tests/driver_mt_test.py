@@ -71,6 +71,7 @@ def test_magnetotellurics_fwr_run(
         zyx_imag_channel_bool=True,
         zyy_real_channel_bool=True,
         zyy_imag_channel_bool=True,
+        solver_type="Mumps",
     )
 
     fwr_driver = MTForwardDriver(params)
@@ -166,6 +167,7 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
             sens_wts_threshold=1.0,
             prctile=100,
             store_sensitivities="ram",
+            solver_type="Mumps",
             **data_kwargs,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
