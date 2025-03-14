@@ -59,7 +59,14 @@ class TDEM1DForwardOptions(EMDataMixin, BaseForwardOptions):
     y_channel_bool: None = None
     data_units: str = "dB/dt (T/s)"
     model_type: str = "Conductivity (S/m)"
-    drape_model: DrapeModelOptions = DrapeModelOptions()
+    drape_model: DrapeModelOptions = DrapeModelOptions(
+        u_cell_size=10.0,
+        v_cell_size=10.0,
+        depth_core=100.0,
+        horizontal_padding=0.0,
+        vertical_padding=100.0,
+        expansion_factor=1.1,
+    )
 
     @property
     def unit_conversion(self):
@@ -104,7 +111,14 @@ class TDEM1DInversionOptions(EMDataMixin, BaseInversionOptions):
     y_norm: None = None
     data_units: str = "dB/dt (T/s)"
     model_type: str = "Conductivity (S/m)"
-    drape_model: DrapeModelOptions = DrapeModelOptions()
+    drape_model: DrapeModelOptions = DrapeModelOptions(
+        u_cell_size=10.0,
+        v_cell_size=10.0,
+        depth_core=100.0,
+        horizontal_padding=0.0,
+        vertical_padding=100.0,
+        expansion_factor=1.1,
+    )
 
     @property
     def unit_conversion(self):

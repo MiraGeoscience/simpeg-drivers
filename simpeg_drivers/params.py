@@ -450,7 +450,7 @@ class DrapeModelOptions(BaseModel):
     depth_core: float | None = 100.0
     horizontal_padding: float | None = 100.0
     vertical_padding: float | None = 100.0
-    expansion_factor: float | None = 100.0
+    expansion_factor: float | None = 1.1
 
 
 class LineSelectionOptions(BaseModel):

@@ -482,6 +482,10 @@ class InversionDriver(BaseDriver):
     def get_tiles(self):
         if "2d" in self.params.inversion_type:
             tiles = [np.arange(len(self.inversion_data.indices))]
+        elif "1d" in self.params.inversion_type:
+            tiles = (
+                np.arange(len(self.inversion_data.indices)).reshape((-1, 1)).tolist()
+            )
         else:
             locations = self.inversion_data.locations
             tiles = tile_locations(
