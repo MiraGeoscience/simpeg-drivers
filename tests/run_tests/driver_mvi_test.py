@@ -123,7 +123,7 @@ def test_magnetic_vector_run(
             initial_beta_ratio=1e1,
             store_sensitivities="ram",
             save_sensitivities=True,
-            prctile=100,
+            percentile=100,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 

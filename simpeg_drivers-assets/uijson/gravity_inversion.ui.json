@@ -10,6 +10,7 @@
     "workspace_geoh5": "",
     "inversion_type": "gravity",
     "forward_only": false,
+    "physical_property": "density",
     "data_object": {
         "main": true,
         "group": "Data",
@@ -675,6 +676,7 @@
         "verbose": 2,
         "enabled": true
     },
+    "epsilon_cooling_factor": 1.2,
     "max_global_iterations": {
         "min": 1,
         "lineEdit": false,
@@ -759,6 +761,16 @@
         "label": "Number of CPUs",
         "value": 1,
         "visible": false
+    },
+    "solver_type": {
+        "choiceList": [
+            "Pardiso",
+            "Mumps"
+        ],
+        "group": "Compute",
+        "label": "Direct solver",
+        "tooltip": "Direct solver to use for the forward calculations",
+        "value": "Pardiso"
     },
     "tile_spatial": {
         "group": "Compute",

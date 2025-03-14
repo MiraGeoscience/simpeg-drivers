@@ -42,11 +42,11 @@ class TDEMForwardOptions(EMDataMixin, BaseForwardOptions):
     """
 
     name: ClassVar[str] = "Time Domain Electromagnetics Forward"
-    title: ClassVar[str] = "Time-domain EM (TEM) Forward"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/tdem_forward.ui.json"
 
-    inversion_type: str = "tdem"
+    title: str = "Time-domain EM (TEM) Forward"
     physical_property: str = "conductivity"
+    inversion_type: str = "tdem"
 
     data_object: Receivers
     z_channel_bool: bool | None = None
@@ -81,11 +81,11 @@ class TDEMInversionOptions(EMDataMixin, BaseInversionOptions):
     """
 
     name: ClassVar[str] = "Time Domain Electromagnetics Inversion"
-    title: ClassVar[str] = "Time-domain EM (TEM) Inversion"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/tdem_inversion.ui.json"
 
-    inversion_type: str = "tdem"
+    title: str = "Time-domain EM (TEM) Inversion"
     physical_property: str = "conductivity"
+    inversion_type: str = "tdem"
 
     data_object: Receivers
     z_channel: PropertyGroup | None = None

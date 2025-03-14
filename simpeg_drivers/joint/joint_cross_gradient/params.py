@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import ClassVar
 
 from geoh5py.objects import Octree
+from pydantic import ConfigDict
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.joint.params import BaseJointOptions
@@ -33,10 +34,12 @@ class JointCrossGradientOptions(BaseJointOptions):
     """
 
     name: ClassVar[str] = "Joint Cross Gradient Inversion"
-    title: ClassVar[str] = "Joint Cross Gradient Inversion"
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/joint_cross_gradient_inversion.ui.json"
     )
+
+    title: str = "Joint Cross Gradient Inversion"
+    physical_property: list[str] = [""]
 
     inversion_type: str = "joint cross gradient"
 

@@ -10,6 +10,7 @@
     "workspace_geoh5": "",
     "inversion_type": "direct current 2d",
     "forward_only": true,
+    "physical_property": "conductivity",
     "data_object": {
         "main": true,
         "group": "Survey",

@@ -25,6 +25,8 @@ from geoh5py.objects import DrapeModel, Octree, Points
 from geoh5py.shared.utils import fetch_active_workspace
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+import simpeg_drivers
+
 
 logger = getLogger(__name__)
 
@@ -94,34 +96,30 @@ class CoreOptions(BaseData):
     # TODO: Refactor to allow frozen True.  Currently params.data_object is
     # updated after z_from_topo applied in entity_factory.py.  See
     # simpeg_drivers/components/data.py ln. 127
-    model_config = ConfigDict(frozen=False, arbitrary_types_allowed=True, extra="allow")
-    run_command: ClassVar[str] = "simpeg_drivers.driver"
+    model_config = ConfigDict(
+        frozen=False,
+        arbitrary_types_allowed=True,
+        extra="allow",
+        validate_default=True,
+    )
+
+    version: str = simpeg_drivers.__version__
+    run_command: str = "simpeg_drivers.driver"
     conda_environment: str = "simpeg_drivers"
     inversion_type: str
-    physical_property: str
     data_object: Points
-    z_from_topo: bool = Field(default=False, deprecated=True)
     mesh: Octree | DrapeModel | None
     starting_model: float | FloatData
     active_cells: ActiveCellsOptions
-    solver_type: SolverType = SolverType.Pardiso
     tile_spatial: int = 1
     parallelized: bool = True
+    solver_type: SolverType = SolverType.Pardiso
+    save_sensitivities: bool = False
     n_cpu: int | None = None
     max_chunk_size: int = 128
-    save_sensitivities: bool = False
     out_group: SimPEGGroup | UIJsonGroup | None = None
     generate_sweep: bool = False
-
-    @field_validator("z_from_topo", mode="before")
-    @classmethod
-    def deprecated(cls, v, info):
-        logger.warning(
-            "Field %s is deprecated. Since version 0.3.0, "
-            "any data location adjustments must be done in pre-processing.",
-            info.field_name,
-        )
-        return v
+    distributed_workers: str | None = None
 
     @field_validator("n_cpu", mode="before")
     @classmethod
@@ -148,7 +146,11 @@ class CoreOptions(BaseData):
             return data
 
         if isinstance(group, UIJsonGroup | type(None)):
-            name = cls.title if group is None else group.name
+            name = (
+                cls.model_fields["title"].default  # pylint: disable=unsubscriptable-object
+                if group is None
+                else group.name
+            )
             with fetch_active_workspace(data["geoh5"], mode="r+") as geoh5:
                 group = SimPEGGroup.create(geoh5, name=name)
 
@@ -277,16 +279,16 @@ class BaseInversionOptions(CoreOptions):
     :param max_irls_iterations: Maximum IRLS iterations.
     :param starting_chi_factor: Starting chi factor.
 
-    :param prctile: Prctile.
+    :param percentile: Percentile.
     :param beta_tol: Beta tolerance.
 
     :param chi_factor: Chi factor.
     :param auto_scale_misfits: Automatically scale misfits.
     :param initial_beta: Initial beta.
     :param initial_beta_ratio: Initial beta ratio.
-    :param coolingFactor: Cooling factor.
+    :param cooling_factor: Cooling factor.
 
-    :param coolingRate: Cooling rate.
+    :param cooling_rate: Cooling rate.
     :param max_global_iterations: Maximum global iterations.
     :param max_line_search_iterations: Maximum line search iterations.
     :param max_cg_iterations: Maximum CG iterations.
@@ -295,10 +297,9 @@ class BaseInversionOptions(CoreOptions):
 
     :param sens_wts_threshold: Sensitivity weights threshold.
     :param every_iteration_bool: Every iteration bool.
-    :param save_sensitivities: Save sensitivities.
 
     :param parallelized: Parallelized.
-    :param n_cpu: Number of CPUs.
+    :param solver_type: Direct solver provider.  Either Mumps or Pardiso.
     :param tile_spatial: Tile the data spatially.
     :param store_sensitivities: Store sensitivities.
     :param max_chunk_size: Maximum chunk size.
@@ -323,8 +324,9 @@ class BaseInversionOptions(CoreOptions):
     )
 
     name: ClassVar[str] = "Inversion"
-    title: ClassVar[str] = "Geophysical inversion"
-    run_command: ClassVar[str] = "simpeg_drivers.driver"
+
+    title: str = "Geophysical inversion"
+    run_command: str = "simpeg_drivers.driver"
 
     forward_only: bool = False
     conda_environment: str = "simpeg_drivers"
@@ -350,35 +352,27 @@ class BaseInversionOptions(CoreOptions):
     auto_scale_misfits: bool = True
     initial_beta_ratio: float | None = 100.0
     initial_beta: float | None = None
-    coolingFactor: float = 2.0
+    cooling_factor: float = 2.0
 
-    coolingRate: float = 1.0
+    cooling_rate: float = 1.0
     max_global_iterations: int = 50
     max_line_search_iterations: int = 20
     max_cg_iterations: int = 30
     tol_cg: float = 1e-4
     f_min_change: float = 1e-2
+    solver_type: SolverType = SolverType.Pardiso
 
     sens_wts_threshold: float = 1e-3
     every_iteration_bool: bool = True
-    save_sensitivities: bool = False
 
     tile_spatial: int = 1
     store_sensitivities: str = "ram"
 
     beta_tol: float = 0.5
-    prctile: float = 95.0
-    coolEps_q: bool = True
-    coolEpsFact: float = 1.2
-    beta_search: bool = False
+    percentile: float = 95.0
+    epsilon_cooling_factor: float = 1.2
 
-    chunk_by_rows: bool = True
-    output_tile_files: bool = False
-    inversion_style: str = "voxel"
-    max_ram: float | None = None
-    ga_group: SimPEGGroup | None = None
-    distributed_workers: int | None = None
-    no_data_value: float | None = None
+    distributed_workers: str | None = None
 
 
 class EMDataMixin:

@@ -93,6 +93,27 @@ def test_deprecations(tmp_path, caplog):
     assert "Skipping deprecated field my_param." in caplog.text
 
 
+def test_pydantic_deprecation(tmp_path):
+    workspace = Workspace(tmp_path / "test.geoh5")
+
+    class MyUIJson(SimPEGDriversUIJson):
+        my_param: str = Field(deprecated="Use my_param2 instead.", exclude=True)
+
+    uijson = MyUIJson(
+        version="0.3.0-alpha.1",
+        title="My app",
+        icon="",
+        documentation="",
+        geoh5=str(workspace.h5file),
+        run_command="myapp.driver",
+        monitoring_directory="",
+        conda_environment="my-app",
+        workspace_geoh5="",
+        my_param="whoopsie",
+    )
+    assert "my_param" not in uijson.model_dump()
+
+
 def test_alias(tmp_path):
     workspace = Workspace(tmp_path / "test.geoh5")
 
@@ -161,4 +182,5 @@ def test_gravity_uijson(tmp_path):
             field_data_nobraces = data
         params_data_nobraces[param] = field_data_nobraces
 
-    assert uijson_data == params_data_nobraces
+    for k, v in uijson_data.items():
+        assert v == params_data_nobraces[k]

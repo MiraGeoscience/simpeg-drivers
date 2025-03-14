@@ -50,6 +50,7 @@ class GravityForwardUIJson(SimPEGDriversUIJson):
     topography_object: ObjectForm
     topography: DataForm
     active_model: DataForm
+    save_sensitivities: BoolForm
     parallelized: BoolForm
     n_cpu: IntegerForm
     tile_spatial: DataForm
@@ -127,6 +128,9 @@ class GravityInversionUIJson(SimPEGDriversUIJson):
     cooling_rate: IntegerForm = Field(
         validation_alias=AliasChoices("cooling_rate", "coolingRate")
     )
+    epsilon_cooling_factor: float = Field(
+        validation_alias=AliasChoices("epsilon_cooling_factor", "coolEpsFact")
+    )
     max_global_iterations: IntegerForm
     max_line_search_iterations: IntegerForm
     max_cg_iterations: IntegerForm
@@ -140,11 +144,12 @@ class GravityInversionUIJson(SimPEGDriversUIJson):
     tile_spatial: DataForm
     store_sensitivities: ChoiceForm
     max_chunk_size: IntegerForm
+
     out_group: GroupForm
     generate_sweep: BoolForm
     distributed_workers: str
-    output_tile_files: Deprecated
-    inversion_style: Deprecated
-    max_ram: Deprecated
-    chunk_by_rows: Deprecated
-    ga_group: Deprecated
+    output_tile_files: Deprecated | None = None
+    inversion_style: Deprecated | None = None
+    max_ram: Deprecated | None = None
+    chunk_by_rows: Deprecated | None = None
+    ga_group: Deprecated | None = None

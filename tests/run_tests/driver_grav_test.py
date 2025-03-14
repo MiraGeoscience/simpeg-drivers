@@ -150,7 +150,7 @@ def test_gravity_run(
             lower_bound=0.0,
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e-2,
-            prctile=100,
+            percentile=100,
             store_sensitivities="ram",
             save_sensitivities=True,
         )

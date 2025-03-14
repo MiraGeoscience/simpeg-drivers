@@ -39,13 +39,13 @@ class MTForwardOptions(EMDataMixin, BaseForwardOptions):
     """
 
     name: ClassVar[str] = "Magnetotellurics Forward"
-    title: ClassVar[str] = "Magnetotellurics Forward"
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/magnetotellurics_forward.ui.json"
     )
 
-    inversion_type: str = "magnetotellurics"
+    title: str = "Magnetotellurics Forward"
     physical_property: str = "conductivity"
+    inversion_type: str = "magnetotellurics"
 
     data_object: MTReceivers
     zxx_real_channel_bool: bool | None = None
@@ -89,13 +89,13 @@ class MTInversionOptions(EMDataMixin, BaseInversionOptions):
     """
 
     name: ClassVar[str] = "Magnetotellurics Inversion"
-    title: ClassVar[str] = "Magnetotellurics Inversion"
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/magnetotellurics_inversion.ui.json"
     )
 
-    inversion_type: str = "magnetotellurics"
+    title: str = "Magnetotellurics Inversion"
     physical_property: str = "conductivity"
+    inversion_type: str = "magnetotellurics"
 
     data_object: MTReceivers
     zxx_real_channel: PropertyGroup | None = None

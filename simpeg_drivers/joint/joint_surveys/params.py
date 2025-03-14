@@ -24,10 +24,11 @@ class JointSurveysOptions(BaseJointOptions):
     """Joint Surveys inversion options."""
 
     name: ClassVar[str] = "Joint Surveys Inversion"
-    title: ClassVar[str] = "Joint Surveys Inversion"
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/joint_surveys_inversion.ui.json"
     )
+
+    title: str = "Joint Surveys Inversion"
 
     inversion_type: str = "joint surveys"
 
