@@ -108,7 +108,7 @@ class ReceiversFactory(SimPEGFactory):
                 mesh=mesh,
             )
 
-        elif self.factory_type in ["tdem"]:
+        elif "tdem" in self.factory_type:
             args += self._tdem_arguments(
                 data=data,
                 locations=locations,
@@ -137,7 +137,7 @@ class ReceiversFactory(SimPEGFactory):
             kwargs["component"] = component.split("_")[1]
         if self.factory_type in ["tipper"]:
             kwargs["orientation"] = kwargs["orientation"][::-1]
-        if self.factory_type in ["tdem"]:
+        if "tdem" in self.factory_type:
             kwargs["orientation"] = component
 
         return kwargs

@@ -23,8 +23,7 @@ from copy import deepcopy
 from re import findall
 
 import numpy as np
-from discretize import TreeMesh
-from geoh5py.shared.utils import fetch_active_workspace
+from discretize import TensorMesh, TreeMesh
 from scipy.spatial import cKDTree
 from simpeg import maps
 from simpeg.electromagnetics.static.utils.static_utils import geometric_factor
@@ -357,7 +356,7 @@ class InversionData(InversionLocations):
     def simulation(
         self,
         mesh: TreeMesh,
-        local_mesh: TreeMesh | None,
+        local_mesh: TreeMesh | TensorMesh | None,
         active_cells: np.ndarray,
         survey,
         tile_id: int | None = None,
@@ -389,7 +388,18 @@ class InversionData(InversionLocations):
                 active_cells=active_cells,
                 mapping=mapping,
             )
-
+        elif "1d" in self.params.inversion_type:
+            slice_ind = np.arange(
+                tile_id * local_mesh.nC, (tile_id + 1) * local_mesh.nC
+            )
+            mapping = maps.Projection(mesh.n_cells, slice_ind)
+            simulation = simulation_factory.build(
+                survey=survey,
+                global_mesh=mesh,
+                local_mesh=local_mesh,
+                mapping=mapping,
+                tile_id=tile_id,
+            )
         else:
             if local_mesh is None:
                 local_mesh = create_nested_mesh(

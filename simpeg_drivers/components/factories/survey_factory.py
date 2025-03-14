@@ -124,7 +124,7 @@ class SurveyFactory(SimPEGFactory):
 
         if "current" in self.factory_type or "polarization" in self.factory_type:
             return self._dcip_arguments(data=data, local_index=local_index)
-        elif self.factory_type in ["tdem"]:
+        elif self.factory_type in ["tdem", "tdem 1d"]:
             return self._tdem_arguments(data=data, mesh=mesh, local_index=local_index)
         elif self.factory_type in ["magnetotellurics", "tipper"]:
             return self._naturalsource_arguments(

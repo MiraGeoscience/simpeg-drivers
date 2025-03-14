@@ -114,7 +114,7 @@ class SourcesFactory(SimPEGFactory):
             args.append(receivers)
             args.append(frequency)
 
-        elif self.factory_type in ["tdem"]:
+        elif "tdem" in self.factory_type:
             args.append(receivers)
 
         else:
@@ -144,7 +144,7 @@ class SourcesFactory(SimPEGFactory):
 
         if self.factory_type in ["fem"]:
             kwargs["location"] = locations
-        if self.factory_type in ["tdem"]:
+        if "tdem" in self.factory_type:
             kwargs["location"] = locations
             kwargs["waveform"] = waveform
 
