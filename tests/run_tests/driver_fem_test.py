@@ -165,7 +165,7 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
         )
 
         if pytest:
-            check_target(output, target_run, tolerance=0.1)
+            check_target(output, target_run)
             nan_ind = np.isnan(run_ws.get_entity("Iteration_0_model")[0].values)
             inactive_ind = run_ws.get_entity("active_cells")[0].values == 0
             assert np.all(nan_ind == inactive_ind)

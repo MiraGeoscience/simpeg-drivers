@@ -78,7 +78,7 @@ class Geoh5Tester:
             return self.ws
 
 
-def check_target(output: dict, target: dict, tolerance=0.1):
+def check_target(output: dict, target: dict, tolerance=0.05):
     """
     Check inversion output metrics against hard-valued target.
     :param output: Dictionary containing keys for 'data', 'phi_d' and 'phi_m'.

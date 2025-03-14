@@ -112,7 +112,6 @@ def test_magnetic_vector_run(
             y_norm=1.0,
             z_norm=1.0,
             gradient_type="components",
-            tmi_channel_bool=True,
             tmi_channel=tmi,
             tmi_uncertainty=4.0,
             max_global_iterations=max_iterations,
@@ -142,7 +141,7 @@ def test_magnetic_vector_run(
         out_group = run_ws.get_entity("Magnetic Vector Inversion")[0]
         mesh = out_group.get_entity("mesh")[0]
         assert len(mesh.property_groups) == 3
-        assert len(mesh.property_groups[0].properties) == 3
+        assert len(mesh.property_groups[0].properties) == 2
         assert mesh.property_groups[1].property_group_type == GroupTypeEnum.DIPDIR
 
 
