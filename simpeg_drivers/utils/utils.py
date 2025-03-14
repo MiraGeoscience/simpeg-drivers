@@ -340,6 +340,7 @@ def get_drape_model(
     parent: Group | None = None,
     return_colocated_mesh: bool = False,
     return_sorting: bool = False,
+    draped_layers: bool = False,
 ) -> tuple:
     """
     Create a BlockModel object from parameters.
@@ -350,12 +351,12 @@ def get_drape_model(
     :param locations: Location points.
     :param h: Cell size(s) for the core mesh.
     :param depth_core: Depth of core mesh below locs.
-    :param pads: len(6) Padding distances [W, E, N, S, Down, Up]
+    :param pads: len(4) Padding distances [W, E, Down, Up]
     :param expansion_factor: Expansion factor for padding cells.
     :param return_colocated_mesh: If true return TensorMesh.
     :param return_sorting: If true, return the indices required to map
         values stored in the TensorMesh to the drape model.
-
+    :param draped_layers: If true, snap the elevation of the layers to the input locations.
     :return object_out: Output block model.
     """
 
@@ -392,27 +393,34 @@ def get_drape_model(
         mesh_type="tensor",
     )
 
-    cc = mesh.cell_centers
-    hz = mesh.h[1]
-    top = np.max(cc[:, 1].reshape(len(hz), -1)[:, 0] + (hz / 2))
-    bottoms = cc[:, 1].reshape(len(hz), -1)[:, 0] - (hz / 2)
-    n_layers = len(bottoms)
+    hz = mesh.h[1][::-1]
 
+    if draped_layers:
+        z_interp = interp1d(distances[:, 0], xy_smooth[:, 2], fill_value="extrapolate")
+        top = z_interp(mesh.cell_centers_x) - (hz[0] / 2)
+    else:
+        top = np.ones_like(mesh.cell_centers_x) * (mesh.origin[1] + np.sum(hz))
+
+    n_layers = len(hz)
     prisms = []
     layers = []
     indices = []
     index = 0
-    center_xy = np.c_[x_interp(mesh.cell_centers_x), y_interp(mesh.cell_centers_x)]
-    for i, (x_center, y_center) in enumerate(center_xy):
-        prisms.append([float(x_center), float(y_center), top, i * n_layers, n_layers])
-        for k, b in enumerate(bottoms):
-            layers.append([i, k, b])
+    center_xytop = np.c_[
+        x_interp(mesh.cell_centers_x), y_interp(mesh.cell_centers_x), top
+    ]
+    for i, (x_center, y_center, z_top) in enumerate(center_xytop):
+        prisms.append([float(x_center), float(y_center), z_top, i * n_layers, n_layers])
+        bottom = z_top
+        for k, h in enumerate(hz):
+            bottom -= h
+            layers.append([i, k, bottom])
             indices.append(index)
             index += 1
 
     prisms = np.vstack(prisms)
     layers = np.vstack(layers)
-    layers[:, 2] = layers[:, 2][::-1]
+    # layers[:, 2] = layers[:, 2][::-1]
 
     model = DrapeModel.create(
         workspace, layers=layers, name=name, prisms=prisms, parent=parent
