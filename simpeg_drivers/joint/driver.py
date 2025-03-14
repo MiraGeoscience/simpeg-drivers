@@ -208,4 +208,4 @@ class BaseJointDriver(InversionDriver):
         """Update the log with the inversion results."""
         for directive in self.directives.directive_list:
             if isinstance(directive, directives.SaveLogFilesGeoH5):
-                directive.save_log()
+                directive.write(1)
