@@ -103,6 +103,9 @@ class CoreOptions(BaseData):
         validate_default=True,
     )
 
+    title: str | None = None
+    icon: str | None = None
+    documentation: str | None = None
     version: str = simpeg_drivers.__version__
     run_command: str = "simpeg_drivers.driver"
     conda_environment: str = "simpeg_drivers"
