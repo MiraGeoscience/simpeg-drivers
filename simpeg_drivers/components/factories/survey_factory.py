@@ -108,7 +108,7 @@ class SurveyFactory(SimPEGFactory):
 
         return survey.Survey
 
-    def assemble_arguments(self, data=None, mesh=None, local_index=None, channel=None):
+    def assemble_arguments(self, data=None, local_index=None, channel=None):
         """Provides implementations to assemble arguments for receivers object."""
         receiver_entity = data.entity
 
@@ -125,13 +125,11 @@ class SurveyFactory(SimPEGFactory):
         if "current" in self.factory_type or "polarization" in self.factory_type:
             return self._dcip_arguments(data=data, local_index=local_index)
         elif self.factory_type in ["tdem", "tdem 1d"]:
-            return self._tdem_arguments(data=data, mesh=mesh, local_index=local_index)
+            return self._tdem_arguments(data=data, local_index=local_index)
         elif self.factory_type in ["magnetotellurics", "tipper"]:
-            return self._naturalsource_arguments(
-                data=data, mesh=mesh, frequency=channel
-            )
+            return self._naturalsource_arguments(data=data, frequency=channel)
         elif self.factory_type in ["fem"]:
-            return self._fem_arguments(data=data, mesh=mesh, channel=channel)
+            return self._fem_arguments(data=data, channel=channel)
         else:
             receivers = ReceiversFactory(self.params).build(
                 locations=data.locations,
@@ -148,7 +146,6 @@ class SurveyFactory(SimPEGFactory):
     def build(
         self,
         data=None,
-        mesh=None,
         local_index=None,
         indices=None,
         channel=None,
@@ -158,7 +155,6 @@ class SurveyFactory(SimPEGFactory):
         survey = super().build(
             data=data,
             local_index=local_index,
-            mesh=mesh,
             channel=channel,
         )
 
@@ -323,7 +319,7 @@ class SurveyFactory(SimPEGFactory):
 
         return [sources]
 
-    def _tdem_arguments(self, data=None, local_index=None, mesh=None):
+    def _tdem_arguments(self, data=None, local_index=None):
         receivers = data.entity
         transmitters = receivers.transmitters
 
@@ -381,7 +377,6 @@ class SurveyFactory(SimPEGFactory):
                     locations=locs,
                     local_index=self.local_index,
                     data=data,
-                    mesh=mesh,
                     component=component,
                 )
                 rx_obj.local_index = rx_ids
@@ -397,7 +392,7 @@ class SurveyFactory(SimPEGFactory):
 
         return [tx_list]
 
-    def _fem_arguments(self, data=None, mesh=None, channel=None):
+    def _fem_arguments(self, data=None, channel=None):
         channels = np.array(data.entity.channels)
         frequencies = channels if channel is None else [channel]
         rx_locs = data.entity.vertices
@@ -418,7 +413,6 @@ class SurveyFactory(SimPEGFactory):
                 receiver = rx_factory.build(
                     locations=rx_locs[receiver_id, :],
                     data=data,
-                    mesh=mesh,
                     component=component,
                 )
 
@@ -449,7 +443,7 @@ class SurveyFactory(SimPEGFactory):
 
         return [sources]
 
-    def _naturalsource_arguments(self, data=None, mesh=None, frequency=None):
+    def _naturalsource_arguments(self, data=None, frequency=None):
         receivers = []
         sources = []
         rx_factory = ReceiversFactory(self.params)
@@ -462,7 +456,6 @@ class SurveyFactory(SimPEGFactory):
                     locations=data.locations,
                     local_index=self.local_index,
                     data=data,
-                    mesh=mesh,
                     component=comp,
                 )
             )

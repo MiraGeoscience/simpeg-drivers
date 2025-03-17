@@ -86,7 +86,7 @@ class ReceiversFactory(SimPEGFactory):
             return receivers.Tipper
 
     def assemble_arguments(
-        self, locations=None, data=None, local_index=None, mesh=None, component=None
+        self, locations=None, data=None, local_index=None, component=None
     ):
         """Provides implementations to assemble arguments for receivers object."""
 
@@ -105,7 +105,6 @@ class ReceiversFactory(SimPEGFactory):
             args += self._magnetotellurics_arguments(
                 locations=locations,
                 local_index=local_index,
-                mesh=mesh,
             )
 
         elif "tdem" in self.factory_type:
@@ -113,7 +112,6 @@ class ReceiversFactory(SimPEGFactory):
                 data=data,
                 locations=locations,
                 local_index=local_index,
-                mesh=mesh,
             )
 
         else:
@@ -122,7 +120,7 @@ class ReceiversFactory(SimPEGFactory):
         return args
 
     def assemble_keyword_arguments(
-        self, locations=None, data=None, local_index=None, mesh=None, component=None
+        self, locations=None, data=None, local_index=None, component=None
     ):
         """Provides implementations to assemble keyword arguments for receivers object."""
         kwargs = {}
@@ -142,14 +140,11 @@ class ReceiversFactory(SimPEGFactory):
 
         return kwargs
 
-    def build(
-        self, locations=None, data=None, local_index=None, mesh=None, component=None
-    ):
+    def build(self, locations=None, data=None, local_index=None, component=None):
         receivers = super().build(
             locations=locations,
             data=data,
             local_index=local_index,
-            mesh=mesh,
             component=component,
         )
 
@@ -159,13 +154,6 @@ class ReceiversFactory(SimPEGFactory):
         ):
             stations = self.params.data_object.base_stations.vertices
             if stations is not None:
-                if getattr(self.params.mesh, "rotation", None):
-                    rotate_xyz(
-                        stations,
-                        self.params.mesh.origin.tolist(),
-                        -1 * self.params.mesh.rotation[0],
-                    )
-
                 if stations.shape[0] == 1:
                     stations = np.tile(stations.T, self.params.data_object.n_vertices).T
 
@@ -192,13 +180,13 @@ class ReceiversFactory(SimPEGFactory):
 
         return args
 
-    def _tdem_arguments(self, data=None, locations=None, local_index=None, mesh=None):
+    def _tdem_arguments(self, data=None, locations=None, local_index=None):
         return [
             locations,
             np.asarray(data.entity.channels) * self.params.unit_conversion,
         ]
 
-    def _magnetotellurics_arguments(self, locations=None, local_index=None, mesh=None):
+    def _magnetotellurics_arguments(self, locations=None, local_index=None):
         args = []
         locs = locations[local_index]
 

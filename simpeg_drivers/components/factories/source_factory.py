@@ -22,7 +22,6 @@ if TYPE_CHECKING:
 from copy import deepcopy
 
 import numpy as np
-from geoapps_utils.utils.transformations import rotate_xyz
 from geoh5py.objects import LargeLoopGroundTEMReceivers
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
@@ -86,16 +85,8 @@ class SourcesFactory(SimPEGFactory):
         waveform=None,
     ):  # pylint: disable=arguments-differ
         """Provides implementations to assemble arguments for sources object."""
-
         _ = waveform
         args = []
-
-        if locations is not None and getattr(self.params.mesh, "rotation", None):
-            locations = rotate_xyz(
-                locations,
-                self.params.mesh.origin.tolist(),
-                -1 * self.params.mesh.rotation[0],
-            )
 
         if self.factory_type in [
             "direct current pseudo 3d",
