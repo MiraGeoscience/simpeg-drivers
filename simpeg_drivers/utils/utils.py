@@ -287,20 +287,29 @@ def drape_2_tensor(drape_model: DrapeModel, return_sorting: bool = False) -> tup
     """
     prisms = drape_model.prisms
     layers = drape_model.layers
-    z = np.append(np.unique(layers[:, 2]), prisms[:, 2].max())
-    x = compute_alongline_distance(prisms[:, :2])
+
+    # Deal with ghost points
+    ghosts = prisms[:, -1] != 1
+    prisms = prisms[prisms[:, -1] != 1, :]
+
+    nu_layers = np.unique(prisms[:, -1])
+    if len(nu_layers) > 1:
+        raise ValueError(
+            "Drape model conversion to TensorMesh must have uniform number of layers."
+        )
+
+    n_layers = nu_layers[0].astype(int)
+    filt_layers = ghosts[layers[:, 0].astype(int)]
+    layers = layers[filt_layers, :]
+
+    hz = prisms[0, 2] - layers[:n_layers, 2]
+
+    x = compute_alongline_distance(prisms[:, :2], ordered=False)
     dx = np.diff(x)
-    end_core = [np.argmin(dx.round(1)), len(dx) - np.argmin(dx[::-1].round(1))]
-    core = dx[end_core[0]]
-    exp_fact = dx[0] / dx[1]
-    cell_width = np.r_[
-        core * exp_fact ** np.arange(end_core[0], 0, -1),
-        core * np.ones(end_core[1] - end_core[0] + 1),
-        core * exp_fact ** np.arange(1, len(dx) - end_core[1] + 1),
-    ]
-    h = [cell_width, np.diff(z)]
-    origin = [-cell_width[: end_core[0]].sum(), layers[:, 2].min()]
-    mesh = TensorMesh(h, origin)
+    cell_width = np.r_[dx[0], (dx[:-1] + dx[1:]) / 2.0, dx[-1]]
+    h = [cell_width, hz]
+    # origin = [-cell_width[: end_core[0]].sum(), layers[:, 2].min()]
+    mesh = TensorMesh(h)
 
     if return_sorting:
         sorting = np.arange(mesh.n_cells)
@@ -340,7 +349,6 @@ def get_drape_model(
     parent: Group | None = None,
     return_colocated_mesh: bool = False,
     return_sorting: bool = False,
-    draped_layers: bool = False,
 ) -> tuple:
     """
     Create a BlockModel object from parameters.
@@ -356,10 +364,8 @@ def get_drape_model(
     :param return_colocated_mesh: If true return TensorMesh.
     :param return_sorting: If true, return the indices required to map
         values stored in the TensorMesh to the drape model.
-    :param draped_layers: If true, snap the elevation of the layers to the input locations.
     :return object_out: Output block model.
     """
-
     locations = truncate_locs_depths(locations, depth_core)
     depth_core = minimum_depth_core(locations, depth_core, h[1])
     order = traveling_salesman(locations)
@@ -392,47 +398,12 @@ def get_drape_model(
         expansion_factor=expansion_factor,
         mesh_type="tensor",
     )
-
     hz = mesh.h[1][::-1]
-
-    if draped_layers:
-        z_interp = interp1d(distances[:, 0], xy_smooth[:, 2], fill_value="extrapolate")
-        top = z_interp(mesh.cell_centers_x) - (hz[0] / 2)
-    else:
-        top = np.ones_like(mesh.cell_centers_x) * (mesh.origin[1] + np.sum(hz))
-
-    n_layers = len(hz)
-    prisms = []
-    layers = []
-    indices = []
-    index = 0
-    center_xytop = np.c_[
+    top = np.ones_like(mesh.cell_centers_x) * (mesh.origin[1] + np.sum(hz))
+    locations_top = np.c_[
         x_interp(mesh.cell_centers_x), y_interp(mesh.cell_centers_x), top
     ]
-    for i, (x_center, y_center, z_top) in enumerate(center_xytop):
-        prisms.append([float(x_center), float(y_center), z_top, i * n_layers, n_layers])
-        bottom = z_top
-        for k, h in enumerate(hz):
-            bottom -= h
-            layers.append([i, k, bottom])
-            indices.append(index)
-            index += 1
-
-    prisms = np.vstack(prisms)
-    layers = np.vstack(layers)
-    # layers[:, 2] = layers[:, 2][::-1]
-
-    model = DrapeModel.create(
-        workspace, layers=layers, name=name, prisms=prisms, parent=parent
-    )
-    model.add_data(
-        {
-            "indices": {
-                "values": np.array(indices, dtype=np.int32),
-                "association": "CELL",
-            }
-        }
-    )
+    model = xyz_2_drape_model(workspace, locations_top, hz, name, parent)
     val = [model]
     if return_colocated_mesh:
         val.append(mesh)
@@ -467,6 +438,51 @@ def get_inversion_output(h5file: str | Workspace, inversion_group: str | UUID):
     out = dict(zip(cols, list(map(list, zip(*out, strict=True))), strict=True))
 
     return out
+
+
+def xyz_2_drape_model(
+    workspace, locations, depths, name=None, parent=None
+) -> DrapeModel:
+    """
+    Convert a list of cell tops and layer depths to a DrapeModel object.
+
+    :param workspace: Workspace object
+    :param locations: n x 3 array of cell centers [x, y, z_top]
+    :param depths: n x 1 array of layer depths
+    :param name: Name of the new DrapeModel object
+    :param parent: Parent group for the new DrapeModel object
+
+    :returns: DrapeModel object
+    """
+    n_layers = len(depths)
+    prisms = []
+    layers = []
+    indices = []
+    index = 0
+
+    for i, (x_center, y_center, z_top) in enumerate(locations):
+        prisms.append([float(x_center), float(y_center), z_top, i * n_layers, n_layers])
+        bottom = z_top
+        for k, h in enumerate(depths):
+            bottom -= h
+            layers.append([i, k, bottom])
+            indices.append(index)
+            index += 1
+
+    prisms = np.vstack(prisms)
+    layers = np.vstack(layers)
+    model = DrapeModel.create(
+        workspace, layers=layers, name=name, prisms=prisms, parent=parent
+    )
+    model.add_data(
+        {
+            "indices": {
+                "values": np.array(indices, dtype=np.int32),
+                "association": "CELL",
+            }
+        }
+    )
+    return model
 
 
 def tile_locations(
@@ -704,14 +720,6 @@ def active_from_xyz(
     mesh_dim = 2 if isinstance(mesh, DrapeModel) else 3
     locations = mesh.centroids.copy()
 
-    if method == "linear":
-        delaunay_2d = Delaunay(topo[:, :-1])
-        z_interpolate = LinearNDInterpolator(delaunay_2d, topo[:, -1])
-    elif method == "nearest":
-        z_interpolate = NearestNDInterpolator(topo[:, :-1], topo[:, -1])
-    else:
-        raise ValueError("Method must be 'linear', or 'nearest'")
-
     if mesh_dim == 2:
         z_offset = cell_size_z(mesh) / 2.0
     else:
@@ -727,6 +735,34 @@ def active_from_xyz(
     else:
         raise ValueError("'grid_reference' must be one of 'center', 'top', or 'bottom'")
 
+    z_locations = topo_drape_elevation(locations, topo, method=method)
+    # fill_nan(locations, z_locations, filler=topo[:, -1])
+
+    # Return the active cell array
+    return locations[:, -1] < z_locations
+
+
+def topo_drape_elevation(locations, topo, method="linear") -> np.ndarray:
+    """
+    Get draped elevation at locations.
+
+    Values are extrapolated to nearest neighbour if requested outside the
+    convex hull of the input topography points.
+
+    :param locations: n x 3 array of locations
+    :param topo: n x 3 array of topography points
+    :param method: Type of topography interpolation, either 'linear' or 'nearest'
+
+    :return: An array of z elevations for every input locations.
+    """
+    if method == "linear":
+        delaunay_2d = Delaunay(topo[:, :-1])
+        z_interpolate = LinearNDInterpolator(delaunay_2d, topo[:, -1])
+    elif method == "nearest":
+        z_interpolate = NearestNDInterpolator(topo[:, :-1], topo[:, -1])
+    else:
+        raise ValueError("Method must be 'linear', or 'nearest'")
+
     unique_locs, inds = np.unique(locations[:, :2].round(), axis=0, return_inverse=True)
     z_locations = z_interpolate(unique_locs)[inds]
 
@@ -737,10 +773,7 @@ def active_from_xyz(
         _, ind = tree.query(locations[ind_nan, :])
         z_locations[ind_nan] = topo[ind, -1]
 
-    # fill_nan(locations, z_locations, filler=topo[:, -1])
-
-    # Return the active cell array
-    return locations[:, -1] < z_locations
+    return z_locations
 
 
 def truncate_locs_depths(locs: np.ndarray, depth_core: float) -> np.ndarray:

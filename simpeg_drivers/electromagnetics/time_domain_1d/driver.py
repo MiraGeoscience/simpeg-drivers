@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 import numpy as np
+from discretize.utils import mesh_utils
 from geoh5py import Workspace
 from geoh5py.shared.merging.drape_model import DrapeModelMerger
 from geoh5py.ui_json.ui_json import fetch_active_workspace
@@ -19,7 +20,7 @@ from geoh5py.ui_json.ui_json import fetch_active_workspace
 from simpeg_drivers.components.factories import MisfitFactory
 from simpeg_drivers.components.meshes import InversionMesh
 from simpeg_drivers.driver import InversionDriver
-from simpeg_drivers.utils.utils import get_drape_model
+from simpeg_drivers.utils.utils import topo_drape_elevation, xyz_2_drape_model
 
 from .params import (
     TDEM1DForwardOptions,
@@ -33,38 +34,33 @@ class Base1DDriver(InversionDriver):
     _params_class = None
     _validations = None
 
+    def __init__(self, workspace: Workspace, **kwargs):
+        self._inversion_1d_mesh = None
+
+        super().__init__(workspace, **kwargs)
+
     @property
     def inversion_mesh(self) -> InversionMesh:
         """Inversion mesh"""
         if getattr(self, "_inversion_mesh", None) is None:
             temp_workspace = Workspace()
             with fetch_active_workspace(self.workspace, mode="r+"):
-                paddings = [
-                    self.params.drape_model.horizontal_padding,
-                    self.params.drape_model.horizontal_padding,
-                    self.params.drape_model.vertical_padding,
-                    1,
-                ]
                 drape_models = []
+                z_drape = topo_drape_elevation(
+                    self.params.data_object.vertices,
+                    self.inversion_topography.locations,
+                )
                 for part in self.params.data_object.unique_parts:
                     indices = self.params.data_object.parts == part
-
                     drape_models.append(
-                        get_drape_model(
+                        xyz_2_drape_model(
                             temp_workspace,
-                            "Models",
-                            self.params.data_object.vertices[
-                                indices, :
-                            ],  # Drape on topography
-                            [
-                                self.params.drape_model.u_cell_size,
-                                self.params.drape_model.v_cell_size,
+                            np.c_[
+                                self.params.data_object.vertices[indices, :2],
+                                z_drape[indices],
                             ],
-                            self.params.drape_model.depth_core,
-                            paddings,
-                            self.params.drape_model.expansion_factor,
-                            draped_layers=True,
-                        )[0]
+                            self.inversion_1d_mesh.h[0][::-1],
+                        )
                     )
 
                 entity = DrapeModelMerger.create_object(self.workspace, drape_models)
@@ -74,6 +70,21 @@ class Base1DDriver(InversionDriver):
             )
 
         return self._inversion_mesh
+
+    @property
+    def inversion_1d_mesh(self):
+        if getattr(self, "_inversion_1d_mesh", None) is None:
+            self._inversion_1d_mesh = mesh_utils.mesh_builder_xyz(
+                np.c_[0],
+                np.r_[self.params.drape_model.v_cell_size],
+                padding_distance=[
+                    [self.params.drape_model.vertical_padding, 0],
+                ],
+                depth_core=self.params.drape_model.depth_core,
+                expansion_factor=self.params.drape_model.expansion_factor,
+                mesh_type="tensor",
+            )
+        return self._inversion_1d_mesh
 
     @property
     def data_misfit(self):
