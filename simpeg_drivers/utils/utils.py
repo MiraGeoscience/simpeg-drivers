@@ -302,14 +302,17 @@ def drape_2_tensor(drape_model: DrapeModel, return_sorting: bool = False) -> tup
     filt_layers = ghosts[layers[:, 0].astype(int)]
     layers = layers[filt_layers, :]
 
-    hz = prisms[0, 2] - layers[:n_layers, 2]
+    hz = np.r_[
+        prisms[0, 2] - layers[0, 2],
+        -np.diff(layers[:n_layers, 2]),
+    ][::-1]
 
     x = compute_alongline_distance(prisms[:, :2], ordered=False)
     dx = np.diff(x)
     cell_width = np.r_[dx[0], (dx[:-1] + dx[1:]) / 2.0, dx[-1]]
     h = [cell_width, hz]
-    # origin = [-cell_width[: end_core[0]].sum(), layers[:, 2].min()]
-    mesh = TensorMesh(h)
+    origin = [0, prisms[:, 2].max() - hz.sum() + hz[-1]]
+    mesh = TensorMesh(h, origin=origin)
 
     if return_sorting:
         sorting = np.arange(mesh.n_cells)
