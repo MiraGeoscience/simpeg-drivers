@@ -323,7 +323,6 @@ class InversionData(InversionLocations):
 
     def create_survey(
         self,
-        mesh: TreeMesh | None = None,
         local_index: np.ndarray | None = None,
         channel=None,
     ):
@@ -341,7 +340,6 @@ class InversionData(InversionLocations):
         survey_factory = SurveyFactory(self.params)
         survey, local_index, ordering = survey_factory.build(
             data=self,
-            mesh=mesh,
             local_index=local_index,
             channel=channel,
         )
@@ -355,7 +353,7 @@ class InversionData(InversionLocations):
 
     def simulation(
         self,
-        mesh: TreeMesh,
+        inversion_mesh: TreeMesh,
         local_mesh: TreeMesh | TensorMesh | None,
         active_cells: np.ndarray,
         survey,
@@ -384,7 +382,7 @@ class InversionData(InversionLocations):
             mapping = maps.IdentityMap(nP=int(self.n_blocks * active_cells.sum()))
             simulation = simulation_factory.build(
                 survey=survey,
-                global_mesh=mesh,
+                global_mesh=inversion_mesh.mesh,
                 active_cells=active_cells,
                 mapping=mapping,
             )
@@ -392,10 +390,10 @@ class InversionData(InversionLocations):
             slice_ind = np.arange(
                 tile_id * local_mesh.nC, (tile_id + 1) * local_mesh.nC
             )
-            mapping = maps.Projection(mesh.n_cells, slice_ind)
+            mapping = maps.Projection(inversion_mesh.mesh.n_cells, slice_ind)
             simulation = simulation_factory.build(
                 survey=survey,
-                global_mesh=mesh,
+                global_mesh=inversion_mesh.mesh,
                 local_mesh=local_mesh,
                 mapping=mapping,
                 tile_id=tile_id,
@@ -404,12 +402,12 @@ class InversionData(InversionLocations):
             if local_mesh is None:
                 local_mesh = create_nested_mesh(
                     survey,
-                    mesh,
+                    inversion_mesh.mesh,
                     minimum_level=3,
                     padding_cells=padding_cells,
                 )
             mapping = maps.TileMap(
-                mesh,
+                inversion_mesh.mesh,
                 active_cells,
                 local_mesh,
                 enforce_active=True,
@@ -418,7 +416,7 @@ class InversionData(InversionLocations):
             simulation = simulation_factory.build(
                 survey=survey,
                 receivers=self.entity,
-                global_mesh=mesh,
+                global_mesh=inversion_mesh.mesh,
                 local_mesh=local_mesh,
                 active_cells=mapping.local_active,
                 mapping=mapping,

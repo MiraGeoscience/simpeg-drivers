@@ -117,7 +117,7 @@ class InversionDriver(BaseDriver):
                 ).build(
                     tiles,
                     self.inversion_data,
-                    self.inversion_mesh.mesh,
+                    self.inversion_mesh,
                     self.models.active_cells,
                 )
                 print("Done.")
@@ -483,9 +483,7 @@ class InversionDriver(BaseDriver):
         if "2d" in self.params.inversion_type:
             tiles = [np.arange(len(self.inversion_data.indices))]
         elif "1d" in self.params.inversion_type:
-            tiles = (
-                np.arange(len(self.inversion_data.indices)).reshape((-1, 1)).tolist()
-            )
+            tiles = np.arange(len(self.inversion_data.indices)).reshape((-1, 1))
         else:
             locations = self.inversion_data.locations
             tiles = tile_locations(
