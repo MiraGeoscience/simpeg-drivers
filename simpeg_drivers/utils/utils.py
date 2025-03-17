@@ -311,7 +311,7 @@ def drape_2_tensor(drape_model: DrapeModel, return_sorting: bool = False) -> tup
     dx = np.diff(x)
     cell_width = np.r_[dx[0], (dx[:-1] + dx[1:]) / 2.0, dx[-1]]
     h = [cell_width, hz]
-    origin = [0, prisms[:, 2].max() - hz.sum() + hz[-1]]
+    origin = [0, layers[:, 2].min()]
     mesh = TensorMesh(h, origin=origin)
 
     if return_sorting:
