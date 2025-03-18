@@ -386,7 +386,7 @@ class InversionDriver(BaseDriver):
 
         for directive in self.directives.save_directives:
             if isinstance(directive, directives.SaveLogFilesGeoH5):
-                directive.save_log()
+                directive.write(1)
 
     def start_inversion_message(self):
         # SimPEG reports half phi_d, so we scale to match

@@ -36,7 +36,7 @@ logger = getLogger(__name__)
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 8.806897e-07, "phi_d": 152.8, "phi_m": 12850}
+target_run = {"data_norm": 8.806897e-07, "phi_d": 153, "phi_m": 13100}
 
 
 def test_tiling_ground_tem(
@@ -230,7 +230,7 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         assert driver.inversion_data.entity.tx_id_property.name == "tx_id"
         output["data"] = orig_dBzdt
         if pytest:
-            check_target(output, target_run, tolerance=0.1)
+            check_target(output, target_run)
             nan_ind = np.isnan(run_ws.get_entity("Iteration_0_model")[0].values)
             inactive_ind = run_ws.get_entity("active_cells")[0].values == 0
             assert np.all(nan_ind == inactive_ind)

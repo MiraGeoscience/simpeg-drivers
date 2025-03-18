@@ -32,7 +32,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.09052544, "phi_d": 24910, "phi_m": 0.1845}
+target_run = {"data_norm": 0.09052544, "phi_d": 24900, "phi_m": 0.185}
 
 
 def test_ip_2d_fwr_run(

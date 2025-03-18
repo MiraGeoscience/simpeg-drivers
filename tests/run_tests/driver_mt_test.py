@@ -34,7 +34,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.032649770, "phi_d": 6.676, "phi_m": 212.3}
+target_run = {"data_norm": 0.032649770, "phi_d": 6.68, "phi_m": 263}
 
 
 def test_magnetotellurics_fwr_run(
@@ -71,6 +71,7 @@ def test_magnetotellurics_fwr_run(
         zyx_imag_channel_bool=True,
         zyy_real_channel_bool=True,
         zyy_imag_channel_bool=True,
+        solver_type="Mumps",
     )
 
     fwr_driver = MTForwardDriver(params)
@@ -166,6 +167,7 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
             sens_wts_threshold=1.0,
             percentile=100,
             store_sensitivities="ram",
+            solver_type="Mumps",
             **data_kwargs,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
@@ -177,7 +179,7 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
         )
         output["data"] = orig_zyy_real_1
         if pytest:
-            check_target(output, target_run, tolerance=0.5)
+            check_target(output, target_run, tolerance=0.2)
             nan_ind = np.isnan(run_ws.get_entity("Iteration_0_model")[0].values)
             inactive_ind = run_ws.get_entity("active_cells")[0].values == 0
             assert np.all(nan_ind == inactive_ind)

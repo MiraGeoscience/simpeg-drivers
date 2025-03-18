@@ -29,7 +29,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.2997791602206556, "phi_d": 1411, "phi_m": 74.54}
+target_run = {"data_norm": 0.2997791602206556, "phi_d": 1410, "phi_m": 74.4}
 
 
 def test_joint_surveys_fwr_run(

@@ -32,7 +32,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
-target_run = {"data_norm": 7.05481e-08, "phi_d": 198200000, "phi_m": 7806}
+target_run = {"data_norm": 7.05481e-08, "phi_d": 198000000, "phi_m": 7540}
 
 
 def test_bad_waveform(tmp_path: Path):
@@ -199,7 +199,7 @@ def test_airborne_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         )
         output["data"] = orig_dBzdt
         if pytest:
-            check_target(output, target_run, tolerance=0.1)
+            check_target(output, target_run)
             nan_ind = np.isnan(run_ws.get_entity("Iteration_0_model")[0].values)
             inactive_ind = run_ws.get_entity("active_cells")[0].values == 0
             assert np.all(nan_ind == inactive_ind)
