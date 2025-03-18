@@ -90,7 +90,7 @@ def test_deprecations(tmp_path, caplog):
             workspace_geoh5="",
             my_param="whoopsie",
         )
-    assert "Skipping deprecated field my_param." in caplog.text
+    assert "Skipping deprecated field: my_param." in caplog.text
 
 
 def test_alias(tmp_path):
