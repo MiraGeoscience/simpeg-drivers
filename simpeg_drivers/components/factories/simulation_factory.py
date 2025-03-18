@@ -180,7 +180,10 @@ class SimulationFactory(SimPEGFactory):
             "tdem",
             "tdem 1d",
         ]:
-            return self._conductivity_keywords(kwargs, mesh, active_cells=active_cells)
+            actmap = maps.InjectActiveCells(
+                mesh, active_cells=active_cells, value_inactive=np.log(1e-8)
+            )
+            kwargs["sigmaMap"] = maps.ExpMap(mesh) * actmap
 
         if "tdem" in self.factory_type:
             kwargs["t0"] = -receivers.timing_mark * self.params.unit_conversion
@@ -193,13 +196,6 @@ class SimulationFactory(SimPEGFactory):
             kwargs["sigmaMap"] = maps.ExpMap(mesh)
             kwargs["topo"] = active_cells
 
-        return kwargs
-
-    def _conductivity_keywords(self, kwargs, mesh, active_cells=None):
-        actmap = maps.InjectActiveCells(
-            mesh, active_cells=active_cells, value_inactive=np.log(1e-8)
-        )
-        kwargs["sigmaMap"] = maps.ExpMap(mesh) * actmap
         return kwargs
 
     def _get_sensitivity_path(self, tile_id: int) -> str:
