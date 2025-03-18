@@ -185,5 +185,4 @@ def test_gravity_uijson(tmp_path):
             field_data_nobraces = data
         params_data_nobraces[param] = field_data_nobraces
 
-    for k, v in uijson_data.items():
-        assert v == params_data_nobraces[k]
+    assert uijson_data == params_data_nobraces

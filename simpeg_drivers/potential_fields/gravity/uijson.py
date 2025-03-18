@@ -59,12 +59,12 @@ class GravityForwardUIJson(SimPEGDriversUIJson):
     generate_sweep: BoolForm
     distributed_workers: str
     z_from_topo: Deprecated
-    receivers_radar_drape: Deprecated
-    receivers_offset_z: Deprecated
-    gps_receivers_offset: Deprecated
-    output_tile_files: Deprecated
-    chunk_by_rows: Deprecated
-    ga_group: Deprecated
+    receivers_radar_drape: Deprecated | None = None
+    receivers_offset_z: Deprecated | None = None
+    gps_receivers_offset: Deprecated | None = None
+    output_tile_files: Deprecated | None = None
+    chunk_by_rows: Deprecated | None = None
+    ga_group: Deprecated | None = None
 
 
 class GravityInversionUIJson(SimPEGDriversUIJson):
