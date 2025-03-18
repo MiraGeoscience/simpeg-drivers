@@ -388,13 +388,16 @@ class InversionData(InversionLocations):
             )
         elif "1d" in self.params.inversion_type:
             slice_ind = np.arange(
-                tile_id * local_mesh.nC, (tile_id + 1) * local_mesh.nC
+                tile_id * inversion_mesh.mesh.shape_cells[1],
+                (tile_id + 1) * inversion_mesh.mesh.shape_cells[1],
             )
             mapping = maps.Projection(inversion_mesh.mesh.n_cells, slice_ind)
             simulation = simulation_factory.build(
                 survey=survey,
+                receivers=self.entity,
                 global_mesh=inversion_mesh.mesh,
-                local_mesh=local_mesh,
+                local_mesh=inversion_mesh.layers_mesh,
+                active_cells=active_cells,
                 mapping=mapping,
                 tile_id=tile_id,
             )

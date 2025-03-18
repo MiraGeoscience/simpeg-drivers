@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 import numpy as np
+from discretize import TensorMesh
 from discretize.utils import mesh_utils
 from geoh5py import Workspace
 from geoh5py.shared.merging.drape_model import DrapeModelMerger
@@ -35,56 +36,50 @@ class Base1DDriver(InversionDriver):
     _validations = None
 
     def __init__(self, workspace: Workspace, **kwargs):
-        self._inversion_1d_mesh = None
-
         super().__init__(workspace, **kwargs)
+
+        self.layers_mesh: TensorMesh = self.get_1d_mesh()
+        self.topo_z_drape = topo_drape_elevation(
+            self.params.data_object.vertices,
+            self.inversion_topography.locations,
+        )
 
     @property
     def inversion_mesh(self) -> InversionMesh:
         """Inversion mesh"""
         if getattr(self, "_inversion_mesh", None) is None:
-            temp_workspace = Workspace()
+            # temp_workspace = Workspace()
             with fetch_active_workspace(self.workspace, mode="r+"):
                 drape_models = []
-                z_drape = topo_drape_elevation(
-                    self.params.data_object.vertices,
-                    self.inversion_topography.locations,
-                )
                 for part in self.params.data_object.unique_parts:
                     indices = self.params.data_object.parts == part
-                    drape_models.append(
-                        xyz_2_drape_model(
-                            temp_workspace,
-                            np.c_[
-                                self.params.data_object.vertices[indices, :2],
-                                z_drape[indices],
-                            ],
-                            self.inversion_1d_mesh.h[0][::-1],
-                        )
-                    )
+                    drape_models.append(self.topo_z_drape[indices])
 
-                entity = DrapeModelMerger.create_object(self.workspace, drape_models)
-
+                # entity = DrapeModelMerger.create_object(self.workspace, drape_models)
+                entity = xyz_2_drape_model(
+                    self.workspace,
+                    np.vstack(drape_models),
+                    self.layers_mesh.h[0][::-1],
+                )
             self._inversion_mesh = InversionMesh(
                 self.workspace, self.params, entity=entity
             )
+            self._inversion_mesh.layers_mesh = self.layers_mesh
 
         return self._inversion_mesh
 
-    @property
-    def inversion_1d_mesh(self):
-        if getattr(self, "_inversion_1d_mesh", None) is None:
-            self._inversion_1d_mesh = mesh_utils.mesh_builder_xyz(
-                np.c_[0],
-                np.r_[self.params.drape_model.v_cell_size],
-                padding_distance=[
-                    [self.params.drape_model.vertical_padding, 0],
-                ],
-                depth_core=self.params.drape_model.depth_core,
-                expansion_factor=self.params.drape_model.expansion_factor,
-                mesh_type="tensor",
-            )
-        return self._inversion_1d_mesh
+    def get_1d_mesh(self) -> TensorMesh:
+        layers_mesh = mesh_utils.mesh_builder_xyz(
+            np.c_[0],
+            np.r_[self.params.drape_model.v_cell_size],
+            padding_distance=[
+                [self.params.drape_model.vertical_padding, 0],
+            ],
+            depth_core=self.params.drape_model.depth_core,
+            expansion_factor=self.params.drape_model.expansion_factor,
+            mesh_type="tensor",
+        )
+        return layers_mesh
 
     @property
     def data_misfit(self):
@@ -101,8 +96,11 @@ class Base1DDriver(InversionDriver):
                 ).build(
                     tiles,
                     self.inversion_data,
-                    self.inversion_mesh.mesh,
-                    self.inversion_mesh.entity.prisms[:, :3],
+                    self.inversion_mesh,
+                    self.topo_z_drape,
+                )
+                self.models.active_cells = np.ones(
+                    self.inversion_mesh.n_cells, dtype=bool
                 )
                 print("Done.")
 

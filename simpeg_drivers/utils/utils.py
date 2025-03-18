@@ -289,8 +289,8 @@ def drape_2_tensor(drape_model: DrapeModel, return_sorting: bool = False) -> tup
     layers = drape_model.layers
 
     # Deal with ghost points
-    ghosts = prisms[:, -1] != 1
-    prisms = prisms[prisms[:, -1] != 1, :]
+    ghosts = prisms[:, -1] == 1
+    prisms = prisms[~ghosts, :]
 
     nu_layers = np.unique(prisms[:, -1])
     if len(nu_layers) > 1:
@@ -300,7 +300,7 @@ def drape_2_tensor(drape_model: DrapeModel, return_sorting: bool = False) -> tup
 
     n_layers = nu_layers[0].astype(int)
     filt_layers = ghosts[layers[:, 0].astype(int)]
-    layers = layers[filt_layers, :]
+    layers = layers[~filt_layers, :]
 
     hz = np.r_[
         prisms[0, 2] - layers[0, 2],
@@ -742,7 +742,7 @@ def active_from_xyz(
     # fill_nan(locations, z_locations, filler=topo[:, -1])
 
     # Return the active cell array
-    return locations[:, -1] < z_locations
+    return locations[:, -1] < z_locations[:, -1]
 
 
 def topo_drape_elevation(locations, topo, method="linear") -> np.ndarray:
@@ -766,7 +766,9 @@ def topo_drape_elevation(locations, topo, method="linear") -> np.ndarray:
     else:
         raise ValueError("Method must be 'linear', or 'nearest'")
 
-    unique_locs, inds = np.unique(locations[:, :2].round(), axis=0, return_inverse=True)
+    unique_locs, inds = np.unique(
+        locations[:, :-1].round(), axis=0, return_inverse=True
+    )
     z_locations = z_interpolate(unique_locs)[inds]
 
     # Apply nearest neighbour if in extrapolation
@@ -776,7 +778,7 @@ def topo_drape_elevation(locations, topo, method="linear") -> np.ndarray:
         _, ind = tree.query(locations[ind_nan, :])
         z_locations[ind_nan] = topo[ind, -1]
 
-    return z_locations
+    return np.c_[locations[:, :-1], z_locations]
 
 
 def truncate_locs_depths(locs: np.ndarray, depth_core: float) -> np.ndarray:

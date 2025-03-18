@@ -92,7 +92,7 @@ class MisfitFactory(SimPEGFactory):
                     )
                 )
 
-                local_mesh = local_sim.mesh
+                local_mesh = getattr(local_sim, "mesh", None)
 
                 if count == 0:
                     if self.factory_type in [
@@ -112,6 +112,7 @@ class MisfitFactory(SimPEGFactory):
                     else:
                         self.sorting.append(local_index)
 
+                # TODO this should be done in the simulation factory
                 if "induced polarization" in self.params.inversion_type:
                     if "2d" in self.params.inversion_type:
                         proj = maps.InjectActiveCells(
@@ -124,7 +125,6 @@ class MisfitFactory(SimPEGFactory):
                             value_inactive=1e-8,
                         )
 
-                    # TODO this should be done in the simulation factory
                     local_sim.sigma = proj * mapping * self.models.conductivity
 
                 # TODO add option to export tile meshes

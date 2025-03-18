@@ -125,7 +125,7 @@ class SurveyFactory(SimPEGFactory):
         if "current" in self.factory_type or "polarization" in self.factory_type:
             return self._dcip_arguments(data=data, local_index=local_index)
         elif self.factory_type in ["tdem", "tdem 1d"]:
-            return self._tdem_arguments(data=data, local_index=local_index)
+            return self._tdem_arguments(data=data, inversion_type=self.factory_type)
         elif self.factory_type in ["magnetotellurics", "tipper"]:
             return self._naturalsource_arguments(data=data, frequency=channel)
         elif self.factory_type in ["fem"]:
@@ -319,7 +319,7 @@ class SurveyFactory(SimPEGFactory):
 
         return [sources]
 
-    def _tdem_arguments(self, data=None, local_index=None):
+    def _tdem_arguments(self, data=None, inversion_type="tdem"):
         receivers = data.entity
         transmitters = receivers.transmitters
 
@@ -353,16 +353,22 @@ class SurveyFactory(SimPEGFactory):
             rx_lookup = self.local_index[:, np.newaxis].tolist()
             tx_locs = [transmitters.vertices[k, :] for k in self.local_index]
 
-        wave_function = interp1d(
-            (receivers.waveform[:, 0] - receivers.timing_mark)
-            * self.params.unit_conversion,
-            receivers.waveform[:, 1],
-            fill_value="extrapolate",
-        )
+        if "1d" in inversion_type:
+            waveform = tdem.sources.PiecewiseLinearWaveform(
+                times=receivers.waveform[:, 0] - receivers.timing_mark,
+                currents=receivers.waveform[:, 1],
+            )
+        else:
+            wave_function = interp1d(
+                (receivers.waveform[:, 0] - receivers.timing_mark)
+                * self.params.unit_conversion,
+                receivers.waveform[:, 1],
+                fill_value="extrapolate",
+            )
 
-        waveform = tdem.sources.RawWaveform(
-            waveform_function=wave_function, offTime=0.0
-        )
+            waveform = tdem.sources.RawWaveform(
+                waveform_function=wave_function, offTime=0.0
+            )
 
         self.ordering = []
         tx_list = []

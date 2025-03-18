@@ -122,6 +122,9 @@ class SimulationFactory(SimPEGFactory):
         mapping=None,
         tile_id=None,
     ):
+        if "1d" in self.factory_type:
+            return ()
+
         mesh = global_mesh if tile_id is None else local_mesh
         return [mesh]
 
@@ -178,7 +181,6 @@ class SimulationFactory(SimPEGFactory):
             "tipper",
             "fem",
             "tdem",
-            "tdem 1d",
         ]:
             actmap = maps.InjectActiveCells(
                 mesh, active_cells=active_cells, value_inactive=np.log(1e-8)
@@ -194,7 +196,8 @@ class SimulationFactory(SimPEGFactory):
 
         if self.factory_type in ["tdem 1d"]:
             kwargs["sigmaMap"] = maps.ExpMap(mesh)
-            kwargs["topo"] = active_cells
+            kwargs["thicknesses"] = local_mesh.h[0][1:][::-1]
+            kwargs["topo"] = active_cells[tile_id]
 
         return kwargs
 
