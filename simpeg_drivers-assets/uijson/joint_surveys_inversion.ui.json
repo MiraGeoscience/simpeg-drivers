@@ -9,6 +9,7 @@
     "monitoring_directory": "",
     "workspace_geoh5": "",
     "inversion_type": "joint surveys",
+    "physical_property": "",
     "forward_only": false,
     "group_a": {
         "main": true,

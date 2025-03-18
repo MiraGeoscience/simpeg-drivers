@@ -15,7 +15,6 @@ from pathlib import Path
 from typing import ClassVar
 
 from geoh5py.objects import Octree
-from pydantic import ConfigDict
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.joint.params import BaseJointOptions
@@ -43,9 +42,7 @@ class JointCrossGradientOptions(BaseJointOptions):
 
     inversion_type: str = "joint cross gradient"
 
-    data_object: None = None
     mesh: Octree | None = None
-    starting_model: None = None
     cross_gradient_weight_a_b: float = 1.0
     cross_gradient_weight_c_a: float | None = None
     cross_gradient_weight_c_b: float | None = None

@@ -23,7 +23,7 @@ from geoh5py.data import BooleanData, FloatData, NumericData
 from geoh5py.groups import PropertyGroup, SimPEGGroup, UIJsonGroup
 from geoh5py.objects import DrapeModel, Octree, Points
 from geoh5py.shared.utils import fetch_active_workspace
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
 import simpeg_drivers
 
@@ -367,14 +367,11 @@ class BaseInversionOptions(CoreOptions):
     sens_wts_threshold: float = 1e-3
     every_iteration_bool: bool = True
 
-    tile_spatial: int = 1
     store_sensitivities: str = "ram"
 
     beta_tol: float = 0.5
     percentile: float = 95.0
     epsilon_cooling_factor: float = 1.2
-
-    distributed_workers: str | None = None
 
 
 class EMDataMixin:

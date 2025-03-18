@@ -37,13 +37,12 @@ class MVIForwardOptions(BaseForwardOptions):
     """
 
     name: ClassVar[str] = "Magnetic Vector Forward"
-    physical_property: ClassVar[str] = "susceptibility"
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/magnetic_vector_forward.ui.json"
     )
 
     title: str = "Magnetic Vector Forward"
-
+    physical_property: str = "susceptibility"
     inversion_type: str = "magnetic vector"
 
     tmi_channel_bool: bool = True
@@ -56,6 +55,11 @@ class MVIForwardOptions(BaseForwardOptions):
     byy_channel_bool: bool = False
     byz_channel_bool: bool = False
     bzz_channel_bool: bool = False
+    inducing_field_strength: float | FloatData = 50000.0
+    inducing_field_inclination: float | FloatData = 90.0
+    inducing_field_declination: float | FloatData = 0.0
+    starting_inclination: float | FloatData | None = None
+    starting_declination: float | FloatData | None = None
 
 
 class MVIInversionOptions(BaseInversionOptions):

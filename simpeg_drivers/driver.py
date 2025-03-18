@@ -57,6 +57,7 @@ from simpeg_drivers.params import (
     BaseForwardOptions,
     BaseInversionOptions,
 )
+from simpeg_drivers.joint.params import BaseJointOptions
 from simpeg_drivers.utils.utils import tile_locations
 
 mlogger = logging.getLogger("distributed")
@@ -296,6 +297,7 @@ class InversionDriver(BaseDriver):
                 BaseForwardOptions,
                 BaseInversionOptions,
                 SweepParams,
+                BaseJointOptions,
             ),
         ):
             raise TypeError(
