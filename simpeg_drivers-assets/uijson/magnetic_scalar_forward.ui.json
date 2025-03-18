@@ -9,6 +9,7 @@
     "monitoring_directory": "",
     "workspace_geoh5": "",
     "inversion_type": "magnetic scalar",
+    "physical_property": "susceptibility",
     "forward_only": true,
     "inducing_field_strength": {
         "min": 0.0,
@@ -190,7 +191,12 @@
         "property": "",
         "value": 0.0001
     },
-    "output_tile_files": false,
+    "save_sensitivities": {
+        "group": "Update sensitivity weights directive",
+        "label": "Save sensitivities",
+        "tooltip": "Save the summed square row sensitivities to geoh5.",
+        "value": false
+    },
     "parallelized": {
         "group": "Compute",
         "label": "Use parallelization",
@@ -207,6 +213,16 @@
         "label": "Number of CPUs",
         "value": 1,
         "visible": false
+    },
+    "solver_type": {
+        "choiceList": [
+            "Pardiso",
+            "Mumps"
+        ],
+        "group": "Compute",
+        "label": "Direct solver",
+        "tooltip": "Direct solver to use for the forward calculations",
+        "value": "Pardiso"
     },
     "tile_spatial": {
         "group": "Compute",
@@ -231,13 +247,6 @@
         "visible": false,
         "tooltip": "Limit the chunk size used by Dask for distributed computation."
     },
-    "chunk_by_rows": {
-        "group": "Compute",
-        "label": "Chunk by rows",
-        "value": true,
-        "verbose": 3,
-        "visible": false
-    },
     "out_group": {
         "label": "SimPEG group",
         "value": "",
@@ -248,7 +257,6 @@
         "enabled": false,
         "tooltip": "Optionally set the SimPEG group to which results will be saved."
     },
-    "ga_group": "",
     "generate_sweep": {
         "label": "Generate sweep file",
         "group": "Python run preferences",

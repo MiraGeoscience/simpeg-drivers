@@ -9,6 +9,7 @@
     "monitoring_directory": "",
     "workspace_geoh5": "",
     "inversion_type": "induced polarization 2d",
+    "physical_property": "chargeability",
     "forward_only": true,
     "data_object": {
         "main": true,
@@ -35,30 +36,6 @@
         "value": 1,
         "tooltip": "Selects the line of data to be processed."
     },
-    "receivers_radar_drape": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data pre-processing",
-        "label": "Z radar offset",
-        "tooltip": "Apply a non-homogeneous offset to survey object from radar channel.",
-        "optional": true,
-        "parent": "data_object",
-        "value": "",
-        "enabled": false,
-        "visible": false
-    },
-    "receivers_offset_z": {
-        "group": "Data pre-processing",
-        "label": "Z static offset",
-        "optional": true,
-        "enabled": false,
-        "value": 0.0,
-        "visible": false
-    },
-    "gps_receivers_offset": "",
     "chargeability_channel_bool": true,
     "mesh": {
         "group": "Mesh and models",
@@ -210,7 +187,12 @@
         "parent": "mesh",
         "value": ""
     },
-    "output_tile_files": false,
+    "save_sensitivities": {
+        "group": "Update sensitivity weights directive",
+        "label": "Save sensitivities",
+        "tooltip": "Save the summed square row sensitivities to geoh5.",
+        "value": false
+    },
     "parallelized": {
         "group": "Compute",
         "label": "Use parallelization",

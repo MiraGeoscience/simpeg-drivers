@@ -123,3 +123,7 @@ class MVIInversionOptions(BaseInversionOptions):
     inducing_field_strength: float | FloatData = 50000.0
     inducing_field_inclination: float | FloatData = 90.0
     inducing_field_declination: float | FloatData = 0.0
+    starting_inclination: float | FloatData | None = None
+    starting_declination: float | FloatData | None = None
+    reference_inclination: float | FloatData | None = None
+    reference_declination: float | FloatData | None = None

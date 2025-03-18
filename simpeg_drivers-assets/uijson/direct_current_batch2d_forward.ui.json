@@ -9,6 +9,7 @@
     "monitoring_directory": "",
     "workspace_geoh5": "",
     "inversion_type": "direct current pseudo 3d",
+    "physical_property": "conductivity",
     "forward_only": true,
     "data_object": {
         "main": true,
@@ -27,6 +28,7 @@
         "value": "",
         "tooltip": "Selects the data representing the different lines in the survey."
     },
+    "line_id": 1,
     "potential_channel_bool": true,
     "u_cell_size": {
         "min": 0.0,
@@ -157,7 +159,12 @@
         "parent": "mesh",
         "value": ""
     },
-    "output_tile_files": false,
+    "save_sensitivities": {
+        "group": "Update sensitivity weights directive",
+        "label": "Save sensitivities",
+        "tooltip": "Save the summed square row sensitivities to geoh5.",
+        "value": false
+    },
     "parallelized": {
         "group": "Compute",
         "label": "Use parallelization",
@@ -196,13 +203,6 @@
         "verbose": 3,
         "visible": false,
         "tooltip": "Limit the chunk size used by Dask for distributed computation."
-    },
-    "chunk_by_rows": {
-        "group": "Compute",
-        "label": "Chunk by rows",
-        "value": true,
-        "verbose": 3,
-        "visible": false
     },
     "out_group": {
         "label": "SimPEG group",

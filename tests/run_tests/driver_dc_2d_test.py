@@ -117,7 +117,6 @@ def test_dc_2d_run(tmp_path: Path, max_iterations=1, pytest=True):
             x_norm=1.0,
             z_norm=1.0,
             gradient_type="components",
-            potential_channel_bool=True,
             max_global_iterations=max_iterations,
             initial_beta=None,
             initial_beta_ratio=1e0,

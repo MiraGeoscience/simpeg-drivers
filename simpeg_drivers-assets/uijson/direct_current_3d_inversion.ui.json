@@ -9,6 +9,7 @@
     "monitoring_directory": "",
     "workspace_geoh5": "",
     "inversion_type": "direct current 3d",
+    "physical_property": "conductivity",
     "forward_only": false,
     "data_object": {
         "main": true,
@@ -177,8 +178,6 @@
         "parent": "mesh",
         "value": ""
     },
-    "output_tile_files": false,
-    "inversion_style": "voxel",
     "alpha_s": {
         "min": 0.0,
         "group": "Regularization",
@@ -335,7 +334,7 @@
         "verbose": 3,
         "visible": false
     },
-    "prctile": {
+    "percentile": {
         "group": "Update IRLS directive",
         "label": "Percentile",
         "value": 95,
@@ -386,7 +385,7 @@
         "verbose": 2,
         "tooltip": "Trade-off parameter between data misfit and regularization."
     },
-    "coolingFactor": {
+    "cooling_factor": {
         "group": "Cooling schedule/target",
         "label": "Beta cooling factor",
         "tooltip": "Each beta cooling step will be calculated by dividing the current beta by this factor.",
@@ -397,7 +396,7 @@
         "lineEdit": false,
         "verbose": 2
     },
-    "coolingRate": {
+    "cooling_rate": {
         "group": "Optimization",
         "label": "Iterations per beta",
         "value": 2,
@@ -409,6 +408,7 @@
         "enabled": true,
         "tooltip": "Set the number of iterations per beta value. Use higher values for more non-linear optimization problems."
     },
+    "epsilon_cooling_factor": 1.2,
     "max_global_iterations": {
         "min": 1,
         "lineEdit": false,
@@ -526,7 +526,6 @@
         "tooltip": "Use disk on a fast local SSD, and RAM elsewhere",
         "value": "ram"
     },
-    "max_ram": "",
     "max_chunk_size": {
         "min": 0,
         "group": "Compute",
@@ -537,13 +536,6 @@
         "verbose": 3,
         "visible": false,
         "tooltip": "Limit the chunk size used by Dask for distributed computation."
-    },
-    "chunk_by_rows": {
-        "group": "Compute",
-        "label": "Chunk by rows",
-        "value": true,
-        "verbose": 3,
-        "visible": false
     },
     "out_group": {
         "label": "SimPEG group",
@@ -562,6 +554,5 @@
         "value": false,
         "tooltip": "Generates a file for sweeping parameters instead of running the application."
     },
-    "distributed_workers": "",
-    "potential_channel_bool": true
+    "distributed_workers": ""
 }

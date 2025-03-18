@@ -73,7 +73,6 @@ def test_dc_3d_fwr_run(
         active_cells=active_cells,
         data_object=survey,
         starting_model=model,
-        resolution=None,
     )
     fwr_driver = DC3DForwardDriver(params)
     fwr_driver.run()
@@ -164,7 +163,6 @@ def test_dc_single_line_fwr_run(
         active_cells=active_cells,
         data_object=survey,
         starting_model=model,
-        resolution=None,
     )
 
     fwr_driver = DC3DForwardDriver(params)

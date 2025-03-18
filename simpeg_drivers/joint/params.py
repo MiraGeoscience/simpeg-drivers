@@ -28,8 +28,6 @@ class BaseJointOptions(BaseInversionOptions):
     :param group_c_multiplier: Multiplier for the data misfit function for Group C.
     """
 
-    physical_property: str = ""
-    data_object: None = None
     group_a: SimPEGGroup
     group_a_multiplier: float = 1.0
     group_b: SimPEGGroup

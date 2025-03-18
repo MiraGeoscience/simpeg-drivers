@@ -55,6 +55,7 @@ class IPBatch2DForwardOptions(BaseForwardOptions):
     mesh: Octree | None = None
     conductivity_model: float | FloatData
     drape_model: DrapeModelOptions = DrapeModelOptions()
+    model_type: str = "Conductivity (S/m)"
     file_control: FileControlOptions = FileControlOptions()
 
 
@@ -89,6 +90,7 @@ class IPBatch2DInversionOptions(BaseInversionOptions):
     line_selection: LineSelectionOptions
     mesh: Octree | None = None
     drape_model: DrapeModelOptions = DrapeModelOptions()
+    model_type: str = "Conductivity (S/m)"
     conductivity_model: float | FloatData
     lower_bound: float | FloatData | None = 0.0
     file_control: FileControlOptions = FileControlOptions()

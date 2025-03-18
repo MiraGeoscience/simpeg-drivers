@@ -77,7 +77,6 @@ class CoreOptions(BaseData):
     :param conda_environment: Name of the conda environment used to run the
         application with all of its dependencies.
     :param inversion_type: Type of inversion.
-    :param physical_property: Physical property of the model.
     :param data_object: Data object containing survey geometry and data
         channels.
     :param mesh: Mesh object containing models (starting, reference, active, etc..).

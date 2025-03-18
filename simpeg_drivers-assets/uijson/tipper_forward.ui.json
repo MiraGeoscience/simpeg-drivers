@@ -9,6 +9,7 @@
     "monitoring_directory": "",
     "workspace_geoh5": "",
     "inversion_type": "tipper",
+    "physical_property": "conductivity",
     "forward_only": true,
     "data_object": {
         "main": true,
@@ -17,32 +18,6 @@
         "meshType": "{0b639533-f35b-44d8-92a8-f70ecff3fd26}",
         "value": ""
     },
-    "receivers_radar_drape": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data pre-processing",
-        "label": "Z radar offset",
-        "tooltip": "Apply a non-homogeneous offset to survey object from radar channel.",
-        "optional": true,
-        "parent": "data_object",
-        "value": "",
-        "enabled": false,
-        "verbose": 3,
-        "visible": false
-    },
-    "receivers_offset_z": {
-        "group": "Data pre-processing",
-        "label": "Z static offset",
-        "optional": true,
-        "enabled": false,
-        "value": 0.0,
-        "verbose": 3,
-        "visible": false
-    },
-    "gps_receivers_offset": "",
     "txz_real_channel_bool": {
         "group": "Survey",
         "main": true,
@@ -160,7 +135,12 @@
         "parent": "mesh",
         "value": ""
     },
-    "output_tile_files": false,
+    "save_sensitivities": {
+        "group": "Update sensitivity weights directive",
+        "label": "Save sensitivities",
+        "tooltip": "Save the summed square row sensitivities to geoh5.",
+        "value": false
+    },
     "parallelized": {
         "group": "Compute",
         "label": "Use parallelization",
@@ -210,13 +190,6 @@
         "verbose": 3,
         "visible": false,
         "tooltip": "Limit the chunk size used by Dask for distributed computation."
-    },
-    "chunk_by_rows": {
-        "group": "Compute",
-        "label": "Chunk by rows",
-        "value": true,
-        "verbose": 3,
-        "visible": false
     },
     "out_group": {
         "label": "SimPEG group",

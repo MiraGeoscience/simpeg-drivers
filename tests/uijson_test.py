@@ -139,6 +139,9 @@ def test_alias(tmp_path):
 
 
 def test_gravity_uijson(tmp_path):
+    import warnings
+
+    warnings.filterwarnings("error")
     geoh5, _, starting_model, survey, topography = setup_inversion_workspace(
         tmp_path, background=0.0, anomaly=0.75, inversion_type="gravity"
     )
