@@ -32,7 +32,7 @@ dependencies:
   - distributed=2024.6.2=pyhd8ed1ab_0
   - fasteners=0.19=pyhd8ed1ab_1
   - fonttools=4.56.0=py312h178313f_0
-  - freetype=2.12.1=h267a509_2
+  - freetype=2.13.3=h48d6fc4_0
   - fsspec=2025.3.0=pyhd8ed1ab_0
   - geoana=0.7.2=py312hc39e661_0
   - h2=4.2.0=pyhd8ed1ab_0
@@ -77,7 +77,7 @@ dependencies:
   - libnsl=2.0.1=hd590300_0
   - libpng=1.6.47=h943b412_0
   - libscotch=7.0.6=hea33c07_1
-  - libsqlite=3.49.1=hee588c1_1
+  - libsqlite=3.49.1=hee588c1_2
   - libssh2=1.11.1=hf672d98_0
   - libstdcxx=14.2.0=h8f9b012_2
   - libstdcxx-ng=14.2.0=h4852527_2
@@ -95,8 +95,8 @@ dependencies:
   - metis=5.1.0=hd0bcaf9_1007
   - mkl=2024.2.2=ha957f24_16
   - msgpack-python=1.1.0=py312h68727a3_0
-  - mumps-include=5.7.3=ha770c72_8
-  - mumps-seq=5.7.3=h2064c95_8
+  - mumps-include=5.7.3=h82cca05_9
+  - mumps-seq=5.7.3=hb5d91fa_9
   - munkres=1.1.4=pyh9f0ad1d_0
   - ncurses=6.5=h2d0b736_3
   - numcodecs=0.15.1=py312hf9745cd_0
@@ -132,7 +132,7 @@ dependencies:
   - sortedcontainers=2.4.0=pyhd8ed1ab_1
   - tbb=2021.13.0=hceb3a55_1
   - tblib=3.0.0=pyhd8ed1ab_1
-  - threadpoolctl=3.5.0=pyhc1e730c_0
+  - threadpoolctl=3.6.0=pyhecae5ae_0
   - tk=8.6.13=noxft_h4845f30_101
   - toolz=1.0.0=pyhd8ed1ab_1
   - tornado=6.4.2=py312h66e93f0_0
@@ -151,12 +151,12 @@ dependencies:
   - zarr=2.14.2=pyhd8ed1ab_0
   - zict=3.0.0=pyhd8ed1ab_1
   - zipp=3.21.0=pyhd8ed1ab_1
-  - zstandard=0.23.0=py312hef9b889_1
-  - zstd=1.5.6=ha6fb4c9_0
+  - zstandard=0.23.0=py312h66e93f0_1
+  - zstd=1.5.7=hb8e6e7a_1
   - pip:
       - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@1ed273892ca0494a3b612d075a66dd4a1de2283a
-      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@fcd14f4a511583b410f91c3d8e97be1fc755bdb5
-      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@826b686061e177b769838290bdfb0a70d1884b1c
+      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@34154ed8cdf27714b745bd5eb597e1fdd6798b23
+      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@79ba55ab38d5cab6d8292c3dd904fbd043f26da9
       - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app.git@c1797da5ca947c6f48555ea7f7680c0c63c1c456
       - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps.git@6bf4ac8a7fc6c111216e8042a075f9e92ce38d41
 
