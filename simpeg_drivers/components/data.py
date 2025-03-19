@@ -197,7 +197,13 @@ class InversionData(InversionLocations):
         data_dict = {c: {} for c in data.keys()}
         uncert_dict = {c: {} for c in data.keys()}
 
-        if self.params.inversion_type in ["magnetotellurics", "tipper", "tdem", "fem"]:
+        if self.params.inversion_type in [
+            "magnetotellurics",
+            "tipper",
+            "tdem",
+            "fem",
+            "tdem 1d",
+        ]:
             for component, channels in data.items():
                 for ind, (channel, values) in enumerate(channels.items()):
                     dnorm = values / self.normalizations[channel][component]

@@ -194,7 +194,7 @@ class SurveyFactory(SimPEGFactory):
         if isinstance(local_index, list):
             local_index = np.hstack(local_index)
 
-        if self.factory_type in ["fem", "tdem"]:
+        if self.factory_type in ["fem", "tdem", "tdem 1d"]:
             dobs = []
             uncerts = []
 
