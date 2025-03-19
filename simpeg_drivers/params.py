@@ -11,7 +11,6 @@
 
 from __future__ import annotations
 
-import multiprocessing
 from enum import Enum
 from logging import getLogger
 from pathlib import Path
@@ -84,12 +83,11 @@ class CoreOptions(BaseData):
         data in the forward operation.
     :param active_cells: Active cell data as either a topography surface/data or a 3D model.
     :param tile_spatial: Number of tiles to split the data.
-    :param parallelized: Parallelize the inversion/forward operation.
-    :param n_cpu: Number of CPUs to use if parallelized.  If None, all cpu will be used.
     :param max_chunk_size: Maximum chunk size used for parallel operations.
     :param save_sensitivities: Save sensitivities to file.
     :param out_group: Output group to save results.
     :param generate_sweep: Generate sweep file instead of running the app.
+    :param distributed_workers: Distributed workers.
     """
 
     # TODO: Refactor to allow frozen True.  Currently params.data_object is
@@ -114,21 +112,12 @@ class CoreOptions(BaseData):
     starting_model: float | FloatData
     active_cells: ActiveCellsOptions
     tile_spatial: int = 1
-    parallelized: bool = True
     solver_type: SolverType = SolverType.Pardiso
     save_sensitivities: bool = False
-    n_cpu: int | None = None
     max_chunk_size: int = 128
     out_group: SimPEGGroup | UIJsonGroup | None = None
     generate_sweep: bool = False
     distributed_workers: str | None = None
-
-    @field_validator("n_cpu", mode="before")
-    @classmethod
-    def maximize_cpu_if_none(cls, value):
-        if value is None:
-            value = int(multiprocessing.cpu_count())
-        return value
 
     @field_validator("mesh", mode="before")
     @classmethod
@@ -300,7 +289,6 @@ class BaseInversionOptions(CoreOptions):
     :param sens_wts_threshold: Sensitivity weights threshold.
     :param every_iteration_bool: Every iteration bool.
 
-    :param parallelized: Parallelized.
     :param solver_type: Direct solver provider.  Either Mumps or Pardiso.
     :param tile_spatial: Tile the data spatially.
     :param store_sensitivities: Store sensitivities.
@@ -311,14 +299,8 @@ class BaseInversionOptions(CoreOptions):
 
     :param generate_sweep: Generate sweep.
 
-    :param output_tile_files: Output tile files.
-    :param inversion_style: Inversion style.
-    :param max_ram: Maximum RAM.    :param coolEps_q: Cool eps q.
     :param coolEpsFact: Cool eps fact.
     :param beta_search: Beta search.
-    :param ga_group: GA group.
-    :param distributed_workers: Distributed workers.
-    :param no_data_value: No data value.
     """
 
     model_config = ConfigDict(

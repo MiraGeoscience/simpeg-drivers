@@ -52,7 +52,6 @@ class GravityForwardUIJson(SimPEGDriversUIJson):
     active_model: DataForm
     save_sensitivities: BoolForm
     parallelized: BoolForm
-    n_cpu: IntegerForm
     tile_spatial: DataForm
     max_chunk_size: IntegerForm
     out_group: GroupForm
@@ -64,6 +63,8 @@ class GravityForwardUIJson(SimPEGDriversUIJson):
     gps_receivers_offset: Deprecated | None = None
     output_tile_files: Deprecated | None = None
     chunk_by_rows: Deprecated | None = None
+    parallelized: Deprecated | None = None
+    n_cpu: Deprecated | None = None
     ga_group: Deprecated | None = None
 
 
@@ -139,8 +140,6 @@ class GravityInversionUIJson(SimPEGDriversUIJson):
     sens_wts_threshold: FloatForm
     every_iteration_bool: BoolForm
     save_sensitivities: BoolForm
-    parallelized: BoolForm
-    n_cpu: IntegerForm
     tile_spatial: DataForm
     store_sensitivities: ChoiceForm
     max_chunk_size: IntegerForm
@@ -152,4 +151,6 @@ class GravityInversionUIJson(SimPEGDriversUIJson):
     inversion_style: Deprecated | None = None
     max_ram: Deprecated | None = None
     chunk_by_rows: Deprecated | None = None
+    parallelized: Deprecated | None = None
+    n_cpu: Deprecated | None = None
     ga_group: Deprecated | None = None

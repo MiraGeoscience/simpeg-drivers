@@ -159,29 +159,7 @@
         "parent": "mesh",
         "value": ""
     },
-    "save_sensitivities": {
-        "group": "Update sensitivity weights directive",
-        "label": "Save sensitivities",
-        "tooltip": "Save the summed square row sensitivities to geoh5.",
-        "value": false
-    },
-    "parallelized": {
-        "group": "Compute",
-        "label": "Use parallelization",
-        "value": true,
-        "visible": false
-    },
-    "n_cpu": {
-        "min": 1,
-        "group": "Compute",
-        "dependency": "parallelized",
-        "dependencyType": "enabled",
-        "optional": true,
-        "enabled": false,
-        "label": "Number of CPUs",
-        "value": 1,
-        "visible": false
-    },
+    "save_sensitivities": false,
     "solver_type": {
         "choiceList": [
             "Pardiso",

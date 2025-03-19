@@ -159,12 +159,7 @@
         "parent": "mesh",
         "value": ""
     },
-    "save_sensitivities": {
-        "group": "Update sensitivity weights directive",
-        "label": "Save sensitivities",
-        "tooltip": "Save the summed square row sensitivities to geoh5.",
-        "value": false
-    },
+    "save_sensitivities": false,
     "parallelized": {
         "group": "Compute",
         "label": "Use parallelization",

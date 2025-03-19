@@ -500,13 +500,8 @@ class InversionDriver(BaseDriver):
         if self.client:
             dconf.set(scheduler=self.client)
         else:
-            dconf.set(scheduler="threads")
-            n_cpu = self.params.n_cpu
-            if n_cpu is None:
-                n_cpu = int(multiprocessing.cpu_count())
-
-        if self.params.parallelized:
-            dconf.set(scheduler="threads", pool=ThreadPool(self.params.n_cpu))
+            n_cpu = int(multiprocessing.cpu_count())
+            dconf.set(scheduler="threads", pool=ThreadPool(n_cpu))
 
     @classmethod
     def start(cls, filepath: str | Path, driver_class=None):
