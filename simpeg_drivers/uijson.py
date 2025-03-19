@@ -21,6 +21,8 @@ logger = logging.getLogger(__name__)
 
 
 class SimPEGDriversUIJson(BaseUIJson):
+    """Base class for simpeg-drivers UIJson."""
+
     icon: str
     documentation: str
 

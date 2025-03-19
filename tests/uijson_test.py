@@ -15,6 +15,8 @@ from typing import ClassVar
 
 import numpy as np
 from geoh5py import Workspace
+from geoh5py.ui_json.annotations import Deprecated
+from pydantic import AliasChoices, Field
 
 from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.potential_fields.gravity.params import GravityInversionOptions
@@ -69,6 +71,52 @@ def test_write_default(tmp_path):
     assert data["version"] == "0.3.0-alpha.1"
 
 
+def test_deprecations(tmp_path, caplog):
+    workspace = Workspace(tmp_path / "test.geoh5")
+
+    class MyUIJson(SimPEGDriversUIJson):
+        my_param: Deprecated
+
+    with caplog.at_level(logging.WARNING):
+        _ = MyUIJson(
+            version="0.3.0-alpha.1",
+            title="My app",
+            icon="",
+            documentation="",
+            geoh5=str(workspace.h5file),
+            run_command="myapp.driver",
+            monitoring_directory="",
+            conda_environment="my-app",
+            workspace_geoh5="",
+            my_param="whoopsie",
+        )
+    assert "Skipping deprecated field: my_param." in caplog.text
+
+
+def test_alias(tmp_path):
+    workspace = Workspace(tmp_path / "test.geoh5")
+
+    class MyUIJson(SimPEGDriversUIJson):
+        my_param: str = Field(validation_alias=AliasChoices("my_param", "myParam"))
+
+    uijson = MyUIJson(
+        version="0.3.0-alpha.1",
+        title="My app",
+        icon="",
+        documentation="",
+        geoh5=str(workspace.h5file),
+        run_command="myapp.driver",
+        monitoring_directory="",
+        conda_environment="my-app",
+        workspace_geoh5="",
+        myParam="hello",
+    )
+    assert uijson.my_param == "hello"
+    assert "myParam" not in uijson.model_fields_set
+    assert "my_param" in uijson.model_dump()
+    assert "myParam" not in uijson.model_dump()
+
+
 def test_gravity_uijson(tmp_path):
     geoh5, _, starting_model, survey, topography = setup_inversion_workspace(
         tmp_path, background=0.0, anomaly=0.75, inversion_type="gravity"
@@ -76,6 +124,7 @@ def test_gravity_uijson(tmp_path):
     with geoh5.open():
         gz_channel = survey.add_data({"gz": {"values": np.ones(survey.n_vertices)}})
         gz_uncerts = survey.add_data({"gz_unc": {"values": np.ones(survey.n_vertices)}})
+
     opts = GravityInversionOptions(
         geoh5=geoh5,
         data_object=survey,
@@ -113,42 +162,3 @@ def test_gravity_uijson(tmp_path):
         params_data_nobraces[param] = field_data_nobraces
 
     assert uijson_data == params_data_nobraces
-
-
-def test_field_handling():
-    # TODO: This is was for prototyping and should be removed once the
-    # behaviours tested here are incorporated into the UIJson classes.
-
-    import warnings
-    from typing import Annotated, Any
-
-    from pydantic import AliasChoices, BaseModel, BeforeValidator, Field
-
-    def deprecate(value, info):
-        warnings.warn(  # will be a logging.warn in production
-            f"Field {info.field_name} is deprecated."
-        )
-        return value
-
-    Deprecated = Annotated[
-        Any,
-        Field(exclude=True),
-        BeforeValidator(deprecate),
-    ]
-
-    class MyClass(BaseModel):
-        a: int = 1  # Represents a newly added field with a default value.
-        b: int = Field(  # Represents a field with a name change.
-            validation_alias=AliasChoices("b", "bb")
-        )
-        c: Deprecated  # Represents a deprecated field.
-
-    test = MyClass(bb=2, c=3)
-    assert test.a == 1
-    assert test.b == 2
-
-    dump = test.model_dump()
-    assert "c" not in dump
-    assert "b" in dump
-    assert "bb" not in dump
-    assert dump["a"] == 1
