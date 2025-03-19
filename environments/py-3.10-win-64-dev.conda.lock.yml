@@ -10,15 +10,15 @@ dependencies:
   - accessible-pygments=0.0.5=pyhd8ed1ab_1
   - alabaster=0.7.16=pyhd8ed1ab_0
   - annotated-types=0.7.0=pyhd8ed1ab_1
-  - anyio=4.8.0=pyhd8ed1ab_0
+  - anyio=4.9.0=pyh29332c3_0
   - argon2-cffi=23.1.0=pyhd8ed1ab_1
   - argon2-cffi-bindings=21.2.0=py310ha8f682b_5
   - arrow=1.3.0=pyhd8ed1ab_1
   - asciitree=0.3.3=py_2
   - astroid=3.3.9=py310h5588dad_0
   - asttokens=3.0.0=pyhd8ed1ab_1
-  - async-lru=2.0.4=pyhd8ed1ab_1
-  - attrs=25.1.0=pyh71513ae_0
+  - async-lru=2.0.5=pyh29332c3_0
+  - attrs=25.3.0=pyh71513ae_0
   - babel=2.17.0=pyhd8ed1ab_0
   - beautifulsoup4=4.13.3=pyha770c72_0
   - bleach=6.2.0=pyh29332c3_4
@@ -39,7 +39,7 @@ dependencies:
   - colorama=0.4.6=pyhd8ed1ab_1
   - comm=0.2.2=pyhd8ed1ab_1
   - contourpy=1.3.1=py310hc19bc0b_0
-  - coverage=7.6.12=py310h38315fa_0
+  - coverage=7.7.0=py310h38315fa_0
   - cpython=3.10.16=py310hd8ed1ab_1
   - cycler=0.12.1=pyhd8ed1ab_1
   - cytoolz=1.0.1=py310ha8f682b_0
@@ -57,7 +57,7 @@ dependencies:
   - fasteners=0.19=pyhd8ed1ab_1
   - fonttools=4.56.0=py310h38315fa_0
   - fqdn=1.5.1=pyhd8ed1ab_1
-  - freetype=2.12.1=hdaf720e_2
+  - freetype=2.13.3=h0b5ce68_0
   - fsspec=2025.3.0=pyhd8ed1ab_0
   - geoana=0.7.2=py310h3e8ed56_0
   - greenlet=3.1.1=py310h9e98ed7_1
@@ -98,7 +98,7 @@ dependencies:
   - jupyter_events=0.12.0=pyh29332c3_0
   - jupyter_server=2.15.0=pyhd8ed1ab_0
   - jupyter_server_terminals=0.5.3=pyhd8ed1ab_1
-  - jupyterlab=4.3.5=pyhd8ed1ab_0
+  - jupyterlab=4.3.6=pyhd8ed1ab_0
   - jupyterlab_pygments=0.3.0=pyhd8ed1ab_2
   - jupyterlab_server=2.27.3=pyhd8ed1ab_1
   - jupyterlab_widgets=1.1.11=pyhd8ed1ab_0
@@ -127,7 +127,7 @@ dependencies:
   - liblzma=5.6.4=h2466b09_0
   - libpng=1.6.47=had7236b_0
   - libsodium=1.0.20=hc70643c_0
-  - libsqlite=3.49.1=h67fdade_1
+  - libsqlite=3.49.1=h67fdade_2
   - libssh2=1.11.1=he619c9f_0
   - libtiff=4.7.0=h797046b_3
   - libwebp-base=1.5.0=h3b0e114_0
@@ -148,7 +148,7 @@ dependencies:
   - mistune=3.1.2=pyhd8ed1ab_0
   - mkl=2024.2.2=h66d3029_15
   - msgpack-python=1.1.0=py310hc19bc0b_0
-  - mumps-seq=5.7.3=h9576071_8
+  - mumps-seq=5.7.3=hbaa6519_9
   - munkres=1.1.4=pyh9f0ad1d_0
   - myst-nb=1.2.0=pyh29332c3_0
   - myst-parser=1.0.0=pyhd8ed1ab_0
@@ -158,7 +158,7 @@ dependencies:
   - nbconvert-pandoc=7.16.6=hed9df3c_0
   - nbformat=5.10.4=pyhd8ed1ab_1
   - nest-asyncio=1.6.0=pyhd8ed1ab_1
-  - notebook=7.3.2=pyhd8ed1ab_0
+  - notebook=7.3.3=pyhd8ed1ab_0
   - notebook-shim=0.2.4=pyhd8ed1ab_1
   - numcodecs=0.13.1=py310hb4db72f_0
   - numpy=1.26.4=py310hf667824_0
@@ -167,7 +167,7 @@ dependencies:
   - overrides=7.7.0=pyhd8ed1ab_1
   - packaging=24.2=pyhd8ed1ab_2
   - pandas=2.2.3=py310hb4db72f_1
-  - pandoc=3.6.3=h57928b3_0
+  - pandoc=3.6.4=h57928b3_0
   - pandocfilters=1.5.0=pyhd8ed1ab_0
   - parso=0.8.4=pyhd8ed1ab_1
   - partd=1.4.2=pyhd8ed1ab_0
@@ -207,7 +207,7 @@ dependencies:
   - pywin32=307=py310h9e98ed7_3
   - pywinpty=2.0.15=py310h9e98ed7_0
   - pyyaml=6.0.2=py310h38315fa_2
-  - pyzmq=26.2.1=py310h656833d_0
+  - pyzmq=26.3.0=py310h656833d_0
   - readthedocs-sphinx-ext=2.2.5=pyhd8ed1ab_1
   - referencing=0.36.2=pyh29332c3_0
   - requests=2.32.3=pyhd8ed1ab_1
@@ -240,13 +240,13 @@ dependencies:
   - sphinxcontrib-jsmath=1.0.1=pyhd8ed1ab_1
   - sphinxcontrib-qthelp=2.0.0=pyhd8ed1ab_1
   - sphinxcontrib-serializinghtml=1.1.10=pyhd8ed1ab_1
-  - sqlalchemy=2.0.38=py310ha8f682b_0
+  - sqlalchemy=2.0.39=py310ha8f682b_1
   - stack_data=0.6.3=pyhd8ed1ab_1
   - tabulate=0.9.0=pyhd8ed1ab_2
   - tbb=2021.13.0=h62715c5_1
   - tblib=3.0.0=pyhd8ed1ab_1
   - terminado=0.18.1=pyh5737063_0
-  - threadpoolctl=3.5.0=pyhc1e730c_0
+  - threadpoolctl=3.6.0=pyhecae5ae_0
   - tinycss2=1.4.0=pyhd8ed1ab_0
   - tk=8.6.13=h5226925_1
   - toml=0.10.2=pyhd8ed1ab_1
@@ -285,12 +285,12 @@ dependencies:
   - zeromq=4.3.5=ha9f60a1_7
   - zict=3.0.0=pyhd8ed1ab_1
   - zipp=3.21.0=pyhd8ed1ab_1
-  - zstandard=0.19.0=py310h8d17308_0
+  - zstandard=0.23.0=py310ha8f682b_1
   - zstd=1.5.7=hbeecb71_1
   - pip:
       - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@de8092abbc030d2230720fd256d97dd87da42688
-      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@d5298460115bff5ae1f6cfeed6d53361cd26c82a
-      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@0ca2bf61ddbb53616bea91d4c85a8a4198b1e77e
+      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@ed7ef288ad91351465c6991559486f927cc0d269
+      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@826b686061e177b769838290bdfb0a70d1884b1c
       - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app.git@a99bbd282be7bce02254475e907b555767277820
       - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps.git@b745466b3d42f5c04c7e0494551cbfe4ea36fb33
 
