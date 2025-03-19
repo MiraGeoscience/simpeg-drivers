@@ -353,12 +353,10 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
         active_cells_map = maps.InjectActiveCells(
             inversion_object.mesh, active_cells, np.nan
         )
-        sorting = inversion_object.permutation
         kwargs = {
             "label": "model",
             "association": "CEll",
-            "transforms": [active_cells_map],
-            "sorting": sorting,
+            "transforms": [active_cells_map, inversion_object.permutation.T],
         }
 
         if self.factory_type == "magnetic vector":
@@ -366,6 +364,7 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
             kwargs["transforms"] = [
                 cartesian2amplitude_dip_azimuth,
                 active_cells_map,
+                inversion_object.permutation.T,
             ]
 
         if self.factory_type in [
@@ -378,7 +377,10 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
             "fem",
         ]:
             expmap = maps.ExpMap(inversion_object.mesh)
-            kwargs["transforms"] = [expmap * active_cells_map]
+            kwargs["transforms"] = [
+                expmap * active_cells_map,
+                inversion_object.permutation.T,
+            ]
 
             if self.params.model_type == "Resistivity (Ohm-m)":
                 kwargs["transforms"].append(lambda x: 1 / x)
@@ -413,8 +415,12 @@ class SaveSensitivitiesGeoh5Factory(SaveGeoh5Factory):
             "label": "model",
             "association": "CEll",
             "dmisfit": global_misfit,
-            "transforms": [active_cells_map, sqrt, volume_normalization],
-            "sorting": inversion_object.permutation,
+            "transforms": [
+                active_cells_map,
+                sqrt,
+                volume_normalization,
+                inversion_object.permutation.T,
+            ],
         }
 
         if self.factory_type == "magnetic vector":
@@ -423,6 +429,7 @@ class SaveSensitivitiesGeoh5Factory(SaveGeoh5Factory):
                 lambda x: x.reshape((-1, 3), order="F"),
                 lambda x: np.linalg.norm(x, axis=1),
                 active_cells_map,
+                inversion_object.permutation.T,
             ]
 
         kwargs["label"] = "sensitivities"

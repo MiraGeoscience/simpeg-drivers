@@ -22,6 +22,7 @@ from geoh5py.objects import DrapeModel, Octree
 from octree_creation_app.driver import OctreeDriver
 from octree_creation_app.params import OctreeParams
 from octree_creation_app.utils import octree_2_treemesh, treemesh_2_octree
+from scipy.sparse import csr_matrix, identity
 
 from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions
 from simpeg_drivers.utils.meshes import auto_mesh_parameters
@@ -140,9 +141,13 @@ class InversionMesh:
 
         if isinstance(entity, Octree):
             mesh = octree_2_treemesh(entity)
-            permutation = np.arange(entity.n_cells)
+            permutation = identity(entity.n_cells).tocsr()
         elif isinstance(entity, DrapeModel):
-            mesh, permutation = drape_2_tensor(entity, return_sorting=True)
+            mesh, indices = drape_2_tensor(entity, return_sorting=True)
+            permutation = csr_matrix(
+                (np.ones_like(indices), (np.arange(len(indices)), indices)),
+                shape=(mesh.n_cells, entity.n_cells),
+            )
         else:
             raise TypeError("Mesh object must be of type Octree or DrapeModel.")
 

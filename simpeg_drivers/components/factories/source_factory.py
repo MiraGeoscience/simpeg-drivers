@@ -64,13 +64,17 @@ class SourcesFactory(SimPEGFactory):
 
             return sources.MagDipole
 
-        elif "tdem" in self.factory_type:
+        elif "tdem" == self.factory_type:
             from simpeg.electromagnetics.time_domain import sources
 
             if isinstance(self.params.data_object, LargeLoopGroundTEMReceivers):
                 return sources.LineCurrent
             else:
                 return sources.MagDipole
+        elif "tdem 1d" == self.factory_type:
+            from simpeg.electromagnetics.time_domain import sources
+
+            return sources.CircularLoop
 
         elif self.factory_type in ["magnetotellurics", "tipper"]:
             from simpeg.electromagnetics.natural_source import sources
@@ -138,6 +142,10 @@ class SourcesFactory(SimPEGFactory):
         if "tdem" in self.factory_type:
             kwargs["location"] = locations
             kwargs["waveform"] = waveform
+
+        if self.factory_type == "tdem 1d":
+            kwargs["current"] = 1.0
+            kwargs["radius"] = 1.0
 
         return kwargs
 

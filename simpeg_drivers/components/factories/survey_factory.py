@@ -353,15 +353,17 @@ class SurveyFactory(SimPEGFactory):
             rx_lookup = self.local_index[:, np.newaxis].tolist()
             tx_locs = [transmitters.vertices[k, :] for k in self.local_index]
 
+        wave_times = (
+            receivers.waveform[:, 0] - receivers.timing_mark
+        ) * self.params.unit_conversion
         if "1d" in inversion_type:
             waveform = tdem.sources.PiecewiseLinearWaveform(
-                times=receivers.waveform[:, 0] - receivers.timing_mark,
+                times=wave_times,
                 currents=receivers.waveform[:, 1],
             )
         else:
             wave_function = interp1d(
-                (receivers.waveform[:, 0] - receivers.timing_mark)
-                * self.params.unit_conversion,
+                wave_times,
                 receivers.waveform[:, 1],
                 fill_value="extrapolate",
             )

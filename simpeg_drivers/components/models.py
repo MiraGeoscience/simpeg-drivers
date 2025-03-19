@@ -118,12 +118,12 @@ class InversionModelCollection:
             raise ValueError("active_cells must be a boolean numpy array.")
 
         permutation = self.driver.inversion_mesh.permutation
-        self.edit_ndv_model(active_cells[permutation])
+        self.edit_ndv_model(permutation.T @ active_cells)
         self.remove_air(active_cells)
         self.driver.inversion_mesh.entity.add_data(
             {
                 "active_cells": {
-                    "values": active_cells[permutation],
+                    "values": permutation.T @ active_cells,
                     "primitive_type": "boolean",
                 }
             }
@@ -316,19 +316,6 @@ class InversionModelCollection:
         """
         return self._model_method_wrapper("permute_2_octree", name=name)
 
-    def permute_2_treemesh(self, model, name):
-        """
-        Reorder model values stored in cell centers of an octree mesh to
-        TreeMesh sorting.
-
-        :param model: octree sorted model.
-        :param name: model type name ("starting", "reference",
-            "lower_bound", or "upper_bound").
-
-        :return: Vector of model values reordered for TreeMesh.
-        """
-        return self._model_method_wrapper("permute_2_treemesh", name=name, model=model)
-
     def edit_ndv_model(self, actives: np.ndarray):
         """
         Change values in models recorded in geoh5 for no-data-values.
@@ -455,21 +442,10 @@ class InversionModel:
 
         if self.is_vector:
             return mkvc(
-                self.model.reshape((-1, 3), order="F")[
-                    self.driver.inversion_mesh.permutation, :
-                ]
+                self.driver.inversion_mesh.permutation.T
+                @ self.model.reshape((-1, 3), order="F")
             )
-        return self.model[self.driver.inversion_mesh.permutation]
-
-    def permute_2_treemesh(self, model: np.ndarray) -> np.ndarray:
-        """
-        Reorder model values stored in cell centers of an octree mesh to
-        TreeMesh order in self.driver.inversion_mesh.
-
-        :param model: octree sorted model
-        :return: Vector of model values reordered for TreeMesh.
-        """
-        return model[np.argsort(self.driver.inversion_mesh.permutation)]
+        return self.driver.inversion_mesh.permutation.T @ self.model
 
     def save_model(self):
         """Resort model to the octree object's ordering and save to workspace."""
@@ -519,7 +495,7 @@ class InversionModel:
                 and data_obj[0].values is not None
             ):
                 values = data_obj[0].values.copy()
-                values[~model] = np.nan
+                values[~model.astype(bool)] = np.nan
                 data_obj[0].values = values
 
     def _get(self, name: str) -> np.ndarray | None:
@@ -552,7 +528,7 @@ class InversionModel:
         """
         if isinstance(model, NumericData):
             model = self.obj_2_mesh(model, self.driver.inversion_mesh.entity)
-            model = model[np.argsort(self.driver.inversion_mesh.permutation)]
+            model = self.driver.inversion_mesh.permutation @ model
         else:
             nc = self.driver.inversion_mesh.n_cells
             if isinstance(model, int | float):
