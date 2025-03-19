@@ -51,16 +51,19 @@ class Base1DDriver(InversionDriver):
             # temp_workspace = Workspace()
             with fetch_active_workspace(self.workspace, mode="r+"):
                 drape_models = []
+                temp_work = Workspace()
                 for part in self.params.data_object.unique_parts:
                     indices = self.params.data_object.parts == part
-                    drape_models.append(self.topo_z_drape[indices])
+                    drape_models.append(
+                        xyz_2_drape_model(
+                            temp_work,
+                            self.topo_z_drape[indices],
+                            self.layers_mesh.h[0][::-1],
+                        )
+                    )
 
-                # entity = DrapeModelMerger.create_object(self.workspace, drape_models)
-                entity = xyz_2_drape_model(
-                    self.workspace,
-                    np.vstack(drape_models),
-                    self.layers_mesh.h[0][::-1],
-                )
+                entity = DrapeModelMerger.create_object(self.workspace, drape_models)
+
             self._inversion_mesh = InversionMesh(
                 self.workspace, self.params, entity=entity
             )
@@ -100,7 +103,7 @@ class Base1DDriver(InversionDriver):
                     self.topo_z_drape,
                 )
                 self.models.active_cells = np.ones(
-                    self.inversion_mesh.n_cells, dtype=bool
+                    self.inversion_mesh.mesh.n_cells, dtype=bool
                 )
                 print("Done.")
 
