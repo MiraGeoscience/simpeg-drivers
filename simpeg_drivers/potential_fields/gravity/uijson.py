@@ -58,7 +58,7 @@ class GravityForwardUIJson(SimPEGDriversUIJson):
     out_group: GroupForm
     generate_sweep: BoolForm
     distributed_workers: str
-    z_from_topo: Deprecated
+    z_from_topo: Deprecated | None = None
     receivers_radar_drape: Deprecated | None = None
     receivers_offset_z: Deprecated | None = None
     gps_receivers_offset: Deprecated | None = None
