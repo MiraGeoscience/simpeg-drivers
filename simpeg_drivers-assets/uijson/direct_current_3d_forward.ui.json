@@ -105,6 +105,17 @@
         "parent": "mesh",
         "value": ""
     },
+    "n_cpu": {
+        "min": 1,
+        "group": "Compute",
+        "dependency": "parallelized",
+        "dependencyType": "enabled",
+        "optional": true,
+        "enabled": false,
+        "label": "Number of CPUs",
+        "value": 1,
+        "visible": true
+    },
     "solver_type": {
         "choiceList": [
             "Pardiso",

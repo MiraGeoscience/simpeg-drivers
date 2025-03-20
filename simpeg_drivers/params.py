@@ -112,6 +112,7 @@ class CoreOptions(BaseData):
     starting_model: float | FloatData
     active_cells: ActiveCellsOptions
     tile_spatial: int = 1
+    n_cpu: int = 1
     solver_type: SolverType = SolverType.Pardiso
     save_sensitivities: bool = False
     max_chunk_size: int = 128

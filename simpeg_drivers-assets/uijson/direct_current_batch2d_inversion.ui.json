@@ -488,6 +488,17 @@
         "tooltip": "Save the summed square row sensitivities to geoh5.",
         "value": false
     },
+    "n_cpu": {
+        "min": 1,
+        "group": "Compute",
+        "dependency": "parallelized",
+        "dependencyType": "enabled",
+        "optional": true,
+        "enabled": false,
+        "label": "Number of CPUs",
+        "value": 1,
+        "visible": true
+    },
     "solver_type": {
         "choiceList": [
             "Pardiso",

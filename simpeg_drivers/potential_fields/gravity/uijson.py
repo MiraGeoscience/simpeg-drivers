@@ -140,6 +140,7 @@ class GravityInversionUIJson(SimPEGDriversUIJson):
     sens_wts_threshold: FloatForm
     every_iteration_bool: BoolForm
     save_sensitivities: BoolForm
+    n_cpu: IntegerForm
     tile_spatial: DataForm
     store_sensitivities: ChoiceForm
     max_chunk_size: IntegerForm
@@ -152,5 +153,4 @@ class GravityInversionUIJson(SimPEGDriversUIJson):
     max_ram: Deprecated | None = None
     chunk_by_rows: Deprecated | None = None
     parallelized: Deprecated | None = None
-    n_cpu: Deprecated | None = None
     ga_group: Deprecated | None = None
