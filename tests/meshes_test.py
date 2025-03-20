@@ -69,7 +69,7 @@ def test_initialize(tmp_path: Path):
 
 
 def test_to_treemesh(tmp_path):
-    with Workspace(tmp_path / "test_octree.geoh5") as workspace:
+    with Workspace.create(tmp_path / "test_octree.geoh5") as workspace:
         # Positive cells sizes and Z ordering
         cells = np.array(
             [
@@ -153,7 +153,7 @@ def test_to_treemesh(tmp_path):
 
 
 def test_ensure_cell_convention(tmp_path):
-    with Workspace(tmp_path / "test_octree.geoh5") as workspace:
+    with Workspace.create(tmp_path / "test_octree.geoh5") as workspace:
         octree_cells = np.array(
             [
                 (0, 0, 0, 1),

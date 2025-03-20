@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 
 def test_version_warning(tmp_path, caplog):
-    workspace = Workspace(tmp_path / "test.geoh5")
+    workspace = Workspace.create(tmp_path / "test.geoh5")
 
     with caplog.at_level(logging.WARNING):
         _ = SimPEGDriversUIJson(
@@ -72,7 +72,7 @@ def test_write_default(tmp_path):
 
 
 def test_deprecations(tmp_path, caplog):
-    workspace = Workspace(tmp_path / "test.geoh5")
+    workspace = Workspace.create(tmp_path / "test.geoh5")
 
     class MyUIJson(SimPEGDriversUIJson):
         my_param: Deprecated
@@ -94,7 +94,7 @@ def test_deprecations(tmp_path, caplog):
 
 
 def test_pydantic_deprecation(tmp_path):
-    workspace = Workspace(tmp_path / "test.geoh5")
+    workspace = Workspace.create(tmp_path / "test.geoh5")
 
     class MyUIJson(SimPEGDriversUIJson):
         my_param: str = Field(deprecated="Use my_param2 instead.", exclude=True)
@@ -115,7 +115,7 @@ def test_pydantic_deprecation(tmp_path):
 
 
 def test_alias(tmp_path):
-    workspace = Workspace(tmp_path / "test.geoh5")
+    workspace = Workspace.create(tmp_path / "test.geoh5")
 
     class MyUIJson(SimPEGDriversUIJson):
         my_param: str = Field(validation_alias=AliasChoices("my_param", "myParam"))
