@@ -495,8 +495,6 @@
     "n_cpu": {
         "min": 1,
         "group": "Compute",
-        "dependency": "parallelized",
-        "dependencyType": "enabled",
         "optional": true,
         "enabled": false,
         "label": "Number of CPUs",
