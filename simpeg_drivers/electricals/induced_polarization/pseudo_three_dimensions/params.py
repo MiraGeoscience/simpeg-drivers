@@ -44,13 +44,13 @@ class IPBatch2DForwardOptions(BaseForwardOptions):
     """
 
     name: ClassVar[str] = "Induced Polarization Pseudo 3D Forward"
-    title: ClassVar[str] = "Induced Polarization (IP) 2D Batch Forward"
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/induced_polarization_batch2d_forward.ui.json"
     )
 
-    inversion_type: str = "induced polarization pseudo 3d"
+    title: str = "Induced Polarization (IP) 2D Batch Forward"
     physical_property: str = "chargeability"
+    inversion_type: str = "induced polarization pseudo 3d"
 
     data_object: PotentialElectrode
     chargeability_channel_bool: bool = True
@@ -58,6 +58,7 @@ class IPBatch2DForwardOptions(BaseForwardOptions):
     mesh: Octree | None = None
     conductivity_model: float | FloatData
     drape_model: DrapeModelOptions = DrapeModelOptions()
+    model_type: str = "Conductivity (S/m)"
     file_control: FileControlOptions = FileControlOptions()
 
 
@@ -78,13 +79,13 @@ class IPBatch2DInversionOptions(BaseInversionOptions):
     """
 
     name: ClassVar[str] = "Induced Polarization Pseudo 3D Inversion"
-    title: ClassVar[str] = "Induced Polarization (IP) 2D Batch Inversion"
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/induced_polarization_batch2d_inversion.ui.json"
     )
 
-    inversion_type: str = "induced polarization pseudo 3d"
+    title: str = "Induced Polarization (IP) 2D Batch Inversion"
     physical_property: str = "chargeability"
+    inversion_type: str = "induced polarization pseudo 3d"
 
     data_object: PotentialElectrode
     chargeability_channel: FloatData
@@ -92,6 +93,7 @@ class IPBatch2DInversionOptions(BaseInversionOptions):
     line_selection: LineSelectionOptions
     mesh: Octree | None = None
     drape_model: DrapeModelOptions = DrapeModelOptions()
+    model_type: str = "Conductivity (S/m)"
     conductivity_model: float | FloatData
     lower_bound: float | FloatData | None = 0.0
     file_control: FileControlOptions = FileControlOptions()

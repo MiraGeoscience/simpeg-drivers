@@ -134,9 +134,9 @@ def test_ip_p3d_run(
             max_global_iterations=max_iterations,
             initial_beta=None,
             initial_beta_ratio=1e0,
-            prctile=100,
+            percentile=100,
             upper_bound=0.1,
-            coolingRate=1,
+            cooling_rate=1,
             file_control=FileControlOptions(cleanup=False),
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")

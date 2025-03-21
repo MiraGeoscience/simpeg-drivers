@@ -9,6 +9,7 @@
     "monitoring_directory": "",
     "workspace_geoh5": "",
     "inversion_type": "tdem",
+    "physical_property": "conductivity",
     "forward_only": true,
     "data_object": {
         "main": true,
@@ -136,23 +137,15 @@
         "parent": "mesh",
         "value": ""
     },
-    "output_tile_files": false,
-    "parallelized": {
-        "group": "Compute",
-        "label": "Use parallelization",
-        "value": true,
-        "visible": false
-    },
+    "save_sensitivities": false,
     "n_cpu": {
         "min": 1,
         "group": "Compute",
-        "dependency": "parallelized",
-        "dependencyType": "enabled",
         "optional": true,
         "enabled": false,
         "label": "Number of CPUs",
         "value": 1,
-        "visible": false
+        "visible": true
     },
     "solver_type": {
         "choiceList": [
@@ -186,13 +179,6 @@
         "verbose": 3,
         "visible": false,
         "tooltip": "Limit the chunk size used by Dask for distributed computation."
-    },
-    "chunk_by_rows": {
-        "group": "Compute",
-        "label": "Chunk by rows",
-        "value": true,
-        "verbose": 3,
-        "visible": false
     },
     "out_group": {
         "label": "SimPEG group",

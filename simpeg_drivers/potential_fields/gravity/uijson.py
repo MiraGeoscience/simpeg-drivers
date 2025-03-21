@@ -11,18 +11,17 @@
 from pathlib import Path
 from typing import ClassVar
 
+from geoh5py.ui_json.annotations import Deprecated
 from geoh5py.ui_json.forms import (
     BoolForm,
     ChoiceForm,
     DataForm,
-    FileForm,
     FloatForm,
     GroupForm,
     IntegerForm,
     ObjectForm,
-    StringForm,
 )
-from geoh5py.ui_json.ui_json import BaseUIJson
+from pydantic import AliasChoices, Field
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.uijson import SimPEGDriversUIJson
@@ -36,10 +35,6 @@ class GravityForwardUIJson(SimPEGDriversUIJson):
     inversion_type: str
     forward_only: bool
     data_object: ObjectForm
-    z_from_topo: BoolForm
-    receivers_radar_drape: DataForm
-    receivers_offset_z: FloatForm
-    gps_receivers_offset: str
     gz_channel_bool: BoolForm
     gx_channel_bool: BoolForm
     gy_channel_bool: BoolForm
@@ -55,16 +50,22 @@ class GravityForwardUIJson(SimPEGDriversUIJson):
     topography_object: ObjectForm
     topography: DataForm
     active_model: DataForm
-    output_tile_files: bool
+    save_sensitivities: BoolForm
     parallelized: BoolForm
-    n_cpu: IntegerForm
     tile_spatial: DataForm
     max_chunk_size: IntegerForm
-    chunk_by_rows: BoolForm
     out_group: GroupForm
-    ga_group: str
     generate_sweep: BoolForm
     distributed_workers: str
+    z_from_topo: Deprecated | None = None
+    receivers_radar_drape: Deprecated | None = None
+    receivers_offset_z: Deprecated | None = None
+    gps_receivers_offset: Deprecated | None = None
+    output_tile_files: Deprecated | None = None
+    chunk_by_rows: Deprecated | None = None
+    parallelized: Deprecated | None = None
+    n_cpu: Deprecated | None = None
+    ga_group: Deprecated | None = None
 
 
 class GravityInversionUIJson(SimPEGDriversUIJson):
@@ -103,8 +104,6 @@ class GravityInversionUIJson(SimPEGDriversUIJson):
     topography_object: ObjectForm
     topography: DataForm
     active_model: DataForm
-    output_tile_files: bool
-    inversion_style: str
     alpha_s: DataForm
     length_scale_x: DataForm
     length_scale_y: DataForm
@@ -117,13 +116,22 @@ class GravityInversionUIJson(SimPEGDriversUIJson):
     max_irls_iterations: IntegerForm
     starting_chi_factor: FloatForm
     beta_tol: FloatForm
-    prctile: IntegerForm
+    percentile: IntegerForm = Field(
+        validation_alias=AliasChoices("percentile", "prctile")
+    )
     chi_factor: FloatForm
     auto_scale_misfits: BoolForm
     initial_beta_ratio: FloatForm
     initial_beta: FloatForm
-    coolingFactor: FloatForm
-    coolingRate: IntegerForm
+    cooling_factor: FloatForm = Field(
+        validation_alias=AliasChoices("cooling_factor", "coolingFactor")
+    )
+    cooling_rate: IntegerForm = Field(
+        validation_alias=AliasChoices("cooling_rate", "coolingRate")
+    )
+    epsilon_cooling_factor: float = Field(
+        validation_alias=AliasChoices("epsilon_cooling_factor", "coolEpsFact")
+    )
     max_global_iterations: IntegerForm
     max_line_search_iterations: IntegerForm
     max_cg_iterations: IntegerForm
@@ -132,14 +140,17 @@ class GravityInversionUIJson(SimPEGDriversUIJson):
     sens_wts_threshold: FloatForm
     every_iteration_bool: BoolForm
     save_sensitivities: BoolForm
-    parallelized: BoolForm
     n_cpu: IntegerForm
     tile_spatial: DataForm
     store_sensitivities: ChoiceForm
-    max_ram: str
     max_chunk_size: IntegerForm
-    chunk_by_rows: BoolForm
+
     out_group: GroupForm
-    ga_group: str
     generate_sweep: BoolForm
     distributed_workers: str
+    output_tile_files: Deprecated | None = None
+    inversion_style: Deprecated | None = None
+    max_ram: Deprecated | None = None
+    chunk_by_rows: Deprecated | None = None
+    parallelized: Deprecated | None = None
+    ga_group: Deprecated | None = None

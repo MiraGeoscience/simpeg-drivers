@@ -73,7 +73,6 @@ def test_dc_3d_fwr_run(
         active_cells=active_cells,
         data_object=survey,
         starting_model=model,
-        resolution=None,
     )
     fwr_driver = DC3DForwardDriver(params)
     fwr_driver.run()
@@ -113,13 +112,13 @@ def test_dc_3d_run(
             max_global_iterations=max_iterations,
             initial_beta=None,
             initial_beta_ratio=10.0,
-            prctile=100,
+            percentile=100,
             upper_bound=10,
             tile_spatial=n_lines,
             store_sensitivities="ram",
             auto_scale_misfits=False,
             save_sensitivities=True,
-            coolingRate=1,
+            cooling_rate=1,
             chi_factor=0.5,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
@@ -164,7 +163,6 @@ def test_dc_single_line_fwr_run(
         active_cells=active_cells,
         data_object=survey,
         starting_model=model,
-        resolution=None,
     )
 
     fwr_driver = DC3DForwardDriver(params)

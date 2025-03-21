@@ -44,13 +44,13 @@ class DCBatch2DForwardOptions(BaseForwardOptions):
     """
 
     name: ClassVar[str] = "Direct Current Pseudo 3D Forward"
-    title: ClassVar[str] = "Direct Current (DC) 2D Batch Forward"
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/direct_current_batch2d_forward.ui.json"
     )
 
-    inversion_type: str = "direct current pseudo 3d"
+    title: str = "Direct Current (DC) 2D Batch Forward"
     physical_property: str = "conductivity"
+    inversion_type: str = "direct current pseudo 3d"
 
     data_object: PotentialElectrode
     potential_channel_bool: bool = True
@@ -79,13 +79,13 @@ class DCBatch2DInversionOptions(BaseInversionOptions):
     """
 
     name: ClassVar[str] = "Direct Current Pseudo 3D Inversion"
-    title: ClassVar[str] = "Direct Current (DC) 2D Batch Inversion"
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/direct_current_batch2d_inversion.ui.json"
     )
 
-    inversion_type: str = "direct current pseudo 3d"
+    title: str = "Direct Current (DC) 2D Batch Inversion"
     physical_property: str = "conductivity"
+    inversion_type: str = "direct current pseudo 3d"
 
     data_object: PotentialElectrode
     potential_channel: FloatData

@@ -39,13 +39,13 @@ class DC2DForwardOptions(BaseForwardOptions):
     """
 
     name: ClassVar[str] = "Direct Current 2D Forward"
-    title: ClassVar[str] = "Direct Current 2D Forward"
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/direct_current_2d_forward.ui.json"
     )
 
-    inversion_type: str = "direct current 2d"
+    title: str = "Direct Current 2D Forward"
     physical_property: str = "conductivity"
+    inversion_type: str = "direct current 2d"
 
     potential_channel_bool: bool = True
     line_selection: LineSelectionOptions
@@ -67,13 +67,13 @@ class DC2DInversionOptions(BaseInversionOptions):
     """
 
     name: ClassVar[str] = "Direct Current 2D Inversion"
-    title: ClassVar[str] = "Direct Current 2D Inversion"
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/direct_current_2d_inversion.ui.json"
     )
 
-    inversion_type: str = "direct current 2d"
+    title: str = "Direct Current 2D Inversion"
     physical_property: str = "conductivity"
+    inversion_type: str = "direct current 2d"
 
     potential_channel: FloatData
     potential_uncertainty: float | FloatData | None = None

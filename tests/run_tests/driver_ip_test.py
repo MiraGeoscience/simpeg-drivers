@@ -98,11 +98,11 @@ def test_ip_3d_run(
             max_global_iterations=max_iterations,
             initial_beta=None,
             initial_beta_ratio=1e0,
-            prctile=100,
+            percentile=100,
             upper_bound=0.1,
             tile_spatial=n_lines,
             store_sensitivities="ram",
-            coolingRate=1,
+            cooling_rate=1,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 

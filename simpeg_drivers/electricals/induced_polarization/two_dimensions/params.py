@@ -38,13 +38,13 @@ class IP2DForwardOptions(BaseForwardOptions):
     """
 
     name: ClassVar[str] = "Induced Polarization 2D Forward"
-    title: ClassVar[str] = "Induced Polarization 2D Forward"
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/induced_polarization_2d_forward.ui.json"
     )
 
-    inversion_type: str = "induced polarization 2d"
+    title: str = "Induced Polarization 2D Forward"
     physical_property: str = "chargeability"
+    inversion_type: str = "induced polarization 2d"
 
     chargeability_channel_bool: bool = True
     line_selection: LineSelectionOptions
@@ -68,13 +68,13 @@ class IP2DInversionOptions(BaseInversionOptions):
     """
 
     name: ClassVar[str] = "Induced Polarization 2D Inversion"
-    title: ClassVar[str] = "Induced Polarization 2D Inversion"
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/induced_polarization_2d_inversion.ui.json"
     )
 
-    inversion_type: str = "induced polarization 2d"
+    title: str = "Induced Polarization 2D Inversion"
     physical_property: str = "chargeability"
+    inversion_type: str = "induced polarization 2d"
 
     chargeability_channel: FloatData
     chargeability_uncertainty: float | FloatData | None = None

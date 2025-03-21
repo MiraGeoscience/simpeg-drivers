@@ -258,10 +258,10 @@ class DirectivesFactory:
                 f_min_change=self.params.f_min_change,
                 max_irls_iterations=self.params.max_irls_iterations,
                 misfit_tolerance=self.params.beta_tol,
-                percentile=self.params.prctile,
-                cooling_rate=self.params.coolingRate,
-                cooling_factor=self.params.coolingFactor,
-                irls_cooling_factor=self.params.coolEpsFact,
+                percentile=self.params.percentile,
+                cooling_rate=self.params.cooling_rate,
+                cooling_factor=self.params.cooling_factor,
+                irls_cooling_factor=self.params.epsilon_cooling_factor,
                 chifact_start=(
                     self.params.starting_chi_factor
                     if has_chi_start

@@ -9,6 +9,7 @@
     "monitoring_directory": "",
     "workspace_geoh5": "",
     "inversion_type": "induced polarization 2d",
+    "physical_property": "chargeability",
     "forward_only": false,
     "data_object": {
         "main": true,
@@ -35,30 +36,6 @@
         "value": 1,
         "tooltip": "Selects the line of data to be processed."
     },
-    "receivers_radar_drape": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data pre-processing",
-        "label": "Z radar offset",
-        "tooltip": "Apply a non-homogeneous offset to survey object from radar channel.",
-        "optional": true,
-        "parent": "data_object",
-        "value": "",
-        "enabled": false,
-        "visible": false
-    },
-    "receivers_offset_z": {
-        "group": "Data pre-processing",
-        "label": "Z static offset",
-        "optional": true,
-        "enabled": false,
-        "value": 0.0,
-        "visible": false
-    },
-    "gps_receivers_offset": "",
     "chargeability_channel": {
         "association": "Cell",
         "dataType": "Float",
@@ -268,8 +245,6 @@
         "parent": "mesh",
         "value": ""
     },
-    "output_tile_files": false,
-    "inversion_style": "voxel",
     "alpha_s": {
         "min": 0.0,
         "group": "Regularization",
@@ -397,7 +372,7 @@
         "verbose": 3,
         "visible": false
     },
-    "prctile": {
+    "percentile": {
         "group": "Update IRLS directive",
         "label": "Percentile",
         "value": 95,
@@ -448,7 +423,7 @@
         "verbose": 2,
         "tooltip": "Trade-off parameter between data misfit and regularization."
     },
-    "coolingFactor": {
+    "cooling_factor": {
         "group": "Cooling schedule/target",
         "label": "Beta cooling factor",
         "tooltip": "Each beta cooling step will be calculated by dividing the current beta by this factor.",
@@ -459,7 +434,7 @@
         "lineEdit": false,
         "verbose": 2
     },
-    "coolingRate": {
+    "cooling_rate": {
         "group": "Optimization",
         "label": "Iterations per beta",
         "value": 2,
@@ -471,6 +446,7 @@
         "enabled": true,
         "tooltip": "Set the number of iterations per beta value. Use higher values for more non-linear optimization problems."
     },
+    "epsilon_cooling_factor": 1.2,
     "max_global_iterations": {
         "min": 1,
         "lineEdit": false,
@@ -539,22 +515,14 @@
         "tooltip": "Save the summed square row sensitivities to geoh5.",
         "value": false
     },
-    "parallelized": {
-        "group": "Compute",
-        "label": "Use parallelization",
-        "value": true,
-        "visible": false
-    },
     "n_cpu": {
         "min": 1,
         "group": "Compute",
-        "dependency": "parallelized",
-        "dependencyType": "enabled",
         "optional": true,
         "enabled": false,
         "label": "Number of CPUs",
         "value": 1,
-        "visible": false
+        "visible": true
     },
     "solver_type": {
         "choiceList": [
@@ -567,7 +535,6 @@
         "value": "Pardiso"
     },
     "tile_spatial": 1,
-    "max_ram": "",
     "store_sensitivities": {
         "choiceList": [
             "disk",
@@ -589,13 +556,6 @@
         "visible": false,
         "tooltip": "Limit the chunk size used by Dask for distributed computation."
     },
-    "chunk_by_rows": {
-        "group": "Compute",
-        "label": "Chunk by rows",
-        "value": true,
-        "verbose": 3,
-        "visible": false
-    },
     "out_group": {
         "label": "SimPEG group",
         "value": "",
@@ -613,6 +573,5 @@
         "value": false,
         "tooltip": "Generates a file for sweeping parameters instead of running the application."
     },
-    "distributed_workers": "",
-    "chargeability_channel_bool": true
+    "distributed_workers": ""
 }
