@@ -66,7 +66,6 @@ def test_magnetic_vector_fwr_run(
         inducing_field_inclination=inducing_field[1],
         inducing_field_declination=inducing_field[2],
         data_object=survey,
-        starting_model_object=model.parent,
         starting_model=model,
         starting_inclination=45,
         starting_declination=270,
@@ -118,7 +117,7 @@ def test_magnetic_vector_run(
             initial_beta_ratio=1e1,
             store_sensitivities="ram",
             save_sensitivities=True,
-            prctile=100,
+            percentile=100,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 

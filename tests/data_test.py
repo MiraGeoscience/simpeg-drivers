@@ -70,7 +70,7 @@ def test_save_data(tmp_path: Path):
 def test_survey_data(tmp_path: Path):
     X, Y, Z = np.meshgrid(np.linspace(0, 100, 3), np.linspace(0, 100, 3), 0)
     verts = np.column_stack([X.ravel(), Y.ravel(), Z.ravel()])
-    with Workspace(tmp_path / "test_workspace.geoh5") as workspace:
+    with Workspace.create(tmp_path / "test_workspace.geoh5") as workspace:
         test_data_object = Points.create(
             workspace, vertices=verts, name="test_data_object"
         )

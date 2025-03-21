@@ -30,7 +30,7 @@
         "main": true,
         "group": "Sensitivity",
         "label": "Cutoff (%)",
-        "toottip": "The created mask will eliminate cells below the cutoff percentage.",
+        "tooltip": "The created mask will eliminate cells below the cutoff percentage.",
         "value": 10.0,
         "min": 0.0,
         "max": 100.0,

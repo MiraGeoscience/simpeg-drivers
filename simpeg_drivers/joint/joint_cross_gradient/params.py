@@ -33,16 +33,16 @@ class JointCrossGradientOptions(BaseJointOptions):
     """
 
     name: ClassVar[str] = "Joint Cross Gradient Inversion"
-    title: ClassVar[str] = "Joint Cross Gradient Inversion"
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/joint_cross_gradient_inversion.ui.json"
     )
 
+    title: str = "Joint Cross Gradient Inversion"
+    physical_property: list[str] = [""]
+
     inversion_type: str = "joint cross gradient"
 
-    data_object: None = None
     mesh: Octree | None = None
-    starting_model: None = None
     cross_gradient_weight_a_b: float = 1.0
     cross_gradient_weight_c_a: float | None = None
     cross_gradient_weight_c_b: float | None = None

@@ -9,6 +9,7 @@
     "monitoring_directory": "",
     "workspace_geoh5": "",
     "inversion_type": "magnetic scalar",
+    "physical_property": "susceptibility",
     "forward_only": false,
     "inducing_field_strength": {
         "min": 0.0,
@@ -478,8 +479,6 @@
         "parent": "mesh",
         "value": ""
     },
-    "output_tile_files": false,
-    "inversion_style": "voxel",
     "alpha_s": {
         "min": 0.0,
         "group": "Regularization",
@@ -636,7 +635,7 @@
         "verbose": 3,
         "visible": false
     },
-    "prctile": {
+    "percentile": {
         "group": "Update IRLS directive",
         "label": "Percentile",
         "value": 95,
@@ -687,7 +686,7 @@
         "verbose": 2,
         "tooltip": "Trade-off parameter between data misfit and regularization."
     },
-    "coolingFactor": {
+    "cooling_factor": {
         "group": "Cooling schedule/target",
         "label": "Beta cooling factor",
         "tooltip": "Each beta cooling step will be calculated by dividing the current beta by this factor.",
@@ -698,7 +697,7 @@
         "lineEdit": false,
         "verbose": 2
     },
-    "coolingRate": {
+    "cooling_rate": {
         "group": "Optimization",
         "label": "Iterations per beta",
         "value": 1,
@@ -709,6 +708,7 @@
         "verbose": 2,
         "enabled": true
     },
+    "epsilon_cooling_factor": 1.2,
     "max_global_iterations": {
         "min": 1,
         "lineEdit": false,
@@ -777,23 +777,16 @@
         "tooltip": "Save the summed square row sensitivities to geoh5.",
         "value": false
     },
-    "parallelized": {
-        "group": "Compute",
-        "label": "Use parallelization",
-        "value": true,
-        "visible": false
-    },
     "n_cpu": {
         "min": 1,
         "group": "Compute",
-        "dependency": "parallelized",
-        "dependencyType": "enabled",
         "optional": true,
         "enabled": false,
         "label": "Number of CPUs",
         "value": 1,
-        "visible": false
+        "visible": true
     },
+    "solver_type": "Pardiso",
     "tile_spatial": {
         "group": "Compute",
         "label": "Number of tiles",
@@ -816,7 +809,6 @@
         "tooltip": "Use disk on a fast local SSD, and RAM elsewhere",
         "value": "ram"
     },
-    "max_ram": "",
     "max_chunk_size": {
         "min": 0,
         "group": "Compute",
@@ -828,13 +820,6 @@
         "visible": false,
         "tooltip": "Limit the chunk size used by Dask for distributed computation."
     },
-    "chunk_by_rows": {
-        "group": "Compute",
-        "label": "Chunk by rows",
-        "value": true,
-        "verbose": 3,
-        "visible": false
-    },
     "out_group": {
         "label": "SimPEG group",
         "value": "",
@@ -845,7 +830,6 @@
         "enabled": false,
         "tooltip": "Optionally set the SimPEG group to which results will be saved."
     },
-    "ga_group": "",
     "generate_sweep": {
         "label": "Generate sweep file",
         "group": "Python run preferences",

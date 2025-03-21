@@ -9,6 +9,7 @@
     "monitoring_directory": "",
     "workspace_geoh5": "",
     "inversion_type": "magnetotellurics",
+    "physical_property": "conductivity",
     "forward_only": true,
     "data_object": {
         "main": true,
@@ -17,32 +18,6 @@
         "meshType": "{b99bd6e5-4fe1-45a5-bd2f-75fc31f91b38}",
         "value": ""
     },
-    "receivers_radar_drape": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data pre-processing",
-        "label": "Z radar offset",
-        "tooltip": "Apply a non-homogeneous offset to survey object from radar channel.",
-        "optional": true,
-        "parent": "data_object",
-        "value": "",
-        "enabled": false,
-        "verbose": 3,
-        "visible": false
-    },
-    "receivers_offset_z": {
-        "group": "Data pre-processing",
-        "label": "Z static offset",
-        "optional": true,
-        "enabled": false,
-        "value": 0.0,
-        "verbose": 3,
-        "visible": false
-    },
-    "gps_receivers_offset": "",
     "zxx_real_channel_bool": {
         "group": "Survey",
         "main": true,
@@ -184,23 +159,15 @@
         "parent": "mesh",
         "value": ""
     },
-    "output_tile_files": false,
-    "parallelized": {
-        "group": "Compute",
-        "label": "Use parallelization",
-        "value": true,
-        "visible": false
-    },
+    "save_sensitivities": false,
     "n_cpu": {
         "min": 1,
         "group": "Compute",
-        "dependency": "parallelized",
-        "dependencyType": "enabled",
         "optional": true,
         "enabled": false,
         "label": "Number of CPUs",
         "value": 1,
-        "visible": false
+        "visible": true
     },
     "solver_type": {
         "choiceList": [
@@ -234,13 +201,6 @@
         "verbose": 3,
         "visible": false,
         "tooltip": "Limit the chunk size used by Dask for distributed computation."
-    },
-    "chunk_by_rows": {
-        "group": "Compute",
-        "label": "Chunk by rows",
-        "value": true,
-        "verbose": 3,
-        "visible": false
     },
     "out_group": {
         "label": "SimPEG group",

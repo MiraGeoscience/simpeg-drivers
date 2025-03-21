@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 
 def test_version_warning(tmp_path, caplog):
-    workspace = Workspace(tmp_path / "test.geoh5")
+    workspace = Workspace.create(tmp_path / "test.geoh5")
 
     with caplog.at_level(logging.WARNING):
         _ = SimPEGDriversUIJson(
@@ -72,7 +72,7 @@ def test_write_default(tmp_path):
 
 
 def test_deprecations(tmp_path, caplog):
-    workspace = Workspace(tmp_path / "test.geoh5")
+    workspace = Workspace.create(tmp_path / "test.geoh5")
 
     class MyUIJson(SimPEGDriversUIJson):
         my_param: Deprecated
@@ -93,8 +93,29 @@ def test_deprecations(tmp_path, caplog):
     assert "Skipping deprecated field: my_param." in caplog.text
 
 
+def test_pydantic_deprecation(tmp_path):
+    workspace = Workspace.create(tmp_path / "test.geoh5")
+
+    class MyUIJson(SimPEGDriversUIJson):
+        my_param: str = Field(deprecated="Use my_param2 instead.", exclude=True)
+
+    uijson = MyUIJson(
+        version="0.3.0-alpha.1",
+        title="My app",
+        icon="",
+        documentation="",
+        geoh5=str(workspace.h5file),
+        run_command="myapp.driver",
+        monitoring_directory="",
+        conda_environment="my-app",
+        workspace_geoh5="",
+        my_param="whoopsie",
+    )
+    assert "my_param" not in uijson.model_dump()
+
+
 def test_alias(tmp_path):
-    workspace = Workspace(tmp_path / "test.geoh5")
+    workspace = Workspace.create(tmp_path / "test.geoh5")
 
     class MyUIJson(SimPEGDriversUIJson):
         my_param: str = Field(validation_alias=AliasChoices("my_param", "myParam"))
@@ -118,6 +139,9 @@ def test_alias(tmp_path):
 
 
 def test_gravity_uijson(tmp_path):
+    import warnings
+
+    warnings.filterwarnings("error")
     geoh5, _, starting_model, survey, topography = setup_inversion_workspace(
         tmp_path, background=0.0, anomaly=0.75, inversion_type="gravity"
     )

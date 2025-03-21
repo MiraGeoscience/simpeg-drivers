@@ -83,7 +83,7 @@ def test_auto_pad():
 
 
 def test_auto_mesh_parameters(tmp_path):
-    with Workspace(tmp_path / "test.geoh5") as ws:
+    with Workspace.create(tmp_path / "test.geoh5") as ws:
         locs = create_test_survey()
         locs, topo = generate_random_topography(locs, drape_survey=0)
 

@@ -57,6 +57,7 @@ from simpeg_drivers.params import (
     BaseForwardOptions,
     BaseInversionOptions,
 )
+from simpeg_drivers.joint.params import BaseJointOptions
 from simpeg_drivers.utils.utils import tile_locations
 
 mlogger = logging.getLogger("distributed")
@@ -296,6 +297,7 @@ class InversionDriver(BaseDriver):
                 BaseForwardOptions,
                 BaseInversionOptions,
                 SweepParams,
+                BaseJointOptions,
             ),
         ):
             raise TypeError(
@@ -498,13 +500,11 @@ class InversionDriver(BaseDriver):
         if self.client:
             dconf.set(scheduler=self.client)
         else:
-            dconf.set(scheduler="threads")
             n_cpu = self.params.n_cpu
             if n_cpu is None:
                 n_cpu = int(multiprocessing.cpu_count())
 
-        if self.params.parallelized:
-            dconf.set(scheduler="threads", pool=ThreadPool(self.params.n_cpu))
+            dconf.set(scheduler="threads", pool=ThreadPool(n_cpu))
 
     @classmethod
     def start(cls, filepath: str | Path, driver_class=None):

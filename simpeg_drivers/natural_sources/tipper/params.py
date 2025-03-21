@@ -35,11 +35,11 @@ class TipperForwardOptions(EMDataMixin, BaseForwardOptions):
     """
 
     name: ClassVar[str] = "Tipper Forward"
-    title: ClassVar[str] = "Tipper Forward"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/tipper_forward.ui.json"
 
-    inversion_type: str = "tipper"
+    title: str = "Tipper Forward"
     physical_property: str = "conductivity"
+    inversion_type: str = "tipper"
 
     data_object: TipperReceivers
     txz_real_channel_bool: bool | None = None
@@ -67,11 +67,11 @@ class TipperInversionOptions(EMDataMixin, BaseInversionOptions):
     """
 
     name: ClassVar[str] = "Tipper Inversion"
-    title: ClassVar[str] = "Tipper Inversion"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/tipper_inversion.ui.json"
 
-    inversion_type: str = "tipper"
+    title: str = "Tipper Inversion"
     physical_property: str = "conductivity"
+    inversion_type: str = "tipper"
 
     data_object: TipperReceivers
     txz_real_channel: PropertyGroup | None = None
