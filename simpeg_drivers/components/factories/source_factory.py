@@ -145,7 +145,7 @@ class SourcesFactory(SimPEGFactory):
 
         if self.factory_type == "tdem 1d":
             kwargs["current"] = 1.0
-            kwargs["radius"] = 1.0
+            kwargs["radius"] = np.pi**-0.5
 
         return kwargs
 

@@ -357,9 +357,10 @@ class SurveyFactory(SimPEGFactory):
             receivers.waveform[:, 0] - receivers.timing_mark
         ) * self.params.unit_conversion
         if "1d" in inversion_type:
+            on_times = wave_times <= 0.0
             waveform = tdem.sources.PiecewiseLinearWaveform(
-                times=wave_times,
-                currents=receivers.waveform[:, 1],
+                times=wave_times[on_times],
+                currents=receivers.waveform[on_times, 1],
             )
         else:
             wave_function = interp1d(

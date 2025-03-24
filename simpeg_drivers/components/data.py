@@ -318,7 +318,7 @@ class InversionData(InversionLocations):
                         mu0 * (-1 / offsets[chan] ** 3 / (4 * np.pi)) / 1e6
                     )
                 elif (
-                    self.params.inversion_type in ["tdem"]
+                    "tdem" in self.params.inversion_type
                     and self.params.data_units == "dB/dt (T/s)"
                 ):
                     if comp in ["x", "y", "z"]:

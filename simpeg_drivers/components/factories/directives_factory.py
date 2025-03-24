@@ -384,6 +384,15 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
 
             if self.params.model_type == "Resistivity (Ohm-m)":
                 kwargs["transforms"].append(lambda x: 1 / x)
+
+        if "1d" in self.factory_type:
+            ghosts = (
+                np.squeeze(np.asarray(inversion_object.permutation.sum(axis=0))) == 0
+            )
+            nn_vals = np.ones_like(ghosts, dtype=float)
+            nn_vals[ghosts] = np.nan
+            kwargs["transforms"].append(lambda x: nn_vals * x)
+
         return kwargs
 
 
