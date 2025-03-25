@@ -59,6 +59,7 @@ from simpeg_drivers.params import (
 )
 from simpeg_drivers.joint.params import BaseJointOptions
 from simpeg_drivers.utils.utils import tile_locations
+from simpeg_drivers.utils.regularization import cell_neighbors, rotated_gradient
 
 mlogger = logging.getLogger("distributed")
 mlogger.setLevel(logging.WARNING)
@@ -452,6 +453,7 @@ class InversionDriver(BaseDriver):
             comps = "sxz" if "2d" in self.params.inversion_type else "sxyz"
             avg_comps = "sxy" if "2d" in self.params.inversion_type else "sxyz"
             weights = ["alpha_s"] + [f"length_scale_{k}" for k in comps[1:]]
+            neighbors = cell_neighbors(reg.regularization_mesh)
             for comp, avg_comp, objfct, weight in zip(
                 comps, avg_comps, reg.objfcts, weights
             ):
@@ -466,7 +468,15 @@ class InversionDriver(BaseDriver):
                         getattr(reg.regularization_mesh, f"aveCC2F{avg_comp}") * weight
                     )
                     norm = getattr(reg.regularization_mesh, f"aveCC2F{avg_comp}") * norm
-
+                    Grad = rotated_gradient(
+                        mesh=reg.regularization_mesh,
+                        neighbors=neighbors,
+                        axis=comp,
+                        phi=self.params.gradient_phi,
+                        theta=self.params.gradient_theta,
+                        psi=self.params.gradient_psi,
+                    )
+                    setattr(objfct.regularization_mesh, f"cell_gradient_{comp}", Grad)
                 objfct.set_weights(**{comp: weight})
                 objfct.norm = norm
 

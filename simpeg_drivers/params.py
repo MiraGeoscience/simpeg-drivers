@@ -262,6 +262,9 @@ class BaseInversionOptions(CoreOptions):
     :param length_scale_x: Length scale x.
     :param length_scale_y: Length scale y.
     :param length_scale_z: Length scale z.
+    :param gradient_phi: Gradient rotation about the y-axis
+    :param gradient_theta: Gradient rotation about the x-axis
+    :param gradient_psi: Gradient rotation about the z-axis
 
     :param s_norm: S norm.
     :param x_norm: X norm.
@@ -324,6 +327,9 @@ class BaseInversionOptions(CoreOptions):
     length_scale_x: float | FloatData = 1.0
     length_scale_y: float | FloatData | None = 1.0
     length_scale_z: float | FloatData = 1.0
+    gradient_phi: float | FloatData | None = None
+    gradient_theta: float | FloatData | None = None
+    gradient_psi: float | FloatData | None = None
 
     s_norm: float | FloatData | None = 0.0
     x_norm: float | FloatData = 2.0
