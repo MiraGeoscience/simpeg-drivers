@@ -11,20 +11,25 @@
 
 from __future__ import annotations
 
+from copy import deepcopy
 from typing import TYPE_CHECKING
+
+import numpy as np
+import simpeg.electromagnetics.frequency_domain.sources as fem_sources
+import simpeg.electromagnetics.natural_source.sources as ns_sources
+import simpeg.electromagnetics.static.resistivity.sources as dc_sources
+import simpeg.electromagnetics.time_domain.sources as tem_sources
+import simpeg.potential_fields.gravity.sources as grav_sources
+import simpeg.potential_fields.magnetics.sources as mag_sources
+from geoh5py.objects import LargeLoopGroundTEMReceivers
+
+from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 
 
 if TYPE_CHECKING:
     from geoapps_utils.driver.params import BaseParams
 
     from simpeg_drivers.params import BaseOptions
-
-from copy import deepcopy
-
-import numpy as np
-from geoh5py.objects import LargeLoopGroundTEMReceivers
-
-from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 
 
 class SourcesFactory(SimPEGFactory):
@@ -40,46 +45,37 @@ class SourcesFactory(SimPEGFactory):
 
     def concrete_object(self):
         if self.factory_type in ["magnetic vector", "magnetic scalar"]:
-            from simpeg.potential_fields.magnetics import sources
-
-            return sources.UniformBackgroundField
+            return mag_sources.UniformBackgroundField
 
         elif self.factory_type == "gravity":
-            from simpeg.potential_fields.gravity import sources
-
-            return sources.SourceField
+            return grav_sources.SourceField
 
         elif "direct current" in self.factory_type:
-            from simpeg.electromagnetics.static.resistivity import sources
-
-            return sources.Dipole
+            return dc_sources.Dipole
 
         elif "induced polarization" in self.factory_type:
-            from simpeg.electromagnetics.static.induced_polarization import sources
-
-            return sources.Dipole
+            return dc_sources.Dipole
 
         elif "fem" in self.factory_type:
-            from simpeg.electromagnetics.frequency_domain import sources
-
-            return sources.MagDipole
+            return fem_sources.MagDipole
 
         elif "tdem" == self.factory_type:
-            from simpeg.electromagnetics.time_domain import sources
-
             if isinstance(self.params.data_object, LargeLoopGroundTEMReceivers):
-                return sources.LineCurrent
+                return tem_sources.LineCurrent
             else:
-                return sources.MagDipole
-        elif "tdem 1d" == self.factory_type:
-            from simpeg.electromagnetics.time_domain import sources
+                return tem_sources.MagDipole
 
-            return sources.CircularLoop
+        elif "tdem 1d" == self.factory_type:
+            if np.allclose(
+                self.params.data_object.vertices,
+                self.params.data_object.complement.vertices,
+            ):
+                return tem_sources.CircularLoop
+            else:
+                return tem_sources.MagDipole
 
         elif self.factory_type in ["magnetotellurics", "tipper"]:
-            from simpeg.electromagnetics.natural_source import sources
-
-            return sources.PlanewaveXYPrimary
+            return ns_sources.PlanewaveXYPrimary
 
     def assemble_arguments(
         self,
@@ -144,8 +140,14 @@ class SourcesFactory(SimPEGFactory):
             kwargs["waveform"] = waveform
 
         if self.factory_type == "tdem 1d":
-            kwargs["current"] = 1.0
-            kwargs["radius"] = np.pi**-0.5
+            if isinstance(
+                self.concrete_object(),
+                tem_sources.CircularLoop,
+            ):
+                kwargs["moment"] = 1.0
+            else:
+                kwargs["current"] = 1.0
+                kwargs["radius"] = np.pi**-0.5
 
         return kwargs
 
@@ -168,11 +170,7 @@ class SourcesFactory(SimPEGFactory):
         args.append(locations_a)
 
         if np.all(locations_a == locations_b):
-            if "direct current" in self.factory_type:
-                from simpeg.electromagnetics.static.resistivity import sources
-            else:
-                from simpeg.electromagnetics.static.induced_polarization import sources
-            self.simpeg_object = sources.Pole
+            self.simpeg_object = dc_sources.Pole
         else:
             args.append(locations_b)
 

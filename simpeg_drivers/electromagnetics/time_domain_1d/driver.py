@@ -62,7 +62,9 @@ class Base1DDriver(InversionDriver):
                         )
                     )
 
-                entity = DrapeModelMerger.create_object(self.workspace, drape_models)
+                entity = DrapeModelMerger.create_object(
+                    self.workspace, drape_models, parent=self.out_group
+                )
 
             self._inversion_mesh = InversionMesh(
                 self.workspace, self.params, entity=entity
