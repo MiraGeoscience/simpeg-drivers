@@ -16,9 +16,9 @@ from typing import ClassVar, TypeAlias
 
 from geoh5py.groups import PropertyGroup
 from geoh5py.objects import (
-    AirborneTEMReceivers,
-    LargeLoopGroundTEMReceivers,
-    MovingLoopGroundTEMReceivers,
+    AirborneFEMReceivers,
+    LargeLoopGroundFEMReceivers,
+    MovingLoopGroundFEMReceivers,
 )
 
 from simpeg_drivers import assets_path
@@ -31,33 +31,32 @@ from simpeg_drivers.params import (
 
 
 Receivers: TypeAlias = (
-    MovingLoopGroundTEMReceivers | LargeLoopGroundTEMReceivers | AirborneTEMReceivers
+    MovingLoopGroundFEMReceivers | LargeLoopGroundFEMReceivers | AirborneFEMReceivers
 )
 
 
-class TDEM1DForwardOptions(EMDataMixin, BaseForwardOptions):
+class FDEM1DForwardOptions(EMDataMixin, BaseForwardOptions):
     """
-    Time Domain Electromagnetic forward options.
+    Frequency Domain Electromagnetic forward options.
 
     :param z_channel_bool: Z-component data channel boolean.
     :param x_channel_bool: X-component data channel boolean.
     :param y_channel_bool: Y-component data channel boolean.
     :param model_type: Specify whether the models are provided in resistivity or conductivity.
-    :param data_units: Units for the TEM data
+    :param data_units: Units for the FEM data
     """
 
-    name: ClassVar[str] = "Time Domain Electromagnetics Forward"
-    default_ui_json: ClassVar[Path] = assets_path() / "uijson/tdem1d_forward.ui.json"
+    name: ClassVar[str] = "Frequency Domain Electromagnetics Forward"
+    default_ui_json: ClassVar[Path] = assets_path() / "uijson/fdem1d_forward.ui.json"
 
-    title: str = "Time-domain EM-1D (TEM-1D) Forward"
-    inversion_type: str = "tdem 1d"
+    title: str = "Frequency-domain EM-1D (FEM-1D) Forward"
+    inversion_type: str = "fdem 1d"
     physical_property: str = "conductivity"
 
     data_object: Receivers
-    z_channel_bool: bool
-    x_channel_bool: None = None
-    y_channel_bool: None = None
-    data_units: str = "dB/dt (T/s)"
+    z_real_channel_bool: bool
+    z_imag_channel_bool: bool
+    data_units: str = "Hertz (Hz)"
     model_type: str = "Conductivity (S/m)"
     drape_model: DrapeModelOptions = DrapeModelOptions(
         u_cell_size=10.0,
@@ -79,37 +78,32 @@ class TDEM1DForwardOptions(EMDataMixin, BaseForwardOptions):
         return conversion[self.data_object.unit]
 
 
-class TDEM1DInversionOptions(EMDataMixin, BaseInversionOptions):
+class FDEM1DInversionOptions(EMDataMixin, BaseInversionOptions):
     """
-    Time Domain Electromagnetic Inversion options.
+    Frequency Domain Electromagnetic Inversion options.
 
-    :param z_channel: Z-component data channel.
-    :param z_uncertainty: Z-component data channel uncertainty.
-    :param x_channel: X-component data channel.
-    :param x_uncertainty: X-component data channel uncertainty.
-    :param y_channel: Y-component data channel.
-    :param y_uncertainty: Y-component data channel uncertainty.
+    :param z_real_channel: Real Z-component data channel.
+    :param z_real_uncertainty: Real Z-component data channel uncertainty.
+    :param z_imag_channel: Imaginary Z-component data channel.
+    :param z_imag_uncertainty: Imaginary Z-component data channel uncertainty.
     :param model_type: Specify whether the models are provided in resistivity or conductivity.
-    :param data_units: Units for the TEM data
+    :param data_units: Units for the FEM data
     """
 
-    name: ClassVar[str] = "Time Domain Electromagnetics Inversion"
-    default_ui_json: ClassVar[Path] = assets_path() / "uijson/tdem1d_inversion.ui.json"
+    name: ClassVar[str] = "Frequency Domain Electromagnetics Inversion"
+    default_ui_json: ClassVar[Path] = assets_path() / "uijson/fdem1d_inversion.ui.json"
 
-    title: str = "Time-domain EM-1D (TEM-1D) Inversion"
-    inversion_type: str = "tdem 1d"
+    title: str = "Frequency-domain EM-1D (FEM-1D) Inversion"
+    inversion_type: str = "fdem 1d"
     physical_property: str = "conductivity"
 
     data_object: Receivers
-    z_channel: PropertyGroup | None = None
-    z_uncertainty: PropertyGroup | None = None
-    x_channel: None = None
-    x_uncertainty: None = None
-    y_channel: None = None
-    y_uncertainty: None = None
-    length_scale_y: None = None
+    z_real_channel: PropertyGroup | None = None
+    z_real_uncertainty: PropertyGroup | None = None
+    z_imag_channel: PropertyGroup | None = None
+    z_imag_uncertainty: PropertyGroup | None = None
     y_norm: None = None
-    data_units: str = "dB/dt (T/s)"
+    data_units: str = "Hertz (Hz)"
     model_type: str = "Conductivity (S/m)"
     drape_model: DrapeModelOptions = DrapeModelOptions(
         u_cell_size=10.0,
@@ -126,8 +120,9 @@ class TDEM1DInversionOptions(EMDataMixin, BaseInversionOptions):
     def unit_conversion(self):
         """Return time unit conversion factor."""
         conversion = {
-            "Seconds (s)": 1.0,
-            "Milliseconds (ms)": 1e-3,
-            "Microseconds (us)": 1e-6,
+            "Hertz (Hz)": 1.0,
+            "KiloHertz (kHz)": 1e-3,
+            "MegaHertz (MHz)": 1e-6,
+            "GigaHertz (GHz)": 1e-9,
         }
         return conversion[self.data_object.unit]
