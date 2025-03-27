@@ -365,7 +365,8 @@ class BaseInversionOptions(CoreOptions):
         """Returns the dip of the gradient rotation."""
         if self.gradient_rotation is not None:
             dip_uid = self.gradient_rotation.properties[1]
-            return self.geoh5.get_entity(dip_uid)[0].values
+            dips = self.geoh5.get_entity(dip_uid)[0].values
+            return np.deg2rad(dips)
         return None
 
     @property
@@ -373,7 +374,8 @@ class BaseInversionOptions(CoreOptions):
         """Returns the direction of the dip of the gradient rotation"""
         if self.gradient_rotation is not None:
             direction_uid = self.gradient_rotation.properties[0]
-            return self.geoh5.get_entity(direction_uid)[0].values
+            directions = self.geoh5.get_entity(direction_uid)[0].values
+            return np.deg2rad(directions)
         return None
 
 
