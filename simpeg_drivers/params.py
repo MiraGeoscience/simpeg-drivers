@@ -327,9 +327,7 @@ class BaseInversionOptions(CoreOptions):
     length_scale_x: float | FloatData = 1.0
     length_scale_y: float | FloatData | None = 1.0
     length_scale_z: float | FloatData = 1.0
-    gradient_phi: float | FloatData | None = None
-    gradient_theta: float | FloatData | None = None
-    gradient_psi: float | FloatData | None = None
+    gradient_rotation: PropertyGroup | None = None
 
     s_norm: float | FloatData | None = 0.0
     x_norm: float | FloatData = 2.0
@@ -361,6 +359,22 @@ class BaseInversionOptions(CoreOptions):
     beta_tol: float = 0.5
     percentile: float = 95.0
     epsilon_cooling_factor: float = 1.2
+
+    @property
+    def gradient_dip(self):
+        """Returns the dip of the gradient rotation."""
+        if self.gradient_rotation is not None:
+            dip_uid = self.gradient_rotation.properties[1]
+            return self.geoh5.get_entity(dip_uid)[0].values
+        return None
+
+    @property
+    def gradient_direction(self):
+        """Returns the direction of the dip of the gradient rotation"""
+        if self.gradient_rotation is not None:
+            direction_uid = self.gradient_rotation.properties[0]
+            return self.geoh5.get_entity(direction_uid)[0].values
+        return None
 
 
 class EMDataMixin:

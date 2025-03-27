@@ -232,41 +232,16 @@
         "property": "",
         "enabled": true
     },
-    "gradient_phi": {
+    "gradient_rotation": {
         "group": "Regularization",
-        "label": "Rotated gradient phi",
-        "value": 0,
-        "isValue": true,
-        "parent": "mesh",
         "association": "Cell",
         "dataType": "Float",
-        "property": "",
+        "dataGroupType": "Dip direction & dip",
+        "label": "Gradient rotation",
         "optional": true,
-        "enabled": false
-    },
-    "gradient_theta": {
-        "group": "Regularization",
-        "label": "Rotated gradient theta",
-        "value": 0,
-        "isValue": true,
+        "enabled": false,
         "parent": "mesh",
-        "association": "Cell",
-        "dataType": "Float",
-        "property": "",
-        "optional": true,
-        "enabled": false
-    },
-    "gradient_psi": {
-        "group": "Regularization",
-        "label": "Rotated gradient psi",
-        "value": 0,
-        "isValue": true,
-        "parent": "mesh",
-        "association": "Cell",
-        "dataType": "Float",
-        "property": "",
-        "optional": true,
-        "enabled": false
+        "value": ""
     },
     "s_norm": {
         "association": "Cell",

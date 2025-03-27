@@ -441,6 +441,7 @@ class InversionDriver(BaseDriver):
             return BaseRegularization(mesh=self.inversion_mesh.mesh)
 
         reg_funcs = []
+        is_rotated = self.params.gradient_rotation is not None
         for mapping in self.mapping:
             reg = Sparse(
                 self.inversion_mesh.mesh,
@@ -449,11 +450,14 @@ class InversionDriver(BaseDriver):
                 reference_model=self.models.reference,
             )
 
+            if is_rotated:
+                neighbors = cell_neighbors(reg.regularization_mesh)
+
             # Adjustment for 2D versus 3D problems
             comps = "sxz" if "2d" in self.params.inversion_type else "sxyz"
             avg_comps = "sxy" if "2d" in self.params.inversion_type else "sxyz"
             weights = ["alpha_s"] + [f"length_scale_{k}" for k in comps[1:]]
-            neighbors = cell_neighbors(reg.regularization_mesh)
+
             for comp, avg_comp, objfct, weight in zip(
                 comps, avg_comps, reg.objfcts, weights
             ):
@@ -468,15 +472,21 @@ class InversionDriver(BaseDriver):
                         getattr(reg.regularization_mesh, f"aveCC2F{avg_comp}") * weight
                     )
                     norm = getattr(reg.regularization_mesh, f"aveCC2F{avg_comp}") * norm
-                    Grad = rotated_gradient(
-                        mesh=reg.regularization_mesh,
-                        neighbors=neighbors,
-                        axis=comp,
-                        phi=self.params.gradient_phi,
-                        theta=self.params.gradient_theta,
-                        psi=self.params.gradient_psi,
-                    )
-                    setattr(objfct.regularization_mesh, f"cell_gradient_{comp}", Grad)
+
+                    if is_rotated:
+                        Grad = rotated_gradient(
+                            mesh=reg.regularization_mesh.mesh,
+                            neighbors=neighbors,
+                            axis=comp,
+                            dip=self.models.gradient_dip,
+                            direction=self.models.gradient_direction,
+                        )
+                        setattr(
+                            reg.regularization_mesh.mesh,
+                            f"_stencil_cell_gradient_{comp}",
+                            Grad,
+                        )
+
                 objfct.set_weights(**{comp: weight})
                 objfct.norm = norm
 

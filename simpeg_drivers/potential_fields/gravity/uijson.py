@@ -108,9 +108,7 @@ class GravityInversionUIJson(SimPEGDriversUIJson):
     length_scale_x: DataForm
     length_scale_y: DataForm
     length_scale_z: DataForm
-    gradient_phi: DataForm
-    gradient_theta: DataForm
-    gradient_psi: DataForm
+    gradient_rotation: GroupForm
     s_norm: DataForm
     x_norm: DataForm
     y_norm: DataForm

@@ -11,7 +11,6 @@
 import numpy as np
 import scipy.sparse as ssp
 from discretize import TreeMesh
-from geoh5py.data import FloatData
 from simpeg.utils import mkvc, sdiag
 
 
@@ -27,7 +26,7 @@ def cell_neighbors_along_axis(mesh: TreeMesh, axis: str) -> np.ndarray:
     if axis not in "xyz":
         raise ValueError("Argument 'axis' must be one of 'x', 'y', or 'z'.")
 
-    stencil = getattr(mesh, f"stencil_cell_gradient_{axis}")
+    stencil = getattr(mesh, f"cell_gradient_{axis}")
     ith_neighbor, jth_neighbor, _ = ssp.find(stencil)
     n_stencils = int(ith_neighbor.shape[0] / 2)
     stencil_indices = jth_neighbor[np.argsort(ith_neighbor)].reshape((n_stencils, 2))
@@ -127,27 +126,25 @@ def cell_neighbors(mesh: TreeMesh) -> np.ndarray:
     return all_neighbors
 
 
-def rotation_matrix_2d(phi: float | FloatData, n_cells: int) -> ssp.csr_matrix:
+def rotation_matrix_2d(phi: np.ndarray) -> ssp.csr_matrix:
     """
     Create a 2d rotation matrix for the xz plane.
 
     :param phi: Angle in radians for rotation about the y-axis (xz plan).
-    :param n_cells: Number of cells in the mesh.
     """
-
+    n_cells = len(phi)
     rza = mkvc(np.c_[np.cos(phi), np.cos(phi)].T)
     rzb = mkvc(np.c_[np.sin(phi), np.zeros(n_cells)].T)
     rzc = mkvc(np.c_[-np.sin(phi), np.zeros(n_cells)].T)
-    Rz = ssp.diags([rzb[:-1], rza, rzc[:-1]], [-1, 0, 1])
+    Ry = ssp.diags([rzb[:-1], rza, rzc[:-1]], [-1, 0, 1])
 
-    return Rz
+    return Ry
 
 
 def rotation_matrix_3d(
-    psi: float | FloatData,
-    theta: float | FloatData,
-    phi: float | FloatData,
-    n_cells: int,
+    psi: np.ndarray,
+    theta: np.ndarray,
+    phi: np.ndarray,
 ) -> ssp.csr_matrix:
     """
     Create a rotation matrix for rotation about the z-axis, y-axis, and x-axis.
@@ -157,6 +154,7 @@ def rotation_matrix_3d(
     :param phi: Angle in radians for rotation about the y-axis.
     :param n_cells: number of cells in the mesh.
     """
+    n_cells = len(phi)
     rxa = mkvc(np.c_[np.ones(n_cells), np.cos(psi), np.cos(psi)].T)
     rxb = mkvc(np.c_[np.zeros(n_cells), np.sin(psi), np.zeros(n_cells)].T)
     rxc = mkvc(np.c_[np.zeros(n_cells), -np.sin(psi), np.zeros(n_cells)].T)
@@ -177,9 +175,9 @@ def rotation_matrix_3d(
 
 def rotation_matrix(
     mesh: TreeMesh,
-    phi: float | FloatData,
-    theta: float | FloatData | None = None,
-    psi: float | FloatData | None = None,
+    phi: np.ndarray,
+    theta: np.ndarray | None = None,
+    psi: np.ndarray | None = None,
 ) -> ssp.csr_matrix:
     """
     Create a rotation matrix for rotation about the z-axis, x-axis, and y-axis.
@@ -190,18 +188,12 @@ def rotation_matrix(
     :param psi: Angle in radians for rotation about the z-axis.
     """
 
-    def to_vector(angle):
-        if isinstance(angle, float):
-            return np.ones(mesh.n_cells) * angle
-        return angle
-
     hx = mesh.h_gridded[:, 0]
     hy = mesh.h_gridded[:, 1]
-    phi = to_vector(phi)
     phi = np.arctan2((np.sin(phi) / hy), (np.cos(phi) / hx))
 
     if mesh.dim == 2:
-        rotation = rotation_matrix_2d(phi, mesh.n_cells)
+        rotation = rotation_matrix_2d(phi)
 
     elif mesh.dim == 3:
         if any(k is None for k in [psi, theta, phi]):
@@ -210,12 +202,10 @@ def rotation_matrix(
             )
 
         hz = mesh.h_gridded[:, 2]
-        psi = to_vector(psi)
         psi = np.arctan2((np.sin(psi) / hz), (np.cos(psi) / hy))
-        theta = to_vector(theta)
         theta = np.arctan2((np.sin(theta) / hz), (np.cos(theta) / hx))
 
-        rotation = rotation_matrix_3d(psi, theta, phi, mesh.n_cells)
+        rotation = rotation_matrix_3d(psi, theta, phi)
 
     else:
         raise ValueError("Rotation matrix only implemented for 2D and 3D meshes")
@@ -356,9 +346,8 @@ def rotated_gradient(
     mesh: TreeMesh,
     neighbors: np.ndarray,
     axis: str,
-    phi: float | FloatData,
-    theta: float | FloatData | None = None,
-    psi: float | FloatData | None = None,
+    dip: np.ndarray,
+    direction: np.ndarray,
     forward: bool = True,
 ) -> ssp.csr_matrix:
     """
@@ -367,18 +356,23 @@ def rotated_gradient(
     :param mesh: Input TreeMesh.
     :param neighbors: Cell neighbors array.
     :param axis: Regularization axis.
-    :param phi: Angle in radians for rotation about the y-axis.
-    :param theta: Angle in radians for rotation about the x-axis.
-    :param psi: Angle in radians for rotation about the z-axis
+    :param dip: Angle in radians for rotation from the horizon.
+    :param direction: Angle in radians for rotation about the z-axis.
     :param forward: Whether to use forward or backward difference for
         derivative approximations.
     """
 
     n_cells = mesh.n_cells
+    if any(len(k) != n_cells for k in [dip, direction]):
+        raise ValueError(
+            "Input angle arrays are not the same size as the number of "
+            "cells in the mesh."
+        )
 
-    rot = rotation_matrix(mesh, phi, theta, psi)
+    Rx = rotation_matrix(mesh, 0, dip, 0)
+    Rz = rotation_matrix(mesh, 0, 0, direction)
     normals = get_cell_normals(n_cells, axis, forward)
-    rotated_normals = (rot * normals.T).reshape(n_cells, mesh.dim)
+    rotated_normals = (Rz * (Rx * normals.T)).reshape(n_cells, mesh.dim)
     volumes, neighbors = partial_volumes(mesh, neighbors, rotated_normals)
 
     return gradient_operator(neighbors, volumes, n_cells)

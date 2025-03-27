@@ -77,6 +77,8 @@ class InversionModelCollection:
         self._length_scale_x = InversionModel(driver, "length_scale_x")
         self._length_scale_y = InversionModel(driver, "length_scale_y")
         self._length_scale_z = InversionModel(driver, "length_scale_z")
+        self._gradient_dip = InversionModel(driver, "gradient_dip")
+        self._gradient_direction = InversionModel(driver, "gradient_direction")
         self._s_norm = InversionModel(driver, "s_norm")
         self._x_norm = InversionModel(driver, "x_norm")
         self._y_norm = InversionModel(driver, "y_norm")
@@ -257,6 +259,20 @@ class InversionModelCollection:
         return self._length_scale_z.model.copy()
 
     @property
+    def gradient_dip(self) -> np.ndarray | None:
+        if self._gradient_dip.model is None:
+            return None
+
+        return self._gradient_dip.model.copy()
+
+    @property
+    def gradient_direction(self) -> np.ndarray | None:
+        if self._gradient_direction.model is None:
+            return None
+
+        return self._gradient_direction.model.copy()
+
+    @property
     def s_norm(self) -> np.ndarray | None:
         if self._s_norm.model is None:
             return None
@@ -358,6 +374,8 @@ class InversionModel:
         "length_scale_x",
         "length_scale_y",
         "length_scale_z",
+        "gradient_dip",
+        "gradient_direction",
         "s_norm",
         "x_norm",
         "y_norm",
