@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from geoh5py.workspace import Workspace
 
+    from simpeg_drivers.components.meshes import InversionMesh
     from simpeg_drivers.params import InversionBaseOptions
 
 from copy import deepcopy
@@ -359,7 +360,7 @@ class InversionData(InversionLocations):
 
     def simulation(
         self,
-        inversion_mesh: TreeMesh,
+        inversion_mesh: InversionMesh,
         local_mesh: TreeMesh | TensorMesh | None,
         active_cells: np.ndarray,
         survey,

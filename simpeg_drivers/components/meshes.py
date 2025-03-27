@@ -87,14 +87,10 @@ class InversionMesh:
         """
         self.workspace = workspace
         self.params = params
-
-        if entity is None:
-            entity = self._initialize()
-
-        self.entity = entity
+        self.entity = entity or self.get_entity()
         self.mesh, self._permutation = self.to_discretize(entity)
 
-    def _initialize(self) -> Octree | DrapeModel:
+    def get_entity(self) -> Octree | DrapeModel:
         """
         Collects mesh data stored in geoh5 workspace into TreeMesh object.
 

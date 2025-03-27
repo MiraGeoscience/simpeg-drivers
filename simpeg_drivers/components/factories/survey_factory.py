@@ -125,7 +125,7 @@ class SurveyFactory(SimPEGFactory):
         if "current" in self.factory_type or "polarization" in self.factory_type:
             return self._dcip_arguments(data=data, local_index=local_index)
         elif self.factory_type in ["tdem", "tdem 1d"]:
-            return self._tdem_arguments(data=data, inversion_type=self.factory_type)
+            return self._tdem_arguments(data=data)
         elif self.factory_type in ["magnetotellurics", "tipper"]:
             return self._naturalsource_arguments(data=data, frequency=channel)
         elif self.factory_type in ["fem"]:
@@ -319,7 +319,7 @@ class SurveyFactory(SimPEGFactory):
 
         return [sources]
 
-    def _tdem_arguments(self, data=None, inversion_type="tdem"):
+    def _tdem_arguments(self, data=None):
         receivers = data.entity
         transmitters = receivers.transmitters
 
@@ -356,7 +356,7 @@ class SurveyFactory(SimPEGFactory):
         wave_times = (
             receivers.waveform[:, 0] - receivers.timing_mark
         ) * self.params.unit_conversion
-        if "1d" in inversion_type:
+        if "1d" in self.factory_type:
             on_times = wave_times <= 0.0
             waveform = tdem.sources.PiecewiseLinearWaveform(
                 times=wave_times[on_times],
