@@ -32,7 +32,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
-target_run = {"data_norm": 7.05481e-08, "phi_d": 198200000, "phi_m": 7806}
+target_run = {"data_norm": 6.15712e-10, "phi_d": 110, "phi_m": 89800}
 
 
 def test_airborne_tem_1d_fwr_run(
@@ -44,13 +44,13 @@ def test_airborne_tem_1d_fwr_run(
     # Run the forward
     geoh5, _, model, survey, topography = setup_inversion_workspace(
         tmp_path,
-        background=0.001,
+        background=0.1,
         anomaly=1.0,
         n_electrodes=n_grid_points,
         n_lines=n_grid_points,
         cell_size=cell_size,
         refinement=refinement,
-        inversion_type="airborne_tem",
+        inversion_type="airborne_tem 1d",
         drape_height=10.0,
         padding_distance=400.0,
         flatten=False,
@@ -87,7 +87,6 @@ def test_airborne_tem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
         )
         mesh = geoh5.get_entity("mesh")[0]
         topography = geoh5.get_entity("topography")[0]
-
         data = {}
         uncertainties = {}
         components = {
@@ -107,7 +106,7 @@ def test_airborne_tem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
                     {
                         f"uncertainty_{comp}_[{ii}]": {
                             "values": np.ones_like(data_entity.values)
-                            * (np.median(np.abs(data_entity.values)))
+                            * (np.percentile(np.abs(data_entity.values), 10) / 2.0)
                         }
                     }
                 )
@@ -133,24 +132,16 @@ def test_airborne_tem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
             mesh=mesh,
             active_cells=ActiveCellsOptions(topography_object=topography),
             data_object=survey,
-            starting_model=1e-3,
-            reference_model=1e-3,
-            chi_factor=1.0,
-            s_norm=2.0,
+            starting_model=5e-1,
+            reference_model=1e-1,
+            s_norm=0.0,
             x_norm=2.0,
-            z_norm=2.0,
-            alpha_s=1e-4,
-            gradient_type="total",
-            lower_bound=2e-6,
+            z_norm=0.0,
+            length_scale_x=1e-4,
+            lower_bound=1e-4,
             upper_bound=1e2,
             max_global_iterations=max_iterations,
-            initial_beta_ratio=1e2,
-            coolingRate=4,
-            max_cg_iterations=200,
-            prctile=5,
-            sens_wts_threshold=1.0,
-            store_sensitivities="ram",
-            solver_type="Mumps",
+            initial_beta_ratio=1e-2,
             **data_kwargs,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")

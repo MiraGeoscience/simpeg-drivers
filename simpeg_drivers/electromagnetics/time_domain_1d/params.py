@@ -47,9 +47,9 @@ class TDEM1DForwardOptions(EMDataMixin, BaseForwardOptions):
     """
 
     name: ClassVar[str] = "Time Domain Electromagnetics Forward"
-    title: ClassVar[str] = "Time-domain EM-1D (TEM-1D) Forward"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/tdem1d_forward.ui.json"
 
+    title: str = "Time-domain EM-1D (TEM-1D) Forward"
     inversion_type: str = "tdem 1d"
     physical_property: str = "conductivity"
 
@@ -94,9 +94,9 @@ class TDEM1DInversionOptions(EMDataMixin, BaseInversionOptions):
     """
 
     name: ClassVar[str] = "Time Domain Electromagnetics Inversion"
-    title: ClassVar[str] = "Time-domain EM-1D (TEM-1D) Inversion"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/tdem1d_inversion.ui.json"
 
+    title: str = "Time-domain EM-1D (TEM-1D) Inversion"
     inversion_type: str = "tdem 1d"
     physical_property: str = "conductivity"
 
@@ -119,6 +119,8 @@ class TDEM1DInversionOptions(EMDataMixin, BaseInversionOptions):
         vertical_padding=100.0,
         expansion_factor=1.1,
     )
+    auto_scale_misfits: bool = False
+    sens_wts_threshold: float = 100.0
 
     @property
     def unit_conversion(self):

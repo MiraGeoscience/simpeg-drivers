@@ -373,9 +373,9 @@
     "auto_scale_misfits": {
         "group": "Cooling schedule/target",
         "label": "Auto-scale misfits",
-        "value": true,
+        "value": false,
         "verbose": 3,
-        "visible": true,
+        "visible": false,
         "tooltip": "Whether to auto-scale misfits functions (tile, frequency, joint methods) based on chi-factor."
     },
     "initial_beta_ratio": {
@@ -471,7 +471,7 @@
         "group": "Update sensitivity weights directive",
         "tooltip": "Update sensitivity weight threshold",
         "label": "Threshold (%)",
-        "value": 1.0,
+        "value": 100.0,
         "max": 100.0,
         "min": 0.0,
         "precision": 3,
