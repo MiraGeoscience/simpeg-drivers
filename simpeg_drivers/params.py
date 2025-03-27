@@ -361,8 +361,8 @@ class BaseInversionOptions(CoreOptions):
     epsilon_cooling_factor: float = 1.2
 
     @property
-    def gradient_dip(self):
-        """Returns the dip of the gradient rotation."""
+    def gradient_dip(self) -> np.ndarray | None:
+        """Gradient dip angle in clockwise radians from horizontal."""
         if self.gradient_rotation is not None:
             dip_uid = self.gradient_rotation.properties[1]
             dips = self.geoh5.get_entity(dip_uid)[0].values
@@ -370,8 +370,8 @@ class BaseInversionOptions(CoreOptions):
         return None
 
     @property
-    def gradient_direction(self):
-        """Returns the direction of the dip of the gradient rotation"""
+    def gradient_direction(self) -> np.ndarray | None:
+        """Gradient direction angle in clockwise radians from north"""
         if self.gradient_rotation is not None:
             direction_uid = self.gradient_rotation.properties[0]
             directions = self.geoh5.get_entity(direction_uid)[0].values

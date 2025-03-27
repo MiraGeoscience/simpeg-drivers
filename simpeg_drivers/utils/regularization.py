@@ -126,13 +126,24 @@ def cell_neighbors(mesh: TreeMesh) -> np.ndarray:
     return all_neighbors
 
 
-def rotation_matrix_2d(phi: np.ndarray) -> ssp.csr_matrix:
+def rotate_xz_2d(mesh: TreeMesh, phi: np.ndarray) -> ssp.csr_matrix:
     """
-    Create a 2d rotation matrix for the xz plane.
+    Create a 2d ellipsoidal rotation matrix for the xz plane.
 
-    :param phi: Angle in radians for rotation about the y-axis (xz plan).
+    :param mesh: TreeMesh used to adjust angle of rotation to
+        compensate for cell aspect ratio.
+    :param phi: Angle in radians for clockwise rotation about the
+        y-axis (xz plane).
     """
+
+    if mesh.dim != 2:
+        raise ValueError("Must pass a 2 dimensional mesh.")
+
     n_cells = len(phi)
+    hx = mesh.h_gridded[:, 0]
+    hz = mesh.h_gridded[:, 1]
+    phi = -np.arctan2((np.sin(phi) / hz), (np.cos(phi) / hx))
+
     rza = mkvc(np.c_[np.cos(phi), np.cos(phi)].T)
     rzb = mkvc(np.c_[np.sin(phi), np.zeros(n_cells)].T)
     rzc = mkvc(np.c_[-np.sin(phi), np.zeros(n_cells)].T)
@@ -141,76 +152,49 @@ def rotation_matrix_2d(phi: np.ndarray) -> ssp.csr_matrix:
     return Ry
 
 
-def rotation_matrix_3d(
-    psi: np.ndarray,
-    theta: np.ndarray,
-    phi: np.ndarray,
-) -> ssp.csr_matrix:
+def rotate_yz_3d(mesh: TreeMesh, theta: np.ndarray) -> ssp.csr_matrix:
     """
-    Create a rotation matrix for rotation about the z-axis, y-axis, and x-axis.
+    Create a 3D ellipsoidal rotation matrix for the yz plane.
 
-    :param psi: Angle in radians for rotation about the z-axis.
-    :param theta: Angle in radians for rotation about the x-axis.
-    :param phi: Angle in radians for rotation about the y-axis.
-    :param n_cells: number of cells in the mesh.
+    :param mesh: TreeMesh used to adjust angle of rotation to
+        compensate for cell aspect ratio.
+    :param theta: Angle in radians for clockwise rotation about the
+        x-axis (yz plane).
     """
-    n_cells = len(phi)
-    rxa = mkvc(np.c_[np.ones(n_cells), np.cos(psi), np.cos(psi)].T)
-    rxb = mkvc(np.c_[np.zeros(n_cells), np.sin(psi), np.zeros(n_cells)].T)
-    rxc = mkvc(np.c_[np.zeros(n_cells), -np.sin(psi), np.zeros(n_cells)].T)
+
+    n_cells = len(theta)
+    hy = mesh.h_gridded[:, 1]
+    hz = mesh.h_gridded[:, 2]
+    theta = -np.arctan2((np.sin(theta) / hz), (np.cos(theta) / hy))
+
+    rxa = mkvc(np.c_[np.ones(n_cells), np.cos(theta), np.cos(theta)].T)
+    rxb = mkvc(np.c_[np.zeros(n_cells), np.sin(theta), np.zeros(n_cells)].T)
+    rxc = mkvc(np.c_[np.zeros(n_cells), -np.sin(theta), np.zeros(n_cells)].T)
     Rx = ssp.diags([rxb[:-1], rxa, rxc[:-1]], [-1, 0, 1])
 
-    rya = mkvc(np.c_[np.cos(theta), np.ones(n_cells), np.cos(theta)].T)
-    ryb = mkvc(np.c_[np.sin(theta), np.zeros(n_cells), np.zeros(n_cells)].T)
-    ryc = mkvc(np.c_[-np.sin(theta), np.zeros(n_cells), np.zeros(n_cells)].T)
-    Ry = ssp.diags([ryb[:-2], rya, ryc[:-2]], [-2, 0, 2])
+    return Rx
+
+
+def rotate_xy_3d(mesh: TreeMesh, phi: np.ndarray) -> ssp.csr_matrix:
+    """
+    Create a 3D ellipsoidal rotation matrix for the xy plane.
+
+    :param mesh: TreeMesh used to adjust angle of rotation to
+        compensate for cell aspect ratio.
+    :param phi: Angle in radians for clockwise rotation about the
+        z-axis (xy plane).
+    """
+    n_cells = len(phi)
+    hx = mesh.h_gridded[:, 0]
+    hy = mesh.h_gridded[:, 1]
+    phi = -np.arctan2((np.sin(phi) / hy), (np.cos(phi) / hx))
 
     rza = mkvc(np.c_[np.cos(phi), np.cos(phi), np.ones(n_cells)].T)
     rzb = mkvc(np.c_[np.sin(phi), np.zeros(n_cells), np.zeros(n_cells)].T)
     rzc = mkvc(np.c_[-np.sin(phi), np.zeros(n_cells), np.zeros(n_cells)].T)
     Rz = ssp.diags([rzb[:-1], rza, rzc[:-1]], [-1, 0, 1])
 
-    return Rz * (Ry * Rx)
-
-
-def rotation_matrix(
-    mesh: TreeMesh,
-    phi: np.ndarray,
-    theta: np.ndarray | None = None,
-    psi: np.ndarray | None = None,
-) -> ssp.csr_matrix:
-    """
-    Create a rotation matrix for rotation about the z-axis, x-axis, and y-axis.
-
-    :param mesh: Input TreeMesh.
-    :param phi: Angle in radians for rotation about the y-axis.
-    :param theta: Angle in radians for rotation about the x-axis.
-    :param psi: Angle in radians for rotation about the z-axis.
-    """
-
-    hx = mesh.h_gridded[:, 0]
-    hy = mesh.h_gridded[:, 1]
-    phi = np.arctan2((np.sin(phi) / hy), (np.cos(phi) / hx))
-
-    if mesh.dim == 2:
-        rotation = rotation_matrix_2d(phi)
-
-    elif mesh.dim == 3:
-        if any(k is None for k in [psi, theta, phi]):
-            raise ValueError(
-                "Input must include 'psi', 'theta', and 'phi' for 3D mesh."
-            )
-
-        hz = mesh.h_gridded[:, 2]
-        psi = np.arctan2((np.sin(psi) / hz), (np.cos(psi) / hy))
-        theta = np.arctan2((np.sin(theta) / hz), (np.cos(theta) / hx))
-
-        rotation = rotation_matrix_3d(psi, theta, phi)
-
-    else:
-        raise ValueError("Rotation matrix only implemented for 2D and 3D meshes")
-
-    return rotation
+    return Rz
 
 
 def get_cell_normals(n_cells: int, axis: str, outward: bool) -> np.ndarray:
@@ -369,8 +353,8 @@ def rotated_gradient(
             "cells in the mesh."
         )
 
-    Rx = rotation_matrix(mesh, 0, dip, 0)
-    Rz = rotation_matrix(mesh, 0, 0, direction)
+    Rx = rotate_yz_3d(mesh, dip)
+    Rz = rotate_xy_3d(mesh, direction)
     normals = get_cell_normals(n_cells, axis, forward)
     rotated_normals = (Rz * (Rx * normals.T)).reshape(n_cells, mesh.dim)
     volumes, neighbors = partial_volumes(mesh, neighbors, rotated_normals)
