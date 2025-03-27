@@ -123,8 +123,9 @@ class InversionMesh:
         mesh = driver.run()
         return mesh.copy(parent=self.params.out_group)
 
-    @staticmethod
+    @classmethod
     def to_discretize(
+        cls,
         entity: Octree | DrapeModel,
     ) -> tuple[TreeMesh | TensorMesh, np.ndarray]:
         """
@@ -136,7 +137,7 @@ class InversionMesh:
         """
 
         if isinstance(entity, Octree):
-            mesh = octree_2_treemesh(entity)
+            mesh = cls.to_treemesh(entity)
             permutation = identity(entity.n_cells).tocsr()
         elif isinstance(entity, DrapeModel):
             mesh, indices = drape_2_tensor(entity, return_sorting=True)
