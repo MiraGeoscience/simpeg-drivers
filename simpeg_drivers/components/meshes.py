@@ -88,7 +88,7 @@ class InversionMesh:
         self.workspace = workspace
         self.params = params
         self.entity = entity or self.get_entity()
-        self.mesh, self._permutation = self.to_discretize(entity)
+        self.mesh, self._permutation = self.to_discretize(self.entity)
 
     def get_entity(self) -> Octree | DrapeModel:
         """
