@@ -42,6 +42,7 @@ from simpeg import (
     objective_function,
     optimization,
 )
+from simpeg.utils import sdiag
 from simpeg.regularization import BaseRegularization, Sparse
 
 from simpeg_drivers import DRIVER_MAP
@@ -451,7 +452,7 @@ class InversionDriver(BaseDriver):
             )
 
             if is_rotated:
-                neighbors = cell_neighbors(reg.regularization_mesh)
+                neighbors = cell_neighbors(reg.regularization_mesh.mesh)
 
             # Adjustment for 2D versus 3D problems
             comps = "sxz" if "2d" in self.params.inversion_type else "sxyz"
@@ -468,13 +469,8 @@ class InversionDriver(BaseDriver):
                 weight = mapping * getattr(self.models, weight)
                 norm = mapping * getattr(self.models, f"{comp}_norm")
                 if comp in "xyz":
-                    weight = (
-                        getattr(reg.regularization_mesh, f"aveCC2F{avg_comp}") * weight
-                    )
-                    norm = getattr(reg.regularization_mesh, f"aveCC2F{avg_comp}") * norm
-
                     if is_rotated:
-                        Grad = rotated_gradient(
+                        grad_op = rotated_gradient(
                             mesh=reg.regularization_mesh.mesh,
                             neighbors=neighbors,
                             axis=comp,
@@ -482,9 +478,25 @@ class InversionDriver(BaseDriver):
                             direction=self.models.gradient_direction,
                         )
                         setattr(
-                            reg.regularization_mesh.mesh,
-                            f"_stencil_cell_gradient_{comp}",
-                            Grad,
+                            reg.regularization_mesh,
+                            f"_cell_gradient_{comp}",
+                            reg.regularization_mesh.Pac.T
+                            @ (grad_op @ reg.regularization_mesh.Pac),
+                        )
+                        setattr(
+                            reg.regularization_mesh,
+                            f"_aveCC2F{avg_comp}",
+                            sdiag(np.ones(reg.regularization_mesh.n_cells)),
+                        )
+
+                    else:
+                        weight = (
+                            getattr(reg.regularization_mesh, f"aveCC2F{avg_comp}")
+                            * weight
+                        )
+                        norm = (
+                            getattr(reg.regularization_mesh, f"aveCC2F{avg_comp}")
+                            * norm
                         )
 
                 objfct.set_weights(**{comp: weight})
