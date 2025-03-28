@@ -26,7 +26,11 @@ def cell_neighbors_along_axis(mesh: TreeMesh, axis: str) -> np.ndarray:
     if axis not in "xyz":
         raise ValueError("Argument 'axis' must be one of 'x', 'y', or 'z'.")
 
-    stencil = getattr(mesh, f"cell_gradient_{axis}")
+    if isinstance(mesh, TreeMesh):
+        stencil = getattr(mesh, f"stencil_cell_gradient_{axis}")
+    else:
+        stencil = getattr(mesh, f"cell_gradient_{axis}")
+
     ith_neighbor, jth_neighbor, _ = ssp.find(stencil)
     n_stencils = int(ith_neighbor.shape[0] / 2)
     stencil_indices = jth_neighbor[np.argsort(ith_neighbor)].reshape((n_stencils, 2))
@@ -359,4 +363,5 @@ def rotated_gradient(
     rotated_normals = (Rz * (Rx * normals.T)).reshape(n_cells, mesh.dim)
     volumes, neighbors = partial_volumes(mesh, neighbors, rotated_normals)
 
-    return gradient_operator(neighbors, volumes, n_cells)
+    unit_grad = gradient_operator(neighbors, volumes, n_cells)
+    return sdiag(1 / mesh.h_gridded[:, "xyz".find(axis)]) @ unit_grad
