@@ -262,9 +262,7 @@ class BaseInversionOptions(CoreOptions):
     :param length_scale_x: Length scale x.
     :param length_scale_y: Length scale y.
     :param length_scale_z: Length scale z.
-    :param gradient_phi: Gradient rotation about the y-axis
-    :param gradient_theta: Gradient rotation about the x-axis
-    :param gradient_psi: Gradient rotation about the z-axis
+    :param gradient_rotation: Property group for gradient rotation angles.
 
     :param s_norm: S norm.
     :param x_norm: X norm.
@@ -373,8 +371,12 @@ class BaseInversionOptions(CoreOptions):
     def gradient_direction(self) -> np.ndarray | None:
         """Gradient direction angle in clockwise radians from north"""
         if self.gradient_rotation is not None:
+            from geoh5py.groups.property_group_type import GroupTypeEnum
+
             direction_uid = self.gradient_rotation.properties[0]
             directions = self.geoh5.get_entity(direction_uid)[0].values
+            if self.gradient_rotation.property_group_type == GroupTypeEnum.DIPDIR:
+                directions -= 90.0
             return np.deg2rad(directions)
         return None
 

@@ -333,12 +333,6 @@
         "property": "",
         "enabled": true
     },
-    "gradient_phi": {
-        "group": "Regularization",
-        "main": true,
-        "label": "test",
-        "value": 9
-    },
     "gradient_rotation": {
         "group": "Regularization",
         "association": "Cell",
