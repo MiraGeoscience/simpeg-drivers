@@ -375,8 +375,8 @@ class BaseInversionOptions(CoreOptions):
 
             direction_uid = self.gradient_rotation.properties[0]
             directions = self.geoh5.get_entity(direction_uid)[0].values
-            if self.gradient_rotation.property_group_type == GroupTypeEnum.DIPDIR:
-                directions -= 90.0
+            if self.gradient_rotation.property_group_type == GroupTypeEnum.STRIKEDIP:
+                directions += 90.0
             return np.deg2rad(directions)
         return None
 
