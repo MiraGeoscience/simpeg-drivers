@@ -156,6 +156,7 @@
         "parent": "mesh",
         "value": ""
     },
+    "save_sensitivities": false,
     "n_cpu": {
         "min": 1,
         "group": "Compute",
