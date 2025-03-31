@@ -502,6 +502,10 @@ def setup_inversion_workspace(
             anomaly,
         )
 
+    if "1d" in inversion_type:
+        model = background * np.ones(mesh.nC)
+        model[(mesh.cell_centers[:, 2] < 0) & (mesh.cell_centers[:, 2] > -20)] = anomaly
+
     model[~active] = np.nan
     model = entity.add_data({"model": {"values": model}})
     geoh5.close()

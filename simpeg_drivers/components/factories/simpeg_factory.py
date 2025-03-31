@@ -58,6 +58,7 @@ class SimPEGFactory(ABC):
         "induced polarization pseudo 3d",
         "fem",
         "tdem",
+        "tdem 1d",
         "magnetotellurics",
         "tipper",
         "joint surveys",

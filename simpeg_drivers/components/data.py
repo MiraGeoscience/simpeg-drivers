@@ -17,14 +17,14 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from geoh5py.workspace import Workspace
 
+    from simpeg_drivers.components.meshes import InversionMesh
     from simpeg_drivers.params import InversionBaseOptions
 
 from copy import deepcopy
 from re import findall
 
 import numpy as np
-from discretize import TreeMesh
-from geoh5py.shared.utils import fetch_active_workspace
+from discretize import TensorMesh, TreeMesh
 from scipy.spatial import cKDTree
 from simpeg import maps
 from simpeg.electromagnetics.static.utils.static_utils import geometric_factor
@@ -198,7 +198,13 @@ class InversionData(InversionLocations):
         data_dict = {c: {} for c in data.keys()}
         uncert_dict = {c: {} for c in data.keys()}
 
-        if self.params.inversion_type in ["magnetotellurics", "tipper", "tdem", "fem"]:
+        if self.params.inversion_type in [
+            "magnetotellurics",
+            "tipper",
+            "tdem",
+            "fem",
+            "tdem 1d",
+        ]:
             for component, channels in data.items():
                 for ind, (channel, values) in enumerate(channels.items()):
                     dnorm = values / self.normalizations[channel][component]
@@ -313,7 +319,7 @@ class InversionData(InversionLocations):
                         mu0 * (-1 / offsets[chan] ** 3 / (4 * np.pi)) / 1e6
                     )
                 elif (
-                    self.params.inversion_type in ["tdem"]
+                    "tdem" in self.params.inversion_type
                     and self.params.data_units == "dB/dt (T/s)"
                 ):
                     if comp in ["x", "y", "z"]:
@@ -324,7 +330,6 @@ class InversionData(InversionLocations):
 
     def create_survey(
         self,
-        mesh: TreeMesh | None = None,
         local_index: np.ndarray | None = None,
         channel=None,
     ):
@@ -342,7 +347,6 @@ class InversionData(InversionLocations):
         survey_factory = SurveyFactory(self.params)
         survey, local_index, ordering = survey_factory.build(
             data=self,
-            mesh=mesh,
             local_index=local_index,
             channel=channel,
         )
@@ -356,8 +360,8 @@ class InversionData(InversionLocations):
 
     def simulation(
         self,
-        mesh: TreeMesh,
-        local_mesh: TreeMesh | None,
+        inversion_mesh: InversionMesh,
+        local_mesh: TreeMesh | TensorMesh | None,
         active_cells: np.ndarray,
         survey,
         tile_id: int | None = None,
@@ -385,21 +389,34 @@ class InversionData(InversionLocations):
             mapping = maps.IdentityMap(nP=int(self.n_blocks * active_cells.sum()))
             simulation = simulation_factory.build(
                 survey=survey,
-                global_mesh=mesh,
+                global_mesh=inversion_mesh.mesh,
                 active_cells=active_cells,
                 mapping=mapping,
             )
-
+        elif "1d" in self.params.inversion_type:
+            slice_ind = np.arange(
+                tile_id, inversion_mesh.mesh.n_cells, inversion_mesh.mesh.shape_cells[0]
+            )[::-1]
+            mapping = maps.Projection(inversion_mesh.mesh.n_cells, slice_ind)
+            simulation = simulation_factory.build(
+                survey=survey,
+                receivers=self.entity,
+                global_mesh=inversion_mesh.mesh,
+                local_mesh=inversion_mesh.layers_mesh,
+                active_cells=active_cells,
+                mapping=mapping,
+                tile_id=tile_id,
+            )
         else:
             if local_mesh is None:
                 local_mesh = create_nested_mesh(
                     survey,
-                    mesh,
+                    inversion_mesh.mesh,
                     minimum_level=3,
                     padding_cells=padding_cells,
                 )
             mapping = maps.TileMap(
-                mesh,
+                inversion_mesh.mesh,
                 active_cells,
                 local_mesh,
                 enforce_active=True,
@@ -408,7 +425,7 @@ class InversionData(InversionLocations):
             simulation = simulation_factory.build(
                 survey=survey,
                 receivers=self.entity,
-                global_mesh=mesh,
+                global_mesh=inversion_mesh.mesh,
                 local_mesh=local_mesh,
                 active_cells=mapping.local_active,
                 mapping=mapping,

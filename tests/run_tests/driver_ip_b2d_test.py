@@ -25,11 +25,13 @@ from simpeg_drivers.electricals.induced_polarization.pseudo_three_dimensions.par
     IPBatch2DInversionOptions,
 )
 from simpeg_drivers.electricals.params import (
-    DrapeModelOptions,
     FileControlOptions,
+)
+from simpeg_drivers.params import (
+    ActiveCellsOptions,
+    DrapeModelOptions,
     LineSelectionOptions,
 )
-from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 

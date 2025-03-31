@@ -25,8 +25,11 @@ from simpeg_drivers.electricals.direct_current.two_dimensions.params import (
     DC2DForwardOptions,
     DC2DInversionOptions,
 )
-from simpeg_drivers.electricals.params import DrapeModelOptions, LineSelectionOptions
-from simpeg_drivers.params import ActiveCellsOptions
+from simpeg_drivers.params import (
+    ActiveCellsOptions,
+    DrapeModelOptions,
+    LineSelectionOptions,
+)
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 

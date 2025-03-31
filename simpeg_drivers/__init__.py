@@ -107,6 +107,13 @@ DRIVER_MAP = {
             "inversion": "TDEMInversionDriver",
         },
     ),
+    "tdem 1d": (
+        "simpeg_drivers.electromagnetics.time_domain_1d.driver",
+        {
+            "forward": "TDEM1DForwardDriver",
+            "inversion": "TDEM1DInversionDriver",
+        },
+    ),
     "magnetotellurics": (
         "simpeg_drivers.natural_sources.magnetotellurics.driver",
         {

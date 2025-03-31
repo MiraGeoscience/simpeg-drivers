@@ -9,18 +9,10 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from __future__ import annotations
+from .params import (
+    TDEM1DForwardOptions,
+    TDEM1DInversionOptions,
+)
 
-from pydantic import BaseModel
-
-
-class FileControlOptions(BaseModel):
-    """
-    File control parameters for pseudo 3D simulations.
-
-    :param files_only: Boolean to only write files.
-    :param cleanup: Boolean to cleanup files.
-    """
-
-    files_only: bool = False
-    cleanup: bool = True
+# pylint: disable=unused-import
+# flake8: noqa
