@@ -46,8 +46,8 @@ def test_fem_fwr_run(
     # Run the forward
     geoh5, _, model, survey, topography = setup_inversion_workspace(
         tmp_path,
-        background=0.1,
-        anomaly=1.0,
+        background=1e-4,
+        anomaly=0.1,
         n_electrodes=n_grid_points,
         n_lines=n_grid_points,
         refinement=refinement,
