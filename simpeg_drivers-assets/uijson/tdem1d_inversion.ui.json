@@ -222,7 +222,6 @@
         "parent": "mesh",
         "value": ""
     },
-    "inversion_style": "voxel",
     "alpha_s": {
         "min": 0.0,
         "group": "Regularization",
@@ -424,6 +423,7 @@
         "enabled": true,
         "tooltip": "Set the number of iterations per beta value. Use higher values for more non-linear optimization problems."
     },
+    "epsilon_cooling_factor": 1.2,
     "max_global_iterations": {
         "min": 1,
         "lineEdit": false,
