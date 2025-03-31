@@ -63,6 +63,9 @@ class ReceiversFactory(SimPEGFactory):
         elif "fdem" in self.factory_type:
             from simpeg.electromagnetics.frequency_domain import receivers
 
+            if "1d" in self.factory_type:
+                return receivers.PointMagneticFieldSecondary
+
             return receivers.PointMagneticFluxDensitySecondary
 
         elif "tdem" in self.factory_type:
@@ -137,6 +140,9 @@ class ReceiversFactory(SimPEGFactory):
             kwargs["orientation"] = kwargs["orientation"][::-1]
         if "tdem" in self.factory_type:
             kwargs["orientation"] = component
+
+        if self.factory_type == "fdem 1d":
+            kwargs["data_type"] = "ppm"
 
         return kwargs
 

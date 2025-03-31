@@ -12,30 +12,19 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import ClassVar, TypeAlias
+from typing import ClassVar
 
 from geoh5py.groups import PropertyGroup
-from geoh5py.objects import (
-    AirborneFEMReceivers,
-    LargeLoopGroundFEMReceivers,
-    MovingLoopGroundFEMReceivers,
-)
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.params import (
-    BaseForwardOptions,
-    BaseInversionOptions,
-    DrapeModelOptions,
-    EMDataMixin,
+from simpeg_drivers.electromagnetics.frequency_domain import (
+    FDEMForwardOptions,
+    FDEMInversionOptions,
 )
+from simpeg_drivers.params import DrapeModelOptions
 
 
-Receivers: TypeAlias = (
-    MovingLoopGroundFEMReceivers | LargeLoopGroundFEMReceivers | AirborneFEMReceivers
-)
-
-
-class FDEM1DForwardOptions(EMDataMixin, BaseForwardOptions):
+class FDEM1DForwardOptions(FDEMForwardOptions):
     """
     Frequency Domain Electromagnetic forward options.
 
@@ -46,18 +35,11 @@ class FDEM1DForwardOptions(EMDataMixin, BaseForwardOptions):
     :param data_units: Units for the FEM data
     """
 
-    name: ClassVar[str] = "Frequency Domain Electromagnetics Forward"
+    name: ClassVar[str] = "Frequency Domain 1D Electromagnetics Forward"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/fdem1d_forward.ui.json"
 
     title: str = "Frequency-domain EM-1D (FEM-1D) Forward"
     inversion_type: str = "fdem 1d"
-    physical_property: str = "conductivity"
-
-    data_object: Receivers
-    z_real_channel_bool: bool
-    z_imag_channel_bool: bool
-    data_units: str = "Hertz (Hz)"
-    model_type: str = "Conductivity (S/m)"
     drape_model: DrapeModelOptions = DrapeModelOptions(
         u_cell_size=10.0,
         v_cell_size=10.0,
@@ -67,18 +49,8 @@ class FDEM1DForwardOptions(EMDataMixin, BaseForwardOptions):
         expansion_factor=1.1,
     )
 
-    @property
-    def unit_conversion(self):
-        """Return time unit conversion factor."""
-        conversion = {
-            "Seconds (s)": 1.0,
-            "Milliseconds (ms)": 1e-3,
-            "Microseconds (us)": 1e-6,
-        }
-        return conversion[self.data_object.unit]
 
-
-class FDEM1DInversionOptions(EMDataMixin, BaseInversionOptions):
+class FDEM1DInversionOptions(FDEMInversionOptions):
     """
     Frequency Domain Electromagnetic Inversion options.
 
@@ -90,21 +62,12 @@ class FDEM1DInversionOptions(EMDataMixin, BaseInversionOptions):
     :param data_units: Units for the FEM data
     """
 
-    name: ClassVar[str] = "Frequency Domain Electromagnetics Inversion"
+    name: ClassVar[str] = "Frequency Domain 1D Electromagnetics Inversion"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/fdem1d_inversion.ui.json"
 
     title: str = "Frequency-domain EM-1D (FEM-1D) Inversion"
     inversion_type: str = "fdem 1d"
-    physical_property: str = "conductivity"
-
-    data_object: Receivers
-    z_real_channel: PropertyGroup | None = None
-    z_real_uncertainty: PropertyGroup | None = None
-    z_imag_channel: PropertyGroup | None = None
-    z_imag_uncertainty: PropertyGroup | None = None
     y_norm: None = None
-    data_units: str = "Hertz (Hz)"
-    model_type: str = "Conductivity (S/m)"
     drape_model: DrapeModelOptions = DrapeModelOptions(
         u_cell_size=10.0,
         v_cell_size=10.0,
@@ -115,14 +78,3 @@ class FDEM1DInversionOptions(EMDataMixin, BaseInversionOptions):
     )
     auto_scale_misfits: bool = False
     sens_wts_threshold: float = 100.0
-
-    @property
-    def unit_conversion(self):
-        """Return time unit conversion factor."""
-        conversion = {
-            "Hertz (Hz)": 1.0,
-            "KiloHertz (kHz)": 1e-3,
-            "MegaHertz (MHz)": 1e-6,
-            "GigaHertz (GHz)": 1e-9,
-        }
-        return conversion[self.data_object.unit]

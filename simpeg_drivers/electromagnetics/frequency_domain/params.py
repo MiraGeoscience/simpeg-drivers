@@ -30,25 +30,15 @@ Receivers: TypeAlias = (
 )
 
 
-class FDEMForwardOptions(EMDataMixin, BaseForwardOptions):
+class BaseFDEMOptions(EMDataMixin):
     """
-    Frequency Domain Electromagnetic Forward options.
-
-    :param z_real_channel_bool: Real impedance channel boolean.
-    :param z_imag_channel_bool: Imaginary impedance channel boolean.
-    :param model_type: Specify whether the models are provided in resistivity or conductivity.
+    Base Frequency Domain Electromagnetic options.
     """
 
-    name: ClassVar[str] = "Frequency Domain Electromagnetics Forward"
-    default_ui_json: ClassVar[Path] = assets_path() / "uijson/fem_forward.ui.json"
-
-    title: str = "Frequency-domain EM (FEM) Forward"
     physical_property: str = "conductivity"
     inversion_type: str = "fdem"
 
     data_object: Receivers
-    z_real_channel_bool: bool
-    z_imag_channel_bool: bool
     model_type: str = "Conductivity (S/m)"
 
     @property
@@ -71,12 +61,32 @@ class FDEMForwardOptions(EMDataMixin, BaseForwardOptions):
     def unit_conversion(self):
         """Return time unit conversion factor."""
         conversion = {
-            "Hertz (Hz)": 1.0,
+            "Seconds (s)": 1.0,
+            "Milliseconds (ms)": 1e-3,
+            "Microseconds (us)": 1e-6,
         }
         return conversion[self.data_object.unit]
 
 
-class FDEMInversionOptions(EMDataMixin, BaseInversionOptions):
+class FDEMForwardOptions(BaseFDEMOptions, BaseForwardOptions):
+    """
+    Frequency Domain Electromagnetic Forward options.
+
+    :param z_real_channel_bool: Real impedance channel boolean.
+    :param z_imag_channel_bool: Imaginary impedance channel boolean.
+    :param model_type: Specify whether the models are provided in resistivity or conductivity.
+    """
+
+    name: ClassVar[str] = "Frequency Domain Electromagnetics Forward"
+    default_ui_json: ClassVar[Path] = assets_path() / "uijson/fem_forward.ui.json"
+
+    title: str = "Frequency-domain EM (FEM) Forward"
+
+    z_real_channel_bool: bool
+    z_imag_channel_bool: bool
+
+
+class FDEMInversionOptions(BaseFDEMOptions, BaseInversionOptions):
     """
     Frequency Domain Electromagnetic Inversion options.
 
@@ -91,36 +101,8 @@ class FDEMInversionOptions(EMDataMixin, BaseInversionOptions):
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/fem_inversion.ui.json"
 
     title: str = "Frequency-domain EM (FEM) Inversion"
-    physical_property: str = "conductivity"
-    inversion_type: str = "fdem"
 
-    data_object: Receivers
     z_real_channel: PropertyGroup | None = None
     z_real_uncertainty: PropertyGroup | None = None
     z_imag_channel: PropertyGroup | None = None
     z_imag_uncertainty: PropertyGroup | None = None
-    model_type: str = "Conductivity (S/m)"
-
-    @property
-    def tx_offsets(self):
-        """Return transmitter offsets from frequency metadata"""
-
-        try:
-            offset_data = self.data_object.metadata["EM Dataset"][
-                "Frequency configurations"
-            ]
-            tx_offsets = {k["Frequency"]: k["Offset"] for k in offset_data}
-
-        except KeyError as exception:
-            msg = "Metadata must contain 'Frequency configurations' dictionary with 'Offset' data."
-            raise KeyError(msg) from exception
-
-        return tx_offsets
-
-    @property
-    def unit_conversion(self):
-        """Return time unit conversion factor."""
-        conversion = {
-            "Hertz (Hz)": 1.0,
-        }
-        return conversion[self.data_object.unit]
