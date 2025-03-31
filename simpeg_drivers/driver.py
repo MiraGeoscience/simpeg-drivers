@@ -442,17 +442,28 @@ class InversionDriver(BaseDriver):
             return BaseRegularization(mesh=self.inversion_mesh.mesh)
 
         reg_funcs = []
+        total_reg_funcs = []
         is_rotated = self.params.gradient_rotation is not None
         for mapping in self.mapping:
-            reg = Sparse(
-                self.inversion_mesh.mesh,
-                active_cells=self.models.active_cells,
-                mapping=mapping,
-                reference_model=self.models.reference,
+            reg_funcs.append(
+                Sparse(
+                    self.inversion_mesh.mesh,
+                    active_cells=self.models.active_cells,
+                    mapping=mapping,
+                    reference_model=self.models.reference,
+                )
             )
 
             if is_rotated:
-                neighbors = cell_neighbors(reg.regularization_mesh.mesh)
+                reg_funcs.append(
+                    Sparse(
+                        self.inversion_mesh.mesh,
+                        active_cells=self.models.active_cells,
+                        mapping=mapping,
+                        reference_model=self.models.reference,
+                    )
+                )
+                neighbors = cell_neighbors(reg_funcs[0].regularization_mesh.mesh)
 
             # Adjustment for 2D versus 3D problems
             comps = "sxz" if "2d" in self.params.inversion_type else "sxyz"
@@ -460,42 +471,47 @@ class InversionDriver(BaseDriver):
             weights = ["alpha_s"] + [f"length_scale_{k}" for k in comps[1:]]
 
             for comp, avg_comp, objfct, weight in zip(
-                comps, avg_comps, reg.objfcts, weights
+                comps, avg_comps, reg_funcs[0].objfcts, weights
             ):
                 if getattr(self.models, weight) is None:
-                    setattr(reg, weight, 0.0)
+                    setattr(reg_funcs[0], weight, 0.0)
                     continue
 
                 weight = mapping * getattr(self.models, weight)
                 norm = mapping * getattr(self.models, f"{comp}_norm")
                 if comp in "xyz":
                     if is_rotated:
-                        grad_op = rotated_gradient(
-                            mesh=reg.regularization_mesh.mesh,
-                            neighbors=neighbors,
-                            axis=comp,
-                            dip=self.models.gradient_dip,
-                            direction=self.models.gradient_direction,
-                        )
-                        setattr(
-                            reg.regularization_mesh,
-                            f"_cell_gradient_{comp}",
-                            reg.regularization_mesh.Pac.T
-                            @ (grad_op @ reg.regularization_mesh.Pac),
-                        )
-                        setattr(
-                            reg.regularization_mesh,
-                            f"_aveCC2F{avg_comp}",
-                            sdiag(np.ones(reg.regularization_mesh.n_cells)),
-                        )
-
+                        for reg, forward in zip(reg_funcs, [True, False]):
+                            grad_op = rotated_gradient(
+                                mesh=reg.regularization_mesh.mesh,
+                                neighbors=neighbors,
+                                axis=comp,
+                                dip=self.models.gradient_dip,
+                                direction=self.models.gradient_direction,
+                                forward=forward,
+                            )
+                            setattr(
+                                reg.regularization_mesh,
+                                f"_cell_gradient_{comp}",
+                                reg.regularization_mesh.Pac.T
+                                @ (grad_op @ reg.regularization_mesh.Pac),
+                            )
+                            setattr(
+                                reg.regularization_mesh,
+                                f"_aveCC2F{avg_comp}",
+                                sdiag(np.ones(reg.regularization_mesh.n_cells)),
+                            )
                     else:
                         weight = (
-                            getattr(reg.regularization_mesh, f"aveCC2F{avg_comp}")
+                            getattr(
+                                reg_funcs[0].regularization_mesh, f"aveCC2F{avg_comp}"
+                            )
                             * weight
                         )
                         norm = (
-                            getattr(reg.regularization_mesh, f"aveCC2F{avg_comp}")
+                            getattr(
+                                reg_funcs[0].regularization_mesh, f"aveCC2F{avg_comp}"
+                            )
                             * norm
                         )
 
@@ -503,13 +519,14 @@ class InversionDriver(BaseDriver):
                 objfct.norm = norm
 
             if getattr(self.params, "gradient_type") is not None:
-                setattr(
-                    reg,
-                    "gradient_type",
-                    getattr(self.params, "gradient_type"),
-                )
+                for reg in reg_funcs:
+                    setattr(
+                        reg,
+                        "gradient_type",
+                        getattr(self.params, "gradient_type"),
+                    )
 
-            reg_funcs.append(reg)
+            total_reg_funcs += reg_funcs
 
         return objective_function.ComboObjectiveFunction(objfcts=reg_funcs)
 
