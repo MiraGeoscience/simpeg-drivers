@@ -29,7 +29,10 @@ include = [
 
 [tool.poetry.dependencies]
 python = "^3.10"
+
+dask-core = {version = "2024.6.*"}  # also in simpeg[dask]
 discretize = "0.11.*"  # also in simpeg, octree-creation-app
+distributed = "2024.6.*"  # because conda-lock doesn't take dask extras into account
 numpy = "~1.26.0" # also in geoh5py, simpeg
 scikit-learn = "~1.4.0"
 scipy = "~1.14.0"
@@ -92,15 +95,12 @@ libblas = "*=*mkl"  # because simpeg already brings in the MKL
 ## indirect dependencies, forcing them here for installation through Conda not pip
 #---------------------------------------------------------------------------------
 bokeh = ">=3.6.0, <3.7.0"  # from simpeg
-dask = ">=2024.6.*"
-distributed = ">=2024.6.*"
 fsspec = ">=2022.0"  # from simpeg[dask]
 geoana = ">=0.7.0, <0.8.dev"  # from simpeg
 h5py = ">=3.2.1, <4.0.dev"  # from geoh5py
 matplotlib-base = ">=3.8.4, <3.9.dev"  # from simpeg
 mkl = ">=2024.2.2"
 Pillow = ">=10.3.0, <10.4.dev"  # from geoh5py
-pyarrow = ">=19.0.0, <20.0.dev"  # from simpeg[dask]
 pydantic = ">=2.5.2, <3.0.dev"  # from geoh5py, geoapps-utils
 pymatsolver = ">=0.3.0, <0.4.dev"  # from simpeg
 tqdm = ">=4.66.1, <5.0.dev"  # from simpeg
