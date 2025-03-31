@@ -62,7 +62,7 @@ class MisfitFactory(SimPEGFactory):
         active_cells,
     ):
         # Base slice over frequencies
-        if self.factory_type in ["magnetotellurics", "tipper", "fem"]:
+        if self.factory_type in ["magnetotellurics", "tipper", "fdem"]:
             channels = np.unique([list(v) for v in inversion_data.observed.values()])
         else:
             channels = [None]
@@ -96,7 +96,7 @@ class MisfitFactory(SimPEGFactory):
 
                 if count == 0:
                     if self.factory_type in [
-                        "fem",
+                        "fdem",
                         "tdem",
                         "magnetotellurics",
                         "tipper",
@@ -209,7 +209,7 @@ class MisfitFactory(SimPEGFactory):
             padding_cells=padding_cells,
         )
         inv_type = inversion_data.params.inversion_type
-        if inv_type in ["fem", "tdem"]:
+        if inv_type in ["fdem", "tdem"]:
             compute_em_projections(inversion_data, local_sim)
         elif ("current" in inv_type or "polarization" in inv_type) and (
             "2d" not in inv_type or "pseudo" in inv_type

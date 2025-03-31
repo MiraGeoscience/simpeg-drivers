@@ -44,7 +44,7 @@ class FDEMForwardOptions(EMDataMixin, BaseForwardOptions):
 
     title: str = "Frequency-domain EM (FEM) Forward"
     physical_property: str = "conductivity"
-    inversion_type: str = "fem"
+    inversion_type: str = "fdem"
 
     data_object: Receivers
     z_real_channel_bool: bool
@@ -92,7 +92,7 @@ class FDEMInversionOptions(EMDataMixin, BaseInversionOptions):
 
     title: str = "Frequency-domain EM (FEM) Inversion"
     physical_property: str = "conductivity"
-    inversion_type: str = "fem"
+    inversion_type: str = "fdem"
 
     data_object: Receivers
     z_real_channel: PropertyGroup | None = None

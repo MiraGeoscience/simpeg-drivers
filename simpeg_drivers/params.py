@@ -237,7 +237,7 @@ class CoreOptions(BaseData):
         if self.tile_spatial == 1:
             return 100
 
-        return 4 if self.inversion_type in ["fem", "tdem"] else 6
+        return 4 if self.inversion_type in ["fdem", "tdem"] else 6
 
 
 class BaseForwardOptions(CoreOptions):

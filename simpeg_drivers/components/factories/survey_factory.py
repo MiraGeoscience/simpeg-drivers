@@ -94,7 +94,7 @@ class SurveyFactory(SimPEGFactory):
         elif "induced polarization" in self.factory_type:
             from simpeg.electromagnetics.static.induced_polarization import survey
 
-        elif "fem" in self.factory_type:
+        elif "fdem" in self.factory_type:
             from simpeg.electromagnetics.frequency_domain import survey
 
         elif "tdem" in self.factory_type:
@@ -124,11 +124,11 @@ class SurveyFactory(SimPEGFactory):
 
         if "current" in self.factory_type or "polarization" in self.factory_type:
             return self._dcip_arguments(data=data, local_index=local_index)
-        elif self.factory_type in ["tdem", "tdem 1d"]:
+        elif "tdem" in self.factory_type:
             return self._tdem_arguments(data=data)
         elif self.factory_type in ["magnetotellurics", "tipper"]:
             return self._naturalsource_arguments(data=data, frequency=channel)
-        elif self.factory_type in ["fem"]:
+        elif "fdem" in self.factory_type:
             return self._fem_arguments(data=data, channel=channel)
         else:
             receivers = ReceiversFactory(self.params).build(
@@ -194,7 +194,7 @@ class SurveyFactory(SimPEGFactory):
         if isinstance(local_index, list):
             local_index = np.hstack(local_index)
 
-        if self.factory_type in ["fem", "tdem", "tdem 1d"]:
+        if self.factory_type in ["fdem", "fdem 1d", "tdem", "tdem 1d"]:
             dobs = []
             uncerts = []
 

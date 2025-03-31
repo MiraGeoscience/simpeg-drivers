@@ -449,8 +449,12 @@ class InversionDriver(BaseDriver):
             )
 
             # Adjustment for 2D versus 3D problems
-            comps = "sxz" if "2d" in self.params.inversion_type else "sxyz"
-            avg_comps = "sxy" if "2d" in self.params.inversion_type else "sxyz"
+            # TODO check this part
+            is_2d_reg = (
+                "2d" in self.params.inversion_type or "1d" in self.params.inversion_type
+            )
+            comps = "sxz" if is_2d_reg else "sxyz"
+            avg_comps = "sxy" if is_2d_reg else "sxyz"
             weights = ["alpha_s"] + [f"length_scale_{k}" for k in comps[1:]]
             for comp, avg_comp, objfct, weight in zip(
                 comps, avg_comps, reg.objfcts, weights

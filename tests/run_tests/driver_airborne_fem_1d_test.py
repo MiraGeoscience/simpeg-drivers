@@ -18,13 +18,13 @@ import numpy as np
 from geoh5py import Workspace
 from geoh5py.groups import SimPEGGroup
 
-from simpeg_drivers.electromagnetics.frequency_domain.driver import (
-    FDEMForwardDriver,
-    FDEMInversionDriver,
+from simpeg_drivers.electromagnetics.frequency_domain_1d.driver import (
+    FDEM1DForwardDriver,
+    FDEM1DInversionDriver,
 )
-from simpeg_drivers.electromagnetics.frequency_domain.params import (
-    FDEMForwardOptions,
-    FDEMInversionOptions,
+from simpeg_drivers.electromagnetics.frequency_domain_1d.params import (
+    FDEM1DForwardOptions,
+    FDEM1DInversionOptions,
 )
 from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
@@ -54,10 +54,10 @@ def test_fem_fwr_run(
         drape_height=15.0,
         cell_size=cell_size,
         padding_distance=400,
-        inversion_type="fdem",
+        inversion_type="fdem 1d",
         flatten=True,
     )
-    params = FDEMForwardOptions(
+    params = FDEM1DForwardOptions(
         geoh5=geoh5,
         mesh=model.parent,
         active_cells=ActiveCellsOptions(topography_object=topography),
@@ -67,7 +67,7 @@ def test_fem_fwr_run(
         z_imag_channel_bool=True,
     )
 
-    fwr_driver = FDEMForwardDriver(params)
+    fwr_driver = FDEM1DForwardDriver(params)
     fwr_driver.run()
 
 
@@ -126,7 +126,7 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
         orig_z_real_1 = geoh5.get_entity("Iteration_0_z_real_[0]")[0].values
 
         # Run the inverse
-        params = FDEMInversionOptions(
+        params = FDEM1DInversionOptions(
             geoh5=geoh5,
             mesh=mesh,
             active_cells=ActiveCellsOptions(topography_object=topography),
@@ -136,7 +136,6 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
             alpha_s=0.0,
             s_norm=0.0,
             x_norm=0.0,
-            y_norm=0.0,
             z_norm=0.0,
             gradient_type="components",
             upper_bound=0.75,
@@ -150,7 +149,7 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
             **data_kwargs,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
-        driver = FDEMInversionDriver(params)
+        driver = FDEM1DInversionDriver(params)
         driver.run()
 
     with geoh5.open() as run_ws:
