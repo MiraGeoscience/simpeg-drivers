@@ -46,16 +46,16 @@ def test_fem_fwr_run(
     # Run the forward
     geoh5, _, model, survey, topography = setup_inversion_workspace(
         tmp_path,
-        background=1e-3,
+        background=0.1,
         anomaly=1.0,
         n_electrodes=n_grid_points,
         n_lines=n_grid_points,
         refinement=refinement,
-        drape_height=15.0,
+        drape_height=10.0,
         cell_size=cell_size,
         padding_distance=400,
         inversion_type="fdem 1d",
-        flatten=True,
+        flatten=False,
     )
     params = FDEM1DForwardOptions(
         geoh5=geoh5,
