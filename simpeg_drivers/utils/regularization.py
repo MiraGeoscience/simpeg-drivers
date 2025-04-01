@@ -39,52 +39,45 @@ def cell_neighbors_along_axis(mesh: TreeMesh, axis: str) -> np.ndarray:
     return np.sort(stencil_indices, axis=1)
 
 
-def cell_neighbors(mesh: TreeMesh) -> np.ndarray:
-    """Find all cell neighbors in a TreeMesh."""
+def collect_all_neighbors(
+    neighbors: list[np.ndarray],
+    neighbors_backwards: list[np.ndarray],
+    adjacent: list[np.ndarray],
+    adjacent_backwards: list[np.ndarray],
+) -> np.ndarray:
+    """
+    Collect all neighbors for cells in the mesh.
 
-    x_neighbors = cell_neighbors_along_axis(mesh, "x")
-    x_neighbors_backward = np.fliplr(x_neighbors)
-    y_neighbors = cell_neighbors_along_axis(mesh, "y")
-    y_neighbors_backward = np.fliplr(y_neighbors)
-    max_index = np.max([x_neighbors.max(), y_neighbors.max()])
-    if mesh.dim == 3:
-        z_neighbors = cell_neighbors_along_axis(mesh, "z")
-        z_neighbors_backward = np.fliplr(z_neighbors)
-        max_index = np.max([max_index, z_neighbors.max()])
-
+    :param neighbors: Direct neighbors in each principle axes.
+    :param neighbors_backwards: Direct neighbors in reverse order.
+    :param adjacent: Adjacent neighbors (corners).
+    :param adjacent_backwards: Adjacent neighbors in reverse order.
+    """
     all_neighbors = []  # Store
-    x_adjacent = np.ones(max_index + 1, dtype="int") * -1
-    y_adjacent = np.ones(max_index + 1, dtype="int") * -1
-    x_adjacent_backward = np.ones(max_index + 1, dtype="int") * -1
-    y_adjacent_backward = np.ones(max_index + 1, dtype="int") * -1
 
-    x_adjacent[y_neighbors[:, 0]] = y_neighbors[:, 1]
-    y_adjacent[x_neighbors[:, 1]] = x_neighbors[:, 0]
+    all_neighbors += [neighbors[0]]
+    all_neighbors += [neighbors[1]]
 
-    x_adjacent_backward[y_neighbors_backward[:, 0]] = y_neighbors_backward[:, 1]
-    y_adjacent_backward[x_neighbors_backward[:, 1]] = x_neighbors_backward[:, 0]
+    all_neighbors += [np.c_[neighbors[0][:, 0], adjacent[0][neighbors[0][:, 1]]]]
+    all_neighbors += [np.c_[neighbors[0][:, 1], adjacent[0][neighbors[0][:, 0]]]]
 
-    all_neighbors += [x_neighbors]
-    all_neighbors += [y_neighbors]
-
-    all_neighbors += [np.c_[x_neighbors[:, 0], x_adjacent[x_neighbors[:, 1]]]]
-    all_neighbors += [np.c_[x_neighbors[:, 1], x_adjacent[x_neighbors[:, 0]]]]
-
-    all_neighbors += [np.c_[y_adjacent[y_neighbors[:, 0]], y_neighbors[:, 1]]]
-    all_neighbors += [np.c_[y_adjacent[y_neighbors[:, 1]], y_neighbors[:, 0]]]
+    all_neighbors += [np.c_[adjacent[1][neighbors[1][:, 0]], neighbors[1][:, 1]]]
+    all_neighbors += [np.c_[adjacent[1][neighbors[1][:, 1]], neighbors[1][:, 0]]]
 
     # Repeat backward for Treemesh
-    all_neighbors += [x_neighbors_backward]
-    all_neighbors += [y_neighbors_backward]
+    all_neighbors += [neighbors_backwards[0]]
+    all_neighbors += [neighbors_backwards[1]]
 
     all_neighbors += [
         np.c_[
-            x_neighbors_backward[:, 0], x_adjacent_backward[x_neighbors_backward[:, 1]]
+            neighbors_backwards[0][:, 0],
+            adjacent_backwards[0][neighbors_backwards[0][:, 1]],
         ]
     ]
     all_neighbors += [
         np.c_[
-            x_neighbors_backward[:, 1], x_adjacent_backward[x_neighbors_backward[:, 0]]
+            neighbors_backwards[0][:, 1],
+            adjacent_backwards[0][neighbors_backwards[0][:, 0]],
         ]
     ]
 
@@ -98,25 +91,24 @@ def cell_neighbors(mesh: TreeMesh) -> np.ndarray:
     ]
 
     # Use all the neighbours on the xy plane to find neighbours in z
-    if mesh.dim == 3:
+    if len(neighbors) == 3:
         all_neighbors_z = []
-        z_adjacent = np.ones(max_index + 1, dtype="int") * -1
-        z_adjacent_backward = np.ones(max_index + 1, dtype="int") * -1
 
-        z_adjacent[z_neighbors[:, 0]] = z_neighbors[:, 1]
-        z_adjacent_backward[z_neighbors_backward[:, 0]] = z_neighbors_backward[:, 1]
-
-        all_neighbors_z += [z_neighbors]
-        all_neighbors_z += [z_neighbors_backward]
-
-        all_neighbors_z += [np.c_[all_neighbors[:, 0], z_adjacent[all_neighbors[:, 1]]]]
-        all_neighbors_z += [np.c_[all_neighbors[:, 1], z_adjacent[all_neighbors[:, 0]]]]
+        all_neighbors_z += [neighbors[2]]
+        all_neighbors_z += [neighbors_backwards[2]]
 
         all_neighbors_z += [
-            np.c_[all_neighbors[:, 0], z_adjacent_backward[all_neighbors[:, 1]]]
+            np.c_[all_neighbors[:, 0], adjacent[2][all_neighbors[:, 1]]]
         ]
         all_neighbors_z += [
-            np.c_[all_neighbors[:, 1], z_adjacent_backward[all_neighbors[:, 0]]]
+            np.c_[all_neighbors[:, 1], adjacent[2][all_neighbors[:, 0]]]
+        ]
+
+        all_neighbors_z += [
+            np.c_[all_neighbors[:, 0], adjacent_backwards[2][all_neighbors[:, 1]]]
+        ]
+        all_neighbors_z += [
+            np.c_[all_neighbors[:, 1], adjacent_backwards[2][all_neighbors[:, 0]]]
         ]
 
         # Stack all and keep only unique pairs
@@ -129,6 +121,39 @@ def cell_neighbors(mesh: TreeMesh) -> np.ndarray:
         ]
 
     return all_neighbors
+
+
+def cell_adjacent(neighbors: list[np.ndarray]) -> list[np.ndarray]:
+    """Find all adjacent cells (corners) from cell neighbor array."""
+
+    dim = len(neighbors)
+    max_index = np.max(neighbors)
+    corners = -1 * np.ones((dim, max_index + 1), dtype="int")
+
+    corners[0, neighbors[1][:, 0]] = neighbors[1][:, 1]
+    corners[1, neighbors[0][:, 1]] = neighbors[0][:, 0]
+    if dim == 3:
+        corners[2, neighbors[2][:, 0]] = neighbors[2][:, 1]
+
+    return [np.array(k) for k in corners.tolist()]
+
+
+def cell_neighbors(mesh: TreeMesh) -> np.ndarray:
+    """Find all cell neighbors in a TreeMesh."""
+
+    neighbors = []
+    neighbors.append(cell_neighbors_along_axis(mesh, "x"))
+    neighbors.append(cell_neighbors_along_axis(mesh, "y"))
+    if mesh.dim == 3:
+        neighbors.append(cell_neighbors_along_axis(mesh, "z"))
+
+    neighbors_backwards = [np.fliplr(k) for k in neighbors]
+    corners = cell_adjacent(neighbors)
+    corners_backwards = cell_adjacent(neighbors_backwards)
+
+    return collect_all_neighbors(
+        neighbors, neighbors_backwards, corners, corners_backwards
+    )
 
 
 def rotate_xz_2d(mesh: TreeMesh, phi: np.ndarray) -> ssp.csr_matrix:
