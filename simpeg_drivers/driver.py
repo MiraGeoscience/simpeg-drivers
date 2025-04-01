@@ -454,7 +454,7 @@ class InversionDriver(BaseDriver):
         for mapping in self.mapping:
             reg_func = Sparse(
                 forward_mesh or self.inversion_mesh.mesh,
-                active_cells=self.models.active_cells,
+                active_cells=self.models.active_cells if forward_mesh is None else None,
                 mapping=mapping,
                 reference_model=self.models.reference,
             )
@@ -481,14 +481,15 @@ class InversionDriver(BaseDriver):
                 norm = mapping * getattr(self.models, f"{comp}_norm")
 
                 if isinstance(fun, SparseSmoothness):
-                    if is_rotated and not forward_mesh:
-                        fun = set_rotated_operators(
-                            fun,
-                            neighbors,
-                            comp,
-                            self.models.gradient_dip,
-                            self.models.gradient_direction,
-                        )
+                    if is_rotated:
+                        if forward_mesh is None:
+                            fun = set_rotated_operators(
+                                fun,
+                                neighbors,
+                                comp,
+                                self.models.gradient_dip,
+                                self.models.gradient_direction,
+                            )
 
                     else:
                         weight = (
