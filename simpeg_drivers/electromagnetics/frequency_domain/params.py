@@ -36,8 +36,6 @@ class BaseFDEMOptions(EMDataMixin):
     """
 
     physical_property: str = "conductivity"
-    inversion_type: str = "fdem"
-
     data_object: Receivers
     model_type: str = "Conductivity (S/m)"
 
@@ -79,7 +77,7 @@ class FDEMForwardOptions(BaseFDEMOptions, BaseForwardOptions):
 
     name: ClassVar[str] = "Frequency Domain Electromagnetics Forward"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/fem_forward.ui.json"
-
+    inversion_type: str = "fdem"
     title: str = "Frequency-domain EM (FEM) Forward"
 
     z_real_channel_bool: bool
@@ -99,7 +97,7 @@ class FDEMInversionOptions(BaseFDEMOptions, BaseInversionOptions):
 
     name: ClassVar[str] = "Frequency Domain Electromagnetics Inversion"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/fem_inversion.ui.json"
-
+    inversion_type: str = "fdem"
     title: str = "Frequency-domain EM (FEM) Inversion"
 
     z_real_channel: PropertyGroup | None = None

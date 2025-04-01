@@ -11,6 +11,8 @@
 
 from __future__ import annotations
 
+from logging import getLogger
+
 import numpy as np
 from discretize import TensorMesh
 from discretize.utils import mesh_utils
@@ -22,6 +24,9 @@ from simpeg_drivers.components.factories import MisfitFactory
 from simpeg_drivers.components.meshes import InversionMesh
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.utils.utils import topo_drape_elevation, xyz_2_drape_model
+
+
+logger = getLogger(__name__)
 
 
 class Base1DDriver(InversionDriver):
@@ -43,7 +48,6 @@ class Base1DDriver(InversionDriver):
     def inversion_mesh(self) -> InversionMesh:
         """Inversion mesh"""
         if getattr(self, "_inversion_mesh", None) is None:
-            # temp_workspace = Workspace()
             with fetch_active_workspace(self.workspace, mode="r+"):
                 drape_models = []
                 temp_work = Workspace()
@@ -89,7 +93,7 @@ class Base1DDriver(InversionDriver):
                 # Tile locations
                 tiles = self.get_tiles()
 
-                print(f"Setting up {len(tiles)} tile(s) . . .")
+                logger.info("Setting up %i tile(s) . . .", len(tiles))
                 # Build tiled misfits and combine to form global misfit
                 self._data_misfit, self._sorting, self._ordering = MisfitFactory(
                     self.params, models=self.models
@@ -102,7 +106,7 @@ class Base1DDriver(InversionDriver):
                 self.models.active_cells = np.ones(
                     self.inversion_mesh.mesh.n_cells, dtype=bool
                 )
-                print("Done.")
+                logger.info("Done.")
 
                 self.inversion_data.save_data()
                 self._data_misfit.multipliers = np.asarray(
