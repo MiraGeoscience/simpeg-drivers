@@ -459,7 +459,7 @@ class InversionDriver(BaseDriver):
                 reference_model=self.models.reference,
             )
 
-            if is_rotated and not neighbors:
+            if is_rotated and neighbors is None:
                 backward_mesh = RegularizationMesh(
                     self.inversion_mesh.mesh, active_cells=self.models.active_cells
                 )
