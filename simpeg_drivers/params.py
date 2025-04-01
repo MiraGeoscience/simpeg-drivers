@@ -28,6 +28,7 @@ from geoh5py.data import (
 from geoh5py.groups import PropertyGroup, SimPEGGroup, UIJsonGroup
 from geoh5py.objects import DrapeModel, Octree, Points
 from geoh5py.shared.utils import fetch_active_workspace
+from geoh5py.ui_json import InputFile
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
 import simpeg_drivers
@@ -238,6 +239,11 @@ class CoreOptions(BaseData):
             return 100
 
         return 4 if self.inversion_type in ["fem", "tdem"] else 6
+
+    def _create_input_file_from_attributes(self) -> InputFile:
+        ifile = super()._create_input_file_from_attributes()
+        ifile.set_data_value("version", simpeg_drivers.__version__)
+        return ifile
 
 
 class BaseForwardOptions(CoreOptions):
