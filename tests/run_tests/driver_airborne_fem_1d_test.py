@@ -37,7 +37,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 target_run = {"data_norm": 638.15180, "phi_d": 59500, "phi_m": 168}
 
 
-def test_fem_fwr_run(
+def test_fem_fwr_1d_run(
     tmp_path: Path,
     n_grid_points=3,
     refinement=(2,),
@@ -71,10 +71,10 @@ def test_fem_fwr_run(
     fwr_driver.run()
 
 
-def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
+def test_fem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
     workpath = tmp_path / "inversion_test.ui.geoh5"
     if pytest:
-        workpath = tmp_path.parent / "test_fem_fwr_run0" / "inversion_test.ui.geoh5"
+        workpath = tmp_path.parent / "test_fem_fwr_1d_run0" / "inversion_test.ui.geoh5"
 
     with Workspace(workpath) as geoh5:
         survey = next(
@@ -172,10 +172,10 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
 
 if __name__ == "__main__":
     # Full run
-    test_fem_fwr_run(
+    test_fem_fwr_1d_run(
         Path("./"), n_grid_points=5, cell_size=(5.0, 5.0, 5.0), refinement=(4, 4, 4)
     )
-    test_fem_run(
+    test_fem_1d_run(
         Path("./"),
         max_iterations=15,
         pytest=False,
