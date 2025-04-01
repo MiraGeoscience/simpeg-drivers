@@ -38,17 +38,30 @@ def cell_neighbors_along_axis(mesh: TreeMesh, axis: str) -> np.ndarray:
     return np.sort(stencil_indices, axis=1)
 
 
-def collect_all_neighbors(neighbors, neighbors_backwards, corners, corners_backwards):
+def collect_all_neighbors(
+    neighbors: list[np.ndarray],
+    neighbors_backwards: list[np.ndarray],
+    adjacent: list[np.ndarray],
+    adjacent_backwards: list[np.ndarray],
+) -> np.ndarray:
+    """
+    Collect all neighbors for cells in the mesh.
+
+    :param neighbors: Direct neighbors in each principle axes.
+    :param neighbors_backwards: Direct neighbors in reverse order.
+    :param adjacent: Adjacent neighbors (corners).
+    :param adjacent_backwards: Adjacent neighbors in reverse order.
+    """
     all_neighbors = []  # Store
 
     all_neighbors += [neighbors[0]]
     all_neighbors += [neighbors[1]]
 
-    all_neighbors += [np.c_[neighbors[0][:, 0], corners[0][neighbors[0][:, 1]]]]
-    all_neighbors += [np.c_[neighbors[0][:, 1], corners[0][neighbors[0][:, 0]]]]
+    all_neighbors += [np.c_[neighbors[0][:, 0], adjacent[0][neighbors[0][:, 1]]]]
+    all_neighbors += [np.c_[neighbors[0][:, 1], adjacent[0][neighbors[0][:, 0]]]]
 
-    all_neighbors += [np.c_[corners[1][neighbors[1][:, 0]], neighbors[1][:, 1]]]
-    all_neighbors += [np.c_[corners[1][neighbors[1][:, 1]], neighbors[1][:, 0]]]
+    all_neighbors += [np.c_[adjacent[1][neighbors[1][:, 0]], neighbors[1][:, 1]]]
+    all_neighbors += [np.c_[adjacent[1][neighbors[1][:, 1]], neighbors[1][:, 0]]]
 
     # Repeat backward for Treemesh
     all_neighbors += [neighbors_backwards[0]]
@@ -57,13 +70,13 @@ def collect_all_neighbors(neighbors, neighbors_backwards, corners, corners_backw
     all_neighbors += [
         np.c_[
             neighbors_backwards[0][:, 0],
-            corners_backwards[0][neighbors_backwards[0][:, 1]],
+            adjacent_backwards[0][neighbors_backwards[0][:, 1]],
         ]
     ]
     all_neighbors += [
         np.c_[
             neighbors_backwards[0][:, 1],
-            corners_backwards[0][neighbors_backwards[0][:, 0]],
+            adjacent_backwards[0][neighbors_backwards[0][:, 0]],
         ]
     ]
 
@@ -83,14 +96,18 @@ def collect_all_neighbors(neighbors, neighbors_backwards, corners, corners_backw
         all_neighbors_z += [neighbors[2]]
         all_neighbors_z += [neighbors_backwards[2]]
 
-        all_neighbors_z += [np.c_[all_neighbors[:, 0], corners[2][all_neighbors[:, 1]]]]
-        all_neighbors_z += [np.c_[all_neighbors[:, 1], corners[2][all_neighbors[:, 0]]]]
-
         all_neighbors_z += [
-            np.c_[all_neighbors[:, 0], corners_backwards[2][all_neighbors[:, 1]]]
+            np.c_[all_neighbors[:, 0], adjacent[2][all_neighbors[:, 1]]]
         ]
         all_neighbors_z += [
-            np.c_[all_neighbors[:, 1], corners_backwards[2][all_neighbors[:, 0]]]
+            np.c_[all_neighbors[:, 1], adjacent[2][all_neighbors[:, 0]]]
+        ]
+
+        all_neighbors_z += [
+            np.c_[all_neighbors[:, 0], adjacent_backwards[2][all_neighbors[:, 1]]]
+        ]
+        all_neighbors_z += [
+            np.c_[all_neighbors[:, 1], adjacent_backwards[2][all_neighbors[:, 0]]]
         ]
 
         # Stack all and keep only unique pairs
@@ -106,7 +123,7 @@ def collect_all_neighbors(neighbors, neighbors_backwards, corners, corners_backw
 
 
 def cell_adjacent(neighbors: list[np.ndarray]) -> list[np.ndarray]:
-    """Find all cell corners from cell neighbor array."""
+    """Find all adjacent cells (corners) from cell neighbor array."""
 
     dim = len(neighbors)
     max_index = np.max(neighbors)
