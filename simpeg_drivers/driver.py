@@ -14,7 +14,7 @@
 from __future__ import annotations
 
 import multiprocessing
-from copy import copy
+from copy import deepcopy
 import sys
 from datetime import datetime, timedelta
 import logging
@@ -512,7 +512,7 @@ class InversionDriver(BaseDriver):
 
                 if isinstance(fun, SparseSmoothness) and is_rotated:
                     fun.gradient_type = "components"
-                    backward_fun = copy(fun)
+                    backward_fun = deepcopy(fun)
                     setattr(backward_fun, "_regularization_mesh", backward_mesh)
 
                     # Only do it once for MVI
