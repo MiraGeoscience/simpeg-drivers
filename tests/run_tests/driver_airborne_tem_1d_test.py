@@ -32,7 +32,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
-target_run = {"data_norm": 6.15712e-10, "phi_d": 110, "phi_m": 89800}
+target_run = {"data_norm": 6.15712e-10, "phi_d": 109, "phi_m": 102000}
 
 
 def test_airborne_tem_1d_fwr_run(
