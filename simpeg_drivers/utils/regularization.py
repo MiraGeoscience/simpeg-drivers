@@ -127,7 +127,7 @@ def cell_adjacent(neighbors: list[np.ndarray]) -> list[np.ndarray]:
     """Find all adjacent cells (corners) from cell neighbor array."""
 
     dim = len(neighbors)
-    max_index = np.max(neighbors)
+    max_index = np.max(np.vstack(neighbors))
     corners = -1 * np.ones((dim, max_index + 1), dtype="int")
 
     corners[0, neighbors[1][:, 0]] = neighbors[1][:, 1]
