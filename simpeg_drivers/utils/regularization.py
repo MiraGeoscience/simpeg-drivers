@@ -11,6 +11,7 @@
 import numpy as np
 import scipy.sparse as ssp
 from discretize import TreeMesh
+from simpeg.regularization import SparseSmoothness
 from simpeg.utils import mkvc, sdiag
 
 
@@ -365,3 +366,40 @@ def rotated_gradient(
 
     unit_grad = gradient_operator(neighbors, volumes, n_cells)
     return sdiag(1 / mesh.h_gridded[:, "xyz".find(axis)]) @ unit_grad
+
+
+def set_rotated_operators(
+    function: SparseSmoothness,
+    neighbors: np.ndarray,
+    axis: str,
+    dip: np.ndarray,
+    direction: np.ndarray,
+    forward: bool = True,
+) -> SparseSmoothness:
+    """
+    Calculated rotated gradient operator using partial volumes.
+
+    :param function: Smoothness regularization to change operator for.
+    :param neighbors: Cell neighbors array.
+    :param axis: Regularization axis.
+    :param dip: Angle in radians for rotation from the horizon.
+    :param direction: Angle in radians for rotation about the z-axis.
+    :param forward: Whether to use forward or backward difference for
+        derivative approximations.
+    """
+    grad_op = rotated_gradient(
+        function.regularization_mesh.mesh, neighbors, axis, dip, direction, forward
+    )
+    setattr(
+        function.regularization_mesh,
+        f"_cell_gradient_{function.orientation}",
+        function.regularization_mesh.Pac.T
+        @ (grad_op @ function.regularization_mesh.Pac),
+    )
+    setattr(
+        function.regularization_mesh,
+        f"_aveCC2F{function.orientation}",
+        sdiag(np.ones(function.regularization_mesh.n_cells)),
+    )
+
+    return function
