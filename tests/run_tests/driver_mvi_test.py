@@ -16,6 +16,7 @@ import numpy as np
 from geoh5py.groups.property_group import GroupTypeEnum
 from geoh5py.objects import Curve
 from geoh5py.workspace import Workspace
+from pytest import warns
 
 from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.potential_fields import (
@@ -166,30 +167,34 @@ def test_magnetic_vector_bounds_run(
 
         # Run the inverse
         active_cells = ActiveCellsOptions(topography_object=topography)
-        params = MVIInversionOptions(
-            geoh5=geoh5,
-            mesh=mesh,
-            active_cells=active_cells,
-            inducing_field_strength=inducing_field[0],
-            inducing_field_inclination=inducing_field[1],
-            inducing_field_declination=inducing_field[2],
-            data_object=tmi.parent,
-            starting_model=1e-4,
-            reference_model=0.0,
-            s_norm=0.0,
-            x_norm=1.0,
-            y_norm=1.0,
-            z_norm=1.0,
-            gradient_type="components",
-            tmi_channel=tmi,
-            tmi_uncertainty=4.0,
-            upper_bound=upper_bound,
-            max_global_iterations=max_iterations,
-            initial_beta_ratio=1e1,
-            store_sensitivities="ram",
-            save_sensitivities=True,
-            percentile=100,
-        )
+        with warns(
+            UserWarning, match="Parameter 'lower_bound' for Magnetic Vector Inversion"
+        ):
+            params = MVIInversionOptions(
+                geoh5=geoh5,
+                mesh=mesh,
+                active_cells=active_cells,
+                inducing_field_strength=inducing_field[0],
+                inducing_field_inclination=inducing_field[1],
+                inducing_field_declination=inducing_field[2],
+                data_object=tmi.parent,
+                starting_model=1e-4,
+                reference_model=0.0,
+                s_norm=0.0,
+                x_norm=1.0,
+                y_norm=1.0,
+                z_norm=1.0,
+                gradient_type="components",
+                tmi_channel=tmi,
+                tmi_uncertainty=4.0,
+                lower_bound=1e-6,
+                upper_bound=upper_bound,
+                max_global_iterations=max_iterations,
+                initial_beta_ratio=1e1,
+                store_sensitivities="ram",
+                save_sensitivities=True,
+                percentile=100,
+            )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
     driver = MVIInversionDriver(params)

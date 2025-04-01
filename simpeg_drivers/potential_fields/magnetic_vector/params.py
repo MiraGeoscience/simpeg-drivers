@@ -13,8 +13,10 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import ClassVar
+from warnings import warn
 
 from geoh5py.data import FloatData
+from pydantic import model_validator
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions
@@ -131,3 +133,14 @@ class MVIInversionOptions(BaseInversionOptions):
     starting_declination: float | FloatData | None = None
     reference_inclination: float | FloatData | None = None
     reference_declination: float | FloatData | None = None
+
+    @model_validator(mode="after")
+    def validate_lower_bound(self):
+        if self.lower_bound is not None:
+            warn(
+                "Parameter 'lower_bound' for Magnetic Vector Inversion has been deprecated. "
+                "Defaulting to the negative value of 'upper_bound'.",
+                stacklevel=1,
+            )
+            self.lower_bound = None
+        return self
