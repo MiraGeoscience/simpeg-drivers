@@ -72,7 +72,7 @@ def test_zero_reference_model(tmp_path: Path):
     geoh5 = params.geoh5
     with geoh5.open():
         driver = MVIInversionDriver(params)
-        _ = InversionModel(driver, "reference")
+        _ = InversionModel(driver, "reference", is_vector=True)
         incl = np.unique(geoh5.get_entity("reference_inclination")[0].values)
         decl = np.unique(geoh5.get_entity("reference_declination")[0].values)
     assert len(incl) == 1
@@ -87,7 +87,7 @@ def test_collection(tmp_path: Path):
         driver = MVIInversionDriver(params)
         models = InversionModelCollection(driver)
         models.remove_air(driver.models.active_cells)
-        starting = InversionModel(driver, "starting")
+        starting = InversionModel(driver, "starting", is_vector=True)
         starting.remove_air(driver.models.active_cells)
         np.testing.assert_allclose(models.starting, starting.model, atol=1e-7)
 
@@ -96,7 +96,7 @@ def test_initialize(tmp_path: Path):
     params = get_mvi_params(tmp_path)
     with params.geoh5.open():
         driver = MVIInversionDriver(params)
-        starting_model = InversionModel(driver, "starting")
+        starting_model = InversionModel(driver, "starting", is_vector=True)
         assert len(starting_model.model) == 3 * driver.inversion_mesh.n_cells
         assert len(np.unique(starting_model.model)) == 3
 
@@ -117,7 +117,7 @@ def test_model_from_object(tmp_path: Path):
         point_object.add_data({"test_data": {"values": vals}})
         data_object = geoh5.get_entity("test_data")[0]
         params.lower_bound = data_object
-        lower_bound = InversionModel(driver, "lower_bound")
+        lower_bound = InversionModel(driver, "lower_bound", is_vector=True)
         nc = int(len(lower_bound.model) / 3)
         A = driver.inversion_mesh.mesh.cell_centers
         b = lower_bound.model[:nc]
