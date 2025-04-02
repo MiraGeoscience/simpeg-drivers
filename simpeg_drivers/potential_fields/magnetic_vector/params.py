@@ -140,6 +140,7 @@ class MVIInversionOptions(BaseInversionOptions):
             warn(
                 "Parameter 'lower_bound' for Magnetic Vector Inversion has been deprecated. "
                 "Defaulting to the negative value of 'upper_bound'.",
+                DeprecationWarning,
                 stacklevel=1,
             )
             self.lower_bound = None

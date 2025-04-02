@@ -168,7 +168,8 @@ def test_magnetic_vector_bounds_run(
         # Run the inverse
         active_cells = ActiveCellsOptions(topography_object=topography)
         with warns(
-            UserWarning, match="Parameter 'lower_bound' for Magnetic Vector Inversion"
+            DeprecationWarning,
+            match="Parameter 'lower_bound' for Magnetic Vector Inversion",
         ):
             params = MVIInversionOptions(
                 geoh5=geoh5,
