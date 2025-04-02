@@ -89,11 +89,18 @@ DRIVER_MAP = {
         "simpeg_drivers.joint.joint_surveys.driver",
         {"inversion": "JointSurveyDriver"},
     ),
-    "fem": (
+    "fdem": (
         "simpeg_drivers.electromagnetics.frequency_domain.driver",
         {
-            "forward": "FrequenceyDomainElectromagneticsForwardDriver",
+            "forward": "FDEMForwardDriver",
             "inversion": "FDEMInversionDriver",
+        },
+    ),
+    "fdem 1d": (
+        "simpeg_drivers.electromagnetics.frequency_domain_1d.driver",
+        {
+            "forward": "FDEM1DForwardDriver",
+            "inversion": "FDEM1DInversionDriver",
         },
     ),
     "joint cross gradient": (
@@ -105,6 +112,13 @@ DRIVER_MAP = {
         {
             "forward": "TDEMForwardDriver",
             "inversion": "TDEMInversionDriver",
+        },
+    ),
+    "tdem 1d": (
+        "simpeg_drivers.electromagnetics.time_domain_1d.driver",
+        {
+            "forward": "TDEM1DForwardDriver",
+            "inversion": "TDEM1DInversionDriver",
         },
     ),
     "magnetotellurics": (

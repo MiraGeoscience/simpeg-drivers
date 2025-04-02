@@ -19,11 +19,12 @@ from geoh5py.objects import DrapeModel
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.electricals.params import (
+from simpeg_drivers.params import (
+    BaseForwardOptions,
+    BaseInversionOptions,
     DrapeModelOptions,
     LineSelectionOptions,
 )
-from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions
 
 
 class DC2DForwardOptions(BaseForwardOptions):

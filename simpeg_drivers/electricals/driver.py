@@ -29,9 +29,12 @@ from simpeg_drivers.components.meshes import InversionMesh
 from simpeg_drivers.components.topography import InversionTopography
 from simpeg_drivers.components.windows import InversionWindow
 from simpeg_drivers.driver import InversionDriver
-from simpeg_drivers.electricals.params import LineSelectionOptions
 from simpeg_drivers.line_sweep.driver import LineSweepDriver
-from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions
+from simpeg_drivers.params import (
+    BaseForwardOptions,
+    BaseInversionOptions,
+    LineSelectionOptions,
+)
 from simpeg_drivers.utils.surveys import extract_dcip_survey
 from simpeg_drivers.utils.utils import get_drape_model
 

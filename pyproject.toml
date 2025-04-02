@@ -30,7 +30,7 @@ include = [
 [tool.poetry.dependencies]
 python = "^3.10"
 
-dask = {version = "2024.6.*", extras = ["distributed"]}  # also in simpeg[dask]
+dask-core = {version = "2024.6.*"}  # also in simpeg[dask]
 discretize = "0.11.*"  # also in simpeg, octree-creation-app
 distributed = "2024.6.*"  # because conda-lock doesn't take dask extras into account
 numpy = "~1.26.0" # also in geoh5py, simpeg

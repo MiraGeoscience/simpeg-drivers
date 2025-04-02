@@ -103,7 +103,7 @@ class InversionTopography(InversionLocations):
                 grid_reference="bottom" if forced_to_surface else "center",
             )
 
-        active_cells = active_cells[np.argsort(mesh.permutation)].astype(bool)
+        active_cells = (mesh.permutation @ active_cells).astype(bool)
 
         if forced_to_surface:
             active_cells = self.expand_actives(active_cells, mesh, data)

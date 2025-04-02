@@ -18,13 +18,13 @@ import numpy as np
 from geoh5py import Workspace
 from geoh5py.groups import SimPEGGroup
 
-from simpeg_drivers.electromagnetics.frequency_domain.driver import (
-    FDEMForwardDriver,
-    FDEMInversionDriver,
+from simpeg_drivers.electromagnetics.frequency_domain_1d.driver import (
+    FDEM1DForwardDriver,
+    FDEM1DInversionDriver,
 )
-from simpeg_drivers.electromagnetics.frequency_domain.params import (
-    FDEMForwardOptions,
-    FDEMInversionOptions,
+from simpeg_drivers.electromagnetics.frequency_domain_1d.params import (
+    FDEM1DForwardOptions,
+    FDEM1DInversionOptions,
 )
 from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
@@ -34,10 +34,10 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 81.8361, "phi_d": 2160, "phi_m": 4010}
+target_run = {"data_norm": 638.15180, "phi_d": 59500, "phi_m": 168}
 
 
-def test_fem_fwr_run(
+def test_fem_fwr_1d_run(
     tmp_path: Path,
     n_grid_points=3,
     refinement=(2,),
@@ -46,18 +46,18 @@ def test_fem_fwr_run(
     # Run the forward
     geoh5, _, model, survey, topography = setup_inversion_workspace(
         tmp_path,
-        background=1e-3,
-        anomaly=1.0,
+        background=1e-4,
+        anomaly=0.1,
         n_electrodes=n_grid_points,
         n_lines=n_grid_points,
         refinement=refinement,
-        drape_height=15.0,
+        drape_height=10.0,
         cell_size=cell_size,
         padding_distance=400,
-        inversion_type="fdem",
-        flatten=True,
+        inversion_type="fdem 1d",
+        flatten=False,
     )
-    params = FDEMForwardOptions(
+    params = FDEM1DForwardOptions(
         geoh5=geoh5,
         mesh=model.parent,
         active_cells=ActiveCellsOptions(topography_object=topography),
@@ -67,14 +67,14 @@ def test_fem_fwr_run(
         z_imag_channel_bool=True,
     )
 
-    fwr_driver = FDEMForwardDriver(params)
+    fwr_driver = FDEM1DForwardDriver(params)
     fwr_driver.run()
 
 
-def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
+def test_fem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
     workpath = tmp_path / "inversion_test.ui.geoh5"
     if pytest:
-        workpath = tmp_path.parent / "test_fem_fwr_run0" / "inversion_test.ui.geoh5"
+        workpath = tmp_path.parent / "test_fem_fwr_1d_run0" / "inversion_test.ui.geoh5"
 
     with Workspace(workpath) as geoh5:
         survey = next(
@@ -126,7 +126,7 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
         orig_z_real_1 = geoh5.get_entity("Iteration_0_z_real_[0]")[0].values
 
         # Run the inverse
-        params = FDEMInversionOptions(
+        params = FDEM1DInversionOptions(
             geoh5=geoh5,
             mesh=mesh,
             active_cells=ActiveCellsOptions(topography_object=topography),
@@ -136,7 +136,6 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
             alpha_s=0.0,
             s_norm=0.0,
             x_norm=0.0,
-            y_norm=0.0,
             z_norm=0.0,
             gradient_type="components",
             upper_bound=0.75,
@@ -150,7 +149,7 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
             **data_kwargs,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
-        driver = FDEMInversionDriver(params)
+        driver = FDEM1DInversionDriver(params)
         driver.run()
 
     with geoh5.open() as run_ws:
@@ -173,10 +172,10 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
 
 if __name__ == "__main__":
     # Full run
-    test_fem_fwr_run(
+    test_fem_fwr_1d_run(
         Path("./"), n_grid_points=5, cell_size=(5.0, 5.0, 5.0), refinement=(4, 4, 4)
     )
-    test_fem_run(
+    test_fem_1d_run(
         Path("./"),
         max_iterations=15,
         pytest=False,
