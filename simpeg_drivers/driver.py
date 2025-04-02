@@ -14,7 +14,7 @@
 from __future__ import annotations
 
 import multiprocessing
-
+from copy import deepcopy
 import sys
 from datetime import datetime, timedelta
 import logging
@@ -42,8 +42,13 @@ from simpeg import (
     objective_function,
     optimization,
 )
-from simpeg.utils import sdiag
-from simpeg.regularization import BaseRegularization, Sparse
+
+from simpeg.regularization import (
+    BaseRegularization,
+    RegularizationMesh,
+    Sparse,
+    SparseSmoothness,
+)
 
 from simpeg_drivers import DRIVER_MAP
 from simpeg_drivers.components import (
@@ -60,7 +65,7 @@ from simpeg_drivers.params import (
 )
 from simpeg_drivers.joint.params import BaseJointOptions
 from simpeg_drivers.utils.utils import tile_locations
-from simpeg_drivers.utils.regularization import cell_neighbors, rotated_gradient
+from simpeg_drivers.utils.regularization import cell_neighbors, set_rotated_operators
 
 mlogger = logging.getLogger("distributed")
 mlogger.setLevel(logging.WARNING)
@@ -442,91 +447,101 @@ class InversionDriver(BaseDriver):
             return BaseRegularization(mesh=self.inversion_mesh.mesh)
 
         reg_funcs = []
-        total_reg_funcs = []
         is_rotated = self.params.gradient_rotation is not None
+        neighbors = None
+        backward_mesh = None
+        forward_mesh = None
         for mapping in self.mapping:
-            reg_funcs.append(
-                Sparse(
-                    self.inversion_mesh.mesh,
-                    active_cells=self.models.active_cells,
-                    mapping=mapping,
-                    reference_model=self.models.reference,
-                )
+            reg_func = Sparse(
+                forward_mesh or self.inversion_mesh.mesh,
+                active_cells=self.models.active_cells if forward_mesh is None else None,
+                mapping=mapping,
+                reference_model=self.models.reference,
             )
 
-            if is_rotated:
-                reg_funcs.append(
-                    Sparse(
-                        self.inversion_mesh.mesh,
-                        active_cells=self.models.active_cells,
-                        mapping=mapping,
-                        reference_model=self.models.reference,
-                    )
+            if is_rotated and neighbors is None:
+                backward_mesh = RegularizationMesh(
+                    self.inversion_mesh.mesh, active_cells=self.models.active_cells
                 )
-                neighbors = cell_neighbors(reg_funcs[0].regularization_mesh.mesh)
+                neighbors = cell_neighbors(reg_func.regularization_mesh.mesh)
 
             # Adjustment for 2D versus 3D problems
-            comps = "sxz" if "2d" in self.params.inversion_type else "sxyz"
-            avg_comps = "sxy" if "2d" in self.params.inversion_type else "sxyz"
-            weights = ["alpha_s"] + [f"length_scale_{k}" for k in comps[1:]]
-
-            for comp, avg_comp, objfct, weight in zip(
-                comps, avg_comps, reg_funcs[0].objfcts, weights
+            components = "sxz" if "2d" in self.params.inversion_type else "sxyz"
+            weight_names = ["alpha_s"] + [f"length_scale_{k}" for k in components[1:]]
+            functions = []
+            for comp, weight_name, fun in zip(
+                components, weight_names, reg_func.objfcts
             ):
-                if getattr(self.models, weight) is None:
-                    setattr(reg_funcs[0], weight, 0.0)
+                if getattr(self.models, weight_name) is None:
+                    setattr(reg_funcs, weight_name, 0.0)
+                    functions.append(fun)
                     continue
 
-                weight = mapping * getattr(self.models, weight)
+                weight = mapping * getattr(self.models, weight_name)
                 norm = mapping * getattr(self.models, f"{comp}_norm")
-                if comp in "xyz":
+
+                if isinstance(fun, SparseSmoothness):
                     if is_rotated:
-                        for reg, forward in zip(reg_funcs, [True, False]):
-                            grad_op = rotated_gradient(
-                                mesh=reg.regularization_mesh.mesh,
-                                neighbors=neighbors,
-                                axis=comp,
-                                dip=self.models.gradient_dip,
-                                direction=self.models.gradient_direction,
-                                forward=forward,
+                        if forward_mesh is None:
+                            fun = set_rotated_operators(
+                                fun,
+                                neighbors,
+                                comp,
+                                self.models.gradient_dip,
+                                self.models.gradient_direction,
                             )
-                            setattr(
-                                reg.regularization_mesh,
-                                f"_cell_gradient_{comp}",
-                                reg.regularization_mesh.Pac.T
-                                @ (grad_op @ reg.regularization_mesh.Pac),
-                            )
-                            setattr(
-                                reg.regularization_mesh,
-                                f"_aveCC2F{avg_comp}",
-                                sdiag(np.ones(reg.regularization_mesh.n_cells)),
-                            )
+
                     else:
                         weight = (
                             getattr(
-                                reg_funcs[0].regularization_mesh, f"aveCC2F{avg_comp}"
+                                reg_func.regularization_mesh,
+                                f"aveCC2F{fun.orientation}",
                             )
                             * weight
                         )
                         norm = (
                             getattr(
-                                reg_funcs[0].regularization_mesh, f"aveCC2F{avg_comp}"
+                                reg_func.regularization_mesh,
+                                f"aveCC2F{fun.orientation}",
                             )
                             * norm
                         )
 
-                objfct.set_weights(**{comp: weight})
-                objfct.norm = norm
+                fun.set_weights(**{comp: weight})
+                fun.norm = norm
+                functions.append(fun)
 
-            if getattr(self.params, "gradient_type") is not None:
-                for reg in reg_funcs:
-                    setattr(
-                        reg,
-                        "gradient_type",
-                        getattr(self.params, "gradient_type"),
-                    )
+                if isinstance(fun, SparseSmoothness) and is_rotated:
+                    fun.gradient_type = "components"
+                    backward_fun = deepcopy(fun)
+                    setattr(backward_fun, "_regularization_mesh", backward_mesh)
 
-            total_reg_funcs += reg_funcs
+                    # Only do it once for MVI
+                    if not forward_mesh:
+                        backward_fun = set_rotated_operators(
+                            backward_fun,
+                            neighbors,
+                            comp,
+                            self.models.gradient_dip,
+                            self.models.gradient_direction,
+                            forward=False,
+                        )
+                    functions.append(backward_fun)
+
+            # Will avoid recomputing operators if the regularization mesh is the same
+            forward_mesh = reg_func.regularization_mesh
+            reg_func.objfcts = functions
+            reg_func.norms = [fun.norm for fun in functions]
+            reg_funcs.append(reg_func)
+
+        # TODO - To be deprcated on GEOPY-2109
+        if getattr(self.params, "gradient_type") is not None:
+            for reg in reg_funcs:
+                setattr(
+                    reg,
+                    "gradient_type",
+                    getattr(self.params, "gradient_type"),
+                )
 
         return objective_function.ComboObjectiveFunction(objfcts=reg_funcs)
 
