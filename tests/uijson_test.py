@@ -18,6 +18,7 @@ from geoh5py import Workspace
 from geoh5py.ui_json.annotations import Deprecated
 from pydantic import AliasChoices, Field
 
+import simpeg_drivers
 from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.potential_fields.gravity.params import GravityInversionOptions
 from simpeg_drivers.potential_fields.gravity.uijson import GravityInversionUIJson
@@ -150,6 +151,7 @@ def test_gravity_uijson(tmp_path):
         gz_uncerts = survey.add_data({"gz_unc": {"values": np.ones(survey.n_vertices)}})
 
     opts = GravityInversionOptions(
+        version="old news",
         geoh5=geoh5,
         data_object=survey,
         gz_channel=gz_channel,
@@ -168,6 +170,7 @@ def test_gravity_uijson(tmp_path):
     uijson.write(uijson_path)
     with open(params_uijson_path, encoding="utf-8") as f:
         params_data = json.load(f)
+        assert params_data["version"] == simpeg_drivers.__version__
     with open(uijson_path, encoding="utf-8") as f:
         uijson_data = json.load(f)
 
