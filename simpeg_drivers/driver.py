@@ -480,38 +480,31 @@ class InversionDriver(BaseDriver):
                 weight = mapping * getattr(self.models, weight_name)
                 norm = mapping * getattr(self.models, f"{comp}_norm")
 
-                if isinstance(fun, SparseSmoothness):
-                    if is_rotated:
-                        if forward_mesh is None:
-                            fun = set_rotated_operators(
-                                fun,
-                                neighbors,
-                                comp,
-                                self.models.gradient_dip,
-                                self.models.gradient_direction,
-                            )
+                if not isinstance(fun, SparseSmoothness):
+                    fun.set_weights(**{comp: weight})
+                    fun.norm = norm
+                    functions.append(fun)
+                    continue
 
-                    else:
-                        weight = (
-                            getattr(
-                                reg_func.regularization_mesh,
-                                f"aveCC2F{fun.orientation}",
-                            )
-                            * weight
-                        )
-                        norm = (
-                            getattr(
-                                reg_func.regularization_mesh,
-                                f"aveCC2F{fun.orientation}",
-                            )
-                            * norm
+                if is_rotated:
+                    if forward_mesh is None:
+                        fun = set_rotated_operators(
+                            fun,
+                            neighbors,
+                            comp,
+                            self.models.gradient_dip,
+                            self.models.gradient_direction,
                         )
 
-                fun.set_weights(**{comp: weight})
-                fun.norm = norm
+                average_op = getattr(
+                    reg_func.regularization_mesh,
+                    f"aveCC2F{fun.orientation}",
+                )
+                fun.set_weights(**{comp: average_op @ weight})
+                fun.norm = average_op @ norm
                 functions.append(fun)
 
-                if isinstance(fun, SparseSmoothness) and is_rotated:
+                if is_rotated:
                     fun.gradient_type = "components"
                     backward_fun = deepcopy(fun)
                     setattr(backward_fun, "_regularization_mesh", backward_mesh)
@@ -526,6 +519,12 @@ class InversionDriver(BaseDriver):
                             self.models.gradient_direction,
                             forward=False,
                         )
+                    average_op = getattr(
+                        backward_fun.regularization_mesh,
+                        f"aveCC2F{fun.orientation}",
+                    )
+                    backward_fun.set_weights(**{comp: average_op @ weight})
+                    backward_fun.norm = average_op @ norm
                     functions.append(backward_fun)
 
             # Will avoid recomputing operators if the regularization mesh is the same

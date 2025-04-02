@@ -415,16 +415,20 @@ def set_rotated_operators(
     grad_op = rotated_gradient(
         function.regularization_mesh.mesh, neighbors, axis, dip, direction, forward
     )
+    grad_op_active = function.regularization_mesh.Pac.T @ (
+        grad_op @ function.regularization_mesh.Pac
+    )
+    active_faces = grad_op_active.max(axis=1).toarray().ravel() > 0
+
     setattr(
         function.regularization_mesh,
         f"_cell_gradient_{function.orientation}",
-        function.regularization_mesh.Pac.T
-        @ (grad_op @ function.regularization_mesh.Pac),
+        grad_op_active[active_faces, :],
     )
     setattr(
         function.regularization_mesh,
         f"_aveCC2F{function.orientation}",
-        sdiag(np.ones(function.regularization_mesh.n_cells)),
+        sdiag(np.ones(function.regularization_mesh.n_cells))[active_faces, :],
     )
 
     return function
