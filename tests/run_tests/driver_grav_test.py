@@ -15,7 +15,6 @@ from unittest.mock import patch
 
 import numpy as np
 from geoapps_utils.utils.importing import GeoAppsError
-from geoh5py.groups import PropertyGroup
 from geoh5py.workspace import Workspace
 from pytest import raises
 

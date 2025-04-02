@@ -473,7 +473,7 @@ class InversionDriver(BaseDriver):
                 components, weight_names, reg_func.objfcts
             ):
                 if getattr(self.models, weight_name) is None:
-                    setattr(reg_funcs, weight_name, 0.0)
+                    setattr(reg_func, weight_name, 0.0)
                     functions.append(fun)
                     continue
 
