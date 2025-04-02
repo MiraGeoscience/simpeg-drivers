@@ -56,23 +56,29 @@ class SourcesFactory(SimPEGFactory):
         elif "induced polarization" in self.factory_type:
             return dc_sources.Dipole
 
-        elif "fem" in self.factory_type:
+        elif "fdem" in self.factory_type:
+            if "fdem 1d" == self.factory_type and np.allclose(
+                np.kron(
+                    np.ones((len(self.params.data_object.channels), 1)),
+                    self.params.data_object.vertices,
+                ),
+                self.params.data_object.complement.vertices,
+            ):
+                return fem_sources.CircularLoop
+
             return fem_sources.MagDipole
 
-        elif "tdem" == self.factory_type:
+        elif "tdem" in self.factory_type:
             if isinstance(self.params.data_object, LargeLoopGroundTEMReceivers):
                 return tem_sources.LineCurrent
-            else:
-                return tem_sources.MagDipole
 
-        elif "tdem 1d" == self.factory_type:
-            if np.allclose(
+            if "tdem 1d" == self.factory_type and np.allclose(
                 self.params.data_object.vertices,
                 self.params.data_object.complement.vertices,
             ):
                 return tem_sources.CircularLoop
-            else:
-                return tem_sources.MagDipole
+
+            return tem_sources.MagDipole
 
         elif self.factory_type in ["magnetotellurics", "tipper"]:
             return ns_sources.PlanewaveXYPrimary
@@ -101,7 +107,7 @@ class SourcesFactory(SimPEGFactory):
                 locations=locations,
             )
 
-        elif self.factory_type in ["fem", "magnetotellurics", "tipper"]:
+        elif self.factory_type in ["fdem", "fdem 1d", "magnetotellurics", "tipper"]:
             args.append(receivers)
             args.append(frequency)
 
@@ -133,16 +139,16 @@ class SourcesFactory(SimPEGFactory):
 
             kwargs["sigma_primary"] = [background]
 
-        if self.factory_type in ["fem"]:
+        if "fdem" in self.factory_type:
             kwargs["location"] = locations
         if "tdem" in self.factory_type:
             kwargs["location"] = locations
             kwargs["waveform"] = waveform
 
-        if self.factory_type == "tdem 1d":
+        if "1d" in self.factory_type:
             if isinstance(
                 self.concrete_object(),
-                tem_sources.CircularLoop,
+                tem_sources.CircularLoop | fem_sources.CircularLoop,
             ):
                 kwargs["moment"] = 1.0
             else:

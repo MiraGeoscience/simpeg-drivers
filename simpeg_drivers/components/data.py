@@ -202,7 +202,8 @@ class InversionData(InversionLocations):
             "magnetotellurics",
             "tipper",
             "tdem",
-            "fem",
+            "fdem",
+            "fdem 1d",
             "tdem 1d",
         ]:
             for component, channels in data.items():
@@ -309,7 +310,7 @@ class InversionData(InversionLocations):
                 elif self.params.inversion_type in ["tipper"]:
                     if "imag" in comp:
                         normalizations[chan][comp] = -1 * np.ones(self.mask.sum())
-                elif self.params.inversion_type in ["fem"]:
+                elif "fdem" == self.params.inversion_type:  # Assume always ppm data
                     mu0 = 4 * np.pi * 1e-7
                     offsets = self.params.tx_offsets
                     offsets = {

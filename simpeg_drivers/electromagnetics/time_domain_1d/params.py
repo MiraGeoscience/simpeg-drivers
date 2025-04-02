@@ -54,7 +54,7 @@ class TDEM1DForwardOptions(EMDataMixin, BaseForwardOptions):
     physical_property: str = "conductivity"
 
     data_object: Receivers
-    z_channel_bool: bool | None = None
+    z_channel_bool: bool
     x_channel_bool: None = None
     y_channel_bool: None = None
     data_units: str = "dB/dt (T/s)"
