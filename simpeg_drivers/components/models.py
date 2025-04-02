@@ -58,6 +58,8 @@ class InversionModelCollection:
 
     """
 
+    model_types = MODEL_TYPES
+
     def __init__(self, driver: InversionDriver):
         """
         :param driver: Parental InversionDriver class.

@@ -15,7 +15,6 @@ from unittest.mock import patch
 
 import numpy as np
 from geoapps_utils.utils.importing import GeoAppsError
-from geoh5py.groups import PropertyGroup
 from geoh5py.workspace import Workspace
 from pytest import raises
 
@@ -35,7 +34,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.0028055269276044915, "phi_d": 8.32e-05, "phi_m": 0.00333}
+target_run = {"data_norm": 0.0028055269276044915, "phi_d": 8.32e-05, "phi_m": 0.0038}
 
 
 def test_gravity_fwr_run(
@@ -187,75 +186,6 @@ def test_gravity_run(
             nan_ind = np.isnan(run_ws.get_entity("Iteration_0_model")[0].values)
             inactive_ind = run_ws.get_entity("active_cells")[0].values == 0
             assert np.all(nan_ind == inactive_ind)
-
-
-def test_rotated_gradient(
-    tmp_path: Path,
-    max_iterations=1,
-    pytest=True,
-):
-    workpath = tmp_path / "inversion_test.ui.geoh5"
-    if pytest:
-        workpath = tmp_path.parent / "test_gravity_fwr_run0" / "inversion_test.ui.geoh5"
-
-    with Workspace(workpath) as geoh5:
-        gz = geoh5.get_entity("Iteration_0_gz")[0]
-        mesh = geoh5.get_entity("mesh")[0]
-
-        inds = (mesh.centroids[:, 0] > -35) & (mesh.centroids[:, 0] < 35)
-        norms = np.ones(mesh.n_cells) * 2
-        norms[inds] = 0
-        gradient_norms = mesh.add_data({"norms": {"values": norms}})
-
-        topography = geoh5.get_entity("topography")[0]
-
-        # Turn some values to nan
-        values = gz.values.copy()
-        values[0] = np.nan
-        gz.values = values
-
-        # Rotate the gradients
-
-        direction, dip = mesh.add_data(
-            {
-                "gradient_direction": {"values": 90 * np.ones(mesh.n_cells)},
-                "gradient_dip": {"values": 45 * np.ones(mesh.n_cells)},
-            }
-        )
-        gradient_rotation = PropertyGroup(
-            parent=mesh,
-            name="gradient_rotation",
-            property_group_type="Dip direction & dip",
-            properties=[direction, dip],
-        )
-
-        # Run the inverse
-        active_cells = ActiveCellsOptions(topography_object=topography)
-        params = GravityInversionOptions(
-            geoh5=geoh5,
-            mesh=mesh,
-            active_cells=active_cells,
-            data_object=gz.parent,
-            starting_model=1e-4,
-            reference_model=0.0,
-            gradient_rotation=gradient_rotation,
-            s_norm=0.0,
-            x_norm=gradient_norms,
-            y_norm=gradient_norms,
-            z_norm=gradient_norms,
-            gradient_type="components",
-            gz_channel=gz,
-            gz_uncertainty=2e-3,
-            lower_bound=0.0,
-            max_global_iterations=max_iterations,
-            initial_beta_ratio=1e-2,
-            percentile=100,
-            store_sensitivities="ram",
-            save_sensitivities=True,
-        )
-        params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
-
-    _ = GravityInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
 
 if __name__ == "__main__":

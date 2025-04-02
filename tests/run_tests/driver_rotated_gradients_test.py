@@ -35,10 +35,10 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.0028055269276044915, "phi_d": 8.32e-05, "phi_m": 0.00333}
+target_run = {"data_norm": 0.006830937520353864, "phi_d": 0.0276, "phi_m": 0.0288}
 
 
-def test_gravity_fwr_run(
+def test_gravity_rotated_grad_fwr_run(
     tmp_path: Path,
     n_grid_points=2,
     refinement=(2,),
@@ -76,7 +76,11 @@ def test_rotated_grad_run(
 ):
     workpath = tmp_path / "inversion_test.ui.geoh5"
     if pytest:
-        workpath = tmp_path.parent / "test_gravity_fwr_run0" / "inversion_test.ui.geoh5"
+        workpath = (
+            tmp_path.parent
+            / "test_gravity_rotated_grad_fwr_0"
+            / "inversion_test.ui.geoh5"
+        )
 
     with Workspace(workpath) as geoh5:
         gz = geoh5.get_entity("Iteration_0_gz")[0]
@@ -141,7 +145,7 @@ def test_rotated_grad_run(
 
 if __name__ == "__main__":
     # Full run
-    test_gravity_fwr_run(
+    test_gravity_rotated_grad_fwr_run(
         Path("./"),
         n_grid_points=10,
         refinement=(4, 8),
