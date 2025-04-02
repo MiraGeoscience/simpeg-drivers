@@ -466,7 +466,14 @@ class InversionDriver(BaseDriver):
                 neighbors = cell_neighbors(reg_func.regularization_mesh.mesh)
 
             # Adjustment for 2D versus 3D problems
-            components = "sxz" if "2d" in self.params.inversion_type else "sxyz"
+            components = (
+                "sxz"
+                if (
+                    "2d" in self.params.inversion_type
+                    or "1d" in self.params.inversion_type
+                )
+                else "sxyz"
+            )
             weight_names = ["alpha_s"] + [f"length_scale_{k}" for k in components[1:]]
             functions = []
             for comp, weight_name, fun in zip(
