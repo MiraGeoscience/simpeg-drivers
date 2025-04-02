@@ -54,7 +54,7 @@ def test_fem_fwr_run(
         drape_height=15.0,
         cell_size=cell_size,
         padding_distance=400,
-        inversion_type="fem",
+        inversion_type="fdem",
         flatten=True,
     )
     params = FDEMForwardOptions(

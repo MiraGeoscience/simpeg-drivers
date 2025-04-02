@@ -49,7 +49,7 @@ class SimulationFactory(SimPEGFactory):
             "induced polarization pseudo 3d",
             "magnetotellurics",
             "tipper",
-            "fem",
+            "fdem",
             "tdem",
         ]:
             import pymatsolver.direct as solver_module
@@ -97,10 +97,15 @@ class SimulationFactory(SimPEGFactory):
 
             return simulation.Simulation3DPrimarySecondary
 
-        if self.factory_type in ["fem"]:
+        if self.factory_type in ["fdem"]:
             from simpeg.electromagnetics.frequency_domain import simulation
 
             return simulation.Simulation3DMagneticFluxDensity
+
+        if self.factory_type in ["fdem 1d"]:
+            from simpeg.electromagnetics.frequency_domain import simulation_1d
+
+            return simulation_1d.Simulation1DLayered
 
         if self.factory_type in ["tdem"]:
             from simpeg.electromagnetics.time_domain import simulation
@@ -179,7 +184,7 @@ class SimulationFactory(SimPEGFactory):
             "direct current 2d",
             "magnetotellurics",
             "tipper",
-            "fem",
+            "fdem",
             "tdem",
         ]:
             actmap = maps.InjectActiveCells(
@@ -194,7 +199,7 @@ class SimulationFactory(SimPEGFactory):
                 * self.params.unit_conversion
             )
 
-        if self.factory_type in ["tdem 1d"]:
+        if "1d" in self.factory_type:
             kwargs["sigmaMap"] = maps.ExpMap(mesh)
             kwargs["thicknesses"] = local_mesh.h[0][1:][::-1]
             kwargs["topo"] = active_cells[tile_id]
