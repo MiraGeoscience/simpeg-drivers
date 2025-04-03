@@ -57,6 +57,6 @@ def test_automesh(
         data_object=survey,
         starting_model=model,
     )
-    # params.workpath = tmp_path
+
     fwr_driver = MagneticForwardDriver(params)
     fwr_driver.run()
