@@ -15,7 +15,7 @@ import multiprocessing
 
 from geoapps_utils.driver.data import BaseData
 from geoh5py.data import FloatData
-from geoh5py.groups import SimPEGGroup, UIJsonGroup
+from geoh5py.groups import PropertyGroup, SimPEGGroup, UIJsonGroup
 from geoh5py.objects import DrapeModel, Octree
 from geoh5py.shared.utils import fetch_active_workspace
 from pydantic import ConfigDict, field_validator, model_validator
@@ -69,6 +69,7 @@ class BaseJointOptions(BaseData):
     length_scale_x: float | FloatData = 1.0
     length_scale_y: float | FloatData | None = 1.0
     length_scale_z: float | FloatData = 1.0
+    gradient_rotation: PropertyGroup | None = None
     s_norm: float | FloatData | None = 0.0
     x_norm: float | FloatData = 2.0
     y_norm: float | FloatData | None = 2.0

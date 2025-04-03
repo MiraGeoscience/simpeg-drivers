@@ -238,7 +238,7 @@ class CoreOptions(BaseData):
         if self.tile_spatial == 1:
             return 100
 
-        return 4 if self.inversion_type in ["fem", "tdem"] else 6
+        return 4 if self.inversion_type in ["fdem", "tdem"] else 6
 
     def _create_input_file_from_attributes(self) -> InputFile:
         ifile = super()._create_input_file_from_attributes()
@@ -274,6 +274,7 @@ class BaseInversionOptions(CoreOptions):
     :param length_scale_x: Length scale x.
     :param length_scale_y: Length scale y.
     :param length_scale_z: Length scale z.
+    :param gradient_rotation: Property group for gradient rotation angles.
 
     :param s_norm: S norm.
     :param x_norm: X norm.
@@ -336,6 +337,7 @@ class BaseInversionOptions(CoreOptions):
     length_scale_x: float | FloatData = 1.0
     length_scale_y: float | FloatData | None = 1.0
     length_scale_z: float | FloatData = 1.0
+    gradient_rotation: PropertyGroup | None = None
 
     s_norm: float | FloatData | None = 0.0
     x_norm: float | FloatData = 2.0
@@ -367,6 +369,28 @@ class BaseInversionOptions(CoreOptions):
     beta_tol: float = 0.5
     percentile: float = 95.0
     epsilon_cooling_factor: float = 1.2
+
+    @property
+    def gradient_dip(self) -> np.ndarray | None:
+        """Gradient dip angle in clockwise radians from horizontal."""
+        if self.gradient_rotation is not None:
+            dip_uid = self.gradient_rotation.properties[1]
+            dips = self.geoh5.get_entity(dip_uid)[0].values
+            return np.deg2rad(dips)
+        return None
+
+    @property
+    def gradient_direction(self) -> np.ndarray | None:
+        """Gradient direction angle in clockwise radians from north"""
+        if self.gradient_rotation is not None:
+            from geoh5py.groups.property_group_type import GroupTypeEnum
+
+            direction_uid = self.gradient_rotation.properties[0]
+            directions = self.geoh5.get_entity(direction_uid)[0].values
+            if self.gradient_rotation.property_group_type == GroupTypeEnum.STRIKEDIP:
+                directions += 90.0
+            return np.deg2rad(directions)
+        return None
 
 
 class EMDataMixin:

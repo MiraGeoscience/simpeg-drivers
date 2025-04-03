@@ -531,7 +531,8 @@
         "group": "Compute",
         "label": "Storage device",
         "tooltip": "Only RAM storage available for now.",
-        "value": "ram"
+        "value": "ram",
+        "visible": false
     },
     "out_group": {
         "label": "SimPEG group",

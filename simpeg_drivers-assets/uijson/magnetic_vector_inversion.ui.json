@@ -410,6 +410,7 @@
         "property": "",
         "optional": true,
         "value": 0.0,
+        "visible": false,
         "enabled": false
     },
     "upper_bound": {
@@ -596,6 +597,17 @@
         "dataType": "Float",
         "property": "",
         "enabled": true
+    },
+    "gradient_rotation": {
+        "group": "Regularization",
+        "association": "Cell",
+        "dataType": "Float",
+        "dataGroupType": "Dip direction & dip",
+        "label": "Gradient rotation",
+        "optional": true,
+        "enabled": false,
+        "parent": "mesh",
+        "value": ""
     },
     "s_norm": {
         "association": "Cell",

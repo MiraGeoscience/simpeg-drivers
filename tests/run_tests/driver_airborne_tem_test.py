@@ -17,13 +17,13 @@ from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 from pytest import raises
 
-from simpeg_drivers.electromagnetics.time_domain import (
-    TDEMForwardOptions,
-    TDEMInversionOptions,
-)
 from simpeg_drivers.electromagnetics.time_domain.driver import (
     TDEMForwardDriver,
     TDEMInversionDriver,
+)
+from simpeg_drivers.electromagnetics.time_domain.params import (
+    TDEMForwardOptions,
+    TDEMInversionOptions,
 )
 from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace

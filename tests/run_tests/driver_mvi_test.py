@@ -16,6 +16,7 @@ import numpy as np
 from geoh5py.groups.property_group import GroupTypeEnum
 from geoh5py.objects import Curve
 from geoh5py.workspace import Workspace
+from pytest import warns
 
 from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.potential_fields import (
@@ -142,6 +143,63 @@ def test_magnetic_vector_run(
         assert len(mesh.property_groups) == 3
         assert len(mesh.property_groups[0].properties) == 2
         assert mesh.property_groups[1].property_group_type == GroupTypeEnum.DIPDIR
+
+
+def test_magnetic_vector_bounds_run(
+    tmp_path: Path,
+    max_iterations=4,
+    pytest=True,
+):
+    workpath = tmp_path / "inversion_test.ui.geoh5"
+    if pytest:
+        workpath = (
+            tmp_path.parent
+            / "test_magnetic_vector_fwr_run0"
+            / "inversion_test.ui.geoh5"
+        )
+
+    with Workspace(workpath) as geoh5:
+        upper_bound = 1e-2
+        tmi = geoh5.get_entity("Iteration_0_tmi")[0]
+        mesh = geoh5.get_entity("mesh")[0]
+        topography = geoh5.get_entity("topography")[0]
+        inducing_field = (50000.0, 90.0, 0.0)
+
+        # Run the inverse
+        active_cells = ActiveCellsOptions(topography_object=topography)
+        with warns(
+            DeprecationWarning,
+            match="Parameter 'lower_bound' for Magnetic Vector Inversion",
+        ):
+            params = MVIInversionOptions(
+                geoh5=geoh5,
+                mesh=mesh,
+                active_cells=active_cells,
+                inducing_field_strength=inducing_field[0],
+                inducing_field_inclination=inducing_field[1],
+                inducing_field_declination=inducing_field[2],
+                data_object=tmi.parent,
+                starting_model=1e-4,
+                reference_model=0.0,
+                s_norm=0.0,
+                x_norm=1.0,
+                y_norm=1.0,
+                z_norm=1.0,
+                gradient_type="components",
+                tmi_channel=tmi,
+                tmi_uncertainty=4.0,
+                lower_bound=1e-6,
+                upper_bound=upper_bound,
+                max_global_iterations=max_iterations,
+                initial_beta_ratio=1e1,
+                store_sensitivities="ram",
+                save_sensitivities=True,
+                percentile=100,
+            )
+        params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
+
+    driver = MVIInversionDriver(params)
+    assert np.all(driver.models.lower_bound == -upper_bound)
 
 
 if __name__ == "__main__":

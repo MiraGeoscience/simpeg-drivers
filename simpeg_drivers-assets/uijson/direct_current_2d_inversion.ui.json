@@ -277,6 +277,18 @@
         "property": "",
         "enabled": true
     },
+    "gradient_rotation": {
+        "group": "Regularization",
+        "association": "Cell",
+        "dataType": "Float",
+        "dataGroupType": "Dip direction & dip",
+        "label": "Gradient rotation",
+        "optional": true,
+        "enabled": false,
+        "visible": false,
+        "parent": "mesh",
+        "value": ""
+    },
     "s_norm": {
         "association": "Cell",
         "dataType": "Float",

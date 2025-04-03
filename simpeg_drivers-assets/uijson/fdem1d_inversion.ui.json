@@ -1,24 +1,26 @@
 {
     "version": "0.3.0-alpha.1",
-    "title": "Magnetotellurics (MT) Inversion",
-    "icon": "surveymagnetotellurics",
+    "title": "Frequency-domain EM 1D (FEM) Inversion",
+    "icon": "surveyairborneem",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
     "conda_environment": "simpeg_drivers",
     "run_command": "simpeg_drivers.driver",
     "geoh5": "",
     "monitoring_directory": "",
     "workspace_geoh5": "",
-    "inversion_type": "magnetotellurics",
+    "inversion_type": "fdem 1d",
     "physical_property": "conductivity",
     "forward_only": false,
     "data_object": {
         "main": true,
         "group": "Data",
         "label": "Object",
-        "meshType": "{b99bd6e5-4fe1-45a5-bd2f-75fc31f91b38}",
+        "meshType": [
+            "{b3a47539-0301-4b27-922e-1dde9d882c60}"
+        ],
         "value": ""
     },
-    "zxx_real_channel": {
+    "z_real_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -27,13 +29,13 @@
         "group": "Data",
         "dataGroupType": "Multi-element",
         "main": true,
-        "label": "Zxx real",
+        "label": "z-real component (ppm)",
         "parent": "data_object",
         "optional": true,
         "enabled": true,
         "value": ""
     },
-    "zxx_real_uncertainty": {
+    "z_real_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -42,13 +44,13 @@
         "group": "Data",
         "dataGroupType": "Multi-element",
         "main": true,
-        "label": "Uncertainty",
+        "label": "Uncertainty (ppm)",
         "parent": "data_object",
-        "dependency": "zxx_real_channel",
+        "dependency": "z_real_channel",
         "dependencyType": "enabled",
         "value": ""
     },
-    "zxx_imag_channel": {
+    "z_imag_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -57,13 +59,13 @@
         "group": "Data",
         "dataGroupType": "Multi-element",
         "main": true,
-        "label": "Zxx imaginary",
+        "label": "z-imag component (ppm)",
         "parent": "data_object",
         "optional": true,
         "enabled": true,
         "value": ""
     },
-    "zxx_imag_uncertainty": {
+    "z_imag_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -72,191 +74,41 @@
         "group": "Data",
         "dataGroupType": "Multi-element",
         "main": true,
-        "label": "Uncertainty",
+        "label": "Uncertainty (ppm)",
         "parent": "data_object",
-        "dependency": "zxx_imag_channel",
+        "dependency": "z_imag_channel",
         "dependencyType": "enabled",
         "value": ""
     },
-    "zxy_real_channel": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
+    "v_cell_size": {
+        "min": 0.0,
+        "group": "1D Mesh",
         "main": true,
-        "label": "Zxy real",
-        "parent": "data_object",
-        "optional": true,
         "enabled": true,
-        "value": ""
+        "label": "Vertical core cell size (m)",
+        "value": 25.0
     },
-    "zxy_real_uncertainty": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
+    "depth_core": {
+        "min": 0.0,
+        "group": "1D Mesh",
         "main": true,
-        "label": "Uncertainty",
-        "parent": "data_object",
-        "dependency": "zxy_real_channel",
-        "dependencyType": "enabled",
-        "value": ""
-    },
-    "zxy_imag_channel": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
-        "main": true,
-        "label": "Zxy imaginary",
-        "parent": "data_object",
-        "optional": true,
         "enabled": true,
-        "value": ""
+        "label": "Depth of core (m)",
+        "value": 500.0
     },
-    "zxy_imag_uncertainty": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
+    "vertical_padding": {
+        "min": 0.0,
+        "group": "1D Mesh",
         "main": true,
-        "label": "Uncertainty",
-        "parent": "data_object",
-        "dependency": "zxy_imag_channel",
-        "dependencyType": "enabled",
-        "value": ""
+        "dependencyType": "disabled",
+        "label": "Vertical padding (m)",
+        "value": 1000.0
     },
-    "zyx_real_channel": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
+    "expansion_factor": {
         "main": true,
-        "label": "Zyx real",
-        "parent": "data_object",
-        "optional": true,
-        "enabled": true,
-        "value": ""
-    },
-    "zyx_real_uncertainty": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
-        "main": true,
-        "label": "Uncertainty",
-        "parent": "data_object",
-        "dependency": "zyx_real_channel",
-        "dependencyType": "enabled",
-        "value": ""
-    },
-    "zyx_imag_channel": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
-        "main": true,
-        "label": "Zyx imaginary",
-        "parent": "data_object",
-        "optional": true,
-        "enabled": true,
-        "value": ""
-    },
-    "zyx_imag_uncertainty": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
-        "main": true,
-        "label": "Uncertainty",
-        "parent": "data_object",
-        "dependency": "zyx_imag_channel",
-        "dependencyType": "enabled",
-        "value": ""
-    },
-    "zyy_real_channel": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
-        "main": true,
-        "label": "Zyy real",
-        "parent": "data_object",
-        "optional": true,
-        "enabled": true,
-        "value": ""
-    },
-    "zyy_real_uncertainty": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
-        "main": true,
-        "label": "Uncertainty",
-        "parent": "data_object",
-        "dependency": "zyy_real_channel",
-        "dependencyType": "enabled",
-        "value": ""
-    },
-    "zyy_imag_channel": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
-        "main": true,
-        "label": "Zyy imaginary",
-        "parent": "data_object",
-        "optional": true,
-        "enabled": true,
-        "value": ""
-    },
-    "zyy_imag_uncertainty": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
-        "main": true,
-        "label": "Uncertainty",
-        "parent": "data_object",
-        "dependency": "zyy_imag_channel",
-        "dependencyType": "enabled",
-        "value": ""
+        "group": "1D Mesh",
+        "label": "Expansion factor",
+        "value": 1.1
     },
     "mesh": {
         "group": "Mesh and models",
@@ -278,13 +130,6 @@
         "label": "Model units",
         "tooltip": "Select the units of the model.",
         "value": "Conductivity (S/m)"
-    },
-    "background_conductivity": {
-        "group": "Mesh and models",
-        "main": true,
-        "label": "Background",
-        "property": "",
-        "value": 0.001
     },
     "starting_model": {
         "association": [
@@ -427,19 +272,6 @@
         "property": "",
         "enabled": true
     },
-    "length_scale_y": {
-        "min": 0.0,
-        "group": "Regularization",
-        "label": "Y-smoothness weight",
-        "tooltip": "Larger values relative to other smoothness weights will result in y biased smoothness",
-        "value": 1.0,
-        "isValue": true,
-        "parent": "mesh",
-        "association": "Cell",
-        "dataType": "Float",
-        "property": "",
-        "enabled": true
-    },
     "length_scale_z": {
         "min": 0.0,
         "group": "Regularization",
@@ -452,17 +284,6 @@
         "dataType": "Float",
         "property": "",
         "enabled": true
-    },
-    "gradient_rotation": {
-        "group": "Regularization",
-        "association": "Cell",
-        "dataType": "Float",
-        "dataGroupType": "Dip direction & dip",
-        "label": "Gradient rotation",
-        "optional": true,
-        "enabled": false,
-        "parent": "mesh",
-        "value": ""
     },
     "s_norm": {
         "association": "Cell",
@@ -497,22 +318,6 @@
         "lineEdit": false,
         "enabled": true,
         "tooltip": "Lp-norm used in the x-smoothness term of the objective function."
-    },
-    "y_norm": {
-        "association": "Cell",
-        "dataType": "Float",
-        "group": "Sparse/blocky model",
-        "label": "Y-smoothness norm",
-        "isValue": true,
-        "parent": "mesh",
-        "property": "",
-        "value": 2.0,
-        "min": 0.0,
-        "max": 2.0,
-        "precision": 2,
-        "lineEdit": false,
-        "enabled": true,
-        "tooltip": "Lp-norm used in the y-smoothness term of the objective function."
     },
     "z_norm": {
         "association": "Cell",
@@ -589,9 +394,9 @@
     "auto_scale_misfits": {
         "group": "Cooling schedule/target",
         "label": "Auto-scale misfits",
-        "value": true,
+        "value": false,
         "verbose": 3,
-        "visible": true,
+        "visible": false,
         "tooltip": "Whether to auto-scale misfits functions (tile, frequency, joint methods) based on chi-factor."
     },
     "initial_beta_ratio": {
@@ -688,7 +493,7 @@
         "group": "Update sensitivity weights directive",
         "tooltip": "Update sensitivity weight threshold",
         "label": "Threshold (%)",
-        "value": 1.0,
+        "value": 100.0,
         "max": 100.0,
         "min": 0.0,
         "precision": 3,
@@ -716,7 +521,7 @@
         "enabled": false,
         "label": "Number of CPUs",
         "value": 1,
-        "visible": true
+        "visible": false
     },
     "solver_type": {
         "choiceList": [
@@ -738,6 +543,7 @@
         "min": 1,
         "max": 1000,
         "verbose": 2,
+        "visible": false,
         "tooltip": "Splits the objective function into spatial tiles for distributed computation using the Dask library."
     },
     "store_sensitivities": {
@@ -748,18 +554,8 @@
         "group": "Compute",
         "label": "Storage device",
         "tooltip": "Use disk on a fast local SSD, and RAM elsewhere",
-        "value": "ram"
-    },
-    "max_chunk_size": {
-        "min": 0,
-        "group": "Compute",
-        "optional": true,
-        "enabled": true,
-        "label": "Maximum chunk size (Mb)",
-        "value": 128,
-        "verbose": 3,
-        "visible": false,
-        "tooltip": "Limit the chunk size used by Dask for distributed computation."
+        "value": "ram",
+        "visible": false
     },
     "out_group": {
         "label": "SimPEG group",

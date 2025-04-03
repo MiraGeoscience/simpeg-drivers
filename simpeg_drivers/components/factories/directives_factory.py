@@ -224,7 +224,7 @@ class DirectivesFactory:
         if (
             self._save_iteration_residual_directive is None
             and self.factory_type
-            not in ["tdem", "tdem 1d", "fem", "magnetotellurics", "tipper"]
+            not in ["tdem", "tdem 1d", "fdem", "fdem 1d", "magnetotellurics", "tipper"]
         ):
             self._save_iteration_residual_directive = SaveDataGeoh5Factory(
                 self.params
@@ -374,7 +374,8 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
             "tipper",
             "tdem",
             "tdem 1d",
-            "fem",
+            "fdem",
+            "fdem 1d",
         ]:
             expmap = maps.ExpMap(inversion_object.mesh)
             kwargs["transforms"] = [
@@ -464,7 +465,8 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
         name=None,
     ):
         if self.factory_type in [
-            "fem",
+            "fdem",
+            "fdem 1d",
             "tdem",
             "tdem 1d",
             "magnetotellurics",
