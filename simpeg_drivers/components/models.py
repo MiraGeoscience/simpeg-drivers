@@ -190,6 +190,12 @@ class InversionModelCollection:
         else:
             bound_model = self._lower_bound.model
 
+        if (
+            self.driver.params.inversion_type == "magnetic vector"
+            and self._upper_bound.model is not None
+        ):
+            bound_model = -self._upper_bound.model
+
         if bound_model is None:
             return -np.inf
 

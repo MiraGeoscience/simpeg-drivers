@@ -410,6 +410,7 @@
         "property": "",
         "optional": true,
         "value": 0.0,
+        "visible": false,
         "enabled": false
     },
     "upper_bound": {

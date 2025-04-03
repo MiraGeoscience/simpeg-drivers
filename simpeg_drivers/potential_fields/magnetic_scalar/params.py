@@ -118,3 +118,4 @@ class MagneticInversionOptions(BaseInversionOptions):
     inducing_field_strength: float | FloatData
     inducing_field_inclination: float | FloatData
     inducing_field_declination: float | FloatData
+    lower_bound: float | FloatData | None = 0.0

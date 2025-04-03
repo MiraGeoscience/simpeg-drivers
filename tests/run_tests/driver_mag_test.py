@@ -109,7 +109,6 @@ def test_susceptibility_run(
             z_norm=1.0,
             initial_beta_ratio=1e1,
             gradient_type="components",
-            lower_bound=0.0,
             tmi_channel=tmi,
             tmi_uncertainty=1.0,
             max_global_iterations=max_iterations,
@@ -117,6 +116,7 @@ def test_susceptibility_run(
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
+    assert params.lower_bound == 0.0
     driver = MagneticInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
     with Workspace(driver.params.geoh5.h5file) as run_ws:
