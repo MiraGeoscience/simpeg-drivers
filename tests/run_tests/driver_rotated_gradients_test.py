@@ -15,6 +15,7 @@ from unittest.mock import patch
 
 import numpy as np
 from geoapps_utils.utils.importing import GeoAppsError
+from geoh5py.groups.property_group import PropertyGroup
 from geoh5py.workspace import Workspace
 from pytest import raises
 
@@ -34,10 +35,10 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.0028055269276044915, "phi_d": 8.32e-05, "phi_m": 0.0038}
+target_run = {"data_norm": 0.006830937520353864, "phi_d": 0.0276, "phi_m": 0.0288}
 
 
-def test_gravity_fwr_run(
+def test_gravity_rotated_grad_fwr_run(
     tmp_path: Path,
     n_grid_points=2,
     refinement=(2,),
@@ -50,6 +51,7 @@ def test_gravity_fwr_run(
         n_electrodes=n_grid_points,
         n_lines=n_grid_points,
         refinement=refinement,
+        center=(0.0, 0.0, 15.0),
         flatten=False,
     )
 
@@ -67,69 +69,38 @@ def test_gravity_fwr_run(
     fwr_driver.run()
 
 
-def test_array_too_large_run(
-    tmp_path: Path,
-):
-    workpath = tmp_path.parent / "test_gravity_fwr_run0" / "inversion_test.ui.geoh5"
-
-    with Workspace(workpath) as geoh5:
-        gz = geoh5.get_entity("Iteration_0_gz")[0]
-        mesh = geoh5.get_entity("mesh")[0]
-        topography = geoh5.get_entity("topography")[0]
-
-        # Run the inverse
-        active_cells = ActiveCellsOptions(topography_object=topography)
-        params = GravityInversionOptions(
-            geoh5=geoh5,
-            mesh=mesh,
-            active_cells=active_cells,
-            data_object=gz.parent,
-            gz_channel=gz,
-            gz_uncertainty=1e-4,
-            starting_model=1e-4,
-        )
-
-    with patch(
-        "simpeg.inversion.BaseInversion.run",
-        side_effect=np.core._exceptions._ArrayMemoryError((0,), np.dtype("float64")),  # pylint: disable=protected-access
-    ):
-        with raises(GeoAppsError, match="Memory Error"):
-            driver = GravityInversionDriver(params)
-            driver.run()
-
-
-def test_gravity_run(
+def test_rotated_grad_run(
     tmp_path: Path,
     max_iterations=1,
     pytest=True,
 ):
     workpath = tmp_path / "inversion_test.ui.geoh5"
     if pytest:
-        workpath = tmp_path.parent / "test_gravity_fwr_run0" / "inversion_test.ui.geoh5"
+        workpath = (
+            tmp_path.parent
+            / "test_gravity_rotated_grad_fwr_0"
+            / "inversion_test.ui.geoh5"
+        )
 
     with Workspace(workpath) as geoh5:
         gz = geoh5.get_entity("Iteration_0_gz")[0]
         orig_gz = gz.values.copy()
         mesh = geoh5.get_entity("mesh")[0]
-        model = mesh.get_entity("starting_model")[0]
 
-        inds = (mesh.centroids[:, 0] > -35) & (mesh.centroids[:, 0] < 35)
-        norms = np.ones(mesh.n_cells) * 2
-        norms[inds] = 0
-        gradient_norms = mesh.add_data({"norms": {"values": norms}})
+        # Create property group with orientation
+        dip = np.ones(mesh.n_cells) * 45
+        azimuth = np.ones(mesh.n_cells) * 90
 
-        # Test mesh UBC ordered
-        ind = np.argsort(mesh.octree_cells, order=["K", "J", "I"])
-        mesh.octree_cells = mesh.octree_cells[ind]
-        model.values = model.values[ind]
-        gradient_norms.values = gradient_norms.values[ind]
-
+        data_list = mesh.add_data(
+            {
+                "azimuth": {"values": azimuth},
+                "dip": {"values": dip},
+            }
+        )
+        pg = PropertyGroup(
+            mesh, properties=data_list, property_group_type="Dip direction & dip"
+        )
         topography = geoh5.get_entity("topography")[0]
-
-        # Turn some values to nan
-        values = gz.values.copy()
-        values[0] = np.nan
-        gz.values = values
 
         # Run the inverse
         active_cells = ActiveCellsOptions(topography_object=topography)
@@ -138,19 +109,20 @@ def test_gravity_run(
             mesh=mesh,
             active_cells=active_cells,
             data_object=gz.parent,
+            gradient_rotation=pg,
             starting_model=1e-4,
             reference_model=0.0,
             s_norm=0.0,
-            x_norm=gradient_norms,
-            y_norm=gradient_norms,
-            z_norm=gradient_norms,
+            x_norm=0.0,
+            y_norm=0.0,
+            z_norm=0.0,
             gradient_type="components",
             gz_channel=gz,
             gz_uncertainty=2e-3,
             lower_bound=0.0,
             max_global_iterations=max_iterations,
-            initial_beta_ratio=1e-2,
-            percentile=100,
+            initial_beta_ratio=1e-1,
+            percentile=95,
             store_sensitivities="ram",
             save_sensitivities=True,
         )
@@ -158,28 +130,11 @@ def test_gravity_run(
 
     driver = GravityInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
-    assert driver.params.data_object.uid != gz.parent.uid
-    assert driver.models.upper_bound is np.inf
-
     with Workspace(driver.params.geoh5.h5file) as run_ws:
         output = get_inversion_output(
             driver.params.geoh5.h5file, driver.params.out_group.uid
         )
-
-        residual = run_ws.get_entity("Iteration_1_gz_Residual")[0]
-        assert np.isnan(residual.values).sum() == 1, "Number of nan residuals differ."
-
-        predicted = next(
-            pred
-            for pred in run_ws.get_entity("Iteration_0_gz")
-            if pred.parent.parent.name == "Gravity Inversion"
-        )
-        assert not any(np.isnan(predicted.values)), (
-            "Predicted data should not have nans."
-        )
         output["data"] = orig_gz
-
-        assert len(run_ws.get_entity("SimPEG.log")) == 2
 
         if pytest:
             check_target(output, target_run)
@@ -190,14 +145,14 @@ def test_gravity_run(
 
 if __name__ == "__main__":
     # Full run
-    test_gravity_fwr_run(
+    test_gravity_rotated_grad_fwr_run(
         Path("./"),
-        n_grid_points=20,
+        n_grid_points=10,
         refinement=(4, 8),
     )
 
-    test_gravity_run(
+    test_rotated_grad_run(
         Path("./"),
-        max_iterations=15,
+        max_iterations=40,
         pytest=False,
     )

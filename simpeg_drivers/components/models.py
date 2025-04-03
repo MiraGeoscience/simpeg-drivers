@@ -29,6 +29,25 @@ if TYPE_CHECKING:
     from simpeg_drivers.driver import InversionDriver
 
 
+MODEL_TYPES = [
+    "starting",
+    "reference",
+    "lower_bound",
+    "upper_bound",
+    "conductivity",
+    "alpha_s",
+    "length_scale_x",
+    "length_scale_y",
+    "length_scale_z",
+    "gradient_dip",
+    "gradient_direction",
+    "s_norm",
+    "x_norm",
+    "y_norm",
+    "z_norm",
+]
+
+
 class InversionModelCollection:
     """
     Collection of inversion models.
@@ -39,21 +58,7 @@ class InversionModelCollection:
 
     """
 
-    model_types = [
-        "starting",
-        "reference",
-        "lower_bound",
-        "upper_bound",
-        "conductivity",
-        "alpha_s",
-        "length_scale_x",
-        "length_scale_y",
-        "length_scale_z",
-        "s_norm",
-        "x_norm",
-        "y_norm",
-        "z_norm",
-    ]
+    model_types = MODEL_TYPES
 
     def __init__(self, driver: InversionDriver):
         """
@@ -62,25 +67,34 @@ class InversionModelCollection:
         self._active_cells: np.ndarray | None = None
         self._driver = driver
         self.is_sigma = self.driver.params.physical_property == "conductivity"
-        self.is_vector = (
+        is_vector = (
             True if self.driver.params.inversion_type == "magnetic vector" else False
         )
-        self.n_blocks = (
-            3 if self.driver.params.inversion_type == "magnetic vector" else 1
+        self._starting = InversionModel(driver, "starting", is_vector=is_vector)
+        self._reference = InversionModel(driver, "reference", is_vector=is_vector)
+        self._lower_bound = InversionModel(driver, "lower_bound", is_vector=is_vector)
+        self._upper_bound = InversionModel(driver, "upper_bound", is_vector=is_vector)
+        self._conductivity = InversionModel(driver, "conductivity", is_vector=is_vector)
+        self._alpha_s = InversionModel(driver, "alpha_s", is_vector=is_vector)
+        self._length_scale_x = InversionModel(
+            driver, "length_scale_x", is_vector=is_vector
         )
-        self._starting = InversionModel(driver, "starting")
-        self._reference = InversionModel(driver, "reference")
-        self._lower_bound = InversionModel(driver, "lower_bound")
-        self._upper_bound = InversionModel(driver, "upper_bound")
-        self._conductivity = InversionModel(driver, "conductivity")
-        self._alpha_s = InversionModel(driver, "alpha_s")
-        self._length_scale_x = InversionModel(driver, "length_scale_x")
-        self._length_scale_y = InversionModel(driver, "length_scale_y")
-        self._length_scale_z = InversionModel(driver, "length_scale_z")
-        self._s_norm = InversionModel(driver, "s_norm")
-        self._x_norm = InversionModel(driver, "x_norm")
-        self._y_norm = InversionModel(driver, "y_norm")
-        self._z_norm = InversionModel(driver, "z_norm")
+        self._length_scale_y = InversionModel(
+            driver, "length_scale_y", is_vector=is_vector
+        )
+        self._length_scale_z = InversionModel(
+            driver, "length_scale_z", is_vector=is_vector
+        )
+        self._gradient_dip = InversionModel(
+            driver, "gradient_dip", trim_active_cells=False
+        )
+        self._gradient_direction = InversionModel(
+            driver, "gradient_direction", trim_active_cells=False
+        )
+        self._s_norm = InversionModel(driver, "s_norm", is_vector=is_vector)
+        self._x_norm = InversionModel(driver, "x_norm", is_vector=is_vector)
+        self._y_norm = InversionModel(driver, "y_norm", is_vector=is_vector)
+        self._z_norm = InversionModel(driver, "z_norm", is_vector=is_vector)
 
     @property
     def n_active(self) -> int:
@@ -263,6 +277,20 @@ class InversionModelCollection:
         return self._length_scale_z.model.copy()
 
     @property
+    def gradient_dip(self) -> np.ndarray | None:
+        if self._gradient_dip.model is None:
+            return None
+
+        return self._gradient_dip.model.copy()
+
+    @property
+    def gradient_direction(self) -> np.ndarray | None:
+        if self._gradient_direction.model is None:
+            return None
+
+        return self._gradient_direction.model.copy()
+
+    @property
     def s_norm(self) -> np.ndarray | None:
         if self._s_norm.model is None:
             return None
@@ -297,7 +325,7 @@ class InversionModelCollection:
     def _model_method_wrapper(self, method, name=None, **kwargs):
         """wraps individual model's specific method and applies in loop over model types."""
         returned_items = {}
-        for mtype in self.model_types:
+        for mtype in MODEL_TYPES:
             model = getattr(self, f"_{mtype}")
             if model.model is not None:
                 f = getattr(model, method)
@@ -341,41 +369,24 @@ class InversionModel:
     remove_air: Use active cells vector to remove air cells from model.
     """
 
-    model_types = [
-        "starting",
-        "reference",
-        "lower_bound",
-        "upper_bound",
-        "conductivity",
-        "alpha_s",
-        "length_scale_x",
-        "length_scale_y",
-        "length_scale_z",
-        "s_norm",
-        "x_norm",
-        "y_norm",
-        "z_norm",
-    ]
-
     def __init__(
         self,
         driver: InversionDriver,
         model_type: str,
+        is_vector: bool = False,
+        trim_active_cells: bool = True,
     ):
         """
         :param driver: InversionDriver object.
-        :param model_type: Type of inversion model, can be any of "starting", "reference",
-            "lower_bound", "upper_bound".
+        :param model_type: Type of inversion model, can be any of MODEL_TYPES.
+        :param is_vector: If True, model is a vector.
+        :param trim_active_cells: If True, remove air cells from model.
         """
         self.driver = driver
         self.model_type = model_type
         self.model: np.ndarray | None = None
-        self.is_vector = (
-            True if self.driver.params.inversion_type == "magnetic vector" else False
-        )
-        self.n_blocks = (
-            3 if self.driver.params.inversion_type == "magnetic vector" else 1
-        )
+        self.is_vector = is_vector
+        self.trim_active_cells = trim_active_cells
         self._initialize()
 
     def _initialize(self):
@@ -424,7 +435,7 @@ class InversionModel:
                 and self.is_vector
                 and model.shape[0] == self.driver.inversion_mesh.n_cells
             ):
-                model = np.tile(model, self.n_blocks)
+                model = np.tile(model, 3 if self.is_vector else 1)
 
         if model is not None:
             self.model = mkvc(model)
@@ -433,8 +444,8 @@ class InversionModel:
     def remove_air(self, active_cells):
         """Use active cells vector to remove air cells from model"""
 
-        if self.model is not None:
-            self.model = self.model[np.tile(active_cells, self.n_blocks)]
+        if self.model is not None and self.trim_active_cells:
+            self.model = self.model[np.tile(active_cells, 3 if self.is_vector else 1)]
 
     def permute_2_octree(self) -> np.ndarray | None:
         """
@@ -565,7 +576,7 @@ class InversionModel:
 
     @model_type.setter
     def model_type(self, v):
-        if v not in self.model_types:
-            msg = f"Invalid model_type: {v}. Must be one of {(*self.model_types,)}."
+        if v not in MODEL_TYPES:
+            msg = f"Invalid model_type: {v}. Must be one of {(*MODEL_TYPES,)}."
             raise ValueError(msg)
         self._model_type = v
