@@ -29,6 +29,9 @@ from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
 
+TARGET = 1132.1998
+
+
 def test_automesh(
     tmp_path: Path,
     n_grid_points=20,
@@ -60,3 +63,7 @@ def test_automesh(
 
     fwr_driver = MagneticForwardDriver(params)
     fwr_driver.run()
+
+    with geoh5.open(mode="r"):
+        data = geoh5.get_entity("Iteration_0_tmi")[0].values
+        assert np.isclose(np.linalg.norm(data), TARGET)
