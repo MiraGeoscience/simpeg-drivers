@@ -10,6 +10,7 @@
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 
 import numpy as np
@@ -147,6 +148,7 @@ def test_magnetic_vector_run(
 
 def test_magnetic_vector_bounds_run(
     tmp_path: Path,
+    caplog,
     max_iterations=4,
     pytest=True,
 ):
@@ -167,10 +169,7 @@ def test_magnetic_vector_bounds_run(
 
         # Run the inverse
         active_cells = ActiveCellsOptions(topography_object=topography)
-        with warns(
-            DeprecationWarning,
-            match="Parameter 'lower_bound' for Magnetic Vector Inversion",
-        ):
+        with caplog.at_level(logging.WARNING):
             params = MVIInversionOptions(
                 geoh5=geoh5,
                 mesh=mesh,
@@ -197,6 +196,8 @@ def test_magnetic_vector_bounds_run(
                 percentile=100,
             )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
+
+        assert "Skipping deprecated field: lower_bound" in caplog.text
 
     driver = MVIInversionDriver(params)
     assert np.all(driver.models.lower_bound == -upper_bound)
