@@ -50,6 +50,7 @@ class IP2DForwardOptions(BaseForwardOptions):
     line_selection: LineSelectionOptions
     mesh: DrapeModel | None = None
     drape_model: DrapeModelOptions = DrapeModelOptions()
+    model_type: str = "Conductivity (S/m)"
     conductivity_model: float | FloatData
 
 
@@ -81,6 +82,7 @@ class IP2DInversionOptions(BaseInversionOptions):
     line_selection: LineSelectionOptions
     mesh: DrapeModel | None = None
     drape_model: DrapeModelOptions = DrapeModelOptions()
+    model_type: str = "Conductivity (S/m)"
     conductivity_model: float | FloatData
     lower_bound: float | FloatData | None = 0.0
     length_scale_y: None = None

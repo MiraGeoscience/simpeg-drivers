@@ -67,7 +67,6 @@ class FDEM1DInversionOptions(FDEMInversionOptions):
 
     title: str = "Frequency-domain EM-1D (FEM-1D) Inversion"
     inversion_type: str = "fdem 1d"
-    y_norm: None = None
     drape_model: DrapeModelOptions = DrapeModelOptions(
         u_cell_size=10.0,
         v_cell_size=10.0,
@@ -78,3 +77,5 @@ class FDEM1DInversionOptions(FDEMInversionOptions):
     )
     auto_scale_misfits: bool = False
     sens_wts_threshold: float = 100.0
+    length_scale_y: None = None
+    y_norm: None = None

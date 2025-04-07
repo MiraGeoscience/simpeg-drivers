@@ -228,7 +228,6 @@
         "parent": "mesh",
         "value": ""
     },
-    "output_tile_files": false,
     "alpha_s": {
         "min": 0.0,
         "group": "Regularization",
@@ -257,6 +256,7 @@
         "property": "",
         "enabled": true
     },
+    "length_scale_y": "",
     "length_scale_z": {
         "min": 0.0,
         "group": "Regularization",
@@ -316,6 +316,7 @@
         "enabled": true,
         "tooltip": "Lp-norm used in the x-smoothness term of the objective function."
     },
+    "y_norm": "",
     "z_norm": {
         "association": "Cell",
         "dataType": "Float",
