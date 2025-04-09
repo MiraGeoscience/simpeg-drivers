@@ -602,7 +602,10 @@
         "group": "Regularization",
         "association": "Cell",
         "dataType": "Float",
-        "dataGroupType": "Dip direction & dip",
+        "dataGroupType": [
+            "Strike & dip",
+            "Dip direction & dip"
+        ],
         "label": "Gradient rotation",
         "optional": true,
         "enabled": false,
