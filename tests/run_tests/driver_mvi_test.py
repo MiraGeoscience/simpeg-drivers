@@ -13,6 +13,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+from geoh5py.groups import PropertyGroup
 from geoh5py.groups.property_group import GroupTypeEnum
 from geoh5py.objects import Curve
 from geoh5py.workspace import Workspace
@@ -34,7 +35,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_mvi_run = {"data_norm": 6.3559205278626525, "phi_d": 0.0143, "phi_m": 0.0009}
+target_mvi_run = {"data_norm": 6.3559205278626525, "phi_d": 0.0091, "phi_m": 0.00603}
 
 
 def test_magnetic_vector_fwr_run(
@@ -95,6 +96,19 @@ def test_magnetic_vector_run(
         topography = geoh5.get_entity("topography")[0]
         inducing_field = (50000.0, 90.0, 0.0)
 
+        dip, direction = mesh.add_data(
+            {
+                "dip": {"values": np.zeros(mesh.n_cells)},
+                "direction": {"values": np.zeros(mesh.n_cells)},
+            }
+        )
+        gradient_rotation = PropertyGroup(
+            name="gradient_rotations",
+            property_group_type=GroupTypeEnum.DIPDIR,
+            properties=[dip, direction],
+            parent=mesh,
+        )
+
         # Run the inverse
         active_cells = ActiveCellsOptions(topography_object=topography)
         params = MVIInversionOptions(
@@ -111,10 +125,10 @@ def test_magnetic_vector_run(
             x_norm=1.0,
             y_norm=1.0,
             z_norm=1.0,
-            gradient_type="components",
             tmi_channel=tmi,
             tmi_uncertainty=4.0,
             max_global_iterations=max_iterations,
+            gradient_rotation=gradient_rotation,
             initial_beta_ratio=1e1,
             store_sensitivities="ram",
             save_sensitivities=True,
