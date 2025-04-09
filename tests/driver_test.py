@@ -46,7 +46,6 @@ def test_smallness_terms(tmp_path: Path):
             alpha_s=1.0,
             s_norm=0.0,
             gradient_type="components",
-            gz_channel_bool=True,
             gz_channel=gz,
             gz_uncertainty=2e-3,
             lower_bound=0.0,
