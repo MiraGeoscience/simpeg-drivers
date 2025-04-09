@@ -149,6 +149,7 @@ class GravityInversionUIJson(SimPEGDriversUIJson):
     out_group: GroupForm
     generate_sweep: BoolForm
     distributed_workers: str
+    gradient_type: Deprecated | None = None
     output_tile_files: Deprecated | None = None
     inversion_style: Deprecated | None = None
     max_ram: Deprecated | None = None
