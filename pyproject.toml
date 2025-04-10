@@ -34,6 +34,7 @@ dask-core = {version = "2024.6.*"}  # also in simpeg[dask]
 discretize = "0.11.*"  # also in simpeg, octree-creation-app
 distributed = "2024.6.*"  # because conda-lock doesn't take dask extras into account
 numpy = "~1.26.0" # also in geoh5py, simpeg
+pydantic = "^2.5.2"  # also in geoh5py, curve-apps, geoapps-utils
 scikit-learn = "~1.4.0"
 scipy = "~1.14.0"
 tqdm = "^4.66.1"

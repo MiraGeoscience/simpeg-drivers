@@ -36,6 +36,7 @@ requirements:
     - discretize >=0.10.0, <0.11.dev
     - distributed >=2024.06, <2024.07.dev
     - numpy >=1.26.0, <1.27.dev
+    - pydantic >=2.5.2, <3.0.dev
     - pydiso >=0.1.0, <0.2.dev
     - python-mumps >=0.0.3, <0.0.4.dev
     - scikit-learn >=1.4.0, <1.5.dev
