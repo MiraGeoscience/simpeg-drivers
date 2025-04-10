@@ -30,13 +30,13 @@ class DC3DForwardOptions(BaseForwardOptions):
     """
 
     name: ClassVar[str] = "Direct Current 3D Forward"
-    title: ClassVar[str] = "Direct Current 3D Forward"
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/direct_current_3d_forward.ui.json"
     )
 
-    inversion_type: str = "direct current 3d"
+    title: str = "Direct Current 3D Forward"
     physical_property: str = "conductivity"
+    inversion_type: str = "direct current 3d"
 
     potential_channel_bool: bool = True
     model_type: str = "Conductivity (S/m)"
@@ -53,13 +53,13 @@ class DC3DInversionOptions(BaseInversionOptions):
     """
 
     name: ClassVar[str] = "Direct Current 3D Inversion"
-    title: ClassVar[str] = "Direct Current 3D Inversion"
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/direct_current_3d_inversion.ui.json"
     )
 
-    inversion_type: str = "direct current 3d"
+    title: str = "Direct Current 3D Inversion"
     physical_property: str = "conductivity"
+    inversion_type: str = "direct current 3d"
 
     potential_channel: FloatData
     potential_uncertainty: float | FloatData | None = None

@@ -36,15 +36,16 @@ class GravityForwardOptions(BaseForwardOptions):
     """
 
     name: ClassVar[str] = "Gravity Forward"
-    title: ClassVar[str] = "Gravity Forward"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/gravity_forward.ui.json"
 
-    inversion_type: str = "gravity"
+    title: str = "Gravity Forward"
     physical_property: str = "density"
+    inversion_type: str = "gravity"
 
     gx_channel_bool: bool = False
     gy_channel_bool: bool = False
     gz_channel_bool: bool = True
+    guv_channel_bool: bool = False
     gxx_channel_bool: bool = False
     gxy_channel_bool: bool = False
     gxz_channel_bool: bool = False
@@ -77,16 +78,17 @@ class GravityInversionOptions(BaseInversionOptions):
     :param gzz_uncertainty: gzz uncertainty.
     """
 
-    name: ClassVar[str] = "Gravity Inversion"
-    title: ClassVar[str] = "Gravity Inversion"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/gravity_inversion.ui.json"
+    name: ClassVar[str] = "Gravity Inversion"
 
-    inversion_type: str = "gravity"
+    title: str = "Gravity Inversion"
     physical_property: str = "density"
+    inversion_type: str = "gravity"
 
     gx_channel: FloatData | None = None
     gy_channel: FloatData | None = None
     gz_channel: FloatData | None = None
+    guv_channel: FloatData | None = None
     gxx_channel: FloatData | None = None
     gxy_channel: FloatData | None = None
     gxz_channel: FloatData | None = None
@@ -96,6 +98,7 @@ class GravityInversionOptions(BaseInversionOptions):
     gx_uncertainty: FloatData | float | None = None
     gy_uncertainty: FloatData | float | None = None
     gz_uncertainty: FloatData | float | None = None
+    guv_uncertainty: FloatData | float | None = None
     gxx_uncertainty: FloatData | float | None = None
     gxy_uncertainty: FloatData | float | None = None
     gxz_uncertainty: FloatData | float | None = None

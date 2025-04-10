@@ -17,13 +17,13 @@ import numpy as np
 from geoh5py.workspace import Workspace
 from pymatsolver.direct import Mumps
 
-from simpeg_drivers.electromagnetics.time_domain import (
-    TDEMForwardOptions,
-    TDEMInversionOptions,
-)
 from simpeg_drivers.electromagnetics.time_domain.driver import (
     TDEMForwardDriver,
     TDEMInversionDriver,
+)
+from simpeg_drivers.electromagnetics.time_domain.params import (
+    TDEMForwardOptions,
+    TDEMInversionOptions,
 )
 from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
@@ -36,7 +36,7 @@ logger = getLogger(__name__)
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 8.806897e-07, "phi_d": 152.8, "phi_m": 12850}
+target_run = {"data_norm": 8.806897e-07, "phi_d": 153, "phi_m": 13100}
 
 
 def test_tiling_ground_tem(
@@ -121,9 +121,10 @@ def test_ground_tem_fwr_run(
 
     fwr_driver = TDEMForwardDriver(params)
 
-    survey.transmitters.remove_cells([15])
-    survey.tx_id_property.name = "tx_id"
-    assert fwr_driver.inversion_data.survey.source_list[0].n_segments == 16
+    with survey.workspace.open():
+        survey.transmitters.remove_cells([15])
+        survey.tx_id_property.name = "tx_id"
+        assert fwr_driver.inversion_data.survey.source_list[0].n_segments == 16
 
     if pytest:
         assert len(caplog.records) == 2
@@ -181,10 +182,10 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
 
         data_kwargs = {}
         for comp in components:
-            data_kwargs[f"{comp}_channel"] = survey.find_or_create_property_group(
+            data_kwargs[f"{comp}_channel"] = survey.fetch_property_group(
                 name=f"Iteration_0_{comp}"
             )
-            data_kwargs[f"{comp}_uncertainty"] = survey.find_or_create_property_group(
+            data_kwargs[f"{comp}_uncertainty"] = survey.fetch_property_group(
                 name=f"dB{comp}dt uncertainties"
             )
 
@@ -209,9 +210,9 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
             upper_bound=1e2,
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e1,
-            coolingRate=2,
+            cooling_rate=2,
             max_cg_iterations=200,
-            prctile=100,
+            percentile=100,
             sens_wts_threshold=1.0,
             store_sensitivities="ram",
             solver_type="Mumps",
@@ -229,7 +230,7 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         assert driver.inversion_data.entity.tx_id_property.name == "tx_id"
         output["data"] = orig_dBzdt
         if pytest:
-            check_target(output, target_run, tolerance=0.1)
+            check_target(output, target_run)
             nan_ind = np.isnan(run_ws.get_entity("Iteration_0_model")[0].values)
             inactive_ind = run_ws.get_entity("active_cells")[0].values == 0
             assert np.all(nan_ind == inactive_ind)

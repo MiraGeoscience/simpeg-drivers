@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from geoapps_utils.driver.params import BaseParams
 
     from simpeg_drivers.components.data import InversionData
+    from simpeg_drivers.components.meshes import InversionMesh
     from simpeg_drivers.params import BaseOptions
 
 import numpy as np
@@ -44,11 +45,11 @@ class MisfitFactory(SimPEGFactory):
     def concrete_object(self):
         return objective_function.ComboObjectiveFunction
 
-    def build(self, tiles, inversion_data, mesh, active_cells):  # pylint: disable=arguments-differ
+    def build(self, tiles, inversion_data, inversion_mesh, active_cells):  # pylint: disable=arguments-differ
         global_misfit = super().build(
             tiles=tiles,
             inversion_data=inversion_data,
-            mesh=mesh,
+            inversion_mesh=inversion_mesh,
             active_cells=active_cells,
         )
         return global_misfit, self.sorting, self.ordering
@@ -57,11 +58,11 @@ class MisfitFactory(SimPEGFactory):
         self,
         tiles,
         inversion_data,
-        mesh,
+        inversion_mesh,
         active_cells,
     ):
         # Base slice over frequencies
-        if self.factory_type in ["magnetotellurics", "tipper", "fem"]:
+        if self.factory_type in ["magnetotellurics", "tipper", "fdem"]:
             channels = np.unique([list(v) for v in inversion_data.observed.values()])
         else:
             channels = [None]
@@ -81,7 +82,7 @@ class MisfitFactory(SimPEGFactory):
                 local_sim, local_index, ordering, mapping = (
                     self.create_nested_simulation(
                         inversion_data,
-                        mesh,
+                        inversion_mesh,
                         local_mesh,
                         active_cells,
                         local_index,
@@ -91,11 +92,11 @@ class MisfitFactory(SimPEGFactory):
                     )
                 )
 
-                local_mesh = local_sim.mesh
+                local_mesh = getattr(local_sim, "mesh", None)
 
                 if count == 0:
                     if self.factory_type in [
-                        "fem",
+                        "fdem",
                         "tdem",
                         "magnetotellurics",
                         "tipper",
@@ -111,19 +112,19 @@ class MisfitFactory(SimPEGFactory):
                     else:
                         self.sorting.append(local_index)
 
+                # TODO this should be done in the simulation factory
                 if "induced polarization" in self.params.inversion_type:
                     if "2d" in self.params.inversion_type:
                         proj = maps.InjectActiveCells(
-                            mesh, active_cells, valInactive=1e-8
+                            inversion_mesh.mesh, active_cells, value_inactive=1e-8
                         )
                     else:
                         proj = maps.InjectActiveCells(
                             mapping.local_mesh,
                             mapping.local_active,
-                            valInactive=1e-8,
+                            value_inactive=1e-8,
                         )
 
-                    # TODO this should be done in the simulation factory
                     local_sim.sigma = proj * mapping * self.models.conductivity
 
                 # TODO add option to export tile meshes
@@ -176,7 +177,7 @@ class MisfitFactory(SimPEGFactory):
     @staticmethod
     def create_nested_simulation(
         inversion_data: InversionData,
-        global_mesh: Octree,
+        inversion_mesh: InversionMesh,
         local_mesh: Octree | None,
         active_cells: np.ndarray,
         indices: np.ndarray,
@@ -197,10 +198,10 @@ class MisfitFactory(SimPEGFactory):
         :param padding_cells: Number of padding cells around the local survey.
         """
         survey, indices, ordering = inversion_data.create_survey(
-            mesh=global_mesh, local_index=indices, channel=channel
+            local_index=indices, channel=channel
         )
         local_sim, mapping = inversion_data.simulation(
-            global_mesh,
+            inversion_mesh,
             local_mesh,
             active_cells,
             survey,
@@ -208,7 +209,7 @@ class MisfitFactory(SimPEGFactory):
             padding_cells=padding_cells,
         )
         inv_type = inversion_data.params.inversion_type
-        if inv_type in ["fem", "tdem"]:
+        if inv_type in ["fdem", "tdem"]:
             compute_em_projections(inversion_data, local_sim)
         elif ("current" in inv_type or "polarization" in inv_type) and (
             "2d" not in inv_type or "pseudo" in inv_type

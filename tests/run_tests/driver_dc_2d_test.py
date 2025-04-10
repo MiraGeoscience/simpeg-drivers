@@ -25,8 +25,11 @@ from simpeg_drivers.electricals.direct_current.two_dimensions.params import (
     DC2DForwardOptions,
     DC2DInversionOptions,
 )
-from simpeg_drivers.electricals.params import DrapeModelOptions, LineSelectionOptions
-from simpeg_drivers.params import ActiveCellsOptions
+from simpeg_drivers.params import (
+    ActiveCellsOptions,
+    DrapeModelOptions,
+    LineSelectionOptions,
+)
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
@@ -36,8 +39,8 @@ from simpeg_drivers.utils.utils import get_inversion_output
 
 target_run = {
     "data_norm": 0.59563,
-    "phi_d": 2814,
-    "phi_m": 15.88,
+    "phi_d": 2820,
+    "phi_m": 16.8,
 }
 
 
@@ -78,7 +81,6 @@ def test_dc_2d_fwr_run(
         starting_model=model,
         active_cells=ActiveCellsOptions(topography_object=topography),
     )
-
     fwr_driver = DC2DForwardDriver(params)
     fwr_driver.run()
 
@@ -118,13 +120,12 @@ def test_dc_2d_run(tmp_path: Path, max_iterations=1, pytest=True):
             x_norm=1.0,
             z_norm=1.0,
             gradient_type="components",
-            potential_channel_bool=True,
             max_global_iterations=max_iterations,
             initial_beta=None,
             initial_beta_ratio=1e0,
-            prctile=100,
+            percentile=100,
             lower_bound=0.1,
-            coolingRate=1,
+            cooling_rate=1,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 

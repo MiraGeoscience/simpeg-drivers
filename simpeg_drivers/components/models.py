@@ -29,6 +29,25 @@ if TYPE_CHECKING:
     from simpeg_drivers.driver import InversionDriver
 
 
+MODEL_TYPES = [
+    "starting",
+    "reference",
+    "lower_bound",
+    "upper_bound",
+    "conductivity",
+    "alpha_s",
+    "length_scale_x",
+    "length_scale_y",
+    "length_scale_z",
+    "gradient_dip",
+    "gradient_direction",
+    "s_norm",
+    "x_norm",
+    "y_norm",
+    "z_norm",
+]
+
+
 class InversionModelCollection:
     """
     Collection of inversion models.
@@ -39,21 +58,7 @@ class InversionModelCollection:
 
     """
 
-    model_types = [
-        "starting",
-        "reference",
-        "lower_bound",
-        "upper_bound",
-        "conductivity",
-        "alpha_s",
-        "length_scale_x",
-        "length_scale_y",
-        "length_scale_z",
-        "s_norm",
-        "x_norm",
-        "y_norm",
-        "z_norm",
-    ]
+    model_types = MODEL_TYPES
 
     def __init__(self, driver: InversionDriver):
         """
@@ -62,25 +67,34 @@ class InversionModelCollection:
         self._active_cells: np.ndarray | None = None
         self._driver = driver
         self.is_sigma = self.driver.params.physical_property == "conductivity"
-        self.is_vector = (
+        is_vector = (
             True if self.driver.params.inversion_type == "magnetic vector" else False
         )
-        self.n_blocks = (
-            3 if self.driver.params.inversion_type == "magnetic vector" else 1
+        self._starting = InversionModel(driver, "starting", is_vector=is_vector)
+        self._reference = InversionModel(driver, "reference", is_vector=is_vector)
+        self._lower_bound = InversionModel(driver, "lower_bound", is_vector=is_vector)
+        self._upper_bound = InversionModel(driver, "upper_bound", is_vector=is_vector)
+        self._conductivity = InversionModel(driver, "conductivity", is_vector=is_vector)
+        self._alpha_s = InversionModel(driver, "alpha_s", is_vector=is_vector)
+        self._length_scale_x = InversionModel(
+            driver, "length_scale_x", is_vector=is_vector
         )
-        self._starting = InversionModel(driver, "starting")
-        self._reference = InversionModel(driver, "reference")
-        self._lower_bound = InversionModel(driver, "lower_bound")
-        self._upper_bound = InversionModel(driver, "upper_bound")
-        self._conductivity = InversionModel(driver, "conductivity")
-        self._alpha_s = InversionModel(driver, "alpha_s")
-        self._length_scale_x = InversionModel(driver, "length_scale_x")
-        self._length_scale_y = InversionModel(driver, "length_scale_y")
-        self._length_scale_z = InversionModel(driver, "length_scale_z")
-        self._s_norm = InversionModel(driver, "s_norm")
-        self._x_norm = InversionModel(driver, "x_norm")
-        self._y_norm = InversionModel(driver, "y_norm")
-        self._z_norm = InversionModel(driver, "z_norm")
+        self._length_scale_y = InversionModel(
+            driver, "length_scale_y", is_vector=is_vector
+        )
+        self._length_scale_z = InversionModel(
+            driver, "length_scale_z", is_vector=is_vector
+        )
+        self._gradient_dip = InversionModel(
+            driver, "gradient_dip", trim_active_cells=False
+        )
+        self._gradient_direction = InversionModel(
+            driver, "gradient_direction", trim_active_cells=False
+        )
+        self._s_norm = InversionModel(driver, "s_norm", is_vector=is_vector)
+        self._x_norm = InversionModel(driver, "x_norm", is_vector=is_vector)
+        self._y_norm = InversionModel(driver, "y_norm", is_vector=is_vector)
+        self._z_norm = InversionModel(driver, "z_norm", is_vector=is_vector)
 
     @property
     def n_active(self) -> int:
@@ -118,12 +132,12 @@ class InversionModelCollection:
             raise ValueError("active_cells must be a boolean numpy array.")
 
         permutation = self.driver.inversion_mesh.permutation
-        self.edit_ndv_model(active_cells[permutation])
+        self.edit_ndv_model(permutation.T @ active_cells)
         self.remove_air(active_cells)
         self.driver.inversion_mesh.entity.add_data(
             {
                 "active_cells": {
-                    "values": active_cells[permutation],
+                    "values": permutation.T @ active_cells,
                     "primitive_type": "boolean",
                 }
             }
@@ -175,6 +189,12 @@ class InversionModelCollection:
             bound_model = self._upper_bound.model
         else:
             bound_model = self._lower_bound.model
+
+        if (
+            self.driver.params.inversion_type == "magnetic vector"
+            and self._upper_bound.model is not None
+        ):
+            bound_model = -self._upper_bound.model
 
         if bound_model is None:
             return -np.inf
@@ -257,6 +277,20 @@ class InversionModelCollection:
         return self._length_scale_z.model.copy()
 
     @property
+    def gradient_dip(self) -> np.ndarray | None:
+        if self._gradient_dip.model is None:
+            return None
+
+        return self._gradient_dip.model.copy()
+
+    @property
+    def gradient_direction(self) -> np.ndarray | None:
+        if self._gradient_direction.model is None:
+            return None
+
+        return self._gradient_direction.model.copy()
+
+    @property
     def s_norm(self) -> np.ndarray | None:
         if self._s_norm.model is None:
             return None
@@ -291,7 +325,7 @@ class InversionModelCollection:
     def _model_method_wrapper(self, method, name=None, **kwargs):
         """wraps individual model's specific method and applies in loop over model types."""
         returned_items = {}
-        for mtype in self.model_types:
+        for mtype in MODEL_TYPES:
             model = getattr(self, f"_{mtype}")
             if model.model is not None:
                 f = getattr(model, method)
@@ -316,19 +350,6 @@ class InversionModelCollection:
         """
         return self._model_method_wrapper("permute_2_octree", name=name)
 
-    def permute_2_treemesh(self, model, name):
-        """
-        Reorder model values stored in cell centers of an octree mesh to
-        TreeMesh sorting.
-
-        :param model: octree sorted model.
-        :param name: model type name ("starting", "reference",
-            "lower_bound", or "upper_bound").
-
-        :return: Vector of model values reordered for TreeMesh.
-        """
-        return self._model_method_wrapper("permute_2_treemesh", name=name, model=model)
-
     def edit_ndv_model(self, actives: np.ndarray):
         """
         Change values in models recorded in geoh5 for no-data-values.
@@ -348,41 +369,24 @@ class InversionModel:
     remove_air: Use active cells vector to remove air cells from model.
     """
 
-    model_types = [
-        "starting",
-        "reference",
-        "lower_bound",
-        "upper_bound",
-        "conductivity",
-        "alpha_s",
-        "length_scale_x",
-        "length_scale_y",
-        "length_scale_z",
-        "s_norm",
-        "x_norm",
-        "y_norm",
-        "z_norm",
-    ]
-
     def __init__(
         self,
         driver: InversionDriver,
         model_type: str,
+        is_vector: bool = False,
+        trim_active_cells: bool = True,
     ):
         """
         :param driver: InversionDriver object.
-        :param model_type: Type of inversion model, can be any of "starting", "reference",
-            "lower_bound", "upper_bound".
+        :param model_type: Type of inversion model, can be any of MODEL_TYPES.
+        :param is_vector: If True, model is a vector.
+        :param trim_active_cells: If True, remove air cells from model.
         """
         self.driver = driver
         self.model_type = model_type
         self.model: np.ndarray | None = None
-        self.is_vector = (
-            True if self.driver.params.inversion_type == "magnetic vector" else False
-        )
-        self.n_blocks = (
-            3 if self.driver.params.inversion_type == "magnetic vector" else 1
-        )
+        self.is_vector = is_vector
+        self.trim_active_cells = trim_active_cells
         self._initialize()
 
     def _initialize(self):
@@ -412,9 +416,6 @@ class InversionModel:
                         * self.driver.params.inducing_field_declination
                     )
 
-                if self.driver.inversion_mesh.rotation is not None:
-                    declination += self.driver.inversion_mesh.rotation["angle"]
-
                 inclination[np.isnan(inclination)] = 0
                 declination[np.isnan(declination)] = 0
                 field_vecs = dip_azimuth2cartesian(
@@ -434,7 +435,7 @@ class InversionModel:
                 and self.is_vector
                 and model.shape[0] == self.driver.inversion_mesh.n_cells
             ):
-                model = np.tile(model, self.n_blocks)
+                model = np.tile(model, 3 if self.is_vector else 1)
 
         if model is not None:
             self.model = mkvc(model)
@@ -443,8 +444,8 @@ class InversionModel:
     def remove_air(self, active_cells):
         """Use active cells vector to remove air cells from model"""
 
-        if self.model is not None:
-            self.model = self.model[np.tile(active_cells, self.n_blocks)]
+        if self.model is not None and self.trim_active_cells:
+            self.model = self.model[np.tile(active_cells, 3 if self.is_vector else 1)]
 
     def permute_2_octree(self) -> np.ndarray | None:
         """
@@ -458,21 +459,10 @@ class InversionModel:
 
         if self.is_vector:
             return mkvc(
-                self.model.reshape((-1, 3), order="F")[
-                    self.driver.inversion_mesh.permutation, :
-                ]
+                self.driver.inversion_mesh.permutation.T
+                @ self.model.reshape((-1, 3), order="F")
             )
-        return self.model[self.driver.inversion_mesh.permutation]
-
-    def permute_2_treemesh(self, model: np.ndarray) -> np.ndarray:
-        """
-        Reorder model values stored in cell centers of an octree mesh to
-        TreeMesh order in self.driver.inversion_mesh.
-
-        :param model: octree sorted model
-        :return: Vector of model values reordered for TreeMesh.
-        """
-        return model[np.argsort(self.driver.inversion_mesh.permutation)]
+        return self.driver.inversion_mesh.permutation.T @ self.model
 
     def save_model(self):
         """Resort model to the octree object's ordering and save to workspace."""
@@ -522,7 +512,7 @@ class InversionModel:
                 and data_obj[0].values is not None
             ):
                 values = data_obj[0].values.copy()
-                values[~model] = np.nan
+                values[~model.astype(bool)] = np.nan
                 data_obj[0].values = values
 
     def _get(self, name: str) -> np.ndarray | None:
@@ -555,9 +545,9 @@ class InversionModel:
         """
         if isinstance(model, NumericData):
             model = self.obj_2_mesh(model, self.driver.inversion_mesh.entity)
-            model = model[np.argsort(self.driver.inversion_mesh.permutation)]
+            model = self.driver.inversion_mesh.permutation @ model
         else:
-            nc = self.driver.inversion_mesh.n_cells
+            nc = self.driver.inversion_mesh.mesh.n_cells
             if isinstance(model, int | float):
                 model *= np.ones(nc)
 
@@ -586,7 +576,7 @@ class InversionModel:
 
     @model_type.setter
     def model_type(self, v):
-        if v not in self.model_types:
-            msg = f"Invalid model_type: {v}. Must be one of {(*self.model_types,)}."
+        if v not in MODEL_TYPES:
+            msg = f"Invalid model_type: {v}. Must be one of {(*MODEL_TYPES,)}."
             raise ValueError(msg)
         self._model_type = v

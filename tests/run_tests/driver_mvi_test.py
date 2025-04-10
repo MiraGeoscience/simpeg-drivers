@@ -13,9 +13,11 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+from geoh5py.groups import PropertyGroup
 from geoh5py.groups.property_group import GroupTypeEnum
 from geoh5py.objects import Curve
 from geoh5py.workspace import Workspace
+from pytest import warns
 
 from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.potential_fields import (
@@ -33,11 +35,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_mvi_run = {
-    "data_norm": 6.3559205278626525,
-    "phi_d": 0.01447,
-    "phi_m": 4.657e-06,
-}
+target_mvi_run = {"data_norm": 6.3559205278626525, "phi_d": 0.0091, "phi_m": 0.00603}
 
 
 def test_magnetic_vector_fwr_run(
@@ -56,8 +54,9 @@ def test_magnetic_vector_fwr_run(
     )
 
     # Unitest dealing with Curve
-    survey = Curve.create(geoh5, name=points.name, vertices=points.vertices)
-    geoh5.remove_entity(points)
+    with geoh5.open():
+        survey = Curve.create(geoh5, name=points.name, vertices=points.vertices)
+        geoh5.remove_entity(points)
     inducing_field = (50000.0, 90.0, 0.0)
     active_cells = ActiveCellsOptions(topography_object=topography)
     params = MVIForwardOptions(
@@ -69,7 +68,6 @@ def test_magnetic_vector_fwr_run(
         inducing_field_inclination=inducing_field[1],
         inducing_field_declination=inducing_field[2],
         data_object=survey,
-        starting_model_object=model.parent,
         starting_model=model,
         starting_inclination=45,
         starting_declination=270,
@@ -80,7 +78,7 @@ def test_magnetic_vector_fwr_run(
 
 def test_magnetic_vector_run(
     tmp_path: Path,
-    max_iterations=1,
+    max_iterations=2,
     pytest=True,
 ):
     workpath = tmp_path / "inversion_test.ui.geoh5"
@@ -98,6 +96,19 @@ def test_magnetic_vector_run(
         topography = geoh5.get_entity("topography")[0]
         inducing_field = (50000.0, 90.0, 0.0)
 
+        dip, direction = mesh.add_data(
+            {
+                "dip": {"values": np.zeros(mesh.n_cells)},
+                "direction": {"values": np.zeros(mesh.n_cells)},
+            }
+        )
+        gradient_rotation = PropertyGroup(
+            name="gradient_rotations",
+            property_group_type=GroupTypeEnum.DIPDIR,
+            properties=[dip, direction],
+            parent=mesh,
+        )
+
         # Run the inverse
         active_cells = ActiveCellsOptions(topography_object=topography)
         params = MVIInversionOptions(
@@ -114,15 +125,14 @@ def test_magnetic_vector_run(
             x_norm=1.0,
             y_norm=1.0,
             z_norm=1.0,
-            gradient_type="components",
-            tmi_channel_bool=True,
             tmi_channel=tmi,
             tmi_uncertainty=4.0,
             max_global_iterations=max_iterations,
+            gradient_rotation=gradient_rotation,
             initial_beta_ratio=1e1,
             store_sensitivities="ram",
             save_sensitivities=True,
-            prctile=100,
+            percentile=100,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
@@ -144,9 +154,66 @@ def test_magnetic_vector_run(
 
         out_group = run_ws.get_entity("Magnetic Vector Inversion")[0]
         mesh = out_group.get_entity("mesh")[0]
-        assert len(mesh.property_groups) == 2
+        assert len(mesh.property_groups) == 3
         assert len(mesh.property_groups[0].properties) == 2
         assert mesh.property_groups[1].property_group_type == GroupTypeEnum.DIPDIR
+
+
+def test_magnetic_vector_bounds_run(
+    tmp_path: Path,
+    max_iterations=4,
+    pytest=True,
+):
+    workpath = tmp_path / "inversion_test.ui.geoh5"
+    if pytest:
+        workpath = (
+            tmp_path.parent
+            / "test_magnetic_vector_fwr_run0"
+            / "inversion_test.ui.geoh5"
+        )
+
+    with Workspace(workpath) as geoh5:
+        upper_bound = 1e-2
+        tmi = geoh5.get_entity("Iteration_0_tmi")[0]
+        mesh = geoh5.get_entity("mesh")[0]
+        topography = geoh5.get_entity("topography")[0]
+        inducing_field = (50000.0, 90.0, 0.0)
+
+        # Run the inverse
+        active_cells = ActiveCellsOptions(topography_object=topography)
+        with warns(
+            DeprecationWarning,
+            match="Parameter 'lower_bound' for Magnetic Vector Inversion",
+        ):
+            params = MVIInversionOptions(
+                geoh5=geoh5,
+                mesh=mesh,
+                active_cells=active_cells,
+                inducing_field_strength=inducing_field[0],
+                inducing_field_inclination=inducing_field[1],
+                inducing_field_declination=inducing_field[2],
+                data_object=tmi.parent,
+                starting_model=1e-4,
+                reference_model=0.0,
+                s_norm=0.0,
+                x_norm=1.0,
+                y_norm=1.0,
+                z_norm=1.0,
+                gradient_type="components",
+                tmi_channel=tmi,
+                tmi_uncertainty=4.0,
+                lower_bound=1e-6,
+                upper_bound=upper_bound,
+                max_global_iterations=max_iterations,
+                initial_beta_ratio=1e1,
+                store_sensitivities="ram",
+                save_sensitivities=True,
+                percentile=100,
+            )
+        params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
+
+    driver = MVIInversionDriver(params)
+    assert np.all(driver.models.lower_bound == -upper_bound)
 
 
 if __name__ == "__main__":

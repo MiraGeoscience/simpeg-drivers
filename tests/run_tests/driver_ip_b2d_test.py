@@ -25,11 +25,13 @@ from simpeg_drivers.electricals.induced_polarization.pseudo_three_dimensions.par
     IPBatch2DInversionOptions,
 )
 from simpeg_drivers.electricals.params import (
-    DrapeModelOptions,
     FileControlOptions,
+)
+from simpeg_drivers.params import (
+    ActiveCellsOptions,
+    DrapeModelOptions,
     LineSelectionOptions,
 )
-from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
@@ -37,7 +39,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.0919313, "phi_d": 25480, "phi_m": 0.2008}
+target_run = {"data_norm": 0.0919313, "phi_d": 25600, "phi_m": 0.201}
 
 
 def test_ip_p3d_fwr_run(
@@ -128,13 +130,12 @@ def test_ip_p3d_run(
             length_scale_x=1.0,
             length_scale_z=1.0,
             gradient_type="components",
-            chargeability_channel_bool=True,
             max_global_iterations=max_iterations,
             initial_beta=None,
             initial_beta_ratio=1e0,
-            prctile=100,
+            percentile=100,
             upper_bound=0.1,
-            coolingRate=1,
+            cooling_rate=1,
             file_control=FileControlOptions(cleanup=False),
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")

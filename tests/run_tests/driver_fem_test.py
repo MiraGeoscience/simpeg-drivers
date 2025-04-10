@@ -34,7 +34,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 81.8361, "phi_d": 2161, "phi_m": 5828}
+target_run = {"data_norm": 81.8361, "phi_d": 2160, "phi_m": 4010}
 
 
 def test_fem_fwr_run(
@@ -54,7 +54,7 @@ def test_fem_fwr_run(
         drape_height=15.0,
         cell_size=cell_size,
         padding_distance=400,
-        inversion_type="fem",
+        inversion_type="fdem",
         flatten=True,
     )
     params = FDEMForwardOptions(
@@ -69,7 +69,6 @@ def test_fem_fwr_run(
 
     fwr_driver = FDEMForwardDriver(params)
     fwr_driver.run()
-    geoh5.close()
 
 
 def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
@@ -143,8 +142,8 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
             upper_bound=0.75,
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e1,
-            prctile=100,
-            coolingRate=3,
+            percentile=100,
+            cooling_rate=3,
             chi_factor=0.25,
             store_sensitivities="ram",
             sens_wts_threshold=1.0,
@@ -166,7 +165,7 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
         )
 
         if pytest:
-            check_target(output, target_run, tolerance=0.1)
+            check_target(output, target_run)
             nan_ind = np.isnan(run_ws.get_entity("Iteration_0_model")[0].values)
             inactive_ind = run_ws.get_entity("active_cells")[0].values == 0
             assert np.all(nan_ind == inactive_ind)

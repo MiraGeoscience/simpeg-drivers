@@ -78,7 +78,7 @@ class Geoh5Tester:
             return self.ws
 
 
-def check_target(output: dict, target: dict, tolerance=0.1):
+def check_target(output: dict, target: dict, tolerance=0.05):
     """
     Check inversion output metrics against hard-valued target.
     :param output: Dictionary containing keys for 'data', 'phi_d' and 'phi_m'.
@@ -280,7 +280,7 @@ def setup_inversion_workspace(
         # survey.cells = survey.cells[dist < 100.0, :]
         survey.remove_cells(np.where(dist > 200)[0])
 
-    elif inversion_type == "fem":
+    elif "fdem" in inversion_type:
         survey = AirborneFEMReceivers.create(
             geoh5, vertices=vertices, name="Airborne_rx"
         )
@@ -466,7 +466,7 @@ def setup_inversion_workspace(
             finalize=False,
         )
 
-        if inversion_type in ["fem", "airborne_tem"]:
+        if inversion_type in ["fdem", "airborne_tem"]:
             mesh = OctreeDriver.refine_tree_from_points(
                 mesh,
                 vertices,
@@ -502,6 +502,11 @@ def setup_inversion_workspace(
             anomaly,
         )
 
+    if "1d" in inversion_type:
+        model = background * np.ones(mesh.nC)
+        model[(mesh.cell_centers[:, 2] < 0) & (mesh.cell_centers[:, 2] > -20)] = anomaly
+
     model[~active] = np.nan
     model = entity.add_data({"model": {"values": model}})
+    geoh5.close()
     return geoh5, entity, model, survey, topography

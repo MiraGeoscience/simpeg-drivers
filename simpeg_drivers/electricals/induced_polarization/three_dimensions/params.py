@@ -29,15 +29,16 @@ class IP3DForwardOptions(BaseForwardOptions):
     """
 
     name: ClassVar[str] = "Induced Polarization 3D Forward"
-    title: ClassVar[str] = "Induced Polarization 3D Forward"
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/induced_polarization_3d_forward.ui.json"
     )
 
-    inversion_type: str = "induced polarization 3d"
+    title: str = "Induced Polarization 3D Forward"
     physical_property: str = "chargeability"
+    inversion_type: str = "induced polarization 3d"
 
     chargeability_channel_bool: bool = True
+    model_type: str = "Conductivity (S/m)"
     conductivity_model: float | FloatData
 
 
@@ -51,15 +52,16 @@ class IP3DInversionOptions(BaseInversionOptions):
     """
 
     name: ClassVar[str] = "Induced Polarization 3D Inversion"
-    title: ClassVar[str] = "Induced Polarization 3D Inversion"
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/induced_polarization_3d_inversion.ui.json"
     )
 
-    inversion_type: str = "induced polarization 3d"
+    title: str = "Induced Polarization 3D Inversion"
     physical_property: str = "chargeability"
+    inversion_type: str = "induced polarization 3d"
 
     chargeability_channel: FloatData
     chargeability_uncertainty: float | FloatData | None = None
+    model_type: str = "Conductivity (S/m)"
     conductivity_model: float | FloatData
     lower_bound: float | FloatData | None = 0.0

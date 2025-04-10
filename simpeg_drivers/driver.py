@@ -14,7 +14,7 @@
 from __future__ import annotations
 
 import multiprocessing
-
+from copy import deepcopy
 import sys
 from datetime import datetime, timedelta
 import logging
@@ -42,7 +42,13 @@ from simpeg import (
     objective_function,
     optimization,
 )
-from simpeg.regularization import BaseRegularization, Sparse
+
+from simpeg.regularization import (
+    BaseRegularization,
+    RegularizationMesh,
+    Sparse,
+    SparseSmoothness,
+)
 
 from simpeg_drivers import DRIVER_MAP
 from simpeg_drivers.components import (
@@ -57,7 +63,9 @@ from simpeg_drivers.params import (
     BaseForwardOptions,
     BaseInversionOptions,
 )
+from simpeg_drivers.joint.params import BaseJointOptions
 from simpeg_drivers.utils.utils import tile_locations
+from simpeg_drivers.utils.regularization import cell_neighbors, set_rotated_operators
 
 mlogger = logging.getLogger("distributed")
 mlogger.setLevel(logging.WARNING)
@@ -117,7 +125,7 @@ class InversionDriver(BaseDriver):
                 ).build(
                     tiles,
                     self.inversion_data,
-                    self.inversion_mesh.mesh,
+                    self.inversion_mesh,
                     self.models.active_cells,
                 )
                 print("Done.")
@@ -296,6 +304,7 @@ class InversionDriver(BaseDriver):
                 BaseForwardOptions,
                 BaseInversionOptions,
                 SweepParams,
+                BaseJointOptions,
             ),
         ):
             raise TypeError(
@@ -384,7 +393,7 @@ class InversionDriver(BaseDriver):
 
         for directive in self.directives.save_directives:
             if isinstance(directive, directives.SaveLogFilesGeoH5):
-                directive.save_log()
+                directive.write(1)
 
     def start_inversion_message(self):
         # SimPEG reports half phi_d, so we scale to match
@@ -438,50 +447,106 @@ class InversionDriver(BaseDriver):
             return BaseRegularization(mesh=self.inversion_mesh.mesh)
 
         reg_funcs = []
+        is_rotated = self.params.gradient_rotation is not None
+        neighbors = None
+        backward_mesh = None
+        forward_mesh = None
         for mapping in self.mapping:
-            reg = Sparse(
-                self.inversion_mesh.mesh,
-                active_cells=self.models.active_cells,
+            reg_func = Sparse(
+                forward_mesh or self.inversion_mesh.mesh,
+                active_cells=self.models.active_cells if forward_mesh is None else None,
                 mapping=mapping,
                 reference_model=self.models.reference,
             )
 
+            if is_rotated and neighbors is None:
+                backward_mesh = RegularizationMesh(
+                    self.inversion_mesh.mesh, active_cells=self.models.active_cells
+                )
+                neighbors = cell_neighbors(reg_func.regularization_mesh.mesh)
+
             # Adjustment for 2D versus 3D problems
-            comps = "sxz" if "2d" in self.params.inversion_type else "sxyz"
-            avg_comps = "sxy" if "2d" in self.params.inversion_type else "sxyz"
-            weights = ["alpha_s"] + [f"length_scale_{k}" for k in comps[1:]]
-            for comp, avg_comp, objfct, weight in zip(
-                comps, avg_comps, reg.objfcts, weights
+            components = (
+                "sxz"
+                if (
+                    "2d" in self.params.inversion_type
+                    or "1d" in self.params.inversion_type
+                )
+                else "sxyz"
+            )
+            weight_names = ["alpha_s"] + [f"length_scale_{k}" for k in components[1:]]
+            functions = []
+            for comp, weight_name, fun in zip(
+                components, weight_names, reg_func.objfcts
             ):
-                if getattr(self.models, weight) is None:
-                    setattr(reg, weight, 0.0)
+                if getattr(self.models, weight_name) is None:
+                    setattr(reg_func, weight_name, 0.0)
+                    functions.append(fun)
                     continue
 
-                weight = mapping * getattr(self.models, weight)
+                weight = mapping * getattr(self.models, weight_name)
                 norm = mapping * getattr(self.models, f"{comp}_norm")
-                if comp in "xyz":
-                    weight = (
-                        getattr(reg.regularization_mesh, f"aveCC2F{avg_comp}") * weight
-                    )
-                    norm = getattr(reg.regularization_mesh, f"aveCC2F{avg_comp}") * norm
 
-                objfct.set_weights(**{comp: weight})
-                objfct.norm = norm
+                if not isinstance(fun, SparseSmoothness):
+                    fun.set_weights(**{comp: weight})
+                    fun.norm = norm
+                    functions.append(fun)
+                    continue
 
-            if getattr(self.params, "gradient_type") is not None:
-                setattr(
-                    reg,
-                    "gradient_type",
-                    getattr(self.params, "gradient_type"),
+                if is_rotated:
+                    if forward_mesh is None:
+                        fun = set_rotated_operators(
+                            fun,
+                            neighbors,
+                            comp,
+                            self.models.gradient_dip,
+                            self.models.gradient_direction,
+                        )
+
+                average_op = getattr(
+                    reg_func.regularization_mesh,
+                    f"aveCC2F{fun.orientation}",
                 )
+                fun.set_weights(**{comp: average_op @ weight})
+                fun.norm = average_op @ norm
+                functions.append(fun)
 
-            reg_funcs.append(reg)
+                if is_rotated:
+                    fun.gradient_type = "components"
+                    backward_fun = deepcopy(fun)
+                    setattr(backward_fun, "_regularization_mesh", backward_mesh)
+
+                    # Only do it once for MVI
+                    if not forward_mesh:
+                        backward_fun = set_rotated_operators(
+                            backward_fun,
+                            neighbors,
+                            comp,
+                            self.models.gradient_dip,
+                            self.models.gradient_direction,
+                            forward=False,
+                        )
+                    average_op = getattr(
+                        backward_fun.regularization_mesh,
+                        f"aveCC2F{fun.orientation}",
+                    )
+                    backward_fun.set_weights(**{comp: average_op @ weight})
+                    backward_fun.norm = average_op @ norm
+                    functions.append(backward_fun)
+
+            # Will avoid recomputing operators if the regularization mesh is the same
+            forward_mesh = reg_func.regularization_mesh
+            reg_func.objfcts = functions
+            reg_func.norms = [fun.norm for fun in functions]
+            reg_funcs.append(reg_func)
 
         return objective_function.ComboObjectiveFunction(objfcts=reg_funcs)
 
     def get_tiles(self):
         if "2d" in self.params.inversion_type:
             tiles = [np.arange(len(self.inversion_data.indices))]
+        elif "1d" in self.params.inversion_type:
+            tiles = np.arange(len(self.inversion_data.indices)).reshape((-1, 1))
         else:
             locations = self.inversion_data.locations
             tiles = tile_locations(
@@ -498,13 +563,11 @@ class InversionDriver(BaseDriver):
         if self.client:
             dconf.set(scheduler=self.client)
         else:
-            dconf.set(scheduler="threads")
             n_cpu = self.params.n_cpu
             if n_cpu is None:
                 n_cpu = int(multiprocessing.cpu_count())
 
-        if self.params.parallelized:
-            dconf.set(scheduler="threads", pool=ThreadPool(self.params.n_cpu))
+            dconf.set(scheduler="threads", pool=ThreadPool(n_cpu))
 
     @classmethod
     def start(cls, filepath: str | Path, driver_class=None):

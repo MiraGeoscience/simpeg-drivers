@@ -32,7 +32,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.006549595043425509, "phi_d": 221.4, "phi_m": 270.5}
+target_run = {"data_norm": 0.006549595043425509, "phi_d": 223, "phi_m": 255}
 
 
 def test_tipper_fwr_run(
@@ -150,8 +150,8 @@ def test_tipper_run(tmp_path: Path, max_iterations=1, pytest=True):
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e3,
             starting_chi_factor=1.0,
-            coolingRate=1,
-            prctile=100,
+            cooling_rate=1,
+            percentile=100,
             chi_factor=1.0,
             max_line_search_iterations=5,
             store_sensitivities="ram",
@@ -166,7 +166,7 @@ def test_tipper_run(tmp_path: Path, max_iterations=1, pytest=True):
         )
         output["data"] = orig_tyz_real_1
         if pytest:
-            check_target(output, target_run, tolerance=0.1)
+            check_target(output, target_run)
             nan_ind = np.isnan(run_ws.get_entity("Iteration_0_model")[0].values)
             inactive_ind = run_ws.get_entity("active_cells")[0].values == 0
             assert np.all(nan_ind == inactive_ind)

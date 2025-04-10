@@ -38,16 +38,16 @@ def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
         n_lines=2,
         inversion_type="magnetic_vector",
     )
-
-    mesh = model.parent
-    tmi_channel = survey.add_data(
-        {
-            "tmi": {"values": np.random.rand(survey.n_vertices)},
-        }
-    )
-    elevation = topography.add_data(
-        {"elevation": {"values": topography.vertices[:, 2]}}
-    )
+    with geoh5.open():
+        mesh = model.parent
+        tmi_channel = survey.add_data(
+            {
+                "tmi": {"values": np.random.rand(survey.n_vertices)},
+            }
+        )
+        elevation = topography.add_data(
+            {"elevation": {"values": topography.vertices[:, 2]}}
+        )
     params = MVIInversionOptions(
         geoh5=geoh5,
         data_object=survey,
@@ -70,10 +70,11 @@ def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
 def test_zero_reference_model(tmp_path: Path):
     params = get_mvi_params(tmp_path)
     geoh5 = params.geoh5
-    driver = MVIInversionDriver(params)
-    _ = InversionModel(driver, "reference")
-    incl = np.unique(geoh5.get_entity("reference_inclination")[0].values)
-    decl = np.unique(geoh5.get_entity("reference_declination")[0].values)
+    with geoh5.open():
+        driver = MVIInversionDriver(params)
+        _ = InversionModel(driver, "reference", is_vector=True)
+        incl = np.unique(geoh5.get_entity("reference_inclination")[0].values)
+        decl = np.unique(geoh5.get_entity("reference_declination")[0].values)
     assert len(incl) == 1
     assert len(decl) == 1
     assert np.isclose(incl[0], 79.0)
@@ -82,42 +83,45 @@ def test_zero_reference_model(tmp_path: Path):
 
 def test_collection(tmp_path: Path):
     params = get_mvi_params(tmp_path)
-    driver = MVIInversionDriver(params)
-    models = InversionModelCollection(driver)
-    models.remove_air(driver.models.active_cells)
-    starting = InversionModel(driver, "starting")
-    starting.remove_air(driver.models.active_cells)
-    np.testing.assert_allclose(models.starting, starting.model, atol=1e-7)
+    with params.geoh5.open():
+        driver = MVIInversionDriver(params)
+        models = InversionModelCollection(driver)
+        models.remove_air(driver.models.active_cells)
+        starting = InversionModel(driver, "starting", is_vector=True)
+        starting.remove_air(driver.models.active_cells)
+        np.testing.assert_allclose(models.starting, starting.model, atol=1e-7)
 
 
 def test_initialize(tmp_path: Path):
     params = get_mvi_params(tmp_path)
-    driver = MVIInversionDriver(params)
-    starting_model = InversionModel(driver, "starting")
-    assert len(starting_model.model) == 3 * driver.inversion_mesh.n_cells
-    assert len(np.unique(starting_model.model)) == 3
+    with params.geoh5.open():
+        driver = MVIInversionDriver(params)
+        starting_model = InversionModel(driver, "starting", is_vector=True)
+        assert len(starting_model.model) == 3 * driver.inversion_mesh.n_cells
+        assert len(np.unique(starting_model.model)) == 3
 
 
 def test_model_from_object(tmp_path: Path):
     # Test behaviour when loading model from Points object with non-matching mesh
     params = get_mvi_params(tmp_path)
     geoh5 = params.geoh5
-    driver = MVIInversionDriver(params)
+    with geoh5.open():
+        driver = MVIInversionDriver(params)
 
-    inversion_mesh = InversionMesh(geoh5, params)
-    cc = inversion_mesh.mesh.cell_centers
-    m0 = np.array([2.0, 3.0, 1.0])
-    vals = (m0[0] * cc[:, 0]) + (m0[1] * cc[:, 1]) + (m0[2] * cc[:, 2])
+        inversion_mesh = InversionMesh(geoh5, params)
+        cc = inversion_mesh.mesh.cell_centers
+        m0 = np.array([2.0, 3.0, 1.0])
+        vals = (m0[0] * cc[:, 0]) + (m0[1] * cc[:, 1]) + (m0[2] * cc[:, 2])
 
-    point_object = Points.create(geoh5, name="test_point", vertices=cc)
-    point_object.add_data({"test_data": {"values": vals}})
-    data_object = geoh5.get_entity("test_data")[0]
-    params.lower_bound = data_object
-    lower_bound = InversionModel(driver, "lower_bound")
-    nc = int(len(lower_bound.model) / 3)
-    A = driver.inversion_mesh.mesh.cell_centers
-    b = lower_bound.model[:nc]
-    from scipy.linalg import lstsq
+        point_object = Points.create(geoh5, name="test_point", vertices=cc)
+        point_object.add_data({"test_data": {"values": vals}})
+        data_object = geoh5.get_entity("test_data")[0]
+        params.lower_bound = data_object
+        lower_bound = InversionModel(driver, "lower_bound", is_vector=True)
+        nc = int(len(lower_bound.model) / 3)
+        A = driver.inversion_mesh.mesh.cell_centers
+        b = lower_bound.model[:nc]
+        from scipy.linalg import lstsq
 
-    m = lstsq(A, b)[0]
-    np.testing.assert_array_almost_equal(m, m0, decimal=1)
+        m = lstsq(A, b)[0]
+        np.testing.assert_array_almost_equal(m, m0, decimal=1)

@@ -29,9 +29,12 @@ from simpeg_drivers.components.meshes import InversionMesh
 from simpeg_drivers.components.topography import InversionTopography
 from simpeg_drivers.components.windows import InversionWindow
 from simpeg_drivers.driver import InversionDriver
-from simpeg_drivers.electricals.params import LineSelectionOptions
 from simpeg_drivers.line_sweep.driver import LineSweepDriver
-from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions
+from simpeg_drivers.params import (
+    BaseForwardOptions,
+    BaseInversionOptions,
+    LineSelectionOptions,
+)
 from simpeg_drivers.utils.surveys import extract_dcip_survey
 from simpeg_drivers.utils.utils import get_drape_model
 
@@ -125,7 +128,7 @@ class BaseBatch2DDriver(LineSweepDriver):
         """Write ui.geoh5 and ui.json files for sweep trials."""
 
         kwargs_2d = {}
-        with self.workspace.open(mode="r+"):
+        with fetch_active_workspace(self.workspace, mode="r+"):
             self._window = InversionWindow(self.workspace, self.batch2d_params)
             self._inversion_data = InversionData(self.workspace, self.batch2d_params)
             self._inversion_data.save_data()

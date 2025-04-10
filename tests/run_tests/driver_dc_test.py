@@ -31,7 +31,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.150326, "phi_d": 194.2, "phi_m": 346.2}
+target_run = {"data_norm": 0.150326, "phi_d": 212, "phi_m": 374}
 
 
 def test_dc_3d_fwr_run(
@@ -61,19 +61,18 @@ def test_dc_3d_fwr_run(
     tx_id = np.r_[survey.ab_cell_id.values[indices], survey.ab_cell_id.values[~indices]]
     cells = np.vstack([survey.cells[indices, :], survey.cells[~indices, :]])
 
-    survey.ab_cell_id = tx_id
-    survey.cells = cells
-
-    geoh5.close()
+    with survey.workspace.open():
+        survey.ab_cell_id = tx_id
+        survey.cells = cells
 
     active_cells = ActiveCellsOptions(topography_object=topography)
+
     params = DC3DForwardOptions(
         geoh5=geoh5,
         mesh=model.parent,
         active_cells=active_cells,
         data_object=survey,
         starting_model=model,
-        resolution=None,
     )
     fwr_driver = DC3DForwardDriver(params)
     fwr_driver.run()
@@ -113,13 +112,13 @@ def test_dc_3d_run(
             max_global_iterations=max_iterations,
             initial_beta=None,
             initial_beta_ratio=10.0,
-            prctile=100,
+            percentile=100,
             upper_bound=10,
             tile_spatial=n_lines,
             store_sensitivities="ram",
             auto_scale_misfits=False,
             save_sensitivities=True,
-            coolingRate=1,
+            cooling_rate=1,
             chi_factor=0.5,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
@@ -164,7 +163,6 @@ def test_dc_single_line_fwr_run(
         active_cells=active_cells,
         data_object=survey,
         starting_model=model,
-        resolution=None,
     )
 
     fwr_driver = DC3DForwardDriver(params)

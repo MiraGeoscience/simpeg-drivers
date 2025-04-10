@@ -21,8 +21,10 @@ logger = logging.getLogger(__name__)
 
 
 class SimPEGDriversUIJson(BaseUIJson):
+    """Base class for simpeg-drivers UIJson."""
+
     icon: str
-    documentation: str
+    documentation: str = "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html"
 
     @field_validator("version", mode="before")
     @classmethod
@@ -47,6 +49,6 @@ class SimPEGDriversUIJson(BaseUIJson):
             data["version"] = simpeg_drivers.__version__
 
         uijson = cls.model_construct(**data)
-        data = uijson.model_dump_json(indent=4)
+        data = uijson.model_dump_json(indent=4, exclude_unset=False)
         with open(cls.default_ui_json, "w", encoding="utf-8") as file:
             file.write(data)

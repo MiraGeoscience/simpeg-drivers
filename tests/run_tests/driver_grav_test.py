@@ -34,7 +34,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.0028055269276044915, "phi_d": 8.315e-05, "phi_m": 0.002882}
+target_run = {"data_norm": 0.0028055269276044915, "phi_d": 8.32e-05, "phi_m": 0.0038}
 
 
 def test_gravity_fwr_run(
@@ -150,7 +150,7 @@ def test_gravity_run(
             lower_bound=0.0,
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e-2,
-            prctile=100,
+            percentile=100,
             store_sensitivities="ram",
             save_sensitivities=True,
         )

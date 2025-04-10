@@ -17,13 +17,13 @@ from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 from pytest import raises
 
-from simpeg_drivers.electromagnetics.time_domain import (
-    TDEMForwardOptions,
-    TDEMInversionOptions,
-)
 from simpeg_drivers.electromagnetics.time_domain.driver import (
     TDEMForwardDriver,
     TDEMInversionDriver,
+)
+from simpeg_drivers.electromagnetics.time_domain.params import (
+    TDEMForwardOptions,
+    TDEMInversionOptions,
 )
 from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
@@ -32,7 +32,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
-target_run = {"data_norm": 7.05481e-08, "phi_d": 198200000, "phi_m": 7806}
+target_run = {"data_norm": 7.05481e-08, "phi_d": 198000000, "phi_m": 7540}
 
 
 def test_bad_waveform(tmp_path: Path):
@@ -152,10 +152,10 @@ def test_airborne_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
 
         data_kwargs = {}
         for comp in components:
-            data_kwargs[f"{comp}_channel"] = survey.find_or_create_property_group(
+            data_kwargs[f"{comp}_channel"] = survey.fetch_property_group(
                 name=f"dB{comp}dt"
             )
-            data_kwargs[f"{comp}_uncertainty"] = survey.find_or_create_property_group(
+            data_kwargs[f"{comp}_uncertainty"] = survey.fetch_property_group(
                 name=f"dB{comp}dt uncertainties"
             )
 
@@ -180,9 +180,9 @@ def test_airborne_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
             upper_bound=1e2,
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e2,
-            coolingRate=4,
+            cooling_rate=4,
             max_cg_iterations=200,
-            prctile=5,
+            percentile=5,
             sens_wts_threshold=1.0,
             store_sensitivities="ram",
             solver_type="Mumps",
@@ -199,7 +199,7 @@ def test_airborne_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         )
         output["data"] = orig_dBzdt
         if pytest:
-            check_target(output, target_run, tolerance=0.1)
+            check_target(output, target_run)
             nan_ind = np.isnan(run_ws.get_entity("Iteration_0_model")[0].values)
             inactive_ind = run_ws.get_entity("active_cells")[0].values == 0
             assert np.all(nan_ind == inactive_ind)

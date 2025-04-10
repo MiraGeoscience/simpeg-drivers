@@ -18,11 +18,12 @@ from geoh5py.data import FloatData
 from geoh5py.objects import DrapeModel
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.electricals.params import (
+from simpeg_drivers.params import (
+    BaseForwardOptions,
+    BaseInversionOptions,
     DrapeModelOptions,
     LineSelectionOptions,
 )
-from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions
 
 
 class IP2DForwardOptions(BaseForwardOptions):
@@ -37,18 +38,19 @@ class IP2DForwardOptions(BaseForwardOptions):
     """
 
     name: ClassVar[str] = "Induced Polarization 2D Forward"
-    title: ClassVar[str] = "Induced Polarization 2D Forward"
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/induced_polarization_2d_forward.ui.json"
     )
 
-    inversion_type: str = "induced polarization 2d"
+    title: str = "Induced Polarization 2D Forward"
     physical_property: str = "chargeability"
+    inversion_type: str = "induced polarization 2d"
 
     chargeability_channel_bool: bool = True
     line_selection: LineSelectionOptions
     mesh: DrapeModel | None = None
     drape_model: DrapeModelOptions = DrapeModelOptions()
+    model_type: str = "Conductivity (S/m)"
     conductivity_model: float | FloatData
 
 
@@ -67,19 +69,20 @@ class IP2DInversionOptions(BaseInversionOptions):
     """
 
     name: ClassVar[str] = "Induced Polarization 2D Inversion"
-    title: ClassVar[str] = "Induced Polarization 2D Inversion"
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/induced_polarization_2d_inversion.ui.json"
     )
 
-    inversion_type: str = "induced polarization 2d"
+    title: str = "Induced Polarization 2D Inversion"
     physical_property: str = "chargeability"
+    inversion_type: str = "induced polarization 2d"
 
     chargeability_channel: FloatData
     chargeability_uncertainty: float | FloatData | None = None
     line_selection: LineSelectionOptions
     mesh: DrapeModel | None = None
     drape_model: DrapeModelOptions = DrapeModelOptions()
+    model_type: str = "Conductivity (S/m)"
     conductivity_model: float | FloatData
     lower_bound: float | FloatData | None = 0.0
     length_scale_y: None = None

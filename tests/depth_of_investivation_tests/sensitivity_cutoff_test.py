@@ -58,21 +58,21 @@ def test_lower_log_percent_mask():
 
 
 def test_sensitivity_mask(tmp_path):
-    ws = Workspace(tmp_path / "test.geoh5")
-    pts = Points.create(ws, name="test", vertices=np.random.randn(100, 3))
-    data = pts.add_data({"sensitivity": {"values": np.random.randn(100)}})
+    with Workspace.create(tmp_path / f"{__name__}.geoh5") as ws:
+        pts = Points.create(ws, name="test", vertices=np.random.randn(100, 3))
+        data = pts.add_data({"sensitivity": {"values": np.abs(np.random.randn(100))}})
 
-    assert np.all(
-        sensitivity_mask(sensitivity=data, cutoff=10, method="percentile")
-        == lower_percentile_mask(data.values, 10)
-    )
-    assert np.all(
-        sensitivity_mask(sensitivity=data, cutoff=10, method="percent")
-        == lower_percent_mask(data.values, 10)
-    )
-    assert np.all(
-        sensitivity_mask(sensitivity=data, cutoff=10, method="log_percent")
-        == lower_percent_mask(data.values, 10, logspace=True)
-    )
-    with pytest.raises(ValueError, match="Invalid method. Must be 'percentile'"):
-        sensitivity_mask(sensitivity=data, cutoff=10, method="invalid_method")
+        assert np.all(
+            sensitivity_mask(sensitivity=data, cutoff=10, method="percentile")
+            == lower_percentile_mask(data.values, 10)
+        )
+        assert np.all(
+            sensitivity_mask(sensitivity=data, cutoff=10, method="percent")
+            == lower_percent_mask(data.values, 10)
+        )
+        assert np.all(
+            sensitivity_mask(sensitivity=data, cutoff=10, method="log_percent")
+            == lower_percent_mask(data.values, 10, logspace=True)
+        )
+        with pytest.raises(ValueError, match="Invalid method. Must be 'percentile'"):
+            sensitivity_mask(sensitivity=data, cutoff=10, method="invalid_method")

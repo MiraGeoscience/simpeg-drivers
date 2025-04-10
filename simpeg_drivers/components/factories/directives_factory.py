@@ -223,7 +223,8 @@ class DirectivesFactory:
         """"""
         if (
             self._save_iteration_residual_directive is None
-            and self.factory_type not in ["tdem", "fem", "magnetotellurics", "tipper"]
+            and self.factory_type
+            not in ["tdem", "tdem 1d", "fdem", "fdem 1d", "magnetotellurics", "tipper"]
         ):
             self._save_iteration_residual_directive = SaveDataGeoh5Factory(
                 self.params
@@ -253,17 +254,14 @@ class DirectivesFactory:
         """Directive to update IRLS."""
         if self._update_irls_directive is None:
             has_chi_start = self.params.starting_chi_factor is not None
-            self._update_irls_directive = directives.Update_IRLS(
+            self._update_irls_directive = directives.UpdateIRLS(
                 f_min_change=self.params.f_min_change,
                 max_irls_iterations=self.params.max_irls_iterations,
-                max_beta_iterations=self.params.max_global_iterations,
-                beta_tol=self.params.beta_tol,
-                prctile=self.params.prctile,
-                coolingRate=self.params.coolingRate,
-                coolingFactor=self.params.coolingFactor,
-                coolEps_q=self.params.coolEps_q,
-                coolEpsFact=self.params.coolEpsFact,
-                beta_search=self.params.beta_search,
+                misfit_tolerance=self.params.beta_tol,
+                percentile=self.params.percentile,
+                cooling_rate=self.params.cooling_rate,
+                cooling_factor=self.params.cooling_factor,
+                irls_cooling_factor=self.params.epsilon_cooling_factor,
                 chifact_start=(
                     self.params.starting_chi_factor
                     if has_chi_start
@@ -355,12 +353,10 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
         active_cells_map = maps.InjectActiveCells(
             inversion_object.mesh, active_cells, np.nan
         )
-        sorting = inversion_object.permutation
         kwargs = {
             "label": "model",
             "association": "CEll",
-            "transforms": [active_cells_map],
-            "sorting": sorting,
+            "transforms": [active_cells_map, inversion_object.permutation.T],
         }
 
         if self.factory_type == "magnetic vector":
@@ -368,6 +364,7 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
             kwargs["transforms"] = [
                 cartesian2amplitude_dip_azimuth,
                 active_cells_map,
+                inversion_object.permutation.T,
             ]
 
         if self.factory_type in [
@@ -376,13 +373,27 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
             "magnetotellurics",
             "tipper",
             "tdem",
-            "fem",
+            "tdem 1d",
+            "fdem",
+            "fdem 1d",
         ]:
             expmap = maps.ExpMap(inversion_object.mesh)
-            kwargs["transforms"] = [expmap * active_cells_map]
+            kwargs["transforms"] = [
+                expmap * active_cells_map,
+                inversion_object.permutation.T,
+            ]
 
             if self.params.model_type == "Resistivity (Ohm-m)":
                 kwargs["transforms"].append(lambda x: 1 / x)
+
+        if "1d" in self.factory_type:
+            ghosts = (
+                np.squeeze(np.asarray(inversion_object.permutation.sum(axis=0))) == 0
+            )
+            nn_vals = np.ones_like(ghosts, dtype=float)
+            nn_vals[ghosts] = np.nan
+            kwargs["transforms"].append(lambda x: nn_vals * x)
+
         return kwargs
 
 
@@ -414,8 +425,12 @@ class SaveSensitivitiesGeoh5Factory(SaveGeoh5Factory):
             "label": "model",
             "association": "CEll",
             "dmisfit": global_misfit,
-            "transforms": [active_cells_map, sqrt, volume_normalization],
-            "sorting": inversion_object.permutation,
+            "transforms": [
+                active_cells_map,
+                sqrt,
+                volume_normalization,
+                inversion_object.permutation.T,
+            ],
         }
 
         if self.factory_type == "magnetic vector":
@@ -424,6 +439,7 @@ class SaveSensitivitiesGeoh5Factory(SaveGeoh5Factory):
                 lambda x: x.reshape((-1, 3), order="F"),
                 lambda x: np.linalg.norm(x, axis=1),
                 active_cells_map,
+                inversion_object.permutation.T,
             ]
 
         kwargs["label"] = "sensitivities"
@@ -448,7 +464,14 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
         global_misfit=None,
         name=None,
     ):
-        if self.factory_type in ["fem", "tdem", "magnetotellurics", "tipper"]:
+        if self.factory_type in [
+            "fdem",
+            "fdem 1d",
+            "tdem",
+            "tdem 1d",
+            "magnetotellurics",
+            "tipper",
+        ]:
             kwargs = self.assemble_data_keywords_em(
                 inversion_object=inversion_object,
                 active_cells=active_cells,

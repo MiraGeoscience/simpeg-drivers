@@ -42,9 +42,10 @@ def get_mvi_params(tmp_path: Path, **kwargs) -> MVIInversionOptions:
         n_lines=2,
         inversion_type="magnetic_vector",
     )
-    tmi_channel = survey.add_data(
-        {"tmi": {"values": np.random.rand(survey.n_vertices)}}
-    )
+    with geoh5.open():
+        tmi_channel = survey.add_data(
+            {"tmi": {"values": np.random.rand(survey.n_vertices)}}
+        )
     params = MVIInversionOptions(
         geoh5=geoh5,
         data_object=survey,
@@ -60,15 +61,16 @@ def get_mvi_params(tmp_path: Path, **kwargs) -> MVIInversionOptions:
 def test_save_data(tmp_path: Path):
     params = get_mvi_params(tmp_path)
     geoh5 = params.geoh5
-    data = InversionData(geoh5, params)
+    with geoh5.open():
+        data = InversionData(geoh5, params)
 
-    assert len(data.entity.vertices) > 0
+        assert len(data.entity.vertices) > 0
 
 
 def test_survey_data(tmp_path: Path):
     X, Y, Z = np.meshgrid(np.linspace(0, 100, 3), np.linspace(0, 100, 3), 0)
     verts = np.column_stack([X.ravel(), Y.ravel(), Z.ravel()])
-    with Workspace(tmp_path / "test_workspace.geoh5") as workspace:
+    with Workspace.create(tmp_path / "test_workspace.geoh5") as workspace:
         test_data_object = Points.create(
             workspace, vertices=verts, name="test_data_object"
         )
@@ -126,7 +128,6 @@ def test_survey_data(tmp_path: Path):
             mesh=mesh,
             starting_model=0.0,
             tile_spatial=2,
-            resolution=0.0,
         )
 
         driver = MVIInversionDriver(params)
@@ -202,26 +203,29 @@ def test_has_tensor():
 def test_get_uncertainty_component(tmp_path: Path):
     params = get_mvi_params(tmp_path, tmi_uncertainty=1.0)
     geoh5 = params.geoh5
-    data = InversionData(geoh5, params)
-    unc = params.uncertainties["tmi"]
-    assert len(np.unique(unc)) == 1
-    assert np.unique(unc)[0] == 1
-    assert len(unc) == data.entity.n_vertices
+    with geoh5.open():
+        data = InversionData(geoh5, params)
+        unc = params.uncertainties["tmi"]
+        assert len(np.unique(unc)) == 1
+        assert np.unique(unc)[0] == 1
+        assert len(unc) == data.entity.n_vertices
 
 
 def test_normalize(tmp_path: Path):
     params = get_mvi_params(tmp_path)
     geoh5 = params.geoh5
-    data = InversionData(geoh5, params)
-    data.normalizations = data.get_normalizations()
-    test_data = data.normalize(data.observed)
-    assert all(test_data["tmi"] == params.data["tmi"])
-    assert len(test_data) == 1
+    with geoh5.open():
+        data = InversionData(geoh5, params)
+        data.normalizations = data.get_normalizations()
+        test_data = data.normalize(data.observed)
+        assert all(test_data["tmi"] == params.data["tmi"])
+        assert len(test_data) == 1
 
 
 def test_get_survey(tmp_path: Path):
     params = get_mvi_params(tmp_path, tmi_uncertainty=1.0)
     geoh5 = params.geoh5
-    data = InversionData(geoh5, params)
-    survey = data.create_survey()
-    assert isinstance(survey[0], simpeg.potential_fields.magnetics.Survey)
+    with geoh5.open():
+        data = InversionData(geoh5, params)
+        survey = data.create_survey()
+        assert isinstance(survey[0], simpeg.potential_fields.magnetics.Survey)

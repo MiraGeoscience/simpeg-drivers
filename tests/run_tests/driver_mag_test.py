@@ -32,7 +32,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 8.71227951689941, "phi_d": 37.52, "phi_m": 5.717e-06}
+target_run = {"data_norm": 8.71227951689941, "phi_d": 37.5, "phi_m": 5.72e-06}
 
 
 def test_susceptibility_fwr_run(
@@ -109,7 +109,6 @@ def test_susceptibility_run(
             z_norm=1.0,
             initial_beta_ratio=1e1,
             gradient_type="components",
-            lower_bound=0.0,
             tmi_channel=tmi,
             tmi_uncertainty=1.0,
             max_global_iterations=max_iterations,
@@ -117,6 +116,7 @@ def test_susceptibility_run(
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
+    assert params.lower_bound == 0.0
     driver = MagneticInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
     with Workspace(driver.params.geoh5.h5file) as run_ws:

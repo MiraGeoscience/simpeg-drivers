@@ -122,6 +122,7 @@ def auto_mesh_parameters(
                     "levels": topography_refinement,
                     "horizon": True,
                 },
+                None,
             ],
             "out_group": out_group,
         }

@@ -47,7 +47,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 53.29601, "phi_d": 10590, "phi_m": 0.1336}
+target_run = {"data_norm": 53.29601, "phi_d": 10200, "phi_m": 0.123}
 
 
 def test_joint_cross_gradient_fwr_run(
@@ -76,17 +76,18 @@ def test_joint_cross_gradient_fwr_run(
     )
     fwr_driver_a = GravityForwardDriver(params)
 
-    _, _, model, survey, _ = setup_inversion_workspace(
-        tmp_path,
-        geoh5=geoh5,
-        background=0.0,
-        anomaly=0.05,
-        drape_height=15.0,
-        refinement=refinement,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
-        flatten=False,
-    )
+    with geoh5.open():
+        _, _, model, survey, _ = setup_inversion_workspace(
+            tmp_path,
+            geoh5=geoh5,
+            background=0.0,
+            anomaly=0.05,
+            drape_height=15.0,
+            refinement=refinement,
+            n_electrodes=n_grid_points,
+            n_lines=n_grid_points,
+            flatten=False,
+        )
     inducing_field = (50000.0, 90.0, 0.0)
     params = MVIForwardOptions(
         geoh5=geoh5,
@@ -100,18 +101,20 @@ def test_joint_cross_gradient_fwr_run(
     )
     fwr_driver_b = MVIForwardDriver(params)
 
-    _, _, model, survey, _ = setup_inversion_workspace(
-        tmp_path,
-        geoh5=geoh5,
-        background=0.01,
-        anomaly=10,
-        n_electrodes=n_grid_points,
-        n_lines=n_lines,
-        refinement=refinement,
-        drape_height=0.0,
-        inversion_type="dcip",
-        flatten=False,
-    )
+    with geoh5.open():
+        _, _, model, survey, _ = setup_inversion_workspace(
+            tmp_path,
+            geoh5=geoh5,
+            background=0.01,
+            anomaly=10,
+            n_electrodes=n_grid_points,
+            n_lines=n_lines,
+            refinement=refinement,
+            drape_height=0.0,
+            inversion_type="dcip",
+            flatten=False,
+        )
+
     params = DC3DForwardOptions(
         geoh5=geoh5,
         mesh=model.parent,
@@ -120,13 +123,19 @@ def test_joint_cross_gradient_fwr_run(
         starting_model=model,
     )
     fwr_driver_c = DC3DForwardDriver(params)
-    fwr_driver_c.inversion_data.entity.name = "survey"
 
-    # Force co-location of meshes
-    for driver in [fwr_driver_b, fwr_driver_c]:
-        driver.inversion_mesh.entity.origin = fwr_driver_a.inversion_mesh.entity.origin
-        driver.workspace.update_attribute(driver.inversion_mesh.entity, "attributes")
-        driver.inversion_mesh._mesh = None  # pylint: disable=protected-access
+    with geoh5.open():
+        fwr_driver_c.inversion_data.entity.name = "survey"
+
+        # Force co-location of meshes
+        for driver in [fwr_driver_b, fwr_driver_c]:
+            driver.inversion_mesh.entity.origin = (
+                fwr_driver_a.inversion_mesh.entity.origin
+            )
+            driver.workspace.update_attribute(
+                driver.inversion_mesh.entity, "attributes"
+            )
+            driver.inversion_mesh._mesh = None  # pylint: disable=protected-access
 
     fwr_driver_a.run()
     fwr_driver_b.run()
@@ -252,7 +261,7 @@ def test_joint_cross_gradient_inv_run(
             y_norm=0.0,
             z_norm=0.0,
             gradient_type="components",
-            prctile=100,
+            percentile=100,
             store_sensitivities="ram",
         )
 

@@ -30,16 +30,17 @@ def test_get_locations(tmp_path: Path):
         n_lines=2,
         inversion_type="magnetic_vector",
     )
-    mesh = model.parent
-    tmi_channel, gyz_channel = survey.add_data(
-        {
-            "tmi": {"values": np.random.rand(survey.n_vertices)},
-            "gyz": {"values": np.random.rand(survey.n_vertices)},
-        }
-    )
-    elevation = topography.add_data(
-        {"elevation": {"values": topography.vertices[:, 2]}}
-    )
+    with geoh5.open():
+        mesh = model.parent
+        tmi_channel, gyz_channel = survey.add_data(
+            {
+                "tmi": {"values": np.random.rand(survey.n_vertices)},
+                "gyz": {"values": np.random.rand(survey.n_vertices)},
+            }
+        )
+        elevation = topography.add_data(
+            {"elevation": {"values": topography.vertices[:, 2]}}
+        )
     params = MVIInversionOptions(
         geoh5=geoh5,
         mesh=mesh,
@@ -51,13 +52,14 @@ def test_get_locations(tmp_path: Path):
         starting_model=1.0,
     )
     geoh5 = params.geoh5
-    topo = InversionTopography(geoh5, params)
-    locs = topo.get_locations(params.active_cells.topography_object)
-    np.testing.assert_allclose(
-        locs[:, 2],
-        params.active_cells.topography.values,
-    )
+    with geoh5.open():
+        topo = InversionTopography(geoh5, params)
+        locs = topo.get_locations(params.active_cells.topography_object)
+        np.testing.assert_allclose(
+            locs[:, 2],
+            params.active_cells.topography.values,
+        )
 
-    params.active_cells.topography = 199.0
-    locs = topo.get_locations(params.active_cells.topography_object)
-    np.testing.assert_allclose(locs[:, 2], np.ones_like(locs[:, 2]) * 199.0)
+        params.active_cells.topography = 199.0
+        locs = topo.get_locations(params.active_cells.topography_object)
+        np.testing.assert_allclose(locs[:, 2], np.ones_like(locs[:, 2]) * 199.0)

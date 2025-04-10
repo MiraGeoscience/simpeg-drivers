@@ -83,17 +83,17 @@ def test_auto_pad():
 
 
 def test_auto_mesh_parameters(tmp_path):
-    ws = Workspace(tmp_path / "test.geoh5")
-    locs = create_test_survey()
-    locs, topo = generate_random_topography(locs, drape_survey=0)
+    with Workspace.create(tmp_path / "test.geoh5") as ws:
+        locs = create_test_survey()
+        locs, topo = generate_random_topography(locs, drape_survey=0)
 
-    survey = Points.create(ws, name="survey", vertices=locs)
-    topo = Points.create(ws, name="topography", vertices=topo)
+        survey = Points.create(ws, name="survey", vertices=locs)
+        topo = Points.create(ws, name="topography", vertices=topo)
 
-    params = auto_mesh_parameters(survey, topo, inversion_type="gravity")
-    mesh = OctreeDriver.octree_from_params(params)
+        params = auto_mesh_parameters(survey, topo, inversion_type="gravity")
+        mesh = OctreeDriver.octree_from_params(params)
 
-    assert mesh.u_cell_size == 10
-    assert mesh.v_cell_size == 10
-    assert mesh.w_cell_size == 10
-    assert params.vertical_padding == 0
+        assert mesh.u_cell_size == 10
+        assert mesh.v_cell_size == 10
+        assert mesh.w_cell_size == 10
+        assert params.vertical_padding == 0

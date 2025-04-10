@@ -26,11 +26,13 @@ from simpeg_drivers.electricals.direct_current.pseudo_three_dimensions.params im
     DCBatch2DInversionOptions,
 )
 from simpeg_drivers.electricals.params import (
-    DrapeModelOptions,
     FileControlOptions,
+)
+from simpeg_drivers.params import (
+    ActiveCellsOptions,
+    DrapeModelOptions,
     LineSelectionOptions,
 )
-from simpeg_drivers.params import ActiveCellsOptions
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 
@@ -77,7 +79,6 @@ def test_dc_p3d_fwr_run(
             line_object=geoh5.get_entity("line_ids")[0]
         ),
     )
-
     fwr_driver = DCBatch2DForwardDriver(params)
     fwr_driver.run()
 
@@ -125,9 +126,9 @@ def test_dc_p3d_run(
             max_global_iterations=max_iterations,
             initial_beta=None,
             initial_beta_ratio=10.0,
-            prctile=100,
+            percentile=100,
             upper_bound=10,
-            coolingRate=1,
+            cooling_rate=1,
             file_control=FileControlOptions(cleanup=False),
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")

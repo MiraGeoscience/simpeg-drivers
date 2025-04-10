@@ -37,13 +37,13 @@ class MagneticForwardOptions(BaseForwardOptions):
     """
 
     name: ClassVar[str] = "Magnetic Scalar Forward"
-    title: ClassVar[str] = "Magnetic Scalar Forward"
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/magnetic_scalar_forward.ui.json"
     )
 
-    inversion_type: str = "magnetic scalar"
+    title: str = "Magnetic Scalar Forward"
     physical_property: str = "susceptibility"
+    inversion_type: str = "magnetic scalar"
 
     tmi_channel_bool: bool = True
     bx_channel_bool: bool = False
@@ -87,13 +87,13 @@ class MagneticInversionOptions(BaseInversionOptions):
     """
 
     name: ClassVar[str] = "Magnetic Scalar Inversion"
-    title: ClassVar[str] = "Magnetic Scalar Inversion"
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/magnetic_scalar_inversion.ui.json"
     )
 
-    inversion_type: str = "magnetic scalar"
+    title: str = "Magnetic Scalar Inversion"
     physical_property: str = "susceptibility"
+    inversion_type: str = "magnetic scalar"
 
     tmi_channel: FloatData | None = None
     bx_channel: FloatData | None = None
@@ -118,3 +118,4 @@ class MagneticInversionOptions(BaseInversionOptions):
     inducing_field_strength: float | FloatData
     inducing_field_inclination: float | FloatData
     inducing_field_declination: float | FloatData
+    lower_bound: float | FloatData | None = 0.0
