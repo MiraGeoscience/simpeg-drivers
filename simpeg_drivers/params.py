@@ -26,12 +26,15 @@ from geoh5py.data import (
     ReferencedData,
 )
 from geoh5py.groups import PropertyGroup, SimPEGGroup, UIJsonGroup
+from geoh5py.groups.property_group_type import GroupTypeEnum
 from geoh5py.objects import DrapeModel, Octree, Points
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
+from simpeg.utils.mat_utils import cartesian2amplitude_dip_azimuth
 
 import simpeg_drivers
+from simpeg_drivers.utils.regularization import direction_and_dip
 
 
 logger = getLogger(__name__)
@@ -371,26 +374,28 @@ class BaseInversionOptions(CoreOptions):
     epsilon_cooling_factor: float = 1.2
 
     @property
-    def gradient_dip(self) -> np.ndarray | None:
-        """Gradient dip angle in clockwise radians from horizontal."""
+    def gradient_orientations(self) -> tuple(float, float):
+        """
+        Direction and dip angles for rotated gradient regularization.
+
+        Angles are in radians and are clockwise from North for direction
+        and clockwise from horizontal for dip.
+        """
+
         if self.gradient_rotation is not None:
-            dip_uid = self.gradient_rotation.properties[1]
-            dips = self.geoh5.get_entity(dip_uid)[0].values
-            return np.deg2rad(dips)
-        return None
+            orientations = direction_and_dip(self.gradient_rotation)
+
+            return np.deg2rad(orientations)
+
+        return 0.0, 0.0
 
     @property
-    def gradient_direction(self) -> np.ndarray | None:
-        """Gradient direction angle in clockwise radians from north"""
-        if self.gradient_rotation is not None:
-            from geoh5py.groups.property_group_type import GroupTypeEnum
+    def gradient_direction(self) -> np.ndarray:
+        return self.gradient_orientations[:, 0]
 
-            direction_uid = self.gradient_rotation.properties[0]
-            directions = self.geoh5.get_entity(direction_uid)[0].values
-            if self.gradient_rotation.property_group_type == GroupTypeEnum.STRIKEDIP:
-                directions += 90.0
-            return np.deg2rad(directions)
-        return None
+    @property
+    def gradient_dip(self) -> np.ndarray:
+        return self.gradient_orientations[:, 1]
 
 
 class EMDataMixin:

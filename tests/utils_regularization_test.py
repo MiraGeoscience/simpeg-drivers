@@ -15,6 +15,8 @@ from simpeg_drivers.utils.regularization import (
     cell_adjacent,
     cell_neighbors_along_axis,
     collect_all_neighbors,
+    direction_and_dip,
+    ensure_dip_direction_convention,
 )
 
 
@@ -90,3 +92,45 @@ def test_collect_all_neighbors():
     assert [15, 25, 25] in neighbor_centers
     assert [25, 25, 25] in neighbor_centers
     assert [15, 15, 15] not in neighbor_centers
+
+
+def test_ensure_dip_direction_convention():
+    # Rotate the vertical unit vector 37 degrees to the west and then 16
+    # degrees counter-clockwise about the z-axis.  Should result in a dip
+    # direction of 270 - 16 = 254 and a dip of 37.
+    Ry = np.array(
+        [
+            [
+                np.cos(np.deg2rad(-37)),
+                0,
+                np.sin(np.deg2rad(-37)),
+            ],
+            [0, 1, 0],
+            [-np.sin(np.deg2rad(-37)), 0, np.cos(np.deg2rad(-37))],
+        ]
+    )
+    Rz = np.array(
+        [
+            [np.cos(np.deg2rad(16)), -np.sin(np.deg2rad(16)), 0],
+            [np.sin(np.deg2rad(16)), np.cos(np.deg2rad(16)), 0],
+            [0, 0, 1],
+        ]
+    )
+    arbitrary_vector = Rz.dot(Ry.dot([0, 0, 1]))
+
+    orientations = np.array(
+        [
+            [1, 0, 1],
+            [0, 1, 1],
+            [-1, 0, 1],
+            [0, -1, 1],
+            [1, 0, np.sqrt(3)],
+            [0, 1, np.sqrt(3)],
+            [-1, 0, np.sqrt(3)],
+            [0, -1, np.sqrt(3)],
+            arbitrary_vector.tolist(),
+        ]
+    )
+    dir_dip = ensure_dip_direction_convention(orientations, group_type="3D vector")
+    assert np.allclose(dir_dip[:, 0], [90, 0, 270, 180] * 2 + [254])
+    assert np.allclose(dir_dip[:, 1], [45] * 4 + [30] * 4 + [37])

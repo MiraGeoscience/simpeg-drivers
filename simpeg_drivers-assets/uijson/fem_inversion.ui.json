@@ -274,7 +274,8 @@
         "dataType": "Float",
         "dataGroupType": [
             "Strike & dip",
-            "Dip direction & dip"
+            "Dip direction & dip",
+            "3D vector"
         ],
         "label": "Gradient rotation",
         "optional": true,

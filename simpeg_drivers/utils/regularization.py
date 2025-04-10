@@ -11,8 +11,11 @@
 import numpy as np
 import scipy.sparse as ssp
 from discretize import TreeMesh
+from geoh5py.groups import PropertyGroup
+from geoh5py.groups.property_group_type import GroupTypeEnum
 from simpeg.regularization import SparseSmoothness
 from simpeg.utils import mkvc, sdiag
+from simpeg.utils.mat_utils import cartesian2amplitude_dip_azimuth
 
 
 def cell_neighbors_along_axis(mesh: TreeMesh, axis: str) -> np.ndarray:
@@ -391,6 +394,49 @@ def rotated_gradient(
 
     unit_grad = gradient_operator(neighbors, volumes, n_cells)
     return sdiag(1 / mesh.h_gridded[:, "xyz".find(axis)]) @ unit_grad
+
+
+def ensure_dip_direction_convention(orientations: np.ndarray, group_type: str):
+    """
+    Ensure orientations array has dip and direction convention.
+
+    :param orientations: Array of orientations.  Either n * 2 if Strike & dip
+        or Dip direction & dip group_type, or n * 3 if 3D Vector group_type.
+    :param group_type as specified in geoh5py.GroupTypeEnum.
+    """
+
+    if group_type == GroupTypeEnum.VECTOR:
+        orientations = orientations / np.c_[np.linalg.norm(orientations, axis=1)]
+        dip, direction = cartesian2amplitude_dip_azimuth(orientations)[:, 1:].T
+        dip += 90.0
+        orientations = np.c_[direction, dip]
+
+    if group_type in [GroupTypeEnum.STRIKEDIP]:
+        orientations[:, 0] = 90.0 + orientations[:, 0]
+
+    return orientations
+
+
+def direction_and_dip(property_group: PropertyGroup) -> list[np.ndarray]:
+    """Conversion of orientation group to direction and dip."""
+
+    group_type = property_group.property_group_type
+    if group_type not in [
+        GroupTypeEnum.VECTOR,
+        GroupTypeEnum.STRIKEDIP,
+        GroupTypeEnum.DIPDIR,
+    ]:
+        raise ValueError(
+            "Property group does not contain orientation data. "
+            "Type must be one of '3D vector', 'Strike & dip', or "
+            "'Dip direction & dip'."
+        )
+
+    orientations = np.vstack(
+        [property_group.parent.get_data(k)[0].values for k in property_group.properties]
+    ).T
+
+    return ensure_dip_direction_convention(orientations, group_type)
 
 
 def set_rotated_operators(
