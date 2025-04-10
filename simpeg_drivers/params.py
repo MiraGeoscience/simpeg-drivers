@@ -387,14 +387,18 @@ class BaseInversionOptions(CoreOptions):
 
             return np.deg2rad(orientations)
 
-        return 0.0, 0.0
+        return None
 
     @property
     def gradient_direction(self) -> np.ndarray:
+        if self.gradient_orientations is None:
+            return 0.0
         return self.gradient_orientations[:, 0]
 
     @property
     def gradient_dip(self) -> np.ndarray:
+        if self.gradient_orientations is None:
+            return 0.0
         return self.gradient_orientations[:, 1]
 
 
