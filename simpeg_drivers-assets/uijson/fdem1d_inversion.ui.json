@@ -80,6 +80,11 @@
         "dependencyType": "enabled",
         "value": ""
     },
+    "u_cell_size": {
+        "visible": false,
+        "label": "Vertical core cell size (m)",
+        "value": 0.0
+    },
     "v_cell_size": {
         "min": 0.0,
         "group": "1D Mesh",
@@ -95,6 +100,11 @@
         "enabled": true,
         "label": "Depth of core (m)",
         "value": 500.0
+    },
+    "horizontal_padding": {
+        "visible": false,
+        "label": "Horizontal padding (m)",
+        "value": 1000.0
     },
     "vertical_padding": {
         "min": 0.0,
@@ -272,6 +282,7 @@
         "property": "",
         "enabled": true
     },
+    "length_scale_y": "",
     "length_scale_z": {
         "min": 0.0,
         "group": "Regularization",
@@ -285,6 +296,7 @@
         "property": "",
         "enabled": true
     },
+    "gradient_rotation": "",
     "s_norm": {
         "association": "Cell",
         "dataType": "Float",
@@ -319,6 +331,7 @@
         "enabled": true,
         "tooltip": "Lp-norm used in the x-smoothness term of the objective function."
     },
+    "y_norm": "",
     "z_norm": {
         "association": "Cell",
         "dataType": "Float",
@@ -546,6 +559,17 @@
         "tooltip": "Use disk on a fast local SSD, and RAM elsewhere",
         "value": "ram",
         "visible": false
+    },
+    "max_chunk_size": {
+        "min": 0,
+        "group": "Compute",
+        "optional": true,
+        "enabled": true,
+        "label": "Maximum chunk size (Mb)",
+        "value": 128,
+        "verbose": 3,
+        "visible": false,
+        "tooltip": "Limit the chunk size used by Dask for distributed computation."
     },
     "out_group": {
         "label": "SimPEG group",

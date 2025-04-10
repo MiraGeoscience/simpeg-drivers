@@ -32,6 +32,11 @@
         "label": "Z imag component",
         "value": true
     },
+    "u_cell_size": {
+        "visible": false,
+        "label": "Vertical core cell size (m)",
+        "value": 0.0
+    },
     "v_cell_size": {
         "min": 0.0,
         "group": "1D Mesh",
@@ -47,6 +52,11 @@
         "enabled": true,
         "label": "Depth of core (m)",
         "value": 500.0
+    },
+    "horizontal_padding": {
+        "visible": false,
+        "label": "Horizontal padding (m)",
+        "value": 1000.0
     },
     "vertical_padding": {
         "min": 0.0,

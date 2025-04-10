@@ -219,13 +219,6 @@
         "visible": false,
         "tooltip": "Limit the chunk size used by Dask for distributed computation."
     },
-    "chunk_by_rows": {
-        "group": "Compute",
-        "label": "Chunk by rows",
-        "value": true,
-        "verbose": 3,
-        "visible": false
-    },
     "out_group": {
         "label": "SimPEG group",
         "value": "",
