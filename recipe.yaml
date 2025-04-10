@@ -30,7 +30,7 @@ requirements:
     - geoh5py >=0.11.0a, <0.12.dev
     - mira-simpeg >=0.23.0.1a, <0.23.1.dev
     - octree-creation-app >=0.3.0a, <0.4.dev
-    - param-sweeps >=0.3.0a1, <0.4.dev
+    - param-sweeps >=0.2.1a1, <0.3.dev
     # direct dependencies
     - dask-core >=2024.06, <2024.07.dev
     - discretize >=0.10.0, <0.11.dev
