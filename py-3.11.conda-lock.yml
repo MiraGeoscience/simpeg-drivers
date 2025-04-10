@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: dcb25cd80f87fb6545373c73e84a3e7ad26720f3ecb560abe04b12978d46e5bb
-    linux-64: eee9578d3d89584ba05f274b5fd724a11122bde0ba7a92bf160a2625ad5693eb
+    win-64: 5b2162323d3d0d4561072754e86cd1acd55e8305218417335ef8a2b2105d9d6a
+    linux-64: 31f75b42758218d0f203c100f09f3329045dbac71eeb2f362d99094af76dea89
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -8510,36 +8510,6 @@ package:
     sha256: b5d72bb33788904a218fd7da1850238517592358ecc79c30bb5c188a71df506d
   category: main
   optional: false
-- name: empymod
-  version: 2.5.1
-  manager: pip
-  platform: linux-64
-  dependencies:
-    libdlf: '*'
-    numba: '*'
-    numpy: '*'
-    scipy: '>=1.10'
-    scooby: '*'
-  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/geoplus-pypi-dev/packages/packages/ca/e5/610fbc0c9de23eb4e6eac209d5553ed395a8cbdab8f4e3858d5cca973b70/empymod-2.5.1-py3-none-any.whl
-  hash:
-    sha256: 4cc4d2b6c800bf198e14a082888a75ccd7ebc98055ca862d174000990729ab49
-  category: main
-  optional: false
-- name: empymod
-  version: 2.5.1
-  manager: pip
-  platform: win-64
-  dependencies:
-    libdlf: '*'
-    numba: '*'
-    numpy: '*'
-    scipy: '>=1.10'
-    scooby: '*'
-  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/geoplus-pypi-dev/packages/packages/ca/e5/610fbc0c9de23eb4e6eac209d5553ed395a8cbdab8f4e3858d5cca973b70/empymod-2.5.1-py3-none-any.whl
-  hash:
-    sha256: 4cc4d2b6c800bf198e14a082888a75ccd7ebc98055ca862d174000990729ab49
-  category: main
-  optional: false
 - name: geoapps-utils
   version: 0.5.0a3
   manager: pip
@@ -8597,13 +8567,12 @@ package:
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.23.0.1a1.dev0
+  version: 0.23.0.1a1
   manager: pip
   platform: linux-64
   dependencies:
     dask: '*'
-    discretize: '>=0.11.0'
-    empymod: '>=2.0.0'
+    discretize: '>=0.11'
     fsspec: '>=0.3.3'
     geoana: '>=0.7.0'
     geoh5py: '>=0.11.0a1,<0.12.dev'
@@ -8613,19 +8582,18 @@ package:
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
     zarr: '*'
-  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/geoplus-pypi-dev/mira-simpeg/0.23.0.1a1.dev0+mira/mira_simpeg-0.23.0.1a1.dev0-py3-none-any.whl
+  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/geoplus-pypi-dev/mira-simpeg/0.23.0.1a1+mira/mira_simpeg-0.23.0.1a1-py3-none-any.whl
   hash:
-    sha256: 69a71df59217754fda77fbcedbb3b7f9e526429b9ac5f3c09e1d3b5d772e6461
+    sha256: d47becd73401e295eea7caf00a54f96fcaeeea22988d6f2267ddc58741d9d11b
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.23.0.1a1.dev0
+  version: 0.23.0.1a1
   manager: pip
   platform: win-64
   dependencies:
     dask: '*'
-    discretize: '>=0.11.0'
-    empymod: '>=2.0.0'
+    discretize: '>=0.11'
     fsspec: '>=0.3.3'
     geoana: '>=0.7.0'
     geoh5py: '>=0.11.0a1,<0.12.dev'
@@ -8635,9 +8603,9 @@ package:
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
     zarr: '*'
-  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/geoplus-pypi-dev/mira-simpeg/0.23.0.1a1.dev0+mira/mira_simpeg-0.23.0.1a1.dev0-py3-none-any.whl
+  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/geoplus-pypi-dev/mira-simpeg/0.23.0.1a1+mira/mira_simpeg-0.23.0.1a1-py3-none-any.whl
   hash:
-    sha256: 69a71df59217754fda77fbcedbb3b7f9e526429b9ac5f3c09e1d3b5d772e6461
+    sha256: d47becd73401e295eea7caf00a54f96fcaeeea22988d6f2267ddc58741d9d11b
   category: main
   optional: false
 - name: octree-creation-app
