@@ -71,7 +71,7 @@ class TileEstimator(BaseDriver):
     creating more tiles.
     """
 
-    _params_class = TileParameters
+    _options_class = TileParameters
 
     def __init__(self, params: TileParameters):
         self._driver: InversionDriver | None = None

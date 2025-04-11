@@ -18,10 +18,10 @@ from geoh5py.workspace import Workspace
 from simpeg_drivers.depth_of_investigation.sensitivity_cutoff.driver import (
     SensitivityCutoffDriver,
 )
-from simpeg_drivers.depth_of_investigation.sensitivity_cutoff.params import (
+from simpeg_drivers.depth_of_investigation.sensitivity_cutoff.options import (
     SensitivityCutoffParams,
 )
-from simpeg_drivers.params import ActiveCellsOptions
+from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import GravityInversionOptions
 from simpeg_drivers.potential_fields.gravity.driver import GravityInversionDriver
 from simpeg_drivers.utils.testing import setup_inversion_workspace

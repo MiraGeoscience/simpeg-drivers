@@ -22,12 +22,7 @@ from geoh5py.objects import (
 )
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.params import (
-    BaseForwardOptions,
-    BaseInversionOptions,
-    DrapeModelOptions,
-    EMDataMixin,
-)
+from simpeg_drivers.options import BaseForwardOptions, BaseInversionOptions, EMDataMixin
 
 
 Receivers: TypeAlias = (
@@ -35,7 +30,7 @@ Receivers: TypeAlias = (
 )
 
 
-class TDEM1DForwardOptions(EMDataMixin, BaseForwardOptions):
+class TDEMForwardOptions(EMDataMixin, BaseForwardOptions):
     """
     Time Domain Electromagnetic forward options.
 
@@ -47,26 +42,18 @@ class TDEM1DForwardOptions(EMDataMixin, BaseForwardOptions):
     """
 
     name: ClassVar[str] = "Time Domain Electromagnetics Forward"
-    default_ui_json: ClassVar[Path] = assets_path() / "uijson/tdem1d_forward.ui.json"
+    default_ui_json: ClassVar[Path] = assets_path() / "uijson/tdem_forward.ui.json"
 
-    title: str = "Time-domain EM-1D (TEM-1D) Forward"
-    inversion_type: str = "tdem 1d"
+    title: str = "Time-domain EM (TEM) Forward"
     physical_property: str = "conductivity"
+    inversion_type: str = "tdem"
 
     data_object: Receivers
-    z_channel_bool: bool
-    x_channel_bool: None = None
-    y_channel_bool: None = None
+    z_channel_bool: bool | None = None
+    x_channel_bool: bool | None = None
+    y_channel_bool: bool | None = None
     data_units: str = "dB/dt (T/s)"
     model_type: str = "Conductivity (S/m)"
-    drape_model: DrapeModelOptions = DrapeModelOptions(
-        u_cell_size=10.0,
-        v_cell_size=10.0,
-        depth_core=100.0,
-        horizontal_padding=0.0,
-        vertical_padding=100.0,
-        expansion_factor=1.1,
-    )
 
     @property
     def unit_conversion(self):
@@ -79,7 +66,7 @@ class TDEM1DForwardOptions(EMDataMixin, BaseForwardOptions):
         return conversion[self.data_object.unit]
 
 
-class TDEM1DInversionOptions(EMDataMixin, BaseInversionOptions):
+class TDEMInversionOptions(EMDataMixin, BaseInversionOptions):
     """
     Time Domain Electromagnetic Inversion options.
 
@@ -94,33 +81,21 @@ class TDEM1DInversionOptions(EMDataMixin, BaseInversionOptions):
     """
 
     name: ClassVar[str] = "Time Domain Electromagnetics Inversion"
-    default_ui_json: ClassVar[Path] = assets_path() / "uijson/tdem1d_inversion.ui.json"
+    default_ui_json: ClassVar[Path] = assets_path() / "uijson/tdem_inversion.ui.json"
 
-    title: str = "Time-domain EM-1D (TEM-1D) Inversion"
-    inversion_type: str = "tdem 1d"
+    title: str = "Time-domain EM (TEM) Inversion"
     physical_property: str = "conductivity"
+    inversion_type: str = "tdem"
 
     data_object: Receivers
     z_channel: PropertyGroup | None = None
     z_uncertainty: PropertyGroup | None = None
-    x_channel: None = None
-    x_uncertainty: None = None
-    y_channel: None = None
-    y_uncertainty: None = None
-    length_scale_y: None = None
-    y_norm: None = None
+    x_channel: PropertyGroup | None = None
+    x_uncertainty: PropertyGroup | None = None
+    y_channel: PropertyGroup | None = None
+    y_uncertainty: PropertyGroup | None = None
     data_units: str = "dB/dt (T/s)"
     model_type: str = "Conductivity (S/m)"
-    drape_model: DrapeModelOptions = DrapeModelOptions(
-        u_cell_size=10.0,
-        v_cell_size=10.0,
-        depth_core=100.0,
-        horizontal_padding=0.0,
-        vertical_padding=100.0,
-        expansion_factor=1.1,
-    )
-    auto_scale_misfits: bool = False
-    sens_wts_threshold: float = 100.0
 
     @property
     def unit_conversion(self):

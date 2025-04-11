@@ -19,7 +19,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from geoapps_utils.driver.params import BaseParams
 
-    from simpeg_drivers.params import BaseOptions
+    from simpeg_drivers.options import BaseOptions
 
 import numpy as np
 import simpeg.electromagnetics.time_domain as tdem

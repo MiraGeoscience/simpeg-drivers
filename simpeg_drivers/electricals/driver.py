@@ -30,7 +30,7 @@ from simpeg_drivers.components.topography import InversionTopography
 from simpeg_drivers.components.windows import InversionWindow
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.line_sweep.driver import LineSweepDriver
-from simpeg_drivers.params import (
+from simpeg_drivers.options import (
     BaseForwardOptions,
     BaseInversionOptions,
     LineSelectionOptions,
@@ -80,7 +80,7 @@ class Base2DDriver(InversionDriver):
 class BaseBatch2DDriver(LineSweepDriver):
     """Base class for batch 2D DC and IP forward and inversion drivers."""
 
-    _params_class: type[BaseForwardOptions | BaseInversionOptions]
+    _options_class: type[BaseForwardOptions | BaseInversionOptions]
     _params_2d_class: type[BaseForwardOptions | BaseInversionOptions]
     _validations = None
     _model_list: list[str] = []

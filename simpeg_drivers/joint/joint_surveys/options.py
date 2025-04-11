@@ -18,7 +18,7 @@ from geoh5py.data import FloatData
 from pydantic import model_validator
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.joint.params import BaseJointOptions
+from simpeg_drivers.joint.options import BaseJointOptions
 
 
 class JointSurveysOptions(BaseJointOptions):

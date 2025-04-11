@@ -9,7 +9,7 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from .params import (
+from .options import (
     FDEMForwardOptions,
     FDEMInversionOptions,
 )

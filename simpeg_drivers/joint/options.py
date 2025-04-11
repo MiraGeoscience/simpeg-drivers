@@ -21,7 +21,7 @@ from geoh5py.shared.utils import fetch_active_workspace
 from pydantic import ConfigDict, field_validator, model_validator
 
 import simpeg_drivers
-from simpeg_drivers.params import ActiveCellsOptions, SolverType
+from simpeg_drivers.options import ActiveCellsOptions, SolverType
 
 
 class BaseJointOptions(BaseData):
