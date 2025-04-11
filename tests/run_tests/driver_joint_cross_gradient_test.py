@@ -260,7 +260,6 @@ def test_joint_cross_gradient_inv_run(
             x_norm=0.0,
             y_norm=0.0,
             z_norm=0.0,
-            gradient_type="components",
             percentile=100,
             store_sensitivities="ram",
         )
