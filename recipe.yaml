@@ -32,9 +32,9 @@ requirements:
     - octree-creation-app >=0.3.0a1, <0.4.dev
     - param-sweeps >=0.2.1a1, <0.3.dev
     # direct dependencies
-    - dask-core >=2024.06, <2024.07.dev
+    - dask-core >=2025.3, <2025.4.dev
     - discretize >=0.10.0, <0.11.dev
-    - distributed >=2024.06, <2024.07.dev
+    - distributed >=2025.3, <2025.4.dev
     - numpy >=1.26.0, <1.27.dev
     - pydantic >=2.5.2, <3.0.dev
     - pydiso >=0.1.0, <0.2.dev

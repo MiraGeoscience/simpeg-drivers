@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: 0d192d53cbd0f46941f14b8c50288b3dc9499d4f9150d4af8185417083950d72
-    linux-64: 7fbac98b57b716cef715dde2b544453052b2fc33566955cb98146d8842084a4c
+    win-64: 0ce5c47c4e697c04f47e625e86dfaa02f5dfd7778d2d6607e732da19302d3f2c
+    linux-64: 1531d079f4d385faa28bec701b6ba4a190bb8caf1e1b7b550e7b5a81fc674fb5
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -982,16 +982,16 @@ package:
   category: dev
   optional: true
 - name: cpython
-  version: 3.10.16
+  version: 3.10.17
   manager: conda
   platform: win-64
   dependencies:
     python: '>=3.10,<3.11.0a0'
     python_abi: '*'
-  url: https://packages.prefix.dev/conda-forge/noarch/cpython-3.10.16-py310hd8ed1ab_3.conda
+  url: https://packages.prefix.dev/conda-forge/noarch/cpython-3.10.17-py310hd8ed1ab_0.conda
   hash:
-    md5: 622cf017f424470bca75f1636028cc0a
-    sha256: a1740e430036d230cad95a9d55e5e19aa8ec3071a52f438e6d8c0ccba76b0c3c
+    md5: e2b81369f0473107784f8b7da8e6a8e9
+    sha256: 6944d47f2bf3c443d5af855ee0c77156da1b90c6f0e79cedc3b934bcd2794d64
   category: dev
   optional: true
 - name: cycler
@@ -1052,43 +1052,43 @@ package:
   category: main
   optional: false
 - name: dask-core
-  version: 2024.6.2
+  version: 2025.3.0
   manager: conda
   platform: linux-64
   dependencies:
     click: '>=8.1'
-    cloudpickle: '>=1.5.0'
+    cloudpickle: '>=3.0.0'
     fsspec: '>=2021.09.0'
-    importlib_metadata: '>=4.13.0'
+    importlib-metadata: '>=4.13.0'
     packaging: '>=20.0'
-    partd: '>=1.2.0'
-    python: '>=3.9'
+    partd: '>=1.4.0'
+    python: '>=3.10'
     pyyaml: '>=5.3.1'
     toolz: '>=0.10.0'
-  url: https://packages.prefix.dev/conda-forge/noarch/dask-core-2024.6.2-pyhd8ed1ab_0.conda
+  url: https://packages.prefix.dev/conda-forge/noarch/dask-core-2025.3.0-pyhd8ed1ab_0.conda
   hash:
-    md5: 048ca0ec2cd1f3995d2d36dec0efd99a
-    sha256: bf240aa576e75cffb7cec1cd86942f9d62b710cee1a737f19ea32636d3f1bcff
+    md5: 36f6cc22457e3d6a6051c5370832f96c
+    sha256: 72badd945d856d2928fdbe051f136f903bcfee8136f1526c8362c6c465b793ec
   category: main
   optional: false
 - name: dask-core
-  version: 2024.6.2
+  version: 2025.3.0
   manager: conda
   platform: win-64
   dependencies:
     click: '>=8.1'
-    cloudpickle: '>=1.5.0'
+    cloudpickle: '>=3.0.0'
     fsspec: '>=2021.09.0'
-    importlib_metadata: '>=4.13.0'
+    importlib-metadata: '>=4.13.0'
     packaging: '>=20.0'
-    partd: '>=1.2.0'
-    python: '>=3.9'
+    partd: '>=1.4.0'
+    python: '>=3.10'
     pyyaml: '>=5.3.1'
     toolz: '>=0.10.0'
-  url: https://packages.prefix.dev/conda-forge/noarch/dask-core-2024.6.2-pyhd8ed1ab_0.conda
+  url: https://packages.prefix.dev/conda-forge/noarch/dask-core-2025.3.0-pyhd8ed1ab_0.conda
   hash:
-    md5: 048ca0ec2cd1f3995d2d36dec0efd99a
-    sha256: bf240aa576e75cffb7cec1cd86942f9d62b710cee1a737f19ea32636d3f1bcff
+    md5: 36f6cc22457e3d6a6051c5370832f96c
+    sha256: 72badd945d856d2928fdbe051f136f903bcfee8136f1526c8362c6c465b793ec
   category: main
   optional: false
 - name: dataclasses
@@ -1116,7 +1116,7 @@ package:
   category: dev
   optional: true
 - name: debugpy
-  version: 1.8.13
+  version: 1.8.14
   manager: conda
   platform: linux-64
   dependencies:
@@ -1125,14 +1125,14 @@ package:
     libstdcxx: '>=13'
     python: '>=3.10,<3.11.0a0'
     python_abi: 3.10.*
-  url: https://packages.prefix.dev/conda-forge/linux-64/debugpy-1.8.13-py310hf71b8c6_0.conda
+  url: https://packages.prefix.dev/conda-forge/linux-64/debugpy-1.8.14-py310hf71b8c6_0.conda
   hash:
-    md5: dc30b46d5b3ddccd3b3ac1b0bee17026
-    sha256: f02fb1862980595a310551f5cd35ddffa1f224e7d9c5aab6c3b9e37922a96e34
+    md5: f684f79f834ebff4917f1fef366e2ca4
+    sha256: 532e0ec65d575b1f2b77febff5e357759e4e463118c0b4c01596d954f491bacc
   category: dev
   optional: true
 - name: debugpy
-  version: 1.8.13
+  version: 1.8.14
   manager: conda
   platform: win-64
   dependencies:
@@ -1141,10 +1141,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://packages.prefix.dev/conda-forge/win-64/debugpy-1.8.13-py310h9e98ed7_0.conda
+  url: https://packages.prefix.dev/conda-forge/win-64/debugpy-1.8.14-py310h9e98ed7_0.conda
   hash:
-    md5: 136cdcd7b5c571c42d8c08730e8c4e0b
-    sha256: a98214b90b595cadb190359957ef046629a8d2e2ae6033e7304288dd65b33c43
+    md5: 4849f4e95ac1018bf446394ee0661e16
+    sha256: 81c5c211a59888178a6d9011e74baf3bae5a319dfcd29a2a8ac3b30bcab5ef41
   category: dev
   optional: true
 - name: decorator
@@ -1256,59 +1256,59 @@ package:
   category: main
   optional: false
 - name: distributed
-  version: 2024.6.2
+  version: 2025.3.0
   manager: conda
   platform: linux-64
   dependencies:
     click: '>=8.0'
-    cloudpickle: '>=1.5.0'
-    cytoolz: '>=0.10.1'
-    dask-core: '>=2024.6.2,<2024.6.3.0a0'
+    cloudpickle: '>=3.0.0'
+    cytoolz: '>=0.11.2'
+    dask-core: '>=2025.3.0,<2025.3.1.0a0'
     jinja2: '>=2.10.3'
     locket: '>=1.0.0'
-    msgpack-python: '>=1.0.0'
+    msgpack-python: '>=1.0.2'
     packaging: '>=20.0'
-    psutil: '>=5.7.2'
-    python: '>=3.9'
-    pyyaml: '>=5.3.1'
+    psutil: '>=5.8.0'
+    python: '>=3.10'
+    pyyaml: '>=5.4.1'
     sortedcontainers: '>=2.0.5'
     tblib: '>=1.6.0'
-    toolz: '>=0.10.0'
-    tornado: '>=6.0.4'
-    urllib3: '>=1.24.3'
+    toolz: '>=0.11.2'
+    tornado: '>=6.2.0'
+    urllib3: '>=1.26.5'
     zict: '>=3.0.0'
-  url: https://packages.prefix.dev/conda-forge/noarch/distributed-2024.6.2-pyhd8ed1ab_0.conda
+  url: https://packages.prefix.dev/conda-forge/noarch/distributed-2025.3.0-pyhd8ed1ab_0.conda
   hash:
-    md5: eecb4c188864376d2b45a5afc4bcb2fa
-    sha256: e322d23e86eb85cf17d096b8ce864d87a509981f372d2c8bfeb085e0397151f1
+    md5: 968a7a4ff98bcfb515b0f1c94d35553f
+    sha256: ea055aeda774d03ec96e0901ec119c6d3dc21ddd50af166bec664a76efd5f82a
   category: main
   optional: false
 - name: distributed
-  version: 2024.6.2
+  version: 2025.3.0
   manager: conda
   platform: win-64
   dependencies:
     click: '>=8.0'
-    cloudpickle: '>=1.5.0'
-    cytoolz: '>=0.10.1'
-    dask-core: '>=2024.6.2,<2024.6.3.0a0'
+    cloudpickle: '>=3.0.0'
+    cytoolz: '>=0.11.2'
+    dask-core: '>=2025.3.0,<2025.3.1.0a0'
     jinja2: '>=2.10.3'
     locket: '>=1.0.0'
-    msgpack-python: '>=1.0.0'
+    msgpack-python: '>=1.0.2'
     packaging: '>=20.0'
-    psutil: '>=5.7.2'
-    python: '>=3.9'
-    pyyaml: '>=5.3.1'
+    psutil: '>=5.8.0'
+    python: '>=3.10'
+    pyyaml: '>=5.4.1'
     sortedcontainers: '>=2.0.5'
     tblib: '>=1.6.0'
-    toolz: '>=0.10.0'
-    tornado: '>=6.0.4'
-    urllib3: '>=1.24.3'
+    toolz: '>=0.11.2'
+    tornado: '>=6.2.0'
+    urllib3: '>=1.26.5'
     zict: '>=3.0.0'
-  url: https://packages.prefix.dev/conda-forge/noarch/distributed-2024.6.2-pyhd8ed1ab_0.conda
+  url: https://packages.prefix.dev/conda-forge/noarch/distributed-2025.3.0-pyhd8ed1ab_0.conda
   hash:
-    md5: eecb4c188864376d2b45a5afc4bcb2fa
-    sha256: e322d23e86eb85cf17d096b8ce864d87a509981f372d2c8bfeb085e0397151f1
+    md5: 968a7a4ff98bcfb515b0f1c94d35553f
+    sha256: ea055aeda774d03ec96e0901ec119c6d3dc21ddd50af166bec664a76efd5f82a
   category: main
   optional: false
 - name: docutils
@@ -1924,8 +1924,8 @@ package:
   hash:
     md5: 7f46575a91b1307441abc235d01cab66
     sha256: 1e3eb9d65c4d7b87c7347553ef9eef6f994996f90a2299e19b35f5997d3a3e79
-  category: main
-  optional: false
+  category: dev
+  optional: true
 - name: importlib_metadata
   version: 8.6.1
   manager: conda
@@ -1936,8 +1936,8 @@ package:
   hash:
     md5: 7f46575a91b1307441abc235d01cab66
     sha256: 1e3eb9d65c4d7b87c7347553ef9eef6f994996f90a2299e19b35f5997d3a3e79
-  category: main
-  optional: false
+  category: dev
+  optional: true
 - name: importlib_resources
   version: 6.5.2
   manager: conda
@@ -5946,7 +5946,7 @@ package:
   category: dev
   optional: true
 - name: python
-  version: 3.10.16
+  version: 3.10.17
   manager: conda
   platform: linux-64
   dependencies:
@@ -5968,14 +5968,14 @@ package:
     readline: '>=8.2,<9.0a0'
     tk: '>=8.6.13,<8.7.0a0'
     tzdata: ''
-  url: https://packages.prefix.dev/conda-forge/linux-64/python-3.10.16-habfa6aa_3_cpython.conda
+  url: https://packages.prefix.dev/conda-forge/linux-64/python-3.10.17-hd6af730_0_cpython.conda
   hash:
-    md5: dcf6249350c0f08fe07bc95c730dadbf
-    sha256: a6a2cda721d49c7f9ea9efbdd77e42e9035a066c5b185fb858389cf659d816d3
+    md5: 7bb89638dae9ce1b8e051d0b721e83c2
+    sha256: 0ae32507817402bfad08fbf0f4a9b5ae26859d5390b98bc939da85fd0bd4239f
   category: main
   optional: false
 - name: python
-  version: 3.10.16
+  version: 3.10.17
   manager: conda
   platform: win-64
   dependencies:
@@ -5992,10 +5992,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://packages.prefix.dev/conda-forge/win-64/python-3.10.16-hfdde91d_3_cpython.conda
+  url: https://packages.prefix.dev/conda-forge/win-64/python-3.10.17-h8c5b53a_0_cpython.conda
   hash:
-    md5: 519a23ba79ee0241ce130e3d10e120e5
-    sha256: 86da2bfc353624c8a787d4f04674f547d441277c85aea6765d1ba8f41df1752c
+    md5: 0c59918f056ab2e9c7bb45970d32b2ea
+    sha256: 071303a9bcbba4d79ab1ca61f34ec9f4ad65bc15d897828f5006ef9507094557
   category: main
   optional: false
 - name: python-dateutil
@@ -7874,7 +7874,7 @@ package:
   category: dev
   optional: true
 - name: urllib3
-  version: 2.3.0
+  version: 2.4.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -7883,14 +7883,14 @@ package:
     pysocks: '>=1.5.6,<2.0,!=1.5.7'
     python: '>=3.9'
     zstandard: '>=0.18.0'
-  url: https://packages.prefix.dev/conda-forge/noarch/urllib3-2.3.0-pyhd8ed1ab_0.conda
+  url: https://packages.prefix.dev/conda-forge/noarch/urllib3-2.4.0-pyhd8ed1ab_0.conda
   hash:
-    md5: 32674f8dbfb7b26410ed580dd3c10a29
-    sha256: 114919ffa80c328127dab9c8e7a38f9d563c617691fb81fccb11c1e86763727e
+    md5: c1e349028e0052c4eea844e94f773065
+    sha256: a25403b76f7f03ca1a906e1ef0f88521edded991b9897e7fed56a3e334b3db8c
   category: main
   optional: false
 - name: urllib3
-  version: 2.3.0
+  version: 2.4.0
   manager: conda
   platform: win-64
   dependencies:
@@ -7899,10 +7899,10 @@ package:
     pysocks: '>=1.5.6,<2.0,!=1.5.7'
     python: '>=3.9'
     zstandard: '>=0.18.0'
-  url: https://packages.prefix.dev/conda-forge/noarch/urllib3-2.3.0-pyhd8ed1ab_0.conda
+  url: https://packages.prefix.dev/conda-forge/noarch/urllib3-2.4.0-pyhd8ed1ab_0.conda
   hash:
-    md5: 32674f8dbfb7b26410ed580dd3c10a29
-    sha256: 114919ffa80c328127dab9c8e7a38f9d563c617691fb81fccb11c1e86763727e
+    md5: c1e349028e0052c4eea844e94f773065
+    sha256: a25403b76f7f03ca1a906e1ef0f88521edded991b9897e7fed56a3e334b3db8c
   category: main
   optional: false
 - name: vc
