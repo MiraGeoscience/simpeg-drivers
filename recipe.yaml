@@ -2,7 +2,7 @@ schema_version: 1
 
 context:
   name: "simpeg-drivers"
-  version: "0.3.0a1"
+  version: "0.3.0a2"
   python_min: "3.10"
 
 package:
@@ -33,7 +33,7 @@ requirements:
     - param-sweeps >=0.2.1a1, <0.3.dev
     # direct dependencies
     - dask-core >=2025.3, <2025.4.dev
-    - discretize >=0.10.0, <0.11.dev
+    - discretize >=0.11.0, <0.12.dev
     - distributed >=2025.3, <2025.4.dev
     - numpy >=1.26.0, <1.27.dev
     - pydantic >=2.5.2, <3.0.dev
@@ -56,10 +56,18 @@ tests:
   - python:
       imports:
         - simpeg_drivers
+        - simpeg
+        - geoh5py
+        - dask
+        - distributed
+      pip_check: false  # pip checks fails on missing dask-core because it only sees name 'dask'
+
   - script:
       - pytest --ignore=tests/version_test.py
+      - pip list
     requirements:
       run:
+        - pip
         - pytest
     files:
       source:
