@@ -56,10 +56,18 @@ tests:
   - python:
       imports:
         - simpeg_drivers
+        - simpeg
+        - geoh5py
+        - dask
+        - distributed
+      pip_check: false  # pip checks fails on missing dask-core because it only sees name 'dask'
+
   - script:
       - pytest --ignore=tests/version_test.py
+      - pip list
     requirements:
       run:
+        - pip
         - pytest
     files:
       source:
