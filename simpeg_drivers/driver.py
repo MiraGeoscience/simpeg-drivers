@@ -540,15 +540,6 @@ class InversionDriver(BaseDriver):
             reg_func.norms = [fun.norm for fun in functions]
             reg_funcs.append(reg_func)
 
-        # TODO - To be deprcated on GEOPY-2109
-        if getattr(self.params, "gradient_type") is not None:
-            for reg in reg_funcs:
-                setattr(
-                    reg,
-                    "gradient_type",
-                    getattr(self.params, "gradient_type"),
-                )
-
         return objective_function.ComboObjectiveFunction(objfcts=reg_funcs)
 
     def get_tiles(self):

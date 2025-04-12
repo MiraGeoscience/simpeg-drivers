@@ -128,7 +128,6 @@ def test_survey_data(tmp_path: Path):
             mesh=mesh,
             starting_model=0.0,
             tile_spatial=2,
-            resolution=0.0,
         )
 
         driver = MVIInversionDriver(params)

@@ -186,6 +186,17 @@
         "value": 1.0,
         "enabled": false
     },
+    "gradient_rotation": {
+        "group": "Regularization",
+        "association": "Cell",
+        "dataType": "Float",
+        "dataGroupType": "Dip direction & dip",
+        "label": "Gradient rotation",
+        "optional": true,
+        "enabled": false,
+        "parent": "mesh",
+        "value": ""
+    },
     "s_norm": {
         "min": 0.0,
         "max": 2.0,
@@ -226,17 +237,7 @@
         "lineEdit": false,
         "enabled": false
     },
-    "gradient_type": {
-        "choiceList": [
-            "total",
-            "components"
-        ],
-        "group": "Regularization",
-        "label": "Gradient type",
-        "value": "total",
-        "verbose": 3,
-        "enabled": false
-    },
+    "gradient_type": "total",
     "max_irls_iterations": {
         "min": 0,
         "group": "Sparse/blocky model",
@@ -425,6 +426,7 @@
         "value": "Pardiso"
     },
     "tile_spatial": 1,
+    "parallelized": true,
     "store_sensitivities": {
         "choiceList": [
             "disk",

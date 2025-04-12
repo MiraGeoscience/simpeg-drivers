@@ -9,7 +9,7 @@
     "monitoring_directory": "",
     "workspace_geoh5": "",
     "inversion_type": "tdem 1d",
-    "physical property": "conductivity",
+    "physical_property": "conductivity",
     "forward_only": true,
     "data_object": {
         "main": true,
@@ -33,11 +33,18 @@
         "tooltip": "Set the units of the data.",
         "value": "dB/dt (T/s)"
     },
+    "x_channel_bool": false,
+    "y_channel_bool": false,
     "z_channel_bool": {
         "group": "Survey",
         "main": true,
         "label": "Z component",
         "value": true
+    },
+    "u_cell_size": {
+        "visible": false,
+        "label": "Vertical core cell size (m)",
+        "value": 0.0
     },
     "v_cell_size": {
         "min": 0.0,
@@ -54,6 +61,11 @@
         "enabled": true,
         "label": "Depth of core (m)",
         "value": 500.0
+    },
+    "horizontal_padding": {
+        "visible": false,
+        "label": "Vertical padding (m)",
+        "value": 0.0
     },
     "vertical_padding": {
         "min": 0.0,
@@ -188,6 +200,17 @@
         "verbose": 2,
         "visible": false,
         "tooltip": "Splits the objective function into spatial tiles for distributed computation using the Dask library."
+    },
+    "max_chunk_size": {
+        "min": 0,
+        "group": "Compute",
+        "optional": true,
+        "enabled": true,
+        "label": "Maximum chunk size (Mb)",
+        "value": 128,
+        "verbose": 3,
+        "visible": false,
+        "tooltip": "Limit the chunk size used by Dask for distributed computation."
     },
     "out_group": {
         "label": "SimPEG group",

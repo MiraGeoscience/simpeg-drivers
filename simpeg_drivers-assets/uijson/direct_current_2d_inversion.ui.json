@@ -281,7 +281,10 @@
         "group": "Regularization",
         "association": "Cell",
         "dataType": "Float",
-        "dataGroupType": "Dip direction & dip",
+        "dataGroupType": [
+            "Strike & dip",
+            "Dip direction & dip"
+        ],
         "label": "Gradient rotation",
         "optional": true,
         "enabled": false,
@@ -340,17 +343,7 @@
         "enabled": true,
         "tooltip": "Lp-norm used in the z-smoothness term of the objective function."
     },
-    "gradient_type": {
-        "choiceList": [
-            "total",
-            "components"
-        ],
-        "group": "Sparse/blocky model",
-        "label": "Gradient type",
-        "value": "total",
-        "verbose": 3,
-        "tooltip": "Choose whether the IRLS weights for regularization terms are updated using total or partial gradients."
-    },
+    "gradient_type": "total",
     "max_irls_iterations": {
         "min": 0,
         "group": "Sparse/blocky model",

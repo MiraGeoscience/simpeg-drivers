@@ -38,6 +38,7 @@ class IP3DForwardOptions(BaseForwardOptions):
     inversion_type: str = "induced polarization 3d"
 
     chargeability_channel_bool: bool = True
+    model_type: str = "Conductivity (S/m)"
     conductivity_model: float | FloatData
 
 
@@ -61,5 +62,6 @@ class IP3DInversionOptions(BaseInversionOptions):
 
     chargeability_channel: FloatData
     chargeability_uncertainty: float | FloatData | None = None
+    model_type: str = "Conductivity (S/m)"
     conductivity_model: float | FloatData
     lower_bound: float | FloatData | None = 0.0
