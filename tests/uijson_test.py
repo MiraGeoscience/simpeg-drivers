@@ -16,6 +16,7 @@ from typing import ClassVar
 import numpy as np
 from geoh5py import Workspace
 from geoh5py.ui_json.annotations import Deprecated
+from packaging.version import Version
 from pydantic import AliasChoices, Field
 
 import simpeg_drivers
@@ -27,6 +28,11 @@ from simpeg_drivers.utils.testing import setup_inversion_workspace
 
 
 logger = logging.getLogger(__name__)
+
+
+def _current_version() -> Version:
+    """Get the package version."""
+    return Version(simpeg_drivers.__version__)
 
 
 def test_version_warning(tmp_path, caplog):
@@ -69,7 +75,7 @@ def test_write_default(tmp_path):
     with open(default_path, encoding="utf-8") as f:
         data = json.load(f)
 
-    assert data["version"] == "0.3.0-alpha.1"
+    assert data["version"] == _current_version().public
 
 
 def test_deprecations(tmp_path, caplog):
@@ -80,7 +86,7 @@ def test_deprecations(tmp_path, caplog):
 
     with caplog.at_level(logging.WARNING):
         _ = MyUIJson(
-            version="0.3.0-alpha.1",
+            version=_current_version().public,
             title="My app",
             icon="",
             documentation="",
@@ -101,7 +107,7 @@ def test_pydantic_deprecation(tmp_path):
         my_param: str = Field(deprecated="Use my_param2 instead.", exclude=True)
 
     uijson = MyUIJson(
-        version="0.3.0-alpha.1",
+        version=_current_version().public,
         title="My app",
         icon="",
         documentation="",
@@ -122,7 +128,7 @@ def test_alias(tmp_path):
         my_param: str = Field(validation_alias=AliasChoices("my_param", "myParam"))
 
     uijson = MyUIJson(
-        version="0.3.0-alpha.1",
+        version=_current_version().public,
         title="My app",
         icon="",
         documentation="",
@@ -170,7 +176,7 @@ def test_gravity_uijson(tmp_path):
     uijson.write(uijson_path)
     with open(params_uijson_path, encoding="utf-8") as f:
         params_data = json.load(f)
-        assert params_data["version"] == simpeg_drivers.__version__
+        assert params_data["version"] == _current_version().public
     with open(uijson_path, encoding="utf-8") as f:
         uijson_data = json.load(f)
 
