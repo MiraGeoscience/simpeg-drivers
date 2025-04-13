@@ -34,13 +34,12 @@ class SimPEGDriversUIJson(BaseUIJson):
         input_version = cls.comparable_version(value)
         if input_version != package_version:
             logger.warning(
-                "Provided ui.json file version %s does not match the the current"
-                "simpeg-drivers version %s.  This may lead to unpredictable"
-                "behavior.",
+                "Provided ui.json file version '%s' does not match the current "
+                "simpeg-drivers version '%s'. This may lead to unpredictable behavior.",
                 value,
                 simpeg_drivers.__version__,
             )
-        return input_version
+        return value
 
     @staticmethod
     def comparable_version(value: str) -> str:
@@ -54,10 +53,17 @@ class SimPEGDriversUIJson(BaseUIJson):
         For example, if the version is "0.2.0+local", it will return "0.2.0".
         """
         version = Version(value)
-        version.post = None
-        if version.pre is not None and version.pre[0] == "rc":  # pylint: disable=unsubscriptable-object
-            version.pre = None
-        return version.public
+
+        # Extract the base version (major.minor.patch)
+        base_version = version.base_version
+
+        # If it's not an RC, keep any pre-release info (alpha/beta)
+        if version.pre is not None and version.pre[0] != "rc":  # pylint: disable=unsubscriptable-object
+            # Recreate version with pre-release but no post or local
+            return f"{base_version}{version.pre[0]}{version.pre[1]}"
+
+        # No pre-release info or it's an RC, return just the base version
+        return base_version
 
     @classmethod
     def write_default(cls):
