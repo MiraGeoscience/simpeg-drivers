@@ -12,6 +12,7 @@ import json
 import logging
 
 from geoh5py.ui_json.ui_json import BaseUIJson
+from packaging.version import Version
 from pydantic import field_validator
 
 import simpeg_drivers
@@ -29,16 +30,34 @@ class SimPEGDriversUIJson(BaseUIJson):
     @field_validator("version", mode="before")
     @classmethod
     def verify_and_update_version(cls, value: str) -> str:
-        version = simpeg_drivers.__version__
-        if value != version:
+        package_version = cls.comparable_version(simpeg_drivers.__version__)
+        input_version = cls.comparable_version(value)
+        if input_version != package_version:
             logger.warning(
                 "Provided ui.json file version %s does not match the the current"
                 "simpeg-drivers version %s.  This may lead to unpredictable"
                 "behavior.",
                 value,
-                version,
+                simpeg_drivers.__version__,
             )
-        return value
+        return input_version
+
+    @staticmethod
+    def comparable_version(value: str) -> str:
+        """Normalize the version string for comparison.
+
+        Remove the post-release information, or the pre-release information if it is an rc version.
+        For example, if the version is "0.2.0.post1", it will return "0.2.0".
+        If the version is "0.2.0rc1", it will return "0.2.0".
+
+        Then, it will return the public version of the version object.
+        For example, if the version is "0.2.0+local", it will return "0.2.0".
+        """
+        version = Version(value)
+        version.post = None
+        if version.pre is not None and version.pre[0] == "rc":  # pylint: disable=unsubscriptable-object
+            version.pre = None
+        return version.public
 
     @classmethod
     def write_default(cls):
