@@ -75,7 +75,7 @@ def test_write_default(tmp_path):
     with open(default_path, encoding="utf-8") as f:
         data = json.load(f)
 
-    assert data["version"] == _current_version().public
+    assert Version(data["version"]) == Version(_current_version().public)
 
 
 def test_deprecations(tmp_path, caplog):
@@ -176,7 +176,7 @@ def test_gravity_uijson(tmp_path):
     uijson.write(uijson_path)
     with open(params_uijson_path, encoding="utf-8") as f:
         params_data = json.load(f)
-        assert params_data["version"] == _current_version().public
+        assert Version(params_data["version"]) == Version(_current_version().public)
     with open(uijson_path, encoding="utf-8") as f:
         uijson_data = json.load(f)
 
