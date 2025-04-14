@@ -60,7 +60,11 @@ tests:
         - geoh5py
         - dask
         - distributed
-      pip_check: false  # pip checks fails on missing dask-core because it only sees name 'dask'
+
+      # `pip check` fails on missing dask-core because it only sees name 'dask'
+      # Possibly, use custom mapping for dask => dask-core
+      # See `conda-lock --pypi_to_conda_lookup_file`, or the `pixi` option "conda-pypi-map"
+      pip_check: false
 
   - script:
       - pytest --ignore=tests/version_test.py
