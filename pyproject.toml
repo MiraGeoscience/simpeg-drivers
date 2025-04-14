@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "simpeg-drivers"
-version = "0.3.0-alpha.2"
+version = "0.4.0-alpha.1"
 description = "Application to run SimPEG inversions with geoh5 files from Geoscience Analyst."
 license = "MIT"
 authors = ["Mira Geoscience <support@mirageoscience.com>"]
@@ -30,9 +30,9 @@ include = [
 [tool.poetry.dependencies]
 python = "^3.10"
 
-dask-core = {version = "2025.3.*"}  # also in simpeg[dask]
+dask-core = "2025.3.*"  # also in simpeg[dask]
 discretize = "0.11.*"  # also in simpeg, octree-creation-app
-distributed = "2025.3.*"  # because conda-lock doesn't take dask extras into account
+distributed = "2025.3.*"  # conda needs explicit dask-core etc for equivalent dask[distributed]
 numpy = "~1.26.0" # also in geoh5py, simpeg
 pydantic = "^2.5.2"  # also in geoh5py, curve-apps, geoapps-utils
 scikit-learn = "~1.4.0"
@@ -46,20 +46,20 @@ python-mumps = ">=0.0.3, <0.0.4.dev"
 
 ## Pip dependencies from Git repositories
 #----------------------------------------
-#geoh5py = {version = ">=0.11.0a3, <0.12.dev", source = "pypi", allow-prereleases = true}
-geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "release/0.11.0"}
+#geoh5py = {version = ">=0.12.0a, <0.13.dev", source = "pypi", allow-prereleases = true}
+geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "develop"}
 
-#octree-creation-app = {version = ">=0.3.0a1, <0.4.dev", source = "pypi", allow-prereleases = true}
-octree-creation-app = {git = "https://github.com/MiraGeoscience/octree-creation-app.git", rev = "release/0.3.0"}
+#octree-creation-app = {version = ">=0.4.0a, <0.5.dev", source = "pypi", allow-prereleases = true}
+octree-creation-app = {git = "https://github.com/MiraGeoscience/octree-creation-app.git", rev = "develop"}
 
-#geoapps-utils = {version = ">=0.5.0a3, <0.6.dev", source = "pypi", allow-prereleases = true}
-geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "release/0.5.0"}
+#geoapps-utils = {version = ">=0.6.0a, <0.7.dev", source = "pypi", allow-prereleases = true}
+geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "develop"}
 
-#mira-simpeg = {version = ">=0.23.0.1a1, <0.23.1.dev", source="pypi", allow-prereleases = true, extras = ["dask"]}
-mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", rev = "release/0.23.0.1", extras = ["dask"]}
+#mira-simpeg = {version = ">=0.23.0.2a, <0.23.1.dev", source="pypi", allow-prereleases = true, extras = ["dask"]}
+mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", rev = "develop", extras = ["dask"]}
 
-#param-sweeps = {version = ">=0.2.1a1, <0.3.dev", source = "pypi", allow-prereleases = true}
-param-sweeps = {git = "https://github.com/MiraGeoscience/param-sweeps.git", rev = "release/0.2.1"}
+#param-sweeps = {version = ">=0.3.0a, <0.4.dev", source = "pypi", allow-prereleases = true}
+param-sweeps = {git = "https://github.com/MiraGeoscience/param-sweeps.git", rev = "develop"}
 
 ## about pip dependencies
 # to be specified to work with conda-lock
