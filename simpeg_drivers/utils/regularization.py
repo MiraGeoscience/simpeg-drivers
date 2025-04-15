@@ -396,7 +396,9 @@ def rotated_gradient(
     return sdiag(1 / mesh.h_gridded[:, "xyz".find(axis)]) @ unit_grad
 
 
-def ensure_dip_direction_convention(orientations: np.ndarray, group_type: str):
+def ensure_dip_direction_convention(
+    orientations: np.ndarray, group_type: str
+) -> np.ndarray:
     """
     Ensure orientations array has dip and direction convention.
 
