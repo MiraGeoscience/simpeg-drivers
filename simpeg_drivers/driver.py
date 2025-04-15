@@ -50,7 +50,7 @@ from simpeg.regularization import (
     SparseSmoothness,
 )
 
-from simpeg_drivers import DRIVER_MAP
+from simpeg_drivers import DRIVER_MAP, __version__
 from simpeg_drivers.components import (
     InversionData,
     InversionMesh,
@@ -617,7 +617,9 @@ class InversionLogger:
     def start(self):
         date_time = datetime.now().strftime("%b-%d-%Y:%H:%M:%S")
         self.write(
-            f"SimPEG {self.driver.inversion_type} {'forward' if self.forward else 'inversion'} started {date_time}\n"
+            f"Running simpeg-drivers {__version__}\n"
+            f"Started {date_time}\n"
+            f"{self.driver.params.title}\n"
         )
 
     def end(self):
