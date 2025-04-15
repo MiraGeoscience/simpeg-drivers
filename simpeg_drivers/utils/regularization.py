@@ -401,7 +401,7 @@ def ensure_dip_direction_convention(orientations: np.ndarray, group_type: str):
     Ensure orientations array has dip and direction convention.
 
     :param orientations: Array of orientations.  Either n * 2 if Strike & dip
-        or Dip direction & dip group_type, or n * 3 if 3D Vector group_type.
+        or Dip direction & dip group_type, or n * 3 if 3D Vector group_type defining the normal of the dipping plane.
     :param group_type as specified in geoh5py.GroupTypeEnum.
     """
 
