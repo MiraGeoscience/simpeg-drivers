@@ -19,7 +19,7 @@ from geoh5py.data import FloatData
 from pydantic import model_validator
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions
+from simpeg_drivers.options import BaseForwardOptions, BaseInversionOptions
 
 
 class MVIForwardOptions(BaseForwardOptions):

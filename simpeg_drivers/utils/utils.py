@@ -889,6 +889,6 @@ def simpeg_group_to_driver(group: SimPEGGroup, workspace: Workspace) -> Inversio
     inversion_driver = getattr(module, class_name)
 
     ifile.set_data_value("out_group", group)
-    params = inversion_driver._params_class.build(ifile)  # pylint: disable=protected-access
+    params = inversion_driver._options_class.build(ifile)  # pylint: disable=protected-access
 
     return inversion_driver(params)

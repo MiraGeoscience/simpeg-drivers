@@ -15,7 +15,7 @@ from pathlib import Path
 import numpy as np
 
 from simpeg_drivers.components import InversionTopography
-from simpeg_drivers.params import ActiveCellsOptions
+from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import MVIInversionOptions
 from simpeg_drivers.utils.testing import Geoh5Tester, setup_inversion_workspace
 

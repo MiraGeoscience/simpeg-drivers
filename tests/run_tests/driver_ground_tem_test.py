@@ -21,11 +21,11 @@ from simpeg_drivers.electromagnetics.time_domain.driver import (
     TDEMForwardDriver,
     TDEMInversionDriver,
 )
-from simpeg_drivers.electromagnetics.time_domain.params import (
+from simpeg_drivers.electromagnetics.time_domain.options import (
     TDEMForwardOptions,
     TDEMInversionOptions,
 )
-from simpeg_drivers.params import ActiveCellsOptions
+from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 

@@ -21,8 +21,8 @@ from packaging.version import Version
 from pydantic import AliasChoices, Field
 
 import simpeg_drivers
-from simpeg_drivers.params import ActiveCellsOptions
-from simpeg_drivers.potential_fields.gravity.params import GravityInversionOptions
+from simpeg_drivers.options import ActiveCellsOptions
+from simpeg_drivers.potential_fields.gravity.options import GravityInversionOptions
 from simpeg_drivers.potential_fields.gravity.uijson import GravityInversionUIJson
 from simpeg_drivers.uijson import SimPEGDriversUIJson
 from simpeg_drivers.utils.testing import setup_inversion_workspace

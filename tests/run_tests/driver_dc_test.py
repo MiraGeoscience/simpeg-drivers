@@ -19,11 +19,11 @@ from simpeg_drivers.electricals.direct_current.three_dimensions.driver import (
     DC3DForwardDriver,
     DC3DInversionDriver,
 )
-from simpeg_drivers.electricals.direct_current.three_dimensions.params import (
+from simpeg_drivers.electricals.direct_current.three_dimensions.options import (
     DC3DForwardOptions,
     DC3DInversionOptions,
 )
-from simpeg_drivers.params import ActiveCellsOptions
+from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 

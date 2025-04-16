@@ -12,7 +12,7 @@
 from __future__ import annotations
 
 from simpeg_drivers.driver import InversionDriver
-from simpeg_drivers.potential_fields.gravity.params import (
+from simpeg_drivers.potential_fields.gravity.options import (
     GravityForwardOptions,
     GravityInversionOptions,
 )
@@ -21,12 +21,12 @@ from simpeg_drivers.potential_fields.gravity.params import (
 class GravityForwardDriver(InversionDriver):
     """Gravity forward driver."""
 
-    _params_class = GravityForwardOptions
+    _options_class = GravityForwardOptions
     _validations = None
 
 
 class GravityInversionDriver(InversionDriver):
     """Gravity inversion driver."""
 
-    _params_class = GravityInversionOptions
+    _options_class = GravityInversionOptions
     _validations = None

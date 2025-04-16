@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from geoh5py.workspace import Workspace
 
-    from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions
+    from simpeg_drivers.options import BaseForwardOptions, BaseInversionOptions
 
 import numpy as np
 from geoh5py.objects import ObjectBase, Points
