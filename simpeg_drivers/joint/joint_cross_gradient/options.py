@@ -17,7 +17,7 @@ from typing import ClassVar
 from geoh5py.objects import Octree
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.joint.params import BaseJointOptions
+from simpeg_drivers.joint.options import BaseJointOptions
 
 
 class JointCrossGradientOptions(BaseJointOptions):

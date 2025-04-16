@@ -29,7 +29,7 @@ from simpeg.objective_function import ComboObjectiveFunction
 
 from simpeg_drivers.components.factories import SaveDataGeoh5Factory
 from simpeg_drivers.driver import InversionDriver
-from simpeg_drivers.joint.params import BaseJointOptions
+from simpeg_drivers.joint.options import BaseJointOptions
 from simpeg_drivers.utils.utils import simpeg_group_to_driver
 
 

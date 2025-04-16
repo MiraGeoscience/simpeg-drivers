@@ -28,8 +28,8 @@ import numpy as np
 from geoapps_utils.driver.driver import BaseDriver
 from geoh5py.data import FloatData
 
-from simpeg_drivers.depth_of_investigation.sensitivity_cutoff.params import (
-    SensitivityCutoffParams,
+from simpeg_drivers.depth_of_investigation.sensitivity_cutoff.options import (
+    SensitivityCutoffOptions,
 )
 
 
@@ -107,9 +107,9 @@ class SensitivityCutoffDriver(BaseDriver):
     below the provided cutoff percentage.
     """
 
-    _params_class = SensitivityCutoffParams
+    _params_class = SensitivityCutoffOptions
 
-    def __init__(self, params: SensitivityCutoffParams):
+    def __init__(self, params: SensitivityCutoffOptions):
         super().__init__(params)
 
     def run(self):

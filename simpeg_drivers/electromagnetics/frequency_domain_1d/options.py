@@ -21,7 +21,7 @@ from simpeg_drivers.electromagnetics.frequency_domain import (
     FDEMForwardOptions,
     FDEMInversionOptions,
 )
-from simpeg_drivers.params import DrapeModelOptions
+from simpeg_drivers.options import DrapeModelOptions
 
 
 class FDEM1DForwardOptions(FDEMForwardOptions):

@@ -22,7 +22,7 @@ from simpeg_drivers.electricals.induced_polarization.three_dimensions.driver imp
     IP3DForwardDriver,
     IP3DInversionDriver,
 )
-from simpeg_drivers.params import ActiveCellsOptions
+from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 

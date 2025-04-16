@@ -21,14 +21,14 @@ from simpeg_drivers.electricals.direct_current.pseudo_three_dimensions.driver im
     DCBatch2DForwardDriver,
     DCBatch2DInversionDriver,
 )
-from simpeg_drivers.electricals.direct_current.pseudo_three_dimensions.params import (
+from simpeg_drivers.electricals.direct_current.pseudo_three_dimensions.options import (
     DCBatch2DForwardOptions,
     DCBatch2DInversionOptions,
 )
-from simpeg_drivers.electricals.params import (
+from simpeg_drivers.electricals.options import (
     FileControlOptions,
 )
-from simpeg_drivers.params import (
+from simpeg_drivers.options import (
     ActiveCellsOptions,
     DrapeModelOptions,
     LineSelectionOptions,

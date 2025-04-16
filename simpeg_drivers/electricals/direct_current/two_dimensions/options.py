@@ -19,7 +19,7 @@ from geoh5py.objects import DrapeModel
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.params import (
+from simpeg_drivers.options import (
     BaseForwardOptions,
     BaseInversionOptions,
     DrapeModelOptions,
