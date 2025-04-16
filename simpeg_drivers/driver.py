@@ -654,7 +654,6 @@ class InversionLogger:
 
 
 if __name__ == "__main__":
-    # file = Path(sys.argv[1]).resolve()
-    file = r"C:\Users\dominiquef\Desktop\Tests\late_em_1em3_WS.ui.json"
+    file = Path(sys.argv[1]).resolve()
     InversionDriver.start(file)
     sys.stdout.close()
