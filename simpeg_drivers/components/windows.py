@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from geoapps_utils.driver.params import BaseParams
     from geoh5py.workspace import Workspace
 
-    from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions
+    from simpeg_drivers.options import BaseForwardOptions, BaseInversionOptions
 
 import numpy as np
 from geoh5py.objects import Grid2D, PotentialElectrode

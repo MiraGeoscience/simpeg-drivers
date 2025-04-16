@@ -21,7 +21,7 @@ from simpeg.directives import SaveLPModelGroup
 from simpeg_drivers.components.factories import DirectivesFactory, SaveModelGeoh5Factory
 from simpeg_drivers.joint.driver import BaseJointDriver
 
-from .params import JointSurveysOptions
+from .options import JointSurveysOptions
 
 
 logger = getLogger(__name__)
@@ -30,7 +30,7 @@ logger = getLogger(__name__)
 class JointSurveyDriver(BaseJointDriver):
     """Joint surveys inversion driver"""
 
-    _params_class = JointSurveysOptions
+    _options_class = JointSurveysOptions
     _validations = None
 
     def __init__(self, params: JointSurveysOptions):

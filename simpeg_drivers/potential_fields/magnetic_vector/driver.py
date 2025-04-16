@@ -15,20 +15,20 @@ from simpeg import maps
 
 from simpeg_drivers.driver import InversionDriver
 
-from .params import MVIForwardOptions, MVIInversionOptions
+from .options import MVIForwardOptions, MVIInversionOptions
 
 
 class MVIForwardDriver(InversionDriver):
     """Magnetic Vector forward driver."""
 
-    _params_class = MVIForwardOptions
+    _options_class = MVIForwardOptions
     _validations = None
 
 
 class MVIInversionDriver(InversionDriver):
     """Magnetic Vector inversion driver."""
 
-    _params_class = MVIInversionOptions
+    _options_class = MVIInversionOptions
     _validations = None
 
     @property

@@ -21,11 +21,11 @@ from simpeg_drivers.electricals.direct_current.two_dimensions.driver import (
     DC2DForwardDriver,
     DC2DInversionDriver,
 )
-from simpeg_drivers.electricals.direct_current.two_dimensions.params import (
+from simpeg_drivers.electricals.direct_current.two_dimensions.options import (
     DC2DForwardOptions,
     DC2DInversionOptions,
 )
-from simpeg_drivers.params import (
+from simpeg_drivers.options import (
     ActiveCellsOptions,
     DrapeModelOptions,
     LineSelectionOptions,

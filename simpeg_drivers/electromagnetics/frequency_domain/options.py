@@ -22,7 +22,7 @@ from geoh5py.objects import (
 )
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions, EMDataMixin
+from simpeg_drivers.options import BaseForwardOptions, BaseInversionOptions, EMDataMixin
 
 
 Receivers: TypeAlias = (
