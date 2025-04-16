@@ -154,7 +154,7 @@ def test_magnetic_vector_run(
 
         out_group = run_ws.get_entity("Magnetic Vector Inversion")[0]
         mesh = out_group.get_entity("mesh")[0]
-        assert len(mesh.property_groups) == 3
+        assert len(mesh.property_groups) == 5
         assert len(mesh.property_groups[0].properties) == 2
         assert mesh.property_groups[1].property_group_type == GroupTypeEnum.DIPDIR
 
