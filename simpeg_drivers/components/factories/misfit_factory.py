@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
     from simpeg_drivers.components.data import InversionData
     from simpeg_drivers.components.meshes import InversionMesh
-    from simpeg_drivers.params import BaseOptions
+    from simpeg_drivers.options import BaseOptions
 
 import numpy as np
 from geoh5py.objects import Octree

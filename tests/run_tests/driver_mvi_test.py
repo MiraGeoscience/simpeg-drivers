@@ -10,6 +10,7 @@
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 
 import numpy as np
@@ -19,7 +20,7 @@ from geoh5py.objects import Curve
 from geoh5py.workspace import Workspace
 from pytest import warns
 
-from simpeg_drivers.params import ActiveCellsOptions
+from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import (
     MVIForwardOptions,
     MVIInversionOptions,
@@ -154,13 +155,18 @@ def test_magnetic_vector_run(
 
         out_group = run_ws.get_entity("Magnetic Vector Inversion")[0]
         mesh = out_group.get_entity("mesh")[0]
-        assert len(mesh.property_groups) == 3
-        assert len(mesh.property_groups[0].properties) == 2
-        assert mesh.property_groups[1].property_group_type == GroupTypeEnum.DIPDIR
+        assert len(mesh.property_groups) == 5
+        assert len(mesh.fetch_property_group("Iteration_0").properties) == 2
+        assert len(mesh.fetch_property_group("LP models").properties) == 6
+        assert (
+            mesh.fetch_property_group("Iteration_1").property_group_type
+            == GroupTypeEnum.DIPDIR
+        )
 
 
 def test_magnetic_vector_bounds_run(
     tmp_path: Path,
+    caplog,
     max_iterations=4,
     pytest=True,
 ):
@@ -181,10 +187,7 @@ def test_magnetic_vector_bounds_run(
 
         # Run the inverse
         active_cells = ActiveCellsOptions(topography_object=topography)
-        with warns(
-            DeprecationWarning,
-            match="Parameter 'lower_bound' for Magnetic Vector Inversion",
-        ):
+        with caplog.at_level(logging.WARNING):
             params = MVIInversionOptions(
                 geoh5=geoh5,
                 mesh=mesh,
@@ -211,6 +214,8 @@ def test_magnetic_vector_bounds_run(
                 percentile=100,
             )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
+
+        assert "Skipping deprecated field: lower_bound" in caplog.text
 
     driver = MVIInversionDriver(params)
     assert np.all(driver.models.lower_bound == -upper_bound)

@@ -20,7 +20,7 @@ from simpeg_drivers.components import (
     InversionModel,
     InversionModelCollection,
 )
-from simpeg_drivers.params import ActiveCellsOptions
+from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import MVIInversionOptions
 from simpeg_drivers.potential_fields.magnetic_vector.driver import (
     MVIInversionDriver,

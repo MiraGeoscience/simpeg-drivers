@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from simpeg_drivers.electromagnetics.base_1d_driver import Base1DDriver
 
-from .params import (
+from .options import (
     TDEM1DForwardOptions,
     TDEM1DInversionOptions,
 )
@@ -22,12 +22,12 @@ from .params import (
 class TDEM1DForwardDriver(Base1DDriver):
     """Time Domain 1D Electromagnetic forward driver."""
 
-    _params_class = TDEM1DForwardOptions
+    _options_class = TDEM1DForwardOptions
     _validations = None
 
 
 class TDEM1DInversionDriver(Base1DDriver):
     """Time Domain 1D Electromagnetic inversion driver."""
 
-    _params_class = TDEM1DInversionOptions
+    _options_class = TDEM1DInversionOptions
     _validations = None

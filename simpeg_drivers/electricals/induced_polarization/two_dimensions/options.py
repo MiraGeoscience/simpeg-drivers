@@ -18,7 +18,7 @@ from geoh5py.data import FloatData
 from geoh5py.objects import DrapeModel
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.params import (
+from simpeg_drivers.options import (
     BaseForwardOptions,
     BaseInversionOptions,
     DrapeModelOptions,

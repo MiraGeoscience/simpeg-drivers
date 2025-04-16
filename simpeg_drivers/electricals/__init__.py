@@ -15,7 +15,7 @@ from .direct_current.three_dimensions import (
     DC3DForwardOptions,
     DC3DInversionOptions,
 )
-from .induced_polarization.three_dimensions.params import (
+from .induced_polarization.three_dimensions.options import (
     IP3DForwardOptions,
     IP3DInversionOptions,
 )

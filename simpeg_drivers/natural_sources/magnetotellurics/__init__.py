@@ -9,7 +9,7 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from .params import MTForwardOptions, MTInversionOptions
+from .options import MTForwardOptions, MTInversionOptions
 
 # pylint: disable=unused-import
 # flake8: noqa

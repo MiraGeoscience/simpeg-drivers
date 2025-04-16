@@ -50,7 +50,7 @@ from simpeg.regularization import (
     SparseSmoothness,
 )
 
-from simpeg_drivers import DRIVER_MAP
+from simpeg_drivers import DRIVER_MAP, __version__
 from simpeg_drivers.components import (
     InversionData,
     InversionMesh,
@@ -59,11 +59,11 @@ from simpeg_drivers.components import (
     InversionWindow,
 )
 from simpeg_drivers.components.factories import DirectivesFactory, MisfitFactory
-from simpeg_drivers.params import (
+from simpeg_drivers.options import (
     BaseForwardOptions,
     BaseInversionOptions,
 )
-from simpeg_drivers.joint.params import BaseJointOptions
+from simpeg_drivers.joint.options import BaseJointOptions
 from simpeg_drivers.utils.utils import tile_locations
 from simpeg_drivers.utils.regularization import cell_neighbors, set_rotated_operators
 
@@ -72,7 +72,7 @@ mlogger.setLevel(logging.WARNING)
 
 
 class InversionDriver(BaseDriver):
-    _params_class = BaseForwardOptions | BaseInversionOptions
+    _options_class = BaseForwardOptions | BaseInversionOptions
     _inversion_type: str | None = None
     _validations = None
 
@@ -582,7 +582,7 @@ class InversionDriver(BaseDriver):
         )
 
         with ifile.data["geoh5"].open(mode="r+"):
-            params = driver_class._params_class.build(ifile)
+            params = driver_class._options_class.build(ifile)
             driver = driver_class(params)
 
         driver.run()
@@ -617,7 +617,9 @@ class InversionLogger:
     def start(self):
         date_time = datetime.now().strftime("%b-%d-%Y:%H:%M:%S")
         self.write(
-            f"SimPEG {self.driver.inversion_type} {'forward' if self.forward else 'inversion'} started {date_time}\n"
+            f"Running simpeg-drivers {__version__}\n"
+            f"Started {date_time}\n"
+            f"{self.driver.params.title}\n"
         )
 
     def end(self):

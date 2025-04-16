@@ -19,7 +19,7 @@ from geoh5py.groups import PropertyGroup
 from geoh5py.objects import MTReceivers
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions, EMDataMixin
+from simpeg_drivers.options import BaseForwardOptions, BaseInversionOptions, EMDataMixin
 
 
 class MTForwardOptions(EMDataMixin, BaseForwardOptions):

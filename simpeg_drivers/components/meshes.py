@@ -24,7 +24,7 @@ from octree_creation_app.params import OctreeParams
 from octree_creation_app.utils import octree_2_treemesh, treemesh_2_octree
 from scipy.sparse import csr_matrix, identity
 
-from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions
+from simpeg_drivers.options import BaseForwardOptions, BaseInversionOptions
 from simpeg_drivers.utils.meshes import auto_mesh_parameters
 from simpeg_drivers.utils.utils import drape_2_tensor
 

@@ -17,7 +17,7 @@ import pytest
 from geoh5py.objects import Grid2D, Points
 
 from simpeg_drivers.components.locations import InversionLocations
-from simpeg_drivers.params import ActiveCellsOptions
+from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import MVIInversionOptions
 from simpeg_drivers.utils.testing import Geoh5Tester, setup_inversion_workspace
 
