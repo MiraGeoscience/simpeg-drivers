@@ -22,11 +22,11 @@ from simpeg_drivers.natural_sources.magnetotellurics.driver import (
     MTForwardDriver,
     MTInversionDriver,
 )
-from simpeg_drivers.natural_sources.magnetotellurics.params import (
+from simpeg_drivers.natural_sources.magnetotellurics.options import (
     MTForwardOptions,
     MTInversionOptions,
 )
-from simpeg_drivers.params import ActiveCellsOptions
+from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 

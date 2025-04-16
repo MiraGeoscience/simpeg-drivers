@@ -27,11 +27,11 @@ from simpeg_drivers.components.factories import (
 )
 from simpeg_drivers.joint.driver import BaseJointDriver
 
-from .params import JointCrossGradientOptions
+from .options import JointCrossGradientOptions
 
 
 class JointCrossGradientDriver(BaseJointDriver):
-    _params_class = JointCrossGradientOptions
+    _options_class = JointCrossGradientOptions
     _validations = None
 
     def __init__(self, params: JointCrossGradientOptions):

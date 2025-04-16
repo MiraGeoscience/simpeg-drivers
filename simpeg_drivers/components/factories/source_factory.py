@@ -29,7 +29,7 @@ from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 if TYPE_CHECKING:
     from geoapps_utils.driver.params import BaseParams
 
-    from simpeg_drivers.params import BaseOptions
+    from simpeg_drivers.options import BaseOptions
 
 
 class SourcesFactory(SimPEGFactory):

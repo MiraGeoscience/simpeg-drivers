@@ -22,11 +22,11 @@ from simpeg_drivers.electromagnetics.frequency_domain_1d.driver import (
     FDEM1DForwardDriver,
     FDEM1DInversionDriver,
 )
-from simpeg_drivers.electromagnetics.frequency_domain_1d.params import (
+from simpeg_drivers.electromagnetics.frequency_domain_1d.options import (
     FDEM1DForwardOptions,
     FDEM1DInversionOptions,
 )
-from simpeg_drivers.params import ActiveCellsOptions
+from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
 

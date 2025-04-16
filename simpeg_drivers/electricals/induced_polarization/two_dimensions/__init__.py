@@ -9,7 +9,7 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from .params import (
+from .options import (
     IP2DForwardOptions,
     IP2DInversionOptions,
 )

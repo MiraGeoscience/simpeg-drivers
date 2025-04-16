@@ -9,12 +9,12 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from .gravity.params import GravityForwardOptions, GravityInversionOptions
-from .magnetic_scalar.params import (
+from .gravity.options import GravityForwardOptions, GravityInversionOptions
+from .magnetic_scalar.options import (
     MagneticForwardOptions,
     MagneticInversionOptions,
 )
-from .magnetic_vector.params import (
+from .magnetic_vector.options import (
     MVIForwardOptions,
     MVIInversionOptions,
 )

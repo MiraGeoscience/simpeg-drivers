@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from geoh5py.workspace import Workspace
 
     from simpeg_drivers.components.meshes import InversionMesh
-    from simpeg_drivers.params import BaseOptions
+    from simpeg_drivers.options import BaseOptions
 
 import warnings
 
