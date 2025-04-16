@@ -214,6 +214,7 @@ def test_joint_cross_gradient_inv_run(
                     starting_model=100.0,
                     reference_model=100.0,
                     save_sensitivities=True,
+                    solver_type="Mumps",
                 )
                 drivers.append(DC3DInversionDriver(params))
             else:

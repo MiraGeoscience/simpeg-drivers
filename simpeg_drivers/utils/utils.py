@@ -22,6 +22,7 @@ from discretize.utils import mesh_utils
 from geoapps_utils.utils.conversions import string_to_numeric
 from geoapps_utils.utils.numerical import running_mean, traveling_salesman
 from geoh5py import Workspace
+from geoh5py.data import NumericData
 from geoh5py.groups import Group, SimPEGGroup
 from geoh5py.objects import DrapeModel, Octree
 from geoh5py.objects.surveys.direct_current import PotentialElectrode
@@ -38,18 +39,17 @@ from simpeg.electromagnetics.time_domain.sources import LineCurrent as TEMLineCu
 from simpeg.survey import BaseSurvey
 from simpeg.utils import mkvc
 
-
-if TYPE_CHECKING:
-    from simpeg_drivers.components.data import InversionData
-    from simpeg_drivers.driver import InversionDriver
-
-
 from simpeg_drivers import DRIVER_MAP
 from simpeg_drivers.utils.surveys import (
     compute_alongline_distance,
     get_intersecting_cells,
     get_unique_locations,
 )
+
+
+if TYPE_CHECKING:
+    from simpeg_drivers.components.data import InversionData
+    from simpeg_drivers.driver import InversionDriver
 
 
 def calculate_2D_trend(
@@ -258,11 +258,18 @@ def drape_to_octree(
                     f"Found more than one data set with name {names[ind]} in"
                     f"model {model.name}."
                 )
+
+            if not isinstance(datum[0], NumericData):
+                continue
+
             if method == "nearest":
                 octree_model.append(datum[0].values)
             else:
                 lookup_inds = mesh.get_containing_cells(model.centroids)
                 octree_model[lookup_inds] = datum[0].values
+
+        if len(octree_model) == 0:
+            continue
 
         if method == "nearest":
             octree_model = np.hstack(octree_model)[lookup_inds]
