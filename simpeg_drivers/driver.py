@@ -570,10 +570,12 @@ class InversionDriver(BaseDriver):
             dconf.set(scheduler="threads", pool=ThreadPool(n_cpu))
 
     @classmethod
-    def start(cls, filepath: str | Path, driver_class=None):
-        _ = driver_class
+    def start(cls, filepath: str | Path | InputFile):
+        if isinstance(filepath, InputFile):
+            ifile = filepath
+        else:
+            ifile = InputFile.read_ui_json(filepath)
 
-        ifile = InputFile.read_ui_json(filepath)
         forward_only = ifile.data["forward_only"]
         inversion_type = ifile.ui_json.get("inversion_type", None)
 
@@ -657,5 +659,18 @@ class InversionLogger:
 
 if __name__ == "__main__":
     file = Path(sys.argv[1]).resolve()
-    InversionDriver.start(file)
-    sys.stdout.close()
+
+    input_file = InputFile.read_ui_json(file)
+    n_workers = input_file.data.get("n_workers", None)
+    n_threads = input_file.data.get("n_threads", None)
+
+    if n_workers is not None and n_threads is not None:
+        cluster = LocalCluster(
+            processes=True, n_workers=n_workers, threads_per_worker=n_threads
+        )
+        client = cluster.get_client()
+
+    # Full run
+    with performance_report(filename=Path("./dask_profile.html")):
+        InversionDriver.start(input_file)
+        sys.stdout.close()
