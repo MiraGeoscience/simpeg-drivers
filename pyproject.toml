@@ -30,7 +30,9 @@ include = [
 [tool.poetry.dependencies]
 python = "^3.10"
 
-dask-core = "2025.3.*"  # also in simpeg[dask]
+# (dask also in conda-lock section to tell conda to install with no extras)
+dask = {version = "2025.3.*", source = "pypi"}  # also in simpeg[dask]
+
 discretize = "0.11.*"  # also in simpeg, octree-creation-app
 distributed = "2025.3.*"  # conda needs explicit dask-core etc for equivalent dask[distributed]
 numpy = "~1.26.0" # also in geoh5py, simpeg
@@ -90,6 +92,9 @@ nbconvert = "~7.16.4"
 [tool.conda-lock]
 platforms = ['win-64', 'linux-64']
 channels = ['conda-forge']
+
+# this is how to tell conda to take dask with no extras
+dask-core = ">=2025.3.0, <2025.4.dev"  # also in simpeg[dask]
 
 [tool.conda-lock.dependencies]
 libblas = "*=*mkl"  # because simpeg already brings in the MKL

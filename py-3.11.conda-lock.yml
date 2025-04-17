@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: 6746234080fb492f036f680bcb88c659a2628254805462ff518405ebc4dc97ec
-    linux-64: 8b265443dab30ad551824c6b1a148bd0dd8035f687125469ec0b8495cb8d13ef
+    win-64: 261ca9b15cd02bce1a27c3012f0567fa725711fc8e49f750fe801305d738907a
+    linux-64: 165713729a7490686c97160428f7200e968bd2be21e5a205095d6689087d6c83
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -1948,8 +1948,8 @@ package:
   hash:
     md5: 7f46575a91b1307441abc235d01cab66
     sha256: 1e3eb9d65c4d7b87c7347553ef9eef6f994996f90a2299e19b35f5997d3a3e79
-  category: dev
-  optional: true
+  category: main
+  optional: false
 - name: importlib_metadata
   version: 8.6.1
   manager: conda
@@ -1960,8 +1960,8 @@ package:
   hash:
     md5: 7f46575a91b1307441abc235d01cab66
     sha256: 1e3eb9d65c4d7b87c7347553ef9eef6f994996f90a2299e19b35f5997d3a3e79
-  category: dev
-  optional: true
+  category: main
+  optional: false
 - name: importlib_resources
   version: 6.5.2
   manager: conda
@@ -8609,35 +8609,35 @@ package:
   category: main
   optional: false
 - name: octree-creation-app
-  version: 0.3.0a1
+  version: 0.3.0a2
   manager: pip
   platform: linux-64
   dependencies:
     discretize: ==0.11.*
-    geoapps-utils: 0.5.0a3
+    geoapps-utils: '>=0.5.0a3,<0.6.dev'
     geoh5py: '>=0.11.0a3,<0.12.dev'
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/geoplus-pypi-dev/octree-creation-app/0.3.0-alpha.1/octree_creation_app-0.3.0a1-py3-none-any.whl
+  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/geoplus-pypi-dev/octree-creation-app/0.3.0-alpha.2/octree_creation_app-0.3.0a2-py3-none-any.whl
   hash:
-    sha256: 379dc607aca96db07af2ea8fbacadc9d0ca086e91d2508f5720b87e6e8d778a1
+    sha256: 002896126bf5a958aad1bb9c0a272bfd3c6985d1456dc8022c4e07b5582730ff
   category: main
   optional: false
 - name: octree-creation-app
-  version: 0.3.0a1
+  version: 0.3.0a2
   manager: pip
   platform: win-64
   dependencies:
     discretize: ==0.11.*
-    geoapps-utils: 0.5.0a3
+    geoapps-utils: '>=0.5.0a3,<0.6.dev'
     geoh5py: '>=0.11.0a3,<0.12.dev'
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/geoplus-pypi-dev/octree-creation-app/0.3.0-alpha.1/octree_creation_app-0.3.0a1-py3-none-any.whl
+  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/geoplus-pypi-dev/octree-creation-app/0.3.0-alpha.2/octree_creation_app-0.3.0a2-py3-none-any.whl
   hash:
-    sha256: 379dc607aca96db07af2ea8fbacadc9d0ca086e91d2508f5720b87e6e8d778a1
+    sha256: 002896126bf5a958aad1bb9c0a272bfd3c6985d1456dc8022c4e07b5582730ff
   category: main
   optional: false
 - name: param-sweeps
