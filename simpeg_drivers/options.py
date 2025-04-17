@@ -127,6 +127,10 @@ class CoreOptions(BaseData):
     out_group: SimPEGGroup | UIJsonGroup | None = None
     generate_sweep: bool = False
     distributed_workers: str | None = None
+    n_workers: int = 1
+    n_threads: int | None = None
+    max_ram: float | None = None
+    performance_report: bool = False
 
     @field_validator("mesh", mode="before")
     @classmethod

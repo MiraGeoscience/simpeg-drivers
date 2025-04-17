@@ -45,9 +45,10 @@ class MisfitFactory(SimPEGFactory):
     def concrete_object(self):
         return objective_function.ComboObjectiveFunction
 
-    def build(self, tiles, inversion_data, inversion_mesh, active_cells):  # pylint: disable=arguments-differ
+    def build(self, tiles, n_split, inversion_data, inversion_mesh, active_cells):  # pylint: disable=arguments-differ
         global_misfit = super().build(
             tiles=tiles,
+            n_split=n_split,
             inversion_data=inversion_data,
             inversion_mesh=inversion_mesh,
             active_cells=active_cells,
@@ -57,6 +58,7 @@ class MisfitFactory(SimPEGFactory):
     def assemble_arguments(  # pylint: disable=arguments-differ
         self,
         tiles,
+        n_split,
         inversion_data,
         inversion_mesh,
         active_cells,
@@ -71,102 +73,103 @@ class MisfitFactory(SimPEGFactory):
 
         self.sorting = []
         self.ordering = []
-        tile_num = 0
+        tile_count = 0
         data_count = 0
-        for tile_count, local_index in enumerate(tiles):
+        for local_index in tiles:
             if len(local_index) == 0:
                 continue
             local_mesh = None
 
-            for count, channel in enumerate(channels):
-                local_sim, local_index, ordering, mapping = (
-                    self.create_nested_simulation(
-                        inversion_data,
-                        inversion_mesh,
-                        local_mesh,
-                        active_cells,
-                        local_index,
-                        channel=channel,
-                        tile_id=tile_num,
-                        padding_cells=self.params.padding_cells,
+            for split_ind in np.array_split(local_index, n_split):
+                for count, channel in enumerate(channels):
+                    local_sim, split_ind, ordering, mapping = (
+                        self.create_nested_simulation(
+                            inversion_data,
+                            inversion_mesh,
+                            local_mesh,
+                            active_cells,
+                            split_ind,
+                            channel=channel,
+                            tile_id=tile_count,
+                            padding_cells=self.params.padding_cells,
+                        )
                     )
-                )
 
-                local_mesh = getattr(local_sim, "mesh", None)
+                    local_mesh = getattr(local_sim, "mesh", None)
 
-                if count == 0:
-                    if self.factory_type in [
-                        "fdem",
-                        "tdem",
-                        "magnetotellurics",
-                        "tipper",
-                    ]:
-                        self.sorting.append(
-                            np.arange(
-                                data_count,
-                                data_count + len(local_index),
-                                dtype=int,
+                    if count == 0:
+                        if self.factory_type in [
+                            "fdem",
+                            "tdem",
+                            "magnetotellurics",
+                            "tipper",
+                        ]:
+                            self.sorting.append(
+                                np.arange(
+                                    data_count,
+                                    data_count + len(split_ind),
+                                    dtype=int,
+                                )
                             )
-                        )
-                        data_count += len(local_index)
-                    else:
-                        self.sorting.append(local_index)
+                            data_count += len(split_ind)
+                        else:
+                            self.sorting.append(split_ind)
 
-                # TODO this should be done in the simulation factory
-                if "induced polarization" in self.params.inversion_type:
-                    if "2d" in self.params.inversion_type:
-                        proj = maps.InjectActiveCells(
-                            inversion_mesh.mesh, active_cells, value_inactive=1e-8
-                        )
-                    else:
-                        proj = maps.InjectActiveCells(
-                            mapping.local_mesh,
-                            mapping.local_active,
-                            value_inactive=1e-8,
-                        )
+                    # TODO this should be done in the simulation factory
+                    if "induced polarization" in self.params.inversion_type:
+                        if "2d" in self.params.inversion_type:
+                            proj = maps.InjectActiveCells(
+                                inversion_mesh.mesh, active_cells, value_inactive=1e-8
+                            )
+                        else:
+                            proj = maps.InjectActiveCells(
+                                mapping.local_mesh,
+                                mapping.local_active,
+                                value_inactive=1e-8,
+                            )
 
-                    local_sim.sigma = proj * mapping * self.models.conductivity
+                        local_sim.sigma = proj * mapping * self.models.conductivity
 
-                # TODO add option to export tile meshes
-                # from octree_creation_app.utils import treemesh_2_octree
-                # from geoh5py.shared.utils import fetch_active_workspace
-                #
-                # with fetch_active_workspace(self.params.geoh5) as ws:
-                #     treemesh_2_octree(ws, local_sim.mesh)
+                    # TODO add option to export tile meshes
+                    # from octree_creation_app.utils import treemesh_2_octree
+                    # from geoh5py.shared.utils import fetch_active_workspace
+                    #
+                    # with fetch_active_workspace(self.params.geoh5) as ws:
+                    #     treemesh_2_octree(ws, local_sim.mesh)
 
-                # TODO Parse workers to simulations
-                # local_sim.workers = self.params.distributed_workers
+                    # TODO Parse workers to simulations
+                    # local_sim.workers = self.params.distributed_workers
 
-                simulation = meta.MetaSimulation(
-                    simulations=[local_sim], mappings=[mapping]
-                )
-
-                local_data = data.Data(local_sim.survey)
-
-                if self.params.forward_only:
-                    lmisfit = data_misfit.L2DataMisfit(local_data, simulation)
-
-                else:
-                    local_data.dobs = local_sim.survey.dobs
-                    local_data.standard_deviation = local_sim.survey.std
-                    lmisfit = data_misfit.L2DataMisfit(
-                        local_data,
-                        simulation,
+                    simulation = meta.MetaSimulation(
+                        simulations=[local_sim], mappings=[mapping]
                     )
 
-                    name = self.params.inversion_type
+                    local_data = data.Data(local_sim.survey)
 
-                    if len(tiles) > 1:
-                        name += f": Tile {tile_count + 1}"
-                    if len(channels) > 1:
-                        name += f": Channel {channel}"
+                    if self.params.forward_only:
+                        lmisfit = data_misfit.L2DataMisfit(local_data, simulation)
 
-                    lmisfit.name = f"{name}"
+                    else:
+                        local_data.dobs = local_sim.survey.dobs
+                        local_data.standard_deviation = local_sim.survey.std
+                        lmisfit = data_misfit.L2DataMisfit(
+                            local_data,
+                            simulation,
+                        )
 
-                local_misfits.append(lmisfit)
-                self.ordering.append(ordering)
+                        name = self.params.inversion_type
 
-                tile_num += 1
+                        if len(tiles) > 1 or n_split > 1:
+                            name += f": Tile {tile_count + 1}"
+                        if len(channels) > 1:
+                            name += f": Channel {channel}"
+
+                        lmisfit.name = f"{name}"
+
+                    local_misfits.append(lmisfit)
+                    self.ordering.append(ordering)
+
+                    tile_count += 1
 
         return [local_misfits]
 

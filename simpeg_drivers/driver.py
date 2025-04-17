@@ -14,6 +14,7 @@
 from __future__ import annotations
 
 import multiprocessing
+import contextlib
 from copy import deepcopy
 import sys
 from datetime import datetime, timedelta
@@ -26,10 +27,12 @@ import numpy as np
 from dask import config as dconf
 
 from dask.distributed import get_client, Client, LocalCluster, performance_report
+
 from geoapps_utils.driver.driver import BaseDriver
 from geoapps_utils.utils.importing import GeoAppsError
 
 from geoh5py.groups import SimPEGGroup
+from geoh5py.objects import FEMSurvey
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
 from param_sweeps.driver import SweepParams
@@ -111,6 +114,30 @@ class InversionDriver(BaseDriver):
         return self._client
 
     @property
+    def workers(self):
+        """List of workers"""
+        if self.client:
+            return list(self.client.cluster.workers.values())
+        return []
+
+    @property
+    def n_split(self):
+        """
+        Number of splits for the data misfit to be distributed.
+        evenly among workers.
+        """
+        n_splits = 1
+        n_misfits = self.params.tile_spatial
+
+        if isinstance(self.params.data_object, FEMSurvey):
+            n_misfits = len(self.params.data_object.channels)
+
+        if n_misfits % len(self.workers) != 0:
+            n_splits = len(self.workers)
+
+        return n_splits
+
+    @property
     def data_misfit(self):
         """The Simpeg.data_misfit class"""
         if getattr(self, "_data_misfit", None) is None:
@@ -124,6 +151,7 @@ class InversionDriver(BaseDriver):
                     self.params, models=self.models
                 ).build(
                     tiles,
+                    self.n_split,
                     self.inversion_data,
                     self.inversion_mesh,
                     self.models.active_cells,
@@ -658,19 +686,32 @@ class InversionLogger:
 
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
-
+    # file = Path(sys.argv[1]).resolve()
+    file = Path(r"C:\Users\dominiquef\Desktop\Tests\GEOPY-2137.ui.json")
     input_file = InputFile.read_ui_json(file)
-    n_workers = input_file.data.get("n_workers", None)
+    n_workers = input_file.data.get("n_workers", 1)
     n_threads = input_file.data.get("n_threads", None)
+    save_report = input_file.data.get("performance_report", False)
 
-    if n_workers is not None and n_threads is not None:
-        cluster = LocalCluster(
-            processes=True, n_workers=n_workers, threads_per_worker=n_threads
-        )
-        client = cluster.get_client()
+    cluster = (
+        LocalCluster(processes=True, n_workers=n_workers, threads_per_worker=n_threads)
+        if (n_workers > 1 or n_threads is not None)
+        else None
+    )
 
-    # Full run
-    with performance_report(filename=Path("./dask_profile.html")):
-        InversionDriver.start(input_file)
-        sys.stdout.close()
+    with (
+        cluster.get_client()
+        if cluster is not None
+        else contextlib.nullcontext() as client
+    ):
+        if not isinstance(client, Client) and save_report:
+            save_report = False
+
+        # Full run
+        with (
+            performance_report(filename=file.parent / "dask_profile.html")
+            if save_report
+            else contextlib.nullcontext()
+        ):
+            InversionDriver.start(input_file)
+            sys.stdout.close()
