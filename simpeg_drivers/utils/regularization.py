@@ -11,11 +11,11 @@
 import numpy as np
 import scipy.sparse as ssp
 from discretize import TreeMesh
+from geoapps_utils.utils.transformations import normal_to_direction_and_dip
 from geoh5py.groups import PropertyGroup
 from geoh5py.groups.property_group_type import GroupTypeEnum
 from simpeg.regularization import SparseSmoothness
 from simpeg.utils import mkvc, sdiag
-from simpeg.utils.mat_utils import cartesian2amplitude_dip_azimuth
 
 
 def cell_neighbors_along_axis(mesh: TreeMesh, axis: str) -> np.ndarray:
@@ -408,10 +408,7 @@ def ensure_dip_direction_convention(
     """
 
     if group_type == GroupTypeEnum.VECTOR:
-        orientations = orientations / np.c_[np.linalg.norm(orientations, axis=1)]
-        dip, direction = cartesian2amplitude_dip_azimuth(orientations)[:, 1:].T
-        dip += 90.0
-        orientations = np.c_[direction, dip]
+        orientations = np.rad2deg(normal_to_direction_and_dip(orientations))
 
     if group_type in [GroupTypeEnum.STRIKEDIP]:
         orientations[:, 0] = 90.0 + orientations[:, 0]
