@@ -132,7 +132,7 @@ class InversionDriver(BaseDriver):
         if isinstance(self.params.data_object, FEMSurvey):
             n_misfits = len(self.params.data_object.channels)
 
-        if n_misfits % len(self.workers) != 0:
+        if len(self.workers) > 0 and n_misfits % len(self.workers) != 0:
             n_splits = len(self.workers)
 
         return n_splits
