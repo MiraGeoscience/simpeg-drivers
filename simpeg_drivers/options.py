@@ -22,6 +22,7 @@ from geoh5py.data import (
     BooleanData,
     DataAssociationEnum,
     FloatData,
+    IntegerData,
     NumericData,
     ReferencedData,
 )
@@ -58,7 +59,7 @@ class ActiveCellsOptions(BaseModel):
     )
     topography_object: Points | None = None
     topography: FloatData | float | None = None
-    active_model: BooleanData | None = None
+    active_model: BooleanData | IntegerData | None = None
 
     @model_validator(mode="before")
     @classmethod

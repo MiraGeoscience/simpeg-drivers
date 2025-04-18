@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from geoh5py.workspace import Workspace
 
     from simpeg_drivers.components.meshes import InversionMesh
-    from simpeg_drivers.params import InversionBaseOptions
+    from simpeg_drivers.options import InversionBaseOptions
 
 from copy import deepcopy
 from re import findall

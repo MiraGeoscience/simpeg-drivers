@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from simpeg_drivers.electricals.driver import Base2DDriver
 
-from .params import (
+from .options import (
     IP2DForwardOptions,
     IP2DInversionOptions,
 )
@@ -22,12 +22,12 @@ from .params import (
 class IP2DForwardDriver(Base2DDriver):
     """Induced Polarization 2D forward driver."""
 
-    _params_class = IP2DForwardOptions
+    _options_class = IP2DForwardOptions
     _validations = None
 
 
 class IP2DInversionDriver(Base2DDriver):
     """Induced Polarization 2D inversion driver."""
 
-    _params_class = IP2DInversionOptions
+    _options_class = IP2DInversionOptions
     _validations = None

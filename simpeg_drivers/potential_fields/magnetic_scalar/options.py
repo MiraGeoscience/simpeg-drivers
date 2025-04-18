@@ -17,7 +17,7 @@ from typing import ClassVar
 from geoh5py.data import FloatData
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.params import BaseForwardOptions, BaseInversionOptions
+from simpeg_drivers.options import BaseForwardOptions, BaseInversionOptions
 
 
 class MagneticForwardOptions(BaseForwardOptions):

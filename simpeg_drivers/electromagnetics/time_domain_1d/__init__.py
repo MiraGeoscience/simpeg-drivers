@@ -9,7 +9,7 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from .params import (
+from .options import (
     TDEM1DForwardOptions,
     TDEM1DInversionOptions,
 )

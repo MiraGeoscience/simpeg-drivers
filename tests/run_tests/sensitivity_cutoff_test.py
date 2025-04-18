@@ -18,10 +18,10 @@ from geoh5py.workspace import Workspace
 from simpeg_drivers.depth_of_investigation.sensitivity_cutoff.driver import (
     SensitivityCutoffDriver,
 )
-from simpeg_drivers.depth_of_investigation.sensitivity_cutoff.params import (
-    SensitivityCutoffParams,
+from simpeg_drivers.depth_of_investigation.sensitivity_cutoff.options import (
+    SensitivityCutoffOptions,
 )
-from simpeg_drivers.params import ActiveCellsOptions
+from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import GravityInversionOptions
 from simpeg_drivers.potential_fields.gravity.driver import GravityInversionDriver
 from simpeg_drivers.utils.testing import setup_inversion_workspace
@@ -79,7 +79,7 @@ def test_sensitivity_percent_cutoff_run(tmp_path):
     with Workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         sensitivity = geoh5.get_entity("Iteration_1_sensitivities")[0]
         mesh = sensitivity.parent
-        params = SensitivityCutoffParams(
+        params = SensitivityCutoffOptions(
             geoh5=geoh5,
             mesh=mesh,
             sensitivity_model=sensitivity,
@@ -105,7 +105,7 @@ def test_sensitivity_cutoff_percentile_run(tmp_path):
     with Workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         sensitivity = geoh5.get_entity("Iteration_1_sensitivities")[0]
         mesh = sensitivity.parent
-        params = SensitivityCutoffParams(
+        params = SensitivityCutoffOptions(
             geoh5=geoh5,
             mesh=mesh,
             sensitivity_model=sensitivity,
@@ -133,7 +133,7 @@ def test_sensitivity_cutoff_log_percent_run(tmp_path):
     with Workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         sensitivity = geoh5.get_entity("Iteration_1_sensitivities")[0]
         mesh = sensitivity.parent
-        params = SensitivityCutoffParams(
+        params = SensitivityCutoffOptions(
             geoh5=geoh5,
             mesh=mesh,
             sensitivity_model=sensitivity,

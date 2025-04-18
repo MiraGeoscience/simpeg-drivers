@@ -131,6 +131,16 @@ class DirectivesFactory:
                     )
                     directives_list.append(save_group)
 
+                if (
+                    isinstance(save_directive, directives.SaveModelGeoH5)
+                    and not self.params.forward_only
+                ):
+                    save_model_group = directives.SaveLPModelGroup(
+                        self.driver.inversion_mesh.entity,
+                        self.driver.directives.update_irls_directive,
+                    )
+                    directives_list.append(save_model_group)
+
         return directives_list
 
     @property
@@ -438,9 +448,7 @@ class SaveSensitivitiesGeoh5Factory(SaveGeoh5Factory):
             kwargs["transforms"] = [
                 lambda x: x.reshape((-1, 3), order="F"),
                 lambda x: np.linalg.norm(x, axis=1),
-                active_cells_map,
-                inversion_object.permutation.T,
-            ]
+            ] + kwargs["transforms"]
 
         kwargs["label"] = "sensitivities"
 

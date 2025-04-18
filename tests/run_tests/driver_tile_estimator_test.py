@@ -14,7 +14,7 @@ from pathlib import Path
 
 import numpy as np
 
-from simpeg_drivers.params import ActiveCellsOptions
+from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import MagneticInversionOptions
 from simpeg_drivers.potential_fields.magnetic_scalar.driver import (
     MagneticInversionDriver,

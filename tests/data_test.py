@@ -22,11 +22,11 @@ from octree_creation_app.driver import OctreeDriver
 from octree_creation_app.utils import treemesh_2_octree
 
 from simpeg_drivers.components import InversionData
-from simpeg_drivers.params import ActiveCellsOptions
+from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields.magnetic_vector.driver import (
     MVIInversionDriver,
 )
-from simpeg_drivers.potential_fields.magnetic_vector.params import (
+from simpeg_drivers.potential_fields.magnetic_vector.options import (
     MVIInversionOptions,
 )
 from simpeg_drivers.utils.testing import Geoh5Tester, setup_inversion_workspace

@@ -25,7 +25,7 @@ from simpeg_drivers.electricals.direct_current.three_dimensions.driver import (
 )
 from simpeg_drivers.joint.joint_cross_gradient import JointCrossGradientOptions
 from simpeg_drivers.joint.joint_cross_gradient.driver import JointCrossGradientDriver
-from simpeg_drivers.params import ActiveCellsOptions
+from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import (
     GravityForwardOptions,
     GravityInversionOptions,
@@ -214,6 +214,7 @@ def test_joint_cross_gradient_inv_run(
                     starting_model=100.0,
                     reference_model=100.0,
                     save_sensitivities=True,
+                    solver_type="Mumps",
                 )
                 drivers.append(DC3DInversionDriver(params))
             else:
