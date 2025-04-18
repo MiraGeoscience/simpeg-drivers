@@ -60,11 +60,7 @@ tests:
         - geoh5py
         - dask
         - distributed
-
-      # `pip check` fails on missing dask-core because it only sees name 'dask'
-      # Possibly, use custom mapping for dask => dask-core
-      # See `conda-lock --pypi_to_conda_lookup_file`, or the `pixi` option "conda-pypi-map"
-      pip_check: false
+      pip_check: true
 
   - script:
       - pytest --ignore=tests/version_test.py
@@ -79,8 +75,10 @@ tests:
 
 about:
   license: MIT
-  license_file:
-    - LICENSE
+  license_file: LICENSE
+  homepage: https://www.mirageoscience.com/mining-industry-software/python-integration/
+  repository: https://github.com/MiraGeoscience/simpeg-drivers
+  documentation: https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/
 
 extra:
   recipe-maintainers:
