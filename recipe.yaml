@@ -64,10 +64,8 @@ tests:
 
   - script:
       - pytest --ignore=tests/version_test.py
-      - pip list
     requirements:
       run:
-        - pip
         - pytest
     files:
       source:
