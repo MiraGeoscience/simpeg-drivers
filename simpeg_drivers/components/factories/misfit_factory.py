@@ -45,10 +45,10 @@ class MisfitFactory(SimPEGFactory):
     def concrete_object(self):
         return objective_function.ComboObjectiveFunction
 
-    def build(self, tiles, n_split, inversion_data, inversion_mesh, active_cells):  # pylint: disable=arguments-differ
+    def build(self, tiles, split_list, inversion_data, inversion_mesh, active_cells):  # pylint: disable=arguments-differ
         global_misfit = super().build(
             tiles=tiles,
-            n_split=n_split,
+            split_list=split_list,
             inversion_data=inversion_data,
             inversion_mesh=inversion_mesh,
             active_cells=active_cells,
@@ -58,7 +58,7 @@ class MisfitFactory(SimPEGFactory):
     def assemble_arguments(  # pylint: disable=arguments-differ
         self,
         tiles,
-        n_split,
+        split_list,
         inversion_data,
         inversion_mesh,
         active_cells,
@@ -75,13 +75,15 @@ class MisfitFactory(SimPEGFactory):
         self.ordering = []
         tile_count = 0
         data_count = 0
+        misfit_count = 0
         for local_index in tiles:
             if len(local_index) == 0:
                 continue
             local_mesh = None
 
-            for split_ind in np.array_split(local_index, n_split):
-                for count, channel in enumerate(channels):
+            for count, channel in enumerate(channels):
+                n_split = split_list[misfit_count]
+                for split_ind in np.array_split(local_index, n_split):
                     local_sim, split_ind, ordering, mapping = (
                         self.create_nested_simulation(
                             inversion_data,
@@ -170,6 +172,8 @@ class MisfitFactory(SimPEGFactory):
                     self.ordering.append(ordering)
 
                     tile_count += 1
+
+                misfit_count += 1
 
         return [local_misfits]
 

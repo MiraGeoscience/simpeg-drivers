@@ -101,6 +101,7 @@ class InversionDriver(BaseDriver):
         self._mappings: list[maps.IdentityMap] | None = None
         self._window = None
         self._client: Client | None = None
+        self._workers: list[str] | None = None
 
     @property
     def client(self):
@@ -116,26 +117,37 @@ class InversionDriver(BaseDriver):
     @property
     def workers(self):
         """List of workers"""
-        if self.client:
-            return list(self.client.cluster.workers.values())
-        return []
+        if self._workers is None:
+            if self.client:
+                self._workers = list(self.client.cluster.workers.values())
+            else:
+                self._workers = []
+        return self._workers
 
     @property
-    def n_split(self):
+    def split_list(self):
         """
-        Number of splits for the data misfit to be distributed.
-        evenly among workers.
+        Number of splits for the data misfit to be distributed evenly among workers.
         """
-        n_splits = 1
         n_misfits = self.params.tile_spatial
 
         if isinstance(self.params.data_object, FEMSurvey):
-            n_misfits = len(self.params.data_object.channels)
+            n_misfits *= len(self.params.data_object.channels)
 
-        if len(self.workers) > 0 and n_misfits % len(self.workers) != 0:
-            n_splits = len(self.workers)
+        split_list = [1] * n_misfits
 
-        return n_splits
+        if len(self.workers) == 0:
+            return split_list
+
+        count = 0
+        while np.sum(split_list) % len(self.workers) != 0:
+            split_list[count % n_misfits] += 1
+            count += 1
+
+        self.logger.write(
+            f"Number of misfits: {np.sum(split_list)} distributed over {len(self.workers)} workers.\n"
+        )
+        return split_list
 
     @property
     def data_misfit(self):
@@ -151,7 +163,7 @@ class InversionDriver(BaseDriver):
                     self.params, models=self.models
                 ).build(
                     tiles,
-                    self.n_split,
+                    self.split_list,
                     self.inversion_data,
                     self.inversion_mesh,
                     self.models.active_cells,
