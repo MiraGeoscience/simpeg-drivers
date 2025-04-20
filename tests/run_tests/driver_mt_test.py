@@ -207,7 +207,7 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
 
 def test_magnetotellurics_split_run(tmp_path: Path, max_iterations=1, pytest=True):
     # pass
-    workpath = tmp_path / "inversion_test.ui.geoh5"
+    workpath = tmp_path / f"{__name__}.ui.geoh5"
     if pytest:
         workpath = (
             tmp_path.parent
