@@ -204,60 +204,13 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
     params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
     MTInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
+    driver = MTInversionDriver(params)
 
-def test_magnetotellurics_split_run(tmp_path: Path, max_iterations=1, pytest=True):
-    # pass
-    workpath = tmp_path / f"{__name__}.ui.geoh5"
-    if pytest:
-        workpath = (
-            tmp_path.parent
-            / "test_magnetotellurics_fwr_run0"
-            / "inversion_test.ui.geoh5"
-        )
-
-    with Workspace(workpath) as geoh5:
-        survey = next(
-            child
-            for child in geoh5.get_entity("survey")
-            if not isinstance(child.parent, SimPEGGroup)
-        )
-        mesh = geoh5.get_entity("mesh")[0]
-        topography = geoh5.get_entity("topography")[0]
-        data_kwargs = setup_data(geoh5, survey)
-
-        n_workers = 5
-        # Run the inverse
-        params = MTInversionOptions(
-            geoh5=geoh5,
-            mesh=mesh,
-            active_cells=ActiveCellsOptions(topography_object=topography),
-            data_object=survey,
-            starting_model=100.0,
-            reference_model=100.0,
-            alpha_s=1.0,
-            s_norm=1.0,
-            x_norm=1.0,
-            y_norm=1.0,
-            z_norm=1.0,
-            gradient_type="components",
-            cooling_rate=1,
-            lower_bound=0.75,
-            model_type="Resistivity (Ohm-m)",
-            background_conductivity=100.0,
-            max_global_iterations=max_iterations,
-            initial_beta_ratio=1e3,
-            sens_wts_threshold=1.0,
-            percentile=100,
-            store_sensitivities="ram",
-            solver_type="Mumps",
-            n_workers=n_workers,
-            **data_kwargs,
-        )
-        driver = MTInversionDriver(params)
-
-        # Fake a distributed cluster
-        driver._workers = ["abc"] * n_workers  # pylint: disable=protected-access
-        assert len(driver.data_misfit.objfcts) == 5
+    # Fake a distributed cluster
+    n_workers = 5
+    params.n_workers = n_workers
+    driver._workers = ["abc"] * n_workers  # pylint: disable=protected-access
+    assert len(driver.data_misfit.objfcts) == 5
 
 
 if __name__ == "__main__":
@@ -265,7 +218,7 @@ if __name__ == "__main__":
     test_magnetotellurics_fwr_run(
         Path("./"), n_grid_points=8, cell_size=(5.0, 5.0, 5.0), refinement=(4, 8)
     )
-    test_magnetotellurics_split_run(
+    test_magnetotellurics_run(
         Path("./"),
         max_iterations=15,
         pytest=False,
