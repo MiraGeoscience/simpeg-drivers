@@ -17,6 +17,7 @@ import numpy as np
 from discretize import TensorMesh
 from discretize.utils import mesh_utils
 from geoh5py import Workspace
+from geoh5py.objects import FEMSurvey
 from geoh5py.shared.merging.drape_model import DrapeModelMerger
 from geoh5py.ui_json.ui_json import fetch_active_workspace
 
@@ -118,3 +119,15 @@ class Base1DDriver(InversionDriver):
                 self.distributed_misfits()
 
         return self._data_misfit
+
+    @property
+    def split_list(self):
+        """
+        Split the list of data into chunks for parallel processing.
+        """
+        n_misfits = len(self.inversion_data.indices)
+
+        if isinstance(self.params.data_object, FEMSurvey):
+            n_misfits *= len(self.params.data_object.channels)
+
+        return [1] * n_misfits
