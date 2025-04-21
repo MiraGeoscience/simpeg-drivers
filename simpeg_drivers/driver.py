@@ -157,7 +157,7 @@ class InversionDriver(BaseDriver):
                 # Tile locations
                 tiles = self.get_tiles()
 
-                print(f"Setting up {len(tiles)} tile(s) . . .")
+                self.logger.write(f"Setting up {len(tiles)} tile(s) . . .\n")
                 # Build tiled misfits and combine to form global misfit
                 self._data_misfit, self._sorting, self._ordering = MisfitFactory(
                     self.params, models=self.models
@@ -168,14 +168,16 @@ class InversionDriver(BaseDriver):
                     self.inversion_mesh,
                     self.models.active_cells,
                 )
-                print("Done.")
-
+                self.logger.write("Saving data to file...\n")
                 self.inversion_data.save_data()
                 self._data_misfit.multipliers = np.asarray(
                     self._data_misfit.multipliers, dtype=float
                 )
 
             if self.client:
+                self.logger.write(
+                    "Broadcasting simulations to distributed workers...\n"
+                )
                 self.distributed_misfits()
 
         return self._data_misfit
@@ -395,7 +397,7 @@ class InversionDriver(BaseDriver):
         predicted = None
         try:
             if self.params.forward_only:
-                print("Running the forward simulation ...")
+                self.logger.write("Running the forward simulation ...\n")
                 predicted = simpeg_inversion.invProb.get_dpred(
                     self.models.starting, None
                 )
@@ -449,13 +451,13 @@ class InversionDriver(BaseDriver):
         else:
             data_count = self.inversion_data.n_data
 
-        print(
+        self.logger.write(
             f"Target Misfit: {self.params.chi_factor * data_count:.2e} ({data_count} data "
-            f"with chifact = {self.params.chi_factor})"
+            f"with chifact = {self.params.chi_factor})\n"
         )
-        print(
+        self.logger.write(
             f"IRLS Start Misfit: {chi_start * data_count:.2e} ({data_count} data "
-            f"with chifact = {chi_start})"
+            f"with chifact = {chi_start})\n"
         )
 
     @property
