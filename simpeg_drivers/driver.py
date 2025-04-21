@@ -700,13 +700,13 @@ class InversionLogger:
 if __name__ == "__main__":
     file = Path(sys.argv[1]).resolve()
     input_file = InputFile.read_ui_json(file)
-    n_workers = input_file.data.get("n_workers", 1)
+    n_workers = input_file.data.get("n_workers", None)
     n_threads = input_file.data.get("n_threads", None)
     save_report = input_file.data.get("performance_report", False)
 
     cluster = (
         LocalCluster(processes=True, n_workers=n_workers, threads_per_worker=n_threads)
-        if (n_workers > 1 or n_threads is not None)
+        if (n_workers is None or n_workers > 1 or n_threads is not None)
         else None
     )
 

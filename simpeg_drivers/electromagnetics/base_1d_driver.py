@@ -99,6 +99,7 @@ class Base1DDriver(InversionDriver):
                     self.params, models=self.models
                 ).build(
                     tiles,
+                    self.split_list,
                     self.inversion_data,
                     self.inversion_mesh,
                     self.topo_z_drape,
