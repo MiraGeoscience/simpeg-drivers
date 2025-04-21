@@ -132,16 +132,6 @@ class MisfitFactory(SimPEGFactory):
 
                         local_sim.sigma = proj * mapping * self.models.conductivity
 
-                    # TODO add option to export tile meshes
-                    # from octree_creation_app.utils import treemesh_2_octree
-                    # from geoh5py.shared.utils import fetch_active_workspace
-                    #
-                    # with fetch_active_workspace(self.params.geoh5) as ws:
-                    #     treemesh_2_octree(ws, local_sim.mesh)
-
-                    # TODO Parse workers to simulations
-                    # local_sim.workers = self.params.distributed_workers
-
                     simulation = meta.MetaSimulation(
                         simulations=[local_sim], mappings=[mapping]
                     )
