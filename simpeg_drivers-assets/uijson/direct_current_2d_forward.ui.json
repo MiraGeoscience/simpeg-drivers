@@ -225,5 +225,9 @@
         "value": false,
         "tooltip": "Generates a file for sweeping parameters instead of running the application."
     },
-    "distributed_workers": ""
+    "distributed_workers": "",
+    "n_workers": "",
+    "n_threads": "",
+    "max_ram": "",
+    "performance_report": ""
 }
