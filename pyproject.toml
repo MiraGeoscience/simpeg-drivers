@@ -11,6 +11,8 @@ maintainers = [
 repository = "https://github.com/MiraGeoscience/simpeg-drivers"
 documentation = "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/"
 homepage = "https://www.mirageoscience.com/mining-industry-software/python-integration/"
+readme = "package.rst"
+
 keywords = [
     "direct current resistivity",
     "earth science",
@@ -25,7 +27,17 @@ keywords = [
     "open science",
     "simpeg",
 ]
-readme = "package.rst"
+
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
 
 packages = [
      { include = "simpeg_drivers" },
