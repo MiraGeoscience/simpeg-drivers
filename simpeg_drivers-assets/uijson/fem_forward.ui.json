@@ -8,7 +8,7 @@
     "geoh5": "",
     "monitoring_directory": "",
     "workspace_geoh5": "",
-    "inversion_type": "fem",
+    "inversion_type": "fdem",
     "physical_property": "conductivity",
     "forward_only": true,
     "data_object": {
