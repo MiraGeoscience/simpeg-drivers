@@ -246,5 +246,5 @@
     "n_workers": "",
     "n_threads": "",
     "max_ram": "",
-    "performance_report": ""
+    "performance_report": false
 }
