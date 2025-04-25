@@ -575,5 +575,9 @@
         "label": "Clean directory",
         "value": true
     },
-    "distributed_workers": ""
+    "distributed_workers": "",
+    "n_workers": "",
+    "n_threads": "",
+    "max_ram": "",
+    "performance_report": false
 }

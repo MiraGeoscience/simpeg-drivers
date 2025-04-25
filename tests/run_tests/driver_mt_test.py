@@ -15,6 +15,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+from dask.distributed import LocalCluster, performance_report
 from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 
@@ -35,6 +36,53 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # Move this file out of the test directory and run.
 
 target_run = {"data_norm": 0.032649770, "phi_d": 6.68, "phi_m": 263}
+
+
+def setup_data(workspace, survey):
+    data = {}
+    uncertainties = {}
+    components = {
+        "zxx_real": "Zxx (real)",
+        "zxx_imag": "Zxx (imag)",
+        "zxy_real": "Zxy (real)",
+        "zxy_imag": "Zxy (imag)",
+        "zyx_real": "Zyx (real)",
+        "zyx_imag": "Zyx (imag)",
+        "zyy_real": "Zyy (real)",
+        "zyy_imag": "Zyy (imag)",
+    }
+
+    for comp, cname in components.items():
+        data[cname] = []
+        # uncertainties[f"{cname} uncertainties"] = {}
+        uncertainties[f"{cname} uncertainties"] = []
+        for ind in range(len(survey.channels)):
+            data_entity = workspace.get_entity(f"Iteration_0_{comp}_[{ind}]")[0].copy(
+                parent=survey
+            )
+            data[cname].append(data_entity)
+
+            uncert = survey.add_data(
+                {
+                    f"uncertainty_{comp}_[{ind}]": {
+                        "values": np.ones_like(data_entity.values)
+                        * np.percentile(np.abs(data_entity.values), 5)
+                    }
+                }
+            )
+            uncertainties[f"{cname} uncertainties"].append(uncert.copy(parent=survey))
+
+    data_groups = survey.add_components_data(data)
+    uncert_groups = survey.add_components_data(uncertainties)
+
+    data_kwargs = {}
+    for comp, data_group, uncert_group in zip(
+        components, data_groups, uncert_groups, strict=True
+    ):
+        data_kwargs[f"{comp}_channel"] = data_group
+        data_kwargs[f"{comp}_uncertainty"] = uncert_group
+
+    return data_kwargs
 
 
 def test_magnetotellurics_fwr_run(
@@ -96,51 +144,7 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
         )
         mesh = geoh5.get_entity("mesh")[0]
         topography = geoh5.get_entity("topography")[0]
-
-        data = {}
-        uncertainties = {}
-        components = {
-            "zxx_real": "Zxx (real)",
-            "zxx_imag": "Zxx (imag)",
-            "zxy_real": "Zxy (real)",
-            "zxy_imag": "Zxy (imag)",
-            "zyx_real": "Zyx (real)",
-            "zyx_imag": "Zyx (imag)",
-            "zyy_real": "Zyy (real)",
-            "zyy_imag": "Zyy (imag)",
-        }
-
-        for comp, cname in components.items():
-            data[cname] = []
-            # uncertainties[f"{cname} uncertainties"] = {}
-            uncertainties[f"{cname} uncertainties"] = []
-            for ind in range(len(survey.channels)):
-                data_entity = geoh5.get_entity(f"Iteration_0_{comp}_[{ind}]")[0].copy(
-                    parent=survey
-                )
-                data[cname].append(data_entity)
-
-                uncert = survey.add_data(
-                    {
-                        f"uncertainty_{comp}_[{ind}]": {
-                            "values": np.ones_like(data_entity.values)
-                            * np.percentile(np.abs(data_entity.values), 5)
-                        }
-                    }
-                )
-                uncertainties[f"{cname} uncertainties"].append(
-                    uncert.copy(parent=survey)
-                )
-
-        data_groups = survey.add_components_data(data)
-        uncert_groups = survey.add_components_data(uncertainties)
-
-        data_kwargs = {}
-        for comp, data_group, uncert_group in zip(
-            components, data_groups, uncert_groups, strict=True
-        ):
-            data_kwargs[f"{comp}_channel"] = data_group
-            data_kwargs[f"{comp}_uncertainty"] = uncert_group
+        data_kwargs = setup_data(geoh5, survey)
 
         orig_zyy_real_1 = geoh5.get_entity("Iteration_0_zyy_real_[0]")[0].values
 
@@ -199,6 +203,14 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
     )
     params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
     MTInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
+
+    driver = MTInversionDriver(params)
+
+    # Fake a distributed cluster
+    n_workers = 5
+    params.n_workers = n_workers
+    driver._workers = ["abc"] * n_workers  # pylint: disable=protected-access
+    assert len(driver.data_misfit.objfcts) == 5
 
 
 if __name__ == "__main__":

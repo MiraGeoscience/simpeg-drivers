@@ -96,6 +96,10 @@ class CoreOptions(BaseData):
     :param out_group: Output group to save results.
     :param generate_sweep: Generate sweep file instead of running the app.
     :param distributed_workers: Distributed workers.
+    :param n_threads: Number of threads per worker
+    :param n_workers: Number of distributed workers to use.
+    :param max_ram: Maximum amount of RAM available
+    :param performance_report: Generate an HTML report from dask.diagnostics
     """
 
     # TODO: Refactor to allow frozen True.  Currently params.data_object is
@@ -127,6 +131,10 @@ class CoreOptions(BaseData):
     out_group: SimPEGGroup | UIJsonGroup | None = None
     generate_sweep: bool = False
     distributed_workers: str | None = None
+    n_workers: int | None = 1
+    n_threads: int | None = None
+    max_ram: float | None = None
+    performance_report: bool = False
 
     @field_validator("mesh", mode="before")
     @classmethod
