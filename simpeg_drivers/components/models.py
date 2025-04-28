@@ -250,7 +250,9 @@ class InversionModelCollection:
             if getattr(self.driver.params, "model_type", None) == "Resistivity (Ohm-m)":
                 background_sigma = 1 / background_sigma
 
-            background_sigma = np.log(background_sigma)
+            # Don't apply log if IP inversion
+            if self.is_sigma:
+                background_sigma = np.log(background_sigma)
 
         return background_sigma
 
