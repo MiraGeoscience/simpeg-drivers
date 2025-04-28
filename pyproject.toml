@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "simpeg-drivers"
-version = "0.3.0-alpha.5"
+version = "0.3.0-alpha.6"
 description = "Application to run SimPEG inversions with geoh5 files from Geoscience Analyst."
 license = "MIT"
 authors = ["Mira Geoscience <support@mirageoscience.com>"]
