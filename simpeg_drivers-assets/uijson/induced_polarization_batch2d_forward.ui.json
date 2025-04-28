@@ -104,7 +104,8 @@
         "main": true,
         "isValue": true,
         "parent": "mesh",
-        "label": "Conductivity (S/m)",
+        "label": "Background",
+        "tooltip": "Background model in the 'Model units' (S/m or Ohm-m).",
         "property": "",
         "value": 0.001
     },
