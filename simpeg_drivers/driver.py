@@ -708,7 +708,7 @@ if __name__ == "__main__":
 
     cluster = (
         LocalCluster(processes=True, n_workers=n_workers, threads_per_worker=n_threads)
-        if (n_workers is None or n_workers > 1 or n_threads is not None)
+        if ((n_workers is not None and n_workers > 1) or n_threads is not None)
         else None
     )
 

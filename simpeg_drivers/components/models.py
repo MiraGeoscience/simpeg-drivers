@@ -185,7 +185,10 @@ class InversionModelCollection:
 
     @property
     def lower_bound(self) -> np.ndarray | None:
-        if getattr(self.driver.params, "model_type", None) == "Resistivity (Ohm-m)":
+        if (
+            getattr(self.driver.params, "model_type", None) == "Resistivity (Ohm-m)"
+            and self.is_sigma
+        ):
             bound_model = self._upper_bound.model
         else:
             bound_model = self._lower_bound.model
@@ -213,7 +216,10 @@ class InversionModelCollection:
 
     @property
     def upper_bound(self) -> np.ndarray | None:
-        if getattr(self.driver.params, "model_type", None) == "Resistivity (Ohm-m)":
+        if (
+            getattr(self.driver.params, "model_type", None) == "Resistivity (Ohm-m)"
+            and self.is_sigma
+        ):
             bound_model = self._lower_bound.model
         else:
             bound_model = self._upper_bound.model
@@ -238,15 +244,17 @@ class InversionModelCollection:
         if self._conductivity.model is None:
             return None
 
-        mstart = self._conductivity.model.copy()
+        background_sigma = self._conductivity.model.copy()
 
-        if mstart is not None and self.is_sigma:
+        if background_sigma is not None:
             if getattr(self.driver.params, "model_type", None) == "Resistivity (Ohm-m)":
-                mstart = 1 / mstart
+                background_sigma = 1 / background_sigma
 
-            mstart = np.log(mstart)
+            # Don't apply log if IP inversion
+            if self.is_sigma:
+                background_sigma = np.log(background_sigma)
 
-        return mstart
+        return background_sigma
 
     @property
     def alpha_s(self) -> np.ndarray | None:
