@@ -238,15 +238,15 @@ class InversionModelCollection:
         if self._conductivity.model is None:
             return None
 
-        mstart = self._conductivity.model.copy()
+        background_sigma = self._conductivity.model.copy()
 
-        if mstart is not None and self.is_sigma:
+        if background_sigma is not None:
             if getattr(self.driver.params, "model_type", None) == "Resistivity (Ohm-m)":
-                mstart = 1 / mstart
+                background_sigma = 1 / background_sigma
 
-            mstart = np.log(mstart)
+            background_sigma = np.log(background_sigma)
 
-        return mstart
+        return background_sigma
 
     @property
     def alpha_s(self) -> np.ndarray | None:
