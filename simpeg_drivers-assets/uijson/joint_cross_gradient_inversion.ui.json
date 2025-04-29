@@ -1,13 +1,12 @@
 {
-    "version": "0.3.0-alpha.1",
+    "version": "0.3.0-alpha.4",
     "title": "SimPEG Joint Cross Gradient Inversion",
-    "icon": "",
+    "icon": "function",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
     "conda_environment": "simpeg_drivers",
     "run_command": "simpeg_drivers.driver",
     "geoh5": "",
     "monitoring_directory": "",
-    "workspace_geoh5": "",
     "inversion_type": "joint cross gradient",
     "physical_property": [
         ""
@@ -26,7 +25,7 @@
         "group": "Joint",
         "label": "Misfit A Scale",
         "value": 1.0,
-        "tooltip": "Constant multiplier for the data misfit function for Group A."
+        "tooltip": "Constant multiplier for the data misfit function for Group A"
     },
     "group_b": {
         "main": true,
@@ -41,7 +40,7 @@
         "group": "Joint",
         "label": "Misfit B Scale",
         "value": 1.0,
-        "tooltip": "Constant multiplier for the data misfit function for Group B."
+        "tooltip": "Constant multiplier for the data misfit function for Group B"
     },
     "cross_gradient_weight_a_b": {
         "min": 0.0,
@@ -69,7 +68,7 @@
         "value": 1.0,
         "dependency": "group_c",
         "dependencyType": "enabled",
-        "tooltip": "Constant multiplier for the data misfit function for Group C."
+        "tooltip": "Constant multiplier for the data misfit function for Group C"
     },
     "cross_gradient_weight_c_a": {
         "min": 0.0,
@@ -94,7 +93,7 @@
         "tooltip": "Weight applied to the cross gradient regularizations (1: equal weight with the standard Smallness and Smoothness terms.)"
     },
     "mesh": {
-        "group": "Mesh and Models",
+        "group": "Mesh and models",
         "main": true,
         "label": "Mesh",
         "meshType": "{4ea87376-3ece-438b-bf12-3479733ded46}",
@@ -116,7 +115,7 @@
         "value": "",
         "optional": true,
         "enabled": true,
-        "tooltip": "Select a topography object to define the active cells for inversion."
+        "tooltip": "Select a topography object to define the active cells for inversion"
     },
     "topography": {
         "association": [
@@ -129,7 +128,7 @@
         "optional": true,
         "enabled": false,
         "label": "Elevation channel",
-        "tooltip": "Set elevation from channel.  If not set the topography will be set from the geometry of the selected 'topography' object.",
+        "tooltip": "Set elevation from channel.  If not set the topography will be set from the geometry of the selected 'topography' object",
         "parent": "topography_object",
         "dependency": "topography_object",
         "dependencyType": "enabled",
@@ -149,7 +148,7 @@
         "dependency": "topography_object",
         "dependencyType": "disabled",
         "label": "Active model",
-        "tooltip": "Provide the active cell boolean model directly if topography not set.",
+        "tooltip": "Provide the active cell boolean model directly if topography not set",
         "parent": "mesh",
         "value": ""
     },
@@ -252,7 +251,7 @@
         "label": "IRLS start chi factor",
         "enabled": true,
         "value": 1.0,
-        "tooltip": "This chi factor will be used to determine the misfit threshold after which IRLS iterations begin.",
+        "tooltip": "This chi factor will be used to determine the misfit threshold after which IRLS iterations begin",
         "verbose": 3
     },
     "beta_tol": {
@@ -281,7 +280,7 @@
         "label": "Chi factor",
         "value": 1.0,
         "enabled": true,
-        "tooltip": "The global target data misfit value."
+        "tooltip": "The global target data misfit value"
     },
     "auto_scale_misfits": {
         "group": "Cooling schedule/target",
@@ -289,7 +288,7 @@
         "value": true,
         "verbose": 3,
         "visible": true,
-        "tooltip": "Whether to auto-scale misfits functions (tile, frequency, joint methods) based on chi-factor."
+        "tooltip": "Whether to auto-scale misfits functions (tile, frequency, joint methods) based on chi-factor"
     },
     "initial_beta_ratio": {
         "min": 0.0,
@@ -300,7 +299,7 @@
         "label": "Initial beta ratio",
         "value": 100.0,
         "verbose": 2,
-        "tooltip": "Estimate the trade-off parameter by scaling the ratio between the largest derivatives in the objective function gradients."
+        "tooltip": "Estimate the trade-off parameter by scaling the ratio between the largest derivatives in the objective function gradients"
     },
     "initial_beta": {
         "min": 0.0,
@@ -312,12 +311,12 @@
         "label": "Initial beta",
         "value": 1.0,
         "verbose": 2,
-        "tooltip": "Trade-off parameter between data misfit and regularization."
+        "tooltip": "Trade-off parameter between data misfit and regularization"
     },
     "cooling_factor": {
         "group": "Cooling schedule/target",
         "label": "Beta cooling factor",
-        "tooltip": "Each beta cooling step will be calculated by dividing the current beta by this factor.",
+        "tooltip": "Each beta cooling step will be calculated by dividing the current beta by this factor",
         "value": 2.0,
         "min": 1.1,
         "max": 100,
@@ -335,7 +334,7 @@
         "precision": 1,
         "verbose": 2,
         "enabled": true,
-        "tooltip": "Set the number of iterations per beta value. Use higher values for more non-linear optimization problems."
+        "tooltip": "Set the number of iterations per beta value. Use higher values for more non-linear optimization problems"
     },
     "epsilon_cooling_factor": 1.2,
     "max_global_iterations": {
@@ -354,7 +353,7 @@
         "min": 1,
         "enabled": true,
         "verbose": 3,
-        "tooltip": "Perform an Armijo backtracking linesearch for the provided number of iterations."
+        "tooltip": "Perform an Armijo backtracking linesearch for the provided number of iterations"
     },
     "max_cg_iterations": {
         "min": 0,
@@ -379,7 +378,7 @@
         "min": 1e-06,
         "verbose": 3,
         "enabled": true,
-        "tooltip": "Minimum decrease in regularization beyond which the IRLS procedure is deemed to have completed."
+        "tooltip": "Minimum decrease in regularization beyond which the IRLS procedure is deemed to have completed"
     },
     "sens_wts_threshold": {
         "group": "Update sensitivity weights directive",
@@ -403,7 +402,7 @@
     "save_sensitivities": {
         "group": "Update sensitivity weights directive",
         "label": "Save sensitivities",
-        "tooltip": "Save the summed square row sensitivities to geoh5.",
+        "tooltip": "Save the summed square row sensitivities to geoh5",
         "value": false
     },
     "n_cpu": {
@@ -413,7 +412,7 @@
         "enabled": false,
         "label": "Number of CPUs",
         "value": 1,
-        "visible": true
+        "visible": false
     },
     "solver_type": {
         "choiceList": [
@@ -446,7 +445,7 @@
         "value": 128,
         "verbose": 3,
         "visible": false,
-        "tooltip": "Limit the chunk size used by Dask for distributed computation."
+        "tooltip": "Limit the chunk size used by Dask for distributed computation"
     },
     "out_group": {
         "label": "SimPEG group",
@@ -456,18 +455,18 @@
         "visible": true,
         "optional": true,
         "enabled": false,
-        "tooltip": "Optionally set the SimPEG group to which results will be saved."
+        "tooltip": "Optionally set the SimPEG group to which results will be saved"
     },
     "generate_sweep": {
         "label": "Generate sweep file",
         "group": "Python run preferences",
         "main": true,
         "value": false,
-        "tooltip": "Generates a file for sweeping parameters instead of running the application."
+        "tooltip": "Generates a file for sweeping parameters instead of running the application"
     },
-    "distributed_workers": "",
     "n_workers": "",
     "n_threads": "",
     "max_ram": "",
-    "performance_report": false
+    "performance_report": false,
+    "distributed_workers": ""
 }

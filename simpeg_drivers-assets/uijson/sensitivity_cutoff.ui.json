@@ -1,5 +1,5 @@
 {
-    "version": "0.3.0-alpha.1",
+    "version": "0.3.0-alpha.4",
     "title": "Depth of Investigation: Sensitivity Cutoff",
     "icon": "",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
@@ -7,7 +7,6 @@
     "run_command": "simpeg_drivers.depth_of_investigation.sensitivity_cutoff.driver",
     "geoh5": "",
     "monitoring_directory": "",
-    "workspace_geoh5": "",
     "mesh": {
         "main": true,
         "group": "Sensitivity",
@@ -30,7 +29,7 @@
         "main": true,
         "group": "Sensitivity",
         "label": "Cutoff (%)",
-        "tooltip": "The created mask will eliminate cells below the cutoff percentage.",
+        "tooltip": "The created mask will eliminate cells below the cutoff percentage",
         "value": 10.0,
         "min": 0.0,
         "max": 100.0,
