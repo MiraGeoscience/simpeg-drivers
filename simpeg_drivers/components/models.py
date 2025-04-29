@@ -499,20 +499,30 @@ class InversionModel:
                     remapped_model.reshape((-1, 3), order="F"), axis=1
                 )
 
-        self.driver.inversion_mesh.entity.add_data(
-            {f"{self.model_type}_model": {"values": remapped_model}}
-        )
         model_type = self.model_type
+        if (
+            model_type == "conductivity"
+            and getattr(self.driver.params, "model_type", None) == "Resistivity (Ohm-m)"
+        ):
+            model_type = "resistivity"
 
-        # TODO: Standardize names for upper_model and lower_model
-        if model_type in ["starting", "reference", "conductivity"]:
-            model_type += "_model"
+        self.driver.inversion_mesh.entity.add_data(
+            {f"{model_type}_model": {"values": remapped_model}}
+        )
 
     def edit_ndv_model(self, model):
         """Change values to NDV on models and save to workspace."""
         for field in ["model", "inclination", "declination"]:
+            model_type = self.model_type
+            if (
+                model_type == "conductivity"
+                and getattr(self.driver.params, "model_type", None)
+                == "Resistivity (Ohm-m)"
+            ):
+                model_type = "resistivity"
+
             data_obj = self.driver.inversion_mesh.entity.get_data(
-                f"{self.model_type}_{field}"
+                f"{model_type}_{field}"
             )
             if (
                 any(data_obj)
