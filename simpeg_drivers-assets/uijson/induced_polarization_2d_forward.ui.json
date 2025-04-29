@@ -196,7 +196,7 @@
         "enabled": false,
         "label": "Number of CPUs",
         "value": 1,
-        "visible": true
+        "visible": false
     },
     "solver_type": {
         "choiceList": [
