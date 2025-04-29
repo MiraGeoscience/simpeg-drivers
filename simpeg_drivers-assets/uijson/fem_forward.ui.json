@@ -7,6 +7,7 @@
     "run_command": "simpeg_drivers.driver",
     "geoh5": "",
     "monitoring_directory": "",
+    "workspace_geoh5": "",
     "inversion_type": "fem",
     "physical_property": "conductivity",
     "forward_only": true,

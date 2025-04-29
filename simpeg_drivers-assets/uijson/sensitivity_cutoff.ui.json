@@ -7,6 +7,7 @@
     "run_command": "simpeg_drivers.depth_of_investigation.sensitivity_cutoff.driver",
     "geoh5": "",
     "monitoring_directory": "",
+    "workspace_geoh5": "",
     "mesh": {
         "main": true,
         "group": "Sensitivity",
