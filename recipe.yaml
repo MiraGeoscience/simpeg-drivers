@@ -2,7 +2,7 @@ schema_version: 1
 
 context:
   name: "simpeg-drivers"
-  version: "0.3.0a5"
+  version: "0.3.0a6"
   python_min: "3.10"
 
 package:
