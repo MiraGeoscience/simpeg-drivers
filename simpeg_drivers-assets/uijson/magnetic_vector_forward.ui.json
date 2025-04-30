@@ -1,5 +1,5 @@
 {
-    "version": "0.3.0-alpha.1",
+    "version": "0.3.0-alpha.4",
     "title": "Magnetic Vector (MVI) Forward",
     "icon": "surveyairbornemagnetics",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
@@ -17,7 +17,7 @@
         "precision": 2,
         "lineEdit": false,
         "main": true,
-        "group": "Inducing Field",
+        "group": "Inducing field",
         "label": "Strength (nT)",
         "value": 50000.0
     },
@@ -27,7 +27,7 @@
         "precision": 2,
         "lineEdit": false,
         "main": true,
-        "group": "Inducing Field",
+        "group": "Inducing field",
         "label": "Inclination (deg)",
         "value": 90.0
     },
@@ -37,7 +37,7 @@
         "precision": 2,
         "lineEdit": false,
         "main": true,
-        "group": "Inducing Field",
+        "group": "Inducing field",
         "label": "Declination (deg)",
         "value": 0.0
     },
@@ -55,7 +55,7 @@
         "value": "",
         "optional": true,
         "enabled": true,
-        "tooltip": "Select a topography object to define the active cells for inversion."
+        "tooltip": "Select a topography object to define the active cells for inversion"
     },
     "topography": {
         "association": [
@@ -68,7 +68,7 @@
         "optional": true,
         "enabled": false,
         "label": "Elevation channel",
-        "tooltip": "Set elevation from channel.  If not set the topography will be set from the geometry of the selected 'topography' object.",
+        "tooltip": "Set elevation from channel.  If not set the topography will be set from the geometry of the selected 'topography' object",
         "parent": "topography_object",
         "dependency": "topography_object",
         "dependencyType": "enabled",
@@ -88,7 +88,7 @@
         "dependency": "topography_object",
         "dependencyType": "disabled",
         "label": "Active model",
-        "tooltip": "Provide the active cell boolean model directly if topography not set.",
+        "tooltip": "Provide the active cell boolean model directly if topography not set",
         "parent": "mesh",
         "value": ""
     },
@@ -175,7 +175,7 @@
         "value": "",
         "optional": true,
         "enabled": false,
-        "tooltip": "Select a mesh for the inversion."
+        "tooltip": "Select a mesh for the inversion"
     },
     "starting_model": {
         "association": [
@@ -187,7 +187,7 @@
         "main": true,
         "isValue": true,
         "parent": "mesh",
-        "label": "Susceptibility (si)",
+        "label": "Susceptibility (SI)",
         "property": "",
         "value": 0.0001
     },
@@ -231,7 +231,7 @@
         "enabled": false,
         "label": "Number of CPUs",
         "value": 1,
-        "visible": true
+        "visible": false
     },
     "solver_type": "Pardiso",
     "tile_spatial": {
@@ -244,7 +244,7 @@
         "min": 1,
         "max": 1000,
         "verbose": 2,
-        "tooltip": "Splits the objective function into spatial tiles for distributed computation using the Dask library."
+        "tooltip": "Splits the objective function into spatial tiles for distributed computation using the Dask library"
     },
     "max_chunk_size": {
         "min": 0,
@@ -255,7 +255,7 @@
         "value": 128,
         "verbose": 3,
         "visible": false,
-        "tooltip": "Limit the chunk size used by Dask for distributed computation."
+        "tooltip": "Limit the chunk size used by Dask for distributed computation"
     },
     "out_group": {
         "label": "SimPEG group",
@@ -265,18 +265,18 @@
         "visible": true,
         "optional": true,
         "enabled": false,
-        "tooltip": "Optionally set the SimPEG group to which results will be saved."
+        "tooltip": "Optionally set the SimPEG group to which results will be saved"
     },
     "generate_sweep": {
         "label": "Generate sweep file",
         "group": "Python run preferences",
         "main": true,
         "value": false,
-        "tooltip": "Generates a file for sweeping parameters instead of running the application."
+        "tooltip": "Generates a file for sweeping parameters instead of running the application"
     },
-    "distributed_workers": "",
     "n_workers": "",
     "n_threads": "",
     "max_ram": "",
-    "performance_report": false
+    "performance_report": false,
+    "distributed_workers": ""
 }

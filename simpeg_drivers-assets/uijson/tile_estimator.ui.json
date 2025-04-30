@@ -1,5 +1,5 @@
 {
-    "version": "0.2.0-alpha.1",
+    "version": "0.3.0-alpha.4",
     "title": "SimPEG Tile Estimation",
     "icon": "",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
@@ -27,6 +27,6 @@
         "visible": true,
         "optional": true,
         "enabled": false,
-        "tooltip": "Assign a group to which results will be saved."
+        "tooltip": "Assign a group to which results will be saved"
     }
 }
