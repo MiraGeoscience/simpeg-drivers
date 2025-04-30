@@ -385,7 +385,7 @@
     "auto_scale_misfits": {
         "group": "Cooling schedule/target",
         "label": "Auto-scale misfits",
-        "value": true,
+        "value": false,
         "verbose": 3,
         "visible": true,
         "tooltip": "Whether to auto-scale misfits functions (tile, frequency, joint methods) based on chi-factor"
