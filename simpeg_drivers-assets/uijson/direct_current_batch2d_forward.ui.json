@@ -1,8 +1,8 @@
 {
-    "version": "0.3.0-alpha.1",
+    "version": "0.3.0-alpha.4",
     "title": "Direct Current (DC) 2D Batch Forward",
     "icon": "PotentialElectrode",
-    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
     "conda_environment": "simpeg_drivers",
     "run_command": "simpeg_drivers.driver",
     "geoh5": "",
@@ -26,7 +26,7 @@
         "label": "Line ID",
         "parent": "data_object",
         "value": "",
-        "tooltip": "Selects the data representing the different lines in the survey."
+        "tooltip": "Selects the data representing the different lines in the survey"
     },
     "line_id": 1,
     "potential_channel_bool": true,
@@ -94,7 +94,7 @@
         "main": true,
         "group": "Mesh and models",
         "label": "Model units",
-        "tooltip": "Select the units of the model.",
+        "tooltip": "Select the units of the model",
         "value": "Conductivity (S/m)"
     },
     "starting_model": {
@@ -122,7 +122,7 @@
         "value": "",
         "optional": true,
         "enabled": true,
-        "tooltip": "Select a topography object to define the active cells for inversion."
+        "tooltip": "Select a topography object to define the active cells for inversion"
     },
     "topography": {
         "association": [
@@ -135,7 +135,7 @@
         "optional": true,
         "enabled": false,
         "label": "Elevation channel",
-        "tooltip": "Set elevation from channel.  If not set the topography will be set from the geometry of the selected 'topography' object.",
+        "tooltip": "Set elevation from channel.  If not set the topography will be set from the geometry of the selected 'topography' object",
         "parent": "topography_object",
         "dependency": "topography_object",
         "dependencyType": "enabled",
@@ -155,7 +155,7 @@
         "dependency": "topography_object",
         "dependencyType": "disabled",
         "label": "Active model",
-        "tooltip": "Provide the active cell boolean model directly if topography not set.",
+        "tooltip": "Provide the active cell boolean model directly if topography not set",
         "parent": "mesh",
         "value": ""
     },
@@ -167,7 +167,7 @@
         "enabled": false,
         "label": "Number of CPUs",
         "value": 1,
-        "visible": true
+        "visible": false
     },
     "solver_type": {
         "choiceList": [
@@ -189,7 +189,7 @@
         "value": 128,
         "verbose": 3,
         "visible": false,
-        "tooltip": "Limit the chunk size used by Dask for distributed computation."
+        "tooltip": "Limit the chunk size used by Dask for distributed computation"
     },
     "out_group": {
         "label": "SimPEG group",
@@ -199,14 +199,14 @@
         "visible": true,
         "optional": true,
         "enabled": false,
-        "tooltip": "Optionally set the SimPEG group to which results will be saved."
+        "tooltip": "Optionally set the SimPEG group to which results will be saved"
     },
     "generate_sweep": {
         "label": "Generate sweep file",
         "group": "Python run preferences",
         "main": true,
         "value": false,
-        "tooltip": "Generates a file for sweeping parameters instead of running the application."
+        "tooltip": "Generates a file for sweeping parameters instead of running the application"
     },
     "files_only": {
         "label": "Generate files only",
@@ -220,9 +220,9 @@
         "label": "Clean directory",
         "value": false
     },
-    "distributed_workers": "",
     "n_workers": "",
     "n_threads": "",
     "max_ram": "",
-    "performance_report": false
+    "performance_report": false,
+    "distributed_workers": ""
 }
