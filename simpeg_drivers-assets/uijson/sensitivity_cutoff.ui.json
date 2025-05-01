@@ -2,7 +2,7 @@
     "version": "0.3.0-alpha.4",
     "title": "Depth of Investigation: Sensitivity Cutoff",
     "icon": "",
-    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
     "conda_environment": "simpeg_drivers",
     "run_command": "simpeg_drivers.depth_of_investigation.sensitivity_cutoff.driver",
     "geoh5": "",

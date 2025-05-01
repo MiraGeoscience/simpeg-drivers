@@ -2,7 +2,7 @@
     "version": "0.3.0-alpha.4",
     "title": "Direct Current (DC) 2D Forward",
     "icon": "PotentialElectrode",
-    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
     "conda_environment": "simpeg_drivers",
     "run_command": "simpeg_drivers.driver",
     "geoh5": "",

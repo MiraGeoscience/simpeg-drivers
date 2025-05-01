@@ -2,7 +2,7 @@
     "version": "0.3.0-alpha.4",
     "title": "Time-domain EM-1D (TEM-1D) Inversion",
     "icon": "surveyairborneem",
-    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
     "conda_environment": "simpeg_drivers",
     "run_command": "simpeg_drivers.driver",
     "geoh5": "",
