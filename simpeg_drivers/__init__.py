@@ -146,7 +146,7 @@ DRIVER_MAP = {
     "magnetic vector": (
         "simpeg_drivers.potential_fields.magnetic_vector.driver",
         {
-            "forward": "MagneticForwardDriver",
+            "forward": "MVIForwardDriver",
             "inversion": "MVIInversionDriver",
         },
     ),
