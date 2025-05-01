@@ -33,39 +33,6 @@ from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 from simpeg_drivers.components.factories.source_factory import SourcesFactory
 
 
-def receiver_group(txi, potential_electrodes):
-    """
-    Group receivers by common transmitter id.
-
-    :param: txi : transmitter index number.
-    :param: potential_electrodes : geoh5py object that holds potential electrodes
-        ab_map and ab_cell_id for a dc survey.
-
-    :return: ids : list of ids of potential electrodes used with transmitter txi.
-    """
-
-    index_map = potential_electrodes.ab_map()
-    index_map = {int(v): k for k, v in index_map.items() if v != "Unknown"}
-    ids = np.where(
-        potential_electrodes.ab_cell_id.values.astype(int) == index_map[txi]
-    )[0]
-
-    return ids
-
-
-def group_locations(obj, ids):
-    """
-    Return vertex locations for possible group of cells.
-
-    :param obj : geoh5py object containing cells, vertices structure.
-    :param ids : list of ids (or possibly single id) that indexes cells array.
-
-    :return locations : tuple of n locations arrays where n is length of second
-        dimension of cells array.
-    """
-    return (obj.vertices[obj.cells[ids, i]] for i in range(obj.cells.shape[1]))
-
-
 class SurveyFactory(SimPEGFactory):
     """Build SimPEG sources objects based on factory type."""
 
@@ -289,7 +256,9 @@ class SurveyFactory(SimPEGFactory):
         sources = []
         self.local_index = []
         for source_id in source_ids[np.argsort(order)]:  # Cycle in original order
-            receiver_indices = receiver_group(source_id, receiver_entity)
+            receiver_indices = np.where(receiver_entity.ab_cell_id.values == source_id)[
+                0
+            ]
 
             if local_index is not None:
                 receiver_indices = list(set(receiver_indices).intersection(local_index))

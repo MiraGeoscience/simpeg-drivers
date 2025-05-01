@@ -136,7 +136,7 @@
         "parent": "mesh",
         "label": "Initial chargeability (V/V)",
         "property": "",
-        "value": 0.001
+        "value": 0.0001
     },
     "reference_model": {
         "association": "Cell",

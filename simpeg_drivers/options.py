@@ -27,7 +27,7 @@ from geoh5py.data import (
     ReferencedData,
 )
 from geoh5py.groups import PropertyGroup, SimPEGGroup, UIJsonGroup
-from geoh5py.objects import DrapeModel, Octree, Points
+from geoh5py.objects import DrapeModel, Grid2D, Octree, Points
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
@@ -54,7 +54,7 @@ class ActiveCellsOptions(BaseModel):
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
     )
-    topography_object: Points | None = None
+    topography_object: Points | Grid2D | None = None
     topography: FloatData | float | None = None
     active_model: BooleanData | IntegerData | None = None
 

@@ -135,7 +135,7 @@
         "parent": "mesh",
         "label": "Value(s)",
         "property": "",
-        "value": 0.0
+        "value": 0.0001
     },
     "topography_object": {
         "main": true,
