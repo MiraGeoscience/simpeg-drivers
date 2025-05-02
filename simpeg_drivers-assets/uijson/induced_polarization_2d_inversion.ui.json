@@ -1,8 +1,8 @@
 {
-    "version": "0.3.0-alpha.1",
+    "version": "0.3.0-alpha.4",
     "title": "Induced Polarization (IP) 2D Inversion",
     "icon": "PotentialElectrode",
-    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
     "conda_environment": "simpeg_drivers",
     "run_command": "simpeg_drivers.driver",
     "geoh5": "",
@@ -140,7 +140,8 @@
         "main": true,
         "isValue": true,
         "parent": "mesh",
-        "label": "Conductivity (S/m)",
+        "label": "Background",
+        "tooltip": "Background model in the 'Model units' (S/m or Ohm-m).",
         "property": "",
         "value": 0.001
     },
@@ -153,7 +154,7 @@
         "parent": "mesh",
         "label": "Initial chargeability (V/V)",
         "property": "",
-        "value": 0.0
+        "value": 0.0001
     },
     "reference_model": {
         "association": "Cell",
@@ -402,7 +403,7 @@
     "auto_scale_misfits": {
         "group": "Cooling schedule/target",
         "label": "Auto-scale misfits",
-        "value": true,
+        "value": false,
         "verbose": 3,
         "visible": true,
         "tooltip": "Whether to auto-scale misfits functions (tile, frequency, joint methods) based on chi-factor."
@@ -529,7 +530,7 @@
         "enabled": false,
         "label": "Number of CPUs",
         "value": 1,
-        "visible": true
+        "visible": false
     },
     "solver_type": {
         "choiceList": [
@@ -580,5 +581,9 @@
         "value": false,
         "tooltip": "Generates a file for sweeping parameters instead of running the application."
     },
+    "n_workers": "",
+    "n_threads": "",
+    "max_ram": "",
+    "performance_report": false,
     "distributed_workers": ""
 }

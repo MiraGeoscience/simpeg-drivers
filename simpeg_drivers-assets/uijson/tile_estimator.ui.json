@@ -1,8 +1,8 @@
 {
-    "version": "0.2.0-alpha.1",
+    "version": "0.3.0-alpha.4",
     "title": "SimPEG Tile Estimation",
     "icon": "",
-    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
     "conda_environment": "simpeg_drivers",
     "run_command": "simpeg_drivers.utils.tile_estimate",
     "geoh5": "",
@@ -27,6 +27,6 @@
         "visible": true,
         "optional": true,
         "enabled": false,
-        "tooltip": "Assign a group to which results will be saved."
+        "tooltip": "Assign a group to which results will be saved"
     }
 }

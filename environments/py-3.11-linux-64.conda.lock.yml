@@ -15,7 +15,7 @@ dependencies:
   - brotli-python=1.1.0=py311hfdbb021_2
   - bzip2=1.0.8=h4bc722e_7
   - c-ares=1.34.5=hb9d3cd8_0
-  - ca-certificates=2025.1.31=hbcca054_0
+  - ca-certificates=2025.4.26=hbd8a1cb_0
   - cached-property=1.5.2=hd8ed1ab_1
   - cached_property=1.5.2=pyha770c72_1
   - certifi=2025.1.31=pyhd8ed1ab_0
@@ -32,7 +32,7 @@ dependencies:
   - distributed=2025.3.0=pyhd8ed1ab_0
   - fasteners=0.19=pyhd8ed1ab_1
   - fonttools=4.57.0=py311h2dc5d0c_0
-  - freetype=2.13.3=h48d6fc4_0
+  - freetype=2.13.3=ha770c72_1
   - fsspec=2025.3.2=pyhd8ed1ab_0
   - geoana=0.7.2=py311h5b7b71f_0
   - h2=4.2.0=pyhd8ed1ab_0
@@ -48,7 +48,7 @@ dependencies:
   - krb5=1.21.3=h659f571_0
   - lcms2=2.17=h717163a_0
   - ld_impl_linux-64=2.43=h712a8e2_4
-  - lerc=4.0.0=h27087fc_0
+  - lerc=4.0.0=h0aef613_1
   - libaec=1.1.3=h59595ed_0
   - libblas=3.9.0=31_hfdb39a5_mkl
   - libbrotlicommon=1.1.0=hb9d3cd8_2
@@ -56,19 +56,21 @@ dependencies:
   - libbrotlienc=1.1.0=hb9d3cd8_2
   - libcblas=3.9.0=31_h372d94f_mkl
   - libcurl=8.13.0=h332b0f4_0
-  - libdeflate=1.23=h4ddbbb0_0
+  - libdeflate=1.23=h86f0d12_0
   - libdlf=0.3.0=pyhd8ed1ab_1
   - libedit=3.1.20250104=pl5321h7949ede_0
   - libev=4.33=hd590300_2
   - libexpat=2.7.0=h5888daf_0
   - libffi=3.4.6=h2dba641_1
+  - libfreetype=2.13.3=ha770c72_1
+  - libfreetype6=2.13.3=h48d6fc4_1
   - libgcc=14.2.0=h767d61c_2
   - libgcc-ng=14.2.0=h69a702a_2
   - libgfortran=14.2.0=h69a702a_2
   - libgfortran5=14.2.0=hf1ad2bd_2
   - libhwloc=2.11.2=default_h0d58e46_1001
   - libiconv=1.18=h4ce23a2_1
-  - libjpeg-turbo=3.0.0=hd590300_1
+  - libjpeg-turbo=3.1.0=hb9d3cd8_0
   - liblapack=3.9.0=31_hc41d3b0_mkl
   - liblzma=5.8.1=hb9d3cd8_0
   - libnghttp2=1.64.0=h161d5f1_0
@@ -76,36 +78,36 @@ dependencies:
   - libpng=1.6.47=h943b412_0
   - libscotch=7.0.6=hea33c07_1
   - libsqlite=3.49.1=hee588c1_2
-  - libssh2=1.11.1=hf672d98_0
+  - libssh2=1.11.1=hcf80075_0
   - libstdcxx=14.2.0=h8f9b012_2
   - libstdcxx-ng=14.2.0=h4852527_2
-  - libtiff=4.7.0=hd9ff511_3
+  - libtiff=4.7.0=hd9ff511_4
   - libuuid=2.38.1=h0b41bf4_0
   - libwebp-base=1.5.0=h851e524_0
   - libxcb=1.17.0=h8a09558_0
   - libxcrypt=4.4.36=hd590300_1
   - libxml2=2.13.7=h81593ed_1
   - libzlib=1.3.1=hb9d3cd8_2
-  - llvm-openmp=20.1.3=h024ca30_0
+  - llvm-openmp=20.1.4=h024ca30_0
   - locket=1.0.0=pyhd8ed1ab_0
   - markupsafe=3.0.2=py311h2dc5d0c_1
   - matplotlib-base=3.8.4=py311ha4ca890_2
   - metis=5.1.0=hd0bcaf9_1007
   - mkl=2024.2.2=ha957f24_16
   - msgpack-python=1.1.0=py311hd18a35c_0
-  - mumps-include=5.7.3=h82cca05_9
-  - mumps-seq=5.7.3=hb5d91fa_9
+  - mumps-include=5.7.3=h82cca05_10
+  - mumps-seq=5.7.3=h06cbf8f_10
   - munkres=1.1.4=pyh9f0ad1d_0
   - ncurses=6.5=h2d0b736_3
   - numcodecs=0.15.1=py311h7db5c69_0
   - numpy=1.26.4=py311h64a7726_0
   - openjpeg=2.5.3=h5fbd93e_0
   - openssl=3.5.0=h7b32b05_0
-  - packaging=24.2=pyhd8ed1ab_2
+  - packaging=25.0=pyh29332c3_1
   - pandas=2.2.3=py311h7db5c69_3
   - partd=1.4.2=pyhd8ed1ab_0
   - pillow=10.3.0=py311h82a398c_1
-  - pip=25.0.1=pyh8b19718_0
+  - pip=25.1=pyh8b19718_0
   - psutil=7.0.0=py311h9ecbd09_0
   - pthread-stubs=0.4=hb9d3cd8_1002
   - pycparser=2.22=pyh29332c3_1
@@ -119,13 +121,13 @@ dependencies:
   - python-dateutil=2.9.0.post0=pyhff2d567_1
   - python-mumps=0.0.3=py311h4b558b0_0
   - python-tzdata=2025.2=pyhd8ed1ab_0
-  - python_abi=3.11=6_cp311
+  - python_abi=3.11=7_cp311
   - pytz=2025.2=pyhd8ed1ab_0
   - pyyaml=6.0.2=py311h2dc5d0c_2
   - readline=8.2=h8c095d6_2
   - scikit-learn=1.4.2=py311he08f58d_1
   - scipy=1.14.1=py311he9a78e4_2
-  - setuptools=78.1.0=pyhff2d567_0
+  - setuptools=80.1.0=pyhff2d567_0
   - six=1.17.0=pyhd8ed1ab_0
   - sortedcontainers=2.4.0=pyhd8ed1ab_1
   - tbb=2021.13.0=hceb3a55_1
@@ -145,19 +147,19 @@ dependencies:
   - wrapt=1.17.2=py311h9ecbd09_0
   - xorg-libxau=1.0.12=hb9d3cd8_0
   - xorg-libxdmcp=1.1.5=hb9d3cd8_0
-  - xyzservices=2025.1.0=pyhd8ed1ab_0
+  - xyzservices=2025.4.0=pyhd8ed1ab_0
   - yaml=0.2.5=h7f98852_2
   - zarr=2.14.2=pyhd8ed1ab_0
   - zict=3.0.0=pyhd8ed1ab_1
   - zipp=3.21.0=pyhd8ed1ab_1
-  - zstandard=0.23.0=py311h9ecbd09_1
+  - zstandard=0.23.0=py311h9ecbd09_2
   - zstd=1.5.7=hb8e6e7a_2
   - pip:
-      - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@6e21320c89581dccb1635d8460dfe296ec41b6da
-      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@b0ac79293314952d7499c9412ae811c2b9f81a29
-      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@24027d81b65df99d5f582acc4497ed33df8a3396
-      - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app.git@e9c99d6fd5d324571a2717990aecb3ed673cbaca
-      - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps.git@d5959a0e19b45a89eb8a02cd608bc8accb74adb7
+    - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@6e21320c89581dccb1635d8460dfe296ec41b6da
+    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@a004f090c7ad51fd1503e5af0126c47f71b9ef98
+    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@24027d81b65df99d5f582acc4497ed33df8a3396
+    - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app.git@e9c99d6fd5d324571a2717990aecb3ed673cbaca
+    - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps.git@d5959a0e19b45a89eb8a02cd608bc8accb74adb7
 
 variables:
   KMP_WARNINGS: 0

@@ -14,6 +14,7 @@
 from __future__ import annotations
 
 import multiprocessing
+import contextlib
 from copy import deepcopy
 import sys
 from datetime import datetime, timedelta
@@ -26,10 +27,12 @@ import numpy as np
 from dask import config as dconf
 
 from dask.distributed import get_client, Client, LocalCluster, performance_report
+
 from geoapps_utils.driver.driver import BaseDriver
 from geoapps_utils.utils.importing import GeoAppsError
 
 from geoh5py.groups import SimPEGGroup
+from geoh5py.objects import FEMSurvey
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
 from param_sweeps.driver import SweepParams
@@ -98,6 +101,7 @@ class InversionDriver(BaseDriver):
         self._mappings: list[maps.IdentityMap] | None = None
         self._window = None
         self._client: Client | None = None
+        self._workers: list[str] | None = None
 
     @property
     def client(self):
@@ -111,6 +115,41 @@ class InversionDriver(BaseDriver):
         return self._client
 
     @property
+    def workers(self):
+        """List of workers"""
+        if self._workers is None:
+            if self.client:
+                self._workers = list(self.client.cluster.workers.values())
+            else:
+                self._workers = []
+        return self._workers
+
+    @property
+    def split_list(self):
+        """
+        Number of splits for the data misfit to be distributed evenly among workers.
+        """
+        n_misfits = self.params.tile_spatial
+
+        if isinstance(self.params.data_object, FEMSurvey):
+            n_misfits *= len(self.params.data_object.channels)
+
+        split_list = [1] * n_misfits
+
+        if len(self.workers) == 0:
+            return split_list
+
+        count = 0
+        while np.sum(split_list) % len(self.workers) != 0:
+            split_list[count % n_misfits] += 1
+            count += 1
+
+        self.logger.write(
+            f"Number of misfits: {np.sum(split_list)} distributed over {len(self.workers)} workers.\n"
+        )
+        return split_list
+
+    @property
     def data_misfit(self):
         """The Simpeg.data_misfit class"""
         if getattr(self, "_data_misfit", None) is None:
@@ -118,24 +157,27 @@ class InversionDriver(BaseDriver):
                 # Tile locations
                 tiles = self.get_tiles()
 
-                print(f"Setting up {len(tiles)} tile(s) . . .")
+                self.logger.write(f"Setting up {len(tiles)} tile(s) . . .\n")
                 # Build tiled misfits and combine to form global misfit
                 self._data_misfit, self._sorting, self._ordering = MisfitFactory(
                     self.params, models=self.models
                 ).build(
                     tiles,
+                    self.split_list,
                     self.inversion_data,
                     self.inversion_mesh,
                     self.models.active_cells,
                 )
-                print("Done.")
-
+                self.logger.write("Saving data to file...\n")
                 self.inversion_data.save_data()
                 self._data_misfit.multipliers = np.asarray(
                     self._data_misfit.multipliers, dtype=float
                 )
 
             if self.client:
+                self.logger.write(
+                    "Broadcasting simulations to distributed workers...\n"
+                )
                 self.distributed_misfits()
 
         return self._data_misfit
@@ -355,7 +397,7 @@ class InversionDriver(BaseDriver):
         predicted = None
         try:
             if self.params.forward_only:
-                print("Running the forward simulation ...")
+                self.logger.write("Running the forward simulation ...\n")
                 predicted = simpeg_inversion.invProb.get_dpred(
                     self.models.starting, None
                 )
@@ -409,13 +451,13 @@ class InversionDriver(BaseDriver):
         else:
             data_count = self.inversion_data.n_data
 
-        print(
+        self.logger.write(
             f"Target Misfit: {self.params.chi_factor * data_count:.2e} ({data_count} data "
-            f"with chifact = {self.params.chi_factor})"
+            f"with chifact = {self.params.chi_factor})\n"
         )
-        print(
+        self.logger.write(
             f"IRLS Start Misfit: {chi_start * data_count:.2e} ({data_count} data "
-            f"with chifact = {chi_start})"
+            f"with chifact = {chi_start})\n"
         )
 
     @property
@@ -570,10 +612,12 @@ class InversionDriver(BaseDriver):
             dconf.set(scheduler="threads", pool=ThreadPool(n_cpu))
 
     @classmethod
-    def start(cls, filepath: str | Path, driver_class=None):
-        _ = driver_class
+    def start(cls, filepath: str | Path | InputFile):
+        if isinstance(filepath, InputFile):
+            ifile = filepath
+        else:
+            ifile = InputFile.read_ui_json(filepath)
 
-        ifile = InputFile.read_ui_json(filepath)
         forward_only = ifile.data["forward_only"]
         inversion_type = ifile.ui_json.get("inversion_type", None)
 
@@ -657,5 +701,30 @@ class InversionLogger:
 
 if __name__ == "__main__":
     file = Path(sys.argv[1]).resolve()
-    InversionDriver.start(file)
-    sys.stdout.close()
+    input_file = InputFile.read_ui_json(file)
+    n_workers = input_file.data.get("n_workers", None)
+    n_threads = input_file.data.get("n_threads", None)
+    save_report = input_file.data.get("performance_report", False)
+
+    cluster = (
+        LocalCluster(processes=True, n_workers=n_workers, threads_per_worker=n_threads)
+        if ((n_workers is not None and n_workers > 1) or n_threads is not None)
+        else None
+    )
+
+    with (
+        cluster.get_client()
+        if cluster is not None
+        else contextlib.nullcontext() as client
+    ):
+        if not isinstance(client, Client) and save_report:
+            save_report = False
+
+        # Full run
+        with (
+            performance_report(filename=file.parent / "dask_profile.html")
+            if save_report
+            else contextlib.nullcontext()
+        ):
+            InversionDriver.start(input_file)
+            sys.stdout.close()
