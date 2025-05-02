@@ -428,7 +428,7 @@ class EMDataMixin:
         """
         frequencies = self.data_object.channels
         if property_group is None:
-            return {f: None for f in frequencies}
+            return dict.fromkeys(frequencies)
 
         data = {}
         group = next(
