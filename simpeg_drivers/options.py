@@ -27,7 +27,7 @@ from geoh5py.data import (
     ReferencedData,
 )
 from geoh5py.groups import PropertyGroup, SimPEGGroup, UIJsonGroup
-from geoh5py.objects import DrapeModel, Octree, Points
+from geoh5py.objects import DrapeModel, Grid2D, Octree, Points
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
@@ -54,7 +54,7 @@ class ActiveCellsOptions(BaseModel):
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
     )
-    topography_object: Points | None = None
+    topography_object: Points | Grid2D | None = None
     topography: FloatData | float | None = None
     active_model: BooleanData | IntegerData | None = None
 
@@ -96,6 +96,10 @@ class CoreOptions(BaseData):
     :param out_group: Output group to save results.
     :param generate_sweep: Generate sweep file instead of running the app.
     :param distributed_workers: Distributed workers.
+    :param n_threads: Number of threads per worker
+    :param n_workers: Number of distributed workers to use.
+    :param max_ram: Maximum amount of RAM available
+    :param performance_report: Generate an HTML report from dask.diagnostics
     """
 
     # TODO: Refactor to allow frozen True.  Currently params.data_object is
@@ -127,6 +131,10 @@ class CoreOptions(BaseData):
     out_group: SimPEGGroup | UIJsonGroup | None = None
     generate_sweep: bool = False
     distributed_workers: str | None = None
+    n_workers: int | None = 1
+    n_threads: int | None = None
+    max_ram: float | None = None
+    performance_report: bool = False
 
     @field_validator("mesh", mode="before")
     @classmethod

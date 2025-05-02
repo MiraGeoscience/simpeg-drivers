@@ -19,7 +19,7 @@ from .directives_factory import (
 from .entity_factory import EntityFactory
 from .misfit_factory import MisfitFactory
 from .simulation_factory import SimulationFactory
-from .survey_factory import SurveyFactory, receiver_group
+from .survey_factory import SurveyFactory
 
 # pylint: disable=unused-import
 # flake8: noqa
