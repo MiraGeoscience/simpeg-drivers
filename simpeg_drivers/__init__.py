@@ -12,7 +12,7 @@
 from __future__ import annotations
 
 
-__version__ = "0.3.0-alpha.5"
+__version__ = "0.4.0-alpha.1"
 
 
 import logging
@@ -146,7 +146,7 @@ DRIVER_MAP = {
     "magnetic vector": (
         "simpeg_drivers.potential_fields.magnetic_vector.driver",
         {
-            "forward": "MagneticForwardDriver",
+            "forward": "MVIForwardDriver",
             "inversion": "MVIInversionDriver",
         },
     ),
