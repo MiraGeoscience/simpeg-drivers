@@ -1,0 +1,50 @@
+{
+    "version": "0.3.0-alpha.4",
+    "title": "SimPEG Tile Estimation",
+    "icon": "",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
+    "conda_environment": "simpeg_drivers",
+    "run_command": "simpeg_drivers.utils.tile_estimate",
+    "geoh5": "",
+    "monitoring_directory": "",
+    "workspace_geoh5": "",
+    "inversion_group": {
+        "main": true,
+        "label": "Inversion group",
+        "groupType": "{55ed3daf-c192-4d4b-a439-60fa987fe2b8}",
+        "value": ""
+    },
+    "mesh": {
+        "group": "Geological model",
+        "main": true,
+        "label": "Mesh",
+        "meshType": "{4ea87376-3ece-438b-bf12-3479733ded46}",
+        "value": "",
+        "optional": false,
+        "enabled": true,
+        "tooltip": "Select a mesh containing a reference model representing homogeneous units"
+    },
+    "geo_model": {
+        "association": [
+            "Cell"
+        ],
+        "dataType": "Referenced",
+        "group": "Geological model",
+        "main": true,
+        "label": "Model",
+        "parent": "mesh",
+        "optional": false,
+        "enabled": true,
+        "value": ""
+    },
+    "out_group": {
+        "label": "SimPEG Group",
+        "value": "",
+        "groupType": "{55ed3daf-c192-4d4b-a439-60fa987fe2b8}",
+        "group": "Drag-and-drop options",
+        "visible": true,
+        "optional": true,
+        "enabled": false,
+        "tooltip": "Assign a group to which results will be saved"
+    }
+}
