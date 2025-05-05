@@ -132,5 +132,5 @@ def test_ensure_dip_direction_convention():
         ]
     )
     dir_dip = ensure_dip_direction_convention(orientations, group_type="3D vector")
-    assert np.allclose(dir_dip[:, 0], [90, 0, 90, 180] * 2 + [74])
-    assert np.allclose(dir_dip[:, 1], [45] * 4 + [30] * 4 + [-37])
+    assert np.allclose(dir_dip[:, 0], [90, 0, 270, 180] * 2 + [254])
+    assert np.allclose(dir_dip[:, 1], [45] * 4 + [30] * 4 + [37])

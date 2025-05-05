@@ -11,7 +11,11 @@
 import numpy as np
 import scipy.sparse as ssp
 from discretize import TreeMesh
-from geoapps_utils.utils.transformations import normal_to_direction_and_dip
+from geoapps_utils.utils.transformations import (
+    cartesian_normal_to_direction_and_dip,
+    x_rotation_matrix,
+    z_rotation_matrix,
+)
 from geoh5py.groups import PropertyGroup
 from geoh5py.groups.property_group_type import GroupTypeEnum
 from simpeg.regularization import SparseSmoothness
@@ -194,18 +198,11 @@ def rotate_yz_3d(mesh: TreeMesh, theta: np.ndarray) -> ssp.csr_matrix:
     :param theta: Angle in radians for clockwise rotation about the
         x-axis (yz plane).
     """
-
-    n_cells = len(theta)
     hy = mesh.h_gridded[:, 1]
     hz = mesh.h_gridded[:, 2]
     theta = -np.arctan2((np.sin(theta) / hz), (np.cos(theta) / hy))
 
-    rxa = mkvc(np.c_[np.ones(n_cells), np.cos(theta), np.cos(theta)].T)
-    rxb = mkvc(np.c_[np.zeros(n_cells), np.sin(theta), np.zeros(n_cells)].T)
-    rxc = mkvc(np.c_[np.zeros(n_cells), -np.sin(theta), np.zeros(n_cells)].T)
-    Rx = ssp.diags([rxb[:-1], rxa, rxc[:-1]], [-1, 0, 1])
-
-    return Rx
+    return x_rotation_matrix(theta)
 
 
 def rotate_xy_3d(mesh: TreeMesh, phi: np.ndarray) -> ssp.csr_matrix:
@@ -217,17 +214,11 @@ def rotate_xy_3d(mesh: TreeMesh, phi: np.ndarray) -> ssp.csr_matrix:
     :param phi: Angle in radians for clockwise rotation about the
         z-axis (xy plane).
     """
-    n_cells = len(phi)
     hx = mesh.h_gridded[:, 0]
     hy = mesh.h_gridded[:, 1]
     phi = -np.arctan2((np.sin(phi) / hy), (np.cos(phi) / hx))
 
-    rza = mkvc(np.c_[np.cos(phi), np.cos(phi), np.ones(n_cells)].T)
-    rzb = mkvc(np.c_[np.sin(phi), np.zeros(n_cells), np.zeros(n_cells)].T)
-    rzc = mkvc(np.c_[-np.sin(phi), np.zeros(n_cells), np.zeros(n_cells)].T)
-    Rz = ssp.diags([rzb[:-1], rza, rzc[:-1]], [-1, 0, 1])
-
-    return Rz
+    return z_rotation_matrix(phi)
 
 
 def get_cell_normals(n_cells: int, axis: str, outward: bool) -> np.ndarray:
@@ -408,7 +399,7 @@ def ensure_dip_direction_convention(
     """
 
     if group_type == GroupTypeEnum.VECTOR:
-        orientations = np.rad2deg(normal_to_direction_and_dip(orientations))
+        orientations = np.rad2deg(cartesian_normal_to_direction_and_dip(orientations))
 
     if group_type in [GroupTypeEnum.STRIKEDIP]:
         orientations[:, 0] = 90.0 + orientations[:, 0]
