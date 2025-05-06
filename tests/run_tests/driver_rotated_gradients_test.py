@@ -88,18 +88,18 @@ def test_rotated_grad_run(
         mesh = geoh5.get_entity("mesh")[0]
 
         # Create property group with orientation
-        dip = np.ones(mesh.n_cells) * 45
-        azimuth = np.ones(mesh.n_cells) * 90
+        i = np.ones(mesh.n_cells)
+        j = np.zeros(mesh.n_cells)
+        k = np.ones(mesh.n_cells)
 
         data_list = mesh.add_data(
             {
-                "azimuth": {"values": azimuth},
-                "dip": {"values": dip},
+                "i": {"values": i},
+                "j": {"values": j},
+                "k": {"values": k},
             }
         )
-        pg = PropertyGroup(
-            mesh, properties=data_list, property_group_type="Dip direction & dip"
-        )
+        pg = PropertyGroup(mesh, properties=data_list, property_group_type="3D vector")
         topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
