@@ -25,14 +25,14 @@ from simpeg_drivers.components.factories import (
 )
 from simpeg_drivers.joint.driver import BaseJointDriver
 
-from .options import JointPetrophysicalOptions
+from .options import JointPetrophysicsOptions
 
 
-class JointPetrophysicalDriver(BaseJointDriver):
-    _options_class = JointPetrophysicalOptions
+class JointPetrophysicsDriver(BaseJointDriver):
+    _options_class = JointPetrophysicsOptions
     _validations = None
 
-    def __init__(self, params: JointPetrophysicalOptions):
+    def __init__(self, params: JointPetrophysicsOptions):
         self._wires = None
         self._directives = None
 

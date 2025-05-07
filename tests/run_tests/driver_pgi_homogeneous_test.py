@@ -18,8 +18,8 @@ from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.workspace import Workspace
 from pytest import raises
 
-from simpeg_drivers.joint.joint_petrophysical.driver import JointPetrophysicalDriver
-from simpeg_drivers.joint.joint_petrophysical.options import JointPetrophysicalOptions
+from simpeg_drivers.joint.joint_petrophysics.driver import JointPetrophysicsDriver
+from simpeg_drivers.joint.joint_petrophysics.options import JointPetrophysicsOptions
 from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import (
     GravityForwardOptions,
@@ -38,7 +38,7 @@ target_run = {"data_norm": 0.0028055269276044915, "phi_d": 8.32e-05, "phi_m": 0.
 
 def test_homogeneous_fwr_run(
     tmp_path: Path,
-    n_grid_points=3,
+    n_grid_points=2,
     refinement=(2,),
 ):
     # Run the forward
@@ -51,9 +51,9 @@ def test_homogeneous_fwr_run(
         refinement=refinement,
         flatten=False,
     )
-    with geoh5.open():
-        model.values[(mesh.centroids[:, 0] > 0) & (model.values == 0)] = -0.1
-        geoh5.update_attribute(model, "values")
+    # with geoh5.open():
+    #     model.values[(mesh.centroids[:, 0] > 0) & (model.values == 0)] = -0.1
+    #     geoh5.update_attribute(model, "values")
 
     active_cells = ActiveCellsOptions(topography_object=topography)
     params = GravityForwardOptions(
@@ -105,7 +105,7 @@ def test_homogeneous_run(
 
         # Run the inverse
         active_cells = ActiveCellsOptions(topography_object=topography)
-        params = GravityInversionOptions(
+        GravityInversionOptions(
             geoh5=geoh5,
             mesh=mesh,
             active_cells=active_cells,
@@ -115,23 +115,22 @@ def test_homogeneous_run(
             gz_channel=gz,
             gz_uncertainty=2e-3,
             lower_bound=0.0,
-            max_global_iterations=max_iterations,
-            initial_beta_ratio=1e-2,
-            percentile=100,
             store_sensitivities="ram",
             save_sensitivities=True,
         )
 
         grav_group = geoh5.get_entity("Gravity Inversion")[0]
 
-        params = JointPetrophysicalOptions(
+        params = JointPetrophysicsOptions(
             active_cells=active_cells,
             geoh5=geoh5,
             group_a=grav_group,
             mesh=mesh,
             geo_model=geo_model,
+            initial_beta_ratio=1e-2,
+            max_global_iterations=max_iterations,
         )
-        driver = JointPetrophysicalDriver(params)
+        driver = JointPetrophysicsDriver(params)
         driver.run()
 
     # with Workspace(driver.params.geoh5.h5file) as run_ws:

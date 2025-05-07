@@ -22,7 +22,7 @@ from simpeg_drivers import assets_path
 from simpeg_drivers.joint.options import BaseJointOptions
 
 
-class JointPetrophysicalOptions(BaseJointOptions):
+class JointPetrophysicsOptions(BaseJointOptions):
     """
     Joint Petrophysically Guided Inversion (PGI) driver.
 
@@ -32,13 +32,13 @@ class JointPetrophysicalOptions(BaseJointOptions):
 
     name: ClassVar[str] = "Petrophysically Guided Inversion (PGI)"
     default_ui_json: ClassVar[Path] = (
-        assets_path() / "uijson/joint_petrophysical_inversion.ui.json"
+        assets_path() / "uijson/joint_petrophysics_inversion.ui.json"
     )
 
     title: str = "Joint Petrophysically Guided Inversion (PGI)"
     physical_property: list[str] = [""]
 
-    inversion_type: str = "joint petrophysical"
+    inversion_type: str = "joint petrophysics"
 
     mesh: Octree
     geo_model: ReferencedData
