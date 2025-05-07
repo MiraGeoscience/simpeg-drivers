@@ -14,11 +14,11 @@ from __future__ import annotations
 from logging import getLogger
 
 import numpy as np
+from geoh5py.groups.property_group_type import GroupTypeEnum
 from geoh5py.shared.utils import fetch_active_workspace
 from simpeg import maps
-from simpeg.directives import SaveLPModelGroup
 
-from simpeg_drivers.components.factories import DirectivesFactory, SaveModelGeoh5Factory
+from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.joint.driver import BaseJointDriver
 
 from .options import JointSurveysOptions
@@ -86,75 +86,16 @@ class JointSurveyDriver(BaseJointDriver):
 
         return self._wires
 
-    @property
-    def directives(self):
-        if getattr(self, "_directives", None) is None and not self.params.forward_only:
-            self._directives = DirectivesFactory(self)
-            with fetch_active_workspace(self.workspace, mode="r+"):
-                directives_list = []
-                count = 0
-                for driver in self.drivers:
-                    if getattr(driver.params, "model_type", None) is not None:
-                        driver.params.model_type = self.params.model_type
+    def _get_global_model_save_directives(self):
+        """
+        Create a list of directives for regularization models.
+        """
+        directives_list = self._get_local_model_save_directives(
+            self.drivers[0], self.wires[0]
+        )
 
-                    driver_directives = DirectivesFactory(driver)
+        return directives_list
 
-                    save_model = driver_directives.save_iteration_model_directive
-                    save_model.transforms = [
-                        driver.data_misfit.model_map,
-                        *save_model.transforms,
-                    ]
 
-                    directives_list.append(save_model)
-                    directives_list.append(
-                        SaveLPModelGroup(
-                            driver.inversion_mesh.entity,
-                            self._directives.update_irls_directive,
-                        )
-                    )
-
-                    if driver_directives.save_property_group is not None:
-                        directives_list.append(driver_directives.save_property_group)
-
-                    n_tiles = len(driver.data_misfit.objfcts)
-                    for name in [
-                        "save_iteration_data_directive",
-                        "save_iteration_residual_directive",
-                        "save_iteration_apparent_resistivity_directive",
-                        "vector_inversion_directive",
-                    ]:
-                        directive = getattr(driver_directives, name)
-                        if directive is not None:
-                            directive.joint_index = [
-                                count + ii for ii in range(n_tiles)
-                            ]
-                            directives_list.append(directive)
-
-                    count += n_tiles
-
-                model_factory = SaveModelGeoh5Factory(self.params)
-                model_factory.factory_type = self.drivers[0].params.inversion_type
-                global_model_save = model_factory.build(
-                    inversion_object=self.inversion_mesh,
-                    active_cells=self.models.active_cells,
-                    name="Model",
-                )
-
-                directives_list.append(
-                    SaveLPModelGroup(
-                        self.inversion_mesh.entity,
-                        self._directives.update_irls_directive,
-                    )
-                )
-
-                if self._directives.save_property_group is not None:
-                    directives_list.append(self._directives.save_property_group)
-
-                directives_list.append(self._directives.save_iteration_log_files)
-
-                self._directives.directive_list = [
-                    *self._directives.inversion_directives,
-                    global_model_save,
-                    *directives_list,
-                ]
-        return self._directives
+JointSurveyDriver.n_values = InversionDriver.n_values
+JointSurveyDriver.mapping = InversionDriver.mapping
