@@ -76,7 +76,7 @@ class FDEMForwardOptions(BaseFDEMOptions, BaseForwardOptions):
     """
 
     name: ClassVar[str] = "Frequency Domain Electromagnetics Forward"
-    default_ui_json: ClassVar[Path] = assets_path() / "uijson/fem_forward.ui.json"
+    default_ui_json: ClassVar[Path] = assets_path() / "uijson/fdem_forward.ui.json"
     inversion_type: str = "fdem"
     title: str = "Frequency-domain EM (FEM) Forward"
 
@@ -96,7 +96,7 @@ class FDEMInversionOptions(BaseFDEMOptions, BaseInversionOptions):
     """
 
     name: ClassVar[str] = "Frequency Domain Electromagnetics Inversion"
-    default_ui_json: ClassVar[Path] = assets_path() / "uijson/fem_inversion.ui.json"
+    default_ui_json: ClassVar[Path] = assets_path() / "uijson/fdem_inversion.ui.json"
     inversion_type: str = "fdem"
     title: str = "Frequency-domain EM (FEM) Inversion"
 
