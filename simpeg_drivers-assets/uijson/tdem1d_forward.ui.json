@@ -1,6 +1,6 @@
 {
     "version": "0.3.0-alpha.4",
-    "title": "Time-domain EM-1D (TEM-1D) Forward",
+    "title": "Time-domain EM (TEM) 1D Forward",
     "icon": "surveyairborneem",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
     "conda_environment": "simpeg_drivers",

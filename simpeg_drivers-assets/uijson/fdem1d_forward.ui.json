@@ -1,6 +1,6 @@
 {
     "version": "0.3.0-alpha.4",
-    "title": "Frequency-domain EM 1D (FEM-1D) Forward",
+    "title": "Frequency-domain EM (FEM) 1D Forward",
     "icon": "surveyairborneem",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
     "conda_environment": "simpeg_drivers",
