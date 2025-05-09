@@ -75,12 +75,12 @@
         "enabled": true,
         "tooltip": "Select a mesh containing a reference model representing homogeneous units"
     },
-    "geo_model": {
+    "petrophysics_model": {
         "association": [
             "Cell"
         ],
         "dataType": "Referenced",
-        "group": "Geological model",
+        "group": "Petrophysical model",
         "main": true,
         "label": "Model",
         "parent": "mesh",

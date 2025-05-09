@@ -93,9 +93,9 @@ def test_homogeneous_run(
             vals[model.values == value] = ind + 1
 
         topography = geoh5.get_entity("topography")[0]
-        geo_model = mesh.add_data(
+        petrophysics = mesh.add_data(
             {
-                "geo_model": {
+                "petrophysics": {
                     "values": vals,
                     "type": "REFERENCED",
                     "value_map": mapping,
@@ -126,8 +126,8 @@ def test_homogeneous_run(
             geoh5=geoh5,
             group_a=grav_group,
             mesh=mesh,
-            geo_model=geo_model,
-            initial_beta_ratio=1e-2,
+            petrophysics_model=petrophysics,
+            initial_beta_ratio=1e2,
             max_global_iterations=max_iterations,
         )
         driver = JointPetrophysicsDriver(params)

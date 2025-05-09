@@ -268,6 +268,9 @@ class BaseJointDriver(InversionDriver):
     def validate_create_models(self):
         """Create stacked model vectors from all drivers provided."""
         for model_type in self.models.model_types:
+            if model_type == "petrophysics":
+                continue
+
             model = np.zeros(self.models.n_active * len(self.mapping))
 
             for child_driver in self.drivers:

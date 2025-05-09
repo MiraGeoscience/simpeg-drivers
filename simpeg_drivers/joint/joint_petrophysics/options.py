@@ -27,7 +27,7 @@ class JointPetrophysicsOptions(BaseJointOptions):
     Joint Petrophysically Guided Inversion (PGI) driver.
 
     :param mesh: The global mesh entity containing the reference geology.
-    :param geo_model: The reference geology data.
+    :param petrophysics: The reference geology data.
     """
 
     name: ClassVar[str] = "Petrophysically Guided Inversion (PGI)"
@@ -41,7 +41,7 @@ class JointPetrophysicsOptions(BaseJointOptions):
     inversion_type: str = "joint petrophysics"
 
     mesh: Octree
-    geo_model: ReferencedData
+    petrophysics_model: ReferencedData
     group_a: SimPEGGroup
     group_a_multiplier: float | None = 1.0
     group_b: SimPEGGroup | None = None

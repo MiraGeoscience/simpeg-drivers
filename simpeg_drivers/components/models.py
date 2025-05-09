@@ -17,7 +17,7 @@ import numpy as np
 from geoapps_utils.driver.driver import BaseDriver
 from geoapps_utils.utils.numerical import weighted_average
 from geoapps_utils.utils.transformations import rotate_xyz
-from geoh5py.data import NumericData
+from geoh5py.data import FloatData, NumericData, ReferencedData
 from simpeg.utils.mat_utils import (
     cartesian2amplitude_dip_azimuth,
     dip_azimuth2cartesian,
@@ -45,6 +45,7 @@ MODEL_TYPES = [
     "x_norm",
     "y_norm",
     "z_norm",
+    "petrophysics",
 ]
 
 
@@ -95,6 +96,7 @@ class InversionModelCollection:
         self._x_norm = InversionModel(driver, "x_norm", is_vector=is_vector)
         self._y_norm = InversionModel(driver, "y_norm", is_vector=is_vector)
         self._z_norm = InversionModel(driver, "z_norm", is_vector=is_vector)
+        self._petrophysics = InversionModel(driver, "petrophysics", is_vector=False)
 
     @property
     def n_active(self) -> int:
@@ -285,6 +287,13 @@ class InversionModelCollection:
         return self._length_scale_z.model.copy()
 
     @property
+    def petrophysics(self) -> np.ndarray | None:
+        if self._petrophysics.model is None:
+            return None
+
+        return self._petrophysics.model.copy()
+
+    @property
     def gradient_dip(self) -> np.ndarray | None:
         if self._gradient_dip.model is None:
             return None
@@ -406,7 +415,7 @@ class InversionModel:
         inducing field.
         """
         if self.model_type in ["starting", "reference", "conductivity"]:
-            model = self._get(self.model_type + "_model")
+            model = self._get(self.model_type)
 
             if self.is_vector:
                 inclination = self._get(self.model_type + "_inclination")
@@ -506,8 +515,17 @@ class InversionModel:
         ):
             model_type = "resistivity"
 
+        entity_type = None
+        if isinstance(self._fetch_reference(self.model_type), NumericData):
+            entity_type = self._fetch_reference(self.model_type).entity_type
+
         self.driver.inversion_mesh.entity.add_data(
-            {f"{model_type}_model": {"values": remapped_model}}
+            {
+                f"{model_type}_model": {
+                    "values": remapped_model,
+                    "entity_type": entity_type,
+                }
+            }
         )
 
     def edit_ndv_model(self, model):
@@ -530,8 +548,21 @@ class InversionModel:
                 and data_obj[0].values is not None
             ):
                 values = data_obj[0].values.copy()
-                values[~model.astype(bool)] = np.nan
+                values[~model.astype(bool)] = (
+                    np.nan if isinstance(data_obj[0], FloatData) else 0
+                )
                 data_obj[0].values = values
+
+    def _fetch_reference(self, name: str) -> NumericData | None:
+        if name in ["petrophysics", "starting", "reference", "conductivity"]:
+            name += "_model"
+
+        value = getattr(self.driver.params, name, None)
+
+        if "reference" in name and value is None:
+            value = self._fetch_reference("starting")
+
+        return value
 
     def _get(self, name: str) -> np.ndarray | None:
         """
@@ -540,18 +571,12 @@ class InversionModel:
         :param name: model name as stored in self.driver.params
         :return: vector with appropriate size for problem.
         """
+        model = self._fetch_reference(name)
 
-        if hasattr(self.driver.params, name):
-            model = getattr(self.driver.params, name)
+        if model is None:
+            return None
 
-            if "reference" in name and model is None:
-                model = self._get("starting")
-
-            model_values = self._get_value(model)
-
-            return model_values
-
-        return None
+        return self._get_value(model)
 
     def _get_value(self, model: float | NumericData) -> np.ndarray:
         """
@@ -584,9 +609,15 @@ class InversionModel:
         """
         xyz_out = destination.locations
         xyz_in = data.parent.locations
-        full_vector = weighted_average(xyz_in, xyz_out, [data.values], n=1)[0]
 
-        return full_vector
+        values = data.values.astype(float)
+
+        if isinstance(data, ReferencedData):
+            values[values == 0] = np.nan
+
+        full_vector = weighted_average(xyz_in, xyz_out, [values], n=1)[0]
+
+        return full_vector.astype(data.values.dtype)
 
     @property
     def model_type(self):
