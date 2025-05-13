@@ -17,7 +17,7 @@ from geoh5py.groups.property_group_type import GroupTypeEnum
 from geoh5py.shared.utils import fetch_active_workspace
 from simpeg import directives, maps, utils
 from simpeg.objective_function import ComboObjectiveFunction
-from simpeg.regularization import PGI
+from simpeg.regularization.pgi import PGIsmallness
 
 from simpeg_drivers.components.factories import (
     DirectivesFactory,
@@ -35,12 +35,51 @@ class JointPetrophysicsDriver(BaseJointDriver):
     def __init__(self, params: JointPetrophysicsOptions):
         self._wires = None
         self._directives = None
+        self._membership: np.ndarray = None
         self._gaussian_model = None
+        self._pgi_regularization: PGIsmallness | None = None
 
         super().__init__(params)
 
         with fetch_active_workspace(self.workspace, mode="r+"):
             self.initialize()
+
+    @property
+    def directives(self):
+        if getattr(self, "_directives", None) is None and not self.params.forward_only:
+            with fetch_active_workspace(self.workspace, mode="r+"):
+                directives_list = self._get_drivers_directives()
+                directives_list.append(
+                    directives.PGI_UpdateParameters(
+                        update_gmm=True,
+                        kappa=0.0,
+                        fixed_membership=np.c_[
+                            np.arange(self.models.n_active), self.membership
+                        ],
+                    )
+                )
+                directives_list += self._get_global_model_save_directives()
+                directives_list.append(
+                    directives.SavePGIModel(
+                        self.inversion_mesh.entity,
+                        self.pgi_regularization,
+                        maps.InjectActiveCells(
+                            self.inversion_mesh.mesh, self.models.active_cells, 0
+                        ),
+                        self.params.petrophysics_model.entity_type.value_map(),
+                    )
+                )
+                directives_list.append(
+                    directives.SaveLPModelGroup(
+                        self.inversion_mesh.entity,
+                        self._directives.update_irls_directive,
+                    )
+                )
+                directives_list.append(self._directives.save_iteration_log_files)
+                self._directives.directive_list = (
+                    self._directives.inversion_directives + directives_list
+                )
+        return self._directives
 
     def get_regularization(self):
         """
@@ -49,22 +88,9 @@ class JointPetrophysicsDriver(BaseJointDriver):
         """
         regularizations = super().get_regularization()
         reg_list, multipliers = self._overload_regularization(regularizations)
-        wires = [(f"m{ind}", proj) for ind, proj in enumerate(self.mapping)]
-        reg_list.append(
-            PGI(
-                gmmref=self.gaussian_model,
-                mesh=self.inversion_mesh.mesh,
-                active_cells=self.models.active_cells,
-                wiresmap=maps.Wires(*wires),
-                alpha_pgi=1.0,
-                alpha_x=1.0,
-                alpha_y=1.0,
-                alpha_z=1.0,
-                reference_model=self.models.reference,
-            )
-        )
+        reg_list.append(self.pgi_regularization)
         # TODO: Assign value from UIjson
-        multipliers.append(1.0)
+        multipliers.append(1.0e4)
 
         return ComboObjectiveFunction(objfcts=reg_list, multipliers=multipliers)
 
@@ -115,6 +141,16 @@ class JointPetrophysicsDriver(BaseJointDriver):
         return model_map
 
     @property
+    def membership(self) -> np.ndarray[np.int]:
+        if self._membership is None:
+            self._membership = np.zeros(self.models.n_active, dtype=int)
+            for ii, unit in enumerate(self.geo_units):
+                unit_ind = self.models.petrophysics == unit
+                self._membership[unit_ind] = ii
+
+        return self._membership
+
+    @property
     def means(self) -> np.ndarray:
         """
         Means of the Gaussian mixture model.
@@ -130,7 +166,9 @@ class JointPetrophysicsDriver(BaseJointDriver):
                 start_values = np.mean(model_vec[unit_ind])
                 unit_mean.append(start_values)
 
-            means.append(np.r_[unit_mean])
+            means.append(np.c_[unit_mean])
+        self.gaussian_model.means_ = np.hstack(means)
+
         return self.gaussian_model.means_
 
     @property
@@ -149,4 +187,22 @@ class JointPetrophysicsDriver(BaseJointDriver):
 
         TODO: Set the weights based on the model units when made available.
         """
-        return np.ones(self.n_units)
+        return np.ones(self.n_units) / self.n_units
+
+    @property
+    def pgi_regularization(self):
+        """
+        Create a PGI regularization object for the inversion.
+        """
+        if self._pgi_regularization is None:
+            wires = [(f"m{ind}", proj) for ind, proj in enumerate(self.mapping)]
+            maplist = [maps.IdentityMap(nP=self.models.n_active)] * len(self.mapping)
+            self._pgi_regularization = PGIsmallness(
+                gmmref=self.gaussian_model,
+                mesh=self.inversion_mesh.mesh,
+                active_cells=self.models.active_cells,
+                wiresmap=maps.Wires(*wires),
+                maplist=maplist,
+                reference_model=self.models.reference,
+            )
+        return self._pgi_regularization
