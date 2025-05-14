@@ -66,7 +66,7 @@ class JointPetrophysicsDriver(BaseJointDriver):
                         maps.InjectActiveCells(
                             self.inversion_mesh.mesh, self.models.active_cells, 0
                         ),
-                        self.params.petrophysics_model.entity_type.value_map(),
+                        self.params.petrophysics_model.entity_type.value_map,
                     )
                 )
                 directives_list.append(
@@ -90,7 +90,7 @@ class JointPetrophysicsDriver(BaseJointDriver):
         reg_list, multipliers = self._overload_regularization(regularizations)
         reg_list.append(self.pgi_regularization)
         # TODO: Assign value from UIjson
-        multipliers.append(1.0e4)
+        multipliers.append(self.params.alpha_s)
 
         return ComboObjectiveFunction(objfcts=reg_list, multipliers=multipliers)
 
@@ -107,7 +107,7 @@ class JointPetrophysicsDriver(BaseJointDriver):
                 covariance_type="diag",  # diagonal covariances
             )
             rng = np.random.default_rng(seed=518936)
-            rand_model = rng.normal(size=(self.models.n_active, self.n_units))
+            rand_model = rng.normal(size=(self.models.n_active, len(self.mapping)))
             self._gaussian_model.fit(rand_model)
 
             # TODO: Use the corresponding data_maps from the reference data
@@ -159,7 +159,7 @@ class JointPetrophysicsDriver(BaseJointDriver):
         """
         means = []
         for mapping in self.mapping:
-            model_vec = mapping @ self.models.starting
+            model_vec = mapping @ self.models.reference
             unit_mean = []
             for uid in self.geo_units:
                 unit_ind = self.models.petrophysics == uid
@@ -206,3 +206,15 @@ class JointPetrophysicsDriver(BaseJointDriver):
                 reference_model=self.models.reference,
             )
         return self._pgi_regularization
+
+    def _overload_regularization(self, regularization: ComboObjectiveFunction):
+        """
+        Create a flat ComboObjectiveFunction from all drivers provided and
+        add cross-gradient regularization for all combinations of model parameters.
+        """
+
+        reg_list, multipliers = super()._overload_regularization(regularization)
+        for reg in reg_list:
+            reg.multipliers[0] = 0
+
+        return reg_list, multipliers

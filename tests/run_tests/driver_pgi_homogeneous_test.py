@@ -111,7 +111,7 @@ def test_homogeneous_run(
             active_cells=active_cells,
             data_object=gz.parent,
             starting_model=1e-4,
-            reference_model=0.0,
+            reference_model=model,
             gz_channel=gz,
             gz_uncertainty=2e-3,
             lower_bound=0.0,
