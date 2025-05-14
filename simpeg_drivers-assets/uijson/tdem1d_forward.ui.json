@@ -33,8 +33,6 @@
         "tooltip": "Set the units of the data",
         "value": "dB/dt (T/s)"
     },
-    "x_channel_bool": "",
-    "y_channel_bool": "",
     "z_channel_bool": {
         "group": "Survey",
         "main": true,
