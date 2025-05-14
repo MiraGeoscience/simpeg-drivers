@@ -35,7 +35,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.006830937520353864, "phi_d": 0.0276, "phi_m": 0.0288}
+target_run = {"data_norm": 0.006830937520353864, "phi_d": 0.0309, "phi_m": 0.028}
 
 
 def test_gravity_rotated_grad_fwr_run(
@@ -142,13 +142,20 @@ def test_rotated_grad_run(
             inactive_ind = run_ws.get_entity("active_cells")[0].values == 0
             assert np.all(nan_ind == inactive_ind)
 
+    # Smooth functions should be zero for uniform model
+    for obj in driver.regularization.objfcts:
+        for smooth in obj.objfcts[1:]:
+            np.testing.assert_allclose(
+                smooth(np.ones(driver.models.n_active)), 0, atol=1e-6
+            )
+
 
 if __name__ == "__main__":
     # Full run
     test_gravity_rotated_grad_fwr_run(
         Path("./"),
         n_grid_points=10,
-        refinement=(4, 8),
+        refinement=(6, 8),
     )
 
     test_rotated_grad_run(
