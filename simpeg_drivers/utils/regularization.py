@@ -418,7 +418,9 @@ def set_rotated_operators(
     grad_op_active = function.regularization_mesh.Pac.T @ (
         grad_op @ function.regularization_mesh.Pac
     )
-    active_faces = grad_op_active.max(axis=1).toarray().ravel() > 0
+    active_faces = np.isclose(
+        grad_op_active @ np.ones(function.regularization_mesh.n_cells), 0
+    )
 
     setattr(
         function.regularization_mesh,
