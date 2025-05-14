@@ -57,7 +57,6 @@ class SimPEGFactory(ABC):
         "induced polarization 2d",
         "induced polarization pseudo 3d",
         "fdem",
-        "fem",
         "fdem 1d",
         "tdem",
         "tdem 1d",
