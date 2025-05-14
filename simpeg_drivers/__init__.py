@@ -18,16 +18,10 @@ __version__ = "0.3.0-alpha.7"
 import logging
 from pathlib import Path
 
-from simpeg_drivers.constants import default_ui_json
-
 
 logging.basicConfig(level=logging.INFO)
 
-__all__ = [
-    "DRIVER_MAP",
-    "assets_path",
-    "default_ui_json",
-]
+__all__ = ["DRIVER_MAP", "assets_path"]
 
 
 def assets_path() -> Path:
