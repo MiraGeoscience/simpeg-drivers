@@ -33,8 +33,6 @@
         "tooltip": "Set the units of the data",
         "value": "dB/dt (T/s)"
     },
-    "x_channel": "",
-    "y_channel": "",
     "z_channel": {
         "association": [
             "Cell",
@@ -50,8 +48,6 @@
         "enabled": true,
         "value": ""
     },
-    "x_uncertainty": "",
-    "y_uncertainty": "",
     "z_uncertainty": {
         "association": [
             "Cell",

@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+from logging import getLogger
 from pathlib import Path
 from typing import ClassVar, TypeAlias
 
@@ -20,6 +21,7 @@ from geoh5py.objects import (
     LargeLoopGroundFEMReceivers,
     MovingLoopGroundFEMReceivers,
 )
+from pydantic import field_validator
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.options import BaseForwardOptions, BaseInversionOptions, EMDataMixin
@@ -29,6 +31,8 @@ Receivers: TypeAlias = (
     MovingLoopGroundFEMReceivers | LargeLoopGroundFEMReceivers | AirborneFEMReceivers
 )
 
+logger = getLogger(__name__)
+
 
 class BaseFDEMOptions(EMDataMixin):
     """
@@ -37,6 +41,7 @@ class BaseFDEMOptions(EMDataMixin):
 
     physical_property: str = "conductivity"
     data_object: Receivers
+    inversion_type: str = "fdem"
     model_type: str = "Conductivity (S/m)"
 
     @property
@@ -65,6 +70,16 @@ class BaseFDEMOptions(EMDataMixin):
         }
         return conversion[self.data_object.unit]
 
+    @field_validator("inversion_type", mode="before")
+    @classmethod
+    def name_change(cls, value: str):
+        if value == "fem":
+            logger.warning(
+                "Using 'fem' as inversion type is deprecated. Use 'fdem' instead."
+            )
+            return "fdem"
+        return value
+
 
 class FDEMForwardOptions(BaseFDEMOptions, BaseForwardOptions):
     """
@@ -77,7 +92,6 @@ class FDEMForwardOptions(BaseFDEMOptions, BaseForwardOptions):
 
     name: ClassVar[str] = "Frequency Domain Electromagnetics Forward"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/fdem_forward.ui.json"
-    inversion_type: str = "fdem"
     title: str = "Frequency-domain EM (FEM) Forward"
 
     z_real_channel_bool: bool
@@ -97,7 +111,6 @@ class FDEMInversionOptions(BaseFDEMOptions, BaseInversionOptions):
 
     name: ClassVar[str] = "Frequency Domain Electromagnetics Inversion"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/fdem_inversion.ui.json"
-    inversion_type: str = "fdem"
     title: str = "Frequency-domain EM (FEM) Inversion"
 
     z_real_channel: PropertyGroup | None = None
