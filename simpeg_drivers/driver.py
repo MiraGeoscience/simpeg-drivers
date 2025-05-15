@@ -612,7 +612,7 @@ class InversionDriver(BaseDriver):
             dconf.set(scheduler="threads", pool=ThreadPool(n_cpu))
 
     @classmethod
-    def start(cls, filepath: str | Path | InputFile):
+    def start(cls, filepath: str | Path | InputFile, run=True):
         if isinstance(filepath, InputFile):
             ifile = filepath
         else:
@@ -629,7 +629,9 @@ class InversionDriver(BaseDriver):
             params = driver_class._options_class.build(ifile)
             driver = driver_class(params)
 
-        driver.run()
+        if run:
+            driver.run()
+
         return driver
 
     @staticmethod
