@@ -57,7 +57,7 @@ def test_dc_p3d_fwr_run(
         n_electrodes=n_electrodes,
         n_lines=n_lines,
         refinement=refinement,
-        inversion_type="dcip",
+        inversion_type="direct current pseudo 3d",
         drape_height=0.0,
         flatten=False,
     )

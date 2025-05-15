@@ -50,6 +50,7 @@ def test_gravity_fwr_run(
         n_electrodes=n_grid_points,
         n_lines=n_grid_points,
         refinement=refinement,
+        inversion_type="gravity",
         flatten=False,
     )
 

@@ -48,6 +48,7 @@ def test_susceptibility_fwr_run(
         refinement=refinement,
         n_electrodes=n_grid_points,
         n_lines=n_grid_points,
+        inversion_type="magnetic",
         flatten=False,
     )
     inducing_field = (49999.8, 90.0, 0.0)

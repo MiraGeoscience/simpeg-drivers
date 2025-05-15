@@ -48,7 +48,7 @@ def test_ip_2d_fwr_run(
         n_electrodes=n_electrodes,
         n_lines=n_lines,
         refinement=refinement,
-        inversion_type="dcip_2d",
+        inversion_type="induced polarization 2d",
         flatten=False,
         drape_height=0.0,
     )

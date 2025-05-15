@@ -50,7 +50,7 @@ def test_airborne_tem_1d_fwr_run(
         n_lines=n_grid_points,
         cell_size=cell_size,
         refinement=refinement,
-        inversion_type="airborne_tem 1d",
+        inversion_type="airborne tdem 1d",
         drape_height=10.0,
         padding_distance=400.0,
         flatten=False,
