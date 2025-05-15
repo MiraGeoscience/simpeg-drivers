@@ -487,7 +487,7 @@ def setup_inversion_workspace(
             finalize=False,
         )
 
-        if inversion_type in ["fdem", "airborne_tem"]:
+        if inversion_type in ["fdem", "airborne tdem"]:
             mesh = OctreeDriver.refine_tree_from_points(
                 mesh,
                 vertices,
