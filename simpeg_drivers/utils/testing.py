@@ -232,9 +232,7 @@ def generate_fdem_survey(geoh5, vertices):
     return survey
 
 
-def generate_tdem_survey(
-    geoh5, vertices, n_lines, drape_height, flatten=False, airborne=False
-):
+def generate_tdem_survey(geoh5, vertices, n_lines, flatten=False, airborne=False):
     if airborne:
         survey = AirborneTEMReceivers.create(
             geoh5, vertices=vertices, name="Airborne_rx"
@@ -298,9 +296,7 @@ def generate_tdem_survey(
             )
             loop = (loop - np.mean(loop, axis=0)) * 1.5 + np.mean(loop, axis=0)
             loop = np.c_[
-                loop,
-                gaussian_topo_drape(loop[:, 0], loop[:, 1], flatten=flatten)
-                + drape_height,
+                loop, gaussian_topo_drape(loop[:, 0], loop[:, 1], flatten=flatten)
             ]
             loops += [loop + np.asarray(center)]
             loop_cells += [np.c_[np.arange(15) + count, np.arange(15) + count + 1]]
@@ -438,7 +434,7 @@ def setup_inversion_workspace(
         # survey.cells = survey.cells[dist < 100.0, :]
         survey.remove_cells(np.where(dist > 200)[0])
 
-    elif inversion_type in ["fdem", "fem"]:
+    elif inversion_type in ["fdem", "fem", "fdem 1d"]:
         survey = generate_fdem_survey(geoh5, vertices)
 
     elif "tdem" in inversion_type:
@@ -446,7 +442,6 @@ def setup_inversion_workspace(
             geoh5,
             vertices,
             n_lines,
-            drape_height,
             flatten=flatten,
             airborne="airborne" in inversion_type,
         )
