@@ -132,7 +132,7 @@ def test_version_warning(
 ):
     """Test version warning behavior with mocked package version."""
     # Mock the package version
-    monkeypatch.setattr(simpeg_drivers, "simpeg_drivers.__version__", package_version)
+    monkeypatch.setattr(simpeg_drivers, "__version__", package_version)
 
     with caplog.at_level(logging.WARNING):
         caplog.clear()
