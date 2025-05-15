@@ -1,6 +1,6 @@
 {
     "version": "0.3.0-alpha.4",
-    "title": "SimPEG Tile Estimation",
+    "title": "Tile Estimation",
     "icon": "",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
     "conda_environment": "simpeg_drivers",

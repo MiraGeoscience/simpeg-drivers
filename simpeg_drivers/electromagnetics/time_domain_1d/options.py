@@ -55,8 +55,6 @@ class TDEM1DForwardOptions(EMDataMixin, BaseForwardOptions):
 
     data_object: Receivers
     z_channel_bool: bool
-    x_channel_bool: None = None
-    y_channel_bool: None = None
     data_units: str = "dB/dt (T/s)"
     model_type: str = "Conductivity (S/m)"
     drape_model: DrapeModelOptions = DrapeModelOptions(
@@ -103,10 +101,6 @@ class TDEM1DInversionOptions(EMDataMixin, BaseInversionOptions):
     data_object: Receivers
     z_channel: PropertyGroup | None = None
     z_uncertainty: PropertyGroup | None = None
-    x_channel: None = None
-    x_uncertainty: None = None
-    y_channel: None = None
-    y_uncertainty: None = None
     length_scale_y: None = None
     y_norm: None = None
     data_units: str = "dB/dt (T/s)"

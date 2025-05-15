@@ -1,6 +1,6 @@
 {
     "version": "0.3.0-alpha.4",
-    "title": "SimPEG Joint Surveys Inversion",
+    "title": "Joint Surveys Inversion",
     "icon": "model",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
     "conda_environment": "simpeg_drivers",
