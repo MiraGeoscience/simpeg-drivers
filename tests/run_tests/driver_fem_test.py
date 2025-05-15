@@ -12,6 +12,7 @@
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 
 import numpy as np
@@ -35,6 +36,33 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # Move this file out of the test directory and run.
 
 target_run = {"data_norm": 81.8361, "phi_d": 2160, "phi_m": 4010}
+
+
+def test_fem_name_change(tmp_path, caplog):
+    # Run the forward
+    geoh5, _, model, survey, topography = setup_inversion_workspace(
+        tmp_path,
+        background=1e-3,
+        anomaly=1.0,
+        n_electrodes=2,
+        n_lines=2,
+        refinement=(2,),
+        drape_height=15.0,
+        padding_distance=400,
+        inversion_type="fdem",
+    )
+    with caplog.at_level(logging.WARNING):
+        FDEMForwardOptions(
+            geoh5=geoh5,
+            mesh=model.parent,
+            active_cells=ActiveCellsOptions(topography_object=topography),
+            data_object=survey,
+            starting_model=model,
+            z_real_channel_bool=True,
+            z_imag_channel_bool=True,
+            inversion_type="fem",
+        )
+    assert "fdem" in caplog.text
 
 
 def test_fem_fwr_run(
@@ -174,7 +202,10 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
 if __name__ == "__main__":
     # Full run
     test_fem_fwr_run(
-        Path("./"), n_grid_points=5, cell_size=(5.0, 5.0, 5.0), refinement=(4, 4, 4)
+        Path("./"),
+        n_grid_points=5,
+        cell_size=(5.0, 5.0, 5.0),
+        refinement=(4, 4, 4),
     )
     test_fem_run(
         Path("./"),
