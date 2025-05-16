@@ -79,7 +79,19 @@ class MisfitFactory(SimPEGFactory):
         for local_index in tiles:
             if len(local_index) == 0:
                 continue
-            local_mesh = None
+
+            local_sim, _, _, _ = self.create_nested_simulation(
+                inversion_data,
+                inversion_mesh,
+                None,
+                active_cells,
+                local_index,
+                channel=None,
+                tile_id=tile_count,
+                padding_cells=self.params.padding_cells,
+            )
+
+            local_mesh = getattr(local_sim, "mesh", None)
 
             for count, channel in enumerate(channels):
                 n_split = split_list[misfit_count]
@@ -96,8 +108,6 @@ class MisfitFactory(SimPEGFactory):
                             padding_cells=self.params.padding_cells,
                         )
                     )
-
-                    local_mesh = getattr(local_sim, "mesh", None)
 
                     if count == 0:
                         if self.factory_type in [
