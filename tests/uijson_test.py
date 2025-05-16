@@ -274,7 +274,7 @@ CHANNEL_NAME = {
 }
 
 
-def test_legacy_uijson(tmp_path):
+def test_legacy_uijson(tmp_path: Path):
     """
     Loop over all uijson files in the legacy directory and check that the
     read and run still works.
