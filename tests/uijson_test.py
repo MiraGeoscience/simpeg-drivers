@@ -279,7 +279,7 @@ def test_legacy_uijson(tmp_path):
     Loop over all uijson files in the legacy directory and check that the
     read and run still works.
     """
-    path = simpeg_drivers.assets_path() / "legacy"
+    path = Path(__file__).resolve().parent / "legacy"
 
     for directory in path.iterdir():
         if not directory.is_dir():
