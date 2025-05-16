@@ -362,7 +362,7 @@ class BaseInversionOptions(CoreOptions):
     initial_beta: float | None = None
     cooling_factor: float = 2.0
 
-    cooling_rate: float = 1.0
+    cooling_rate: int = 1
     max_global_iterations: int = 50
     max_line_search_iterations: int = 20
     max_cg_iterations: int = 30
