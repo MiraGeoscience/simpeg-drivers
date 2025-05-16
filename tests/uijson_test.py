@@ -350,7 +350,7 @@ def test_legacy_uijson(tmp_path: Path):
                     ifile.data[CHANNEL_NAME[inversion_type] + "_channel"] = channel
                     ifile.data[CHANNEL_NAME[inversion_type] + "_uncertainty"] = channel
 
-            driver = InversionDriver.start(ifile, run=False)
+            driver = InversionDriver.from_input_file(ifile)
 
             if isinstance(driver, LineSweepDriver):
                 continue
