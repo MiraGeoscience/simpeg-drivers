@@ -63,10 +63,14 @@ class JointPetrophysicsDriver(BaseJointDriver):
                     directives.SavePGIModel(
                         self.inversion_mesh.entity,
                         self.pgi_regularization,
-                        maps.InjectActiveCells(
-                            self.inversion_mesh.mesh, self.models.active_cells, 0
-                        ),
-                        self.params.petrophysics_model.entity_type.value_map,
+                        self.geo_units,
+                        [driver.params.physical_property for driver in self.drivers],
+                        transforms=[
+                            maps.InjectActiveCells(
+                                self.inversion_mesh.mesh, self.models.active_cells, 0
+                            )
+                        ],
+                        value_map=self.params.petrophysics_model.entity_type.value_map,
                     )
                 )
                 directives_list.append(
@@ -215,6 +219,6 @@ class JointPetrophysicsDriver(BaseJointDriver):
 
         reg_list, multipliers = super()._overload_regularization(regularization)
         for reg in reg_list:
-            reg.multipliers[0] = 0
+            reg.alpha_s = 0.0
 
         return reg_list, multipliers
