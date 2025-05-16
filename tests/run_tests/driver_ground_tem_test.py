@@ -26,8 +26,8 @@ from simpeg_drivers.electromagnetics.time_domain.options import (
     TDEMInversionOptions,
 )
 from simpeg_drivers.options import ActiveCellsOptions
-from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
+from tests.testing_utils import check_target, setup_inversion_workspace
 
 
 logger = getLogger(__name__)

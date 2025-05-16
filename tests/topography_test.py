@@ -17,7 +17,7 @@ import numpy as np
 from simpeg_drivers.components import InversionData, InversionMesh, InversionTopography
 from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import MVIInversionOptions
-from simpeg_drivers.utils.testing import Geoh5Tester, setup_inversion_workspace
+from tests.testing_utils import Geoh5Tester, setup_inversion_workspace
 
 
 def test_get_locations(tmp_path: Path):

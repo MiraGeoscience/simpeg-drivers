@@ -24,8 +24,8 @@ from simpeg_drivers.electricals.induced_polarization.two_dimensions.driver impor
     IP2DInversionDriver,
 )
 from simpeg_drivers.options import ActiveCellsOptions, LineSelectionOptions
-from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
+from tests.testing_utils import check_target, setup_inversion_workspace
 
 
 # To test the full run and validate the inversion.

@@ -28,7 +28,7 @@ from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields.gravity.options import GravityInversionOptions
 from simpeg_drivers.potential_fields.gravity.uijson import GravityInversionUIJson
 from simpeg_drivers.uijson import SimPEGDriversUIJson
-from simpeg_drivers.utils.testing import setup_inversion_workspace
+from tests.testing_utils import setup_inversion_workspace
 
 
 logger = logging.getLogger(__name__)

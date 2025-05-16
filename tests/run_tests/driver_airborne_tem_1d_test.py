@@ -26,8 +26,8 @@ from simpeg_drivers.electromagnetics.time_domain_1d.options import (
     TDEM1DInversionOptions,
 )
 from simpeg_drivers.options import ActiveCellsOptions
-from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
+from tests.testing_utils import check_target, setup_inversion_workspace
 
 
 # To test the full run and validate the inversion.
