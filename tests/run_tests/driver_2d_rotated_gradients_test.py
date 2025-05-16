@@ -39,7 +39,7 @@ from simpeg_drivers.utils.utils import get_inversion_output
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.5963828772690819, "phi_d": 56300, "phi_m": 9340}
+target_run = {"data_norm": 0.5963828772690819, "phi_d": 2870, "phi_m": 18.7}
 
 
 def test_dc2d_rotated_grad_fwr_run(
@@ -140,9 +140,9 @@ def test_dc2d_rotated_grad_run(
             model_type="Resistivity (Ohm-m)",
             starting_model=100.0,
             reference_model=100.0,
-            s_norm=0.0,
-            x_norm=1.0,
-            z_norm=1.0,
+            s_norm=1.0,
+            x_norm=0.0,
+            z_norm=0.0,
             gradient_type="components",
             max_global_iterations=max_iterations,
             initial_beta=None,
