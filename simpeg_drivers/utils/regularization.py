@@ -221,7 +221,7 @@ def rotate_xy_3d(mesh: TreeMesh, phi: np.ndarray) -> ssp.csr_matrix:
     return z_rotation_matrix(phi)
 
 
-def get_cell_normals(n_cells: int, axis: str, outward: bool) -> np.ndarray:
+def get_cell_normals(n_cells: int, axis: str, outward: bool, dim: int) -> np.ndarray:
     """
     Returns cell normals for given axis and all cells.
 
@@ -229,16 +229,21 @@ def get_cell_normals(n_cells: int, axis: str, outward: bool) -> np.ndarray:
     :param axis: Cartesian axis (one of 'x', 'y', or 'z'
     :param outward: Direction of the normal. True for outward facing,
         False for inward facing normals.
+    :param dim: Dimension of the mesh. Either 2 for drape model or 3
+        for octree.
     """
 
     ind = 1 if outward else -1
 
     if axis == "x":
-        normals = np.kron(np.ones(n_cells), np.c_[ind, 0, 0])
+        n = np.c_[ind, 0] if dim == 2 else np.c_[ind, 0, 0]
+        normals = np.kron(np.ones(n_cells), n)
     elif axis == "y":
-        normals = np.kron(np.ones(n_cells), np.c_[0, ind, 0])
+        n = np.c_[0, ind] if dim == 2 else np.c_[0, ind, 0]
+        normals = np.kron(np.ones(n_cells), n)
     elif axis == "z":
-        normals = np.kron(np.ones(n_cells), np.c_[0, 0, ind])
+        n = np.c_[0, ind] if dim == 2 else np.c_[0, 0, ind]
+        normals = np.kron(np.ones(n_cells), n)
     else:
         raise ValueError("Axis must be one of 'x', 'y', or 'z'.")
 
@@ -371,20 +376,31 @@ def rotated_gradient(
     """
 
     n_cells = mesh.n_cells
+    dim = mesh.dim
     if any(len(k) != n_cells for k in [dip, direction]):
         raise ValueError(
             "Input angle arrays are not the same size as the number of "
             "cells in the mesh."
         )
 
-    Rx = rotate_yz_3d(mesh, dip)
-    Rz = rotate_xy_3d(mesh, direction)
-    normals = get_cell_normals(n_cells, axis, forward)
-    rotated_normals = (Rz * (Rx * normals.T)).reshape(n_cells, mesh.dim)
-    volumes, neighbors = partial_volumes(mesh, neighbors, rotated_normals)
+    normals = get_cell_normals(n_cells, axis, forward, dim)
+    if dim == 3:
+        Rx = rotate_yz_3d(mesh, dip)
+        Rz = rotate_xy_3d(mesh, direction)
+        rotated_normals = (Rz * (Rx * normals.T)).reshape(n_cells, dim)
+    elif dim == 2:
+        Ry = rotate_xz_2d(mesh, dip)
+        rotated_normals = (Ry * normals.T).reshape(n_cells, dim)
+
+    volumes, neighbors = partial_volumes(
+        mesh,
+        neighbors,
+        rotated_normals,  # pylint: disable=possibly-used-before-assignment
+    )
 
     unit_grad = gradient_operator(neighbors, volumes, n_cells)
-    return sdiag(1 / mesh.h_gridded[:, "xyz".find(axis)]) @ unit_grad
+    axes = "xyz" if dim == 3 else "xz"
+    return sdiag(1 / mesh.h_gridded[:, axes.find(axis)]) @ unit_grad
 
 
 def ensure_dip_direction_convention(
