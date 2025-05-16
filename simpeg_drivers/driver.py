@@ -612,7 +612,16 @@ class InversionDriver(BaseDriver):
             dconf.set(scheduler="threads", pool=ThreadPool(n_cpu))
 
     @classmethod
-    def start(cls, filepath: str | Path | InputFile, run=True):
+    def start(cls, filepath: str | Path | InputFile, run=True) -> InversionDriver:
+        """
+        Start the inversion driver.
+
+        :param filepath: Path to the input file or InputFile object.
+        :param run: If True, run the inversion, otherwise only instantiate the
+            driver class.
+
+        :return: InversionDriver instance with the specified parameters.
+        """
         if isinstance(filepath, InputFile):
             ifile = filepath
         else:
