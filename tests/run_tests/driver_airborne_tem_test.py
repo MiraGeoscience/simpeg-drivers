@@ -26,8 +26,8 @@ from simpeg_drivers.electromagnetics.time_domain.options import (
     TDEMInversionOptions,
 )
 from simpeg_drivers.options import ActiveCellsOptions
-from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
+from tests.testing_utils import check_target, setup_inversion_workspace
 
 
 # To test the full run and validate the inversion.
@@ -45,7 +45,7 @@ def test_bad_waveform(tmp_path: Path):
         n_electrodes=n_grid_points,
         n_lines=n_grid_points,
         refinement=refinement,
-        inversion_type="airborne_tem",
+        inversion_type="airborne tdem",
         drape_height=10.0,
         padding_distance=400.0,
         flatten=False,
@@ -84,7 +84,7 @@ def test_airborne_tem_fwr_run(
         n_lines=n_grid_points,
         cell_size=cell_size,
         refinement=refinement,
-        inversion_type="airborne_tem",
+        inversion_type="airborne tdem",
         drape_height=10.0,
         padding_distance=400.0,
         flatten=False,

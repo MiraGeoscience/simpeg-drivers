@@ -1,137 +1,72 @@
 {
-    "version": "0.3.0-alpha.4",
-    "title": "Time-domain EM (TEM) Inversion",
-    "icon": "surveyairborneem",
-    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
+    "version": "0.2.0-alpha.1",
+    "title": "SimPEG Joint Surveys Inversion",
+    "icon": "",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
     "conda_environment": "simpeg_drivers",
     "run_command": "simpeg_drivers.driver",
     "geoh5": "",
     "monitoring_directory": "",
     "workspace_geoh5": "",
-    "inversion_type": "tdem",
-    "physical_property": "conductivity",
+    "inversion_type": "joint surveys",
     "forward_only": false,
-    "data_object": {
+    "group_a": {
         "main": true,
-        "group": "Data",
-        "label": "Object",
-        "meshType": [
-            "{19730589-fd28-4649-9de0-ad47249d9aba}",
-            "{deebe11a-b57b-4a03-99d6-8f27b25eb2a8}"
-        ],
+        "group": "Joint",
+        "label": "Group A",
+        "groupType": "{55ed3daf-c192-4d4b-a439-60fa987fe2b8}",
         "value": ""
     },
-    "data_units": {
-        "choiceList": [
-            "dB/dt (T/s)",
-            "B (T)",
-            "H (A/m)"
-        ],
-        "group": "Data",
+    "group_a_multiplier": {
+        "min": 0.0,
         "main": true,
-        "label": "Data type",
-        "tooltip": "Set the units of the data",
-        "value": "dB/dt (T/s)"
+        "group": "Joint",
+        "label": "Misfit A Scale",
+        "value": 1.0,
+        "tooltip": "Constant multiplier for the data misfit function for Group A."
     },
-    "z_channel": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
+    "group_b": {
         "main": true,
-        "label": "z-component",
-        "parent": "data_object",
-        "optional": true,
-        "enabled": true,
+        "group": "Joint",
+        "label": "Group B",
+        "groupType": "{55ed3daf-c192-4d4b-a439-60fa987fe2b8}",
         "value": ""
     },
-    "z_uncertainty": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
+    "group_b_multiplier": {
+        "min": 0.0,
         "main": true,
-        "label": "Uncertainty",
-        "parent": "data_object",
-        "dependency": "z_channel",
-        "dependencyType": "enabled",
-        "value": ""
+        "group": "Joint",
+        "label": "Misfit B Scale",
+        "value": 1.0,
+        "tooltip": "Constant multiplier for the data misfit function for Group B."
     },
-    "x_channel": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
+    "group_c": {
         "main": true,
-        "label": "x-component",
-        "parent": "data_object",
+        "group": "Joint",
+        "label": "Group C",
+        "groupType": "{55ed3daf-c192-4d4b-a439-60fa987fe2b8}",
         "optional": true,
         "enabled": false,
         "value": ""
     },
-    "x_uncertainty": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
+    "group_c_multiplier": {
+        "min": 0.0,
         "main": true,
-        "label": "Uncertainty",
-        "parent": "data_object",
-        "dependency": "x_channel",
+        "group": "Joint",
+        "label": "Misfit C Scale",
+        "value": 1.0,
+        "dependency": "group_c",
         "dependencyType": "enabled",
-        "value": ""
-    },
-    "y_channel": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
-        "main": true,
-        "label": "y-component",
-        "parent": "data_object",
-        "optional": true,
-        "enabled": false,
-        "value": ""
-    },
-    "y_uncertainty": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
-        "main": true,
-        "label": "Uncertainty",
-        "parent": "data_object",
-        "dependency": "y_channel",
-        "dependencyType": "enabled",
-        "value": ""
+        "tooltip": "Constant multiplier for the data misfit function for Group C."
     },
     "mesh": {
-        "group": "Mesh and models",
+        "group": "Mesh and Models",
         "main": true,
         "label": "Mesh",
         "meshType": "{4ea87376-3ece-438b-bf12-3479733ded46}",
         "value": "",
-        "optional": true,
         "enabled": false,
-        "tooltip": "Select a mesh for the inversion"
+        "optional": true
     },
     "model_type": {
         "choiceList": [
@@ -139,65 +74,61 @@
             "Resistivity (Ohm-m)"
         ],
         "main": true,
-        "group": "Mesh and models",
+        "group": "Mesh and Models",
         "label": "Model units",
-        "tooltip": "Select the units of the model",
+        "tooltip": "Select the units of the model.",
         "value": "Conductivity (S/m)"
     },
     "starting_model": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
+        "association": "Cell",
         "dataType": "Float",
-        "group": "Mesh and models",
+        "group": "Mesh and Models",
         "main": true,
         "isValue": true,
         "parent": "mesh",
-        "label": "Initial",
+        "label": "Initial model",
         "property": "",
-        "value": 0.001
+        "optional": true,
+        "enabled": false,
+        "value": 0.0001
     },
     "reference_model": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
+        "association": "Cell",
         "main": true,
-        "group": "Mesh and models",
+        "dataType": "Float",
+        "group": "Mesh and Models",
         "isValue": true,
         "parent": "mesh",
         "label": "Reference",
         "property": "",
         "optional": true,
-        "enabled": false,
-        "value": 0.001
+        "value": 0.0001,
+        "enabled": false
     },
     "lower_bound": {
         "association": "Cell",
         "main": true,
         "dataType": "Float",
-        "group": "Mesh and models",
+        "group": "Mesh and Models",
         "isValue": true,
         "parent": "mesh",
-        "label": "Lower bound",
+        "label": "Lower bound)",
         "property": "",
         "optional": true,
-        "value": 1e-08,
+        "value": -10.0,
         "enabled": false
     },
     "upper_bound": {
         "association": "Cell",
         "main": true,
         "dataType": "Float",
-        "group": "Mesh and models",
+        "group": "Mesh and Models",
         "isValue": true,
         "parent": "mesh",
         "label": "Upper bound",
         "property": "",
         "optional": true,
-        "value": 100.0,
+        "value": 10.0,
         "enabled": false
     },
     "topography_object": {
@@ -214,7 +145,7 @@
         "value": "",
         "optional": true,
         "enabled": true,
-        "tooltip": "Select a topography object to define the active cells for inversion"
+        "tooltip": "Select a topography object to define the active cells for inversion."
     },
     "topography": {
         "association": [
@@ -227,7 +158,7 @@
         "optional": true,
         "enabled": false,
         "label": "Elevation channel",
-        "tooltip": "Set elevation from channel.  If not set the topography will be set from the geometry of the selected 'topography' object",
+        "tooltip": "Set elevation from channel.  If not set the topography will be set from the geometry of the selected 'topography' object.",
         "parent": "topography_object",
         "dependency": "topography_object",
         "dependencyType": "enabled",
@@ -247,10 +178,12 @@
         "dependency": "topography_object",
         "dependencyType": "disabled",
         "label": "Active model",
-        "tooltip": "Provide the active cell boolean model directly if topography not set",
+        "tooltip": "Provide the active cell boolean model directly if topography not set.",
         "parent": "mesh",
         "value": ""
     },
+    "output_tile_files": false,
+    "inversion_style": "voxel",
     "alpha_s": {
         "min": 0.0,
         "group": "Regularization",
@@ -305,20 +238,6 @@
         "property": "",
         "enabled": true
     },
-    "gradient_rotation": {
-        "group": "Regularization",
-        "association": "Cell",
-        "dataType": "Float",
-        "dataGroupType": [
-            "Strike & dip",
-            "Dip direction & dip"
-        ],
-        "label": "Gradient rotation",
-        "parent": "mesh",
-        "optional": true,
-        "enabled": false,
-        "value": ""
-    },
     "s_norm": {
         "association": "Cell",
         "dataType": "Float",
@@ -335,7 +254,7 @@
         "enabled": true,
         "dependency": "reference_model",
         "dependencyType": "enabled",
-        "tooltip": "Lp-norm used in the smallness term of the objective function"
+        "tooltip": "Lp-norm used in the smallness term of the objective function."
     },
     "x_norm": {
         "association": "Cell",
@@ -351,7 +270,7 @@
         "precision": 2,
         "lineEdit": false,
         "enabled": true,
-        "tooltip": "Lp-norm used in the x-smoothness term of the objective function"
+        "tooltip": "Lp-norm used in the x-smoothness term of the objective function."
     },
     "y_norm": {
         "association": "Cell",
@@ -367,7 +286,7 @@
         "precision": 2,
         "lineEdit": false,
         "enabled": true,
-        "tooltip": "Lp-norm used in the y-smoothness term of the objective function"
+        "tooltip": "Lp-norm used in the y-smoothness term of the objective function."
     },
     "z_norm": {
         "association": "Cell",
@@ -383,9 +302,19 @@
         "precision": 2,
         "lineEdit": false,
         "enabled": true,
-        "tooltip": "Lp-norm used in the z-smoothness term of the objective function"
+        "tooltip": "Lp-norm used in the z-smoothness term of the objective function."
     },
-    "gradient_type": "total",
+    "gradient_type": {
+        "choiceList": [
+            "total",
+            "components"
+        ],
+        "group": "Sparse/blocky model",
+        "label": "Gradient type",
+        "value": "total",
+        "verbose": 3,
+        "tooltip": "Choose whether the IRLS weights for regularization terms are updated using total or partial gradients."
+    },
     "max_irls_iterations": {
         "min": 0,
         "group": "Sparse/blocky model",
@@ -400,7 +329,7 @@
         "label": "IRLS start chi factor",
         "enabled": true,
         "value": 1.0,
-        "tooltip": "This chi factor will be used to determine the misfit threshold after which IRLS iterations begin",
+        "tooltip": "This chi factor will be used to determine the misfit threshold after which IRLS iterations begin.",
         "verbose": 3
     },
     "beta_tol": {
@@ -411,7 +340,7 @@
         "verbose": 3,
         "visible": false
     },
-    "percentile": {
+    "prctile": {
         "group": "Update IRLS directive",
         "label": "Percentile",
         "value": 95,
@@ -429,15 +358,15 @@
         "label": "Chi factor",
         "value": 1.0,
         "enabled": true,
-        "tooltip": "The global target data misfit value"
+        "tooltip": "The global target data misfit value."
     },
     "auto_scale_misfits": {
         "group": "Cooling schedule/target",
         "label": "Auto-scale misfits",
-        "value": false,
+        "value": true,
         "verbose": 3,
         "visible": true,
-        "tooltip": "Whether to auto-scale misfits functions (tile, frequency, joint methods) based on chi-factor"
+        "tooltip": "Whether to auto-scale misfits functions (tile, frequency, joint methods) based on chi-factor."
     },
     "initial_beta_ratio": {
         "min": 0.0,
@@ -448,7 +377,7 @@
         "label": "Initial beta ratio",
         "value": 100.0,
         "verbose": 2,
-        "tooltip": "Estimate the trade-off parameter by scaling the ratio between the largest derivatives in the objective function gradients"
+        "tooltip": "Estimate the trade-off parameter by scaling the ratio between the largest derivatives in the objective function gradients."
     },
     "initial_beta": {
         "min": 0.0,
@@ -460,12 +389,12 @@
         "label": "Initial beta",
         "value": 1.0,
         "verbose": 2,
-        "tooltip": "Trade-off parameter between data misfit and regularization"
+        "tooltip": "Trade-off parameter between data misfit and regularization."
     },
-    "cooling_factor": {
+    "coolingFactor": {
         "group": "Cooling schedule/target",
         "label": "Beta cooling factor",
-        "tooltip": "Each beta cooling step will be calculated by dividing the current beta by this factor",
+        "tooltip": "Each beta cooling step will be calculated by dividing the current beta by this factor.",
         "value": 2.0,
         "min": 1.1,
         "max": 100,
@@ -473,19 +402,18 @@
         "lineEdit": false,
         "verbose": 2
     },
-    "cooling_rate": {
+    "coolingRate": {
         "group": "Optimization",
         "label": "Iterations per beta",
-        "value": 2,
+        "value": 1,
         "min": 1,
         "LineEdit": false,
         "max": 10,
         "precision": 1,
         "verbose": 2,
         "enabled": true,
-        "tooltip": "Set the number of iterations per beta value. Use higher values for more non-linear optimization problems"
+        "tooltip": "Set the number of iterations per beta value. Use higher values for more non-linear optimization problems."
     },
-    "epsilon_cooling_factor": 1.2,
     "max_global_iterations": {
         "min": 1,
         "lineEdit": false,
@@ -502,7 +430,7 @@
         "min": 1,
         "enabled": true,
         "verbose": 3,
-        "tooltip": "Perform an Armijo backtracking linesearch for the provided number of iterations"
+        "tooltip": "Perform an Armijo backtracking linesearch for the provided number of iterations."
     },
     "max_cg_iterations": {
         "min": 0,
@@ -527,13 +455,13 @@
         "min": 1e-06,
         "verbose": 3,
         "enabled": true,
-        "tooltip": "Minimum decrease in regularization beyond which the IRLS procedure is deemed to have completed"
+        "tooltip": "Minimum decrease in regularization beyond which the IRLS procedure is deemed to have completed."
     },
     "sens_wts_threshold": {
         "group": "Update sensitivity weights directive",
         "tooltip": "Update sensitivity weight threshold",
         "label": "Threshold (%)",
-        "value": 1.0,
+        "value": 0.001,
         "max": 100.0,
         "min": 0.0,
         "precision": 3,
@@ -548,52 +476,34 @@
         "verbose": 2,
         "enabled": true
     },
-    "save_sensitivities": {
-        "group": "Update sensitivity weights directive",
-        "label": "Save sensitivities",
-        "tooltip": "Save the summed square row sensitivities to geoh5",
-        "value": false
+    "parallelized": {
+        "group": "Compute",
+        "label": "Use parallelization",
+        "value": true,
+        "visible": false
     },
     "n_cpu": {
         "min": 1,
         "group": "Compute",
+        "dependency": "parallelized",
+        "dependencyType": "enabled",
         "optional": true,
         "enabled": false,
         "label": "Number of CPUs",
         "value": 1,
         "visible": false
     },
-    "solver_type": {
-        "choiceList": [
-            "Pardiso",
-            "Mumps"
-        ],
-        "group": "Compute",
-        "label": "Direct solver",
-        "tooltip": "Direct solver to use for the forward calculations",
-        "value": "Pardiso"
-    },
-    "tile_spatial": {
-        "group": "Compute",
-        "label": "Number of tiles",
-        "parent": "data_object",
-        "isValue": true,
-        "property": "",
-        "value": 1,
-        "min": 1,
-        "max": 1000,
-        "verbose": 2,
-        "tooltip": "Splits the objective function into spatial tiles for distributed computation using the Dask library"
-    },
     "store_sensitivities": {
         "choiceList": [
+            "disk",
             "ram"
         ],
         "group": "Compute",
         "label": "Storage device",
-        "tooltip": "Only RAM storage available for now",
+        "tooltip": "Use disk on a fast local SSD, and RAM elsewhere",
         "value": "ram"
     },
+    "max_ram": "",
     "max_chunk_size": {
         "min": 0,
         "group": "Compute",
@@ -603,7 +513,14 @@
         "value": 128,
         "verbose": 3,
         "visible": false,
-        "tooltip": "Limit the chunk size used by Dask for distributed computation"
+        "tooltip": "Limit the chunk size used by Dask for distributed computation."
+    },
+    "chunk_by_rows": {
+        "group": "Compute",
+        "label": "Chunk by rows",
+        "value": true,
+        "verbose": 3,
+        "visible": false
     },
     "out_group": {
         "label": "SimPEG group",
@@ -613,18 +530,14 @@
         "visible": true,
         "optional": true,
         "enabled": false,
-        "tooltip": "Optionally set the SimPEG group to which results will be saved"
+        "tooltip": "Optionally set the SimPEG group to which results will be saved."
     },
     "generate_sweep": {
         "label": "Generate sweep file",
         "group": "Python run preferences",
         "main": true,
         "value": false,
-        "tooltip": "Generates a file for sweeping parameters instead of running the application"
+        "tooltip": "Generates a file for sweeping parameters instead of running the application."
     },
-    "n_workers": "",
-    "n_threads": "",
-    "max_ram": "",
-    "performance_report": false,
     "distributed_workers": ""
 }

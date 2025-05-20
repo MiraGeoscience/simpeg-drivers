@@ -15,7 +15,7 @@ import numpy as np
 from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import GravityInversionOptions
 from simpeg_drivers.potential_fields.gravity.driver import GravityInversionDriver
-from simpeg_drivers.utils.testing import setup_inversion_workspace
+from tests.testing_utils import setup_inversion_workspace
 
 
 def test_smallness_terms(tmp_path: Path):
