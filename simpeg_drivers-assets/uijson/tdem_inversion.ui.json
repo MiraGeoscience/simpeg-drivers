@@ -315,6 +315,8 @@
         ],
         "label": "Gradient rotation",
         "parent": "mesh",
+        "optional": true,
+        "enabled": false,
         "value": ""
     },
     "s_norm": {
