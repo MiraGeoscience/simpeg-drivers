@@ -25,8 +25,8 @@ from simpeg_drivers.potential_fields.magnetic_scalar.driver import (
     MagneticForwardDriver,
     MagneticInversionDriver,
 )
-from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
+from tests.testing_utils import check_target, setup_inversion_workspace
 
 
 TARGET = 1132.1998
