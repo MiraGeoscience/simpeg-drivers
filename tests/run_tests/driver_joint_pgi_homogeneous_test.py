@@ -128,6 +128,9 @@ def test_homogeneous_run(
             mesh=mesh,
             petrophysics_model=petrophysics,
             initial_beta_ratio=1e2,
+            length_scale_x=0.0,
+            length_scale_y=0.0,
+            length_scale_z=0.0,
             max_global_iterations=max_iterations,
         )
         driver = JointPetrophysicsDriver(params)
