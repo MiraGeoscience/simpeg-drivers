@@ -67,9 +67,9 @@ class JointPetrophysicsDriver(BaseJointDriver):
                         self.geo_units,
                         [driver.params.physical_property for driver in self.drivers],
                         transforms=[
-                            lambda x: np.r_[list(self.geo_units.keys())][
-                                self.class_mapping
-                            ][x.astype(int)],
+                            lambda x: np.r_[list(self.geo_units)][self.class_mapping][
+                                x.astype(int)
+                            ],
                             maps.InjectActiveCells(
                                 self.inversion_mesh.mesh, self.models.active_cells, 0
                             ),
@@ -97,7 +97,6 @@ class JointPetrophysicsDriver(BaseJointDriver):
         regularizations = super().get_regularization()
         reg_list, multipliers = self._overload_regularization(regularizations)
         reg_list.append(self.pgi_regularization)
-        # TODO: Assign value from UIjson
         multipliers.append(self.params.alpha_s)
 
         return ComboObjectiveFunction(objfcts=reg_list, multipliers=multipliers)

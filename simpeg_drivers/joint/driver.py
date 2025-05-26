@@ -352,7 +352,7 @@ class BaseJointDriver(InversionDriver):
 
     def _get_drivers_directives(self) -> list[directives.Directive]:
         """
-        Create a list of directives for each driver and add them to the
+        Create a list of directives for each driver.
         """
         self._directives = DirectivesFactory(self)
         directives_list = []
