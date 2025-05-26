@@ -154,7 +154,6 @@ def test_joint_surveys_inv_run(
             x_norm=0.0,
             y_norm=0.0,
             z_norm=0.0,
-            gradient_type="components",
             lower_bound=0.0,
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e-2,

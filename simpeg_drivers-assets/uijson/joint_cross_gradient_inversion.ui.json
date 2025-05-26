@@ -1,6 +1,6 @@
 {
     "version": "0.3.0-alpha.4",
-    "title": "SimPEG Joint Cross Gradient Inversion",
+    "title": "Joint Cross Gradient Inversion",
     "icon": "function",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
     "conda_environment": "simpeg_drivers",
@@ -190,7 +190,11 @@
         "group": "Regularization",
         "association": "Cell",
         "dataType": "Float",
-        "dataGroupType": "Dip direction & dip",
+        "dataGroupType": [
+            "Strike & dip",
+            "Dip direction & dip",
+            "3D vector"
+        ],
         "label": "Gradient rotation",
         "optional": true,
         "enabled": false,
