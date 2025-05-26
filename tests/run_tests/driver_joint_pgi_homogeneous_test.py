@@ -135,6 +135,7 @@ def test_homogeneous_run(
         topography = geoh5.get_entity("topography")[0]
         drivers = []
         orig_data = []
+        petrophysics = None
         for group_name in [
             "Gravity Forward",
             "Magnetic Vector Forward",
@@ -146,7 +147,7 @@ def test_homogeneous_run(
 
             mesh = group.get_entity("mesh")[0]
             survey = group.get_entity("survey")[0]
-            petrophysics = None
+
             if group_name == "Gravity Forward":
                 global_mesh = mesh.copy(parent=geoh5)
                 model = global_mesh.get_entity("starting_model")[0]
