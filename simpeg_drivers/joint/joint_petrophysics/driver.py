@@ -34,6 +34,7 @@ class JointPetrophysicsDriver(BaseJointDriver):
 
     def __init__(self, params: JointPetrophysicsOptions):
         self._wires = None
+        self._class_mapping: np.ndarray | None = None
         self._directives = None
         self._membership: np.ndarray = None
         self._gaussian_model = None
@@ -66,11 +67,14 @@ class JointPetrophysicsDriver(BaseJointDriver):
                         self.geo_units,
                         [driver.params.physical_property for driver in self.drivers],
                         transforms=[
+                            lambda x: np.r_[list(self.geo_units.keys())][
+                                self.class_mapping
+                            ][x.astype(int)],
                             maps.InjectActiveCells(
                                 self.inversion_mesh.mesh, self.models.active_cells, 0
-                            )
+                            ),
                         ],
-                        value_map=self.params.petrophysics_model.entity_type.value_map,
+                        reference_type=self.params.petrophysics_model.entity_type,
                     )
                 )
                 directives_list.append(
@@ -103,29 +107,32 @@ class JointPetrophysicsDriver(BaseJointDriver):
         """Gaussian mixture model."""
         if self._gaussian_model is None:
             self._gaussian_model = utils.WeightedGaussianMixture(
-                n_components=len(
-                    self.geo_units
-                ),  # number of rock units: bckgrd, PK, HK
-                mesh=self.inversion_mesh.mesh,  # inversion mesh
-                actv=self.models.active_cells,  # actv cells
-                covariance_type="diag",  # diagonal covariances
+                n_components=len(self.geo_units),
+                mesh=self.inversion_mesh.mesh,
+                actv=self.models.active_cells,
+                covariance_type="diag",
+                random_state=1,
             )
-            rng = np.random.default_rng(seed=518936)
-            rand_model = rng.normal(size=(self.models.n_active, len(self.mapping)))
-            self._gaussian_model.fit(rand_model)
-
             # TODO: Use the corresponding data_maps from the reference data
             #  when available to define the means and covariances and weights
-            self._gaussian_model.means_ = self.means
+            self._gaussian_model.means_ = self.means[self.class_mapping]
             # set phys. prop covariances for each unit
-            self._gaussian_model.covariances_ = self.covariances
+            self._gaussian_model.covariances_ = self.covariances[self.class_mapping]
             # set global proportions; low-impact as long as not 0 or 1 (total=1)
-            self._gaussian_model.weights_ = self.weights
+            self._gaussian_model.weights_ = self.weights[self.class_mapping]
 
             # important after setting cov. manually: compute precision matrices and cholesky
             self._gaussian_model.compute_clusters_precisions()
 
         return self._gaussian_model
+
+    @property
+    def class_mapping(self) -> dict:
+        """Mapping of model units to geophysical properties."""
+        if getattr(self, "_class_mapping", None) is None:
+            self._class_mapping = np.argsort(self.weights)[::-1]
+
+        return self._class_mapping
 
     @property
     def n_units(self) -> int:
@@ -147,10 +154,10 @@ class JointPetrophysicsDriver(BaseJointDriver):
     @property
     def membership(self) -> np.ndarray[np.int]:
         if self._membership is None:
-            self._membership = np.zeros(self.models.n_active, dtype=int)
+            self._membership = np.empty(self.models.n_active, dtype=int)
             for ii, unit in enumerate(self.geo_units):
                 unit_ind = self.models.petrophysics == unit
-                self._membership[unit_ind] = ii
+                self._membership[unit_ind] = self.class_mapping[ii]
 
         return self._membership
 
@@ -171,9 +178,8 @@ class JointPetrophysicsDriver(BaseJointDriver):
                 unit_mean.append(start_values)
 
             means.append(np.c_[unit_mean])
-        self.gaussian_model.means_ = np.hstack(means)
 
-        return self.gaussian_model.means_
+        return np.hstack(means)
 
     @property
     def covariances(self) -> np.ndarray:
@@ -182,7 +188,7 @@ class JointPetrophysicsDriver(BaseJointDriver):
 
         TODO: Set the covariances based on the model units when made available.
         """
-        return np.ones((self.n_units, len(self.drivers)))
+        return np.ones((self.n_units, len(self.mapping)))
 
     @property
     def weights(self) -> np.ndarray:
@@ -191,7 +197,11 @@ class JointPetrophysicsDriver(BaseJointDriver):
 
         TODO: Set the weights based on the model units when made available.
         """
-        return np.ones(self.n_units) / self.n_units
+        weights = []
+        volumes = self.inversion_mesh.mesh.cell_volumes[self.models.active_cells]
+        for uid in self.geo_units:
+            weights.append(volumes[self.models.petrophysics == uid].sum())
+        return np.r_[weights] / np.sum(weights)
 
     @property
     def pgi_regularization(self):

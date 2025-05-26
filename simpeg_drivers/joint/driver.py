@@ -14,6 +14,7 @@
 from __future__ import annotations
 
 import sys
+from logging import getLogger
 from pathlib import Path
 
 import numpy as np
@@ -37,6 +38,9 @@ from simpeg_drivers.components.factories import (
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.joint.options import BaseJointOptions
 from simpeg_drivers.utils.utils import simpeg_group_to_driver
+
+
+logger = getLogger(__name__)
 
 
 class BaseJointDriver(InversionDriver):
@@ -118,6 +122,7 @@ class BaseJointDriver(InversionDriver):
 
         self.models.active_cells = global_actives
         for driver, wire in zip(self.drivers, self.wires, strict=True):
+            logger.info("Initializing driver %s", driver.params.name)
             projection = TileMap(
                 self.inversion_mesh.mesh,
                 global_actives,
@@ -141,7 +146,6 @@ class BaseJointDriver(InversionDriver):
                 )
 
             driver.data_misfit.multipliers = multipliers
-
         self.validate_create_models()
 
     @property
@@ -268,19 +272,27 @@ class BaseJointDriver(InversionDriver):
     def validate_create_models(self):
         """Create stacked model vectors from all drivers provided."""
         for model_type in self.models.model_types:
-            if (
-                model_type == "petrophysics"
-                or getattr(self.models, f"_{model_type}").model is not None
-            ):
+            if model_type == "petrophysics":
                 continue
 
-            model = np.zeros(self.models.n_active * len(self.mapping))
+            model = getattr(self.models, f"_{model_type}").model
 
-            for child_driver in self.drivers:
-                model_local_values = getattr(child_driver.models, model_type)
+            # If set on joint driver, repeat for all drivers
+            if model is not None:
+                model = np.kron(np.ones(len(self.mapping)), model)
 
-                if model_local_values is not None:
-                    projection = child_driver.data_misfit.model_map.deriv(model).T
+            # Concatenate models from individual drivers projected onto the global mesh
+            else:
+                model = []
+                vec = np.zeros(self.models.n_active * len(self.mapping))
+                for child_driver in self.drivers:
+                    model_local_values = getattr(child_driver.models, model_type)
+
+                    if model_local_values is None:
+                        model.append(None)
+                        continue
+
+                    projection = child_driver.data_misfit.model_map.deriv(vec).T
 
                     if isinstance(model_local_values, float):
                         model_local_values = (
@@ -288,7 +300,22 @@ class BaseJointDriver(InversionDriver):
                         )
 
                     norm = np.array(np.sum(projection, axis=1)).flatten()
-                    model += (projection * model_local_values) / (norm + 1e-8)
+                    model.append((projection * model_local_values) / (norm + 1e-8))
+
+                # Mostly for rotated gradient mode
+                is_none = [val is None for val in model]
+                if any(is_none):
+                    if not all(is_none):
+                        logger.warning(
+                            "Some drivers do not have a model of type "
+                            "'%s' set. Please assign a value to individual drivers"
+                            " or use the joint driver options to set it globally.\n"
+                            "Parameter ignored for the inversion.",
+                            model_type,
+                        )
+                    model = None
+                else:
+                    model = np.sum(model, axis=0)
 
             if model is not None:
                 getattr(self.models, f"_{model_type}").model = model
@@ -424,22 +451,6 @@ class BaseJointDriver(InversionDriver):
             reg_block = []
             for mapping in driver.mapping:
                 reg_block.append(reg_dict[self._mapping[driver, mapping]])
-
-            # Pass down regularization parameters from driver.
-            for param in [
-                "alpha_s",
-                "length_scale_x",
-                "length_scale_y",
-                "length_scale_z",
-                "s_norm",
-                "x_norm",
-                "y_norm",
-                "z_norm",
-                "gradient_type",
-            ]:
-                if getattr(self.params, param) is None:
-                    for reg in reg_block:
-                        setattr(reg, param, getattr(driver.params, param))
 
             driver.regularization = ComboObjectiveFunction(objfcts=reg_block)
 

@@ -152,6 +152,7 @@
         "label": "X-smoothness weight",
         "tooltip": "Larger values relative to other smoothness weights will result in x biased smoothness",
         "value": 1.0,
+        "groupOptional": true,
         "enabled": false
     },
     "length_scale_y": {
