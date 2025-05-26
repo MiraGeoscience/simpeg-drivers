@@ -150,6 +150,8 @@ def test_dc2d_rotated_grad_run(
             percentile=100,
             lower_bound=0.1,
             cooling_rate=1,
+            starting_chi_factor=1.0,
+            chi_factor=0.1,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
