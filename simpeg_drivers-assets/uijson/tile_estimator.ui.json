@@ -1,5 +1,5 @@
 {
-    "version": "0.3.0-alpha.4",
+    "version": "0.3.0-alpha.6",
     "title": "Tile Estimation",
     "icon": "",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
@@ -7,7 +7,6 @@
     "run_command": "simpeg_drivers.utils.tile_estimate",
     "geoh5": "",
     "monitoring_directory": "",
-    "workspace_geoh5": "",
     "simulation": {
         "main": true,
         "label": "Group A",
