@@ -31,7 +31,7 @@ dependencies:
   - discretize=0.11.2=py312hc39e661_1
   - distributed=2025.3.0=pyhd8ed1ab_0
   - fasteners=0.19=pyhd8ed1ab_1
-  - fonttools=4.58.0=py312h178313f_0
+  - fonttools=4.58.1=py312h178313f_0
   - freetype=2.13.3=ha770c72_1
   - fsspec=2025.5.1=pyhd8ed1ab_0
   - geoana=0.7.2=py312hc39e661_0
@@ -56,7 +56,7 @@ dependencies:
   - libbrotlidec=1.1.0=hb9d3cd8_2
   - libbrotlienc=1.1.0=hb9d3cd8_2
   - libcblas=3.9.0=31_h372d94f_mkl
-  - libcurl=8.13.0=h332b0f4_0
+  - libcurl=8.14.0=h332b0f4_0
   - libdeflate=1.24=h86f0d12_0
   - libdlf=0.3.0=pyhd8ed1ab_1
   - libedit=3.1.20250104=pl5321h7949ede_0
@@ -78,7 +78,7 @@ dependencies:
   - libnsl=2.0.1=hd590300_0
   - libpng=1.6.47=h943b412_0
   - libscotch=7.0.6=hea33c07_1
-  - libsqlite=3.49.2=hee588c1_0
+  - libsqlite=3.50.0=hee588c1_0
   - libssh2=1.11.1=hcf80075_0
   - libstdcxx=15.1.0=h8f9b012_2
   - libstdcxx-ng=15.1.0=h4852527_2
@@ -134,7 +134,7 @@ dependencies:
   - tbb=2021.13.0=hceb3a55_1
   - tblib=3.1.0=pyhd8ed1ab_0
   - threadpoolctl=3.6.0=pyhecae5ae_0
-  - tk=8.6.13=noxft_h4845f30_101
+  - tk=8.6.13=noxft_hd72426e_102
   - toolz=1.0.0=pyhd8ed1ab_1
   - tornado=6.5.1=py312h66e93f0_0
   - tqdm=4.67.1=pyhd8ed1ab_1
@@ -158,7 +158,7 @@ dependencies:
   - pip:
       - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@388f8f781c834f8f1d5c6243e636112bd2fd4dcb
       - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@2b2b72f906d85bf460292f66e763ff2331017b02
-      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@5f2b6d8d7fb5f5287f2af0e1231daa1350b7183f
+      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@447de6c5c257883c4eea045cb3372bf6a1051ad1
       - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app.git@e9c99d6fd5d324571a2717990aecb3ed673cbaca
       - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps.git@d5959a0e19b45a89eb8a02cd608bc8accb74adb7
 

@@ -1438,7 +1438,7 @@ package:
   category: main
   optional: false
 - name: fonttools
-  version: 4.58.0
+  version: 4.58.1
   manager: conda
   platform: linux-64
   dependencies:
@@ -1449,14 +1449,14 @@ package:
     python: '>=3.12,<3.13.0a0'
     python_abi: 3.12.*
     unicodedata2: '>=15.1.0'
-  url: https://repo.prefix.dev/conda-forge/linux-64/fonttools-4.58.0-py312h178313f_0.conda
+  url: https://repo.prefix.dev/conda-forge/linux-64/fonttools-4.58.1-py312h178313f_0.conda
   hash:
-    md5: 20ab6e460950203a022131b49c3dbda1
-    sha256: eab484e58457bcc69f3e848ff659fc63b917cee7d9f5e614653c0571c0b6354e
+    md5: 59ac6c124428928a1a41691eedf2b3bd
+    sha256: e393557ad5ca31f71ec59da7035eea0d8d9a87ef1807fda832d2953112e71588
   category: main
   optional: false
 - name: fonttools
-  version: 4.58.0
+  version: 4.58.1
   manager: conda
   platform: win-64
   dependencies:
@@ -1468,10 +1468,10 @@ package:
     unicodedata2: '>=15.1.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://repo.prefix.dev/conda-forge/win-64/fonttools-4.58.0-py312h31fea79_0.conda
+  url: https://repo.prefix.dev/conda-forge/win-64/fonttools-4.58.1-py312h31fea79_0.conda
   hash:
-    md5: d75198952d9e57e3f90d2fd5d73b8208
-    sha256: 7669a9a26b2c93b6f8887c54e05a979724014be0309abc68f51844c9b75ad67a
+    md5: fbe3cbbe4fc661f033725bd9a958bb52
+    sha256: 67721282cc0cad4b9d2fb1a6a9987b3090cd6c5a516ffef293e4f8181556c20a
   category: main
   optional: false
 - name: fqdn
@@ -2612,10 +2612,10 @@ package:
     importlib-metadata: '>=4.8.3'
     jupyter_server: '>=1.1.2'
     python: '>=3.9'
-  url: https://repo.prefix.dev/conda-forge/noarch/jupyter-lsp-2.2.5-pyhd8ed1ab_1.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/jupyter-lsp-2.2.5-pyhe01879c_2.conda
   hash:
-    md5: 0b4c3908e5a38ea22ebb98ee5888c768
-    sha256: 1565c8b1423a37fca00fe0ab2a17cd8992c2ecf23e7867a1c9f6f86a9831c196
+    md5: 7ed6505c703f3c4e1a58864bf84505e2
+    sha256: f2ca86b121bcfeaf0241a927824459ba8712e64806b98dd262eb2b1a7c4e82a6
   category: dev
   optional: true
 - name: jupyter-lsp
@@ -2626,10 +2626,10 @@ package:
     importlib-metadata: '>=4.8.3'
     jupyter_server: '>=1.1.2'
     python: '>=3.9'
-  url: https://repo.prefix.dev/conda-forge/noarch/jupyter-lsp-2.2.5-pyhd8ed1ab_1.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/jupyter-lsp-2.2.5-pyhe01879c_2.conda
   hash:
-    md5: 0b4c3908e5a38ea22ebb98ee5888c768
-    sha256: 1565c8b1423a37fca00fe0ab2a17cd8992c2ecf23e7867a1c9f6f86a9831c196
+    md5: 7ed6505c703f3c4e1a58864bf84505e2
+    sha256: f2ca86b121bcfeaf0241a927824459ba8712e64806b98dd262eb2b1a7c4e82a6
   category: dev
   optional: true
 - name: jupyter_client
@@ -3339,7 +3339,7 @@ package:
   category: main
   optional: false
 - name: libcurl
-  version: 8.13.0
+  version: 8.14.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -3349,16 +3349,16 @@ package:
     libnghttp2: '>=1.64.0,<2.0a0'
     libssh2: '>=1.11.1,<2.0a0'
     libzlib: '>=1.3.1,<2.0a0'
-    openssl: '>=3.4.1,<4.0a0'
+    openssl: '>=3.5.0,<4.0a0'
     zstd: '>=1.5.7,<1.6.0a0'
-  url: https://repo.prefix.dev/conda-forge/linux-64/libcurl-8.13.0-h332b0f4_0.conda
+  url: https://repo.prefix.dev/conda-forge/linux-64/libcurl-8.14.0-h332b0f4_0.conda
   hash:
-    md5: cbdc92ac0d93fe3c796e36ad65c7905c
-    sha256: 38e528acfaa0276b7052f4de44271ff9293fdb84579650601a8c49dac171482a
+    md5: d1738cf06503218acee63669029fd8e8
+    sha256: ddfcb508b723e1ef4234c517da18820cdbb40cc060f3b120aaa8a18eb6ab0564
   category: main
   optional: false
 - name: libcurl
-  version: 8.13.0
+  version: 8.14.0
   manager: conda
   platform: win-64
   dependencies:
@@ -3368,10 +3368,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://repo.prefix.dev/conda-forge/win-64/libcurl-8.13.0-h88aaa65_0.conda
+  url: https://repo.prefix.dev/conda-forge/win-64/libcurl-8.14.0-h88aaa65_0.conda
   hash:
-    md5: c9cf6eb842decbb66c2f34e72c3580d6
-    sha256: 185553b37c0299b7a15dc66a7a7e2a0d421adaac784ec9298a0b2ad745116ca5
+    md5: ae69647c79ac790aae707e6f3977152b
+    sha256: 374d36c9e5163e8ac6a2b3e845200db8ecc16702dc85d4c1617c8047f3e2ba3a
   category: main
   optional: false
 - name: libdeflate
@@ -3877,31 +3877,31 @@ package:
   category: dev
   optional: true
 - name: libsqlite
-  version: 3.49.2
+  version: 3.50.0
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     libgcc: '>=13'
     libzlib: '>=1.3.1,<2.0a0'
-  url: https://repo.prefix.dev/conda-forge/linux-64/libsqlite-3.49.2-hee588c1_0.conda
+  url: https://repo.prefix.dev/conda-forge/linux-64/libsqlite-3.50.0-hee588c1_0.conda
   hash:
-    md5: 93048463501053a00739215ea3f36324
-    sha256: 525d4a0e24843f90b3ff1ed733f0a2e408aa6dd18b9d4f15465595e078e104a2
+    md5: 71888e92098d0f8c41b09a671ad289bc
+    sha256: b3dcd409c96121c011387bdf7f4b5758d876feeb9d8e3cfc32285b286931d0a7
   category: main
   optional: false
 - name: libsqlite
-  version: 3.49.2
+  version: 3.50.0
   manager: conda
   platform: win-64
   dependencies:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://repo.prefix.dev/conda-forge/win-64/libsqlite-3.49.2-h67fdade_0.conda
+  url: https://repo.prefix.dev/conda-forge/win-64/libsqlite-3.50.0-h67fdade_0.conda
   hash:
-    md5: a3900c97ba9e03332e9a911fe63f7d64
-    sha256: 1612baa49124ec1972b085ab9d6bf1855c5f38e8f16e8d8f96c193d6e11688b2
+    md5: 92b11b0b2120d563caa1629928122cee
+    sha256: 92546e3ea213ee7b11385b22ea4e7c69bbde1c25586288765b37bc5e96b20dd9
   category: main
   optional: false
 - name: libssh2
@@ -7564,12 +7564,13 @@ package:
   manager: conda
   platform: linux-64
   dependencies:
-    libgcc-ng: '>=12'
-    libzlib: '>=1.2.13,<2.0.0a0'
-  url: https://repo.prefix.dev/conda-forge/linux-64/tk-8.6.13-noxft_h4845f30_101.conda
+    __glibc: '>=2.17,<3.0.a0'
+    libgcc: '>=13'
+    libzlib: '>=1.3.1,<2.0a0'
+  url: https://repo.prefix.dev/conda-forge/linux-64/tk-8.6.13-noxft_hd72426e_102.conda
   hash:
-    md5: d453b98d9c83e71da0741bb0ff4d76bc
-    sha256: e0569c9caa68bf476bead1bed3d79650bb080b532c64a4af7d8ca286c08dea4e
+    md5: a0116df4f4ed05c303811a837d5b39d8
+    sha256: a84ff687119e6d8752346d1d408d5cf360dee0badd487a472aa8ddedfdc219e1
   category: main
   optional: false
 - name: tk
@@ -7580,10 +7581,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://repo.prefix.dev/conda-forge/win-64/tk-8.6.13-h5226925_1.conda
+  url: https://repo.prefix.dev/conda-forge/win-64/tk-8.6.13-h2c6b04d_2.conda
   hash:
-    md5: fc048363eb8f03cd1737600a5d08aafe
-    sha256: 2c4e914f521ccb2718946645108c9bd3fc3216ba69aea20c2c3cedbd8db32bb1
+    md5: ebd0e761de9aa879a51d22cc721bd095
+    sha256: e3614b0eb4abcc70d98eae159db59d9b4059ed743ef402081151a948dce95896
   category: main
   optional: false
 - name: toml
@@ -8613,7 +8614,7 @@ package:
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.23.0.1a5.dev26+g5f2b6d8d7
+  version: 0.23.0.1a5.dev28+g447de6c5c
   manager: pip
   platform: linux-64
   dependencies:
@@ -8625,16 +8626,16 @@ package:
     numpy: '>=1.22'
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@5f2b6d8d7fb5f5287f2af0e1231daa1350b7183f
+  url: git+https://github.com/MiraGeoscience/simpeg.git@447de6c5c257883c4eea045cb3372bf6a1051ad1
   hash:
-    sha256: 5f2b6d8d7fb5f5287f2af0e1231daa1350b7183f
+    sha256: 447de6c5c257883c4eea045cb3372bf6a1051ad1
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@5f2b6d8d7fb5f5287f2af0e1231daa1350b7183f
+    url: git+https://github.com/MiraGeoscience/simpeg.git@447de6c5c257883c4eea045cb3372bf6a1051ad1
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.23.0.1a5.dev26+g5f2b6d8d7
+  version: 0.23.0.1a5.dev28+g447de6c5c
   manager: pip
   platform: win-64
   dependencies:
@@ -8646,12 +8647,12 @@ package:
     numpy: '>=1.22'
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@5f2b6d8d7fb5f5287f2af0e1231daa1350b7183f
+  url: git+https://github.com/MiraGeoscience/simpeg.git@447de6c5c257883c4eea045cb3372bf6a1051ad1
   hash:
-    sha256: 5f2b6d8d7fb5f5287f2af0e1231daa1350b7183f
+    sha256: 447de6c5c257883c4eea045cb3372bf6a1051ad1
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@5f2b6d8d7fb5f5287f2af0e1231daa1350b7183f
+    url: git+https://github.com/MiraGeoscience/simpeg.git@447de6c5c257883c4eea045cb3372bf6a1051ad1
   category: main
   optional: false
 - name: octree-creation-app
