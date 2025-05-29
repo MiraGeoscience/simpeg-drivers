@@ -101,6 +101,11 @@ class BaseJointOptions(BaseData):
     percentile: float = 95.0
     epsilon_cooling_factor: float = 1.2
 
+    n_workers: int | None = 1
+    n_threads: int | None = None
+    max_ram: float | None = None
+    performance_report: bool = False
+
     @property
     def groups(self) -> list[SimPEGGroup]:
         """List all active groups."""
