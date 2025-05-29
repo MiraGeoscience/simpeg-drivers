@@ -44,7 +44,7 @@ class BaseJointOptions(BaseData):
     run_command: str = "simpeg_drivers.driver"
     conda_environment: str = "simpeg-drivers"
     forward_only: bool = False
-    physical_property: list[str] = ["conductivity"]
+    physical_property: str = ""
 
     group_a: SimPEGGroup
     group_a_multiplier: float = 1.0
