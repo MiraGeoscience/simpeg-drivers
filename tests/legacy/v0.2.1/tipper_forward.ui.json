@@ -1,0 +1,235 @@
+{
+    "version": "0.2.0-alpha.1",
+    "title": "Tipper Forward",
+    "icon": "surveyztem",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
+    "conda_environment": "simpeg_drivers",
+    "run_command": "simpeg_drivers.driver",
+    "geoh5": "",
+    "monitoring_directory": "",
+    "workspace_geoh5": "",
+    "inversion_type": "tipper",
+    "forward_only": true,
+    "data_object": {
+        "main": true,
+        "group": "Survey",
+        "label": "Object",
+        "meshType": "{0b639533-f35b-44d8-92a8-f70ecff3fd26}",
+        "value": ""
+    },
+    "z_from_topo": {
+        "group": "Data pre-processing",
+        "label": "Take z from topography",
+        "tooltip": "Sets survey elevation to topography before any offsets are applied.",
+        "value": false,
+        "verbose": 3,
+        "visible": false
+    },
+    "receivers_radar_drape": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data pre-processing",
+        "label": "Z radar offset",
+        "tooltip": "Apply a non-homogeneous offset to survey object from radar channel.",
+        "optional": true,
+        "parent": "data_object",
+        "value": "",
+        "enabled": false,
+        "verbose": 3,
+        "visible": false
+    },
+    "receivers_offset_z": {
+        "group": "Data pre-processing",
+        "label": "Z static offset",
+        "optional": true,
+        "enabled": false,
+        "value": 0.0,
+        "verbose": 3,
+        "visible": false
+    },
+    "gps_receivers_offset": "",
+    "txz_real_channel_bool": {
+        "group": "Survey",
+        "main": true,
+        "label": "Txz real",
+        "value": true
+    },
+    "txz_imag_channel_bool": {
+        "group": "Survey",
+        "main": true,
+        "label": "Txz imaginary",
+        "value": true
+    },
+    "tyz_real_channel_bool": {
+        "group": "Survey",
+        "main": true,
+        "label": "Tyz real",
+        "value": true
+    },
+    "tyz_imag_channel_bool": {
+        "group": "Survey",
+        "main": true,
+        "label": "Tyz imaginary",
+        "value": true
+    },
+    "mesh": {
+        "group": "Mesh and models",
+        "main": true,
+        "label": "Mesh",
+        "meshType": "{4ea87376-3ece-438b-bf12-3479733ded46}",
+        "value": "",
+        "tooltip": "Select a mesh for the inversion."
+    },
+    "model_type": {
+        "choiceList": [
+            "Conductivity (S/m)",
+            "Resistivity (Ohm-m)"
+        ],
+        "main": true,
+        "group": "Mesh and models",
+        "label": "Model units",
+        "tooltip": "Select the units of the model.",
+        "value": "Conductivity (S/m)"
+    },
+    "background_conductivity": {
+        "group": "Mesh and models",
+        "main": true,
+        "label": "Background",
+        "property": "",
+        "value": 0.001
+    },
+    "starting_model": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Mesh and models",
+        "main": true,
+        "isValue": true,
+        "parent": "mesh",
+        "label": "Value(s)",
+        "property": "",
+        "value": 0.001
+    },
+    "topography_object": {
+        "main": true,
+        "group": "Topography",
+        "label": "Topography",
+        "meshType": [
+            "{202c5db1-a56d-4004-9cad-baafd8899406}",
+            "{6a057fdc-b355-11e3-95be-fd84a7ffcb88}",
+            "{f26feba3-aded-494b-b9e9-b2bbcbe298e1}",
+            "{48f5054a-1c5c-4ca4-9048-80f36dc60a06}",
+            "{b020a277-90e2-4cd7-84d6-612ee3f25051}"
+        ],
+        "value": "",
+        "optional": true,
+        "enabled": true,
+        "tooltip": "Select a topography object to define the active cells for inversion."
+    },
+    "topography": {
+        "association": [
+            "Vertex",
+            "Cell"
+        ],
+        "dataType": "Float",
+        "group": "Topography",
+        "main": true,
+        "optional": true,
+        "enabled": false,
+        "label": "Elevation channel",
+        "tooltip": "Set elevation from channel.  If not set the topography will be set from the geometry of the selected 'topography' object.",
+        "parent": "topography_object",
+        "dependency": "topography_object",
+        "dependencyType": "enabled",
+        "value": "",
+        "verbose": 2
+    },
+    "active_model": {
+        "association": "Cell",
+        "dataType": [
+            "Referenced",
+            "Boolean",
+            "Integer"
+        ],
+        "group": "Topography",
+        "main": true,
+        "enabled": false,
+        "dependency": "topography_object",
+        "dependencyType": "disabled",
+        "label": "Active model",
+        "tooltip": "Provide the active cell boolean model directly if topography not set.",
+        "parent": "mesh",
+        "value": ""
+    },
+    "output_tile_files": false,
+    "parallelized": {
+        "group": "Compute",
+        "label": "Use parallelization",
+        "value": true,
+        "visible": false
+    },
+    "n_cpu": {
+        "min": 1,
+        "group": "Compute",
+        "dependency": "parallelized",
+        "dependencyType": "enabled",
+        "optional": true,
+        "enabled": false,
+        "label": "Number of CPUs",
+        "value": 1,
+        "visible": false
+    },
+    "tile_spatial": {
+        "group": "Compute",
+        "label": "Number of tiles",
+        "parent": "data_object",
+        "isValue": true,
+        "property": "",
+        "value": 1,
+        "min": 1,
+        "max": 1000,
+        "verbose": 2,
+        "tooltip": "Splits the objective function into spatial tiles for distributed computation using the Dask library."
+    },
+    "max_chunk_size": {
+        "min": 0,
+        "group": "Compute",
+        "optional": true,
+        "enabled": true,
+        "label": "Maximum chunk size (Mb)",
+        "value": 128,
+        "verbose": 3,
+        "visible": false,
+        "tooltip": "Limit the chunk size used by Dask for distributed computation."
+    },
+    "chunk_by_rows": {
+        "group": "Compute",
+        "label": "Chunk by rows",
+        "value": true,
+        "verbose": 3,
+        "visible": false
+    },
+    "out_group": {
+        "label": "SimPEG group",
+        "value": "",
+        "groupType": "{55ed3daf-c192-4d4b-a439-60fa987fe2b8}",
+        "group": "Drag-and-drop options",
+        "visible": true,
+        "optional": true,
+        "enabled": false,
+        "tooltip": "Optionally set the SimPEG group to which results will be saved."
+    },
+    "generate_sweep": {
+        "label": "Generate sweep file",
+        "group": "Python run preferences",
+        "main": true,
+        "value": false,
+        "tooltip": "Generates a file for sweeping parameters instead of running the application."
+    },
+    "distributed_workers": ""
+}
