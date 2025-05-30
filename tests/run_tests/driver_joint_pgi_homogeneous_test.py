@@ -16,7 +16,8 @@ from unittest.mock import patch
 import numpy as np
 from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.data import FloatData
-from geoh5py.groups import SimPEGGroup
+from geoh5py.groups.property_group import GroupTypeEnum, PropertyGroup
+from geoh5py.groups.simpeg import SimPEGGroup
 from geoh5py.workspace import Workspace
 from pytest import raises
 
@@ -136,6 +137,7 @@ def test_homogeneous_run(
         drivers = []
         orig_data = []
         petrophysics = None
+        gradient_rotation = None
         for group_name in [
             "Gravity Forward",
             "Magnetic Vector Forward",
@@ -167,6 +169,18 @@ def test_homogeneous_run(
                             "value_map": mapping,
                         }
                     }
+                )
+                dip, direction = mesh.add_data(
+                    {
+                        "dip": {"values": np.zeros(mesh.n_cells)},
+                        "direction": {"values": np.zeros(mesh.n_cells)},
+                    }
+                )
+                gradient_rotation = PropertyGroup(
+                    name="gradient_rotations",
+                    property_group_type=GroupTypeEnum.DIPDIR,
+                    properties=[dip, direction],
+                    parent=mesh,
                 )
 
             data = None
@@ -225,6 +239,7 @@ def test_homogeneous_run(
             group_b=drivers[1].params.out_group,
             group_b_multiplier=1.0,
             mesh=global_mesh,
+            gradient_rotation=gradient_rotation,
             length_scale_x=1.0,
             length_scale_y=1.0,
             length_scale_z=1.0,

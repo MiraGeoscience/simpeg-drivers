@@ -541,8 +541,8 @@ class InversionDriver(BaseDriver):
                             fun,
                             neighbors,
                             comp,
-                            mapping * self.models.gradient_dip,
-                            mapping * self.models.gradient_direction,
+                            self.models.gradient_dip,
+                            self.models.gradient_direction,
                         )
 
                 average_op = getattr(

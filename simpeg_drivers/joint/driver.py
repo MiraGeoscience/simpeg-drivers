@@ -272,7 +272,7 @@ class BaseJointDriver(InversionDriver):
     def validate_create_models(self):
         """Create stacked model vectors from all drivers provided."""
         for model_type in self.models.model_types:
-            if model_type == "petrophysics":
+            if model_type in ["petrophysics", "gradient_dip", "gradient_direction"]:
                 continue
 
             model = getattr(self.models, f"_{model_type}").model
