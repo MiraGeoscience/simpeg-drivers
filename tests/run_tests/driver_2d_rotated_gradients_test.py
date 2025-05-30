@@ -140,7 +140,7 @@ def test_dc2d_rotated_grad_run(
             model_type="Resistivity (Ohm-m)",
             starting_model=100.0,
             reference_model=100.0,
-            s_norm=1.0,
+            s_norm=0.0,
             x_norm=0.0,
             z_norm=0.0,
             gradient_type="components",
@@ -150,6 +150,8 @@ def test_dc2d_rotated_grad_run(
             percentile=100,
             lower_bound=0.1,
             cooling_rate=1,
+            starting_chi_factor=1.0,
+            chi_factor=0.1,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
