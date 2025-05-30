@@ -19,7 +19,7 @@ from geoapps_utils.utils.numerical import weighted_average
 from geoapps_utils.utils.transformations import rotate_xyz
 from geoh5py.data import Data, FloatData, NumericData
 from geoh5py.data.data_type import GeometricDataValueMapType
-from geoh5py.objects import BaseObject
+from geoh5py.objects import ObjectBase
 from simpeg.utils.mat_utils import (
     cartesian2amplitude_dip_azimuth,
     dip_azimuth2cartesian,
@@ -599,7 +599,7 @@ class InversionModel:
         return model
 
     @staticmethod
-    def obj_2_mesh(data: Data, destination: BaseObject) -> np.ndarray:
+    def obj_2_mesh(data: Data, destination: ObjectBase) -> np.ndarray:
         """
         Interpolates obj into inversion mesh using nearest neighbors of parent.
 
