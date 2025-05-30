@@ -58,6 +58,24 @@ DRIVER_MAP = {
             "inversion": "DCBatch2DInversionDriver",
         },
     ),
+    "fdem": (
+        "simpeg_drivers.electromagnetics.frequency_domain.driver",
+        {
+            "forward": "FDEMForwardDriver",
+            "inversion": "FDEMInversionDriver",
+        },
+    ),
+    "fdem 1d": (
+        "simpeg_drivers.electromagnetics.frequency_domain_1d.driver",
+        {
+            "forward": "FDEM1DForwardDriver",
+            "inversion": "FDEM1DInversionDriver",
+        },
+    ),
+    "gravity": (
+        "simpeg_drivers.potential_fields.gravity.driver",
+        {"forward": "GravityForwardDriver", "inversion": "GravityInversionDriver"},
+    ),
     "induced polarization 3d": (
         "simpeg_drivers.electricals.induced_polarization.three_dimensions.driver",
         {
@@ -79,34 +97,38 @@ DRIVER_MAP = {
             "inversion": "IPBatch2DInversionDriver",
         },
     ),
+    "joint cross gradient": (
+        "simpeg_drivers.joint.joint_cross_gradient.driver",
+        {"inversion": "JointCrossGradientDriver"},
+    ),
+    "joint petrophysics": (
+        "simpeg_drivers.joint.joint_petrophysics.driver",
+        {"inversion": "JointPetrophysicsDriver"},
+    ),
     "joint surveys": (
         "simpeg_drivers.joint.joint_surveys.driver",
         {"inversion": "JointSurveyDriver"},
     ),
-    "fdem": (
-        "simpeg_drivers.electromagnetics.frequency_domain.driver",
+    "magnetic scalar": (
+        "simpeg_drivers.potential_fields.magnetic_scalar.driver",
         {
-            "forward": "FDEMForwardDriver",
-            "inversion": "FDEMInversionDriver",
+            "forward": "MagneticForwardDriver",
+            "inversion": "MagneticInversionDriver",
         },
     ),
-    "fem": (
-        "simpeg_drivers.electromagnetics.frequency_domain.driver",
+    "magnetic vector": (
+        "simpeg_drivers.potential_fields.magnetic_vector.driver",
         {
-            "forward": "FDEMForwardDriver",
-            "inversion": "FDEMInversionDriver",
+            "forward": "MVIForwardDriver",
+            "inversion": "MVIInversionDriver",
         },
     ),
-    "fdem 1d": (
-        "simpeg_drivers.electromagnetics.frequency_domain_1d.driver",
+    "magnetotellurics": (
+        "simpeg_drivers.natural_sources.magnetotellurics.driver",
         {
-            "forward": "FDEM1DForwardDriver",
-            "inversion": "FDEM1DInversionDriver",
+            "forward": "MTForwardDriver",
+            "inversion": "MTInversionDriver",
         },
-    ),
-    "joint cross gradient": (
-        "simpeg_drivers.joint.joint_cross_gradient.driver",
-        {"inversion": "JointCrossGradientDriver"},
     ),
     "tdem": (
         "simpeg_drivers.electromagnetics.time_domain.driver",
@@ -122,33 +144,8 @@ DRIVER_MAP = {
             "inversion": "TDEM1DInversionDriver",
         },
     ),
-    "magnetotellurics": (
-        "simpeg_drivers.natural_sources.magnetotellurics.driver",
-        {
-            "forward": "MTForwardDriver",
-            "inversion": "MTInversionDriver",
-        },
-    ),
     "tipper": (
         "simpeg_drivers.natural_sources.tipper.driver",
         {"forward": "TipperForwardDriver", "inversion": "TipperInversionDriver"},
-    ),
-    "gravity": (
-        "simpeg_drivers.potential_fields.gravity.driver",
-        {"forward": "GravityForwardDriver", "inversion": "GravityInversionDriver"},
-    ),
-    "magnetic scalar": (
-        "simpeg_drivers.potential_fields.magnetic_scalar.driver",
-        {
-            "forward": "MagneticForwardDriver",
-            "inversion": "MagneticInversionDriver",
-        },
-    ),
-    "magnetic vector": (
-        "simpeg_drivers.potential_fields.magnetic_vector.driver",
-        {
-            "forward": "MVIForwardDriver",
-            "inversion": "MVIInversionDriver",
-        },
     ),
 }

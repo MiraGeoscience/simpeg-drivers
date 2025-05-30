@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import multiprocessing
 
+import numpy as np
 from geoapps_utils.driver.data import BaseData
 from geoh5py.data import FloatData
 from geoh5py.groups import PropertyGroup, SimPEGGroup, UIJsonGroup
@@ -22,6 +23,7 @@ from pydantic import ConfigDict, field_validator, model_validator
 
 import simpeg_drivers
 from simpeg_drivers.options import ActiveCellsOptions, SolverType
+from simpeg_drivers.utils.regularization import direction_and_dip
 
 
 class BaseJointOptions(BaseData):
@@ -150,3 +152,31 @@ class BaseJointOptions(BaseData):
             self.out_group.options = self.serialize()
             self.out_group.metadata = None
         return self
+
+    @property
+    def gradient_orientations(self) -> tuple(float, float):
+        """
+        Direction and dip angles for rotated gradient regularization.
+
+        Angles are in radians and are clockwise from North for direction
+        and clockwise from horizontal for dip.
+        """
+
+        if self.gradient_rotation is not None:
+            orientations = direction_and_dip(self.gradient_rotation)
+
+            return np.deg2rad(orientations)
+
+        return None
+
+    @property
+    def gradient_direction(self) -> np.ndarray:
+        if self.gradient_orientations is None:
+            return None
+        return self.gradient_orientations[:, 0]
+
+    @property
+    def gradient_dip(self) -> np.ndarray:
+        if self.gradient_orientations is None:
+            return None
+        return self.gradient_orientations[:, 1]

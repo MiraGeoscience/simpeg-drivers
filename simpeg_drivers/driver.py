@@ -637,7 +637,7 @@ class InversionDriver(BaseDriver):
         name: str, forward_only: bool = False
     ) -> InversionDriver:
         if name not in DRIVER_MAP:
-            msg = f"Inversion type {name} is not supported."
+            msg = f"Inversion type '{name}' is not supported."
             msg += f" Valid inversions are: {(*list(DRIVER_MAP),)}."
             raise NotImplementedError(msg)
 
