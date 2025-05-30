@@ -31,6 +31,7 @@ from geoh5py.groups.property_group_type import GroupTypeEnum
 from geoh5py.objects import DrapeModel, Grid2D, Octree, Points
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
+from geoh5py.ui_json.annotations import Deprecated
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 from simpeg.utils.mat_utils import cartesian2amplitude_dip_azimuth
 
@@ -78,6 +79,28 @@ class SolverType(str, Enum):
     Mumps = "Mumps"
 
 
+class OptimizationOptions(BaseModel):
+    """
+    Optimization parameters for inversion.
+
+    :param max_global_iterations: Maximum global iterations.
+    :param max_line_search_iterations: Maximum line search iterations.
+    :param max_cg_iterations: Maximum CG iterations.
+    :param tol_cg: Tolerance CG.
+    :param f_min_change: F min change.
+    """
+
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True,
+    )
+
+    max_global_iterations: int = 50
+    max_line_search_iterations: int = 20
+    max_cg_iterations: int = 30
+    tol_cg: float = 1e-4
+    f_min_change: float = 1e-2
+
+
 class CoreOptions(BaseData):
     """
     Core parameters shared by inverse and forward operations.
@@ -122,10 +145,9 @@ class CoreOptions(BaseData):
     run_command: str = "simpeg_drivers.driver"
     conda_environment: str = "simpeg_drivers"
     inversion_type: str
-    data_object: Points
-    mesh: Octree | DrapeModel | None
-    starting_model: float | FloatData
+
     active_cells: ActiveCellsOptions
+
     tile_spatial: int = 1
     n_cpu: int | None = None
     solver_type: SolverType = SolverType.Pardiso
@@ -272,78 +294,67 @@ class BaseForwardOptions(CoreOptions):
         return [k for k in self.components if getattr(self, f"{k}_channel_bool")]
 
 
-class BaseInversionOptions(CoreOptions):
+class ModelOptions(BaseModel):
     """
-    Base class for inversion parameters.
-
-    See CoreData class docstring for addition parameters descriptions.
+    Base class for model parameters.
 
     :param reference_model: Reference model.
     :param lower_bound: Lower bound.
     :param upper_bound: Upper bound.
-
-    :param alpha_s: Alpha s.
-    :param length_scale_x: Length scale x.
-    :param length_scale_y: Length scale y.
-    :param length_scale_z: Length scale z.
-    :param gradient_rotation: Property group for gradient rotation angles.
-
-    :param s_norm: S norm.
-    :param x_norm: X norm.
-    :param y_norm: Y norm.
-    :param z_norm: Z norm.
-    :param gradient_type: Gradient type.
-    :param max_irls_iterations: Maximum IRLS iterations.
-    :param starting_chi_factor: Starting chi factor.
-
-    :param percentile: Percentile.
-    :param beta_tol: Beta tolerance.
-
-    :param chi_factor: Chi factor.
-    :param auto_scale_misfits: Automatically scale misfits.
-    :param initial_beta: Initial beta.
-    :param initial_beta_ratio: Initial beta ratio.
-    :param cooling_factor: Cooling factor.
-
-    :param cooling_rate: Cooling rate.
-    :param max_global_iterations: Maximum global iterations.
-    :param max_line_search_iterations: Maximum line search iterations.
-    :param max_cg_iterations: Maximum CG iterations.
-    :param tol_cg: Tolerance CG.
-    :param f_min_change: F min change.
-
-    :param sens_wts_threshold: Sensitivity weights threshold.
-    :param every_iteration_bool: Every iteration bool.
-
-    :param solver_type: Direct solver provider.  Either Mumps or Pardiso.
-    :param tile_spatial: Tile the data spatially.
-    :param store_sensitivities: Store sensitivities.
-    :param max_chunk_size: Maximum chunk size.
-    :param chunk_by_rows: Chunk by rows.
-
-    :param out_group: Output group.
-
-    :param generate_sweep: Generate sweep.
-
-    :param coolEpsFact: Cool eps fact.
-    :param beta_search: Beta search.
     """
 
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
     )
 
-    name: ClassVar[str] = "Inversion"
-
-    title: str = "Geophysical inversion"
-    run_command: str = "simpeg_drivers.driver"
-
-    forward_only: bool = False
-    conda_environment: str = "simpeg_drivers"
-
+    starting_model: float | FloatData
     reference_model: float | FloatData | None = None
     lower_bound: float | FloatData | None = None
     upper_bound: float | FloatData | None = None
+
+
+class IRLSOptions(BaseModel):
+    """
+    IRLS (Iteratively Reweighted Least Squares) options for inversion.
+
+    :param s_norm: Norm applied on the reference model.
+    :param x_norm: Norm applied on the smoothing along the u-direction.
+    :param y_norm: Norm applied on the smoothing along the v-direction.
+    :param z_norm: Norm applied on the smoothing along the w-direction.
+    :param gradient_type: Type of gradient to use for regularization.
+    :param max_irls_iterations: Maximum number of IRLS iterations.
+    :param starting_chi_factor: Starting chi factor for IRLS.
+    :param beta_tol: Tolerance for the beta parameter.
+    :param percentile: Percentile of the model values used to compute the initial epsilon value.
+    :param epsilon_cooling_factor: Factor by which the epsilon value is reduced
+    """
+
+    s_norm: float | FloatData | None = 0.0
+    x_norm: float | FloatData = 2.0
+    y_norm: float | FloatData | None = 2.0
+    z_norm: float | FloatData = 2.0
+    gradient_type: Deprecated = "total"
+    max_irls_iterations: int = 25
+    starting_chi_factor: float = 1.0
+    beta_tol: float = 0.5
+    percentile: float = 95.0
+    epsilon_cooling_factor: float = 1.2
+
+
+class RegularizationOptions(BaseModel):
+    """
+    Regularization options for inversion.
+
+    :param alpha_s: Scale on the reference model.
+    :param length_scale_x: Length scale along the u-direction.
+    :param length_scale_y: Length scale along the v-direction.
+    :param length_scale_z: Length scale along the z-direction.
+    :param gradient_rotation: Property group for gradient rotation angles.
+    """
+
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True,
+    )
 
     alpha_s: float | FloatData | None = 1.0
     length_scale_x: float | FloatData = 1.0
@@ -351,36 +362,17 @@ class BaseInversionOptions(CoreOptions):
     length_scale_z: float | FloatData = 1.0
     gradient_rotation: PropertyGroup | None = None
 
-    s_norm: float | FloatData | None = 0.0
-    x_norm: float | FloatData = 2.0
-    y_norm: float | FloatData | None = 2.0
-    z_norm: float | FloatData = 2.0
-    gradient_type: str = "total"
-    max_irls_iterations: int = 25
-    starting_chi_factor: float = 1.0
+    @property
+    def gradient_direction(self) -> np.ndarray:
+        if self.gradient_orientations is None:
+            return None
+        return self.gradient_orientations[:, 0]
 
-    chi_factor: float = 1.0
-    auto_scale_misfits: bool = True
-    initial_beta_ratio: float | None = 100.0
-    initial_beta: float | None = None
-    cooling_factor: float = 2.0
-
-    cooling_rate: float = 1.0
-    max_global_iterations: int = 50
-    max_line_search_iterations: int = 20
-    max_cg_iterations: int = 30
-    tol_cg: float = 1e-4
-    f_min_change: float = 1e-2
-    solver_type: SolverType = SolverType.Pardiso
-
-    sens_wts_threshold: float = 1e-3
-    every_iteration_bool: bool = True
-
-    store_sensitivities: str = "ram"
-
-    beta_tol: float = 0.5
-    percentile: float = 95.0
-    epsilon_cooling_factor: float = 1.2
+    @property
+    def gradient_dip(self) -> np.ndarray:
+        if self.gradient_orientations is None:
+            return None
+        return self.gradient_orientations[:, 1]
 
     @property
     def gradient_orientations(self) -> tuple(float, float):
@@ -398,17 +390,83 @@ class BaseInversionOptions(CoreOptions):
 
         return None
 
-    @property
-    def gradient_direction(self) -> np.ndarray:
-        if self.gradient_orientations is None:
-            return None
-        return self.gradient_orientations[:, 0]
 
-    @property
-    def gradient_dip(self) -> np.ndarray:
-        if self.gradient_orientations is None:
-            return None
-        return self.gradient_orientations[:, 1]
+class TradeOffOptions(BaseModel):
+    """
+    Options controlling the trade-off schedule between data misfit and
+    model regularization.
+
+    :param initial_beta_ratio: Initial ratio of regularization to data misfit.
+    :param initial_beta: Initial value of the regularization parameter.
+    :param cooling_factor: Factor by which the regularization parameter is reduced.
+    :param cooling_rate: Rate at which the regularization parameter is reduced.
+    :param chi_factor: Target chi factor for the data misfit.
+    """
+
+    initial_beta_ratio: float | None = 100.0
+    initial_beta: float | None = None
+    cooling_factor: float = 2.0
+    cooling_rate: float = 1.0
+    chi_factor: float = 1.0
+
+
+class DirectiveOptions(BaseModel):
+    """
+    Directive options for inversion.
+
+    :param every_iteration_bool: Update the sensitivity weights every iteration.
+    :param sens_wts_threshold: Threshold for sensitivity weights.
+    :param beta_search: Beta search.
+    """
+
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True,
+    )
+
+    every_iteration_bool: bool = False
+    sens_wts_threshold: float | None = 0.0
+    beta_search: bool = True
+
+
+class BaseInversionOptions(CoreOptions):
+    """
+    Base class for inversion parameters.
+
+    See CoreData class docstring for addition parameters descriptions.
+
+    :param name: Name of the inversion.
+    :param title: Title of the inversion.
+    :param run_command: Command (module name) used to run the application from
+        command line.
+    :param forward_only: If True, only run the forward simulation.
+    :param conda_environment: Name of the conda environment used to run the program
+    :param regularization_options: Options specific to the regularization function.
+    :param irls_options: Options specific to the IRLS (Iteratively Reweighted Least Squares) directive.
+    :param extra_directives: Additional directives to be used in the inversion.
+    :param trade_off_options: Options controlling the trade-off schedule between data misfit and model regularization.
+    :param optimization_options: Options for the optimization algorithm used in the inversion.
+    :param store_sensitivities: Where to store sensitivities, either in RAM or on disk.
+    """
+
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True,
+    )
+
+    name: ClassVar[str] = "Inversion"
+
+    title: str = "Geophysical inversion"
+    run_command: str = "simpeg_drivers.driver"
+
+    forward_only: bool = False
+    conda_environment: str = "simpeg_drivers"
+
+    regularization_options: RegularizationOptions = RegularizationOptions()
+    irls_options: IRLSOptions = IRLSOptions()
+    extra_directives: DirectiveOptions = DirectiveOptions()
+    trade_off_options: TradeOffOptions = TradeOffOptions()
+    optimization_options: OptimizationOptions = OptimizationOptions()
+
+    store_sensitivities: str = "ram"
 
 
 class EMDataMixin:
