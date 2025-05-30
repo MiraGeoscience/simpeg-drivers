@@ -94,7 +94,7 @@ dependencies:
   - jsonschema-with-format-nongpl=4.24.0=hd8ed1ab_0
   - jupyter-book=1.0.3=pyhd8ed1ab_1
   - jupyter-cache=1.0.1=pyhff2d567_0
-  - jupyter-lsp=2.2.5=pyhd8ed1ab_1
+  - jupyter-lsp=2.2.5=pyhe01879c_2
   - jupyter_client=8.6.3=pyhd8ed1ab_1
   - jupyter_core=5.8.1=pyh5737063_0
   - jupyter_events=0.12.0=pyh29332c3_0
@@ -132,7 +132,7 @@ dependencies:
   - liblzma=5.8.1=h2466b09_1
   - libpng=1.6.47=h7a4582a_0
   - libsodium=1.0.20=hc70643c_0
-  - libsqlite=3.49.2=h67fdade_0
+  - libsqlite=3.50.0=h67fdade_0
   - libssh2=1.11.1=h9aa295b_0
   - libtiff=4.7.0=h05922d8_5
   - libwebp-base=1.5.0=h3b0e114_0
@@ -141,7 +141,7 @@ dependencies:
   - libxml2=2.13.8=h442d1da_0
   - libzlib=1.3.1=h2466b09_2
   - linkify-it-py=2.0.3=pyhd8ed1ab_1
-  - llvm-openmp=20.1.5=h30eaf37_0
+  - llvm-openmp=20.1.6=h30eaf37_0
   - locket=1.0.0=pyhd8ed1ab_0
   - markdown-it-py=2.2.0=pyhd8ed1ab_0
   - markupsafe=3.0.2=py311h5082efb_1
@@ -172,7 +172,7 @@ dependencies:
   - overrides=7.7.0=pyhd8ed1ab_1
   - packaging=25.0=pyh29332c3_1
   - pandas=2.2.3=py311hcf9f919_3
-  - pandoc=3.7.0.1=h57928b3_0
+  - pandoc=3.7.0.2=h57928b3_0
   - pandocfilters=1.5.0=pyhd8ed1ab_0
   - parso=0.8.4=pyhd8ed1ab_1
   - partd=1.4.2=pyhd8ed1ab_0
@@ -295,11 +295,11 @@ dependencies:
   - zstandard=0.23.0=py311he736701_2
   - zstd=1.5.7=hbeecb71_2
   - pip:
-    - geoapps-utils == 0.5.0a3 --hash=sha256:a752b0c8d4b11cf7f5906c1794631f1ee65e77bd17eb3c5bb85390ff06a61c3c
-    - geoh5py == 0.11.0a5 --hash=sha256:78efa387e693fac737e4fd304ab024d37d9eb3eb95c5191a85de57fb82ceea2e
-    - mira-simpeg == 0.23.0.1b1 --hash=sha256:948a345905e571682b76e44d8527c84919044137d5a335c1a7d707bf3ca86b12
-    - octree-creation-app == 0.3.0a2 --hash=sha256:002896126bf5a958aad1bb9c0a272bfd3c6985d1456dc8022c4e07b5582730ff
-    - param-sweeps == 0.2.1a1 --hash=sha256:777618dd6eef4b6e86b4976e01c29bb202abb9d295b0774baeabf7534fb9389c
+      - geoapps-utils == 0.5.0a3 --hash=sha256:a752b0c8d4b11cf7f5906c1794631f1ee65e77bd17eb3c5bb85390ff06a61c3c
+      - geoh5py == 0.11.0a5 --hash=sha256:78efa387e693fac737e4fd304ab024d37d9eb3eb95c5191a85de57fb82ceea2e
+      - mira-simpeg == 0.23.0.1b1 --hash=sha256:948a345905e571682b76e44d8527c84919044137d5a335c1a7d707bf3ca86b12
+      - octree-creation-app == 0.3.0a2 --hash=sha256:002896126bf5a958aad1bb9c0a272bfd3c6985d1456dc8022c4e07b5582730ff
+      - param-sweeps == 0.2.1a1 --hash=sha256:777618dd6eef4b6e86b4976e01c29bb202abb9d295b0774baeabf7534fb9389c
 
 variables:
   KMP_WARNINGS: 0
