@@ -30,7 +30,33 @@ Receivers: TypeAlias = (
 )
 
 
-class TDEMForwardOptions(EMDataMixin, BaseForwardOptions):
+class BaseTDEMOptions(EMDataMixin):
+    """
+    Base class for Time Domain Electromagnetic options.
+
+    :param data_object: The data object containing the TDEM data.
+    :param physical_property: The physical property being modeled (e.g., conductivity).
+    :param data_units: The units of the TDEM data (e.g., "dB/dt (T/s)").
+    :param model_type: The type of model used (e.g., "Conductivity (S/m)").
+    """
+
+    data_object: Receivers
+    physical_property: str = "conductivity"
+    data_units: str = "dB/dt (T/s)"
+    model_type: str = "Conductivity (S/m)"
+
+    @property
+    def unit_conversion(self):
+        """Return time unit conversion factor."""
+        conversion = {
+            "Seconds (s)": 1.0,
+            "Milliseconds (ms)": 1e-3,
+            "Microseconds (us)": 1e-6,
+        }
+        return conversion[self.data_object.unit]
+
+
+class TDEMForwardOptions(BaseTDEMOptions, BaseForwardOptions):
     """
     Time Domain Electromagnetic forward options.
 
@@ -48,25 +74,12 @@ class TDEMForwardOptions(EMDataMixin, BaseForwardOptions):
     physical_property: str = "conductivity"
     inversion_type: str = "tdem"
 
-    data_object: Receivers
     z_channel_bool: bool | None = None
     x_channel_bool: bool | None = None
     y_channel_bool: bool | None = None
-    data_units: str = "dB/dt (T/s)"
-    model_type: str = "Conductivity (S/m)"
-
-    @property
-    def unit_conversion(self):
-        """Return time unit conversion factor."""
-        conversion = {
-            "Seconds (s)": 1.0,
-            "Milliseconds (ms)": 1e-3,
-            "Microseconds (us)": 1e-6,
-        }
-        return conversion[self.data_object.unit]
 
 
-class TDEMInversionOptions(EMDataMixin, BaseInversionOptions):
+class TDEMInversionOptions(BaseTDEMOptions, BaseInversionOptions):
     """
     Time Domain Electromagnetic Inversion options.
 
@@ -82,27 +95,12 @@ class TDEMInversionOptions(EMDataMixin, BaseInversionOptions):
 
     name: ClassVar[str] = "Time Domain Electromagnetics Inversion"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/tdem_inversion.ui.json"
-
     title: str = "Time-domain EM (TEM) Inversion"
-    physical_property: str = "conductivity"
     inversion_type: str = "tdem"
 
-    data_object: Receivers
     z_channel: PropertyGroup | None = None
     z_uncertainty: PropertyGroup | None = None
     x_channel: PropertyGroup | None = None
     x_uncertainty: PropertyGroup | None = None
     y_channel: PropertyGroup | None = None
     y_uncertainty: PropertyGroup | None = None
-    data_units: str = "dB/dt (T/s)"
-    model_type: str = "Conductivity (S/m)"
-
-    @property
-    def unit_conversion(self):
-        """Return time unit conversion factor."""
-        conversion = {
-            "Seconds (s)": 1.0,
-            "Milliseconds (ms)": 1e-3,
-            "Microseconds (us)": 1e-6,
-        }
-        return conversion[self.data_object.unit]

@@ -4132,29 +4132,29 @@ package:
   category: dev
   optional: true
 - name: llvm-openmp
-  version: 20.1.5
+  version: 20.1.6
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
-  url: https://repo.prefix.dev/conda-forge/linux-64/llvm-openmp-20.1.5-h024ca30_0.conda
+  url: https://repo.prefix.dev/conda-forge/linux-64/llvm-openmp-20.1.6-h024ca30_0.conda
   hash:
-    md5: 86f58be65a51d62ccc06cacfd83ff987
-    sha256: 646907391a8d744508049ef7bd76653d59480b061a3a76ce047064f2923b6f84
+    md5: e4ece7ed81e43ae97a3b58ac4230c3c5
+    sha256: 43ad6a0772c0fc554d2712ae00ea788a391a40c494e9c04ec13f4aea17c95ffc
   category: main
   optional: false
 - name: llvm-openmp
-  version: 20.1.5
+  version: 20.1.6
   manager: conda
   platform: win-64
   dependencies:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://repo.prefix.dev/conda-forge/win-64/llvm-openmp-20.1.5-h30eaf37_0.conda
+  url: https://repo.prefix.dev/conda-forge/win-64/llvm-openmp-20.1.6-h30eaf37_0.conda
   hash:
-    md5: a88e3b6c1a5133b21d54a81fd8cb5c04
-    sha256: 6e2c3e4c5faf0a1e65ee67ef2396f7de4fa81c2077d0e30e2a96c04156b191d2
+    md5: b95ac67b4a85052c54268ba4b80be753
+    sha256: de24f885d918455eb510da054658531bbf69a2bc5ee5945314d0451f375a881d
   category: main
   optional: false
 - name: locket
@@ -5142,25 +5142,25 @@ package:
   category: main
   optional: false
 - name: pandoc
-  version: 3.7.0.1
+  version: 3.7.0.2
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://repo.prefix.dev/conda-forge/linux-64/pandoc-3.7.0.1-ha770c72_0.conda
+  url: https://repo.prefix.dev/conda-forge/linux-64/pandoc-3.7.0.2-ha770c72_0.conda
   hash:
-    md5: fc8eb2a998f2883fe9842c556c0b175c
-    sha256: c22060f68acc1565e567f4e2a1671737320a0005749158718646d59d0324197e
+    md5: db0c1632047d38997559ce2c4741dd91
+    sha256: 243c49b34caa9328e9d5f62c98be9eb046be8fee9836854b88d9022ce8013497
   category: dev
   optional: true
 - name: pandoc
-  version: 3.7.0.1
+  version: 3.7.0.2
   manager: conda
   platform: win-64
   dependencies: {}
-  url: https://repo.prefix.dev/conda-forge/win-64/pandoc-3.7.0.1-h57928b3_0.conda
+  url: https://repo.prefix.dev/conda-forge/win-64/pandoc-3.7.0.2-h57928b3_0.conda
   hash:
-    md5: daa6680ef0c1f8c9cabca561bc77635c
-    sha256: d2b2146ddc2198bd735e0347e6540ed4e092ba542ca83dacac1caad7f8fb1b8c
+    md5: a77c859d9469f24691d6c6590b56fa45
+    sha256: 7fff0deca558c5ab6c836127481decbec83c0add3a0ab2b81d1f10130146c357
   category: dev
   optional: true
 - name: pandocfilters
@@ -8581,12 +8581,12 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: git+https://github.com/MiraGeoscience/octree-creation-app.git@e9c99d6fd5d324571a2717990aecb3ed673cbaca
+  url: git+https://github.com/MiraGeoscience/octree-creation-app.git@02fbd85bf7d54b8f4336f1f0094c1c3e27714e81
   hash:
-    sha256: e9c99d6fd5d324571a2717990aecb3ed673cbaca
+    sha256: 02fbd85bf7d54b8f4336f1f0094c1c3e27714e81
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/octree-creation-app.git@e9c99d6fd5d324571a2717990aecb3ed673cbaca
+    url: git+https://github.com/MiraGeoscience/octree-creation-app.git@02fbd85bf7d54b8f4336f1f0094c1c3e27714e81
   category: main
   optional: false
 - name: octree-creation-app
@@ -8600,12 +8600,12 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: git+https://github.com/MiraGeoscience/octree-creation-app.git@e9c99d6fd5d324571a2717990aecb3ed673cbaca
+  url: git+https://github.com/MiraGeoscience/octree-creation-app.git@02fbd85bf7d54b8f4336f1f0094c1c3e27714e81
   hash:
-    sha256: e9c99d6fd5d324571a2717990aecb3ed673cbaca
+    sha256: 02fbd85bf7d54b8f4336f1f0094c1c3e27714e81
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/octree-creation-app.git@e9c99d6fd5d324571a2717990aecb3ed673cbaca
+    url: git+https://github.com/MiraGeoscience/octree-creation-app.git@02fbd85bf7d54b8f4336f1f0094c1c3e27714e81
   category: main
   optional: false
 - name: param-sweeps

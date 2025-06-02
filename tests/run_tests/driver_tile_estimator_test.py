@@ -19,9 +19,9 @@ from simpeg_drivers.potential_fields import MagneticInversionOptions
 from simpeg_drivers.potential_fields.magnetic_scalar.driver import (
     MagneticInversionDriver,
 )
-from simpeg_drivers.utils.testing import setup_inversion_workspace
 from simpeg_drivers.utils.tile_estimate import TileEstimator, TileParameters
 from simpeg_drivers.utils.utils import simpeg_group_to_driver
+from tests.testing_utils import setup_inversion_workspace
 
 
 def test_tile_estimator_run(

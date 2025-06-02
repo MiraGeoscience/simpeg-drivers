@@ -1,5 +1,5 @@
 {
-    "version": "0.3.0-alpha.4",
+    "version": "0.3.0-alpha.6",
     "title": "Frequency-domain EM (FEM) Inversion",
     "icon": "surveyairborneem",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
@@ -7,7 +7,6 @@
     "run_command": "simpeg_drivers.driver",
     "geoh5": "",
     "monitoring_directory": "",
-    "workspace_geoh5": "",
     "inversion_type": "fdem",
     "physical_property": "conductivity",
     "forward_only": false,

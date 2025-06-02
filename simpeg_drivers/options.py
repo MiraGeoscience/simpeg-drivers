@@ -151,7 +151,6 @@ class CoreOptions(BaseData):
     tile_spatial: int = 1
     n_cpu: int | None = None
     solver_type: SolverType = SolverType.Pardiso
-    save_sensitivities: bool = False
     max_chunk_size: int = 128
     out_group: SimPEGGroup | UIJsonGroup | None = None
     generate_sweep: bool = False
@@ -391,41 +390,44 @@ class RegularizationOptions(BaseModel):
         return None
 
 
-class TradeOffOptions(BaseModel):
+class CoolingSceduleOptions(BaseModel):
     """
     Options controlling the trade-off schedule between data misfit and
     model regularization.
 
-    :param initial_beta_ratio: Initial ratio of regularization to data misfit.
-    :param initial_beta: Initial value of the regularization parameter.
+    :param chi_factor: Target chi factor for the data misfit.
     :param cooling_factor: Factor by which the regularization parameter is reduced.
     :param cooling_rate: Rate at which the regularization parameter is reduced.
-    :param chi_factor: Target chi factor for the data misfit.
+    :param initial_beta: Initial regularization parameter.
+    :param initial_beta_ratio: Initial ratio of regularization to data misfit.
     """
 
-    initial_beta_ratio: float | None = 100.0
-    initial_beta: float | None = None
+    chi_factor: float = 1.0
     cooling_factor: float = 2.0
     cooling_rate: float = 1.0
-    chi_factor: float = 1.0
+    initial_beta: float | None = None
+    initial_beta_ratio: float | None = 100.0
 
 
 class DirectiveOptions(BaseModel):
     """
     Directive options for inversion.
 
-    :param every_iteration_bool: Update the sensitivity weights every iteration.
-    :param sens_wts_threshold: Threshold for sensitivity weights.
+    :param auto_scale_misfits: Automatically scale misfits of sub objectives.
     :param beta_search: Beta search.
+    :param every_iteration_bool: Update the sensitivity weights every iteration.
+    :param save_sensitivities: Save sensitivities to file.
+    :param sens_wts_threshold: Threshold for sensitivity weights.
     """
 
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
     )
-
-    every_iteration_bool: bool = False
-    sens_wts_threshold: float | None = 0.0
+    auto_scale_misfits: bool = True
     beta_search: bool = True
+    every_iteration_bool: bool = False
+    save_sensitivities: bool = False
+    sens_wts_threshold: float | None = 0.0
 
 
 class BaseInversionOptions(CoreOptions):
@@ -440,11 +442,11 @@ class BaseInversionOptions(CoreOptions):
         command line.
     :param forward_only: If True, only run the forward simulation.
     :param conda_environment: Name of the conda environment used to run the program
-    :param regularization_options: Options specific to the regularization function.
-    :param irls_options: Options specific to the IRLS (Iteratively Reweighted Least Squares) directive.
-    :param extra_directives: Additional directives to be used in the inversion.
-    :param trade_off_options: Options controlling the trade-off schedule between data misfit and model regularization.
-    :param optimization_options: Options for the optimization algorithm used in the inversion.
+    :param regularization: Options specific to the regularization function.
+    :param irls: Options specific to the IRLS (Iteratively Reweighted Least Squares) directive.
+    :param directives: Additional directives to be used in the inversion.
+    :param cooling_schedule: Options controlling the trade-off schedule between data misfit and model regularization.
+    :param optimization: Options for the optimization algorithm used in the inversion.
     :param store_sensitivities: Where to store sensitivities, either in RAM or on disk.
     """
 
@@ -460,11 +462,11 @@ class BaseInversionOptions(CoreOptions):
     forward_only: bool = False
     conda_environment: str = "simpeg_drivers"
 
-    regularization_options: RegularizationOptions = RegularizationOptions()
-    irls_options: IRLSOptions = IRLSOptions()
-    extra_directives: DirectiveOptions = DirectiveOptions()
-    trade_off_options: TradeOffOptions = TradeOffOptions()
-    optimization_options: OptimizationOptions = OptimizationOptions()
+    regularization: RegularizationOptions = RegularizationOptions()
+    irls: IRLSOptions = IRLSOptions()
+    directives: DirectiveOptions = DirectiveOptions()
+    cooling_schedule: CoolingSceduleOptions = CoolingSceduleOptions()
+    optimization: OptimizationOptions = OptimizationOptions()
 
     store_sensitivities: str = "ram"
 

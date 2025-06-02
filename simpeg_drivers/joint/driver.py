@@ -78,19 +78,14 @@ class BaseJointDriver(InversionDriver):
         """List of inversion drivers."""
         if self._drivers is None:
             drivers = []
-            physical_property = []
             # Create sub-drivers
             for group in self.params.groups:
                 _ = group.options  # Triggers something... otherwise ui_json is empty
                 group = group.copy(parent=self.params.out_group)
-
                 driver = simpeg_group_to_driver(group, self.workspace)
-
-                physical_property.append(driver.params.physical_property)
                 drivers.append(driver)
 
             self._drivers = drivers
-            self.params.physical_property = physical_property
 
         return self._drivers
 

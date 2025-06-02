@@ -612,30 +612,38 @@ class InversionDriver(BaseDriver):
             dconf.set(scheduler="threads", pool=ThreadPool(n_cpu))
 
     @classmethod
-    def start(cls, filepath: str | Path | InputFile):
+    def start(
+        cls, filepath: str | Path | InputFile, driver_class=None, **kwargs
+    ) -> InversionDriver:
+        """
+        Start the inversion driver.
+
+        :param filepath: Path to the input file or InputFile object.
+        :param driver_class: Optional driver class to use instead of the default.
+        :param kwargs: Additional keyword arguments for InputFile read_ui_json.
+
+        :return: InversionDriver instance with the specified parameters.
+        """
         if isinstance(filepath, InputFile):
             ifile = filepath
         else:
-            ifile = InputFile.read_ui_json(filepath)
+            ifile = InputFile.read_ui_json(filepath, **kwargs)
 
-        forward_only = ifile.data["forward_only"]
-        inversion_type = ifile.ui_json.get("inversion_type", None)
-
-        driver_class = cls.driver_class_from_name(
-            inversion_type, forward_only=forward_only
-        )
-
-        with ifile.data["geoh5"].open(mode="r+"):
-            params = driver_class._options_class.build(ifile)
-            driver = driver_class(params)
+        if driver_class is None:
+            driver = cls.from_input_file(ifile)
+        else:
+            with ifile.data["geoh5"].open(mode="r+"):
+                params = driver_class._options_class.build(ifile)
+                driver = driver_class(params)
 
         driver.run()
+
         return driver
 
     @staticmethod
     def driver_class_from_name(
         name: str, forward_only: bool = False
-    ) -> InversionDriver:
+    ) -> type[InversionDriver]:
         if name not in DRIVER_MAP:
             msg = f"Inversion type '{name}' is not supported."
             msg += f" Valid inversions are: {(*list(DRIVER_MAP),)}."
@@ -648,6 +656,26 @@ class InversionDriver(BaseDriver):
             class_name = classes.get("inversion")
         module = __import__(mod_name, fromlist=[class_name])
         return getattr(module, class_name)
+
+    @classmethod
+    def from_input_file(cls, ifile: InputFile) -> InversionDriver:
+        forward_only = ifile.data["forward_only"]
+        inversion_type = ifile.ui_json.get("inversion_type", None)
+        if inversion_type is None:
+            raise GeoAppsError(
+                "Key/value 'inversion_type' not found in the input file. "
+                "Please specify the inversion type in the UI JSON."
+            )
+
+        driver_class = cls.driver_class_from_name(
+            inversion_type, forward_only=forward_only
+        )
+
+        with ifile.data["geoh5"].open(mode="r+"):
+            params = driver_class._options_class.build(ifile)
+            driver = driver_class(params)
+
+        return driver
 
 
 class InversionLogger:
