@@ -101,6 +101,32 @@ class OptimizationOptions(BaseModel):
     f_min_change: float = 1e-2
 
 
+class ComputeOptions(BaseModel):
+    """
+    Options related to compute resources and parallelization.
+
+    :param distributed_workers: Distributed workers.
+    :param max_chunk_size: Maximum chunk size used for parallel operations.
+    :param max_ram: Maximum amount of RAM available
+    :param n_cpu: Number of CPUs to use for parallel operations.
+    :param n_threads: Number of threads per worker
+    :param n_workers: Number of distributed workers to use.
+    :param performance_report: Generate an HTML report from dask.diagnostics
+    :param solver_type: Type of solver to use for the inversion.
+    :param tile_spatial: Number of tiles to split the data.
+    """
+
+    distributed_workers: str | None = None
+    max_chunk_size: int = 128
+    max_ram: float | None = None
+    n_cpu: int | None = None
+    n_threads: int | None = None
+    n_workers: int | None = 1
+    performance_report: bool = False
+    solver_type: SolverType = SolverType.Pardiso
+    tile_spatial: int = 1
+
+
 class CoreOptions(BaseData):
     """
     Core parameters shared by inverse and forward operations.
@@ -112,20 +138,10 @@ class CoreOptions(BaseData):
     :param inversion_type: Type of inversion.
     :param data_object: Data object containing survey geometry and data
         channels.
-    :param mesh: Mesh object containing models (starting, reference, active, etc..).
-    :param starting_model: Starting model used to start inversion or for simulating
-        data in the forward operation.
     :param active_cells: Active cell data as either a topography surface/data or a 3D model.
-    :param tile_spatial: Number of tiles to split the data.
-    :param max_chunk_size: Maximum chunk size used for parallel operations.
-    :param save_sensitivities: Save sensitivities to file.
+
     :param out_group: Output group to save results.
     :param generate_sweep: Generate sweep file instead of running the app.
-    :param distributed_workers: Distributed workers.
-    :param n_threads: Number of threads per worker
-    :param n_workers: Number of distributed workers to use.
-    :param max_ram: Maximum amount of RAM available
-    :param performance_report: Generate an HTML report from dask.diagnostics
     """
 
     # TODO: Refactor to allow frozen True.  Currently params.data_object is
@@ -139,26 +155,20 @@ class CoreOptions(BaseData):
     )
 
     title: str | None = None
-    icon: str | None = None
-    documentation: str | None = None
     version: str = simpeg_drivers.__version__
-    run_command: str = "simpeg_drivers.driver"
-    conda_environment: str = "simpeg_drivers"
+    icon: str | None = None
     inversion_type: str
+    documentation: str | None = None
+    conda_environment: str = "simpeg_drivers"
+    run_command: str = "simpeg_drivers.driver"
 
     active_cells: ActiveCellsOptions
+    compute: ComputeOptions = ComputeOptions()
+    data_object: Points | None = None
 
-    tile_spatial: int = 1
-    n_cpu: int | None = None
-    solver_type: SolverType = SolverType.Pardiso
-    max_chunk_size: int = 128
     out_group: SimPEGGroup | UIJsonGroup | None = None
+
     generate_sweep: bool = False
-    distributed_workers: str | None = None
-    n_workers: int | None = 1
-    n_threads: int | None = None
-    max_ram: float | None = None
-    performance_report: bool = False
 
     @field_validator("mesh", mode="before")
     @classmethod
