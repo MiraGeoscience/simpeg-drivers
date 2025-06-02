@@ -31,6 +31,7 @@ requirements:
     - mira-simpeg >=0.23.0.1a3, <0.23.1.dev
     - octree-creation-app >=0.4.0a1, <0.5.dev
     - param-sweeps >=0.3.0a1, <0.4.dev
+
     # direct dependencies
     - dask-core >=2025.3, <2025.4.dev
     - discretize >=0.11.0, <0.12.dev

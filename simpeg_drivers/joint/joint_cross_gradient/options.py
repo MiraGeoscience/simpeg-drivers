@@ -38,8 +38,6 @@ class JointCrossGradientOptions(BaseJointOptions):
     )
 
     title: str = "Joint Cross Gradient Inversion"
-    physical_property: list[str] = [""]
-
     inversion_type: str = "joint cross gradient"
 
     mesh: Octree | None = None

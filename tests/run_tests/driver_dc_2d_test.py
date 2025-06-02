@@ -30,8 +30,8 @@ from simpeg_drivers.options import (
     DrapeModelOptions,
     LineSelectionOptions,
 )
-from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
+from tests.testing_utils import check_target, setup_inversion_workspace
 
 
 # To test the full run and validate the inversion.
@@ -58,7 +58,7 @@ def test_dc_2d_fwr_run(
         n_electrodes=n_electrodes,
         n_lines=n_lines,
         refinement=refinement,
-        inversion_type="dcip_2d",
+        inversion_type="direct current 2d",
         drape_height=0.0,
         flatten=False,
     )

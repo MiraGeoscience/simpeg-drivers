@@ -22,6 +22,7 @@ from geoh5py.objects import (
 )
 
 from simpeg_drivers import assets_path
+from simpeg_drivers.electromagnetics.time_domain.options import BaseTDEMOptions
 from simpeg_drivers.options import (
     BaseForwardOptions,
     BaseInversionOptions,
@@ -35,7 +36,7 @@ Receivers: TypeAlias = (
 )
 
 
-class TDEM1DForwardOptions(EMDataMixin, BaseForwardOptions):
+class TDEM1DForwardOptions(BaseTDEMOptions, BaseForwardOptions):
     """
     Time Domain Electromagnetic forward options.
 
@@ -51,12 +52,9 @@ class TDEM1DForwardOptions(EMDataMixin, BaseForwardOptions):
 
     title: str = "Time-domain EM-1D (TEM-1D) Forward"
     inversion_type: str = "tdem 1d"
-    physical_property: str = "conductivity"
 
-    data_object: Receivers
     z_channel_bool: bool
-    data_units: str = "dB/dt (T/s)"
-    model_type: str = "Conductivity (S/m)"
+
     drape_model: DrapeModelOptions = DrapeModelOptions(
         u_cell_size=10.0,
         v_cell_size=10.0,
@@ -66,18 +64,8 @@ class TDEM1DForwardOptions(EMDataMixin, BaseForwardOptions):
         expansion_factor=1.1,
     )
 
-    @property
-    def unit_conversion(self):
-        """Return time unit conversion factor."""
-        conversion = {
-            "Seconds (s)": 1.0,
-            "Milliseconds (ms)": 1e-3,
-            "Microseconds (us)": 1e-6,
-        }
-        return conversion[self.data_object.unit]
 
-
-class TDEM1DInversionOptions(EMDataMixin, BaseInversionOptions):
+class TDEM1DInversionOptions(BaseTDEMOptions, BaseInversionOptions):
     """
     Time Domain Electromagnetic Inversion options.
 
@@ -96,15 +84,12 @@ class TDEM1DInversionOptions(EMDataMixin, BaseInversionOptions):
 
     title: str = "Time-domain EM-1D (TEM-1D) Inversion"
     inversion_type: str = "tdem 1d"
-    physical_property: str = "conductivity"
 
-    data_object: Receivers
     z_channel: PropertyGroup | None = None
     z_uncertainty: PropertyGroup | None = None
     length_scale_y: None = None
     y_norm: None = None
-    data_units: str = "dB/dt (T/s)"
-    model_type: str = "Conductivity (S/m)"
+
     drape_model: DrapeModelOptions = DrapeModelOptions(
         u_cell_size=10.0,
         v_cell_size=10.0,
@@ -115,13 +100,3 @@ class TDEM1DInversionOptions(EMDataMixin, BaseInversionOptions):
     )
     auto_scale_misfits: bool = False
     sens_wts_threshold: float = 100.0
-
-    @property
-    def unit_conversion(self):
-        """Return time unit conversion factor."""
-        conversion = {
-            "Seconds (s)": 1.0,
-            "Milliseconds (ms)": 1e-3,
-            "Microseconds (us)": 1e-6,
-        }
-        return conversion[self.data_object.unit]

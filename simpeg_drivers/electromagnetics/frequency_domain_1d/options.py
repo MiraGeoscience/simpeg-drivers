@@ -17,14 +17,17 @@ from typing import ClassVar
 from geoh5py.groups import PropertyGroup
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.electromagnetics.frequency_domain import (
-    FDEMForwardOptions,
-    FDEMInversionOptions,
+from simpeg_drivers.electromagnetics.frequency_domain.options import (
+    BaseFDEMOptions,
 )
-from simpeg_drivers.options import DrapeModelOptions
+from simpeg_drivers.options import (
+    BaseForwardOptions,
+    BaseInversionOptions,
+    DrapeModelOptions,
+)
 
 
-class FDEM1DForwardOptions(FDEMForwardOptions):
+class FDEM1DForwardOptions(BaseFDEMOptions, BaseForwardOptions):
     """
     Frequency Domain Electromagnetic forward options.
 
@@ -40,6 +43,10 @@ class FDEM1DForwardOptions(FDEMForwardOptions):
 
     title: str = "Frequency-domain EM-1D (FEM-1D) Forward"
     inversion_type: str = "fdem 1d"
+
+    z_real_channel_bool: bool
+    z_imag_channel_bool: bool
+
     drape_model: DrapeModelOptions = DrapeModelOptions(
         u_cell_size=10.0,
         v_cell_size=10.0,
@@ -50,7 +57,7 @@ class FDEM1DForwardOptions(FDEMForwardOptions):
     )
 
 
-class FDEM1DInversionOptions(FDEMInversionOptions):
+class FDEM1DInversionOptions(BaseFDEMOptions, BaseInversionOptions):
     """
     Frequency Domain Electromagnetic Inversion options.
 
@@ -64,9 +71,9 @@ class FDEM1DInversionOptions(FDEMInversionOptions):
 
     name: ClassVar[str] = "Frequency Domain 1D Electromagnetics Inversion"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/fdem1d_inversion.ui.json"
-
     title: str = "Frequency-domain EM-1D (FEM-1D) Inversion"
     inversion_type: str = "fdem 1d"
+
     drape_model: DrapeModelOptions = DrapeModelOptions(
         u_cell_size=10.0,
         v_cell_size=10.0,
@@ -75,7 +82,14 @@ class FDEM1DInversionOptions(FDEMInversionOptions):
         vertical_padding=100.0,
         expansion_factor=1.1,
     )
+
+    # 1D specific options
     auto_scale_misfits: bool = False
     sens_wts_threshold: float = 100.0
     length_scale_y: None = None
     y_norm: None = None
+
+    z_real_channel: PropertyGroup | None = None
+    z_real_uncertainty: PropertyGroup | None = None
+    z_imag_channel: PropertyGroup | None = None
+    z_imag_uncertainty: PropertyGroup | None = None
