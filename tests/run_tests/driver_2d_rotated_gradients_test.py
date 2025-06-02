@@ -56,7 +56,7 @@ def test_dc2d_rotated_grad_fwr_run(
         n_electrodes=n_electrodes,
         n_lines=n_lines,
         refinement=refinement,
-        inversion_type="dcip_2d",
+        inversion_type="direct current 2d",
         drape_height=0.0,
         flatten=False,
     )
