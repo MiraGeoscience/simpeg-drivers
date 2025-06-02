@@ -15,6 +15,7 @@
 from __future__ import annotations
 
 from abc import ABC
+from logging import getLogger
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -28,6 +29,8 @@ from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 
 if TYPE_CHECKING:
     from simpeg_drivers.driver import InversionDriver
+
+logger = getLogger(__name__)
 
 
 class DirectivesFactory:
@@ -54,12 +57,13 @@ class DirectivesFactory:
     def beta_estimate_by_eigenvalues_directive(self):
         """"""
         if (
-            self.params.initial_beta is None
+            self.params.cooling_schedule.initial_beta is None
             and self._beta_estimate_by_eigenvalues_directive is None
         ):
             self._beta_estimate_by_eigenvalues_directive = (
                 directives.BetaEstimateDerivative(
-                    beta0_ratio=self.params.initial_beta_ratio, random_seed=0
+                    beta0_ratio=self.params.cooling_schedule.initial_beta_ratio,
+                    random_seed=0,
                 )
             )
 
@@ -178,7 +182,7 @@ class DirectivesFactory:
         """"""
         if (
             self._save_sensitivities_directive is None
-            and self.params.save_sensitivities
+            and self.params.directives.save_sensitivities
         ):
             self._save_sensitivities_directive = SaveSensitivitiesGeoh5Factory(
                 self.params
@@ -251,7 +255,7 @@ class DirectivesFactory:
     def scale_misfits(self):
         if (
             self._scale_misfits is None
-            and self.params.auto_scale_misfits
+            and self.params.directives.auto_scale_misfits
             and len(self.driver.data_misfit.objfcts) > 1
         ):
             self._scale_misfits = directives.ScaleMisfitMultipliers(
@@ -263,21 +267,28 @@ class DirectivesFactory:
     def update_irls_directive(self):
         """Directive to update IRLS."""
         if self._update_irls_directive is None:
-            has_chi_start = self.params.starting_chi_factor is not None
+            start_chi_fact = self.params.irls.starting_chi_factor
+
+            if (
+                start_chi_fact is not None
+                and self.params.cooling_schedule.chi_factor > start_chi_fact
+            ):
+                logger.warning(
+                    "Starting chi factor is greater than target chi factor.\n"
+                    "Setting the target chi factor to the starting chi factor."
+                )
+                start_chi_fact = self.params.irls.chi_factor
+
             self._update_irls_directive = directives.UpdateIRLS(
-                f_min_change=self.params.f_min_change,
-                max_irls_iterations=self.params.max_irls_iterations,
-                misfit_tolerance=self.params.beta_tol,
-                percentile=self.params.percentile,
-                cooling_rate=self.params.cooling_rate,
-                cooling_factor=self.params.cooling_factor,
-                irls_cooling_factor=self.params.epsilon_cooling_factor,
-                chifact_start=(
-                    self.params.starting_chi_factor
-                    if has_chi_start
-                    else self.params.chi_factor
-                ),
-                chifact_target=self.params.chi_factor,
+                f_min_change=self.params.optimization.f_min_change,
+                max_irls_iterations=self.params.irls.max_irls_iterations,
+                misfit_tolerance=self.params.irls.beta_tol,
+                percentile=self.params.irls.percentile,
+                cooling_rate=self.params.cooling_schedule.cooling_rate,
+                cooling_factor=self.params.cooling_schedule.cooling_factor,
+                irls_cooling_factor=self.params.irls.epsilon_cooling_factor,
+                chifact_start=start_chi_fact or self.params.cooling_schedule.chi_factor,
+                chifact_target=self.params.cooling_schedule.chi_factor,
             )
         return self._update_irls_directive
 
@@ -294,8 +305,8 @@ class DirectivesFactory:
         if self._update_sensitivity_weights_directive is None:
             self._update_sensitivity_weights_directive = (
                 directives.UpdateSensitivityWeights(
-                    every_iteration=self.params.every_iteration_bool,
-                    threshold_value=self.params.sens_wts_threshold / 100.0,
+                    every_iteration=self.params.directives.every_iteration_bool,
+                    threshold_value=self.params.directives.sens_wts_threshold / 100.0,
                 )
             )
 
