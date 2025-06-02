@@ -7,12 +7,3 @@
 #  (see LICENSE file at the root of this source code package).                      '
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-
-from .options import (
-    FDEMForwardOptions,
-    FDEMInversionOptions,
-)
-
-# pylint: disable=unused-import
-# flake8: noqa
