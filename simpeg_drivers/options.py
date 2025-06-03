@@ -32,7 +32,14 @@ from geoh5py.objects import DrapeModel, Grid2D, Octree, Points
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
 from geoh5py.ui_json.annotations import Deprecated
-from pydantic import BaseModel, ConfigDict, field_validator, model_validator
+from pydantic import (
+    AliasChoices,
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_validator,
+    model_validator,
+)
 from simpeg.utils.mat_utils import cartesian2amplitude_dip_azimuth
 
 import simpeg_drivers
@@ -216,6 +223,68 @@ class CoreOptions(BaseData):
         return ifile
 
 
+class ModelOptions(BaseModel):
+    """
+    Base class for model parameters.
+
+    :param reference_model: Reference model.
+    :param lower_bound: Lower bound.
+    :param upper_bound: Upper bound.
+    :param alpha_s: Scale on the reference model.
+    :param length_scale_x: Length scale along the u-direction.
+    :param length_scale_y: Length scale along the v-direction.
+    :param length_scale_z: Length scale along the z-direction.
+    :param gradient_rotation: Property group for gradient rotation angles.
+    """
+
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True,
+    )
+
+    starting_model: float | FloatData
+    reference_model: float | FloatData | None = None
+    conductivity_model: FloatData | None = None
+    lower_bound: float | FloatData | None = None
+    upper_bound: float | FloatData | None = None
+    s_norm: float | FloatData | None = 0.0
+    x_norm: float | FloatData = 2.0
+    y_norm: float | FloatData | None = 2.0
+    z_norm: float | FloatData = 2.0
+    alpha_s: float | FloatData | None = 1.0
+    length_scale_x: float | FloatData = 1.0
+    length_scale_y: float | FloatData | None = 1.0
+    length_scale_z: float | FloatData = 1.0
+    gradient_rotation: PropertyGroup | None = None
+
+    @property
+    def gradient_direction(self) -> np.ndarray:
+        if self.gradient_orientations is None:
+            return None
+        return self.gradient_orientations[:, 0]
+
+    @property
+    def gradient_dip(self) -> np.ndarray:
+        if self.gradient_orientations is None:
+            return None
+        return self.gradient_orientations[:, 1]
+
+    @property
+    def gradient_orientations(self) -> tuple(float, float):
+        """
+        Direction and dip angles for rotated gradient regularization.
+
+        Angles are in radians and are clockwise from North for direction
+        and clockwise from horizontal for dip.
+        """
+
+        if self.gradient_rotation is not None:
+            orientations = direction_and_dip(self.gradient_rotation)
+
+            return np.deg2rad(orientations)
+
+        return None
+
+
 class BaseForwardOptions(CoreOptions):
     """
     Base class for forward parameters.
@@ -227,6 +296,7 @@ class BaseForwardOptions(CoreOptions):
 
     forward_only: bool = True
     data_object: Points
+    models: ModelOptions
 
     @property
     def active_components(self) -> list[str]:
@@ -365,10 +435,6 @@ class IRLSOptions(BaseModel):
         arbitrary_types_allowed=True,
     )
 
-    s_norm: float | FloatData | None = 0.0
-    x_norm: float | FloatData = 2.0
-    y_norm: float | FloatData | None = 2.0
-    z_norm: float | FloatData = 2.0
     gradient_type: Deprecated = "total"
     max_irls_iterations: int = 25
     starting_chi_factor: float = 1.0
@@ -405,25 +471,6 @@ class LineSelectionOptions(BaseModel):
         return self
 
 
-class ModelOptions(BaseModel):
-    """
-    Base class for model parameters.
-
-    :param reference_model: Reference model.
-    :param lower_bound: Lower bound.
-    :param upper_bound: Upper bound.
-    """
-
-    model_config = ConfigDict(
-        arbitrary_types_allowed=True,
-    )
-
-    starting_model: float | FloatData
-    reference_model: float | FloatData | None = None
-    lower_bound: float | FloatData | None = None
-    upper_bound: float | FloatData | None = None
-
-
 class OptimizationOptions(BaseModel):
     """
     Optimization parameters for inversion.
@@ -444,56 +491,6 @@ class OptimizationOptions(BaseModel):
     max_global_iterations: int = 50
     max_line_search_iterations: int = 20
     tol_cg: float = 1e-4
-
-
-class RegularizationOptions(BaseModel):
-    """
-    Regularization options for inversion.
-
-    :param alpha_s: Scale on the reference model.
-    :param length_scale_x: Length scale along the u-direction.
-    :param length_scale_y: Length scale along the v-direction.
-    :param length_scale_z: Length scale along the z-direction.
-    :param gradient_rotation: Property group for gradient rotation angles.
-    """
-
-    model_config = ConfigDict(
-        arbitrary_types_allowed=True,
-    )
-
-    alpha_s: float | FloatData | None = 1.0
-    length_scale_x: float | FloatData = 1.0
-    length_scale_y: float | FloatData | None = 1.0
-    length_scale_z: float | FloatData = 1.0
-    gradient_rotation: PropertyGroup | None = None
-
-    @property
-    def gradient_direction(self) -> np.ndarray:
-        if self.gradient_orientations is None:
-            return None
-        return self.gradient_orientations[:, 0]
-
-    @property
-    def gradient_dip(self) -> np.ndarray:
-        if self.gradient_orientations is None:
-            return None
-        return self.gradient_orientations[:, 1]
-
-    @property
-    def gradient_orientations(self) -> tuple(float, float):
-        """
-        Direction and dip angles for rotated gradient regularization.
-
-        Angles are in radians and are clockwise from North for direction
-        and clockwise from horizontal for dip.
-        """
-
-        if self.gradient_rotation is not None:
-            orientations = direction_and_dip(self.gradient_rotation)
-
-            return np.deg2rad(orientations)
-
-        return None
 
 
 class BaseInversionOptions(CoreOptions):
@@ -530,8 +527,7 @@ class BaseInversionOptions(CoreOptions):
     conda_environment: str = "simpeg_drivers"
 
     data_object: Points
-
-    regularization: RegularizationOptions = RegularizationOptions()
+    models: ModelOptions
     irls: IRLSOptions = IRLSOptions()
     directives: DirectiveOptions = DirectiveOptions()
     cooling_schedule: CoolingSceduleOptions = CoolingSceduleOptions()

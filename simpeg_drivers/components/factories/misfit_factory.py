@@ -140,7 +140,9 @@ class MisfitFactory(SimPEGFactory):
                                 value_inactive=1e-8,
                             )
 
-                        local_sim.sigma = proj * mapping * self.models.conductivity
+                        local_sim.sigma = (
+                            proj * mapping * self.models.conductivity_model
+                        )
 
                     simulation = meta.MetaSimulation(
                         simulations=[local_sim], mappings=[mapping]

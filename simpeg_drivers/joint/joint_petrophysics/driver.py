@@ -169,7 +169,7 @@ class JointPetrophysicsDriver(BaseJointDriver):
         """
         means = []
         for mapping in self.mapping:
-            model_vec = mapping @ self.models.reference
+            model_vec = mapping @ self.models.reference_model
             unit_mean = []
             for uid in self.geo_units:
                 unit_ind = self.models.petrophysics == uid
@@ -216,7 +216,7 @@ class JointPetrophysicsDriver(BaseJointDriver):
                 active_cells=self.models.active_cells,
                 wiresmap=maps.Wires(*wires),
                 maplist=maplist,
-                reference_model=self.models.reference,
+                reference_model=self.models.reference_model,
             )
         return self._pgi_regularization
 

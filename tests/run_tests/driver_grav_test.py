@@ -18,7 +18,7 @@ from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.workspace import Workspace
 from pytest import raises
 
-from simpeg_drivers.options import ActiveCellsOptions
+from simpeg_drivers.options import ActiveCellsOptions, ModelOptions
 from simpeg_drivers.potential_fields import (
     GravityForwardOptions,
     GravityInversionOptions,
@@ -33,7 +33,6 @@ from tests.testing_utils import check_target, setup_inversion_workspace
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
-
 target_run = {"data_norm": 0.0028055269276044915, "phi_d": 8.32e-05, "phi_m": 0.0038}
 
 
@@ -43,7 +42,7 @@ def test_gravity_fwr_run(
     refinement=(2,),
 ):
     # Run the forward
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
+    geoh5, mesh, model, survey, topography = setup_inversion_workspace(
         tmp_path,
         background=0.0,
         anomaly=0.75,
@@ -54,11 +53,9 @@ def test_gravity_fwr_run(
         flatten=False,
     )
 
-    active_cells = ActiveCellsOptions(topography_object=topography)
-    params = GravityForwardOptions(
+    params = GravityForwardOptions.build(
         geoh5=geoh5,
-        mesh=model.parent,
-        active_cells=active_cells,
+        mesh=mesh,
         topography_object=topography,
         data_object=survey,
         starting_model=model,
@@ -79,11 +76,10 @@ def test_array_too_large_run(
         topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
-        active_cells = ActiveCellsOptions(topography_object=topography)
-        params = GravityInversionOptions(
+        params = GravityInversionOptions.build(
             geoh5=geoh5,
             mesh=mesh,
-            active_cells=active_cells,
+            topography_object=topography,
             data_object=gz.parent,
             gz_channel=gz,
             gz_uncertainty=1e-4,
@@ -133,14 +129,10 @@ def test_gravity_run(
         gz.values = values
 
         # Run the inverse
-        active_cells = ActiveCellsOptions(topography_object=topography)
-        params = GravityInversionOptions(
+        params = GravityInversionOptions.build(
             geoh5=geoh5,
             mesh=mesh,
-            active_cells=active_cells,
             data_object=gz.parent,
-            starting_model=1e-4,
-            reference_model=0.0,
             s_norm=0.0,
             x_norm=gradient_norms,
             y_norm=gradient_norms,
@@ -152,6 +144,9 @@ def test_gravity_run(
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e-2,
             percentile=100,
+            starting_model=1e-4,
+            topography_object=topography,
+            reference_model=0.0,
             store_sensitivities="ram",
             save_sensitivities=True,
         )

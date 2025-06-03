@@ -32,11 +32,11 @@ if TYPE_CHECKING:
 
 
 MODEL_TYPES = [
-    "starting",
-    "reference",
+    "starting_model",
+    "reference_model",
     "lower_bound",
     "upper_bound",
-    "conductivity",
+    "conductivity_model",
     "alpha_s",
     "length_scale_x",
     "length_scale_y",
@@ -69,15 +69,21 @@ class InversionModelCollection:
         """
         self._active_cells: np.ndarray | None = None
         self._driver = driver
-        self.is_sigma = self.driver.params.physical_property == "conductivity"
+        self.is_sigma = self.driver.params.physical_property == "conductivity_model"
         is_vector = (
             True if self.driver.params.inversion_type == "magnetic vector" else False
         )
-        self._starting = InversionModel(driver, "starting", is_vector=is_vector)
-        self._reference = InversionModel(driver, "reference", is_vector=is_vector)
+        self._starting_model = InversionModel(
+            driver, "starting_model", is_vector=is_vector
+        )
+        self._reference_model = InversionModel(
+            driver, "reference_model", is_vector=is_vector
+        )
         self._lower_bound = InversionModel(driver, "lower_bound", is_vector=is_vector)
         self._upper_bound = InversionModel(driver, "upper_bound", is_vector=is_vector)
-        self._conductivity = InversionModel(driver, "conductivity", is_vector=is_vector)
+        self._conductivity_model = InversionModel(
+            driver, "conductivity_model", is_vector=is_vector
+        )
         self._alpha_s = InversionModel(driver, "alpha_s", is_vector=is_vector)
         self._length_scale_x = InversionModel(
             driver, "length_scale_x", is_vector=is_vector
@@ -149,11 +155,11 @@ class InversionModelCollection:
         self._active_cells = active_cells
 
     @property
-    def starting(self) -> np.ndarray | None:
-        if self._starting.model is None:
+    def starting_model(self) -> np.ndarray | None:
+        if self._starting_model.model is None:
             return None
 
-        mstart = self._starting.model.copy()
+        mstart = self._starting_model.model.copy()
 
         if mstart is not None and self.is_sigma:
             if getattr(self.driver.params, "model_type", None) == "Resistivity (Ohm-m)":
@@ -164,8 +170,8 @@ class InversionModelCollection:
         return mstart
 
     @property
-    def reference(self) -> np.ndarray | None:
-        mref = self._reference.model
+    def reference_model(self) -> np.ndarray | None:
+        mref = self._reference_model.model
 
         if self.driver.params.forward_only:
             return mref
@@ -244,11 +250,11 @@ class InversionModelCollection:
         return ubound
 
     @property
-    def conductivity(self) -> np.ndarray | None:
-        if self._conductivity.model is None:
+    def conductivity_model(self) -> np.ndarray | None:
+        if self._conductivity_model.model is None:
             return None
 
-        background_sigma = self._conductivity.model.copy()
+        background_sigma = self._conductivity_model.model.copy()
 
         if background_sigma is not None:
             if getattr(self.driver.params, "model_type", None) == "Resistivity (Ohm-m)":
@@ -362,7 +368,7 @@ class InversionModelCollection:
         Reorder model values stored in cell centers of a TreeMesh to
         their original octree mesh sorting.
 
-        :param: name: model type name ("starting", "reference",
+        :param: name: model type name ("starting_model", "reference_model",
             "lower_bound", or "upper_bound").
 
         :return: Vector of model values reordered for octree mesh.
@@ -416,7 +422,11 @@ class InversionModel:
         are provided, then values are projected onto the direction of the
         inducing field.
         """
-        if self.model_type in ["starting", "reference", "conductivity"]:
+        if self.model_type in [
+            "starting_model",
+            "reference_model",
+            "conductivity_model",
+        ]:
             model = self._get(self.model_type)
 
             if self.is_vector:
@@ -491,7 +501,7 @@ class InversionModel:
             return
 
         if self.is_vector:
-            if self.model_type in ["starting", "reference"]:
+            if self.model_type in ["starting_model", "reference_model"]:
                 aid = cartesian2amplitude_dip_azimuth(remapped_model)
                 aid[np.isnan(aid[:, 0]), 1:] = np.nan
                 self.driver.inversion_mesh.entity.add_data(
@@ -512,10 +522,10 @@ class InversionModel:
 
         model_type = self.model_type
         if (
-            model_type == "conductivity"
+            model_type == "conductivity_model"
             and getattr(self.driver.params, "model_type", None) == "Resistivity (Ohm-m)"
         ):
-            model_type = "resistivity"
+            model_type = "resistivity_model"
 
         entity_type = None
         if isinstance(self._fetch_reference(self.model_type), NumericData):
@@ -523,7 +533,7 @@ class InversionModel:
 
         self.driver.inversion_mesh.entity.add_data(
             {
-                f"{model_type}_model": {
+                f"{model_type}": {
                     "values": remapped_model,
                     "entity_type": entity_type,
                 }
@@ -535,7 +545,7 @@ class InversionModel:
         for field in ["model", "inclination", "declination"]:
             model_type = self.model_type
             if (
-                model_type == "conductivity"
+                model_type == "conductivity_model"
                 and getattr(self.driver.params, "model_type", None)
                 == "Resistivity (Ohm-m)"
             ):
@@ -556,13 +566,10 @@ class InversionModel:
                 data_obj[0].values = values
 
     def _fetch_reference(self, name: str) -> NumericData | None:
-        if name in ["petrophysics", "starting", "reference", "conductivity"]:
-            name += "_model"
+        value = getattr(self.driver.params.models, name, None)
 
-        value = getattr(self.driver.params, name, None)
-
-        if "reference" in name and value is None:
-            value = self._fetch_reference("starting")
+        if "reference_model" in name and value is None:
+            value = self._fetch_reference("starting_model")
 
         return value
 
