@@ -129,7 +129,7 @@ class InversionDriver(BaseDriver):
         """
         Number of splits for the data misfit to be distributed evenly among workers.
         """
-        n_misfits = self.params.tile_spatial
+        n_misfits = self.params.compute.tile_spatial
 
         if isinstance(self.params.data_object, FEMSurvey):
             n_misfits *= len(self.params.data_object.channels)
@@ -169,10 +169,12 @@ class InversionDriver(BaseDriver):
                     self.models.active_cells,
                 )
                 self.logger.write("Saving data to file...\n")
-                self.inversion_data.save_data()
-                self._data_misfit.multipliers = np.asarray(
-                    self._data_misfit.multipliers, dtype=float
-                )
+
+                if isinstance(self.params, BaseInversionOptions):
+                    self.inversion_data.save_data()
+                    self._data_misfit.multipliers = np.asarray(
+                        self._data_misfit.multipliers, dtype=float
+                    )
 
             if self.client:
                 self.logger.write(
@@ -593,7 +595,7 @@ class InversionDriver(BaseDriver):
             locations = self.inversion_data.locations
             tiles = tile_locations(
                 locations,
-                self.params.tile_spatial,
+                self.params.compute.tile_spatial,
                 method="kmeans",
             )
 
@@ -605,7 +607,7 @@ class InversionDriver(BaseDriver):
         if self.client:
             dconf.set(scheduler=self.client)
         else:
-            n_cpu = self.params.n_cpu
+            n_cpu = self.params.compute.n_cpu
             if n_cpu is None:
                 n_cpu = int(multiprocessing.cpu_count())
 

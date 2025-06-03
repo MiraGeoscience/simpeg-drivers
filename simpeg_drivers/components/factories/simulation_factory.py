@@ -149,7 +149,7 @@ class SimulationFactory(SimPEGFactory):
         kwargs = {}
         kwargs["survey"] = survey
         kwargs["sensitivity_path"] = sensitivity_path
-        kwargs["max_chunk_size"] = self.params.max_chunk_size
+        kwargs["max_chunk_size"] = self.params.compute.max_chunk_size
         kwargs["store_sensitivities"] = (
             "forward_only"
             if self.params.forward_only

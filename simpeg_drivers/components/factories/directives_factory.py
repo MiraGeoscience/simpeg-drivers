@@ -25,6 +25,7 @@ from simpeg import directives, maps
 from simpeg.utils.mat_utils import cartesian2amplitude_dip_azimuth
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
+from simpeg_drivers.options import BaseInversionOptions
 
 
 if TYPE_CHECKING:
@@ -180,9 +181,8 @@ class DirectivesFactory:
     @property
     def save_sensitivities_directive(self):
         """"""
-        if (
-            self._save_sensitivities_directive is None
-            and self.params.directives.save_sensitivities
+        if self._save_sensitivities_directive is None and isinstance(
+            self.params, BaseInversionOptions
         ):
             self._save_sensitivities_directive = SaveSensitivitiesGeoh5Factory(
                 self.params

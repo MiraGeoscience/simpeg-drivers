@@ -43,7 +43,7 @@ from .locations import InversionLocations
 
 class InversionData(InversionLocations):
     """
-    Retrieve and store data from the workspace and apply transformations.
+    Retrieve and store data from the workspace and apply normalizations.
 
     Parameters
     ---------
@@ -61,8 +61,6 @@ class InversionData(InversionLocations):
         Component names.
     observed :
         Components and associated observed geophysical data.
-    predicted :
-        Components and associated predicted geophysical data.
     uncertainties :
         Components and associated data uncertainties.
     normalizations :
@@ -89,11 +87,10 @@ class InversionData(InversionLocations):
         self.indices: np.ndarray | None = None
         self.vector: bool | None = None
         self.n_blocks: int | None = None
-        self.observed: dict[str, np.ndarray] = {}
-        self.predicted: dict[str, np.ndarray] = {}
-        self.uncertainties: dict[str, np.ndarray] = {}
-        self.normalizations: dict[str, Any] = {}
-        self.transformations: dict[str, Any] = {}
+
+        self._observed: dict[str, np.ndarray] | None = None
+        self._uncertainties: dict[str, np.ndarray] | None = None
+
         self.entity = None
         self.data_entity = None
         self._observed_data_types = {}
@@ -101,13 +98,14 @@ class InversionData(InversionLocations):
 
         self._initialize()
 
+        self.normalizations: dict[str, Any] = self.get_normalizations()
+
     def _initialize(self) -> None:
         """Extract data from the workspace using params data."""
         self.vector = True if self.params.inversion_type == "magnetic vector" else False
         self.n_blocks = 3 if self.params.inversion_type == "magnetic vector" else 1
         self.components = self.params.active_components
-        self.observed = self.params.data
-        self.uncertainties = self.params.uncertainties
+
         self.has_tensor = InversionData.check_tensor(self.params.components)
         self.locations = super().get_locations(self.params.data_object)
 
@@ -119,15 +117,31 @@ class InversionData(InversionLocations):
         else:
             self.mask = np.ones(len(self.locations), dtype=bool)
 
-        self.observed = self.filter(self.observed)
-        self.uncertainties = self.filter(self.uncertainties)
-
-        self.normalizations = self.get_normalizations()
-        self.observed = self.normalize(self.observed)
-        self.uncertainties = self.normalize(self.uncertainties, absolute=True)
         self.entity = self.write_entity()
         self.params.data_object = self.entity
         self.locations = super().get_locations(self.entity)
+
+    @property
+    def observed(self):
+        """
+        Return observed data filtered and normalized.
+        """
+        if self._observed is None:
+            filtered = self.filter(self.params.data)
+            self._observed = self.normalize(filtered)
+
+        return self._observed
+
+    @property
+    def uncertainties(self):
+        """
+        Return uncertainties filtered and normalized.
+        """
+        if self._uncertainties is None and hasattr(self.params, "uncertainties"):
+            filtered = self.filter(self.params.uncertainties)
+            self._uncertainties = self.normalize(filtered, absolute=True)
+
+        return self._uncertainties
 
     def drape_locations(self, locations: np.ndarray) -> np.ndarray:
         """
@@ -192,7 +206,7 @@ class InversionData(InversionLocations):
 
     def save_data(self):
         """Write out the data to geoh5"""
-        data = self.predicted if self.params.forward_only else self.observed
+        data = self.observed
         basename = "Predicted" if self.params.forward_only else "Observed"
         self._observed_data_types = {c: {} for c in data.keys()}
         data_dict = {c: {} for c in data.keys()}

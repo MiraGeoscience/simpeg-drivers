@@ -233,6 +233,11 @@ class BaseForwardOptions(CoreOptions):
         """Return list of active components."""
         return [k for k in self.components if getattr(self, f"{k}_channel_bool")]
 
+    @property
+    def data(self) -> InversionDataDict:
+        """Return dictionary of data components and associated values."""
+        return dict.fromkeys(self.active_components)
+
 
 class CoolingSceduleOptions(BaseModel):
     """
