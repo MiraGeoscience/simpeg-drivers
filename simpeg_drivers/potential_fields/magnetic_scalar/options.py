@@ -55,6 +55,9 @@ class MagneticForwardOptions(BaseForwardOptions):
     byy_channel_bool: bool = False
     byz_channel_bool: bool = False
     bzz_channel_bool: bool = False
+    inducing_field_strength: float | FloatData
+    inducing_field_inclination: float | FloatData
+    inducing_field_declination: float | FloatData
 
 
 class MagneticInversionOptions(BaseInversionOptions):

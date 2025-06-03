@@ -53,7 +53,7 @@ def test_susceptibility_fwr_run(
     )
     inducing_field = (49999.8, 90.0, 0.0)
     active_cells = ActiveCellsOptions(topography_object=topography)
-    params = MagneticForwardOptions(
+    params = MagneticForwardOptions.build(
         forward_only=True,
         geoh5=geoh5,
         mesh=model.parent,
@@ -94,7 +94,7 @@ def test_susceptibility_run(
 
         # Run the inverse
         active_cells = ActiveCellsOptions(active_model=active_cells)
-        params = MagneticInversionOptions(
+        params = MagneticInversionOptions.build(
             geoh5=geoh5,
             mesh=mesh,
             active_cells=active_cells,
