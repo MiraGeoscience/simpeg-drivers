@@ -79,28 +79,6 @@ class SolverType(str, Enum):
     Mumps = "Mumps"
 
 
-class OptimizationOptions(BaseModel):
-    """
-    Optimization parameters for inversion.
-
-    :param max_global_iterations: Maximum global iterations.
-    :param max_line_search_iterations: Maximum line search iterations.
-    :param max_cg_iterations: Maximum CG iterations.
-    :param tol_cg: Tolerance CG.
-    :param f_min_change: F min change.
-    """
-
-    model_config = ConfigDict(
-        arbitrary_types_allowed=True,
-    )
-
-    max_global_iterations: int = 50
-    max_line_search_iterations: int = 20
-    max_cg_iterations: int = 30
-    tol_cg: float = 1e-4
-    f_min_change: float = 1e-2
-
-
 class ComputeOptions(BaseModel):
     """
     Options related to compute resources and parallelization.
@@ -136,8 +114,6 @@ class CoreOptions(BaseData):
     :param conda_environment: Name of the conda environment used to run the
         application with all of its dependencies.
     :param inversion_type: Type of inversion.
-    :param data_object: Data object containing survey geometry and data
-        channels.
     :param active_cells: Active cell data as either a topography surface/data or a 3D model.
 
     :param out_group: Output group to save results.
@@ -162,13 +138,24 @@ class CoreOptions(BaseData):
     conda_environment: str = "simpeg_drivers"
     run_command: str = "simpeg_drivers.driver"
 
+    mesh: Octree | Grid2D | DrapeModel | None = None
     active_cells: ActiveCellsOptions
     compute: ComputeOptions = ComputeOptions()
-    data_object: Points | None = None
 
     out_group: SimPEGGroup | UIJsonGroup | None = None
 
     generate_sweep: bool = False
+
+    @property
+    def components(self) -> list[str]:
+        """Return list of component names."""
+        return [self._component_name(k) for k in self.__dict__ if "channel" in k]
+
+    def _component_name(self, component: str) -> str:
+        """Strip the '_channel' and '_channel_bool' suffixes from data name."""
+        return "_".join(
+            [k for k in component.split("_") if k not in ["channel", "bool"]]
+        )
 
     @field_validator("mesh", mode="before")
     @classmethod
@@ -213,72 +200,12 @@ class CoreOptions(BaseData):
         return Path(self.geoh5.h5file).parent
 
     @property
-    def components(self) -> list[str]:
-        """Return list of component names."""
-        return [self._component_name(k) for k in self.__dict__ if "channel" in k]
-
-    @property
-    def active_components(self) -> list[str]:
-        """Return list of active components."""
-        return [
-            k
-            for k in self.components
-            if getattr(self, "_".join([k, "channel"])) is not None
-        ]
-
-    @property
-    def data(self) -> InversionDataDict:
-        """Return dictionary of data components and associated values."""
-        out = {}
-        for k in self.active_components:
-            out[k] = self.component_data(k)
-        return out
-
-    @property
-    def uncertainties(self) -> InversionDataDict:
-        """Return dictionary of unceratinty components and associated values."""
-        out = {}
-        for k in self.active_components:
-            out[k] = self.component_uncertainty(k)
-        return out
-
-    def component_data(self, component: str) -> np.ndarray | None:
-        """Return data values associated with the component."""
-        data = getattr(self, "_".join([component, "channel"]), None)
-        if isinstance(data, NumericData):
-            data = data.values
-        return data
-
-    def component_uncertainty(self, component: str) -> np.ndarray | None:
-        """
-        Return uncertainty values associated with the component.
-
-        If the uncertainty is a float, it will be broadcasted to the same
-        shape as the data.
-
-        :param component: Component name.
-        """
-        data = getattr(self, "_".join([component, "uncertainty"]), None)
-        if isinstance(data, NumericData):
-            data = data.values
-        elif isinstance(data, float):
-            data *= np.ones_like(self.component_data(component))
-
-        return data
-
-    def _component_name(self, component: str) -> str:
-        """Strip the '_channel' and '_channel_bool' suffixes from data name."""
-        return "_".join(
-            [k for k in component.split("_") if k not in ["channel", "bool"]]
-        )
-
-    @property
     def padding_cells(self) -> int:
         """
         Default padding cells used for tiling.
         """
         # Keep whole mesh for 1 tile
-        if self.tile_spatial == 1:
+        if self.compute.tile_spatial == 1:
             return 100
 
         return 4 if self.inversion_type in ["fdem", "tdem"] else 6
@@ -293,14 +220,184 @@ class BaseForwardOptions(CoreOptions):
     """
     Base class for forward parameters.
 
-    See CoreData class docstring for addition parameters descriptions."""
+    See CoreData class docstring for addition parameters descriptions.
+
+    :param data_object: Data object containing the survey data.
+    """
 
     forward_only: bool = True
+    data_object: Points
 
     @property
     def active_components(self) -> list[str]:
         """Return list of active components."""
         return [k for k in self.components if getattr(self, f"{k}_channel_bool")]
+
+
+class CoolingSceduleOptions(BaseModel):
+    """
+    Options controlling the trade-off schedule between data misfit and
+    model regularization.
+
+    :param chi_factor: Target chi factor for the data misfit.
+    :param cooling_factor: Factor by which the regularization parameter is reduced.
+    :param cooling_rate: Rate at which the regularization parameter is reduced.
+    :param initial_beta: Initial regularization parameter.
+    :param initial_beta_ratio: Initial ratio of regularization to data misfit.
+    """
+
+    chi_factor: float = 1.0
+    cooling_factor: float = 2.0
+    cooling_rate: float = 1.0
+    initial_beta: float | None = None
+    initial_beta_ratio: float | None = 100.0
+
+
+class DirectiveOptions(BaseModel):
+    """
+    Directive options for inversion.
+
+    :param auto_scale_misfits: Automatically scale misfits of sub objectives.
+    :param beta_search: Beta search.
+    :param every_iteration_bool: Update the sensitivity weights every iteration.
+    :param save_sensitivities: Save sensitivities to file.
+    :param sens_wts_threshold: Threshold for sensitivity weights.
+    """
+
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True,
+    )
+    auto_scale_misfits: bool = True
+    beta_search: bool = True
+    every_iteration_bool: bool = False
+    save_sensitivities: bool = False
+    sens_wts_threshold: float | None = 0.0
+
+
+class DrapeModelOptions(BaseModel):
+    """
+    Drape model parameters for 2D simulation/inversion].
+
+    :param u_cell_size: Horizontal cell size for the drape model.
+    :param v_cell_size: Vertical cell size for the drape model.
+    :param depth_core: Depth of the core region.
+    :param horizontal_padding: Horizontal padding.
+    :param vertical_padding: Vertical padding.
+    :param expansion_factor: Expansion factor for the drape model.
+    """
+
+    u_cell_size: float | None = 25.0
+    v_cell_size: float | None = 25.0
+    depth_core: float | None = 100.0
+    horizontal_padding: float | None = 100.0
+    vertical_padding: float | None = 100.0
+    expansion_factor: float | None = 1.1
+
+
+class EMDataMixin:
+    """
+    Mixin class to add data and uncertainty access from property groups.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def component_data(self, component: str):
+        """Return data values associated with the component."""
+        property_group = getattr(self, "_".join([component, "channel"]), None)
+        return self.property_group_data(property_group)
+
+    def component_uncertainty(self, component: str):
+        """Return uncertainty values associated with the component."""
+        property_group = getattr(self, "_".join([component, "uncertainty"]), None)
+        return self.property_group_data(property_group)
+
+    def property_group_data(self, property_group: PropertyGroup):
+        """
+        Return dictionary of channel/data.
+
+        :param property_group: Property group uid
+        """
+        frequencies = self.data_object.channels
+        if property_group is None:
+            return dict.fromkeys(frequencies)
+
+        data = {}
+        group = next(
+            k for k in self.data_object.property_groups if k.uid == property_group.uid
+        )
+        property_names = [self.geoh5.get_entity(p)[0].name for p in group.properties]
+        properties = [self.geoh5.get_entity(p)[0].values for p in group.properties]
+        for i, f in enumerate(frequencies):
+            try:
+                f_ind = property_names.index(
+                    next(k for k in property_names if f"{f:.2e}" in k)
+                )  # Safer if data was saved with geoapps naming convention
+                data[f] = properties[f_ind]
+            except StopIteration:
+                data[f] = properties[i]  # in case of other naming conventions
+
+        return data
+
+
+class IRLSOptions(BaseModel):
+    """
+    IRLS (Iteratively Reweighted Least Squares) options for inversion.
+
+    :param s_norm: Norm applied on the reference model.
+    :param x_norm: Norm applied on the smoothing along the u-direction.
+    :param y_norm: Norm applied on the smoothing along the v-direction.
+    :param z_norm: Norm applied on the smoothing along the w-direction.
+    :param gradient_type: Type of gradient to use for regularization.
+    :param max_irls_iterations: Maximum number of IRLS iterations.
+    :param starting_chi_factor: Starting chi factor for IRLS.
+    :param beta_tol: Tolerance for the beta parameter.
+    :param percentile: Percentile of the model values used to compute the initial epsilon value.
+    :param epsilon_cooling_factor: Factor by which the epsilon value is reduced
+    """
+
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True,
+    )
+
+    s_norm: float | FloatData | None = 0.0
+    x_norm: float | FloatData = 2.0
+    y_norm: float | FloatData | None = 2.0
+    z_norm: float | FloatData = 2.0
+    gradient_type: Deprecated = "total"
+    max_irls_iterations: int = 25
+    starting_chi_factor: float = 1.0
+    beta_tol: float = 0.5
+    percentile: float = 95.0
+    epsilon_cooling_factor: float = 1.2
+
+
+class LineSelectionOptions(BaseModel):
+    """
+    Line selection parameters for 2D inversions.
+
+    :param line_id: Line identifier for simulation/inversion.
+    :param line_object: Reference data categorizing survey by line ids.
+    """
+
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True,
+    )
+    line_id: int = 1
+    line_object: ReferencedData
+
+    @field_validator("line_object", mode="before")
+    @classmethod
+    def validate_cell_association(cls, value):
+        if value.association is not DataAssociationEnum.CELL:
+            raise ValueError("Line identifier must be associated with cells.")
+        return value
+
+    @model_validator(mode="after")
+    def line_id_referenced(self):
+        if self.line_id not in self.line_object.values:
+            raise ValueError("Line id isn't referenced in the line object.")
+        return self
 
 
 class ModelOptions(BaseModel):
@@ -322,32 +419,26 @@ class ModelOptions(BaseModel):
     upper_bound: float | FloatData | None = None
 
 
-class IRLSOptions(BaseModel):
+class OptimizationOptions(BaseModel):
     """
-    IRLS (Iteratively Reweighted Least Squares) options for inversion.
+    Optimization parameters for inversion.
 
-    :param s_norm: Norm applied on the reference model.
-    :param x_norm: Norm applied on the smoothing along the u-direction.
-    :param y_norm: Norm applied on the smoothing along the v-direction.
-    :param z_norm: Norm applied on the smoothing along the w-direction.
-    :param gradient_type: Type of gradient to use for regularization.
-    :param max_irls_iterations: Maximum number of IRLS iterations.
-    :param starting_chi_factor: Starting chi factor for IRLS.
-    :param beta_tol: Tolerance for the beta parameter.
-    :param percentile: Percentile of the model values used to compute the initial epsilon value.
-    :param epsilon_cooling_factor: Factor by which the epsilon value is reduced
+    :param f_min_change: F min change.
+    :param max_cg_iterations: Maximum CG iterations.
+    :param max_global_iterations: Maximum global iterations.
+    :param max_line_search_iterations: Maximum line search iterations.
+    :param tol_cg: Tolerance CG.
     """
 
-    s_norm: float | FloatData | None = 0.0
-    x_norm: float | FloatData = 2.0
-    y_norm: float | FloatData | None = 2.0
-    z_norm: float | FloatData = 2.0
-    gradient_type: Deprecated = "total"
-    max_irls_iterations: int = 25
-    starting_chi_factor: float = 1.0
-    beta_tol: float = 0.5
-    percentile: float = 95.0
-    epsilon_cooling_factor: float = 1.2
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True,
+    )
+
+    f_min_change: float = 1e-2
+    max_cg_iterations: int = 30
+    max_global_iterations: int = 50
+    max_line_search_iterations: int = 20
+    tol_cg: float = 1e-4
 
 
 class RegularizationOptions(BaseModel):
@@ -400,46 +491,6 @@ class RegularizationOptions(BaseModel):
         return None
 
 
-class CoolingSceduleOptions(BaseModel):
-    """
-    Options controlling the trade-off schedule between data misfit and
-    model regularization.
-
-    :param chi_factor: Target chi factor for the data misfit.
-    :param cooling_factor: Factor by which the regularization parameter is reduced.
-    :param cooling_rate: Rate at which the regularization parameter is reduced.
-    :param initial_beta: Initial regularization parameter.
-    :param initial_beta_ratio: Initial ratio of regularization to data misfit.
-    """
-
-    chi_factor: float = 1.0
-    cooling_factor: float = 2.0
-    cooling_rate: float = 1.0
-    initial_beta: float | None = None
-    initial_beta_ratio: float | None = 100.0
-
-
-class DirectiveOptions(BaseModel):
-    """
-    Directive options for inversion.
-
-    :param auto_scale_misfits: Automatically scale misfits of sub objectives.
-    :param beta_search: Beta search.
-    :param every_iteration_bool: Update the sensitivity weights every iteration.
-    :param save_sensitivities: Save sensitivities to file.
-    :param sens_wts_threshold: Threshold for sensitivity weights.
-    """
-
-    model_config = ConfigDict(
-        arbitrary_types_allowed=True,
-    )
-    auto_scale_misfits: bool = True
-    beta_search: bool = True
-    every_iteration_bool: bool = False
-    save_sensitivities: bool = False
-    sens_wts_threshold: float | None = 0.0
-
-
 class BaseInversionOptions(CoreOptions):
     """
     Base class for inversion parameters.
@@ -452,6 +503,7 @@ class BaseInversionOptions(CoreOptions):
         command line.
     :param forward_only: If True, only run the forward simulation.
     :param conda_environment: Name of the conda environment used to run the program
+    :param data_object: Data object containing the survey data.
     :param regularization: Options specific to the regularization function.
     :param irls: Options specific to the IRLS (Iteratively Reweighted Least Squares) directive.
     :param directives: Additional directives to be used in the inversion.
@@ -472,6 +524,8 @@ class BaseInversionOptions(CoreOptions):
     forward_only: bool = False
     conda_environment: str = "simpeg_drivers"
 
+    data_object: Points
+
     regularization: RegularizationOptions = RegularizationOptions()
     irls: IRLSOptions = IRLSOptions()
     directives: DirectiveOptions = DirectiveOptions()
@@ -480,97 +534,51 @@ class BaseInversionOptions(CoreOptions):
 
     store_sensitivities: str = "ram"
 
+    @property
+    def active_components(self) -> list[str]:
+        """Return list of active components."""
+        return [
+            k
+            for k in self.components
+            if getattr(self, "_".join([k, "channel"])) is not None
+        ]
 
-class EMDataMixin:
-    """
-    Mixin class to add data and uncertainty access from property groups.
-    """
+    @property
+    def data(self) -> InversionDataDict:
+        """Return dictionary of data components and associated values."""
+        out = {}
+        for k in self.active_components:
+            out[k] = self.component_data(k)
+        return out
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    @property
+    def uncertainties(self) -> InversionDataDict:
+        """Return dictionary of unceratinty components and associated values."""
+        out = {}
+        for k in self.active_components:
+            out[k] = self.component_uncertainty(k)
+        return out
 
-    def component_data(self, component: str):
+    def component_data(self, component: str) -> np.ndarray | None:
         """Return data values associated with the component."""
-        property_group = getattr(self, "_".join([component, "channel"]), None)
-        return self.property_group_data(property_group)
-
-    def component_uncertainty(self, component: str):
-        """Return uncertainty values associated with the component."""
-        property_group = getattr(self, "_".join([component, "uncertainty"]), None)
-        return self.property_group_data(property_group)
-
-    def property_group_data(self, property_group: PropertyGroup):
-        """
-        Return dictionary of channel/data.
-
-        :param property_group: Property group uid
-        """
-        frequencies = self.data_object.channels
-        if property_group is None:
-            return dict.fromkeys(frequencies)
-
-        data = {}
-        group = next(
-            k for k in self.data_object.property_groups if k.uid == property_group.uid
-        )
-        property_names = [self.geoh5.get_entity(p)[0].name for p in group.properties]
-        properties = [self.geoh5.get_entity(p)[0].values for p in group.properties]
-        for i, f in enumerate(frequencies):
-            try:
-                f_ind = property_names.index(
-                    next(k for k in property_names if f"{f:.2e}" in k)
-                )  # Safer if data was saved with geoapps naming convention
-                data[f] = properties[f_ind]
-            except StopIteration:
-                data[f] = properties[i]  # in case of other naming conventions
-
+        data = getattr(self, "_".join([component, "channel"]), None)
+        if isinstance(data, NumericData):
+            data = data.values
         return data
 
+    def component_uncertainty(self, component: str) -> np.ndarray | None:
+        """
+        Return uncertainty values associated with the component.
 
-class DrapeModelOptions(BaseModel):
-    """
-    Drape model parameters for 2D simulation/inversion].
+        If the uncertainty is a float, it will be broadcasted to the same
+        shape as the data.
 
-    :param u_cell_size: Horizontal cell size for the drape model.
-    :param v_cell_size: Vertical cell size for the drape model.
-    :param depth_core: Depth of the core region.
-    :param horizontal_padding: Horizontal padding.
-    :param vertical_padding: Vertical padding.
-    :param expansion_factor: Expansion factor for the drape model.
-    """
+        :param component: Component name.
+        """
+        data = getattr(self, "_".join([component, "uncertainty"]), None)
+        if isinstance(data, NumericData):
+            data = data.values
+        elif isinstance(data, float):
+            data *= np.ones_like(self.component_data(component))
 
-    u_cell_size: float | None = 25.0
-    v_cell_size: float | None = 25.0
-    depth_core: float | None = 100.0
-    horizontal_padding: float | None = 100.0
-    vertical_padding: float | None = 100.0
-    expansion_factor: float | None = 1.1
-
-
-class LineSelectionOptions(BaseModel):
-    """
-    Line selection parameters for 2D inversions.
-
-    :param line_object: Reference data categorizing survey by line ids.
-    :param line_id: Line identifier for simulation/inversion.
-    """
-
-    model_config = ConfigDict(
-        arbitrary_types_allowed=True,
-    )
-
-    line_object: ReferencedData
-    line_id: int = 1
-
-    @field_validator("line_object", mode="before")
-    @classmethod
-    def validate_cell_association(cls, value):
-        if value.association is not DataAssociationEnum.CELL:
-            raise ValueError("Line identifier must be associated with cells.")
-        return value
-
-    @model_validator(mode="after")
-    def line_id_referenced(self):
-        if self.line_id not in self.line_object.values:
-            raise ValueError("Line id isn't referenced in the line object.")
-        return self
+        return data
