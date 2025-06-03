@@ -30,7 +30,15 @@ from geoh5py.groups import PropertyGroup, SimPEGGroup, UIJsonGroup
 from geoh5py.objects import DrapeModel, Grid2D, Octree, Points
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
-from pydantic import BaseModel, ConfigDict, field_validator, model_validator
+from geoh5py.ui_json.annotations import Deprecated
+from pydantic import (
+    AliasChoices,
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_validator,
+    model_validator,
+)
 
 import simpeg_drivers
 
@@ -124,7 +132,7 @@ class CoreOptions(BaseData):
     starting_model: float | FloatData
     active_cells: ActiveCellsOptions
     tile_spatial: int = 1
-    n_cpu: int | None = None
+
     solver_type: SolverType = SolverType.Pardiso
     save_sensitivities: bool = False
     max_chunk_size: int = 128
@@ -135,6 +143,37 @@ class CoreOptions(BaseData):
     n_threads: int | None = None
     max_ram: float | None = None
     performance_report: bool = False
+    gradient_type: str = "total"  # To properly deprecate in the future
+    n_cpu: int | None = None  # To properly deprecate in the future
+
+    # List of deprecated parameters
+    chunk_by_rows: bool = Field(
+        True, deprecated="Option 'chunk_by_rows' has been deprecated.", exclude=True
+    )
+    parallelized: bool = Field(
+        True, deprecated="Option 'parallelized' has been deprecated.", exclude=True
+    )
+    ga_group: str = Field(
+        "", deprecated="Option 'ga_group' has been deprecated.", exclude=True
+    )
+    z_from_topo: bool = Field(
+        True, deprecated="Option 'z_from_topo' has been deprecated.", exclude=True
+    )
+    receivers_radar_drape: FloatData | None = Field(
+        None,
+        deprecated="Option 'receivers_radar_drape' has been deprecated.",
+        exclude=True,
+    )
+    receivers_offset_z: FloatData | None = Field(
+        None,
+        deprecated="Option 'receivers_offset_z' has been deprecated.",
+        exclude=True,
+    )
+    gps_receivers_offset: FloatData | None = Field(
+        None,
+        deprecated="Option 'gps_receivers_offset' has been deprecated.",
+        exclude=True,
+    )
 
     @field_validator("mesh", mode="before")
     @classmethod
@@ -289,7 +328,6 @@ class BaseInversionOptions(CoreOptions):
     :param x_norm: X norm.
     :param y_norm: Y norm.
     :param z_norm: Z norm.
-    :param gradient_type: Gradient type.
     :param max_irls_iterations: Maximum IRLS iterations.
     :param starting_chi_factor: Starting chi factor.
 
@@ -315,14 +353,9 @@ class BaseInversionOptions(CoreOptions):
     :param solver_type: Direct solver provider.  Either Mumps or Pardiso.
     :param tile_spatial: Tile the data spatially.
     :param store_sensitivities: Store sensitivities.
-    :param max_chunk_size: Maximum chunk size.
-    :param chunk_by_rows: Chunk by rows.
-
     :param out_group: Output group.
-
     :param generate_sweep: Generate sweep.
-
-    :param coolEpsFact: Cool eps fact.
+    :param epsilon_cooling_factor: Cool eps fact.
     :param beta_search: Beta search.
     """
 
@@ -352,7 +385,7 @@ class BaseInversionOptions(CoreOptions):
     x_norm: float | FloatData = 2.0
     y_norm: float | FloatData | None = 2.0
     z_norm: float | FloatData = 2.0
-    gradient_type: str = "total"
+
     max_irls_iterations: int = 25
     starting_chi_factor: float = 1.0
 
@@ -360,9 +393,17 @@ class BaseInversionOptions(CoreOptions):
     auto_scale_misfits: bool = True
     initial_beta_ratio: float | None = 100.0
     initial_beta: float | None = None
-    cooling_factor: float = 2.0
 
-    cooling_rate: int = 1
+    cooling_factor: float = Field(
+        2.0, validation_alias=AliasChoices("cooling_factor", "coolingFactor")
+    )
+    cooling_rate: int = Field(
+        1, validation_alias=AliasChoices("cooling_rate", "coolingRate")
+    )
+    epsilon_cooling_factor: float = Field(
+        1.2, validation_alias=AliasChoices("epsilon_cooling_factor", "coolEpsFact")
+    )
+
     max_global_iterations: int = 50
     max_line_search_iterations: int = 20
     max_cg_iterations: int = 30
@@ -376,8 +417,10 @@ class BaseInversionOptions(CoreOptions):
     store_sensitivities: str = "ram"
 
     beta_tol: float = 0.5
-    percentile: float = 95.0
-    epsilon_cooling_factor: float = 1.2
+
+    percentile: float = Field(
+        95, validation_alias=AliasChoices("percentile", "prctile")
+    )
 
     @property
     def gradient_dip(self) -> np.ndarray | None:
