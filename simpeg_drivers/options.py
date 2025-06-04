@@ -14,7 +14,7 @@ from __future__ import annotations
 from enum import Enum
 from logging import getLogger
 from pathlib import Path
-from typing import ClassVar, TypeAlias
+from typing import Annotated, Any, ClassVar, TypeAlias
 
 import numpy as np
 from geoapps_utils.driver.data import BaseData
@@ -31,10 +31,10 @@ from geoh5py.groups.property_group_type import GroupTypeEnum
 from geoh5py.objects import DrapeModel, Grid2D, Octree, Points
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
-from geoh5py.ui_json.annotations import Deprecated
 from pydantic import (
     AliasChoices,
     BaseModel,
+    BeforeValidator,
     ConfigDict,
     Field,
     field_validator,
@@ -51,6 +51,22 @@ logger = getLogger(__name__)
 InversionDataDict: TypeAlias = (
     dict[str, np.ndarray | None] | dict[str, dict[float, np.ndarray | None]]
 )
+
+
+def deprecate_warning(value, info):
+    """Issue deprecation warning."""
+    logger.warning(
+        "Deprecated field '%s' will be ignored. Results may be affected.",
+        info.field_name,
+    )
+    return value
+
+
+Deprecated = Annotated[
+    Any,
+    Field(default=None, exclude=True),
+    BeforeValidator(deprecate_warning),
+]
 
 
 class ActiveCellsOptions(BaseModel):
