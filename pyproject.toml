@@ -80,8 +80,8 @@ geoh5py = {version = ">=0.11.0a3, <0.12.dev", source = "pypi", allow-prereleases
 octree-creation-app = {version = ">=0.3.0a1, <0.4.dev", source = "pypi", allow-prereleases = true}
 #octree-creation-app = {git = "https://github.com/MiraGeoscience/octree-creation-app.git", rev = "release/0.3.0"}
 
-geoapps-utils = {version = ">=0.5.0a3, <0.6.dev", source = "pypi", allow-prereleases = true}
-#geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "release/0.5.0"}
+#geoapps-utils = {version = ">=0.5.0a3, <0.6.dev", source = "pypi", allow-prereleases = true}
+geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "release/0.5.0"}
 
 mira-simpeg = {version = ">=0.23.0.1b1, <0.23.1.dev", source="pypi", allow-prereleases = true, extras = ["dask"]}
 #mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", rev = "release/0.23.0.1", extras = ["dask"]}
