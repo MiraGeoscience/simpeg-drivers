@@ -14,7 +14,7 @@ from __future__ import annotations
 from enum import Enum
 from logging import getLogger
 from pathlib import Path
-from typing import ClassVar, TypeAlias
+from typing import Annotated, Any, ClassVar, TypeAlias
 
 import numpy as np
 from geoapps_utils.driver.data import BaseData
@@ -30,10 +30,10 @@ from geoh5py.groups import PropertyGroup, SimPEGGroup, UIJsonGroup
 from geoh5py.objects import DrapeModel, Grid2D, Octree, Points
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
-from geoh5py.ui_json.annotations import Deprecated
 from pydantic import (
     AliasChoices,
     BaseModel,
+    BeforeValidator,
     ConfigDict,
     Field,
     field_validator,
@@ -48,6 +48,22 @@ logger = getLogger(__name__)
 InversionDataDict: TypeAlias = (
     dict[str, np.ndarray | None] | dict[str, dict[float, np.ndarray | None]]
 )
+
+
+def deprecate_warning(value, info):
+    """Issue deprecation warning."""
+    logger.warning(
+        "Deprecated field '%s' will be ignored. Results may be affected.",
+        info.field_name,
+    )
+    return value
+
+
+Deprecated = Annotated[
+    Any,
+    Field(default=None, exclude=True),
+    BeforeValidator(deprecate_warning),
+]
 
 
 class ActiveCellsOptions(BaseModel):
@@ -147,33 +163,13 @@ class CoreOptions(BaseData):
     n_cpu: int | None = None  # To properly deprecate in the future
 
     # List of deprecated parameters
-    chunk_by_rows: bool = Field(
-        True, deprecated="Option 'chunk_by_rows' has been deprecated.", exclude=True
-    )
-    parallelized: bool = Field(
-        True, deprecated="Option 'parallelized' has been deprecated.", exclude=True
-    )
-    ga_group: str = Field(
-        "", deprecated="Option 'ga_group' has been deprecated.", exclude=True
-    )
-    z_from_topo: bool = Field(
-        True, deprecated="Option 'z_from_topo' has been deprecated.", exclude=True
-    )
-    receivers_radar_drape: FloatData | None = Field(
-        None,
-        deprecated="Option 'receivers_radar_drape' has been deprecated.",
-        exclude=True,
-    )
-    receivers_offset_z: FloatData | None = Field(
-        None,
-        deprecated="Option 'receivers_offset_z' has been deprecated.",
-        exclude=True,
-    )
-    gps_receivers_offset: FloatData | None = Field(
-        None,
-        deprecated="Option 'gps_receivers_offset' has been deprecated.",
-        exclude=True,
-    )
+    chunk_by_rows: Deprecated
+    parallelized: Deprecated
+    ga_group: Deprecated
+    z_from_topo: Deprecated
+    receivers_radar_drape: Deprecated
+    receivers_offset_z: Deprecated
+    gps_receivers_offset: Deprecated
 
     @field_validator("mesh", mode="before")
     @classmethod
