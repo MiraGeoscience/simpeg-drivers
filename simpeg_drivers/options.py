@@ -128,6 +128,26 @@ class ComputeOptions(BaseModel):
     tile_spatial: int = 1
 
 
+class DeprecatedOptions(BaseModel):
+    """
+    List of deprecated options.
+    """
+
+    gradient_type: Deprecated
+    chunk_by_rows: Deprecated
+    parallelized: Deprecated
+    ga_group: Deprecated
+    z_from_topo: Deprecated
+    receivers_radar_drape: Deprecated
+    receivers_offset_z: Deprecated
+    gps_receivers_offset: Deprecated
+
+
+Deprecations = Annotated[
+    DeprecatedOptions, Field(default=DeprecatedOptions(), exclude=True)
+]
+
+
 class CoreOptions(BaseData):
     """
     Core parameters shared by inverse and forward operations.
@@ -160,14 +180,14 @@ class CoreOptions(BaseData):
     documentation: str | None = None
     conda_environment: str = "simpeg_drivers"
     run_command: str = "simpeg_drivers.driver"
-
     mesh: Octree | Grid2D | DrapeModel | None = None
     active_cells: ActiveCellsOptions
     compute: ComputeOptions = ComputeOptions()
-
     out_group: SimPEGGroup | UIJsonGroup | None = None
-
     generate_sweep: bool = False
+
+    # List of deprecated parameters
+    deprecations: Deprecations
 
     @property
     def components(self) -> list[str]:
@@ -243,7 +263,10 @@ class ModelOptions(BaseModel):
     """
     Base class for model parameters.
 
+    :param starting_model: Starting model.
     :param reference_model: Reference model.
+    :param conductivity_model: Conductivity model used for IP and NS inversions.
+    :param petrophysical_model: Petrophysical model used for joint inversions.
     :param lower_bound: Lower bound.
     :param upper_bound: Upper bound.
     :param alpha_s: Scale on the reference model.
@@ -251,26 +274,36 @@ class ModelOptions(BaseModel):
     :param length_scale_y: Length scale along the v-direction.
     :param length_scale_z: Length scale along the z-direction.
     :param gradient_rotation: Property group for gradient rotation angles.
+    :param s_norm: Norm applied on the reference model.
+    :param x_norm: Norm applied on the smoothing along the u-direction.
+    :param y_norm: Norm applied on the smoothing along the v-direction.
+    :param z_norm: Norm applied on the smoothing along the w-direction.
     """
 
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
     )
 
+    # Model options
     starting_model: float | FloatData
     reference_model: float | FloatData | None = None
     conductivity_model: FloatData | None = None
+    petrophysical_model: FloatData | None = None
     lower_bound: float | FloatData | None = None
     upper_bound: float | FloatData | None = None
-    s_norm: float | FloatData | None = 0.0
-    x_norm: float | FloatData = 2.0
-    y_norm: float | FloatData | None = 2.0
-    z_norm: float | FloatData = 2.0
+
+    # Model values for regularization
     alpha_s: float | FloatData | None = 1.0
     length_scale_x: float | FloatData = 1.0
     length_scale_y: float | FloatData | None = 1.0
     length_scale_z: float | FloatData = 1.0
     gradient_rotation: PropertyGroup | None = None
+
+    # Model values for IRLS
+    s_norm: float | FloatData | None = 0.0
+    x_norm: float | FloatData = 2.0
+    y_norm: float | FloatData | None = 2.0
+    z_norm: float | FloatData = 2.0
 
     @property
     def gradient_direction(self) -> np.ndarray:
@@ -308,6 +341,7 @@ class BaseForwardOptions(CoreOptions):
     See CoreData class docstring for addition parameters descriptions.
 
     :param data_object: Data object containing the survey data.
+    :param models: Model options for the forward simulation.
     """
 
     forward_only: bool = True
@@ -439,32 +473,26 @@ class IRLSOptions(BaseModel):
     """
     IRLS (Iteratively Reweighted Least Squares) options for inversion.
 
-    :param s_norm: Norm applied on the reference model.
-    :param x_norm: Norm applied on the smoothing along the u-direction.
-    :param y_norm: Norm applied on the smoothing along the v-direction.
-    :param z_norm: Norm applied on the smoothing along the w-direction.
-    :param gradient_type: Type of gradient to use for regularization.
-    :param max_irls_iterations: Maximum number of IRLS iterations.
-    :param starting_chi_factor: Starting chi factor for IRLS.
     :param beta_tol: Tolerance for the beta parameter.
-    :param percentile: Percentile of the model values used to compute the initial epsilon value.
     :param epsilon_cooling_factor: Factor by which the epsilon value is reduced
+    :param max_irls_iterations: Maximum number of IRLS iterations.
+    :param percentile: Percentile of the model values used to compute the initial epsilon value.
+    :param starting_chi_factor: Starting chi factor for IRLS.
     """
 
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
     )
 
-    gradient_type: Deprecated
-    max_irls_iterations: int = 25
-    starting_chi_factor: float = 1.0
     beta_tol: float = 0.5
     epsilon_cooling_factor: float = Field(
         1.2, validation_alias=AliasChoices("epsilon_cooling_factor", "coolEpsFact")
     )
+    max_irls_iterations: int = 25
     percentile: float = Field(
         95, validation_alias=AliasChoices("percentile", "prctile")
     )
+    starting_chi_factor: float = 1.0
 
 
 class LineSelectionOptions(BaseModel):
@@ -530,6 +558,7 @@ class BaseInversionOptions(CoreOptions):
     :param forward_only: If True, only run the forward simulation.
     :param conda_environment: Name of the conda environment used to run the program
     :param data_object: Data object containing the survey data.
+    :param models: Model options for the inversion.
     :param regularization: Options specific to the regularization function.
     :param irls: Options specific to the IRLS (Iteratively Reweighted Least Squares) directive.
     :param directives: Additional directives to be used in the inversion.
