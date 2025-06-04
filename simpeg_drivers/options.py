@@ -64,7 +64,7 @@ def deprecate_warning(value, info):
 
 Deprecated = Annotated[
     Any,
-    Field(default=None, exclude=True),
+    Field(default=None),
     BeforeValidator(deprecate_warning),
 ]
 
@@ -455,7 +455,7 @@ class IRLSOptions(BaseModel):
         arbitrary_types_allowed=True,
     )
 
-    gradient_type: Deprecated = "total"
+    gradient_type: Deprecated
     max_irls_iterations: int = 25
     starting_chi_factor: float = 1.0
     beta_tol: float = 0.5
