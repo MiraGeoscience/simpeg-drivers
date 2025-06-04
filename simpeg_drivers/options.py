@@ -61,7 +61,7 @@ def deprecate_warning(value, info):
 
 Deprecated = Annotated[
     Any,
-    Field(default=None, exclude=True),
+    Field(default=None),
     BeforeValidator(deprecate_warning),
 ]
 
@@ -97,6 +97,25 @@ class SolverType(str, Enum):
 
     Pardiso = "Pardiso"
     Mumps = "Mumps"
+
+
+class DeprecatedOptions(BaseModel):
+    """
+    List of deprecated options.
+    """
+
+    chunk_by_rows: Deprecated
+    parallelized: Deprecated
+    ga_group: Deprecated
+    z_from_topo: Deprecated
+    receivers_radar_drape: Deprecated
+    receivers_offset_z: Deprecated
+    gps_receivers_offset: Deprecated
+
+
+Deprecations = Annotated[
+    DeprecatedOptions, Field(default=DeprecatedOptions(), exclude=True)
+]
 
 
 class CoreOptions(BaseData):
@@ -163,13 +182,7 @@ class CoreOptions(BaseData):
     n_cpu: int | None = None  # To properly deprecate in the future
 
     # List of deprecated parameters
-    chunk_by_rows: Deprecated
-    parallelized: Deprecated
-    ga_group: Deprecated
-    z_from_topo: Deprecated
-    receivers_radar_drape: Deprecated
-    receivers_offset_z: Deprecated
-    gps_receivers_offset: Deprecated
+    deprecations: Deprecations
 
     @field_validator("mesh", mode="before")
     @classmethod
