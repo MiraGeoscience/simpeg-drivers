@@ -322,8 +322,12 @@ class CoolingSceduleOptions(BaseModel):
     """
 
     chi_factor: float = 1.0
-    cooling_factor: float = 2.0
-    cooling_rate: float = 1.0
+    cooling_factor: float = Field(
+        2.0, validation_alias=AliasChoices("cooling_factor", "coolingFactor")
+    )
+    cooling_rate: int = Field(
+        1, validation_alias=AliasChoices("cooling_rate", "coolingRate")
+    )
     initial_beta: float | None = None
     initial_beta_ratio: float | None = 100.0
 
@@ -439,8 +443,12 @@ class IRLSOptions(BaseModel):
     max_irls_iterations: int = 25
     starting_chi_factor: float = 1.0
     beta_tol: float = 0.5
-    percentile: float = 95.0
-    epsilon_cooling_factor: float = 1.2
+    epsilon_cooling_factor: float = Field(
+        1.2, validation_alias=AliasChoices("epsilon_cooling_factor", "coolEpsFact")
+    )
+    percentile: float = Field(
+        95, validation_alias=AliasChoices("percentile", "prctile")
+    )
 
 
 class LineSelectionOptions(BaseModel):
