@@ -546,7 +546,7 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
         channels = [None]
         kwargs = {
             "data_type": {
-                comp: dict.fromkeys(channels, dtype)
+                comp: dtype["[0]"]
                 for comp, dtype in inversion_object.observed_data_types.items()
             },
             "transforms": [
@@ -598,7 +598,7 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
         component = "dc" if is_dc else "ip"
         kwargs = {
             "data_type": {
-                comp: dict.fromkeys(channels, dtype)
+                comp: dtype["[0]"]
                 for comp, dtype in inversion_object.observed_data_types.items()
             },
             "transforms": [

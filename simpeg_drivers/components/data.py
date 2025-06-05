@@ -189,78 +189,74 @@ class InversionData(InversionLocations):
 
     def save_data(self):
         """Write out the data to geoh5"""
-        data = self.observed
-        basename = "Predicted" if self.params.forward_only else "Observed"
-        self._observed_data_types = {c: {} for c in data.keys()}
-        data_dict = {c: {} for c in data.keys()}
-        uncert_dict = {c: {} for c in data.keys()}
-
-        if self.params.inversion_type in [
+        has_channels = self.params.inversion_type in [
             "magnetotellurics",
             "tipper",
             "tdem",
             "fdem",
             "fdem 1d",
             "tdem 1d",
-        ]:
-            for component, channels in data.items():
-                for ind, (channel, values) in enumerate(channels.items()):
-                    dnorm = values / self.normalizations[channel][component]
-                    data_channel = self.entity.add_data(
-                        {f"{basename}_{component}_[{ind}]": {"values": dnorm}}
-                    )
-                    data_dict[component] = self.entity.add_data_to_group(
-                        data_channel, f"{basename}_{component}"
-                    )
-                    if not self.params.forward_only:
-                        self._observed_data_types[component][f"[{ind}]"] = (
-                            data_channel.entity_type
-                        )
-                        uncerts = np.abs(
-                            self.uncertainties[component][channel].copy()
-                            / self.normalizations[channel][component]
-                        )
-                        uncerts[np.isinf(uncerts)] = np.nan
-                        uncert_entity = self.entity.add_data(
-                            {f"Uncertainties_{component}_[{ind}]": {"values": uncerts}}
-                        )
-                        uncert_dict[component] = self.entity.add_data_to_group(
-                            uncert_entity, f"Uncertainties_{component}"
-                        )
-        else:
-            for component in data:
-                dnorm = data[component] / self.normalizations[None][component]
-                data_dict[component] = self.entity.add_data(
-                    {f"{basename}_{component}": {"values": dnorm}}
+        ]
+
+        # Pre-allocate dictionaries
+        data_types = {c: {} for c in self.observed.keys()}
+        data_dict = data_types.copy()
+        uncert_dict = data_types.copy()
+
+        for component, channels in self.observed.items():
+            if channels is None:
+                continue
+
+            if not has_channels:
+                channels = {None: channels}
+
+            for ind, (channel, values) in enumerate(channels.items()):
+                suffix = f"_{component}"
+                if has_channels:
+                    suffix += f"_[{ind}]"
+
+                normalized_data = values / self.normalizations[channel][component]
+                data_entity = self.entity.add_data(
+                    {"Observed" + suffix: {"values": normalized_data}}
                 )
 
-                if not self.params.forward_only:
-                    self._observed_data_types[component] = data_dict[
-                        component
-                    ].entity_type
-                    uncerts = np.abs(
-                        self.uncertainties[component].copy()
-                        / self.normalizations[None][component]
-                    )
-                    uncerts[np.isinf(uncerts)] = np.nan
+                uncerts = np.abs(
+                    self.uncertainties[component][channel].copy()
+                    / self.normalizations[channel][component]
+                )
+                uncerts[np.isinf(uncerts)] = np.nan
+                uncert_entity = self.entity.add_data(
+                    {"Uncertainties" + suffix: {"values": uncerts}}
+                )
 
-                    uncert_dict[component] = self.entity.add_data(
-                        {f"Uncertainties_{component}": {"values": uncerts}}
+                if has_channels:
+                    data_dict[component] = self.entity.add_data_to_group(
+                        data_entity, f"Observed_{component}"
                     )
+                    uncert_dict[component] = self.entity.add_data_to_group(
+                        uncert_entity, f"Uncertainties_{component}"
+                    )
+                else:
+                    data_dict[component] = data_entity
+                    uncert_dict[component] = uncert_entity
 
+                data_types[component][f"[{ind}]"] = data_entity.entity_type
+
+                # Extra save for apparent resistivity if applicable
                 if "direct current" in self.params.inversion_type:
-                    apparent_property = data[component].copy()
+                    apparent_property = values.copy()
                     apparent_property *= self.survey.apparent_resistivity
 
                     data_dict["apparent_resistivity"] = self.entity.add_data(
                         {
-                            f"{basename}_apparent_resistivity": {
+                            "Observed_apparent_resistivity": {
                                 "values": apparent_property,
                                 "association": "CELL",
                             }
                         }
                     )
 
+        self._observed_data_types = data_types
         self.update_params(data_dict, uncert_dict)
 
     def normalize(
