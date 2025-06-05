@@ -69,8 +69,8 @@ def test_magnetic_vector_fwr_run(
         inducing_field_declination=inducing_field[2],
         data_object=survey,
         starting_model=model,
-        starting_inclination=45,
-        starting_declination=270,
+        starting_model_inclination=45,
+        starting_model_declination=270,
     )
     fwr_driver = MVIForwardDriver(params)
     fwr_driver.run()

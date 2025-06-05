@@ -16,10 +16,45 @@ from typing import ClassVar
 
 from geoh5py.data import FloatData
 from geoh5py.ui_json.annotations import Deprecated
-from pydantic import model_validator
+from pydantic import AliasChoices, Field
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.options import BaseForwardOptions, BaseInversionOptions
+from simpeg_drivers.options import (
+    BaseForwardOptions,
+    BaseInversionOptions,
+    ModelOptions,
+)
+
+
+class VectorModelOptions(ModelOptions):
+    """
+    Magnetic Vector Model options.
+    """
+
+    starting_model_inclination: float | FloatData | None = Field(
+        None,
+        validation_alias=AliasChoices(
+            "starting_model_inclination", "starting_inclination"
+        ),
+    )
+    starting_model_declination: float | FloatData | None = Field(
+        None,
+        validation_alias=AliasChoices(
+            "starting_model_declination", "starting_declination"
+        ),
+    )
+    reference_model_inclination: float | FloatData | None = Field(
+        None,
+        validation_alias=AliasChoices(
+            "reference_model_inclination", "reference_inclination"
+        ),
+    )
+    reference_model_declination: float | FloatData | None = Field(
+        None,
+        validation_alias=AliasChoices(
+            "reference_model_declination", "reference_declination"
+        ),
+    )
 
 
 class MVIForwardOptions(BaseForwardOptions):
@@ -47,6 +82,7 @@ class MVIForwardOptions(BaseForwardOptions):
     physical_property: str = "susceptibility"
     inversion_type: str = "magnetic vector"
 
+    models: VectorModelOptions
     tmi_channel_bool: bool = True
     bx_channel_bool: bool = False
     by_channel_bool: bool = False
@@ -60,8 +96,6 @@ class MVIForwardOptions(BaseForwardOptions):
     inducing_field_strength: float | FloatData = 50000.0
     inducing_field_inclination: float | FloatData = 90.0
     inducing_field_declination: float | FloatData = 0.0
-    starting_inclination: float | FloatData | None = None
-    starting_declination: float | FloatData | None = None
 
 
 class MVIInversionOptions(BaseInversionOptions):
@@ -106,6 +140,8 @@ class MVIInversionOptions(BaseInversionOptions):
     physical_property: str = "susceptibility"
     inversion_type: str = "magnetic vector"
 
+    models: VectorModelOptions
+
     tmi_channel: FloatData | None = None
     bx_channel: FloatData | None = None
     by_channel: FloatData | None = None
@@ -131,8 +167,3 @@ class MVIInversionOptions(BaseInversionOptions):
     inducing_field_declination: float | FloatData = 0.0
 
     lower_bound: Deprecated | None = None
-
-    starting_inclination: float | FloatData | None = None
-    starting_declination: float | FloatData | None = None
-    reference_inclination: float | FloatData | None = None
-    reference_declination: float | FloatData | None = None
