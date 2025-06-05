@@ -455,7 +455,7 @@ class SaveSensitivitiesGeoh5Factory(SaveGeoh5Factory):
         }
 
         if self.factory_type == "magnetic vector":
-            kwargs["channels"] = [""]
+            kwargs["channels"] = [None]
             kwargs["transforms"] = [
                 lambda x: x.reshape((-1, 3), order="F"),
                 lambda x: np.linalg.norm(x, axis=1),
@@ -674,7 +674,7 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
                     for comp in components
                 ]
             ),
-            "channels": [f"[{ind}]" for ind, _ in enumerate(channels)],
+            "channels": channels,
             "components": components,
             "sorting": sorting,
             "_reshape": reshape,

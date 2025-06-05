@@ -205,9 +205,11 @@ class InversionData(InversionLocations):
         uncert_dict = data_types.copy()
 
         for component, channels in self.observed.items():
+            # Forward only
             if channels is None:
                 continue
 
+            # Non-EM methods
             if not has_channels:
                 channels = {None: channels}
 
@@ -240,7 +242,7 @@ class InversionData(InversionLocations):
                     data_dict[component] = data_entity
                     uncert_dict[component] = uncert_entity
 
-                data_types[component][f"[{ind}]"] = data_entity.entity_type
+                data_types[component][ind] = data_entity.entity_type
 
                 # Extra save for apparent resistivity if applicable
                 if "direct current" in self.params.inversion_type:
