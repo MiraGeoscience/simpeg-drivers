@@ -331,6 +331,9 @@ def test_legacy_uijson(tmp_path: Path):
                 ifile.data["data_object"] = survey
                 ifile.data["topography_object"] = topo
 
+                # Test deprecated name
+                ifile.data["coolingFactor"] = 4.0
+
                 if "2d" in inversion_type or "pseudo 3d" in inversion_type:
                     line_id = geoh5.get_entity("line_ids")[0]
                     ifile.data["line_object"] = line_id
@@ -366,6 +369,9 @@ def test_legacy_uijson(tmp_path: Path):
                     ifile.data[CHANNEL_NAME[inversion_type] + "_uncertainty"] = channel
 
             driver = InversionDriver.from_input_file(ifile)
+
+            if hasattr(driver.params, "cooling_factor"):
+                assert driver.params.cooling_factor == 4.0
 
             if isinstance(driver, LineSweepDriver):
                 continue
