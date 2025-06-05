@@ -11,10 +11,9 @@
 
 from __future__ import annotations
 
-from enum import Enum
 from logging import getLogger
 from pathlib import Path
-from typing import Annotated, Any, ClassVar, TypeAlias
+from typing import Annotated, Any, ClassVar, Literal, TypeAlias
 
 import numpy as np
 from geoapps_utils.driver.data import BaseData
@@ -93,15 +92,6 @@ class ActiveCellsOptions(BaseModel):
         return data
 
 
-class SolverType(str, Enum):
-    """
-    Supported solvers.
-    """
-
-    Pardiso = "Pardiso"
-    Mumps = "Mumps"
-
-
 class ComputeOptions(BaseModel):
     """
     Options related to compute resources and parallelization.
@@ -124,7 +114,7 @@ class ComputeOptions(BaseModel):
     n_threads: int | None = None
     n_workers: int | None = 1
     performance_report: bool = False
-    solver_type: SolverType = SolverType.Pardiso
+    solver_type: Literal["Pardiso", "Mumps"] = "Pardiso"
     tile_spatial: int = 1
 
 

@@ -545,10 +545,7 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
         components = list(inversion_object.observed)
         channels = [None]
         kwargs = {
-            "data_type": {
-                comp: dtype["[0]"]
-                for comp, dtype in inversion_object.observed_data_types.items()
-            },
+            "data_type": inversion_object.observed_data_types,
             "transforms": [
                 np.hstack(
                     [
@@ -593,17 +590,18 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
         name=None,
     ):
         components = list(inversion_object.observed)
-        channels = [""]
+        channels = [None]
         is_dc = True if "direct current" in self.factory_type else False
         component = "dc" if is_dc else "ip"
         kwargs = {
-            "data_type": {
-                comp: dtype["[0]"]
-                for comp, dtype in inversion_object.observed_data_types.items()
-            },
+            "data_type": inversion_object.observed_data_types,
             "transforms": [
                 np.hstack(
-                    [inversion_object.normalizations[None][c] for c in components]
+                    [
+                        inversion_object.normalizations[chan][comp]
+                        for chan in channels
+                        for comp in components
+                    ]
                 )
             ],
             "channels": channels,

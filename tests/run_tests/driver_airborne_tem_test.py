@@ -50,10 +50,10 @@ def test_bad_waveform(tmp_path: Path):
         padding_distance=400.0,
         flatten=False,
     )
-    params = TDEMForwardOptions(
+    params = TDEMForwardOptions.build(
         geoh5=geoh5,
         mesh=model.parent,
-        active_cells=ActiveCellsOptions(topography_object=topography),
+        topography_object=topography,
         data_object=survey,
         starting_model=model,
         x_channel_bool=True,
@@ -89,10 +89,10 @@ def test_airborne_tem_fwr_run(
         padding_distance=400.0,
         flatten=False,
     )
-    params = TDEMForwardOptions(
+    params = TDEMForwardOptions.build(
         geoh5=geoh5,
         mesh=model.parent,
-        active_cells=ActiveCellsOptions(topography_object=topography),
+        topography_object=topography,
         data_object=survey,
         starting_model=model,
         x_channel_bool=True,
@@ -162,10 +162,10 @@ def test_airborne_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         orig_dBzdt = geoh5.get_entity("Iteration_0_z_[0]")[0].values
 
         # Run the inverse
-        params = TDEMInversionOptions(
+        params = TDEMInversionOptions.build(
             geoh5=geoh5,
             mesh=mesh,
-            active_cells=ActiveCellsOptions(topography_object=topography),
+            topography_object=topography,
             data_object=survey,
             starting_model=1e-3,
             reference_model=1e-3,

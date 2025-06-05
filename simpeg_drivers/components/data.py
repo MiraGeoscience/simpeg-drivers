@@ -219,9 +219,8 @@ class InversionData(InversionLocations):
                 data_entity = self.entity.add_data(
                     {"Observed" + suffix: {"values": normalized_data}}
                 )
-
                 uncerts = np.abs(
-                    self.uncertainties[component][channel].copy()
+                    self.uncertainties[component][channel].flatten()
                     / self.normalizations[channel][component]
                 )
                 uncerts[np.isinf(uncerts)] = np.nan

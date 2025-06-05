@@ -44,6 +44,7 @@ class BaseTDEMOptions(EMDataMixin):
     physical_property: str = "conductivity"
     data_units: str = "dB/dt (T/s)"
     model_type: str = "Conductivity (S/m)"
+    inversion_type: str = "tdem"
 
     @property
     def unit_conversion(self):
@@ -71,8 +72,6 @@ class TDEMForwardOptions(BaseTDEMOptions, BaseForwardOptions):
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/tdem_forward.ui.json"
 
     title: str = "Time-domain EM (TEM) Forward"
-    physical_property: str = "conductivity"
-    inversion_type: str = "tdem"
 
     z_channel_bool: bool | None = None
     x_channel_bool: bool | None = None
@@ -96,7 +95,6 @@ class TDEMInversionOptions(BaseTDEMOptions, BaseInversionOptions):
     name: ClassVar[str] = "Time Domain Electromagnetics Inversion"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/tdem_inversion.ui.json"
     title: str = "Time-domain EM (TEM) Inversion"
-    inversion_type: str = "tdem"
 
     z_channel: PropertyGroup | None = None
     z_uncertainty: PropertyGroup | None = None

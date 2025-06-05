@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 import multiprocessing
+from typing import Literal
 
 import numpy as np
 from geoapps_utils.driver.data import BaseData
@@ -22,7 +23,7 @@ from geoh5py.shared.utils import fetch_active_workspace
 from pydantic import ConfigDict, field_validator, model_validator
 
 import simpeg_drivers
-from simpeg_drivers.options import ActiveCellsOptions, SolverType
+from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.utils.regularization import direction_and_dip
 
 
@@ -60,7 +61,7 @@ class BaseJointOptions(BaseData):
     active_cells: ActiveCellsOptions
     tile_spatial: int = 1
     parallelized: bool = True
-    solver_type: SolverType = SolverType.Pardiso
+
     save_sensitivities: bool = False
     n_cpu: int | None = None
     max_chunk_size: int = 128
@@ -92,7 +93,7 @@ class BaseJointOptions(BaseData):
     max_cg_iterations: int = 30
     tol_cg: float = 1e-4
     f_min_change: float = 1e-2
-    solver_type: SolverType = SolverType.Pardiso
+    solver_type: Literal["Pardiso", "Mumps"] = "Pardiso"
 
     sens_wts_threshold: float = 1e-3
     every_iteration_bool: bool = True
