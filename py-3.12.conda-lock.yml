@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: dd5f3d6403d5db52a5e41fb35b60dce2df1a615f984bba47e191a2a14a68dd3c
-    linux-64: 86d8c36c4b440eac7a217d19ba6775b033719c3606e19d205f30e9bf039ae01e
+    win-64: 6cc6193c96710355cb06cd26f3f0ccf0546cb72e6fb6e3e2751fc3512e5d80ae
+    linux-64: 3f5a974c96720106251f601bd774f1b9d66a8e5cc34c5466c38642f478d7332e
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -1246,7 +1246,7 @@ package:
   category: dev
   optional: true
 - name: discretize
-  version: 0.11.2
+  version: 0.11.3
   manager: conda
   platform: linux-64
   dependencies:
@@ -1257,14 +1257,14 @@ package:
     python: '>=3.12,<3.13.0a0'
     python_abi: 3.12.*
     scipy: '>=1.8'
-  url: https://repo.prefix.dev/conda-forge/linux-64/discretize-0.11.2-py312hc39e661_1.conda
+  url: https://repo.prefix.dev/conda-forge/linux-64/discretize-0.11.3-py312hc39e661_0.conda
   hash:
-    md5: e9c071bcefeb0f70dd18a20f88bb844f
-    sha256: 605ee14cdad67f8797a54853d8030295b522ba478e6759a5bc1f4fec3ac2e225
+    md5: f4156fbef76257cc385c0ad71444079c
+    sha256: ff530b6e50d2b9bc8f60f7261987abccc97afe868b35b70479a47f0edd3fe2bb
   category: main
   optional: false
 - name: discretize
-  version: 0.11.2
+  version: 0.11.3
   manager: conda
   platform: win-64
   dependencies:
@@ -1275,10 +1275,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://repo.prefix.dev/conda-forge/win-64/discretize-0.11.2-py312hbaa7e33_1.conda
+  url: https://repo.prefix.dev/conda-forge/win-64/discretize-0.11.3-py312hbaa7e33_0.conda
   hash:
-    md5: 43aa663b1fd1787fbbeca5a9a954dc57
-    sha256: 259979385edfa18bcbb5b9776490d53026a6bfaf6f738369b49b0a0b2a839303
+    md5: 95022b30369053ba80ed47dc00ebc0e3
+    sha256: 61a69ffd1484d45d4adf21d1bb4b13e3cf65a74570b7694563ff45376ee9d222
   category: main
   optional: false
 - name: distributed
@@ -1589,7 +1589,7 @@ package:
   category: main
   optional: false
 - name: greenlet
-  version: 3.2.2
+  version: 3.2.3
   manager: conda
   platform: linux-64
   dependencies:
@@ -1598,14 +1598,14 @@ package:
     libstdcxx: '>=13'
     python: '>=3.12,<3.13.0a0'
     python_abi: 3.12.*
-  url: https://repo.prefix.dev/conda-forge/linux-64/greenlet-3.2.2-py312h2ec8cdc_0.conda
+  url: https://repo.prefix.dev/conda-forge/linux-64/greenlet-3.2.3-py312h2ec8cdc_0.conda
   hash:
-    md5: 57479f460e512017f9e94299fabac297
-    sha256: df5365f7ea6ab7650de17a762341bdfed9a68717f9ac01839337ff56a37dfd01
+    md5: 78380a74e2375eb8244290e181b2738b
+    sha256: 99a0e1937ba0a6ec31802d7d732270873ee39f5ad9235626d21dc0edcb3840b6
   category: dev
   optional: true
 - name: greenlet
-  version: 3.2.2
+  version: 3.2.3
   manager: conda
   platform: win-64
   dependencies:
@@ -1614,10 +1614,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://repo.prefix.dev/conda-forge/win-64/greenlet-3.2.2-py312h275cf98_0.conda
+  url: https://repo.prefix.dev/conda-forge/win-64/greenlet-3.2.3-py312h275cf98_0.conda
   hash:
-    md5: f3198cf88db3e3f205c3c0ff239ed754
-    sha256: 96a59518acb0e91a782e9dc429d7d298d6a1d4b5995041aa5d375c596be3d801
+    md5: 0697d4cc1f64299d43f26dbdfc2c6ee1
+    sha256: dc86c99941221b6c056407934a46de85fddc8ef1d4c1d031f8819d8f957f61c9
   category: dev
   optional: true
 - name: h11
@@ -5156,7 +5156,7 @@ package:
   category: main
   optional: false
 - name: pandas
-  version: 2.2.3
+  version: 2.3.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -5169,14 +5169,14 @@ package:
     python-tzdata: '>=2022.7'
     python_abi: 3.12.*
     pytz: '>=2020.1'
-  url: https://repo.prefix.dev/conda-forge/linux-64/pandas-2.2.3-py312hf9745cd_3.conda
+  url: https://repo.prefix.dev/conda-forge/linux-64/pandas-2.3.0-py312hf9745cd_0.conda
   hash:
-    md5: 2979458c23c7755683a0598fb33e7666
-    sha256: b0bed36b95757bbd269d30b2367536b802158bdf7947800ee7ae55089cfa8b9c
+    md5: ac82ac336dbe61106e21fb2e11704459
+    sha256: 44f5587c1e1a9f0257387dd18735bcf65a67a6089e723302dc7947be09d9affe
   category: main
   optional: false
 - name: pandas
-  version: 2.2.3
+  version: 2.3.0
   manager: conda
   platform: win-64
   dependencies:
@@ -5189,10 +5189,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://repo.prefix.dev/conda-forge/win-64/pandas-2.2.3-py312h72972c8_3.conda
+  url: https://repo.prefix.dev/conda-forge/win-64/pandas-2.3.0-py312h72972c8_0.conda
   hash:
-    md5: 08b4650b022c9f3233d45f231fb9471f
-    sha256: 86fe04c5f0dcae3644e3d2d892ddf6760d89eeb8fe1a31ef30290ac5a6a9f125
+    md5: e2ab2d8cc52281c9ebe19451936802eb
+    sha256: e4c8a685cfa1334a566b642523c9584d79ba78ed05888c7b7809d9116b6e9e25
   category: main
   optional: false
 - name: pandoc
@@ -7638,27 +7638,27 @@ package:
   category: dev
   optional: true
 - name: tomlkit
-  version: 0.13.2
+  version: 0.13.3
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.9'
-  url: https://repo.prefix.dev/conda-forge/noarch/tomlkit-0.13.2-pyha770c72_1.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/tomlkit-0.13.3-pyha770c72_0.conda
   hash:
-    md5: 1d9ab4fc875c52db83f9c9b40af4e2c8
-    sha256: 986fae65f5568e95dbf858d08d77a0f9cca031345a98550f1d4b51d36d8811e2
+    md5: 146402bf0f11cbeb8f781fa4309a95d3
+    sha256: f8d3b49c084831a20923f66826f30ecfc55a4cd951e544b7213c692887343222
   category: dev
   optional: true
 - name: tomlkit
-  version: 0.13.2
+  version: 0.13.3
   manager: conda
   platform: win-64
   dependencies:
     python: '>=3.9'
-  url: https://repo.prefix.dev/conda-forge/noarch/tomlkit-0.13.2-pyha770c72_1.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/tomlkit-0.13.3-pyha770c72_0.conda
   hash:
-    md5: 1d9ab4fc875c52db83f9c9b40af4e2c8
-    sha256: 986fae65f5568e95dbf858d08d77a0f9cca031345a98550f1d4b51d36d8811e2
+    md5: 146402bf0f11cbeb8f781fa4309a95d3
+    sha256: f8d3b49c084831a20923f66826f30ecfc55a4cd951e544b7213c692887343222
   category: dev
   optional: true
 - name: toolz
@@ -8616,7 +8616,7 @@ package:
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.23.0.1a5.dev28+g447de6c5c
+  version: 0.23.0.1a5.dev29+g02100624a
   manager: pip
   platform: linux-64
   dependencies:
@@ -8628,16 +8628,16 @@ package:
     numpy: '>=1.22'
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@447de6c5c257883c4eea045cb3372bf6a1051ad1
+  url: git+https://github.com/MiraGeoscience/simpeg.git@02100624a89f3acdf5757da69051e0e69ce27843
   hash:
-    sha256: 447de6c5c257883c4eea045cb3372bf6a1051ad1
+    sha256: 02100624a89f3acdf5757da69051e0e69ce27843
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@447de6c5c257883c4eea045cb3372bf6a1051ad1
+    url: git+https://github.com/MiraGeoscience/simpeg.git@02100624a89f3acdf5757da69051e0e69ce27843
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.23.0.1a5.dev28+g447de6c5c
+  version: 0.23.0.1a5.dev29+g02100624a
   manager: pip
   platform: win-64
   dependencies:
@@ -8649,12 +8649,12 @@ package:
     numpy: '>=1.22'
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@447de6c5c257883c4eea045cb3372bf6a1051ad1
+  url: git+https://github.com/MiraGeoscience/simpeg.git@02100624a89f3acdf5757da69051e0e69ce27843
   hash:
-    sha256: 447de6c5c257883c4eea045cb3372bf6a1051ad1
+    sha256: 02100624a89f3acdf5757da69051e0e69ce27843
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@447de6c5c257883c4eea045cb3372bf6a1051ad1
+    url: git+https://github.com/MiraGeoscience/simpeg.git@02100624a89f3acdf5757da69051e0e69ce27843
   category: main
   optional: false
 - name: octree-creation-app
