@@ -123,7 +123,7 @@ class BaseJointDriver(InversionDriver):
                 global_actives,
                 driver.inversion_mesh.mesh,
                 enforce_active=False,
-                components=3 if driver.inversion_data.vector else 1,
+                components=driver.inversion_data.n_blocks,
             )
             driver.params.active_model = None
             driver.models.active_cells = projection.local_active
@@ -206,7 +206,7 @@ class BaseJointDriver(InversionDriver):
             n_values = self.models.n_active
             count = []
             for driver in self.drivers:
-                n_comp = 3 if driver.inversion_data.vector else 1
+                n_comp = driver.inversion_data.n_blocks  # If vector of scalar model
                 count.append(n_values * n_comp)
             self._n_values = count
 
@@ -228,7 +228,7 @@ class BaseJointDriver(InversionDriver):
         if self.params.forward_only:
             print("Running the forward simulation ...")
             predicted = self.inverse_problem.get_dpred(
-                self.models.starting, compute_J=False
+                self.models.starting_model, compute_J=False
             )
 
             for sub, driver in zip(predicted, self.drivers, strict=True):
@@ -240,7 +240,7 @@ class BaseJointDriver(InversionDriver):
         else:
             # Run the inversion
             self.start_inversion_message()
-            self.inversion.run(self.models.starting)
+            self.inversion.run(self.models.starting_model)
 
         self.logger.end()
         sys.stdout = self.logger.terminal

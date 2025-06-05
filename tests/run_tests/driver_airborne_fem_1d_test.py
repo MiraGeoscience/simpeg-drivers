@@ -57,10 +57,10 @@ def test_fem_fwr_1d_run(
         inversion_type="fdem 1d",
         flatten=False,
     )
-    params = FDEM1DForwardOptions(
+    params = FDEM1DForwardOptions.build(
         geoh5=geoh5,
         mesh=model.parent,
-        active_cells=ActiveCellsOptions(topography_object=topography),
+        topography_object=topography,
         data_object=survey,
         starting_model=model,
         z_real_channel_bool=True,
@@ -126,10 +126,10 @@ def test_fem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
         orig_z_real_1 = geoh5.get_entity("Iteration_0_z_real_[0]")[0].values
 
         # Run the inverse
-        params = FDEM1DInversionOptions(
+        params = FDEM1DInversionOptions.build(
             geoh5=geoh5,
             mesh=mesh,
-            active_cells=ActiveCellsOptions(topography_object=topography),
+            topography_object=topography,
             data_object=survey,
             starting_model=1e-3,
             reference_model=1e-3,

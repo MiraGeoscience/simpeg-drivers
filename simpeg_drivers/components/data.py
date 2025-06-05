@@ -53,8 +53,6 @@ class InversionData(InversionLocations):
     mask :
         Mask accumulated by windowing and downsampling operations and applied
         to locations and data on initialization.
-    vector :
-        True if models are vector valued.
     n_blocks :
         Number of blocks if vector.
     components :
@@ -84,8 +82,6 @@ class InversionData(InversionLocations):
         super().__init__(workspace, params)
         self.locations: np.ndarray | None = None
         self.mask: np.ndarray | None = None
-        self.indices: np.ndarray | None = None
-        self.vector: bool | None = None
         self.n_blocks: int | None = None
 
         self._observed: dict[str, np.ndarray] | None = None
@@ -102,7 +98,6 @@ class InversionData(InversionLocations):
 
     def _initialize(self) -> None:
         """Extract data from the workspace using params data."""
-        self.vector = True if self.params.inversion_type == "magnetic vector" else False
         self.n_blocks = 3 if self.params.inversion_type == "magnetic vector" else 1
         self.components = self.params.active_components
 
@@ -127,7 +122,7 @@ class InversionData(InversionLocations):
         Return observed data filtered and normalized.
         """
         if self._observed is None:
-            filtered = self.filter(self.params.data)
+            filtered = self.filter(self.params.data, mask=self.mask)
             self._observed = self.normalize(filtered)
 
         return self._observed
@@ -138,7 +133,7 @@ class InversionData(InversionLocations):
         Return uncertainties filtered and normalized.
         """
         if self._uncertainties is None and hasattr(self.params, "uncertainties"):
-            filtered = self.filter(self.params.uncertainties)
+            filtered = self.filter(self.params.uncertainties, mask=self.mask)
             self._uncertainties = self.normalize(filtered, absolute=True)
 
         return self._uncertainties
@@ -164,18 +159,6 @@ class InversionData(InversionLocations):
         distance_interp /= ((rad + 1e-8) ** -1.0).sum(axis=1)
 
         return np.c_[distance_interp, locations[:, 2:]]
-
-    def filter(self, obj: dict[str, np.ndarray] | np.ndarray, mask=None):
-        """Remove vertices based on mask property."""
-        if mask is None:
-            mask = self.mask
-
-        if self.indices is None:
-            self.indices = np.where(mask)[0]
-
-        obj = super().filter(obj, mask=self.indices)
-
-        return obj
 
     def get_data(self) -> tuple[list, dict, dict]:
         """
@@ -435,7 +418,7 @@ class InversionData(InversionLocations):
                 active_cells,
                 local_mesh,
                 enforce_active=True,
-                components=3 if self.vector else 1,
+                components=self.n_blocks,
             )
             simulation = simulation_factory.build(
                 survey=survey,
