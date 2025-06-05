@@ -394,7 +394,7 @@ class DirectiveOptions(BaseModel):
     beta_search: bool = True
     every_iteration_bool: bool = False
     save_sensitivities: bool = False
-    sens_wts_threshold: float | None = 0.0
+    sens_wts_threshold: float | None = 1e-3
 
 
 class DrapeModelOptions(BaseModel):
