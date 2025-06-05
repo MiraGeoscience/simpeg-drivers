@@ -59,12 +59,11 @@ def test_magnetic_vector_fwr_run(
         survey = Curve.create(geoh5, name=points.name, vertices=points.vertices)
         geoh5.remove_entity(points)
     inducing_field = (50000.0, 90.0, 0.0)
-    active_cells = ActiveCellsOptions(topography_object=topography)
-    params = MVIForwardOptions(
+    params = MVIForwardOptions.build(
         forward_only=True,
         geoh5=geoh5,
         mesh=model.parent,
-        active_cells=active_cells,
+        topography_object=topography,
         inducing_field_strength=inducing_field[0],
         inducing_field_inclination=inducing_field[1],
         inducing_field_declination=inducing_field[2],
@@ -111,11 +110,10 @@ def test_magnetic_vector_run(
         )
 
         # Run the inverse
-        active_cells = ActiveCellsOptions(topography_object=topography)
-        params = MVIInversionOptions(
+        params = MVIInversionOptions.build(
             geoh5=geoh5,
             mesh=mesh,
-            active_cells=active_cells,
+            topography_object=topography,
             inducing_field_strength=inducing_field[0],
             inducing_field_inclination=inducing_field[1],
             inducing_field_declination=inducing_field[2],
@@ -186,12 +184,11 @@ def test_magnetic_vector_bounds_run(
         inducing_field = (50000.0, 90.0, 0.0)
 
         # Run the inverse
-        active_cells = ActiveCellsOptions(topography_object=topography)
         with caplog.at_level(logging.WARNING):
-            params = MVIInversionOptions(
+            params = MVIInversionOptions.build(
                 geoh5=geoh5,
                 mesh=mesh,
-                active_cells=active_cells,
+                topography_object=topography,
                 inducing_field_strength=inducing_field[0],
                 inducing_field_inclination=inducing_field[1],
                 inducing_field_declination=inducing_field[2],
