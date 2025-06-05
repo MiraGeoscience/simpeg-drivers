@@ -171,7 +171,6 @@ class InversionDriver(BaseDriver):
                 self.logger.write("Saving data to file...\n")
 
                 if isinstance(self.params, BaseInversionOptions):
-                    self.inversion_data.save_data()
                     self._data_misfit.multipliers = np.asarray(
                         self._data_misfit.multipliers, dtype=float
                     )

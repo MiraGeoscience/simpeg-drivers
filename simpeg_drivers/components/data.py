@@ -94,8 +94,6 @@ class InversionData(InversionLocations):
 
         self._initialize()
 
-        self.normalizations: dict[str, Any] = self.get_normalizations()
-
     def _initialize(self) -> None:
         """Extract data from the workspace using params data."""
         self.n_blocks = 3 if self.params.inversion_type == "magnetic vector" else 1
@@ -112,7 +110,10 @@ class InversionData(InversionLocations):
         else:
             self.mask = np.ones(len(self.locations), dtype=bool)
 
+        self.normalizations: dict[str, Any] = self.get_normalizations()
+
         self.entity = self.write_entity()
+        self.save_data()
         self.params.data_object = self.entity
         self.locations = super().get_locations(self.entity)
 

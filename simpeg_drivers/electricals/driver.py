@@ -131,7 +131,6 @@ class BaseBatch2DDriver(LineSweepDriver):
         with fetch_active_workspace(self.workspace, mode="r+"):
             self._window = InversionWindow(self.workspace, self.batch2d_params)
             self._inversion_data = InversionData(self.workspace, self.batch2d_params)
-            self._inversion_data.save_data()
             self._inversion_topography = InversionTopography(
                 self.workspace, self.batch2d_params
             )

@@ -110,7 +110,6 @@ class Base1DDriver(InversionDriver):
                 )
                 logger.info("Done.")
 
-                self.inversion_data.save_data()
                 self._data_misfit.multipliers = np.asarray(
                     self._data_misfit.multipliers, dtype=float
                 )
