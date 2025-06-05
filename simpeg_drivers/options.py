@@ -274,6 +274,10 @@ class ModelOptions(BaseModel):
         arbitrary_types_allowed=True,
     )
 
+    model_type: Literal["Conductivity (S/m)", "Resistivity (Ohm-m)"] = (
+        "Conductivity (S/m)"
+    )
+
     # Model options
     starting_model: float | FloatData
     reference_model: float | FloatData | None = None
