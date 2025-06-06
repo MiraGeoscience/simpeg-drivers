@@ -250,9 +250,7 @@ def test_gravity_uijson(tmp_path):
         gz_uncertainty=gz_uncerts,
         mesh=starting_model.parent,
         starting_model=starting_model,
-        active_cells=ActiveCellsOptions(
-            topography_object=topography,
-        ),
+        topography_object=topography,
     )
     params_uijson_path = tmp_path / "from_params.ui.json"
     opts.write_ui_json(params_uijson_path)
