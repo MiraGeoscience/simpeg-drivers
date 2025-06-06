@@ -15,6 +15,7 @@ from typing import ClassVar
 
 import numpy as np
 import pytest
+from geoapps_utils.driver.data import BaseData
 from geoh5py import Workspace
 from geoh5py.ui_json import InputFile
 from geoh5py.ui_json.annotations import Deprecated
@@ -24,7 +25,7 @@ from pydantic import AliasChoices, Field
 import simpeg_drivers
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.line_sweep.driver import LineSweepDriver
-from simpeg_drivers.options import ActiveCellsOptions
+from simpeg_drivers.options import ActiveCellsOptions, Deprecations
 from simpeg_drivers.potential_fields.gravity.options import GravityInversionOptions
 from simpeg_drivers.potential_fields.gravity.uijson import GravityInversionUIJson
 from simpeg_drivers.uijson import SimPEGDriversUIJson
@@ -175,7 +176,21 @@ def test_write_default(tmp_path):
     ) == SimPEGDriversUIJson.comparable_version(simpeg_drivers.__version__)
 
 
-def test_deprecations(caplog, simpeg_uijson_factory):
+def test_deprecated_options(caplog):
+    geoh5 = Workspace()
+
+    class Options(BaseData):
+        deprecations: Deprecations
+
+    with caplog.at_level(logging.WARNING):
+        options = Options.build(geoh5=geoh5, parallelized="abc")
+
+    assert "Deprecated field 'parallelized' will be ignored" in caplog.text
+    assert "deprecations" not in options.model_dump()
+    assert "parallelized" not in options.model_dump()
+
+
+def test_uijson_deprecations(caplog, simpeg_uijson_factory):
     class MyUIJson(SimPEGDriversUIJson):
         my_param: Deprecated
 
@@ -184,7 +199,7 @@ def test_deprecations(caplog, simpeg_uijson_factory):
     assert "Skipping deprecated field: my_param." in caplog.text
 
 
-def test_pydantic_deprecation(simpeg_uijson_factory):
+def test_pydantic_uijson_deprecation(simpeg_uijson_factory):
     class MyUIJson(SimPEGDriversUIJson):
         my_param: str = Field(deprecated="Use my_param2 instead.", exclude=True)
 
@@ -192,7 +207,7 @@ def test_pydantic_deprecation(simpeg_uijson_factory):
     assert "my_param" not in uijson.model_dump()
 
 
-def test_alias(simpeg_uijson_factory):
+def test_uijson_alias(simpeg_uijson_factory):
     class MyUIJson(SimPEGDriversUIJson):
         my_param: str = Field(validation_alias=AliasChoices("my_param", "myParam"))
 
@@ -316,6 +331,9 @@ def test_legacy_uijson(tmp_path: Path):
                 ifile.data["data_object"] = survey
                 ifile.data["topography_object"] = topo
 
+                # Test deprecated name
+                ifile.data["coolingFactor"] = 4.0
+
                 if "2d" in inversion_type or "pseudo 3d" in inversion_type:
                     line_id = geoh5.get_entity("line_ids")[0]
                     ifile.data["line_object"] = line_id
@@ -351,6 +369,9 @@ def test_legacy_uijson(tmp_path: Path):
                     ifile.data[CHANNEL_NAME[inversion_type] + "_uncertainty"] = channel
 
             driver = InversionDriver.from_input_file(ifile)
+
+            if hasattr(driver.params, "cooling_factor"):
+                assert driver.params.cooling_factor == 4.0
 
             if isinstance(driver, LineSweepDriver):
                 continue
