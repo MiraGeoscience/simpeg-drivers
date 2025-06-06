@@ -18,7 +18,7 @@ from pydantic import model_validator
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.joint.options import BaseJointOptions
-from simpeg_drivers.options import ModelOptions
+from simpeg_drivers.options import ConductivityModelOptions
 
 
 class JointSurveysOptions(BaseJointOptions):
@@ -30,10 +30,9 @@ class JointSurveysOptions(BaseJointOptions):
     )
 
     title: str = "Joint Surveys Inversion"
-
     inversion_type: str = "joint surveys"
 
-    models: ModelOptions
+    models: ConductivityModelOptions
 
     @model_validator(mode="after")
     def all_groups_same_physical_property(self):

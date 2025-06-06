@@ -14,14 +14,14 @@ from __future__ import annotations
 from pathlib import Path
 from typing import ClassVar
 
-from geoh5py.data import DataAssociationEnum, FloatData, ReferencedData
-from geoh5py.objects import DrapeModel
-from pydantic import BaseModel, ConfigDict, field_validator, model_validator
+from geoh5py.data import FloatData
+from geoh5py.objects import DrapeModel, PotentialElectrode
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.options import (
     BaseForwardOptions,
     BaseInversionOptions,
+    ConductivityModelOptions,
     DrapeModelOptions,
     LineSelectionOptions,
 )
@@ -45,10 +45,12 @@ class DC2DForwardOptions(BaseForwardOptions):
     physical_property: str = "conductivity"
     inversion_type: str = "direct current 2d"
 
+    data_object: PotentialElectrode
     potential_channel_bool: bool = True
     line_selection: LineSelectionOptions
     mesh: DrapeModel | None = None
     drape_model: DrapeModelOptions
+    models: ConductivityModelOptions
 
 
 class DC2DInversionOptions(BaseInversionOptions):
@@ -70,8 +72,10 @@ class DC2DInversionOptions(BaseInversionOptions):
     physical_property: str = "conductivity"
     inversion_type: str = "direct current 2d"
 
+    data_object: PotentialElectrode
     potential_channel: FloatData
     potential_uncertainty: float | FloatData | None = None
     line_selection: LineSelectionOptions
     mesh: DrapeModel | None = None
     drape_model: DrapeModelOptions
+    models: ConductivityModelOptions

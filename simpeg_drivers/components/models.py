@@ -196,8 +196,8 @@ class InversionModelCollection:
     @property
     def lower_bound(self) -> np.ndarray | None:
         if (
-            self.driver.params.models.model_type == "Resistivity (Ohm-m)"
-            and self.is_sigma
+            self.is_sigma
+            and self.driver.params.models.model_type == "Resistivity (Ohm-m)"
         ):
             bound_model = self._upper_bound.model
         else:
@@ -227,8 +227,8 @@ class InversionModelCollection:
     @property
     def upper_bound(self) -> np.ndarray | None:
         if (
-            self.driver.params.models.model_type == "Resistivity (Ohm-m)"
-            and self.is_sigma
+            self.is_sigma
+            and self.driver.params.models.model_type == "Resistivity (Ohm-m)"
         ):
             bound_model = self._lower_bound.model
         else:

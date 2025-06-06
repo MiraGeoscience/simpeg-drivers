@@ -24,6 +24,7 @@ from simpeg_drivers.electricals.options import (
 from simpeg_drivers.options import (
     BaseForwardOptions,
     BaseInversionOptions,
+    ConductivityModelOptions,
     DrapeModelOptions,
     LineSelectionOptions,
 )
@@ -52,12 +53,11 @@ class IPBatch2DForwardOptions(BaseForwardOptions):
 
     data_object: PotentialElectrode
     chargeability_channel_bool: bool = True
-
     line_selection: LineSelectionOptions
     mesh: Octree | None = None
-
     drape_model: DrapeModelOptions = DrapeModelOptions()
     file_control: FileControlOptions = FileControlOptions()
+    models: ConductivityModelOptions
 
 
 class IPBatch2DInversionOptions(BaseInversionOptions):
@@ -86,8 +86,7 @@ class IPBatch2DInversionOptions(BaseInversionOptions):
     chargeability_channel: FloatData
     chargeability_uncertainty: float | FloatData
     line_selection: LineSelectionOptions
-
     mesh: Octree | None = None
     drape_model: DrapeModelOptions = DrapeModelOptions()
-
     file_control: FileControlOptions = FileControlOptions()
+    models: ConductivityModelOptions

@@ -24,7 +24,12 @@ from geoh5py.objects import (
 from pydantic import field_validator
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.options import BaseForwardOptions, BaseInversionOptions, EMDataMixin
+from simpeg_drivers.options import (
+    BaseForwardOptions,
+    BaseInversionOptions,
+    ConductivityModelOptions,
+    EMDataMixin,
+)
 
 
 Receivers: TypeAlias = (
@@ -40,8 +45,10 @@ class BaseFDEMOptions(EMDataMixin):
     """
 
     physical_property: str = "conductivity"
-    data_object: Receivers
     inversion_type: str = "fdem"
+
+    data_object: Receivers
+    models: ConductivityModelOptions
 
     @property
     def tx_offsets(self):

@@ -19,7 +19,12 @@ from geoh5py.groups import PropertyGroup
 from geoh5py.objects import TipperReceivers
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.options import BaseForwardOptions, BaseInversionOptions, EMDataMixin
+from simpeg_drivers.options import (
+    BaseForwardOptions,
+    BaseInversionOptions,
+    ConductivityModelOptions,
+    EMDataMixin,
+)
 
 
 class TipperForwardOptions(EMDataMixin, BaseForwardOptions):
@@ -44,6 +49,7 @@ class TipperForwardOptions(EMDataMixin, BaseForwardOptions):
     txz_imag_channel_bool: bool | None = None
     tyz_real_channel_bool: bool | None = None
     tyz_imag_channel_bool: bool | None = None
+    models: ConductivityModelOptions
 
 
 class TipperInversionOptions(EMDataMixin, BaseInversionOptions):
@@ -76,3 +82,4 @@ class TipperInversionOptions(EMDataMixin, BaseInversionOptions):
     tyz_real_uncertainty: PropertyGroup | None = None
     tyz_imag_channel: PropertyGroup | None = None
     tyz_imag_uncertainty: PropertyGroup | None = None
+    models: ConductivityModelOptions

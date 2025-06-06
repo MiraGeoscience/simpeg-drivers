@@ -19,7 +19,12 @@ from geoh5py.groups import PropertyGroup
 from geoh5py.objects import MTReceivers
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.options import BaseForwardOptions, BaseInversionOptions, EMDataMixin
+from simpeg_drivers.options import (
+    BaseForwardOptions,
+    BaseInversionOptions,
+    ConductivityModelOptions,
+    EMDataMixin,
+)
 
 
 class MTForwardOptions(EMDataMixin, BaseForwardOptions):
@@ -55,6 +60,7 @@ class MTForwardOptions(EMDataMixin, BaseForwardOptions):
     zyx_imag_channel_bool: bool | None = None
     zyy_real_channel_bool: bool | None = None
     zyy_imag_channel_bool: bool | None = None
+    models: ConductivityModelOptions
 
     @property
     def channels(self) -> list[str]:
@@ -109,3 +115,5 @@ class MTInversionOptions(EMDataMixin, BaseInversionOptions):
     zyy_real_uncertainty: PropertyGroup | None = None
     zyy_imag_channel: PropertyGroup | None = None
     zyy_imag_uncertainty: PropertyGroup | None = None
+
+    models: ConductivityModelOptions

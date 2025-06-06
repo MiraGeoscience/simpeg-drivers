@@ -83,7 +83,6 @@ class MVIForwardOptions(BaseForwardOptions):
     physical_property: str = "susceptibility"
     inversion_type: str = "magnetic vector"
 
-    models: VectorModelOptions
     tmi_channel_bool: bool = True
     bx_channel_bool: bool = False
     by_channel_bool: bool = False
@@ -97,6 +96,7 @@ class MVIForwardOptions(BaseForwardOptions):
     inducing_field_strength: float | FloatData
     inducing_field_inclination: float | FloatData
     inducing_field_declination: float | FloatData
+    models: VectorModelOptions
 
 
 class MVIInversionOptions(BaseInversionOptions):
@@ -141,8 +141,6 @@ class MVIInversionOptions(BaseInversionOptions):
     physical_property: str = "susceptibility"
     inversion_type: str = "magnetic vector"
 
-    models: VectorModelOptions
-
     tmi_channel: FloatData | None = None
     bx_channel: FloatData | None = None
     by_channel: FloatData | None = None
@@ -166,3 +164,4 @@ class MVIInversionOptions(BaseInversionOptions):
     inducing_field_strength: float | FloatData
     inducing_field_inclination: float | FloatData
     inducing_field_declination: float | FloatData
+    models: VectorModelOptions

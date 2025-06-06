@@ -27,7 +27,6 @@ from simpeg_drivers.options import (
     BaseForwardOptions,
     BaseInversionOptions,
     DrapeModelOptions,
-    EMDataMixin,
 )
 
 

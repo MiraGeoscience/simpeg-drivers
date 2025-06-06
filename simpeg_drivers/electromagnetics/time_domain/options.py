@@ -22,7 +22,12 @@ from geoh5py.objects import (
 )
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.options import BaseForwardOptions, BaseInversionOptions, EMDataMixin
+from simpeg_drivers.options import (
+    BaseForwardOptions,
+    BaseInversionOptions,
+    ConductivityModelOptions,
+    EMDataMixin,
+)
 
 
 Receivers: TypeAlias = (
@@ -39,10 +44,12 @@ class BaseTDEMOptions(EMDataMixin):
     :param data_units: The units of the TDEM data (e.g., "dB/dt (T/s)").
     """
 
-    data_object: Receivers
     physical_property: str = "conductivity"
     data_units: str = "dB/dt (T/s)"
     inversion_type: str = "tdem"
+
+    data_object: Receivers
+    models: ConductivityModelOptions
 
     @property
     def unit_conversion(self):

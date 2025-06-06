@@ -18,7 +18,11 @@ from geoh5py.data import FloatData
 from geoh5py.objects.surveys.direct_current import PotentialElectrode
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.options import BaseForwardOptions, BaseInversionOptions
+from simpeg_drivers.options import (
+    BaseForwardOptions,
+    BaseInversionOptions,
+    ConductivityModelOptions,
+)
 
 
 class IP3DForwardOptions(BaseForwardOptions):
@@ -39,6 +43,7 @@ class IP3DForwardOptions(BaseForwardOptions):
 
     data_object: PotentialElectrode
     chargeability_channel_bool: bool = True
+    models: ConductivityModelOptions
 
 
 class IP3DInversionOptions(BaseInversionOptions):
@@ -61,3 +66,4 @@ class IP3DInversionOptions(BaseInversionOptions):
     data_object: PotentialElectrode
     chargeability_channel: FloatData
     chargeability_uncertainty: float | FloatData | None = None
+    models: ConductivityModelOptions

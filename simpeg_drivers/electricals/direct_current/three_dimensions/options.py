@@ -15,9 +15,14 @@ from pathlib import Path
 from typing import ClassVar
 
 from geoh5py.data import FloatData
+from geoh5py.objects import PotentialElectrode
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.options import BaseForwardOptions, BaseInversionOptions
+from simpeg_drivers.options import (
+    BaseForwardOptions,
+    BaseInversionOptions,
+    ConductivityModelOptions,
+)
 
 
 class DC3DForwardOptions(BaseForwardOptions):
@@ -36,7 +41,9 @@ class DC3DForwardOptions(BaseForwardOptions):
     physical_property: str = "conductivity"
     inversion_type: str = "direct current 3d"
 
+    data_object: PotentialElectrode
     potential_channel_bool: bool = True
+    models: ConductivityModelOptions
 
 
 class DC3DInversionOptions(BaseInversionOptions):
@@ -56,5 +63,7 @@ class DC3DInversionOptions(BaseInversionOptions):
     physical_property: str = "conductivity"
     inversion_type: str = "direct current 3d"
 
+    data_object: PotentialElectrode
     potential_channel: FloatData
     potential_uncertainty: float | FloatData | None = None
+    models: ConductivityModelOptions

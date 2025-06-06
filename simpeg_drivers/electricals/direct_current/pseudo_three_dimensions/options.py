@@ -24,6 +24,7 @@ from simpeg_drivers.electricals.options import (
 from simpeg_drivers.options import (
     BaseForwardOptions,
     BaseInversionOptions,
+    ConductivityModelOptions,
     DrapeModelOptions,
     LineSelectionOptions,
 )
@@ -56,6 +57,7 @@ class DCBatch2DForwardOptions(BaseForwardOptions):
     mesh: Octree | None = None
     drape_model: DrapeModelOptions = DrapeModelOptions()
     file_control: FileControlOptions = FileControlOptions()
+    models: ConductivityModelOptions
 
 
 class DCBatch2DInversionOptions(BaseInversionOptions):
@@ -87,3 +89,4 @@ class DCBatch2DInversionOptions(BaseInversionOptions):
     mesh: Octree | None = None
     drape_model: DrapeModelOptions = DrapeModelOptions()
     file_control: FileControlOptions = FileControlOptions()
+    models: ConductivityModelOptions

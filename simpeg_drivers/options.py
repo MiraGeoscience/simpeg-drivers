@@ -121,14 +121,15 @@ class DeprecatedOptions(BaseModel):
     List of deprecated options.
     """
 
-    gradient_type: Deprecated
+    beta_search: Deprecated
     chunk_by_rows: Deprecated
-    parallelized: Deprecated
     ga_group: Deprecated
-    z_from_topo: Deprecated
-    receivers_radar_drape: Deprecated
-    receivers_offset_z: Deprecated
     gps_receivers_offset: Deprecated
+    gradient_type: Deprecated
+    receivers_offset_z: Deprecated
+    receivers_radar_drape: Deprecated
+    parallelized: Deprecated
+    z_from_topo: Deprecated
 
 
 Deprecations = Annotated[
@@ -173,7 +174,10 @@ class CoreOptions(BaseData):
     compute: ComputeOptions = ComputeOptions()
     out_group: SimPEGGroup | UIJsonGroup | None = None
     generate_sweep: bool = False
-
+    workspace_geoh5: Path | None = Field(
+        default=None,
+        exclude=True,
+    )
     # List of deprecated parameters
     deprecations: Deprecations
 
@@ -253,8 +257,6 @@ class ModelOptions(BaseModel):
 
     :param starting_model: Starting model.
     :param reference_model: Reference model.
-    :param conductivity_model: Conductivity model used for IP and NS inversions.
-    :param petrophysical_model: Petrophysical model used for joint inversions.
     :param lower_bound: Lower bound.
     :param upper_bound: Upper bound.
     :param alpha_s: Scale on the reference model.
@@ -272,17 +274,9 @@ class ModelOptions(BaseModel):
         arbitrary_types_allowed=True,
     )
 
-    model_type: Literal["Conductivity (S/m)", "Resistivity (Ohm-m)"] = (
-        "Conductivity (S/m)"
-    )
-
     # Model options
     starting_model: float | FloatData
     reference_model: float | FloatData | None = None
-    conductivity_model: float | FloatData | None = Field(
-        None,
-        validation_alias=AliasChoices("background_conductivity", "conductivity_model"),
-    )
     lower_bound: float | FloatData | None = None
     upper_bound: float | FloatData | None = None
 
@@ -326,6 +320,20 @@ class ModelOptions(BaseModel):
             return np.deg2rad(orientations)
 
         return None
+
+
+class ConductivityModelOptions(ModelOptions):
+    """
+    Options for the conductivity model used in all of EM methods.
+    """
+
+    model_type: Literal["Conductivity (S/m)", "Resistivity (Ohm-m)"] = (
+        "Conductivity (S/m)"
+    )
+    conductivity_model: float | FloatData | None = Field(
+        None,
+        validation_alias=AliasChoices("background_conductivity", "conductivity_model"),
+    )
 
 
 class BaseForwardOptions(CoreOptions):
@@ -391,7 +399,6 @@ class DirectiveOptions(BaseModel):
         arbitrary_types_allowed=True,
     )
     auto_scale_misfits: bool = True
-    beta_search: bool = True
     every_iteration_bool: bool = False
     save_sensitivities: bool = False
     sens_wts_threshold: float | None = 1e-3

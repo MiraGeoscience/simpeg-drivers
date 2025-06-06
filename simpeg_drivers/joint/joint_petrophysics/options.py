@@ -15,7 +15,6 @@ from pathlib import Path
 from typing import ClassVar
 
 from geoh5py.data import ReferencedData
-from geoh5py.groups import SimPEGGroup
 from geoh5py.objects import Octree
 
 from simpeg_drivers import assets_path
@@ -51,6 +50,6 @@ class JointPetrophysicsOptions(BaseJointOptions):
 
     inversion_type: str = "joint petrophysics"
 
+    group_b_multiplier: float | None = None
     mesh: Octree
     petrophysics_model: JointPetrophysicsModelOptions
-    group_b_multiplier: float | None = None

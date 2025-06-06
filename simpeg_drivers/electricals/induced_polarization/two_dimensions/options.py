@@ -15,12 +15,13 @@ from pathlib import Path
 from typing import ClassVar
 
 from geoh5py.data import FloatData
-from geoh5py.objects import DrapeModel
+from geoh5py.objects import DrapeModel, PotentialElectrode
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.options import (
     BaseForwardOptions,
     BaseInversionOptions,
+    ConductivityModelOptions,
     DrapeModelOptions,
     LineSelectionOptions,
 )
@@ -45,10 +46,12 @@ class IP2DForwardOptions(BaseForwardOptions):
     physical_property: str = "chargeability"
     inversion_type: str = "induced polarization 2d"
 
+    data_object: PotentialElectrode
     chargeability_channel_bool: bool = True
     line_selection: LineSelectionOptions
     mesh: DrapeModel | None = None
     drape_model: DrapeModelOptions = DrapeModelOptions()
+    models: ConductivityModelOptions
 
 
 class IP2DInversionOptions(BaseInversionOptions):
@@ -70,8 +73,10 @@ class IP2DInversionOptions(BaseInversionOptions):
     physical_property: str = "chargeability"
     inversion_type: str = "induced polarization 2d"
 
+    data_object: PotentialElectrode
     chargeability_channel: FloatData
     chargeability_uncertainty: float | FloatData | None = None
     line_selection: LineSelectionOptions
     mesh: DrapeModel | None = None
     drape_model: DrapeModelOptions = DrapeModelOptions()
+    models: ConductivityModelOptions
