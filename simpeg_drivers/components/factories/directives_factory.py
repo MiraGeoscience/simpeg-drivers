@@ -404,7 +404,7 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
                 inversion_object.permutation.T,
             ]
 
-            if self.params.model_type == "Resistivity (Ohm-m)":
+            if self.params.models.model_type == "Resistivity (Ohm-m)":
                 kwargs["transforms"].append(lambda x: 1 / x)
 
         if "1d" in self.factory_type:

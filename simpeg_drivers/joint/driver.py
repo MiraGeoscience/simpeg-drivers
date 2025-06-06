@@ -355,11 +355,10 @@ class BaseJointDriver(InversionDriver):
         for driver in self.drivers:
             driver_directives = DirectivesFactory(driver)
 
-            if (
-                getattr(driver.params, "model_type", None) is not None
-                and getattr(self.params, "model_type", None) is not None
+            if hasattr(driver.params.models, "model_type") and hasattr(
+                self.params.models, "model_type"
             ):
-                driver.params.model_type = self.params.model_type
+                driver.params.models.model_type = self.params.models.model_type
 
             save_model = driver_directives.save_iteration_model_directive
             save_model.transforms = [
