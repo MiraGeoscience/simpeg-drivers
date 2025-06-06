@@ -26,7 +26,6 @@ from geoh5py.data import (
     ReferencedData,
 )
 from geoh5py.groups import PropertyGroup, SimPEGGroup, UIJsonGroup
-from geoh5py.groups.property_group_type import GroupTypeEnum
 from geoh5py.objects import DrapeModel, Grid2D, Octree, Points
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
@@ -39,7 +38,6 @@ from pydantic import (
     field_validator,
     model_validator,
 )
-from simpeg.utils.mat_utils import cartesian2amplitude_dip_azimuth
 
 import simpeg_drivers
 from simpeg_drivers.utils.regularization import direction_and_dip
