@@ -43,6 +43,19 @@ class Base2DDriver(InversionDriver):
     """Base class for 2D DC and IP forward and inversion drivers."""
 
     @property
+    def inversion_data(self) -> InversionData:
+        """Inversion data"""
+        if getattr(self, "_inversion_data", None) is None:
+            with fetch_active_workspace(self.workspace, mode="r+"):
+                if not isinstance(self.inversion_mesh.entity, DrapeModel):
+                    raise ValueError(
+                        "Inversion mesh must be a DrapeModel for 2D drivers."
+                    )
+                self._inversion_data = InversionData(self.workspace, self.params)
+
+        return self._inversion_data
+
+    @property
     def inversion_mesh(self) -> InversionMesh:
         """Inversion mesh"""
         if getattr(self, "_inversion_mesh", None) is None:
