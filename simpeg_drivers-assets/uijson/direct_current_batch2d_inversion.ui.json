@@ -324,7 +324,6 @@
         "enabled": true,
         "tooltip": "Lp-norm used in the z-smoothness term of the objective function"
     },
-    "gradient_type": "total",
     "max_irls_iterations": {
         "min": 0,
         "group": "Sparse/blocky model",

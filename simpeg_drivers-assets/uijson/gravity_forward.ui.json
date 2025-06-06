@@ -7,7 +7,6 @@
     "run_command": "simpeg_drivers.driver",
     "geoh5": "",
     "monitoring_directory": "",
-    "workspace_geoh5": "",
     "inversion_type": "gravity",
     "forward_only": true,
     "physical_property": "density",
