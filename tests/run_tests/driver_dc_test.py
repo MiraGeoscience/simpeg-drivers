@@ -150,7 +150,7 @@ def test_dc_single_line_fwr_run(
         n_lines=n_lines,
         refinement=refinement,
         drape_height=0.0,
-        inversion_type="dcip",
+        inversion_type="direct current 3d",
         flatten=False,
     )
     params = DC3DForwardOptions.build(

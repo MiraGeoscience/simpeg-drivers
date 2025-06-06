@@ -65,7 +65,7 @@ class MisfitFactory(SimPEGFactory):
     ):
         # Base slice over frequencies
         if self.factory_type in ["magnetotellurics", "tipper", "fdem"]:
-            channels = np.unique([list(v) for v in inversion_data.observed.values()])
+            channels = inversion_data.entity.channels
         else:
             channels = [None]
 

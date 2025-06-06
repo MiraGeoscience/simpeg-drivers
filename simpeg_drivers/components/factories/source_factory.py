@@ -132,7 +132,7 @@ class SourcesFactory(SimPEGFactory):
                 "declination": self.params.inducing_field_declination,
             }
         if self.factory_type in ["magnetotellurics", "tipper"]:
-            background = deepcopy(self.params.models.conductivit_model)
+            background = deepcopy(self.params.models.conductivity_model)
 
             if getattr(self.params, "model_type", None) == "Resistivity (Ohm-m)":
                 background **= -1.0
