@@ -36,12 +36,12 @@ def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
         tmi_channel = survey.add_data(
             {"tmi": {"values": np.random.rand(survey.n_vertices)}}
         )
-    params = MVIInversionOptions(
+    params = MVIInversionOptions.build(
         geoh5=geoh5,
         data_object=survey,
         tmi_channel=tmi_channel,
         tmi_uncertainty=1.0,
-        active_cells=ActiveCellsOptions(topography_object=topography),
+        topography_object=topography,
         mesh=model.parent,
         starting_model=model,
     )

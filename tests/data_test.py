@@ -46,11 +46,11 @@ def get_mvi_params(tmp_path: Path, **kwargs) -> MVIInversionOptions:
         tmi_channel = survey.add_data(
             {"tmi": {"values": np.random.rand(survey.n_vertices)}}
         )
-    params = MVIInversionOptions(
+    params = MVIInversionOptions.build(
         geoh5=geoh5,
         data_object=survey,
         tmi_channel=tmi_channel,
-        active_cells=ActiveCellsOptions(topography_object=topography),
+        topography_object=topography,
         mesh=model.parent,
         starting_model=model,
         **kwargs,
@@ -115,7 +115,7 @@ def test_survey_data(tmp_path: Path):
         active_cells = ActiveCellsOptions(
             topography_object=test_topo_object, topography=topo
         )
-        params = MVIInversionOptions(
+        params = MVIInversionOptions.build(
             geoh5=workspace,
             data_object=test_data_object,
             active_cells=active_cells,

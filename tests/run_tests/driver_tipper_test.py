@@ -55,10 +55,10 @@ def test_tipper_fwr_run(
         flatten=False,
     )
 
-    params = TipperForwardOptions(
+    params = TipperForwardOptions.build(
         geoh5=geoh5,
         mesh=model.parent,
-        active_cells=ActiveCellsOptions(topography_object=topography),
+        topography_object=topography,
         data_object=survey,
         starting_model=model,
         model_type="Resistivity (Ohm-m)",
@@ -72,7 +72,7 @@ def test_tipper_fwr_run(
     fwr_driver = TipperForwardDriver(params)
 
     # Should always be returning conductivity for simpeg simulations
-    assert not np.any(np.exp(fwr_driver.models.starting) > 1.01)
+    assert not np.any(np.exp(fwr_driver.models.starting_model) > 1.01)
     fwr_driver.run()
 
 
@@ -131,10 +131,10 @@ def test_tipper_run(tmp_path: Path, max_iterations=1, pytest=True):
         orig_tyz_real_1 = geoh5.get_entity("Iteration_0_tyz_real_[0]")[0].values
 
         # Run the inverse
-        params = TipperInversionOptions(
+        params = TipperInversionOptions.build(
             geoh5=geoh5,
             mesh=mesh,
-            active_cells=ActiveCellsOptions(topography_object=topography),
+            topography_object=topography,
             data_object=survey,
             starting_model=1e2,
             reference_model=1e2,

@@ -46,11 +46,10 @@ def setup_inversion_results(
     with geoh5.open():
         gz = survey.add_data({"gz": {"values": np.random.randn(len(survey.vertices))}})
 
-    active_cells = ActiveCellsOptions(topography_object=topography)
-    params = GravityInversionOptions(
+    params = GravityInversionOptions.build(
         geoh5=geoh5,
         mesh=mesh,
-        active_cells=active_cells,
+        topography_object=topography,
         data_object=gz.parent,
         starting_model=1e-4,
         reference_model=0.0,

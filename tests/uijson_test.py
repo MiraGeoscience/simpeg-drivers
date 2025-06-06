@@ -242,7 +242,7 @@ def test_gravity_uijson(tmp_path):
         gz_channel = survey.add_data({"gz": {"values": np.ones(survey.n_vertices)}})
         gz_uncerts = survey.add_data({"gz_unc": {"values": np.ones(survey.n_vertices)}})
 
-    opts = GravityInversionOptions(
+    opts = GravityInversionOptions.build(
         version="old news",
         geoh5=geoh5,
         data_object=survey,

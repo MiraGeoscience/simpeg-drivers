@@ -66,11 +66,10 @@ def test_joint_cross_gradient_fwr_run(
         n_electrodes=n_grid_points,
         n_lines=n_grid_points,
     )
-    active_cells = ActiveCellsOptions(topography_object=topography)
-    params = GravityForwardOptions(
+    params = GravityForwardOptions.build(
         geoh5=geoh5,
         mesh=model.parent,
-        active_cells=active_cells,
+        topography_object=topography,
         data_object=survey,
         starting_model=model,
     )
@@ -89,10 +88,10 @@ def test_joint_cross_gradient_fwr_run(
             flatten=False,
         )
     inducing_field = (50000.0, 90.0, 0.0)
-    params = MVIForwardOptions(
+    params = MVIForwardOptions.build(
         geoh5=geoh5,
         mesh=model.parent,
-        active_cells=ActiveCellsOptions(topography_object=topography),
+        topography_object=topography,
         inducing_field_strength=inducing_field[0],
         inducing_field_inclination=inducing_field[1],
         inducing_field_declination=inducing_field[2],
@@ -115,10 +114,10 @@ def test_joint_cross_gradient_fwr_run(
             flatten=False,
         )
 
-    params = DC3DForwardOptions(
+    params = DC3DForwardOptions.build(
         geoh5=geoh5,
         mesh=model.parent,
-        active_cells=ActiveCellsOptions(topography_object=topography),
+        topography_object=topography,
         data_object=survey,
         starting_model=model,
     )
@@ -184,13 +183,11 @@ def test_joint_cross_gradient_inv_run(
             orig_data.append(data.values)
 
             if group.options["inversion_type"] == "gravity":
-                data.values = data.values + np.random.randn(data.values.size) * 1e-2
-                active_cells = ActiveCellsOptions(topography_object=topography)
-                params = GravityInversionOptions(
+                params = GravityInversionOptions.build(
                     geoh5=geoh5,
                     mesh=mesh,
                     alpha_s=1.0,
-                    active_cells=active_cells,
+                    topography_object=topography,
                     data_object=survey,
                     gz_channel=data,
                     gz_uncertainty=1e-2,
@@ -200,12 +197,11 @@ def test_joint_cross_gradient_inv_run(
                 drivers.append(GravityInversionDriver(params))
             elif group.options["inversion_type"] == "direct current 3d":
                 data.values = data.values + np.random.randn(data.values.size) * 5e-4
-                active_cells = ActiveCellsOptions(topography_object=topography)
-                params = DC3DInversionOptions(
+                params = DC3DInversionOptions.build(
                     geoh5=geoh5,
                     mesh=mesh,
                     alpha_s=1.0,
-                    active_cells=active_cells,
+                    topography_object=topography,
                     data_object=survey,
                     potential_channel=data,
                     model_type="Resistivity (Ohm-m)",
@@ -219,11 +215,11 @@ def test_joint_cross_gradient_inv_run(
                 drivers.append(DC3DInversionDriver(params))
             else:
                 data.values = data.values + np.random.randn(data.values.size) * 10.0
-                params = MVIInversionOptions(
+                params = MVIInversionOptions.build(
                     geoh5=geoh5,
                     mesh=mesh,
                     alpha_s=1.0,
-                    active_cells=ActiveCellsOptions(topography_object=topography),
+                    topography_object=topography,
                     inducing_field_strength=group.options["inducing_field_strength"][
                         "value"
                     ],
@@ -245,7 +241,7 @@ def test_joint_cross_gradient_inv_run(
         # Run the inverse
         joint_params = JointCrossGradientOptions(
             geoh5=geoh5,
-            active_cells=ActiveCellsOptions(topography_object=topography),
+            topography_object=topography,
             group_a=drivers[0].params.out_group,
             group_a_multiplier=1.0,
             group_b=drivers[1].params.out_group,

@@ -46,10 +46,10 @@ def test_tile_estimator_run(
                 "tmi": {"values": np.random.rand(survey.n_vertices)},
             }
         )
-    params = MagneticInversionOptions(
+    params = MagneticInversionOptions.build(
         geoh5=geoh5,
         mesh=model.parent,
-        active_cells=ActiveCellsOptions(topography_object=topography),
+        topography_object=topography,
         inducing_field_strength=inducing_field[0],
         inducing_field_inclination=inducing_field[1],
         inducing_field_declination=inducing_field[2],

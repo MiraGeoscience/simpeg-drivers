@@ -48,7 +48,7 @@ def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
         elevation = topography.add_data(
             {"elevation": {"values": topography.vertices[:, 2]}}
         )
-    params = MVIInversionOptions(
+    params = MVIInversionOptions.build(
         geoh5=geoh5,
         data_object=survey,
         tmi_channel=tmi_channel,
@@ -89,7 +89,7 @@ def test_collection(tmp_path: Path):
         models.remove_air(driver.models.active_cells)
         starting = InversionModel(driver, "starting", is_vector=True)
         starting.remove_air(driver.models.active_cells)
-        np.testing.assert_allclose(models.starting, starting.model, atol=1e-7)
+        np.testing.assert_allclose(models.starting_model, starting.model, atol=1e-7)
 
 
 def test_initialize(tmp_path: Path):

@@ -78,11 +78,10 @@ def test_homogeneous_fwr_run(
     ind = mesh.centroids[:, 0] > 0
     model.values[ind] = 0.05
 
-    active_cells = ActiveCellsOptions(topography_object=topography)
-    params = GravityForwardOptions(
+    params = GravityForwardOptions.build(
         geoh5=geoh5,
         mesh=mesh,
-        active_cells=active_cells,
+        topography_object=topography,
         data_object=survey,
         starting_model=model,
     )
@@ -105,10 +104,10 @@ def test_homogeneous_fwr_run(
     ind = mesh.centroids[:, 0] > 0
     model.values[ind] = 0.01
 
-    params = MVIForwardOptions(
+    params = MVIForwardOptions.build(
         geoh5=geoh5,
         mesh=mesh,
-        active_cells=ActiveCellsOptions(topography_object=topography),
+        topography_object=topography,
         inducing_field_strength=inducing_field[0],
         inducing_field_inclination=inducing_field[1],
         inducing_field_declination=inducing_field[2],
@@ -196,11 +195,10 @@ def test_homogeneous_run(
             ref_model.values = ref_model.values / 2.0
 
             if group.options["inversion_type"] == "gravity":
-                active_cells = ActiveCellsOptions(topography_object=topography)
-                params = GravityInversionOptions(
+                params = GravityInversionOptions.build(
                     geoh5=geoh5,
                     mesh=mesh,
-                    active_cells=active_cells,
+                    topography_object=topography,
                     data_object=survey,
                     gz_channel=data,
                     gz_uncertainty=1e-2,
@@ -209,10 +207,10 @@ def test_homogeneous_run(
                 )
                 drivers.append(GravityInversionDriver(params))
             else:
-                params = MagneticInversionOptions(
+                params = MagneticInversionOptions.build(
                     geoh5=geoh5,
                     mesh=mesh,
-                    active_cells=ActiveCellsOptions(topography_object=topography),
+                    topography_object=topography,
                     inducing_field_strength=group.options["inducing_field_strength"][
                         "value"
                     ],
@@ -232,7 +230,7 @@ def test_homogeneous_run(
                 drivers.append(MagneticInversionDriver(params))
 
         params = JointPetrophysicsOptions(
-            active_cells=active_cells,
+            topography_object=topography,
             geoh5=geoh5,
             group_a=drivers[0].params.out_group,
             group_a_multiplier=1.0,

@@ -104,10 +104,10 @@ def test_magnetotellurics_fwr_run(
         inversion_type="magnetotellurics",
         flatten=False,
     )
-    params = MTForwardOptions(
+    params = MTForwardOptions.build(
         geoh5=geoh5,
         mesh=model.parent,
-        active_cells=ActiveCellsOptions(topography_object=topography),
+        topography_object=topography,
         data_object=survey,
         starting_model=model,
         background_conductivity=1e-2,
@@ -149,10 +149,10 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
         orig_zyy_real_1 = geoh5.get_entity("Iteration_0_zyy_real_[0]")[0].values
 
         # Run the inverse
-        params = MTInversionOptions(
+        params = MTInversionOptions.build(
             geoh5=geoh5,
             mesh=mesh,
-            active_cells=ActiveCellsOptions(topography_object=topography),
+            topography_object=topography,
             data_object=survey,
             starting_model=100.0,
             reference_model=100.0,
@@ -191,10 +191,10 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
     # test that one channel works
     data_kwargs = {k: v for k, v in data_kwargs.items() if "zxx_real" in k}
     geoh5.open()
-    params = MTInversionOptions(
+    params = MTInversionOptions.build(
         geoh5=geoh5,
         mesh=geoh5.get_entity("mesh")[0],
-        active_cells=ActiveCellsOptions(topography_object=topography),
+        topography_object=topography,
         data_object=survey,
         starting_model=0.01,
         background_conductivity=1e-2,

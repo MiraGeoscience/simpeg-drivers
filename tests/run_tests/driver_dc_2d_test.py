@@ -66,7 +66,7 @@ def test_dc_2d_fwr_run(
         line_object=geoh5.get_entity("line_ids")[0],
         line_id=101,
     )
-    params = DC2DForwardOptions(
+    params = DC2DForwardOptions.build(
         geoh5=geoh5,
         data_object=survey,
         line_selection=line_selection,
@@ -79,7 +79,7 @@ def test_dc_2d_fwr_run(
             expansion_factor=1.1,
         ),
         starting_model=model,
-        active_cells=ActiveCellsOptions(topography_object=topography),
+        topography_object=topography,
     )
     fwr_driver = DC2DForwardDriver(params)
     fwr_driver.run()
@@ -95,7 +95,7 @@ def test_dc_2d_run(tmp_path: Path, max_iterations=1, pytest=True):
         topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
-        params = DC2DInversionOptions(
+        params = DC2DInversionOptions.build(
             geoh5=geoh5,
             drape_model=DrapeModelOptions(
                 u_cell_size=5.0,
@@ -105,7 +105,7 @@ def test_dc_2d_run(tmp_path: Path, max_iterations=1, pytest=True):
                 vertical_padding=100.0,
                 expansion_factor=1.1,
             ),
-            active_cells=ActiveCellsOptions(topography_object=topography),
+            topography_object=topography,
             line_selection=LineSelectionOptions(
                 line_object=geoh5.get_entity("line_ids")[0],
                 line_id=101,

@@ -65,12 +65,10 @@ def test_dc_3d_fwr_run(
         survey.ab_cell_id = tx_id
         survey.cells = cells
 
-    active_cells = ActiveCellsOptions(topography_object=topography)
-
-    params = DC3DForwardOptions(
+    params = DC3DForwardOptions.build(
         geoh5=geoh5,
         mesh=model.parent,
-        active_cells=active_cells,
+        topography_object=topography,
         data_object=survey,
         starting_model=model,
     )
@@ -94,11 +92,10 @@ def test_dc_3d_run(
         topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
-        active_cells = ActiveCellsOptions(topography_object=topography)
-        params = DC3DInversionOptions(
+        params = DC3DInversionOptions.build(
             geoh5=geoh5,
             mesh=mesh,
-            active_cells=active_cells,
+            topography_object=topography,
             data_object=potential.parent,
             starting_model=1e-2,
             reference_model=1e-2,
@@ -156,11 +153,10 @@ def test_dc_single_line_fwr_run(
         inversion_type="dcip",
         flatten=False,
     )
-    active_cells = ActiveCellsOptions(topography_object=topography)
-    params = DC3DForwardOptions(
+    params = DC3DForwardOptions.build(
         geoh5=geoh5,
         mesh=model.parent,
-        active_cells=active_cells,
+        topography_object=topography,
         data_object=survey,
         starting_model=model,
     )
