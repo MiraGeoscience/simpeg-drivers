@@ -22,10 +22,11 @@ from geoh5py.objects import (
 )
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.electromagnetics.time_domain.options import BaseTDEMOptions
+from simpeg_drivers.electromagnetics.time_domain.options import (
+    TDEMForwardOptions,
+    TDEMInversionOptions,
+)
 from simpeg_drivers.options import (
-    BaseForwardOptions,
-    BaseInversionOptions,
     DrapeModelOptions,
 )
 
@@ -35,7 +36,7 @@ Receivers: TypeAlias = (
 )
 
 
-class TDEM1DForwardOptions(BaseTDEMOptions, BaseForwardOptions):
+class TDEM1DForwardOptions(TDEMForwardOptions):
     """
     Time Domain Electromagnetic forward options.
 
@@ -61,7 +62,7 @@ class TDEM1DForwardOptions(BaseTDEMOptions, BaseForwardOptions):
     )
 
 
-class TDEM1DInversionOptions(BaseTDEMOptions, BaseInversionOptions):
+class TDEM1DInversionOptions(TDEMInversionOptions):
     """
     Time Domain Electromagnetic Inversion options.
 

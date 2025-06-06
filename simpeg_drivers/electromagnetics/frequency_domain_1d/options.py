@@ -18,16 +18,15 @@ from geoh5py.groups import PropertyGroup
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.electromagnetics.frequency_domain.options import (
-    BaseFDEMOptions,
+    FDEMForwardOptions,
+    FDEMInversionOptions,
 )
 from simpeg_drivers.options import (
-    BaseForwardOptions,
-    BaseInversionOptions,
     DrapeModelOptions,
 )
 
 
-class FDEM1DForwardOptions(BaseFDEMOptions, BaseForwardOptions):
+class FDEM1DForwardOptions(FDEMForwardOptions):
     """
     Frequency Domain Electromagnetic forward options.
 
@@ -55,7 +54,7 @@ class FDEM1DForwardOptions(BaseFDEMOptions, BaseForwardOptions):
     )
 
 
-class FDEM1DInversionOptions(BaseFDEMOptions, BaseInversionOptions):
+class FDEM1DInversionOptions(FDEMInversionOptions):
     """
     Frequency Domain Electromagnetic Inversion options.
 

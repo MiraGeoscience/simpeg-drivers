@@ -27,8 +27,10 @@ from geoh5py.data import (
 )
 from geoh5py.groups import PropertyGroup, SimPEGGroup, UIJsonGroup
 from geoh5py.objects import DrapeModel, Grid2D, Octree, Points
+from geoh5py.objects.surveys.electromagnetics.base import BaseEMSurvey
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
+from geoh5py.ui_json.templates import data_parameter
 from pydantic import (
     AliasChoices,
     BaseModel,
@@ -428,6 +430,8 @@ class EMDataMixin:
     """
     Mixin class to add data and uncertainty access from property groups.
     """
+
+    data_object: BaseEMSurvey
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

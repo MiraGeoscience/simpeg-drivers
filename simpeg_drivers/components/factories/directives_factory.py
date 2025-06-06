@@ -674,7 +674,7 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
                     for comp in components
                 ]
             ),
-            "channels": channels,
+            "channels": np.arange(len(channels)),
             "components": components,
             "sorting": sorting,
             "_reshape": reshape,
