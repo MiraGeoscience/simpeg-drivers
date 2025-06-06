@@ -113,8 +113,8 @@ class InversionData(InversionLocations):
         self.normalizations: dict[str, Any] = self.get_normalizations()
 
         self.entity = self.write_entity()
+
         self.save_data()
-        self.params.data_object = self.entity
         self.locations = super().get_locations(self.entity)
 
     @property
@@ -243,20 +243,6 @@ class InversionData(InversionLocations):
                     uncert_dict[component] = uncert_entity
 
                 data_types[component][ind] = data_entity.entity_type
-
-                # Extra save for apparent resistivity if applicable
-                if "direct current" in self.params.inversion_type:
-                    apparent_property = values.copy()
-                    apparent_property *= self.survey.apparent_resistivity
-
-                    data_dict["apparent_resistivity"] = self.entity.add_data(
-                        {
-                            "Observed_apparent_resistivity": {
-                                "values": apparent_property,
-                                "association": "CELL",
-                            }
-                        }
-                    )
 
         self._observed_data_types = data_types
         self.update_params(data_dict, uncert_dict)
@@ -468,9 +454,7 @@ class InversionData(InversionLocations):
         """
         Update pointers to newly created object and data.
         """
-
         self.params.data_object = self.entity
-
         for comp in self.params.components:
             if getattr(self.params, "_".join([comp, "channel"]), None) is None:
                 continue
