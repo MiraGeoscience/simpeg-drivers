@@ -54,7 +54,7 @@ class SimulationFactory(SimPEGFactory):
         ]:
             import pymatsolver.direct as solver_module
 
-            self.solver = getattr(solver_module, params.solver_type)
+            self.solver = getattr(solver_module, params.compute.solver_type)
 
     def concrete_object(self):
         if self.factory_type in ["magnetic scalar", "magnetic vector"]:

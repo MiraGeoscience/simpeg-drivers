@@ -41,10 +41,7 @@ class TDEM1DForwardOptions(BaseTDEMOptions, BaseForwardOptions):
     Time Domain Electromagnetic forward options.
 
     :param z_channel_bool: Z-component data channel boolean.
-    :param x_channel_bool: X-component data channel boolean.
-    :param y_channel_bool: Y-component data channel boolean.
-    :param model_type: Specify whether the models are provided in resistivity or conductivity.
-    :param data_units: Units for the TEM data
+    :param drape_model: Options for drape mesh.
     """
 
     name: ClassVar[str] = "Time Domain Electromagnetics Forward"
@@ -53,7 +50,7 @@ class TDEM1DForwardOptions(BaseTDEMOptions, BaseForwardOptions):
     title: str = "Time-domain EM-1D (TEM-1D) Forward"
     inversion_type: str = "tdem 1d"
 
-    z_channel_bool: bool
+    z_channel_bool: bool = True
 
     drape_model: DrapeModelOptions = DrapeModelOptions(
         u_cell_size=10.0,
@@ -71,12 +68,7 @@ class TDEM1DInversionOptions(BaseTDEMOptions, BaseInversionOptions):
 
     :param z_channel: Z-component data channel.
     :param z_uncertainty: Z-component data channel uncertainty.
-    :param x_channel: X-component data channel.
-    :param x_uncertainty: X-component data channel uncertainty.
-    :param y_channel: Y-component data channel.
-    :param y_uncertainty: Y-component data channel uncertainty.
-    :param model_type: Specify whether the models are provided in resistivity or conductivity.
-    :param data_units: Units for the TEM data
+    :param drape_model: Options for drape mesh.
     """
 
     name: ClassVar[str] = "Time Domain Electromagnetics Inversion"
@@ -87,8 +79,6 @@ class TDEM1DInversionOptions(BaseTDEMOptions, BaseInversionOptions):
 
     z_channel: PropertyGroup | None = None
     z_uncertainty: PropertyGroup | None = None
-    length_scale_y: None = None
-    y_norm: None = None
 
     drape_model: DrapeModelOptions = DrapeModelOptions(
         u_cell_size=10.0,
@@ -98,5 +88,3 @@ class TDEM1DInversionOptions(BaseTDEMOptions, BaseInversionOptions):
         vertical_padding=100.0,
         expansion_factor=1.1,
     )
-    auto_scale_misfits: bool = False
-    sens_wts_threshold: float = 100.0

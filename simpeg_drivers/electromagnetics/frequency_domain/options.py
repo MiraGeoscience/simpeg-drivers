@@ -42,7 +42,6 @@ class BaseFDEMOptions(EMDataMixin):
     physical_property: str = "conductivity"
     data_object: Receivers
     inversion_type: str = "fdem"
-    model_type: str = "Conductivity (S/m)"
 
     @property
     def tx_offsets(self):

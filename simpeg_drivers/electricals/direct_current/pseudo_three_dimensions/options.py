@@ -38,8 +38,6 @@ class DCBatch2DForwardOptions(BaseForwardOptions):
     :param line_selection: Line selection parameters.
     :param mesh: Optional mesh object if providing a heterogeneous model.
     :param drape_model: Drape model parameters common to all 2D simulations.
-    :param model_type: Specify whether the models are provided in resistivity
-        or conductivity.
     :param file_control: File control parameters.
     """
 
@@ -57,7 +55,6 @@ class DCBatch2DForwardOptions(BaseForwardOptions):
     line_selection: LineSelectionOptions
     mesh: Octree | None = None
     drape_model: DrapeModelOptions = DrapeModelOptions()
-    model_type: str = "Conductivity (S/m)"
     file_control: FileControlOptions = FileControlOptions()
 
 
@@ -71,11 +68,7 @@ class DCBatch2DInversionOptions(BaseInversionOptions):
     :param line_selection: Line selection parameters.
     :param mesh: Optional mesh object if providing a heterogeneous model.
     :param drape_model: Drape model parameters.
-    :param model_type: Specify whether the models are provided in resistivity
-        or conductivity.
     :param file_control: File control parameters.
-    :param length_scale_y: Inactive length scale for y direction.
-    :param y_norm: Inactive y normalization factor.
     """
 
     name: ClassVar[str] = "Direct Current Pseudo 3D Inversion"
@@ -93,7 +86,4 @@ class DCBatch2DInversionOptions(BaseInversionOptions):
     line_selection: LineSelectionOptions
     mesh: Octree | None = None
     drape_model: DrapeModelOptions = DrapeModelOptions()
-    model_type: str = "Conductivity (S/m)"
     file_control: FileControlOptions = FileControlOptions()
-    length_scale_y: None = None
-    y_norm: None = None

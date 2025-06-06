@@ -37,13 +37,11 @@ class BaseTDEMOptions(EMDataMixin):
     :param data_object: The data object containing the TDEM data.
     :param physical_property: The physical property being modeled (e.g., conductivity).
     :param data_units: The units of the TDEM data (e.g., "dB/dt (T/s)").
-    :param model_type: The type of model used (e.g., "Conductivity (S/m)").
     """
 
     data_object: Receivers
     physical_property: str = "conductivity"
     data_units: str = "dB/dt (T/s)"
-    model_type: str = "Conductivity (S/m)"
     inversion_type: str = "tdem"
 
     @property
@@ -64,8 +62,6 @@ class TDEMForwardOptions(BaseTDEMOptions, BaseForwardOptions):
     :param z_channel_bool: Z-component data channel boolean.
     :param x_channel_bool: X-component data channel boolean.
     :param y_channel_bool: Y-component data channel boolean.
-    :param model_type: Specify whether the models are provided in resistivity or conductivity.
-    :param data_units: Units for the TEM data
     """
 
     name: ClassVar[str] = "Time Domain Electromagnetics Forward"
@@ -88,8 +84,6 @@ class TDEMInversionOptions(BaseTDEMOptions, BaseInversionOptions):
     :param x_uncertainty: X-component data channel uncertainty.
     :param y_channel: Y-component data channel.
     :param y_uncertainty: Y-component data channel uncertainty.
-    :param model_type: Specify whether the models are provided in resistivity or conductivity.
-    :param data_units: Units for the TEM data
     """
 
     name: ClassVar[str] = "Time Domain Electromagnetics Inversion"

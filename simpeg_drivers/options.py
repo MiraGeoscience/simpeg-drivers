@@ -281,8 +281,10 @@ class ModelOptions(BaseModel):
     # Model options
     starting_model: float | FloatData
     reference_model: float | FloatData | None = None
-    conductivity_model: FloatData | None = None
-    petrophysical_model: FloatData | None = None
+    conductivity_model: float | FloatData | None = Field(
+        None,
+        validation_alias=AliasChoices("background_conductivity", "conductivity_model"),
+    )
     lower_bound: float | FloatData | None = None
     upper_bound: float | FloatData | None = None
 

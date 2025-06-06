@@ -31,6 +31,7 @@ class VectorModelOptions(ModelOptions):
     Magnetic Vector Model options.
     """
 
+    lower_bound: Deprecated | None = None
     starting_model_inclination: float | FloatData | None = Field(
         None,
         validation_alias=AliasChoices(
@@ -93,9 +94,9 @@ class MVIForwardOptions(BaseForwardOptions):
     byy_channel_bool: bool = False
     byz_channel_bool: bool = False
     bzz_channel_bool: bool = False
-    inducing_field_strength: float | FloatData = 50000.0
-    inducing_field_inclination: float | FloatData = 90.0
-    inducing_field_declination: float | FloatData = 0.0
+    inducing_field_strength: float | FloatData
+    inducing_field_inclination: float | FloatData
+    inducing_field_declination: float | FloatData
 
 
 class MVIInversionOptions(BaseInversionOptions):
@@ -162,8 +163,6 @@ class MVIInversionOptions(BaseInversionOptions):
     byy_uncertainty: float | FloatData | None = None
     byz_uncertainty: float | FloatData | None = None
     bzz_uncertainty: float | FloatData | None = None
-    inducing_field_strength: float | FloatData = 50000.0
-    inducing_field_inclination: float | FloatData = 90.0
-    inducing_field_declination: float | FloatData = 0.0
-
-    lower_bound: Deprecated | None = None
+    inducing_field_strength: float | FloatData
+    inducing_field_inclination: float | FloatData
+    inducing_field_declination: float | FloatData

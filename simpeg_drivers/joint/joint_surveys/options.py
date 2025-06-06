@@ -14,11 +14,11 @@ from __future__ import annotations
 from pathlib import Path
 from typing import ClassVar
 
-from geoh5py.data import FloatData
 from pydantic import model_validator
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.joint.options import BaseJointOptions
+from simpeg_drivers.options import ModelOptions
 
 
 class JointSurveysOptions(BaseJointOptions):
@@ -33,11 +33,7 @@ class JointSurveysOptions(BaseJointOptions):
 
     inversion_type: str = "joint surveys"
 
-    model_type: str = "Conductivity (S/m)"
-    starting_model: float | FloatData
-    reference_model: float | FloatData | None = None
-    lower_bound: float | FloatData | None = None
-    upper_bound: float | FloatData | None = None
+    models: ModelOptions
 
     @model_validator(mode="after")
     def all_groups_same_physical_property(self):

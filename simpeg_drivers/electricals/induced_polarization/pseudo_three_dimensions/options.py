@@ -38,8 +38,6 @@ class IPBatch2DForwardOptions(BaseForwardOptions):
     :param line_selection: Line selection parameters.
     :param mesh: Optional mesh object if providing a heterogeneous model.
     :param drape_model: Drape model parameters common to all 2D simulations.
-    :param model_type: Specify whether the models are provided in resistivity
-        or conductivity.
     :param file_control: File control parameters.
     """
 
@@ -54,11 +52,11 @@ class IPBatch2DForwardOptions(BaseForwardOptions):
 
     data_object: PotentialElectrode
     chargeability_channel_bool: bool = True
+
     line_selection: LineSelectionOptions
     mesh: Octree | None = None
-    conductivity_model: float | FloatData
+
     drape_model: DrapeModelOptions = DrapeModelOptions()
-    model_type: str = "Conductivity (S/m)"
     file_control: FileControlOptions = FileControlOptions()
 
 
@@ -72,10 +70,7 @@ class IPBatch2DInversionOptions(BaseInversionOptions):
     :param line_selection: Line selection parameters.
     :param mesh: Optional mesh object if providing a heterogeneous model.
     :param drape_model: Drape model parameters common to all 2D simulations.
-    :param conductivity_model: Conductivity model.
     :param file_control: File control parameters.
-    :param length_scale_y: Inactive length scale for y direction.
-    :param y_norm: Inactive y normalization factor.
     """
 
     name: ClassVar[str] = "Induced Polarization Pseudo 3D Inversion"
@@ -91,11 +86,8 @@ class IPBatch2DInversionOptions(BaseInversionOptions):
     chargeability_channel: FloatData
     chargeability_uncertainty: float | FloatData
     line_selection: LineSelectionOptions
+
     mesh: Octree | None = None
     drape_model: DrapeModelOptions = DrapeModelOptions()
-    model_type: str = "Conductivity (S/m)"
-    conductivity_model: float | FloatData
-    lower_bound: float | FloatData | None = 0.0
+
     file_control: FileControlOptions = FileControlOptions()
-    length_scale_y: None = None
-    y_norm: None = None

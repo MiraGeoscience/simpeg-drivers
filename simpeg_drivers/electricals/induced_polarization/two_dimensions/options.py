@@ -34,7 +34,6 @@ class IP2DForwardOptions(BaseForwardOptions):
     :param mesh: Optional mesh object if providing a heterogeneous model.
     :param drape_model: Drape model parameters.
     :param line_selection: Line selection parameters.
-    :param conductivity_model: Conductivity model.
     """
 
     name: ClassVar[str] = "Induced Polarization 2D Forward"
@@ -50,8 +49,6 @@ class IP2DForwardOptions(BaseForwardOptions):
     line_selection: LineSelectionOptions
     mesh: DrapeModel | None = None
     drape_model: DrapeModelOptions = DrapeModelOptions()
-    model_type: str = "Conductivity (S/m)"
-    conductivity_model: float | FloatData
 
 
 class IP2DInversionOptions(BaseInversionOptions):
@@ -62,10 +59,6 @@ class IP2DInversionOptions(BaseInversionOptions):
     :param chargeability_uncertainty: Chargeability data uncertainty channel.
     :param line_selection: Line selection parameters.
     :param drape_model: Drape model parameters.
-    :param conductivity_model: Conductivity model.
-    :param lower_bound: Lower bound for the inversion.
-    :param length_scale_y: Inactive length scale in the y direction.
-    :param y_norm: Inactive y normalization factor.
     """
 
     name: ClassVar[str] = "Induced Polarization 2D Inversion"
@@ -82,8 +75,3 @@ class IP2DInversionOptions(BaseInversionOptions):
     line_selection: LineSelectionOptions
     mesh: DrapeModel | None = None
     drape_model: DrapeModelOptions = DrapeModelOptions()
-    model_type: str = "Conductivity (S/m)"
-    conductivity_model: float | FloatData
-    lower_bound: float | FloatData | None = 0.0
-    length_scale_y: None = None
-    y_norm: None = None

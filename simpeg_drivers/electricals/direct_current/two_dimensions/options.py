@@ -34,8 +34,6 @@ class DC2DForwardOptions(BaseForwardOptions):
     :param potential_channel_bool: Potential channel boolean.
     :param line_selection: Line selection parameters.
     :param drape_model: Drape model parameters.
-    :param model_type: Specify whether the models are provided in
-        resistivity or conductivity.
     """
 
     name: ClassVar[str] = "Direct Current 2D Forward"
@@ -51,7 +49,6 @@ class DC2DForwardOptions(BaseForwardOptions):
     line_selection: LineSelectionOptions
     mesh: DrapeModel | None = None
     drape_model: DrapeModelOptions
-    model_type: str = "Conductivity (S/m)"
 
 
 class DC2DInversionOptions(BaseInversionOptions):
@@ -62,8 +59,6 @@ class DC2DInversionOptions(BaseInversionOptions):
     :param potential_uncertainty: Potential data uncertainty channel.
     :param line_selection: Line selection parameters.
     :param drape_model: Drape model parameters.
-    :param model_type: Specify whether the models are provided in
-        resistivity or conductivity.
     """
 
     name: ClassVar[str] = "Direct Current 2D Inversion"
@@ -80,6 +75,3 @@ class DC2DInversionOptions(BaseInversionOptions):
     line_selection: LineSelectionOptions
     mesh: DrapeModel | None = None
     drape_model: DrapeModelOptions
-    model_type: str = "Conductivity (S/m)"
-    length_scale_y: None = None
-    y_norm: None = None
