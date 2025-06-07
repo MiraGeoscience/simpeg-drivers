@@ -523,7 +523,9 @@ class InversionModel:
 
         if model is not None:
             self.model = mkvc(model)
-            self.save_model()
+
+            if isinstance(self._fetch_reference(self.model_type), FloatData):
+                self.save_model()
 
     def remove_air(self, active_cells):
         """Use active cells vector to remove air cells from model"""
@@ -593,10 +595,6 @@ class InversionModel:
 
     def _fetch_reference(self, name: str) -> NumericData | None:
         value = getattr(self.driver.params.models, name, None)
-
-        if "reference_model" in name and value is None:
-            value = self._fetch_reference("starting_model")
-
         return value
 
     def _get(self, name: str) -> np.ndarray | None:
