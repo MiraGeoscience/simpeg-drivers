@@ -25,11 +25,11 @@ class JointCrossGradientOptions(BaseJointOptions):
     Joint Cross Gradient inversion options.
 
     :param cross_gradient_weight_a_b:  Weight applied to the cross gradient
-        regularizations.
+        regularization between the first and second models.
     :param cross_gradient_weight_c_a:  Weight applied to the cross gradient
-        regularizations.
+        regularization between the first and third models.
     :param cross_gradient_weight_c_b:  Weight applied to the cross gradient
-        regularizations.
+        regularization between the second and third model.
     """
 
     name: ClassVar[str] = "Joint Cross Gradient Inversion"

@@ -26,10 +26,11 @@ class JointPetrophysicsModelOptions(ModelOptions):
     """
     Model options with petrophysics reference model.
 
-    :param petrophysics: The reference geology data.
+    :param petrophysical: The reference geology data.
     """
 
-    petrophysics_model: ReferencedData
+    starting_model: None = None
+    petrophysical_model: ReferencedData
 
 
 class JointPetrophysicsOptions(BaseJointOptions):
@@ -50,4 +51,4 @@ class JointPetrophysicsOptions(BaseJointOptions):
 
     group_b_multiplier: float | None = None
     mesh: Octree
-    petrophysics_model: JointPetrophysicsModelOptions
+    models: JointPetrophysicsModelOptions

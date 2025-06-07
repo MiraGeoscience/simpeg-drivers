@@ -74,7 +74,7 @@ class JointPetrophysicsDriver(BaseJointDriver):
                                 self.inversion_mesh.mesh, self.models.active_cells, 0
                             ),
                         ],
-                        reference_type=self.params.petrophysics_model.entity_type,
+                        reference_type=self.params.models.petrophysical_model.entity_type,
                     )
                 )
                 directives_list.append(
@@ -97,7 +97,7 @@ class JointPetrophysicsDriver(BaseJointDriver):
         regularizations = super().get_regularization()
         reg_list, multipliers = self._overload_regularization(regularizations)
         reg_list.append(self.pgi_regularization)
-        multipliers.append(self.params.alpha_s)
+        multipliers.append(self.params.models.alpha_s)
 
         return ComboObjectiveFunction(objfcts=reg_list, multipliers=multipliers)
 
@@ -141,9 +141,9 @@ class JointPetrophysicsDriver(BaseJointDriver):
     @property
     def geo_units(self) -> dict:
         """Model units."""
-        units = np.unique(self.models.petrophysics)
+        units = np.unique(self.models.petrophysical_model)
         model_map = {
-            unit: self.params.petrophysics_model.entity_type.value_map()[unit]
+            unit: self.params.models.petrophysical_model.entity_type.value_map()[unit]
             for unit in units
             if unit != 0
         }
@@ -155,7 +155,7 @@ class JointPetrophysicsDriver(BaseJointDriver):
         if self._membership is None:
             self._membership = np.empty(self.models.n_active, dtype=int)
             for ii, unit in enumerate(self.geo_units):
-                unit_ind = self.models.petrophysics == unit
+                unit_ind = self.models.petrophysical_model == unit
                 self._membership[unit_ind] = self.class_mapping[ii]
 
         return self._membership
@@ -172,7 +172,7 @@ class JointPetrophysicsDriver(BaseJointDriver):
             model_vec = mapping @ self.models.reference_model
             unit_mean = []
             for uid in self.geo_units:
-                unit_ind = self.models.petrophysics == uid
+                unit_ind = self.models.petrophysical_model == uid
                 start_values = np.mean(model_vec[unit_ind])
                 unit_mean.append(start_values)
 
@@ -199,7 +199,7 @@ class JointPetrophysicsDriver(BaseJointDriver):
         weights = []
         volumes = self.inversion_mesh.mesh.cell_volumes[self.models.active_cells]
         for uid in self.geo_units:
-            weights.append(volumes[self.models.petrophysics == uid].sum())
+            weights.append(volumes[self.models.petrophysical_model == uid].sum())
         return np.r_[weights] / np.sum(weights)
 
     @property

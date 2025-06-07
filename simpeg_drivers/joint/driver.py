@@ -267,7 +267,11 @@ class BaseJointDriver(InversionDriver):
     def validate_create_models(self):
         """Create stacked model vectors from all drivers provided."""
         for model_type in self.models.model_types:
-            if model_type in ["petrophysics", "gradient_dip", "gradient_direction"]:
+            if model_type in [
+                "petrophysical_model",
+                "gradient_dip",
+                "gradient_direction",
+            ]:
                 continue
 
             model = getattr(self.models, f"_{model_type}").model
@@ -417,8 +421,8 @@ class BaseJointDriver(InversionDriver):
         )
 
         model_directive.label = driver.params.physical_property
-        if getattr(driver.params, "model_type", None) == "Resistivity (Ohm-m)":
-            model_directive.label = "resistivity"
+        if getattr(driver.params.models, "model_type", None) == "Resistivity (Ohm-m)":
+            model_directive.label = "resistivity_model"
 
         model_directive.transforms = [wire, *model_directive.transforms]
 

@@ -241,7 +241,7 @@ def test_homogeneous_run(
             length_scale_x=1.0,
             length_scale_y=1.0,
             length_scale_z=1.0,
-            petrophysics_model=petrophysics,
+            petrophysical_model=petrophysics,
             initial_beta_ratio=1e2,
             max_global_iterations=max_iterations,
         )
@@ -258,7 +258,7 @@ def test_homogeneous_run(
 
             out_group = run_ws.get_entity(driver.params.out_group.uid)[0]
             mesh = out_group.get_entity("mesh")[0]
-            petro_model = mesh.get_entity("petrophysics_model")[0]
+            petro_model = mesh.get_entity("petrophysical_model")[0]
             assert len(np.unique(petro_model.values)) == 4
 
 
