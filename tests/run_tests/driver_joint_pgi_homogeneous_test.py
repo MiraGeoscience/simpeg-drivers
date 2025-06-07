@@ -229,7 +229,7 @@ def test_homogeneous_run(
                 )
                 drivers.append(MagneticInversionDriver(params))
 
-        params = JointPetrophysicsOptions(
+        params = JointPetrophysicsOptions.build(
             topography_object=topography,
             geoh5=geoh5,
             group_a=drivers[0].params.out_group,

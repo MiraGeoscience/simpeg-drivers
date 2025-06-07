@@ -25,6 +25,14 @@ from simpeg_drivers.options import (
 )
 
 
+class IP3DModelOptions(ConductivityModelOptions):
+    """
+    ModelOptions class with defaulted lower bound.
+    """
+
+    lower_bound: float | FloatData | None = 0
+
+
 class IP3DForwardOptions(BaseForwardOptions):
     """
     Induced Polarization 3D forward options.

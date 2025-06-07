@@ -139,7 +139,7 @@ def test_joint_surveys_inv_run(
 
         active_model = drivers[0].params.mesh.get_entity("active_cells")[0]
         # Run the inverse
-        joint_params = JointSurveysOptions(
+        joint_params = JointSurveysOptions.build(
             geoh5=geoh5,
             active_cells=ActiveCellsOptions(active_model=active_model),
             mesh=drivers[0].params.mesh,

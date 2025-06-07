@@ -239,7 +239,7 @@ def test_joint_cross_gradient_inv_run(
                 drivers.append(MVIInversionDriver(params))
 
         # Run the inverse
-        joint_params = JointCrossGradientOptions(
+        joint_params = JointCrossGradientOptions.build(
             geoh5=geoh5,
             topography_object=topography,
             group_a=drivers[0].params.out_group,

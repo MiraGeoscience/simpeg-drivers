@@ -38,6 +38,9 @@ class BaseJointOptions(CoreOptions):
 
     model_config = ConfigDict(frozen=False)
 
+    forward_only: bool = False
+    physical_property: str = ""
+
     group_a: SimPEGGroup
     group_a_multiplier: float = 1.0
     group_b: SimPEGGroup

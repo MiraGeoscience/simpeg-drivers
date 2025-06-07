@@ -46,8 +46,6 @@ class JointPetrophysicsOptions(BaseJointOptions):
     )
 
     title: str = "Joint Petrophysically Guided Inversion (PGI)"
-    physical_property: list[str] = [""]
-
     inversion_type: str = "joint petrophysics"
 
     group_b_multiplier: float | None = None

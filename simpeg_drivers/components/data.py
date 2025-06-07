@@ -242,7 +242,7 @@ class InversionData(InversionLocations):
                     data_dict[component] = data_entity
                     uncert_dict[component] = uncert_entity
 
-                data_types[component][ind] = data_entity.entity_type
+                data_types[component][channel] = data_entity.entity_type
 
         self._observed_data_types = data_types
         self.update_params(data_dict, uncert_dict)
