@@ -48,7 +48,6 @@ class BaseJointOptions(CoreOptions):
     group_c: SimPEGGroup | None = None
     group_c_multiplier: float | None = None
 
-    models: ModelOptions
     irls: IRLSOptions = IRLSOptions()
     directives: DirectiveOptions = DirectiveOptions()
     cooling_schedule: CoolingSceduleOptions = CoolingSceduleOptions()

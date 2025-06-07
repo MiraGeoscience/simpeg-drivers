@@ -16,7 +16,6 @@ from typing import ClassVar
 
 from geoh5py.data import FloatData
 from geoh5py.ui_json.annotations import Deprecated
-from pydantic import AliasChoices, Field
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.options import (
@@ -32,30 +31,10 @@ class VectorModelOptions(ModelOptions):
     """
 
     lower_bound: Deprecated | None = None
-    starting_model_inclination: float | FloatData | None = Field(
-        None,
-        validation_alias=AliasChoices(
-            "starting_model_inclination", "starting_inclination"
-        ),
-    )
-    starting_model_declination: float | FloatData | None = Field(
-        None,
-        validation_alias=AliasChoices(
-            "starting_model_declination", "starting_declination"
-        ),
-    )
-    reference_model_inclination: float | FloatData | None = Field(
-        None,
-        validation_alias=AliasChoices(
-            "reference_model_inclination", "reference_inclination"
-        ),
-    )
-    reference_model_declination: float | FloatData | None = Field(
-        None,
-        validation_alias=AliasChoices(
-            "reference_model_declination", "reference_declination"
-        ),
-    )
+    starting_inclination: float | FloatData | None = None
+    starting_declination: float | FloatData | None = None
+    reference_inclination: float | FloatData | None = None
+    reference_declination: float | FloatData | None = None
 
 
 class MVIForwardOptions(BaseForwardOptions):
@@ -126,10 +105,6 @@ class MVIInversionOptions(BaseInversionOptions):
     :param inducing_field_strength: Inducing field strength.
     :param inducing_field_inclination: Inducing field inclination.
     :param inducing_field_declination: Inducing field declination.
-    :param starting_inclination: Starting inclination.
-    :param starting_declination: Starting declination.
-    :param reference_inclination: Reference inclination.
-    :param reference_declination: Reference declination.
     """
 
     name: ClassVar[str] = "Magnetic Vector Inversion"
