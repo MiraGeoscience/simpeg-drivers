@@ -400,8 +400,8 @@ class DirectiveOptions(BaseModel):
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
     )
-    auto_scale_misfits: bool = True
-    every_iteration_bool: bool = False
+    auto_scale_misfits: bool = False
+    every_iteration_bool: bool = True
     save_sensitivities: bool = False
     sens_wts_threshold: float | None = 1e-3
 
