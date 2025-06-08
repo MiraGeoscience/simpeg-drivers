@@ -18,10 +18,10 @@ from geoh5py.data import FloatData
 from geoh5py.objects import DrapeModel, PotentialElectrode
 
 from simpeg_drivers import assets_path
+from simpeg_drivers.electricals.options import IPModelOptions
 from simpeg_drivers.options import (
     BaseForwardOptions,
     BaseInversionOptions,
-    ConductivityModelOptions,
     DrapeModelOptions,
     LineSelectionOptions,
 )
@@ -51,7 +51,7 @@ class IP2DForwardOptions(BaseForwardOptions):
     line_selection: LineSelectionOptions
     mesh: DrapeModel | None = None
     drape_model: DrapeModelOptions = DrapeModelOptions()
-    models: ConductivityModelOptions
+    models: IPModelOptions
 
 
 class IP2DInversionOptions(BaseInversionOptions):
@@ -79,4 +79,4 @@ class IP2DInversionOptions(BaseInversionOptions):
     line_selection: LineSelectionOptions
     mesh: DrapeModel | None = None
     drape_model: DrapeModelOptions = DrapeModelOptions()
-    models: ConductivityModelOptions
+    models: IPModelOptions

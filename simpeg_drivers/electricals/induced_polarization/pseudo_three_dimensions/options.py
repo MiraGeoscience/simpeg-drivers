@@ -20,11 +20,11 @@ from geoh5py.objects import Octree, PotentialElectrode
 from simpeg_drivers import assets_path
 from simpeg_drivers.electricals.options import (
     FileControlOptions,
+    IPModelOptions,
 )
 from simpeg_drivers.options import (
     BaseForwardOptions,
     BaseInversionOptions,
-    ConductivityModelOptions,
     DrapeModelOptions,
     LineSelectionOptions,
 )
@@ -57,7 +57,7 @@ class IPBatch2DForwardOptions(BaseForwardOptions):
     mesh: Octree | None = None
     drape_model: DrapeModelOptions = DrapeModelOptions()
     file_control: FileControlOptions = FileControlOptions()
-    models: ConductivityModelOptions
+    models: IPModelOptions
 
 
 class IPBatch2DInversionOptions(BaseInversionOptions):
@@ -89,4 +89,4 @@ class IPBatch2DInversionOptions(BaseInversionOptions):
     mesh: Octree | None = None
     drape_model: DrapeModelOptions = DrapeModelOptions()
     file_control: FileControlOptions = FileControlOptions()
-    models: ConductivityModelOptions
+    models: IPModelOptions
