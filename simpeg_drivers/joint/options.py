@@ -49,7 +49,7 @@ class BaseJointOptions(CoreOptions):
     group_c_multiplier: float | None = None
 
     irls: IRLSOptions = IRLSOptions()
-    directives: DirectiveOptions = DirectiveOptions()
+    directives: DirectiveOptions = DirectiveOptions(auto_scale_misfits=True)
     cooling_schedule: CoolingSceduleOptions = CoolingSceduleOptions()
     optimization: OptimizationOptions = OptimizationOptions()
 
