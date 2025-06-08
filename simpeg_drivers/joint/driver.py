@@ -271,6 +271,10 @@ class BaseJointDriver(InversionDriver):
                 "petrophysical_model",
                 "gradient_dip",
                 "gradient_direction",
+                "starting_inclination",
+                "starting_declination",
+                "reference_inclination",
+                "reference_declination",
             ]:
                 continue
 
