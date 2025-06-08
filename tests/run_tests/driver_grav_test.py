@@ -105,9 +105,10 @@ def test_gravity_run(
         workpath = tmp_path.parent / "test_gravity_fwr_run0" / "inversion_test.ui.geoh5"
 
     with Workspace(workpath) as geoh5:
+        group = geoh5.get_entity("Gravity Forward")[0]
         gz = geoh5.get_entity("Iteration_0_gz")[0]
         orig_gz = gz.values.copy()
-        mesh = geoh5.get_entity("mesh")[0]
+        mesh = group.get_entity("mesh")[0]
         model = mesh.get_entity("starting_model")[0]
 
         inds = (mesh.centroids[:, 0] > -35) & (mesh.centroids[:, 0] < 35)
