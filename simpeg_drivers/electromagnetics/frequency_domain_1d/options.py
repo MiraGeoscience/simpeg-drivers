@@ -22,6 +22,7 @@ from simpeg_drivers.electromagnetics.frequency_domain.options import (
     FDEMInversionOptions,
 )
 from simpeg_drivers.options import (
+    DirectiveOptions,
     DrapeModelOptions,
 )
 
@@ -78,7 +79,9 @@ class FDEM1DInversionOptions(FDEMInversionOptions):
         vertical_padding=100.0,
         expansion_factor=1.1,
     )
-
+    directives: DirectiveOptions = DirectiveOptions(
+        sens_wts_threshold=100.0,
+    )
     z_real_channel: PropertyGroup | None = None
     z_real_uncertainty: PropertyGroup | None = None
     z_imag_channel: PropertyGroup | None = None

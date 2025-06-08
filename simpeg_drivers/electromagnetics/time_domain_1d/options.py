@@ -27,6 +27,7 @@ from simpeg_drivers.electromagnetics.time_domain.options import (
     TDEMInversionOptions,
 )
 from simpeg_drivers.options import (
+    DirectiveOptions,
     DrapeModelOptions,
 )
 
@@ -80,6 +81,9 @@ class TDEM1DInversionOptions(TDEMInversionOptions):
     z_channel: PropertyGroup | None = None
     z_uncertainty: PropertyGroup | None = None
 
+    directives: DirectiveOptions = DirectiveOptions(
+        sens_wts_threshold=100.0,
+    )
     drape_model: DrapeModelOptions = DrapeModelOptions(
         u_cell_size=10.0,
         v_cell_size=10.0,
