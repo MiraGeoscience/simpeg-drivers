@@ -99,7 +99,7 @@ class BaseBatch2DDriver(LineSweepDriver):
         models = {"starting_model": self.batch2d_params.models.starting_model}
 
         for model in self._model_list:
-            models[model] = getattr(self.batch2d_params, model)
+            models[model] = getattr(self.batch2d_params, model, None)
 
         if not self.batch2d_params.forward_only:
             for model in ["reference_model", "lower_bound", "upper_bound"]:

@@ -524,7 +524,7 @@ class InversionModel:
         if model is not None:
             self.model = mkvc(model)
 
-            if isinstance(self._fetch_reference(self.model_type), FloatData):
+            if isinstance(self._fetch_reference(self.model_type), Data):
                 self.save_model()
 
     def remove_air(self, active_cells):
