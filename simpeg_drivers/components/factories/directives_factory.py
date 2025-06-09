@@ -277,7 +277,7 @@ class DirectivesFactory:
                     "Starting chi factor is greater than target chi factor.\n"
                     "Setting the target chi factor to the starting chi factor."
                 )
-                start_chi_fact = self.params.irls.chi_factor
+                start_chi_fact = self.params.cooling_schedule.chi_factor
 
             self._update_irls_directive = directives.UpdateIRLS(
                 f_min_change=self.params.optimization.f_min_change,
@@ -325,7 +325,7 @@ class DirectivesFactory:
             self._vector_inversion_directive = directives.VectorInversion(
                 [objective.simulation for objective in self.driver.data_misfit.objfcts],
                 self.driver.regularization,
-                chifact_target=self.driver.params.chi_factor * 2,
+                chifact_target=self.driver.params.cooling_schedule.chi_factor * 2,
                 reference_angles=reference_angles,
             )
         return self._vector_inversion_directive

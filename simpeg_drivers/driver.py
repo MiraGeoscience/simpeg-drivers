@@ -447,7 +447,7 @@ class InversionDriver(BaseDriver):
         chi_start = (
             self.params.irls.starting_chi_factor
             if has_chi_start
-            else self.params.chi_factor
+            else self.params.cooling_schedule.chi_factor
         )
 
         if getattr(self, "drivers", None) is not None:  # joint problem

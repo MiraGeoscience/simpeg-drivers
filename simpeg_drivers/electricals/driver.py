@@ -96,14 +96,14 @@ class BaseBatch2DDriver(LineSweepDriver):
 
         :param mesh: Destination DrapeModel object.
         """
-        models = {"starting_model": self.batch2d_params.starting_model}
+        models = {"starting_model": self.batch2d_params.models.starting_model}
 
         for model in self._model_list:
             models[model] = getattr(self.batch2d_params, model)
 
         if not self.batch2d_params.forward_only:
             for model in ["reference_model", "lower_bound", "upper_bound"]:
-                models[model] = getattr(self.batch2d_params, model)
+                models[model] = getattr(self.batch2d_params.models, model)
 
         if self.batch2d_params.mesh is not None:
             xyz_in = get_locations(self.workspace, self.batch2d_params.mesh)
