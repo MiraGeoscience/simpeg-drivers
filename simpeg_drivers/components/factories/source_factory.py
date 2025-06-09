@@ -134,7 +134,7 @@ class SourcesFactory(SimPEGFactory):
         if self.factory_type in ["magnetotellurics", "tipper"]:
             background = deepcopy(self.params.models.conductivity_model)
 
-            if getattr(self.params, "model_type", None) == "Resistivity (Ohm-m)":
+            if getattr(self.params.models, "model_type", None) == "Resistivity (Ohm-m)":
                 background **= -1.0
 
             kwargs["sigma_primary"] = [background]

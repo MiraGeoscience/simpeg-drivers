@@ -577,7 +577,8 @@ class InversionModel:
         model_type = self.model_type
         if (
             model_type == "conductivity_model"
-            and getattr(self.driver.params, "model_type", None) == "Resistivity (Ohm-m)"
+            and getattr(self.driver.params.models, "model_type", None)
+            == "Resistivity (Ohm-m)"
         ):
             model_type = "resistivity_model"
 
