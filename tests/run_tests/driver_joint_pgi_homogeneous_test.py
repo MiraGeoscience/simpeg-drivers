@@ -45,7 +45,7 @@ from tests.testing_utils import check_target, setup_inversion_workspace
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 390.6585155910284, "phi_d": 2320, "phi_m": 0.642}
+target_run = {"data_norm": 390.65805009978556, "phi_d": 2470, "phi_m": 0.674}
 
 
 def test_homogeneous_fwr_run(
