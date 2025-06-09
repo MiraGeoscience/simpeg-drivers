@@ -138,7 +138,6 @@ def test_gravity_run(
             x_norm=gradient_norms,
             y_norm=gradient_norms,
             z_norm=gradient_norms,
-            gradient_type="components",
             gz_channel=gz,
             gz_uncertainty=2e-3,
             lower_bound=0.0,

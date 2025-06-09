@@ -93,7 +93,6 @@ def test_ip_3d_run(
             x_norm=0.0,
             y_norm=0.0,
             z_norm=0.0,
-            gradient_type="components",
             chargeability_channel=potential,
             chargeability_uncertainty=2e-4,
             max_global_iterations=max_iterations,

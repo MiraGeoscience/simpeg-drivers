@@ -102,7 +102,6 @@ def test_ip_2d_run(
             s_norm=0.0,
             x_norm=0.0,
             z_norm=0.0,
-            gradient_type="components",
             max_global_iterations=max_iterations,
             initial_beta=None,
             initial_beta_ratio=1e0,

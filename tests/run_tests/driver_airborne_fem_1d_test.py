@@ -137,7 +137,6 @@ def test_fem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
             s_norm=0.0,
             x_norm=0.0,
             z_norm=0.0,
-            gradient_type="components",
             upper_bound=0.75,
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e1,

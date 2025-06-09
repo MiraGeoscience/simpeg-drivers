@@ -108,7 +108,6 @@ def test_susceptibility_run(
             y_norm=1.0,
             z_norm=1.0,
             initial_beta_ratio=1e1,
-            gradient_type="components",
             tmi_channel=tmi,
             tmi_uncertainty=1.0,
             max_global_iterations=max_iterations,

@@ -129,7 +129,6 @@ def test_ip_p3d_run(
             z_norm=0.0,
             length_scale_x=1.0,
             length_scale_z=1.0,
-            gradient_type="components",
             max_global_iterations=max_iterations,
             initial_beta=None,
             initial_beta_ratio=1e0,

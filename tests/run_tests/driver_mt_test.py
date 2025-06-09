@@ -161,7 +161,6 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
             x_norm=1.0,
             y_norm=1.0,
             z_norm=1.0,
-            gradient_type="components",
             cooling_rate=1,
             lower_bound=0.75,
             model_type="Resistivity (Ohm-m)",

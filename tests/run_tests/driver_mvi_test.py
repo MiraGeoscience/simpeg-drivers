@@ -199,7 +199,6 @@ def test_magnetic_vector_bounds_run(
                 x_norm=1.0,
                 y_norm=1.0,
                 z_norm=1.0,
-                gradient_type="components",
                 tmi_channel=tmi,
                 tmi_uncertainty=4.0,
                 lower_bound=1e-6,

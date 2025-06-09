@@ -144,7 +144,6 @@ def test_tipper_run(tmp_path: Path, max_iterations=1, pytest=True):
             y_norm=1.0,
             z_norm=1.0,
             alpha_s=1.0,
-            gradient_type="components",
             model_type="Resistivity (Ohm-m)",
             lower_bound=0.75,
             max_global_iterations=max_iterations,

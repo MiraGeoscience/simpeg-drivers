@@ -205,7 +205,6 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
             y_norm=2.0,
             z_norm=2.0,
             alpha_s=0e-1,
-            gradient_type="total",
             lower_bound=2e-6,
             upper_bound=1e2,
             max_global_iterations=max_iterations,
