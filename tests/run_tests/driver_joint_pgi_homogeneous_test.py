@@ -19,34 +19,24 @@ from geoh5py.data import FloatData
 from geoh5py.groups.property_group import GroupTypeEnum, PropertyGroup
 from geoh5py.groups.simpeg import SimPEGGroup
 from geoh5py.workspace import Workspace
-from pytest import raises
 
-from simpeg_drivers.electricals import DC3DForwardOptions, DC3DInversionOptions
-from simpeg_drivers.electricals.direct_current.three_dimensions.driver import (
-    DC3DForwardDriver,
-    DC3DInversionDriver,
-)
 from simpeg_drivers.joint.joint_petrophysics.driver import JointPetrophysicsDriver
 from simpeg_drivers.joint.joint_petrophysics.options import JointPetrophysicsOptions
-from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import (
     GravityForwardOptions,
     GravityInversionOptions,
     MagneticInversionOptions,
     MVIForwardOptions,
-    MVIInversionOptions,
 )
 from simpeg_drivers.potential_fields.gravity.driver import (
     GravityForwardDriver,
     GravityInversionDriver,
 )
 from simpeg_drivers.potential_fields.magnetic_scalar.driver import (
-    MagneticForwardDriver,
     MagneticInversionDriver,
 )
 from simpeg_drivers.potential_fields.magnetic_vector.driver import (
     MVIForwardDriver,
-    MVIInversionDriver,
 )
 from simpeg_drivers.utils.utils import get_inversion_output
 from tests.testing_utils import check_target, setup_inversion_workspace
