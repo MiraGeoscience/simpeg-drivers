@@ -60,6 +60,7 @@ def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
         inducing_field_inclination=79.0,
         inducing_field_declination=11.0,
         reference_model=0.0,
+        inducing_field_strength=50000.0,
         reference_inclination=79.0,
         reference_declination=11.0,
     )
@@ -72,7 +73,7 @@ def test_zero_reference_model(tmp_path: Path):
     geoh5 = params.geoh5
     with geoh5.open():
         driver = MVIInversionDriver(params)
-        _ = InversionModel(driver, "reference", is_vector=True)
+        _ = InversionModel(driver, "reference_model")
         incl = np.unique(geoh5.get_entity("reference_inclination")[0].values)
         decl = np.unique(geoh5.get_entity("reference_declination")[0].values)
     assert len(incl) == 1
@@ -87,7 +88,7 @@ def test_collection(tmp_path: Path):
         driver = MVIInversionDriver(params)
         models = InversionModelCollection(driver)
         models.remove_air(driver.models.active_cells)
-        starting = InversionModel(driver, "starting", is_vector=True)
+        starting = InversionModel(driver, "starting_model")
         starting.remove_air(driver.models.active_cells)
         np.testing.assert_allclose(models.starting_model, starting.model, atol=1e-7)
 
@@ -96,7 +97,7 @@ def test_initialize(tmp_path: Path):
     params = get_mvi_params(tmp_path)
     with params.geoh5.open():
         driver = MVIInversionDriver(params)
-        starting_model = InversionModel(driver, "starting", is_vector=True)
+        starting_model = InversionModel(driver, "starting_model")
         assert len(starting_model.model) == 3 * driver.inversion_mesh.n_cells
         assert len(np.unique(starting_model.model)) == 3
 
@@ -116,11 +117,11 @@ def test_model_from_object(tmp_path: Path):
         point_object = Points.create(geoh5, name="test_point", vertices=cc)
         point_object.add_data({"test_data": {"values": vals}})
         data_object = geoh5.get_entity("test_data")[0]
-        params.lower_bound = data_object
-        lower_bound = InversionModel(driver, "lower_bound", is_vector=True)
-        nc = int(len(lower_bound.model) / 3)
+        params.models.upper_bound = data_object
+        upper_bound = InversionModel(driver, "upper_bound")
+
         A = driver.inversion_mesh.mesh.cell_centers
-        b = lower_bound.model[:nc]
+        b = upper_bound.model
         from scipy.linalg import lstsq
 
         m = lstsq(A, b)[0]
