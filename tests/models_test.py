@@ -40,6 +40,12 @@ def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
     )
     with geoh5.open():
         mesh = model.parent
+        ref_inducing = mesh.add_data(
+            {
+                "reference_inclination": {"values": np.ones(mesh.n_cells) * 79.0},
+                "reference_declination": {"values": np.ones(mesh.n_cells) * 11.0},
+            }
+        )
         tmi_channel = survey.add_data(
             {
                 "tmi": {"values": np.random.rand(survey.n_vertices)},
@@ -52,6 +58,7 @@ def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
         geoh5=geoh5,
         data_object=survey,
         tmi_channel=tmi_channel,
+        tmi_uncertainty=1.0,
         mesh=mesh,
         active_cells=ActiveCellsOptions(
             topography_object=topography, topography=elevation
@@ -61,8 +68,8 @@ def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
         inducing_field_declination=11.0,
         reference_model=0.0,
         inducing_field_strength=50000.0,
-        reference_inclination=79.0,
-        reference_declination=11.0,
+        reference_inclination=ref_inducing[0],
+        reference_declination=ref_inducing[1],
     )
 
     return params
@@ -90,7 +97,12 @@ def test_collection(tmp_path: Path):
         models.remove_air(driver.models.active_cells)
         starting = InversionModel(driver, "starting_model")
         starting.remove_air(driver.models.active_cells)
-        np.testing.assert_allclose(models.starting_model, starting.model, atol=1e-7)
+        assert len(models.starting_model) == 3 * len(starting.model)
+        np.testing.assert_allclose(
+            np.linalg.norm(models.starting_model.reshape((-1, 3), order="F"), axis=1),
+            starting.model,
+            atol=1e-7,
+        )
 
 
 def test_initialize(tmp_path: Path):
@@ -98,8 +110,8 @@ def test_initialize(tmp_path: Path):
     with params.geoh5.open():
         driver = MVIInversionDriver(params)
         starting_model = InversionModel(driver, "starting_model")
-        assert len(starting_model.model) == 3 * driver.inversion_mesh.n_cells
-        assert len(np.unique(starting_model.model)) == 3
+        assert len(starting_model.model) == driver.inversion_mesh.n_cells
+        assert len(np.unique(starting_model.model)) == 1
 
 
 def test_model_from_object(tmp_path: Path):

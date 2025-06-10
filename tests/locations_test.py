@@ -44,6 +44,9 @@ def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
         topography_object=topography,
         mesh=model.parent,
         starting_model=model,
+        inducing_field_strength=50000.0,
+        inducing_field_inclination=60.0,
+        inducing_field_declination=30.0,
     )
     return params
 

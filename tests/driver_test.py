@@ -55,7 +55,7 @@ def test_smallness_terms(tmp_path: Path):
         )
         params.alpha_s = None
         driver = GravityInversionDriver(params)
-        assert driver.regularization.objfcts[0].alpha_s == 0.0
+        assert driver.regularization.objfcts[0].alpha_s == 1.0
 
 
 def test_target_chi(tmp_path: Path, caplog):

@@ -177,7 +177,7 @@ class InversionModelCollection:
 
         if value is None and self.is_vector:
             return (
-                np.ones(self.active_cells.sum())
+                np.ones_like(self._starting_model.model)
                 * self.driver.params.inducing_field_inclination
             )
 
@@ -192,7 +192,7 @@ class InversionModelCollection:
 
         if value is None and self.is_vector:
             return (
-                np.ones(self.active_cells.sum())
+                np.ones_like(self._starting_model.model)
                 * self.driver.params.inducing_field_declination
             )
 

@@ -50,9 +50,13 @@ def get_mvi_params(tmp_path: Path, **kwargs) -> MVIInversionOptions:
         geoh5=geoh5,
         data_object=survey,
         tmi_channel=tmi_channel,
+        tmi_uncertainty=1.0,
         topography_object=topography,
         mesh=model.parent,
         starting_model=model,
+        inducing_field_strength=50000.0,
+        inducing_field_inclination=60.0,
+        inducing_field_declination=30.0,
         **kwargs,
     )
     return params
@@ -128,6 +132,9 @@ def test_survey_data(tmp_path: Path):
             mesh=mesh,
             starting_model=0.0,
             tile_spatial=2,
+            inducing_field_strength=50000.0,
+            inducing_field_inclination=60.0,
+            inducing_field_declination=30.0,
         )
 
         driver = MVIInversionDriver(params)
@@ -201,7 +208,7 @@ def test_has_tensor():
 
 
 def test_get_uncertainty_component(tmp_path: Path):
-    params = get_mvi_params(tmp_path, tmi_uncertainty=1.0)
+    params = get_mvi_params(tmp_path)
     geoh5 = params.geoh5
     with geoh5.open():
         data = InversionData(geoh5, params)
@@ -223,7 +230,7 @@ def test_normalize(tmp_path: Path):
 
 
 def test_get_survey(tmp_path: Path):
-    params = get_mvi_params(tmp_path, tmi_uncertainty=1.0)
+    params = get_mvi_params(tmp_path)
     geoh5 = params.geoh5
     with geoh5.open():
         data = InversionData(geoh5, params)
