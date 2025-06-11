@@ -41,7 +41,7 @@ class GravityForwardOptions(BaseForwardOptions):
     title: str = "Gravity Forward"
     physical_property: str = "density"
     inversion_type: str = "gravity"
-    workspace_geoh5: Path | None = None
+
     gx_channel_bool: bool = False
     gy_channel_bool: bool = False
     gz_channel_bool: bool = True
@@ -84,7 +84,7 @@ class GravityInversionOptions(BaseInversionOptions):
     title: str = "Gravity Inversion"
     physical_property: str = "density"
     inversion_type: str = "gravity"
-    workspace_geoh5: Path | None = None
+
     gx_channel: FloatData | None = None
     gy_channel: FloatData | None = None
     gz_channel: FloatData | None = None

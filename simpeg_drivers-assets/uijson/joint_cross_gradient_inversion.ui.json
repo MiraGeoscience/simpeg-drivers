@@ -238,7 +238,6 @@
         "lineEdit": false,
         "enabled": false
     },
-    "gradient_type": "total",
     "max_irls_iterations": {
         "min": 0,
         "group": "Sparse/blocky model",

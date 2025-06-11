@@ -7,7 +7,6 @@
     "run_command": "simpeg_drivers.driver",
     "geoh5": "",
     "monitoring_directory": "",
-    "workspace_geoh5": "",
     "group_a": {
         "main": true,
         "group": "Joint",
@@ -222,7 +221,6 @@
         "lineEdit": false,
         "enabled": false
     },
-    "gradient_type": "total",
     "max_irls_iterations": {
         "min": 0,
         "group": "Sparse/blocky model",

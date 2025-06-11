@@ -40,14 +40,18 @@ def test_get_locations(tmp_path: Path):
         elevation = topography.add_data(
             {"elevation": {"values": topography.vertices[:, 2]}}
         )
-    params = MVIInversionOptions(
+    params = MVIInversionOptions.build(
         geoh5=geoh5,
         mesh=mesh,
         data_object=survey,
         tmi_channel=tmi_channel,
+        tmi_uncertainty=0.01,
         active_cells=ActiveCellsOptions(
             topography_object=topography, topography=elevation
         ),
+        inducing_field_strength=50000.0,
+        inducing_field_inclination=60.0,
+        inducing_field_declination=0.0,
         starting_model=1.0,
     )
 

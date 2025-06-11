@@ -222,7 +222,6 @@
         "property": "",
         "value": 0.0
     },
-    "save_sensitivities": false,
     "n_cpu": {
         "min": 1,
         "group": "Compute",

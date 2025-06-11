@@ -19,34 +19,24 @@ from geoh5py.data import FloatData
 from geoh5py.groups.property_group import GroupTypeEnum, PropertyGroup
 from geoh5py.groups.simpeg import SimPEGGroup
 from geoh5py.workspace import Workspace
-from pytest import raises
 
-from simpeg_drivers.electricals import DC3DForwardOptions, DC3DInversionOptions
-from simpeg_drivers.electricals.direct_current.three_dimensions.driver import (
-    DC3DForwardDriver,
-    DC3DInversionDriver,
-)
 from simpeg_drivers.joint.joint_petrophysics.driver import JointPetrophysicsDriver
 from simpeg_drivers.joint.joint_petrophysics.options import JointPetrophysicsOptions
-from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import (
     GravityForwardOptions,
     GravityInversionOptions,
     MagneticInversionOptions,
     MVIForwardOptions,
-    MVIInversionOptions,
 )
 from simpeg_drivers.potential_fields.gravity.driver import (
     GravityForwardDriver,
     GravityInversionDriver,
 )
 from simpeg_drivers.potential_fields.magnetic_scalar.driver import (
-    MagneticForwardDriver,
     MagneticInversionDriver,
 )
 from simpeg_drivers.potential_fields.magnetic_vector.driver import (
     MVIForwardDriver,
-    MVIInversionDriver,
 )
 from simpeg_drivers.utils.utils import get_inversion_output
 from tests.testing_utils import check_target, setup_inversion_workspace
@@ -55,7 +45,7 @@ from tests.testing_utils import check_target, setup_inversion_workspace
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 390.6585155910284, "phi_d": 2320, "phi_m": 0.642}
+target_run = {"data_norm": 390.65805009978556, "phi_d": 2470, "phi_m": 0.674}
 
 
 def test_homogeneous_fwr_run(
@@ -78,11 +68,10 @@ def test_homogeneous_fwr_run(
     ind = mesh.centroids[:, 0] > 0
     model.values[ind] = 0.05
 
-    active_cells = ActiveCellsOptions(topography_object=topography)
-    params = GravityForwardOptions(
+    params = GravityForwardOptions.build(
         geoh5=geoh5,
         mesh=mesh,
-        active_cells=active_cells,
+        topography_object=topography,
         data_object=survey,
         starting_model=model,
     )
@@ -105,10 +94,10 @@ def test_homogeneous_fwr_run(
     ind = mesh.centroids[:, 0] > 0
     model.values[ind] = 0.01
 
-    params = MVIForwardOptions(
+    params = MVIForwardOptions.build(
         geoh5=geoh5,
         mesh=mesh,
-        active_cells=ActiveCellsOptions(topography_object=topography),
+        topography_object=topography,
         inducing_field_strength=inducing_field[0],
         inducing_field_inclination=inducing_field[1],
         inducing_field_declination=inducing_field[2],
@@ -196,11 +185,10 @@ def test_homogeneous_run(
             ref_model.values = ref_model.values / 2.0
 
             if group.options["inversion_type"] == "gravity":
-                active_cells = ActiveCellsOptions(topography_object=topography)
-                params = GravityInversionOptions(
+                params = GravityInversionOptions.build(
                     geoh5=geoh5,
                     mesh=mesh,
-                    active_cells=active_cells,
+                    topography_object=topography,
                     data_object=survey,
                     gz_channel=data,
                     gz_uncertainty=1e-2,
@@ -209,10 +197,10 @@ def test_homogeneous_run(
                 )
                 drivers.append(GravityInversionDriver(params))
             else:
-                params = MagneticInversionOptions(
+                params = MagneticInversionOptions.build(
                     geoh5=geoh5,
                     mesh=mesh,
-                    active_cells=ActiveCellsOptions(topography_object=topography),
+                    topography_object=topography,
                     inducing_field_strength=group.options["inducing_field_strength"][
                         "value"
                     ],
@@ -231,8 +219,8 @@ def test_homogeneous_run(
                 )
                 drivers.append(MagneticInversionDriver(params))
 
-        params = JointPetrophysicsOptions(
-            active_cells=active_cells,
+        params = JointPetrophysicsOptions.build(
+            topography_object=topography,
             geoh5=geoh5,
             group_a=drivers[0].params.out_group,
             group_a_multiplier=1.0,
@@ -243,7 +231,7 @@ def test_homogeneous_run(
             length_scale_x=1.0,
             length_scale_y=1.0,
             length_scale_z=1.0,
-            petrophysics_model=petrophysics,
+            petrophysical_model=petrophysics,
             initial_beta_ratio=1e2,
             max_global_iterations=max_iterations,
         )
@@ -260,7 +248,7 @@ def test_homogeneous_run(
 
             out_group = run_ws.get_entity(driver.params.out_group.uid)[0]
             mesh = out_group.get_entity("mesh")[0]
-            petro_model = mesh.get_entity("petrophysics_model")[0]
+            petro_model = mesh.get_entity("petrophysical_model")[0]
             assert len(np.unique(petro_model.values)) == 4
 
 

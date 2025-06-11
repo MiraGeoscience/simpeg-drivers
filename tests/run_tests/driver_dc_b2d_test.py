@@ -61,7 +61,7 @@ def test_dc_p3d_fwr_run(
         drape_height=0.0,
         flatten=False,
     )
-    params = DCBatch2DForwardOptions(
+    params = DCBatch2DForwardOptions.build(
         geoh5=geoh5,
         mesh=model.parent,
         drape_model=DrapeModelOptions(
@@ -72,7 +72,7 @@ def test_dc_p3d_fwr_run(
             horizontal_padding=1000.0,
             vertical_padding=1000.0,
         ),
-        active_cells=ActiveCellsOptions(topography_object=topography),
+        topography_object=topography,
         data_object=survey,
         starting_model=model,
         line_selection=LineSelectionOptions(
@@ -99,7 +99,7 @@ def test_dc_p3d_run(
         topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
-        params = DCBatch2DInversionOptions(
+        params = DCBatch2DInversionOptions.build(
             geoh5=geoh5,
             mesh=mesh,
             drape_model=DrapeModelOptions(
@@ -110,7 +110,7 @@ def test_dc_p3d_run(
                 horizontal_padding=1000.0,
                 vertical_padding=1000.0,
             ),
-            active_cells=ActiveCellsOptions(topography_object=topography),
+            topography_object=topography,
             data_object=potential.parent,
             potential_channel=potential,
             potential_uncertainty=1e-3,
@@ -122,7 +122,6 @@ def test_dc_p3d_run(
             s_norm=0.0,
             x_norm=1.0,
             z_norm=1.0,
-            gradient_type="components",
             max_global_iterations=max_iterations,
             initial_beta=None,
             initial_beta_ratio=10.0,

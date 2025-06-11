@@ -61,7 +61,7 @@ def test_ip_p3d_fwr_run(
         flatten=False,
     )
 
-    params = IPBatch2DForwardOptions(
+    params = IPBatch2DForwardOptions.build(
         geoh5=geoh5,
         mesh=model.parent,
         drape_model=DrapeModelOptions(
@@ -103,7 +103,7 @@ def test_ip_p3d_run(
         topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
-        params = IPBatch2DInversionOptions(
+        params = IPBatch2DInversionOptions.build(
             geoh5=geoh5,
             mesh=mesh,
             drape_model=DrapeModelOptions(
@@ -114,7 +114,7 @@ def test_ip_p3d_run(
                 horizontal_padding=1000.0,
                 vertical_padding=1000.0,
             ),
-            active_cells=ActiveCellsOptions(topography_object=topography),
+            topography_object=topography,
             data_object=chargeability.parent,
             chargeability_channel=chargeability,
             chargeability_uncertainty=2e-4,
@@ -129,7 +129,6 @@ def test_ip_p3d_run(
             z_norm=0.0,
             length_scale_x=1.0,
             length_scale_z=1.0,
-            gradient_type="components",
             max_global_iterations=max_iterations,
             initial_beta=None,
             initial_beta_ratio=1e0,

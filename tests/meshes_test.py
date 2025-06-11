@@ -47,13 +47,17 @@ def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
             {"elevation": {"values": topography.vertices[:, 2]}}
         )
 
-    params = MVIInversionOptions(
+    params = MVIInversionOptions.build(
         geoh5=geoh5,
         data_object=survey,
         tmi_channel=tmi_channel,
+        tmi_uncertainty=0.01,
         active_cells=ActiveCellsOptions(
             topography_object=topography, topography=elevation
         ),
+        inducing_field_strength=50000.0,
+        inducing_field_inclination=60.0,
+        inducing_field_declination=30.0,
         mesh=mesh,
         starting_model=model,
     )

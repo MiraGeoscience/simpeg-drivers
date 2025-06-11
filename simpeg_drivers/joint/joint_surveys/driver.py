@@ -65,13 +65,13 @@ class JointSurveyDriver(BaseJointDriver):
                 ]:
                     model = np.exp(model)
                     if (
-                        getattr(self.params, "model_type", None)
+                        getattr(self.params.models, "model_type", None)
                         == "Resistivity (Ohm-m)"
                     ):
                         logger.info(
                             "Converting input %s model to %s",
                             model_type,
-                            getattr(self.params, "model_type", None),
+                            getattr(self.params.models, "model_type", None),
                         )
                         model = 1.0 / model
 

@@ -18,24 +18,22 @@ from geoh5py.groups import PropertyGroup
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.electromagnetics.frequency_domain.options import (
-    BaseFDEMOptions,
+    FDEMForwardOptions,
+    FDEMInversionOptions,
 )
 from simpeg_drivers.options import (
-    BaseForwardOptions,
-    BaseInversionOptions,
+    DirectiveOptions,
     DrapeModelOptions,
 )
 
 
-class FDEM1DForwardOptions(BaseFDEMOptions, BaseForwardOptions):
+class FDEM1DForwardOptions(FDEMForwardOptions):
     """
     Frequency Domain Electromagnetic forward options.
 
-    :param z_channel_bool: Z-component data channel boolean.
-    :param x_channel_bool: X-component data channel boolean.
-    :param y_channel_bool: Y-component data channel boolean.
-    :param model_type: Specify whether the models are provided in resistivity or conductivity.
-    :param data_units: Units for the FEM data
+    :param z_real_channel_bool: Z-component data channel boolean.
+    :param z_imag_channel_bool: X-component data channel boolean.
+    :param drape_model: Drape model options.
     """
 
     name: ClassVar[str] = "Frequency Domain 1D Electromagnetics Forward"
@@ -57,7 +55,7 @@ class FDEM1DForwardOptions(BaseFDEMOptions, BaseForwardOptions):
     )
 
 
-class FDEM1DInversionOptions(BaseFDEMOptions, BaseInversionOptions):
+class FDEM1DInversionOptions(FDEMInversionOptions):
     """
     Frequency Domain Electromagnetic Inversion options.
 
@@ -65,8 +63,7 @@ class FDEM1DInversionOptions(BaseFDEMOptions, BaseInversionOptions):
     :param z_real_uncertainty: Real Z-component data channel uncertainty.
     :param z_imag_channel: Imaginary Z-component data channel.
     :param z_imag_uncertainty: Imaginary Z-component data channel uncertainty.
-    :param model_type: Specify whether the models are provided in resistivity or conductivity.
-    :param data_units: Units for the FEM data
+    :param drape_model: Drape model options.
     """
 
     name: ClassVar[str] = "Frequency Domain 1D Electromagnetics Inversion"
@@ -82,13 +79,9 @@ class FDEM1DInversionOptions(BaseFDEMOptions, BaseInversionOptions):
         vertical_padding=100.0,
         expansion_factor=1.1,
     )
-
-    # 1D specific options
-    auto_scale_misfits: bool = False
-    sens_wts_threshold: float = 100.0
-    length_scale_y: None = None
-    y_norm: None = None
-
+    directives: DirectiveOptions = DirectiveOptions(
+        sens_wts_threshold=100.0,
+    )
     z_real_channel: PropertyGroup | None = None
     z_real_uncertainty: PropertyGroup | None = None
     z_imag_channel: PropertyGroup | None = None

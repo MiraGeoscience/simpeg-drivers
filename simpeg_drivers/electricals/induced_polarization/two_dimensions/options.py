@@ -15,9 +15,10 @@ from pathlib import Path
 from typing import ClassVar
 
 from geoh5py.data import FloatData
-from geoh5py.objects import DrapeModel
+from geoh5py.objects import DrapeModel, PotentialElectrode
 
 from simpeg_drivers import assets_path
+from simpeg_drivers.electricals.options import IPModelOptions
 from simpeg_drivers.options import (
     BaseForwardOptions,
     BaseInversionOptions,
@@ -34,7 +35,6 @@ class IP2DForwardOptions(BaseForwardOptions):
     :param mesh: Optional mesh object if providing a heterogeneous model.
     :param drape_model: Drape model parameters.
     :param line_selection: Line selection parameters.
-    :param conductivity_model: Conductivity model.
     """
 
     name: ClassVar[str] = "Induced Polarization 2D Forward"
@@ -46,12 +46,12 @@ class IP2DForwardOptions(BaseForwardOptions):
     physical_property: str = "chargeability"
     inversion_type: str = "induced polarization 2d"
 
+    data_object: PotentialElectrode
     chargeability_channel_bool: bool = True
     line_selection: LineSelectionOptions
     mesh: DrapeModel | None = None
     drape_model: DrapeModelOptions = DrapeModelOptions()
-    model_type: str = "Conductivity (S/m)"
-    conductivity_model: float | FloatData
+    models: IPModelOptions
 
 
 class IP2DInversionOptions(BaseInversionOptions):
@@ -62,10 +62,6 @@ class IP2DInversionOptions(BaseInversionOptions):
     :param chargeability_uncertainty: Chargeability data uncertainty channel.
     :param line_selection: Line selection parameters.
     :param drape_model: Drape model parameters.
-    :param conductivity_model: Conductivity model.
-    :param lower_bound: Lower bound for the inversion.
-    :param length_scale_y: Inactive length scale in the y direction.
-    :param y_norm: Inactive y normalization factor.
     """
 
     name: ClassVar[str] = "Induced Polarization 2D Inversion"
@@ -77,13 +73,10 @@ class IP2DInversionOptions(BaseInversionOptions):
     physical_property: str = "chargeability"
     inversion_type: str = "induced polarization 2d"
 
+    data_object: PotentialElectrode
     chargeability_channel: FloatData
     chargeability_uncertainty: float | FloatData | None = None
     line_selection: LineSelectionOptions
     mesh: DrapeModel | None = None
     drape_model: DrapeModelOptions = DrapeModelOptions()
-    model_type: str = "Conductivity (S/m)"
-    conductivity_model: float | FloatData
-    lower_bound: float | FloatData | None = 0.0
-    length_scale_y: None = None
-    y_norm: None = None
+    models: IPModelOptions

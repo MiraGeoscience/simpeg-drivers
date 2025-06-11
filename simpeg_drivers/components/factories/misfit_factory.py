@@ -65,7 +65,7 @@ class MisfitFactory(SimPEGFactory):
     ):
         # Base slice over frequencies
         if self.factory_type in ["magnetotellurics", "tipper", "fdem"]:
-            channels = np.unique([list(v) for v in inversion_data.observed.values()])
+            channels = inversion_data.entity.channels
         else:
             channels = [None]
 
@@ -140,7 +140,9 @@ class MisfitFactory(SimPEGFactory):
                                 value_inactive=1e-8,
                             )
 
-                        local_sim.sigma = proj * mapping * self.models.conductivity
+                        local_sim.sigma = (
+                            proj * mapping * self.models.conductivity_model
+                        )
 
                     simulation = meta.MetaSimulation(
                         simulations=[local_sim], mappings=[mapping]

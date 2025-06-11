@@ -55,11 +55,9 @@ def test_gravity_rotated_grad_fwr_run(
         flatten=False,
     )
 
-    active_cells = ActiveCellsOptions(topography_object=topography)
-    params = GravityForwardOptions(
+    params = GravityForwardOptions.build(
         geoh5=geoh5,
         mesh=model.parent,
-        active_cells=active_cells,
         topography_object=topography,
         data_object=survey,
         starting_model=model,
@@ -103,11 +101,10 @@ def test_rotated_grad_run(
         topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
-        active_cells = ActiveCellsOptions(topography_object=topography)
-        params = GravityInversionOptions(
+        params = GravityInversionOptions.build(
             geoh5=geoh5,
             mesh=mesh,
-            active_cells=active_cells,
+            topography_object=topography,
             data_object=gz.parent,
             gradient_rotation=pg,
             starting_model=1e-4,
@@ -116,7 +113,6 @@ def test_rotated_grad_run(
             x_norm=0.0,
             y_norm=0.0,
             z_norm=0.0,
-            gradient_type="components",
             gz_channel=gz,
             gz_uncertainty=2e-3,
             lower_bound=0.0,

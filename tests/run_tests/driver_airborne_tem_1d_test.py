@@ -55,10 +55,10 @@ def test_airborne_tem_1d_fwr_run(
         padding_distance=400.0,
         flatten=False,
     )
-    params = TDEM1DForwardOptions(
+    params = TDEM1DForwardOptions.build(
         geoh5=geoh5,
         mesh=model.parent,
-        active_cells=ActiveCellsOptions(topography_object=topography),
+        topography_object=topography,
         data_object=survey,
         starting_model=model,
         z_channel_bool=True,
@@ -127,10 +127,10 @@ def test_airborne_tem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
         orig_dBzdt = geoh5.get_entity("Iteration_0_z_[0]")[0].values
 
         # Run the inverse
-        params = TDEM1DInversionOptions(
+        params = TDEM1DInversionOptions.build(
             geoh5=geoh5,
             mesh=mesh,
-            active_cells=ActiveCellsOptions(topography_object=topography),
+            topography_object=topography,
             data_object=survey,
             starting_model=5e-1,
             reference_model=1e-1,

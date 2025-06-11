@@ -43,7 +43,7 @@ from .locations import InversionLocations
 
 class InversionData(InversionLocations):
     """
-    Retrieve and store data from the workspace and apply transformations.
+    Retrieve and store data from the workspace and apply normalizations.
 
     Parameters
     ---------
@@ -53,16 +53,12 @@ class InversionData(InversionLocations):
     mask :
         Mask accumulated by windowing and downsampling operations and applied
         to locations and data on initialization.
-    vector :
-        True if models are vector valued.
     n_blocks :
         Number of blocks if vector.
     components :
         Component names.
     observed :
         Components and associated observed geophysical data.
-    predicted :
-        Components and associated predicted geophysical data.
     uncertainties :
         Components and associated data uncertainties.
     normalizations :
@@ -86,14 +82,11 @@ class InversionData(InversionLocations):
         super().__init__(workspace, params)
         self.locations: np.ndarray | None = None
         self.mask: np.ndarray | None = None
-        self.indices: np.ndarray | None = None
-        self.vector: bool | None = None
         self.n_blocks: int | None = None
-        self.observed: dict[str, np.ndarray] = {}
-        self.predicted: dict[str, np.ndarray] = {}
-        self.uncertainties: dict[str, np.ndarray] = {}
-        self.normalizations: dict[str, Any] = {}
-        self.transformations: dict[str, Any] = {}
+
+        self._observed: dict[str, np.ndarray] | None = None
+        self._uncertainties: dict[str, np.ndarray] | None = None
+
         self.entity = None
         self.data_entity = None
         self._observed_data_types = {}
@@ -103,11 +96,9 @@ class InversionData(InversionLocations):
 
     def _initialize(self) -> None:
         """Extract data from the workspace using params data."""
-        self.vector = True if self.params.inversion_type == "magnetic vector" else False
         self.n_blocks = 3 if self.params.inversion_type == "magnetic vector" else 1
         self.components = self.params.active_components
-        self.observed = self.params.data
-        self.uncertainties = self.params.uncertainties
+
         self.has_tensor = InversionData.check_tensor(self.params.components)
         self.locations = super().get_locations(self.params.data_object)
 
@@ -119,15 +110,34 @@ class InversionData(InversionLocations):
         else:
             self.mask = np.ones(len(self.locations), dtype=bool)
 
-        self.observed = self.filter(self.observed)
-        self.uncertainties = self.filter(self.uncertainties)
+        self.normalizations: dict[str, Any] = self.get_normalizations()
 
-        self.normalizations = self.get_normalizations()
-        self.observed = self.normalize(self.observed)
-        self.uncertainties = self.normalize(self.uncertainties, absolute=True)
         self.entity = self.write_entity()
-        self.params.data_object = self.entity
+
+        self.save_data()
         self.locations = super().get_locations(self.entity)
+
+    @property
+    def observed(self):
+        """
+        Return observed data filtered and normalized.
+        """
+        if self._observed is None:
+            filtered = self.filter(self.params.data, mask=self.mask)
+            self._observed = self.normalize(filtered)
+
+        return self._observed
+
+    @property
+    def uncertainties(self):
+        """
+        Return uncertainties filtered and normalized.
+        """
+        if self._uncertainties is None and hasattr(self.params, "uncertainties"):
+            filtered = self.filter(self.params.uncertainties, mask=self.mask)
+            self._uncertainties = self.normalize(filtered, absolute=True)
+
+        return self._uncertainties
 
     def drape_locations(self, locations: np.ndarray) -> np.ndarray:
         """
@@ -150,18 +160,6 @@ class InversionData(InversionLocations):
         distance_interp /= ((rad + 1e-8) ** -1.0).sum(axis=1)
 
         return np.c_[distance_interp, locations[:, 2:]]
-
-    def filter(self, obj: dict[str, np.ndarray] | np.ndarray, mask=None):
-        """Remove vertices based on mask property."""
-        if mask is None:
-            mask = self.mask
-
-        if self.indices is None:
-            self.indices = np.where(mask)[0]
-
-        obj = super().filter(obj, mask=self.indices)
-
-        return obj
 
     def get_data(self) -> tuple[list, dict, dict]:
         """
@@ -192,78 +190,61 @@ class InversionData(InversionLocations):
 
     def save_data(self):
         """Write out the data to geoh5"""
-        data = self.predicted if self.params.forward_only else self.observed
-        basename = "Predicted" if self.params.forward_only else "Observed"
-        self._observed_data_types = {c: {} for c in data.keys()}
-        data_dict = {c: {} for c in data.keys()}
-        uncert_dict = {c: {} for c in data.keys()}
-
-        if self.params.inversion_type in [
+        has_channels = self.params.inversion_type in [
             "magnetotellurics",
             "tipper",
             "tdem",
             "fdem",
             "fdem 1d",
             "tdem 1d",
-        ]:
-            for component, channels in data.items():
-                for ind, (channel, values) in enumerate(channels.items()):
-                    dnorm = values / self.normalizations[channel][component]
-                    data_channel = self.entity.add_data(
-                        {f"{basename}_{component}_[{ind}]": {"values": dnorm}}
-                    )
-                    data_dict[component] = self.entity.add_data_to_group(
-                        data_channel, f"{basename}_{component}"
-                    )
-                    if not self.params.forward_only:
-                        self._observed_data_types[component][f"[{ind}]"] = (
-                            data_channel.entity_type
-                        )
-                        uncerts = np.abs(
-                            self.uncertainties[component][channel].copy()
-                            / self.normalizations[channel][component]
-                        )
-                        uncerts[np.isinf(uncerts)] = np.nan
-                        uncert_entity = self.entity.add_data(
-                            {f"Uncertainties_{component}_[{ind}]": {"values": uncerts}}
-                        )
-                        uncert_dict[component] = self.entity.add_data_to_group(
-                            uncert_entity, f"Uncertainties_{component}"
-                        )
-        else:
-            for component in data:
-                dnorm = data[component] / self.normalizations[None][component]
-                data_dict[component] = self.entity.add_data(
-                    {f"{basename}_{component}": {"values": dnorm}}
+        ]
+
+        # Pre-allocate dictionaries
+        data_types = {c: {} for c in self.observed.keys()}
+        data_dict = data_types.copy()
+        uncert_dict = data_types.copy()
+
+        for component, channels in self.observed.items():
+            # Forward only
+            if channels is None:
+                continue
+
+            # Non-EM methods
+            if not has_channels:
+                channels = {None: channels}
+
+            for ind, (channel, values) in enumerate(channels.items()):
+                suffix = f"_{component}"
+                if has_channels:
+                    suffix += f"_[{ind}]"
+
+                normalized_data = values / self.normalizations[channel][component]
+                data_entity = self.entity.add_data(
+                    {"Observed" + suffix: {"values": normalized_data}}
+                )
+                uncerts = np.abs(
+                    self.uncertainties[component][channel].flatten()
+                    / self.normalizations[channel][component]
+                )
+                uncerts[np.isinf(uncerts)] = np.nan
+                uncert_entity = self.entity.add_data(
+                    {"Uncertainties" + suffix: {"values": uncerts}}
                 )
 
-                if not self.params.forward_only:
-                    self._observed_data_types[component] = data_dict[
-                        component
-                    ].entity_type
-                    uncerts = np.abs(
-                        self.uncertainties[component].copy()
-                        / self.normalizations[None][component]
+                if has_channels:
+                    data_dict[component] = self.entity.add_data_to_group(
+                        data_entity, f"Observed_{component}"
                     )
-                    uncerts[np.isinf(uncerts)] = np.nan
-
-                    uncert_dict[component] = self.entity.add_data(
-                        {f"Uncertainties_{component}": {"values": uncerts}}
+                    uncert_dict[component] = self.entity.add_data_to_group(
+                        uncert_entity, f"Uncertainties_{component}"
                     )
+                else:
+                    data_dict[component] = data_entity
+                    uncert_dict[component] = uncert_entity
 
-                if "direct current" in self.params.inversion_type:
-                    apparent_property = data[component].copy()
-                    apparent_property *= self.survey.apparent_resistivity
+                data_types[component][channel] = data_entity.entity_type
 
-                    data_dict["apparent_resistivity"] = self.entity.add_data(
-                        {
-                            f"{basename}_apparent_resistivity": {
-                                "values": apparent_property,
-                                "association": "CELL",
-                            }
-                        }
-                    )
-
+        self._observed_data_types = data_types
         self.update_params(data_dict, uncert_dict)
 
     def normalize(
@@ -421,7 +402,7 @@ class InversionData(InversionLocations):
                 active_cells,
                 local_mesh,
                 enforce_active=True,
-                components=3 if self.vector else 1,
+                components=self.n_blocks,
             )
             simulation = simulation_factory.build(
                 survey=survey,
@@ -473,9 +454,7 @@ class InversionData(InversionLocations):
         """
         Update pointers to newly created object and data.
         """
-
         self.params.data_object = self.entity
-
         for comp in self.params.components:
             if getattr(self.params, "_".join([comp, "channel"]), None) is None:
                 continue

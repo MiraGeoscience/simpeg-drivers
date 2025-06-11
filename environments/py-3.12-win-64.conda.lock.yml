@@ -10,9 +10,9 @@ dependencies:
   - annotated-types=0.7.0=pyhd8ed1ab_1
   - asciitree=0.3.3=py_2
   - bokeh=3.6.3=pyhd8ed1ab_0
-  - brotli=1.1.0=h2466b09_2
-  - brotli-bin=1.1.0=h2466b09_2
-  - brotli-python=1.1.0=py312h275cf98_2
+  - brotli=1.1.0=h2466b09_3
+  - brotli-bin=1.1.0=h2466b09_3
+  - brotli-python=1.1.0=py312h275cf98_3
   - bzip2=1.0.8=h2466b09_7
   - ca-certificates=2025.4.26=h4c7d964_0
   - cached-property=1.5.2=hd8ed1ab_1
@@ -30,12 +30,12 @@ dependencies:
   - discretize=0.11.3=py312hbaa7e33_0
   - distributed=2025.3.0=pyhd8ed1ab_0
   - fasteners=0.19=pyhd8ed1ab_1
-  - fonttools=4.58.1=py312h31fea79_0
+  - fonttools=4.58.2=py312h31fea79_0
   - freetype=2.13.3=h57928b3_1
   - fsspec=2025.5.1=pyhd8ed1ab_0
   - geoana=0.7.2=py312hbaa7e33_0
   - h2=4.2.0=pyhd8ed1ab_0
-  - h5py=3.13.0=nompi_py312h4e244af_101
+  - h5py=3.14.0=nompi_py312h6cc2a29_100
   - hdf5=1.14.6=nompi_hd5d9e70_101
   - hpack=4.1.0=pyhd8ed1ab_0
   - hyperframe=6.1.0=pyhd8ed1ab_0
@@ -49,9 +49,9 @@ dependencies:
   - lerc=4.0.0=h6470a55_1
   - libaec=1.1.3=h63175ca_0
   - libblas=3.9.0=31_h641d27c_mkl
-  - libbrotlicommon=1.1.0=h2466b09_2
-  - libbrotlidec=1.1.0=h2466b09_2
-  - libbrotlienc=1.1.0=h2466b09_2
+  - libbrotlicommon=1.1.0=h2466b09_3
+  - libbrotlidec=1.1.0=h2466b09_3
+  - libbrotlienc=1.1.0=h2466b09_3
   - libcblas=3.9.0=31_h5e41251_mkl
   - libcurl=8.14.1=h88aaa65_0
   - libdeflate=1.24=h76ddb4d_0
@@ -66,9 +66,9 @@ dependencies:
   - libiconv=1.18=h135ad9c_1
   - libjpeg-turbo=3.1.0=h2466b09_0
   - liblapack=3.9.0=31_h1aa476e_mkl
-  - liblzma=5.8.1=h2466b09_1
+  - liblzma=5.8.1=h2466b09_2
   - libpng=1.6.47=h7a4582a_0
-  - libsqlite=3.50.0=h67fdade_0
+  - libsqlite=3.50.1=h67fdade_0
   - libssh2=1.11.1=h9aa295b_0
   - libtiff=4.7.0=h05922d8_5
   - libwebp-base=1.5.0=h3b0e114_0
@@ -140,13 +140,13 @@ dependencies:
   - yaml=0.2.5=h8ffe710_2
   - zarr=2.14.2=pyhd8ed1ab_0
   - zict=3.0.0=pyhd8ed1ab_1
-  - zipp=3.22.0=pyhd8ed1ab_0
+  - zipp=3.23.0=pyhd8ed1ab_0
   - zstandard=0.23.0=py312h4389bb4_2
   - zstd=1.5.7=hbeecb71_2
   - pip:
-      - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@3deb5f2d2cd1ee39e796fa30a5fcff899e635ba0
-      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@2b2b72f906d85bf460292f66e763ff2331017b02
-      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@447de6c5c257883c4eea045cb3372bf6a1051ad1
+      - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@8d46ccb686e4206683862ec803fc709b26271cd8
+      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@585c89094e3eff35df10d3076964bf154b24d575
+      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@f72a1367edcb2da969002ca06f18f532340b3c27
       - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app.git@02fbd85bf7d54b8f4336f1f0094c1c3e27714e81
       - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps.git@d5959a0e19b45a89eb8a02cd608bc8accb74adb7
 

@@ -100,7 +100,7 @@ class TDEMForwardDriver(InversionDriver):
 
         return tile_large_group_transmitters(
             self.params.data_object,
-            self.params.tile_spatial,
+            self.params.compute.tile_spatial,
         )
 
 
@@ -123,5 +123,5 @@ class TDEMInversionDriver(InversionDriver):
 
         return tile_large_group_transmitters(
             self.params.data_object,
-            self.params.tile_spatial,
+            self.params.compute.tile_spatial,
         )
