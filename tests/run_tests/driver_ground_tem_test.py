@@ -26,8 +26,8 @@ from simpeg_drivers.electromagnetics.time_domain.options import (
     TDEMInversionOptions,
 )
 from simpeg_drivers.options import ActiveCellsOptions
-from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
+from tests.testing_utils import check_target, setup_inversion_workspace
 
 
 logger = getLogger(__name__)
@@ -54,16 +54,16 @@ def test_tiling_ground_tem(
         n_electrodes=n_grid_points,
         n_lines=n_grid_points,
         refinement=refinement,
-        inversion_type="ground_tem",
+        inversion_type="ground tdem",
         drape_height=5.0,
         padding_distance=1000.0,
         flatten=True,
     )
 
-    params = TDEMForwardOptions(
+    params = TDEMForwardOptions.build(
         geoh5=geoh5,
         mesh=model.parent,
-        active_cells=ActiveCellsOptions(topography_object=topography),
+        topography_object=topography,
         data_object=survey,
         starting_model=model,
         x_channel_bool=True,
@@ -101,16 +101,16 @@ def test_ground_tem_fwr_run(
         n_electrodes=n_grid_points,
         n_lines=n_grid_points,
         refinement=refinement,
-        inversion_type="ground_tem",
+        inversion_type="ground tdem",
         drape_height=5.0,
         cell_size=cell_size,
         padding_distance=1000.0,
         flatten=True,
     )
-    params = TDEMForwardOptions(
+    params = TDEMForwardOptions.build(
         geoh5=geoh5,
         mesh=model.parent,
-        active_cells=ActiveCellsOptions(topography_object=topography),
+        topography_object=topography,
         data_object=survey,
         starting_model=model,
         x_channel_bool=True,
@@ -192,10 +192,10 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         orig_dBzdt = geoh5.get_entity("Iteration_0_z_[0]")[0].values
 
         # Run the inverse
-        params = TDEMInversionOptions(
+        params = TDEMInversionOptions.build(
             geoh5=geoh5,
             mesh=mesh,
-            active_cells=ActiveCellsOptions(topography_object=topography),
+            topography_object=topography,
             data_object=survey,
             starting_model=1e-3,
             reference_model=1e-3,
@@ -205,7 +205,6 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
             y_norm=2.0,
             z_norm=2.0,
             alpha_s=0e-1,
-            gradient_type="total",
             lower_bound=2e-6,
             upper_bound=1e2,
             max_global_iterations=max_iterations,

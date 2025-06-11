@@ -1,5 +1,5 @@
 {
-    "version": "0.3.0-alpha.4",
+    "version": "0.3.0-alpha.6",
     "title": "Time-domain EM (TEM) Inversion",
     "icon": "surveyairborneem",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
@@ -7,7 +7,6 @@
     "run_command": "simpeg_drivers.driver",
     "geoh5": "",
     "monitoring_directory": "",
-    "workspace_geoh5": "",
     "inversion_type": "tdem",
     "physical_property": "conductivity",
     "forward_only": false,
@@ -316,6 +315,8 @@
         ],
         "label": "Gradient rotation",
         "parent": "mesh",
+        "optional": true,
+        "enabled": false,
         "value": ""
     },
     "s_norm": {
@@ -384,7 +385,6 @@
         "enabled": true,
         "tooltip": "Lp-norm used in the z-smoothness term of the objective function"
     },
-    "gradient_type": "total",
     "max_irls_iterations": {
         "min": 0,
         "group": "Sparse/blocky model",

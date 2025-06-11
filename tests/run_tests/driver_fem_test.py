@@ -28,8 +28,8 @@ from simpeg_drivers.electromagnetics.frequency_domain.options import (
     FDEMInversionOptions,
 )
 from simpeg_drivers.options import ActiveCellsOptions
-from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
+from tests.testing_utils import check_target, setup_inversion_workspace
 
 
 # To test the full run and validate the inversion.
@@ -52,10 +52,10 @@ def test_fem_name_change(tmp_path, caplog):
         inversion_type="fdem",
     )
     with caplog.at_level(logging.WARNING):
-        FDEMForwardOptions(
+        FDEMForwardOptions.build(
             geoh5=geoh5,
             mesh=model.parent,
-            active_cells=ActiveCellsOptions(topography_object=topography),
+            topography_object=topography,
             data_object=survey,
             starting_model=model,
             z_real_channel_bool=True,
@@ -85,10 +85,10 @@ def test_fem_fwr_run(
         inversion_type="fdem",
         flatten=True,
     )
-    params = FDEMForwardOptions(
+    params = FDEMForwardOptions.build(
         geoh5=geoh5,
         mesh=model.parent,
-        active_cells=ActiveCellsOptions(topography_object=topography),
+        topography_object=topography,
         data_object=survey,
         starting_model=model,
         z_real_channel_bool=True,
@@ -154,10 +154,10 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
         orig_z_real_1 = geoh5.get_entity("Iteration_0_z_real_[0]")[0].values
 
         # Run the inverse
-        params = FDEMInversionOptions(
+        params = FDEMInversionOptions.build(
             geoh5=geoh5,
             mesh=mesh,
-            active_cells=ActiveCellsOptions(topography_object=topography),
+            topography_object=topography,
             data_object=survey,
             starting_model=1e-3,
             reference_model=1e-3,
@@ -166,7 +166,6 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
             x_norm=0.0,
             y_norm=0.0,
             z_norm=0.0,
-            gradient_type="components",
             upper_bound=0.75,
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e1,

@@ -15,17 +15,21 @@ from typing import ClassVar
 
 import numpy as np
 import pytest
+from geoapps_utils.driver.data import BaseData
 from geoh5py import Workspace
+from geoh5py.ui_json import InputFile
 from geoh5py.ui_json.annotations import Deprecated
 from packaging.version import Version
 from pydantic import AliasChoices, Field
 
 import simpeg_drivers
-from simpeg_drivers.options import ActiveCellsOptions
+from simpeg_drivers.driver import InversionDriver
+from simpeg_drivers.line_sweep.driver import LineSweepDriver
+from simpeg_drivers.options import ActiveCellsOptions, Deprecations, IRLSOptions
 from simpeg_drivers.potential_fields.gravity.options import GravityInversionOptions
 from simpeg_drivers.potential_fields.gravity.uijson import GravityInversionUIJson
 from simpeg_drivers.uijson import SimPEGDriversUIJson
-from simpeg_drivers.utils.testing import setup_inversion_workspace
+from tests.testing_utils import setup_inversion_workspace
 
 
 logger = logging.getLogger(__name__)
@@ -172,7 +176,34 @@ def test_write_default(tmp_path):
     ) == SimPEGDriversUIJson.comparable_version(simpeg_drivers.__version__)
 
 
-def test_deprecations(caplog, simpeg_uijson_factory):
+def test_alias_options():
+    geoh5 = Workspace()
+
+    class Options(BaseData):
+        irls: IRLSOptions = IRLSOptions()
+        name: str = "My Inversion"
+
+    options = Options.build(geoh5=geoh5, coolEpsFact=0.1)
+    assert options.irls.epsilon_cooling_factor == 0.1
+
+
+def test_deprecated_options(caplog):
+    geoh5 = Workspace()
+
+    class Options(BaseData):
+        irls: IRLSOptions = IRLSOptions()
+        name: str = "My Inversion"
+        deprecations: Deprecations
+
+    with caplog.at_level(logging.WARNING):
+        options = Options.build(geoh5=geoh5, gradient_type="abc")
+
+    assert "Deprecated field 'gradient_type' will be ignored" in caplog.text
+    assert "deprecations" not in options.model_dump()
+    assert "parallelized" not in options.model_dump()
+
+
+def test_uijson_deprecations(caplog, simpeg_uijson_factory):
     class MyUIJson(SimPEGDriversUIJson):
         my_param: Deprecated
 
@@ -181,7 +212,7 @@ def test_deprecations(caplog, simpeg_uijson_factory):
     assert "Skipping deprecated field: my_param." in caplog.text
 
 
-def test_pydantic_deprecation(simpeg_uijson_factory):
+def test_pydantic_uijson_deprecation(simpeg_uijson_factory):
     class MyUIJson(SimPEGDriversUIJson):
         my_param: str = Field(deprecated="Use my_param2 instead.", exclude=True)
 
@@ -189,7 +220,7 @@ def test_pydantic_deprecation(simpeg_uijson_factory):
     assert "my_param" not in uijson.model_dump()
 
 
-def test_alias(simpeg_uijson_factory):
+def test_uijson_alias(simpeg_uijson_factory):
     class MyUIJson(SimPEGDriversUIJson):
         my_param: str = Field(validation_alias=AliasChoices("my_param", "myParam"))
 
@@ -211,7 +242,7 @@ def test_gravity_uijson(tmp_path):
         gz_channel = survey.add_data({"gz": {"values": np.ones(survey.n_vertices)}})
         gz_uncerts = survey.add_data({"gz_unc": {"values": np.ones(survey.n_vertices)}})
 
-    opts = GravityInversionOptions(
+    opts = GravityInversionOptions.build(
         version="old news",
         geoh5=geoh5,
         data_object=survey,
@@ -219,9 +250,7 @@ def test_gravity_uijson(tmp_path):
         gz_uncertainty=gz_uncerts,
         mesh=starting_model.parent,
         starting_model=starting_model,
-        active_cells=ActiveCellsOptions(
-            topography_object=topography,
-        ),
+        topography_object=topography,
     )
     params_uijson_path = tmp_path / "from_params.ui.json"
     opts.write_ui_json(params_uijson_path)
@@ -250,3 +279,112 @@ def test_gravity_uijson(tmp_path):
         params_data_nobraces[param] = field_data_nobraces
 
     assert uijson_data == params_data_nobraces
+
+
+CHANNEL_NAME = {
+    "direct current pseudo 3d": "potential",
+    "direct current 3d": "potential",
+    "direct current 2d": "potential",
+    "induced polarization pseudo 3d": "chargeability",
+    "induced polarization 3d": "chargeability",
+    "induced polarization 2d": "chargeability",
+    "fdem 1d": "z_real",
+    "fem": "z_real",
+    "fdem": "z_real",
+    "tdem 1d": "z",
+    "tdem": "z",
+    "gravity": "gz",
+    "magnetics": "tmi",
+    "magnetotellurics": "zxx_real",
+    "tipper": "txz_real",
+}
+
+
+def test_legacy_uijson(tmp_path: Path):
+    """
+    Loop over all uijson files in the legacy directory and check that the
+    read and run still works.
+    """
+    path = Path(__file__).resolve().parent / "legacy"
+
+    for directory in path.iterdir():
+        if not directory.is_dir():
+            continue
+
+        version_path = tmp_path / directory.name
+        for file in directory.glob("*.ui.json"):
+            ifile = InputFile.read_ui_json(file, validate=False)
+            inversion_type = ifile.data.get("inversion_type", None)
+
+            if inversion_type not in CHANNEL_NAME:
+                continue
+
+            forward = ifile.data.get("forward_only", None)
+
+            work_path = version_path / (
+                inversion_type + (" fwr" if forward else " inv")
+            )
+
+            work_path.mkdir(parents=True)
+            geoh5, mesh, model, survey, topo = setup_inversion_workspace(
+                work_path,
+                background=1.0,
+                anomaly=2.0,
+                n_electrodes=10,
+                n_lines=3,
+                inversion_type=inversion_type,
+            )
+
+            with geoh5.open(mode="r+"):
+                ifile.data["geoh5"] = geoh5
+                ifile.data["mesh"] = mesh
+                ifile.data["starting_model"] = model
+                ifile.data["data_object"] = survey
+                ifile.data["topography_object"] = topo
+
+                # Test deprecated name
+                ifile.data["coolingFactor"] = 4.0
+
+                if "2d" in inversion_type or "pseudo 3d" in inversion_type:
+                    line_id = geoh5.get_entity("line_ids")[0]
+                    ifile.data["line_object"] = line_id
+
+                if not forward:
+                    n_vals = survey.n_vertices
+                    if (
+                        "direct current" in inversion_type
+                        or "induced polarization" in inversion_type
+                    ):
+                        n_vals = survey.n_cells
+
+                    channels = getattr(survey, "channels", [1])
+
+                    data = []
+                    for channel in channels:
+                        data.append(
+                            survey.add_data(
+                                {
+                                    CHANNEL_NAME[inversion_type] + f"[{channel}]": {
+                                        "values": np.ones(n_vals)
+                                    }
+                                }
+                            )
+                        )
+
+                    if len(data) > 1:
+                        channel = survey.add_data_to_group(data, "Group")
+                    else:
+                        channel = data[0]
+
+                    ifile.data[CHANNEL_NAME[inversion_type] + "_channel"] = channel
+                    ifile.data[CHANNEL_NAME[inversion_type] + "_uncertainty"] = channel
+
+            driver = InversionDriver.from_input_file(ifile)
+
+            if hasattr(driver.params, "cooling_factor"):
+                assert driver.params.cooling_factor == 4.0
+
+            if isinstance(driver, LineSweepDriver):
+                continue
+
+            assert driver.inversion

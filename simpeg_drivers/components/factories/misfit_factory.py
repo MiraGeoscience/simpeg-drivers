@@ -65,7 +65,7 @@ class MisfitFactory(SimPEGFactory):
     ):
         # Base slice over frequencies
         if self.factory_type in ["magnetotellurics", "tipper", "fdem"]:
-            channels = np.unique([list(v) for v in inversion_data.observed.values()])
+            channels = inversion_data.entity.channels
         else:
             channels = [None]
 
@@ -79,7 +79,19 @@ class MisfitFactory(SimPEGFactory):
         for local_index in tiles:
             if len(local_index) == 0:
                 continue
-            local_mesh = None
+
+            local_sim, _, _, _ = self.create_nested_simulation(
+                inversion_data,
+                inversion_mesh,
+                None,
+                active_cells,
+                local_index,
+                channel=None,
+                tile_id=tile_count,
+                padding_cells=self.params.padding_cells,
+            )
+
+            local_mesh = getattr(local_sim, "mesh", None)
 
             for count, channel in enumerate(channels):
                 n_split = split_list[misfit_count]
@@ -96,8 +108,6 @@ class MisfitFactory(SimPEGFactory):
                             padding_cells=self.params.padding_cells,
                         )
                     )
-
-                    local_mesh = getattr(local_sim, "mesh", None)
 
                     if count == 0:
                         if self.factory_type in [
@@ -130,7 +140,9 @@ class MisfitFactory(SimPEGFactory):
                                 value_inactive=1e-8,
                             )
 
-                        local_sim.sigma = proj * mapping * self.models.conductivity
+                        local_sim.sigma = (
+                            proj * mapping * self.models.conductivity_model
+                        )
 
                     simulation = meta.MetaSimulation(
                         simulations=[local_sim], mappings=[mapping]

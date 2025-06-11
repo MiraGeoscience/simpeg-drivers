@@ -10,9 +10,9 @@ dependencies:
   - annotated-types=0.7.0=pyhd8ed1ab_1
   - asciitree=0.3.3=py_2
   - bokeh=3.6.3=pyhd8ed1ab_0
-  - brotli=1.1.0=hb9d3cd8_2
-  - brotli-bin=1.1.0=hb9d3cd8_2
-  - brotli-python=1.1.0=py310hf71b8c6_2
+  - brotli=1.1.0=hb9d3cd8_3
+  - brotli-bin=1.1.0=hb9d3cd8_3
+  - brotli-python=1.1.0=py310hf71b8c6_3
   - bzip2=1.0.8=h4bc722e_7
   - c-ares=1.34.5=hb9d3cd8_0
   - ca-certificates=2025.4.26=hbd8a1cb_0
@@ -27,15 +27,15 @@ dependencies:
   - cycler=0.12.1=pyhd8ed1ab_1
   - cytoolz=1.0.1=py310ha75aee5_0
   - dask-core=2025.3.0=pyhd8ed1ab_0
-  - discretize=0.11.2=py310ha2bacc8_1
+  - discretize=0.11.3=py310ha2bacc8_0
   - distributed=2025.3.0=pyhd8ed1ab_0
   - fasteners=0.19=pyhd8ed1ab_1
-  - fonttools=4.58.1=py310h89163eb_0
+  - fonttools=4.58.2=py310h89163eb_0
   - freetype=2.13.3=ha770c72_1
   - fsspec=2025.5.1=pyhd8ed1ab_0
   - geoana=0.7.2=py310ha2bacc8_0
   - h2=4.2.0=pyhd8ed1ab_0
-  - h5py=3.13.0=nompi_py310h2a0e991_101
+  - h5py=3.14.0=nompi_py310hea1e86d_100
   - hdf5=1.14.6=nompi_h2d575fe_101
   - hpack=4.1.0=pyhd8ed1ab_0
   - hyperframe=6.1.0=pyhd8ed1ab_0
@@ -51,11 +51,11 @@ dependencies:
   - lerc=4.0.0=h0aef613_1
   - libaec=1.1.3=h59595ed_0
   - libblas=3.9.0=31_hfdb39a5_mkl
-  - libbrotlicommon=1.1.0=hb9d3cd8_2
-  - libbrotlidec=1.1.0=hb9d3cd8_2
-  - libbrotlienc=1.1.0=hb9d3cd8_2
+  - libbrotlicommon=1.1.0=hb9d3cd8_3
+  - libbrotlidec=1.1.0=hb9d3cd8_3
+  - libbrotlienc=1.1.0=hb9d3cd8_3
   - libcblas=3.9.0=31_h372d94f_mkl
-  - libcurl=8.14.0=h332b0f4_0
+  - libcurl=8.14.1=h332b0f4_0
   - libdeflate=1.24=h86f0d12_0
   - libdlf=0.3.0=pyhd8ed1ab_1
   - libedit=3.1.20250104=pl5321h7949ede_0
@@ -72,12 +72,12 @@ dependencies:
   - libiconv=1.18=h4ce23a2_1
   - libjpeg-turbo=3.1.0=hb9d3cd8_0
   - liblapack=3.9.0=31_hc41d3b0_mkl
-  - liblzma=5.8.1=hb9d3cd8_1
+  - liblzma=5.8.1=hb9d3cd8_2
   - libnghttp2=1.64.0=h161d5f1_0
   - libnsl=2.0.1=hd590300_0
   - libpng=1.6.47=h943b412_0
   - libscotch=7.0.6=hea33c07_1
-  - libsqlite=3.50.0=hee588c1_0
+  - libsqlite=3.50.1=hee588c1_0
   - libssh2=1.11.1=hcf80075_0
   - libstdcxx=15.1.0=h8f9b012_2
   - libstdcxx-ng=15.1.0=h4852527_2
@@ -88,7 +88,7 @@ dependencies:
   - libxcrypt=4.4.36=hd590300_1
   - libxml2=2.13.8=h4bc477f_0
   - libzlib=1.3.1=hb9d3cd8_2
-  - llvm-openmp=20.1.5=h024ca30_0
+  - llvm-openmp=20.1.6=h024ca30_0
   - locket=1.0.0=pyhd8ed1ab_0
   - markupsafe=3.0.2=py310h89163eb_1
   - matplotlib-base=3.8.4=py310hef631a5_2
@@ -104,7 +104,7 @@ dependencies:
   - openjpeg=2.5.3=h5fbd93e_0
   - openssl=3.5.0=h7b32b05_1
   - packaging=25.0=pyh29332c3_1
-  - pandas=2.2.3=py310h5eaa309_3
+  - pandas=2.3.0=py310h5eaa309_0
   - partd=1.4.2=pyhd8ed1ab_0
   - pillow=10.3.0=py310hebfe307_1
   - pip=25.1.1=pyh8b19718_0
@@ -117,7 +117,7 @@ dependencies:
   - pymatsolver=0.3.1=pyh48887ae_201
   - pyparsing=3.2.3=pyhd8ed1ab_1
   - pysocks=1.7.1=pyha55dd90_7
-  - python=3.10.17=hd6af730_0_cpython
+  - python=3.10.18=hd6af730_0_cpython
   - python-dateutil=2.9.0.post0=pyhff2d567_1
   - python-mumps=0.0.3=py310h6410a28_0
   - python-tzdata=2025.2=pyhd8ed1ab_0
@@ -127,7 +127,7 @@ dependencies:
   - readline=8.2=h8c095d6_2
   - scikit-learn=1.4.2=py310h981052a_1
   - scipy=1.14.1=py310hfcf56fc_2
-  - setuptools=80.8.0=pyhff2d567_0
+  - setuptools=80.9.0=pyhff2d567_0
   - six=1.17.0=pyhd8ed1ab_0
   - sortedcontainers=2.4.0=pyhd8ed1ab_1
   - tbb=2021.13.0=hceb3a55_1
@@ -137,9 +137,9 @@ dependencies:
   - toolz=1.0.0=pyhd8ed1ab_1
   - tornado=6.5.1=py310ha75aee5_0
   - tqdm=4.67.1=pyhd8ed1ab_1
-  - typing-extensions=4.13.2=h0e9735f_0
+  - typing-extensions=4.14.0=h32cad80_0
   - typing-inspection=0.4.1=pyhd8ed1ab_0
-  - typing_extensions=4.13.2=pyh29332c3_0
+  - typing_extensions=4.14.0=pyhe01879c_0
   - tzdata=2025b=h78e105d_0
   - unicodedata2=16.0.0=py310ha75aee5_0
   - urllib3=2.4.0=pyhd8ed1ab_0
@@ -150,14 +150,14 @@ dependencies:
   - yaml=0.2.5=h7f98852_2
   - zarr=2.14.2=pyhd8ed1ab_0
   - zict=3.0.0=pyhd8ed1ab_1
-  - zipp=3.22.0=pyhd8ed1ab_0
+  - zipp=3.23.0=pyhd8ed1ab_0
   - zstandard=0.23.0=py310ha75aee5_2
   - zstd=1.5.7=hb8e6e7a_2
   - pip:
-      - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@388f8f781c834f8f1d5c6243e636112bd2fd4dcb
-      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@2b2b72f906d85bf460292f66e763ff2331017b02
-      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@447de6c5c257883c4eea045cb3372bf6a1051ad1
-      - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app.git@e9c99d6fd5d324571a2717990aecb3ed673cbaca
+      - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@8d46ccb686e4206683862ec803fc709b26271cd8
+      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@585c89094e3eff35df10d3076964bf154b24d575
+      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@f72a1367edcb2da969002ca06f18f532340b3c27
+      - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app.git@02fbd85bf7d54b8f4336f1f0094c1c3e27714e81
       - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps.git@d5959a0e19b45a89eb8a02cd608bc8accb74adb7
 
 variables:

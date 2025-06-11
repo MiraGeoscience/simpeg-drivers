@@ -78,19 +78,14 @@ class BaseJointDriver(InversionDriver):
         """List of inversion drivers."""
         if self._drivers is None:
             drivers = []
-            physical_property = []
             # Create sub-drivers
             for group in self.params.groups:
                 _ = group.options  # Triggers something... otherwise ui_json is empty
                 group = group.copy(parent=self.params.out_group)
-
                 driver = simpeg_group_to_driver(group, self.workspace)
-
-                physical_property.append(driver.params.physical_property)
                 drivers.append(driver)
 
             self._drivers = drivers
-            self.params.physical_property = physical_property
 
         return self._drivers
 
@@ -128,7 +123,7 @@ class BaseJointDriver(InversionDriver):
                 global_actives,
                 driver.inversion_mesh.mesh,
                 enforce_active=False,
-                components=3 if driver.inversion_data.vector else 1,
+                components=driver.inversion_data.n_blocks,
             )
             driver.params.active_model = None
             driver.models.active_cells = projection.local_active
@@ -211,7 +206,7 @@ class BaseJointDriver(InversionDriver):
             n_values = self.models.n_active
             count = []
             for driver in self.drivers:
-                n_comp = 3 if driver.inversion_data.vector else 1
+                n_comp = driver.inversion_data.n_blocks  # If vector of scalar model
                 count.append(n_values * n_comp)
             self._n_values = count
 
@@ -233,7 +228,7 @@ class BaseJointDriver(InversionDriver):
         if self.params.forward_only:
             print("Running the forward simulation ...")
             predicted = self.inverse_problem.get_dpred(
-                self.models.starting, compute_J=False
+                self.models.starting_model, compute_J=False
             )
 
             for sub, driver in zip(predicted, self.drivers, strict=True):
@@ -245,7 +240,7 @@ class BaseJointDriver(InversionDriver):
         else:
             # Run the inversion
             self.start_inversion_message()
-            self.inversion.run(self.models.starting)
+            self.inversion.run(self.models.starting_model)
 
         self.logger.end()
         sys.stdout = self.logger.terminal
@@ -272,7 +267,15 @@ class BaseJointDriver(InversionDriver):
     def validate_create_models(self):
         """Create stacked model vectors from all drivers provided."""
         for model_type in self.models.model_types:
-            if model_type in ["petrophysics", "gradient_dip", "gradient_direction"]:
+            if model_type in [
+                "petrophysical_model",
+                "gradient_dip",
+                "gradient_direction",
+                "starting_inclination",
+                "starting_declination",
+                "reference_inclination",
+                "reference_declination",
+            ]:
                 continue
 
             model = getattr(self.models, f"_{model_type}").model
@@ -360,11 +363,10 @@ class BaseJointDriver(InversionDriver):
         for driver in self.drivers:
             driver_directives = DirectivesFactory(driver)
 
-            if (
-                getattr(driver.params, "model_type", None) is not None
-                and getattr(self.params, "model_type", None) is not None
+            if hasattr(driver.params.models, "model_type") and hasattr(
+                self.params.models, "model_type"
             ):
-                driver.params.model_type = self.params.model_type
+                driver.params.models.model_type = self.params.models.model_type
 
             save_model = driver_directives.save_iteration_model_directive
             save_model.transforms = [
@@ -423,8 +425,8 @@ class BaseJointDriver(InversionDriver):
         )
 
         model_directive.label = driver.params.physical_property
-        if getattr(driver.params, "model_type", None) == "Resistivity (Ohm-m)":
-            model_directive.label = "resistivity"
+        if getattr(driver.params.models, "model_type", None) == "Resistivity (Ohm-m)":
+            model_directive.label = "resistivity_model"
 
         model_directive.transforms = [wire, *model_directive.transforms]
 

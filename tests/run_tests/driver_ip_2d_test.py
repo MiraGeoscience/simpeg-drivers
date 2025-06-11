@@ -24,8 +24,8 @@ from simpeg_drivers.electricals.induced_polarization.two_dimensions.driver impor
     IP2DInversionDriver,
 )
 from simpeg_drivers.options import ActiveCellsOptions, LineSelectionOptions
-from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
+from tests.testing_utils import check_target, setup_inversion_workspace
 
 
 # To test the full run and validate the inversion.
@@ -48,15 +48,15 @@ def test_ip_2d_fwr_run(
         n_electrodes=n_electrodes,
         n_lines=n_lines,
         refinement=refinement,
-        inversion_type="dcip_2d",
+        inversion_type="induced polarization 2d",
         flatten=False,
         drape_height=0.0,
     )
-    params = IP2DForwardOptions(
+    params = IP2DForwardOptions.build(
         geoh5=geoh5,
         data_object=survey,
         mesh=model.parent,
-        active_cells=ActiveCellsOptions(topography_object=topography),
+        topography_object=topography,
         starting_model=model,
         conductivity_model=1e2,
         model_type="Resistivity (Ohm-m)",
@@ -85,10 +85,10 @@ def test_ip_2d_run(
         topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
-        params = IP2DInversionOptions(
+        params = IP2DInversionOptions.build(
             geoh5=geoh5,
             mesh=mesh,
-            active_cells=ActiveCellsOptions(topography_object=topography),
+            topography_object=topography,
             data_object=chargeability.parent,
             chargeability_channel=chargeability,
             chargeability_uncertainty=2e-4,
@@ -102,7 +102,6 @@ def test_ip_2d_run(
             s_norm=0.0,
             x_norm=0.0,
             z_norm=0.0,
-            gradient_type="components",
             max_global_iterations=max_iterations,
             initial_beta=None,
             initial_beta_ratio=1e0,

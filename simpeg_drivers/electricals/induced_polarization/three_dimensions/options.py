@@ -15,9 +15,14 @@ from pathlib import Path
 from typing import ClassVar
 
 from geoh5py.data import FloatData
+from geoh5py.objects.surveys.direct_current import PotentialElectrode
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.options import BaseForwardOptions, BaseInversionOptions
+from simpeg_drivers.electricals.options import IPModelOptions
+from simpeg_drivers.options import (
+    BaseForwardOptions,
+    BaseInversionOptions,
+)
 
 
 class IP3DForwardOptions(BaseForwardOptions):
@@ -25,7 +30,6 @@ class IP3DForwardOptions(BaseForwardOptions):
     Induced Polarization 3D forward options.
 
     :param chargeability_channel_bool: Chargeability channel boolean.
-    :param conductivity_model: Conductivity model.
     """
 
     name: ClassVar[str] = "Induced Polarization 3D Forward"
@@ -37,9 +41,9 @@ class IP3DForwardOptions(BaseForwardOptions):
     physical_property: str = "chargeability"
     inversion_type: str = "induced polarization 3d"
 
+    data_object: PotentialElectrode
     chargeability_channel_bool: bool = True
-    model_type: str = "Conductivity (S/m)"
-    conductivity_model: float | FloatData
+    models: IPModelOptions
 
 
 class IP3DInversionOptions(BaseInversionOptions):
@@ -48,7 +52,6 @@ class IP3DInversionOptions(BaseInversionOptions):
 
     :param chargeability_channel: Chargeability data channel.
     :param chargeability_uncertainty: Chargeability data uncertainty channel.
-    :param conductivity_model: Conductivity model.
     """
 
     name: ClassVar[str] = "Induced Polarization 3D Inversion"
@@ -60,8 +63,7 @@ class IP3DInversionOptions(BaseInversionOptions):
     physical_property: str = "chargeability"
     inversion_type: str = "induced polarization 3d"
 
+    data_object: PotentialElectrode
     chargeability_channel: FloatData
     chargeability_uncertainty: float | FloatData | None = None
-    model_type: str = "Conductivity (S/m)"
-    conductivity_model: float | FloatData
-    lower_bound: float | FloatData | None = 0.0
+    models: IPModelOptions

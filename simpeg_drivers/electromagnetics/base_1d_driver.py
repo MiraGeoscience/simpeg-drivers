@@ -110,7 +110,6 @@ class Base1DDriver(InversionDriver):
                 )
                 logger.info("Done.")
 
-                self.inversion_data.save_data()
                 self._data_misfit.multipliers = np.asarray(
                     self._data_misfit.multipliers, dtype=float
                 )
@@ -125,7 +124,7 @@ class Base1DDriver(InversionDriver):
         """
         Split the list of data into chunks for parallel processing.
         """
-        n_misfits = len(self.inversion_data.indices)
+        n_misfits = self.inversion_data.mask.sum()
 
         if isinstance(self.params.data_object, FEMSurvey):
             n_misfits *= len(self.params.data_object.channels)

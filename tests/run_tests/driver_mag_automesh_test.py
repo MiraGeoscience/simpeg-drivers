@@ -25,8 +25,8 @@ from simpeg_drivers.potential_fields.magnetic_scalar.driver import (
     MagneticForwardDriver,
     MagneticInversionDriver,
 )
-from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
+from tests.testing_utils import check_target, setup_inversion_workspace
 
 
 TARGET = 1132.1998
@@ -48,12 +48,11 @@ def test_automesh(
         flatten=False,
     )
     inducing_field = (49999.8, 90.0, 0.0)
-    active_cells = ActiveCellsOptions(topography_object=topography)
-    params = MagneticForwardOptions(
+    params = MagneticForwardOptions.build(
         forward_only=True,
         geoh5=geoh5,
         mesh=None,
-        active_cells=active_cells,
+        topography_object=topography,
         inducing_field_strength=inducing_field[0],
         inducing_field_inclination=inducing_field[1],
         inducing_field_declination=inducing_field[2],

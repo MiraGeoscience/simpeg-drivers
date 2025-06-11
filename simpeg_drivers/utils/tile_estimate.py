@@ -103,7 +103,7 @@ class TileEstimator(BaseDriver):
             )
             # Get the median tile
             ind = int(np.argsort([len(tile) for tile in tiles])[int(count / 2)])
-            self.driver.params.tile_spatial = int(count)
+            self.driver.params.compute.tile_spatial = int(count)
             sim, _, _, mapping = MisfitFactory.create_nested_simulation(
                 self.driver.inversion_data,
                 self.driver.inversion_mesh,
@@ -221,7 +221,7 @@ class TileEstimator(BaseDriver):
         Generate a new SimPEGGroup with the optimal number of tiles.
         """
         out_group = self.params.simulation.copy(copy_children=False)
-        self.driver.params.tile_spatial = optimal
+        self.driver.params.compute.tile_spatial = optimal
         self.driver.params.out_group = out_group
         out_group.options = self.driver.params.serialize()
         out_group.metadata = None

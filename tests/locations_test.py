@@ -19,7 +19,7 @@ from geoh5py.objects import Grid2D, Points
 from simpeg_drivers.components.locations import InversionLocations
 from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import MVIInversionOptions
-from simpeg_drivers.utils.testing import Geoh5Tester, setup_inversion_workspace
+from tests.testing_utils import Geoh5Tester, setup_inversion_workspace
 
 
 def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
@@ -36,14 +36,17 @@ def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
         tmi_channel = survey.add_data(
             {"tmi": {"values": np.random.rand(survey.n_vertices)}}
         )
-    params = MVIInversionOptions(
+    params = MVIInversionOptions.build(
         geoh5=geoh5,
         data_object=survey,
         tmi_channel=tmi_channel,
         tmi_uncertainty=1.0,
-        active_cells=ActiveCellsOptions(topography_object=topography),
+        topography_object=topography,
         mesh=model.parent,
         starting_model=model,
+        inducing_field_strength=50000.0,
+        inducing_field_inclination=60.0,
+        inducing_field_declination=30.0,
     )
     return params
 

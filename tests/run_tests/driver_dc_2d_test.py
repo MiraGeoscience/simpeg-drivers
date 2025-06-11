@@ -30,8 +30,8 @@ from simpeg_drivers.options import (
     DrapeModelOptions,
     LineSelectionOptions,
 )
-from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
+from tests.testing_utils import check_target, setup_inversion_workspace
 
 
 # To test the full run and validate the inversion.
@@ -58,7 +58,7 @@ def test_dc_2d_fwr_run(
         n_electrodes=n_electrodes,
         n_lines=n_lines,
         refinement=refinement,
-        inversion_type="dcip_2d",
+        inversion_type="direct current 2d",
         drape_height=0.0,
         flatten=False,
     )
@@ -66,7 +66,7 @@ def test_dc_2d_fwr_run(
         line_object=geoh5.get_entity("line_ids")[0],
         line_id=101,
     )
-    params = DC2DForwardOptions(
+    params = DC2DForwardOptions.build(
         geoh5=geoh5,
         data_object=survey,
         line_selection=line_selection,
@@ -79,7 +79,7 @@ def test_dc_2d_fwr_run(
             expansion_factor=1.1,
         ),
         starting_model=model,
-        active_cells=ActiveCellsOptions(topography_object=topography),
+        topography_object=topography,
     )
     fwr_driver = DC2DForwardDriver(params)
     fwr_driver.run()
@@ -95,7 +95,7 @@ def test_dc_2d_run(tmp_path: Path, max_iterations=1, pytest=True):
         topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
-        params = DC2DInversionOptions(
+        params = DC2DInversionOptions.build(
             geoh5=geoh5,
             drape_model=DrapeModelOptions(
                 u_cell_size=5.0,
@@ -105,7 +105,7 @@ def test_dc_2d_run(tmp_path: Path, max_iterations=1, pytest=True):
                 vertical_padding=100.0,
                 expansion_factor=1.1,
             ),
-            active_cells=ActiveCellsOptions(topography_object=topography),
+            topography_object=topography,
             line_selection=LineSelectionOptions(
                 line_object=geoh5.get_entity("line_ids")[0],
                 line_id=101,
@@ -119,7 +119,6 @@ def test_dc_2d_run(tmp_path: Path, max_iterations=1, pytest=True):
             s_norm=0.0,
             x_norm=1.0,
             z_norm=1.0,
-            gradient_type="components",
             max_global_iterations=max_iterations,
             initial_beta=None,
             initial_beta_ratio=1e0,

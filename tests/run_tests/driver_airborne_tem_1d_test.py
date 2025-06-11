@@ -26,8 +26,8 @@ from simpeg_drivers.electromagnetics.time_domain_1d.options import (
     TDEM1DInversionOptions,
 )
 from simpeg_drivers.options import ActiveCellsOptions
-from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
 from simpeg_drivers.utils.utils import get_inversion_output
+from tests.testing_utils import check_target, setup_inversion_workspace
 
 
 # To test the full run and validate the inversion.
@@ -50,15 +50,15 @@ def test_airborne_tem_1d_fwr_run(
         n_lines=n_grid_points,
         cell_size=cell_size,
         refinement=refinement,
-        inversion_type="airborne_tem 1d",
+        inversion_type="airborne tdem 1d",
         drape_height=10.0,
         padding_distance=400.0,
         flatten=False,
     )
-    params = TDEM1DForwardOptions(
+    params = TDEM1DForwardOptions.build(
         geoh5=geoh5,
         mesh=model.parent,
-        active_cells=ActiveCellsOptions(topography_object=topography),
+        topography_object=topography,
         data_object=survey,
         starting_model=model,
         z_channel_bool=True,
@@ -127,10 +127,10 @@ def test_airborne_tem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
         orig_dBzdt = geoh5.get_entity("Iteration_0_z_[0]")[0].values
 
         # Run the inverse
-        params = TDEM1DInversionOptions(
+        params = TDEM1DInversionOptions.build(
             geoh5=geoh5,
             mesh=mesh,
-            active_cells=ActiveCellsOptions(topography_object=topography),
+            topography_object=topography,
             data_object=survey,
             starting_model=5e-1,
             reference_model=1e-1,

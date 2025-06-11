@@ -19,9 +19,9 @@ from simpeg_drivers.potential_fields import MagneticInversionOptions
 from simpeg_drivers.potential_fields.magnetic_scalar.driver import (
     MagneticInversionDriver,
 )
-from simpeg_drivers.utils.testing import setup_inversion_workspace
 from simpeg_drivers.utils.tile_estimate import TileEstimator, TileParameters
 from simpeg_drivers.utils.utils import simpeg_group_to_driver
+from tests.testing_utils import setup_inversion_workspace
 
 
 def test_tile_estimator_run(
@@ -46,10 +46,10 @@ def test_tile_estimator_run(
                 "tmi": {"values": np.random.rand(survey.n_vertices)},
             }
         )
-    params = MagneticInversionOptions(
+    params = MagneticInversionOptions.build(
         geoh5=geoh5,
         mesh=model.parent,
-        active_cells=ActiveCellsOptions(topography_object=topography),
+        topography_object=topography,
         inducing_field_strength=inducing_field[0],
         inducing_field_inclination=inducing_field[1],
         inducing_field_declination=inducing_field[2],
@@ -69,7 +69,7 @@ def test_tile_estimator_run(
         driver = simpeg_group_to_driver(simpeg_group, geoh5)
 
     assert driver.inversion_type == "magnetic scalar"
-    assert driver.params.tile_spatial == 2
+    assert driver.params.compute.tile_spatial == 2
     assert (
         len(simpeg_group.children) == 2
         and simpeg_group.children[0].name == "tile_estimator.png"

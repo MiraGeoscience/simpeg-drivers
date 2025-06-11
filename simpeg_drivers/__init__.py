@@ -65,6 +65,13 @@ DRIVER_MAP = {
             "inversion": "FDEMInversionDriver",
         },
     ),
+    "fem": (
+        "simpeg_drivers.electromagnetics.frequency_domain.driver",
+        {
+            "forward": "FDEMForwardDriver",
+            "inversion": "FDEMInversionDriver",
+        },
+    ),
     "fdem 1d": (
         "simpeg_drivers.electromagnetics.frequency_domain_1d.driver",
         {

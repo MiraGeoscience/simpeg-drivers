@@ -86,6 +86,7 @@ repos:
     -   id: mixed-line-ending
         exclude: ^\.idea/.*\.xml$
     -   id: name-tests-test
+        exclude: testing_utils.py
     -   id: pretty-format-json
         args:
             - --autofix
