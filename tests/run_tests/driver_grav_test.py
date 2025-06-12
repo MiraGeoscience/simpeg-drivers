@@ -14,6 +14,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import numpy as np
+from geoapps_utils.modelling.plates import PlateModel
 from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.workspace import Workspace
 from pytest import raises
@@ -42,9 +43,17 @@ def test_gravity_fwr_run(
     n_grid_points=2,
     refinement=(2,),
 ):
+    plate_model = PlateModel(
+        strike_length=40.0,
+        dip_length=40.0,
+        width=40.0,
+        origin=(0.0, 0.0, 10.0),
+    )
+
     # Run the forward
     geoh5, _, model, survey, topography = setup_inversion_workspace(
         tmp_path,
+        plate_model,
         background=0.0,
         anomaly=0.75,
         n_electrodes=n_grid_points,

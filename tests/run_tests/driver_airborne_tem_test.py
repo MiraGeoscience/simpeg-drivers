@@ -13,6 +13,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+from geoapps_utils.modelling.plates import PlateModel
 from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 from pytest import raises
@@ -38,6 +39,7 @@ target_run = {"data_norm": 7.05481e-08, "phi_d": 198000000, "phi_m": 7540}
 def test_bad_waveform(tmp_path: Path):
     n_grid_points = 3
     refinement = (2,)
+
     geoh5, _, model, survey, topography = setup_inversion_workspace(
         tmp_path,
         background=0.001,

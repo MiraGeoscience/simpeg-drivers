@@ -15,6 +15,7 @@ from uuid import UUID
 
 import numpy as np
 from discretize.utils import mesh_builder_xyz
+from geoapps_utils.modelling.plates import PlateModel, make_plate
 from geoh5py import Workspace
 from geoh5py.objects import (
     AirborneFEMReceivers,
@@ -22,6 +23,7 @@ from geoh5py.objects import (
     AirborneTEMReceivers,
     AirborneTEMTransmitters,
     CurrentElectrode,
+    DrapeModel,
     LargeLoopGroundTEMReceivers,
     LargeLoopGroundTEMTransmitters,
     MTReceivers,
@@ -332,8 +334,17 @@ def generate_tdem_survey(geoh5, vertices, n_lines, flatten=False, airborne=False
     return survey
 
 
+plate_model_default = PlateModel(
+    strike_length=40.0,
+    dip_length=40.0,
+    width=40.0,
+    origin=(0.0, 0.0, 10.0),
+)
+
+
 def setup_inversion_workspace(
     work_dir,
+    plate_model: PlateModel = plate_model_default,
     background=None,
     anomaly=None,
     cell_size=(5.0, 5.0, 5.0),
@@ -349,6 +360,11 @@ def setup_inversion_workspace(
     flatten=False,
     geoh5=None,
 ):
+    """
+    Creates a workspace populated with objects to simulate/invert a simple model.
+
+    rot_xyz: Rotation angles in degrees about the x, y, and z axes.
+    """
     filepath = Path(work_dir) / "inversion_test.ui.geoh5"
     if geoh5 is None:
         if filepath.is_file():
@@ -499,29 +515,12 @@ def setup_inversion_workspace(
         entity = treemesh_2_octree(geoh5, mesh, name="mesh")
         active = active_from_xyz(entity, topography.vertices, grid_reference="top")
 
-    # Model
-    if flatten:
-        p0 = np.r_[-20, -20, -30]
-        p1 = np.r_[20, 20, -70]
+    # Create the Model
+    cell_centers = entity.centroids.copy()
 
-        model = utils.model_builder.add_block(
-            entity.centroids,
-            background * np.ones(mesh.nC),
-            p0,
-            p1,
-            anomaly,
-        )
-    else:
-        p0 = np.r_[-20, -20, -10]
-        p1 = np.r_[20, 20, 30]
-
-        model = utils.model_builder.add_block(
-            entity.centroids,
-            background * np.ones(mesh.nC),
-            p0,
-            p1,
-            anomaly,
-        )
+    model = make_plate(
+        cell_centers, plate_model, background=background, anomaly=anomaly
+    )
 
     if "1d" in inversion_type:
         model = background * np.ones(mesh.nC)
