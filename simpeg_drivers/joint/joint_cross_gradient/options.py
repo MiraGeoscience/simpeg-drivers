@@ -17,18 +17,7 @@ from typing import ClassVar
 from geoh5py.objects import Octree
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.joint.options import BaseJointOptions
-from simpeg_drivers.options import ModelOptions
-
-
-class JointCrossGradientModelOptions(ModelOptions):
-    """
-    Model options with petrophysics reference model.
-
-    :param petrophysical: The reference geology data.
-    """
-
-    starting_model: None = None
+from simpeg_drivers.joint.options import BaseJointOptions, JointModelOptions
 
 
 class JointCrossGradientOptions(BaseJointOptions):
@@ -56,4 +45,4 @@ class JointCrossGradientOptions(BaseJointOptions):
     cross_gradient_weight_c_a: float | None = None
     cross_gradient_weight_c_b: float | None = None
 
-    models: JointCrossGradientModelOptions = JointCrossGradientModelOptions()
+    models: JointModelOptions = JointModelOptions()

@@ -18,18 +18,17 @@ from geoh5py.data import ReferencedData
 from geoh5py.objects import Octree
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.joint.options import BaseJointOptions
+from simpeg_drivers.joint.options import BaseJointOptions, JointModelOptions
 from simpeg_drivers.options import ModelOptions
 
 
-class JointPetrophysicsModelOptions(ModelOptions):
+class JointPetrophysicsModelOptions(JointModelOptions):
     """
     Model options with petrophysics reference model.
 
     :param petrophysical: The reference geology data.
     """
 
-    starting_model: None = None
     petrophysical_model: ReferencedData
 
 
