@@ -1,5 +1,5 @@
 {
-    "version": "0.3.0-alpha.4",
+    "version": "0.3.0-beta.1",
     "title": "Magnetic Vector (MVI) Inversion",
     "icon": "surveyairbornemagnetics",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
@@ -7,7 +7,6 @@
     "run_command": "simpeg_drivers.driver",
     "geoh5": "",
     "monitoring_directory": "",
-    "workspace_geoh5": "",
     "inversion_type": "magnetic vector",
     "physical_property": "susceptibility",
     "forward_only": false,
@@ -65,6 +64,7 @@
         "group": "Data",
         "main": true,
         "label": "TMI (nT)",
+        "toolTip": "IGRF-corrected anomalous magnetic data",
         "parent": "data_object",
         "optional": true,
         "enabled": true,

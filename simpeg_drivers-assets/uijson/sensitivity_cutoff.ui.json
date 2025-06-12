@@ -1,16 +1,15 @@
 {
-    "version": "0.3.0-alpha.4",
-    "title": "Depth of Investigation: Sensitivity Cutoff",
-    "icon": "",
-    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
+    "version": "0.3.0-beta.1",
+    "title": "Depth of Investigation",
+    "icon": "grd",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/inversion/depth_of_investigation.html#depth-of-investigation",
     "conda_environment": "simpeg_drivers",
     "run_command": "simpeg_drivers.depth_of_investigation.sensitivity_cutoff.driver",
     "geoh5": "",
     "monitoring_directory": "",
-    "workspace_geoh5": "",
+    "iconOverlay": "ClippingPlane",
     "mesh": {
         "main": true,
-        "group": "Sensitivity",
         "meshType": [
             "4ea87376-3ece-438b-bf12-3479733ded46"
         ],
@@ -19,7 +18,6 @@
     },
     "sensitivity_model": {
         "main": true,
-        "group": "Sensitivity",
         "parent": "mesh",
         "association": "Cell",
         "dataType": "Float",
@@ -28,7 +26,6 @@
     },
     "sensitivity_cutoff": {
         "main": true,
-        "group": "Sensitivity",
         "label": "Cutoff (%)",
         "tooltip": "The created mask will eliminate cells below the cutoff percentage",
         "value": 10.0,
@@ -39,7 +36,6 @@
     },
     "cutoff_method": {
         "main": true,
-        "group": "Sensitivity",
         "label": "Method",
         "choiceList": [
             "percentile",
@@ -50,9 +46,7 @@
     },
     "mask_name": {
         "main": true,
-        "label": "Name",
-        "value": "Sensitivity Cutoff",
-        "optional": true,
-        "enabled": false
+        "label": "Output name",
+        "value": "Sensitivity cutoff"
     }
 }
