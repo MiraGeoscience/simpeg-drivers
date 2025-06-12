@@ -504,8 +504,6 @@
         "tooltip": "Direct solver to use for the forward calculations",
         "value": "Pardiso"
     },
-    "parallelized": true,
-    "tile_spatial": 1,
     "store_sensitivities": {
         "choiceList": [
             "disk",

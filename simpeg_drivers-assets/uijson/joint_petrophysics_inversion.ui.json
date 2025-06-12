@@ -7,6 +7,9 @@
     "run_command": "simpeg_drivers.driver",
     "geoh5": "",
     "monitoring_directory": "",
+    "inversion_type": "joint petrophysics",
+    "physical_property": "",
+    "forward_only": false,
     "group_a": {
         "main": true,
         "group": "Joint",
@@ -74,7 +77,7 @@
         "enabled": true,
         "tooltip": "Select a mesh containing a reference model representing homogeneous units"
     },
-    "petrophysics_model": {
+    "petrophysical_model": {
         "association": [
             "Cell"
         ],
@@ -408,8 +411,6 @@
         "tooltip": "Direct solver to use for the forward calculations",
         "value": "Pardiso"
     },
-    "tile_spatial": 1,
-    "parallelized": true,
     "store_sensitivities": {
         "choiceList": [
             "disk",
