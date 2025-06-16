@@ -53,14 +53,14 @@ def test_dc2d_rotated_grad_fwr_run(
         strike_length=80.0,
         dip_length=80.0,
         width=20.0,
-        center=(0.0, 0.0, -40),
+        origin=(0.0, 0.0, -40),
         direction=90,
         dip=45,
     )
     # Run the forward
     geoh5, _, model, survey, topography = setup_inversion_workspace(
         tmp_path,
-        plate_model,
+        plate_model=plate_model,
         background=0.01,
         anomaly=10,
         n_electrodes=n_electrodes,

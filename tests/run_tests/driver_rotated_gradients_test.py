@@ -14,6 +14,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import numpy as np
+from geoapps_utils.modelling.plates import PlateModel
 from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.groups.property_group import PropertyGroup
 from geoh5py.workspace import Workspace
@@ -44,8 +45,17 @@ def test_gravity_rotated_grad_fwr_run(
     refinement=(2,),
 ):
     # Run the forward
+    plate_model = PlateModel(
+        strike_length=500.0,
+        dip_length=150.0,
+        width=40.0,
+        origin=(0.0, 0.0, -50.0),
+        direction=90.0,
+        dip=45.0,
+    )
     geoh5, _, model, survey, topography = setup_inversion_workspace(
         tmp_path,
+        plate_model=plate_model,
         background=0.0,
         anomaly=0.75,
         n_electrodes=n_grid_points,

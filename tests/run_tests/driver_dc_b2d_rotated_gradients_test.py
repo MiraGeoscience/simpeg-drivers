@@ -15,6 +15,7 @@ import json
 from pathlib import Path
 
 import numpy as np
+from geoapps_utils.modelling.plates import PlateModel
 from geoh5py.groups import PropertyGroup, SimPEGGroup
 from geoh5py.workspace import Workspace
 
@@ -46,8 +47,19 @@ target_run = {"data_norm": 1.099, "phi_d": 8657, "phi_m": 1.217}
 
 def test_dc_p3d_fwr_run(tmp_path: Path, n_electrodes=10, n_lines=3, refinement=(4, 6)):
     # Run the forward
+
+    plate_model = PlateModel(
+        strike_length=1000.0,
+        dip_length=150.0,
+        width=20.0,
+        origin=(0.0, 0.0, -50),
+        direction=90,
+        dip=45,
+    )
+
     geoh5, _, model, survey, topography = setup_inversion_workspace(
         tmp_path,
+        plate_model=plate_model,
         background=0.01,
         anomaly=10,
         n_electrodes=n_electrodes,
