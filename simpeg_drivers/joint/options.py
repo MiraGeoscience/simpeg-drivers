@@ -44,7 +44,7 @@ class BaseJointOptions(BaseData):
     run_command: str = "simpeg_drivers.driver"
     conda_environment: str = "simpeg-drivers"
     forward_only: bool = False
-    physical_property: list[str] = ["conductivity"]
+    physical_property: str | None = None
 
     group_a: SimPEGGroup
     group_a_multiplier: float = 1.0
@@ -100,6 +100,11 @@ class BaseJointOptions(BaseData):
     beta_tol: float = 0.5
     percentile: float = 95.0
     epsilon_cooling_factor: float = 1.2
+
+    n_workers: int | None = 1
+    n_threads: int | None = None
+    max_ram: float | None = None
+    performance_report: bool = False
 
     @property
     def groups(self) -> list[SimPEGGroup]:

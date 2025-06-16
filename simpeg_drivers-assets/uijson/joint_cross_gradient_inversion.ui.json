@@ -1,5 +1,5 @@
 {
-    "version": "0.3.0-alpha.4",
+    "version": "0.3.0-alpha.6",
     "title": "Joint Cross Gradient Inversion",
     "icon": "function",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
@@ -7,11 +7,8 @@
     "run_command": "simpeg_drivers.driver",
     "geoh5": "",
     "monitoring_directory": "",
-    "workspace_geoh5": "",
     "inversion_type": "joint cross gradient",
-    "physical_property": [
-        ""
-    ],
+    "physical_property": "",
     "forward_only": false,
     "group_a": {
         "main": true,
