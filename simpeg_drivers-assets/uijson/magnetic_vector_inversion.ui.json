@@ -1,5 +1,5 @@
 {
-    "version": "0.3.0-alpha.6",
+    "version": "0.3.0-beta.1",
     "title": "Magnetic Vector (MVI) Inversion",
     "icon": "surveyairbornemagnetics",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
@@ -64,6 +64,7 @@
         "group": "Data",
         "main": true,
         "label": "TMI (nT)",
+        "toolTip": "IGRF-corrected anomalous magnetic data",
         "parent": "data_object",
         "optional": true,
         "enabled": true,
