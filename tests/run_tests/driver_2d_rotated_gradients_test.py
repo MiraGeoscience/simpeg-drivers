@@ -40,7 +40,7 @@ from tests.testing_utils import check_target, setup_inversion_workspace
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.5963828772690819, "phi_d": 2870, "phi_m": 18.7}
+target_run = {"data_norm": 0.6439364297260022, "phi_d": 92.2, "phi_m": 0.255}
 
 
 def test_dc2d_rotated_grad_fwr_run(
@@ -50,13 +50,14 @@ def test_dc2d_rotated_grad_fwr_run(
     refinement=(4, 6),
 ):
     plate_model = PlateModel(
-        strike_length=80.0,
-        dip_length=80.0,
+        strike_length=1000.0,
+        dip_length=150.0,
         width=20.0,
-        origin=(0.0, 0.0, -40),
+        origin=(0.0, 0.0, -50),
         direction=90,
         dip=45,
     )
+
     # Run the forward
     geoh5, _, model, survey, topography = setup_inversion_workspace(
         tmp_path,
@@ -114,18 +115,18 @@ def test_dc2d_rotated_grad_run(
         mesh = geoh5.get_entity("Models")[0]
 
         # Create property group with orientation
-        dip = np.ones(mesh.n_cells) * 45
-        azimuth = np.ones(mesh.n_cells) * 90
+        i = np.ones(mesh.n_cells)
+        j = np.zeros(mesh.n_cells)
+        k = np.ones(mesh.n_cells)
 
         data_list = mesh.add_data(
             {
-                "azimuth": {"values": azimuth},
-                "dip": {"values": dip},
+                "i": {"values": i},
+                "j": {"values": j},
+                "k": {"values": k},
             }
         )
-        pg = PropertyGroup(
-            mesh, properties=data_list, property_group_type="Dip direction & dip"
-        )
+        pg = PropertyGroup(mesh, properties=data_list, property_group_type="3D vector")
 
         # Run the inverse
         params = DC2DInversionOptions(

@@ -42,12 +42,10 @@ from tests.testing_utils import check_target, setup_inversion_workspace
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 1.099, "phi_d": 8657, "phi_m": 1.217}
+target_run = {"data_norm": 1.1038993594022803, "phi_d": 308, "phi_m": 0.0237}
 
 
 def test_dc_p3d_fwr_run(tmp_path: Path, n_electrodes=10, n_lines=3, refinement=(4, 6)):
-    # Run the forward
-
     plate_model = PlateModel(
         strike_length=1000.0,
         dip_length=150.0,
