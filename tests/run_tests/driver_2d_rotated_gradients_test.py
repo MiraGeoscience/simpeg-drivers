@@ -63,7 +63,7 @@ def test_dc2d_rotated_grad_fwr_run(
         tmp_path,
         plate_model=plate_model,
         background=0.01,
-        anomaly=10,
+        anomaly=10.0,
         n_electrodes=n_electrodes,
         n_lines=n_lines,
         refinement=refinement,

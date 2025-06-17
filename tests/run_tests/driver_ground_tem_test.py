@@ -14,6 +14,7 @@ from logging import INFO, getLogger
 from pathlib import Path
 
 import numpy as np
+from geoapps_utils.modelling.plates import PlateModel
 from geoh5py.workspace import Workspace
 from pymatsolver.direct import Mumps
 
@@ -47,8 +48,15 @@ def test_tiling_ground_tem(
     **_,
 ):
     # Run the forward
+    plate_model = PlateModel(
+        strike_length=40.0,
+        dip_length=40.0,
+        width=40.0,
+        origin=(0.0, 0.0, -50.0),
+    )
     geoh5, _, model, survey, topography = setup_inversion_workspace(
         tmp_path,
+        plate_model=plate_model,
         background=0.001,
         anomaly=1.0,
         n_electrodes=n_grid_points,
@@ -94,8 +102,15 @@ def test_ground_tem_fwr_run(
     if pytest:
         caplog.set_level(INFO)
     # Run the forward
+    plate_model = PlateModel(
+        strike_length=40.0,
+        dip_length=40.0,
+        width=40.0,
+        origin=(0.0, 0.0, -50.0),
+    )
     geoh5, _, model, survey, topography = setup_inversion_workspace(
         tmp_path,
+        plate_model=plate_model,
         background=0.001,
         anomaly=1.0,
         n_electrodes=n_grid_points,

@@ -45,7 +45,9 @@ from tests.testing_utils import check_target, setup_inversion_workspace
 target_run = {"data_norm": 1.1038993594022803, "phi_d": 308, "phi_m": 0.0237}
 
 
-def test_dc_p3d_fwr_run(tmp_path: Path, n_electrodes=10, n_lines=3, refinement=(4, 6)):
+def test_dc_rotated_p3d_fwr_run(
+    tmp_path: Path, n_electrodes=10, n_lines=3, refinement=(4, 6)
+):
     plate_model = PlateModel(
         strike_length=1000.0,
         dip_length=150.0,
@@ -59,7 +61,7 @@ def test_dc_p3d_fwr_run(tmp_path: Path, n_electrodes=10, n_lines=3, refinement=(
         tmp_path,
         plate_model=plate_model,
         background=0.01,
-        anomaly=10,
+        anomaly=10.0,
         n_electrodes=n_electrodes,
         n_lines=n_lines,
         refinement=refinement,
@@ -89,14 +91,16 @@ def test_dc_p3d_fwr_run(tmp_path: Path, n_electrodes=10, n_lines=3, refinement=(
     fwr_driver.run()
 
 
-def test_dc_p3d_run(
+def test_dc_rotated_gradient_p3d_run(
     tmp_path: Path,
     max_iterations=1,
     pytest=True,
 ):
     workpath = tmp_path / "inversion_test.ui.geoh5"
     if pytest:
-        workpath = tmp_path.parent / "test_dc_p3d_fwr_run0" / "inversion_test.ui.geoh5"
+        workpath = (
+            tmp_path.parent / "test_dc_rotated_p3d_fwr_run0" / "inversion_test.ui.geoh5"
+        )
 
     with Workspace(workpath) as geoh5:
         potential = geoh5.get_entity("Iteration_0_dc")[0]
@@ -181,8 +185,10 @@ def test_dc_p3d_run(
 
 if __name__ == "__main__":
     # Full run
-    test_dc_p3d_fwr_run(Path("./"), n_electrodes=20, n_lines=3, refinement=(4, 8))
-    test_dc_p3d_run(
+    test_dc_rotated_p3d_fwr_run(
+        Path("./"), n_electrodes=20, n_lines=3, refinement=(4, 8)
+    )
+    test_dc_rotated_gradient_p3d_run(
         Path("./"),
         max_iterations=20,
         pytest=False,
