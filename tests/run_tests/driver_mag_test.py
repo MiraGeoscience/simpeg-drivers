@@ -52,12 +52,12 @@ def test_susceptibility_fwr_run(
         flatten=False,
     )
     inducing_field = (49999.8, 90.0, 0.0)
-    active_cells = ActiveCellsOptions(topography_object=topography)
-    params = MagneticForwardOptions(
+
+    params = MagneticForwardOptions.build(
         forward_only=True,
         geoh5=geoh5,
         mesh=model.parent,
-        active_cells=active_cells,
+        topography_object=topography,
         inducing_field_strength=inducing_field[0],
         inducing_field_inclination=inducing_field[1],
         inducing_field_declination=inducing_field[2],
@@ -93,11 +93,10 @@ def test_susceptibility_run(
         inducing_field = (50000.0, 90.0, 0.0)
 
         # Run the inverse
-        active_cells = ActiveCellsOptions(active_model=active_cells)
-        params = MagneticInversionOptions(
+        params = MagneticInversionOptions.build(
             geoh5=geoh5,
             mesh=mesh,
-            active_cells=active_cells,
+            active_model=active_cells,
             inducing_field_strength=inducing_field[0],
             inducing_field_inclination=inducing_field[1],
             inducing_field_declination=inducing_field[2],
@@ -109,7 +108,6 @@ def test_susceptibility_run(
             y_norm=1.0,
             z_norm=1.0,
             initial_beta_ratio=1e1,
-            gradient_type="components",
             tmi_channel=tmi,
             tmi_uncertainty=1.0,
             max_global_iterations=max_iterations,
@@ -117,7 +115,7 @@ def test_susceptibility_run(
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    assert params.lower_bound == 0.0
+    assert params.models.lower_bound == 0.0
     driver = MagneticInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
     with Workspace(driver.params.geoh5.h5file) as run_ws:

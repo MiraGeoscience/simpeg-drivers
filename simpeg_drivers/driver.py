@@ -129,7 +129,7 @@ class InversionDriver(BaseDriver):
         """
         Number of splits for the data misfit to be distributed evenly among workers.
         """
-        n_misfits = self.params.tile_spatial
+        n_misfits = self.params.compute.tile_spatial
 
         if isinstance(self.params.data_object, FEMSurvey):
             n_misfits *= len(self.params.data_object.channels)
@@ -169,10 +169,11 @@ class InversionDriver(BaseDriver):
                     self.models.active_cells,
                 )
                 self.logger.write("Saving data to file...\n")
-                self.inversion_data.save_data()
-                self._data_misfit.multipliers = np.asarray(
-                    self._data_misfit.multipliers, dtype=float
-                )
+
+                if isinstance(self.params, BaseInversionOptions):
+                    self._data_misfit.multipliers = np.asarray(
+                        self._data_misfit.multipliers, dtype=float
+                    )
 
             if self.client:
                 self.logger.write(
@@ -209,8 +210,11 @@ class InversionDriver(BaseDriver):
                 self.optimization,
             )
 
-            if not self.params.forward_only and self.params.initial_beta:
-                self._inverse_problem.beta = self.params.initial_beta
+            if (
+                not self.params.forward_only
+                and self.params.cooling_schedule.initial_beta
+            ):
+                self._inverse_problem.beta = self.params.cooling_schedule.initial_beta
 
         return self._inverse_problem
 
@@ -293,12 +297,12 @@ class InversionDriver(BaseDriver):
                 return optimization.ProjectedGNCG()
 
             self._optimization = optimization.ProjectedGNCG(
-                maxIter=self.params.max_global_iterations,
+                maxIter=self.params.optimization.max_global_iterations,
                 lower=self.models.lower_bound,
                 upper=self.models.upper_bound,
-                maxIterLS=self.params.max_line_search_iterations,
-                maxIterCG=self.params.max_cg_iterations,
-                tolCG=self.params.tol_cg,
+                maxIterLS=self.params.optimization.max_line_search_iterations,
+                maxIterCG=self.params.optimization.max_cg_iterations,
+                tolCG=self.params.optimization.tol_cg,
                 stepOffBoundsFact=1e-8,
                 LSshorten=0.25,
             )
@@ -399,12 +403,12 @@ class InversionDriver(BaseDriver):
             if self.params.forward_only:
                 self.logger.write("Running the forward simulation ...\n")
                 predicted = simpeg_inversion.invProb.get_dpred(
-                    self.models.starting, None
+                    self.models.starting_model, None
                 )
             else:
                 # Run the inversion
                 self.start_inversion_message()
-                simpeg_inversion.run(self.models.starting)
+                simpeg_inversion.run(self.models.starting_model)
 
         except np.core._exceptions._ArrayMemoryError as error:  # pylint: disable=protected-access
             raise GeoAppsError(
@@ -439,9 +443,11 @@ class InversionDriver(BaseDriver):
 
     def start_inversion_message(self):
         # SimPEG reports half phi_d, so we scale to match
-        has_chi_start = self.params.starting_chi_factor is not None
+        has_chi_start = self.params.irls.starting_chi_factor is not None
         chi_start = (
-            self.params.starting_chi_factor if has_chi_start else self.params.chi_factor
+            self.params.irls.starting_chi_factor
+            if has_chi_start
+            else self.params.cooling_schedule.chi_factor
         )
 
         if getattr(self, "drivers", None) is not None:  # joint problem
@@ -452,8 +458,8 @@ class InversionDriver(BaseDriver):
             data_count = self.inversion_data.n_data
 
         self.logger.write(
-            f"Target Misfit: {self.params.chi_factor * data_count:.2e} ({data_count} data "
-            f"with chifact = {self.params.chi_factor})\n"
+            f"Target Misfit: {self.params.cooling_schedule.chi_factor * data_count:.2e} ({data_count} data "
+            f"with chifact = {self.params.cooling_schedule.chi_factor})\n"
         )
         self.logger.write(
             f"IRLS Start Misfit: {chi_start * data_count:.2e} ({data_count} data "
@@ -489,7 +495,7 @@ class InversionDriver(BaseDriver):
             return BaseRegularization(mesh=self.inversion_mesh.mesh)
 
         reg_funcs = []
-        is_rotated = self.params.gradient_rotation is not None
+        is_rotated = self.params.models.gradient_rotation is not None
         neighbors = None
         backward_mesh = None
         forward_mesh = None
@@ -498,7 +504,7 @@ class InversionDriver(BaseDriver):
                 forward_mesh or self.inversion_mesh.mesh,
                 active_cells=self.models.active_cells if forward_mesh is None else None,
                 mapping=mapping,
-                reference_model=self.models.reference,
+                reference_model=self.models.reference_model,
             )
 
             if is_rotated and neighbors is None:
@@ -586,14 +592,14 @@ class InversionDriver(BaseDriver):
 
     def get_tiles(self):
         if "2d" in self.params.inversion_type:
-            tiles = [np.arange(len(self.inversion_data.indices))]
+            tiles = [np.arange(self.inversion_data.mask.sum())]
         elif "1d" in self.params.inversion_type:
-            tiles = np.arange(len(self.inversion_data.indices)).reshape((-1, 1))
+            tiles = np.arange(self.inversion_data.mask.sum()).reshape((-1, 1))
         else:
             locations = self.inversion_data.locations
             tiles = tile_locations(
                 locations,
-                self.params.tile_spatial,
+                self.params.compute.tile_spatial,
                 method="kmeans",
             )
 
@@ -605,7 +611,7 @@ class InversionDriver(BaseDriver):
         if self.client:
             dconf.set(scheduler=self.client)
         else:
-            n_cpu = self.params.n_cpu
+            n_cpu = self.params.compute.n_cpu
             if n_cpu is None:
                 n_cpu = int(multiprocessing.cpu_count())
 

@@ -97,14 +97,14 @@ class BaseBatch2DDriver(LineSweepDriver):
 
         :param mesh: Destination DrapeModel object.
         """
-        models = {"starting_model": self.batch2d_params.starting_model}
+        models = {"starting_model": self.batch2d_params.models.starting_model}
 
         for model in self._model_list:
-            models[model] = getattr(self.batch2d_params, model)
+            models[model] = getattr(self.batch2d_params, model, None)
 
         if not self.batch2d_params.forward_only:
             for model in ["reference_model", "lower_bound", "upper_bound"]:
-                models[model] = getattr(self.batch2d_params, model)
+                models[model] = getattr(self.batch2d_params.models, model)
 
             if self.batch2d_params.gradient_rotation is not None:
                 group_properties = {}
@@ -151,7 +151,6 @@ class BaseBatch2DDriver(LineSweepDriver):
         with fetch_active_workspace(self.workspace, mode="r+"):
             self._window = InversionWindow(self.workspace, self.batch2d_params)
             self._inversion_data = InversionData(self.workspace, self.batch2d_params)
-            self._inversion_data.save_data()
             self._inversion_topography = InversionTopography(
                 self.workspace, self.batch2d_params
             )

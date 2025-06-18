@@ -15,11 +15,22 @@ from pathlib import Path
 from typing import ClassVar
 
 from geoh5py.data import ReferencedData
-from geoh5py.groups import SimPEGGroup
 from geoh5py.objects import Octree
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.joint.options import BaseJointOptions
+from simpeg_drivers.options import ModelOptions
+
+
+class JointPetrophysicsModelOptions(ModelOptions):
+    """
+    Model options with petrophysics reference model.
+
+    :param petrophysical: The reference geology data.
+    """
+
+    starting_model: None = None
+    petrophysical_model: ReferencedData
 
 
 class JointPetrophysicsOptions(BaseJointOptions):
@@ -27,7 +38,7 @@ class JointPetrophysicsOptions(BaseJointOptions):
     Joint Petrophysically Guided Inversion (PGI) driver.
 
     :param mesh: The global mesh entity containing the reference geology.
-    :param petrophysics: The reference geology data.
+    :param petrophysics_model: The reference geology data.
     """
 
     name: ClassVar[str] = "Petrophysically Guided Inversion (PGI)"
@@ -36,15 +47,8 @@ class JointPetrophysicsOptions(BaseJointOptions):
     )
 
     title: str = "Joint Petrophysically Guided Inversion (PGI)"
-    physical_property: list[str] = [""]
-
     inversion_type: str = "joint petrophysics"
 
-    mesh: Octree
-    petrophysics_model: ReferencedData
-    group_a: SimPEGGroup
-    group_a_multiplier: float | None = 1.0
-    group_b: SimPEGGroup | None = None
     group_b_multiplier: float | None = None
-    group_c: SimPEGGroup | None = None
-    group_c_multiplier: float | None = None
+    mesh: Octree
+    models: JointPetrophysicsModelOptions

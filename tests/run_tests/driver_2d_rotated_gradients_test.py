@@ -75,7 +75,7 @@ def test_dc2d_rotated_grad_fwr_run(
         line_object=geoh5.get_entity("line_ids")[0],
         line_id=101,
     )
-    params = DC2DForwardOptions(
+    params = DC2DForwardOptions.build(
         geoh5=geoh5,
         data_object=survey,
         line_selection=line_selection,
@@ -88,7 +88,7 @@ def test_dc2d_rotated_grad_fwr_run(
             expansion_factor=1.1,
         ),
         starting_model=model,
-        active_cells=ActiveCellsOptions(topography_object=topography),
+        topography_object=topography,
     )
     fwr_driver = DC2DForwardDriver(params)
     fwr_driver.run()
@@ -129,7 +129,7 @@ def test_dc2d_rotated_grad_run(
         pg = PropertyGroup(mesh, properties=data_list, property_group_type="3D vector")
 
         # Run the inverse
-        params = DC2DInversionOptions(
+        params = DC2DInversionOptions.build(
             geoh5=geoh5,
             drape_model=DrapeModelOptions(
                 u_cell_size=5.0,
@@ -139,7 +139,7 @@ def test_dc2d_rotated_grad_run(
                 vertical_padding=100.0,
                 expansion_factor=1.1,
             ),
-            active_cells=ActiveCellsOptions(topography_object=topography),
+            topography_object=topography,
             line_selection=LineSelectionOptions(
                 line_object=geoh5.get_entity("line_ids")[0],
                 line_id=101,
@@ -154,7 +154,6 @@ def test_dc2d_rotated_grad_run(
             s_norm=1.0,
             x_norm=0.0,
             z_norm=0.0,
-            gradient_type="components",
             max_global_iterations=max_iterations,
             initial_beta=None,
             initial_beta_ratio=1e0,

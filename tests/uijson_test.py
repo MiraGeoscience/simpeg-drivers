@@ -25,7 +25,7 @@ from pydantic import AliasChoices, Field
 import simpeg_drivers
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.line_sweep.driver import LineSweepDriver
-from simpeg_drivers.options import ActiveCellsOptions, Deprecations
+from simpeg_drivers.options import ActiveCellsOptions, Deprecations, IRLSOptions
 from simpeg_drivers.potential_fields.gravity.options import GravityInversionOptions
 from simpeg_drivers.potential_fields.gravity.uijson import GravityInversionUIJson
 from simpeg_drivers.uijson import SimPEGDriversUIJson
@@ -176,16 +176,29 @@ def test_write_default(tmp_path):
     ) == SimPEGDriversUIJson.comparable_version(simpeg_drivers.__version__)
 
 
+def test_alias_options():
+    geoh5 = Workspace()
+
+    class Options(BaseData):
+        irls: IRLSOptions = IRLSOptions()
+        name: str = "My Inversion"
+
+    options = Options.build(geoh5=geoh5, coolEpsFact=0.1)
+    assert options.irls.epsilon_cooling_factor == 0.1
+
+
 def test_deprecated_options(caplog):
     geoh5 = Workspace()
 
     class Options(BaseData):
+        irls: IRLSOptions = IRLSOptions()
+        name: str = "My Inversion"
         deprecations: Deprecations
 
     with caplog.at_level(logging.WARNING):
-        options = Options.build(geoh5=geoh5, parallelized="abc")
+        options = Options.build(geoh5=geoh5, gradient_type="abc")
 
-    assert "Deprecated field 'parallelized' will be ignored" in caplog.text
+    assert "Deprecated field 'gradient_type' will be ignored" in caplog.text
     assert "deprecations" not in options.model_dump()
     assert "parallelized" not in options.model_dump()
 
@@ -229,7 +242,7 @@ def test_gravity_uijson(tmp_path):
         gz_channel = survey.add_data({"gz": {"values": np.ones(survey.n_vertices)}})
         gz_uncerts = survey.add_data({"gz_unc": {"values": np.ones(survey.n_vertices)}})
 
-    opts = GravityInversionOptions(
+    opts = GravityInversionOptions.build(
         version="old news",
         geoh5=geoh5,
         data_object=survey,
@@ -237,9 +250,7 @@ def test_gravity_uijson(tmp_path):
         gz_uncertainty=gz_uncerts,
         mesh=starting_model.parent,
         starting_model=starting_model,
-        active_cells=ActiveCellsOptions(
-            topography_object=topography,
-        ),
+        topography_object=topography,
     )
     params_uijson_path = tmp_path / "from_params.ui.json"
     opts.write_ui_json(params_uijson_path)
