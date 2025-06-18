@@ -106,9 +106,9 @@ class BaseBatch2DDriver(LineSweepDriver):
             for model in ["reference_model", "lower_bound", "upper_bound"]:
                 models[model] = getattr(self.batch2d_params.models, model)
 
-            if self.batch2d_params.gradient_rotation is not None:
+            if self.batch2d_params.models.gradient_rotation is not None:
                 group_properties = {}
-                for prop in self.batch2d_params.gradient_rotation.properties:
+                for prop in self.batch2d_params.models.gradient_rotation.properties:
                     model = self.batch2d_params.mesh.get_data(prop)[0]
                     group_properties[model.name] = model
 
@@ -133,12 +133,12 @@ class BaseBatch2DDriver(LineSweepDriver):
 
             if (
                 not self.batch2d_params.forward_only
-                and self.batch2d_params.gradient_rotation is not None
+                and self.batch2d_params.models.gradient_rotation is not None
             ):
                 pg = PropertyGroup(
                     mesh,
                     properties=[models[prop] for prop in group_properties],
-                    property_group_type=self.batch2d_params.gradient_rotation.property_group_type,
+                    property_group_type=self.batch2d_params.models.gradient_rotation.property_group_type,
                 )
                 models["gradient_rotation"] = pg
 
