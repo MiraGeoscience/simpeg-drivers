@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Annotated, Any, ClassVar, Literal, TypeAlias
 
 import numpy as np
-from geoapps_utils.driver.data import BaseData
+from geoapps_utils.base import Options
 from geoh5py.data import (
     BooleanData,
     DataAssociationEnum,
@@ -139,7 +139,7 @@ Deprecations = Annotated[
 ]
 
 
-class CoreOptions(BaseData):
+class CoreOptions(Options):
     """
     Core parameters shared by inverse and forward operations.
 

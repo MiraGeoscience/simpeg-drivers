@@ -14,7 +14,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
-from geoapps_utils.driver.driver import BaseDriver
+from geoapps_utils.base import Driver
 from geoapps_utils.utils.numerical import weighted_average
 from geoapps_utils.utils.transformations import rotate_xyz
 from geoh5py.data import Data, FloatData, NumericData
