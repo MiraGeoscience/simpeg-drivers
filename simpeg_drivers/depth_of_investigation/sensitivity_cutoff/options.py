@@ -24,7 +24,7 @@
 from pathlib import Path
 from typing import ClassVar
 
-from geoapps_utils.driver.data import BaseData
+from geoapps_utils.base import Options
 from geoh5py.data import FloatData
 from geoh5py.objects import Octree
 from pydantic import field_validator
@@ -32,7 +32,7 @@ from pydantic import field_validator
 from simpeg_drivers import assets_path
 
 
-class SensitivityCutoffOptions(BaseData):
+class SensitivityCutoffOptions(Options):
     """
     Sensitivity cutoff parameters for depth of investigation studies.
 
