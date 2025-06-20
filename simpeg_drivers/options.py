@@ -38,6 +38,7 @@ from pydantic import (
     ConfigDict,
     Field,
     field_validator,
+    model_serializer,
     model_validator,
 )
 
@@ -90,6 +91,15 @@ class ActiveCellsOptions(BaseModel):
         if all(v is None for v in data.values()):
             raise ValueError("Must provide either topography or active model.")
         return data
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler) -> dict[str, Any]:
+        result = handler(self)
+
+        if "topography_object" not in result:
+            result["topography_object"] = self.topography_object
+
+        return result
 
 
 class ComputeOptions(BaseModel):
