@@ -25,7 +25,7 @@ import logging
 import sys
 
 import numpy as np
-from geoapps_utils.driver.driver import BaseDriver
+from geoapps_utils.base import Driver
 from geoh5py.data import FloatData
 
 from simpeg_drivers.depth_of_investigation.sensitivity_cutoff.options import (
@@ -98,7 +98,7 @@ def sensitivity_mask(
     return mask
 
 
-class SensitivityCutoffDriver(BaseDriver):
+class SensitivityCutoffDriver(Driver):
     """
     Creates a mask to filter sensitivities below a cutoff value.
 
