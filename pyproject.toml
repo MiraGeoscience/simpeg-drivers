@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "simpeg-drivers"
-version = "0.3.0-beta.1"
+version = "0.3.0"
 description = "Application to run SimPEG inversions with geoh5 files from Geoscience Analyst."
 license = "MIT"
 authors = ["Mira Geoscience <support@mirageoscience.com>"]
@@ -74,19 +74,19 @@ python-mumps = ">=0.0.3, <0.0.4.dev"
 
 ## Pip dependencies from Git repositories
 #----------------------------------------
-geoh5py = {version = ">=0.11.0a3, <0.12.dev", source = "pypi", allow-prereleases = true}
+geoh5py = {version = ">=0.11.0, <0.12.dev", allow-prereleases = true}
 #geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "release/0.11.0"}
 
-octree-creation-app = {version = ">=0.3.0a1, <0.4.dev", source = "pypi", allow-prereleases = true}
+octree-creation-app = {version = ">=0.3.0, <0.4.dev", allow-prereleases = true}
 #octree-creation-app = {git = "https://github.com/MiraGeoscience/octree-creation-app.git", rev = "release/0.3.0"}
 
-#geoapps-utils = {version = ">=0.5.0a3, <0.6.dev", source = "pypi", allow-prereleases = true}
-geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "release/0.5.0"}
+geoapps-utils = {version = ">=0.5.0, <0.6.dev", allow-prereleases = true}
+#geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "release/0.5.0"}
 
-mira-simpeg = {version = ">=0.23.0.1b1, <0.23.1.dev", source="pypi", allow-prereleases = true, extras = ["dask"]}
+mira-simpeg = {version = ">=0.23.0.1, <0.23.1.dev", allow-prereleases = true, extras = ["dask"]}
 #mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", rev = "release/0.23.0.1", extras = ["dask"]}
 
-param-sweeps = {version = ">=0.2.1a1, <0.3.dev", source = "pypi", allow-prereleases = true}
+param-sweeps = {version = ">=0.2.1, <0.3.dev", allow-prereleases = true}
 #param-sweeps = {git = "https://github.com/MiraGeoscience/param-sweeps.git", rev = "release/0.2.1"}
 
 ## about pip dependencies
