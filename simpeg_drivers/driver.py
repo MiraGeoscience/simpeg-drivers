@@ -28,7 +28,7 @@ from dask import config as dconf
 
 from dask.distributed import get_client, Client, LocalCluster, performance_report
 
-from geoapps_utils.driver.driver import BaseDriver
+from geoapps_utils.base import Driver
 from geoapps_utils.utils.importing import GeoAppsError
 
 from geoh5py.groups import SimPEGGroup
@@ -74,7 +74,7 @@ mlogger = logging.getLogger("distributed")
 mlogger.setLevel(logging.WARNING)
 
 
-class InversionDriver(BaseDriver):
+class InversionDriver(Driver):
     _options_class = BaseForwardOptions | BaseInversionOptions
     _inversion_type: str | None = None
     _validations = None

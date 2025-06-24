@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Annotated, Any, ClassVar, Literal, TypeAlias
 
 import numpy as np
-from geoapps_utils.driver.data import BaseData
+from geoapps_utils.base import Options
 from geoh5py.data import (
     BooleanData,
     DataAssociationEnum,
@@ -38,6 +38,7 @@ from pydantic import (
     ConfigDict,
     Field,
     field_validator,
+    model_serializer,
     model_validator,
 )
 
@@ -91,6 +92,15 @@ class ActiveCellsOptions(BaseModel):
             raise ValueError("Must provide either topography or active model.")
         return data
 
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler) -> dict[str, Any]:
+        result = handler(self)
+
+        if "topography_object" not in result:
+            result["topography_object"] = self.topography_object
+
+        return result
+
 
 class ComputeOptions(BaseModel):
     """
@@ -139,7 +149,7 @@ Deprecations = Annotated[
 ]
 
 
-class CoreOptions(BaseData):
+class CoreOptions(Options):
     """
     Core parameters shared by inverse and forward operations.
 
