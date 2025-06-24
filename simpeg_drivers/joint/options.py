@@ -11,7 +11,8 @@
 
 from __future__ import annotations
 
-from geoh5py.groups import SimPEGGroup
+from geoh5py.data import FloatData
+from geoh5py.groups import PropertyGroup, SimPEGGroup
 from pydantic import ConfigDict
 
 from simpeg_drivers.options import (
@@ -22,6 +23,32 @@ from simpeg_drivers.options import (
     ModelOptions,
     OptimizationOptions,
 )
+
+
+class JointModelOptions(ModelOptions):
+    """
+    Model options with petrophysics reference model.
+
+    :param petrophysical: The reference geology data.
+    """
+
+    starting_model: None = None
+    reference_model: None = None
+    lower_bound: float | FloatData | None = None
+    upper_bound: float | FloatData | None = None
+
+    # Model values for regularization
+    alpha_s: float | FloatData | None | None = None
+    length_scale_x: float | FloatData | None = None
+    length_scale_y: float | FloatData | None = None
+    length_scale_z: float | FloatData | None = None
+    gradient_rotation: PropertyGroup | None = None
+
+    # Model values for IRLS
+    s_norm: float | FloatData | None = None
+    x_norm: float | FloatData | None = None
+    y_norm: float | FloatData | None = None
+    z_norm: float | FloatData | None = None
 
 
 class BaseJointOptions(CoreOptions):
@@ -39,7 +66,7 @@ class BaseJointOptions(CoreOptions):
     model_config = ConfigDict(frozen=False)
 
     forward_only: bool = False
-    physical_property: str = ""
+    physical_property: str | None = ""
 
     group_a: SimPEGGroup
     group_a_multiplier: float = 1.0
