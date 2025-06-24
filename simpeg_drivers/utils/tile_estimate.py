@@ -28,8 +28,7 @@ from typing import ClassVar
 import matplotlib.pyplot as plt
 import numpy as np
 from discretize import TreeMesh
-from geoapps_utils.driver.data import BaseData
-from geoapps_utils.driver.driver import BaseDriver
+from geoapps_utils.base import Driver, Options
 from geoapps_utils.utils.numerical import fibonacci_series, fit_circle
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
 from scipy.interpolate import interp1d
@@ -48,7 +47,7 @@ from simpeg_drivers.utils.utils import (
 logger = logging.getLogger(__name__)
 
 
-class TileParameters(BaseData):
+class TileParameters(Options):
     """
     Parameters for the tile estimator.
     """
@@ -60,7 +59,7 @@ class TileParameters(BaseData):
     out_group: UIJsonGroup | None = None
 
 
-class TileEstimator(BaseDriver):
+class TileEstimator(Driver):
     """
     Class to estimate the optimal number of tiles for a given mesh and receiver locations.
 
