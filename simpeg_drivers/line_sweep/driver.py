@@ -34,7 +34,6 @@ class LineSweepDriver(SweepDriver, InversionDriver):
 
     def __init__(self, params):
         self._out_group = None
-        self.workspace = params.geoh5
         self.batch2d_params = params
         self.cleanup = params.file_control.cleanup
 
@@ -245,3 +244,8 @@ class LineSweepDriver(SweepDriver, InversionDriver):
                 data[child.name]["values"][line_indices] = child.values
 
         return data
+
+    @property
+    def workspace(self):
+        """Application workspace."""
+        return self.batch2d_params.geoh5
