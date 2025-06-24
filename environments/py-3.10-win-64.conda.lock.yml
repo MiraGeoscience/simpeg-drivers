@@ -47,11 +47,11 @@ dependencies:
   - lcms2=2.17=hbcf6048_0
   - lerc=4.0.0=h6470a55_1
   - libaec=1.1.4=h20038f6_0
-  - libblas=3.9.0=31_h641d27c_mkl
+  - libblas=3.9.0=32_h641d27c_mkl
   - libbrotlicommon=1.1.0=h2466b09_3
   - libbrotlidec=1.1.0=h2466b09_3
   - libbrotlienc=1.1.0=h2466b09_3
-  - libcblas=3.9.0=31_h5e41251_mkl
+  - libcblas=3.9.0=32_h5e41251_mkl
   - libcurl=8.14.1=h88aaa65_0
   - libdeflate=1.24=h76ddb4d_0
   - libdlf=0.3.0=pyhd8ed1ab_1
@@ -64,10 +64,10 @@ dependencies:
   - libhwloc=2.11.2=default_ha69328c_1001
   - libiconv=1.18=h135ad9c_1
   - libjpeg-turbo=3.1.0=h2466b09_0
-  - liblapack=3.9.0=31_h1aa476e_mkl
+  - liblapack=3.9.0=32_h1aa476e_mkl
   - liblzma=5.8.1=h2466b09_2
   - libpng=1.6.49=h7a4582a_0
-  - libsqlite=3.50.1=h67fdade_0
+  - libsqlite=3.50.1=hf5d6505_6
   - libssh2=1.11.1=h9aa295b_0
   - libtiff=4.7.0=h05922d8_5
   - libwebp-base=1.5.0=h3b0e114_0
@@ -127,9 +127,9 @@ dependencies:
   - ucrt=10.0.22621.0=h57928b3_1
   - unicodedata2=16.0.0=py310ha8f682b_0
   - urllib3=2.5.0=pyhd8ed1ab_0
-  - vc=14.3=h2b53caa_26
-  - vc14_runtime=14.42.34438=hfd919c2_26
-  - vs2015_runtime=14.42.34438=h7142326_26
+  - vc=14.3=h41ae7f8_26
+  - vc14_runtime=14.44.35208=h818238b_26
+  - vs2015_runtime=14.44.35208=h38c0c73_26
   - wheel=0.45.1=pyhd8ed1ab_1
   - win_inet_pton=1.1.0=pyh7428d3b_8
   - xorg-libxau=1.0.12=h0e40799_0
@@ -143,10 +143,10 @@ dependencies:
   - zstd=1.5.7=hbeecb71_2
   - pip:
       - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@91ec5c45ff7357cd8f2bdb75dc61c55fdd6459b5
-      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@1190a239fd7406fbe0b73169c3d8406a1aacae3e
+      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@99695a5e34812bfbb53cef84803033a91af137de
       - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@f72a1367edcb2da969002ca06f18f532340b3c27
       - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app.git@02fbd85bf7d54b8f4336f1f0094c1c3e27714e81
-      - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps.git@d5959a0e19b45a89eb8a02cd608bc8accb74adb7
+      - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps.git@9ed6091534d638171957a17324e1a1e8f067b434
 
 variables:
   KMP_WARNINGS: 0
