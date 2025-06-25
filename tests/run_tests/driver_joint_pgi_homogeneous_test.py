@@ -127,6 +127,7 @@ def test_homogeneous_run(
         orig_data = []
         petrophysics = None
         gradient_rotation = None
+        mesh = None
         for group_name in [
             "Gravity Forward",
             "Magnetic Vector Forward",
@@ -159,17 +160,17 @@ def test_homogeneous_run(
                         }
                     }
                 )
-                dip, direction = mesh.add_data(
+                dip, direction = global_mesh.add_data(
                     {
-                        "dip": {"values": np.zeros(mesh.n_cells)},
-                        "direction": {"values": np.zeros(mesh.n_cells)},
+                        "dip": {"values": np.zeros(global_mesh.n_cells)},
+                        "direction": {"values": np.zeros(global_mesh.n_cells)},
                     }
                 )
                 gradient_rotation = PropertyGroup(
                     name="gradient_rotations",
                     property_group_type=GroupTypeEnum.DIPDIR,
                     properties=[dip, direction],
-                    parent=mesh,
+                    parent=global_mesh,
                 )
 
             data = None

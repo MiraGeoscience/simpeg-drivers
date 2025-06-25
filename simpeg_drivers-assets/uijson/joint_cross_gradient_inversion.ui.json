@@ -153,10 +153,15 @@
     "alpha_s": {
         "min": 0.0,
         "group": "Regularization",
-        "groupOptional": true,
-        "label": "Smallness weight",
+        "label": "Reference weight",
         "value": 1.0,
+        "groupOptional": true,
         "tooltip": "Constant ratio compared to other weights. Larger values result in models that remain close to the reference model",
+        "isValue": true,
+        "parent": "mesh",
+        "association": "Cell",
+        "dataType": "Float",
+        "property": "",
         "enabled": false
     },
     "length_scale_x": {
@@ -165,7 +170,12 @@
         "label": "X-smoothness weight",
         "tooltip": "Larger values relative to other smoothness weights will result in x biased smoothness",
         "value": 1.0,
-        "enabled": false
+        "isValue": true,
+        "parent": "mesh",
+        "association": "Cell",
+        "dataType": "Float",
+        "property": "",
+        "enabled": true
     },
     "length_scale_y": {
         "min": 0.0,
@@ -173,7 +183,12 @@
         "label": "Y-smoothness weight",
         "tooltip": "Larger values relative to other smoothness weights will result in y biased smoothness",
         "value": 1.0,
-        "enabled": false
+        "isValue": true,
+        "parent": "mesh",
+        "association": "Cell",
+        "dataType": "Float",
+        "property": "",
+        "enabled": true
     },
     "length_scale_z": {
         "min": 0.0,
@@ -181,7 +196,12 @@
         "label": "Z-smoothness weight",
         "tooltip": "Larger values relative to other smoothness weights will result in z biased smoothess",
         "value": 1.0,
-        "enabled": false
+        "isValue": true,
+        "parent": "mesh",
+        "association": "Cell",
+        "dataType": "Float",
+        "property": "",
+        "enabled": true
     },
     "gradient_rotation": {
         "group": "Regularization",
@@ -204,9 +224,12 @@
         "group": "Regularization",
         "label": "Smallness norm",
         "value": 0.0,
-        "precision": 2,
-        "lineEdit": false,
-        "enabled": false
+        "isValue": true,
+        "parent": "mesh",
+        "association": "Cell",
+        "dataType": "Float",
+        "property": "",
+        "enabled": true
     },
     "x_norm": {
         "min": 0.0,
@@ -214,9 +237,12 @@
         "group": "Regularization",
         "label": "X-smoothness norm",
         "value": 2.0,
-        "precision": 2,
-        "lineEdit": false,
-        "enabled": false
+        "isValue": true,
+        "parent": "mesh",
+        "association": "Cell",
+        "dataType": "Float",
+        "property": "",
+        "enabled": true
     },
     "y_norm": {
         "min": 0.0,
@@ -224,9 +250,12 @@
         "group": "Regularization",
         "label": "Y-smoothness norm",
         "value": 2.0,
-        "precision": 2,
-        "lineEdit": false,
-        "enabled": false
+        "isValue": true,
+        "parent": "mesh",
+        "association": "Cell",
+        "dataType": "Float",
+        "property": "",
+        "enabled": true
     },
     "z_norm": {
         "min": 0.0,
@@ -234,9 +263,12 @@
         "group": "Regularization",
         "label": "Z-smoothness norm",
         "value": 2.0,
-        "precision": 2,
-        "lineEdit": false,
-        "enabled": false
+        "isValue": true,
+        "parent": "mesh",
+        "association": "Cell",
+        "dataType": "Float",
+        "property": "",
+        "enabled": true
     },
     "max_irls_iterations": {
         "min": 0,
@@ -425,8 +457,6 @@
         "tooltip": "Direct solver to use for the forward calculations",
         "value": "Pardiso"
     },
-    "tile_spatial": 1,
-    "parallelized": true,
     "store_sensitivities": {
         "choiceList": [
             "disk",
