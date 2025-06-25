@@ -13,6 +13,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import numpy as np
 from geoh5py.data import FloatData, ReferencedData
 from geoh5py.groups import UIJsonGroup
 from geoh5py.objects import Octree, Points, Surface
@@ -20,6 +21,7 @@ from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile, monitored_directory_copy
 from octree_creation_app.driver import OctreeDriver
 from param_sweeps.generate import generate
+from plate_simulation.utils import azimuth_to_unit_vector
 
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.options import BaseForwardOptions
@@ -28,7 +30,6 @@ from simpeg_drivers.plate_simulation.models.events import Anomaly, Erosion, Over
 from simpeg_drivers.plate_simulation.models.parametric import Plate
 from simpeg_drivers.plate_simulation.models.series import DikeSwarm, Geology
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
-from simpeg_drivers.plate_simulation.utils import replicate
 
 
 class PlateSimulationDriver:
@@ -164,12 +165,7 @@ class PlateSimulationDriver:
                 self.params.model.plate_model,
                 center,
             )
-            self._plates = replicate(
-                plate,
-                self.params.model.plate_model.number,
-                self.params.model.plate_model.spacing,
-                self.params.model.plate_model.dip_direction,
-            )
+            self._plates = self.replicate(plate)
         return self._plates
 
     @property
@@ -270,6 +266,35 @@ class PlateSimulationDriver:
             raise ValueError("Starting model could not be created.")
 
         return starting_model
+
+    def replicate(self, plate: Plate) -> list[Plate]:
+        """
+        Replicate a plate n times along an azimuth centered at origin.
+
+        Plate names will be indexed.
+
+        :param plate: models.parametric.Plate to be replicated.
+        """
+        offsets = (
+            np.arange(self.params.model.plate_model.number)
+            * self.params.model.plate_model.spacing
+        ) - (
+            (self.params.model.plate_model.number - 1)
+            * self.params.model.plate_model.spacing
+            / 2
+        )
+
+        plates = []
+        for i in range(self.params.model.plate_model.number):
+            center = (
+                np.r_[plate.center]
+                + azimuth_to_unit_vector(self.params.model.plate_model.azimuth)
+                * offsets[i]
+            )
+            new = Plate(plate.params.model_copy(), center)
+            new.params.name = f"{plate.params.name} offset {i + 1}"
+            plates.append(new)
+        return plates
 
     @staticmethod
     def start(ifile: str | Path | InputFile):
