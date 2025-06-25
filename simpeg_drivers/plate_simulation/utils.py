@@ -9,7 +9,8 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 import numpy as np
-from plate_simulation.models.parametric import Plate
+
+from simpeg_drivers.plate_simulation.models.parametric import Plate
 
 
 def azimuth_to_unit_vector(azimuth: float) -> np.ndarray:

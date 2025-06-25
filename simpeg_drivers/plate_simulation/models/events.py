@@ -13,8 +13,9 @@ from abc import ABC, abstractmethod
 import numpy as np
 from geoh5py.objects import Octree, Surface
 from geoh5py.shared.utils import find_unique_name
-from plate_simulation.models import EventMap
-from plate_simulation.models.parametric import Boundary, Parametric
+
+from simpeg_drivers.plate_simulation.models import EventMap
+from simpeg_drivers.plate_simulation.models.parametric import Boundary, Parametric
 
 
 class Event(ABC):

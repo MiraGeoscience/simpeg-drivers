@@ -23,10 +23,10 @@ from geoapps_utils.utils.transformations import (
 from geoh5py.objects import Octree, Surface
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.workspace import Workspace
-from plate_simulation.models.options import PlateOptions
 from trimesh import Trimesh
 from trimesh.proximity import ProximityQuery
 
+from simpeg_drivers.plate_simulation.models.options import PlateOptions
 from simpeg_drivers.utils.utils import active_from_xyz
 
 

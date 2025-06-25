@@ -20,15 +20,15 @@ from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile, monitored_directory_copy
 from octree_creation_app.driver import OctreeDriver
 from param_sweeps.generate import generate
-from plate_simulation.logger import get_logger
-from plate_simulation.models.events import Anomaly, Erosion, Overburden
-from plate_simulation.models.parametric import Plate
-from plate_simulation.models.series import DikeSwarm, Geology
-from plate_simulation.options import PlateSimulationOptions
-from plate_simulation.utils import replicate
 
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.options import BaseForwardOptions
+from simpeg_drivers.plate_simulation.logger import get_logger
+from simpeg_drivers.plate_simulation.models.events import Anomaly, Erosion, Overburden
+from simpeg_drivers.plate_simulation.models.parametric import Plate
+from simpeg_drivers.plate_simulation.models.series import DikeSwarm, Geology
+from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
+from simpeg_drivers.plate_simulation.utils import replicate
 
 
 class PlateSimulationDriver:

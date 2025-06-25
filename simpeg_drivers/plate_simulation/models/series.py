@@ -18,8 +18,14 @@ import numpy as np
 from geoh5py import Workspace
 from geoh5py.objects import Octree
 from geoh5py.shared.utils import fetch_active_workspace
-from plate_simulation.models import EventMap
-from plate_simulation.models.events import Anomaly, Erosion, Event, Overburden
+
+from simpeg_drivers.plate_simulation.models import EventMap
+from simpeg_drivers.plate_simulation.models.events import (
+    Anomaly,
+    Erosion,
+    Event,
+    Overburden,
+)
 
 
 if TYPE_CHECKING:
