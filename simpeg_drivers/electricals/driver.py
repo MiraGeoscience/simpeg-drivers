@@ -141,6 +141,8 @@ class BaseBatch2DDriver(LineSweepDriver):
                     property_group_type=self.batch2d_params.models.gradient_rotation.property_group_type,
                 )
                 models["gradient_rotation"] = pg
+                del models["azimuth"]
+                del models["dip"]
 
         return models
 
