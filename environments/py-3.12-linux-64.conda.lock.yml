@@ -65,10 +65,10 @@ dependencies:
   - libffi=3.4.6=h2dba641_1
   - libfreetype=2.13.3=ha770c72_1
   - libfreetype6=2.13.3=h48d6fc4_1
-  - libgcc=15.1.0=h767d61c_2
-  - libgcc-ng=15.1.0=h69a702a_2
-  - libgfortran=15.1.0=h69a702a_2
-  - libgfortran5=15.1.0=hcea5267_2
+  - libgcc=15.1.0=h767d61c_3
+  - libgcc-ng=15.1.0=h69a702a_3
+  - libgfortran=15.1.0=h69a702a_3
+  - libgfortran5=15.1.0=hcea5267_3
   - libhwloc=2.11.2=default_h0d58e46_1001
   - libiconv=1.18=h4ce23a2_1
   - libjpeg-turbo=3.1.0=hb9d3cd8_0
@@ -78,10 +78,10 @@ dependencies:
   - libnsl=2.0.1=hb9d3cd8_1
   - libpng=1.6.49=h943b412_0
   - libscotch=7.0.6=hea33c07_1
-  - libsqlite=3.50.1=h6cd9bfd_6
+  - libsqlite=3.50.1=h6cd9bfd_7
   - libssh2=1.11.1=hcf80075_0
-  - libstdcxx=15.1.0=h8f9b012_2
-  - libstdcxx-ng=15.1.0=h4852527_2
+  - libstdcxx=15.1.0=h8f9b012_3
+  - libstdcxx-ng=15.1.0=h4852527_3
   - libtiff=4.7.0=hf01ce69_5
   - libuuid=2.38.1=h0b41bf4_0
   - libwebp-base=1.5.0=h851e524_0
@@ -156,7 +156,7 @@ dependencies:
   - zstandard=0.23.0=py312h66e93f0_2
   - zstd=1.5.7=hb8e6e7a_2
   - pip:
-      - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@91ec5c45ff7357cd8f2bdb75dc61c55fdd6459b5
+      - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@8db50336926b5acf84f3c6a9c7549cb2b5af8298
       - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@99695a5e34812bfbb53cef84803033a91af137de
       - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@f72a1367edcb2da969002ca06f18f532340b3c27
       - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app.git@02fbd85bf7d54b8f4336f1f0094c1c3e27714e81
