@@ -172,7 +172,7 @@ class PlateSimulationDriver(Driver):
                 plate,
                 self.params.model.plate_model.number,
                 self.params.model.plate_model.spacing,
-                self.params.model.plate_model.azimuth,
+                self.params.model.plate_model.dip_direction,
             )
         return self._plates
 

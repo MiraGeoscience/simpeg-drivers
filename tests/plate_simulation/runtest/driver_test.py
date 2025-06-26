@@ -17,8 +17,8 @@ from geoh5py.groups import SimPEGGroup
 from geoh5py.objects import AirborneTEMReceivers, ObjectBase, Octree, Surface
 from geoh5py.ui_json import InputFile
 
+from simpeg_drivers import assets_path
 from simpeg_drivers.electromagnetics.time_domain.options import TDEMForwardOptions
-from simpeg_drivers.plate_simulation import assets_path
 from simpeg_drivers.plate_simulation.driver import (
     PlateSimulationDriver,
     PlateSimulationOptions,
@@ -53,7 +53,9 @@ def get_simulation_group(workspace: Workspace, survey: ObjectBase, topography: S
 
 def get_input_file(filepath: Path) -> InputFile:
     with Workspace(filepath / "test.geoh5") as ws:
-        with Workspace(assets_path() / "demo.geoh5", mode="r") as demo_workspace:
+        with Workspace(
+            assets_path() / "plate_simulation_demo.geoh5", mode="r"
+        ) as demo_workspace:
             survey = demo_workspace.get_entity("Simulation rx")[0].copy(
                 parent=ws, copy_children=False
             )

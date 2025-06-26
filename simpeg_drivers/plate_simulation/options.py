@@ -19,6 +19,7 @@ from geoh5py.ui_json import InputFile
 from octree_creation_app.params import OctreeParams
 from pydantic import BaseModel
 
+from simpeg_drivers import assets_path
 from simpeg_drivers.electricals.direct_current.three_dimensions.options import (
     DC3DForwardOptions,
 )
@@ -38,7 +39,6 @@ from simpeg_drivers.potential_fields.magnetic_vector.options import (
     MVIForwardOptions,
 )
 
-from . import assets_path
 from .models.options import ModelOptions
 
 
@@ -126,7 +126,7 @@ class PlateSimulationOptions(BaseData):
     name: ClassVar[str] = "plate_simulation"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/plate_simulation.ui.json"
     title: ClassVar[str] = "Plate Simulation"
-    run_command: ClassVar[str] = "plate_simulation.driver"
+    run_command: ClassVar[str] = "simpeg_drivers.plate_simulation.driver"
     out_group: UIJsonGroup | None = None
 
     mesh: MeshOptions
