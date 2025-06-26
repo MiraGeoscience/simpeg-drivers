@@ -16,14 +16,14 @@ import re
 from pathlib import Path
 
 import numpy as np
+from geoapps_utils.param_sweeps.driver import SweepDriver, SweepParams
+from geoapps_utils.param_sweeps.generate import generate
 from geoh5py.data import FilenameData
 from geoh5py.groups import SimPEGGroup
 from geoh5py.objects import DrapeModel, PotentialElectrode
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
 from geoh5py.workspace import Workspace
-from param_sweeps.driver import SweepDriver, SweepParams
-from param_sweeps.generate import generate
 
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.utils.utils import active_from_xyz, drape_to_octree
@@ -31,6 +31,8 @@ from simpeg_drivers.utils.utils import active_from_xyz, drape_to_octree
 
 class LineSweepDriver(SweepDriver, InversionDriver):
     """Line Sweep driver for batch 2D forward and inversion drivers."""
+
+    _params_class = SweepParams
 
     def __init__(self, params):
         self._out_group = None
@@ -43,7 +45,9 @@ class LineSweepDriver(SweepDriver, InversionDriver):
         ):
             self.batch2d_params.out_group = self.out_group
 
-        super().__init__(self.setup_params())
+        params = self.setup_params()
+        params.inversion_type = self.batch2d_params.inversion_type
+        super().__init__(params)
 
     @property
     def out_group(self):
@@ -96,7 +100,7 @@ class LineSweepDriver(SweepDriver, InversionDriver):
         ifile.data["line_id_start"] = int(lines.min())
         ifile.data["line_id_end"] = int(lines.max())
         ifile.data["line_id_n"] = len(np.unique(lines))
-        sweep_params = SweepParams.from_input_file(ifile)
+        sweep_params = SweepParams.build(ifile)
         sweep_params.geoh5 = self.workspace
         return sweep_params
 
