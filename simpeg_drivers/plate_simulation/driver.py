@@ -14,6 +14,8 @@ import sys
 from pathlib import Path
 
 import numpy as np
+from geoapps_utils.base import Driver, get_logger
+from geoapps_utils.utils.transformations import azimuth_to_unit_vector
 from geoh5py.data import FloatData, ReferencedData
 from geoh5py.groups import UIJsonGroup
 from geoh5py.objects import Octree, Points, Surface
@@ -21,18 +23,19 @@ from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile, monitored_directory_copy
 from octree_creation_app.driver import OctreeDriver
 from param_sweeps.generate import generate
-from plate_simulation.utils import azimuth_to_unit_vector
 
-from simpeg_drivers.driver import InversionDriver
+from simpeg_drivers.driver import InversionDriver, InversionLogger
 from simpeg_drivers.options import BaseForwardOptions
-from simpeg_drivers.plate_simulation.logger import get_logger
 from simpeg_drivers.plate_simulation.models.events import Anomaly, Erosion, Overburden
 from simpeg_drivers.plate_simulation.models.parametric import Plate
 from simpeg_drivers.plate_simulation.models.series import DikeSwarm, Geology
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
 
 
-class PlateSimulationDriver:
+logger = get_logger(__name__)
+
+
+class PlateSimulationDriver(Driver):
     """
     Driver for simulating background + plate + overburden model.
 
@@ -44,8 +47,10 @@ class PlateSimulationDriver:
     :param survey: Survey object for the simulation
     """
 
+    _params_class = PlateSimulationOptions
+
     def __init__(self, params: PlateSimulationOptions):
-        self.params = params
+        super().__init__(params)
 
         self._plates: list[Plate] | None = None
         self._survey: Points | None = None
@@ -55,12 +60,10 @@ class PlateSimulationDriver:
         self._simulation_driver: InversionDriver | None = None
         self._out_group = self.validate_out_group(self.params.out_group)
 
-        self._logger = get_logger("Plate Simulation")
-
     def run(self) -> InversionDriver:
         """Create octree mesh, fill model, and simulate."""
 
-        self._logger.info("running the simulation...")
+        logger.info("running the simulation...")
         with fetch_active_workspace(self.params.geoh5, mode="r+"):
             self.simulation_driver.run()
             self.out_group.add_ui_json()
@@ -73,8 +76,8 @@ class PlateSimulationDriver:
                     self.out_group,
                 )
 
-        self._logger.info("done.")
-        self._logger.handlers.clear()
+        logger.info("done.")
+        logger.handlers.clear()
 
         return self.simulation_driver
 
@@ -165,7 +168,12 @@ class PlateSimulationDriver:
                 self.params.model.plate_model,
                 center,
             )
-            self._plates = self.replicate(plate)
+            self._plates = self.replicate(
+                plate,
+                self.params.model.plate_model.number,
+                self.params.model.plate_model.spacing,
+                self.params.model.plate_model.azimuth,
+            )
         return self._plates
 
     @property
@@ -195,7 +203,7 @@ class PlateSimulationDriver:
         Mesh contains refinements for topography and any plates.
         """
 
-        self._logger.info("making the mesh...")
+        logger.info("making the mesh...")
         octree_params = self.params.mesh.octree_params(
             self.survey,
             self.simulation_parameters.active_cells.topography_object,
@@ -210,7 +218,7 @@ class PlateSimulationDriver:
     def make_model(self) -> FloatData:
         """Create background + plate and overburden model from parameters."""
 
-        self._logger.info("Building the model...")
+        logger.info("Building the model...")
 
         overburden = Overburden(
             topography=self.simulation_parameters.active_cells.topography_object,
@@ -267,30 +275,28 @@ class PlateSimulationDriver:
 
         return starting_model
 
-    def replicate(self, plate: Plate) -> list[Plate]:
+    @staticmethod
+    def replicate(
+        plate: Plate,
+        number: int,
+        spacing: float,
+        azimuth: float,
+    ) -> list[Plate]:
         """
         Replicate a plate n times along an azimuth centered at origin.
 
         Plate names will be indexed.
 
         :param plate: models.parametric.Plate to be replicated.
+        :param number: Number of plates returned.
+        :param spacing: Spacing between plates.
+        :param azimuth: Azimuth of the axis along with plates are replicated.
         """
-        offsets = (
-            np.arange(self.params.model.plate_model.number)
-            * self.params.model.plate_model.spacing
-        ) - (
-            (self.params.model.plate_model.number - 1)
-            * self.params.model.plate_model.spacing
-            / 2
-        )
+        offsets = (np.arange(number) * spacing) - ((number - 1) * spacing / 2)
 
         plates = []
-        for i in range(self.params.model.plate_model.number):
-            center = (
-                np.r_[plate.center]
-                + azimuth_to_unit_vector(self.params.model.plate_model.azimuth)
-                * offsets[i]
-            )
+        for i in range(number):
+            center = np.r_[plate.center] + azimuth_to_unit_vector(azimuth) * offsets[i]
             new = Plate(plate.params.model_copy(), center)
             new.params.name = f"{plate.params.name} offset {i + 1}"
             plates.append(new)
