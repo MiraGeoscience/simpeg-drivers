@@ -688,7 +688,6 @@ class InversionDriver(Driver):
 class InversionLogger:
     def __init__(self, logfile, driver):
         self.driver = driver
-        self.forward = driver.params.forward_only
         self.terminal = sys.stdout
         self.log = open(self.get_path(logfile), "w", encoding="utf8")
         self.initial_time = time()
