@@ -3914,10 +3914,10 @@ package:
     __glibc: '>=2.17,<3.0.a0'
     libgcc: '>=13'
     libzlib: '>=1.3.1,<2.0a0'
-  url: https://repo.prefix.dev/conda-forge/linux-64/libsqlite-3.50.1-h6cd9bfd_6.conda
+  url: https://repo.prefix.dev/conda-forge/linux-64/libsqlite-3.50.1-h6cd9bfd_7.conda
   hash:
-    md5: a5ea64ea2bd58803ea85e3769a659829
-    sha256: 0ef71429958415129e6ae1d675006e2a6c13346d1c757665db780e4e7413d7ae
+    md5: c7c4888059a8324e52de475d1e7bdc53
+    sha256: 9a9e5bf30178f821d4f8de25eac0ae848915bfde6a78a66ae8b77d9c33d9d0e5
   category: main
   optional: false
 - name: libsqlite
@@ -3928,10 +3928,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.3,<15'
     vc14_runtime: '>=14.44.35208'
-  url: https://repo.prefix.dev/conda-forge/win-64/libsqlite-3.50.1-hf5d6505_6.conda
+  url: https://repo.prefix.dev/conda-forge/win-64/libsqlite-3.50.1-hf5d6505_7.conda
   hash:
-    md5: c01fd2d0873bdc8d35bfa3c6eb2f54e5
-    sha256: 56b8ba674b8dec6d169ee39434e68c8654e4327fd5705594fcc19625660630ad
+    md5: 0bc3f5143b8cb9ccf9101c2f9391c594
+    sha256: 08fbdeed89ae10fb383c40f0bab3e39e3675f49700b7185a109b31e273f8762a
   category: main
   optional: false
 - name: libssh2
@@ -5653,7 +5653,7 @@ package:
   category: dev
   optional: true
 - name: pybtex
-  version: 0.25.0
+  version: 0.25.1
   manager: conda
   platform: linux-64
   dependencies:
@@ -5662,14 +5662,14 @@ package:
     python: '>=3.9'
     pyyaml: '>=3.01'
     setuptools: ''
-  url: https://repo.prefix.dev/conda-forge/noarch/pybtex-0.25.0-pyhd8ed1ab_1.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/pybtex-0.25.1-pyhd8ed1ab_0.conda
   hash:
-    md5: 78b5c915435130d04d1f1bf3d9d42543
-    sha256: 8a59892ecdc3e76e05f4a448c378bd1d6ba671f5fcab0ad9c628ab6a96f48d84
+    md5: 9c25a850410220d31085173fbfdfa191
+    sha256: 3053895e08ce56923e48eea7d1c07a6d8bf09948d1e69a21ae7ab9e459b0a227
   category: dev
   optional: true
 - name: pybtex
-  version: 0.25.0
+  version: 0.25.1
   manager: conda
   platform: win-64
   dependencies:
@@ -5678,10 +5678,10 @@ package:
     python: '>=3.9'
     pyyaml: '>=3.01'
     setuptools: ''
-  url: https://repo.prefix.dev/conda-forge/noarch/pybtex-0.25.0-pyhd8ed1ab_1.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/pybtex-0.25.1-pyhd8ed1ab_0.conda
   hash:
-    md5: 78b5c915435130d04d1f1bf3d9d42543
-    sha256: 8a59892ecdc3e76e05f4a448c378bd1d6ba671f5fcab0ad9c628ab6a96f48d84
+    md5: 9c25a850410220d31085173fbfdfa191
+    sha256: 3053895e08ce56923e48eea7d1c07a6d8bf09948d1e69a21ae7ab9e459b0a227
   category: dev
   optional: true
 - name: pybtex-docutils
@@ -8640,12 +8640,12 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@8db50336926b5acf84f3c6a9c7549cb2b5af8298
+  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@ea323dc1e48634a19cca2b2693f989fae08880f1
   hash:
-    sha256: 8db50336926b5acf84f3c6a9c7549cb2b5af8298
+    sha256: ea323dc1e48634a19cca2b2693f989fae08880f1
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@8db50336926b5acf84f3c6a9c7549cb2b5af8298
+    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@ea323dc1e48634a19cca2b2693f989fae08880f1
   category: main
   optional: false
 - name: geoapps-utils
@@ -8657,12 +8657,12 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@8db50336926b5acf84f3c6a9c7549cb2b5af8298
+  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@ea323dc1e48634a19cca2b2693f989fae08880f1
   hash:
-    sha256: 8db50336926b5acf84f3c6a9c7549cb2b5af8298
+    sha256: ea323dc1e48634a19cca2b2693f989fae08880f1
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@8db50336926b5acf84f3c6a9c7549cb2b5af8298
+    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@ea323dc1e48634a19cca2b2693f989fae08880f1
   category: main
   optional: false
 - name: geoh5py
