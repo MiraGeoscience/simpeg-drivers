@@ -270,7 +270,6 @@
         "label": "Gradient rotation",
         "optional": true,
         "enabled": false,
-        "visible": false,
         "parent": "mesh",
         "value": ""
     },

@@ -14,6 +14,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import numpy as np
+from geoapps_utils.modelling.plates import PlateModel
 from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.groups.property_group import PropertyGroup
 from geoh5py.workspace import Workspace
@@ -35,7 +36,7 @@ from tests.testing_utils import check_target, setup_inversion_workspace
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.006830937520353864, "phi_d": 0.0309, "phi_m": 0.028}
+target_run = {"data_norm": 0.40763989924638555, "phi_d": 1040, "phi_m": 104}
 
 
 def test_gravity_rotated_grad_fwr_run(
@@ -44,8 +45,17 @@ def test_gravity_rotated_grad_fwr_run(
     refinement=(2,),
 ):
     # Run the forward
+    plate_model = PlateModel(
+        strike_length=500.0,
+        dip_length=150.0,
+        width=20.0,
+        origin=(0.0, 0.0, -10.0),
+        direction=60.0,
+        dip=70.0,
+    )
     geoh5, _, model, survey, topography = setup_inversion_workspace(
         tmp_path,
+        plate_model=plate_model,
         background=0.0,
         anomaly=0.75,
         n_electrodes=n_grid_points,
@@ -84,21 +94,21 @@ def test_rotated_grad_run(
         gz = geoh5.get_entity("Iteration_0_gz")[0]
         orig_gz = gz.values.copy()
         mesh = geoh5.get_entity("mesh")[0]
+        topography = geoh5.get_entity("topography")[0]
 
         # Create property group with orientation
-        i = np.ones(mesh.n_cells)
-        j = np.zeros(mesh.n_cells)
-        k = np.ones(mesh.n_cells)
+        dip = np.ones(mesh.n_cells) * 70
+        azimuth = np.ones(mesh.n_cells) * 60
 
         data_list = mesh.add_data(
             {
-                "i": {"values": i},
-                "j": {"values": j},
-                "k": {"values": k},
+                "azimuth": {"values": azimuth},
+                "dip": {"values": dip},
             }
         )
-        pg = PropertyGroup(mesh, properties=data_list, property_group_type="3D vector")
-        topography = geoh5.get_entity("topography")[0]
+        pg = PropertyGroup(
+            mesh, properties=data_list, property_group_type="Dip direction & dip"
+        )
 
         # Run the inverse
         params = GravityInversionOptions.build(

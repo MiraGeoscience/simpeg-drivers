@@ -53,7 +53,7 @@ def test_dc_p3d_fwr_run(
     geoh5, _, model, survey, topography = setup_inversion_workspace(
         tmp_path,
         background=0.01,
-        anomaly=10,
+        anomaly=10.0,
         n_electrodes=n_electrodes,
         n_lines=n_lines,
         refinement=refinement,
