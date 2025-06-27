@@ -142,6 +142,9 @@ class PlateSimulationOptions(BaseData):
         """
         simulation_options = deepcopy(self.simulation.options)
         simulation_options["geoh5"] = self.geoh5
+        simulation_options["forward_only"] = (
+            True  # TODO remove this when mechanics use ForwardOptions
+        )
 
         input_file = InputFile(ui_json=simulation_options, validate=False)
         if input_file.ui_json is None:
