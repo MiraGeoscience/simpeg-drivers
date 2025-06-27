@@ -196,7 +196,6 @@ def test_joint_cross_gradient_inv_run(
                 )
                 drivers.append(GravityInversionDriver(params))
             elif group.options["inversion_type"] == "direct current 3d":
-                data.values = data.values + np.random.randn(data.values.size) * 5e-4
                 params = DC3DInversionOptions.build(
                     geoh5=geoh5,
                     mesh=mesh,
@@ -214,7 +213,6 @@ def test_joint_cross_gradient_inv_run(
                 )
                 drivers.append(DC3DInversionDriver(params))
             else:
-                data.values = data.values + np.random.randn(data.values.size) * 10.0
                 params = MVIInversionOptions.build(
                     geoh5=geoh5,
                     mesh=mesh,
