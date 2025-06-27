@@ -131,6 +131,7 @@ def test_dc2d_rotated_grad_run(
         # Run the inverse
         params = DC2DInversionOptions.build(
             geoh5=geoh5,
+            mesh=mesh,
             drape_model=DrapeModelOptions(
                 u_cell_size=5.0,
                 v_cell_size=5.0,
