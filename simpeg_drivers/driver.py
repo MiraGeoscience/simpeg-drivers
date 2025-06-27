@@ -30,12 +30,13 @@ from dask.distributed import get_client, Client, LocalCluster, performance_repor
 
 from geoapps_utils.base import Driver
 from geoapps_utils.utils.importing import GeoAppsError
+from geoapps_utils.param_sweeps.driver import SweepParams
 
 from geoh5py.groups import SimPEGGroup
 from geoh5py.objects import FEMSurvey
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
-from param_sweeps.driver import SweepParams
+
 from simpeg import (
     dask,
     directives,
@@ -687,7 +688,6 @@ class InversionDriver(Driver):
 class InversionLogger:
     def __init__(self, logfile, driver):
         self.driver = driver
-        self.forward = driver.params.forward_only
         self.terminal = sys.stdout
         self.log = open(self.get_path(logfile), "w", encoding="utf8")
         self.initial_time = time()
