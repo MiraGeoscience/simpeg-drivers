@@ -20,15 +20,21 @@ from simpeg_drivers.plate_simulation.models.options import (
 )
 from simpeg_drivers.plate_simulation.options import MeshOptions, PlateSimulationOptions
 from simpeg_drivers.potential_fields.gravity.options import GravityForwardOptions
-
-from . import get_survey, get_topography
+from tests.testing_utils import setup_inversion_workspace
 
 
 def test_gravity_plate_simulation(tmp_path):
-    with Workspace(tmp_path / "test.geoh5") as ws:
-        topography = get_topography(ws)
-        survey = get_survey(ws, 10, 10)
+    geoh5, mesh, model, survey, topography = setup_inversion_workspace(
+        tmp_path,
+        background=0.0,
+        anomaly=0.0,
+        n_electrodes=8,
+        n_lines=8,
+        inversion_type="gravity",
+        flatten=False,
+    )
 
+    with geoh5.open() as ws:
         mesh_params = MeshOptions(
             u_cell_size=10.0,
             v_cell_size=10.0,
