@@ -493,6 +493,7 @@
         "group": "Python run preferences",
         "main": true,
         "value": false,
+        "visible": false,
         "tooltip": "Generates a file for sweeping parameters instead of running the application"
     },
     "n_workers": "",
