@@ -20,6 +20,7 @@ import numpy as np
 from geoapps_utils.utils.locations import get_locations
 from geoapps_utils.utils.numerical import weighted_average
 from geoh5py.data import Data
+from geoh5py.groups import PropertyGroup
 from geoh5py.objects import DrapeModel
 from geoh5py.ui_json.ui_json import fetch_active_workspace
 from geoh5py.workspace import Workspace
@@ -105,6 +106,14 @@ class BaseBatch2DDriver(LineSweepDriver):
             for model in ["reference_model", "lower_bound", "upper_bound"]:
                 models[model] = getattr(self.batch2d_params.models, model)
 
+            if self.batch2d_params.models.gradient_rotation is not None:
+                group_properties = {}
+                for prop in self.batch2d_params.models.gradient_rotation.properties:
+                    model = self.batch2d_params.mesh.get_data(prop)[0]
+                    group_properties[model.name] = model
+
+                models.update(group_properties)
+
         if self.batch2d_params.mesh is not None:
             xyz_in = get_locations(self.workspace, self.batch2d_params.mesh)
             xyz_out = mesh.centroids
@@ -121,6 +130,19 @@ class BaseBatch2DDriver(LineSweepDriver):
 
                 model_object = mesh.add_data({name: {"values": model_values}})
                 models[name] = model_object
+
+            if (
+                not self.batch2d_params.forward_only
+                and self.batch2d_params.models.gradient_rotation is not None
+            ):
+                pg = PropertyGroup(
+                    mesh,
+                    properties=[models[prop] for prop in group_properties],
+                    property_group_type=self.batch2d_params.models.gradient_rotation.property_group_type,
+                )
+                models["gradient_rotation"] = pg
+                del models["azimuth"]
+                del models["dip"]
 
         return models
 

@@ -44,7 +44,7 @@ def test_tipper_fwr_run(
     # Run the forward
     geoh5, _, model, survey, topography = setup_inversion_workspace(
         tmp_path,
-        background=100,
+        background=100.0,
         anomaly=1.0,
         n_electrodes=n_grid_points,
         n_lines=n_grid_points,
