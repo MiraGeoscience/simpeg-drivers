@@ -10,6 +10,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import logging
 from pathlib import Path
 
@@ -80,6 +81,7 @@ def test_magnetic_vector_run(
     tmp_path: Path,
     caplog,
     max_iterations=3,
+    upper_bound=2e-3,
     pytest=True,
 ):
     workpath = tmp_path / "inversion_test.ui.geoh5"
@@ -96,7 +98,7 @@ def test_magnetic_vector_run(
         mesh = geoh5.get_entity("mesh")[0]
         topography = geoh5.get_entity("topography")[0]
         inducing_field = (50000.0, 90.0, 0.0)
-        upper_bound = 2e-3
+
         dip, direction = mesh.add_data(
             {
                 "dip": {"values": np.zeros(mesh.n_cells)},
@@ -111,7 +113,7 @@ def test_magnetic_vector_run(
         )
 
         # Run the inverse
-        with caplog.at_level(logging.WARNING):
+        with caplog.at_level(logging.WARNING) if caplog else contextlib.nullcontext():
             params = MVIInversionOptions.build(
                 geoh5=geoh5,
                 mesh=mesh,
@@ -135,8 +137,8 @@ def test_magnetic_vector_run(
                 initial_beta_ratio=1e1,
             )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
-
-        assert "Skipping deprecated field: lower_bound" in caplog.text
+        if caplog:
+            assert "Skipping deprecated field: lower_bound" in caplog.text
 
     driver = MVIInversionDriver(params)
     assert np.all(driver.models.lower_bound == -upper_bound)
@@ -172,4 +174,6 @@ def test_magnetic_vector_run(
 if __name__ == "__main__":
     # Full run
     test_magnetic_vector_fwr_run(Path("./"), n_grid_points=20, refinement=(4, 8))
-    test_magnetic_vector_run(Path("./"), "", max_iterations=30, pytest=False)
+    test_magnetic_vector_run(
+        Path("./"), None, max_iterations=30, upper_bound=1e-1, pytest=False
+    )
