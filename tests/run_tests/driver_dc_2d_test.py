@@ -37,11 +37,7 @@ from tests.testing_utils import check_target, setup_inversion_workspace
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {
-    "data_norm": 0.59563,
-    "phi_d": 2820,
-    "phi_m": 16.8,
-}
+target_run = {"data_norm": 0.5963140277544549, "phi_d": 2640, "phi_m": 20.4}
 
 
 def test_dc_2d_fwr_run(
@@ -124,6 +120,7 @@ def test_dc_2d_run(tmp_path: Path, max_iterations=1, pytest=True):
             initial_beta_ratio=1e0,
             percentile=100,
             lower_bound=0.1,
+            sens_wts_threshold=1.0,
             cooling_rate=1,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
