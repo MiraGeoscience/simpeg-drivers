@@ -107,7 +107,6 @@ def test_ip_2d_run(
             initial_beta_ratio=1e0,
             percentile=100,
             upper_bound=0.1,
-            store_sensitivities="ram",
             cooling_rate=1,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")

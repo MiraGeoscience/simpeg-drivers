@@ -156,7 +156,6 @@ def test_gravity_run(
             starting_model=1e-4,
             topography_object=topography,
             reference_model=0.0,
-            store_sensitivities="ram",
             save_sensitivities=True,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")

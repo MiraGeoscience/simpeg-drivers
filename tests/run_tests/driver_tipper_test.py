@@ -153,7 +153,6 @@ def test_tipper_run(tmp_path: Path, max_iterations=1, pytest=True):
             percentile=100,
             chi_factor=1.0,
             max_line_search_iterations=5,
-            store_sensitivities="ram",
             **data_kwargs,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")

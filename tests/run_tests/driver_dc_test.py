@@ -111,7 +111,6 @@ def test_dc_3d_run(
             percentile=100,
             upper_bound=10,
             tile_spatial=n_lines,
-            store_sensitivities="ram",
             auto_scale_misfits=False,
             save_sensitivities=True,
             cooling_rate=1,

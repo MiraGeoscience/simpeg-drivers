@@ -155,7 +155,6 @@ def test_joint_surveys_inv_run(
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e-2,
             percentile=100,
-            store_sensitivities="ram",
         )
 
     driver = JointSurveyDriver(joint_params)

@@ -143,8 +143,6 @@ def test_fem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
             percentile=100,
             cooling_rate=3,
             chi_factor=0.25,
-            store_sensitivities="ram",
-            sens_wts_threshold=1.0,
             **data_kwargs,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")

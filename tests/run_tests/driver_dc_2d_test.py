@@ -120,7 +120,6 @@ def test_dc_2d_run(tmp_path: Path, max_iterations=1, pytest=True):
             initial_beta_ratio=1e0,
             percentile=100,
             lower_bound=0.1,
-            sens_wts_threshold=1.0,
             cooling_rate=1,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")

@@ -129,7 +129,6 @@ def test_rotated_grad_run(
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e-1,
             percentile=95,
-            store_sensitivities="ram",
             save_sensitivities=True,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")

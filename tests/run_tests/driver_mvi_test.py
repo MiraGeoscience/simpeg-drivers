@@ -129,7 +129,6 @@ def test_magnetic_vector_run(
             max_global_iterations=max_iterations,
             gradient_rotation=gradient_rotation,
             initial_beta_ratio=1e1,
-            store_sensitivities="ram",
             save_sensitivities=True,
             percentile=100,
         )

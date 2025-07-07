@@ -20,6 +20,7 @@ from simpeg_drivers import assets_path
 from simpeg_drivers.options import (
     BaseForwardOptions,
     BaseInversionOptions,
+    DirectiveOptions,
     ModelOptions,
 )
 
@@ -137,3 +138,5 @@ class MagneticInversionOptions(BaseInversionOptions):
     inducing_field_declination: float | FloatData
 
     models: MagneticModelOptions
+
+    directives: DirectiveOptions = DirectiveOptions(sens_wts_threshold=1e-3)
