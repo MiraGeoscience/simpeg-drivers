@@ -12,13 +12,16 @@ chapters:
   - file: inversion/mesh_design
   - file: inversion/joint_inversion
   - file: inversion/depth_of_investigation
-- file: case_study/introduction
+- file: tutorials/introduction
   sections:
-  - file: case_study/background
-  - file: case_study/magnetic
-  - file: case_study/gravity
-  - file: case_study/dc_resistivity
-  - file: case_study/tipper
-  - file: case_study/airborne_tem
-  - file: case_study/joint_inversion
+  - file: tutorials/background
+  - file: tutorials/magnetic
+  - file: tutorials/gravity
+  - file: tutorials/dc_resistivity
+  - file: tutorials/tipper
+  - file: tutorials/airborne_tem
+  - file: tutorials/joint_inversion
+- file: case_studies/index
+  sections:
+  - file: case_studies/Forrestania/forrestania
 - file: THIRD_PARTY_SOFTWARE
