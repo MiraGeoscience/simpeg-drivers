@@ -12,6 +12,7 @@ dependencies:
   - ipykernel
   - jupyter-book
   - jupytext
+  - notebook
   - pip:
     - sphinx
     - sphinx_issues
