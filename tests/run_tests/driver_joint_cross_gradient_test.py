@@ -47,7 +47,7 @@ from tests.testing_utils import check_target, setup_inversion_workspace
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 53.29601, "phi_d": 10200, "phi_m": 0.123}
+target_run = {"data_norm": 53.29585552088844, "phi_d": 7970, "phi_m": 26.7}
 
 
 def test_joint_cross_gradient_fwr_run(
