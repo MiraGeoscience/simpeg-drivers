@@ -12,6 +12,7 @@ chapters:
   - file: inversion/mesh_design
   - file: inversion/joint_inversion
   - file: inversion/depth_of_investigation
+  - file: inversion/optimization
 - file: tutorials/introduction
   sections:
   - file: tutorials/background
