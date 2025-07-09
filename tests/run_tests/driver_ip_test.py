@@ -30,7 +30,7 @@ from tests.testing_utils import check_target, setup_inversion_workspace
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.0082997, "phi_d": 178, "phi_m": 0.684}
+target_run = {"data_norm": 0.008301530028556213, "phi_d": 107, "phi_m": 0.863}
 
 
 def test_ip_3d_fwr_run(
@@ -101,7 +101,6 @@ def test_ip_3d_run(
             percentile=100,
             upper_bound=0.1,
             tile_spatial=n_lines,
-            store_sensitivities="ram",
             cooling_rate=1,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")

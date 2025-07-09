@@ -98,7 +98,6 @@ def test_magnetic_vector_run(
         mesh = geoh5.get_entity("mesh")[0]
         topography = geoh5.get_entity("topography")[0]
         inducing_field = (50000.0, 90.0, 0.0)
-
         dip, direction = mesh.add_data(
             {
                 "dip": {"values": np.zeros(mesh.n_cells)},
@@ -111,7 +110,6 @@ def test_magnetic_vector_run(
             properties=[dip, direction],
             parent=mesh,
         )
-
         # Run the inverse
         with caplog.at_level(logging.WARNING) if caplog else contextlib.nullcontext():
             params = MVIInversionOptions.build(
