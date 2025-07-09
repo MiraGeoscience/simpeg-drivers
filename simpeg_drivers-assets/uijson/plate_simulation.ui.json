@@ -9,11 +9,11 @@
     "monitoring_directory": "",
     "simulation": {
         "main": true,
-        "label": "TEM SimPEG Group",
+        "label": "SimPEG Group",
         "groupType": "{55ed3daf-c192-4d4b-a439-60fa987fe2b8}",
         "value": "",
         "enabled": true,
-        "tooltip": "Forward modelling SimPEG group with at least the topogarphy and survey set"
+        "tooltip": "Forward modelling SimPEG Group with at least the topography and survey set"
     },
     "name": {
         "main": true,
