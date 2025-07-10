@@ -54,6 +54,25 @@ class DirectivesFactory:
         self._save_iteration_apparent_resistivity_directive = None
         self._scale_misfits = None
 
+    @staticmethod
+    def configure_save_directives(directives_list):
+        """
+        Find all SaveGeoH5 directives in the list and set their open_geoh5 and
+        close_geoh5 flags such that the first and last directive handles the
+        opening and closing of the target geoh5.
+
+        :param directives_list: List of directives to configure.
+        """
+        save_dirs = []
+        for directive in directives_list:
+            if isinstance(directive, directives.BaseSaveGeoH5):
+                directive.close_geoh5 = False
+                directive.open_geoh5 = False
+                save_dirs.append(directive)
+
+        save_dirs[0].open_geoh5 = True
+        save_dirs[-1].close_geoh5 = True
+
     @property
     def beta_estimate_by_eigenvalues_directive(self):
         """"""
@@ -78,6 +97,8 @@ class DirectivesFactory:
                 self._directive_list = self.inversion_directives + self.save_directives
             else:
                 self._directive_list = self.save_directives
+
+            self.configure_save_directives(self._directive_list)
 
         return self._directive_list
 
