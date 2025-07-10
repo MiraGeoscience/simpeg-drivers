@@ -413,7 +413,7 @@ class DirectiveOptions(BaseModel):
     auto_scale_misfits: bool = False
     every_iteration_bool: bool = True
     save_sensitivities: bool = False
-    sens_wts_threshold: float | None = 1e-3
+    sens_wts_threshold: float | None = 1e-0
 
 
 class DrapeModelOptions(BaseModel):

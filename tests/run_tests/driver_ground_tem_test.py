@@ -227,8 +227,6 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
             cooling_rate=2,
             max_cg_iterations=200,
             percentile=100,
-            sens_wts_threshold=1.0,
-            store_sensitivities="ram",
             solver_type="Mumps",
             **data_kwargs,
         )

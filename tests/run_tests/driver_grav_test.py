@@ -34,7 +34,7 @@ from tests.testing_utils import check_target, setup_inversion_workspace
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
-target_run = {"data_norm": 0.0028055269276044915, "phi_d": 8.32e-05, "phi_m": 0.0038}
+target_run = {"data_norm": 0.0028055270497087128, "phi_d": 8.24e-06, "phi_m": 0.0234}
 
 
 def test_gravity_fwr_run(
@@ -156,7 +156,6 @@ def test_gravity_run(
             starting_model=1e-4,
             topography_object=topography,
             reference_model=0.0,
-            store_sensitivities="ram",
             save_sensitivities=True,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")

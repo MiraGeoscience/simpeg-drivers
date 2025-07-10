@@ -32,7 +32,7 @@ from tests.testing_utils import check_target, setup_inversion_workspace
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.006549595043425509, "phi_d": 223, "phi_m": 255}
+target_run = {"data_norm": 0.006549595419474837, "phi_d": 221, "phi_m": 270}
 
 
 def test_tipper_fwr_run(
@@ -153,7 +153,6 @@ def test_tipper_run(tmp_path: Path, max_iterations=1, pytest=True):
             percentile=100,
             chi_factor=1.0,
             max_line_search_iterations=5,
-            store_sensitivities="ram",
             **data_kwargs,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
