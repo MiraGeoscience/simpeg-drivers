@@ -2546,7 +2546,7 @@ files = [
 
 [[package]]
 name = "mira-simpeg"
-version = "0.23.0.1a5.dev35+gbf4568452"
+version = "0.23.0.1a5.dev37+g86e22e6fa"
 description = "Mira Geoscience fork of SimPEG: Simulation and Parameter Estimation in Geophysics"
 optional = false
 python-versions = ">=3.10"
@@ -2584,7 +2584,7 @@ tests = ["pytest", "pytest-cov", "simpeg[all,docs]"]
 type = "git"
 url = "https://github.com/MiraGeoscience/simpeg.git"
 reference = "develop"
-resolved_reference = "bf4568452ca51fe0ec810b13b2acb4da6c26412f"
+resolved_reference = "86e22e6fa457859d494d94552e6431728e513d7a"
 
 [[package]]
 name = "mistune"
