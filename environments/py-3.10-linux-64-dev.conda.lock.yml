@@ -29,10 +29,10 @@ dependencies:
   - brotli-python=1.1.0=py310hf71b8c6_3
   - bzip2=1.0.8=h4bc722e_7
   - c-ares=1.34.5=hb9d3cd8_0
-  - ca-certificates=2025.6.15=hbd8a1cb_0
+  - ca-certificates=2025.7.9=hbd8a1cb_0
   - cached-property=1.5.2=hd8ed1ab_1
   - cached_property=1.5.2=pyha770c72_1
-  - certifi=2025.6.15=pyhd8ed1ab_0
+  - certifi=2025.7.9=pyhd8ed1ab_0
   - cffi=1.17.1=py310h8deb56e_0
   - charset-normalizer=3.4.2=pyhd8ed1ab_0
   - click=8.2.1=pyh707e725_0
@@ -64,7 +64,7 @@ dependencies:
   - h11=0.16.0=pyhd8ed1ab_0
   - h2=4.2.0=pyhd8ed1ab_0
   - h5py=3.14.0=nompi_py310hea1e86d_100
-  - hdf5=1.14.6=nompi_h2d575fe_101
+  - hdf5=1.14.6=nompi_h6e4c0c1_102
   - hpack=4.1.0=pyhd8ed1ab_0
   - httpcore=1.0.9=pyh29332c3_0
   - httpx=0.28.1=pyhd8ed1ab_0
@@ -108,7 +108,7 @@ dependencies:
   - krb5=1.21.3=h659f571_0
   - latexcodec=2.0.1=pyh9f0ad1d_0
   - lcms2=2.17=h717163a_0
-  - ld_impl_linux-64=2.44=h1423503_0
+  - ld_impl_linux-64=2.44=h1423503_1
   - lerc=4.0.0=h0aef613_1
   - libaec=1.1.4=h3f801dc_0
   - libblas=3.9.0=32_hfdb39a5_mkl
@@ -140,13 +140,13 @@ dependencies:
   - libscotch=7.0.6=hea33c07_1
   - libsodium=1.0.20=h4ab18f5_0
   - libspatialindex=2.0.0=he02047a_0
-  - libsqlite=3.50.2=h6cd9bfd_0
+  - libsqlite=3.50.2=hee844dc_2
   - libssh2=1.11.1=hcf80075_0
   - libstdcxx=15.1.0=h8f9b012_3
   - libstdcxx-ng=15.1.0=h4852527_3
   - libtiff=4.7.0=hf01ce69_5
   - libuuid=2.38.1=h0b41bf4_0
-  - libwebp-base=1.5.0=h851e524_0
+  - libwebp-base=1.6.0=hd42ef1d_0
   - libxcb=1.17.0=h8a09558_0
   - libxcrypt=4.4.36=hd590300_1
   - libxml2=2.13.8=h4bc477f_0
@@ -185,7 +185,7 @@ dependencies:
   - openssl=3.5.1=h7b32b05_0
   - overrides=7.7.0=pyhd8ed1ab_1
   - packaging=25.0=pyh29332c3_1
-  - pandas=2.3.0=py310h5eaa309_0
+  - pandas=2.3.1=py310h0158d43_0
   - pandoc=3.7.0.2=ha770c72_0
   - pandocfilters=1.5.0=pyhd8ed1ab_0
   - parso=0.8.4=pyhd8ed1ab_1
@@ -278,7 +278,7 @@ dependencies:
   - tqdm=4.67.1=pyhd8ed1ab_1
   - traitlets=5.14.3=pyhd8ed1ab_1
   - trimesh=4.1.8=pyhd8ed1ab_0
-  - types-python-dateutil=2.9.0.20250516=pyhd8ed1ab_0
+  - types-python-dateutil=2.9.0.20250708=pyhd8ed1ab_0
   - typing-extensions=4.14.1=h4440ef1_0
   - typing-inspection=0.4.1=pyhd8ed1ab_0
   - typing_extensions=4.14.1=pyhe01879c_0
@@ -305,11 +305,11 @@ dependencies:
   - zstandard=0.23.0=py310ha75aee5_2
   - zstd=1.5.7=hb8e6e7a_2
   - pip:
-      - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@ea323dc1e48634a19cca2b2693f989fae08880f1
-      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@87f68c3a25cb3fac2a4c9de8c0d74ec4e58d0963
-      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@bf4568452ca51fe0ec810b13b2acb4da6c26412f
-      - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app.git@02fbd85bf7d54b8f4336f1f0094c1c3e27714e81
-      - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps.git@9ed6091534d638171957a17324e1a1e8f067b434
+    - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@c64e2db54bfdacc19ef675a7d54288aaad8b78a8
+    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@87f68c3a25cb3fac2a4c9de8c0d74ec4e58d0963
+    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@86e22e6fa457859d494d94552e6431728e513d7a
+    - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app.git@02fbd85bf7d54b8f4336f1f0094c1c3e27714e81
+    - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps.git@9ed6091534d638171957a17324e1a1e8f067b434
 
 variables:
   KMP_WARNINGS: 0
