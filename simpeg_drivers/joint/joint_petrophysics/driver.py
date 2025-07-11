@@ -87,6 +87,11 @@ class JointPetrophysicsDriver(BaseJointDriver):
                 self._directives.directive_list = (
                     self._directives.inversion_directives + directives_list
                 )
+
+                DirectivesFactory.configure_save_directives(
+                    self._directives.directive_list
+                )
+
         return self._directives
 
     def get_regularization(self):
