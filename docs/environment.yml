@@ -9,6 +9,10 @@ dependencies:
   - scipy
   - numpy
   - h5py
+  - geoh5py
+  - pydantic
+  - simpeg
+  - discretize
   - pip
   - ipykernel
   - jupyter-book
@@ -16,11 +20,14 @@ dependencies:
   - notebook
   - pip:
     - sphinx
+    - pandas
     - sphinx_issues
     - sphinx_rtd_theme
     - sphinxcontrib-bibtex
     - sphinxcontrib-googleanalytics
     - nbsphinx
+    - pillow
+    - geoh5py
     - nbstripout
     - numpydoc
     - jupyter_client
