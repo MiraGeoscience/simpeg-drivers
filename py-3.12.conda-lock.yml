@@ -276,29 +276,29 @@ package:
   category: main
   optional: false
 - name: astroid
-  version: 3.3.10
+  version: 3.3.11
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.12,<3.13.0a0'
     python_abi: 3.12.*
-  url: https://repo.prefix.dev/conda-forge/linux-64/astroid-3.3.10-py312h7900ff3_0.conda
+  url: https://repo.prefix.dev/conda-forge/linux-64/astroid-3.3.11-py312h7900ff3_0.conda
   hash:
-    md5: 60b9f877a7d36f146c30eb6683e4611b
-    sha256: e6f627d1e72fae042e072081b9419db3efeddca29f0bdc5bb2b12ed7d298ff2f
+    md5: 2c4719e9d1416a9070de683d0e44a12f
+    sha256: 543e3ad753b987efd3ad5e17c3f55aaf6b2fed5699bf4696f38a172845634e0e
   category: dev
   optional: true
 - name: astroid
-  version: 3.3.10
+  version: 3.3.11
   manager: conda
   platform: win-64
   dependencies:
     python: '>=3.12,<3.13.0a0'
     python_abi: 3.12.*
-  url: https://repo.prefix.dev/conda-forge/win-64/astroid-3.3.10-py312h2e8e312_0.conda
+  url: https://repo.prefix.dev/conda-forge/win-64/astroid-3.3.11-py312h2e8e312_0.conda
   hash:
-    md5: 2a463d7ac649b150470f4f2034e4f048
-    sha256: 8d060ee8643a76d6774b4a5a53c40d7dc8ae43afd42a34e0424459c75ba12da4
+    md5: 9958694a21711e5159ebd5323115a2a3
+    sha256: a66bf91868f27ea145f42536b090689ebb658cfa46d5c0ba0ba836978a08aef2
   category: dev
   optional: true
 - name: asttokens
@@ -660,27 +660,27 @@ package:
   category: main
   optional: false
 - name: ca-certificates
-  version: 2025.7.9
+  version: 2025.7.14
   manager: conda
   platform: linux-64
   dependencies:
     __unix: ''
-  url: https://repo.prefix.dev/conda-forge/noarch/ca-certificates-2025.7.9-hbd8a1cb_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/ca-certificates-2025.7.14-hbd8a1cb_0.conda
   hash:
-    md5: 54521bf3b59c86e2f55b7294b40a04dc
-    sha256: d2d7327b09d990d0f51e7aec859a5879743675e377fcf9b4ec4db2dbeb75e15d
+    md5: d16c90324aef024877d8713c0b7fea5b
+    sha256: 29defbd83c7829788358678ec996adeee252fa4d4274b7cd386c1ed73d2b201e
   category: main
   optional: false
 - name: ca-certificates
-  version: 2025.7.9
+  version: 2025.7.14
   manager: conda
   platform: win-64
   dependencies:
     __win: ''
-  url: https://repo.prefix.dev/conda-forge/noarch/ca-certificates-2025.7.9-h4c7d964_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/ca-certificates-2025.7.14-h4c7d964_0.conda
   hash:
-    md5: c7a9b2d28779665c251e6a4db1f8cd23
-    sha256: 35c83fc1cab4b9aedba317ba617e37fee20e5ed1cf7135d8eba6f4d8cdf9c4b3
+    md5: 40334594f5916bc4c0a0313d64bfe046
+    sha256: a7fe9bce8a0f9f985d44940ec13a297df571ee70fb2264b339c62fa190b2c437
   category: main
   optional: false
 - name: cached-property
@@ -732,27 +732,27 @@ package:
   category: main
   optional: false
 - name: certifi
-  version: 2025.7.9
+  version: 2025.7.14
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.9'
-  url: https://repo.prefix.dev/conda-forge/noarch/certifi-2025.7.9-pyhd8ed1ab_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/certifi-2025.7.14-pyhd8ed1ab_0.conda
   hash:
-    md5: fac657ab965a05f69ba777a7b934255a
-    sha256: d5bcebb3748005b50479055b69bd6a19753219effcf921b9158ef3ff588c752b
+    md5: 4c07624f3faefd0bb6659fb7396cfa76
+    sha256: f68ee5038f37620a4fb4cdd8329c9897dce80331db8c94c3ab264a26a8c70a08
   category: main
   optional: false
 - name: certifi
-  version: 2025.7.9
+  version: 2025.7.14
   manager: conda
   platform: win-64
   dependencies:
     python: '>=3.9'
-  url: https://repo.prefix.dev/conda-forge/noarch/certifi-2025.7.9-pyhd8ed1ab_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/certifi-2025.7.14-pyhd8ed1ab_0.conda
   hash:
-    md5: fac657ab965a05f69ba777a7b934255a
-    sha256: d5bcebb3748005b50479055b69bd6a19753219effcf921b9158ef3ff588c752b
+    md5: 4c07624f3faefd0bb6659fb7396cfa76
+    sha256: f68ee5038f37620a4fb4cdd8329c9897dce80331db8c94c3ab264a26a8c70a08
   category: main
   optional: false
 - name: cffi
