@@ -25,4 +25,5 @@ chapters:
 - file: case_studies/index
   sections:
   - file: case_studies/Forrestania/forrestania
+  - file: case_studies/Forrestania/forrestania_noGA
 - file: THIRD_PARTY_SOFTWARE
