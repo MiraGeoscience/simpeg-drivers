@@ -13,6 +13,9 @@
 
 from __future__ import annotations
 
+import cProfile
+import pstats
+
 import multiprocessing
 import contextlib
 from copy import deepcopy
@@ -745,6 +748,8 @@ if __name__ == "__main__":
         if ((n_workers is not None and n_workers > 1) or n_threads is not None)
         else None
     )
+    profiler = cProfile.Profile()
+    profiler.enable()
 
     with (
         cluster.get_client()
@@ -762,3 +767,11 @@ if __name__ == "__main__":
         ):
             InversionDriver.start(input_file)
             sys.stdout.close()
+
+    profiler.disable()
+
+    if save_report:
+        with open(file.parent / "runtime_profile.txt", encoding="utf-8", mode="w") as s:
+            ps = pstats.Stats(profiler, stream=s)
+            ps.sort_stats("cumulative")
+            ps.print_stats()
