@@ -1414,25 +1414,25 @@ package:
   category: main
   optional: false
 - name: fonttools
-  version: 4.58.5
+  version: 4.59.0
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     brotli: ''
-    libgcc: '>=13'
+    libgcc: '>=14'
     munkres: ''
     python: '>=3.10,<3.11.0a0'
     python_abi: 3.10.*
     unicodedata2: '>=15.1.0'
-  url: https://repo.prefix.dev/conda-forge/linux-64/fonttools-4.58.5-py310h89163eb_0.conda
+  url: https://repo.prefix.dev/conda-forge/linux-64/fonttools-4.59.0-py310h3406613_0.conda
   hash:
-    md5: f84b125a5ba0e319936be9aba48276ff
-    sha256: 379c2987b99f45530ca891ad90d5d9175665104c5658a2551776a093c1ae3500
+    md5: dc2e5602e20bbffb18314a70094b3c4a
+    sha256: 7ac6105dbbdb2e648b685b813f38a0df39b1d4264cbd13953c83ff7cf451269d
   category: main
   optional: false
 - name: fonttools
-  version: 4.58.5
+  version: 4.59.0
   manager: conda
   platform: win-64
   dependencies:
@@ -1444,10 +1444,10 @@ package:
     unicodedata2: '>=15.1.0'
     vc: '>=14.3,<15'
     vc14_runtime: '>=14.44.35208'
-  url: https://repo.prefix.dev/conda-forge/win-64/fonttools-4.58.5-py310hdb0e946_0.conda
+  url: https://repo.prefix.dev/conda-forge/win-64/fonttools-4.59.0-py310hdb0e946_0.conda
   hash:
-    md5: 4838fda5927aa6d029d5951efd350c8e
-    sha256: 09e4e313b5f36de710edadeef96aec5a684f8834c4da3b4c7a1c9f91a47938c3
+    md5: eae900c4fcb37e4a3f9fe9417c669f11
+    sha256: 8dc419489a74d368312a685d217896a04936373b409cf0da99807f59857cba48
   category: main
   optional: false
 - name: fqdn
@@ -3403,30 +3403,30 @@ package:
   category: main
   optional: false
 - name: libexpat
-  version: 2.7.0
+  version: 2.7.1
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
-    libgcc: '>=13'
-  url: https://repo.prefix.dev/conda-forge/linux-64/libexpat-2.7.0-h5888daf_0.conda
+    libgcc: '>=14'
+  url: https://repo.prefix.dev/conda-forge/linux-64/libexpat-2.7.1-hecca717_0.conda
   hash:
-    md5: db0bfbe7dd197b68ad5f30333bae6ce0
-    sha256: 33ab03438aee65d6aa667cf7d90c91e5e7d734c19a67aa4c7040742c0a13d505
+    md5: 4211416ecba1866fab0c6470986c22d6
+    sha256: da2080da8f0288b95dd86765c801c6e166c4619b910b11f9a8446fb852438dc2
   category: main
   optional: false
 - name: libexpat
-  version: 2.7.0
+  version: 2.7.1
   manager: conda
   platform: win-64
   dependencies:
     ucrt: '>=10.0.20348.0'
-    vc: '>=14.2,<15'
-    vc14_runtime: '>=14.29.30139'
-  url: https://repo.prefix.dev/conda-forge/win-64/libexpat-2.7.0-he0c23c2_0.conda
+    vc: '>=14.3,<15'
+    vc14_runtime: '>=14.44.35208'
+  url: https://repo.prefix.dev/conda-forge/win-64/libexpat-2.7.1-hac47afa_0.conda
   hash:
-    md5: b6f5352fdb525662f4169a0431d2dd7a
-    sha256: 1a227c094a4e06bd54e8c2f3ec40c17ff99dcf3037d812294f842210aa66dbeb
+    md5: 3608ffde260281fa641e70d6e34b1b96
+    sha256: 8432ca842bdf8073ccecf016ccc9140c41c7114dc4ec77ca754551c01f780845
   category: main
   optional: false
 - name: libffi
