@@ -31,7 +31,9 @@ from geoh5py.shared import INTEGER_NDV
 from geoh5py.ui_json import InputFile
 from octree_creation_app.utils import octree_2_treemesh
 from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator, interp1d
+from scipy.optimize import linear_sum_assignment
 from scipy.spatial import ConvexHull, Delaunay, cKDTree
+from scipy.spatial.distance import cdist
 from simpeg.electromagnetics.frequency_domain.sources import (
     LineCurrent as FEMLineCurrent,
 )
@@ -553,10 +555,15 @@ def tile_locations(
             warnings.simplefilter("ignore", category=UserWarning)
             from sklearn.cluster import KMeans
 
-            cluster = KMeans(n_clusters=n_tiles, random_state=0, n_init="auto")
-            cluster.fit_predict(locations[:, :2])
+            kmeans = KMeans(n_clusters=n_tiles, random_state=0, n_init="auto")
+            cluster_size = int(np.ceil(locations.shape[0] / n_tiles))
+            kmeans.fit(locations[:, :2])
+            centers = kmeans.cluster_centers_
+            centers = centers.reshape(-1, 1, 2).repeat(cluster_size, 1).reshape(-1, 2)
+            distance_matrix = cdist(locations[:, :2], centers)
+            labels = linear_sum_assignment(distance_matrix)[1] // cluster_size
 
-        labels = cluster.labels_
+        # labels = cluster.labels_
 
         # nData in each tile
         binCount = np.zeros(int(n_tiles))
@@ -568,7 +575,7 @@ def tile_locations(
         Y2 = np.zeros_like(binCount)
 
         for ii in range(int(n_tiles)):
-            mask = cluster.labels_ == ii
+            mask = labels == ii
             X1[ii] = locations[mask, 0].min()
             X2[ii] = locations[mask, 0].max()
             Y1[ii] = locations[mask, 1].min()
@@ -579,7 +586,7 @@ def tile_locations(
         xy2 = np.c_[X2[binCount > 0], Y2[binCount > 0]]
 
         # Get the tile numbers that exist, for compatibility with the next method
-        tile_id = np.unique(cluster.labels_)
+        tile_id = np.unique(labels)
 
     else:
         # Works on larger problems
