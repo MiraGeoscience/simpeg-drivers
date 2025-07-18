@@ -507,6 +507,67 @@ def xyz_2_drape_model(
     return model
 
 
+def cluster_locations(locations: np.ndarray, n_tiles: int, equal_area: bool = False):
+    """
+    Cluster 2D locations with a kmeans with a balancing the number of points, or
+    optionally balancing the area of the clusters.
+
+    :param locations: n x 2 array of locations [x,y]
+    :param n_tiles: number of tiles
+    """
+
+    if equal_area:
+        # Bin locations inside regular grid
+        min_locs = np.min(locations, axis=0)
+        max_locs = np.max(locations, axis=0)
+        deltas = (max_locs - min_locs) / (n_tiles * 2)
+
+        x_gates = np.arange(
+            locations[:, 0].min() - deltas[0] / 2,
+            locations[:, 0].max() + deltas[0],
+            deltas[0],
+        )
+        y_gates = np.arange(
+            locations[:, 1].min() - deltas[1] / 2,
+            locations[:, 1].max() + deltas[1],
+            deltas[1],
+        )
+
+        # Find indices of active cells
+        i_loc = np.searchsorted(x_gates, locations[:, 0]) - 1
+        j_loc = np.searchsorted(y_gates, locations[:, 1]) - 1
+
+        in_cell = i_loc + j_loc * (len(x_gates) - 1)
+
+        x_grid, y_grid = np.meshgrid(
+            x_gates[:-1] + deltas[0] / 2, y_gates[:-1] + deltas[1] / 2
+        )
+        u_cell, inv_cell = np.unique(in_cell, return_inverse=True)
+
+        grid_locs = np.c_[x_grid.ravel(), y_grid.ravel()][u_cell, :]
+    else:
+        # Use all locations
+        grid_locs = locations.copy()
+        inv_cell = np.arange(locations.shape[0])
+
+    # Cluster
+    # TODO turn off filter once sklearn has dealt with the issue causing the warning
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category=UserWarning)
+        from sklearn.cluster import KMeans
+
+        kmeans = KMeans(n_clusters=n_tiles, random_state=0, n_init="auto")
+        cluster_size = int(np.ceil(grid_locs.shape[0] / n_tiles))
+        kmeans.fit(grid_locs)
+
+    centers = kmeans.cluster_centers_
+    centers = centers.reshape(-1, 1, 2).repeat(cluster_size, 1).reshape(-1, 2)
+    distance_matrix = cdist(grid_locs, centers)
+    cell_labels = linear_sum_assignment(distance_matrix)[1] // cluster_size
+
+    return cell_labels[inv_cell]
+
+
 def tile_locations(
     locations,
     n_tiles,
@@ -547,24 +608,7 @@ def tile_locations(
     """
 
     if method == "kmeans":
-        # Best for smaller problems
-
-        # Cluster
-        # TODO turn off filter once sklearn has dealt with the issue causing the warning
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", category=UserWarning)
-            from sklearn.cluster import KMeans
-
-            kmeans = KMeans(n_clusters=n_tiles, random_state=0, n_init="auto")
-            cluster_size = int(np.ceil(locations.shape[0] / n_tiles))
-            kmeans.fit(locations[:, :2])
-            centers = kmeans.cluster_centers_
-            centers = centers.reshape(-1, 1, 2).repeat(cluster_size, 1).reshape(-1, 2)
-            distance_matrix = cdist(locations[:, :2], centers)
-            labels = linear_sum_assignment(distance_matrix)[1] // cluster_size
-
-        # labels = cluster.labels_
-
+        labels = cluster_locations(locations[:, :2], n_tiles, equal_area=minimize)
         # nData in each tile
         binCount = np.zeros(int(n_tiles))
 
