@@ -9,6 +9,7 @@ dependencies:
   - scipy
   - numpy
   - h5py
+  - dask
   - geoh5py
   - pydantic
   - simpeg
@@ -18,6 +19,7 @@ dependencies:
   - jupyter-book
   - jupytext
   - notebook
+  - zarr
   - pip:
     - sphinx
     - pandas
