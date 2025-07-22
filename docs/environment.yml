@@ -5,7 +5,6 @@ channels:
   - defaults
 dependencies:
   - python=3.10
-  - matplotlib
   - scipy
   - numpy
   - h5py
@@ -22,6 +21,7 @@ dependencies:
   - zarr
   - pip:
     - sphinx
+    - matplotlib
     - pandas
     - sphinx_issues
     - sphinx_rtd_theme
