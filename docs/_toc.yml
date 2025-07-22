@@ -25,5 +25,9 @@ chapters:
 - file: case_studies/index
   sections:
   - file: case_studies/Forrestania/forrestania
-  - file: case_studies/Forrestania/forrestania_noGA
+    sections:
+    - file: case_studies/Forrestania/open_code
+      sections:
+        - file: case_studies/Forrestania/python_code/gravity
+        - file: case_studies/Forrestania/python_code/magnetics
 - file: THIRD_PARTY_SOFTWARE
