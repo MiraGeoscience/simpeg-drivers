@@ -11,20 +11,14 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
-
-
-if TYPE_CHECKING:
-    from geoh5py.workspace import Workspace
-
-    from simpeg_drivers.components.meshes import InversionMesh
-    from simpeg_drivers.options import InversionBaseOptions
-
 from copy import deepcopy
 from re import findall
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from discretize import TensorMesh, TreeMesh
+from geoh5py.objects import PotentialElectrode
+from scipy.sparse import csgraph, csr_matrix
 from scipy.spatial import cKDTree
 from simpeg import maps
 from simpeg.electromagnetics.static.utils.static_utils import geometric_factor
@@ -39,6 +33,13 @@ from .factories import (
     SurveyFactory,
 )
 from .locations import InversionLocations
+
+
+if TYPE_CHECKING:
+    from geoh5py.workspace import Workspace
+
+    from simpeg_drivers.components.meshes import InversionMesh
+    from simpeg_drivers.options import InversionBaseOptions
 
 
 class InversionData(InversionLocations):
@@ -138,6 +139,28 @@ class InversionData(InversionLocations):
             self._uncertainties = self.normalize(filtered, absolute=True)
 
         return self._uncertainties
+
+    @property
+    def parts(self):
+        """
+        Return parts indices from the entity.
+        """
+        if isinstance(self.entity, PotentialElectrode):
+            edge_array = csr_matrix(
+                (
+                    np.ones(self.entity.n_cells * 2),
+                    (
+                        np.kron(self.entity.cells[:, 0], [1, 1]),
+                        self.entity.cells.flatten(),
+                    ),
+                ),
+                shape=(self.entity.n_vertices, self.entity.n_vertices),
+            )
+
+            connections = csgraph.connected_components(edge_array)[1]
+            return connections[self.entity.cells[:, 0]]
+
+        return getattr(self.entity, "parts", None)
 
     def drape_locations(self, locations: np.ndarray) -> np.ndarray:
         """
