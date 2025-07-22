@@ -39,7 +39,6 @@ from simpeg.electromagnetics.frequency_domain.sources import (
 )
 from simpeg.electromagnetics.time_domain.sources import LineCurrent as TEMLineCurrent
 from simpeg.survey import BaseSurvey
-from simpeg.utils import mkvc
 
 from simpeg_drivers import DRIVER_MAP
 from simpeg_drivers.utils.surveys import (
@@ -507,13 +506,21 @@ def xyz_2_drape_model(
     return model
 
 
-def cluster_locations(locations: np.ndarray, n_tiles: int, equal_area: bool = False):
+def tile_locations(
+    locations: np.ndarray,
+    n_tiles: int,
+    labels: np.ndarray | None = None,
+    equal_area: bool = False,
+) -> list[np.ndarray]:
     """
-    Cluster 2D locations with a kmeans with a balancing the number of points, or
-    optionally balancing the area of the clusters.
+    Function to tile a survey points into smaller square subsets of points
 
-    :param locations: n x 2 array of locations [x,y]
-    :param n_tiles: number of tiles
+    :param locations: Array of locations. Only the horizontal coordinates are used.
+    :param n_tiles: Number of tiles (for 'cluster')
+    :param labels: Array of values to append to the locations
+    :param equal_area: If True, use equal area binning to create tiles.
+
+    :return: List of arrays containing the indices of the points in each tile.
     """
 
     if equal_area:
@@ -547,8 +554,19 @@ def cluster_locations(locations: np.ndarray, n_tiles: int, equal_area: bool = Fa
         grid_locs = np.c_[x_grid.ravel(), y_grid.ravel()][u_cell, :]
     else:
         # Use all locations
-        grid_locs = locations.copy()
+        grid_locs = locations[:, :2].copy()
         inv_cell = np.arange(locations.shape[0])
+
+        # Normalize location coordinates to [0, 1] range
+        grid_locs -= grid_locs.min(axis=0)
+        grid_locs /= grid_locs.max(axis=0)
+
+        if labels is not None:
+            if len(labels) != grid_locs.shape[0]:
+                raise ValueError(
+                    "Labels array must have the same length as the locations array."
+                )
+            grid_locs = np.c_[grid_locs, labels]
 
     # Cluster
     # TODO turn off filter once sklearn has dealt with the issue causing the warning
@@ -560,162 +578,22 @@ def cluster_locations(locations: np.ndarray, n_tiles: int, equal_area: bool = Fa
         cluster_size = int(np.ceil(grid_locs.shape[0] / n_tiles))
         kmeans.fit(grid_locs)
 
+    # Redistribute cluster centers to even out the number of points
     centers = kmeans.cluster_centers_
-    centers = centers.reshape(-1, 1, 2).repeat(cluster_size, 1).reshape(-1, 2)
+    centers = (
+        centers.reshape(-1, 1, grid_locs.shape[1])
+        .repeat(cluster_size, 1)
+        .reshape(-1, grid_locs.shape[1])
+    )
     distance_matrix = cdist(grid_locs, centers)
-    cell_labels = linear_sum_assignment(distance_matrix)[1] // cluster_size
-
-    return cell_labels[inv_cell]
-
-
-def tile_locations(
-    locations,
-    n_tiles,
-    minimize=True,
-    method="kmeans",
-    bounding_box=False,
-    count=False,
-    unique_id=False,
-):
-    """
-    Function to tile a survey points into smaller square subsets of points
-
-    :param numpy.ndarray locations: n x 2 array of locations [x,y]
-    :param integer n_tiles: number of tiles (for 'cluster'), or number of
-        refinement steps ('other')
-    :param Bool minimize: shrink tile sizes to minimum
-    :param string method: set to 'kmeans' to use better quality clustering, or anything
-        else to use more memory efficient method for large problems
-    :param bounding_box: bool [False]
-        Return the SW and NE corners of each tile.
-    :param count: bool [False]
-        Return the number of locations in each tile.
-    :param unique_id: bool [False]
-        Return the unique identifiers of all tiles.
-
-    RETURNS:
-    :param list: Return a list of arrays with the for the SW and NE
-                        limits of each tiles
-    :param integer binCount: Number of points in each tile
-    :param list labels: Cluster index of each point n=0:(nTargetTiles-1)
-    :param numpy.array tile_numbers: Vector of tile numbers for each count in binCount
-
-    NOTE: All X Y and xy products are legacy now values, and are only used
-    for plotting functions. They are not used in any calculations and could
-    be dropped from the return calls in future versions.
-
-
-    """
-
-    if method == "kmeans":
-        labels = cluster_locations(locations[:, :2], n_tiles, equal_area=minimize)
-        # nData in each tile
-        binCount = np.zeros(int(n_tiles))
-
-        # x and y limits on each tile
-        X1 = np.zeros_like(binCount)
-        X2 = np.zeros_like(binCount)
-        Y1 = np.zeros_like(binCount)
-        Y2 = np.zeros_like(binCount)
-
-        for ii in range(int(n_tiles)):
-            mask = labels == ii
-            X1[ii] = locations[mask, 0].min()
-            X2[ii] = locations[mask, 0].max()
-            Y1[ii] = locations[mask, 1].min()
-            Y2[ii] = locations[mask, 1].max()
-            binCount[ii] = mask.sum()
-
-        xy1 = np.c_[X1[binCount > 0], Y1[binCount > 0]]
-        xy2 = np.c_[X2[binCount > 0], Y2[binCount > 0]]
-
-        # Get the tile numbers that exist, for compatibility with the next method
-        tile_id = np.unique(labels)
-
-    else:
-        # Works on larger problems
-        # Initialize variables
-        # Test each refinement level for maximum space coverage
-        nTx = 1
-        nTy = 1
-        for _ in range(int(n_tiles + 1)):
-            nTx += 1
-            nTy += 1
-
-            testx = np.percentile(locations[:, 0], np.arange(0, 100, 100 / nTx))
-            testy = np.percentile(locations[:, 1], np.arange(0, 100, 100 / nTy))
-
-            dx = testx[:-1] - testx[1:]
-            dy = testy[:-1] - testy[1:]
-
-            if np.mean(dx) > np.mean(dy):
-                nTx -= 1
-            else:
-                nTy -= 1
-
-            print(nTx, nTy)
-        tilex = np.percentile(locations[:, 0], np.arange(0, 100, 100 / nTx))
-        tiley = np.percentile(locations[:, 1], np.arange(0, 100, 100 / nTy))
-
-        X1, Y1 = np.meshgrid(tilex, tiley)
-        X2, Y2 = np.meshgrid(
-            np.r_[tilex[1:], locations[:, 0].max()],
-            np.r_[tiley[1:], locations[:, 1].max()],
-        )
-
-        # Plot data and tiles
-        X1, Y1, X2, Y2 = mkvc(X1), mkvc(Y1), mkvc(X2), mkvc(Y2)
-        binCount = np.zeros_like(X1)
-        labels = np.zeros_like(locations[:, 0])
-        for ii in range(X1.shape[0]):
-            mask = (
-                (locations[:, 0] >= X1[ii])
-                * (locations[:, 0] <= X2[ii])
-                * (locations[:, 1] >= Y1[ii])
-                * (locations[:, 1] <= Y2[ii])
-            ) == 1
-
-            # Re-adjust the window size for tight fit
-            if minimize:
-                if mask.sum():
-                    X1[ii], X2[ii] = (
-                        locations[:, 0][mask].min(),
-                        locations[:, 0][mask].max(),
-                    )
-                    Y1[ii], Y2[ii] = (
-                        locations[:, 1][mask].min(),
-                        locations[:, 1][mask].max(),
-                    )
-
-            labels[mask] = ii
-            binCount[ii] = mask.sum()
-
-        xy1 = np.c_[X1[binCount > 0], Y1[binCount > 0]]
-        xy2 = np.c_[X2[binCount > 0], Y2[binCount > 0]]
-
-        # Get the tile numbers that exist
-        # Since some tiles may have 0 data locations, and are removed by
-        # [binCount > 0], the tile numbers are no longer contiguous 0:nTiles
-        tile_id = np.unique(labels)
+    labels = linear_sum_assignment(distance_matrix)[1] // cluster_size
+    global_indices = labels[inv_cell]
 
     tiles = []
-    for tid in tile_id.tolist():
-        tiles += [np.where(labels == tid)[0]]
+    for tid in set(global_indices):
+        tiles += [np.where(global_indices == tid)[0]]
 
-    out = [tiles]
-
-    if bounding_box:
-        out.append([xy1, xy2])
-
-    if count:
-        out.append(binCount[binCount > 0])
-
-    if unique_id:
-        out.append(tile_id)
-
-    if len(out) == 1:
-        return out[0]
-    return tuple(out)
+    return tiles
 
 
 def get_containing_cells(
