@@ -604,7 +604,7 @@ class InversionDriver(Driver):
             tiles = tile_locations(
                 locations,
                 self.params.compute.tile_spatial,
-                method="kmeans",
+                labels=getattr(self.inversion_data.entity, "parts", None),
             )
 
         return tiles

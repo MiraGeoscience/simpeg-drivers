@@ -98,7 +98,6 @@ class TileEstimator(Driver):
             tiles = tile_locations(
                 self.locations,
                 count,
-                method="kmeans",
             )
             # Get the median tile
             ind = int(np.argsort([len(tile) for tile in tiles])[int(count / 2)])
@@ -256,7 +255,6 @@ class TileEstimator(Driver):
         tiles = tile_locations(
             locations,
             optimal,
-            method="kmeans",
         )
         for tile in tiles:
             ax2.scatter(locations[tile, 0], locations[tile, 1], s=1)
