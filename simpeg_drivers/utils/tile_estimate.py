@@ -35,6 +35,7 @@ from scipy.interpolate import interp1d
 from tqdm import tqdm
 
 from simpeg_drivers import assets_path
+from simpeg_drivers.components.data import InversionData
 from simpeg_drivers.components.factories.misfit_factory import MisfitFactory
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.utils.utils import (
@@ -75,7 +76,7 @@ class TileEstimator(Driver):
     def __init__(self, params: TileParameters):
         self._driver: InversionDriver | None = None
         self._mesh: TreeMesh | None = None
-        self._locations: np.ndarray | None = None
+        self._data: np.ndarray | None = None
         self._active_cells: np.ndarray | None = None
 
         super().__init__(params)
@@ -92,13 +93,10 @@ class TileEstimator(Driver):
             counts.append(max_tiles)
 
         for count in tqdm(counts, desc="Estimating tiles:"):
-            if count > len(self.locations):
+            if count > len(self.data.locations):
                 break
 
-            tiles = tile_locations(
-                self.locations,
-                count,
-            )
+            tiles = tile_locations(self.data.locations, count, labels=self.data.parts)
             # Get the median tile
             ind = int(np.argsort([len(tile) for tile in tiles])[int(count / 2)])
             self.driver.params.compute.tile_spatial = int(count)
@@ -144,7 +142,7 @@ class TileEstimator(Driver):
             fig_name = "tile_estimator.png"
             logger.info("Saving figure '%s' to disk and to geoh5.", fig_name)
             path = self.params.geoh5.h5file.parent / fig_name
-            figure = self.plot(results, self.locations, optimal)
+            figure = self.plot(results, self.data, optimal)
             figure.savefig(path)
             out_group.add_file(path)
 
@@ -174,14 +172,14 @@ class TileEstimator(Driver):
         return self._mesh
 
     @property
-    def locations(self) -> np.ndarray:
+    def data(self) -> InversionData:
         """
-        All receiver locations.
+        All receiver data locations.
         """
-        if self._locations is None:
-            self._locations = self.driver.inversion_data.locations
+        if self._data is None:
+            self._data = self.driver.inversion_data
 
-        return self._locations
+        return self._data
 
     @property
     def active_cells(self) -> np.ndarray:
@@ -190,7 +188,7 @@ class TileEstimator(Driver):
         """
         if self._active_cells is None:
             self._active_cells = active_from_xyz(
-                self.driver.inversion_mesh.entity, self.locations, method="nearest"
+                self.driver.inversion_mesh.entity, self.data.locations, method="nearest"
             )
         return self._active_cells
 
@@ -230,7 +228,7 @@ class TileEstimator(Driver):
         return out_group
 
     @staticmethod
-    def plot(results: dict, locations: np.ndarray, optimal: int):
+    def plot(results: dict, data: InversionData, optimal: int):
         """
         Plot the results of the tile estimator.
 
@@ -253,11 +251,12 @@ class TileEstimator(Driver):
 
         ax2 = plt.subplot(2, 1, 2)
         tiles = tile_locations(
-            locations,
+            data.locations,
             optimal,
+            labels=data.parts,
         )
         for tile in tiles:
-            ax2.scatter(locations[tile, 0], locations[tile, 1], s=1)
+            ax2.scatter(data.locations[tile, 0], data.locations[tile, 1], s=1)
 
         ax2.set_xlabel("Easting (m)")
         ax2.set_ylabel("Northing (m)")

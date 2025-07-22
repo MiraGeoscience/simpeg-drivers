@@ -596,18 +596,16 @@ class InversionDriver(Driver):
 
     def get_tiles(self):
         if "2d" in self.params.inversion_type:
-            tiles = [np.arange(self.inversion_data.mask.sum())]
-        elif "1d" in self.params.inversion_type:
-            tiles = np.arange(self.inversion_data.mask.sum()).reshape((-1, 1))
-        else:
-            locations = self.inversion_data.locations
-            tiles = tile_locations(
-                locations,
-                self.params.compute.tile_spatial,
-                labels=getattr(self.inversion_data.entity, "parts", None),
-            )
+            return [np.arange(self.inversion_data.mask.sum())]
 
-        return tiles
+        if "1d" in self.params.inversion_type:
+            return np.arange(self.inversion_data.mask.sum()).reshape((-1, 1))
+
+        return tile_locations(
+            self.inversion_data.locations,
+            self.params.compute.tile_spatial,
+            labels=self.inversion_data.parts,
+        )
 
     def configure_dask(self):
         """Sets Dask config settings."""

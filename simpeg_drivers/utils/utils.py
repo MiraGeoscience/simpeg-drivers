@@ -510,63 +510,28 @@ def tile_locations(
     locations: np.ndarray,
     n_tiles: int,
     labels: np.ndarray | None = None,
-    equal_area: bool = False,
 ) -> list[np.ndarray]:
     """
-    Function to tile a survey points into smaller square subsets of points
+    Function to tile a survey points into smaller square subsets of points using
+    a k-means clustering approach.
 
-    :param locations: Array of locations. Only the horizontal coordinates are used.
+    :param locations: Array of locations.
     :param n_tiles: Number of tiles (for 'cluster')
     :param labels: Array of values to append to the locations
-    :param equal_area: If True, use equal area binning to create tiles.
 
     :return: List of arrays containing the indices of the points in each tile.
     """
+    grid_locs = locations[:, :2].copy()
 
-    if equal_area:
-        # Bin locations inside regular grid
-        min_locs = np.min(locations, axis=0)
-        max_locs = np.max(locations, axis=0)
-        deltas = (max_locs - min_locs) / (n_tiles * 2)
-
-        x_gates = np.arange(
-            locations[:, 0].min() - deltas[0] / 2,
-            locations[:, 0].max() + deltas[0],
-            deltas[0],
-        )
-        y_gates = np.arange(
-            locations[:, 1].min() - deltas[1] / 2,
-            locations[:, 1].max() + deltas[1],
-            deltas[1],
-        )
-
-        # Find indices of active cells
-        i_loc = np.searchsorted(x_gates, locations[:, 0]) - 1
-        j_loc = np.searchsorted(y_gates, locations[:, 1]) - 1
-
-        in_cell = i_loc + j_loc * (len(x_gates) - 1)
-
-        x_grid, y_grid = np.meshgrid(
-            x_gates[:-1] + deltas[0] / 2, y_gates[:-1] + deltas[1] / 2
-        )
-        u_cell, inv_cell = np.unique(in_cell, return_inverse=True)
-
-        grid_locs = np.c_[x_grid.ravel(), y_grid.ravel()][u_cell, :]
-    else:
-        # Use all locations
-        grid_locs = locations[:, :2].copy()
-        inv_cell = np.arange(locations.shape[0])
-
+    if labels is not None:
+        if len(labels) != grid_locs.shape[0]:
+            raise ValueError(
+                "Labels array must have the same length as the locations array."
+            )
         # Normalize location coordinates to [0, 1] range
         grid_locs -= grid_locs.min(axis=0)
         grid_locs /= grid_locs.max(axis=0)
-
-        if labels is not None:
-            if len(labels) != grid_locs.shape[0]:
-                raise ValueError(
-                    "Labels array must have the same length as the locations array."
-                )
-            grid_locs = np.c_[grid_locs, labels]
+        grid_locs = np.c_[grid_locs, labels]
 
     # Cluster
     # TODO turn off filter once sklearn has dealt with the issue causing the warning
@@ -587,11 +552,10 @@ def tile_locations(
     )
     distance_matrix = cdist(grid_locs, centers)
     labels = linear_sum_assignment(distance_matrix)[1] // cluster_size
-    global_indices = labels[inv_cell]
 
     tiles = []
-    for tid in set(global_indices):
-        tiles += [np.where(global_indices == tid)[0]]
+    for tid in set(labels):
+        tiles += [np.where(labels == tid)[0]]
 
     return tiles
 

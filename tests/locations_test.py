@@ -110,7 +110,7 @@ def test_filter(tmp_path: Path):
         assert np.all(filtered_data["key"] == [2, 3, 4])
 
 
-def test_tile_locations_equal_area(tmp_path: Path):
+def test_tile_locations(tmp_path: Path):
     with Workspace.create(tmp_path / f"{__name__}.geoh5") as ws:
         grid_x, grid_y = np.meshgrid(np.arange(100), np.arange(100))
         choices = np.c_[grid_x.ravel(), grid_y.ravel(), np.zeros(grid_x.size)]
@@ -120,14 +120,13 @@ def test_tile_locations_equal_area(tmp_path: Path):
             name="test-points",
             vertices=choices[inds],
         )
-        tiles = tile_locations(pts.vertices, n_tiles=8, equal_area=True)
+        tiles = tile_locations(pts.vertices[:, :2], n_tiles=8)
 
         values = np.zeros(pts.n_vertices)
-        areas = []
+        pop = []
         for ind, tile in enumerate(tiles):
             values[tile] = ind
-            hull = ConvexHull(pts.vertices[tile, :2])
-            areas.append(hull.area)  # pylint: disable=no-member
+            pop.append(len(tile))
 
         pts.add_data(
             {
@@ -136,7 +135,9 @@ def test_tile_locations_equal_area(tmp_path: Path):
                 }
             }
         )
-        assert np.std(areas) / np.mean(areas) < 0.05, "Areas of tiles are not equal"
+        assert np.std(pop) / np.mean(pop) < 0.02, (
+            "Population of tiles are not almost equal."
+        )
 
 
 def test_tile_locations_labels(tmp_path: Path):
