@@ -32,9 +32,9 @@
         "label": "Data type",
         "tooltip": [
             "Set the units of the data.<dl>",
-            "Expects normalization by the source.<dl>",
-            "<dt>Airborne data</dt><dd>Data must be normalized by the transmitter moment (Am^2).</dd><dl>",
-            "<dt>Ground data</dt><dd>Data must be normalized by the current and number of turns.</dd>"
+            "Data are expected to be normalized by the source strength, dependent on the type:<dl>",
+            "<dt>Dipole</dt><dd>Current * area * number of turns (NIA).</dd><dl>",
+            "<dt>Wire</dt><dd>Current * number of turns (NI).</dd>"
         ],
         "value": "dB/dt (T/s)"
     },
