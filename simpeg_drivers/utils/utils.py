@@ -543,19 +543,22 @@ def tile_locations(
         cluster_size = int(np.ceil(grid_locs.shape[0] / n_tiles))
         kmeans.fit(grid_locs)
 
-    # Redistribute cluster centers to even out the number of points
-    centers = kmeans.cluster_centers_
-    centers = (
-        centers.reshape(-1, 1, grid_locs.shape[1])
-        .repeat(cluster_size, 1)
-        .reshape(-1, grid_locs.shape[1])
-    )
-    distance_matrix = cdist(grid_locs, centers)
-    labels = linear_sum_assignment(distance_matrix)[1] // cluster_size
+    if labels is not None:
+        cluster_id = kmeans.labels_
+    else:
+        # Redistribute cluster centers to even out the number of points
+        centers = kmeans.cluster_centers_
+        centers = (
+            centers.reshape(-1, 1, grid_locs.shape[1])
+            .repeat(cluster_size, 1)
+            .reshape(-1, grid_locs.shape[1])
+        )
+        distance_matrix = cdist(grid_locs, centers)
+        cluster_id = linear_sum_assignment(distance_matrix)[1] // cluster_size
 
     tiles = []
-    for tid in set(labels):
-        tiles += [np.where(labels == tid)[0]]
+    for tid in set(cluster_id):
+        tiles += [np.where(cluster_id == tid)[0]]
 
     return tiles
 
