@@ -530,7 +530,8 @@ def tile_locations(
             )
         # Normalize location coordinates to [0, 1] range
         grid_locs -= grid_locs.min(axis=0)
-        grid_locs /= grid_locs.max(axis=0)
+        max_val = grid_locs.max(axis=0)
+        grid_locs[:, max_val > 0] /= max_val[max_val > 0]
         grid_locs = np.c_[grid_locs, labels]
 
     # Cluster
