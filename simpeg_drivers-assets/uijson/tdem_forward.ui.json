@@ -22,14 +22,20 @@
     },
     "data_units": {
         "choiceList": [
-            "dB/dt (T/s)",
-            "B (T)",
-            "H (A/m)"
+            "Airborne dB/dt (V/Am^4)",
+            "Airborne B (T/Am^2)",
+            "Ground dB/dt (V/Am^2)",
+            "Ground B (T/A)"
         ],
         "group": "Survey",
         "main": true,
         "label": "Data type",
-        "tooltip": "Set the units of the data",
+        "tooltip": [
+            "Set the units of the data.<dl>",
+            "Expects normalization by the source.<dl>",
+            "<dt>Airborne data</dt><dd>Data must be normalized by the transmitter moment (Am^2).</dd><dl>",
+            "<dt>Ground data</dt><dd>Data must be normalized by the current and number of turns.</dd>"
+        ],
         "value": "dB/dt (T/s)"
     },
     "z_channel_bool": {
