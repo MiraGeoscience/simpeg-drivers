@@ -754,13 +754,10 @@ if __name__ == "__main__":
         if cluster is not None
         else contextlib.nullcontext() as client
     ):
-        if not isinstance(client, Client) and save_report:
-            save_report = False
-
         # Full run
         with (
             performance_report(filename=file.parent / "dask_profile.html")
-            if save_report
+            if (save_report and isinstance(client, Client))
             else contextlib.nullcontext()
         ):
             InversionDriver.start(input_file)
