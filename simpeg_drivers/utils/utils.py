@@ -515,6 +515,9 @@ def tile_locations(
     Function to tile a survey points into smaller square subsets of points using
     a k-means clustering approach.
 
+    If labels are provided and the number of unique labels is less than or equal to
+    the number of tiles, the function will return an even split of the unique labels.
+
     :param locations: Array of locations.
     :param n_tiles: Number of tiles (for 'cluster')
     :param labels: Array of values to append to the locations
@@ -528,6 +531,24 @@ def tile_locations(
             raise ValueError(
                 "Labels array must have the same length as the locations array."
             )
+
+        if len(np.unique(labels)) >= n_tiles:
+            avg_pop = len(labels) // n_tiles
+            u_ids, u_counts = np.unique(labels, return_counts=True)
+            label_groups = [[]]
+            count = 0
+            for u_id, u_count in zip(u_ids, u_counts, strict=False):
+                count += u_count
+                label_groups[-1].append(u_id)
+
+                if count > avg_pop:
+                    label_groups.append([])
+                    count = 0
+
+            return [
+                np.where(np.isin(labels, group))[0] for group in label_groups if group
+            ]
+
         # Normalize location coordinates to [0, 1] range
         grid_locs -= grid_locs.min(axis=0)
         max_val = grid_locs.max(axis=0)
