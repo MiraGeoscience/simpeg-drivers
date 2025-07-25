@@ -325,7 +325,7 @@ class InversionData(InversionLocations):
                     )
                 elif (
                     "tdem" in self.params.inversion_type
-                    and self.params.data_units == "dB/dt (T/s)"
+                    and "dB/dt" in self.params.data_units
                 ):
                     if comp in ["x", "y", "z"]:
                         normalizations[chan][comp] = -1
