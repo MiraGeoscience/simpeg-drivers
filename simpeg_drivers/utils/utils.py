@@ -533,21 +533,8 @@ def tile_locations(
             )
 
         if len(np.unique(labels)) >= n_tiles:
-            avg_pop = len(labels) // n_tiles
-            u_ids, u_counts = np.unique(labels, return_counts=True)
-            label_groups = [[]]
-            count = 0
-            for u_id, u_count in zip(u_ids, u_counts, strict=False):
-                count += u_count
-                label_groups[-1].append(u_id)
-
-                if count > avg_pop:
-                    label_groups.append([])
-                    count = 0
-
-            return [
-                np.where(np.isin(labels, group))[0] for group in label_groups if group
-            ]
+            label_groups = np.array_split(np.unique(labels), n_tiles)
+            return [np.where(np.isin(labels, group))[0] for group in label_groups]
 
         # Normalize location coordinates to [0, 1] range
         grid_locs -= grid_locs.min(axis=0)
