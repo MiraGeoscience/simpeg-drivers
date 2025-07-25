@@ -13,6 +13,9 @@
 
 from __future__ import annotations
 
+import cProfile
+import pstats
+
 import multiprocessing
 import contextlib
 from copy import deepcopy
@@ -593,18 +596,16 @@ class InversionDriver(Driver):
 
     def get_tiles(self):
         if "2d" in self.params.inversion_type:
-            tiles = [np.arange(self.inversion_data.mask.sum())]
-        elif "1d" in self.params.inversion_type:
-            tiles = np.arange(self.inversion_data.mask.sum()).reshape((-1, 1))
-        else:
-            locations = self.inversion_data.locations
-            tiles = tile_locations(
-                locations,
-                self.params.compute.tile_spatial,
-                method="kmeans",
-            )
+            return [np.arange(self.inversion_data.mask.sum())]
 
-        return tiles
+        if "1d" in self.params.inversion_type:
+            return np.arange(self.inversion_data.mask.sum()).reshape((-1, 1))
+
+        return tile_locations(
+            self.inversion_data.locations,
+            self.params.compute.tile_spatial,
+            labels=self.inversion_data.parts,
+        )
 
     def configure_dask(self):
         """Sets Dask config settings."""
@@ -745,20 +746,27 @@ if __name__ == "__main__":
         if ((n_workers is not None and n_workers > 1) or n_threads is not None)
         else None
     )
+    profiler = cProfile.Profile()
+    profiler.enable()
 
     with (
         cluster.get_client()
         if cluster is not None
         else contextlib.nullcontext() as client
     ):
-        if not isinstance(client, Client) and save_report:
-            save_report = False
-
         # Full run
         with (
             performance_report(filename=file.parent / "dask_profile.html")
-            if save_report
+            if (save_report and isinstance(client, Client))
             else contextlib.nullcontext()
         ):
             InversionDriver.start(input_file)
             sys.stdout.close()
+
+    profiler.disable()
+
+    if save_report:
+        with open(file.parent / "runtime_profile.txt", encoding="utf-8", mode="w") as s:
+            ps = pstats.Stats(profiler, stream=s)
+            ps.sort_stats("cumulative")
+            ps.print_stats()
