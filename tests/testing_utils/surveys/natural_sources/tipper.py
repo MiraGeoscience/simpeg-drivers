@@ -42,3 +42,5 @@ def generate_tipper_survey(
         geoh5, vertices=np.c_[vertices[0, :]].T
     )
     survey.remove_cells(mask_large_connections(survey, 200.0))
+
+    return survey

@@ -72,7 +72,7 @@ def setup_inversion_workspace(
     topography = get_topography_surface(
         geoh5=geoh5,
         survey_limits=(x_limits[0], x_limits[1], y_limits[0], y_limits[1]),
-        topography=0 if flatten else topography_generator,
+        topography=0.0 if flatten else topography_generator,
         shift=center[2],
     )
 

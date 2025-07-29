@@ -41,7 +41,7 @@ def generate_fdem_survey(
         geoh5, vertices=tx_locs, name="Airborne_tx"
     )
     survey.transmitters = transmitters
-    survey.channels = [k["Frequency"] for k in frequency_config]
+    survey.channels = [float(k["Frequency"]) for k in frequency_config]
 
     transmitters.add_data(
         {
