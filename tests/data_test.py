@@ -13,7 +13,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-import pytest
 import simpeg
 from discretize.utils import mesh_builder_xyz
 from geoh5py.objects import Points
@@ -22,6 +21,9 @@ from octree_creation_app.driver import OctreeDriver
 from octree_creation_app.utils import treemesh_2_octree
 
 from simpeg_drivers.components import InversionData
+from simpeg_drivers.electricals.direct_current.three_dimensions.options import (
+    DC3DForwardOptions,
+)
 from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields.magnetic_vector.driver import (
     MVIInversionDriver,
@@ -236,3 +238,28 @@ def test_get_survey(tmp_path: Path):
         data = InversionData(geoh5, params)
         survey = data.create_survey()
         assert isinstance(survey[0], simpeg.potential_fields.magnetics.Survey)
+
+
+def test_data_parts(tmp_path: Path):
+    n_lines = 8
+    geoh5, entity, model, survey, topography = setup_inversion_workspace(
+        tmp_path,
+        background=0.01,
+        anomaly=10,
+        n_electrodes=10,
+        n_lines=n_lines,
+        drape_height=0.0,
+        inversion_type="direct current 3d",
+        flatten=False,
+    )
+    with geoh5.open():
+        params = DC3DForwardOptions.build(
+            geoh5=geoh5,
+            data_object=survey,
+            topography_object=topography,
+            mesh=model.parent,
+            starting_model=model,
+        )
+        data = InversionData(geoh5, params)
+
+        assert len(set(data.parts)) == n_lines

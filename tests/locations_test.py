@@ -14,11 +14,14 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from geoh5py.objects import Grid2D, Points
+from geoh5py import Workspace
+from geoh5py.objects import Curve, Grid2D, Points
+from scipy.spatial import ConvexHull
 
 from simpeg_drivers.components.locations import InversionLocations
 from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import MVIInversionOptions
+from simpeg_drivers.utils.utils import tile_locations
 from tests.testing_utils import setup_inversion_workspace
 
 
@@ -105,3 +108,81 @@ def test_filter(tmp_path: Path):
         test_data = {"key": test_data}
         filtered_data = locations.filter(test_data)
         assert np.all(filtered_data["key"] == [2, 3, 4])
+
+
+def test_tile_locations(tmp_path: Path):
+    with Workspace.create(tmp_path / f"{__name__}.geoh5") as ws:
+        grid_x, grid_y = np.meshgrid(np.arange(100), np.arange(100))
+        choices = np.c_[grid_x.ravel(), grid_y.ravel(), np.zeros(grid_x.size)]
+        inds = np.random.randint(0, 10000, 1000)
+        pts = Points.create(
+            ws,
+            name="test-points",
+            vertices=choices[inds],
+        )
+        tiles = tile_locations(pts.vertices[:, :2], n_tiles=8)
+
+        values = np.zeros(pts.n_vertices)
+        pop = []
+        for ind, tile in enumerate(tiles):
+            values[tile] = ind
+            pop.append(len(tile))
+
+        pts.add_data(
+            {
+                "values": {
+                    "values": values,
+                }
+            }
+        )
+        assert np.std(pop) / np.mean(pop) < 0.02, (
+            "Population of tiles are not almost equal."
+        )
+
+
+def test_tile_locations_labels(tmp_path: Path):
+    stn = np.arange(0, 10000, 1000)
+    x_locs = np.kron(stn, np.ones(100)) + np.random.randn(1000) * 10
+    y_locs = np.kron(np.ones(len(stn)), np.arange(100) * 1000)
+    locations = np.c_[x_locs, y_locs, np.random.randn(len(x_locs)) * 100]
+    line_id = np.kron(np.arange(len(stn)), np.ones(100))
+
+    with Workspace.create(tmp_path / f"{__name__}.geoh5") as ws:
+        curve = Curve.create(
+            ws,
+            vertices=locations,
+            parts=line_id,
+        )
+
+        # Test that the tiles are assigned to the correct parts
+        tiles = tile_locations(curve.vertices, n_tiles=10, labels=curve.parts)
+        values = np.zeros(curve.n_vertices)
+        single_part = []
+        for ind, tile in enumerate(tiles):
+            values[tile] = ind
+            single_part.append(len(set(curve.parts[tile])) == 1)
+
+        assert all(single_part)
+
+        curve.add_data(
+            {
+                "values": {
+                    "values": values,
+                }
+            }
+        )
+
+        # Repeat with fewer tiles than parts (at most grab two lines)
+        tiles = tile_locations(curve.vertices, n_tiles=5, labels=curve.parts)
+        values = np.zeros(curve.n_vertices)
+        two_parts = []
+        for ind, tile in enumerate(tiles):
+            values[tile] = ind
+            two_parts.append(len(set(curve.parts[tile])) == 2)
+
+        assert all(two_parts)
+        assert (
+            len({len(tile) for tile in tiles}) == 1
+        )  # All tiles have the same number of vertices
+        with pytest.raises(ValueError, match="Labels array must have the same length"):
+            tile_locations(curve.vertices, n_tiles=8, labels=curve.parts[:-1])

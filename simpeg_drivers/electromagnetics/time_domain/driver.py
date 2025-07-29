@@ -55,7 +55,6 @@ def tile_large_group_transmitters(
     tx_tiles = tile_locations(
         np.vstack(locations),
         n_groups,
-        method="kmeans",
     )
     receivers_tx_ids = survey.tx_id_property.values
     tiles = []
@@ -74,7 +73,6 @@ def tile_large_group_transmitters(
         new_tiles = tile_locations(
             survey.vertices[tile],
             2,
-            method="kmeans",
         )
         tiles += [tile[new_tiles[0]], tile[new_tiles[1]]]
 
