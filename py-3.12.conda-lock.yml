@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: 2b057dda003b244877434d1dd71bfa18b96472fbaeadeb2cf9c4266efbfdb4e0
-    linux-64: 0411d0bb5b468d1fb923a36f5fc20b1e4f1af3a872d37f6492e422e64a4e5142
+    win-64: f1b3165f9e07e78e108d41f3bc027bfb7c613c94db8a3cc8c190ab178b3d2f2c
+    linux-64: 2e48ea762f31ce7d0e20196680dec38b885bd725bb1dc73d18f428e1faa16c06
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -6649,7 +6649,7 @@ package:
   category: main
   optional: false
 - name: scikit-learn
-  version: 1.5.2
+  version: 1.6.1
   manager: conda
   platform: linux-64
   dependencies:
@@ -6663,14 +6663,14 @@ package:
     python_abi: 3.12.*
     scipy: ''
     threadpoolctl: '>=3.1.0'
-  url: https://repo.prefix.dev/conda-forge/linux-64/scikit-learn-1.5.2-py312h7a48858_1.conda
+  url: https://repo.prefix.dev/conda-forge/linux-64/scikit-learn-1.6.1-py312h7a48858_0.conda
   hash:
-    md5: 6b5f4c68483bd0c22bca9094dafc606b
-    sha256: 3118b687c7cfb4484cc5c65591b611d834e3ea2424cb75e1e0b0980d0de72afc
+    md5: 102727f71df02a51e9e173f2e6f87d57
+    sha256: 7c869c73c95ef09edef839448ae3d153c4e3a208fb110c4260225f342d23e08e
   category: main
   optional: false
 - name: scikit-learn
-  version: 1.5.2
+  version: 1.6.1
   manager: conda
   platform: win-64
   dependencies:
@@ -6683,10 +6683,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.2,<15'
     vc14_runtime: '>=14.29.30139'
-  url: https://repo.prefix.dev/conda-forge/win-64/scikit-learn-1.5.2-py312h816cc57_1.conda
+  url: https://repo.prefix.dev/conda-forge/win-64/scikit-learn-1.6.1-py312h816cc57_0.conda
   hash:
-    md5: e2b5c3288bd3f8e89a46b98f8d9e8768
-    sha256: 7c64942d20339e965c22e27ceca72e0f0ff7d32962d9621903c3812714835f4f
+    md5: 7d3fcb33b1b3ce559d8e83699504d9ee
+    sha256: a35e90775f8eb213fe300747a5d9f242830fdde768871e6d194e27bbc0af0fff
   category: main
   optional: false
 - name: scipy
@@ -7675,10 +7675,10 @@ package:
   platform: linux-64
   dependencies:
     python: '>=3.9'
-  url: https://repo.prefix.dev/conda-forge/noarch/tomli-2.2.1-pyhd8ed1ab_1.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/tomli-2.2.1-pyhe01879c_2.conda
   hash:
-    md5: ac944244f1fed2eb49bae07193ae8215
-    sha256: 18636339a79656962723077df9a56c0ac7b8a864329eb8f847ee3d38495b863e
+    md5: 30a0a26c8abccf4b7991d590fe17c699
+    sha256: 040a5a05c487647c089ad5e05ad5aff5942830db2a4e656f1e300d73436436f1
   category: dev
   optional: true
 - name: tomli
@@ -7687,10 +7687,10 @@ package:
   platform: win-64
   dependencies:
     python: '>=3.9'
-  url: https://repo.prefix.dev/conda-forge/noarch/tomli-2.2.1-pyhd8ed1ab_1.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/tomli-2.2.1-pyhe01879c_2.conda
   hash:
-    md5: ac944244f1fed2eb49bae07193ae8215
-    sha256: 18636339a79656962723077df9a56c0ac7b8a864329eb8f847ee3d38495b863e
+    md5: 30a0a26c8abccf4b7991d590fe17c699
+    sha256: 040a5a05c487647c089ad5e05ad5aff5942830db2a4e656f1e300d73436436f1
   category: dev
   optional: true
 - name: tomlkit
