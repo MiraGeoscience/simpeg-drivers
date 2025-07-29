@@ -28,8 +28,11 @@ from simpeg_drivers.natural_sources.magnetotellurics.options import (
     MTInversionOptions,
 )
 from simpeg_drivers.options import ActiveCellsOptions
-from simpeg_drivers.utils.utils import get_inversion_output
-from tests.testing_utils import check_target, setup_inversion_workspace
+from tests.testing_utils import (
+    check_target,
+    get_inversion_output,
+    setup_inversion_workspace,
+)
 
 
 # To test the full run and validate the inversion.

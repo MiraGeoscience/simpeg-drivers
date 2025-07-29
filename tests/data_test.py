@@ -29,7 +29,7 @@ from simpeg_drivers.potential_fields.magnetic_vector.driver import (
 from simpeg_drivers.potential_fields.magnetic_vector.options import (
     MVIInversionOptions,
 )
-from tests.testing_utils import Geoh5Tester, setup_inversion_workspace
+from tests.testing_utils import setup_inversion_workspace
 
 
 def get_mvi_params(tmp_path: Path, **kwargs) -> MVIInversionOptions:

@@ -7,3 +7,6 @@
 #  (see LICENSE file at the root of this source code package).                      '
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+from .runtests import setup_inversion_workspace
+from .targets import check_target, get_inversion_output

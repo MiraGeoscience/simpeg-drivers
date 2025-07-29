@@ -19,7 +19,7 @@ from geoh5py.objects import Grid2D, Points
 from simpeg_drivers.components.locations import InversionLocations
 from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import MVIInversionOptions
-from tests.testing_utils import Geoh5Tester, setup_inversion_workspace
+from tests.testing_utils import setup_inversion_workspace
 
 
 def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:

@@ -22,7 +22,7 @@ from octree_creation_app.utils import treemesh_2_octree
 from simpeg_drivers.components import InversionMesh
 from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import MVIInversionOptions
-from tests.testing_utils import Geoh5Tester, setup_inversion_workspace
+from tests.testing_utils import setup_inversion_workspace
 
 
 def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:

@@ -24,8 +24,11 @@ from simpeg_drivers.electricals.direct_current.three_dimensions.options import (
     DC3DInversionOptions,
 )
 from simpeg_drivers.options import ActiveCellsOptions
-from simpeg_drivers.utils.utils import get_inversion_output
-from tests.testing_utils import check_target, setup_inversion_workspace
+from tests.testing_utils import (
+    check_target,
+    get_inversion_output,
+    setup_inversion_workspace,
+)
 
 
 # To test the full run and validate the inversion.
