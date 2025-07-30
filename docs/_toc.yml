@@ -11,6 +11,7 @@ chapters:
   - file: fundamentals/regularization/regularization
     sections:
     - file: fundamentals/regularization/sparse
+    - file: fundamentals/regularization/rotated_gradients
   - file: fundamentals/mesh_design
   - file: fundamentals/joint_inversion
   - file: fundamentals/depth_of_investigation
