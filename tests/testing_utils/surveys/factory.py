@@ -13,7 +13,7 @@ from collections.abc import Callable
 import numpy as np
 from geoapps_utils.utils.locations import grid_layout
 from geoh5py import Workspace
-from geoh5py.objects import Points
+from geoh5py.objects import ObjectBase, Points
 
 from tests.testing_utils.surveys import (
     generate_airborne_tdem_survey,
@@ -33,7 +33,20 @@ def get_survey(
     line_spacing,
     topography: Callable | float,
     drape_height: float,
-):
+) -> ObjectBase:
+    """
+    Factory for survey creation with behaviour modified by the inversion type.
+
+    :param geoh5: The workspace to create the survey in.
+    :param inversion_type: The type of inversion controlling the factory behaviour.
+    :param limits: Controls the center and extent of the survey grid.
+    :param station_spacing: Along-line grid spacing.
+    :param line_spacing: Across-line grid spacing.
+    :param topography: Describes the elevation of the survey.
+    :param drape_height: Additional height adjustment for the survey above the
+        topography.
+    """
+
     X, Y, Z = grid_layout(
         limits=limits,
         station_spacing=station_spacing,
@@ -54,11 +67,11 @@ def get_survey(
     if inversion_type in ["fdem", "fem", "fdem 1d"]:
         return generate_fdem_survey(geoh5, X, Y, Z)
 
-    if "airborne tdem" in inversion_type:
-        return generate_airborne_tdem_survey(geoh5, X, Y, Z)
-
-    if "ground tdem" in inversion_type:
-        return generate_tdem_survey(geoh5, X, Y, Z)
+    if "tdem" in inversion_type:
+        if "airborne" in inversion_type:
+            return generate_airborne_tdem_survey(geoh5, X, Y, Z)
+        else:
+            return generate_tdem_survey(geoh5, X, Y, Z)
 
     return Points.create(
         geoh5,

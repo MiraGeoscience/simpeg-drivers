@@ -24,7 +24,8 @@ def generate_airborne_tdem_survey(
     X: np.ndarray,
     Y: np.ndarray,
     Z: np.ndarray,
-):
+) -> AirborneTEMReceivers:
+    """Create an Airborne TDEM survey object from survey grid locations"""
     vertices = np.column_stack([X.flatten(), Y.flatten(), Z.flatten()])
     survey = AirborneTEMReceivers.create(geoh5, vertices=vertices, name="Airborne_rx")
     transmitters = AirborneTEMTransmitters.create(

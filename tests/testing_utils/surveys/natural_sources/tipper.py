@@ -24,7 +24,8 @@ def generate_tipper_survey(
     X: np.ndarray,
     Y: np.ndarray,
     Z: np.ndarray,
-):
+) -> TipperReceivers:
+    """Create a Tipper survey object from survey grid locations."""
     vertices = np.column_stack([X.flatten(), Y.flatten(), Z.flatten()])
     survey = TipperReceivers.create(
         geoh5,

@@ -19,10 +19,8 @@ def generate_dc_survey(
     Y: np.ndarray,
     Z: np.ndarray | None = None,
 ) -> PotentialElectrode:
-    """
-    Utility function to generate a DC survey.
-    """
-    # Create sources along line
+    """Generate a DC survey object from survey grid locations."""
+
     if Z is None:
         Z = np.zeros_like(X)
 
