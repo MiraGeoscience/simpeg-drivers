@@ -41,10 +41,10 @@ class BaseTDEMOptions(EMDataMixin):
 
     :param data_object: The data object containing the TDEM data.
     :param physical_property: The physical property being modeled (e.g., conductivity).
-    :param data_units: The units of the TDEM data (e.g., "dB/dt (T/s)").
+    :param data_units: The units of the TDEM data (e.g., "Airborne dB/dt (V/Am^4)").
     """
 
-    data_units: str = "dB/dt (T/s)"
+    data_units: str = "Airborne dB/dt (V/Am^4)"
 
     @property
     def unit_conversion(self):

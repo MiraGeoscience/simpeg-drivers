@@ -21,6 +21,7 @@ from simpeg_drivers import assets_path
 from simpeg_drivers.options import (
     BaseForwardOptions,
     BaseInversionOptions,
+    DirectiveOptions,
     ModelOptions,
 )
 
@@ -140,3 +141,5 @@ class MVIInversionOptions(BaseInversionOptions):
     inducing_field_inclination: float | FloatData
     inducing_field_declination: float | FloatData
     models: VectorModelOptions
+
+    directives: DirectiveOptions = DirectiveOptions(sens_wts_threshold=1e-3)

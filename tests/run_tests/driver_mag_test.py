@@ -111,7 +111,6 @@ def test_susceptibility_run(
             tmi_channel=tmi,
             tmi_uncertainty=1.0,
             max_global_iterations=max_iterations,
-            store_sensitivities="ram",
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 

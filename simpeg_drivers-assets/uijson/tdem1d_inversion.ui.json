@@ -22,14 +22,20 @@
     },
     "data_units": {
         "choiceList": [
-            "dB/dt (T/s)",
-            "B (T)",
-            "H (A/m)"
+            "Airborne dB/dt (V/Am^4)",
+            "Airborne B (T/Am^2)",
+            "Ground dB/dt (V/Am^2)",
+            "Ground B (T/A)"
         ],
-        "group": "Data",
+        "group": "Survey",
         "main": true,
         "label": "Data type",
-        "tooltip": "Set the units of the data",
+        "tooltip": [
+            "Set the units of the data.<dl>",
+            "Data are expected to be normalized by the source strength, dependent on the type:<dl>",
+            "<dt>Dipole</dt><dd>Current * area * number of turns (NIA).</dd><dl>",
+            "<dt>Wire</dt><dd>Current * number of turns (NI).</dd>"
+        ],
         "value": "dB/dt (T/s)"
     },
     "z_channel": {

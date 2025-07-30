@@ -42,7 +42,7 @@ from tests.testing_utils import check_target, setup_inversion_workspace
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 1.1038993594022803, "phi_d": 308, "phi_m": 0.0237}
+target_run = {"data_norm": 1.1039080237658845, "phi_d": 185, "phi_m": 0.491}
 
 
 def test_dc_rotated_p3d_fwr_run(
@@ -147,7 +147,6 @@ def test_dc_rotated_gradient_p3d_run(
             s_norm=0.0,
             x_norm=0.0,
             z_norm=0.0,
-            gradient_type="components",
             max_global_iterations=max_iterations,
             initial_beta=None,
             initial_beta_ratio=10.0,

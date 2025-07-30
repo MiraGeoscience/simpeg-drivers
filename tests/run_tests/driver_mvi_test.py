@@ -10,6 +10,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import logging
 from pathlib import Path
 
@@ -36,12 +37,12 @@ from tests.testing_utils import check_target, setup_inversion_workspace
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_mvi_run = {"data_norm": 6.3559205278626525, "phi_d": 0.00933, "phi_m": 0.00401}
+target_mvi_run = {"data_norm": 149.10117594929326, "phi_d": 58.6, "phi_m": 0.0079}
 
 
 def test_magnetic_vector_fwr_run(
     tmp_path: Path,
-    n_grid_points=2,
+    n_grid_points=3,
     refinement=(2,),
 ):
     # Run the forward
@@ -78,7 +79,9 @@ def test_magnetic_vector_fwr_run(
 
 def test_magnetic_vector_run(
     tmp_path: Path,
-    max_iterations=2,
+    caplog,
+    max_iterations=3,
+    upper_bound=2e-3,
     pytest=True,
 ):
     workpath = tmp_path / "inversion_test.ui.geoh5"
@@ -95,7 +98,6 @@ def test_magnetic_vector_run(
         mesh = geoh5.get_entity("mesh")[0]
         topography = geoh5.get_entity("topography")[0]
         inducing_field = (50000.0, 90.0, 0.0)
-
         dip, direction = mesh.add_data(
             {
                 "dip": {"values": np.zeros(mesh.n_cells)},
@@ -108,83 +110,8 @@ def test_magnetic_vector_run(
             properties=[dip, direction],
             parent=mesh,
         )
-
         # Run the inverse
-        params = MVIInversionOptions.build(
-            geoh5=geoh5,
-            mesh=mesh,
-            topography_object=topography,
-            inducing_field_strength=inducing_field[0],
-            inducing_field_inclination=inducing_field[1],
-            inducing_field_declination=inducing_field[2],
-            data_object=tmi.parent,
-            starting_model=1e-4,
-            reference_model=0.0,
-            s_norm=0.0,
-            x_norm=1.0,
-            y_norm=1.0,
-            z_norm=1.0,
-            tmi_channel=tmi,
-            tmi_uncertainty=4.0,
-            max_global_iterations=max_iterations,
-            gradient_rotation=gradient_rotation,
-            initial_beta_ratio=1e1,
-            store_sensitivities="ram",
-            save_sensitivities=True,
-            percentile=100,
-        )
-        params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
-
-    driver = MVIInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
-
-    with Workspace(driver.params.geoh5.h5file) as run_ws:
-        # Re-open the workspace and get iterations
-        output = get_inversion_output(
-            driver.params.geoh5.h5file, driver.params.out_group.uid
-        )
-        output["data"] = orig_tmi
-        if pytest:
-            check_target(output, target_mvi_run)
-            nan_ind = np.isnan(
-                run_ws.get_entity("Iteration_0_amplitude_model")[0].values
-            )
-            inactive_ind = run_ws.get_entity("active_cells")[0].values == 0
-            assert np.all(nan_ind == inactive_ind)
-
-        out_group = run_ws.get_entity("Magnetic Vector Inversion")[0]
-        mesh = out_group.get_entity("mesh")[0]
-        assert len(mesh.property_groups) == 5
-        assert len(mesh.fetch_property_group("Iteration_0").properties) == 2
-        assert len(mesh.fetch_property_group("LP models").properties) == 6
-        assert (
-            mesh.fetch_property_group("Iteration_1").property_group_type
-            == GroupTypeEnum.DIPDIR
-        )
-
-
-def test_magnetic_vector_bounds_run(
-    tmp_path: Path,
-    caplog,
-    max_iterations=4,
-    pytest=True,
-):
-    workpath = tmp_path / "inversion_test.ui.geoh5"
-    if pytest:
-        workpath = (
-            tmp_path.parent
-            / "test_magnetic_vector_fwr_run0"
-            / "inversion_test.ui.geoh5"
-        )
-
-    with Workspace(workpath) as geoh5:
-        upper_bound = 1e-2
-        tmi = geoh5.get_entity("Iteration_0_tmi")[0]
-        mesh = geoh5.get_entity("mesh")[0]
-        topography = geoh5.get_entity("topography")[0]
-        inducing_field = (50000.0, 90.0, 0.0)
-
-        # Run the inverse
-        with caplog.at_level(logging.WARNING):
+        with caplog.at_level(logging.WARNING) if caplog else contextlib.nullcontext():
             params = MVIInversionOptions.build(
                 geoh5=geoh5,
                 mesh=mesh,
@@ -195,29 +122,56 @@ def test_magnetic_vector_bounds_run(
                 data_object=tmi.parent,
                 starting_model=1e-4,
                 reference_model=0.0,
+                gradient_rotation=gradient_rotation,
                 s_norm=0.0,
                 x_norm=1.0,
                 y_norm=1.0,
                 z_norm=1.0,
                 tmi_channel=tmi,
-                tmi_uncertainty=4.0,
+                tmi_uncertainty=5.0,
                 lower_bound=1e-6,
                 upper_bound=upper_bound,
                 max_global_iterations=max_iterations,
                 initial_beta_ratio=1e1,
-                store_sensitivities="ram",
-                save_sensitivities=True,
-                percentile=100,
             )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
-
-        assert "Skipping deprecated field: lower_bound" in caplog.text
+        if caplog:
+            assert "Skipping deprecated field: lower_bound" in caplog.text
 
     driver = MVIInversionDriver(params)
     assert np.all(driver.models.lower_bound == -upper_bound)
+    driver.run()
+
+    if pytest:
+        with Workspace(driver.params.geoh5.h5file) as run_ws:
+            # Re-open the workspace and get iterations
+            output = get_inversion_output(
+                driver.params.geoh5.h5file, driver.params.out_group.uid
+            )
+            output["data"] = orig_tmi
+            model = run_ws.get_entity("Iteration_3_amplitude_model")[0]
+            nan_ind = np.isnan(model.values)
+            inactive_ind = run_ws.get_entity("active_cells")[0].values == 0
+            assert np.all(nan_ind == inactive_ind)
+
+            assert np.nanmin(model.values) <= 1e-5
+            assert np.isclose(np.nanmax(model.values), upper_bound)
+
+            out_group = run_ws.get_entity("Magnetic Vector Inversion")[0]
+            mesh = out_group.get_entity("mesh")[0]
+            assert len(mesh.property_groups) == 6
+            assert len(mesh.fetch_property_group("Iteration_0").properties) == 2
+            assert len(mesh.fetch_property_group("LP models").properties) == 6
+            assert (
+                mesh.fetch_property_group("Iteration_1").property_group_type
+                == GroupTypeEnum.DIPDIR
+            )
+            check_target(output, target_mvi_run)
 
 
 if __name__ == "__main__":
     # Full run
     test_magnetic_vector_fwr_run(Path("./"), n_grid_points=20, refinement=(4, 8))
-    test_magnetic_vector_run(Path("./"), max_iterations=30, pytest=False)
+    test_magnetic_vector_run(
+        Path("./"), None, max_iterations=30, upper_bound=1e-1, pytest=False
+    )
