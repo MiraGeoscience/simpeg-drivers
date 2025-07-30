@@ -36,7 +36,7 @@ from tests.testing_utils import check_target, setup_inversion_workspace
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.40763989924638555, "phi_d": 1040, "phi_m": 104}
+target_run = {"data_norm": 0.4076195420139727, "phi_d": 37.5, "phi_m": 427}
 
 
 def test_gravity_rotated_grad_fwr_run(
@@ -129,7 +129,6 @@ def test_rotated_grad_run(
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e-1,
             percentile=95,
-            store_sensitivities="ram",
             save_sensitivities=True,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")

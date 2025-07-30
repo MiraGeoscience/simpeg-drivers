@@ -425,7 +425,7 @@
     "cooling_rate": {
         "group": "Optimization",
         "label": "Iterations per beta",
-        "value": 2,
+        "value": 1,
         "min": 1,
         "LineEdit": false,
         "max": 10,
@@ -482,7 +482,7 @@
         "group": "Update sensitivity weights directive",
         "tooltip": "Update sensitivity weight threshold",
         "label": "Threshold (%)",
-        "value": 0.001,
+        "value": 1.0,
         "max": 100.0,
         "min": 0.0,
         "precision": 3,

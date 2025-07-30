@@ -51,7 +51,6 @@ def test_smallness_terms(tmp_path: Path):
             max_global_iterations=1,
             initial_beta_ratio=1e-2,
             percentile=100,
-            store_sensitivities="ram",
         )
         params.alpha_s = None
         driver = GravityInversionDriver(params)

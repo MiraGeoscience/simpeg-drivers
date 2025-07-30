@@ -29,7 +29,7 @@ from tests.testing_utils import check_target, setup_inversion_workspace
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.2997791602206556, "phi_d": 1410, "phi_m": 74.4}
+target_run = {"data_norm": 0.2997791660779469, "phi_d": 398, "phi_m": 102}
 
 
 def test_joint_surveys_fwr_run(
@@ -155,7 +155,6 @@ def test_joint_surveys_inv_run(
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e-2,
             percentile=100,
-            store_sensitivities="ram",
         )
 
     driver = JointSurveyDriver(joint_params)
