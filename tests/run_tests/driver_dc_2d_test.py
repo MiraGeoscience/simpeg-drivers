@@ -14,7 +14,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-from geoh5py.data import ReferencedData
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.electricals.direct_current.two_dimensions.driver import (
@@ -26,14 +25,21 @@ from simpeg_drivers.electricals.direct_current.two_dimensions.options import (
     DC2DInversionOptions,
 )
 from simpeg_drivers.options import (
-    ActiveCellsOptions,
     DrapeModelOptions,
     LineSelectionOptions,
 )
-from tests.testing_utils import (
+from simpeg_drivers.utils.testing_utils.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticDataInversionOptions,
+)
+from simpeg_drivers.utils.testing_utils.runtests import (
+    setup_inversion_workspace,
+)
+from simpeg_drivers.utils.testing_utils.targets import (
     check_target,
     get_inversion_output,
-    setup_inversion_workspace,
 )
 
 
@@ -50,16 +56,13 @@ def test_dc_2d_fwr_run(
     refinement=(4, 6),
 ):
     # Run the forward
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
+        mesh=MeshOptions(refinement=refinement),
+        model=ModelOptions(background=0.01, anomaly=10),
+    )
     geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.01,
-        anomaly=10,
-        n_electrodes=n_electrodes,
-        n_lines=n_lines,
-        refinement=refinement,
-        inversion_type="direct current 2d",
-        drape_height=0.0,
-        flatten=False,
+        tmp_path, method="direct current 2d", options=opts
     )
     line_selection = LineSelectionOptions(
         line_object=geoh5.get_entity("line_ids")[0],

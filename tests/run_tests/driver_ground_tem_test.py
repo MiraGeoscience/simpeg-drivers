@@ -26,11 +26,18 @@ from simpeg_drivers.electromagnetics.time_domain.options import (
     TDEMForwardOptions,
     TDEMInversionOptions,
 )
-from simpeg_drivers.options import ActiveCellsOptions
-from tests.testing_utils import (
+from simpeg_drivers.utils.testing_utils.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticDataInversionOptions,
+)
+from simpeg_drivers.utils.testing_utils.runtests import (
+    setup_inversion_workspace,
+)
+from simpeg_drivers.utils.testing_utils.targets import (
     check_target,
     get_inversion_output,
-    setup_inversion_workspace,
 )
 
 
@@ -51,24 +58,26 @@ def test_tiling_ground_tem(
     **_,
 ):
     # Run the forward
-    plate_model = PlateModel(
-        strike_length=40.0,
-        dip_length=40.0,
-        width=40.0,
-        origin=(0.0, 0.0, -50.0),
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(
+            n_stations=n_grid_points,
+            n_lines=n_grid_points,
+            drape=5.0,
+            terrain=lambda x, y: np.zeros(len(x)),
+        ),
+        mesh=MeshOptions(refinement=refinement, padding_distance=1000.0),
+        model=ModelOptions(
+            background=0.001,
+            plate=PlateModel(
+                strike_length=40.0,
+                dip_length=40.0,
+                width=40.0,
+                origin=(0.0, 0.0, -50.0),
+            ),
+        ),
     )
     geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        plate_model=plate_model,
-        background=0.001,
-        anomaly=1.0,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
-        refinement=refinement,
-        inversion_type="ground tdem",
-        drape_height=5.0,
-        padding_distance=1000.0,
-        flatten=True,
+        tmp_path, method="ground tdem", options=opts
     )
 
     params = TDEMForwardOptions.build(
@@ -105,25 +114,30 @@ def test_ground_tem_fwr_run(
     if pytest:
         caplog.set_level(INFO)
     # Run the forward
-    plate_model = PlateModel(
-        strike_length=40.0,
-        dip_length=40.0,
-        width=40.0,
-        origin=(0.0, 0.0, -50.0),
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(
+            n_stations=n_grid_points,
+            n_lines=n_grid_points,
+            drape=5.0,
+            terrain=lambda x, y: np.zeros(len(x)),
+        ),
+        mesh=MeshOptions(
+            cell_size=cell_size, refinement=refinement, padding_distance=1000.0
+        ),
+        model=ModelOptions(
+            background=0.001,
+            plate=PlateModel(
+                strike_length=40.0,
+                dip_length=40.0,
+                width=40.0,
+                origin=(0.0, 0.0, -50.0),
+            ),
+        ),
     )
     geoh5, _, model, survey, topography = setup_inversion_workspace(
         tmp_path,
-        plate_model=plate_model,
-        background=0.001,
-        anomaly=1.0,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
-        refinement=refinement,
-        inversion_type="ground tdem",
-        drape_height=5.0,
-        cell_size=cell_size,
-        padding_distance=1000.0,
-        flatten=True,
+        method="ground tdem",
+        options=opts,
     )
     params = TDEMForwardOptions.build(
         geoh5=geoh5,

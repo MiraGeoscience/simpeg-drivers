@@ -8,34 +8,34 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-import numpy as np
-from geoh5py import Workspace
 from geoh5py.groups import SimPEGGroup
-from geoh5py.objects import AirborneTEMReceivers, ObjectBase, Octree, Surface
 from geoh5py.ui_json import InputFile
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.electromagnetics.time_domain.options import TDEMForwardOptions
 from simpeg_drivers.plate_simulation.driver import (
-    PlateSimulationDriver,
     PlateSimulationOptions,
 )
 from simpeg_drivers.plate_simulation.models.options import ModelOptions
 from simpeg_drivers.plate_simulation.options import MeshOptions
 from simpeg_drivers.potential_fields.gravity.options import GravityForwardOptions
-from tests.testing_utils import setup_inversion_workspace
+from simpeg_drivers.utils.testing_utils.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticDataInversionOptions,
+)
+from simpeg_drivers.utils.testing_utils.runtests import setup_inversion_workspace
 
 
 # pylint: disable=too-many-statements
 def test_plate_simulation_params_from_input_file(tmp_path):
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(n_stations=8, n_lines=8),
+        mesh=MeshOptions(),
+        model=ModelOptions(anomaly=0.0),
+    )
     geoh5, mesh, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.0,
-        anomaly=0.0,
-        n_electrodes=8,
-        n_lines=8,
-        inversion_type="gravity",
-        flatten=False,
+        tmp_path, method="gravity", options=opts
     )
 
     with geoh5.open() as ws:

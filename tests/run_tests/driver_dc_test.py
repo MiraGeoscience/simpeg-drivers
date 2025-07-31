@@ -23,11 +23,18 @@ from simpeg_drivers.electricals.direct_current.three_dimensions.options import (
     DC3DForwardOptions,
     DC3DInversionOptions,
 )
-from simpeg_drivers.options import ActiveCellsOptions
-from tests.testing_utils import (
+from simpeg_drivers.utils.testing_utils.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticDataInversionOptions,
+)
+from simpeg_drivers.utils.testing_utils.runtests import (
+    setup_inversion_workspace,
+)
+from simpeg_drivers.utils.testing_utils.targets import (
     check_target,
     get_inversion_output,
-    setup_inversion_workspace,
 )
 
 
@@ -44,16 +51,13 @@ def test_dc_3d_fwr_run(
     refinement=(4, 6),
 ):
     # Run the forward
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
+        mesh=MeshOptions(refinement=refinement),
+        model=ModelOptions(background=0.01, anomaly=10.0),
+    )
     geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.01,
-        anomaly=10,
-        n_electrodes=n_electrodes,
-        n_lines=n_lines,
-        refinement=refinement,
-        drape_height=0.0,
-        inversion_type="direct current 3d",
-        flatten=False,
+        tmp_path, method="direct current 3d", options=opts
     )
 
     # Randomly flip order of receivers
@@ -143,16 +147,13 @@ def test_dc_single_line_fwr_run(
     refinement=(4, 6),
 ):
     # Run the forward
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
+        mesh=MeshOptions(refinement=refinement),
+        model=ModelOptions(background=0.01, anomaly=10.0),
+    )
     geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.01,
-        anomaly=10,
-        n_electrodes=n_electrodes,
-        n_lines=n_lines,
-        refinement=refinement,
-        drape_height=0.0,
-        inversion_type="direct current 3d",
-        flatten=False,
+        tmp_path, method="direct current 3d", options=opts
     )
     params = DC3DForwardOptions.build(
         geoh5=geoh5,

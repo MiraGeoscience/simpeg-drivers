@@ -11,16 +11,12 @@
 from __future__ import annotations
 
 from pathlib import Path
-from unittest.mock import patch
 
 import numpy as np
 from geoapps_utils.modelling.plates import PlateModel
-from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.groups.property_group import PropertyGroup
 from geoh5py.workspace import Workspace
-from pytest import raises
 
-from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import (
     GravityForwardOptions,
     GravityInversionOptions,
@@ -29,10 +25,18 @@ from simpeg_drivers.potential_fields.gravity.driver import (
     GravityForwardDriver,
     GravityInversionDriver,
 )
-from tests.testing_utils import (
+from simpeg_drivers.utils.testing_utils.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticDataInversionOptions,
+)
+from simpeg_drivers.utils.testing_utils.runtests import (
+    setup_inversion_workspace,
+)
+from simpeg_drivers.utils.testing_utils.targets import (
     check_target,
     get_inversion_output,
-    setup_inversion_workspace,
 )
 
 
@@ -48,24 +52,26 @@ def test_gravity_rotated_grad_fwr_run(
     refinement=(2,),
 ):
     # Run the forward
-    plate_model = PlateModel(
-        strike_length=500.0,
-        dip_length=150.0,
-        width=20.0,
-        origin=(0.0, 0.0, -10.0),
-        direction=60.0,
-        dip=70.0,
+
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(
+            n_stations=n_grid_points, n_lines=n_grid_points, center=(0.0, 0.0, 15.0)
+        ),
+        mesh=MeshOptions(refinement=refinement),
+        model=ModelOptions(
+            anomaly=0.75,
+            plate=PlateModel(
+                strike_length=500.0,
+                dip_length=150.0,
+                width=20.0,
+                origin=(0.0, 0.0, -10.0),
+                direction=60.0,
+                dip=70.0,
+            ),
+        ),
     )
     geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        plate_model=plate_model,
-        background=0.0,
-        anomaly=0.75,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
-        refinement=refinement,
-        center=(0.0, 0.0, 15.0),
-        flatten=False,
+        tmp_path, method="gravity", options=opts
     )
 
     params = GravityForwardOptions.build(

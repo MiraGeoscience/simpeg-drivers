@@ -26,11 +26,18 @@ from simpeg_drivers.electromagnetics.frequency_domain_1d.options import (
     FDEM1DForwardOptions,
     FDEM1DInversionOptions,
 )
-from simpeg_drivers.options import ActiveCellsOptions
-from tests.testing_utils import (
+from simpeg_drivers.utils.testing_utils.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticDataInversionOptions,
+)
+from simpeg_drivers.utils.testing_utils.runtests import (
+    setup_inversion_workspace,
+)
+from simpeg_drivers.utils.testing_utils.targets import (
     check_target,
     get_inversion_output,
-    setup_inversion_workspace,
 )
 
 
@@ -47,18 +54,17 @@ def test_fem_fwr_1d_run(
     cell_size=(20.0, 20.0, 20.0),
 ):
     # Run the forward
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(
+            n_stations=n_grid_points, n_lines=n_grid_points, drape=10.0
+        ),
+        mesh=MeshOptions(
+            cell_size=cell_size, refinement=refinement, padding_distance=400.0
+        ),
+        model=ModelOptions(background=1e-4, anomaly=0.1),
+    )
     geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=1e-4,
-        anomaly=0.1,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
-        refinement=refinement,
-        drape_height=10.0,
-        cell_size=cell_size,
-        padding_distance=400,
-        inversion_type="fdem 1d",
-        flatten=False,
+        tmp_path, method="fdem 1d", options=opts
     )
     params = FDEM1DForwardOptions.build(
         geoh5=geoh5,

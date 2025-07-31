@@ -8,52 +8,37 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-from collections.abc import Callable
-
 import numpy as np
-from geoapps_utils.utils.locations import grid_layout
+from geoapps_utils.utils.locations import gaussian
 from geoh5py import Workspace
 from geoh5py.objects import Surface
 from scipy.spatial import Delaunay
 
-
-def gaussian(
-    x: np.ndarray, y: np.ndarray, amplitude: float, width: float
-) -> np.ndarray:
-    """
-    Gaussian function for 2D data.
-
-    :param x: X-coordinates.
-    :param y: Y-coordinates.
-    :param amplitude: Amplitude of the Gaussian.
-    :param width: Width parameter of the Gaussian.
-    """
-
-    return amplitude * np.exp(-0.5 * ((x / width) ** 2.0 + (y / width) ** 2.0))
+from simpeg_drivers.utils.testing_utils.options import SurveyOptions
+from simpeg_drivers.utils.testing_utils.surveys.layout import grid_layout
 
 
-def get_topography_surface(
-    geoh5: Workspace,
-    survey_limits: tuple[float, float, float, float],
-    topography: Callable | float = 0,
-    shift: float = 0,
-) -> Surface:
+def get_topography_surface(geoh5: Workspace, options: SurveyOptions) -> Surface:
     """
     Returns a topography surface with 2x the limits of the survey.
 
     :param geoh5: Geoh5 workspace.
-    :param survey_limits: Tuple of (xmin, xmax, ymin, ymax) defining the survey limits.
-    :param topography: Callable or float defining the topography function.
-    :param shift: Static shift to add to the z values.
+    :param options: Survey options. Extents will be 2x the survey extents.
     """
+
+    survey_limits = [
+        options.center[0] - options.width / 2,
+        options.center[0] + options.width / 2,
+        options.center[1] - options.height / 2,
+        options.center[1] + options.height / 2,
+    ]
 
     X, Y, Z = grid_layout(
         limits=tuple(2 * k for k in survey_limits),
         station_spacing=int(np.ceil((survey_limits[1] - survey_limits[0]) / 4)),
         line_spacing=int(np.ceil((survey_limits[3] - survey_limits[2]) / 4)),
-        topography=topography,
+        terrain=options.terrain,
     )
-    Z += shift
 
     vertices = np.column_stack(
         [X.flatten(order="F"), Y.flatten(order="F"), Z.flatten(order="F")]

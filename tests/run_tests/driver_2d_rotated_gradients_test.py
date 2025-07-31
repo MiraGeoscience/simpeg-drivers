@@ -11,14 +11,11 @@
 from __future__ import annotations
 
 from pathlib import Path
-from unittest.mock import patch
 
 import numpy as np
 from geoapps_utils.modelling.plates import PlateModel
-from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.groups.property_group import PropertyGroup
 from geoh5py.workspace import Workspace
-from pytest import raises
 
 from simpeg_drivers.electricals.direct_current.two_dimensions.driver import (
     DC2DForwardDriver,
@@ -29,14 +26,21 @@ from simpeg_drivers.electricals.direct_current.two_dimensions.options import (
     DC2DInversionOptions,
 )
 from simpeg_drivers.options import (
-    ActiveCellsOptions,
     DrapeModelOptions,
     LineSelectionOptions,
 )
-from tests.testing_utils import (
+from simpeg_drivers.utils.testing_utils.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticDataInversionOptions,
+)
+from simpeg_drivers.utils.testing_utils.runtests import (
+    setup_inversion_workspace,
+)
+from simpeg_drivers.utils.testing_utils.targets import (
     check_target,
     get_inversion_output,
-    setup_inversion_workspace,
 )
 
 
@@ -52,27 +56,25 @@ def test_dc2d_rotated_grad_fwr_run(
     n_lines=3,
     refinement=(4, 6),
 ):
-    plate_model = PlateModel(
-        strike_length=1000.0,
-        dip_length=150.0,
-        width=20.0,
-        origin=(50.0, 0.0, -30),
-        direction=90,
-        dip=45,
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
+        mesh=MeshOptions(refinement=refinement),
+        model=ModelOptions(
+            background=0.01,
+            anomaly=10.0,
+            plate=PlateModel(
+                strike_length=1000.0,
+                dip_length=150.0,
+                width=20.0,
+                origin=(50.0, 0.0, -30),
+                direction=90,
+                dip=45,
+            ),
+        ),
     )
-
     # Run the forward
     geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        plate_model=plate_model,
-        background=0.01,
-        anomaly=10.0,
-        n_electrodes=n_electrodes,
-        n_lines=n_lines,
-        refinement=refinement,
-        inversion_type="direct current 2d",
-        drape_height=0.0,
-        flatten=False,
+        tmp_path, method="direct current 2d", options=opts
     )
     line_selection = LineSelectionOptions(
         line_object=geoh5.get_entity("line_ids")[0],

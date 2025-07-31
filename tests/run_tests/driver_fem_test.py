@@ -28,11 +28,18 @@ from simpeg_drivers.electromagnetics.frequency_domain.options import (
     FDEMForwardOptions,
     FDEMInversionOptions,
 )
-from simpeg_drivers.options import ActiveCellsOptions
-from tests.testing_utils import (
+from simpeg_drivers.utils.testing_utils.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticDataInversionOptions,
+)
+from simpeg_drivers.utils.testing_utils.runtests import (
+    setup_inversion_workspace,
+)
+from simpeg_drivers.utils.testing_utils.targets import (
     check_target,
     get_inversion_output,
-    setup_inversion_workspace,
 )
 
 
@@ -44,16 +51,13 @@ target_run = {"data_norm": 81.8361, "phi_d": 2160, "phi_m": 4010}
 
 def test_fem_name_change(tmp_path, caplog):
     # Run the forward
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(n_stations=2, n_lines=2, drape=15.0),
+        mesh=MeshOptions(refinement=(2,), padding_distance=400.0),
+        model=ModelOptions(background=1e-3),
+    )
     geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=1e-3,
-        anomaly=1.0,
-        n_electrodes=2,
-        n_lines=2,
-        refinement=(2,),
-        drape_height=15.0,
-        padding_distance=400,
-        inversion_type="fdem",
+        tmp_path, method="fdem", options=opts
     )
     with caplog.at_level(logging.WARNING):
         FDEMForwardOptions.build(
@@ -76,25 +80,30 @@ def test_fem_fwr_run(
     cell_size=(20.0, 20.0, 20.0),
 ):
     # Run the forward
-    plate_model = PlateModel(
-        strike_length=40.0,
-        dip_length=40.0,
-        width=40.0,
-        origin=(0.0, 0.0, -50.0),
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(
+            n_stations=n_grid_points,
+            n_lines=n_grid_points,
+            drape=15.0,
+            terrain=lambda x, y: np.zeros(len(x)),
+        ),
+        mesh=MeshOptions(
+            cell_size=cell_size, refinement=refinement, padding_distance=400.0
+        ),
+        model=ModelOptions(
+            background=1e-3,
+            plate=PlateModel(
+                strike_length=40.0,
+                dip_length=40.0,
+                width=40.0,
+                origin=(0.0, 0.0, -50.0),
+            ),
+        ),
     )
     geoh5, _, model, survey, topography = setup_inversion_workspace(
         tmp_path,
-        plate_model=plate_model,
-        background=1e-3,
-        anomaly=1.0,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
-        refinement=refinement,
-        drape_height=15.0,
-        cell_size=cell_size,
-        padding_distance=400,
-        inversion_type="fdem",
-        flatten=True,
+        method="fdem",
+        options=opts,
     )
     params = FDEMForwardOptions.build(
         geoh5=geoh5,

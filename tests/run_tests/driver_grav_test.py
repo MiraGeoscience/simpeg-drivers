@@ -16,10 +16,10 @@ from unittest.mock import patch
 import numpy as np
 from geoapps_utils.modelling.plates import PlateModel
 from geoapps_utils.utils.importing import GeoAppsError
+from geoapps_utils.utils.locations import gaussian
 from geoh5py.workspace import Workspace
 from pytest import raises
 
-from simpeg_drivers.options import ActiveCellsOptions, ModelOptions
 from simpeg_drivers.potential_fields import (
     GravityForwardOptions,
     GravityInversionOptions,
@@ -28,10 +28,16 @@ from simpeg_drivers.potential_fields.gravity.driver import (
     GravityForwardDriver,
     GravityInversionDriver,
 )
-from tests.testing_utils import (
+from simpeg_drivers.utils.testing_utils.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticDataInversionOptions,
+)
+from simpeg_drivers.utils.testing_utils.runtests import setup_inversion_workspace
+from simpeg_drivers.utils.testing_utils.targets import (
     check_target,
     get_inversion_output,
-    setup_inversion_workspace,
 )
 
 
@@ -45,24 +51,15 @@ def test_gravity_fwr_run(
     n_grid_points=2,
     refinement=(2,),
 ):
-    plate_model = PlateModel(
-        strike_length=40.0,
-        dip_length=40.0,
-        width=40.0,
-        origin=(0.0, 0.0, 10.0),
+    options = SyntheticDataInversionOptions(
+        survey=SurveyOptions(n_stations=n_grid_points, n_lines=n_grid_points),
+        mesh=MeshOptions(refinement=refinement),
+        model=ModelOptions(anomaly=0.75),
     )
 
     # Run the forward
     geoh5, mesh, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        plate_model,
-        background=0.0,
-        anomaly=0.75,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
-        refinement=refinement,
-        inversion_type="gravity",
-        flatten=False,
+        tmp_path, method="gravity", options=options
     )
 
     params = GravityForwardOptions.build(

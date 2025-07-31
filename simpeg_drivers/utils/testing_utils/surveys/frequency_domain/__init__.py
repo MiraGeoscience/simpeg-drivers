@@ -1,12 +1,9 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 #  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
 #                                                                                   '
-#  This file is part of simpeg-drivers package.                                     '
+#  This file is part of geoapps-utils package.                                      '
 #                                                                                   '
-#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  geoapps-utils is distributed under the terms and conditions of the MIT License   '
 #  (see LICENSE file at the root of this source code package).                      '
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-from .runtests import setup_inversion_workspace
-from .targets import check_target, get_inversion_output

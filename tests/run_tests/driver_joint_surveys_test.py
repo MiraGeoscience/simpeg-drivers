@@ -22,10 +22,18 @@ from simpeg_drivers.potential_fields import (
     GravityInversionOptions,
 )
 from simpeg_drivers.potential_fields.gravity.driver import GravityInversionDriver
-from tests.testing_utils import (
+from simpeg_drivers.utils.testing_utils.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticDataInversionOptions,
+)
+from simpeg_drivers.utils.testing_utils.runtests import (
+    setup_inversion_workspace,
+)
+from simpeg_drivers.utils.testing_utils.targets import (
     check_target,
     get_inversion_output,
-    setup_inversion_workspace,
 )
 
 
@@ -41,13 +49,15 @@ def test_joint_surveys_fwr_run(
     refinement=(2,),
 ):
     # Create local problem A
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(n_stations=n_grid_points, n_lines=n_grid_points),
+        mesh=MeshOptions(refinement=refinement),
+        model=ModelOptions(anomaly=0.75),
+    )
     geoh5, _, model, survey, topography = setup_inversion_workspace(
         tmp_path,
-        background=0.0,
-        anomaly=0.75,
-        refinement=refinement,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
+        method="gravity",
+        options=opts,
     )
     params = GravityForwardOptions.build(
         geoh5=geoh5,
@@ -63,16 +73,19 @@ def test_joint_surveys_fwr_run(
 
     # Create local problem B
     with geoh5.open():
+        opts = SyntheticDataInversionOptions(
+            survey=SurveyOptions(
+                n_stations=int(n_grid_points / 2),
+                n_lines=int(n_grid_points / 2),
+                drape=10.0,
+            ),
+            mesh=MeshOptions(refinement=(0, 2)),
+            model=ModelOptions(anomaly=0.75),
+        )
         _, _, model, survey, _ = setup_inversion_workspace(
             tmp_path,
-            background=0.0,
-            anomaly=0.75,
-            refinement=[0, 2],
-            n_electrodes=int(n_grid_points / 2),
-            n_lines=int(n_grid_points / 2),
-            flatten=False,
-            geoh5=geoh5,
-            drape_height=10.0,
+            method="gravity",
+            options=opts,
         )
     params = GravityForwardOptions.build(
         geoh5=geoh5,

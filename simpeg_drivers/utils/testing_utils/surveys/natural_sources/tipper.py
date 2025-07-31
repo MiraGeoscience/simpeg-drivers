@@ -9,34 +9,44 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 import numpy as np
+from geoapps_utils.utils.locations import mask_large_connections
 from geoh5py import Workspace
-from geoh5py.objects.surveys.electromagnetics.magnetotellurics import MTReceivers
+from geoh5py.objects.surveys.electromagnetics.tipper import (
+    TipperBaseStations,
+    TipperReceivers,
+)
 
-from . import channels
+
+channels = [
+    10.0,
+    100.0,
+    1000.0,
+]
 
 
-def generate_magnetotellurics_survey(
+def generate_tipper_survey(
     geoh5: Workspace,
     X: np.ndarray,
     Y: np.ndarray,
     Z: np.ndarray,
-) -> MTReceivers:
-    """Create a Magnetotellurics survey object from survey grid locations."""
-
-    survey = MTReceivers.create(
+) -> TipperReceivers:
+    """Create a Tipper survey object from survey grid locations."""
+    vertices = np.column_stack([X.flatten(), Y.flatten(), Z.flatten()])
+    survey = TipperReceivers.create(
         geoh5,
-        vertices=np.column_stack([X.flatten(), Y.flatten(), Z.flatten()]),
+        vertices=vertices,
         name="survey",
         components=[
-            "Zxx (real)",
-            "Zxx (imag)",
-            "Zxy (real)",
-            "Zxy (imag)",
-            "Zyx (real)",
-            "Zyx (imag)",
-            "Zyy (real)",
-            "Zyy (imag)",
+            "Txz (real)",
+            "Txz (imag)",
+            "Tyz (real)",
+            "Tyz (imag)",
         ],
         channels=channels,
     )
+    survey.base_stations = TipperBaseStations.create(
+        geoh5, vertices=np.c_[vertices[0, :]].T
+    )
+    survey.remove_cells(mask_large_connections(survey, 200.0))
+
     return survey

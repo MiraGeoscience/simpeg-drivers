@@ -11,64 +11,61 @@
 from collections.abc import Callable
 
 import numpy as np
-from geoapps_utils.utils.locations import grid_layout
 from geoh5py import Workspace
 from geoh5py.objects import ObjectBase, Points
 
-from tests.testing_utils.surveys import (
-    generate_airborne_tdem_survey,
-    generate_dc_survey,
-    generate_fdem_survey,
-    generate_magnetotellurics_survey,
-    generate_tdem_survey,
-    generate_tipper_survey,
-)
+from simpeg_drivers.utils.testing_utils.options import SurveyOptions
+from simpeg_drivers.utils.testing_utils.surveys.layout import grid_layout
+
+from .dcip import generate_dc_survey
+from .frequency_domain.fdem import generate_fdem_survey
+from .natural_sources.magnetotellurics import generate_magnetotellurics_survey
+from .natural_sources.tipper import generate_tipper_survey
+from .time_domain.airborne_tdem import generate_airborne_tdem_survey
+from .time_domain.ground_tdem import generate_tdem_survey
 
 
 def get_survey(
     geoh5: Workspace,
-    inversion_type: str,
-    limits: tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray],
-    station_spacing,
-    line_spacing,
-    topography: Callable | float,
-    drape_height: float,
+    method: str,
+    options: SurveyOptions,
 ) -> ObjectBase:
     """
-    Factory for survey creation with behaviour modified by the inversion type.
+    Factory for survey creation with behaviour modified by the provided method.
 
     :param geoh5: The workspace to create the survey in.
-    :param inversion_type: The type of inversion controlling the factory behaviour.
-    :param limits: Controls the center and extent of the survey grid.
-    :param station_spacing: Along-line grid spacing.
-    :param line_spacing: Across-line grid spacing.
-    :param topography: Describes the elevation of the survey.
-    :param drape_height: Additional height adjustment for the survey above the
-        topography.
+    :param method: The geophysical method controlling the factory behaviour.
+    :param options: Survey options.
     """
 
+    limits = [
+        options.center[0] - options.width / 2,
+        options.center[0] + options.width / 2,
+        options.center[1] - options.height / 2,
+        options.center[1] + options.height / 2,
+    ]
     X, Y, Z = grid_layout(
         limits=limits,
-        station_spacing=station_spacing,
-        line_spacing=line_spacing,
-        topography=topography,
+        station_spacing=options.n_stations,
+        line_spacing=options.n_lines,
+        terrain=options.terrain,
     )
-    Z += drape_height
+    Z += options.drape
 
-    if "current" in inversion_type or "polarization" in inversion_type:
+    if "current" in method or "polarization" in method:
         return generate_dc_survey(geoh5, X, Y, Z)
 
-    if "magnetotellurics" in inversion_type:
+    if "magnetotellurics" in method:
         return generate_magnetotellurics_survey(geoh5, X, Y, Z)
 
-    if "tipper" in inversion_type:
+    if "tipper" in method:
         return generate_tipper_survey(geoh5, X, Y, Z)
 
-    if inversion_type in ["fdem", "fem", "fdem 1d"]:
+    if method in ["fdem", "fem", "fdem 1d"]:
         return generate_fdem_survey(geoh5, X, Y, Z)
 
-    if "tdem" in inversion_type:
-        if "airborne" in inversion_type:
+    if "tdem" in method:
+        if "airborne" in method:
             return generate_airborne_tdem_survey(geoh5, X, Y, Z)
         else:
             return generate_tdem_survey(geoh5, X, Y, Z)

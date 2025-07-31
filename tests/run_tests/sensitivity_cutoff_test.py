@@ -21,10 +21,15 @@ from simpeg_drivers.depth_of_investigation.sensitivity_cutoff.driver import (
 from simpeg_drivers.depth_of_investigation.sensitivity_cutoff.options import (
     SensitivityCutoffOptions,
 )
-from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import GravityInversionOptions
 from simpeg_drivers.potential_fields.gravity.driver import GravityInversionDriver
-from tests.testing_utils import setup_inversion_workspace
+from simpeg_drivers.utils.testing_utils.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticDataInversionOptions,
+)
+from simpeg_drivers.utils.testing_utils.runtests import setup_inversion_workspace
 
 
 def setup_inversion_results(
@@ -32,14 +37,13 @@ def setup_inversion_results(
     n_grid_points=2,
     refinement=(2,),
 ):
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(n_stations=n_grid_points, n_lines=n_grid_points),
+        mesh=MeshOptions(refinement=refinement),
+        model=ModelOptions(anomaly=0.75),
+    )
     geoh5, mesh, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.0,
-        anomaly=0.75,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
-        refinement=refinement,
-        flatten=False,
+        tmp_path, method="gravity", options=opts
     )
 
     # Run the inverse with save_sensitivities=True

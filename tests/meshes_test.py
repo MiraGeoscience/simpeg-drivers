@@ -22,18 +22,23 @@ from octree_creation_app.utils import treemesh_2_octree
 from simpeg_drivers.components import InversionMesh
 from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import MVIInversionOptions
-from tests.testing_utils import setup_inversion_workspace
+from simpeg_drivers.utils.testing_utils.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticDataInversionOptions,
+)
+from simpeg_drivers.utils.testing_utils.runtests import setup_inversion_workspace
 
 
 def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(n_stations=4, n_lines=4),
+        mesh=MeshOptions(refinement=(2,)),
+        model=ModelOptions(anomaly=0.05),
+    )
     geoh5, entity, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.0,
-        anomaly=0.05,
-        refinement=(2,),
-        n_electrodes=4,
-        n_lines=4,
-        inversion_type="magnetic_vector",
+        tmp_path, method="magnetic_vector", options=opts
     )
     with geoh5.open():
         mesh = model.parent

@@ -29,14 +29,21 @@ from simpeg_drivers.electricals.options import (
     FileControlOptions,
 )
 from simpeg_drivers.options import (
-    ActiveCellsOptions,
     DrapeModelOptions,
     LineSelectionOptions,
 )
-from tests.testing_utils import (
+from simpeg_drivers.utils.testing_utils.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticDataInversionOptions,
+)
+from simpeg_drivers.utils.testing_utils.runtests import (
+    setup_inversion_workspace,
+)
+from simpeg_drivers.utils.testing_utils.targets import (
     check_target,
     get_inversion_output,
-    setup_inversion_workspace,
 )
 
 
@@ -53,16 +60,15 @@ def test_dc_p3d_fwr_run(
     refinement=(4, 6),
 ):
     # Run the forward
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
+        mesh=MeshOptions(refinement=refinement),
+        model=ModelOptions(background=0.01, anomaly=10.0),
+    )
     geoh5, _, model, survey, topography = setup_inversion_workspace(
         tmp_path,
-        background=0.01,
-        anomaly=10.0,
-        n_electrodes=n_electrodes,
-        n_lines=n_lines,
-        refinement=refinement,
-        inversion_type="direct current pseudo 3d",
-        drape_height=0.0,
-        flatten=False,
+        method="direct current pseudo 3d",
+        options=opts,
     )
     params = DCBatch2DForwardOptions.build(
         geoh5=geoh5,

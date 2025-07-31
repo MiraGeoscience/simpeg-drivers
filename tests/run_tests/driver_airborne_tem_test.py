@@ -13,9 +13,9 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-from geoapps_utils.modelling.plates import PlateModel
 from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
+from numpy.random import noncentral_f
 from pytest import raises
 
 from simpeg_drivers.electromagnetics.time_domain.driver import (
@@ -26,11 +26,18 @@ from simpeg_drivers.electromagnetics.time_domain.options import (
     TDEMForwardOptions,
     TDEMInversionOptions,
 )
-from simpeg_drivers.options import ActiveCellsOptions
-from tests.testing_utils import (
+from simpeg_drivers.utils.testing_utils.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticDataInversionOptions,
+)
+from simpeg_drivers.utils.testing_utils.runtests import (
+    setup_inversion_workspace,
+)
+from simpeg_drivers.utils.testing_utils.targets import (
     check_target,
     get_inversion_output,
-    setup_inversion_workspace,
 )
 
 
@@ -43,17 +50,17 @@ def test_bad_waveform(tmp_path: Path):
     n_grid_points = 3
     refinement = (2,)
 
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(
+            n_stations=n_grid_points, n_lines=n_grid_points, drape=10.0
+        ),
+        mesh=MeshOptions(refinement=refinement, padding_distance=400.0),
+        model=ModelOptions(background=0.001),
+    )
     geoh5, _, model, survey, topography = setup_inversion_workspace(
         tmp_path,
-        background=0.001,
-        anomaly=1.0,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
-        refinement=refinement,
-        inversion_type="airborne tdem",
-        drape_height=10.0,
-        padding_distance=400.0,
-        flatten=False,
+        method="airborne tdem",
+        options=opts,
     )
     params = TDEMForwardOptions.build(
         geoh5=geoh5,
@@ -81,18 +88,17 @@ def test_airborne_tem_fwr_run(
     cell_size=(20.0, 20.0, 20.0),
 ):
     # Run the forward
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(
+            n_stations=n_grid_points, n_lines=n_grid_points, drape=10.0
+        ),
+        mesh=MeshOptions(
+            cell_size=cell_size, refinement=refinement, padding_distance=400.0
+        ),
+        model=ModelOptions(background=0.001),
+    )
     geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.001,
-        anomaly=1.0,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
-        cell_size=cell_size,
-        refinement=refinement,
-        inversion_type="airborne tdem",
-        drape_height=10.0,
-        padding_distance=400.0,
-        flatten=False,
+        tmp_path, method="airborne tdem", options=opts
     )
     params = TDEMForwardOptions.build(
         geoh5=geoh5,

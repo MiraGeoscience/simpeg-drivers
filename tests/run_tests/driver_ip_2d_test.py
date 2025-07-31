@@ -23,11 +23,19 @@ from simpeg_drivers.electricals.induced_polarization.two_dimensions.driver impor
     IP2DForwardDriver,
     IP2DInversionDriver,
 )
-from simpeg_drivers.options import ActiveCellsOptions, LineSelectionOptions
-from tests.testing_utils import (
+from simpeg_drivers.options import LineSelectionOptions
+from simpeg_drivers.utils.testing_utils.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticDataInversionOptions,
+)
+from simpeg_drivers.utils.testing_utils.runtests import (
+    setup_inversion_workspace,
+)
+from simpeg_drivers.utils.testing_utils.targets import (
     check_target,
     get_inversion_output,
-    setup_inversion_workspace,
 )
 
 
@@ -44,16 +52,13 @@ def test_ip_2d_fwr_run(
     refinement=(4, 6),
 ):
     # Run the forward
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
+        mesh=MeshOptions(refinement=refinement),
+        model=ModelOptions(background=1e-6, anomaly=1e-1),
+    )
     geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=1e-6,
-        anomaly=1e-1,
-        n_electrodes=n_electrodes,
-        n_lines=n_lines,
-        refinement=refinement,
-        inversion_type="induced polarization 2d",
-        flatten=False,
-        drape_height=0.0,
+        tmp_path, method="induced polarization 2d", options=opts
     )
     params = IP2DForwardOptions.build(
         geoh5=geoh5,

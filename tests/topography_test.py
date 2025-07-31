@@ -17,18 +17,23 @@ import numpy as np
 from simpeg_drivers.components import InversionData, InversionMesh, InversionTopography
 from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import MVIInversionOptions
-from tests.testing_utils import setup_inversion_workspace
+from simpeg_drivers.utils.testing_utils.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticDataInversionOptions,
+)
+from simpeg_drivers.utils.testing_utils.runtests import setup_inversion_workspace
 
 
 def test_get_locations(tmp_path: Path):
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(n_stations=2, n_lines=2),
+        mesh=MeshOptions(refinement=(2,)),
+        model=ModelOptions(anomaly=0.05),
+    )
     geoh5, mesh, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.0,
-        anomaly=0.05,
-        refinement=(2,),
-        n_electrodes=2,
-        n_lines=2,
-        inversion_type="magnetic_vector",
+        tmp_path, method="magnetic_vector", options=opts
     )
     with geoh5.open():
         tmi_channel, gyz_channel = survey.add_data(

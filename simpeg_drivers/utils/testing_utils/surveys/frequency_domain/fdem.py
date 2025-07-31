@@ -13,7 +13,12 @@ from geoapps_utils.utils.locations import mask_large_connections
 from geoh5py import Workspace
 from geoh5py.objects import AirborneFEMReceivers, AirborneFEMTransmitters
 
-from . import frequency_config
+
+frequency_config = [
+    {"Coaxial data": False, "Frequency": 900, "Offset": 7.86},
+    {"Coaxial data": False, "Frequency": 7200, "Offset": 7.86},
+    {"Coaxial data": False, "Frequency": 56000, "Offset": 6.3},
+]
 
 
 def generate_fdem_survey(

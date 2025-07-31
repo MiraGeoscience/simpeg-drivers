@@ -25,18 +25,24 @@ from simpeg_drivers.potential_fields import MVIInversionOptions
 from simpeg_drivers.potential_fields.magnetic_vector.driver import (
     MVIInversionDriver,
 )
-from tests.testing_utils import setup_inversion_workspace
+from simpeg_drivers.utils.testing_utils.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticDataInversionOptions,
+)
+from simpeg_drivers.utils.testing_utils.runtests import setup_inversion_workspace
 
 
 def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(n_stations=2, n_lines=2),
+        mesh=MeshOptions(refinement=(2,)),
+        model=ModelOptions(anomaly=0.05),
+    )
+
     geoh5, entity, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.0,
-        anomaly=0.05,
-        refinement=(2,),
-        n_electrodes=2,
-        n_lines=2,
-        inversion_type="magnetic_vector",
+        tmp_path, method="magnetic_vector", options=opts
     )
     with geoh5.open():
         mesh = model.parent

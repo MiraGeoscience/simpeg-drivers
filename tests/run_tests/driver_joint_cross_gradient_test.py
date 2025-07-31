@@ -25,7 +25,6 @@ from simpeg_drivers.electricals.direct_current.three_dimensions.driver import (
 )
 from simpeg_drivers.joint.joint_cross_gradient import JointCrossGradientOptions
 from simpeg_drivers.joint.joint_cross_gradient.driver import JointCrossGradientDriver
-from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import (
     GravityForwardOptions,
     GravityInversionOptions,
@@ -40,10 +39,18 @@ from simpeg_drivers.potential_fields.magnetic_vector.driver import (
     MVIForwardDriver,
     MVIInversionDriver,
 )
-from tests.testing_utils import (
+from simpeg_drivers.utils.testing_utils.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticDataInversionOptions,
+)
+from simpeg_drivers.utils.testing_utils.runtests import (
+    setup_inversion_workspace,
+)
+from simpeg_drivers.utils.testing_utils.targets import (
     check_target,
     get_inversion_output,
-    setup_inversion_workspace,
 )
 
 
@@ -60,14 +67,15 @@ def test_joint_cross_gradient_fwr_run(
     refinement=(2,),
 ):
     # Create local problem A
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(
+            n_stations=n_grid_points, n_lines=n_grid_points, drape=15.0
+        ),
+        mesh=MeshOptions(refinement=refinement),
+        model=ModelOptions(anomaly=0.75),
+    )
     geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.0,
-        anomaly=0.75,
-        drape_height=15.0,
-        refinement=refinement,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
+        tmp_path, method="gravity", options=opts
     )
     params = GravityForwardOptions.build(
         geoh5=geoh5,
@@ -79,16 +87,15 @@ def test_joint_cross_gradient_fwr_run(
     fwr_driver_a = GravityForwardDriver(params)
 
     with geoh5.open():
+        opts = SyntheticDataInversionOptions(
+            survey=SurveyOptions(
+                n_stations=n_grid_points, n_lines=n_grid_points, drape=15.0
+            ),
+            mesh=MeshOptions(refinement),
+            model=ModelOptions(anomaly=0.05),
+        )
         _, _, model, survey, _ = setup_inversion_workspace(
-            tmp_path,
-            geoh5=geoh5,
-            background=0.0,
-            anomaly=0.05,
-            drape_height=15.0,
-            refinement=refinement,
-            n_electrodes=n_grid_points,
-            n_lines=n_grid_points,
-            flatten=False,
+            tmp_path, method="magnetic_vector", options=opts
         )
     inducing_field = (50000.0, 90.0, 0.0)
     params = MVIForwardOptions.build(
@@ -104,17 +111,13 @@ def test_joint_cross_gradient_fwr_run(
     fwr_driver_b = MVIForwardDriver(params)
 
     with geoh5.open():
+        opts = SyntheticDataInversionOptions(
+            survey=SurveyOptions(n_stations=n_grid_points, n_lines=n_lines),
+            mesh=MeshOptions(refinement=refinement),
+            model=ModelOptions(background=0.01, anomaly=10),
+        )
         _, _, model, survey, _ = setup_inversion_workspace(
-            tmp_path,
-            geoh5=geoh5,
-            background=0.01,
-            anomaly=10,
-            n_electrodes=n_grid_points,
-            n_lines=n_lines,
-            refinement=refinement,
-            drape_height=0.0,
-            inversion_type="direct current 3d",
-            flatten=False,
+            tmp_path, method="direct current 3d", options=opts
         )
 
     params = DC3DForwardOptions.build(

@@ -16,7 +16,6 @@ import numpy as np
 from dask.distributed import LocalCluster, performance_report
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import (
     MagneticForwardOptions,
     MagneticInversionOptions,
@@ -25,10 +24,18 @@ from simpeg_drivers.potential_fields.magnetic_scalar.driver import (
     MagneticForwardDriver,
     MagneticInversionDriver,
 )
-from tests.testing_utils import (
+from simpeg_drivers.utils.testing_utils.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticDataInversionOptions,
+)
+from simpeg_drivers.utils.testing_utils.runtests import (
+    setup_inversion_workspace,
+)
+from simpeg_drivers.utils.testing_utils.targets import (
     check_target,
     get_inversion_output,
-    setup_inversion_workspace,
 )
 
 
@@ -44,15 +51,13 @@ def test_susceptibility_fwr_run(
     refinement=(2,),
 ):
     # Run the forward
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(n_stations=n_grid_points, n_lines=n_grid_points),
+        mesh=MeshOptions(refinement=refinement),
+        model=ModelOptions(anomaly=0.05),
+    )
     geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.0,
-        anomaly=0.05,
-        refinement=refinement,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
-        inversion_type="magnetic",
-        flatten=False,
+        tmp_path, method="magnetic", options=opts
     )
     inducing_field = (49999.8, 90.0, 0.0)
 

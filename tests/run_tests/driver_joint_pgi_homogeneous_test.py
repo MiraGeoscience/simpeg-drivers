@@ -11,10 +11,8 @@
 from __future__ import annotations
 
 from pathlib import Path
-from unittest.mock import patch
 
 import numpy as np
-from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.data import FloatData
 from geoh5py.groups.property_group import GroupTypeEnum, PropertyGroup
 from geoh5py.groups.simpeg import SimPEGGroup
@@ -38,10 +36,18 @@ from simpeg_drivers.potential_fields.magnetic_scalar.driver import (
 from simpeg_drivers.potential_fields.magnetic_vector.driver import (
     MVIForwardDriver,
 )
-from tests.testing_utils import (
+from simpeg_drivers.utils.testing_utils.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticDataInversionOptions,
+)
+from simpeg_drivers.utils.testing_utils.runtests import (
+    setup_inversion_workspace,
+)
+from simpeg_drivers.utils.testing_utils.targets import (
     check_target,
     get_inversion_output,
-    setup_inversion_workspace,
 )
 
 
@@ -57,14 +63,13 @@ def test_homogeneous_fwr_run(
     refinement=(2,),
 ):
     # Create local problem A
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(n_stations=n_grid_points, n_lines=n_grid_points),
+        mesh=MeshOptions(refinement=refinement),
+        model=ModelOptions(anomaly=0.75),
+    )
     geoh5, mesh, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.0,
-        anomaly=0.75,
-        drape_height=15.0,
-        refinement=refinement,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
+        tmp_path, method="gravity", options=opts
     )
 
     # Change half the model
@@ -81,16 +86,15 @@ def test_homogeneous_fwr_run(
     fwr_driver_a = GravityForwardDriver(params)
 
     with geoh5.open():
+        opts = SyntheticDataInversionOptions(
+            survey=SurveyOptions(
+                n_stations=n_grid_points, n_lines=n_grid_points, drape=15.0
+            ),
+            mesh=MeshOptions(refinement=refinement),
+            model=ModelOptions(anomaly=0.05),
+        )
         _, mesh, model, survey, _ = setup_inversion_workspace(
-            tmp_path,
-            geoh5=geoh5,
-            background=0.0,
-            anomaly=0.05,
-            drape_height=15.0,
-            refinement=refinement,
-            n_electrodes=n_grid_points,
-            n_lines=n_grid_points,
-            flatten=False,
+            tmp_path, method="magnetic_vector", options=opts
         )
     inducing_field = (50000.0, 90.0, 0.0)
     # Change half the model

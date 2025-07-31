@@ -31,14 +31,21 @@ from simpeg_drivers.electricals.options import (
     FileControlOptions,
 )
 from simpeg_drivers.options import (
-    ActiveCellsOptions,
     DrapeModelOptions,
     LineSelectionOptions,
 )
-from tests.testing_utils import (
+from simpeg_drivers.utils.testing_utils.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticDataInversionOptions,
+)
+from simpeg_drivers.utils.testing_utils.runtests import (
+    setup_inversion_workspace,
+)
+from simpeg_drivers.utils.testing_utils.targets import (
     check_target,
     get_inversion_output,
-    setup_inversion_workspace,
 )
 
 
@@ -51,26 +58,24 @@ target_run = {"data_norm": 1.1039080237658845, "phi_d": 185, "phi_m": 0.491}
 def test_dc_rotated_p3d_fwr_run(
     tmp_path: Path, n_electrodes=10, n_lines=3, refinement=(4, 6)
 ):
-    plate_model = PlateModel(
-        strike_length=1000.0,
-        dip_length=150.0,
-        width=20.0,
-        origin=(0.0, 0.0, -50),
-        direction=90,
-        dip=45,
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
+        mesh=MeshOptions(refinement),
+        model=ModelOptions(
+            background=0.01,
+            anomaly=10.0,
+            plate=PlateModel(
+                strike_length=1000.0,
+                dip_length=150.0,
+                width=20.0,
+                origin=(0.0, 0.0, -50),
+                direction=90,
+                dip=45,
+            ),
+        ),
     )
-
     geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        plate_model=plate_model,
-        background=0.01,
-        anomaly=10.0,
-        n_electrodes=n_electrodes,
-        n_lines=n_lines,
-        refinement=refinement,
-        inversion_type="direct current pseudo 3d",
-        drape_height=0.0,
-        flatten=False,
+        tmp_path, method="direct current pseudo 3d", options=opts
     )
     params = DCBatch2DForwardOptions.build(
         geoh5=geoh5,

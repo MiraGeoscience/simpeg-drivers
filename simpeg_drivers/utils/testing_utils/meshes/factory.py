@@ -11,32 +11,40 @@
 from discretize import TensorMesh, TreeMesh
 from geoh5py.objects import DrapeModel, ObjectBase, Octree, Surface
 
+from simpeg_drivers.utils.testing_utils.options import MeshOptions
+
 from .octrees import get_active_source_octree, get_passive_source_octree
 from .tensors import get_tensor_mesh
 
 
 def get_mesh(
-    inversion_type: str,
+    method: str,
     survey: ObjectBase,
     topography: Surface,
-    cell_size: tuple[float, float, float],
-    refinement: tuple,
-    padding_distance: float,
+    options: MeshOptions,
 ) -> tuple[DrapeModel | Octree, TensorMesh | TreeMesh]:
-    """Factory for mesh creation with behaviour modified by the inversion type."""
+    """Factory for mesh creation with behaviour modified by the provided method."""
 
-    if "2d" in inversion_type:
+    if "2d" in method:
         return get_tensor_mesh(
-            survey,
-            cell_size,
-            padding_distance,
+            survey=survey,
+            cell_size=options.cell_size,
+            padding_distance=options.padding_distance,
         )
 
-    if inversion_type in ["fdem", "airborne tdem"]:
+    if method in ["fdem", "airborne tdem"]:
         return get_active_source_octree(
-            survey, topography, cell_size, refinement, padding_distance
+            survey=survey,
+            topography=topography,
+            cell_size=options.cell_size,
+            refinement=options.refinement,
+            padding_distance=options.padding_distance,
         )
 
     return get_passive_source_octree(
-        survey, topography, cell_size, refinement, padding_distance
+        survey=survey,
+        topography=topography,
+        cell_size=options.cell_size,
+        refinement=options.refinement,
+        padding_distance=options.padding_distance,
     )
