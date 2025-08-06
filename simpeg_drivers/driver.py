@@ -560,7 +560,7 @@ class InversionDriver(Driver):
                     f"aveCC2F{fun.orientation}",
                 )
                 fun.set_weights(**{comp: average_op @ weight})
-                fun.norm = np.round(average_op @ norm, decimals=3)
+                fun.norm = average_op @ norm
                 functions.append(fun)
 
                 if is_rotated:
@@ -583,7 +583,7 @@ class InversionDriver(Driver):
                         f"aveCC2F{fun.orientation}",
                     )
                     backward_fun.set_weights(**{comp: average_op @ weight})
-                    backward_fun.norm = np.round(average_op @ norm, decimals=3)
+                    backward_fun.norm = average_op @ norm
                     functions.append(backward_fun)
 
             # Will avoid recomputing operators if the regularization mesh is the same
