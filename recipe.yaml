@@ -40,7 +40,7 @@ requirements:
     - pydantic >=2.5.2, <3.0.dev
     - pydiso >=0.1.0, <0.2.dev
     - python-mumps >=0.0.3, <0.0.4.dev
-    - scikit-learn >=1.4.0, <1.5.dev
+    - scikit-learn >=1.6.0, <1.7.dev
     - scipy >=1.14.0, <1.15.dev
     - tqdm >=4.66.1, <5.0.dev
     # constrain version for some indirect dependencies from SimPEG
