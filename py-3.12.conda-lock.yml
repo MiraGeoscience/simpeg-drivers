@@ -16,7 +16,7 @@ version: 1
 metadata:
   content_hash:
     win-64: cad8b21157a4bd089f15f4bf7c6585be405714f5ed3e20fc6985dacc023e9965
-    linux-64: 83a2ad00768bec9ea2d8c7b047fe5f58ac4fbd0a0a011f4e1d649b2491ab8d1d
+    linux-64: 2e48ea762f31ce7d0e20196680dec38b885bd725bb1dc73d18f428e1faa16c06
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -1114,7 +1114,7 @@ package:
   category: dev
   optional: true
 - name: debugpy
-  version: 1.8.15
+  version: 1.8.16
   manager: conda
   platform: linux-64
   dependencies:
@@ -1123,14 +1123,14 @@ package:
     libstdcxx: '>=14'
     python: ''
     python_abi: 3.12.*
-  url: https://repo.prefix.dev/conda-forge/linux-64/debugpy-1.8.15-py312h8285ef7_0.conda
+  url: https://repo.prefix.dev/conda-forge/linux-64/debugpy-1.8.16-py312h8285ef7_0.conda
   hash:
-    md5: 76fb845cd7dbd34670c5b191ba0dc6fd
-    sha256: 3bb8c99e7aa89e5af3a8ebf8c1f9191b766adae767afe5fef0217a6accf93321
+    md5: 6205bf8723b4b79275dd52ef60cf6af1
+    sha256: ad6193b4c2771a82a8df3408d9c6174016b487fd1f7501b1618fa034c5118534
   category: dev
   optional: true
 - name: debugpy
-  version: 1.8.15
+  version: 1.8.16
   manager: conda
   platform: win-64
   dependencies:
@@ -1139,10 +1139,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.3,<15'
     vc14_runtime: '>=14.44.35208'
-  url: https://repo.prefix.dev/conda-forge/win-64/debugpy-1.8.15-py312ha1a9051_0.conda
+  url: https://repo.prefix.dev/conda-forge/win-64/debugpy-1.8.16-py312ha1a9051_0.conda
   hash:
-    md5: a83150a83e2148ce523df7822a9ba3e3
-    sha256: f01cfa0ca5452bf52d7dc6adefd28d2d911df5345fa4531bd911bca03d251c43
+    md5: d375809db8ab66d9f168241ce6942db5
+    sha256: 218fedb9654763d534575c1326115ef1bd09e72629876a06ce9a7c2bc71f68d7
   category: dev
   optional: true
 - name: decorator
@@ -3180,11 +3180,11 @@ package:
   manager: conda
   platform: linux-64
   dependencies:
-    libopenblas: '>=0.3.30,<0.3.31.0a0'
-  url: https://repo.prefix.dev/conda-forge/linux-64/libblas-3.9.0-33_h59b9bed_openblas.conda
+    mkl: '>=2024.2.2,<2025.0a0'
+  url: https://repo.prefix.dev/conda-forge/linux-64/libblas-3.9.0-33_hfdb39a5_mkl.conda
   hash:
-    md5: b43d5de8fe73c2a5fb2b43f45301285b
-    sha256: 18b165b45f3cea3892fee25a91b231abf29f521df76c8fcc0c92f6cf5071a911
+    md5: 9f89883004e428c65c462fbb07618125
+    sha256: 8b686362a6c6396fa529e444b32c9b089926da781f4db04953edfc1aa1bba239
   category: main
   optional: false
 - name: libblas
@@ -3291,10 +3291,10 @@ package:
   platform: linux-64
   dependencies:
     libblas: 3.9.0
-  url: https://repo.prefix.dev/conda-forge/linux-64/libcblas-3.9.0-33_he106b2a_openblas.conda
+  url: https://repo.prefix.dev/conda-forge/linux-64/libcblas-3.9.0-33_h372d94f_mkl.conda
   hash:
-    md5: 28052b5e6ea5bd283ac343c5c064b950
-    sha256: b34271bb9c3b2377ac23c3fb1ecf45c08f8d09675ff8aad860f4e3c547b126a7
+    md5: 71bd2fa1924b99978688f736343ff9eb
+    sha256: 27a9412196046685d4e13a1e834b7f5b6fa704f1a1d05f3d4bd4f12e4fec22af
   category: main
   optional: false
 - name: libcblas
@@ -3700,10 +3700,10 @@ package:
   platform: linux-64
   dependencies:
     libblas: 3.9.0
-  url: https://repo.prefix.dev/conda-forge/linux-64/liblapack-3.9.0-33_h7ac8fdf_openblas.conda
+  url: https://repo.prefix.dev/conda-forge/linux-64/liblapack-3.9.0-33_hc41d3b0_mkl.conda
   hash:
-    md5: e598bb54c4a4b45c3d83c72984f79dbb
-    sha256: 60c2ccdfa181bc304b5162c73cdecb5b4c3972da71758472c71fefb33965cde3
+    md5: 8708ffe8e9393e576131ab8256372e07
+    sha256: e00ce22c430b80a237daaaf2037ade05dbacffb2ad2bc61f75524fe347d37381
   category: main
   optional: false
 - name: liblapack
@@ -3775,23 +3775,6 @@ package:
   hash:
     md5: d864d34357c3b65a4b731f78c0801dc4
     sha256: 927fe72b054277cde6cb82597d0fcf6baf127dcbce2e0a9d8925a68f1265eef5
-  category: main
-  optional: false
-- name: libopenblas
-  version: 0.3.30
-  manager: conda
-  platform: linux-64
-  dependencies:
-    __glibc: '>=2.17,<3.0.a0'
-    _openmp_mutex: '*'
-    libgcc: '>=14'
-    libgfortran: ''
-    libgfortran5: '>=14.3.0'
-    llvm-openmp: '>=20.1.8'
-  url: https://repo.prefix.dev/conda-forge/linux-64/libopenblas-0.3.30-openmp_hd680484_1.conda
-  hash:
-    md5: 3e4aeff0b5b15ee637f2f8150cbcfd2e
-    sha256: 81aaecdfe8a5fffa1d5bc7888dd8fb9c27fc4dd873c5b5948e6dab1e4172210f
   category: main
   optional: false
 - name: libopenblas

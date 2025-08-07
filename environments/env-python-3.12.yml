@@ -1,3 +1,8 @@
 dependencies:
   - python=3.12.*
   - pip
+  # reuse MKL (forced by simpeg/pydiso) for BLAS implementation:
+  # no need to use extra disk space for the default OpenBLAS.
+  - libblas=*=*mkl # [unix]
+  # Note: cannot apply to Windows since llvm-openmp (brought by Mumps) rejects intel-openmp
+  #        (as of today, "libblas=*=*mkl" has no implementation with llvm-openmp)
