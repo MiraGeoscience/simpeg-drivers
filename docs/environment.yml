@@ -20,6 +20,7 @@ dependencies:
   - notebook
   - zarr
   - pip:
+    - colorcet
     - sphinx
     - matplotlib
     - pandas
