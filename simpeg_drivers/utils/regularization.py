@@ -364,7 +364,7 @@ def rotated_gradient(
     forward: bool = True,
 ) -> ssp.csr_matrix:
     """
-    Calculated rotated gradient operator using partial volumes.
+    Calculated rotated gradient operator using unit partial volumes.
 
     :param mesh: Input TreeMesh.
     :param neighbors: Cell neighbors array.
@@ -471,24 +471,21 @@ def set_rotated_operators(
 
     unit_grad_op = rotated_gradient(mesh.mesh, neighbors, axis, dip, direction, forward)
 
-    count_op = unit_grad_op.copy()
-    count_op.data = np.ones_like(count_op.data)
+    vol_avg_op = abs(unit_grad_op)
+    vol_avg_op.data = (
+        vol_avg_op.data * mesh.mesh.cell_volumes[unit_grad_op.nonzero()[1]]
+    )
 
     grad_op_active = mesh.Pac.T @ (unit_grad_op @ mesh.Pac)
-    count_op = mesh.Pac.T @ (count_op @ mesh.Pac)
+    vol_avg_op = mesh.Pac.T @ (vol_avg_op @ mesh.Pac)
     active_faces = np.isclose(grad_op_active @ np.ones(mesh.n_cells), 0)
     active_faces &= grad_op_active.max(axis=1).toarray().ravel() != 0
 
-    count_op = count_op[active_faces, :]
-
-    h_op = sdiag(
-        (count_op @ (mesh.Pac.T @ h_cell) / np.asarray(count_op.sum(axis=1)).ravel())
-        ** -1.0
-    )
-
+    vol_avg_op = vol_avg_op[active_faces, :]
+    vol_avg_op = sdiag(np.asarray(vol_avg_op.sum(axis=1)).ravel() ** -1) @ vol_avg_op
+    h_op = sdiag(vol_avg_op @ (mesh.Pac.T @ h_cell**-1.0))
     grad_op = h_op @ grad_op_active[active_faces, :]
-    avg_op = abs(grad_op_active[active_faces, :])
-    avg_op = sdiag(np.asarray(avg_op.sum(axis=1)).ravel() ** -1.0) @ avg_op
+
     setattr(
         mesh,
         f"_cell_gradient_{function.orientation}",
@@ -497,7 +494,7 @@ def set_rotated_operators(
     setattr(
         mesh,
         f"_aveCC2F{function.orientation}",
-        avg_op,
+        vol_avg_op,
     )
 
     return function
