@@ -28,7 +28,7 @@ chapters:
     sections:
     - file: case_studies/Forrestania/open_code
       sections:
-        - file: case_studies/Forrestania/python_code/gravity
-        - file: case_studies/Forrestania/python_code/magnetics
+        - file: case_studies/Forrestania/python_code/unconstrained_gravity_inv_training
+        - file: case_studies/Forrestania/python_code/unconstrained_magnetics_inv_training
         - file: case_studies/Forrestania/python_code/joint_grav_mag
 - file: THIRD_PARTY_SOFTWARE
