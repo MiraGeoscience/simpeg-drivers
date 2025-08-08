@@ -86,6 +86,7 @@ def test_joint_surveys_fwr_run(
             tmp_path,
             method="gravity",
             options=opts,
+            geoh5=geoh5,
         )
     params = GravityForwardOptions.build(
         geoh5=geoh5,

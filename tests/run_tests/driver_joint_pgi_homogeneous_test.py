@@ -94,7 +94,7 @@ def test_homogeneous_fwr_run(
             model=ModelOptions(anomaly=0.05),
         )
         _, mesh, model, survey, _ = setup_inversion_workspace(
-            tmp_path, method="magnetic_vector", options=opts
+            tmp_path, method="magnetic_vector", options=opts, geoh5=geoh5
         )
     inducing_field = (50000.0, 90.0, 0.0)
     # Change half the model
