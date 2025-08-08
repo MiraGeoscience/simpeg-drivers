@@ -55,7 +55,10 @@ def test_gravity_rotated_grad_fwr_run(
 
     opts = SyntheticDataInversionOptions(
         survey=SurveyOptions(
-            n_stations=n_grid_points, n_lines=n_grid_points, center=(0.0, 0.0, 15.0)
+            n_stations=n_grid_points,
+            n_lines=n_grid_points,
+            center=(0.0, 0.0, 15.0),
+            drape=5.0,
         ),
         mesh=MeshOptions(refinement=refinement),
         model=ModelOptions(
