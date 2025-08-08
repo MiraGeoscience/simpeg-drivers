@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from typing import TYPE_CHECKING
 
 
@@ -70,118 +71,159 @@ class MisfitFactory(SimPEGFactory):
             channels = [None]
 
         local_misfits = []
-
+        futures = []
         self.sorting = []
         self.ordering = []
         tile_count = 0
         data_count = 0
         misfit_count = 0
-        for local_index in tiles:
-            if len(local_index) == 0:
-                continue
+        with ProcessPoolExecutor():
+            for local_index in tiles:
+                if len(local_index) == 0:
+                    continue
 
-            local_sim, _, _, _ = self.create_nested_simulation(
-                inversion_data,
-                inversion_mesh,
-                None,
-                active_cells,
-                local_index,
-                channel=None,
-                tile_id=tile_count,
-                padding_cells=self.params.padding_cells,
-            )
-
-            local_mesh = getattr(local_sim, "mesh", None)
-
-            for count, channel in enumerate(channels):
                 n_split = split_list[misfit_count]
-                for split_ind in np.array_split(local_index, n_split):
-                    local_sim, split_ind, ordering, mapping = (
-                        self.create_nested_simulation(
-                            inversion_data,
-                            inversion_mesh,
-                            local_mesh,
-                            active_cells,
-                            split_ind,
-                            channel=channel,
-                            tile_id=tile_count,
-                            padding_cells=self.params.padding_cells,
-                        )
+                futures.append(
+                    # executor.submit(
+                    self.create_nested_misfit(
+                        inversion_data.survey,
+                        inversion_mesh.mesh,
+                        active_cells,
+                        local_index,
+                        channels,
+                        tile_count,
+                        data_count,
+                        n_split,
+                        self.params.padding_cells,
+                        self.params.inversion_type,
+                        self.params.forward_only,
+                        self.params.models.conductivity_model,
                     )
+                )
+                misfit_count += len(channels)
+                data_count += len(local_index)
+                tile_count += n_split
 
-                    if count == 0:
-                        if self.factory_type in [
-                            "fdem",
-                            "tdem",
-                            "magnetotellurics",
-                            "tipper",
-                        ]:
-                            self.sorting.append(
-                                np.arange(
-                                    data_count,
-                                    data_count + len(split_ind),
-                                    dtype=int,
-                                )
-                            )
-                            data_count += len(split_ind)
-                        else:
-                            self.sorting.append(split_ind)
+            for future in as_completed(futures):
+                local, ordering, sorting = future.result()
+                local_misfits.append(local)
+                self.ordering.append(ordering)
+                self.sorting.append(sorting)
 
-                    # TODO this should be done in the simulation factory
-                    if "induced polarization" in self.params.inversion_type:
-                        if "2d" in self.params.inversion_type:
-                            proj = maps.InjectActiveCells(
-                                inversion_mesh.mesh, active_cells, value_inactive=1e-8
-                            )
-                        else:
-                            proj = maps.InjectActiveCells(
-                                mapping.local_mesh,
-                                mapping.local_active,
-                                value_inactive=1e-8,
-                            )
-
-                        local_sim.sigma = (
-                            proj * mapping * self.models.conductivity_model
-                        )
-
-                    simulation = meta.MetaSimulation(
-                        simulations=[local_sim], mappings=[mapping]
-                    )
-
-                    local_data = data.Data(local_sim.survey)
-
-                    if self.params.forward_only:
-                        lmisfit = data_misfit.L2DataMisfit(local_data, simulation)
-
-                    else:
-                        local_data.dobs = local_sim.survey.dobs
-                        local_data.standard_deviation = local_sim.survey.std
-                        lmisfit = data_misfit.L2DataMisfit(
-                            local_data,
-                            simulation,
-                        )
-
-                        name = self.params.inversion_type
-
-                        if len(tiles) > 1 or n_split > 1:
-                            name += f": Tile {tile_count + 1}"
-                        if len(channels) > 1:
-                            name += f": Channel {channel}"
-
-                        lmisfit.name = f"{name}"
-
-                    local_misfits.append(lmisfit)
-                    self.ordering.append(ordering)
-
-                    tile_count += 1
-
-                misfit_count += 1
-
-        return [local_misfits]
+        return local_misfits
 
     def assemble_keyword_arguments(self, **_):
         """Implementation of abstract method from SimPEGFactory."""
         return {}
+
+    @classmethod
+    def create_nested_misfit(
+        cls,
+        inversion_data,
+        inversion_mesh,
+        active_cells,
+        local_index,
+        channels,
+        tile_count,
+        data_count,
+        n_split,
+        padding_cells,
+        inversion_type,
+        forward_only,
+        conductivity_model,
+    ):
+        local_sim, _, _, _ = cls.create_nested_simulation(
+            inversion_data,
+            inversion_mesh,
+            None,
+            active_cells,
+            local_index,
+            channel=None,
+            tile_id=tile_count,
+            padding_cells=padding_cells,
+        )
+
+        local_mesh = getattr(local_sim, "mesh", None)
+        sorting = []
+        orderings = []
+        local_misfits = []
+        for count, channel in enumerate(channels):
+            for split_ind in np.array_split(local_index, n_split):
+                local_sim, split_ind, ordering, mapping = cls.create_nested_simulation(
+                    inversion_data,
+                    inversion_mesh,
+                    local_mesh,
+                    active_cells,
+                    split_ind,
+                    channel=channel,
+                    tile_id=tile_count,
+                    padding_cells=padding_cells,
+                )
+
+                if count == 0:
+                    if cls.factory_type in [
+                        "fdem",
+                        "tdem",
+                        "magnetotellurics",
+                        "tipper",
+                    ]:
+                        sorting.append(
+                            np.arange(
+                                data_count,
+                                data_count + len(split_ind),
+                                dtype=int,
+                            )
+                        )
+                        data_count += len(split_ind)
+                    else:
+                        sorting.append(split_ind)
+
+                # TODO this should be done in the simulation factory
+                if "induced polarization" in inversion_type:
+                    if "2d" in inversion_type:
+                        proj = maps.InjectActiveCells(
+                            inversion_mesh.mesh, active_cells, value_inactive=1e-8
+                        )
+                    else:
+                        proj = maps.InjectActiveCells(
+                            mapping.local_mesh,
+                            mapping.local_active,
+                            value_inactive=1e-8,
+                        )
+
+                    local_sim.sigma = proj * mapping * conductivity_model
+
+                simulation = meta.MetaSimulation(
+                    simulations=[local_sim], mappings=[mapping]
+                )
+
+                local_data = data.Data(local_sim.survey)
+
+                if forward_only:
+                    lmisfit = data_misfit.L2DataMisfit(local_data, simulation)
+
+                else:
+                    local_data.dobs = local_sim.survey.dobs
+                    local_data.standard_deviation = local_sim.survey.std
+                    lmisfit = data_misfit.L2DataMisfit(
+                        local_data,
+                        simulation,
+                    )
+
+                    name = inversion_type
+
+                    name += f": Tile {tile_count + 1}"
+                    if len(channels) > 1:
+                        name += f": Channel {channel}"
+
+                    lmisfit.name = f"{name}"
+
+                local_misfits.append(lmisfit)
+                orderings.append(ordering)
+
+                tile_count += 1
+
+        return local_misfits, sorting, orderings
 
     @staticmethod
     def create_nested_simulation(
