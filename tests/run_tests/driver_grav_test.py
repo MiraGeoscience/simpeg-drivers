@@ -52,9 +52,7 @@ def test_gravity_fwr_run(
     refinement=(2,),
 ):
     options = SyntheticDataInversionOptions(
-        survey=SurveyOptions(
-            n_stations=n_grid_points, n_lines=n_grid_points, drape=5.0
-        ),
+        survey=SurveyOptions(n_stations=n_grid_points, n_lines=n_grid_points),
         mesh=MeshOptions(refinement=refinement),
         model=ModelOptions(anomaly=0.75),
     )
