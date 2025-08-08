@@ -60,7 +60,7 @@ def test_dc_rotated_p3d_fwr_run(
 ):
     opts = SyntheticDataInversionOptions(
         survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
-        mesh=MeshOptions(refinement),
+        mesh=MeshOptions(refinement=refinement),
         model=ModelOptions(
             background=0.01,
             anomaly=10.0,

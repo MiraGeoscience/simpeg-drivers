@@ -91,7 +91,7 @@ def test_joint_cross_gradient_fwr_run(
             survey=SurveyOptions(
                 n_stations=n_grid_points, n_lines=n_grid_points, drape=15.0
             ),
-            mesh=MeshOptions(refinement),
+            mesh=MeshOptions(refinement=refinement),
             model=ModelOptions(anomaly=0.05),
         )
         _, _, model, survey, _ = setup_inversion_workspace(

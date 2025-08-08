@@ -85,7 +85,7 @@ def test_fem_fwr_run(
             n_stations=n_grid_points,
             n_lines=n_grid_points,
             drape=15.0,
-            terrain=lambda x, y: np.zeros(len(x)),
+            terrain=lambda x, y: np.zeros(x.shape),
         ),
         mesh=MeshOptions(
             cell_size=cell_size, refinement=refinement, padding_distance=400.0

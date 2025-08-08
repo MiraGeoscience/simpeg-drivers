@@ -63,7 +63,7 @@ def test_tiling_ground_tem(
             n_stations=n_grid_points,
             n_lines=n_grid_points,
             drape=5.0,
-            terrain=lambda x, y: np.zeros(len(x)),
+            terrain=lambda x, y: np.zeros(x.shape),
         ),
         mesh=MeshOptions(refinement=refinement, padding_distance=1000.0),
         model=ModelOptions(
@@ -119,7 +119,7 @@ def test_ground_tem_fwr_run(
             n_stations=n_grid_points,
             n_lines=n_grid_points,
             drape=5.0,
-            terrain=lambda x, y: np.zeros(len(x)),
+            terrain=lambda x, y: np.zeros(x.shape),
         ),
         mesh=MeshOptions(
             cell_size=cell_size, refinement=refinement, padding_distance=1000.0
