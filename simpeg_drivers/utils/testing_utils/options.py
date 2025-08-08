@@ -19,7 +19,7 @@ class SurveyOptions(BaseModel):
     center: tuple[float, float, float] = (0.0, 0.0, 0.0)
     width: float = 200.0
     height: float = 200.0
-    drape: float = 5.0
+    drape: float = 0.0
     n_stations: int = 20
     n_lines: int = 5
     terrain: Callable = lambda x, y: gaussian(x, y, amplitude=50.0, width=100.0)
