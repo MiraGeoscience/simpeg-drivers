@@ -14,6 +14,7 @@ from pathlib import Path
 
 import numpy as np
 from geoapps_utils.modelling.plates import PlateModel
+from geoapps_utils.utils.locations import gaussian
 from geoh5py.groups.property_group import PropertyGroup
 from geoh5py.workspace import Workspace
 
@@ -57,8 +58,9 @@ def test_gravity_rotated_grad_fwr_run(
         survey=SurveyOptions(
             n_stations=n_grid_points,
             n_lines=n_grid_points,
-            center=(0.0, 0.0, 15.0),
+            center=(0.0, 0.0),
             drape=5.0,
+            terrain=lambda x, y: gaussian(x, y, amplitude=50.0, width=100.0) + 15,
         ),
         mesh=MeshOptions(refinement=refinement),
         model=ModelOptions(

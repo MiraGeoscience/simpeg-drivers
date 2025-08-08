@@ -16,7 +16,7 @@ from pydantic import BaseModel
 
 
 class SurveyOptions(BaseModel):
-    center: tuple[float, float, float] = (0.0, 0.0, 0.0)
+    center: tuple[float, float] = (0.0, 0.0)
     width: float = 200.0
     height: float = 200.0
     drape: float = 0.0
