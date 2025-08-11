@@ -339,20 +339,20 @@ def gradient_operator(
     :param volumes: Partial volume array.
     :param n_cells: Number of cells in mesh.
     """
-    Grad = ssp.csr_matrix(
+    grad = ssp.csr_matrix(
         (volumes, (neighbors[:, 0], neighbors[:, 1])), shape=(n_cells, n_cells)
     )
 
     # Normalize rows
-    Vol = mkvc(Grad.sum(axis=1))
-    Vol[Vol > 0] = 1.0 / Vol[Vol > 0]
-    Grad = -sdiag(Vol) * Grad
+    vol = mkvc(grad.sum(axis=1))
+    vol[vol > 0] = 1.0 / vol[vol > 0]
+    grad = -sdiag(vol) * grad
 
     diag = np.ones(n_cells)
-    diag[Vol == 0] = 0
-    Grad = sdiag(diag) + Grad
+    diag[vol == 0] = 0
+    grad = sdiag(diag) + grad
 
-    return Grad
+    return grad
 
 
 def rotated_gradient(
@@ -364,7 +364,7 @@ def rotated_gradient(
     forward: bool = True,
 ) -> ssp.csr_matrix:
     """
-    Calculated rotated gradient operator using partial volumes.
+    Calculated rotated gradient operator using unit partial volumes.
 
     :param mesh: Input TreeMesh.
     :param neighbors: Cell neighbors array.
@@ -399,8 +399,8 @@ def rotated_gradient(
     )
 
     unit_grad = gradient_operator(neighbors, volumes, n_cells)
-    axes = "xyz" if dim == 3 else "xz"
-    return sdiag(1 / mesh.h_gridded[:, axes.find(axis)]) @ unit_grad
+
+    return unit_grad
 
 
 def ensure_dip_direction_convention(
@@ -464,26 +464,37 @@ def set_rotated_operators(
     :param forward: Whether to use forward or backward difference for
         derivative approximations.
     """
-    grad_op = rotated_gradient(
-        function.regularization_mesh.mesh, neighbors, axis, dip, direction, forward
+    mesh = function.regularization_mesh
+    axes = "xyz" if mesh.dim == 3 else "xz"
+
+    h_cell = mesh.mesh.h_gridded[:, axes.find(axis)]
+
+    unit_grad_op = rotated_gradient(mesh.mesh, neighbors, axis, dip, direction, forward)
+
+    vol_avg_op = abs(unit_grad_op)
+    vol_avg_op.data = (
+        vol_avg_op.data * mesh.mesh.cell_volumes[unit_grad_op.nonzero()[1]]
     )
-    grad_op_active = function.regularization_mesh.Pac.T @ (
-        grad_op @ function.regularization_mesh.Pac
-    )
-    active_faces = np.isclose(
-        grad_op_active @ np.ones(function.regularization_mesh.n_cells), 0
-    )
+
+    grad_op_active = mesh.Pac.T @ (unit_grad_op @ mesh.Pac)
+    vol_avg_op = mesh.Pac.T @ (vol_avg_op @ mesh.Pac)
+    active_faces = np.isclose(grad_op_active @ np.ones(mesh.n_cells), 0)
     active_faces &= grad_op_active.max(axis=1).toarray().ravel() != 0
 
+    vol_avg_op = vol_avg_op[active_faces, :]
+    vol_avg_op = sdiag(np.asarray(vol_avg_op.sum(axis=1)).ravel() ** -1) @ vol_avg_op
+    h_op = sdiag(vol_avg_op @ (mesh.Pac.T @ h_cell**-1.0))
+    grad_op = h_op @ grad_op_active[active_faces, :]
+
     setattr(
-        function.regularization_mesh,
+        mesh,
         f"_cell_gradient_{function.orientation}",
-        grad_op_active[active_faces, :],
+        grad_op,
     )
     setattr(
-        function.regularization_mesh,
+        mesh,
         f"_aveCC2F{function.orientation}",
-        sdiag(np.ones(function.regularization_mesh.n_cells))[active_faces, :],
+        vol_avg_op,
     )
 
     return function
