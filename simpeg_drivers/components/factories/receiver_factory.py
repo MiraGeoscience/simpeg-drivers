@@ -118,7 +118,7 @@ class ReceiversFactory(SimPEGFactory):
             )
 
         else:
-            args.append(locations[local_index])
+            args.append(locations)
 
         return args
 
