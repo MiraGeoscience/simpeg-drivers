@@ -65,7 +65,7 @@ def test_homogeneous_fwr_run(
     # Create local problem A
     opts = SyntheticDataInversionOptions(
         survey=SurveyOptions(
-            n_stations=n_grid_points, n_lines=n_grid_points, drape=5.0
+            n_stations=n_grid_points, n_lines=n_grid_points, drape=15.0
         ),
         mesh=MeshOptions(refinement=refinement),
         model=ModelOptions(anomaly=0.75),
