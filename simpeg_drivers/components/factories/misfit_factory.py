@@ -14,6 +14,16 @@ from __future__ import annotations
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from typing import TYPE_CHECKING
 
+import numpy as np
+from discretize import TensorMesh, TreeMesh
+from geoh5py.objects import Octree
+from simpeg import data, data_misfit, maps, meta, objective_function
+from simpeg.simulation import BaseSimulation
+
+from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
+from simpeg_drivers.components.factories.simulation_factory import SimulationFactory
+from simpeg_drivers.utils.utils import create_nested_mesh
+
 
 if TYPE_CHECKING:
     from geoapps_utils.driver.params import BaseParams
@@ -22,93 +32,76 @@ if TYPE_CHECKING:
     from simpeg_drivers.components.meshes import InversionMesh
     from simpeg_drivers.options import BaseOptions
 
-import numpy as np
-from geoh5py.objects import Octree
-from simpeg import data, data_misfit, maps, meta, objective_function
-
-from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
-
 
 class MisfitFactory(SimPEGFactory):
     """Build SimPEG global misfit function."""
 
-    def __init__(self, params: BaseParams | BaseOptions, models=None):
+    def __init__(self, params: BaseParams | BaseOptions, simulation: BaseSimulation):
         """
         :param params: Options object containing SimPEG object parameters.
         """
         super().__init__(params)
         self.simpeg_object = self.concrete_object()
         self.factory_type = self.params.inversion_type
-        self.models = models
+        self.simulation = simulation
         self.sorting = None
-        self.ordering = None
+        self.n_blocks = 3 if self.params.inversion_type == "magnetic vector" else 1
 
     def concrete_object(self):
         return objective_function.ComboObjectiveFunction
 
-    def build(self, tiles, split_list, inversion_data, inversion_mesh, active_cells):  # pylint: disable=arguments-differ
+    def build(self, tiles, split_list):  # pylint: disable=arguments-differ
         global_misfit = super().build(
             tiles=tiles,
             split_list=split_list,
-            inversion_data=inversion_data,
-            inversion_mesh=inversion_mesh,
-            active_cells=active_cells,
         )
-        return global_misfit, self.sorting, self.ordering
+        return global_misfit, self.sorting
 
     def assemble_arguments(  # pylint: disable=arguments-differ
         self,
         tiles,
         split_list,
-        inversion_data,
-        inversion_mesh,
-        active_cells,
     ):
         # Base slice over frequencies
         if self.factory_type in ["magnetotellurics", "tipper", "fdem"]:
-            channels = inversion_data.entity.channels
+            channels = self.simulation.survey.frequencies
         else:
             channels = [None]
 
         local_misfits = []
         futures = []
         self.sorting = []
-        self.ordering = []
         tile_count = 0
         data_count = 0
         misfit_count = 0
-        with ProcessPoolExecutor():
-            for local_index in tiles:
-                if len(local_index) == 0:
-                    continue
+        # with ProcessPoolExecutor() as executor:
+        for local_index in tiles:
+            if len(local_index) == 0:
+                continue
 
-                n_split = split_list[misfit_count]
-                futures.append(
-                    # executor.submit(
-                    self.create_nested_misfit(
-                        inversion_data.survey,
-                        inversion_mesh.mesh,
-                        active_cells,
-                        local_index,
-                        channels,
-                        tile_count,
-                        data_count,
-                        n_split,
-                        self.params.padding_cells,
-                        self.params.inversion_type,
-                        self.params.forward_only,
-                        self.params.models.conductivity_model,
-                    )
+            n_split = split_list[misfit_count]
+            futures.append(
+                # executor.submit(
+                self.create_nested_misfit(
+                    self.simulation,
+                    local_index,
+                    channels,
+                    tile_count,
+                    data_count,
+                    n_split,
+                    self.params.padding_cells,
+                    self.params.inversion_type,
+                    self.params.forward_only,
                 )
-                misfit_count += len(channels)
-                data_count += len(local_index)
-                tile_count += n_split
+            )
+            misfit_count += len(channels)
+            data_count += len(local_index)
+            tile_count += n_split
 
-            for future in as_completed(futures):
-                local, ordering, sorting = future.result()
-                local_misfits.append(local)
-                self.ordering.append(ordering)
-                self.sorting.append(sorting)
+        for future in as_completed(futures):
+            local, sorting = future  # future.result()
+            local_misfits.append(local)
+            self.sorting.append(sorting)
 
         return local_misfits
 
@@ -119,9 +112,7 @@ class MisfitFactory(SimPEGFactory):
     @classmethod
     def create_nested_misfit(
         cls,
-        inversion_data,
-        inversion_mesh,
-        active_cells,
+        simulation,
         local_index,
         channels,
         tile_count,
@@ -130,13 +121,10 @@ class MisfitFactory(SimPEGFactory):
         padding_cells,
         inversion_type,
         forward_only,
-        conductivity_model,
     ):
-        local_sim, _, _, _ = cls.create_nested_simulation(
-            inversion_data,
-            inversion_mesh,
+        local_sim, _ = cls.create_nested_simulation(
+            simulation,
             None,
-            active_cells,
             local_index,
             channel=None,
             tile_id=tile_count,
@@ -145,15 +133,12 @@ class MisfitFactory(SimPEGFactory):
 
         local_mesh = getattr(local_sim, "mesh", None)
         sorting = []
-        orderings = []
         local_misfits = []
         for count, channel in enumerate(channels):
             for split_ind in np.array_split(local_index, n_split):
-                local_sim, split_ind, ordering, mapping = cls.create_nested_simulation(
-                    inversion_data,
-                    inversion_mesh,
+                local_sim, mapping = cls.create_nested_simulation(
+                    simulation,
                     local_mesh,
-                    active_cells,
                     split_ind,
                     channel=channel,
                     tile_id=tile_count,
@@ -179,19 +164,19 @@ class MisfitFactory(SimPEGFactory):
                         sorting.append(split_ind)
 
                 # TODO this should be done in the simulation factory
-                if "induced polarization" in inversion_type:
-                    if "2d" in inversion_type:
-                        proj = maps.InjectActiveCells(
-                            inversion_mesh.mesh, active_cells, value_inactive=1e-8
-                        )
-                    else:
-                        proj = maps.InjectActiveCells(
-                            mapping.local_mesh,
-                            mapping.local_active,
-                            value_inactive=1e-8,
-                        )
-
-                    local_sim.sigma = proj * mapping * conductivity_model
+                # if "induced polarization" in inversion_type:
+                #     if "2d" in inversion_type:
+                #         proj = maps.InjectActiveCells(
+                #             inversion_mesh.mesh, active_cells, value_inactive=1e-8
+                #         )
+                #     else:
+                #         proj = maps.InjectActiveCells(
+                #             mapping.local_mesh,
+                #             mapping.local_active,
+                #             value_inactive=1e-8,
+                #         )
+                #
+                #     local_sim.sigma = proj * mapping * conductivity_model
 
                 simulation = meta.MetaSimulation(
                     simulations=[local_sim], mappings=[mapping]
@@ -219,18 +204,15 @@ class MisfitFactory(SimPEGFactory):
                     lmisfit.name = f"{name}"
 
                 local_misfits.append(lmisfit)
-                orderings.append(ordering)
 
                 tile_count += 1
 
-        return local_misfits, sorting, orderings
+        return local_misfits, sorting
 
     @staticmethod
     def create_nested_simulation(
-        inversion_data: InversionData,
-        inversion_mesh: InversionMesh,
-        local_mesh: Octree | None,
-        active_cells: np.ndarray,
+        simulation,
+        local_mesh: TreeMesh | None,
         indices: np.ndarray,
         *,
         channel: int | None = None,
@@ -248,25 +230,67 @@ class MisfitFactory(SimPEGFactory):
         :param tile_id: Tile id stored on the simulation.
         :param padding_cells: Number of padding cells around the local survey.
         """
-        survey, indices, ordering = inversion_data.create_survey(
-            local_index=indices, channel=channel
+        survey = create_nested_survey(
+            simulation.survey, indices=indices, channel=channel
         )
-        local_sim, mapping = inversion_data.simulation(
-            inversion_mesh,
+
+        if local_mesh is None:
+            local_mesh = create_nested_mesh(
+                survey,
+                simulation.mesh,
+                minimum_level=3,
+                padding_cells=padding_cells,
+            )
+
+        mapping = maps.TileMap(
+            simulation.mesh,
+            simulation.active_cells,
             local_mesh,
-            active_cells,
-            survey,
-            tile_id=tile_id,
-            padding_cells=padding_cells,
+            enforce_active=True,
+            components=3 if getattr(simulation, "model_type", None) == "vector" else 1,
         )
-        inv_type = inversion_data.params.inversion_type
-        if inv_type in ["fdem", "tdem"]:
-            compute_em_projections(inversion_data, local_sim)
-        elif ("current" in inv_type or "polarization" in inv_type) and (
-            "2d" not in inv_type or "pseudo" in inv_type
-        ):
-            compute_dc_projections(inversion_data, local_sim, indices)
-        return local_sim, np.hstack(indices), ordering, mapping
+
+        local_sim = type(simulation)(
+            local_mesh,
+            mapping=mapping.local_active,
+            survey=survey,
+        )
+
+        # TODO bring back
+        # inv_type = inversion_data.params.inversion_type
+        # if inv_type in ["fdem", "tdem"]:
+        #     compute_em_projections(inversion_data, local_sim)
+        # elif ("current" in inv_type or "polarization" in inv_type) and (
+        #     "2d" not in inv_type or "pseudo" in inv_type
+        # ):
+        #     compute_dc_projections(inversion_data, local_sim, indices)
+        return local_sim, mapping
+
+
+def create_nested_survey(survey, indices, channel=None):
+    """
+    Extract source and receivers belonging to the indices.
+    """
+    sources = []
+    for src in survey.source_list:
+        receivers = []
+        for rx in src.receiver_list:
+            intersect = set(rx.local_index).intersection(indices)
+            if any(intersect):
+                new_rx = rx.copy()
+                new_rx.locations = (rx.locations[intersect],)
+                receivers.append(new_rx)
+
+        if any(receivers):
+            new_src = src.copy()
+            new_src.receiver_list = receivers
+            sources.append(new_src)
+
+    new_survey = type(survey)(sources)
+    new_survey.dobs = survey.dobs[indices]
+    new_survey.std = survey.std[indices]
+
+    return new_survey
 
 
 def compute_em_projections(inversion_data, simulation):

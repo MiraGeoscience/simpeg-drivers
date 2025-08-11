@@ -75,33 +75,20 @@ class SurveyFactory(SimPEGFactory):
 
         return survey.Survey
 
-    def assemble_arguments(self, data=None, local_index=None, channel=None):
+    def assemble_arguments(self, data=None):
         """Provides implementations to assemble arguments for receivers object."""
-        receiver_entity = data.entity
-
-        if local_index is None:
-            if "current" in self.factory_type or "polarization" in self.factory_type:
-                n_data = receiver_entity.n_cells
-            else:
-                n_data = receiver_entity.n_vertices
-
-            self.local_index = np.arange(n_data)
-        else:
-            self.local_index = local_index
-
         if "current" in self.factory_type or "polarization" in self.factory_type:
-            return self._dcip_arguments(data=data, local_index=local_index)
+            return self._dcip_arguments(data=data)
         elif "tdem" in self.factory_type:
             return self._tdem_arguments(data=data)
         elif self.factory_type in ["magnetotellurics", "tipper"]:
-            return self._naturalsource_arguments(data=data, frequency=channel)
+            return self._naturalsource_arguments(data=data)
         elif "fdem" in self.factory_type:
-            return self._fem_arguments(data=data, channel=channel)
+            return self._fem_arguments(data=data)
         else:
             receivers = ReceiversFactory(self.params).build(
                 locations=data.locations,
                 data=data.observed,
-                local_index=self.local_index,
             )
             sources = SourcesFactory(self.params).build(receivers=receivers)
             return [sources]
@@ -113,26 +100,21 @@ class SurveyFactory(SimPEGFactory):
     def build(
         self,
         data=None,
-        local_index=None,
-        indices=None,
         channel=None,
     ):
         """Overloads base method to add dobs, std attributes to survey class instance."""
-
         survey = super().build(
             data=data,
-            local_index=local_index,
-            channel=channel,
         )
 
         if not self.params.forward_only:
-            self._add_data(survey, data, self.local_index, channel)
+            self._add_data(survey, data, channel)
 
         survey.dummy = self.dummy
 
-        return survey, self.local_index, self.ordering
+        return survey
 
-    def _get_local_data(self, data, channel, local_index):
+    def _get_local_data(self, data, channel):
         local_data = {}
         local_uncertainties = {}
 
@@ -152,15 +134,12 @@ class SurveyFactory(SimPEGFactory):
                 }[comp]
 
             key = "_".join([str(channel), str(comp_name)])
-            local_data[key] = data.observed[comp][channel][local_index]
-            local_uncertainties[key] = data.uncertainties[comp][channel][local_index]
+            local_data[key] = data.observed[comp][channel]
+            local_uncertainties[key] = data.uncertainties[comp][channel]
 
         return local_data, local_uncertainties
 
-    def _add_data(self, survey, data, local_index, channel):
-        if isinstance(local_index, list):
-            local_index = np.hstack(local_index)
-
+    def _add_data(self, survey, data, channel):
         if self.factory_type in ["fdem", "fdem 1d", "tdem", "tdem 1d"]:
             dobs = []
             uncerts = []
@@ -184,12 +163,12 @@ class SurveyFactory(SimPEGFactory):
             if channel is None:
                 channels = np.unique([list(v.keys()) for v in data.observed.values()])
                 for chan in channels:
-                    dat, unc = self._get_local_data(data, chan, local_index)
+                    dat, unc = self._get_local_data(data, chan)
                     local_data.update(dat)
                     local_uncertainties.update(unc)
 
             else:
-                dat, unc = self._get_local_data(data, channel, local_index)
+                dat, unc = self._get_local_data(data, channel)
                 local_data.update(dat)
                 local_uncertainties.update(unc)
 
@@ -197,10 +176,8 @@ class SurveyFactory(SimPEGFactory):
             uncertainty_vec = self._stack_channels(local_uncertainties, "row")
 
         else:
-            local_data = {k: v[local_index] for k, v in data.observed.items()}
-            local_uncertainties = {
-                k: v[local_index] for k, v in data.uncertainties.items()
-            }
+            local_data = data.observed
+            local_uncertainties = data.uncertainties
 
             data_vec = self._stack_channels(local_data, "column")
             uncertainty_vec = self._stack_channels(local_uncertainties, "column")
@@ -232,16 +209,13 @@ class SurveyFactory(SimPEGFactory):
         elif mode == "row":
             return np.row_stack(list(channel_data.values())).ravel()
 
-    def _dcip_arguments(self, data=None, local_index=None):
+    def _dcip_arguments(self, data=None):
         if getattr(data, "entity", None) is None:
             return None
 
         receiver_entity = data.entity
-        if "2d" in self.factory_type:
-            self.local_index = np.arange(receiver_entity.n_cells)
-
         source_ids, order = np.unique(
-            receiver_entity.ab_cell_id.values[self.local_index], return_index=True
+            receiver_entity.ab_cell_id.values, return_index=True
         )
         currents = receiver_entity.current_electrodes
 
@@ -252,16 +226,11 @@ class SurveyFactory(SimPEGFactory):
             receiver_locations = receiver_entity.vertices
             source_locations = currents.vertices
 
-        # TODO hook up tile_spatial to handle local_index handling
         sources = []
-        self.local_index = []
         for source_id in source_ids[np.argsort(order)]:  # Cycle in original order
             receiver_indices = np.where(receiver_entity.ab_cell_id.values == source_id)[
                 0
             ]
-
-            if local_index is not None:
-                receiver_indices = list(set(receiver_indices).intersection(local_index))
 
             if len(receiver_indices) == 0:
                 continue
@@ -282,9 +251,7 @@ class SurveyFactory(SimPEGFactory):
                 receivers=receivers,
                 locations=source_locations[currents.cells[cell_ind].flatten()],
             )
-
             sources.append(source)
-            self.local_index.append(receiver_indices)
 
         return [sources]
 
@@ -306,12 +273,12 @@ class SurveyFactory(SimPEGFactory):
                     "Transmitter ID property required for LargeLoopGroundTEMReceivers"
                 )
 
-            tx_rx = receivers.tx_id_property.values[self.local_index]
+            tx_rx = receivers.tx_id_property.values
             tx_ids = transmitters.tx_id_property.values
             rx_lookup = []
             tx_locs = []
             for tx_id in np.unique(tx_rx):
-                rx_lookup.append(self.local_index[tx_rx == tx_id])
+                rx_lookup.append(np.where(tx_rx == tx_id)[0])
                 tx_ind = tx_ids == tx_id
                 loop_cells = transmitters.cells[
                     np.all(tx_ind[transmitters.cells], axis=1), :
@@ -319,8 +286,10 @@ class SurveyFactory(SimPEGFactory):
                 loop_ind = np.r_[loop_cells[:, 0], loop_cells[-1, 1]]
                 tx_locs.append(transmitters.vertices[loop_ind, :])
         else:
-            rx_lookup = self.local_index[:, np.newaxis].tolist()
-            tx_locs = [transmitters.vertices[k, :] for k in self.local_index]
+            rx_lookup = np.arange(receivers.n_vertices).tolist()
+            tx_locs = [
+                transmitters.vertices[k, :] for k in receivers.tx_id_property.values
+            ]
 
         wave_times = (
             receivers.waveform[:, 0] - receivers.timing_mark
@@ -353,7 +322,6 @@ class SurveyFactory(SimPEGFactory):
             for component_id, component in enumerate(data.components):
                 rx_obj = rx_factory.build(
                     locations=locs,
-                    local_index=self.local_index,
                     data=data,
                     component=component,
                 )
@@ -385,11 +353,11 @@ class SurveyFactory(SimPEGFactory):
 
         receiver_groups = {}
         ordering = []
-        for receiver_id in self.local_index:
+        for receiver_id, locs in enumerate(rx_locs):
             receivers = []
             for component_id, component in enumerate(data.components):
                 receiver = rx_factory.build(
-                    locations=rx_locs[receiver_id, :],
+                    locations=locs,
                     data=data,
                     component=component,
                 )
@@ -432,14 +400,13 @@ class SurveyFactory(SimPEGFactory):
             receivers.append(
                 rx_factory.build(
                     locations=data.locations,
-                    local_index=self.local_index,
                     data=data,
                     component=comp,
                 )
             )
-            ordering.append(
-                np.c_[np.ones_like(self.local_index) * component_id, self.local_index]
-            )
+
+            n_locs = data.locations.shape[0]
+            ordering.append(np.c_[np.ones(n_locs) * component_id, np.arange(n_locs)])
 
         ordering = np.vstack(ordering)
         self.ordering = []

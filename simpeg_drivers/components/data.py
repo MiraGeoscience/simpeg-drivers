@@ -16,20 +16,15 @@ from re import findall
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
-from discretize import TensorMesh, TreeMesh
 from geoh5py.objects import PotentialElectrode
 from scipy.sparse import csgraph, csr_matrix
 from scipy.spatial import cKDTree
-from simpeg import maps
 from simpeg.electromagnetics.static.utils.static_utils import geometric_factor
-from simpeg.simulation import BaseSimulation
 
-from simpeg_drivers.utils.utils import create_nested_mesh, drape_2_tensor
+from simpeg_drivers.utils.utils import drape_2_tensor
 
 from .factories import (
     EntityFactory,
-    SaveDataGeoh5Factory,
-    SimulationFactory,
     SurveyFactory,
 )
 from .locations import InversionLocations
@@ -54,8 +49,6 @@ class InversionData(InversionLocations):
     mask :
         Mask accumulated by windowing and downsampling operations and applied
         to locations and data on initialization.
-    n_blocks :
-        Number of blocks if vector.
     components :
         Component names.
     observed :
@@ -83,7 +76,6 @@ class InversionData(InversionLocations):
         super().__init__(workspace, params)
         self.locations: np.ndarray | None = None
         self.mask: np.ndarray | None = None
-        self.n_blocks: int | None = None
 
         self._observed: dict[str, np.ndarray] | None = None
         self._uncertainties: dict[str, np.ndarray] | None = None
@@ -97,7 +89,6 @@ class InversionData(InversionLocations):
 
     def _initialize(self) -> None:
         """Extract data from the workspace using params data."""
-        self.n_blocks = 3 if self.params.inversion_type == "magnetic vector" else 1
         self.components = self.params.active_components
 
         self.has_tensor = InversionData.check_tensor(self.params.components)
@@ -333,126 +324,20 @@ class InversionData(InversionLocations):
 
         return normalizations
 
-    def create_survey(
-        self,
-        local_index: np.ndarray | None = None,
-        channel=None,
-    ):
+    def create_survey(self):
         """
         Generates SimPEG survey object.
 
-        :param: local_index (Optional): Indices of the data belonging to a
-            particular tile in case of a tiled inversion.
-
         :return: survey: SimPEG Survey class that covers all data or optionally
             the portion of the data indexed by the local_index argument.
-        :return: local_index: receiver indices belonging to a particular tile.
         """
 
         survey_factory = SurveyFactory(self.params)
-        survey, local_index, ordering = survey_factory.build(
-            data=self,
-            local_index=local_index,
-            channel=channel,
-        )
-
+        survey = survey_factory.build(data=self)
         if "direct current" in self.params.inversion_type:
-            survey.apparent_resistivity = 1 / (
-                geometric_factor(survey)[np.argsort(np.hstack(local_index))] + 1e-10
-            )
+            survey.apparent_resistivity = 1 / (geometric_factor(survey) + 1e-10)
 
-        return survey, local_index, ordering
-
-    def simulation(
-        self,
-        inversion_mesh: InversionMesh,
-        local_mesh: TreeMesh | TensorMesh | None,
-        active_cells: np.ndarray,
-        survey,
-        tile_id: int | None = None,
-        padding_cells: int = 6,
-    ) -> tuple[BaseSimulation, maps.IdentityMap]:
-        """
-        Generates SimPEG simulation object.
-
-        :param: mesh: inversion mesh.
-        :param: active_cells: Mask that reduces model to active (earth) cells.
-        :param: survey: SimPEG survey object.
-        :param: tile_id (Optional): Id associated with the tile covered by
-            the survey in case of a tiled inversion.
-
-        :return: sim: SimPEG simulation object for full data or optionally
-            the portion of the data indexed by the local_index argument.
-        :return: map: If local_index and tile_id is provided, the returned
-            map will maps from local to global data.  If no local_index or
-            tile_id is provided map will simply be an identity map with no
-            effect of the data.
-        """
-        simulation_factory = SimulationFactory(self.params)
-
-        if tile_id is None or "2d" in self.params.inversion_type:
-            mapping = maps.IdentityMap(nP=int(self.n_blocks * active_cells.sum()))
-            simulation = simulation_factory.build(
-                survey=survey,
-                global_mesh=inversion_mesh.mesh,
-                active_cells=active_cells,
-                mapping=mapping,
-            )
-        elif "1d" in self.params.inversion_type:
-            slice_ind = np.arange(
-                tile_id, inversion_mesh.mesh.n_cells, inversion_mesh.mesh.shape_cells[0]
-            )[::-1]
-            mapping = maps.Projection(inversion_mesh.mesh.n_cells, slice_ind)
-            simulation = simulation_factory.build(
-                survey=survey,
-                receivers=self.entity,
-                global_mesh=inversion_mesh.mesh,
-                local_mesh=inversion_mesh.layers_mesh,
-                active_cells=active_cells,
-                mapping=mapping,
-                tile_id=tile_id,
-            )
-        else:
-            if local_mesh is None:
-                local_mesh = create_nested_mesh(
-                    survey,
-                    inversion_mesh.mesh,
-                    minimum_level=3,
-                    padding_cells=padding_cells,
-                )
-            mapping = maps.TileMap(
-                inversion_mesh.mesh,
-                active_cells,
-                local_mesh,
-                enforce_active=True,
-                components=self.n_blocks,
-            )
-            simulation = simulation_factory.build(
-                survey=survey,
-                receivers=self.entity,
-                global_mesh=inversion_mesh.mesh,
-                local_mesh=local_mesh,
-                active_cells=mapping.local_active,
-                mapping=mapping,
-                tile_id=tile_id,
-            )
-
-        return simulation, mapping
-
-    def simulate(self, model, inverse_problem, sorting, ordering):
-        """Simulate fields for a particular model."""
-        dpred = inverse_problem.get_dpred(
-            model, compute_J=False if self.params.forward_only else True
-        )
-        if self.params.forward_only:
-            save_directive = SaveDataGeoh5Factory(self.params).build(
-                inversion_object=self,
-                sorting=np.argsort(np.hstack(sorting)),
-                ordering=ordering,
-            )
-            save_directive.write(0, dpred)
-
-        inverse_problem.dpred = dpred
+        return survey
 
     @property
     def observed_data_types(self):
@@ -495,7 +380,7 @@ class InversionData(InversionLocations):
     @property
     def survey(self):
         if self._survey is None:
-            self._survey, _, _ = self.create_survey()
+            self._survey = self.create_survey()
 
         return self._survey
 

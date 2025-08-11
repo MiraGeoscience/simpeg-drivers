@@ -14,6 +14,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import ClassVar, TypeAlias
 
+import numpy as np
 from geoh5py.groups import PropertyGroup
 from geoh5py.objects import (
     AirborneTEMReceivers,
@@ -55,6 +56,23 @@ class BaseTDEMOptions(EMDataMixin):
             "Microseconds (us)": 1e-6,
         }
         return conversion[self.data_object.unit]
+
+    @property
+    def timing_mark(self):
+        """
+        Return the "zero time" mark of the TDEM data in the appropriate units.
+        """
+        return self.data_object.timing_mark * self.unit_conversion
+
+    @property
+    def time_steps(self):
+        """
+        Return the time steps of the TDEM data in the appropriate units.
+        """
+        return (
+            np.round((np.diff(np.unique(self.data_object.waveform[:, 0]))), decimals=6)
+            * self.unit_conversion
+        )
 
 
 class TDEMForwardOptions(BaseTDEMOptions, BaseForwardOptions):

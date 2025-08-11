@@ -96,7 +96,7 @@ class Base1DDriver(InversionDriver):
 
                 logger.info("Setting up %i tile(s) . . .", len(tiles))
                 # Build tiled misfits and combine to form global misfit
-                self._data_misfit, self._sorting, self._ordering = MisfitFactory(
+                self._data_misfit, self._sorting = MisfitFactory(
                     self.params, models=self.models
                 ).build(
                     tiles,

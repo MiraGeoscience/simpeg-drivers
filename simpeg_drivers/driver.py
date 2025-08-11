@@ -48,6 +48,7 @@ from simpeg import (
     maps,
     objective_function,
     optimization,
+    simulation,
 )
 
 from simpeg.regularization import (
@@ -65,7 +66,11 @@ from simpeg_drivers.components import (
     InversionTopography,
     InversionWindow,
 )
-from simpeg_drivers.components.factories import DirectivesFactory, MisfitFactory
+from simpeg_drivers.components.factories import (
+    DirectivesFactory,
+    MisfitFactory,
+    SimulationFactory,
+)
 from simpeg_drivers.options import (
     BaseForwardOptions,
     BaseInversionOptions,
@@ -100,6 +105,7 @@ class InversionDriver(Driver):
         self._n_values: int | None = None
         self._optimization: optimization.ProjectedGNCG | None = None
         self._regularization: None = None
+        self._simulation: simulation.BaseSimulation | None = None
         self._sorting: list[np.ndarray] | None = None
         self._ordering: list[np.ndarray] | None = None
         self._mappings: list[maps.IdentityMap] | None = None
@@ -163,14 +169,11 @@ class InversionDriver(Driver):
 
                 self.logger.write(f"Setting up {len(tiles)} tile(s) . . .\n")
                 # Build tiled misfits and combine to form global misfit
-                self._data_misfit, self._sorting, self._ordering = MisfitFactory(
-                    self.params, models=self.models
+                self._data_misfit, self._sorting = MisfitFactory(
+                    self.params, self.simulation
                 ).build(
                     tiles,
                     self.split_list,
-                    self.inversion_data,
-                    self.inversion_mesh,
-                    self.models.active_cells,
                 )
                 self.logger.write("Saving data to file...\n")
 
@@ -315,7 +318,7 @@ class InversionDriver(Driver):
     @property
     def ordering(self):
         """List of ordering of the data."""
-        return self._ordering
+        return self.survey.ordering
 
     @property
     def out_group(self):
@@ -378,6 +381,95 @@ class InversionDriver(Driver):
             )
         self._regularization = regularization
 
+    @property
+    def simulation(self):
+        """
+        The simulation object used in the inversion.
+        """
+        if getattr(self, "_simulation", None) is None:
+            simulation_factory = SimulationFactory(self.params)
+
+            self._simulation = simulation_factory.build(
+                survey=self.inversion_data.survey,
+                mesh=self.inversion_mesh.mesh,
+                active_cells=self.models.active_cells,
+            )
+        return self._simulation
+
+    # def simulation(
+    #         self,
+    #         inversion_mesh: TreeMesh,
+    #         local_mesh: TreeMesh | TensorMesh | None,
+    #         active_cells: np.ndarray,
+    #         survey,
+    #         tile_id: int | None = None,
+    #         padding_cells: int = 6,
+    # ) -> tuple[simulation.BaseSimulation, maps.IdentityMap]:
+    #     """
+    #     Generates SimPEG simulation object.
+    #
+    #     :param: mesh: inversion mesh.
+    #     :param: active_cells: Mask that reduces model to active (earth) cells.
+    #     :param: survey: SimPEG survey object.
+    #     :param: tile_id (Optional): Id associated with the tile covered by
+    #         the survey in case of a tiled inversion.
+    #
+    #     :return: sim: SimPEG simulation object for full data or optionally
+    #         the portion of the data indexed by the local_index argument.
+    #     :return: map: If local_index and tile_id is provided, the returned
+    #         map will maps from local to global data.  If no local_index or
+    #         tile_id is provided map will simply be an identity map with no
+    #         effect of the data.
+    #     """
+    #     simulation_factory = SimulationFactory(self.params)
+    #
+    #     if tile_id is None or "2d" in self.params.inversion_type:
+    #         mapping = maps.IdentityMap(nP=int(self.n_blocks * active_cells.sum()))
+    #         simulation = simulation_factory.build(
+    #             survey=survey,
+    #             global_mesh=inversion_mesh,
+    #             active_cells=active_cells,
+    #             mapping=mapping,
+    #         )
+    #     elif "1d" in self.params.inversion_type:
+    #         slice_ind = np.arange(
+    #             tile_id, inversion_mesh.n_cells, inversion_mesh.shape_cells[0]
+    #         )[::-1]
+    #         mapping = maps.Projection(inversion_mesh.n_cells, slice_ind)
+    #         simulation = simulation_factory.build(
+    #             survey=survey,
+    #             global_mesh=inversion_mesh,
+    #             local_mesh=local_mesh,
+    #             active_cells=active_cells,
+    #             mapping=mapping,
+    #             tile_id=tile_id,
+    #         )
+    #     else:
+    #         if local_mesh is None:
+    #             local_mesh = create_nested_mesh(
+    #                 survey,
+    #                 inversion_mesh,
+    #                 minimum_level=3,
+    #                 padding_cells=padding_cells,
+    #             )
+    #         mapping = maps.TileMap(
+    #             inversion_mesh,
+    #             active_cells,
+    #             local_mesh,
+    #             enforce_active=True,
+    #             components=self.n_blocks,
+    #         )
+    #         simulation = simulation_factory.build(
+    #             survey=survey,
+    #             receivers=self.entity,
+    #             global_mesh=inversion_mesh,
+    #             local_mesh=local_mesh,
+    #             active_cells=mapping.local_active,
+    #             mapping=mapping,
+    #             tile_id=tile_id,
+    #         )
+    #
+    #     return simulation, mapping
     @property
     def sorting(self):
         """List of arrays for sorting of data from tiles."""
