@@ -4,15 +4,18 @@
 format: jb-book
 root: intro
 chapters:
-- file: inversion/index
+- file: fundamentals/index
   sections:
-  - file: inversion/fundamentals
-  - file: inversion/data_misfit
-  - file: inversion/regularization
-  - file: inversion/mesh_design
-  - file: inversion/joint_inversion
-  - file: inversion/depth_of_investigation
-  - file: inversion/optimization
+  - file: fundamentals/background
+  - file: fundamentals/data_misfit
+  - file: fundamentals/regularization/regularization
+    sections:
+    - file: fundamentals/regularization/sparse
+    - file: fundamentals/regularization/rotated_gradients
+  - file: fundamentals/mesh_design
+  - file: fundamentals/joint_inversion
+  - file: fundamentals/depth_of_investigation
+  - file: fundamentals/optimization
 - file: tutorials/introduction
   sections:
   - file: tutorials/background
