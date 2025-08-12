@@ -240,7 +240,7 @@ def create_nested_simulation(
     kwargs = {"survey": local_survey}
 
     n_actives = int(mapping.local_active.sum())
-    if hasattr(simulation, "chiMap"):
+    if getattr(simulation, "_chiMap", None) is not None:
         if simulation.model_type == "vector":
             kwargs["chiMap"] = maps.IdentityMap(nP=n_actives * 3)
             kwargs["model_type"] = "vector"
@@ -252,19 +252,19 @@ def create_nested_simulation(
             simulation.sensitivity_path.parent / f"Tile{tile_id}.zarr"
         )
 
-    if hasattr(simulation, "rhoMap"):
+    if getattr(simulation, "_rhoMap", None) is not None:
         kwargs["rhoMap"] = maps.IdentityMap(nP=n_actives)
         kwargs["active_cells"] = mapping.local_active
         kwargs["sensitivity_path"] = (
             simulation.sensitivity_path.parent / f"Tile{tile_id}.zarr"
         )
 
-    if hasattr(simulation, "sigmaMap"):
+    if getattr(simulation, "_sigmaMap", None) is not None:
         kwargs["sigmaMap"] = maps.ExpMap(local_mesh) * maps.InjectActiveCells(
             local_mesh, mapping.local_active, value_inactive=np.log(1e-8)
         )
 
-    if hasattr(simulation, "etaMap"):
+    if getattr(simulation, "_etaMap", None) is not None:
         kwargs["etaMap"] = maps.InjectActiveCells(
             local_mesh, mapping.local_active, value_inactive=0
         )
@@ -303,15 +303,23 @@ def create_nested_survey(survey, indices, channel=None):
     Extract source and receivers belonging to the indices.
     """
     sources = []
+    location_count = 0
     for src in survey.source_list or [survey.source_field]:
         if channel is not None and getattr(src, "frequency", None) != channel:
             continue
 
+        rx_indices = np.arange(src.receiver_list[0].locations.shape[0]) + location_count
+        _, intersect, _ = np.intersect1d(rx_indices, indices, return_indices=True)
+
+        if len(intersect) == 0:
+            continue
+
+        location_count += len(intersect)
         receivers = []
         for rx in src.receiver_list:
             # intersect = set(rx.local_index).intersection(indices)
             new_rx = copy(rx)
-            new_rx.locations = rx.locations[indices]
+            new_rx.locations = rx.locations[intersect]
             receivers.append(new_rx)
 
         if any(receivers):
@@ -325,14 +333,23 @@ def create_nested_survey(survey, indices, channel=None):
         new_survey = type(survey)(sources)
 
     if hasattr(survey, "dobs") and survey.dobs is not None:
-        n_channels = len(getattr(survey, "frequencies", [None]))
-        n_comps = len(getattr(survey, "components", [None]))
-        new_survey.dobs = survey.dobs.reshape((n_channels, n_comps, -1), order="F")[
+        n_channels = len(np.unique(survey.ordering[:, 0]))
+        n_comps = len(np.unique(survey.ordering[:, 1]))
+
+        data_slice = survey.dobs.reshape((n_channels, n_comps, -1), order="F")[
             :, :, indices
-        ].flatten(order="F")
-        new_survey.std = survey.std.reshape((n_channels, n_comps, -1), order="F")[
+        ]
+        uncert_slice = survey.std.reshape((n_channels, n_comps, -1), order="F")[
             :, :, indices
-        ].flatten(order="F")
+        ]
+
+        if channel is not None:
+            ind = np.where(survey.frequencies == channel)[0]
+            data_slice = data_slice[ind, :, :]
+            uncert_slice = uncert_slice[ind, :, :]
+
+        new_survey.dobs = data_slice.flatten(order="F")
+        new_survey.std = uncert_slice.flatten(order="F")
 
     return new_survey
 

@@ -394,6 +394,8 @@ class InversionDriver(Driver):
                 mesh=self.inversion_mesh.mesh,
                 models=self.models,
             )
+            self._simulation.active_cells = self.models.active_cells
+
         return self._simulation
 
     # def simulation(

@@ -13,6 +13,7 @@
 
 from __future__ import annotations
 
+from gc import is_finalized
 from typing import TYPE_CHECKING
 
 
@@ -302,10 +303,9 @@ class SurveyFactory(SimPEGFactory):
                 loop_ind = np.r_[loop_cells[:, 0], loop_cells[-1, 1]]
                 tx_locs.append(transmitters.vertices[loop_ind, :])
         else:
+            # Assumes 1:1 mapping of tx to rx
             rx_lookup = np.arange(receivers.n_vertices).tolist()
-            tx_locs = [
-                transmitters.vertices[k, :] for k in receivers.tx_id_property.values
-            ]
+            tx_locs = transmitters.vertices
 
         wave_times = (
             receivers.waveform[:, 0] - receivers.timing_mark
@@ -344,9 +344,18 @@ class SurveyFactory(SimPEGFactory):
                 rx_obj.local_index = rx_ids
                 rx_list.append(rx_obj)
 
-                for time_id in range(len(receivers.channels)):
-                    for rx_id in rx_ids:
-                        ordering.append([time_id, component_id, rx_id])
+                n_times = len(receivers.channels)
+                n_rx = len(rx_ids) if isinstance(rx_ids, list) else 1
+                ordering.append(
+                    np.c_[
+                        np.kron(np.arange(n_times), np.ones(n_rx)),
+                        np.ones(n_times * n_rx) * component_id,
+                        np.kron(np.ones(n_times), np.asarray(rx_ids)),
+                    ]
+                )
+                # for time_id in range(len(receivers.channels)):
+                #     for rx_id in rx_ids:
+                #         ordering.append([time_id, component_id, rx_id])
 
             tx_list.append(
                 tx_factory.build(rx_list, locations=cur_tx_locs, waveform=waveform)
