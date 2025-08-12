@@ -121,7 +121,7 @@ class SimulationFactory(SimPEGFactory):
         self,
         survey=None,
         mesh=None,
-        active_cells=None,
+        models=None,
     ):
         if "1d" in self.factory_type:
             return ()
@@ -132,7 +132,7 @@ class SimulationFactory(SimPEGFactory):
         self,
         survey=None,
         mesh=None,
-        active_cells=None,
+        models=None,
     ):
         kwargs = {}
         kwargs["survey"] = survey
@@ -143,28 +143,31 @@ class SimulationFactory(SimPEGFactory):
             else self.params.store_sensitivities
         )
         kwargs["solver"] = self.solver
-
+        active_cells = models.active_cells
         if self.factory_type == "magnetic vector":
             kwargs["active_cells"] = active_cells
             kwargs["chiMap"] = maps.IdentityMap(nP=int(active_cells.sum()) * 3)
             kwargs["model_type"] = "vector"
-            kwargs["chunk_format"] = "row"
 
         if self.factory_type == "magnetic scalar":
             kwargs["active_cells"] = active_cells
             kwargs["chiMap"] = maps.IdentityMap(nP=int(active_cells.sum()))
-            kwargs["chunk_format"] = "row"
 
         if self.factory_type == "gravity":
             kwargs["active_cells"] = active_cells
             kwargs["rhoMap"] = maps.IdentityMap(nP=int(active_cells.sum()))
-            kwargs["chunk_format"] = "row"
 
         if "induced polarization" in self.factory_type:
             etamap = maps.InjectActiveCells(
                 mesh, active_cells=active_cells, value_inactive=0
             )
             kwargs["etaMap"] = etamap
+            kwargs["sigma"] = (
+                maps.InjectActiveCells(
+                    mesh, active_cells=active_cells, value_inactive=1e-8
+                )
+                * models.conductivity
+            )
 
         if self.factory_type in [
             "direct current 3d",

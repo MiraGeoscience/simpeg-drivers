@@ -334,6 +334,7 @@ class InversionData(InversionLocations):
 
         survey_factory = SurveyFactory(self.params)
         survey = survey_factory.build(data=self)
+        survey.ordering = survey_factory.ordering
         if "direct current" in self.params.inversion_type:
             survey.apparent_resistivity = 1 / (geometric_factor(survey) + 1e-10)
 

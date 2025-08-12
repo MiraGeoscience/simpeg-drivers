@@ -318,7 +318,7 @@ class InversionDriver(Driver):
     @property
     def ordering(self):
         """List of ordering of the data."""
-        return self.survey.ordering
+        return self.inversion_data.survey.ordering
 
     @property
     def out_group(self):
@@ -392,7 +392,7 @@ class InversionDriver(Driver):
             self._simulation = simulation_factory.build(
                 survey=self.inversion_data.survey,
                 mesh=self.inversion_mesh.mesh,
-                active_cells=self.models.active_cells,
+                models=self.models,
             )
         return self._simulation
 

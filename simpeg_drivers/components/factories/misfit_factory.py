@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 from concurrent.futures import ProcessPoolExecutor, as_completed
+from copy import copy
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -68,9 +69,7 @@ class MisfitFactory(SimPEGFactory):
         else:
             channels = [None]
 
-        local_misfits = []
         futures = []
-        self.sorting = []
         tile_count = 0
         data_count = 0
         misfit_count = 0
@@ -87,7 +86,7 @@ class MisfitFactory(SimPEGFactory):
                     local_index,
                     channels,
                     tile_count,
-                    data_count,
+                    # data_count,
                     n_split,
                     self.params.padding_cells,
                     self.params.inversion_type,
@@ -98,12 +97,14 @@ class MisfitFactory(SimPEGFactory):
             data_count += len(local_index)
             tile_count += n_split
 
-        for future in as_completed(futures):
-            local, sorting = future  # future.result()
-            local_misfits.append(local)
+        local_misfits = []
+        self.sorting = []
+        for future in futures:  # as_completed(futures):
+            functions, sorting = future  # future.result()
+            local_misfits += functions
             self.sorting.append(sorting)
 
-        return local_misfits
+        return [local_misfits]
 
     def assemble_keyword_arguments(self, **_):
         """Implementation of abstract method from SimPEGFactory."""
@@ -116,13 +117,13 @@ class MisfitFactory(SimPEGFactory):
         local_index,
         channels,
         tile_count,
-        data_count,
+        # data_count,
         n_split,
         padding_cells,
         inversion_type,
         forward_only,
     ):
-        local_sim, _ = cls.create_nested_simulation(
+        local_sim, _ = create_nested_simulation(
             simulation,
             None,
             local_index,
@@ -134,9 +135,9 @@ class MisfitFactory(SimPEGFactory):
         local_mesh = getattr(local_sim, "mesh", None)
         sorting = []
         local_misfits = []
-        for count, channel in enumerate(channels):
+        for channel in channels:
             for split_ind in np.array_split(local_index, n_split):
-                local_sim, mapping = cls.create_nested_simulation(
+                local_sim, mapping = create_nested_simulation(
                     simulation,
                     local_mesh,
                     split_ind,
@@ -145,38 +146,24 @@ class MisfitFactory(SimPEGFactory):
                     padding_cells=padding_cells,
                 )
 
-                if count == 0:
-                    if cls.factory_type in [
-                        "fdem",
-                        "tdem",
-                        "magnetotellurics",
-                        "tipper",
-                    ]:
-                        sorting.append(
-                            np.arange(
-                                data_count,
-                                data_count + len(split_ind),
-                                dtype=int,
-                            )
-                        )
-                        data_count += len(split_ind)
-                    else:
-                        sorting.append(split_ind)
-
-                # TODO this should be done in the simulation factory
-                # if "induced polarization" in inversion_type:
-                #     if "2d" in inversion_type:
-                #         proj = maps.InjectActiveCells(
-                #             inversion_mesh.mesh, active_cells, value_inactive=1e-8
+                # Potentially remove if ordering works out
+                # if count == 0:
+                #     if cls.factory_type in [
+                #         "fdem",
+                #         "tdem",
+                #         "magnetotellurics",
+                #         "tipper",
+                #     ]:
+                #         sorting.append(
+                #             np.arange(
+                #                 data_count,
+                #                 data_count + len(split_ind),
+                #                 dtype=int,
+                #             )
                 #         )
+                #         data_count += len(split_ind)
                 #     else:
-                #         proj = maps.InjectActiveCells(
-                #             mapping.local_mesh,
-                #             mapping.local_active,
-                #             value_inactive=1e-8,
-                #         )
-                #
-                #     local_sim.sigma = proj * mapping * conductivity_model
+                sorting.append(split_ind)
 
                 simulation = meta.MetaSimulation(
                     simulations=[local_sim], mappings=[mapping]
@@ -209,62 +196,106 @@ class MisfitFactory(SimPEGFactory):
 
         return local_misfits, sorting
 
-    @staticmethod
-    def create_nested_simulation(
-        simulation,
-        local_mesh: TreeMesh | None,
-        indices: np.ndarray,
-        *,
-        channel: int | None = None,
-        tile_id: int | None = None,
-        padding_cells=100,
-    ):
-        """
-        Generate a survey, mesh and simulation based on indices.
 
-        :param inversion_data: InversionData object.
-        :param mesh: Octree mesh.
-        :param active_cells: Active cell model.
-        :param indices: Indices of receivers belonging to the tile.
-        :param channel: Channel number for frequency or time channels.
-        :param tile_id: Tile id stored on the simulation.
-        :param padding_cells: Number of padding cells around the local survey.
-        """
-        survey = create_nested_survey(
-            simulation.survey, indices=indices, channel=channel
-        )
+def create_nested_simulation(
+    simulation: BaseSimulation,
+    local_mesh: TreeMesh | None,
+    indices: np.ndarray,
+    *,
+    channel: int | None = None,
+    tile_id: int | None = None,
+    padding_cells=100,
+):
+    """
+    Generate a survey, mesh and simulation based on indices.
 
-        if local_mesh is None:
-            local_mesh = create_nested_mesh(
-                survey,
-                simulation.mesh,
-                minimum_level=3,
-                padding_cells=padding_cells,
-            )
+    :param inversion_data: InversionData object.
+    :param mesh: Octree mesh.
+    :param active_cells: Active cell model.
+    :param indices: Indices of receivers belonging to the tile.
+    :param channel: Channel number for frequency or time channels.
+    :param tile_id: Tile id stored on the simulation.
+    :param padding_cells: Number of padding cells around the local survey.
+    """
+    local_survey = create_nested_survey(
+        simulation.survey, indices=indices, channel=channel
+    )
 
-        mapping = maps.TileMap(
+    if local_mesh is None:
+        local_mesh = create_nested_mesh(
+            local_survey,
             simulation.mesh,
-            simulation.active_cells,
-            local_mesh,
-            enforce_active=True,
-            components=3 if getattr(simulation, "model_type", None) == "vector" else 1,
+            minimum_level=3,
+            padding_cells=padding_cells,
         )
 
-        local_sim = type(simulation)(
-            local_mesh,
-            mapping=mapping.local_active,
-            survey=survey,
+    mapping = maps.TileMap(
+        simulation.mesh,
+        simulation.active_cells,
+        local_mesh,
+        enforce_active=True,
+        components=3 if getattr(simulation, "model_type", None) == "vector" else 1,
+    )
+
+    kwargs = {"survey": local_survey}
+
+    n_actives = int(mapping.local_active.sum())
+    if hasattr(simulation, "chiMap"):
+        if simulation.model_type == "vector":
+            kwargs["chiMap"] = maps.IdentityMap(nP=n_actives * 3)
+            kwargs["model_type"] = "vector"
+        else:
+            kwargs["chiMap"] = maps.IdentityMap(nP=n_actives)
+
+        kwargs["active_cells"] = mapping.local_active
+        kwargs["sensitivity_path"] = (
+            simulation.sensitivity_path.parent / f"Tile{tile_id}.zarr"
         )
 
-        # TODO bring back
-        # inv_type = inversion_data.params.inversion_type
-        # if inv_type in ["fdem", "tdem"]:
-        #     compute_em_projections(inversion_data, local_sim)
-        # elif ("current" in inv_type or "polarization" in inv_type) and (
-        #     "2d" not in inv_type or "pseudo" in inv_type
-        # ):
-        #     compute_dc_projections(inversion_data, local_sim, indices)
-        return local_sim, mapping
+    if hasattr(simulation, "rhoMap"):
+        kwargs["rhoMap"] = maps.IdentityMap(nP=n_actives)
+        kwargs["active_cells"] = mapping.local_active
+        kwargs["sensitivity_path"] = (
+            simulation.sensitivity_path.parent / f"Tile{tile_id}.zarr"
+        )
+
+    if hasattr(simulation, "sigmaMap"):
+        kwargs["sigmaMap"] = maps.ExpMap(local_mesh) * maps.InjectActiveCells(
+            local_mesh, mapping.local_active, value_inactive=np.log(1e-8)
+        )
+
+    if hasattr(simulation, "etaMap"):
+        kwargs["etaMap"] = maps.InjectActiveCells(
+            local_mesh, mapping.local_active, value_inactive=0
+        )
+        proj = maps.InjectActiveCells(
+            local_mesh,
+            mapping.local_active,
+            value_inactive=1e-8,
+        )
+        kwargs["sigma"] = proj * mapping * simulation.sigma
+
+    for key in [
+        "max_chunk_sizestore_sensitivities",
+        "solver",
+        "t0",
+        "time_steps",
+        "thicknesses",
+    ]:
+        if hasattr(simulation, key):
+            kwargs[key] = getattr(simulation, key)
+
+    local_sim = type(simulation)(local_mesh, **kwargs)
+
+    # TODO bring back
+    # inv_type = inversion_data.params.inversion_type
+    # if inv_type in ["fdem", "tdem"]:
+    #     compute_em_projections(inversion_data, local_sim)
+    # elif ("current" in inv_type or "polarization" in inv_type) and (
+    #     "2d" not in inv_type or "pseudo" in inv_type
+    # ):
+    #     compute_dc_projections(inversion_data, local_sim, indices)
+    return local_sim, mapping
 
 
 def create_nested_survey(survey, indices, channel=None):
@@ -272,23 +303,36 @@ def create_nested_survey(survey, indices, channel=None):
     Extract source and receivers belonging to the indices.
     """
     sources = []
-    for src in survey.source_list:
+    for src in survey.source_list or [survey.source_field]:
+        if channel is not None and getattr(src, "frequency", None) != channel:
+            continue
+
         receivers = []
         for rx in src.receiver_list:
-            intersect = set(rx.local_index).intersection(indices)
-            if any(intersect):
-                new_rx = rx.copy()
-                new_rx.locations = (rx.locations[intersect],)
-                receivers.append(new_rx)
+            # intersect = set(rx.local_index).intersection(indices)
+            new_rx = copy(rx)
+            new_rx.locations = rx.locations[indices]
+            receivers.append(new_rx)
 
         if any(receivers):
-            new_src = src.copy()
+            new_src = copy(src)
             new_src.receiver_list = receivers
             sources.append(new_src)
 
-    new_survey = type(survey)(sources)
-    new_survey.dobs = survey.dobs[indices]
-    new_survey.std = survey.std[indices]
+    if hasattr(survey, "source_field"):
+        new_survey = type(survey)(sources[0])
+    else:
+        new_survey = type(survey)(sources)
+
+    if hasattr(survey, "dobs") and survey.dobs is not None:
+        n_channels = len(getattr(survey, "frequencies", [None]))
+        n_comps = len(getattr(survey, "components", [None]))
+        new_survey.dobs = survey.dobs.reshape((n_channels, n_comps, -1), order="F")[
+            :, :, indices
+        ].flatten(order="F")
+        new_survey.std = survey.std.reshape((n_channels, n_comps, -1), order="F")[
+            :, :, indices
+        ].flatten(order="F")
 
     return new_survey
 
