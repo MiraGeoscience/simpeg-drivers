@@ -135,7 +135,7 @@ class MisfitFactory(SimPEGFactory):
         local_mesh = getattr(local_sim, "mesh", None)
         sorting = []
         local_misfits = []
-        for channel in channels:
+        for count, channel in enumerate(channels):
             for split_ind in np.array_split(local_index, n_split):
                 local_sim, mapping = create_nested_simulation(
                     simulation,
@@ -146,44 +146,19 @@ class MisfitFactory(SimPEGFactory):
                     padding_cells=padding_cells,
                 )
 
-                # Potentially remove if ordering works out
-                # if count == 0:
-                #     if cls.factory_type in [
-                #         "fdem",
-                #         "tdem",
-                #         "magnetotellurics",
-                #         "tipper",
-                #     ]:
-                #         sorting.append(
-                #             np.arange(
-                #                 data_count,
-                #                 data_count + len(split_ind),
-                #                 dtype=int,
-                #             )
-                #         )
-                #         data_count += len(split_ind)
-                #     else:
-                sorting.append(split_ind)
+                if count == 0:
+                    sorting.append(split_ind)
 
-                simulation = meta.MetaSimulation(
+                meta_simulation = meta.MetaSimulation(
                     simulations=[local_sim], mappings=[mapping]
                 )
 
                 local_data = data.Data(local_sim.survey)
-
-                if forward_only:
-                    lmisfit = data_misfit.L2DataMisfit(local_data, simulation)
-
-                else:
+                lmisfit = data_misfit.L2DataMisfit(local_data, meta_simulation)
+                if not forward_only:
                     local_data.dobs = local_sim.survey.dobs
                     local_data.standard_deviation = local_sim.survey.std
-                    lmisfit = data_misfit.L2DataMisfit(
-                        local_data,
-                        simulation,
-                    )
-
                     name = inversion_type
-
                     name += f": Tile {tile_count + 1}"
                     if len(channels) > 1:
                         name += f": Channel {channel}"
@@ -308,7 +283,15 @@ def create_nested_survey(survey, indices, channel=None):
         if channel is not None and getattr(src, "frequency", None) != channel:
             continue
 
-        rx_indices = np.arange(src.receiver_list[0].locations.shape[0]) + location_count
+        # Extract the indices of the receivers that belong to this source
+        locations = src.receiver_list[0].locations
+        if isinstance(locations, tuple):  # For MT survey
+            n_verts = locations[0].shape[0]
+        else:
+            n_verts = locations.shape[0]
+
+        rx_indices = np.arange(n_verts) + location_count
+
         _, intersect, _ = np.intersect1d(rx_indices, indices, return_indices=True)
 
         if len(intersect) == 0:
@@ -319,7 +302,12 @@ def create_nested_survey(survey, indices, channel=None):
         for rx in src.receiver_list:
             # intersect = set(rx.local_index).intersection(indices)
             new_rx = copy(rx)
-            new_rx.locations = rx.locations[intersect]
+
+            if isinstance(rx.locations, tuple):  # For MT survey
+                new_rx.locations = tuple(loc[intersect] for loc in rx.locations)
+            else:
+                new_rx.locations = rx.locations[intersect]
+
             receivers.append(new_rx)
 
         if any(receivers):
@@ -343,8 +331,9 @@ def create_nested_survey(survey, indices, channel=None):
             :, :, indices
         ]
 
+        # For FEM surveys only
         if channel is not None:
-            ind = np.where(survey.frequencies == channel)[0]
+            ind = np.where(np.asarray(survey.frequencies) == channel)[0]
             data_slice = data_slice[ind, :, :]
             uncert_slice = uncert_slice[ind, :, :]
 

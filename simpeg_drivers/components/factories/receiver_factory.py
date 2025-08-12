@@ -193,9 +193,4 @@ class ReceiversFactory(SimPEGFactory):
         ]
 
     def _magnetotellurics_arguments(self, locations=None, local_index=None):
-        args = []
-        locs = locations[local_index]
-
-        args.append(locs)
-
-        return args
+        return [locations]
