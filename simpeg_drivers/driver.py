@@ -388,13 +388,14 @@ class InversionDriver(Driver):
         """
         if getattr(self, "_simulation", None) is None:
             simulation_factory = SimulationFactory(self.params)
-
             self._simulation = simulation_factory.build(
                 survey=self.inversion_data.survey,
                 mesh=self.inversion_mesh.mesh,
                 models=self.models,
             )
-            self._simulation.active_cells = self.models.active_cells
+
+            if not hasattr(self._simulation, "active_cells"):
+                self._simulation.active_cells = self.models.active_cells
 
         return self._simulation
 

@@ -163,36 +163,14 @@ class SurveyFactory(SimPEGFactory):
             uncert_stack = np.dstack(
                 [np.vstack(list(k.values())) for k in data.uncertainties.values()]
             ).transpose((0, 2, 1))
-            # for order in self.ordering:
-            #     channel_id, component_id, rx_id = order
-            #     dobs.append(data_stack[component_id][channel_id, rx_id])
-            #     uncerts.append(uncert_stack[component_id][channel_id, rx_id])
 
+            # Flatten in the order of the channel, component, receiver
             data_vec = data_stack[
                 self.ordering[:, 0], self.ordering[:, 1], self.ordering[:, 2]
             ]
             uncertainty_vec = uncert_stack[
                 self.ordering[:, 0], self.ordering[:, 1], self.ordering[:, 2]
             ]
-
-        # elif self.factory_type in ["magnetotellurics", "tipper"]:
-        #     local_data = {}
-        #     local_uncertainties = {}
-        #
-        #     if channel is None:
-        #         channels = np.unique([list(v.keys()) for v in data.observed.values()])
-        #         for chan in channels:
-        #             dat, unc = self._get_local_data(data, chan)
-        #             local_data.update(dat)
-        #             local_uncertainties.update(unc)
-        #
-        #     else:
-        #         dat, unc = self._get_local_data(data, channel)
-        #         local_data.update(dat)
-        #         local_uncertainties.update(unc)
-        #
-        #     data_vec = self._stack_channels(local_data, "row")
-        #     uncertainty_vec = self._stack_channels(local_uncertainties, "row")
 
         else:
             local_data = data.observed

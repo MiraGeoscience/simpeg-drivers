@@ -13,6 +13,7 @@ from __future__ import annotations
 
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from copy import copy
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -224,7 +225,7 @@ def create_nested_simulation(
 
         kwargs["active_cells"] = mapping.local_active
         kwargs["sensitivity_path"] = (
-            simulation.sensitivity_path.parent / f"Tile{tile_id}.zarr"
+            Path(simulation.sensitivity_path).parent / f"Tile{tile_id}.zarr"
         )
 
     if getattr(simulation, "_rhoMap", None) is not None:
@@ -285,7 +286,7 @@ def create_nested_survey(survey, indices, channel=None):
 
         # Extract the indices of the receivers that belong to this source
         locations = src.receiver_list[0].locations
-        if isinstance(locations, tuple):  # For MT survey
+        if isinstance(locations, tuple | list):  # For MT survey
             n_verts = locations[0].shape[0]
         else:
             n_verts = locations.shape[0]
@@ -303,7 +304,7 @@ def create_nested_survey(survey, indices, channel=None):
             # intersect = set(rx.local_index).intersection(indices)
             new_rx = copy(rx)
 
-            if isinstance(rx.locations, tuple):  # For MT survey
+            if isinstance(rx.locations, tuple | list):  # For MT survey
                 new_rx.locations = tuple(loc[intersect] for loc in rx.locations)
             else:
                 new_rx.locations = rx.locations[intersect]
