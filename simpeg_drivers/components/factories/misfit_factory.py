@@ -324,11 +324,11 @@ def create_nested_survey(survey, indices, channel=None):
     if hasattr(survey, "dobs") and survey.dobs is not None:
         n_channels = len(np.unique(survey.ordering[:, 0]))
         n_comps = len(np.unique(survey.ordering[:, 1]))
-
-        data_slice = survey.dobs.reshape((n_channels, n_comps, -1), order="F")[
+        order = "C" if hasattr(survey, "frequencies") else "F"
+        data_slice = survey.dobs.reshape((n_channels, n_comps, -1), order=order)[
             :, :, indices
         ]
-        uncert_slice = survey.std.reshape((n_channels, n_comps, -1), order="F")[
+        uncert_slice = survey.std.reshape((n_channels, n_comps, -1), order=order)[
             :, :, indices
         ]
 
@@ -338,8 +338,8 @@ def create_nested_survey(survey, indices, channel=None):
             data_slice = data_slice[ind, :, :]
             uncert_slice = uncert_slice[ind, :, :]
 
-        new_survey.dobs = data_slice.flatten(order="F")
-        new_survey.std = uncert_slice.flatten(order="F")
+        new_survey.dobs = data_slice.flatten(order=order)
+        new_survey.std = uncert_slice.flatten(order=order)
 
     return new_survey
 
