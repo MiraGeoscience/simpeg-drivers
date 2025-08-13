@@ -149,40 +149,50 @@ class SurveyFactory(SimPEGFactory):
         return local_data, local_uncertainties
 
     def _add_data(self, survey, data, channel):
-        if self.factory_type in ["fdem", "fdem 1d", "tdem", "tdem 1d"]:
-            dobs = []
-            uncerts = []
+        if self.factory_type in [
+            "fdem",
+            "fdem 1d",
+            "tdem",
+            "tdem 1d",
+            "magnetotellurics",
+            "tipper",
+        ]:
+            data_stack = np.dstack(
+                [np.vstack(list(k.values())) for k in data.observed.values()]
+            ).transpose((0, 2, 1))
+            uncert_stack = np.dstack(
+                [np.vstack(list(k.values())) for k in data.uncertainties.values()]
+            ).transpose((0, 2, 1))
+            # for order in self.ordering:
+            #     channel_id, component_id, rx_id = order
+            #     dobs.append(data_stack[component_id][channel_id, rx_id])
+            #     uncerts.append(uncert_stack[component_id][channel_id, rx_id])
 
-            data_stack = [np.vstack(list(k.values())) for k in data.observed.values()]
-            uncert_stack = [
-                np.vstack(list(k.values())) for k in data.uncertainties.values()
+            data_vec = data_stack[
+                self.ordering[:, 0], self.ordering[:, 1], self.ordering[:, 2]
             ]
-            for order in self.ordering:
-                channel_id, component_id, rx_id = order
-                dobs.append(data_stack[component_id][channel_id, rx_id])
-                uncerts.append(uncert_stack[component_id][channel_id, rx_id])
+            uncertainty_vec = uncert_stack[
+                self.ordering[:, 0], self.ordering[:, 1], self.ordering[:, 2]
+            ]
 
-            data_vec = np.vstack([dobs]).flatten()
-            uncertainty_vec = np.vstack([uncerts]).flatten()
-
-        elif self.factory_type in ["magnetotellurics", "tipper"]:
-            local_data = {}
-            local_uncertainties = {}
-
-            if channel is None:
-                channels = np.unique([list(v.keys()) for v in data.observed.values()])
-                for chan in channels:
-                    dat, unc = self._get_local_data(data, chan)
-                    local_data.update(dat)
-                    local_uncertainties.update(unc)
-
-            else:
-                dat, unc = self._get_local_data(data, channel)
-                local_data.update(dat)
-                local_uncertainties.update(unc)
-
-            data_vec = self._stack_channels(local_data, "row")
-            uncertainty_vec = self._stack_channels(local_uncertainties, "row")
+        # elif self.factory_type in ["magnetotellurics", "tipper"]:
+        #     local_data = {}
+        #     local_uncertainties = {}
+        #
+        #     if channel is None:
+        #         channels = np.unique([list(v.keys()) for v in data.observed.values()])
+        #         for chan in channels:
+        #             dat, unc = self._get_local_data(data, chan)
+        #             local_data.update(dat)
+        #             local_uncertainties.update(unc)
+        #
+        #     else:
+        #         dat, unc = self._get_local_data(data, channel)
+        #         local_data.update(dat)
+        #         local_uncertainties.update(unc)
+        #
+        #     data_vec = self._stack_channels(local_data, "row")
+        #     uncertainty_vec = self._stack_channels(local_uncertainties, "row")
 
         else:
             local_data = data.observed
@@ -421,6 +431,17 @@ class SurveyFactory(SimPEGFactory):
         return [sources]
 
     def _naturalsource_arguments(self, data=None, frequency=None):
+        simpeg_mt_translate = {
+            "zxx_real": "zyy_real",
+            "zxx_imag": "zyy_imag",
+            "zxy_real": "zyx_real",
+            "zxy_imag": "zyx_imag",
+            "zyx_real": "zxy_real",
+            "zyx_imag": "zxy_imag",
+            "zyy_real": "zxx_real",
+            "zyy_imag": "zxx_imag",
+        }
+
         receivers = []
         sources = []
         rx_factory = ReceiversFactory(self.params)
@@ -432,7 +453,7 @@ class SurveyFactory(SimPEGFactory):
                 rx_factory.build(
                     locations=data.locations,
                     data=data,
-                    component=comp,
+                    component=simpeg_mt_translate.get(comp, comp),
                 )
             )
 
