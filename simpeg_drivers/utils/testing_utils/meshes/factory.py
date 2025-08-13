@@ -1,0 +1,50 @@
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+from discretize import TensorMesh, TreeMesh
+from geoh5py.objects import DrapeModel, ObjectBase, Octree, Surface
+
+from simpeg_drivers.utils.testing_utils.options import MeshOptions
+
+from .octrees import get_active_source_octree, get_passive_source_octree
+from .tensors import get_tensor_mesh
+
+
+def get_mesh(
+    method: str,
+    survey: ObjectBase,
+    topography: Surface,
+    options: MeshOptions,
+) -> tuple[DrapeModel | Octree, TensorMesh | TreeMesh]:
+    """Factory for mesh creation with behaviour modified by the provided method."""
+
+    if "2d" in method:
+        return get_tensor_mesh(
+            survey=survey,
+            cell_size=options.cell_size,
+            padding_distance=options.padding_distance,
+        )
+
+    if method in ["fdem", "airborne tdem"]:
+        return get_active_source_octree(
+            survey=survey,
+            topography=topography,
+            cell_size=options.cell_size,
+            refinement=options.refinement,
+            padding_distance=options.padding_distance,
+        )
+
+    return get_passive_source_octree(
+        survey=survey,
+        topography=topography,
+        cell_size=options.cell_size,
+        refinement=options.refinement,
+        padding_distance=options.padding_distance,
+    )

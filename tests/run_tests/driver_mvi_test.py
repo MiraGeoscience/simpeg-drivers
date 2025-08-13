@@ -19,9 +19,7 @@ from geoh5py.groups import PropertyGroup
 from geoh5py.groups.property_group import GroupTypeEnum
 from geoh5py.objects import Curve
 from geoh5py.workspace import Workspace
-from pytest import warns
 
-from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import (
     MVIForwardOptions,
     MVIInversionOptions,
@@ -30,8 +28,19 @@ from simpeg_drivers.potential_fields.magnetic_vector.driver import (
     MVIForwardDriver,
     MVIInversionDriver,
 )
-from simpeg_drivers.utils.utils import get_inversion_output
-from tests.testing_utils import check_target, setup_inversion_workspace
+from simpeg_drivers.utils.testing_utils.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticDataInversionOptions,
+)
+from simpeg_drivers.utils.testing_utils.runtests import (
+    setup_inversion_workspace,
+)
+from tests.utils.targets import (
+    check_target,
+    get_inversion_output,
+)
 
 
 # To test the full run and validate the inversion.
@@ -46,13 +55,15 @@ def test_magnetic_vector_fwr_run(
     refinement=(2,),
 ):
     # Run the forward
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(
+            n_stations=n_grid_points, n_lines=n_grid_points, drape=5.0
+        ),
+        mesh=MeshOptions(refinement=refinement),
+        model=ModelOptions(anomaly=0.05),
+    )
     geoh5, _, model, points, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.0,
-        anomaly=0.05,
-        refinement=refinement,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
+        tmp_path, method="magnetic_vector", options=opts
     )
 
     # Unitest dealing with Curve

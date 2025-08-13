@@ -22,9 +22,19 @@ from simpeg_drivers.electricals.induced_polarization.three_dimensions.driver imp
     IP3DForwardDriver,
     IP3DInversionDriver,
 )
-from simpeg_drivers.options import ActiveCellsOptions
-from simpeg_drivers.utils.utils import get_inversion_output
-from tests.testing_utils import check_target, setup_inversion_workspace
+from simpeg_drivers.utils.testing_utils.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticDataInversionOptions,
+)
+from simpeg_drivers.utils.testing_utils.runtests import (
+    setup_inversion_workspace,
+)
+from tests.utils.targets import (
+    check_target,
+    get_inversion_output,
+)
 
 
 # To test the full run and validate the inversion.
@@ -40,16 +50,13 @@ def test_ip_3d_fwr_run(
     refinement=(4, 6),
 ):
     # Run the forward
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
+        mesh=MeshOptions(refinement=refinement),
+        model=ModelOptions(background=1e-6, anomaly=1e-1),
+    )
     geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=1e-6,
-        anomaly=1e-1,
-        n_electrodes=n_electrodes,
-        n_lines=n_lines,
-        refinement=refinement,
-        drape_height=0.0,
-        inversion_type="induced polarization 3d",
-        flatten=False,
+        tmp_path, method="induced polarization 3d", options=opts
     )
     params = IP3DForwardOptions.build(
         geoh5=geoh5,

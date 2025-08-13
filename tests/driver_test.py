@@ -12,24 +12,28 @@ from pathlib import Path
 
 import numpy as np
 
-from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import GravityInversionOptions
 from simpeg_drivers.potential_fields.gravity.driver import GravityInversionDriver
-from tests.testing_utils import setup_inversion_workspace
+from simpeg_drivers.utils.testing_utils.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticDataInversionOptions,
+)
+from simpeg_drivers.utils.testing_utils.runtests import setup_inversion_workspace
 
 
 def test_smallness_terms(tmp_path: Path):
     n_grid_points = 2
     refinement = (2,)
 
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(n_stations=n_grid_points, n_lines=n_grid_points),
+        mesh=MeshOptions(refinement=refinement),
+        model=ModelOptions(anomaly=0.75),
+    )
     geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.0,
-        anomaly=0.75,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
-        refinement=refinement,
-        flatten=False,
+        tmp_path, method="gravity", options=opts
     )
 
     with geoh5.open():
@@ -61,14 +65,13 @@ def test_target_chi(tmp_path: Path, caplog):
     n_grid_points = 2
     refinement = (2,)
 
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(n_station=n_grid_points, n_lines=n_grid_points),
+        mesh=MeshOptions(refinement=refinement),
+        model=ModelOptions(anomaly=0.75),
+    )
     geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.0,
-        anomaly=0.75,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
-        refinement=refinement,
-        flatten=False,
+        tmp_path, method="gravity", options=opts
     )
 
     with geoh5.open():

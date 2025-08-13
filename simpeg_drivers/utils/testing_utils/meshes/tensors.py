@@ -1,0 +1,48 @@
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+import numpy as np
+from discretize import TensorMesh
+from geoh5py.objects import DrapeModel, ObjectBase
+
+from simpeg_drivers.utils.utils import get_drape_model
+
+
+def get_tensor_mesh(
+    survey: ObjectBase, cell_size: tuple[float, float, float], padding_distance: float
+) -> tuple[DrapeModel, TensorMesh]:
+    """
+    Generate a tensor mesh and the colocated DrapeModel.
+
+    :param survey: Survey object with vertices that define the core of the
+        tensor mesh.
+    :param cell_size: Tuple defining the cell size in all directions.
+    :param padding_distance: Distance to pad the mesh in all directions.
+
+    :return entity: The DrapeModel object that shares cells with the discretize
+        tensor mesh and which stores the results of computations.
+    :return mesh: The discretize tensor mesh object for computations.
+    """
+
+    lines = survey.get_entity("line_ids")[0].values
+    entity, mesh, _ = get_drape_model(  # pylint: disable=unbalanced-tuple-unpacking
+        survey.workspace,
+        "Models",
+        survey.vertices[np.unique(survey.cells[lines == 101, :]), :],
+        [cell_size[0], cell_size[2]],
+        100.0,
+        [padding_distance] * 2 + [padding_distance] * 2,
+        1.1,
+        parent=None,
+        return_colocated_mesh=True,
+        return_sorting=True,
+    )
+
+    return entity, mesh

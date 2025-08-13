@@ -25,11 +25,17 @@ from pydantic import AliasChoices, Field
 import simpeg_drivers
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.line_sweep.driver import LineSweepDriver
-from simpeg_drivers.options import ActiveCellsOptions, Deprecations, IRLSOptions
+from simpeg_drivers.options import Deprecations, IRLSOptions
 from simpeg_drivers.potential_fields.gravity.options import GravityInversionOptions
 from simpeg_drivers.potential_fields.gravity.uijson import GravityInversionUIJson
 from simpeg_drivers.uijson import SimPEGDriversUIJson
-from tests.testing_utils import setup_inversion_workspace
+from simpeg_drivers.utils.testing_utils.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticDataInversionOptions,
+)
+from simpeg_drivers.utils.testing_utils.runtests import setup_inversion_workspace
 
 
 logger = logging.getLogger(__name__)
@@ -235,8 +241,9 @@ def test_gravity_uijson(tmp_path):
     import warnings
 
     warnings.filterwarnings("error")
+    opts = SyntheticDataInversionOptions(model=ModelOptions(anomaly=0.75))
     geoh5, _, starting_model, survey, topography = setup_inversion_workspace(
-        tmp_path, background=0.0, anomaly=0.75, inversion_type="gravity"
+        tmp_path, method="gravity", options=opts
     )
     with geoh5.open():
         gz_channel = survey.add_data({"gz": {"values": np.ones(survey.n_vertices)}})
@@ -326,13 +333,19 @@ def test_legacy_uijson(tmp_path: Path):
             )
 
             work_path.mkdir(parents=True)
+            opts = SyntheticDataInversionOptions(
+                survey=SurveyOptions(
+                    n_stations=10,
+                    n_lines=3,
+                ),
+                mesh=MeshOptions(),
+                model=ModelOptions(
+                    background=1.0,
+                    anomaly=2.0,
+                ),
+            )
             geoh5, mesh, model, survey, topo = setup_inversion_workspace(
-                work_path,
-                background=1.0,
-                anomaly=2.0,
-                n_electrodes=10,
-                n_lines=3,
-                inversion_type=inversion_type,
+                work_path, method=inversion_type, options=opts
             )
 
             with geoh5.open(mode="r+"):

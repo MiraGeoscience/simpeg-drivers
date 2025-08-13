@@ -24,9 +24,19 @@ from simpeg_drivers.natural_sources.tipper.driver import (
     TipperForwardDriver,
     TipperInversionDriver,
 )
-from simpeg_drivers.options import ActiveCellsOptions
-from simpeg_drivers.utils.utils import get_inversion_output
-from tests.testing_utils import check_target, setup_inversion_workspace
+from simpeg_drivers.utils.testing_utils.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticDataInversionOptions,
+)
+from simpeg_drivers.utils.testing_utils.runtests import (
+    setup_inversion_workspace,
+)
+from tests.utils.targets import (
+    check_target,
+    get_inversion_output,
+)
 
 
 # To test the full run and validate the inversion.
@@ -42,17 +52,15 @@ def test_tipper_fwr_run(
     cell_size=(20.0, 20.0, 20.0),
 ):
     # Run the forward
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(
+            n_stations=n_grid_points, n_lines=n_grid_points, drape=15.0
+        ),
+        mesh=MeshOptions(cell_size=cell_size, refinement=refinement),
+        model=ModelOptions(background=100.0),
+    )
     geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=100.0,
-        anomaly=1.0,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
-        refinement=refinement,
-        cell_size=cell_size,
-        inversion_type="tipper",
-        drape_height=15.0,
-        flatten=False,
+        tmp_path, method="tipper", options=opts
     )
 
     params = TipperForwardOptions.build(

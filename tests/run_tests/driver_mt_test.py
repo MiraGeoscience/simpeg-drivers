@@ -15,7 +15,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-from dask.distributed import LocalCluster, performance_report
 from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 
@@ -27,9 +26,19 @@ from simpeg_drivers.natural_sources.magnetotellurics.options import (
     MTForwardOptions,
     MTInversionOptions,
 )
-from simpeg_drivers.options import ActiveCellsOptions
-from simpeg_drivers.utils.utils import get_inversion_output
-from tests.testing_utils import check_target, setup_inversion_workspace
+from simpeg_drivers.utils.testing_utils.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticDataInversionOptions,
+)
+from simpeg_drivers.utils.testing_utils.runtests import (
+    setup_inversion_workspace,
+)
+from tests.utils.targets import (
+    check_target,
+    get_inversion_output,
+)
 
 
 # To test the full run and validate the inversion.
@@ -92,17 +101,13 @@ def test_magnetotellurics_fwr_run(
     cell_size=(20.0, 20.0, 20.0),
 ):
     # Run the forward
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(n_stations=n_grid_points, n_lines=n_grid_points),
+        mesh=MeshOptions(cell_size=cell_size, refinement=refinement),
+        model=ModelOptions(background=0.01),
+    )
     geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.01,
-        anomaly=1.0,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
-        refinement=refinement,
-        cell_size=cell_size,
-        drape_height=0.0,
-        inversion_type="magnetotellurics",
-        flatten=False,
+        tmp_path, method="magnetotellurics", options=opts
     )
     params = MTForwardOptions.build(
         geoh5=geoh5,

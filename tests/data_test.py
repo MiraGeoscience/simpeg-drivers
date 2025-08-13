@@ -31,18 +31,25 @@ from simpeg_drivers.potential_fields.magnetic_vector.driver import (
 from simpeg_drivers.potential_fields.magnetic_vector.options import (
     MVIInversionOptions,
 )
-from tests.testing_utils import setup_inversion_workspace
+from simpeg_drivers.utils.testing_utils.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticDataInversionOptions,
+)
+from simpeg_drivers.utils.testing_utils.runtests import setup_inversion_workspace
 
 
 def get_mvi_params(tmp_path: Path, **kwargs) -> MVIInversionOptions:
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(n_stations=2, n_lines=2),
+        mesh=MeshOptions(refinement=(2,)),
+        model=ModelOptions(anomaly=0.05),
+    )
     geoh5, entity, model, survey, topography = setup_inversion_workspace(
         tmp_path,
-        background=0.0,
-        anomaly=0.05,
-        refinement=(2,),
-        n_electrodes=2,
-        n_lines=2,
-        inversion_type="magnetic_vector",
+        method="magnetic_vector",
+        options=opts,
     )
     with geoh5.open():
         tmi_channel = survey.add_data(
@@ -242,15 +249,15 @@ def test_get_survey(tmp_path: Path):
 
 def test_data_parts(tmp_path: Path):
     n_lines = 8
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(n_stations=10, n_lines=n_lines),
+        mesh=MeshOptions(),
+        model=ModelOptions(background=0.01, anomaly=10.0),
+    )
     geoh5, entity, model, survey, topography = setup_inversion_workspace(
         tmp_path,
-        background=0.01,
-        anomaly=10,
-        n_electrodes=10,
-        n_lines=n_lines,
-        drape_height=0.0,
-        inversion_type="direct current 3d",
-        flatten=False,
+        method="direct current 3d",
+        options=opts,
     )
     with geoh5.open():
         params = DC3DForwardOptions.build(

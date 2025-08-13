@@ -14,14 +14,19 @@ from pathlib import Path
 
 import numpy as np
 
-from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import MagneticInversionOptions
 from simpeg_drivers.potential_fields.magnetic_scalar.driver import (
     MagneticInversionDriver,
 )
+from simpeg_drivers.utils.testing_utils.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticDataInversionOptions,
+)
+from simpeg_drivers.utils.testing_utils.runtests import setup_inversion_workspace
 from simpeg_drivers.utils.tile_estimate import TileEstimator, TileParameters
 from simpeg_drivers.utils.utils import simpeg_group_to_driver
-from tests.testing_utils import setup_inversion_workspace
 
 
 def test_tile_estimator_run(
@@ -31,14 +36,16 @@ def test_tile_estimator_run(
 ):
     inducing_field = (49999.8, 90.0, 0.0)
     # Run the forward
+
+    opts = SyntheticDataInversionOptions(
+        survey=SurveyOptions(n_stations=n_grid_points, n_lines=n_grid_points),
+        mesh=MeshOptions(refinement=refinement),
+        model=ModelOptions(anomaly=0.05),
+    )
     geoh5, _, model, survey, topography = setup_inversion_workspace(
         tmp_path,
-        background=0.0,
-        anomaly=0.05,
-        refinement=refinement,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
-        flatten=False,
+        method="magnetic_scalar",
+        options=opts,
     )
     with geoh5.open():
         tmi_channel = survey.add_data(
