@@ -14,7 +14,6 @@ from pathlib import Path
 from unittest.mock import patch
 
 import numpy as np
-from geoapps_utils.modelling.plates import PlateModel
 from geoapps_utils.utils.importing import GeoAppsError
 from geoapps_utils.utils.locations import gaussian
 from geoh5py.workspace import Workspace
@@ -35,7 +34,7 @@ from simpeg_drivers.utils.testing_utils.options import (
     SyntheticDataInversionOptions,
 )
 from simpeg_drivers.utils.testing_utils.runtests import setup_inversion_workspace
-from simpeg_drivers.utils.testing_utils.targets import (
+from tests.utils.targets import (
     check_target,
     get_inversion_output,
 )

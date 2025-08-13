@@ -45,7 +45,7 @@ from simpeg_drivers.utils.testing_utils.options import (
 from simpeg_drivers.utils.testing_utils.runtests import (
     setup_inversion_workspace,
 )
-from simpeg_drivers.utils.testing_utils.targets import (
+from tests.utils.targets import (
     check_target,
     get_inversion_output,
 )
