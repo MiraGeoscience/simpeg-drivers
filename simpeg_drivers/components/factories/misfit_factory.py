@@ -286,24 +286,24 @@ def create_nested_survey(survey, indices, channel=None):
         # Extract the indices of the receivers that belong to this source
         locations = src.receiver_list[0].locations
         if isinstance(locations, tuple | list):  # For MT survey
-            n_verts = locations[0].shape[0]
+            n_data = locations[0].shape[0]
         else:
-            n_verts = locations.shape[0]
+            n_data = locations.shape[0]
 
-        rx_indices = np.arange(n_verts) + location_count
+        rx_indices = np.arange(n_data) + location_count
 
         _, intersect, _ = np.intersect1d(rx_indices, indices, return_indices=True)
+        location_count += n_data
 
         if len(intersect) == 0:
             continue
 
-        location_count += len(intersect)
         receivers = []
         for rx in src.receiver_list:
             # intersect = set(rx.local_index).intersection(indices)
             new_rx = copy(rx)
 
-            if isinstance(rx.locations, tuple | list):  # For MT survey
+            if isinstance(rx.locations, tuple | list):  # For MT and DC surveys
                 new_rx.locations = tuple(loc[intersect] for loc in rx.locations)
             else:
                 new_rx.locations = rx.locations[intersect]

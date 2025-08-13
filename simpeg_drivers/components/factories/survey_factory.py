@@ -190,8 +190,8 @@ class SurveyFactory(SimPEGFactory):
             sources.append(source)
 
         self.ordering = np.c_[
-            np.ones(receiver_entity.n_cells),  # Single channel
-            np.ones(receiver_entity.n_cells),  # Single component
+            np.zeros(receiver_entity.n_cells),  # Single channel
+            np.zeros(receiver_entity.n_cells),  # Single component
             np.hstack(ordering),  # Multi-receivers
         ].astype(int)
 

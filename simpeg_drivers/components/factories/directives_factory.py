@@ -653,9 +653,9 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
             data = inversion_object.normalize(inversion_object.observed)
 
             def dcip_transform(x):
-                data_stack = np.row_stack(list(data.values())).ravel()
-                sorting_stack = np.tile(np.argsort(sorting), len(data))
-                return data_stack[sorting_stack] - x
+                data_stack = np.vstack([k[None] for k in data.values()])
+                data_stack = data_stack[:, np.argsort(sorting)]
+                return data_stack.ravel() - x
 
             kwargs["transforms"].insert(0, dcip_transform)
             kwargs.pop("data_type")
