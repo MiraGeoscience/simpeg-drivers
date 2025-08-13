@@ -9,7 +9,6 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 import numpy as np
-from geoapps_utils.utils.locations import gaussian
 from geoh5py import Workspace
 from geoh5py.objects import Surface
 from scipy.spatial import Delaunay

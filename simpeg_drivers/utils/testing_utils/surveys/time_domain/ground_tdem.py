@@ -9,26 +9,14 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 import numpy as np
+from geoapps_utils.utils.locations import gaussian
 from geoh5py import Workspace
 from geoh5py.objects import (
     LargeLoopGroundTEMReceivers,
     LargeLoopGroundTEMTransmitters,
 )
 
-from simpeg_drivers.utils.testing_utils.terrain import gaussian
-
-
-channels = np.r_[3e-04, 6e-04, 1.2e-03] * 1e3
-waveform = np.c_[
-    np.r_[
-        np.arange(-0.002, -0.0001, 5e-4),
-        np.arange(-0.0004, 0.0, 1e-4),
-        np.arange(0.0, 0.002, 5e-4),
-    ]
-    * 1e3
-    + 2.0,
-    np.r_[np.linspace(0, 1, 4), np.linspace(0.9, 0.0, 4), np.zeros(4)],
-]
+from simpeg_drivers.utils.testing_utils.surveys.time_domain import channels, waveform
 
 
 def generate_tdem_survey(
