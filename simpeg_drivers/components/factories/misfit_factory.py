@@ -82,7 +82,7 @@ class MisfitFactory(SimPEGFactory):
             n_split = split_list[misfit_count : misfit_count + len(channels)]
             futures.append(
                 # executor.submit(
-                self.create_nested_misfit(
+                create_nested_misfit(
                     self.simulation,
                     local_index,
                     channels,
@@ -111,66 +111,65 @@ class MisfitFactory(SimPEGFactory):
         """Implementation of abstract method from SimPEGFactory."""
         return {}
 
-    @classmethod
-    def create_nested_misfit(
-        cls,
+
+def create_nested_misfit(
+    simulation,
+    local_index,
+    channels,
+    tile_count,
+    # data_count,
+    n_split,
+    padding_cells,
+    inversion_type,
+    forward_only,
+):
+    local_sim, _ = create_nested_simulation(
         simulation,
+        None,
         local_index,
-        channels,
-        tile_count,
-        # data_count,
-        n_split,
-        padding_cells,
-        inversion_type,
-        forward_only,
-    ):
-        local_sim, _ = create_nested_simulation(
-            simulation,
-            None,
-            local_index,
-            channel=None,
-            tile_id=tile_count,
-            padding_cells=padding_cells,
-        )
+        channel=None,
+        tile_id=tile_count,
+        padding_cells=padding_cells,
+    )
 
-        local_mesh = getattr(local_sim, "mesh", None)
-        sorting = []
-        local_misfits = []
-        for count, channel in enumerate(channels):
-            for split_ind in np.array_split(local_index, n_split[count]):
-                local_sim, mapping = create_nested_simulation(
-                    simulation,
-                    local_mesh,
-                    split_ind,
-                    channel=channel,
-                    tile_id=tile_count,
-                    padding_cells=padding_cells,
-                )
+    local_mesh = getattr(local_sim, "mesh", None)
+    sorting = []
+    local_misfits = []
+    for count, channel in enumerate(channels):
+        for split_ind in np.array_split(local_index, n_split[count]):
+            local_sim, mapping = create_nested_simulation(
+                simulation,
+                local_mesh,
+                split_ind,
+                channel=channel,
+                tile_id=tile_count,
+                padding_cells=padding_cells,
+            )
 
-                if count == 0:
-                    sorting.append(split_ind)
+            if count == 0:
+                sorting.append(split_ind)
 
-                meta_simulation = meta.MetaSimulation(
-                    simulations=[local_sim], mappings=[mapping]
-                )
+            meta_simulation = meta.MetaSimulation(
+                simulations=[local_sim], mappings=[mapping]
+            )
 
-                local_data = data.Data(local_sim.survey)
-                lmisfit = data_misfit.L2DataMisfit(local_data, meta_simulation)
-                if not forward_only:
-                    local_data.dobs = local_sim.survey.dobs
-                    local_data.standard_deviation = local_sim.survey.std
-                    name = inversion_type
-                    name += f": Tile {tile_count + 1}"
-                    if len(channels) > 1:
-                        name += f": Channel {channel}"
+            local_data = data.Data(local_sim.survey)
+            lmisfit = data_misfit.L2DataMisfit(local_data, meta_simulation)
+            if not forward_only:
+                local_data.dobs = local_sim.survey.dobs
+                local_data.standard_deviation = local_sim.survey.std
+                name = inversion_type
+                name += f": Tile {tile_count + 1}"
+                if len(channels) > 1:
+                    name += f": Channel {channel}"
 
-                    lmisfit.name = f"{name}"
+                lmisfit.name = f"{name}"
 
-                local_misfits.append(lmisfit)
+            local_misfits.append(lmisfit)
 
-                tile_count += 1
+            tile_count += 1
 
-        return local_misfits, sorting
+    return local_misfits, sorting
 
 
 def create_nested_simulation(
@@ -232,7 +231,7 @@ def create_nested_simulation(
         kwargs["rhoMap"] = maps.IdentityMap(nP=n_actives)
         kwargs["active_cells"] = mapping.local_active
         kwargs["sensitivity_path"] = (
-            simulation.sensitivity_path.parent / f"Tile{tile_id}.zarr"
+            Path(simulation.sensitivity_path).parent / f"Tile{tile_id}.zarr"
         )
 
     if getattr(simulation, "_sigmaMap", None) is not None:

@@ -592,7 +592,7 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
             data = inversion_object.normalize(inversion_object.observed)
 
             def potfield_transform(x):
-                data_stack = np.row_stack(list(data.values()))
+                data_stack = np.vstack([k[None] for k in data.values()])
                 data_stack = data_stack[:, np.argsort(sorting)]
                 return data_stack.ravel() - x
 

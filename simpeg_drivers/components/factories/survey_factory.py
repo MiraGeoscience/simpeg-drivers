@@ -95,7 +95,7 @@ class SurveyFactory(SimPEGFactory):
             n_rx = data.locations.shape[0]
             n_comp = len(data.components)
             self.ordering = np.c_[
-                np.ones(n_rx * n_comp),  # Single channel
+                np.zeros(n_rx * n_comp),  # Single channel
                 np.kron(np.ones(n_rx), np.arange(n_comp)),  # Components
                 np.kron(np.arange(n_rx), np.ones(n_comp)),  # Receivers
             ].astype(int)
@@ -123,88 +123,25 @@ class SurveyFactory(SimPEGFactory):
 
         return survey
 
-    def _get_local_data(self, data, channel):
-        local_data = {}
-        local_uncertainties = {}
-
-        components = list(data.observed.keys())
-        for comp in components:
-            comp_name = comp
-            if self.factory_type == "magnetotellurics":
-                comp_name = {
-                    "zxx_real": "zyy_real",
-                    "zxx_imag": "zyy_imag",
-                    "zxy_real": "zyx_real",
-                    "zxy_imag": "zyx_imag",
-                    "zyx_real": "zxy_real",
-                    "zyx_imag": "zxy_imag",
-                    "zyy_real": "zxx_real",
-                    "zyy_imag": "zxx_imag",
-                }[comp]
-
-            key = "_".join([str(channel), str(comp_name)])
-            local_data[key] = data.observed[comp][channel]
-            local_uncertainties[key] = data.uncertainties[comp][channel]
-
-        return local_data, local_uncertainties
-
     def _add_data(self, survey, data, channel):
-        if self.factory_type in [
-            "fdem",
-            "fdem 1d",
-            "tdem",
-            "tdem 1d",
-            "magnetotellurics",
-            "tipper",
-        ]:
-            data_stack = np.dstack(
-                [np.vstack(list(k.values())) for k in data.observed.values()]
-            ).transpose((0, 2, 1))
-            uncert_stack = np.dstack(
-                [np.vstack(list(k.values())) for k in data.uncertainties.values()]
-            ).transpose((0, 2, 1))
+        data_stack = np.dstack(
+            [np.vstack(list(k.values())) for k in data.observed.values()]
+        ).transpose((0, 2, 1))
+        uncert_stack = np.dstack(
+            [np.vstack(list(k.values())) for k in data.uncertainties.values()]
+        ).transpose((0, 2, 1))
 
-            # Flatten in the order of the channel, component, receiver
-            data_vec = data_stack[
-                self.ordering[:, 0], self.ordering[:, 1], self.ordering[:, 2]
-            ]
-            uncertainty_vec = uncert_stack[
-                self.ordering[:, 0], self.ordering[:, 1], self.ordering[:, 2]
-            ]
-
-        else:
-            local_data = data.observed
-            local_uncertainties = data.uncertainties
-
-            data_vec = self._stack_channels(local_data, "column")
-            uncertainty_vec = self._stack_channels(local_uncertainties, "column")
-
+        # Flatten in the order of the channel, component, receiver
+        data_vec = data_stack[
+            self.ordering[:, 0], self.ordering[:, 1], self.ordering[:, 2]
+        ]
+        uncertainty_vec = uncert_stack[
+            self.ordering[:, 0], self.ordering[:, 1], self.ordering[:, 2]
+        ]
         uncertainty_vec[np.isnan(data_vec)] = np.inf
         data_vec[np.isnan(data_vec)] = self.dummy  # Nan's handled by inf uncertainties
         survey.dobs = data_vec
         survey.std = uncertainty_vec
-
-    def _stack_channels(self, channel_data: dict[str, np.ndarray], mode: str):
-        """
-        Convert dictionary of data/uncertainties to stacked array.
-
-        parameters:
-        ----------
-
-        channel_data: Array of data to stack
-        mode: Stacks rows or columns before flattening. Must be either 'row' or 'column'.
-
-
-        notes:
-        ------
-        If mode is row the components will be clustered in the resulting 1D array.
-        Column stacking results in the locations being clustered.
-
-        """
-        if mode == "column":
-            return np.column_stack(list(channel_data.values())).ravel()
-        elif mode == "row":
-            return np.row_stack(list(channel_data.values())).ravel()
 
     def _dcip_arguments(self, data=None):
         if getattr(data, "entity", None) is None:

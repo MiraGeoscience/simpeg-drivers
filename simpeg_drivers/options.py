@@ -625,7 +625,7 @@ class BaseInversionOptions(CoreOptions):
         data = getattr(self, "_".join([component, "channel"]), None)
         if isinstance(data, NumericData):
             data = data.values
-        return data
+        return {None: data}
 
     def component_uncertainty(self, component: str) -> np.ndarray | None:
         """
@@ -640,6 +640,6 @@ class BaseInversionOptions(CoreOptions):
         if isinstance(data, NumericData):
             data = data.values
         elif isinstance(data, float):
-            data *= np.ones_like(self.component_data(component))
+            data *= np.ones_like(self.component_data(component)[None])
 
-        return data
+        return {None: data}
