@@ -79,7 +79,7 @@ class MisfitFactory(SimPEGFactory):
             if len(local_index) == 0:
                 continue
 
-            n_split = split_list[misfit_count]
+            n_split = split_list[misfit_count : misfit_count + len(channels)]
             futures.append(
                 # executor.submit(
                 self.create_nested_misfit(
@@ -96,7 +96,7 @@ class MisfitFactory(SimPEGFactory):
             )
             misfit_count += len(channels)
             data_count += len(local_index)
-            tile_count += n_split
+            tile_count += np.sum(n_split)
 
         local_misfits = []
         self.sorting = []
@@ -137,7 +137,7 @@ class MisfitFactory(SimPEGFactory):
         sorting = []
         local_misfits = []
         for count, channel in enumerate(channels):
-            for split_ind in np.array_split(local_index, n_split):
+            for split_ind in np.array_split(local_index, n_split[count]):
                 local_sim, mapping = create_nested_simulation(
                     simulation,
                     local_mesh,
