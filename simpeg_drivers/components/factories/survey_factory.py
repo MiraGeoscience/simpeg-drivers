@@ -235,6 +235,7 @@ class SurveyFactory(SimPEGFactory):
         wave_times = (
             receivers.waveform[:, 0] - receivers.timing_mark
         ) * self.params.unit_conversion
+
         if "1d" in self.factory_type:
             on_times = wave_times <= 0.0
             waveform = tdem.sources.PiecewiseLinearWaveform(
@@ -256,10 +257,11 @@ class SurveyFactory(SimPEGFactory):
         tx_list = []
         rx_factory = ReceiversFactory(self.params)
         tx_factory = SourcesFactory(self.params)
+
         for cur_tx_locs, rx_ids in zip(tx_locs, rx_lookup, strict=True):
             locs = receivers.vertices[rx_ids, :]
-
             rx_list = []
+
             for component_id, component in enumerate(data.components):
                 rx_obj = rx_factory.build(
                     locations=locs,
@@ -278,9 +280,6 @@ class SurveyFactory(SimPEGFactory):
                         np.kron(np.ones(n_times), np.asarray(rx_ids)),
                     ]
                 )
-                # for time_id in range(len(receivers.channels)):
-                #     for rx_id in rx_ids:
-                #         ordering.append([time_id, component_id, rx_id])
 
             tx_list.append(
                 tx_factory.build(rx_list, locations=cur_tx_locs, waveform=waveform)
@@ -356,7 +355,6 @@ class SurveyFactory(SimPEGFactory):
             "zyy_real": "zxx_real",
             "zyy_imag": "zxx_imag",
         }
-
         receivers = []
         sources = []
         rx_factory = ReceiversFactory(self.params)
