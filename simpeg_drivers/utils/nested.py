@@ -26,7 +26,7 @@ from simpeg.survey import BaseSurvey
 from .surveys import get_intersecting_cells, get_unique_locations
 
 
-def create_nested_mesh(
+def create_mesh(
     survey: BaseSurvey,
     base_mesh: TreeMesh,
     padding_cells: int = 8,
@@ -90,7 +90,7 @@ def create_nested_mesh(
     return nested_mesh
 
 
-def create_nested_misfit(
+def create_misfit(
     simulation,
     local_index,
     channels,
@@ -101,7 +101,7 @@ def create_nested_misfit(
     inversion_type,
     forward_only,
 ):
-    local_sim, _ = create_nested_simulation(
+    local_sim, _ = create_simulation(
         simulation,
         None,
         local_index,
@@ -115,7 +115,7 @@ def create_nested_misfit(
     local_misfits = []
     for count, channel in enumerate(channels):
         for split_ind in np.array_split(local_index, n_split[count]):
-            local_sim, mapping = create_nested_simulation(
+            local_sim, mapping = create_simulation(
                 simulation,
                 local_mesh,
                 split_ind,
@@ -150,7 +150,7 @@ def create_nested_misfit(
     return local_misfits, sorting
 
 
-def create_nested_simulation(
+def create_simulation(
     simulation: BaseSimulation,
     local_mesh: TreeMesh | None,
     indices: np.ndarray,
@@ -170,12 +170,10 @@ def create_nested_simulation(
     :param tile_id: Tile id stored on the simulation.
     :param padding_cells: Number of padding cells around the local survey.
     """
-    local_survey = create_nested_survey(
-        simulation.survey, indices=indices, channel=channel
-    )
+    local_survey = create_survey(simulation.survey, indices=indices, channel=channel)
 
     if local_mesh is None:
-        local_mesh = create_nested_mesh(
+        local_mesh = create_mesh(
             local_survey,
             simulation.mesh,
             minimum_level=3,
@@ -251,7 +249,7 @@ def create_nested_simulation(
     return local_sim, mapping
 
 
-def create_nested_survey(survey, indices, channel=None):
+def create_survey(survey, indices, channel=None):
     """
     Extract source and receivers belonging to the indices.
     """

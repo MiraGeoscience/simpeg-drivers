@@ -18,7 +18,7 @@ from simpeg import objective_function
 from simpeg.simulation import BaseSimulation
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
-from simpeg_drivers.utils.nested import create_nested_misfit
+from simpeg_drivers.utils.nested import create_misfit
 
 
 if TYPE_CHECKING:
@@ -76,7 +76,7 @@ class MisfitFactory(SimPEGFactory):
             n_split = split_list[misfit_count : misfit_count + len(channels)]
             futures.append(
                 # executor.submit(
-                create_nested_misfit(
+                create_misfit(
                     self.simulation,
                     local_index,
                     channels,
