@@ -13,7 +13,7 @@ from geoh5py.objects import DrapeModel, ObjectBase, Octree, Surface
 
 from simpeg_drivers.utils.synthetics.options import MeshOptions
 
-from .octrees import get_active_source_octree, get_passive_source_octree
+from .octrees import get_octree_mesh
 from .tensors import get_tensor_mesh
 
 
@@ -32,19 +32,11 @@ def get_mesh(
             padding_distance=options.padding_distance,
         )
 
-    if method in ["fdem", "airborne tdem"]:
-        return get_active_source_octree(
-            survey=survey,
-            topography=topography,
-            cell_size=options.cell_size,
-            refinement=options.refinement,
-            padding_distance=options.padding_distance,
-        )
-
-    return get_passive_source_octree(
+    return get_octree_mesh(
         survey=survey,
         topography=topography,
         cell_size=options.cell_size,
         refinement=options.refinement,
         padding_distance=options.padding_distance,
+        refine_on_receivers=method in ["fdem", "airborne tdem"],
     )
