@@ -1,12 +1,13 @@
 {
-    "version": "0.3.0-alpha.6",
-    "title": "Depth of Investigation: Sensitivity Cutoff",
-    "icon": "",
-    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
+    "version": "0.3.0-beta.1",
+    "title": "Depth of Investigation",
+    "icon": "grd",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/inversion/depth_of_investigation.html#depth-of-investigation",
     "conda_environment": "simpeg_drivers",
     "run_command": "simpeg_drivers.depth_of_investigation.sensitivity_cutoff.driver",
     "geoh5": "",
     "monitoring_directory": "",
+    "iconOverlay": "ClippingPlane",
     "mesh": {
         "main": true,
         "meshType": [
