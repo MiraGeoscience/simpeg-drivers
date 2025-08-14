@@ -34,17 +34,11 @@ from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator, inter
 from scipy.optimize import linear_sum_assignment
 from scipy.spatial import ConvexHull, Delaunay, cKDTree
 from scipy.spatial.distance import cdist
-from simpeg.electromagnetics.frequency_domain.sources import (
-    LineCurrent as FEMLineCurrent,
-)
-from simpeg.electromagnetics.time_domain.sources import LineCurrent as TEMLineCurrent
 from simpeg.survey import BaseSurvey
 
 from simpeg_drivers import DRIVER_MAP
 from simpeg_drivers.utils.surveys import (
     compute_alongline_distance,
-    get_intersecting_cells,
-    get_unique_locations,
 )
 
 
@@ -139,70 +133,6 @@ def calculate_2D_trend(
         f"Removed {order}th order polynomial trend with mean: {np.mean(data_trend):.6g}"
     )
     return data_trend, params
-
-
-def create_nested_mesh(
-    survey: BaseSurvey,
-    base_mesh: TreeMesh,
-    padding_cells: int = 8,
-    minimum_level: int = 4,
-    finalize: bool = True,
-):
-    """
-    Create a nested mesh with the same extent as the input global mesh.
-    Refinement levels are preserved only around the input locations (local survey).
-
-    Parameters
-    ----------
-
-    locations: Array of coordinates for the local survey shape(*, 3).
-    base_mesh: Input global TreeMesh object.
-    padding_cells: Used for 'method'= 'padding_cells'. Number of cells in each concentric shell.
-    minimum_level: Minimum octree level to preserve everywhere outside the local survey area.
-    finalize: Return a finalized local treemesh.
-    """
-    locations = get_unique_locations(survey)
-    nested_mesh = TreeMesh(
-        [base_mesh.h[0], base_mesh.h[1], base_mesh.h[2]],
-        x0=base_mesh.x0,
-        diagonal_balance=False,
-    )
-    base_level = base_mesh.max_level - minimum_level
-    base_refinement = base_mesh.cell_levels_by_index(np.arange(base_mesh.nC))
-    base_refinement[base_refinement > base_level] = base_level
-    nested_mesh.insert_cells(
-        base_mesh.gridCC,
-        base_refinement,
-        finalize=False,
-    )
-    base_cell = np.min([base_mesh.h[0][0], base_mesh.h[1][0]])
-    tx_loops = []
-    for source in survey.source_list:
-        if isinstance(source, TEMLineCurrent | FEMLineCurrent):
-            mesh_indices = get_intersecting_cells(source.location, base_mesh)
-            tx_loops.append(base_mesh.cell_centers[mesh_indices, :])
-
-    if tx_loops:
-        locations = np.vstack([locations, *tx_loops])
-
-    tree = cKDTree(locations[:, :2])
-    rad, _ = tree.query(base_mesh.gridCC[:, :2])
-    pad_distance = 0.0
-    for ii in range(minimum_level):
-        pad_distance += base_cell * 2**ii * padding_cells
-        indices = np.where(rad < pad_distance)[0]
-        levels = base_mesh.cell_levels_by_index(indices)
-        levels[levels > (base_mesh.max_level - ii)] = base_mesh.max_level - ii
-        nested_mesh.insert_cells(
-            base_mesh.gridCC[indices, :],
-            levels,
-            finalize=False,
-        )
-
-    if finalize:
-        nested_mesh.finalize()
-
-    return nested_mesh
 
 
 def drape_to_octree(
@@ -507,7 +437,7 @@ def xyz_2_drape_model(
 
 
 def tile_locations(
-    locations: np.ndarray,
+    locations: BaseSurvey,
     n_tiles: int,
     labels: np.ndarray | None = None,
 ) -> list[np.ndarray]:

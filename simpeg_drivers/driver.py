@@ -623,7 +623,7 @@ class InversionDriver(Driver):
             return np.arange(self.inversion_data.mask.sum()).reshape((-1, 1))
 
         return tile_locations(
-            self.inversion_data.locations,
+            self.simulation.survey,
             self.params.compute.tile_spatial,
             labels=self.inversion_data.parts,
         )

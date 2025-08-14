@@ -143,3 +143,42 @@ def get_unique_locations(survey: BaseSurvey) -> np.ndarray:
         locations = survey.receiver_locations
 
     return np.unique(locations, axis=0)
+
+
+def compute_em_projections(inversion_data, simulation):
+    """
+    Pre-compute projections for the receivers for efficiency.
+    """
+    rx_locs = inversion_data.entity.vertices
+    projections = {}
+    for component in "xyz":
+        projections[component] = simulation.mesh.get_interpolation_matrix(
+            rx_locs, "faces_" + component[0]
+        )
+
+    for source in simulation.survey.source_list:
+        for receiver in source.receiver_list:
+            projection = 0.0
+            for orientation, comp in zip(receiver.orientation, "xyz", strict=True):
+                if orientation == 0:
+                    continue
+                projection += orientation * projections[comp][receiver.local_index, :]
+            receiver.spatialP = projection
+
+
+def compute_dc_projections(inversion_data, simulation, indices):
+    """
+    Pre-compute projections for the receivers for efficiency.
+    """
+    rx_locs = inversion_data.entity.vertices
+    mn_pairs = inversion_data.entity.cells
+    projection = simulation.mesh.get_interpolation_matrix(rx_locs, "nodes")
+
+    for source, ind in zip(simulation.survey.source_list, indices, strict=True):
+        proj_mn = projection[mn_pairs[ind, 0], :]
+
+        # Check if dipole receiver
+        if not np.all(mn_pairs[ind, 0] == mn_pairs[ind, 1]):
+            proj_mn -= projection[mn_pairs[ind, 1], :]
+
+        source.receiver_list[0].spatialP = proj_mn  # pylint: disable=protected-access
