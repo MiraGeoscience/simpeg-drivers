@@ -16,7 +16,10 @@ from simpeg_drivers.utils.utils import get_drape_model
 
 
 def get_tensor_mesh(
-    survey: ObjectBase, cell_size: tuple[float, float, float], padding_distance: float
+    survey: ObjectBase,
+    cell_size: tuple[float, float, float],
+    padding_distance: float,
+    line_id: int = 101,
 ) -> DrapeModel:
     """
     Generate a tensor mesh and the colocated DrapeModel.
@@ -25,6 +28,7 @@ def get_tensor_mesh(
         tensor mesh.
     :param cell_size: Tuple defining the cell size in all directions.
     :param padding_distance: Distance to pad the mesh in all directions.
+    :param line_id: Chooses line from the survey to define the drape model.
 
     :return entity: The DrapeModel object that shares cells with the discretize
         tensor mesh and which stores the results of computations.
@@ -35,7 +39,7 @@ def get_tensor_mesh(
     entity, mesh, _ = get_drape_model(  # pylint: disable=unbalanced-tuple-unpacking
         survey.workspace,
         "Models",
-        survey.vertices[np.unique(survey.cells[lines == 101, :]), :],
+        survey.vertices[np.unique(survey.cells[lines == line_id, :]), :],
         [cell_size[0], cell_size[2]],
         100.0,
         [padding_distance] * 2 + [padding_distance] * 2,
