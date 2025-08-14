@@ -122,7 +122,7 @@ platforms = ['win-64', 'linux-64']
 channels = ['conda-forge']
 
 [tool.conda-lock.dependencies]
-# libblas = "*=*mkl" # see in environments/env-python-3.x.yml"
+libblas = "*=*mkl"  # because simpeg already brings in the MKL
 
 ## indirect dependencies, forcing them here for installation through Conda not pip
 #---------------------------------------------------------------------------------
