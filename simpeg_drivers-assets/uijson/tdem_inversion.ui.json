@@ -1,5 +1,5 @@
 {
-    "version": "0.3.0-alpha.6",
+    "version": "0.3.0-beta.1",
     "title": "Time-domain EM (TEM) Inversion",
     "icon": "surveyairborneem",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
@@ -321,8 +321,6 @@
         ],
         "label": "Gradient rotation",
         "parent": "mesh",
-        "optional": true,
-        "enabled": false,
         "value": ""
     },
     "s_norm": {
