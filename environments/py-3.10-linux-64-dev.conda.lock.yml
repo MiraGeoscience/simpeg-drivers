@@ -95,7 +95,7 @@ dependencies:
   - importlib-metadata=8.7.0=pyhe01879c_1
   - importlib_metadata=8.7.0=h40b2b14_1
   - iniconfig=2.0.0=pyhd8ed1ab_1
-  - ipykernel=7.0.0a2=pyh82676e8_0
+  - ipykernel=6.30.1=pyh82676e8_0
   - ipython=8.37.0=pyh8f84b5b_0
   - ipython_genutils=0.2.0=pyhd8ed1ab_2
   - ipywidgets=7.8.5=pyhd8ed1ab_0
@@ -354,9 +354,9 @@ dependencies:
   - zstandard=0.23.0=py310ha75aee5_2
   - zstd=1.5.7=hb8e6e7a_2
   - pip:
-      - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@1dbe97d441d65962a94e071b5c1c27d9facd2050
+      - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@d0d3ced2e3f84109ee49270adb936f42b490d99f
       - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@570ea996ae7e48ab1b8b971b23c9c73b7f5637b2
-      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@a1cf0ec4aa28705eb7de68cfedb255de6e590433
+      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@d0311c2528658b0dcd70d6491ba53bf7c8288946
       - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app.git@02fbd85bf7d54b8f4336f1f0094c1c3e27714e81
       - param-sweeps @ git+https://github.com/MiraGeoscience/param-sweeps.git@9ed6091534d638171957a17324e1a1e8f067b434
 
