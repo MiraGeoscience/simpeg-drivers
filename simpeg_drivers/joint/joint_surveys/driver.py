@@ -16,22 +16,24 @@ from logging import getLogger
 import numpy as np
 from geoh5py.shared.utils import fetch_active_workspace
 from simpeg import maps
+from simpeg.directives import SaveLPModelGroup
 
 from simpeg_drivers.components.factories import DirectivesFactory, SaveModelGeoh5Factory
 from simpeg_drivers.joint.driver import BaseJointDriver
 
-from .constants import validations
-from .params import JointSurveysParams
+from .options import JointSurveysOptions
 
 
 logger = getLogger(__name__)
 
 
 class JointSurveyDriver(BaseJointDriver):
-    _params_class = JointSurveysParams
-    _validations = validations
+    """Joint surveys inversion driver"""
 
-    def __init__(self, params: JointSurveysParams):
+    _options_class = JointSurveysOptions
+    _validations = None
+
+    def __init__(self, params: JointSurveysOptions):
         super().__init__(params)
 
         with fetch_active_workspace(self.workspace, mode="r+"):
@@ -87,6 +89,7 @@ class JointSurveyDriver(BaseJointDriver):
     @property
     def directives(self):
         if getattr(self, "_directives", None) is None and not self.params.forward_only:
+            self._directives = DirectivesFactory(self)
             with fetch_active_workspace(self.workspace, mode="r+"):
                 directives_list = []
                 count = 0
@@ -103,6 +106,12 @@ class JointSurveyDriver(BaseJointDriver):
                     ]
 
                     directives_list.append(save_model)
+                    directives_list.append(
+                        SaveLPModelGroup(
+                            driver.inversion_mesh.entity,
+                            self._directives.update_irls_directive,
+                        )
+                    )
 
                     if driver_directives.save_property_group is not None:
                         directives_list.append(driver_directives.save_property_group)
@@ -131,7 +140,13 @@ class JointSurveyDriver(BaseJointDriver):
                     name="Model",
                 )
 
-                self._directives = DirectivesFactory(self)
+                directives_list.append(
+                    SaveLPModelGroup(
+                        self.inversion_mesh.entity,
+                        self._directives.update_irls_directive,
+                    )
+                )
+
                 if self._directives.save_property_group is not None:
                     directives_list.append(self._directives.save_property_group)
 

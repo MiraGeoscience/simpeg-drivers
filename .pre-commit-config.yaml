@@ -17,7 +17,7 @@ repos:
     -   id: pycln
         args: [--config=pyproject.toml]
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.9.1
+    rev: v0.9.9
     hooks:
     -   id: ruff
         args:
@@ -62,7 +62,7 @@ repos:
         types: [python]
         exclude: ^(devtools|docs)/
 -   repo: https://github.com/codespell-project/codespell
-    rev: v2.3.0
+    rev: v2.4.1
     hooks:
     -   id: codespell
         exclude: (-lock\.ya?ml|\benvironments/.*\.ya?ml|\.ipynb|^THIRD_PARTY_SOFTWARE\.rst)$
@@ -76,7 +76,6 @@ repos:
         exclude_types: [jupyter]
     -   id: check-toml
     -   id: check-yaml
-        exclude: ^recipe.yaml$
     -   id: check-added-large-files
     -   id: check-case-conflict
     -   id: check-merge-conflict
@@ -87,6 +86,7 @@ repos:
     -   id: mixed-line-ending
         exclude: ^\.idea/.*\.xml$
     -   id: name-tests-test
+        exclude: testing_utils.py
     -   id: pretty-format-json
         args:
             - --autofix

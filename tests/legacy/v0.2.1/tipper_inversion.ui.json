@@ -1,0 +1,689 @@
+{
+    "version": "0.2.0-alpha.1",
+    "title": "Tipper Inversion",
+    "icon": "surveyztem",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
+    "conda_environment": "simpeg_drivers",
+    "run_command": "simpeg_drivers.driver",
+    "geoh5": "",
+    "monitoring_directory": "",
+    "workspace_geoh5": "",
+    "inversion_type": "tipper",
+    "forward_only": false,
+    "data_object": {
+        "main": true,
+        "group": "Data",
+        "label": "Object",
+        "meshType": "{0b639533-f35b-44d8-92a8-f70ecff3fd26}",
+        "value": ""
+    },
+    "z_from_topo": {
+        "group": "Data pre-processing",
+        "label": "Take z from topography",
+        "tooltip": "Sets survey elevation to topography before any offsets are applied.",
+        "value": false,
+        "verbose": 3,
+        "visible": false
+    },
+    "receivers_radar_drape": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data pre-processing",
+        "label": "Z radar offset",
+        "tooltip": "Apply a non-homogeneous offset to survey object from radar channel.",
+        "optional": true,
+        "parent": "data_object",
+        "value": "",
+        "enabled": false,
+        "verbose": 3,
+        "visible": false
+    },
+    "receivers_offset_z": {
+        "group": "Data pre-processing",
+        "label": "Z static offset",
+        "optional": true,
+        "enabled": false,
+        "value": 0.0,
+        "verbose": 3,
+        "visible": false
+    },
+    "gps_receivers_offset": "",
+    "txz_real_channel": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data",
+        "dataGroupType": "Multi-element",
+        "main": true,
+        "label": "Txz real",
+        "parent": "data_object",
+        "optional": true,
+        "enabled": true,
+        "value": ""
+    },
+    "txz_real_uncertainty": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data",
+        "dataGroupType": "Multi-element",
+        "main": true,
+        "label": "Uncertainty",
+        "parent": "data_object",
+        "dependency": "txz_real_channel",
+        "dependencyType": "enabled",
+        "value": ""
+    },
+    "txz_imag_channel": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data",
+        "dataGroupType": "Multi-element",
+        "main": true,
+        "label": "Txz imaginary",
+        "parent": "data_object",
+        "optional": true,
+        "enabled": true,
+        "value": ""
+    },
+    "txz_imag_uncertainty": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data",
+        "dataGroupType": "Multi-element",
+        "main": true,
+        "label": "Uncertainty",
+        "parent": "data_object",
+        "dependency": "txz_imag_channel",
+        "dependencyType": "enabled",
+        "value": ""
+    },
+    "tyz_real_channel": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data",
+        "dataGroupType": "Multi-element",
+        "main": true,
+        "label": "Tyz real",
+        "parent": "data_object",
+        "optional": true,
+        "enabled": true,
+        "value": ""
+    },
+    "tyz_real_uncertainty": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data",
+        "dataGroupType": "Multi-element",
+        "main": true,
+        "label": "Uncertainty",
+        "parent": "data_object",
+        "dependency": "tyz_real_channel",
+        "dependencyType": "enabled",
+        "value": ""
+    },
+    "tyz_imag_channel": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data",
+        "dataGroupType": "Multi-element",
+        "main": true,
+        "label": "Tyz imaginary",
+        "parent": "data_object",
+        "optional": true,
+        "enabled": true,
+        "value": ""
+    },
+    "tyz_imag_uncertainty": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data",
+        "dataGroupType": "Multi-element",
+        "main": true,
+        "label": "Uncertainty",
+        "parent": "data_object",
+        "dependency": "tyz_imag_channel",
+        "dependencyType": "enabled",
+        "value": ""
+    },
+    "mesh": {
+        "group": "Mesh and models",
+        "main": true,
+        "label": "Mesh",
+        "meshType": "{4ea87376-3ece-438b-bf12-3479733ded46}",
+        "value": "",
+        "tooltip": "Select a mesh for the inversion."
+    },
+    "model_type": {
+        "choiceList": [
+            "Conductivity (S/m)",
+            "Resistivity (Ohm-m)"
+        ],
+        "main": true,
+        "group": "Mesh and models",
+        "label": "Model units",
+        "tooltip": "Select the units of the model.",
+        "value": "Conductivity (S/m)"
+    },
+    "background_conductivity": {
+        "group": "Mesh and models",
+        "main": true,
+        "label": "Background",
+        "property": "",
+        "value": 0.001
+    },
+    "starting_model": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Mesh and models",
+        "main": true,
+        "isValue": true,
+        "parent": "mesh",
+        "label": "Initial",
+        "property": "",
+        "value": 0.001
+    },
+    "reference_model": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "main": true,
+        "group": "Mesh and models",
+        "isValue": true,
+        "parent": "mesh",
+        "label": "Reference",
+        "property": "",
+        "optional": true,
+        "enabled": false,
+        "value": 0.001
+    },
+    "lower_bound": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "main": true,
+        "dataType": "Float",
+        "group": "Mesh and models",
+        "isValue": true,
+        "parent": "mesh",
+        "label": "Lower bound",
+        "property": "",
+        "optional": true,
+        "value": 1e-08,
+        "enabled": false
+    },
+    "upper_bound": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "main": true,
+        "dataType": "Float",
+        "group": "Mesh and models",
+        "isValue": true,
+        "parent": "mesh",
+        "label": "Upper bound",
+        "property": "",
+        "optional": true,
+        "value": 100.0,
+        "enabled": false
+    },
+    "topography_object": {
+        "main": true,
+        "group": "Topography",
+        "label": "Topography",
+        "meshType": [
+            "{202c5db1-a56d-4004-9cad-baafd8899406}",
+            "{6a057fdc-b355-11e3-95be-fd84a7ffcb88}",
+            "{f26feba3-aded-494b-b9e9-b2bbcbe298e1}",
+            "{48f5054a-1c5c-4ca4-9048-80f36dc60a06}",
+            "{b020a277-90e2-4cd7-84d6-612ee3f25051}"
+        ],
+        "value": "",
+        "optional": true,
+        "enabled": true,
+        "tooltip": "Select a topography object to define the active cells for inversion."
+    },
+    "topography": {
+        "association": [
+            "Vertex",
+            "Cell"
+        ],
+        "dataType": "Float",
+        "group": "Topography",
+        "main": true,
+        "optional": true,
+        "enabled": false,
+        "label": "Elevation channel",
+        "tooltip": "Set elevation from channel.  If not set the topography will be set from the geometry of the selected 'topography' object.",
+        "parent": "topography_object",
+        "dependency": "topography_object",
+        "dependencyType": "enabled",
+        "value": "",
+        "verbose": 2
+    },
+    "active_model": {
+        "association": "Cell",
+        "dataType": [
+            "Referenced",
+            "Boolean",
+            "Integer"
+        ],
+        "group": "Topography",
+        "main": true,
+        "enabled": false,
+        "dependency": "topography_object",
+        "dependencyType": "disabled",
+        "label": "Active model",
+        "tooltip": "Provide the active cell boolean model directly if topography not set.",
+        "parent": "mesh",
+        "value": ""
+    },
+    "output_tile_files": false,
+    "inversion_style": "voxel",
+    "alpha_s": {
+        "min": 0.0,
+        "group": "Regularization",
+        "label": "Reference weight",
+        "value": 1.0,
+        "tooltip": "Constant ratio compared to other weights. Larger values result in models that remain close to the reference model",
+        "dependency": "reference_model",
+        "dependencyType": "enabled",
+        "isValue": true,
+        "parent": "mesh",
+        "association": "Cell",
+        "dataType": "Float",
+        "property": "",
+        "enabled": true
+    },
+    "length_scale_x": {
+        "min": 0.0,
+        "group": "Regularization",
+        "label": "X-smoothness weight",
+        "tooltip": "Larger values relative to other smoothness weights will result in x biased smoothness",
+        "value": 1.0,
+        "isValue": true,
+        "parent": "mesh",
+        "association": "Cell",
+        "dataType": "Float",
+        "property": "",
+        "enabled": true
+    },
+    "length_scale_y": {
+        "min": 0.0,
+        "group": "Regularization",
+        "label": "Y-smoothness weight",
+        "tooltip": "Larger values relative to other smoothness weights will result in y biased smoothness",
+        "value": 1.0,
+        "isValue": true,
+        "parent": "mesh",
+        "association": "Cell",
+        "dataType": "Float",
+        "property": "",
+        "enabled": true
+    },
+    "length_scale_z": {
+        "min": 0.0,
+        "group": "Regularization",
+        "label": "Z-smoothness weight",
+        "tooltip": "Larger values relative to other smoothness weights will result in z biased smoothess",
+        "value": 1.0,
+        "isValue": true,
+        "parent": "mesh",
+        "association": "Cell",
+        "dataType": "Float",
+        "property": "",
+        "enabled": true
+    },
+    "s_norm": {
+        "association": "Cell",
+        "dataType": "Float",
+        "group": "Sparse/blocky model",
+        "label": "Smallness norm",
+        "isValue": true,
+        "parent": "mesh",
+        "property": "",
+        "value": 0.0,
+        "min": 0.0,
+        "max": 2.0,
+        "precision": 2,
+        "lineEdit": true,
+        "enabled": true,
+        "dependency": "reference_model",
+        "dependencyType": "enabled",
+        "tooltip": "Lp-norm used in the smallness term of the objective function."
+    },
+    "x_norm": {
+        "association": "Cell",
+        "dataType": "Float",
+        "group": "Sparse/blocky model",
+        "label": "X-smoothness norm",
+        "isValue": true,
+        "parent": "mesh",
+        "property": "",
+        "value": 2.0,
+        "min": 0.0,
+        "max": 2.0,
+        "precision": 2,
+        "lineEdit": false,
+        "enabled": true,
+        "tooltip": "Lp-norm used in the x-smoothness term of the objective function."
+    },
+    "y_norm": {
+        "association": "Cell",
+        "dataType": "Float",
+        "group": "Sparse/blocky model",
+        "label": "Y-smoothness norm",
+        "isValue": true,
+        "parent": "mesh",
+        "property": "",
+        "value": 2.0,
+        "min": 0.0,
+        "max": 2.0,
+        "precision": 2,
+        "lineEdit": false,
+        "enabled": true,
+        "tooltip": "Lp-norm used in the y-smoothness term of the objective function."
+    },
+    "z_norm": {
+        "association": "Cell",
+        "dataType": "Float",
+        "group": "Sparse/blocky model",
+        "label": "Z-smoothness norm",
+        "isValue": true,
+        "parent": "mesh",
+        "property": "",
+        "value": 2.0,
+        "min": 0.0,
+        "max": 2.0,
+        "precision": 2,
+        "lineEdit": false,
+        "enabled": true,
+        "tooltip": "Lp-norm used in the z-smoothness term of the objective function."
+    },
+    "gradient_type": {
+        "choiceList": [
+            "total",
+            "components"
+        ],
+        "group": "Sparse/blocky model",
+        "label": "Gradient type",
+        "value": "total",
+        "verbose": 3,
+        "tooltip": "Choose whether the IRLS weights for regularization terms are updated using total or partial gradients."
+    },
+    "max_irls_iterations": {
+        "min": 0,
+        "group": "Sparse/blocky model",
+        "label": "Maximum IRLS iterations",
+        "tooltip": "Incomplete Re-weighted Least Squares iterations for non-L2 problems",
+        "value": 25,
+        "enabled": true,
+        "verbose": 2
+    },
+    "starting_chi_factor": {
+        "group": "Sparse/blocky model",
+        "label": "IRLS start chi factor",
+        "enabled": true,
+        "value": 1.0,
+        "tooltip": "This chi factor will be used to determine the misfit threshold after which IRLS iterations begin.",
+        "verbose": 3
+    },
+    "beta_tol": {
+        "group": "Update IRLS directive",
+        "label": "Beta tolerance",
+        "value": 0.5,
+        "min": 0.0001,
+        "verbose": 3,
+        "visible": false
+    },
+    "prctile": {
+        "group": "Update IRLS directive",
+        "label": "Percentile",
+        "value": 95,
+        "max": 100,
+        "min": 5,
+        "verbose": 3,
+        "visible": false
+    },
+    "chi_factor": {
+        "min": 0.1,
+        "max": 20.0,
+        "precision": 1,
+        "lineEdit": false,
+        "group": "Cooling schedule/target",
+        "label": "Chi factor",
+        "value": 1.0,
+        "enabled": true,
+        "tooltip": "The global target data misfit value."
+    },
+    "auto_scale_misfits": {
+        "group": "Cooling schedule/target",
+        "label": "Auto-scale misfits",
+        "value": true,
+        "verbose": 3,
+        "visible": true,
+        "tooltip": "Whether to auto-scale misfits functions (tile, frequency, joint methods) based on chi-factor."
+    },
+    "initial_beta_ratio": {
+        "min": 0.0,
+        "precision": 2,
+        "group": "Cooling schedule/target",
+        "optional": true,
+        "enabled": true,
+        "label": "Initial beta ratio",
+        "value": 100.0,
+        "verbose": 2,
+        "tooltip": "Estimate the trade-off parameter by scaling the ratio between the largest derivatives in the objective function gradients."
+    },
+    "initial_beta": {
+        "min": 0.0,
+        "group": "Cooling schedule/target",
+        "optional": true,
+        "enabled": false,
+        "dependency": "initial_beta_ratio",
+        "dependencyType": "disabled",
+        "label": "Initial beta",
+        "value": 1.0,
+        "verbose": 2,
+        "tooltip": "Trade-off parameter between data misfit and regularization."
+    },
+    "coolingFactor": {
+        "group": "Cooling schedule/target",
+        "label": "Beta cooling factor",
+        "tooltip": "Each beta cooling step will be calculated by dividing the current beta by this factor.",
+        "value": 2.0,
+        "min": 1.1,
+        "max": 100,
+        "precision": 1,
+        "lineEdit": false,
+        "verbose": 2
+    },
+    "coolingRate": {
+        "group": "Optimization",
+        "label": "Iterations per beta",
+        "value": 2,
+        "min": 1,
+        "LineEdit": false,
+        "max": 10,
+        "precision": 1,
+        "verbose": 2,
+        "enabled": true,
+        "tooltip": "Set the number of iterations per beta value. Use higher values for more non-linear optimization problems."
+    },
+    "max_global_iterations": {
+        "min": 1,
+        "lineEdit": false,
+        "group": "Optimization",
+        "label": "Maximum iterations",
+        "tooltip": "Number of L2 and IRLS iterations combined",
+        "value": 50,
+        "enabled": true
+    },
+    "max_line_search_iterations": {
+        "group": "Optimization",
+        "label": "Maximum number of line searches",
+        "value": 20,
+        "min": 1,
+        "enabled": true,
+        "verbose": 3,
+        "tooltip": "Perform an Armijo backtracking linesearch for the provided number of iterations."
+    },
+    "max_cg_iterations": {
+        "min": 0,
+        "group": "Optimization",
+        "label": "Maximum CG iterations",
+        "value": 30,
+        "enabled": true,
+        "verbose": 2
+    },
+    "tol_cg": {
+        "min": 0,
+        "group": "Optimization",
+        "label": "Conjugate gradient tolerance",
+        "value": 0.0001,
+        "enabled": true,
+        "verbose": 3
+    },
+    "f_min_change": {
+        "group": "Optimization",
+        "label": "Minimum change in objective function",
+        "value": 0.01,
+        "min": 1e-06,
+        "verbose": 3,
+        "enabled": true,
+        "tooltip": "Minimum decrease in regularization beyond which the IRLS procedure is deemed to have completed."
+    },
+    "sens_wts_threshold": {
+        "group": "Update sensitivity weights directive",
+        "tooltip": "Update sensitivity weight threshold",
+        "label": "Threshold (%)",
+        "value": 1.0,
+        "max": 100.0,
+        "min": 0.0,
+        "precision": 3,
+        "enabled": true,
+        "verbose": 2
+    },
+    "every_iteration_bool": {
+        "group": "Update sensitivity weights directive",
+        "tooltip": "Update weights at every iteration",
+        "label": "Every iteration",
+        "value": true,
+        "verbose": 2,
+        "enabled": true
+    },
+    "save_sensitivities": {
+        "group": "Update sensitivity weights directive",
+        "label": "Save sensitivities",
+        "tooltip": "Save the summed square row sensitivities to geoh5.",
+        "value": false
+    },
+    "parallelized": {
+        "group": "Compute",
+        "label": "Use parallelization",
+        "value": true,
+        "visible": false
+    },
+    "n_cpu": {
+        "min": 1,
+        "group": "Compute",
+        "dependency": "parallelized",
+        "dependencyType": "enabled",
+        "optional": true,
+        "enabled": false,
+        "label": "Number of CPUs",
+        "value": 1,
+        "visible": false
+    },
+    "tile_spatial": {
+        "group": "Compute",
+        "label": "Number of tiles",
+        "parent": "data_object",
+        "isValue": true,
+        "property": "",
+        "value": 1,
+        "min": 1,
+        "max": 1000,
+        "verbose": 2,
+        "tooltip": "Splits the objective function into spatial tiles for distributed computation using the Dask library."
+    },
+    "max_ram": "",
+    "store_sensitivities": {
+        "choiceList": [
+            "disk",
+            "ram"
+        ],
+        "group": "Compute",
+        "label": "Storage device",
+        "tooltip": "Use disk on a fast local SSD, and RAM elsewhere",
+        "value": "ram"
+    },
+    "max_chunk_size": {
+        "min": 0,
+        "group": "Compute",
+        "optional": true,
+        "enabled": true,
+        "label": "Maximum chunk size (Mb)",
+        "value": 128,
+        "verbose": 3,
+        "visible": false,
+        "tooltip": "Limit the chunk size used by Dask for distributed computation."
+    },
+    "chunk_by_rows": {
+        "group": "Compute",
+        "label": "Chunk by rows",
+        "value": true,
+        "verbose": 3,
+        "visible": false
+    },
+    "out_group": {
+        "label": "SimPEG group",
+        "value": "",
+        "groupType": "{55ed3daf-c192-4d4b-a439-60fa987fe2b8}",
+        "group": "Drag-and-drop options",
+        "visible": true,
+        "optional": true,
+        "enabled": false,
+        "tooltip": "Optionally set the SimPEG group to which results will be saved."
+    },
+    "generate_sweep": {
+        "label": "Generate sweep file",
+        "group": "Python run preferences",
+        "main": true,
+        "value": false,
+        "tooltip": "Generates a file for sweeping parameters instead of running the application."
+    },
+    "distributed_workers": ""
+}

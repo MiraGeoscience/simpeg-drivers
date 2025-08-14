@@ -18,7 +18,6 @@ from pathlib import Path
 
 import numpy as np
 from geoh5py.shared.utils import fetch_active_workspace
-from geoh5py.ui_json import InputFile
 from octree_creation_app.utils import (
     collocate_octrees,
     create_octree_from_octrees,
@@ -28,14 +27,14 @@ from simpeg import directives
 from simpeg.maps import TileMap
 from simpeg.objective_function import ComboObjectiveFunction
 
-from simpeg_drivers import DRIVER_MAP
 from simpeg_drivers.components.factories import SaveDataGeoh5Factory
 from simpeg_drivers.driver import InversionDriver
-from simpeg_drivers.joint.params import BaseJointParams
+from simpeg_drivers.joint.options import BaseJointOptions
+from simpeg_drivers.utils.utils import simpeg_group_to_driver
 
 
 class BaseJointDriver(InversionDriver):
-    def __init__(self, params: BaseJointParams):
+    def __init__(self, params: BaseJointOptions):
         self._directives = None
         self._drivers = None
         self._wires = None
@@ -69,35 +68,21 @@ class BaseJointDriver(InversionDriver):
         """List of inversion drivers."""
         if self._drivers is None:
             drivers = []
-            physical_property = []
             # Create sub-drivers
             for group in self.params.groups:
                 _ = group.options  # Triggers something... otherwise ui_json is empty
                 group = group.copy(parent=self.params.out_group)
-
-                ui_json = group.options
-                ui_json["geoh5"] = self.workspace
-
-                ifile = InputFile(ui_json=ui_json)
-                mod_name, class_name = DRIVER_MAP.get(ui_json["inversion_type"])
-                module = __import__(mod_name, fromlist=[class_name])
-                inversion_driver = getattr(module, class_name)
-                params = inversion_driver._params_class(  # pylint: disable=W0212
-                    ifile, out_group=group
-                )
-                driver = inversion_driver(params)
-                physical_property.append(params.physical_property)
+                driver = simpeg_group_to_driver(group, self.workspace)
                 drivers.append(driver)
 
             self._drivers = drivers
-            self.params.physical_property = physical_property
 
         return self._drivers
 
     def get_local_actives(self, driver: InversionDriver):
         """Get all local active cells within the global mesh for a given driver."""
 
-        in_local = driver.inversion_mesh.mesh._get_containing_cell_indexes(  # pylint: disable=W0212
+        in_local = driver.inversion_mesh.mesh.get_containing_cells(
             self.inversion_mesh.mesh.gridCC
         )
         local_actives = driver.inversion_topography.active_cells(
@@ -135,9 +120,13 @@ class BaseJointDriver(InversionDriver):
 
             multipliers = []
             for mult, func in driver.data_misfit:
-                func.model_map = func.model_map * driver.data_misfit.model_map
+                mappings = []
+                for mapping in func.simulation.mappings:
+                    mappings.append(mapping * projection * wire)
+
+                func.simulation.mappings = mappings
                 multipliers.append(
-                    mult * (func.model_map.shape[0] / projection.shape[1])
+                    mult * (func.simulation.mappings[0].shape[0] / projection.shape[1])
                 )
 
             driver.data_misfit.multipliers = multipliers
@@ -185,6 +174,9 @@ class BaseJointDriver(InversionDriver):
             with fetch_active_workspace(self.workspace, mode="r+"):
                 self.out_group.add_file(self.params.input_file.path_name)
 
+        if self.client:
+            self.distributed_misfits()
+
         if self.params.forward_only:
             print("Running the forward simulation ...")
             predicted = self.inverse_problem.get_dpred(
@@ -211,4 +203,4 @@ class BaseJointDriver(InversionDriver):
         """Update the log with the inversion results."""
         for directive in self.directives.directive_list:
             if isinstance(directive, directives.SaveLogFilesGeoH5):
-                directive.save_log()
+                directive.write(1)

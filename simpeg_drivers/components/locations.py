@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from geoh5py.workspace import Workspace
 
-    from simpeg_drivers.params import InversionBaseParams
+    from simpeg_drivers.options import BaseForwardOptions, BaseInversionOptions
 
 import numpy as np
 from geoh5py.objects import ObjectBase, Points
@@ -47,13 +47,17 @@ class InversionLocations:
 
     """
 
-    def __init__(self, workspace: Workspace, params: InversionBaseParams):
+    def __init__(
+        self,
+        workspace: Workspace,
+        params: BaseForwardOptions | BaseInversionOptions,
+    ):
         """
         :param workspace: Geoh5py workspace object containing location based data.
-        :param params: Params object containing location based data parameters.
+        :param params: Options object containing location based data parameters.
         """
         self.workspace = workspace
-        self._params: InversionBaseParams = params
+        self._params: BaseForwardOptions | BaseInversionOptions = params
         self.mask: np.ndarray | None = None
         self.locations: np.ndarray | None = None
 
@@ -121,6 +125,8 @@ class InversionLocations:
         return locations
 
     def _filter(self, a, mask):
+        if a is None:
+            return None
         for k, v in a.items():
             if not isinstance(v, np.ndarray):
                 a.update({k: self._filter(v, mask)})
@@ -160,32 +166,6 @@ class InversionLocations:
                 return None
             else:
                 return obj[mask]
-
-    def set_z_from_topo(self, locs: np.ndarray):
-        """interpolate locations z data from topography."""
-
-        if locs is None:
-            return None
-
-        topo = self.get_locations(self.params.topography_object)
-        if self.params.topography is not None:
-            if isinstance(self.params.topography, Entity):
-                z = self.params.topography.values
-            else:
-                z = np.ones_like(topo[:, 2]) * self.params.topography
-
-            topo[:, 2] = z
-
-        xyz = locs.copy()
-        topo_interpolator = LinearNDInterpolator(topo[:, :2], topo[:, 2])
-        z_topo = topo_interpolator(xyz[:, :2])
-        if np.any(np.isnan(z_topo)):
-            tree = cKDTree(topo[:, :2])
-            _, ind = tree.query(xyz[np.isnan(z_topo), :2])
-            z_topo[np.isnan(z_topo)] = topo[ind, 2]
-        xyz[:, 2] = z_topo
-
-        return xyz
 
     @property
     def params(self):

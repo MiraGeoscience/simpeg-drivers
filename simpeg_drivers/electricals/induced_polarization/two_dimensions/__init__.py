@@ -9,7 +9,10 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from .params import InducedPolarization2DParams
+from .options import (
+    IP2DForwardOptions,
+    IP2DInversionOptions,
+)
 
 # pylint: disable=unused-import
 # flake8: noqa

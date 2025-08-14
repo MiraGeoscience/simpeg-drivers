@@ -12,14 +12,21 @@
 from __future__ import annotations
 
 from simpeg_drivers.driver import InversionDriver
+from simpeg_drivers.potential_fields.magnetic_scalar.options import (
+    MagneticForwardOptions,
+    MagneticInversionOptions,
+)
 
-from .constants import validations
-from .params import MagneticScalarParams
+
+class MagneticForwardDriver(InversionDriver):
+    """Magnetic forward driver."""
+
+    _options_class = MagneticForwardOptions
+    _validations = None
 
 
-class MagneticScalarDriver(InversionDriver):
-    _params_class = MagneticScalarParams
-    _validations = validations
+class MagneticInversionDriver(InversionDriver):
+    """Magnetic inversion driver."""
 
-    def __init__(self, params: MagneticScalarParams):
-        super().__init__(params)
+    _options_class = MagneticInversionOptions
+    _validations = None

@@ -11,20 +11,30 @@
 from __future__ import annotations
 
 from pathlib import Path
+from unittest.mock import patch
 
 import numpy as np
+from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.workspace import Workspace
+from pytest import raises
 
-from simpeg_drivers.potential_fields import GravityParams
-from simpeg_drivers.potential_fields.gravity.driver import GravityDriver
-from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
+from simpeg_drivers.options import ActiveCellsOptions
+from simpeg_drivers.potential_fields import (
+    GravityForwardOptions,
+    GravityInversionOptions,
+)
+from simpeg_drivers.potential_fields.gravity.driver import (
+    GravityForwardDriver,
+    GravityInversionDriver,
+)
 from simpeg_drivers.utils.utils import get_inversion_output
+from tests.testing_utils import check_target, setup_inversion_workspace
 
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.0028055269276044915, "phi_d": 8.315e-05, "phi_m": 0.002882}
+target_run = {"data_norm": 0.0028055269276044915, "phi_d": 8.32e-05, "phi_m": 0.0038}
 
 
 def test_gravity_fwr_run(
@@ -40,19 +50,53 @@ def test_gravity_fwr_run(
         n_electrodes=n_grid_points,
         n_lines=n_grid_points,
         refinement=refinement,
+        inversion_type="gravity",
         flatten=False,
     )
-    params = GravityParams(
-        forward_only=True,
+
+    active_cells = ActiveCellsOptions(topography_object=topography)
+    params = GravityForwardOptions(
         geoh5=geoh5,
-        mesh=model.parent.uid,
-        topography_object=topography.uid,
-        z_from_topo=False,
-        data_object=survey.uid,
-        starting_model=model.uid,
+        mesh=model.parent,
+        active_cells=active_cells,
+        topography_object=topography,
+        data_object=survey,
+        starting_model=model,
+        gz_channel_bool=True,
     )
-    fwr_driver = GravityDriver(params)
+    fwr_driver = GravityForwardDriver(params)
     fwr_driver.run()
+
+
+def test_array_too_large_run(
+    tmp_path: Path,
+):
+    workpath = tmp_path.parent / "test_gravity_fwr_run0" / "inversion_test.ui.geoh5"
+
+    with Workspace(workpath) as geoh5:
+        gz = geoh5.get_entity("Iteration_0_gz")[0]
+        mesh = geoh5.get_entity("mesh")[0]
+        topography = geoh5.get_entity("topography")[0]
+
+        # Run the inverse
+        active_cells = ActiveCellsOptions(topography_object=topography)
+        params = GravityInversionOptions(
+            geoh5=geoh5,
+            mesh=mesh,
+            active_cells=active_cells,
+            data_object=gz.parent,
+            gz_channel=gz,
+            gz_uncertainty=1e-4,
+            starting_model=1e-4,
+        )
+
+    with patch(
+        "simpeg.inversion.BaseInversion.run",
+        side_effect=np.core._exceptions._ArrayMemoryError((0,), np.dtype("float64")),  # pylint: disable=protected-access
+    ):
+        with raises(GeoAppsError, match="Memory Error"):
+            driver = GravityInversionDriver(params)
+            driver.run()
 
 
 def test_gravity_run(
@@ -89,11 +133,12 @@ def test_gravity_run(
         gz.values = values
 
         # Run the inverse
-        params = GravityParams(
+        active_cells = ActiveCellsOptions(topography_object=topography)
+        params = GravityInversionOptions(
             geoh5=geoh5,
-            mesh=mesh.uid,
-            topography_object=topography.uid,
-            data_object=gz.parent.uid,
+            mesh=mesh,
+            active_cells=active_cells,
+            data_object=gz.parent,
             starting_model=1e-4,
             reference_model=0.0,
             s_norm=0.0,
@@ -101,19 +146,18 @@ def test_gravity_run(
             y_norm=gradient_norms,
             z_norm=gradient_norms,
             gradient_type="components",
-            gz_channel_bool=True,
-            z_from_topo=False,
-            gz_channel=gz.uid,
+            gz_channel=gz,
             gz_uncertainty=2e-3,
             lower_bound=0.0,
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e-2,
-            prctile=100,
+            percentile=100,
             store_sensitivities="ram",
+            save_sensitivities=True,
         )
-        params.write_input_file(path=tmp_path, name="Inv_run")
+        params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    driver = GravityDriver.start(str(tmp_path / "Inv_run.ui.json"))
+    driver = GravityInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
     assert driver.params.data_object.uid != gz.parent.uid
     assert driver.models.upper_bound is np.inf

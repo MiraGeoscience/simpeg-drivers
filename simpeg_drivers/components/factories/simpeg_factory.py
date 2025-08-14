@@ -18,6 +18,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from geoapps_utils.driver.params import BaseParams
 
+    from simpeg_drivers.options import BaseOptions
+
 # TODO Redesign simpeg factory to avoid pylint arguments-differ complaint
 
 
@@ -54,15 +56,17 @@ class SimPEGFactory(ABC):
         "induced polarization 3d",
         "induced polarization 2d",
         "induced polarization pseudo 3d",
-        "fem",
+        "fdem",
+        "fdem 1d",
         "tdem",
+        "tdem 1d",
         "magnetotellurics",
         "tipper",
         "joint surveys",
         "joint cross gradient",
     ]
 
-    def __init__(self, params: BaseParams):
+    def __init__(self, params: BaseParams | BaseOptions):
         """
         :param params: Driver parameters object.
         """

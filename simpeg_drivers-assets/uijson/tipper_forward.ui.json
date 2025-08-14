@@ -1,14 +1,14 @@
 {
-    "version": "0.2.0-alpha.1",
+    "version": "0.3.0-alpha.6",
     "title": "Tipper Forward",
     "icon": "surveyztem",
-    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
     "conda_environment": "simpeg_drivers",
     "run_command": "simpeg_drivers.driver",
     "geoh5": "",
     "monitoring_directory": "",
-    "workspace_geoh5": "",
     "inversion_type": "tipper",
+    "physical_property": "conductivity",
     "forward_only": true,
     "data_object": {
         "main": true,
@@ -17,40 +17,6 @@
         "meshType": "{0b639533-f35b-44d8-92a8-f70ecff3fd26}",
         "value": ""
     },
-    "z_from_topo": {
-        "group": "Data pre-processing",
-        "label": "Take z from topography",
-        "tooltip": "Sets survey elevation to topography before any offsets are applied.",
-        "value": false,
-        "verbose": 3,
-        "visible": false
-    },
-    "receivers_radar_drape": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data pre-processing",
-        "label": "Z radar offset",
-        "tooltip": "Apply a non-homogeneous offset to survey object from radar channel.",
-        "optional": true,
-        "parent": "data_object",
-        "value": "",
-        "enabled": false,
-        "verbose": 3,
-        "visible": false
-    },
-    "receivers_offset_z": {
-        "group": "Data pre-processing",
-        "label": "Z static offset",
-        "optional": true,
-        "enabled": false,
-        "value": 0.0,
-        "verbose": 3,
-        "visible": false
-    },
-    "gps_receivers_offset": "",
     "txz_real_channel_bool": {
         "group": "Survey",
         "main": true,
@@ -81,7 +47,9 @@
         "label": "Mesh",
         "meshType": "{4ea87376-3ece-438b-bf12-3479733ded46}",
         "value": "",
-        "tooltip": "Select a mesh for the inversion."
+        "optional": true,
+        "enabled": false,
+        "tooltip": "Select a mesh for the inversion"
     },
     "model_type": {
         "choiceList": [
@@ -91,7 +59,7 @@
         "main": true,
         "group": "Mesh and models",
         "label": "Model units",
-        "tooltip": "Select the units of the model.",
+        "tooltip": "Select the units of the model",
         "value": "Conductivity (S/m)"
     },
     "background_conductivity": {
@@ -129,7 +97,7 @@
         "value": "",
         "optional": true,
         "enabled": true,
-        "tooltip": "Select a topography object to define the active cells for inversion."
+        "tooltip": "Select a topography object to define the active cells for inversion"
     },
     "topography": {
         "association": [
@@ -142,7 +110,7 @@
         "optional": true,
         "enabled": false,
         "label": "Elevation channel",
-        "tooltip": "Set elevation from channel.  If not set the topography will be set from the geometry of the selected 'topography' object.",
+        "tooltip": "Set elevation from channel.  If not set the topography will be set from the geometry of the selected 'topography' object",
         "parent": "topography_object",
         "dependency": "topography_object",
         "dependencyType": "enabled",
@@ -162,27 +130,29 @@
         "dependency": "topography_object",
         "dependencyType": "disabled",
         "label": "Active model",
-        "tooltip": "Provide the active cell boolean model directly if topography not set.",
+        "tooltip": "Provide the active cell boolean model directly if topography not set",
         "parent": "mesh",
         "value": ""
     },
-    "output_tile_files": false,
-    "parallelized": {
-        "group": "Compute",
-        "label": "Use parallelization",
-        "value": true,
-        "visible": false
-    },
+    "save_sensitivities": false,
     "n_cpu": {
         "min": 1,
         "group": "Compute",
-        "dependency": "parallelized",
-        "dependencyType": "enabled",
         "optional": true,
         "enabled": false,
         "label": "Number of CPUs",
         "value": 1,
         "visible": false
+    },
+    "solver_type": {
+        "choiceList": [
+            "Pardiso",
+            "Mumps"
+        ],
+        "group": "Compute",
+        "label": "Direct solver",
+        "tooltip": "Direct solver to use for the forward calculations",
+        "value": "Pardiso"
     },
     "tile_spatial": {
         "group": "Compute",
@@ -194,7 +164,7 @@
         "min": 1,
         "max": 1000,
         "verbose": 2,
-        "tooltip": "Splits the objective function into spatial tiles for distributed computation using the Dask library."
+        "tooltip": "Splits the objective function into spatial tiles for distributed computation using the Dask library"
     },
     "max_chunk_size": {
         "min": 0,
@@ -205,14 +175,7 @@
         "value": 128,
         "verbose": 3,
         "visible": false,
-        "tooltip": "Limit the chunk size used by Dask for distributed computation."
-    },
-    "chunk_by_rows": {
-        "group": "Compute",
-        "label": "Chunk by rows",
-        "value": true,
-        "verbose": 3,
-        "visible": false
+        "tooltip": "Limit the chunk size used by Dask for distributed computation"
     },
     "out_group": {
         "label": "SimPEG group",
@@ -222,14 +185,18 @@
         "visible": true,
         "optional": true,
         "enabled": false,
-        "tooltip": "Optionally set the SimPEG group to which results will be saved."
+        "tooltip": "Optionally set the SimPEG group to which results will be saved"
     },
     "generate_sweep": {
         "label": "Generate sweep file",
         "group": "Python run preferences",
         "main": true,
         "value": false,
-        "tooltip": "Generates a file for sweeping parameters instead of running the application."
+        "tooltip": "Generates a file for sweeping parameters instead of running the application"
     },
+    "n_workers": "",
+    "n_threads": "",
+    "max_ram": "",
+    "performance_report": false,
     "distributed_workers": ""
 }

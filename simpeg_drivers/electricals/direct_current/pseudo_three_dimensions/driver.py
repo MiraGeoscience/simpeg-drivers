@@ -11,19 +11,28 @@
 
 from __future__ import annotations
 
-from simpeg_drivers.electricals.direct_current.pseudo_three_dimensions.constants import (
-    validations,
+from simpeg_drivers.electricals.direct_current.pseudo_three_dimensions.options import (
+    DCBatch2DForwardOptions,
+    DCBatch2DInversionOptions,
 )
-from simpeg_drivers.electricals.direct_current.pseudo_three_dimensions.params import (
-    DirectCurrentPseudo3DParams,
+from simpeg_drivers.electricals.direct_current.two_dimensions.options import (
+    DC2DForwardOptions,
+    DC2DInversionOptions,
 )
-from simpeg_drivers.electricals.direct_current.two_dimensions.params import (
-    DirectCurrent2DParams,
-)
-from simpeg_drivers.electricals.driver import BasePseudo3DDriver
+from simpeg_drivers.electricals.driver import BaseBatch2DDriver
 
 
-class DirectCurrentPseudo3DDriver(BasePseudo3DDriver):
-    _params_class = DirectCurrentPseudo3DParams
-    _params_2d_class = DirectCurrent2DParams
-    _validations = validations
+class DCBatch2DForwardDriver(BaseBatch2DDriver):
+    """Direct Current batch 2D forward driver."""
+
+    _options_class = DCBatch2DForwardOptions
+    _params_2d_class = DC2DForwardOptions
+    _validations = None
+
+
+class DCBatch2DInversionDriver(BaseBatch2DDriver):
+    """Direct Current batch 2D inversion driver."""
+
+    _options_class = DCBatch2DInversionOptions
+    _params_2d_class = DC2DInversionOptions
+    _validations = None

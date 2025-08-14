@@ -20,6 +20,28 @@ from scipy.spatial import cKDTree
 from simpeg.survey import BaseSurvey
 
 
+def station_spacing(
+    locations: np.ndarray,
+    statistic: str = "median",
+) -> float:
+    """
+    Compute smallest station spacings and return statistic on the collection.
+
+    :param locations: Array of locations representing a geophysical survey.
+    :param statistic: Name of numpy statistic to compute on the collection.
+    """
+
+    tree = cKDTree(locations)
+    distances, _ = tree.query(locations, k=2)
+
+    if statistic not in ["median", "mean", "min", "max"]:
+        raise ValueError(
+            "Invalid statistic.  Options include 'median', 'mean', 'min', 'max'."
+        )
+
+    return getattr(np, statistic)(distances[:, 1])
+
+
 def counter_clockwise_sort(segments: np.ndarray, vertices: np.ndarray) -> np.ndarray:
     """
     Sort segments in counter-clockwise order.
@@ -121,54 +143,3 @@ def get_unique_locations(survey: BaseSurvey) -> np.ndarray:
         locations = survey.receiver_locations
 
     return np.unique(locations, axis=0)
-
-
-def is_outlier(population: list[float | int], value: float, n_std: int | float = 3):
-    """
-    use a standard deviation threshold to determine if value is an outlier for the population.
-
-    :param population: list of values.
-    :param value: single value to detect outlier status
-    :param n_std (optional):
-
-    :return True if the deviation of value from the mean exceeds the standard deviation threshold.
-    """
-    mean = np.mean(population)
-    std = np.std(population)
-    deviation = np.abs(mean - value)
-    return deviation > n_std * std
-
-
-def next_neighbor(tree: cKDTree, point: list[float], nodes: list[int], n: int = 3):
-    """
-    Returns smallest distance neighbor that has not yet been traversed.
-
-    :param: tree: kd-tree computed for the point cloud of possible neighbors.
-    :param: point: Current point being traversed.
-    :param: nodes: Traversed point ids.
-    """
-    distances, neighbors = tree.query(point, n)
-    new_ids = new_neighbors(distances, neighbors, nodes)
-    if any(new_ids):
-        distances = distances[new_ids]
-        neighbors = neighbors[new_ids]
-        next_id = np.argmin(distances)
-        return distances[next_id], neighbors[next_id]
-
-    else:
-        return next_neighbor(tree, point, nodes, n + 3)
-
-
-def new_neighbors(distances: np.ndarray, neighbors: np.ndarray, nodes: list[int]):
-    """
-    Index into neighbor arrays excluding zero distance and past neighbors.
-
-    :param: distances: previously computed distances
-    :param: neighbors: Possible neighbors
-    :param: nodes: Traversed point ids.
-    """
-    ind = [
-        i in nodes if distances[neighbors.tolist().index(i)] != 0 else False
-        for i in neighbors
-    ]
-    return np.where(ind)[0].tolist()

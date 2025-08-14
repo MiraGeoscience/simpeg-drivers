@@ -15,16 +15,21 @@ from simpeg import maps
 
 from simpeg_drivers.driver import InversionDriver
 
-from .constants import validations
-from .params import MagneticVectorParams
+from .options import MVIForwardOptions, MVIInversionOptions
 
 
-class MagneticVectorDriver(InversionDriver):
-    _params_class = MagneticVectorParams
-    _validations = validations
+class MVIForwardDriver(InversionDriver):
+    """Magnetic Vector forward driver."""
 
-    def __init__(self, params: MagneticVectorParams):
-        super().__init__(params)
+    _options_class = MVIForwardOptions
+    _validations = None
+
+
+class MVIInversionDriver(InversionDriver):
+    """Magnetic Vector inversion driver."""
+
+    _options_class = MVIInversionOptions
+    _validations = None
 
     @property
     def mapping(self) -> list[maps.Projection] | None:

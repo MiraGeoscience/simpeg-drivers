@@ -26,6 +26,7 @@ from geoh5py.objects import (
     Points,
     PotentialElectrode,
 )
+from geoh5py.objects.surveys.electromagnetics.base import BaseEMSurvey
 
 from simpeg_drivers.components.factories.abstract_factory import AbstractFactory
 from simpeg_drivers.utils.surveys import counter_clockwise_sort
@@ -92,19 +93,9 @@ class EntityFactory(AbstractFactory):
                 else:
                     kwargs.update({"mask": inversion_data.mask})
 
-            entity = self.params.data_object.copy(copy_complement=False, **kwargs)
-            entity.vertices = inversion_data.apply_transformations(entity.vertices)
+            entity = self.params.data_object.copy(**kwargs)
 
-        if getattr(self.params.data_object, "transmitters", None) is not None:
-            vertices = inversion_data.apply_transformations(
-                self.params.data_object.transmitters.vertices
-            )
-            cells = self.params.data_object.transmitters.cells
-
-            if getattr(self.params.data_object, "tx_id_property", None) is not None:
-                tx_id = self.params.data_object.tx_id_property.copy(parent=entity)
-                entity.tx_id_property = tx_id
-
+        if isinstance(self.params.data_object, BaseEMSurvey):
             if isinstance(
                 self.params.data_object.transmitters,
                 LargeLoopGroundFEMTransmitters | LargeLoopGroundTEMTransmitters,
@@ -112,34 +103,12 @@ class EntityFactory(AbstractFactory):
                 cells = self._validate_large_loop_cells(
                     self.params.data_object.transmitters
                 )
+                entity.transmitters.cells = cells
 
-            transmitters = self.params.data_object.transmitters.copy(
-                copy_complement=False,
-                vertices=vertices,
-                cells=cells,
-                parent=self.params.out_group,
-                copy_children=False,
-            )
-
-            if (
-                getattr(self.params.data_object.transmitters, "tx_id_property", None)
-                is not None
-            ):
-                tx_id = self.params.data_object.transmitters.tx_id_property.copy(
-                    parent=transmitters
-                )
-                transmitters.tx_id_property = tx_id
-
-            entity.transmitters = transmitters
-
-            tx_freq = self.params.data_object.transmitters.get_data("Tx frequency")
-            if tx_freq:
-                tx_freq[0].copy(parent=entity.transmitters)
-
-        if getattr(entity, "current_electrodes", None) is not None:
-            entity.current_electrodes.vertices = inversion_data.apply_transformations(
-                entity.current_electrodes.vertices
-            )
+            if self.params.data_object.transmitters is not None:
+                tx_freq = self.params.data_object.transmitters.get_data("Tx frequency")
+                if tx_freq:
+                    tx_freq[0].copy(parent=entity.transmitters)
 
         return entity
 

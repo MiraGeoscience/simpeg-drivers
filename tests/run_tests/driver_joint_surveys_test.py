@@ -14,18 +14,22 @@ import numpy as np
 from geoh5py.objects import Octree
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.joint.joint_surveys import JointSurveysParams
+from simpeg_drivers.joint.joint_surveys import JointSurveysOptions
 from simpeg_drivers.joint.joint_surveys.driver import JointSurveyDriver
-from simpeg_drivers.potential_fields import GravityParams
-from simpeg_drivers.potential_fields.gravity.driver import GravityDriver
-from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
+from simpeg_drivers.options import ActiveCellsOptions
+from simpeg_drivers.potential_fields import (
+    GravityForwardOptions,
+    GravityInversionOptions,
+)
+from simpeg_drivers.potential_fields.gravity.driver import GravityInversionDriver
 from simpeg_drivers.utils.utils import get_inversion_output
+from tests.testing_utils import check_target, setup_inversion_workspace
 
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.2997791602206556, "phi_d": 1411, "phi_m": 74.54}
+target_run = {"data_norm": 0.2997791602206556, "phi_d": 1410, "phi_m": 74.4}
 
 
 def test_joint_surveys_fwr_run(
@@ -42,55 +46,55 @@ def test_joint_surveys_fwr_run(
         n_electrodes=n_grid_points,
         n_lines=n_grid_points,
     )
-    params = GravityParams(
-        forward_only=True,
+    active_cells = ActiveCellsOptions(topography_object=topography)
+    params = GravityForwardOptions(
         geoh5=geoh5,
-        mesh=model.parent.uid,
-        topography_object=topography.uid,
-        resolution=0.0,
-        z_from_topo=False,
-        data_object=survey.uid,
-        starting_model=model.uid,
+        mesh=model.parent,
+        active_cells=active_cells,
+        data_object=survey,
+        starting_model=model,
     )
-    fwr_driver_a = GravityDriver(params)
-    fwr_driver_a.out_group.name = "Gravity Forward [0]"
+    fwr_driver_a = GravityInversionDriver(params)
+
+    with fwr_driver_a.out_group.workspace.open():
+        fwr_driver_a.out_group.name = "Gravity Forward [0]"
 
     # Create local problem B
-    _, _, model, survey, _ = setup_inversion_workspace(
-        tmp_path,
-        background=0.0,
-        anomaly=0.75,
-        refinement=[0, 2],
-        n_electrodes=int(n_grid_points / 2),
-        n_lines=int(n_grid_points / 2),
-        flatten=False,
-        geoh5=geoh5,
-        drape_height=10.0,
-    )
-    params = GravityParams(
-        forward_only=True,
-        geoh5=geoh5,
-        mesh=model.parent.uid,
-        topography_object=topography.uid,
-        resolution=0.0,
-        z_from_topo=False,
-        data_object=survey.uid,
-        starting_model=model.uid,
-    )
-    fwr_driver_b = GravityDriver(params)
-    fwr_driver_b.out_group.name = "Gravity Forward [1]"
+    with geoh5.open():
+        _, _, model, survey, _ = setup_inversion_workspace(
+            tmp_path,
+            background=0.0,
+            anomaly=0.75,
+            refinement=[0, 2],
+            n_electrodes=int(n_grid_points / 2),
+            n_lines=int(n_grid_points / 2),
+            flatten=False,
+            geoh5=geoh5,
+            drape_height=10.0,
+        )
+    active_cells = ActiveCellsOptions(topography_object=topography)
 
-    # Force co-location of meshes
-    fwr_driver_b.inversion_mesh.entity.origin = (
-        fwr_driver_a.inversion_mesh.entity.origin
+    params = GravityForwardOptions(
+        geoh5=geoh5,
+        mesh=model.parent,
+        active_cells=active_cells,
+        data_object=survey,
+        starting_model=model,
     )
-    fwr_driver_b.workspace.update_attribute(
-        fwr_driver_b.inversion_mesh.entity, "attributes"
-    )
-    fwr_driver_b.inversion_mesh._mesh = None  # pylint: disable=protected-access
+    fwr_driver_b = GravityInversionDriver(params)
+
+    with fwr_driver_b.out_group.workspace.open():
+        # Force co-location of meshes
+        fwr_driver_b.inversion_mesh.entity.origin = (
+            fwr_driver_a.inversion_mesh.entity.origin
+        )
+        fwr_driver_b.out_group.name = "Gravity Forward [1]"
+        fwr_driver_b.workspace.update_attribute(
+            fwr_driver_b.inversion_mesh.entity, "attributes"
+        )
+        fwr_driver_b.inversion_mesh._mesh = None  # pylint: disable=protected-access
     fwr_driver_a.run()
     fwr_driver_b.run()
-    geoh5.close()
 
 
 def test_joint_surveys_inv_run(
@@ -124,22 +128,23 @@ def test_joint_surveys_inv_run(
             active_model = mesh.get_entity("active_cells")[0]
             gz = survey.get_data("Iteration_0_gz")[0]
             orig_data.append(gz.values)
-            params = GravityParams(
+            active_cells = ActiveCellsOptions(active_model=active_model)
+            params = GravityInversionOptions(
                 geoh5=geoh5,
-                mesh=mesh.uid,
-                active_model=active_model.uid,
-                data_object=survey.uid,
-                gz_channel=gz.uid,
+                mesh=mesh,
+                active_cells=active_cells,
+                data_object=survey,
+                gz_channel=gz,
                 gz_uncertainty=np.var(gz.values) * 2.0,
                 starting_model=0.0,
             )
-            drivers.append(GravityDriver(params))
+            drivers.append(GravityInversionDriver(params))
 
         active_model = drivers[0].params.mesh.get_entity("active_cells")[0]
         # Run the inverse
-        joint_params = JointSurveysParams(
+        joint_params = JointSurveysOptions(
             geoh5=geoh5,
-            activate_model=active_model,
+            active_cells=ActiveCellsOptions(active_model=active_model),
             mesh=drivers[0].params.mesh,
             group_a=drivers[0].params.out_group,
             group_b=drivers[1].params.out_group,
@@ -153,7 +158,7 @@ def test_joint_surveys_inv_run(
             lower_bound=0.0,
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e-2,
-            prctile=100,
+            percentile=100,
             store_sensitivities="ram",
         )
 

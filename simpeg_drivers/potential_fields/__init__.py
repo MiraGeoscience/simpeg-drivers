@@ -9,9 +9,15 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from .gravity.params import GravityParams
-from .magnetic_scalar.params import MagneticScalarParams
-from .magnetic_vector.params import MagneticVectorParams
+from .gravity.options import GravityForwardOptions, GravityInversionOptions
+from .magnetic_scalar.options import (
+    MagneticForwardOptions,
+    MagneticInversionOptions,
+)
+from .magnetic_vector.options import (
+    MVIForwardOptions,
+    MVIInversionOptions,
+)
 
 # pylint: disable=unused-import
 # flake8: noqa

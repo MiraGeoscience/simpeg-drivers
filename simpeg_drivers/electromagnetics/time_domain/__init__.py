@@ -7,9 +7,3 @@
 #  (see LICENSE file at the root of this source code package).                      '
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-
-from .params import TimeDomainElectromagneticsParams
-
-# pylint: disable=unused-import
-# flake8: noqa

@@ -16,24 +16,38 @@ from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.electricals.direct_current.three_dimensions import (
-    DirectCurrent3DParams,
+    DC3DForwardOptions,
+    DC3DInversionOptions,
 )
 from simpeg_drivers.electricals.direct_current.three_dimensions.driver import (
-    DirectCurrent3DDriver,
+    DC3DForwardDriver,
+    DC3DInversionDriver,
 )
-from simpeg_drivers.joint.joint_cross_gradient import JointCrossGradientParams
+from simpeg_drivers.joint.joint_cross_gradient import JointCrossGradientOptions
 from simpeg_drivers.joint.joint_cross_gradient.driver import JointCrossGradientDriver
-from simpeg_drivers.potential_fields import GravityParams, MagneticVectorParams
-from simpeg_drivers.potential_fields.gravity.driver import GravityDriver
-from simpeg_drivers.potential_fields.magnetic_vector.driver import MagneticVectorDriver
-from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
+from simpeg_drivers.options import ActiveCellsOptions
+from simpeg_drivers.potential_fields import (
+    GravityForwardOptions,
+    GravityInversionOptions,
+    MVIForwardOptions,
+    MVIInversionOptions,
+)
+from simpeg_drivers.potential_fields.gravity.driver import (
+    GravityForwardDriver,
+    GravityInversionDriver,
+)
+from simpeg_drivers.potential_fields.magnetic_vector.driver import (
+    MVIForwardDriver,
+    MVIInversionDriver,
+)
 from simpeg_drivers.utils.utils import get_inversion_output
+from tests.testing_utils import check_target, setup_inversion_workspace
 
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 53.29601, "phi_d": 10590, "phi_m": 0.1336}
+target_run = {"data_norm": 53.29601, "phi_d": 10200, "phi_m": 0.123}
 
 
 def test_joint_cross_gradient_fwr_run(
@@ -52,74 +66,76 @@ def test_joint_cross_gradient_fwr_run(
         n_electrodes=n_grid_points,
         n_lines=n_grid_points,
     )
-    params = GravityParams(
-        forward_only=True,
+    active_cells = ActiveCellsOptions(topography_object=topography)
+    params = GravityForwardOptions(
         geoh5=geoh5,
-        mesh=model.parent.uid,
-        topography_object=topography.uid,
-        resolution=0.0,
-        z_from_topo=False,
-        data_object=survey.uid,
-        starting_model=model.uid,
+        mesh=model.parent,
+        active_cells=active_cells,
+        data_object=survey,
+        starting_model=model,
     )
-    fwr_driver_a = GravityDriver(params)
+    fwr_driver_a = GravityForwardDriver(params)
 
-    _, _, model, survey, _ = setup_inversion_workspace(
-        tmp_path,
-        geoh5=geoh5,
-        background=0.0,
-        anomaly=0.05,
-        drape_height=15.0,
-        refinement=refinement,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
-        flatten=False,
-    )
+    with geoh5.open():
+        _, _, model, survey, _ = setup_inversion_workspace(
+            tmp_path,
+            geoh5=geoh5,
+            background=0.0,
+            anomaly=0.05,
+            drape_height=15.0,
+            refinement=refinement,
+            n_electrodes=n_grid_points,
+            n_lines=n_grid_points,
+            flatten=False,
+        )
     inducing_field = (50000.0, 90.0, 0.0)
-    params = MagneticVectorParams(
-        forward_only=True,
+    params = MVIForwardOptions(
         geoh5=geoh5,
-        mesh=model.parent.uid,
-        topography_object=topography.uid,
+        mesh=model.parent,
+        active_cells=ActiveCellsOptions(topography_object=topography),
         inducing_field_strength=inducing_field[0],
         inducing_field_inclination=inducing_field[1],
         inducing_field_declination=inducing_field[2],
-        resolution=0.0,
-        z_from_topo=False,
-        data_object=survey.uid,
-        starting_model=model.uid,
+        data_object=survey,
+        starting_model=model,
     )
-    params.workpath = tmp_path
-    fwr_driver_b = MagneticVectorDriver(params)
+    fwr_driver_b = MVIForwardDriver(params)
 
-    _, _, model, survey, _ = setup_inversion_workspace(
-        tmp_path,
-        geoh5=geoh5,
-        background=0.01,
-        anomaly=10,
-        n_electrodes=n_grid_points,
-        n_lines=n_lines,
-        refinement=refinement,
-        drape_height=0.0,
-        inversion_type="dcip",
-        flatten=False,
-    )
-    params = DirectCurrent3DParams(
-        forward_only=True,
-        geoh5=geoh5,
-        mesh=model.parent.uid,
-        topography_object=topography.uid,
-        data_object=survey.uid,
-        starting_model=model.uid,
-    )
-    fwr_driver_c = DirectCurrent3DDriver(params)
-    fwr_driver_c.inversion_data.entity.name = "survey"
+    with geoh5.open():
+        _, _, model, survey, _ = setup_inversion_workspace(
+            tmp_path,
+            geoh5=geoh5,
+            background=0.01,
+            anomaly=10,
+            n_electrodes=n_grid_points,
+            n_lines=n_lines,
+            refinement=refinement,
+            drape_height=0.0,
+            inversion_type="direct current 3d",
+            flatten=False,
+        )
 
-    # Force co-location of meshes
-    for driver in [fwr_driver_b, fwr_driver_c]:
-        driver.inversion_mesh.entity.origin = fwr_driver_a.inversion_mesh.entity.origin
-        driver.workspace.update_attribute(driver.inversion_mesh.entity, "attributes")
-        driver.inversion_mesh._mesh = None  # pylint: disable=protected-access
+    params = DC3DForwardOptions(
+        geoh5=geoh5,
+        mesh=model.parent,
+        active_cells=ActiveCellsOptions(topography_object=topography),
+        data_object=survey,
+        starting_model=model,
+    )
+    fwr_driver_c = DC3DForwardDriver(params)
+
+    with geoh5.open():
+        fwr_driver_c.inversion_data.entity.name = "survey"
+
+        # Force co-location of meshes
+        for driver in [fwr_driver_b, fwr_driver_c]:
+            driver.inversion_mesh.entity.origin = (
+                fwr_driver_a.inversion_mesh.entity.origin
+            )
+            driver.workspace.update_attribute(
+                driver.inversion_mesh.entity, "attributes"
+            )
+            driver.inversion_mesh._mesh = None  # pylint: disable=protected-access
 
     fwr_driver_a.run()
     fwr_driver_b.run()
@@ -146,8 +162,8 @@ def test_joint_cross_gradient_inv_run(
 
         for group_name in [
             "Gravity Forward",
-            "Magnetic vector Forward",
-            "Direct current 3d Forward",
+            "Magnetic Vector Forward",
+            "Direct Current 3D Forward",
         ]:
             group = geoh5.get_entity(group_name)[0]
 
@@ -169,42 +185,45 @@ def test_joint_cross_gradient_inv_run(
 
             if group.options["inversion_type"] == "gravity":
                 data.values = data.values + np.random.randn(data.values.size) * 1e-2
-                params = GravityParams(
+                active_cells = ActiveCellsOptions(topography_object=topography)
+                params = GravityInversionOptions(
                     geoh5=geoh5,
-                    mesh=mesh.uid,
+                    mesh=mesh,
                     alpha_s=1.0,
-                    topography_object=topography.uid,
-                    data_object=survey.uid,
-                    gz_channel=data.uid,
+                    active_cells=active_cells,
+                    data_object=survey,
+                    gz_channel=data,
                     gz_uncertainty=1e-2,
                     starting_model=0.0,
                     reference_model=0.0,
                 )
-                drivers.append(GravityDriver(params))
+                drivers.append(GravityInversionDriver(params))
             elif group.options["inversion_type"] == "direct current 3d":
                 data.values = data.values + np.random.randn(data.values.size) * 5e-4
-                params = DirectCurrent3DParams(
+                active_cells = ActiveCellsOptions(topography_object=topography)
+                params = DC3DInversionOptions(
                     geoh5=geoh5,
-                    mesh=mesh.uid,
+                    mesh=mesh,
                     alpha_s=1.0,
-                    topography_object=topography.uid,
-                    data_object=survey.uid,
-                    potential_channel=data.uid,
+                    active_cells=active_cells,
+                    data_object=survey,
+                    potential_channel=data,
                     model_type="Resistivity (Ohm-m)",
                     potential_uncertainty=5e-4,
                     tile_spatial=1,
                     starting_model=100.0,
                     reference_model=100.0,
                     save_sensitivities=True,
+                    solver_type="Mumps",
                 )
-                drivers.append(DirectCurrent3DDriver(params))
+                drivers.append(DC3DInversionDriver(params))
             else:
                 data.values = data.values + np.random.randn(data.values.size) * 10.0
-                params = MagneticVectorParams(
+                params = MVIInversionOptions(
                     geoh5=geoh5,
-                    mesh=mesh.uid,
+                    mesh=mesh,
                     alpha_s=1.0,
-                    topography_object=topography.uid,
+                    active_cells=ActiveCellsOptions(topography_object=topography),
                     inducing_field_strength=group.options["inducing_field_strength"][
                         "value"
                     ],
@@ -214,24 +233,25 @@ def test_joint_cross_gradient_inv_run(
                     inducing_field_declination=group.options[
                         "inducing_field_declination"
                     ]["value"],
-                    data_object=survey.uid,
+                    data_object=survey,
                     starting_model=1e-4,
                     reference_model=0.0,
                     tile_spatial=1,
-                    tmi_channel=data.uid,
+                    tmi_channel=data,
                     tmi_uncertainty=1e1,
                 )
-                drivers.append(MagneticVectorDriver(params))
+                drivers.append(MVIInversionDriver(params))
 
         # Run the inverse
-        joint_params = JointCrossGradientParams(
+        joint_params = JointCrossGradientOptions(
             geoh5=geoh5,
-            topography_object=topography.uid,
+            active_cells=ActiveCellsOptions(topography_object=topography),
             group_a=drivers[0].params.out_group,
             group_a_multiplier=1.0,
             group_b=drivers[1].params.out_group,
             group_b_multiplier=1.0,
             group_c=drivers[2].params.out_group,
+            group_c_multiplier=1.0,
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e1,
             cross_gradient_weight_a_b=1e0,
@@ -242,7 +262,7 @@ def test_joint_cross_gradient_inv_run(
             y_norm=0.0,
             z_norm=0.0,
             gradient_type="components",
-            prctile=100,
+            percentile=100,
             store_sensitivities="ram",
         )
 

@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 import warnings
+from copy import deepcopy
 from typing import TYPE_CHECKING
 from uuid import UUID
 
@@ -21,11 +22,13 @@ from discretize.utils import mesh_utils
 from geoapps_utils.utils.conversions import string_to_numeric
 from geoapps_utils.utils.numerical import running_mean, traveling_salesman
 from geoh5py import Workspace
-from geoh5py.groups import Group
+from geoh5py.data import NumericData
+from geoh5py.groups import Group, SimPEGGroup
 from geoh5py.objects import DrapeModel, Octree
 from geoh5py.objects.surveys.direct_current import PotentialElectrode
 from geoh5py.objects.surveys.electromagnetics.base import LargeLoopGroundEMSurvey
 from geoh5py.shared import INTEGER_NDV
+from geoh5py.ui_json import InputFile
 from octree_creation_app.utils import octree_2_treemesh
 from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator, interp1d
 from scipy.spatial import ConvexHull, Delaunay, cKDTree
@@ -36,15 +39,17 @@ from simpeg.electromagnetics.time_domain.sources import LineCurrent as TEMLineCu
 from simpeg.survey import BaseSurvey
 from simpeg.utils import mkvc
 
-
-if TYPE_CHECKING:
-    from simpeg_drivers.components.data import InversionData
-
+from simpeg_drivers import DRIVER_MAP
 from simpeg_drivers.utils.surveys import (
     compute_alongline_distance,
     get_intersecting_cells,
     get_unique_locations,
 )
+
+
+if TYPE_CHECKING:
+    from simpeg_drivers.components.data import InversionData
+    from simpeg_drivers.driver import InversionDriver
 
 
 def calculate_2D_trend(
@@ -139,7 +144,7 @@ def create_nested_mesh(
     survey: BaseSurvey,
     base_mesh: TreeMesh,
     padding_cells: int = 8,
-    minimum_level: int = 3,
+    minimum_level: int = 4,
     finalize: bool = True,
 ):
     """
@@ -157,7 +162,9 @@ def create_nested_mesh(
     """
     locations = get_unique_locations(survey)
     nested_mesh = TreeMesh(
-        [base_mesh.h[0], base_mesh.h[1], base_mesh.h[2]], x0=base_mesh.x0
+        [base_mesh.h[0], base_mesh.h[1], base_mesh.h[2]],
+        x0=base_mesh.x0,
+        diagonal_balance=False,
     )
     base_level = base_mesh.max_level - minimum_level
     base_refinement = base_mesh.cell_levels_by_index(np.arange(base_mesh.nC))
@@ -251,13 +258,18 @@ def drape_to_octree(
                     f"Found more than one data set with name {names[ind]} in"
                     f"model {model.name}."
                 )
+
+            if not isinstance(datum[0], NumericData):
+                continue
+
             if method == "nearest":
                 octree_model.append(datum[0].values)
             else:
-                lookup_inds = mesh._get_containing_cell_indexes(  # pylint: disable=W0212
-                    model.centroids
-                )
+                lookup_inds = mesh.get_containing_cells(model.centroids)
                 octree_model[lookup_inds] = datum[0].values
+
+        if len(octree_model) == 0:
+            continue
 
         if method == "nearest":
             octree_model = np.hstack(octree_model)[lookup_inds]
@@ -282,25 +294,47 @@ def drape_2_tensor(drape_model: DrapeModel, return_sorting: bool = False) -> tup
     """
     prisms = drape_model.prisms
     layers = drape_model.layers
-    z = np.append(np.unique(layers[:, 2]), prisms[:, 2].max())
-    x = compute_alongline_distance(prisms[:, :2])
+
+    # Deal with ghost points
+    ghosts = prisms[:, -1] == 1
+    prisms = prisms[~ghosts, :]
+
+    nu_layers = np.unique(prisms[:, -1])
+    if len(nu_layers) > 1:
+        raise ValueError(
+            "Drape model conversion to TensorMesh must have uniform number of layers."
+        )
+
+    n_layers = nu_layers[0].astype(int)
+    filt_layers = ghosts[layers[:, 0].astype(int)]
+    layers = layers[~filt_layers, :]
+
+    hz = np.r_[
+        prisms[0, 2] - layers[0, 2],
+        -np.diff(layers[:n_layers, 2]),
+    ][::-1]
+
+    x = compute_alongline_distance(prisms[:, :2], ordered=False)
     dx = np.diff(x)
-    end_core = [np.argmin(dx.round(1)), len(dx) - np.argmin(dx[::-1].round(1))]
-    core = dx[end_core[0]]
-    exp_fact = dx[0] / dx[1]
-    cell_width = np.r_[
-        core * exp_fact ** np.arange(end_core[0], 0, -1),
-        core * np.ones(end_core[1] - end_core[0] + 1),
-        core * exp_fact ** np.arange(1, len(dx) - end_core[1] + 1),
-    ]
-    h = [cell_width, np.diff(z)]
-    origin = [-cell_width[: end_core[0]].sum(), layers[:, 2].min()]
-    mesh = TensorMesh(h, origin)
+    cell_width = np.r_[dx[0], (dx[:-1] + dx[1:]) / 2.0, dx[-1]]
+    h = [cell_width, hz]
+    origin = [0, layers[:, 2].min()]
+    mesh = TensorMesh(h, origin=origin)
 
     if return_sorting:
         sorting = np.arange(mesh.n_cells)
         sorting = sorting.reshape(mesh.shape_cells[1], mesh.shape_cells[0], order="C")
-        sorting = sorting[::-1].T.flatten()
+        sorting = np.argsort(sorting[::-1].T.flatten())
+
+        # Skip indices for ghost points
+        count = -1
+        for ghost in ghosts:
+            if ghost:
+                sorting[sorting > count] += 1
+                count += 1
+            else:
+                count += n_layers
+
         return (mesh, sorting)
     else:
         return mesh
@@ -345,15 +379,13 @@ def get_drape_model(
     :param locations: Location points.
     :param h: Cell size(s) for the core mesh.
     :param depth_core: Depth of core mesh below locs.
-    :param pads: len(6) Padding distances [W, E, N, S, Down, Up]
+    :param pads: len(4) Padding distances [W, E, Down, Up]
     :param expansion_factor: Expansion factor for padding cells.
     :param return_colocated_mesh: If true return TensorMesh.
     :param return_sorting: If true, return the indices required to map
         values stored in the TensorMesh to the drape model.
-
     :return object_out: Output block model.
     """
-
     locations = truncate_locs_depths(locations, depth_core)
     depth_core = minimum_depth_core(locations, depth_core, h[1])
     order = traveling_salesman(locations)
@@ -386,40 +418,12 @@ def get_drape_model(
         expansion_factor=expansion_factor,
         mesh_type="tensor",
     )
-
-    cc = mesh.cell_centers
-    hz = mesh.h[1]
-    top = np.max(cc[:, 1].reshape(len(hz), -1)[:, 0] + (hz / 2))
-    bottoms = cc[:, 1].reshape(len(hz), -1)[:, 0] - (hz / 2)
-    n_layers = len(bottoms)
-
-    prisms = []
-    layers = []
-    indices = []
-    index = 0
-    center_xy = np.c_[x_interp(mesh.cell_centers_x), y_interp(mesh.cell_centers_x)]
-    for i, (x_center, y_center) in enumerate(center_xy):
-        prisms.append([float(x_center), float(y_center), top, i * n_layers, n_layers])
-        for k, b in enumerate(bottoms):
-            layers.append([i, k, b])
-            indices.append(index)
-            index += 1
-
-    prisms = np.vstack(prisms)
-    layers = np.vstack(layers)
-    layers[:, 2] = layers[:, 2][::-1]
-
-    model = DrapeModel.create(
-        workspace, layers=layers, name=name, prisms=prisms, parent=parent
-    )
-    model.add_data(
-        {
-            "indices": {
-                "values": np.array(indices, dtype=np.int32),
-                "association": "CELL",
-            }
-        }
-    )
+    hz = mesh.h[1][::-1]
+    top = np.ones_like(mesh.cell_centers_x) * (mesh.origin[1] + np.sum(hz))
+    locations_top = np.c_[
+        x_interp(mesh.cell_centers_x), y_interp(mesh.cell_centers_x), top
+    ]
+    model = xyz_2_drape_model(workspace, locations_top, hz, name, parent)
     val = [model]
     if return_colocated_mesh:
         val.append(mesh)
@@ -454,6 +458,51 @@ def get_inversion_output(h5file: str | Workspace, inversion_group: str | UUID):
     out = dict(zip(cols, list(map(list, zip(*out, strict=True))), strict=True))
 
     return out
+
+
+def xyz_2_drape_model(
+    workspace, locations, depths, name=None, parent=None
+) -> DrapeModel:
+    """
+    Convert a list of cell tops and layer depths to a DrapeModel object.
+
+    :param workspace: Workspace object
+    :param locations: n x 3 array of cell centers [x, y, z_top]
+    :param depths: n x 1 array of layer depths
+    :param name: Name of the new DrapeModel object
+    :param parent: Parent group for the new DrapeModel object
+
+    :returns: DrapeModel object
+    """
+    n_layers = len(depths)
+    prisms = []
+    layers = []
+    indices = []
+    index = 0
+
+    for i, (x_center, y_center, z_top) in enumerate(locations):
+        prisms.append([float(x_center), float(y_center), z_top, i * n_layers, n_layers])
+        bottom = z_top
+        for k, h in enumerate(depths):
+            bottom -= h
+            layers.append([i, k, bottom])
+            indices.append(index)
+            index += 1
+
+    prisms = np.vstack(prisms)
+    layers = np.vstack(layers)
+    model = DrapeModel.create(
+        workspace, layers=layers, name=name, prisms=prisms, parent=parent
+    )
+    model.add_data(
+        {
+            "indices": {
+                "values": np.array(indices, dtype=np.int32),
+                "association": "CELL",
+            }
+        }
+    )
+    return model
 
 
 def tile_locations(
@@ -635,9 +684,7 @@ def get_containing_cells(
         else:
             locations = data.locations
 
-        inds = mesh._get_containing_cell_indexes(  # pylint: disable=protected-access
-            locations
-        )
+        inds = mesh.get_containing_cells(locations)
 
         if isinstance(data.entity, LargeLoopGroundEMSurvey):
             line_ind = []
@@ -655,7 +702,7 @@ def get_containing_cells(
         locations = data.drape_locations(np.unique(data.locations, axis=0))
         xi = np.searchsorted(mesh.nodes_x, locations[:, 0]) - 1
         yi = np.searchsorted(mesh.nodes_y, locations[:, -1]) - 1
-        inds = xi * mesh.shape_cells[1] + yi
+        inds = xi + yi * mesh.shape_cells[0]
 
     else:
         raise TypeError("Mesh must be 'TreeMesh' or 'TensorMesh'")
@@ -693,14 +740,6 @@ def active_from_xyz(
     mesh_dim = 2 if isinstance(mesh, DrapeModel) else 3
     locations = mesh.centroids.copy()
 
-    if method == "linear":
-        delaunay_2d = Delaunay(topo[:, :-1])
-        z_interpolate = LinearNDInterpolator(delaunay_2d, topo[:, -1])
-    elif method == "nearest":
-        z_interpolate = NearestNDInterpolator(topo[:, :-1], topo[:, -1])
-    else:
-        raise ValueError("Method must be 'linear', or 'nearest'")
-
     if mesh_dim == 2:
         z_offset = cell_size_z(mesh) / 2.0
     else:
@@ -716,7 +755,38 @@ def active_from_xyz(
     else:
         raise ValueError("'grid_reference' must be one of 'center', 'top', or 'bottom'")
 
-    z_locations = z_interpolate(locations[:, :2])
+    z_locations = topo_drape_elevation(locations, topo, method=method)
+    # fill_nan(locations, z_locations, filler=topo[:, -1])
+
+    # Return the active cell array
+    return locations[:, -1] < z_locations[:, -1]
+
+
+def topo_drape_elevation(locations, topo, method="linear") -> np.ndarray:
+    """
+    Get draped elevation at locations.
+
+    Values are extrapolated to nearest neighbour if requested outside the
+    convex hull of the input topography points.
+
+    :param locations: n x 3 array of locations
+    :param topo: n x 3 array of topography points
+    :param method: Type of topography interpolation, either 'linear' or 'nearest'
+
+    :return: An array of z elevations for every input locations.
+    """
+    if method == "linear":
+        delaunay_2d = Delaunay(topo[:, :-1])
+        z_interpolate = LinearNDInterpolator(delaunay_2d, topo[:, -1])
+    elif method == "nearest":
+        z_interpolate = NearestNDInterpolator(topo[:, :-1], topo[:, -1])
+    else:
+        raise ValueError("Method must be 'linear', or 'nearest'")
+
+    unique_locs, inds = np.unique(
+        locations[:, :-1].round(), axis=0, return_inverse=True
+    )
+    z_locations = z_interpolate(unique_locs)[inds]
 
     # Apply nearest neighbour if in extrapolation
     ind_nan = np.isnan(z_locations)
@@ -725,10 +795,7 @@ def active_from_xyz(
         _, ind = tree.query(locations[ind_nan, :])
         z_locations[ind_nan] = topo[ind, -1]
 
-    # fill_nan(locations, z_locations, filler=topo[:, -1])
-
-    # Return the active cell array
-    return locations[:, -1] < z_locations
+    return np.c_[locations[:, :-1], z_locations]
 
 
 def truncate_locs_depths(locs: np.ndarray, depth_core: float) -> np.ndarray:
@@ -798,3 +865,30 @@ def get_neighbouring_cells(mesh: TreeMesh, indices: list | np.ndarray) -> tuple:
         (np.r_[tuple(neighbors[ax][0])], np.r_[tuple(neighbors[ax][1])])
         for ax in range(mesh.dim)
     )
+
+
+def simpeg_group_to_driver(group: SimPEGGroup, workspace: Workspace) -> InversionDriver:
+    """
+    Utility to generate an inversion driver from a SimPEG group options.
+
+    :param group: SimPEGGroup object.
+    :param workspace: Workspace object.
+    """
+
+    ui_json = deepcopy(group.options)
+    ui_json["geoh5"] = workspace
+
+    ifile = InputFile(ui_json=ui_json)
+    forward_only = ui_json.get("forward_only", False)
+    mod_name, classes = DRIVER_MAP.get(ui_json["inversion_type"])
+    if forward_only:
+        class_name = classes.get("forward", classes["inversion"])
+    else:
+        class_name = classes.get("inversion")
+    module = __import__(mod_name, fromlist=[class_name])
+    inversion_driver = getattr(module, class_name)
+
+    ifile.set_data_value("out_group", group)
+    params = inversion_driver._options_class.build(ifile)  # pylint: disable=protected-access
+
+    return inversion_driver(params)

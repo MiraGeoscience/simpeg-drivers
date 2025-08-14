@@ -13,13 +13,24 @@ from __future__ import annotations
 
 from simpeg_drivers.driver import InversionDriver
 
-from .constants import validations
-from .params import FrequencyDomainElectromagneticsParams
+from .options import (
+    FDEMForwardOptions,
+    FDEMInversionOptions,
+)
 
 
-class FrequencyDomainElectromagneticsDriver(InversionDriver):
-    _params_class = FrequencyDomainElectromagneticsParams
-    _validations = validations
+class FDEMForwardDriver(InversionDriver):
+    """Frequency Domain Electromagnetic forward driver."""
 
-    def __init__(self, params: FrequencyDomainElectromagneticsParams):
+    _options_class = FDEMForwardOptions
+    _validations = None
+
+    def __init__(self, params: FDEMForwardOptions):
         super().__init__(params)
+
+
+class FDEMInversionDriver(InversionDriver):
+    """Frequency Domain Electromagnetic inversion driver."""
+
+    _options_class = FDEMInversionOptions
+    _validations = None

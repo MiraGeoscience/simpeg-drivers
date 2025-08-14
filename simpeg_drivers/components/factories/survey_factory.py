@@ -8,7 +8,6 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-
 # pylint: disable=W0613
 # pylint: disable=W0221
 
@@ -19,6 +18,8 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from geoapps_utils.driver.params import BaseParams
+
+    from simpeg_drivers.options import BaseOptions
 
 import numpy as np
 import simpeg.electromagnetics.time_domain as tdem
@@ -32,47 +33,14 @@ from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 from simpeg_drivers.components.factories.source_factory import SourcesFactory
 
 
-def receiver_group(txi, potential_electrodes):
-    """
-    Group receivers by common transmitter id.
-
-    :param: txi : transmitter index number.
-    :param: potential_electrodes : geoh5py object that holds potential electrodes
-        ab_map and ab_cell_id for a dc survey.
-
-    :return: ids : list of ids of potential electrodes used with transmitter txi.
-    """
-
-    index_map = potential_electrodes.ab_map()
-    index_map = {int(v): k for k, v in index_map.items() if v != "Unknown"}
-    ids = np.where(
-        potential_electrodes.ab_cell_id.values.astype(int) == index_map[txi]
-    )[0]
-
-    return ids
-
-
-def group_locations(obj, ids):
-    """
-    Return vertex locations for possible group of cells.
-
-    :param obj : geoh5py object containing cells, vertices structure.
-    :param ids : list of ids (or possibly single id) that indexes cells array.
-
-    :return locations : tuple of n locations arrays where n is length of second
-        dimension of cells array.
-    """
-    return (obj.vertices[obj.cells[ids, i]] for i in range(obj.cells.shape[1]))
-
-
 class SurveyFactory(SimPEGFactory):
     """Build SimPEG sources objects based on factory type."""
 
     dummy = -999.0
 
-    def __init__(self, params: BaseParams):
+    def __init__(self, params: BaseParams | BaseOptions):
         """
-        :param params: Params object containing SimPEG object parameters.
+        :param params: Options object containing SimPEG object parameters.
         """
         super().__init__(params)
         self.simpeg_object = self.concrete_object()
@@ -93,7 +61,7 @@ class SurveyFactory(SimPEGFactory):
         elif "induced polarization" in self.factory_type:
             from simpeg.electromagnetics.static.induced_polarization import survey
 
-        elif "fem" in self.factory_type:
+        elif "fdem" in self.factory_type:
             from simpeg.electromagnetics.frequency_domain import survey
 
         elif "tdem" in self.factory_type:
@@ -107,7 +75,7 @@ class SurveyFactory(SimPEGFactory):
 
         return survey.Survey
 
-    def assemble_arguments(self, data=None, mesh=None, local_index=None, channel=None):
+    def assemble_arguments(self, data=None, local_index=None, channel=None):
         """Provides implementations to assemble arguments for receivers object."""
         receiver_entity = data.entity
 
@@ -123,14 +91,12 @@ class SurveyFactory(SimPEGFactory):
 
         if "current" in self.factory_type or "polarization" in self.factory_type:
             return self._dcip_arguments(data=data, local_index=local_index)
-        elif self.factory_type in ["tdem"]:
-            return self._tdem_arguments(data=data, mesh=mesh, local_index=local_index)
+        elif "tdem" in self.factory_type:
+            return self._tdem_arguments(data=data)
         elif self.factory_type in ["magnetotellurics", "tipper"]:
-            return self._naturalsource_arguments(
-                data=data, mesh=mesh, frequency=channel
-            )
-        elif self.factory_type in ["fem"]:
-            return self._fem_arguments(data=data, mesh=mesh, channel=channel)
+            return self._naturalsource_arguments(data=data, frequency=channel)
+        elif "fdem" in self.factory_type:
+            return self._fem_arguments(data=data, channel=channel)
         else:
             receivers = ReceiversFactory(self.params).build(
                 locations=data.locations,
@@ -147,7 +113,6 @@ class SurveyFactory(SimPEGFactory):
     def build(
         self,
         data=None,
-        mesh=None,
         local_index=None,
         indices=None,
         channel=None,
@@ -157,7 +122,6 @@ class SurveyFactory(SimPEGFactory):
         survey = super().build(
             data=data,
             local_index=local_index,
-            mesh=mesh,
             channel=channel,
         )
 
@@ -194,7 +158,10 @@ class SurveyFactory(SimPEGFactory):
         return local_data, local_uncertainties
 
     def _add_data(self, survey, data, local_index, channel):
-        if self.factory_type in ["fem", "tdem"]:
+        if isinstance(local_index, list):
+            local_index = np.hstack(local_index)
+
+        if self.factory_type in ["fdem", "fdem 1d", "tdem", "tdem 1d"]:
             dobs = []
             uncerts = []
 
@@ -289,10 +256,15 @@ class SurveyFactory(SimPEGFactory):
         sources = []
         self.local_index = []
         for source_id in source_ids[np.argsort(order)]:  # Cycle in original order
-            receiver_indices = receiver_group(source_id, receiver_entity)
+            receiver_indices = np.where(receiver_entity.ab_cell_id.values == source_id)[
+                0
+            ]
 
             if local_index is not None:
                 receiver_indices = list(set(receiver_indices).intersection(local_index))
+
+            if len(receiver_indices) == 0:
+                continue
 
             receivers = ReceiversFactory(self.params).build(
                 locations=receiver_locations,
@@ -305,20 +277,18 @@ class SurveyFactory(SimPEGFactory):
             if "induced polarization" in self.factory_type:
                 receivers.data_type = "apparent_chargeability"
 
-            cell_ind = int(np.where(currents.ab_cell_id.values == source_id)[0])
+            cell_ind = currents.ab_cell_id.values == source_id
             source = SourcesFactory(self.params).build(
                 receivers=receivers,
-                locations=source_locations[currents.cells[cell_ind]],
+                locations=source_locations[currents.cells[cell_ind].flatten()],
             )
 
             sources.append(source)
             self.local_index.append(receiver_indices)
 
-        self.local_index = np.hstack(self.local_index)
-
         return [sources]
 
-    def _tdem_arguments(self, data=None, local_index=None, mesh=None):
+    def _tdem_arguments(self, data=None):
         receivers = data.entity
         transmitters = receivers.transmitters
 
@@ -352,16 +322,25 @@ class SurveyFactory(SimPEGFactory):
             rx_lookup = self.local_index[:, np.newaxis].tolist()
             tx_locs = [transmitters.vertices[k, :] for k in self.local_index]
 
-        wave_function = interp1d(
-            (receivers.waveform[:, 0] - receivers.timing_mark)
-            * self.params.unit_conversion,
-            receivers.waveform[:, 1],
-            fill_value="extrapolate",
-        )
+        wave_times = (
+            receivers.waveform[:, 0] - receivers.timing_mark
+        ) * self.params.unit_conversion
+        if "1d" in self.factory_type:
+            on_times = wave_times <= 0.0
+            waveform = tdem.sources.PiecewiseLinearWaveform(
+                times=wave_times[on_times],
+                currents=receivers.waveform[on_times, 1],
+            )
+        else:
+            wave_function = interp1d(
+                wave_times,
+                receivers.waveform[:, 1],
+                fill_value="extrapolate",
+            )
 
-        waveform = tdem.sources.RawWaveform(
-            waveform_function=wave_function, offTime=0.0
-        )
+            waveform = tdem.sources.RawWaveform(
+                waveform_function=wave_function, offTime=0.0
+            )
 
         self.ordering = []
         tx_list = []
@@ -376,9 +355,9 @@ class SurveyFactory(SimPEGFactory):
                     locations=locs,
                     local_index=self.local_index,
                     data=data,
-                    mesh=mesh,
                     component=component,
                 )
+                rx_obj.local_index = rx_ids
                 rx_list.append(rx_obj)
 
                 for time_id in range(len(receivers.channels)):
@@ -391,7 +370,7 @@ class SurveyFactory(SimPEGFactory):
 
         return [tx_list]
 
-    def _fem_arguments(self, data=None, mesh=None, channel=None):
+    def _fem_arguments(self, data=None, channel=None):
         channels = np.array(data.entity.channels)
         frequencies = channels if channel is None else [channel]
         rx_locs = data.entity.vertices
@@ -409,14 +388,14 @@ class SurveyFactory(SimPEGFactory):
         for receiver_id in self.local_index:
             receivers = []
             for component_id, component in enumerate(data.components):
-                receivers.append(
-                    rx_factory.build(
-                        locations=rx_locs[receiver_id, :],
-                        data=data,
-                        mesh=mesh,
-                        component=component,
-                    )
+                receiver = rx_factory.build(
+                    locations=rx_locs[receiver_id, :],
+                    data=data,
+                    component=component,
                 )
+
+                receiver.local_index = receiver_id
+                receivers.append(receiver)
                 ordering.append([component_id, receiver_id])
             receiver_groups[receiver_id] = receivers
 
@@ -442,7 +421,7 @@ class SurveyFactory(SimPEGFactory):
 
         return [sources]
 
-    def _naturalsource_arguments(self, data=None, mesh=None, frequency=None):
+    def _naturalsource_arguments(self, data=None, frequency=None):
         receivers = []
         sources = []
         rx_factory = ReceiversFactory(self.params)
@@ -455,7 +434,6 @@ class SurveyFactory(SimPEGFactory):
                     locations=data.locations,
                     local_index=self.local_index,
                     data=data,
-                    mesh=mesh,
                     component=comp,
                 )
             )

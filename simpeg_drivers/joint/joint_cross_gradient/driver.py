@@ -16,6 +16,7 @@ from __future__ import annotations
 from itertools import combinations
 
 import numpy as np
+from geoh5py.groups.property_group_type import GroupTypeEnum
 from geoh5py.shared.utils import fetch_active_workspace
 from simpeg import directives, maps
 from simpeg.objective_function import ComboObjectiveFunction
@@ -27,15 +28,14 @@ from simpeg_drivers.components.factories import (
 )
 from simpeg_drivers.joint.driver import BaseJointDriver
 
-from .constants import validations
-from .params import JointCrossGradientParams
+from .options import JointCrossGradientOptions
 
 
 class JointCrossGradientDriver(BaseJointDriver):
-    _params_class = JointCrossGradientParams
-    _validations = validations
+    _options_class = JointCrossGradientOptions
+    _validations = None
 
-    def __init__(self, params: JointCrossGradientParams):
+    def __init__(self, params: JointCrossGradientOptions):
         self._wires = None
         self._directives = None
 
@@ -70,6 +70,8 @@ class JointCrossGradientDriver(BaseJointDriver):
     def directives(self):
         if getattr(self, "_directives", None) is None and not self.params.forward_only:
             with fetch_active_workspace(self.workspace, mode="r+"):
+                self._directives = DirectivesFactory(self)
+
                 directives_list = []
                 count = 0
                 for driver in self.drivers:
@@ -96,6 +98,12 @@ class JointCrossGradientDriver(BaseJointDriver):
                     ]
 
                     directives_list.append(save_model)
+                    directives_list.append(
+                        directives.SaveLPModelGroup(
+                            driver.inversion_mesh.entity,
+                            self._directives.update_irls_directive,
+                        )
+                    )
 
                     if driver_directives.vector_inversion_directive is not None:
                         directives_list.append(
@@ -138,11 +146,18 @@ class JointCrossGradientDriver(BaseJointDriver):
                         directives_list.append(
                             directives.SavePropertyGroup(
                                 self.inversion_mesh.entity,
+                                group_type=GroupTypeEnum.DIPDIR,
                                 channels=["declination", "inclination"],
                             )
                         )
 
-                self._directives = DirectivesFactory(self)
+                    directives_list.append(
+                        directives.SaveLPModelGroup(
+                            self.inversion_mesh.entity,
+                            self._directives.update_irls_directive,
+                        )
+                    )
+
                 directives_list.append(self._directives.save_iteration_log_files)
                 self._directives.directive_list = (
                     self._directives.inversion_directives + directives_list

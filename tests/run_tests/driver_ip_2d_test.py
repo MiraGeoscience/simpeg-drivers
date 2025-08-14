@@ -16,19 +16,22 @@ import numpy as np
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.electricals.induced_polarization.two_dimensions import (
-    InducedPolarization2DParams,
+    IP2DForwardOptions,
+    IP2DInversionOptions,
 )
 from simpeg_drivers.electricals.induced_polarization.two_dimensions.driver import (
-    InducedPolarization2DDriver,
+    IP2DForwardDriver,
+    IP2DInversionDriver,
 )
-from simpeg_drivers.utils.testing import check_target, setup_inversion_workspace
+from simpeg_drivers.options import ActiveCellsOptions, LineSelectionOptions
 from simpeg_drivers.utils.utils import get_inversion_output
+from tests.testing_utils import check_target, setup_inversion_workspace
 
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.091350, "phi_d": 25630, "phi_m": 0.1578}
+target_run = {"data_norm": 0.09052544, "phi_d": 24900, "phi_m": 0.185}
 
 
 def test_ip_2d_fwr_run(
@@ -45,24 +48,25 @@ def test_ip_2d_fwr_run(
         n_electrodes=n_electrodes,
         n_lines=n_lines,
         refinement=refinement,
-        inversion_type="dcip_2d",
+        inversion_type="induced polarization 2d",
         flatten=False,
         drape_height=0.0,
     )
-    params = InducedPolarization2DParams(
-        forward_only=True,
+    params = IP2DForwardOptions(
         geoh5=geoh5,
-        data_object=survey.uid,
-        mesh=model.parent.uid,
-        topography_object=topography.uid,
-        z_from_topo=True,
-        starting_model=model.uid,
-        conductivity_model=1e-2,
-        line_object=geoh5.get_entity("line_ids")[0].uid,
-        line_id=101,
+        data_object=survey,
+        mesh=model.parent,
+        active_cells=ActiveCellsOptions(topography_object=topography),
+        starting_model=model,
+        conductivity_model=1e2,
+        model_type="Resistivity (Ohm-m)",
+        line_selection=LineSelectionOptions(
+            line_object=geoh5.get_entity("line_ids")[0],
+            line_id=101,
+        ),
     )
-    params.workpath = tmp_path
-    fwr_driver = InducedPolarization2DDriver(params)
+
+    fwr_driver = IP2DForwardDriver(params)
     fwr_driver.run()
 
 
@@ -81,15 +85,17 @@ def test_ip_2d_run(
         topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
-        params = InducedPolarization2DParams(
+        params = IP2DInversionOptions(
             geoh5=geoh5,
-            mesh=mesh.uid,
-            topography_object=topography.uid,
-            data_object=chargeability.parent.uid,
-            chargeability_channel=chargeability.uid,
+            mesh=mesh,
+            active_cells=ActiveCellsOptions(topography_object=topography),
+            data_object=chargeability.parent,
+            chargeability_channel=chargeability,
             chargeability_uncertainty=2e-4,
-            line_object=geoh5.get_entity("line_ids")[0].uid,
-            line_id=101,
+            line_selection=LineSelectionOptions(
+                line_object=geoh5.get_entity("line_ids")[0],
+                line_id=101,
+            ),
             starting_model=1e-6,
             reference_model=1e-6,
             conductivity_model=1e-2,
@@ -97,19 +103,17 @@ def test_ip_2d_run(
             x_norm=0.0,
             z_norm=0.0,
             gradient_type="components",
-            chargeability_channel_bool=True,
-            z_from_topo=True,
             max_global_iterations=max_iterations,
             initial_beta=None,
             initial_beta_ratio=1e0,
-            prctile=100,
+            percentile=100,
             upper_bound=0.1,
             store_sensitivities="ram",
-            coolingRate=1,
+            cooling_rate=1,
         )
-        params.write_input_file(path=tmp_path, name="Inv_run")
+        params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    driver = InducedPolarization2DDriver.start(str(tmp_path / "Inv_run.ui.json"))
+    driver = IP2DInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
     output = get_inversion_output(
         driver.params.geoh5.h5file, driver.params.out_group.uid
