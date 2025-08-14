@@ -81,7 +81,8 @@ def test_tiling_ground_tem(
     )
     fwr_driver = TDEMForwardDriver(params)
 
-    tiles = fwr_driver.get_tiles()
+    with geoh5.open():
+        tiles = fwr_driver.get_tiles()
 
     assert len(tiles) == 4
 

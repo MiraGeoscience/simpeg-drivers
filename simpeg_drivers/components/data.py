@@ -16,7 +16,7 @@ from re import findall
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
-from geoh5py.objects import PotentialElectrode
+from geoh5py.objects import LargeLoopGroundTEMReceivers, PotentialElectrode
 from scipy.sparse import csgraph, csr_matrix
 from scipy.spatial import cKDTree
 from simpeg.electromagnetics.static.utils.static_utils import geometric_factor
@@ -150,6 +150,9 @@ class InversionData(InversionLocations):
 
             connections = csgraph.connected_components(edge_array)[1]
             return connections[self.entity.cells[:, 0]]
+
+        if isinstance(self.entity, LargeLoopGroundTEMReceivers):
+            return self.entity.tx_id_property.values
 
         return getattr(self.entity, "parts", None)
 

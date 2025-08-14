@@ -76,7 +76,7 @@ from simpeg_drivers.options import (
     BaseInversionOptions,
 )
 from simpeg_drivers.joint.options import BaseJointOptions
-from simpeg_drivers.utils.utils import tile_locations
+from simpeg_drivers.utils.nested import tile_locations
 from simpeg_drivers.utils.regularization import cell_neighbors, set_rotated_operators
 
 mlogger = logging.getLogger("distributed")
@@ -400,9 +400,13 @@ class InversionDriver(Driver):
         return self._simulation
 
     @property
-    def sorting(self):
-        """List of arrays for sorting of data from tiles."""
-        return self._sorting
+    def sorting(self) -> np.ndarray:
+        """
+        Arrays for sorting of data from tile, taking into account the
+        ordering of the survey.
+        """
+        sorting = np.hstack(self._sorting)
+        return self.inversion_data.survey.ordering[sorting]
 
     @property
     def window(self):
@@ -623,9 +627,10 @@ class InversionDriver(Driver):
             return np.arange(self.inversion_data.mask.sum()).reshape((-1, 1))
 
         return tile_locations(
-            self.simulation.survey,
+            self.inversion_data.locations,
             self.params.compute.tile_spatial,
             labels=self.inversion_data.parts,
+            sorting=self.simulation.survey.ordering,
         )
 
     def configure_dask(self):

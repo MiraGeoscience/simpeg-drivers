@@ -11,7 +11,6 @@
 
 from __future__ import annotations
 
-import warnings
 from copy import deepcopy
 from typing import TYPE_CHECKING
 from uuid import UUID
@@ -31,10 +30,7 @@ from geoh5py.shared import INTEGER_NDV
 from geoh5py.ui_json import InputFile
 from octree_creation_app.utils import octree_2_treemesh
 from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator, interp1d
-from scipy.optimize import linear_sum_assignment
 from scipy.spatial import ConvexHull, Delaunay, cKDTree
-from scipy.spatial.distance import cdist
-from simpeg.survey import BaseSurvey
 
 from simpeg_drivers import DRIVER_MAP
 from simpeg_drivers.utils.surveys import (
@@ -434,72 +430,6 @@ def xyz_2_drape_model(
         }
     )
     return model
-
-
-def tile_locations(
-    locations: BaseSurvey,
-    n_tiles: int,
-    labels: np.ndarray | None = None,
-) -> list[np.ndarray]:
-    """
-    Function to tile a survey points into smaller square subsets of points using
-    a k-means clustering approach.
-
-    If labels are provided and the number of unique labels is less than or equal to
-    the number of tiles, the function will return an even split of the unique labels.
-
-    :param locations: Array of locations.
-    :param n_tiles: Number of tiles (for 'cluster')
-    :param labels: Array of values to append to the locations
-
-    :return: List of arrays containing the indices of the points in each tile.
-    """
-    grid_locs = locations[:, :2].copy()
-
-    if labels is not None:
-        if len(labels) != grid_locs.shape[0]:
-            raise ValueError(
-                "Labels array must have the same length as the locations array."
-            )
-
-        if len(np.unique(labels)) >= n_tiles:
-            label_groups = np.array_split(np.unique(labels), n_tiles)
-            return [np.where(np.isin(labels, group))[0] for group in label_groups]
-
-        # Normalize location coordinates to [0, 1] range
-        grid_locs -= grid_locs.min(axis=0)
-        max_val = grid_locs.max(axis=0)
-        grid_locs[:, max_val > 0] /= max_val[max_val > 0]
-        grid_locs = np.c_[grid_locs, labels]
-
-    # Cluster
-    # TODO turn off filter once sklearn has dealt with the issue causing the warning
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", category=UserWarning)
-        from sklearn.cluster import KMeans
-
-        kmeans = KMeans(n_clusters=n_tiles, random_state=0, n_init="auto")
-        cluster_size = int(np.ceil(grid_locs.shape[0] / n_tiles))
-        kmeans.fit(grid_locs)
-
-    if labels is not None:
-        cluster_id = kmeans.labels_
-    else:
-        # Redistribute cluster centers to even out the number of points
-        centers = kmeans.cluster_centers_
-        centers = (
-            centers.reshape(-1, 1, grid_locs.shape[1])
-            .repeat(cluster_size, 1)
-            .reshape(-1, grid_locs.shape[1])
-        )
-        distance_matrix = cdist(grid_locs, centers)
-        cluster_id = linear_sum_assignment(distance_matrix)[1] // cluster_size
-
-    tiles = []
-    for tid in set(cluster_id):
-        tiles += [np.where(cluster_id == tid)[0]]
-
-    return tiles
 
 
 def get_containing_cells(

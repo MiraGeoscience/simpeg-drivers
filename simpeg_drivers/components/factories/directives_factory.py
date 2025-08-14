@@ -181,7 +181,7 @@ class DirectivesFactory:
             ).build(
                 inversion_object=self.driver.inversion_data,
                 active_cells=self.driver.models.active_cells,
-                sorting=np.argsort(np.hstack(self.driver.sorting)),
+                sorting=np.argsort(self.driver.sorting),
                 name="Apparent Resistivity",
             )
         return self._save_iteration_apparent_resistivity_directive
@@ -224,8 +224,7 @@ class DirectivesFactory:
             ).build(
                 inversion_object=self.driver.inversion_data,
                 active_cells=self.driver.models.active_cells,
-                sorting=np.argsort(np.hstack(self.driver.sorting)),
-                ordering=self.driver.ordering,
+                sorting=np.argsort(self.driver.sorting),
                 global_misfit=self.driver.data_misfit,
                 name="Data",
             )
@@ -266,8 +265,7 @@ class DirectivesFactory:
             ).build(
                 inversion_object=self.driver.inversion_data,
                 active_cells=self.driver.models.active_cells,
-                sorting=np.argsort(np.hstack(self.driver.sorting)),
-                ordering=self.driver.ordering,
+                sorting=np.argsort(self.driver.sorting),
                 name="Residual",
             )
         return self._save_iteration_residual_directive
@@ -367,7 +365,6 @@ class SaveGeoh5Factory(SimPEGFactory, ABC):
         inversion_object=None,
         active_cells=None,
         sorting=None,
-        ordering=None,
         transform=None,
         global_misfit=None,
         name=None,
@@ -387,7 +384,6 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
         inversion_object=None,
         active_cells=None,
         sorting=None,
-        ordering=None,
         transform=None,
         global_misfit=None,
         name=None,
@@ -451,7 +447,6 @@ class SaveSensitivitiesGeoh5Factory(SaveGeoh5Factory):
         inversion_object=None,
         active_cells=None,
         sorting=None,
-        ordering=None,
         transform=None,
         global_misfit=None,
         name=None,
@@ -499,7 +494,6 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
         inversion_object=None,
         active_cells=None,
         sorting=None,
-        ordering=None,
         transform=None,
         global_misfit=None,
         name=None,
@@ -516,7 +510,6 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
                 inversion_object=inversion_object,
                 active_cells=active_cells,
                 sorting=sorting,
-                ordering=ordering,
                 transform=transform,
                 global_misfit=global_misfit,
                 name=name,
@@ -667,7 +660,6 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
         inversion_object=None,
         active_cells=None,
         sorting=None,
-        ordering=None,
         transform=None,
         global_misfit=None,
         name=None,
@@ -675,14 +667,10 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
         receivers = inversion_object.entity
         channels = np.array(receivers.channels, dtype=float)
         components = list(inversion_object.observed)
-        ordering = np.vstack(ordering)
-        channel_ids = ordering[:, 0]
-        component_ids = ordering[:, 1]
-        rx_ids = ordering[:, 2]
+        order = "F" if hasattr(receivers, "frequencies") else "C"
 
         def reshape(values):
-            data = np.zeros((len(channels), len(components), receivers.n_vertices))
-            data[channel_ids, component_ids, rx_ids] = values
+            data = values.reshape((len(channels), len(components), -1), order=order)
             return data
 
         kwargs = {

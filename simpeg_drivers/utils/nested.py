@@ -9,12 +9,15 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 from __future__ import annotations
 
+import warnings
 from copy import copy
 from pathlib import Path
 
 import numpy as np
 from discretize import TreeMesh
+from scipy.optimize import linear_sum_assignment
 from scipy.spatial import cKDTree
+from scipy.spatial.distance import cdist
 from simpeg import data, data_misfit, maps, meta
 from simpeg.electromagnetics.frequency_domain.sources import (
     LineCurrent as FEMLineCurrent,
@@ -297,15 +300,13 @@ def create_survey(survey, indices, channel=None):
         new_survey = type(survey)(sources)
 
     if hasattr(survey, "dobs") and survey.dobs is not None:
-        n_channels = len(np.unique(survey.ordering[:, 0]))
-        n_comps = len(np.unique(survey.ordering[:, 1]))
         order = "C" if hasattr(survey, "frequencies") else "F"
-        data_slice = survey.dobs.reshape((n_channels, n_comps, -1), order=order)[
-            :, :, indices
-        ]
-        uncert_slice = survey.std.reshape((n_channels, n_comps, -1), order=order)[
-            :, :, indices
-        ]
+        data_slice = survey.dobs.reshape(
+            (survey.n_channels, survey.n_components, -1), order=order
+        )[:, :, indices]
+        uncert_slice = survey.std.reshape(
+            (survey.n_channels, survey.n_components, -1), order=order
+        )[:, :, indices]
 
         # For FEM surveys only
         if channel is not None:
@@ -317,3 +318,127 @@ def create_survey(survey, indices, channel=None):
         new_survey.std = uncert_slice.flatten(order=order)
 
     return new_survey
+
+
+def tile_locations(
+    locations: np.ndarray,
+    n_tiles: int,
+    labels: np.ndarray | None = None,
+    sorting: np.ndarray | None = None,
+) -> list[np.ndarray]:
+    """
+    Function to tile a survey points into smaller square subsets of points using
+    a k-means clustering approach.
+
+    If labels are provided and the number of unique labels is less than or equal to
+    the number of tiles, the function will return an even split of the unique labels.
+
+    :param locations: Array of locations.
+    :param n_tiles: Number of tiles (for 'cluster')
+    :param labels: Array of values to append to the locations
+
+    :return: List of arrays containing the indices of the points in each tile.
+    """
+    grid_locs = locations[:, :2].copy()
+
+    if labels is not None:
+        if len(labels) != grid_locs.shape[0]:
+            raise ValueError(
+                "Labels array must have the same length as the locations array."
+            )
+
+        if len(np.unique(labels)) >= n_tiles:
+            label_groups = np.array_split(np.unique(labels), n_tiles)
+            return [np.where(np.isin(labels, group))[0] for group in label_groups]
+
+        # Normalize location coordinates to [0, 1] range
+        grid_locs -= grid_locs.min(axis=0)
+        max_val = grid_locs.max(axis=0)
+        grid_locs[:, max_val > 0] /= max_val[max_val > 0]
+        grid_locs = np.c_[grid_locs, labels]
+
+    if sorting is not None:
+        grid_locs = grid_locs[sorting, :]
+
+    # Cluster
+    # TODO turn off filter once sklearn has dealt with the issue causing the warning
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category=UserWarning)
+        from sklearn.cluster import KMeans
+
+        kmeans = KMeans(n_clusters=n_tiles, random_state=0, n_init="auto")
+        cluster_size = int(np.ceil(grid_locs.shape[0] / n_tiles))
+        kmeans.fit(grid_locs)
+
+    if labels is not None:
+        cluster_id = kmeans.labels_
+    else:
+        # Redistribute cluster centers to even out the number of points
+        centers = kmeans.cluster_centers_
+        centers = (
+            centers.reshape(-1, 1, grid_locs.shape[1])
+            .repeat(cluster_size, 1)
+            .reshape(-1, grid_locs.shape[1])
+        )
+        distance_matrix = cdist(grid_locs, centers)
+        cluster_id = linear_sum_assignment(distance_matrix)[1] // cluster_size
+
+    tiles = []
+    for tid in set(cluster_id):
+        tiles += [np.where(cluster_id == tid)[0]]
+
+    return tiles
+
+
+# def tile_large_group_transmitters(
+#     survey: LargeLoopGroundTEMReceivers, n_tiles: int
+# ) -> list[np.ndarray]:
+#     """
+#     Tile the data based on the transmitters center locations.
+#
+#     :param survey: LargeLoopGroundTEMReceivers object.
+#     :param n_tiles: Number of tiles.
+#
+#     :return: List of numpy arrays containing the indices of the receivers in each tile.
+#     """
+#     if not isinstance(survey, LargeLoopGroundTEMReceivers):
+#         raise TypeError("Data object must be of type LargeLoopGroundTEMReceivers")
+#
+#     tx_ids = survey.transmitters.tx_id_property.values
+#     unique_tile_ids = np.unique(tx_ids)
+#     n_groups = np.min([len(unique_tile_ids), n_tiles])
+#     locations = []
+#     for uid in unique_tile_ids:
+#         locations.append(
+#             np.mean(
+#                 survey.transmitters.vertices[tx_ids == uid],
+#                 axis=0,
+#             )
+#         )
+#
+#     # Tile transmitters spatially by loop center
+#     tx_tiles = tile_locations(
+#         np.vstack(locations),
+#         n_groups,
+#     )
+#     receivers_tx_ids = survey.tx_id_property.values
+#     tiles = []
+#     for _t_id, group in enumerate(tx_tiles):
+#         sub_group = []
+#         for value in group:
+#             receiver_ind = receivers_tx_ids == unique_tile_ids[value]
+#             sub_group.append(np.where(receiver_ind)[0])
+#
+#         tiles.append(np.hstack(sub_group))
+#
+#     # If number of tiles remaining, brake up receivers spatially per transmitter
+#     while len(tiles) < n_tiles:
+#         largest_group = np.argmax([len(tile) for tile in tiles])
+#         tile = tiles.pop(largest_group)
+#         new_tiles = tile_locations(
+#             survey.vertices[tile],
+#             2,
+#         )
+#         tiles += [tile[new_tiles[0]], tile[new_tiles[1]]]
+#
+#     return tiles
