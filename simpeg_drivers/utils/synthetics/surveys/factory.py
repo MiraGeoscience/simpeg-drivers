@@ -15,7 +15,6 @@ from geoh5py import Workspace
 from geoh5py.objects import ObjectBase, Points
 
 from simpeg_drivers.utils.synthetics.options import SurveyOptions
-from simpeg_drivers.utils.synthetics.surveys.layout import grid_layout
 
 from .dcip import generate_dc_survey
 from .frequency_domain.fdem import generate_fdem_survey
@@ -23,6 +22,29 @@ from .natural_sources.magnetotellurics import generate_magnetotellurics_survey
 from .natural_sources.tipper import generate_tipper_survey
 from .time_domain.airborne_tdem import generate_airborne_tdem_survey
 from .time_domain.ground_tdem import generate_tdem_survey
+
+
+def grid_layout(
+    limits: tuple[float, float, float, float],
+    station_spacing: int,
+    line_spacing: int,
+    terrain: Callable,
+):
+    """
+    Generates grid locations based on limits and spacing.
+
+    :param limits: Tuple of (xmin, xmax, ymin, ymax).
+    :param station_spacing: Number of stations along each line.
+    :param line_spacing: Number of lines in the grid.
+    :param terrain: Callable that generates the terrain (z values).
+    """
+
+    x = np.linspace(limits[0], limits[1], station_spacing)
+    y = np.linspace(limits[2], limits[3], line_spacing)
+    X, Y = np.meshgrid(x, y)
+    Z = terrain(X, Y)
+
+    return X, Y, Z
 
 
 def get_survey(

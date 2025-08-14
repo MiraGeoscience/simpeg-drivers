@@ -14,7 +14,7 @@ from geoh5py.objects import DrapeModel, Octree, Surface
 from scipy.spatial import Delaunay
 
 from simpeg_drivers.utils.synthetics.options import SurveyOptions
-from simpeg_drivers.utils.synthetics.surveys.layout import grid_layout
+from simpeg_drivers.utils.synthetics.surveys.factory import grid_layout
 from simpeg_drivers.utils.utils import active_from_xyz
 
 
