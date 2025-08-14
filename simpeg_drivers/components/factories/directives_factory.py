@@ -667,10 +667,9 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
         receivers = inversion_object.entity
         channels = np.array(receivers.channels, dtype=float)
         components = list(inversion_object.observed)
-        order = "F" if hasattr(receivers, "frequencies") else "C"
 
         def reshape(values):
-            data = values.reshape((len(channels), len(components), -1), order=order)
+            data = values.reshape((len(channels), len(components), -1), order="F")
             return data
 
         kwargs = {
