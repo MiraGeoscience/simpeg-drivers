@@ -16,7 +16,7 @@ from geoh5py.objects import (
     AirborneTEMTransmitters,
 )
 
-from simpeg_drivers.utils.synthetics.surveys.time_domain import channels, waveform
+from simpeg_drivers.utils.synthetics.surveys.time_domain import CHANNELS, WAVEFORM
 
 
 def generate_airborne_tdem_survey(
@@ -24,6 +24,8 @@ def generate_airborne_tdem_survey(
     X: np.ndarray,
     Y: np.ndarray,
     Z: np.ndarray,
+    channels: np.ndarray = CHANNELS,
+    waveform: np.ndarray = WAVEFORM,
 ) -> AirborneTEMReceivers:
     """Create an Airborne TDEM survey object from survey grid locations"""
     vertices = np.column_stack([X.flatten(), Y.flatten(), Z.flatten()])

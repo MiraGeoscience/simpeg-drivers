@@ -17,18 +17,12 @@ from geoh5py.objects.surveys.electromagnetics.tipper import (
 )
 
 
-channels = [
-    10.0,
-    100.0,
-    1000.0,
-]
-
-
 def generate_tipper_survey(
     geoh5: Workspace,
     X: np.ndarray,
     Y: np.ndarray,
     Z: np.ndarray,
+    channels: tuple = (10.0, 100.0, 1000.0),
 ) -> TipperReceivers:
     """Create a Tipper survey object from survey grid locations."""
     vertices = np.column_stack([X.flatten(), Y.flatten(), Z.flatten()])

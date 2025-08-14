@@ -13,18 +13,12 @@ from geoh5py import Workspace
 from geoh5py.objects.surveys.electromagnetics.magnetotellurics import MTReceivers
 
 
-channels = [
-    10.0,
-    100.0,
-    1000.0,
-]
-
-
 def generate_magnetotellurics_survey(
     geoh5: Workspace,
     X: np.ndarray,
     Y: np.ndarray,
     Z: np.ndarray,
+    channels: tuple = (10.0, 100.0, 1000.0),
 ) -> MTReceivers:
     """Create a Magnetotellurics survey object from survey grid locations."""
 

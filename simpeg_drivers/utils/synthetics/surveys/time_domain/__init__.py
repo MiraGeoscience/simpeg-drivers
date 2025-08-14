@@ -11,8 +11,8 @@
 import numpy as np
 
 
-channels = np.r_[3e-04, 6e-04, 1.2e-03] * 1e3
-waveform = np.c_[
+CHANNELS = np.r_[3e-04, 6e-04, 1.2e-03] * 1e3
+WAVEFORM = np.c_[
     np.r_[
         np.arange(-0.002, -0.0001, 5e-4),
         np.arange(-0.0004, 0.0, 1e-4),
