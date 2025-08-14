@@ -29,13 +29,13 @@ from simpeg_drivers.options import Deprecations, IRLSOptions
 from simpeg_drivers.potential_fields.gravity.options import GravityInversionOptions
 from simpeg_drivers.potential_fields.gravity.uijson import GravityInversionUIJson
 from simpeg_drivers.uijson import SimPEGDriversUIJson
-from simpeg_drivers.utils.testing_utils.options import (
+from simpeg_drivers.utils.synthetics.driver import setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
     ModelOptions,
     SurveyOptions,
-    SyntheticDataInversionOptions,
+    SyntheticsComponentsOptions,
 )
-from simpeg_drivers.utils.testing_utils.runtests import setup_inversion_workspace
 
 
 logger = logging.getLogger(__name__)
@@ -241,7 +241,7 @@ def test_gravity_uijson(tmp_path):
     import warnings
 
     warnings.filterwarnings("error")
-    opts = SyntheticDataInversionOptions(model=ModelOptions(anomaly=0.75))
+    opts = SyntheticsComponentsOptions(model=ModelOptions(anomaly=0.75))
     geoh5, _, starting_model, survey, topography = setup_inversion_workspace(
         tmp_path, method="gravity", options=opts
     )
@@ -333,7 +333,7 @@ def test_legacy_uijson(tmp_path: Path):
             )
 
             work_path.mkdir(parents=True)
-            opts = SyntheticDataInversionOptions(
+            opts = SyntheticsComponentsOptions(
                 survey=SurveyOptions(
                     n_stations=10,
                     n_lines=3,

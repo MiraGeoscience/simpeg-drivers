@@ -11,7 +11,7 @@
 from discretize import TensorMesh, TreeMesh
 from geoh5py.objects import DrapeModel, ObjectBase, Octree, Surface
 
-from simpeg_drivers.utils.testing_utils.options import MeshOptions
+from simpeg_drivers.utils.synthetics.options import MeshOptions
 
 from .octrees import get_active_source_octree, get_passive_source_octree
 from .tensors import get_tensor_mesh
@@ -22,7 +22,7 @@ def get_mesh(
     survey: ObjectBase,
     topography: Surface,
     options: MeshOptions,
-) -> tuple[DrapeModel | Octree, TensorMesh | TreeMesh]:
+) -> DrapeModel | Octree:
     """Factory for mesh creation with behaviour modified by the provided method."""
 
     if "2d" in method:

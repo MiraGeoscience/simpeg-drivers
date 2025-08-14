@@ -26,14 +26,14 @@ from simpeg_drivers.natural_sources.magnetotellurics.options import (
     MTForwardOptions,
     MTInversionOptions,
 )
-from simpeg_drivers.utils.testing_utils.options import (
+from simpeg_drivers.utils.synthetics.driver import (
+    setup_inversion_workspace,
+)
+from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
     ModelOptions,
     SurveyOptions,
-    SyntheticDataInversionOptions,
-)
-from simpeg_drivers.utils.testing_utils.runtests import (
-    setup_inversion_workspace,
+    SyntheticsComponentsOptions,
 )
 from tests.utils.targets import (
     check_target,
@@ -101,7 +101,7 @@ def test_magnetotellurics_fwr_run(
     cell_size=(20.0, 20.0, 20.0),
 ):
     # Run the forward
-    opts = SyntheticDataInversionOptions(
+    opts = SyntheticsComponentsOptions(
         survey=SurveyOptions(n_stations=n_grid_points, n_lines=n_grid_points),
         mesh=MeshOptions(cell_size=cell_size, refinement=refinement),
         model=ModelOptions(background=0.01),

@@ -22,17 +22,17 @@ from octree_creation_app.utils import treemesh_2_octree
 from simpeg_drivers.components import InversionMesh
 from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import MVIInversionOptions
-from simpeg_drivers.utils.testing_utils.options import (
+from simpeg_drivers.utils.synthetics.driver import setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
     ModelOptions,
     SurveyOptions,
-    SyntheticDataInversionOptions,
+    SyntheticsComponentsOptions,
 )
-from simpeg_drivers.utils.testing_utils.runtests import setup_inversion_workspace
 
 
 def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
-    opts = SyntheticDataInversionOptions(
+    opts = SyntheticsComponentsOptions(
         survey=SurveyOptions(n_stations=4, n_lines=4),
         mesh=MeshOptions(refinement=(2,)),
         model=ModelOptions(anomaly=0.05),

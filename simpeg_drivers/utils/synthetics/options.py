@@ -12,7 +12,8 @@ from collections.abc import Callable
 
 from geoapps_utils.modelling.plates import PlateModel
 from geoapps_utils.utils.locations import gaussian
-from pydantic import BaseModel
+from geoh5py import Workspace
+from pydantic import BaseModel, ConfigDict
 
 
 class SurveyOptions(BaseModel):
@@ -42,7 +43,10 @@ class ModelOptions(BaseModel):
     )
 
 
-class SyntheticDataInversionOptions(BaseModel):
+class SyntheticsComponentsOptions(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    method: str
     survey: SurveyOptions = SurveyOptions()
     mesh: MeshOptions = MeshOptions()
     model: ModelOptions = ModelOptions()

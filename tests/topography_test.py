@@ -17,17 +17,17 @@ import numpy as np
 from simpeg_drivers.components import InversionData, InversionMesh, InversionTopography
 from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import MVIInversionOptions
-from simpeg_drivers.utils.testing_utils.options import (
+from simpeg_drivers.utils.synthetics.driver import setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
     ModelOptions,
     SurveyOptions,
-    SyntheticDataInversionOptions,
+    SyntheticsComponentsOptions,
 )
-from simpeg_drivers.utils.testing_utils.runtests import setup_inversion_workspace
 
 
 def test_get_locations(tmp_path: Path):
-    opts = SyntheticDataInversionOptions(
+    opts = SyntheticsComponentsOptions(
         survey=SurveyOptions(n_stations=2, n_lines=2),
         mesh=MeshOptions(refinement=(2,)),
         model=ModelOptions(anomaly=0.05),

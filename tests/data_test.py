@@ -31,43 +31,45 @@ from simpeg_drivers.potential_fields.magnetic_vector.driver import (
 from simpeg_drivers.potential_fields.magnetic_vector.options import (
     MVIInversionOptions,
 )
-from simpeg_drivers.utils.testing_utils.options import (
+from simpeg_drivers.utils.synthetics.driver import (
+    SyntheticsComponents,
+    setup_inversion_workspace,
+)
+from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
     ModelOptions,
     SurveyOptions,
-    SyntheticDataInversionOptions,
+    SyntheticsComponentsOptions,
 )
-from simpeg_drivers.utils.testing_utils.runtests import setup_inversion_workspace
 
 
 def get_mvi_params(tmp_path: Path, **kwargs) -> MVIInversionOptions:
-    opts = SyntheticDataInversionOptions(
-        survey=SurveyOptions(n_stations=2, n_lines=2),
-        mesh=MeshOptions(refinement=(2,)),
-        model=ModelOptions(anomaly=0.05),
-    )
-    geoh5, entity, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        method="magnetic_vector",
-        options=opts,
-    )
-    with geoh5.open():
-        tmi_channel = survey.add_data(
-            {"tmi": {"values": np.random.rand(survey.n_vertices)}}
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        opts = SyntheticsComponentsOptions(
+            method="magnetic_vector",
+            survey=SurveyOptions(n_stations=2, n_lines=2),
+            mesh=MeshOptions(refinement=(2,)),
+            model=ModelOptions(anomaly=0.05),
         )
-    params = MVIInversionOptions.build(
-        geoh5=geoh5,
-        data_object=survey,
-        tmi_channel=tmi_channel,
-        tmi_uncertainty=1.0,
-        topography_object=topography,
-        mesh=model.parent,
-        starting_model=model,
-        inducing_field_strength=50000.0,
-        inducing_field_inclination=60.0,
-        inducing_field_declination=30.0,
-        **kwargs,
-    )
+    components = SyntheticsComponents(geoh5=geoh5, options=opts)
+
+    with geoh5.open():
+        tmi_channel = components.survey.add_data(
+            {"tmi": {"values": np.random.rand(components.survey.n_vertices)}}
+        )
+        params = MVIInversionOptions.build(
+            geoh5=geoh5,
+            data_object=components.survey,
+            tmi_channel=tmi_channel,
+            tmi_uncertainty=1.0,
+            topography_object=components.topography,
+            mesh=components.model.parent,
+            starting_model=components.model,
+            inducing_field_strength=50000.0,
+            inducing_field_inclination=60.0,
+            inducing_field_declination=30.0,
+            **kwargs,
+        )
     return params
 
 
@@ -249,7 +251,7 @@ def test_get_survey(tmp_path: Path):
 
 def test_data_parts(tmp_path: Path):
     n_lines = 8
-    opts = SyntheticDataInversionOptions(
+    opts = SyntheticsComponentsOptions(
         survey=SurveyOptions(n_stations=10, n_lines=n_lines),
         mesh=MeshOptions(),
         model=ModelOptions(background=0.01, anomaly=10.0),

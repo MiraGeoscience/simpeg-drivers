@@ -28,14 +28,14 @@ from simpeg_drivers.potential_fields.magnetic_vector.driver import (
     MVIForwardDriver,
     MVIInversionDriver,
 )
-from simpeg_drivers.utils.testing_utils.options import (
+from simpeg_drivers.utils.synthetics.driver import (
+    setup_inversion_workspace,
+)
+from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
     ModelOptions,
     SurveyOptions,
-    SyntheticDataInversionOptions,
-)
-from simpeg_drivers.utils.testing_utils.runtests import (
-    setup_inversion_workspace,
+    SyntheticsComponentsOptions,
 )
 from tests.utils.targets import (
     check_target,
@@ -55,7 +55,7 @@ def test_magnetic_vector_fwr_run(
     refinement=(2,),
 ):
     # Run the forward
-    opts = SyntheticDataInversionOptions(
+    opts = SyntheticsComponentsOptions(
         survey=SurveyOptions(
             n_stations=n_grid_points, n_lines=n_grid_points, drape=5.0
         ),

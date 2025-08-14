@@ -12,7 +12,7 @@ import numpy as np
 from geoapps_utils.modelling.plates import make_plate
 from geoh5py.objects import DrapeModel, Octree
 
-from simpeg_drivers.utils.testing_utils.options import ModelOptions
+from simpeg_drivers.utils.synthetics.options import ModelOptions
 
 
 def get_model(

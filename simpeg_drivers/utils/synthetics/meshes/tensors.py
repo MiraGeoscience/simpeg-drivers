@@ -17,7 +17,7 @@ from simpeg_drivers.utils.utils import get_drape_model
 
 def get_tensor_mesh(
     survey: ObjectBase, cell_size: tuple[float, float, float], padding_distance: float
-) -> tuple[DrapeModel, TensorMesh]:
+) -> DrapeModel:
     """
     Generate a tensor mesh and the colocated DrapeModel.
 

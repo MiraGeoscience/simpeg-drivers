@@ -29,14 +29,12 @@ from simpeg_drivers.options import (
     DrapeModelOptions,
     LineSelectionOptions,
 )
-from simpeg_drivers.utils.testing_utils.options import (
+from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
+from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
     ModelOptions,
     SurveyOptions,
-    SyntheticDataInversionOptions,
-)
-from simpeg_drivers.utils.testing_utils.runtests import (
-    setup_inversion_workspace,
+    SyntheticsComponentsOptions,
 )
 from tests.utils.targets import (
     check_target,
@@ -56,45 +54,47 @@ def test_dc2d_rotated_grad_fwr_run(
     n_lines=3,
     refinement=(4, 6),
 ):
-    opts = SyntheticDataInversionOptions(
-        survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
-        mesh=MeshOptions(refinement=refinement),
-        model=ModelOptions(
-            background=0.01,
-            anomaly=10.0,
-            plate=PlateModel(
-                strike_length=1000.0,
-                dip_length=150.0,
-                width=20.0,
-                origin=(50.0, 0.0, -30),
-                direction=90,
-                dip=45,
+    filepath = Path(tmp_path) / "inversion_test.ui.geoh5"
+    with Workspace.create(filepath) as geoh5:
+        # Run the forward
+        components = SyntheticsComponents(
+            SyntheticsComponentsOptions(
+                survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
+                mesh=MeshOptions(refinement=refinement),
+                model=ModelOptions(
+                    background=0.01,
+                    anomaly=10.0,
+                    plate=PlateModel(
+                        strike_length=1000.0,
+                        dip_length=150.0,
+                        width=20.0,
+                        origin=(50.0, 0.0, -30),
+                        direction=90,
+                        dip=45,
+                    ),
+                ),
             ),
-        ),
-    )
-    # Run the forward
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path, method="direct current 2d", options=opts
-    )
-    line_selection = LineSelectionOptions(
-        line_object=geoh5.get_entity("line_ids")[0],
-        line_id=101,
-    )
-    params = DC2DForwardOptions.build(
-        geoh5=geoh5,
-        data_object=survey,
-        line_selection=line_selection,
-        drape_model=DrapeModelOptions(
-            u_cell_size=5.0,
-            v_cell_size=5.0,
-            depth_core=100.0,
-            horizontal_padding=100.0,
-            vertical_padding=100.0,
-            expansion_factor=1.1,
-        ),
-        starting_model=model,
-        topography_object=topography,
-    )
+        )
+
+        line_selection = LineSelectionOptions(
+            line_object=geoh5.get_entity("line_ids")[0],
+            line_id=101,
+        )
+        params = DC2DForwardOptions.build(
+            geoh5=geoh5,
+            data_object=components.survey,
+            line_selection=line_selection,
+            drape_model=DrapeModelOptions(
+                u_cell_size=5.0,
+                v_cell_size=5.0,
+                depth_core=100.0,
+                horizontal_padding=100.0,
+                vertical_padding=100.0,
+                expansion_factor=1.1,
+            ),
+            starting_model=components.model,
+            topography_object=components.topography,
+        )
     fwr_driver = DC2DForwardDriver(params)
     fwr_driver.run()
 

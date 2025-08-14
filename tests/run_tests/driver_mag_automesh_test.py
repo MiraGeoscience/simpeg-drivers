@@ -20,13 +20,13 @@ from simpeg_drivers.potential_fields import (
 from simpeg_drivers.potential_fields.magnetic_scalar.driver import (
     MagneticForwardDriver,
 )
-from simpeg_drivers.utils.testing_utils.options import (
+from simpeg_drivers.utils.synthetics.driver import setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
     ModelOptions,
     SurveyOptions,
-    SyntheticDataInversionOptions,
+    SyntheticsComponentsOptions,
 )
-from simpeg_drivers.utils.testing_utils.runtests import setup_inversion_workspace
 
 
 TARGET = 1132.1998
@@ -38,7 +38,7 @@ def test_automesh(
     refinement=(4, 8),
 ):
     # Run the forward
-    opts = SyntheticDataInversionOptions(
+    opts = SyntheticsComponentsOptions(
         survey=SurveyOptions(
             n_stations=n_grid_points, n_lines=n_grid_points, drape=5.0
         ),

@@ -14,8 +14,8 @@ import numpy as np
 from geoh5py import Workspace
 from geoh5py.objects import ObjectBase, Points
 
-from simpeg_drivers.utils.testing_utils.options import SurveyOptions
-from simpeg_drivers.utils.testing_utils.surveys.layout import grid_layout
+from simpeg_drivers.utils.synthetics.options import SurveyOptions
+from simpeg_drivers.utils.synthetics.surveys.layout import grid_layout
 
 from .dcip import generate_dc_survey
 from .frequency_domain.fdem import generate_fdem_survey

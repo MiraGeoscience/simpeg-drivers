@@ -34,14 +34,14 @@ from simpeg_drivers.options import (
     DrapeModelOptions,
     LineSelectionOptions,
 )
-from simpeg_drivers.utils.testing_utils.options import (
+from simpeg_drivers.utils.synthetics.driver import (
+    setup_inversion_workspace,
+)
+from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
     ModelOptions,
     SurveyOptions,
-    SyntheticDataInversionOptions,
-)
-from simpeg_drivers.utils.testing_utils.runtests import (
-    setup_inversion_workspace,
+    SyntheticsComponentsOptions,
 )
 from tests.utils.targets import (
     check_target,
@@ -58,7 +58,7 @@ target_run = {"data_norm": 1.1039080237658845, "phi_d": 185, "phi_m": 0.491}
 def test_dc_rotated_p3d_fwr_run(
     tmp_path: Path, n_electrodes=10, n_lines=3, refinement=(4, 6)
 ):
-    opts = SyntheticDataInversionOptions(
+    opts = SyntheticsComponentsOptions(
         survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
         mesh=MeshOptions(refinement=refinement),
         model=ModelOptions(

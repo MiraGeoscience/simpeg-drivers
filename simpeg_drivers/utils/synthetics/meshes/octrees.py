@@ -58,7 +58,7 @@ def get_passive_source_octree(
     cell_size: tuple[float, float, float],
     refinement: tuple,
     padding_distance: float,
-) -> tuple[Octree, TreeMesh]:
+) -> Octree:
     """Generate a survey centered mesh with topography refinement.
 
     :param survey: Survey object with vertices that define the core of the
@@ -76,7 +76,8 @@ def get_passive_source_octree(
     mesh = get_base_octree(survey, topography, cell_size, refinement, padding_distance)
     mesh.finalize()
     entity = treemesh_2_octree(survey.workspace, mesh, name="mesh")
-    return entity, mesh
+
+    return entity
 
 
 def get_active_source_octree(
@@ -85,7 +86,7 @@ def get_active_source_octree(
     cell_size: tuple[float, float, float],
     refinement: tuple,
     padding_distance: float,
-) -> tuple[Octree, TreeMesh]:
+) -> Octree:
     """Generate a survey centered mesh with topography and survey refinement.
 
     :param survey: Survey object with vertices that define the core of the
@@ -108,4 +109,5 @@ def get_active_source_octree(
     )
     mesh.finalize()
     entity = treemesh_2_octree(survey.workspace, mesh, name="mesh")
-    return entity, mesh
+
+    return entity

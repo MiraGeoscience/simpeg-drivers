@@ -19,18 +19,18 @@ from geoh5py.objects import Curve, Grid2D, Points
 
 from simpeg_drivers.components.locations import InversionLocations
 from simpeg_drivers.potential_fields import MVIInversionOptions
-from simpeg_drivers.utils.testing_utils.options import (
+from simpeg_drivers.utils.synthetics.driver import setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
     ModelOptions,
     SurveyOptions,
-    SyntheticDataInversionOptions,
+    SyntheticsComponentsOptions,
 )
-from simpeg_drivers.utils.testing_utils.runtests import setup_inversion_workspace
 from simpeg_drivers.utils.utils import tile_locations
 
 
 def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
-    opts = SyntheticDataInversionOptions(
+    opts = SyntheticsComponentsOptions(
         survey=SurveyOptions(n_lines=2, n_stations=2),
         mesh=MeshOptions(refinement=(2,)),
         model=ModelOptions(background=0.0, anomaly=0.05),

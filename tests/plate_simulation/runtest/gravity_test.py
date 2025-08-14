@@ -19,21 +19,21 @@ from simpeg_drivers.plate_simulation.models.options import (
 )
 from simpeg_drivers.plate_simulation.options import MeshOptions, PlateSimulationOptions
 from simpeg_drivers.potential_fields.gravity.options import GravityForwardOptions
-from simpeg_drivers.utils.testing_utils.options import (
+from simpeg_drivers.utils.synthetics.driver import setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.options import (
     MeshOptions as SyntheticsMeshOptions,
 )
-from simpeg_drivers.utils.testing_utils.options import (
+from simpeg_drivers.utils.synthetics.options import (
     ModelOptions as SyntheticsModelOptions,
 )
-from simpeg_drivers.utils.testing_utils.options import (
+from simpeg_drivers.utils.synthetics.options import (
     SurveyOptions,
-    SyntheticDataInversionOptions,
+    SyntheticsComponentsOptions,
 )
-from simpeg_drivers.utils.testing_utils.runtests import setup_inversion_workspace
 
 
 def test_gravity_plate_simulation(tmp_path):
-    opts = SyntheticDataInversionOptions(
+    opts = SyntheticsComponentsOptions(
         survey=SurveyOptions(n_stations=8, n_lines=8, drape=5.0),
         mesh=SyntheticsMeshOptions(),
         model=SyntheticsModelOptions(anomaly=0.0),

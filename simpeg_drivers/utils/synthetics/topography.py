@@ -10,11 +10,12 @@
 
 import numpy as np
 from geoh5py import Workspace
-from geoh5py.objects import Surface
+from geoh5py.objects import DrapeModel, Octree, Surface
 from scipy.spatial import Delaunay
 
-from simpeg_drivers.utils.testing_utils.options import SurveyOptions
-from simpeg_drivers.utils.testing_utils.surveys.layout import grid_layout
+from simpeg_drivers.utils.synthetics.options import SurveyOptions
+from simpeg_drivers.utils.synthetics.surveys.layout import grid_layout
+from simpeg_drivers.utils.utils import active_from_xyz
 
 
 def get_topography_surface(geoh5: Workspace, options: SurveyOptions) -> Surface:
@@ -49,3 +50,8 @@ def get_topography_surface(geoh5: Workspace, options: SurveyOptions) -> Surface:
         cells=Delaunay(vertices[:, :2]).simplices,  # pylint: disable=no-member
         name="topography",
     )
+
+
+def get_active(mesh: Octree | DrapeModel, topography: Surface):
+    active = active_from_xyz(mesh, topography.vertices, grid_reference="top")
+    return mesh.add_data({"active_cells": {"values": active}})

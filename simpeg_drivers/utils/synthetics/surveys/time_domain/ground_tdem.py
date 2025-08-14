@@ -16,7 +16,7 @@ from geoh5py.objects import (
     LargeLoopGroundTEMTransmitters,
 )
 
-from simpeg_drivers.utils.testing_utils.surveys.time_domain import channels, waveform
+from simpeg_drivers.utils.synthetics.surveys.time_domain import channels, waveform
 
 
 def generate_tdem_survey(
