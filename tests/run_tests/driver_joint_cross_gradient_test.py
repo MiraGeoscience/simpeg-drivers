@@ -40,7 +40,7 @@ from simpeg_drivers.potential_fields.magnetic_vector.driver import (
     MVIInversionDriver,
 )
 from simpeg_drivers.utils.synthetics.driver import (
-    setup_inversion_workspace,
+    SyntheticsComponents,
 )
 from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
@@ -74,7 +74,7 @@ def test_joint_cross_gradient_fwr_run(
         mesh=MeshOptions(refinement=refinement),
         model=ModelOptions(anomaly=0.75),
     )
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
+    geoh5, _, model, survey, topography = SyntheticsComponents(
         tmp_path, method="gravity", options=opts
     )
     params = GravityForwardOptions.build(
@@ -94,7 +94,7 @@ def test_joint_cross_gradient_fwr_run(
             mesh=MeshOptions(refinement=refinement),
             model=ModelOptions(anomaly=0.05),
         )
-        _, _, model, survey, _ = setup_inversion_workspace(
+        _, _, model, survey, _ = SyntheticsComponents(
             tmp_path, method="magnetic_vector", options=opts, geoh5=geoh5
         )
     inducing_field = (50000.0, 90.0, 0.0)
@@ -116,7 +116,7 @@ def test_joint_cross_gradient_fwr_run(
             mesh=MeshOptions(refinement=refinement),
             model=ModelOptions(background=0.01, anomaly=10),
         )
-        _, _, model, survey, _ = setup_inversion_workspace(
+        _, _, model, survey, _ = SyntheticsComponents(
             tmp_path, method="direct current 3d", options=opts, geoh5=geoh5
         )
 

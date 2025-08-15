@@ -18,7 +18,7 @@ from simpeg_drivers.potential_fields import MagneticInversionOptions
 from simpeg_drivers.potential_fields.magnetic_scalar.driver import (
     MagneticInversionDriver,
 )
-from simpeg_drivers.utils.synthetics.driver import setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
 from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
     ModelOptions,
@@ -42,7 +42,7 @@ def test_tile_estimator_run(
         mesh=MeshOptions(refinement=refinement),
         model=ModelOptions(anomaly=0.05),
     )
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
+    geoh5, _, model, survey, topography = SyntheticsComponents(
         tmp_path,
         method="magnetic_scalar",
         options=opts,

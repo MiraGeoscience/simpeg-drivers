@@ -29,7 +29,7 @@ from simpeg_drivers.electromagnetics.frequency_domain.options import (
     FDEMInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (
-    setup_inversion_workspace,
+    SyntheticsComponents,
 )
 from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
@@ -52,25 +52,25 @@ target_run = {"data_norm": 81.8361, "phi_d": 2160, "phi_m": 4010}
 def test_fem_name_change(tmp_path, caplog):
     # Run the forward
     opts = SyntheticsComponentsOptions(
+        method="fdem",
         survey=SurveyOptions(n_stations=2, n_lines=2, drape=15.0),
         mesh=MeshOptions(refinement=(2,), padding_distance=400.0),
         model=ModelOptions(background=1e-3),
     )
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path, method="fdem", options=opts
-    )
-    with caplog.at_level(logging.WARNING):
-        FDEMForwardOptions.build(
-            geoh5=geoh5,
-            mesh=model.parent,
-            topography_object=topography,
-            data_object=survey,
-            starting_model=model,
-            z_real_channel_bool=True,
-            z_imag_channel_bool=True,
-            inversion_type="fem",
-        )
-    assert "fdem" in caplog.text
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+        with caplog.at_level(logging.WARNING):
+            FDEMForwardOptions.build(
+                geoh5=geoh5,
+                mesh=components.mesh,
+                topography_object=components.topography,
+                data_object=components.survey,
+                starting_model=components.model,
+                z_real_channel_bool=True,
+                z_imag_channel_bool=True,
+                inversion_type="fem",
+            )
+        assert "fdem" in caplog.text
 
 
 def test_fem_fwr_run(
@@ -81,6 +81,7 @@ def test_fem_fwr_run(
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(
+        method="fdem",
         survey=SurveyOptions(
             n_stations=n_grid_points,
             n_lines=n_grid_points,
@@ -100,20 +101,17 @@ def test_fem_fwr_run(
             ),
         ),
     )
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        method="fdem",
-        options=opts,
-    )
-    params = FDEMForwardOptions.build(
-        geoh5=geoh5,
-        mesh=model.parent,
-        topography_object=topography,
-        data_object=survey,
-        starting_model=model,
-        z_real_channel_bool=True,
-        z_imag_channel_bool=True,
-    )
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+        params = FDEMForwardOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
+            starting_model=components.model,
+            z_real_channel_bool=True,
+            z_imag_channel_bool=True,
+        )
 
     fwr_driver = FDEMForwardDriver(params)
     fwr_driver.run()
@@ -125,32 +123,33 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
         workpath = tmp_path.parent / "test_fem_fwr_run0" / "inversion_test.ui.geoh5"
 
     with Workspace(workpath) as geoh5:
+        components = SyntheticsComponents(geoh5)
         survey = next(
             child
-            for child in geoh5.get_entity("Airborne_rx")
+            for child in geoh5.get_entity("survey")
             if not isinstance(child.parent, SimPEGGroup)
         )
-        mesh = geoh5.get_entity("mesh")[0]
-        topography = geoh5.get_entity("topography")[0]
+        mesh = components.mesh
+        topography = components.topography
         data = {}
         uncertainties = {}
-        components = {
+        channels = {
             "z_real": "z_real",
             "z_imag": "z_imag",
         }
 
-        for comp, cname in components.items():
+        for chan, cname in channels.items():
             data[cname] = []
             uncertainties[f"{cname} uncertainties"] = []
             for ind, freq in enumerate(survey.channels):
-                data_entity = geoh5.get_entity(f"Iteration_0_{comp}_[{ind}]")[0].copy(
+                data_entity = geoh5.get_entity(f"Iteration_0_{chan}_[{ind}]")[0].copy(
                     parent=survey
                 )
                 data[cname].append(data_entity)
                 abs_val = np.abs(data_entity.values)
                 uncert = survey.add_data(
                     {
-                        f"uncertainty_{comp}_[{ind}]": {
+                        f"uncertainty_{chan}_[{ind}]": {
                             "values": np.ones_like(abs_val)
                             * freq
                             / 200.0  # * 2**(np.abs(ind-1))
@@ -165,11 +164,11 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
         uncert_groups = survey.add_components_data(uncertainties)
 
         data_kwargs = {}
-        for comp, data_group, uncert_group in zip(
-            components, data_groups, uncert_groups, strict=True
+        for chan, data_group, uncert_group in zip(
+            channels, data_groups, uncert_groups, strict=True
         ):
-            data_kwargs[f"{comp}_channel"] = data_group
-            data_kwargs[f"{comp}_uncertainty"] = uncert_group
+            data_kwargs[f"{chan}_channel"] = data_group
+            data_kwargs[f"{chan}_uncertainty"] = uncert_group
 
         orig_z_real_1 = geoh5.get_entity("Iteration_0_z_real_[0]")[0].values
 

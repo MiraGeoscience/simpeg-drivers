@@ -25,7 +25,7 @@ from simpeg_drivers.electricals.induced_polarization.two_dimensions.driver impor
 )
 from simpeg_drivers.options import LineSelectionOptions
 from simpeg_drivers.utils.synthetics.driver import (
-    setup_inversion_workspace,
+    SyntheticsComponents,
 )
 from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
@@ -57,7 +57,7 @@ def test_ip_2d_fwr_run(
         mesh=MeshOptions(refinement=refinement),
         model=ModelOptions(background=1e-6, anomaly=1e-1),
     )
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
+    geoh5, _, model, survey, topography = SyntheticsComponents(
         tmp_path, method="induced polarization 2d", options=opts
     )
     params = IP2DForwardOptions.build(

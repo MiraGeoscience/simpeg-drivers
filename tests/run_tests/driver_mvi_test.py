@@ -29,7 +29,7 @@ from simpeg_drivers.potential_fields.magnetic_vector.driver import (
     MVIInversionDriver,
 )
 from simpeg_drivers.utils.synthetics.driver import (
-    setup_inversion_workspace,
+    SyntheticsComponents,
 )
 from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
@@ -62,7 +62,7 @@ def test_magnetic_vector_fwr_run(
         mesh=MeshOptions(refinement=refinement),
         model=ModelOptions(anomaly=0.05),
     )
-    geoh5, _, model, points, topography = setup_inversion_workspace(
+    geoh5, _, model, points, topography = SyntheticsComponents(
         tmp_path, method="magnetic_vector", options=opts
     )
 

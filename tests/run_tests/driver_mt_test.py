@@ -27,7 +27,7 @@ from simpeg_drivers.natural_sources.magnetotellurics.options import (
     MTInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (
-    setup_inversion_workspace,
+    SyntheticsComponents,
 )
 from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
@@ -106,7 +106,7 @@ def test_magnetotellurics_fwr_run(
         mesh=MeshOptions(cell_size=cell_size, refinement=refinement),
         model=ModelOptions(background=0.01),
     )
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
+    geoh5, _, model, survey, topography = SyntheticsComponents(
         tmp_path, method="magnetotellurics", options=opts
     )
     params = MTForwardOptions.build(

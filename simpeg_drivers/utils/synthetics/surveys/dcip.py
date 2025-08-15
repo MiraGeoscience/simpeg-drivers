@@ -51,7 +51,10 @@ def generate_dc_survey(
             current_id += [val]
 
     potentials = PotentialElectrode.create(
-        workspace, vertices=vertices, cells=np.vstack(dipoles).astype("uint32")
+        workspace,
+        name="survey",
+        vertices=vertices,
+        cells=np.vstack(dipoles).astype("uint32"),
     )
     line_id = potentials.vertices[potentials.cells[:, 0], 1]
     line_id = (line_id - np.min(line_id) + 1).astype(np.int32)

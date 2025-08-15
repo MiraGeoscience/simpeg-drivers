@@ -37,7 +37,7 @@ from simpeg_drivers.potential_fields.magnetic_vector.driver import (
     MVIForwardDriver,
 )
 from simpeg_drivers.utils.synthetics.driver import (
-    setup_inversion_workspace,
+    SyntheticsComponents,
 )
 from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
@@ -70,7 +70,7 @@ def test_homogeneous_fwr_run(
         mesh=MeshOptions(refinement=refinement),
         model=ModelOptions(anomaly=0.75),
     )
-    geoh5, mesh, model, survey, topography = setup_inversion_workspace(
+    geoh5, mesh, model, survey, topography = SyntheticsComponents(
         tmp_path, method="gravity", options=opts
     )
 
@@ -95,7 +95,7 @@ def test_homogeneous_fwr_run(
             mesh=MeshOptions(refinement=refinement),
             model=ModelOptions(anomaly=0.05),
         )
-        _, mesh, model, survey, _ = setup_inversion_workspace(
+        _, mesh, model, survey, _ = SyntheticsComponents(
             tmp_path, method="magnetic_vector", options=opts, geoh5=geoh5
         )
     inducing_field = (50000.0, 90.0, 0.0)

@@ -58,7 +58,9 @@ def test_dc2d_rotated_grad_fwr_run(
     with Workspace.create(filepath) as geoh5:
         # Run the forward
         components = SyntheticsComponents(
-            SyntheticsComponentsOptions(
+            geoh5=geoh5,
+            options=SyntheticsComponentsOptions(
+                method="direct current 2d",
                 survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
                 mesh=MeshOptions(refinement=refinement),
                 model=ModelOptions(
@@ -77,7 +79,7 @@ def test_dc2d_rotated_grad_fwr_run(
         )
 
         line_selection = LineSelectionOptions(
-            line_object=geoh5.get_entity("line_ids")[0],
+            line_object=components.survey.get_data("line_ids")[0],
             line_id=101,
         )
         params = DC2DForwardOptions.build(
@@ -114,7 +116,7 @@ def test_dc2d_rotated_grad_run(
 
     with Workspace(workpath) as geoh5:
         potential = geoh5.get_entity("Iteration_0_dc")[0]
-        topography = geoh5.get_entity("topography")[0]
+        components = SyntheticsComponents(geoh5)
 
         orig_potential = potential.values.copy()
         mesh = geoh5.get_entity("Models")[0]
@@ -145,7 +147,7 @@ def test_dc2d_rotated_grad_run(
                 vertical_padding=100.0,
                 expansion_factor=1.1,
             ),
-            topography_object=topography,
+            topography_object=components.topography,
             line_selection=LineSelectionOptions(
                 line_object=geoh5.get_entity("line_ids")[0],
                 line_id=101,

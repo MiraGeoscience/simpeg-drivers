@@ -16,7 +16,7 @@ from geoh5py.objects import (
     LargeLoopGroundTEMTransmitters,
 )
 
-from simpeg_drivers.utils.synthetics.surveys.time_domain import channels, waveform
+from simpeg_drivers.utils.synthetics.surveys.time_domain import CHANNELS, WAVEFORM
 
 
 def generate_tdem_survey(
@@ -24,6 +24,8 @@ def generate_tdem_survey(
     X: np.ndarray,
     Y: np.ndarray,
     Z: np.ndarray,
+    channels: np.ndarray = CHANNELS,
+    waveform: np.ndarray = WAVEFORM,
 ) -> LargeLoopGroundTEMReceivers:
     """Create a large loop TDEM survey object from survey grid locations."""
 
@@ -91,7 +93,9 @@ def generate_tdem_survey(
         cells=np.vstack(loop_cells),
     )
     transmitters.tx_id_property = transmitters.parts + 1
-    survey = LargeLoopGroundTEMReceivers.create(geoh5, vertices=np.vstack(vertices))
+    survey = LargeLoopGroundTEMReceivers.create(
+        geoh5, name="survey", vertices=np.vstack(vertices)
+    )
     survey.transmitters = transmitters
     survey.tx_id_property = np.hstack(loop_id)
 

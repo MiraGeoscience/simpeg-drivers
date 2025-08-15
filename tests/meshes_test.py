@@ -22,7 +22,7 @@ from octree_creation_app.utils import treemesh_2_octree
 from simpeg_drivers.components import InversionMesh
 from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import MVIInversionOptions
-from simpeg_drivers.utils.synthetics.driver import setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
 from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
     ModelOptions,
@@ -33,39 +33,38 @@ from simpeg_drivers.utils.synthetics.options import (
 
 def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
     opts = SyntheticsComponentsOptions(
+        method="magnetic_vector",
         survey=SurveyOptions(n_stations=4, n_lines=4),
         mesh=MeshOptions(refinement=(2,)),
         model=ModelOptions(anomaly=0.05),
     )
-    geoh5, entity, model, survey, topography = setup_inversion_workspace(
-        tmp_path, method="magnetic_vector", options=opts
-    )
-    with geoh5.open():
-        mesh = model.parent
-        tmi_channel, gyz_channel = survey.add_data(
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+        mesh = components.model.parent
+        tmi_channel, gyz_channel = components.survey.add_data(
             {
-                "tmi": {"values": np.random.rand(survey.n_vertices)},
-                "gyz": {"values": np.random.rand(survey.n_vertices)},
+                "tmi": {"values": np.random.rand(components.survey.n_vertices)},
+                "gyz": {"values": np.random.rand(components.survey.n_vertices)},
             }
         )
-        elevation = topography.add_data(
-            {"elevation": {"values": topography.vertices[:, 2]}}
+        elevation = components.topography.add_data(
+            {"elevation": {"values": components.topography.vertices[:, 2]}}
         )
 
-    params = MVIInversionOptions.build(
-        geoh5=geoh5,
-        data_object=survey,
-        tmi_channel=tmi_channel,
-        tmi_uncertainty=0.01,
-        active_cells=ActiveCellsOptions(
-            topography_object=topography, topography=elevation
-        ),
-        inducing_field_strength=50000.0,
-        inducing_field_inclination=60.0,
-        inducing_field_declination=30.0,
-        mesh=mesh,
-        starting_model=model,
-    )
+        params = MVIInversionOptions.build(
+            geoh5=geoh5,
+            data_object=components.survey,
+            tmi_channel=tmi_channel,
+            tmi_uncertainty=0.01,
+            active_cells=ActiveCellsOptions(
+                topography_object=components.topography, topography=elevation
+            ),
+            inducing_field_strength=50000.0,
+            inducing_field_inclination=60.0,
+            inducing_field_declination=30.0,
+            mesh=mesh,
+            starting_model=components.model,
+        )
     return params
 
 

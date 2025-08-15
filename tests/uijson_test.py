@@ -29,7 +29,7 @@ from simpeg_drivers.options import Deprecations, IRLSOptions
 from simpeg_drivers.potential_fields.gravity.options import GravityInversionOptions
 from simpeg_drivers.potential_fields.gravity.uijson import GravityInversionUIJson
 from simpeg_drivers.uijson import SimPEGDriversUIJson
-from simpeg_drivers.utils.synthetics.driver import setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
 from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
     ModelOptions,
@@ -241,24 +241,28 @@ def test_gravity_uijson(tmp_path):
     import warnings
 
     warnings.filterwarnings("error")
-    opts = SyntheticsComponentsOptions(model=ModelOptions(anomaly=0.75))
-    geoh5, _, starting_model, survey, topography = setup_inversion_workspace(
-        tmp_path, method="gravity", options=opts
+    opts = SyntheticsComponentsOptions(
+        method="gravity", model=ModelOptions(anomaly=0.75)
     )
-    with geoh5.open():
-        gz_channel = survey.add_data({"gz": {"values": np.ones(survey.n_vertices)}})
-        gz_uncerts = survey.add_data({"gz_unc": {"values": np.ones(survey.n_vertices)}})
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+        gz_channel = components.survey.add_data(
+            {"gz": {"values": np.ones(components.survey.n_vertices)}}
+        )
+        gz_uncerts = components.survey.add_data(
+            {"gz_unc": {"values": np.ones(components.survey.n_vertices)}}
+        )
 
-    opts = GravityInversionOptions.build(
-        version="old news",
-        geoh5=geoh5,
-        data_object=survey,
-        gz_channel=gz_channel,
-        gz_uncertainty=gz_uncerts,
-        mesh=starting_model.parent,
-        starting_model=starting_model,
-        topography_object=topography,
-    )
+        opts = GravityInversionOptions.build(
+            version="old news",
+            geoh5=geoh5,
+            data_object=components.survey,
+            gz_channel=gz_channel,
+            gz_uncertainty=gz_uncerts,
+            mesh=components.mesh,
+            starting_model=components.model,
+            topography_object=components.topography,
+        )
     params_uijson_path = tmp_path / "from_params.ui.json"
     opts.write_ui_json(params_uijson_path)
 
@@ -334,6 +338,7 @@ def test_legacy_uijson(tmp_path: Path):
 
             work_path.mkdir(parents=True)
             opts = SyntheticsComponentsOptions(
+                method=inversion_type,
                 survey=SurveyOptions(
                     n_stations=10,
                     n_lines=3,
@@ -344,16 +349,13 @@ def test_legacy_uijson(tmp_path: Path):
                     anomaly=2.0,
                 ),
             )
-            geoh5, mesh, model, survey, topo = setup_inversion_workspace(
-                work_path, method=inversion_type, options=opts
-            )
-
-            with geoh5.open(mode="r+"):
+            with Workspace.create(work_path / "inversion_test.ui.geoh5") as geoh5:
+                components = SyntheticsComponents(geoh5, options=opts)
                 ifile.data["geoh5"] = geoh5
-                ifile.data["mesh"] = mesh
-                ifile.data["starting_model"] = model
-                ifile.data["data_object"] = survey
-                ifile.data["topography_object"] = topo
+                ifile.data["mesh"] = components.mesh
+                ifile.data["starting_model"] = components.model
+                ifile.data["data_object"] = components.survey
+                ifile.data["topography_object"] = components.topography
 
                 # Test deprecated name
                 ifile.data["coolingFactor"] = 4.0
@@ -363,19 +365,19 @@ def test_legacy_uijson(tmp_path: Path):
                     ifile.data["line_object"] = line_id
 
                 if not forward:
-                    n_vals = survey.n_vertices
+                    n_vals = components.survey.n_vertices
                     if (
                         "direct current" in inversion_type
                         or "induced polarization" in inversion_type
                     ):
-                        n_vals = survey.n_cells
+                        n_vals = components.survey.n_cells
 
-                    channels = getattr(survey, "channels", [1])
+                    channels = getattr(components.survey, "channels", [1])
 
                     data = []
                     for channel in channels:
                         data.append(
-                            survey.add_data(
+                            components.survey.add_data(
                                 {
                                     CHANNEL_NAME[inversion_type] + f"[{channel}]": {
                                         "values": np.ones(n_vals)
@@ -385,7 +387,7 @@ def test_legacy_uijson(tmp_path: Path):
                         )
 
                     if len(data) > 1:
-                        channel = survey.add_data_to_group(data, "Group")
+                        channel = components.survey.add_data_to_group(data, "Group")
                     else:
                         channel = data[0]
 

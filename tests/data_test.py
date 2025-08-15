@@ -31,10 +31,7 @@ from simpeg_drivers.potential_fields.magnetic_vector.driver import (
 from simpeg_drivers.potential_fields.magnetic_vector.options import (
     MVIInversionOptions,
 )
-from simpeg_drivers.utils.synthetics.driver import (
-    SyntheticsComponents,
-    setup_inversion_workspace,
-)
+from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
 from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
     ModelOptions,
@@ -252,22 +249,19 @@ def test_get_survey(tmp_path: Path):
 def test_data_parts(tmp_path: Path):
     n_lines = 8
     opts = SyntheticsComponentsOptions(
+        method="direct current 3d",
         survey=SurveyOptions(n_stations=10, n_lines=n_lines),
         mesh=MeshOptions(),
         model=ModelOptions(background=0.01, anomaly=10.0),
     )
-    geoh5, entity, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        method="direct current 3d",
-        options=opts,
-    )
-    with geoh5.open():
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
         params = DC3DForwardOptions.build(
             geoh5=geoh5,
-            data_object=survey,
-            topography_object=topography,
-            mesh=model.parent,
-            starting_model=model,
+            data_object=components.survey,
+            topography_object=components.topography,
+            mesh=components.model.parent,
+            starting_model=components.model,
         )
         data = InversionData(geoh5, params)
 

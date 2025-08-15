@@ -23,7 +23,7 @@ from simpeg_drivers.potential_fields import (
 )
 from simpeg_drivers.potential_fields.gravity.driver import GravityInversionDriver
 from simpeg_drivers.utils.synthetics.driver import (
-    setup_inversion_workspace,
+    SyntheticsComponents,
 )
 from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
@@ -56,7 +56,7 @@ def test_joint_surveys_fwr_run(
         mesh=MeshOptions(refinement=refinement),
         model=ModelOptions(anomaly=0.75),
     )
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
+    geoh5, _, model, survey, topography = SyntheticsComponents(
         tmp_path,
         method="gravity",
         options=opts,
@@ -84,7 +84,7 @@ def test_joint_surveys_fwr_run(
             mesh=MeshOptions(refinement=(0, 2)),
             model=ModelOptions(anomaly=0.75),
         )
-        _, _, model, survey, _ = setup_inversion_workspace(
+        _, _, model, survey, _ = SyntheticsComponents(
             tmp_path,
             method="gravity",
             options=opts,

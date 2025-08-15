@@ -27,7 +27,7 @@ from simpeg_drivers.electromagnetics.time_domain.options import (
     TDEMInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (
-    setup_inversion_workspace,
+    SyntheticsComponents,
 )
 from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
@@ -76,7 +76,7 @@ def test_tiling_ground_tem(
             ),
         ),
     )
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
+    geoh5, _, model, survey, topography = SyntheticsComponents(
         tmp_path, method="ground tdem", options=opts
     )
 
@@ -134,7 +134,7 @@ def test_ground_tem_fwr_run(
             ),
         ),
     )
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
+    geoh5, _, model, survey, topography = SyntheticsComponents(
         tmp_path,
         method="ground tdem",
         options=opts,

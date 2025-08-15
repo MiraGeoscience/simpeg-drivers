@@ -25,7 +25,7 @@ from simpeg_drivers.natural_sources.tipper.driver import (
     TipperInversionDriver,
 )
 from simpeg_drivers.utils.synthetics.driver import (
-    setup_inversion_workspace,
+    SyntheticsComponents,
 )
 from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
@@ -59,7 +59,7 @@ def test_tipper_fwr_run(
         mesh=MeshOptions(cell_size=cell_size, refinement=refinement),
         model=ModelOptions(background=100.0),
     )
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
+    geoh5, _, model, survey, topography = SyntheticsComponents(
         tmp_path, method="tipper", options=opts
     )
 

@@ -27,7 +27,7 @@ from simpeg_drivers.potential_fields.gravity.driver import (
     GravityInversionDriver,
 )
 from simpeg_drivers.utils.synthetics.driver import (
-    setup_inversion_workspace,
+    SyntheticsComponents,
 )
 from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
@@ -75,7 +75,7 @@ def test_gravity_rotated_grad_fwr_run(
             ),
         ),
     )
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
+    geoh5, _, model, survey, topography = SyntheticsComponents(
         tmp_path, method="gravity", options=opts
     )
 

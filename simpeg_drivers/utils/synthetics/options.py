@@ -23,7 +23,7 @@ class SurveyOptions(BaseModel):
     drape: float = 0.0
     n_stations: int = 20
     n_lines: int = 5
-    terrain: Callable = lambda x, y: gaussian(x, y, amplitude=50.0, width=100.0)
+    topography: Callable = lambda x, y: gaussian(x, y, amplitude=50.0, width=100.0)
 
 
 class MeshOptions(BaseModel):

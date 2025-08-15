@@ -28,7 +28,7 @@ def grid_layout(
     limits: tuple[float, float, float, float],
     station_spacing: int,
     line_spacing: int,
-    terrain: Callable,
+    topography: Callable,
 ):
     """
     Generates grid locations based on limits and spacing.
@@ -36,13 +36,13 @@ def grid_layout(
     :param limits: Tuple of (xmin, xmax, ymin, ymax).
     :param station_spacing: Number of stations along each line.
     :param line_spacing: Number of lines in the grid.
-    :param terrain: Callable that generates the terrain (z values).
+    :param topography: Callable that generates the topography (z values).
     """
 
     x = np.linspace(limits[0], limits[1], station_spacing)
     y = np.linspace(limits[2], limits[3], line_spacing)
     X, Y = np.meshgrid(x, y)
-    Z = terrain(X, Y)
+    Z = topography(X, Y)
 
     return X, Y, Z
 
@@ -70,7 +70,7 @@ def get_survey(
         limits=limits,
         station_spacing=options.n_stations,
         line_spacing=options.n_lines,
-        terrain=options.terrain,
+        topography=options.topography,
     )
     Z += options.drape
 

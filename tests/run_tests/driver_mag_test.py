@@ -25,7 +25,7 @@ from simpeg_drivers.potential_fields.magnetic_scalar.driver import (
     MagneticInversionDriver,
 )
 from simpeg_drivers.utils.synthetics.driver import (
-    setup_inversion_workspace,
+    SyntheticsComponents,
 )
 from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
@@ -58,7 +58,7 @@ def test_susceptibility_fwr_run(
         mesh=MeshOptions(refinement=refinement),
         model=ModelOptions(anomaly=0.05),
     )
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
+    geoh5, _, model, survey, topography = SyntheticsComponents(
         tmp_path, method="magnetic", options=opts
     )
     inducing_field = (49999.8, 90.0, 0.0)

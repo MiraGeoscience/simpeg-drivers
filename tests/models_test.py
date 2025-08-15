@@ -13,6 +13,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+from geoh5py import Workspace
 from geoh5py.objects import Points
 
 from simpeg_drivers.components import (
@@ -25,7 +26,7 @@ from simpeg_drivers.potential_fields import MVIInversionOptions
 from simpeg_drivers.potential_fields.magnetic_vector.driver import (
     MVIInversionDriver,
 )
-from simpeg_drivers.utils.synthetics.driver import setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
 from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
     ModelOptions,
@@ -36,47 +37,45 @@ from simpeg_drivers.utils.synthetics.options import (
 
 def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
     opts = SyntheticsComponentsOptions(
+        method="magnetic_vector",
         survey=SurveyOptions(n_stations=2, n_lines=2),
         mesh=MeshOptions(refinement=(2,)),
         model=ModelOptions(anomaly=0.05),
     )
-
-    geoh5, entity, model, survey, topography = setup_inversion_workspace(
-        tmp_path, method="magnetic_vector", options=opts
-    )
-    with geoh5.open():
-        mesh = model.parent
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+        mesh = components.model.parent
         ref_inducing = mesh.add_data(
             {
                 "reference_inclination": {"values": np.ones(mesh.n_cells) * 79.0},
                 "reference_declination": {"values": np.ones(mesh.n_cells) * 11.0},
             }
         )
-        tmi_channel = survey.add_data(
+        tmi_channel = components.survey.add_data(
             {
-                "tmi": {"values": np.random.rand(survey.n_vertices)},
+                "tmi": {"values": np.random.rand(components.survey.n_vertices)},
             }
         )
-        elevation = topography.add_data(
-            {"elevation": {"values": topography.vertices[:, 2]}}
+        elevation = components.topography.add_data(
+            {"elevation": {"values": components.topography.vertices[:, 2]}}
         )
-    params = MVIInversionOptions.build(
-        geoh5=geoh5,
-        data_object=survey,
-        tmi_channel=tmi_channel,
-        tmi_uncertainty=1.0,
-        mesh=mesh,
-        active_cells=ActiveCellsOptions(
-            topography_object=topography, topography=elevation
-        ),
-        starting_model=1e-04,
-        inducing_field_inclination=79.0,
-        inducing_field_declination=11.0,
-        reference_model=0.0,
-        inducing_field_strength=50000.0,
-        reference_inclination=ref_inducing[0],
-        reference_declination=ref_inducing[1],
-    )
+        params = MVIInversionOptions.build(
+            geoh5=geoh5,
+            data_object=components.survey,
+            tmi_channel=tmi_channel,
+            tmi_uncertainty=1.0,
+            mesh=mesh,
+            active_cells=ActiveCellsOptions(
+                topography_object=components.topography, topography=elevation
+            ),
+            starting_model=1e-04,
+            inducing_field_inclination=79.0,
+            inducing_field_declination=11.0,
+            reference_model=0.0,
+            inducing_field_strength=50000.0,
+            reference_inclination=ref_inducing[0],
+            reference_declination=ref_inducing[1],
+        )
 
     return params
 

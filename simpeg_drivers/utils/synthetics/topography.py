@@ -37,7 +37,7 @@ def get_topography_surface(geoh5: Workspace, options: SurveyOptions) -> Surface:
         limits=tuple(2 * k for k in survey_limits),
         station_spacing=int(np.ceil((survey_limits[1] - survey_limits[0]) / 4)),
         line_spacing=int(np.ceil((survey_limits[3] - survey_limits[2]) / 4)),
-        terrain=options.terrain,
+        topography=options.topography,
     )
 
     vertices = np.column_stack(
