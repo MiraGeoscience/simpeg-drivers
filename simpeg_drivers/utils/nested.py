@@ -14,11 +14,12 @@ from copy import copy
 from pathlib import Path
 
 import numpy as np
-from discretize import TreeMesh
+from discretize import TensorMesh, TreeMesh
 from scipy.optimize import linear_sum_assignment
 from scipy.spatial import cKDTree
 from scipy.spatial.distance import cdist
 from simpeg import data, data_misfit, maps, meta
+from simpeg.electromagnetics.base_1d import BaseEM1DSimulation
 from simpeg.electromagnetics.frequency_domain.sources import (
     LineCurrent as FEMLineCurrent,
 )
@@ -31,7 +32,7 @@ from .surveys import get_intersecting_cells, get_unique_locations
 
 def create_mesh(
     survey: BaseSurvey,
-    base_mesh: TreeMesh | TensorMesh | None,
+    base_mesh: TreeMesh | TensorMesh,
     padding_cells: int = 8,
     minimum_level: int = 4,
     finalize: bool = True,
@@ -177,6 +178,7 @@ def create_simulation(
     :param padding_cells: Number of padding cells around the local survey.
     """
     local_survey = create_survey(simulation.survey, indices=indices, channel=channel)
+    kwargs = {"survey": local_survey}
 
     if local_mesh is None:
         local_mesh = create_mesh(
@@ -186,15 +188,21 @@ def create_simulation(
             padding_cells=padding_cells,
         )
 
-        # slice_ind = np.arange(
-        #     tile_id, inversion_mesh.mesh.n_cells, inversion_mesh.mesh.shape_cells[0]
-        # )[::-1]
-        # mapping = maps.Projection(inversion_mesh.mesh.n_cells, slice_ind)
-        #
-    if not isinstance(local_mesh, TreeMesh):
-        mapping = maps.IdentityMap(nP=int(simulation.active_cells.sum()))
-        actives = simulation.active_cells
-    else:
+    args = (local_mesh,)
+    if isinstance(simulation, BaseEM1DSimulation):
+        sounding_id = np.floor(
+            tile_id / len(getattr(simulation.survey, "frequencies", [None]))
+        ).astype(int)
+        local_mesh = simulation.layers_mesh
+        actives = np.ones(simulation.layers_mesh.n_cells, dtype=bool)
+        slice_ind = np.arange(
+            sounding_id, simulation.mesh.n_cells, simulation.mesh.shape_cells[0]
+        )[::-1]
+        mapping = maps.Projection(simulation.mesh.n_cells, slice_ind)
+        kwargs["topo"] = simulation.active_cells[sounding_id]
+        args = ()
+
+    elif isinstance(local_mesh, TreeMesh):
         mapping = maps.TileMap(
             simulation.mesh,
             simulation.active_cells,
@@ -203,8 +211,10 @@ def create_simulation(
             components=3 if getattr(simulation, "model_type", None) == "vector" else 1,
         )
         actives = mapping.local_active
-
-    kwargs = {"survey": local_survey}
+    # For DCIP-2D
+    else:
+        actives = simulation.active_cells
+        mapping = maps.IdentityMap(nP=int(actives.sum()))
 
     n_actives = int(actives.sum())
     if getattr(simulation, "_chiMap", None) is not None:
@@ -238,7 +248,7 @@ def create_simulation(
             actives,
             value_inactive=1e-8,
         )
-        kwargs["sigma"] = proj * mapping * simulation.sigma
+        kwargs["sigma"] = proj * mapping * simulation.sigma[simulation.active_cells]
 
     for key in [
         "max_chunk_sizestore_sensitivities",
@@ -250,7 +260,7 @@ def create_simulation(
         if hasattr(simulation, key):
             kwargs[key] = getattr(simulation, key)
 
-    local_sim = type(simulation)(local_mesh, **kwargs)
+    local_sim = type(simulation)(*args, **kwargs)
 
     # TODO bring back
     # inv_type = inversion_data.params.inversion_type

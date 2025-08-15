@@ -57,7 +57,7 @@ class MisfitFactory(SimPEGFactory):
         split_list,
     ):
         # Base slice over frequencies
-        if self.factory_type in ["magnetotellurics", "tipper", "fdem"]:
+        if self.factory_type in ["magnetotellurics", "tipper", "fdem", "fdem 1d"]:
             channels = self.simulation.survey.frequencies
         else:
             channels = [None]

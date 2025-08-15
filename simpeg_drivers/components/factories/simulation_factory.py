@@ -166,7 +166,7 @@ class SimulationFactory(SimPEGFactory):
                 maps.InjectActiveCells(
                     mesh, active_cells=active_cells, value_inactive=1e-8
                 )
-                * models.conductivity
+                * models.conductivity_model
             )
 
         if self.factory_type in [
@@ -189,7 +189,6 @@ class SimulationFactory(SimPEGFactory):
         if "1d" in self.factory_type:
             kwargs["sigmaMap"] = maps.ExpMap(mesh)
             kwargs["thicknesses"] = mesh.h[1][1:][::-1]
-            # kwargs["topo"] = active_cells[tile_id]
 
         return kwargs
 
