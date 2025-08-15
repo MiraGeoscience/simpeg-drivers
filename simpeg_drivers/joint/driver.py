@@ -123,7 +123,7 @@ class BaseJointDriver(InversionDriver):
                 global_actives,
                 driver.inversion_mesh.mesh,
                 enforce_active=False,
-                components=driver.inversion_data.n_blocks,
+                components=driver.n_blocks,
             )
             driver.params.active_model = None
             driver.models.active_cells = projection.local_active
@@ -211,7 +211,7 @@ class BaseJointDriver(InversionDriver):
             n_values = self.models.n_active
             count = []
             for driver in self.drivers:
-                n_comp = driver.inversion_data.n_blocks  # If vector of scalar model
+                n_comp = driver.n_blocks  # If vector of scalar model
                 count.append(n_values * n_comp)
             self._n_values = count
 

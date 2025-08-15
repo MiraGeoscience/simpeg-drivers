@@ -39,7 +39,6 @@ class MisfitFactory(SimPEGFactory):
         self.factory_type = self.params.inversion_type
         self.simulation = simulation
         self.sorting = None
-        self.n_blocks = 3 if self.params.inversion_type == "magnetic vector" else 1
 
     def concrete_object(self):
         return objective_function.ComboObjectiveFunction

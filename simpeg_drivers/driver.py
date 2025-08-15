@@ -290,6 +290,13 @@ class InversionDriver(Driver):
         return self._models
 
     @property
+    def n_blocks(self):
+        """
+        Number of model components in the inversion.
+        """
+        return 3 if self.params.inversion_type == "magnetic vector" else 1
+
+    @property
     def n_values(self):
         """Number of values in the model"""
         if self._n_values is None:
