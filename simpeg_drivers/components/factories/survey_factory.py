@@ -24,6 +24,7 @@ if TYPE_CHECKING:
 
 import numpy as np
 import simpeg.electromagnetics.time_domain as tdem
+from geoh5py.objects.surveys.electromagnetics.airborne_fem import AirborneFEMReceivers
 from geoh5py.objects.surveys.electromagnetics.ground_tem import (
     LargeLoopGroundTEMTransmitters,
 )
@@ -123,15 +124,20 @@ class SurveyFactory(SimPEGFactory):
     def _add_data(self, survey, data):
         data_stack = np.dstack(
             [np.vstack(list(k.values())) for k in data.observed.values()]
-        ).transpose((0, 2, 1))
+        ).transpose((0, 2, 1))[:, :, self.ordering]
         uncert_stack = np.dstack(
             [np.vstack(list(k.values())) for k in data.uncertainties.values()]
-        ).transpose((0, 2, 1))
+        ).transpose((0, 2, 1))[:, :, self.ordering]
 
         # Flatten in the order of the channel, component, receiver
         order = "C" if hasattr(survey, "frequencies") else "F"
-        data_vec = data_stack[:, :, self.ordering].flatten(order=order)
-        uncertainty_vec = uncert_stack[:, :, self.ordering].flatten(order=order)
+
+        if isinstance(data.entity, AirborneFEMReceivers):
+            data_stack = data_stack.transpose((0, 2, 1))
+            uncert_stack = uncert_stack.transpose((0, 2, 1))
+
+        data_vec = data_stack.flatten(order=order)
+        uncertainty_vec = uncert_stack.flatten(order=order)
         uncertainty_vec[np.isnan(data_vec)] = np.inf
         data_vec[np.isnan(data_vec)] = self.dummy  # Nan's handled by inf uncertainties
         survey.dobs = data_vec
