@@ -20,6 +20,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from geoh5py.groups.property_group import GroupTypeEnum
+from geoh5py.objects.surveys.electromagnetics.base import FEMSurvey
 from numpy import sqrt
 from simpeg import directives, maps
 from simpeg.utils.mat_utils import cartesian2amplitude_dip_azimuth
@@ -668,8 +669,13 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
         channels = np.array(receivers.channels, dtype=float)
         components = list(inversion_object.observed)
 
+        if isinstance(receivers, FEMSurvey):
+            order = "C"
+        else:
+            order = "F"
+
         def reshape(values):
-            data = values.reshape((len(channels), len(components), -1), order="F")
+            data = values.reshape((len(channels), len(components), -1), order=order)
             return data
 
         kwargs = {
