@@ -49,6 +49,9 @@ def create_mesh(
     minimum_level: Minimum octree level to preserve everywhere outside the local survey area.
     finalize: Return a finalized local treemesh.
     """
+    if not isinstance(base_mesh, TreeMesh):
+        return base_mesh
+
     locations = get_unique_locations(survey)
     nested_mesh = TreeMesh(
         [base_mesh.h[0], base_mesh.h[1], base_mesh.h[2]],
@@ -183,17 +186,22 @@ def create_simulation(
             padding_cells=padding_cells,
         )
 
-    mapping = maps.TileMap(
-        simulation.mesh,
-        simulation.active_cells,
-        local_mesh,
-        enforce_active=True,
-        components=3 if getattr(simulation, "model_type", None) == "vector" else 1,
-    )
+    if not isinstance(local_mesh, TreeMesh):
+        mapping = maps.IdentityMap(nP=int(simulation.active_cells.sum()))
+        actives = simulation.active_cells
+    else:
+        mapping = maps.TileMap(
+            simulation.mesh,
+            simulation.active_cells,
+            local_mesh,
+            enforce_active=True,
+            components=3 if getattr(simulation, "model_type", None) == "vector" else 1,
+        )
+        actives = mapping.local_active
 
     kwargs = {"survey": local_survey}
 
-    n_actives = int(mapping.local_active.sum())
+    n_actives = int(actives.sum())
     if getattr(simulation, "_chiMap", None) is not None:
         if simulation.model_type == "vector":
             kwargs["chiMap"] = maps.IdentityMap(nP=n_actives * 3)
@@ -201,30 +209,28 @@ def create_simulation(
         else:
             kwargs["chiMap"] = maps.IdentityMap(nP=n_actives)
 
-        kwargs["active_cells"] = mapping.local_active
+        kwargs["active_cells"] = actives
         kwargs["sensitivity_path"] = (
             Path(simulation.sensitivity_path).parent / f"Tile{tile_id}.zarr"
         )
 
     if getattr(simulation, "_rhoMap", None) is not None:
         kwargs["rhoMap"] = maps.IdentityMap(nP=n_actives)
-        kwargs["active_cells"] = mapping.local_active
+        kwargs["active_cells"] = actives
         kwargs["sensitivity_path"] = (
             Path(simulation.sensitivity_path).parent / f"Tile{tile_id}.zarr"
         )
 
     if getattr(simulation, "_sigmaMap", None) is not None:
         kwargs["sigmaMap"] = maps.ExpMap(local_mesh) * maps.InjectActiveCells(
-            local_mesh, mapping.local_active, value_inactive=np.log(1e-8)
+            local_mesh, actives, value_inactive=np.log(1e-8)
         )
 
     if getattr(simulation, "_etaMap", None) is not None:
-        kwargs["etaMap"] = maps.InjectActiveCells(
-            local_mesh, mapping.local_active, value_inactive=0
-        )
+        kwargs["etaMap"] = maps.InjectActiveCells(local_mesh, actives, value_inactive=0)
         proj = maps.InjectActiveCells(
             local_mesh,
-            mapping.local_active,
+            actives,
             value_inactive=1e-8,
         )
         kwargs["sigma"] = proj * mapping * simulation.sigma
