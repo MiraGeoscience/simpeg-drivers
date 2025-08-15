@@ -48,6 +48,7 @@ from simpeg import (
     maps,
     objective_function,
     optimization,
+    simulation,
 )
 
 from simpeg.regularization import (
@@ -65,13 +66,17 @@ from simpeg_drivers.components import (
     InversionTopography,
     InversionWindow,
 )
-from simpeg_drivers.components.factories import DirectivesFactory, MisfitFactory
+from simpeg_drivers.components.factories import (
+    DirectivesFactory,
+    MisfitFactory,
+    SimulationFactory,
+)
 from simpeg_drivers.options import (
     BaseForwardOptions,
     BaseInversionOptions,
 )
 from simpeg_drivers.joint.options import BaseJointOptions
-from simpeg_drivers.utils.utils import tile_locations
+from simpeg_drivers.utils.nested import tile_locations
 from simpeg_drivers.utils.regularization import cell_neighbors, set_rotated_operators
 
 mlogger = logging.getLogger("distributed")
@@ -100,6 +105,7 @@ class InversionDriver(Driver):
         self._n_values: int | None = None
         self._optimization: optimization.ProjectedGNCG | None = None
         self._regularization: None = None
+        self._simulation: simulation.BaseSimulation | None = None
         self._sorting: list[np.ndarray] | None = None
         self._ordering: list[np.ndarray] | None = None
         self._mappings: list[maps.IdentityMap] | None = None
@@ -163,14 +169,11 @@ class InversionDriver(Driver):
 
                 self.logger.write(f"Setting up {len(tiles)} tile(s) . . .\n")
                 # Build tiled misfits and combine to form global misfit
-                self._data_misfit, self._sorting, self._ordering = MisfitFactory(
-                    self.params, models=self.models
+                self._data_misfit, self._sorting = MisfitFactory(
+                    self.params, self.simulation
                 ).build(
                     tiles,
                     self.split_list,
-                    self.inversion_data,
-                    self.inversion_mesh,
-                    self.models.active_cells,
                 )
                 self.logger.write("Saving data to file...\n")
 
@@ -287,6 +290,13 @@ class InversionDriver(Driver):
         return self._models
 
     @property
+    def n_blocks(self):
+        """
+        Number of model components in the inversion.
+        """
+        return 3 if self.params.inversion_type == "magnetic vector" else 1
+
+    @property
     def n_values(self):
         """Number of values in the model"""
         if self._n_values is None:
@@ -315,7 +325,7 @@ class InversionDriver(Driver):
     @property
     def ordering(self):
         """List of ordering of the data."""
-        return self._ordering
+        return self.inversion_data.survey.ordering
 
     @property
     def out_group(self):
@@ -379,9 +389,31 @@ class InversionDriver(Driver):
         self._regularization = regularization
 
     @property
-    def sorting(self):
-        """List of arrays for sorting of data from tiles."""
-        return self._sorting
+    def simulation(self):
+        """
+        The simulation object used in the inversion.
+        """
+        if getattr(self, "_simulation", None) is None:
+            simulation_factory = SimulationFactory(self.params)
+            self._simulation = simulation_factory.build(
+                mesh=self.inversion_mesh.mesh,
+                models=self.models,
+                survey=self.inversion_data.survey,
+            )
+
+            if not hasattr(self._simulation, "active_cells"):
+                self._simulation.active_cells = self.models.active_cells
+
+        return self._simulation
+
+    @property
+    def sorting(self) -> np.ndarray:
+        """
+        Arrays for sorting of data from tile, taking into account the
+        ordering of the survey.
+        """
+        sorting = np.hstack(self._sorting)
+        return self.inversion_data.survey.ordering[sorting]
 
     @property
     def window(self):
@@ -605,6 +637,7 @@ class InversionDriver(Driver):
             self.inversion_data.locations,
             self.params.compute.tile_spatial,
             labels=self.inversion_data.parts,
+            sorting=self.simulation.survey.ordering,
         )
 
     def configure_dask(self):

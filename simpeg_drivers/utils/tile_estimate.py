@@ -38,10 +38,10 @@ from simpeg_drivers import assets_path
 from simpeg_drivers.components.data import InversionData
 from simpeg_drivers.components.factories.misfit_factory import MisfitFactory
 from simpeg_drivers.driver import InversionDriver
+from simpeg_drivers.utils.nested import create_simulation, tile_locations
 from simpeg_drivers.utils.utils import (
     active_from_xyz,
     simpeg_group_to_driver,
-    tile_locations,
 )
 
 
@@ -100,11 +100,9 @@ class TileEstimator(Driver):
             # Get the median tile
             ind = int(np.argsort([len(tile) for tile in tiles])[int(count / 2)])
             self.driver.params.compute.tile_spatial = int(count)
-            sim, _, _, mapping = MisfitFactory.create_nested_simulation(
-                self.driver.inversion_data,
-                self.driver.inversion_mesh,
+            sim, _, _, mapping = create_simulation(
+                self.driver.simulation,
                 None,
-                self.active_cells,
                 tiles[ind],
                 tile_id=ind,
                 padding_cells=self.driver.params.padding_cells,

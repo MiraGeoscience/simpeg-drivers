@@ -13,6 +13,7 @@
 
 from __future__ import annotations
 
+from gc import is_finalized
 from typing import TYPE_CHECKING
 
 
@@ -23,6 +24,7 @@ if TYPE_CHECKING:
 
 import numpy as np
 import simpeg.electromagnetics.time_domain as tdem
+from geoh5py.objects.surveys.electromagnetics.airborne_fem import AirborneFEMReceivers
 from geoh5py.objects.surveys.electromagnetics.ground_tem import (
     LargeLoopGroundTEMTransmitters,
 )
@@ -75,35 +77,25 @@ class SurveyFactory(SimPEGFactory):
 
         return survey.Survey
 
-    def assemble_arguments(self, data=None, local_index=None, channel=None):
+    def assemble_arguments(self, data=None):
         """Provides implementations to assemble arguments for receivers object."""
-        receiver_entity = data.entity
-
-        if local_index is None:
-            if "current" in self.factory_type or "polarization" in self.factory_type:
-                n_data = receiver_entity.n_cells
-            else:
-                n_data = receiver_entity.n_vertices
-
-            self.local_index = np.arange(n_data)
-        else:
-            self.local_index = local_index
-
         if "current" in self.factory_type or "polarization" in self.factory_type:
-            return self._dcip_arguments(data=data, local_index=local_index)
+            return self._dcip_arguments(data=data)
         elif "tdem" in self.factory_type:
             return self._tdem_arguments(data=data)
         elif self.factory_type in ["magnetotellurics", "tipper"]:
-            return self._naturalsource_arguments(data=data, frequency=channel)
+            return self._naturalsource_arguments(data=data)
         elif "fdem" in self.factory_type:
-            return self._fem_arguments(data=data, channel=channel)
-        else:
+            return self._fem_arguments(data=data)
+        else:  # Gravity and Magnetic
             receivers = ReceiversFactory(self.params).build(
                 locations=data.locations,
                 data=data.observed,
-                local_index=self.local_index,
             )
             sources = SourcesFactory(self.params).build(receivers=receivers)
+            n_rx = data.locations.shape[0]
+            self.ordering = np.arange(n_rx).astype(int)
+
             return [sources]
 
     def assemble_keyword_arguments(self, **_):
@@ -113,135 +105,51 @@ class SurveyFactory(SimPEGFactory):
     def build(
         self,
         data=None,
-        local_index=None,
-        indices=None,
-        channel=None,
     ):
         """Overloads base method to add dobs, std attributes to survey class instance."""
-
         survey = super().build(
             data=data,
-            local_index=local_index,
-            channel=channel,
         )
-
+        survey.n_channels = len(
+            data.normalizations
+        )  # Either time channels or frequencies
+        survey.n_components = len(data.components)
         if not self.params.forward_only:
-            self._add_data(survey, data, self.local_index, channel)
+            self._add_data(survey, data)
 
         survey.dummy = self.dummy
 
-        return survey, self.local_index, self.ordering
+        return survey
 
-    def _get_local_data(self, data, channel, local_index):
-        local_data = {}
-        local_uncertainties = {}
+    def _add_data(self, survey, data):
+        data_stack = np.dstack(
+            [np.vstack(list(k.values())) for k in data.observed.values()]
+        ).transpose((0, 2, 1))[:, :, self.ordering]
+        uncert_stack = np.dstack(
+            [np.vstack(list(k.values())) for k in data.uncertainties.values()]
+        ).transpose((0, 2, 1))[:, :, self.ordering]
 
-        components = list(data.observed.keys())
-        for comp in components:
-            comp_name = comp
-            if self.factory_type == "magnetotellurics":
-                comp_name = {
-                    "zxx_real": "zyy_real",
-                    "zxx_imag": "zyy_imag",
-                    "zxy_real": "zyx_real",
-                    "zxy_imag": "zyx_imag",
-                    "zyx_real": "zxy_real",
-                    "zyx_imag": "zxy_imag",
-                    "zyy_real": "zxx_real",
-                    "zyy_imag": "zxx_imag",
-                }[comp]
+        # Flatten in the order of the channel, component, receiver
+        order = "C" if hasattr(survey, "frequencies") else "F"
 
-            key = "_".join([str(channel), str(comp_name)])
-            local_data[key] = data.observed[comp][channel][local_index]
-            local_uncertainties[key] = data.uncertainties[comp][channel][local_index]
+        if isinstance(data.entity, AirborneFEMReceivers):
+            data_stack = data_stack.transpose((0, 2, 1))
+            uncert_stack = uncert_stack.transpose((0, 2, 1))
 
-        return local_data, local_uncertainties
-
-    def _add_data(self, survey, data, local_index, channel):
-        if isinstance(local_index, list):
-            local_index = np.hstack(local_index)
-
-        if self.factory_type in ["fdem", "fdem 1d", "tdem", "tdem 1d"]:
-            dobs = []
-            uncerts = []
-
-            data_stack = [np.vstack(list(k.values())) for k in data.observed.values()]
-            uncert_stack = [
-                np.vstack(list(k.values())) for k in data.uncertainties.values()
-            ]
-            for order in self.ordering:
-                channel_id, component_id, rx_id = order
-                dobs.append(data_stack[component_id][channel_id, rx_id])
-                uncerts.append(uncert_stack[component_id][channel_id, rx_id])
-
-            data_vec = np.vstack([dobs]).flatten()
-            uncertainty_vec = np.vstack([uncerts]).flatten()
-
-        elif self.factory_type in ["magnetotellurics", "tipper"]:
-            local_data = {}
-            local_uncertainties = {}
-
-            if channel is None:
-                channels = np.unique([list(v.keys()) for v in data.observed.values()])
-                for chan in channels:
-                    dat, unc = self._get_local_data(data, chan, local_index)
-                    local_data.update(dat)
-                    local_uncertainties.update(unc)
-
-            else:
-                dat, unc = self._get_local_data(data, channel, local_index)
-                local_data.update(dat)
-                local_uncertainties.update(unc)
-
-            data_vec = self._stack_channels(local_data, "row")
-            uncertainty_vec = self._stack_channels(local_uncertainties, "row")
-
-        else:
-            local_data = {k: v[local_index] for k, v in data.observed.items()}
-            local_uncertainties = {
-                k: v[local_index] for k, v in data.uncertainties.items()
-            }
-
-            data_vec = self._stack_channels(local_data, "column")
-            uncertainty_vec = self._stack_channels(local_uncertainties, "column")
-
+        data_vec = data_stack.flatten(order=order)
+        uncertainty_vec = uncert_stack.flatten(order=order)
         uncertainty_vec[np.isnan(data_vec)] = np.inf
         data_vec[np.isnan(data_vec)] = self.dummy  # Nan's handled by inf uncertainties
         survey.dobs = data_vec
         survey.std = uncertainty_vec
 
-    def _stack_channels(self, channel_data: dict[str, np.ndarray], mode: str):
-        """
-        Convert dictionary of data/uncertainties to stacked array.
-
-        parameters:
-        ----------
-
-        channel_data: Array of data to stack
-        mode: Stacks rows or columns before flattening. Must be either 'row' or 'column'.
-
-
-        notes:
-        ------
-        If mode is row the components will be clustered in the resulting 1D array.
-        Column stacking results in the locations being clustered.
-
-        """
-        if mode == "column":
-            return np.column_stack(list(channel_data.values())).ravel()
-        elif mode == "row":
-            return np.row_stack(list(channel_data.values())).ravel()
-
-    def _dcip_arguments(self, data=None, local_index=None):
+    def _dcip_arguments(self, data=None):
         if getattr(data, "entity", None) is None:
             return None
 
         receiver_entity = data.entity
-        if "2d" in self.factory_type:
-            self.local_index = np.arange(receiver_entity.n_cells)
-
         source_ids, order = np.unique(
-            receiver_entity.ab_cell_id.values[self.local_index], return_index=True
+            receiver_entity.ab_cell_id.values, return_index=True
         )
         currents = receiver_entity.current_electrodes
 
@@ -252,20 +160,17 @@ class SurveyFactory(SimPEGFactory):
             receiver_locations = receiver_entity.vertices
             source_locations = currents.vertices
 
-        # TODO hook up tile_spatial to handle local_index handling
         sources = []
-        self.local_index = []
+        ordering = []
         for source_id in source_ids[np.argsort(order)]:  # Cycle in original order
             receiver_indices = np.where(receiver_entity.ab_cell_id.values == source_id)[
                 0
             ]
 
-            if local_index is not None:
-                receiver_indices = list(set(receiver_indices).intersection(local_index))
-
             if len(receiver_indices) == 0:
                 continue
 
+            ordering.append(receiver_indices)
             receivers = ReceiversFactory(self.params).build(
                 locations=receiver_locations,
                 local_index=receiver_entity.cells[receiver_indices],
@@ -282,9 +187,9 @@ class SurveyFactory(SimPEGFactory):
                 receivers=receivers,
                 locations=source_locations[currents.cells[cell_ind].flatten()],
             )
-
             sources.append(source)
-            self.local_index.append(receiver_indices)
+
+        self.ordering = np.hstack(ordering).astype(int)
 
         return [sources]
 
@@ -306,12 +211,12 @@ class SurveyFactory(SimPEGFactory):
                     "Transmitter ID property required for LargeLoopGroundTEMReceivers"
                 )
 
-            tx_rx = receivers.tx_id_property.values[self.local_index]
+            tx_rx = receivers.tx_id_property.values
             tx_ids = transmitters.tx_id_property.values
             rx_lookup = []
             tx_locs = []
             for tx_id in np.unique(tx_rx):
-                rx_lookup.append(self.local_index[tx_rx == tx_id])
+                rx_lookup.append(np.where(tx_rx == tx_id)[0])
                 tx_ind = tx_ids == tx_id
                 loop_cells = transmitters.cells[
                     np.all(tx_ind[transmitters.cells], axis=1), :
@@ -319,12 +224,14 @@ class SurveyFactory(SimPEGFactory):
                 loop_ind = np.r_[loop_cells[:, 0], loop_cells[-1, 1]]
                 tx_locs.append(transmitters.vertices[loop_ind, :])
         else:
-            rx_lookup = self.local_index[:, np.newaxis].tolist()
-            tx_locs = [transmitters.vertices[k, :] for k in self.local_index]
+            # Assumes 1:1 mapping of tx to rx
+            rx_lookup = np.arange(receivers.n_vertices).tolist()
+            tx_locs = transmitters.vertices
 
         wave_times = (
             receivers.waveform[:, 0] - receivers.timing_mark
         ) * self.params.unit_conversion
+
         if "1d" in self.factory_type:
             on_times = wave_times <= 0.0
             waveform = tdem.sources.PiecewiseLinearWaveform(
@@ -342,71 +249,58 @@ class SurveyFactory(SimPEGFactory):
                 waveform_function=wave_function, offTime=0.0
             )
 
-        self.ordering = []
         tx_list = []
         rx_factory = ReceiversFactory(self.params)
         tx_factory = SourcesFactory(self.params)
+
         for cur_tx_locs, rx_ids in zip(tx_locs, rx_lookup, strict=True):
             locs = receivers.vertices[rx_ids, :]
-
             rx_list = []
-            for component_id, component in enumerate(data.components):
+
+            for component in data.components:
                 rx_obj = rx_factory.build(
                     locations=locs,
-                    local_index=self.local_index,
                     data=data,
                     component=component,
                 )
                 rx_obj.local_index = rx_ids
                 rx_list.append(rx_obj)
 
-                for time_id in range(len(receivers.channels)):
-                    for rx_id in rx_ids:
-                        self.ordering.append([time_id, component_id, rx_id])
-
             tx_list.append(
                 tx_factory.build(rx_list, locations=cur_tx_locs, waveform=waveform)
             )
 
+        self.ordering = np.hstack(rx_lookup).astype(int)
         return [tx_list]
 
-    def _fem_arguments(self, data=None, channel=None):
+    def _fem_arguments(self, data=None):
         channels = np.array(data.entity.channels)
-        frequencies = channels if channel is None else [channel]
         rx_locs = data.entity.vertices
         tx_locs = data.entity.transmitters.vertices
         freqs = data.entity.transmitters.workspace.get_entity("Tx frequency")[0]
         freqs = np.array([int(freqs.value_map[f]) for f in freqs.values])
 
-        self.ordering = []
         sources = []
         rx_factory = ReceiversFactory(self.params)
         tx_factory = SourcesFactory(self.params)
 
         receiver_groups = {}
-        ordering = []
-        for receiver_id in self.local_index:
+
+        for receiver_id, locs in enumerate(rx_locs):
             receivers = []
-            for component_id, component in enumerate(data.components):
+            for component in data.components:
                 receiver = rx_factory.build(
-                    locations=rx_locs[receiver_id, :],
+                    locations=locs,
                     data=data,
                     component=component,
                 )
 
                 receiver.local_index = receiver_id
                 receivers.append(receiver)
-                ordering.append([component_id, receiver_id])
+
             receiver_groups[receiver_id] = receivers
 
-        ordering = np.vstack(ordering)
-        self.ordering = []
-        for frequency in frequencies:
-            frequency_id = np.where(frequency == channels)[0][0]
-            self.ordering.append(
-                np.hstack([np.ones((ordering.shape[0], 1)) * frequency_id, ordering])
-            )
-
+        for frequency in channels:
             for receiver_id, receivers in receiver_groups.items():
                 locs = tx_locs[frequency == freqs, :][receiver_id, :]
                 sources.append(
@@ -417,44 +311,38 @@ class SurveyFactory(SimPEGFactory):
                     )
                 )
 
-        self.ordering = np.vstack(self.ordering).astype(int)
+        self.ordering = np.arange(rx_locs.shape[0], dtype=int)
 
         return [sources]
 
-    def _naturalsource_arguments(self, data=None, frequency=None):
+    def _naturalsource_arguments(self, data=None):
+        simpeg_mt_translate = {
+            "zxx_real": "zyy_real",
+            "zxx_imag": "zyy_imag",
+            "zxy_real": "zyx_real",
+            "zxy_imag": "zyx_imag",
+            "zyx_real": "zxy_real",
+            "zyx_imag": "zxy_imag",
+            "zyy_real": "zxx_real",
+            "zyy_imag": "zxx_imag",
+        }
         receivers = []
         sources = []
         rx_factory = ReceiversFactory(self.params)
         tx_factory = SourcesFactory(self.params)
-        ordering = []
-        channels = np.array(data.entity.channels)
-        for component_id, comp in enumerate(data.components):
+
+        for comp in data.components:
             receivers.append(
                 rx_factory.build(
                     locations=data.locations,
-                    local_index=self.local_index,
                     data=data,
-                    component=comp,
+                    component=simpeg_mt_translate.get(comp, comp),
                 )
             )
-            ordering.append(
-                np.c_[np.ones_like(self.local_index) * component_id, self.local_index]
-            )
 
-        ordering = np.vstack(ordering)
-        self.ordering = []
-        if frequency is None:
-            frequencies = channels
-        else:
-            frequencies = [frequency] if not isinstance(frequency, list) else frequency
-
-        for frequency in frequencies:
+        for frequency in data.entity.channels:
             sources.append(tx_factory.build(receivers, frequency=frequency))
-            frequency_id = np.where(frequency == channels)[0][0]
-            self.ordering.append(
-                np.hstack([np.ones((ordering.shape[0], 1)) * frequency_id, ordering])
-            )
 
-        self.ordering = np.vstack(self.ordering).astype(int)
+        self.ordering = np.arange(data.locations.shape[0]).astype(int)
 
         return [sources]

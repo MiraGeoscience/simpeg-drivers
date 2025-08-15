@@ -120,35 +120,22 @@ class SimulationFactory(SimPEGFactory):
     def assemble_arguments(
         self,
         survey=None,
-        receivers=None,
-        global_mesh=None,
-        local_mesh=None,
-        active_cells=None,
-        mapping=None,
-        tile_id=None,
+        mesh=None,
+        models=None,
     ):
         if "1d" in self.factory_type:
             return ()
 
-        mesh = global_mesh if tile_id is None else local_mesh
         return [mesh]
 
     def assemble_keyword_arguments(
         self,
         survey=None,
-        receivers=None,
-        global_mesh=None,
-        local_mesh=None,
-        active_cells=None,
-        mapping=None,
-        tile_id=None,
+        mesh=None,
+        models=None,
     ):
-        mesh = global_mesh if tile_id is None else local_mesh
-        sensitivity_path = self._get_sensitivity_path(tile_id)
-
         kwargs = {}
         kwargs["survey"] = survey
-        kwargs["sensitivity_path"] = sensitivity_path
         kwargs["max_chunk_size"] = self.params.compute.max_chunk_size
         kwargs["store_sensitivities"] = (
             "forward_only"
@@ -156,28 +143,31 @@ class SimulationFactory(SimPEGFactory):
             else self.params.store_sensitivities
         )
         kwargs["solver"] = self.solver
-
+        active_cells = models.active_cells
         if self.factory_type == "magnetic vector":
             kwargs["active_cells"] = active_cells
             kwargs["chiMap"] = maps.IdentityMap(nP=int(active_cells.sum()) * 3)
             kwargs["model_type"] = "vector"
-            kwargs["chunk_format"] = "row"
 
         if self.factory_type == "magnetic scalar":
             kwargs["active_cells"] = active_cells
             kwargs["chiMap"] = maps.IdentityMap(nP=int(active_cells.sum()))
-            kwargs["chunk_format"] = "row"
 
         if self.factory_type == "gravity":
             kwargs["active_cells"] = active_cells
             kwargs["rhoMap"] = maps.IdentityMap(nP=int(active_cells.sum()))
-            kwargs["chunk_format"] = "row"
 
         if "induced polarization" in self.factory_type:
             etamap = maps.InjectActiveCells(
                 mesh, active_cells=active_cells, value_inactive=0
             )
             kwargs["etaMap"] = etamap
+            kwargs["sigma"] = (
+                maps.InjectActiveCells(
+                    mesh, active_cells=active_cells, value_inactive=1e-8
+                )
+                * models.conductivity_model
+            )
 
         if self.factory_type in [
             "direct current 3d",
@@ -193,16 +183,12 @@ class SimulationFactory(SimPEGFactory):
             kwargs["sigmaMap"] = maps.ExpMap(mesh) * actmap
 
         if "tdem" in self.factory_type:
-            kwargs["t0"] = -receivers.timing_mark * self.params.unit_conversion
-            kwargs["time_steps"] = (
-                np.round((np.diff(np.unique(receivers.waveform[:, 0]))), decimals=6)
-                * self.params.unit_conversion
-            )
+            kwargs["t0"] = -self.params.timing_mark
+            kwargs["time_steps"] = self.params.time_steps
 
         if "1d" in self.factory_type:
             kwargs["sigmaMap"] = maps.ExpMap(mesh)
-            kwargs["thicknesses"] = local_mesh.h[0][1:][::-1]
-            kwargs["topo"] = active_cells[tile_id]
+            kwargs["thicknesses"] = mesh.h[1][1:][::-1]
 
         return kwargs
 

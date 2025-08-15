@@ -21,7 +21,7 @@ from scipy.spatial import ConvexHull
 from simpeg_drivers.components.locations import InversionLocations
 from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import MVIInversionOptions
-from simpeg_drivers.utils.utils import tile_locations
+from simpeg_drivers.utils.nested import tile_locations
 from tests.testing_utils import Geoh5Tester, setup_inversion_workspace
 
 

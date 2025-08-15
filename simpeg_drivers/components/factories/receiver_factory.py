@@ -118,7 +118,7 @@ class ReceiversFactory(SimPEGFactory):
             )
 
         else:
-            args.append(locations[local_index])
+            args.append(locations)
 
         return args
 
@@ -153,7 +153,7 @@ class ReceiversFactory(SimPEGFactory):
             local_index=local_index,
             component=component,
         )
-
+        receivers.local_index = local_index
         if (
             self.factory_type in ["tipper"]
             and getattr(self.params.data_object, "base_stations", None) is not None
@@ -193,9 +193,4 @@ class ReceiversFactory(SimPEGFactory):
         ]
 
     def _magnetotellurics_arguments(self, locations=None, local_index=None):
-        args = []
-        locs = locations[local_index]
-
-        args.append(locs)
-
-        return args
+        return [locations]

@@ -20,6 +20,9 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from geoh5py.groups.property_group import GroupTypeEnum
+from geoh5py.objects.surveys.electromagnetics.base import FEMSurvey
+from geoh5py.objects.surveys.electromagnetics.magnetotellurics import MTReceivers
+from geoh5py.objects.surveys.electromagnetics.tipper import TipperReceivers
 from numpy import sqrt
 from simpeg import directives, maps
 from simpeg.utils.mat_utils import cartesian2amplitude_dip_azimuth
@@ -181,7 +184,7 @@ class DirectivesFactory:
             ).build(
                 inversion_object=self.driver.inversion_data,
                 active_cells=self.driver.models.active_cells,
-                sorting=np.argsort(np.hstack(self.driver.sorting)),
+                sorting=np.argsort(self.driver.sorting),
                 name="Apparent Resistivity",
             )
         return self._save_iteration_apparent_resistivity_directive
@@ -224,8 +227,7 @@ class DirectivesFactory:
             ).build(
                 inversion_object=self.driver.inversion_data,
                 active_cells=self.driver.models.active_cells,
-                sorting=np.argsort(np.hstack(self.driver.sorting)),
-                ordering=self.driver.ordering,
+                sorting=np.argsort(self.driver.sorting),
                 global_misfit=self.driver.data_misfit,
                 name="Data",
             )
@@ -266,8 +268,7 @@ class DirectivesFactory:
             ).build(
                 inversion_object=self.driver.inversion_data,
                 active_cells=self.driver.models.active_cells,
-                sorting=np.argsort(np.hstack(self.driver.sorting)),
-                ordering=self.driver.ordering,
+                sorting=np.argsort(self.driver.sorting),
                 name="Residual",
             )
         return self._save_iteration_residual_directive
@@ -367,7 +368,6 @@ class SaveGeoh5Factory(SimPEGFactory, ABC):
         inversion_object=None,
         active_cells=None,
         sorting=None,
-        ordering=None,
         transform=None,
         global_misfit=None,
         name=None,
@@ -387,7 +387,6 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
         inversion_object=None,
         active_cells=None,
         sorting=None,
-        ordering=None,
         transform=None,
         global_misfit=None,
         name=None,
@@ -451,7 +450,6 @@ class SaveSensitivitiesGeoh5Factory(SaveGeoh5Factory):
         inversion_object=None,
         active_cells=None,
         sorting=None,
-        ordering=None,
         transform=None,
         global_misfit=None,
         name=None,
@@ -499,7 +497,6 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
         inversion_object=None,
         active_cells=None,
         sorting=None,
-        ordering=None,
         transform=None,
         global_misfit=None,
         name=None,
@@ -516,7 +513,6 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
                 inversion_object=inversion_object,
                 active_cells=active_cells,
                 sorting=sorting,
-                ordering=ordering,
                 transform=transform,
                 global_misfit=global_misfit,
                 name=name,
@@ -592,7 +588,7 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
             data = inversion_object.normalize(inversion_object.observed)
 
             def potfield_transform(x):
-                data_stack = np.row_stack(list(data.values()))
+                data_stack = np.vstack([k[None] for k in data.values()])
                 data_stack = data_stack[:, np.argsort(sorting)]
                 return data_stack.ravel() - x
 
@@ -653,9 +649,9 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
             data = inversion_object.normalize(inversion_object.observed)
 
             def dcip_transform(x):
-                data_stack = np.row_stack(list(data.values())).ravel()
-                sorting_stack = np.tile(np.argsort(sorting), len(data))
-                return data_stack[sorting_stack] - x
+                data_stack = np.vstack([k[None] for k in data.values()])
+                data_stack = data_stack[:, np.argsort(sorting)]
+                return data_stack.ravel() - x
 
             kwargs["transforms"].insert(0, dcip_transform)
             kwargs.pop("data_type")
@@ -667,7 +663,6 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
         inversion_object=None,
         active_cells=None,
         sorting=None,
-        ordering=None,
         transform=None,
         global_misfit=None,
         name=None,
@@ -675,15 +670,17 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
         receivers = inversion_object.entity
         channels = np.array(receivers.channels, dtype=float)
         components = list(inversion_object.observed)
-        ordering = np.vstack(ordering)
-        channel_ids = ordering[:, 0]
-        component_ids = ordering[:, 1]
-        rx_ids = ordering[:, 2]
 
         def reshape(values):
-            data = np.zeros((len(channels), len(components), receivers.n_vertices))
-            data[channel_ids, component_ids, rx_ids] = values
-            return data
+            if isinstance(receivers, MTReceivers | TipperReceivers):
+                return values.reshape((len(channels), len(components), -1), order="C")
+
+            if isinstance(receivers, FEMSurvey):
+                return values.reshape(
+                    (len(channels), -1, len(components)), order="C"
+                ).transpose((0, 2, 1))
+
+            return values.reshape((len(channels), len(components), -1), order="F")
 
         kwargs = {
             "data_type": inversion_object.observed_data_types,
