@@ -86,47 +86,47 @@ class Base1DDriver(InversionDriver):
         )
         return layers_mesh
 
-    @property
-    def data_misfit(self):
-        """The Simpeg.data_misfit class"""
-        if getattr(self, "_data_misfit", None) is None:
-            with fetch_active_workspace(self.workspace, mode="r+"):
-                # Tile locations
-                tiles = self.get_tiles()
-
-                logger.info("Setting up %i tile(s) . . .", len(tiles))
-                # Build tiled misfits and combine to form global misfit
-                self._data_misfit, self._sorting = MisfitFactory(
-                    self.params, models=self.models
-                ).build(
-                    tiles,
-                    self.split_list,
-                    self.inversion_data,
-                    self.inversion_mesh,
-                    self.topo_z_drape,
-                )
-                self.models.active_cells = np.ones(
-                    self.inversion_mesh.mesh.n_cells, dtype=bool
-                )
-                logger.info("Done.")
-
-                self._data_misfit.multipliers = np.asarray(
-                    self._data_misfit.multipliers, dtype=float
-                )
-
-            if self.client:
-                self.distributed_misfits()
-
-        return self._data_misfit
-
-    @property
-    def split_list(self):
-        """
-        Split the list of data into chunks for parallel processing.
-        """
-        n_misfits = self.inversion_data.mask.sum()
-
-        if isinstance(self.params.data_object, FEMSurvey):
-            n_misfits *= len(self.params.data_object.channels)
-
-        return [1] * n_misfits
+    # @property
+    # def data_misfit(self):
+    #     """The Simpeg.data_misfit class"""
+    #     if getattr(self, "_data_misfit", None) is None:
+    #         with fetch_active_workspace(self.workspace, mode="r+"):
+    #             # Tile locations
+    #             tiles = self.get_tiles()
+    #
+    #             logger.info("Setting up %i tile(s) . . .", len(tiles))
+    #             # Build tiled misfits and combine to form global misfit
+    #             self._data_misfit, self._sorting = MisfitFactory(
+    #                 self.params, models=self.models
+    #             ).build(
+    #                 tiles,
+    #                 self.split_list,
+    #                 self.inversion_data,
+    #                 self.inversion_mesh,
+    #                 self.topo_z_drape,
+    #             )
+    #             self.models.active_cells = np.ones(
+    #                 self.inversion_mesh.mesh.n_cells, dtype=bool
+    #             )
+    #             logger.info("Done.")
+    #
+    #             self._data_misfit.multipliers = np.asarray(
+    #                 self._data_misfit.multipliers, dtype=float
+    #             )
+    #
+    #         if self.client:
+    #             self.distributed_misfits()
+    #
+    #     return self._data_misfit
+    #
+    # @property
+    # def split_list(self):
+    #     """
+    #     Split the list of data into chunks for parallel processing.
+    #     """
+    #     n_misfits = self.inversion_data.mask.sum()
+    #
+    #     if isinstance(self.params.data_object, FEMSurvey):
+    #         n_misfits *= len(self.params.data_object.channels)
+    #
+    #     return [1] * n_misfits

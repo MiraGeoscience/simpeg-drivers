@@ -31,7 +31,7 @@ from .surveys import get_intersecting_cells, get_unique_locations
 
 def create_mesh(
     survey: BaseSurvey,
-    base_mesh: TreeMesh,
+    base_mesh: TreeMesh | TensorMesh | None,
     padding_cells: int = 8,
     minimum_level: int = 4,
     finalize: bool = True,
@@ -186,6 +186,11 @@ def create_simulation(
             padding_cells=padding_cells,
         )
 
+        # slice_ind = np.arange(
+        #     tile_id, inversion_mesh.mesh.n_cells, inversion_mesh.mesh.shape_cells[0]
+        # )[::-1]
+        # mapping = maps.Projection(inversion_mesh.mesh.n_cells, slice_ind)
+        #
     if not isinstance(local_mesh, TreeMesh):
         mapping = maps.IdentityMap(nP=int(simulation.active_cells.sum()))
         actives = simulation.active_cells

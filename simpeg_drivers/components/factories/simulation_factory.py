@@ -188,7 +188,7 @@ class SimulationFactory(SimPEGFactory):
 
         if "1d" in self.factory_type:
             kwargs["sigmaMap"] = maps.ExpMap(mesh)
-            kwargs["thicknesses"] = mesh.h[0][1:][::-1]
+            kwargs["thicknesses"] = mesh.h[1][1:][::-1]
             # kwargs["topo"] = active_cells[tile_id]
 
         return kwargs
