@@ -226,10 +226,6 @@ class InversionData(InversionLocations):
             if channels is None:
                 continue
 
-            # Non-EM methods
-            # if not has_channels:
-            #     channels = {None: channels}
-
             for ind, (channel, values) in enumerate(channels.items()):
                 suffix = f"_{component}"
                 if has_channels:
