@@ -94,7 +94,12 @@ class SurveyFactory(SimPEGFactory):
             )
             sources = SourcesFactory(self.params).build(receivers=receivers)
             n_rx = data.locations.shape[0]
-            self.ordering = np.arange(n_rx).astype(int)
+            n_comp = len(data.components)
+            self.ordering = np.c_[
+                np.zeros(n_rx * n_comp),  # Single channel
+                np.kron(np.ones(n_rx), np.arange(n_comp)),  # Components
+                np.kron(np.arange(n_rx), np.ones(n_comp)),  # Receivers
+            ].astype(int)
 
             return [sources]
 
@@ -124,20 +129,17 @@ class SurveyFactory(SimPEGFactory):
     def _add_data(self, survey, data):
         data_stack = np.dstack(
             [np.vstack(list(k.values())) for k in data.observed.values()]
-        ).transpose((0, 2, 1))[:, :, self.ordering]
+        ).transpose((0, 2, 1))
         uncert_stack = np.dstack(
             [np.vstack(list(k.values())) for k in data.uncertainties.values()]
-        ).transpose((0, 2, 1))[:, :, self.ordering]
+        ).transpose((0, 2, 1))
 
-        # Flatten in the order of the channel, component, receiver
-        order = "C" if hasattr(survey, "frequencies") else "F"
-
-        if isinstance(data.entity, AirborneFEMReceivers):
-            data_stack = data_stack.transpose((0, 2, 1))
-            uncert_stack = uncert_stack.transpose((0, 2, 1))
-
-        data_vec = data_stack.flatten(order=order)
-        uncertainty_vec = uncert_stack.flatten(order=order)
+        data_vec = data_stack[
+            self.ordering[:, 0], self.ordering[:, 1], self.ordering[:, 2]
+        ]
+        uncertainty_vec = uncert_stack[
+            self.ordering[:, 0], self.ordering[:, 1], self.ordering[:, 2]
+        ]
         uncertainty_vec[np.isnan(data_vec)] = np.inf
         data_vec[np.isnan(data_vec)] = self.dummy  # Nan's handled by inf uncertainties
         survey.dobs = data_vec
@@ -189,7 +191,11 @@ class SurveyFactory(SimPEGFactory):
             )
             sources.append(source)
 
-        self.ordering = np.hstack(ordering).astype(int)
+        self.ordering = np.c_[
+            np.zeros(receiver_entity.n_cells),  # Single channel
+            np.zeros(receiver_entity.n_cells),  # Single component
+            np.hstack(ordering),  # Multi-receivers
+        ].astype(int)
 
         return [sources]
 
@@ -252,12 +258,12 @@ class SurveyFactory(SimPEGFactory):
         tx_list = []
         rx_factory = ReceiversFactory(self.params)
         tx_factory = SourcesFactory(self.params)
-
+        ordering = []
         for cur_tx_locs, rx_ids in zip(tx_locs, rx_lookup, strict=True):
             locs = receivers.vertices[rx_ids, :]
             rx_list = []
 
-            for component in data.components:
+            for comp_id, component in enumerate(data.components):
                 rx_obj = rx_factory.build(
                     locations=locs,
                     data=data,
@@ -265,44 +271,67 @@ class SurveyFactory(SimPEGFactory):
                 )
                 rx_obj.local_index = rx_ids
                 rx_list.append(rx_obj)
+                n_times = len(receivers.channels)
+                n_rx = len(rx_ids) if isinstance(rx_ids, np.ndarray) else 1
+                ordering.append(
+                    np.c_[
+                        np.kron(np.arange(n_times), np.ones(n_rx)),
+                        np.ones(n_times * n_rx) * comp_id,
+                        np.kron(np.ones(n_times), np.asarray(rx_ids)),
+                    ]
+                )
 
             tx_list.append(
                 tx_factory.build(rx_list, locations=cur_tx_locs, waveform=waveform)
             )
 
-        self.ordering = np.hstack(rx_lookup).astype(int)
+        self.ordering = np.vstack(ordering).astype(int)
         return [tx_list]
 
     def _fem_arguments(self, data=None):
         channels = np.array(data.entity.channels)
         rx_locs = data.entity.vertices
         tx_locs = data.entity.transmitters.vertices
-        freqs = data.entity.transmitters.workspace.get_entity("Tx frequency")[0]
-        freqs = np.array([int(freqs.value_map[f]) for f in freqs.values])
+        frequencies = data.entity.transmitters.workspace.get_entity("Tx frequency")[0]
+        frequencies = np.array(
+            [int(frequencies.value_map[f]) for f in frequencies.values]
+        )
 
         sources = []
         rx_factory = ReceiversFactory(self.params)
         tx_factory = SourcesFactory(self.params)
 
         receiver_groups = {}
-
-        for receiver_id, locs in enumerate(rx_locs):
+        block_ordering = []
+        for rx_id, locs in enumerate(rx_locs):
             receivers = []
-            for component in data.components:
+            for comp_id, component in enumerate(data.components):
                 receiver = rx_factory.build(
                     locations=locs,
                     data=data,
                     component=component,
                 )
 
-                receiver.local_index = receiver_id
+                receiver.local_index = rx_id
+                block_ordering.append([comp_id, rx_id])
                 receivers.append(receiver)
 
-            receiver_groups[receiver_id] = receivers
+            receiver_groups[rx_id] = receivers
 
-        for frequency in channels:
-            for receiver_id, receivers in receiver_groups.items():
-                locs = tx_locs[frequency == freqs, :][receiver_id, :]
+        block_ordering = np.vstack(block_ordering)
+        ordering = []
+        for freq_id, frequency in enumerate(channels):
+            ordering.append(
+                np.hstack(
+                    [
+                        np.ones((block_ordering.shape[0], 1)) * freq_id,
+                        block_ordering,
+                    ]
+                )
+            )
+
+            for rx_id, receivers in receiver_groups.items():
+                locs = tx_locs[frequency == frequencies, :][rx_id, :]
                 sources.append(
                     tx_factory.build(
                         receivers,
@@ -311,7 +340,7 @@ class SurveyFactory(SimPEGFactory):
                     )
                 )
 
-        self.ordering = np.arange(rx_locs.shape[0], dtype=int)
+        self.ordering = np.vstack(ordering).astype(int)
 
         return [sources]
 
@@ -330,8 +359,8 @@ class SurveyFactory(SimPEGFactory):
         sources = []
         rx_factory = ReceiversFactory(self.params)
         tx_factory = SourcesFactory(self.params)
-
-        for comp in data.components:
+        block_ordering = []
+        for comp_id, comp in enumerate(data.components):
             receivers.append(
                 rx_factory.build(
                     locations=data.locations,
@@ -339,10 +368,23 @@ class SurveyFactory(SimPEGFactory):
                     component=simpeg_mt_translate.get(comp, comp),
                 )
             )
+            n_locs = data.locations.shape[0]
+            block_ordering.append(np.c_[np.ones(n_locs) * comp_id, np.arange(n_locs)])
 
-        for frequency in data.entity.channels:
+        block_ordering = np.vstack(block_ordering)
+        ordering = []
+
+        for freq_id, frequency in enumerate(data.entity.channels):
             sources.append(tx_factory.build(receivers, frequency=frequency))
+            ordering.append(
+                np.hstack(
+                    [
+                        np.ones((block_ordering.shape[0], 1)) * freq_id,
+                        block_ordering,
+                    ]
+                )
+            )
 
-        self.ordering = np.arange(data.locations.shape[0]).astype(int)
+        self.ordering = np.vstack(ordering).astype(int)
 
         return [sources]

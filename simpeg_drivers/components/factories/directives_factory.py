@@ -672,15 +672,10 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
         components = list(inversion_object.observed)
 
         def reshape(values):
-            if isinstance(receivers, MTReceivers | TipperReceivers):
-                return values.reshape((len(channels), len(components), -1), order="C")
-
-            if isinstance(receivers, FEMSurvey):
-                return values.reshape(
-                    (len(channels), -1, len(components)), order="C"
-                ).transpose((0, 2, 1))
-
-            return values.reshape((len(channels), len(components), -1), order="F")
+            ordering = inversion_object.survey.ordering
+            data = np.zeros((len(channels), len(components), receivers.n_vertices))
+            data[ordering[:, 0], ordering[:, 1], ordering[:, 2]] = values
+            return data
 
         kwargs = {
             "data_type": inversion_object.observed_data_types,

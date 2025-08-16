@@ -50,7 +50,7 @@ from simpeg import (
     optimization,
     simulation,
 )
-
+from simpeg.potential_fields.base import BasePFSimulation
 from simpeg.regularization import (
     BaseRegularization,
     RegularizationMesh,
@@ -413,7 +413,19 @@ class InversionDriver(Driver):
         ordering of the survey.
         """
         sorting = np.hstack(self._sorting)
-        return self.inversion_data.survey.ordering[sorting]
+
+        order = "C"
+        if isinstance(self.simulation, BasePFSimulation):
+            order = "F"
+        ordering = self.simulation.survey.ordering[:, -1].reshape(
+            (
+                self.simulation.survey.n_channels,
+                self.simulation.survey.n_components,
+                -1,
+            ),
+            order=order,
+        )
+        return ordering[0, 0, :][sorting]
 
     @property
     def window(self):
@@ -633,11 +645,15 @@ class InversionDriver(Driver):
         if "1d" in self.params.inversion_type:
             return np.arange(self.inversion_data.mask.sum()).reshape((-1, 1))
 
+        ordering = self.simulation.survey.ordering[:, -1].reshape(
+            (self.simulation.survey.n_channels, self.simulation.survey.n_components, -1)
+        )
+
         return tile_locations(
             self.inversion_data.locations,
             self.params.compute.tile_spatial,
             labels=self.inversion_data.parts,
-            sorting=self.simulation.survey.ordering,
+            sorting=ordering[0, 0, :],
         )
 
     def configure_dask(self):
