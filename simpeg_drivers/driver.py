@@ -176,7 +176,7 @@ class InversionDriver(Driver):
                     self.split_list,
                 )
                 self.logger.write("Saving data to file...\n")
-
+                self._sorting = np.hstack(tiles)
                 if isinstance(self.params, BaseInversionOptions):
                     self._data_misfit.multipliers = np.asarray(
                         self._data_misfit.multipliers, dtype=float
@@ -412,7 +412,7 @@ class InversionDriver(Driver):
         Arrays for sorting of data from tile, taking into account the
         ordering of the survey.
         """
-        return self.simulation.survey.sorting
+        return self.simulation.survey.sorting[self._sorting]
 
     @property
     def window(self):
