@@ -335,8 +335,12 @@ class InversionData(InversionLocations):
         survey = survey_factory.build(data=self)
         survey.ordering = survey_factory.ordering
         survey.sorting = survey_factory.sorting
+
+        # Save apparent resistivity in geoh5 order
         if "direct current" in self.params.inversion_type:
-            survey.apparent_resistivity = 1 / (geometric_factor(survey) + 1e-10)
+            survey.apparent_resistivity = 1 / (
+                geometric_factor(survey)[np.argsort(survey.sorting)] + 1e-10
+            )
 
         return survey
 
