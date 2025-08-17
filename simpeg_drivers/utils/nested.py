@@ -118,7 +118,6 @@ def create_misfit(
     )
 
     local_mesh = getattr(local_sim, "mesh", None)
-    sorting = []
     local_misfits = []
     for count, channel in enumerate(channels):
         for split_ind in np.array_split(local_index, n_split[count]):
@@ -130,10 +129,6 @@ def create_misfit(
                 tile_id=tile_count,
                 padding_cells=padding_cells,
             )
-
-            if count == 0:
-                sorting.append(split_ind)
-
             meta_simulation = meta.MetaSimulation(
                 simulations=[local_sim], mappings=[mapping]
             )
@@ -154,7 +149,7 @@ def create_misfit(
 
             tile_count += 1
 
-    return local_misfits, sorting
+    return local_misfits
 
 
 def create_simulation(
@@ -409,57 +404,3 @@ def tile_locations(
         tiles += [np.where(cluster_id == tid)[0]]
 
     return tiles
-
-
-# def tile_large_group_transmitters(
-#     survey: LargeLoopGroundTEMReceivers, n_tiles: int
-# ) -> list[np.ndarray]:
-#     """
-#     Tile the data based on the transmitters center locations.
-#
-#     :param survey: LargeLoopGroundTEMReceivers object.
-#     :param n_tiles: Number of tiles.
-#
-#     :return: List of numpy arrays containing the indices of the receivers in each tile.
-#     """
-#     if not isinstance(survey, LargeLoopGroundTEMReceivers):
-#         raise TypeError("Data object must be of type LargeLoopGroundTEMReceivers")
-#
-#     tx_ids = survey.transmitters.tx_id_property.values
-#     unique_tile_ids = np.unique(tx_ids)
-#     n_groups = np.min([len(unique_tile_ids), n_tiles])
-#     locations = []
-#     for uid in unique_tile_ids:
-#         locations.append(
-#             np.mean(
-#                 survey.transmitters.vertices[tx_ids == uid],
-#                 axis=0,
-#             )
-#         )
-#
-#     # Tile transmitters spatially by loop center
-#     tx_tiles = tile_locations(
-#         np.vstack(locations),
-#         n_groups,
-#     )
-#     receivers_tx_ids = survey.tx_id_property.values
-#     tiles = []
-#     for _t_id, group in enumerate(tx_tiles):
-#         sub_group = []
-#         for value in group:
-#             receiver_ind = receivers_tx_ids == unique_tile_ids[value]
-#             sub_group.append(np.where(receiver_ind)[0])
-#
-#         tiles.append(np.hstack(sub_group))
-#
-#     # If number of tiles remaining, brake up receivers spatially per transmitter
-#     while len(tiles) < n_tiles:
-#         largest_group = np.argmax([len(tile) for tile in tiles])
-#         tile = tiles.pop(largest_group)
-#         new_tiles = tile_locations(
-#             survey.vertices[tile],
-#             2,
-#         )
-#         tiles += [tile[new_tiles[0]], tile[new_tiles[1]]]
-#
-#     return tiles

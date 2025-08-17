@@ -92,11 +92,9 @@ class MisfitFactory(SimPEGFactory):
             tile_count += np.sum(n_split)
 
         local_misfits = []
-        self.sorting = []
+
         for future in futures:  # as_completed(futures):
-            functions, sorting = future  # future.result()
-            local_misfits += functions
-            self.sorting.append(sorting)
+            local_misfits += future  # future.result()
 
         return [local_misfits]
 

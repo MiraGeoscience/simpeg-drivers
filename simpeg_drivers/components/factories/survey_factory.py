@@ -49,6 +49,7 @@ class SurveyFactory(SimPEGFactory):
         self.local_index = None
         self.survey = None
         self.ordering = None
+        self.sorting = None
 
     def concrete_object(self):
         if self.factory_type in ["magnetic vector", "magnetic scalar"]:
@@ -100,6 +101,7 @@ class SurveyFactory(SimPEGFactory):
                 np.kron(np.ones(n_rx), np.arange(n_comp)),  # Components
                 np.kron(np.arange(n_rx), np.ones(n_comp)),  # Receivers
             ].astype(int)
+            self.sorting = np.arange(n_rx, dtype=int)
 
             return [sources]
 
@@ -127,6 +129,7 @@ class SurveyFactory(SimPEGFactory):
         return survey
 
     def _add_data(self, survey, data):
+        # Stack the data by [channel, component, receiver]
         data_stack = np.dstack(
             [np.vstack(list(k.values())) for k in data.observed.values()]
         ).transpose((0, 2, 1))
@@ -134,6 +137,8 @@ class SurveyFactory(SimPEGFactory):
             [np.vstack(list(k.values())) for k in data.uncertainties.values()]
         ).transpose((0, 2, 1))
 
+        # Reorder the data and uncertainties based on the ordering
+        # of the SimPEG sources and receivers
         data_vec = data_stack[
             self.ordering[:, 0], self.ordering[:, 1], self.ordering[:, 2]
         ]
@@ -163,7 +168,7 @@ class SurveyFactory(SimPEGFactory):
             source_locations = currents.vertices
 
         sources = []
-        ordering = []
+        sorting = []
         for source_id in source_ids[np.argsort(order)]:  # Cycle in original order
             receiver_indices = np.where(receiver_entity.ab_cell_id.values == source_id)[
                 0
@@ -172,7 +177,7 @@ class SurveyFactory(SimPEGFactory):
             if len(receiver_indices) == 0:
                 continue
 
-            ordering.append(receiver_indices)
+            sorting.append(receiver_indices)
             receivers = ReceiversFactory(self.params).build(
                 locations=receiver_locations,
                 local_index=receiver_entity.cells[receiver_indices],
@@ -194,9 +199,9 @@ class SurveyFactory(SimPEGFactory):
         self.ordering = np.c_[
             np.zeros(receiver_entity.n_cells),  # Single channel
             np.zeros(receiver_entity.n_cells),  # Single component
-            np.hstack(ordering),  # Multi-receivers
+            np.hstack(sorting),  # Multi-receivers
         ].astype(int)
-
+        self.sorting = np.hstack(sorting).astype(int)
         return [sources]
 
     def _tdem_arguments(self, data=None):
@@ -219,10 +224,10 @@ class SurveyFactory(SimPEGFactory):
 
             tx_rx = receivers.tx_id_property.values
             tx_ids = transmitters.tx_id_property.values
-            rx_lookup = []
+            sorting = []
             tx_locs = []
             for tx_id in np.unique(tx_rx):
-                rx_lookup.append(np.where(tx_rx == tx_id)[0])
+                sorting.append(np.where(tx_rx == tx_id)[0])
                 tx_ind = tx_ids == tx_id
                 loop_cells = transmitters.cells[
                     np.all(tx_ind[transmitters.cells], axis=1), :
@@ -231,7 +236,7 @@ class SurveyFactory(SimPEGFactory):
                 tx_locs.append(transmitters.vertices[loop_ind, :])
         else:
             # Assumes 1:1 mapping of tx to rx
-            rx_lookup = np.arange(receivers.n_vertices).tolist()
+            sorting = np.arange(receivers.n_vertices).tolist()
             tx_locs = transmitters.vertices
 
         wave_times = (
@@ -259,7 +264,7 @@ class SurveyFactory(SimPEGFactory):
         rx_factory = ReceiversFactory(self.params)
         tx_factory = SourcesFactory(self.params)
         ordering = []
-        for cur_tx_locs, rx_ids in zip(tx_locs, rx_lookup, strict=True):
+        for cur_tx_locs, rx_ids in zip(tx_locs, sorting, strict=True):
             locs = receivers.vertices[rx_ids, :]
             rx_list = []
 
@@ -286,6 +291,7 @@ class SurveyFactory(SimPEGFactory):
             )
 
         self.ordering = np.vstack(ordering).astype(int)
+        self.sorting = np.hstack(sorting).astype(int)
         return [tx_list]
 
     def _fem_arguments(self, data=None):
@@ -300,8 +306,7 @@ class SurveyFactory(SimPEGFactory):
         sources = []
         rx_factory = ReceiversFactory(self.params)
         tx_factory = SourcesFactory(self.params)
-
-        receiver_groups = {}
+        receiver_groups = []
         block_ordering = []
         for rx_id, locs in enumerate(rx_locs):
             receivers = []
@@ -316,21 +321,12 @@ class SurveyFactory(SimPEGFactory):
                 block_ordering.append([comp_id, rx_id])
                 receivers.append(receiver)
 
-            receiver_groups[rx_id] = receivers
+            receiver_groups.append(receivers)
 
         block_ordering = np.vstack(block_ordering)
         ordering = []
         for freq_id, frequency in enumerate(channels):
-            ordering.append(
-                np.hstack(
-                    [
-                        np.ones((block_ordering.shape[0], 1)) * freq_id,
-                        block_ordering,
-                    ]
-                )
-            )
-
-            for rx_id, receivers in receiver_groups.items():
+            for rx_id, receivers in enumerate(receiver_groups):
                 locs = tx_locs[frequency == frequencies, :][rx_id, :]
                 sources.append(
                     tx_factory.build(
@@ -340,8 +336,17 @@ class SurveyFactory(SimPEGFactory):
                     )
                 )
 
-        self.ordering = np.vstack(ordering).astype(int)
+            ordering.append(
+                np.hstack(
+                    [
+                        np.ones((block_ordering.shape[0], 1)) * freq_id,
+                        block_ordering,
+                    ]
+                )
+            )
 
+        self.ordering = np.vstack(ordering).astype(int)
+        self.sorting = np.arange(rx_locs.shape[0], dtype=int)
         return [sources]
 
     def _naturalsource_arguments(self, data=None):
@@ -360,6 +365,7 @@ class SurveyFactory(SimPEGFactory):
         rx_factory = ReceiversFactory(self.params)
         tx_factory = SourcesFactory(self.params)
         block_ordering = []
+        self.sorting = np.arange(data.locations.shape[0], dtype=int)
         for comp_id, comp in enumerate(data.components):
             receivers.append(
                 rx_factory.build(
@@ -368,8 +374,9 @@ class SurveyFactory(SimPEGFactory):
                     component=simpeg_mt_translate.get(comp, comp),
                 )
             )
-            n_locs = data.locations.shape[0]
-            block_ordering.append(np.c_[np.ones(n_locs) * comp_id, np.arange(n_locs)])
+            block_ordering.append(
+                np.c_[np.ones_like(self.sorting) * comp_id, self.sorting]
+            )
 
         block_ordering = np.vstack(block_ordering)
         ordering = []
