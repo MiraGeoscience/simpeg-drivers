@@ -105,27 +105,6 @@ class Base1DDriver(InversionDriver):
         return self._simulation
 
     @property
-    def sorting(self) -> np.ndarray:
-        """
-        Arrays for sorting of data from tile, taking into account the
-        ordering of the survey.
-        """
-        sorting = np.hstack(self._sorting)
-        ordering = (
-            self.simulation.survey.ordering[:, -1]
-            .reshape(
-                (
-                    self.simulation.survey.n_channels,
-                    -1,
-                    self.simulation.survey.n_components,
-                ),
-            )
-            .transpose((0, 2, 1))
-        )
-
-        return ordering[0, 0, :][sorting]
-
-    @property
     def split_list(self):
         """
         Split the list of data into chunks for parallel processing.
