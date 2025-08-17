@@ -137,18 +137,12 @@ class SurveyFactory(SimPEGFactory):
             [np.vstack(list(k.values())) for k in data.uncertainties.values()]
         ).transpose((0, 2, 1))
 
-        # Reorder the data and uncertainties based on the ordering
-        # of the SimPEG sources and receivers
-        data_vec = data_stack[
-            self.ordering[:, 0], self.ordering[:, 1], self.ordering[:, 2]
-        ]
-        uncertainty_vec = uncert_stack[
-            self.ordering[:, 0], self.ordering[:, 1], self.ordering[:, 2]
-        ]
-        uncertainty_vec[np.isnan(data_vec)] = np.inf
-        data_vec[np.isnan(data_vec)] = self.dummy  # Nan's handled by inf uncertainties
-        survey.dobs = data_vec
-        survey.std = uncertainty_vec
+        uncert_stack[np.isnan(data_stack)] = np.inf
+        data_stack[np.isnan(data_stack)] = (
+            self.dummy
+        )  # Nan's handled by inf uncertainties
+        survey.dobs = data_stack
+        survey.std = uncert_stack
 
     def _dcip_arguments(self, data=None):
         if getattr(data, "entity", None) is None:

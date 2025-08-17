@@ -100,7 +100,7 @@ def create_mesh(
 def create_misfit(
     simulation,
     local_index,
-    channels,
+    channel,
     tile_count,
     # data_count,
     n_split,
@@ -119,35 +119,34 @@ def create_misfit(
 
     local_mesh = getattr(local_sim, "mesh", None)
     local_misfits = []
-    for count, channel in enumerate(channels):
-        for split_ind in np.array_split(local_index, n_split[count]):
-            local_sim, mapping = create_simulation(
-                simulation,
-                local_mesh,
-                split_ind,
-                channel=channel,
-                tile_id=tile_count,
-                padding_cells=padding_cells,
-            )
-            meta_simulation = meta.MetaSimulation(
-                simulations=[local_sim], mappings=[mapping]
-            )
+    for split_ind in np.array_split(local_index, n_split):
+        local_sim, mapping = create_simulation(
+            simulation,
+            local_mesh,
+            split_ind,
+            channel=channel,
+            tile_id=tile_count,
+            padding_cells=padding_cells,
+        )
+        meta_simulation = meta.MetaSimulation(
+            simulations=[local_sim], mappings=[mapping]
+        )
 
-            local_data = data.Data(local_sim.survey)
-            lmisfit = data_misfit.L2DataMisfit(local_data, meta_simulation)
-            if not forward_only:
-                local_data.dobs = local_sim.survey.dobs
-                local_data.standard_deviation = local_sim.survey.std
-                name = inversion_type
-                name += f": Tile {tile_count + 1}"
-                if len(channels) > 1:
-                    name += f": Channel {channel}"
+        local_data = data.Data(local_sim.survey)
+        lmisfit = data_misfit.L2DataMisfit(local_data, meta_simulation)
+        if not forward_only:
+            local_data.dobs = local_sim.survey.dobs
+            local_data.standard_deviation = local_sim.survey.std
+            name = inversion_type
+            name += f": Tile {tile_count + 1}"
+            if channel is not None:
+                name += f": Channel {channel}"
 
-                lmisfit.name = f"{name}"
+            lmisfit.name = f"{name}"
 
-            local_misfits.append(lmisfit)
+        local_misfits.append(lmisfit)
 
-            tile_count += 1
+        tile_count += 1
 
     return local_misfits
 
@@ -185,16 +184,13 @@ def create_simulation(
 
     args = (local_mesh,)
     if isinstance(simulation, BaseEM1DSimulation):
-        sounding_id = np.floor(
-            tile_id / len(getattr(simulation.survey, "frequencies", [None]))
-        ).astype(int)
         local_mesh = simulation.layers_mesh
         actives = np.ones(simulation.layers_mesh.n_cells, dtype=bool)
         slice_ind = np.arange(
-            sounding_id, simulation.mesh.n_cells, simulation.mesh.shape_cells[0]
+            tile_id, simulation.mesh.n_cells, simulation.mesh.shape_cells[0]
         )[::-1]
         mapping = maps.Projection(simulation.mesh.n_cells, slice_ind)
-        kwargs["topo"] = simulation.active_cells[sounding_id]
+        kwargs["topo"] = simulation.active_cells[tile_id]
         args = ()
 
     elif isinstance(local_mesh, TreeMesh):
@@ -280,7 +276,9 @@ def create_survey(survey, indices, channel=None):
 
         # Extract the indices of the receivers that belong to this source
         locations = src.receiver_list[0].locations
-        if isinstance(locations, tuple | list):  # For MT survey
+
+        # For MT and DC surveys with multiple locations per receiver
+        if isinstance(locations, tuple | list):
             n_data = locations[0].shape[0]
         else:
             n_data = locations.shape[0]
@@ -298,7 +296,8 @@ def create_survey(survey, indices, channel=None):
             # intersect = set(rx.local_index).intersection(indices)
             new_rx = copy(rx)
 
-            if isinstance(rx.locations, tuple | list):  # For MT and DC surveys
+            # For MT and DC surveys with multiple locations per receiver
+            if isinstance(rx.locations, tuple | list):
                 new_rx.locations = tuple(loc[intersect] for loc in rx.locations)
             else:
                 new_rx.locations = rx.locations[intersect]
@@ -316,22 +315,22 @@ def create_survey(survey, indices, channel=None):
         new_survey = type(survey)(sources)
 
     if hasattr(survey, "dobs") and survey.dobs is not None:
-        order = "C" if hasattr(survey, "frequencies") else "F"
-        data_slice = survey.dobs.reshape(
-            (survey.n_channels, survey.n_components, -1), order=order
-        )[:, :, indices]
-        uncert_slice = survey.std.reshape(
-            (survey.n_channels, survey.n_components, -1), order=order
-        )[:, :, indices]
-
+        data_slice = np.isin(survey.ordering[:, 2], indices)
         # For FEM surveys only
         if channel is not None:
             ind = np.where(np.asarray(survey.frequencies) == channel)[0]
-            data_slice = data_slice[ind, :, :]
-            uncert_slice = uncert_slice[ind, :, :]
+            data_slice *= np.isin(survey.ordering[:, 0], ind)
 
-        new_survey.dobs = data_slice.flatten(order=order)
-        new_survey.std = uncert_slice.flatten(order=order)
+        new_survey.dobs = survey.dobs[
+            survey.ordering[data_slice, 0],
+            survey.ordering[data_slice, 1],
+            survey.ordering[data_slice, 2],
+        ]
+        new_survey.std = survey.std[
+            survey.ordering[data_slice, 0],
+            survey.ordering[data_slice, 1],
+            survey.ordering[data_slice, 2],
+        ]
 
     return new_survey
 

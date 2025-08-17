@@ -62,34 +62,31 @@ class MisfitFactory(SimPEGFactory):
             channels = [None]
 
         futures = []
-        tile_count = 0
-        data_count = 0
-        misfit_count = 0
-
         # TODO bring back on GEOPY-2182
         # with ProcessPoolExecutor() as executor:
-        for local_index in tiles:
-            if len(local_index) == 0:
-                continue
+        count = 0
+        for channel in channels:
+            tile_count = 0
+            for local_index in tiles:
+                if len(local_index) == 0:
+                    continue
 
-            n_split = split_list[misfit_count : misfit_count + len(channels)]
-            futures.append(
-                # executor.submit(
-                create_misfit(
-                    self.simulation,
-                    local_index,
-                    channels,
-                    tile_count,
-                    # data_count,
-                    n_split,
-                    self.params.padding_cells,
-                    self.params.inversion_type,
-                    self.params.forward_only,
+                n_split = split_list[count]
+                futures.append(
+                    # executor.submit(
+                    create_misfit(
+                        self.simulation,
+                        local_index,
+                        channel,
+                        tile_count,
+                        n_split,
+                        self.params.padding_cells,
+                        self.params.inversion_type,
+                        self.params.forward_only,
+                    )
                 )
-            )
-            misfit_count += len(channels)
-            data_count += len(local_index)
-            tile_count += np.sum(n_split)
+                tile_count += np.sum(n_split)
+                count += 1
 
         local_misfits = []
 
