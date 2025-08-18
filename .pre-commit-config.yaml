@@ -77,6 +77,7 @@ repos:
     -   id: check-toml
     -   id: check-yaml
     -   id: check-added-large-files
+        exclude: (\.ipynb)$
     -   id: check-case-conflict
     -   id: check-merge-conflict
     -   id: debug-statements
