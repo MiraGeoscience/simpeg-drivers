@@ -407,14 +407,6 @@ class InversionDriver(Driver):
         return self._simulation
 
     @property
-    def sorting(self) -> np.ndarray:
-        """
-        Arrays for sorting of data from tile, taking into account the
-        ordering of the survey.
-        """
-        return self.simulation.survey.sorting
-
-    @property
     def window(self):
         """Inversion window"""
         if getattr(self, "_window", None) is None:

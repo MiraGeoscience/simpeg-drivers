@@ -239,8 +239,6 @@ class BaseJointDriver(InversionDriver):
             for sub, driver in zip(predicted, self.drivers, strict=True):
                 SaveDataGeoh5Factory(driver.params).build(
                     inversion_object=driver.inversion_data,
-                    sorting=np.argsort(driver.sorting),
-                    ordering=driver.ordering,
                 ).write(0, sub)
         else:
             # Run the inversion
