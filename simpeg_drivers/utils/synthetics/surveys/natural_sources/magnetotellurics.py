@@ -19,7 +19,7 @@ def generate_magnetotellurics_survey(
     Y: np.ndarray,
     Z: np.ndarray,
     channels: tuple = (10.0, 100.0, 1000.0),
-    name: str = "survey"
+    name: str = "survey",
 ) -> MTReceivers:
     """Create a Magnetotellurics survey object from survey grid locations."""
 
@@ -37,6 +37,6 @@ def generate_magnetotellurics_survey(
             "Zyy (real)",
             "Zyy (imag)",
         ],
-        channels=channels,
+        channels=list(channels),
     )
     return survey

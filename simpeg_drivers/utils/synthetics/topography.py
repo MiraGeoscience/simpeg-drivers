@@ -52,6 +52,8 @@ def get_topography_surface(geoh5: Workspace, options: SurveyOptions) -> Surface:
     )
 
 
-def get_active(mesh: Octree | DrapeModel, topography: Surface):
+def get_active(
+    mesh: Octree | DrapeModel, topography: Surface, name: str = "active_cells"
+):
     active = active_from_xyz(mesh, topography.vertices, grid_reference="top")
-    return mesh.add_data({"active_cells": {"values": active}})
+    return mesh.add_data({name: {"values": active}})

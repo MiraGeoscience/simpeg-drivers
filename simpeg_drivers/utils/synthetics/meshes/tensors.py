@@ -20,6 +20,7 @@ def get_tensor_mesh(
     cell_size: tuple[float, float, float],
     padding_distance: float,
     line_id: int = 101,
+    name: str = "mesh",
 ) -> DrapeModel:
     """
     Generate a tensor mesh and the colocated DrapeModel.
@@ -38,7 +39,7 @@ def get_tensor_mesh(
     lines = survey.get_entity("line_ids")[0].values
     entity, mesh, _ = get_drape_model(  # pylint: disable=unbalanced-tuple-unpacking
         survey.workspace,
-        "mesh",
+        name,
         survey.vertices[np.unique(survey.cells[lines == line_id, :]), :],
         [cell_size[0], cell_size[2]],
         100.0,

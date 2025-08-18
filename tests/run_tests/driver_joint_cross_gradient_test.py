@@ -43,6 +43,9 @@ from simpeg_drivers.utils.synthetics.driver import (
     SyntheticsComponents,
 )
 from simpeg_drivers.utils.synthetics.options import (
+    ActiveCellsOptions as SyntheticsActiveCellsOptions,
+)
+from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
     ModelOptions,
     SurveyOptions,
@@ -58,6 +61,7 @@ from tests.utils.targets import (
 # Move this file out of the test directory and run.
 
 target_run = {"data_norm": 53.29585552088844, "phi_d": 7970, "phi_m": 26.7}
+INDUCING_FIELD = (50000.0, 90.0, 0.0)
 
 
 def test_joint_cross_gradient_fwr_run(
@@ -70,10 +74,11 @@ def test_joint_cross_gradient_fwr_run(
     opts = SyntheticsComponentsOptions(
         method="gravity",
         survey=SurveyOptions(
-            n_stations=n_grid_points, n_lines=n_grid_points, drape=15.0, name="gravity_survey"
+            n_stations=n_grid_points, n_lines=n_grid_points, drape=15.0, name="survey A"
         ),
-        mesh=MeshOptions(refinement=refinement),
-        model=ModelOptions(anomaly=0.75),
+        mesh=MeshOptions(refinement=refinement, name="mesh A"),
+        model=ModelOptions(anomaly=0.75, name="model A"),
+        active=SyntheticsActiveCellsOptions(name="active A"),
     )
     with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
@@ -90,20 +95,23 @@ def test_joint_cross_gradient_fwr_run(
         opts = SyntheticsComponentsOptions(
             method="magnetic_vector",
             survey=SurveyOptions(
-                n_stations=n_grid_points, n_lines=n_grid_points, drape=15.0, name="mvi_survey"
+                n_stations=n_grid_points,
+                n_lines=n_grid_points,
+                drape=15.0,
+                name="survey B",
             ),
-            mesh=MeshOptions(refinement=refinement),
-            model=ModelOptions(anomaly=0.05),
+            mesh=MeshOptions(refinement=refinement, name="mesh B"),
+            model=ModelOptions(anomaly=0.05, name="model B"),
+            active=SyntheticsActiveCellsOptions(name="active B"),
         )
         components = SyntheticsComponents(geoh5, options=opts)
-        inducing_field = (50000.0, 90.0, 0.0)
         params = MVIForwardOptions.build(
             geoh5=geoh5,
             mesh=components.mesh,
             topography_object=components.topography,
-            inducing_field_strength=inducing_field[0],
-            inducing_field_inclination=inducing_field[1],
-            inducing_field_declination=inducing_field[2],
+            inducing_field_strength=INDUCING_FIELD[0],
+            inducing_field_inclination=INDUCING_FIELD[1],
+            inducing_field_declination=INDUCING_FIELD[2],
             data_object=components.survey,
             starting_model=components.model,
         )
@@ -112,9 +120,12 @@ def test_joint_cross_gradient_fwr_run(
     with geoh5.open():
         opts = SyntheticsComponentsOptions(
             method="direct current 3d",
-            survey=SurveyOptions(n_stations=n_grid_points, n_lines=n_lines, name="dc_survey"),
-            mesh=MeshOptions(refinement=refinement),
-            model=ModelOptions(background=0.01, anomaly=10),
+            survey=SurveyOptions(
+                n_stations=n_grid_points, n_lines=n_lines, name="survey C"
+            ),
+            mesh=MeshOptions(refinement=refinement, name="mesh C"),
+            model=ModelOptions(background=0.01, anomaly=10, name="model C"),
+            active=SyntheticsActiveCellsOptions(name="active C"),
         )
         components = SyntheticsComponents(geoh5, options=opts)
 
@@ -128,7 +139,7 @@ def test_joint_cross_gradient_fwr_run(
     fwr_driver_c = DC3DForwardDriver(params)
 
     with geoh5.open():
-        fwr_driver_c.inversion_data.entity.name = "survey"
+        fwr_driver_c.inversion_data.entity.name = "survey C"
 
         # Force co-location of meshes
         for driver in [fwr_driver_b, fwr_driver_c]:
@@ -163,30 +174,24 @@ def test_joint_cross_gradient_inv_run(
         drivers = []
         orig_data = []
 
-        for group_name in [
-            "Gravity Forward",
-            "Magnetic Vector Forward",
-            "Direct Current 3D Forward",
-        ]:
-            group = geoh5.get_entity(group_name)[0]
+        for suffix in "ABC":
+            components = SyntheticsComponents(
+                geoh5=geoh5,
+                options=SyntheticsComponentsOptions(
+                    method="joint",
+                    survey=SurveyOptions(name=f"survey {suffix}"),
+                    mesh=MeshOptions(name=f"mesh {suffix}"),
+                    model=ModelOptions(name=f"model {suffix}"),
+                    active=SyntheticsActiveCellsOptions(name=f"active {suffix}"),
+                ),
+            )
 
-            if not isinstance(group, SimPEGGroup):
-                continue
-
-            mesh = group.get_entity("mesh")[0]
-            survey = group.get_entity("survey")[0]
-
-            data = None
-            for child in survey.children:
-                if isinstance(child, FloatData):
-                    data = child
-
-            if data is None:
-                raise ValueError("No data found in survey")
-
+            mesh = components.mesh
+            survey = components.survey
+            data = next([k for k in survey.children if "Iteration_0" in k.name])
             orig_data.append(data.values)
 
-            if group.options["inversion_type"] == "gravity":
+            if suffix == "A":
                 params = GravityInversionOptions.build(
                     geoh5=geoh5,
                     mesh=mesh,
@@ -199,7 +204,7 @@ def test_joint_cross_gradient_inv_run(
                     reference_model=0.0,
                 )
                 drivers.append(GravityInversionDriver(params))
-            elif group.options["inversion_type"] == "direct current 3d":
+            elif suffix == "C":
                 params = DC3DInversionOptions.build(
                     geoh5=geoh5,
                     mesh=mesh,
@@ -222,15 +227,9 @@ def test_joint_cross_gradient_inv_run(
                     mesh=mesh,
                     alpha_s=1.0,
                     topography_object=topography,
-                    inducing_field_strength=group.options["inducing_field_strength"][
-                        "value"
-                    ],
-                    inducing_field_inclination=group.options[
-                        "inducing_field_inclination"
-                    ]["value"],
-                    inducing_field_declination=group.options[
-                        "inducing_field_declination"
-                    ]["value"],
+                    inducing_field_strength=INDUCING_FIELD[0],
+                    inducing_field_inclination=INDUCING_FIELD[1],
+                    inducing_field_declination=INDUCING_FIELD[2],
                     data_object=survey,
                     starting_model=1e-4,
                     reference_model=0.0,

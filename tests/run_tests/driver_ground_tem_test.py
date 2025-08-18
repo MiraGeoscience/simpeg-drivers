@@ -65,6 +65,7 @@ def test_tiling_ground_tem(
             n_lines=n_grid_points,
             drape=5.0,
             topography=lambda x, y: np.zeros(x.shape),
+            name="ground_tdem_survey",
         ),
         mesh=MeshOptions(refinement=refinement, padding_distance=1000.0),
         model=ModelOptions(
@@ -79,8 +80,6 @@ def test_tiling_ground_tem(
     )
     with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
-
-
         params = TDEMForwardOptions.build(
             geoh5=geoh5,
             mesh=components.mesh,
@@ -138,6 +137,7 @@ def test_ground_tem_fwr_run(
     )
     with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
+        components.survey.transmitters.remove_cells([15])
         params = TDEMForwardOptions.build(
             geoh5=geoh5,
             mesh=components.mesh,
@@ -153,7 +153,6 @@ def test_ground_tem_fwr_run(
     fwr_driver = TDEMForwardDriver(params)
 
     with components.survey.workspace.open():
-        components.survey.transmitters.remove_cells([15])
         components.survey.tx_id_property.name = "tx_id"
         assert fwr_driver.inversion_data.survey.source_list[0].n_segments == 16
 

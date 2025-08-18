@@ -75,22 +75,22 @@ def get_survey(
     Z += options.drape
 
     if "current" in method or "polarization" in method:
-        return generate_dc_survey(geoh5, X, Y, Z, options.name)
+        return generate_dc_survey(geoh5, X, Y, Z, name=options.name)
 
     if "magnetotellurics" in method:
-        return generate_magnetotellurics_survey(geoh5, X, Y, Z, options.name)
+        return generate_magnetotellurics_survey(geoh5, X, Y, Z, name=options.name)
 
     if "tipper" in method:
-        return generate_tipper_survey(geoh5, X, Y, Z, options.name)
+        return generate_tipper_survey(geoh5, X, Y, Z, name=options.name)
 
     if method in ["fdem", "fem", "fdem 1d"]:
-        return generate_fdem_survey(geoh5, X, Y, Z, options.name)
+        return generate_fdem_survey(geoh5, X, Y, Z, name=options.name)
 
     if "tdem" in method:
         if "airborne" in method:
-            return generate_airborne_tdem_survey(geoh5, X, Y, Z, options.name)
+            return generate_airborne_tdem_survey(geoh5, X, Y, Z, name=options.name)
         else:
-            return generate_tdem_survey(geoh5, X, Y, Z, options.name)
+            return generate_tdem_survey(geoh5, X, Y, Z, name=options.name)
 
     return Points.create(
         geoh5,

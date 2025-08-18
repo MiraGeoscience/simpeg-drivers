@@ -55,6 +55,7 @@ def test_gravity_rotated_grad_fwr_run(
     # Run the forward
 
     opts = SyntheticsComponentsOptions(
+        method="gravity",
         survey=SurveyOptions(
             n_stations=n_grid_points,
             n_lines=n_grid_points,
@@ -75,18 +76,17 @@ def test_gravity_rotated_grad_fwr_run(
             ),
         ),
     )
-    geoh5, _, model, survey, topography = SyntheticsComponents(
-        tmp_path, method="gravity", options=opts
-    )
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
 
-    params = GravityForwardOptions.build(
-        geoh5=geoh5,
-        mesh=model.parent,
-        topography_object=topography,
-        data_object=survey,
-        starting_model=model,
-        gz_channel_bool=True,
-    )
+        params = GravityForwardOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
+            starting_model=components.model,
+            gz_channel_bool=True,
+        )
     fwr_driver = GravityForwardDriver(params)
     fwr_driver.run()
 
@@ -107,8 +107,9 @@ def test_rotated_grad_run(
     with Workspace(workpath) as geoh5:
         gz = geoh5.get_entity("Iteration_0_gz")[0]
         orig_gz = gz.values.copy()
-        mesh = geoh5.get_entity("mesh")[0]
-        topography = geoh5.get_entity("topography")[0]
+        components = SyntheticsComponents(geoh5=geoh5)
+        mesh = components.mesh
+        topography = components.topography
 
         # Create property group with orientation
         dip = np.ones(mesh.n_cells) * 70

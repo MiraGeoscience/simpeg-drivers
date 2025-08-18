@@ -30,6 +30,7 @@ def get_mesh(
             survey=survey,
             cell_size=options.cell_size,
             padding_distance=options.padding_distance,
+            name=options.name,
         )
 
     return get_octree_mesh(
@@ -39,4 +40,5 @@ def get_mesh(
         refinement=options.refinement,
         padding_distance=options.padding_distance,
         refine_on_receivers=method in ["fdem", "airborne tdem"],
+        name=options.name,
     )

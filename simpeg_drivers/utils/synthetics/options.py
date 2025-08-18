@@ -45,10 +45,15 @@ class ModelOptions(BaseModel):
     name: str = "model"
 
 
+class ActiveCellsOptions(BaseModel):
+    name: str = "active_cells"
+
+
 class SyntheticsComponentsOptions(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    method: str
+    method: str = "gravity"
     survey: SurveyOptions = SurveyOptions()
     mesh: MeshOptions = MeshOptions()
     model: ModelOptions = ModelOptions()
+    active: ActiveCellsOptions = ActiveCellsOptions()

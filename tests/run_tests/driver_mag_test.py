@@ -52,28 +52,28 @@ def test_susceptibility_fwr_run(
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(
+        method="magnetic",
         survey=SurveyOptions(
             n_stations=n_grid_points, n_lines=n_grid_points, drape=5.0
         ),
         mesh=MeshOptions(refinement=refinement),
         model=ModelOptions(anomaly=0.05),
     )
-    geoh5, _, model, survey, topography = SyntheticsComponents(
-        tmp_path, method="magnetic", options=opts
-    )
-    inducing_field = (49999.8, 90.0, 0.0)
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+        inducing_field = (49999.8, 90.0, 0.0)
 
-    params = MagneticForwardOptions.build(
-        forward_only=True,
-        geoh5=geoh5,
-        mesh=model.parent,
-        topography_object=topography,
-        inducing_field_strength=inducing_field[0],
-        inducing_field_inclination=inducing_field[1],
-        inducing_field_declination=inducing_field[2],
-        data_object=survey,
-        starting_model=model,
-    )
+        params = MagneticForwardOptions.build(
+            forward_only=True,
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            inducing_field_strength=inducing_field[0],
+            inducing_field_inclination=inducing_field[1],
+            inducing_field_declination=inducing_field[2],
+            data_object=components.survey,
+            starting_model=components.model,
+        )
     # params.workpath = tmp_path
     fwr_driver = MagneticForwardDriver(params)
     fwr_driver.run()
@@ -98,7 +98,8 @@ def test_susceptibility_run(
     with Workspace(workpath) as geoh5:
         tmi = geoh5.get_entity("Iteration_0_tmi")[0]
         orig_tmi = tmi.values.copy()
-        mesh = geoh5.get_entity("mesh")[0]
+        components = SyntheticsComponents(geoh5=geoh5)
+        mesh = components.mesh
         active_cells = mesh.get_entity("active_cells")[0]
         inducing_field = (50000.0, 90.0, 0.0)
 

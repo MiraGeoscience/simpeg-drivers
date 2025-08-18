@@ -40,6 +40,9 @@ from simpeg_drivers.utils.synthetics.driver import (
     SyntheticsComponents,
 )
 from simpeg_drivers.utils.synthetics.options import (
+    ActiveCellsOptions as SyntheticsActiveCellsOptions,
+)
+from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
     ModelOptions,
     SurveyOptions,
@@ -55,6 +58,7 @@ from tests.utils.targets import (
 # Move this file out of the test directory and run.
 
 target_run = {"data_norm": 390.70695894864303, "phi_d": 2020, "phi_m": 8.98}
+INDUCING_FIELD = (50000.0, 90.0, 0.0)
 
 
 def test_homogeneous_fwr_run(
@@ -66,10 +70,14 @@ def test_homogeneous_fwr_run(
     opts = SyntheticsComponentsOptions(
         method="gravity",
         survey=SurveyOptions(
-            n_stations=n_grid_points, n_lines=n_grid_points, drape=15.0
+            n_stations=n_grid_points,
+            n_lines=n_grid_points,
+            drape=15.0,
+            name="survey A",
         ),
-        mesh=MeshOptions(refinement=refinement),
-        model=ModelOptions(anomaly=0.75),
+        mesh=MeshOptions(refinement=refinement, name="mesh A"),
+        model=ModelOptions(anomaly=0.75, name="model A"),
+        active=SyntheticsActiveCellsOptions(name="active A"),
     )
     with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
@@ -91,13 +99,16 @@ def test_homogeneous_fwr_run(
         opts = SyntheticsComponentsOptions(
             method="magnetic_vector",
             survey=SurveyOptions(
-                n_stations=n_grid_points, n_lines=n_grid_points, drape=15.0
+                n_stations=n_grid_points,
+                n_lines=n_grid_points,
+                drape=15.0,
+                name="survey B",
             ),
-            mesh=MeshOptions(refinement=refinement),
-            model=ModelOptions(anomaly=0.05),
+            mesh=MeshOptions(refinement=refinement, name="mesh B"),
+            model=ModelOptions(anomaly=0.05, name="model B"),
+            active=SyntheticsActiveCellsOptions(name="active B"),
         )
         components = SyntheticsComponents(geoh5, options=opts)
-        inducing_field = (50000.0, 90.0, 0.0)
         # Change half the model
         ind = components.mesh.centroids[:, 0] > 0
         components.model.values[ind] = 0.01
@@ -106,9 +117,9 @@ def test_homogeneous_fwr_run(
             geoh5=geoh5,
             mesh=components.mesh,
             topography_object=components.topography,
-            inducing_field_strength=inducing_field[0],
-            inducing_field_inclination=inducing_field[1],
-            inducing_field_declination=inducing_field[2],
+            inducing_field_strength=INDUCING_FIELD[0],
+            inducing_field_inclination=INDUCING_FIELD[1],
+            inducing_field_declination=INDUCING_FIELD[2],
             data_object=components.survey,
             starting_model=components.model,
         )
@@ -136,19 +147,21 @@ def test_homogeneous_run(
         petrophysics = None
         gradient_rotation = None
         mesh = None
-        for group_name in [
-            "Gravity Forward",
-            "Magnetic Vector Forward",
-        ]:
-            group = geoh5.get_entity(group_name)[0]
+        for suffix in "AB":
+            components = SyntheticsComponents(
+                geoh5=geoh5,
+                options=SyntheticsComponentsOptions(
+                    method="joint",
+                    survey=SurveyOptions(name=f"survey {suffix}"),
+                    mesh=MeshOptions(name=f"mesh {suffix}"),
+                    model=ModelOptions(name=f"model {suffix}"),
+                    active=SyntheticsActiveCellsOptions(name=f"active {suffix}"),
+                ),
+            )
+            mesh = components.mesh
+            survey = components.survey
 
-            if not isinstance(group, SimPEGGroup):
-                continue
-
-            mesh = group.get_entity("mesh")[0]
-            survey = group.get_entity("survey")[0]
-
-            if group_name == "Gravity Forward":
+            if suffix == "A":
                 global_mesh = mesh.copy(parent=geoh5)
                 model = global_mesh.get_entity("starting_model")[0]
 
@@ -181,19 +194,13 @@ def test_homogeneous_run(
                     parent=global_mesh,
                 )
 
-            data = None
-            for child in survey.children:
-                if isinstance(child, FloatData):
-                    data = child
-
-            if data is None:
-                raise ValueError("No data found in survey")
+            data = next([k for k in survey.children if "Iteration_0" in k.name])
             orig_data.append(data.values)
 
             ref_model = mesh.get_entity("starting_model")[0].copy(name="ref_model")
             ref_model.values = ref_model.values / 2.0
 
-            if group.options["inversion_type"] == "gravity":
+            if suffix == "A":
                 params = GravityInversionOptions.build(
                     geoh5=geoh5,
                     mesh=mesh,
@@ -210,15 +217,9 @@ def test_homogeneous_run(
                     geoh5=geoh5,
                     mesh=mesh,
                     topography_object=topography,
-                    inducing_field_strength=group.options["inducing_field_strength"][
-                        "value"
-                    ],
-                    inducing_field_inclination=group.options[
-                        "inducing_field_inclination"
-                    ]["value"],
-                    inducing_field_declination=group.options[
-                        "inducing_field_declination"
-                    ]["value"],
+                    inducing_field_strength=INDUCING_FIELD[0],
+                    inducing_field_inclination=INDUCING_FIELD[1],
+                    inducing_field_declination=INDUCING_FIELD[2],
                     data_object=survey,
                     starting_model=ref_model,
                     reference_model=ref_model,
@@ -256,7 +257,7 @@ def test_homogeneous_run(
             check_target(output, target_run)
 
             out_group = run_ws.get_entity(driver.params.out_group.uid)[0]
-            mesh = out_group.get_entity("mesh")[0]
+            mesh = out_group.get_entity("mesh A")[0]
             petro_model = mesh.get_entity("petrophysical_model")[0]
             assert len(np.unique(petro_model.values)) == 4
 

@@ -25,8 +25,13 @@ class SyntheticsComponents:
     """Creates a workspace populated with objects for simulation and subsequent inversion."""
 
     def __init__(
-        self, geoh5: Workspace, options: SyntheticsComponentsOptions | None = None
+        self,
+        geoh5: Workspace,
+        options: SyntheticsComponentsOptions | None = None,
     ):
+        if options is None:
+            options = SyntheticsComponentsOptions()
+
         self.geoh5 = geoh5
         self.options = options
         self._topography = None
@@ -60,7 +65,7 @@ class SyntheticsComponents:
 
     @property
     def mesh(self):
-        self._mesh = self.geoh5.get_entity("mesh")[0]
+        self._mesh = self.geoh5.get_entity(self.options.mesh.name)[0]
         if self._mesh is None:
             assert self.options is not None
             self._mesh = get_mesh(
@@ -73,7 +78,7 @@ class SyntheticsComponents:
 
     @property
     def active(self):
-        self._active = self.geoh5.get_entity("active_cells")[0]
+        self._active = self.geoh5.get_entity(self.options.active.name)[0]
         if self._active is None:
             self._active = get_active(self.mesh, self.topography)
         return self._active

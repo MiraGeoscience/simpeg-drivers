@@ -59,6 +59,7 @@ def get_octree_mesh(
     refinement: tuple,
     padding_distance: float,
     refine_on_receivers: bool,
+    name: str = "mesh",
 ) -> Octree:
     """Generate a survey centered mesh with topography and survey refinement.
 
@@ -84,6 +85,6 @@ def get_octree_mesh(
         )
 
     mesh.finalize()
-    entity = treemesh_2_octree(survey.workspace, mesh, name="mesh")
+    entity = treemesh_2_octree(survey.workspace, mesh, name=name)
 
     return entity

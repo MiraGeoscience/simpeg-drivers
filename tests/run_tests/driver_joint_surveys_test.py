@@ -26,6 +26,9 @@ from simpeg_drivers.utils.synthetics.driver import (
     SyntheticsComponents,
 )
 from simpeg_drivers.utils.synthetics.options import (
+    ActiveCellsOptions as SyntheticsActiveCellsOptions,
+)
+from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
     ModelOptions,
     SurveyOptions,
@@ -52,13 +55,11 @@ def test_joint_surveys_fwr_run(
     opts = SyntheticsComponentsOptions(
         method="gravity",
         survey=SurveyOptions(
-            n_stations=n_grid_points,
-            n_lines=n_grid_points,
-            drape=5.0,
-            name="survey A"
+            n_stations=n_grid_points, n_lines=n_grid_points, drape=5.0, name="survey A"
         ),
-        mesh=MeshOptions(refinement=refinement),
+        mesh=MeshOptions(refinement=refinement, name="mesh A"),
         model=ModelOptions(anomaly=0.75, name="model A"),
+        active=SyntheticsActiveCellsOptions(name="active A"),
     )
     with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
@@ -84,8 +85,9 @@ def test_joint_surveys_fwr_run(
                 drape=10.0,
                 name="survey B",
             ),
-            mesh=MeshOptions(refinement=(0, 2)),
+            mesh=MeshOptions(refinement=(0, 2), name="mesh B"),
             model=ModelOptions(anomaly=0.75, name="model B"),
+            active=SyntheticsActiveCellsOptions(name="active B"),
         )
         components = SyntheticsComponents(geoh5, options=opts)
         params = GravityForwardOptions.build(
