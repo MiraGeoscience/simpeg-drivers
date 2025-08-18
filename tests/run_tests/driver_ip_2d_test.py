@@ -53,25 +53,25 @@ def test_ip_2d_fwr_run(
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(
+        method="induced polarization 2d",
         survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
         mesh=MeshOptions(refinement=refinement),
         model=ModelOptions(background=1e-6, anomaly=1e-1),
     )
-    geoh5, _, model, survey, topography = SyntheticsComponents(
-        tmp_path, method="induced polarization 2d", options=opts
-    )
-    params = IP2DForwardOptions.build(
-        geoh5=geoh5,
-        data_object=survey,
-        mesh=model.parent,
-        topography_object=topography,
-        starting_model=model,
-        conductivity_model=1e2,
-        model_type="Resistivity (Ohm-m)",
-        line_selection=LineSelectionOptions(
-            line_object=geoh5.get_entity("line_ids")[0],
-            line_id=101,
-        ),
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5,  options=opts)
+        params = IP2DForwardOptions.build(
+            geoh5=geoh5,
+            data_object=components.survey,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            starting_model=components.model,
+            conductivity_model=1e2,
+            model_type="Resistivity (Ohm-m)",
+            line_selection=LineSelectionOptions(
+                line_object=geoh5.get_entity("line_ids")[0],
+                line_id=101,
+            ),
     )
 
     fwr_driver = IP2DForwardDriver(params)
@@ -88,15 +88,14 @@ def test_ip_2d_run(
         workpath = tmp_path.parent / "test_ip_2d_fwr_run0" / "inversion_test.ui.geoh5"
 
     with Workspace(workpath) as geoh5:
+        components = SyntheticsComponents(geoh5)
         chargeability = geoh5.get_entity("Iteration_0_ip")[0]
-        mesh = geoh5.get_entity("Models")[0]
-        topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
         params = IP2DInversionOptions.build(
             geoh5=geoh5,
-            mesh=mesh,
-            topography_object=topography,
+            mesh=components.mesh,
+            topography_object=components.topography,
             data_object=chargeability.parent,
             chargeability_channel=chargeability,
             chargeability_uncertainty=2e-4,

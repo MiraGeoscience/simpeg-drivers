@@ -64,55 +64,54 @@ def test_homogeneous_fwr_run(
 ):
     # Create local problem A
     opts = SyntheticsComponentsOptions(
+        method="gravity",
         survey=SurveyOptions(
             n_stations=n_grid_points, n_lines=n_grid_points, drape=15.0
         ),
         mesh=MeshOptions(refinement=refinement),
         model=ModelOptions(anomaly=0.75),
     )
-    geoh5, mesh, model, survey, topography = SyntheticsComponents(
-        tmp_path, method="gravity", options=opts
-    )
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
 
-    # Change half the model
-    ind = mesh.centroids[:, 0] > 0
-    model.values[ind] = 0.05
+        # Change half the model
+        ind = components.mesh.centroids[:, 0] > 0
+        components.model.values[ind] = 0.05
 
-    params = GravityForwardOptions.build(
-        geoh5=geoh5,
-        mesh=mesh,
-        topography_object=topography,
-        data_object=survey,
-        starting_model=model,
-    )
+        params = GravityForwardOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
+            starting_model=components.model,
+        )
     fwr_driver_a = GravityForwardDriver(params)
 
     with geoh5.open():
         opts = SyntheticsComponentsOptions(
+            method="magnetic_vector",
             survey=SurveyOptions(
                 n_stations=n_grid_points, n_lines=n_grid_points, drape=15.0
             ),
             mesh=MeshOptions(refinement=refinement),
             model=ModelOptions(anomaly=0.05),
         )
-        _, mesh, model, survey, _ = SyntheticsComponents(
-            tmp_path, method="magnetic_vector", options=opts, geoh5=geoh5
-        )
-    inducing_field = (50000.0, 90.0, 0.0)
-    # Change half the model
-    ind = mesh.centroids[:, 0] > 0
-    model.values[ind] = 0.01
+        components = SyntheticsComponents(geoh5, options=opts)
+        inducing_field = (50000.0, 90.0, 0.0)
+        # Change half the model
+        ind = components.mesh.centroids[:, 0] > 0
+        components.model.values[ind] = 0.01
 
-    params = MVIForwardOptions.build(
-        geoh5=geoh5,
-        mesh=mesh,
-        topography_object=topography,
-        inducing_field_strength=inducing_field[0],
-        inducing_field_inclination=inducing_field[1],
-        inducing_field_declination=inducing_field[2],
-        data_object=survey,
-        starting_model=model,
-    )
+        params = MVIForwardOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            inducing_field_strength=inducing_field[0],
+            inducing_field_inclination=inducing_field[1],
+            inducing_field_declination=inducing_field[2],
+            data_object=components.survey,
+            starting_model=components.model,
+        )
     fwr_driver_b = MVIForwardDriver(params)
 
     fwr_driver_a.run()

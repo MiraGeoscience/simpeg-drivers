@@ -50,24 +50,25 @@ def test_joint_surveys_fwr_run(
 ):
     # Create local problem A
     opts = SyntheticsComponentsOptions(
+        method="gravity",
         survey=SurveyOptions(
-            n_stations=n_grid_points, n_lines=n_grid_points, drape=5.0
+            n_stations=n_grid_points,
+            n_lines=n_grid_points,
+            drape=5.0,
+            name="survey A"
         ),
         mesh=MeshOptions(refinement=refinement),
-        model=ModelOptions(anomaly=0.75),
+        model=ModelOptions(anomaly=0.75, name="model A"),
     )
-    geoh5, _, model, survey, topography = SyntheticsComponents(
-        tmp_path,
-        method="gravity",
-        options=opts,
-    )
-    params = GravityForwardOptions.build(
-        geoh5=geoh5,
-        mesh=model.parent,
-        topography_object=topography,
-        data_object=survey,
-        starting_model=model,
-    )
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+        params = GravityForwardOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
+            starting_model=components.model,
+        )
     fwr_driver_a = GravityInversionDriver(params)
 
     with fwr_driver_a.out_group.workspace.open():
@@ -76,27 +77,24 @@ def test_joint_surveys_fwr_run(
     # Create local problem B
     with geoh5.open():
         opts = SyntheticsComponentsOptions(
+            method="gravity",
             survey=SurveyOptions(
                 n_stations=int(n_grid_points / 2),
                 n_lines=int(n_grid_points / 2),
                 drape=10.0,
+                name="survey B",
             ),
             mesh=MeshOptions(refinement=(0, 2)),
-            model=ModelOptions(anomaly=0.75),
+            model=ModelOptions(anomaly=0.75, name="model B"),
         )
-        _, _, model, survey, _ = SyntheticsComponents(
-            tmp_path,
-            method="gravity",
-            options=opts,
+        components = SyntheticsComponents(geoh5, options=opts)
+        params = GravityForwardOptions.build(
             geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
+            starting_model=components.model,
         )
-    params = GravityForwardOptions.build(
-        geoh5=geoh5,
-        mesh=model.parent,
-        topography_object=topography,
-        data_object=survey,
-        starting_model=model,
-    )
     fwr_driver_b = GravityInversionDriver(params)
 
     with fwr_driver_b.out_group.workspace.open():

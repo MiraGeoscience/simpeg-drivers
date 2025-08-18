@@ -60,7 +60,7 @@ def test_gravity_rotated_grad_fwr_run(
             n_lines=n_grid_points,
             center=(0.0, 0.0),
             drape=5.0,
-            terrain=lambda x, y: gaussian(x, y, amplitude=50.0, width=100.0) + 15,
+            topography=lambda x, y: gaussian(x, y, amplitude=50.0, width=100.0) + 15,
         ),
         mesh=MeshOptions(refinement=refinement),
         model=ModelOptions(

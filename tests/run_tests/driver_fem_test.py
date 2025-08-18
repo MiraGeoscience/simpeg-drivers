@@ -86,7 +86,7 @@ def test_fem_fwr_run(
             n_stations=n_grid_points,
             n_lines=n_grid_points,
             drape=15.0,
-            terrain=lambda x, y: np.zeros(x.shape),
+            topography=lambda x, y: np.zeros(x.shape),
         ),
         mesh=MeshOptions(
             cell_size=cell_size, refinement=refinement, padding_distance=400.0
@@ -124,13 +124,6 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
 
     with Workspace(workpath) as geoh5:
         components = SyntheticsComponents(geoh5)
-        survey = next(
-            child
-            for child in geoh5.get_entity("survey")
-            if not isinstance(child.parent, SimPEGGroup)
-        )
-        mesh = components.mesh
-        topography = components.topography
         data = {}
         uncertainties = {}
         channels = {
@@ -141,13 +134,13 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
         for chan, cname in channels.items():
             data[cname] = []
             uncertainties[f"{cname} uncertainties"] = []
-            for ind, freq in enumerate(survey.channels):
+            for ind, freq in enumerate(components.survey.channels):
                 data_entity = geoh5.get_entity(f"Iteration_0_{chan}_[{ind}]")[0].copy(
-                    parent=survey
+                    parent=components.survey
                 )
                 data[cname].append(data_entity)
                 abs_val = np.abs(data_entity.values)
-                uncert = survey.add_data(
+                uncert = components.survey.add_data(
                     {
                         f"uncertainty_{chan}_[{ind}]": {
                             "values": np.ones_like(abs_val)
@@ -157,11 +150,11 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
                     }
                 )
                 uncertainties[f"{cname} uncertainties"].append(
-                    uncert.copy(parent=survey)
+                    uncert.copy(parent=components.survey)
                 )
 
-        data_groups = survey.add_components_data(data)
-        uncert_groups = survey.add_components_data(uncertainties)
+        data_groups = components.survey.add_components_data(data)
+        uncert_groups = components.survey.add_components_data(uncertainties)
 
         data_kwargs = {}
         for chan, data_group, uncert_group in zip(
@@ -175,9 +168,9 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
         # Run the inverse
         params = FDEMInversionOptions.build(
             geoh5=geoh5,
-            mesh=mesh,
-            topography_object=topography,
-            data_object=survey,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
             starting_model=1e-3,
             reference_model=1e-3,
             alpha_s=0.0,

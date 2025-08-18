@@ -23,13 +23,14 @@ def generate_tipper_survey(
     Y: np.ndarray,
     Z: np.ndarray,
     channels: tuple = (10.0, 100.0, 1000.0),
+    name: str = "survey"
 ) -> TipperReceivers:
     """Create a Tipper survey object from survey grid locations."""
     vertices = np.column_stack([X.flatten(), Y.flatten(), Z.flatten()])
     survey = TipperReceivers.create(
         geoh5,
         vertices=vertices,
-        name="survey",
+        name=name,
         components=[
             "Txz (real)",
             "Txz (imag)",

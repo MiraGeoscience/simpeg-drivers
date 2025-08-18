@@ -51,21 +51,21 @@ def test_ip_3d_fwr_run(
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(
+        method="induced polarization 3d",
         survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
         mesh=MeshOptions(refinement=refinement),
         model=ModelOptions(background=1e-6, anomaly=1e-1),
     )
-    geoh5, _, model, survey, topography = SyntheticsComponents(
-        tmp_path, method="induced polarization 3d", options=opts
-    )
-    params = IP3DForwardOptions.build(
-        geoh5=geoh5,
-        mesh=model.parent,
-        topography_object=topography,
-        data_object=survey,
-        starting_model=model,
-        conductivity_model=1e-2,
-    )
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+        params = IP3DForwardOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
+            starting_model=components.model,
+            conductivity_model=1e-2,
+        )
 
     fwr_driver = IP3DForwardDriver(params)
     fwr_driver.run()

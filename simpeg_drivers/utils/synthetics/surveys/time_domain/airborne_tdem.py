@@ -26,12 +26,13 @@ def generate_airborne_tdem_survey(
     Z: np.ndarray,
     channels: np.ndarray = CHANNELS,
     waveform: np.ndarray = WAVEFORM,
+    name: str = "survey"
 ) -> AirborneTEMReceivers:
     """Create an Airborne TDEM survey object from survey grid locations"""
     vertices = np.column_stack([X.flatten(), Y.flatten(), Z.flatten()])
-    survey = AirborneTEMReceivers.create(geoh5, vertices=vertices, name="survey")
+    survey = AirborneTEMReceivers.create(geoh5, vertices=vertices, name=name)
     transmitters = AirborneTEMTransmitters.create(
-        geoh5, vertices=vertices, name="Airborne_tx"
+        geoh5, vertices=vertices, name=f"{name}_tx"
     )
     mask = mask_large_connections(survey, 200.0)
     survey.remove_cells(mask)

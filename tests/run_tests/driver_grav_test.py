@@ -120,19 +120,16 @@ def test_gravity_run(
         gz = geoh5.get_entity("Iteration_0_gz")[0]
         orig_gz = gz.values.copy()
         components = SyntheticsComponents(geoh5)
-        mesh = components.mesh
-        model = components.model
-        topography = components.topography
 
-        inds = (mesh.centroids[:, 0] > -35) & (mesh.centroids[:, 0] < 35)
-        norms = np.ones(mesh.n_cells) * 2
+        inds = (components.mesh.centroids[:, 0] > -35) & (components.mesh.centroids[:, 0] < 35)
+        norms = np.ones(components.mesh.n_cells) * 2
         norms[inds] = 0
-        gradient_norms = mesh.add_data({"norms": {"values": norms}})
+        gradient_norms = components.mesh.add_data({"norms": {"values": norms}})
 
         # Test mesh UBC ordered
-        ind = np.argsort(mesh.octree_cells, order=["K", "J", "I"])
-        mesh.octree_cells = mesh.octree_cells[ind]
-        model.values = model.values[ind]
+        ind = np.argsort(components.mesh.octree_cells, order=["K", "J", "I"])
+        components.mesh.octree_cells = components.mesh.octree_cells[ind]
+        components.model.values = components.model.values[ind]
         gradient_norms.values = gradient_norms.values[ind]
 
         # Turn some values to nan
@@ -143,7 +140,7 @@ def test_gravity_run(
         # Run the inverse
         params = GravityInversionOptions.build(
             geoh5=geoh5,
-            mesh=mesh,
+            mesh=components.mesh,
             data_object=gz.parent,
             s_norm=0.0,
             x_norm=gradient_norms,
@@ -156,7 +153,7 @@ def test_gravity_run(
             initial_beta_ratio=1e-2,
             percentile=100,
             starting_model=1e-4,
-            topography_object=topography,
+            topography_object=components.topography,
             reference_model=0.0,
             save_sensitivities=True,
         )

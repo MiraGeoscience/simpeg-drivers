@@ -47,6 +47,6 @@ def get_model(
         model[inside_anomaly] = options.anomaly
 
     model[~active] = np.nan
-    model = mesh.add_data({"model": {"values": model}})
+    model = mesh.add_data({options.name: {"values": model}})
 
     return model

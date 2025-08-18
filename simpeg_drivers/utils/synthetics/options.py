@@ -12,7 +12,6 @@ from collections.abc import Callable
 
 from geoapps_utils.modelling.plates import PlateModel
 from geoapps_utils.utils.locations import gaussian
-from geoh5py import Workspace
 from pydantic import BaseModel, ConfigDict
 
 
@@ -24,12 +23,14 @@ class SurveyOptions(BaseModel):
     n_stations: int = 20
     n_lines: int = 5
     topography: Callable = lambda x, y: gaussian(x, y, amplitude=50.0, width=100.0)
+    name: str = "survey"
 
 
 class MeshOptions(BaseModel):
     cell_size: tuple[float, float, float] = (5.0, 5.0, 5.0)
     refinement: tuple = (4, 6)
     padding_distance: float = 100.0
+    name: str = "mesh"
 
 
 class ModelOptions(BaseModel):
@@ -41,6 +42,7 @@ class ModelOptions(BaseModel):
         width=40.0,
         origin=(0.0, 0.0, 10.0),
     )
+    name: str = "model"
 
 
 class SyntheticsComponentsOptions(BaseModel):

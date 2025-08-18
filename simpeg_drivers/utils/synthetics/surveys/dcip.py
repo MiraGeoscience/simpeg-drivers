@@ -18,6 +18,7 @@ def generate_dc_survey(
     X: np.ndarray,
     Y: np.ndarray,
     Z: np.ndarray | None = None,
+    name: str = "survey"
 ) -> PotentialElectrode:
     """Generate a DC survey object from survey grid locations."""
 
@@ -26,7 +27,7 @@ def generate_dc_survey(
 
     vertices = np.c_[X.ravel(), Y.ravel(), Z.ravel()]
     parts = np.kron(np.arange(X.shape[0]), np.ones(X.shape[1])).astype("int")
-    currents = CurrentElectrode.create(workspace, vertices=vertices, parts=parts)
+    currents = CurrentElectrode.create(workspace, name=f"{name}_tx", vertices=vertices, parts=parts)
     currents.add_default_ab_cell_id()
     n_dipoles = 9
     dipoles = []
@@ -52,7 +53,7 @@ def generate_dc_survey(
 
     potentials = PotentialElectrode.create(
         workspace,
-        name="survey",
+        name=name,
         vertices=vertices,
         cells=np.vstack(dipoles).astype("uint32"),
     )

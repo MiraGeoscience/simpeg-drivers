@@ -68,65 +68,63 @@ def test_joint_cross_gradient_fwr_run(
 ):
     # Create local problem A
     opts = SyntheticsComponentsOptions(
+        method="gravity",
         survey=SurveyOptions(
-            n_stations=n_grid_points, n_lines=n_grid_points, drape=15.0
+            n_stations=n_grid_points, n_lines=n_grid_points, drape=15.0, name="gravity_survey"
         ),
         mesh=MeshOptions(refinement=refinement),
         model=ModelOptions(anomaly=0.75),
     )
-    geoh5, _, model, survey, topography = SyntheticsComponents(
-        tmp_path, method="gravity", options=opts
-    )
-    params = GravityForwardOptions.build(
-        geoh5=geoh5,
-        mesh=model.parent,
-        topography_object=topography,
-        data_object=survey,
-        starting_model=model,
-    )
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+        params = GravityForwardOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
+            starting_model=components.model,
+        )
     fwr_driver_a = GravityForwardDriver(params)
 
     with geoh5.open():
         opts = SyntheticsComponentsOptions(
+            method="magnetic_vector",
             survey=SurveyOptions(
-                n_stations=n_grid_points, n_lines=n_grid_points, drape=15.0
+                n_stations=n_grid_points, n_lines=n_grid_points, drape=15.0, name="mvi_survey"
             ),
             mesh=MeshOptions(refinement=refinement),
             model=ModelOptions(anomaly=0.05),
         )
-        _, _, model, survey, _ = SyntheticsComponents(
-            tmp_path, method="magnetic_vector", options=opts, geoh5=geoh5
+        components = SyntheticsComponents(geoh5, options=opts)
+        inducing_field = (50000.0, 90.0, 0.0)
+        params = MVIForwardOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            inducing_field_strength=inducing_field[0],
+            inducing_field_inclination=inducing_field[1],
+            inducing_field_declination=inducing_field[2],
+            data_object=components.survey,
+            starting_model=components.model,
         )
-    inducing_field = (50000.0, 90.0, 0.0)
-    params = MVIForwardOptions.build(
-        geoh5=geoh5,
-        mesh=model.parent,
-        topography_object=topography,
-        inducing_field_strength=inducing_field[0],
-        inducing_field_inclination=inducing_field[1],
-        inducing_field_declination=inducing_field[2],
-        data_object=survey,
-        starting_model=model,
-    )
     fwr_driver_b = MVIForwardDriver(params)
 
     with geoh5.open():
         opts = SyntheticsComponentsOptions(
-            survey=SurveyOptions(n_stations=n_grid_points, n_lines=n_lines),
+            method="direct current 3d",
+            survey=SurveyOptions(n_stations=n_grid_points, n_lines=n_lines, name="dc_survey"),
             mesh=MeshOptions(refinement=refinement),
             model=ModelOptions(background=0.01, anomaly=10),
         )
-        _, _, model, survey, _ = SyntheticsComponents(
-            tmp_path, method="direct current 3d", options=opts, geoh5=geoh5
-        )
+        components = SyntheticsComponents(geoh5, options=opts)
 
-    params = DC3DForwardOptions.build(
-        geoh5=geoh5,
-        mesh=model.parent,
-        topography_object=topography,
-        data_object=survey,
-        starting_model=model,
-    )
+        params = DC3DForwardOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
+            starting_model=components.model,
+        )
     fwr_driver_c = DC3DForwardDriver(params)
 
     with geoh5.open():

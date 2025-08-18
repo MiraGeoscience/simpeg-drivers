@@ -61,35 +61,35 @@ def test_ip_p3d_fwr_run(
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(
+        method="induced polarization pseudo 3d",
         survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
         mesh=MeshOptions(refinement=refinement),
         model=ModelOptions(background=1e-6, anomaly=1e-1),
     )
-    geoh5, _, model, survey, topography = SyntheticsComponents(
-        tmp_path, method="induced polarization pseudo 3d", options=opts
-    )
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
 
-    params = IPBatch2DForwardOptions.build(
-        geoh5=geoh5,
-        mesh=model.parent,
-        drape_model=DrapeModelOptions(
-            u_cell_size=5.0,
-            v_cell_size=5.0,
-            depth_core=100.0,
-            expansion_factor=1.1,
-            horizontal_padding=100.0,
-            vertical_padding=100.0,
-        ),
-        active_cells=ActiveCellsOptions(
-            topography_object=topography,
-        ),
-        data_object=survey,
-        conductivity_model=1e-2,
-        starting_model=model,
-        line_selection=LineSelectionOptions(
-            line_object=geoh5.get_entity("line_ids")[0]
-        ),
-    )
+        params = IPBatch2DForwardOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            drape_model=DrapeModelOptions(
+                u_cell_size=5.0,
+                v_cell_size=5.0,
+                depth_core=100.0,
+                expansion_factor=1.1,
+                horizontal_padding=100.0,
+                vertical_padding=100.0,
+            ),
+            active_cells=ActiveCellsOptions(
+                topography_object=components.topography,
+            ),
+            data_object=components.survey,
+            conductivity_model=1e-2,
+            starting_model=components.model,
+            line_selection=LineSelectionOptions(
+                line_object=geoh5.get_entity("line_ids")[0]
+            ),
+        )
 
     fwr_driver = IPBatch2DForwardDriver(params)
     fwr_driver.run()
@@ -105,15 +105,13 @@ def test_ip_p3d_run(
         workpath = tmp_path.parent / "test_ip_p3d_fwr_run0" / "inversion_test.ui.geoh5"
 
     with Workspace(workpath) as geoh5:
+        components = SyntheticsComponents(geoh5)
         chargeability = geoh5.get_entity("Iteration_0_ip")[0]
-        out_group = geoh5.get_entity("Line 1")[0].parent
-        mesh = out_group.get_entity("mesh")[0]  # Finds the octree mesh
-        topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
         params = IPBatch2DInversionOptions.build(
             geoh5=geoh5,
-            mesh=mesh,
+            mesh=components.mesh,
             drape_model=DrapeModelOptions(
                 u_cell_size=5.0,
                 v_cell_size=5.0,
@@ -122,7 +120,7 @@ def test_ip_p3d_run(
                 horizontal_padding=1000.0,
                 vertical_padding=1000.0,
             ),
-            topography_object=topography,
+            topography_object=components.topography,
             data_object=chargeability.parent,
             chargeability_channel=chargeability,
             chargeability_uncertainty=2e-4,

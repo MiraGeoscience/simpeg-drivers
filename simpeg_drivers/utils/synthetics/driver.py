@@ -48,7 +48,7 @@ class SyntheticsComponents:
 
     @property
     def survey(self):
-        self._survey = self.geoh5.get_entity("survey")[0]
+        self._survey = self.geoh5.get_entity(self.options.survey.name)[0]
         if self._survey is None:
             assert self.options is not None
             self._survey = get_survey(
@@ -80,7 +80,7 @@ class SyntheticsComponents:
 
     @property
     def model(self):
-        self._model = self.geoh5.get_entity("model")[0]
+        self._model = self.geoh5.get_entity(self.options.model.name)[0]
         if self._model is None:
             assert self.options is not None
             self._model = get_model(

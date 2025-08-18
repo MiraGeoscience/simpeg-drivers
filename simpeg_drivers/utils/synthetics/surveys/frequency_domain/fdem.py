@@ -26,11 +26,12 @@ def generate_fdem_survey(
     X: np.ndarray,
     Y: np.ndarray,
     Z: np.ndarray,
+    name: str = "survey"
 ) -> AirborneFEMReceivers:
     """Create an FDEM survey object from survey grid locations."""
 
     vertices = np.column_stack([X.flatten(), Y.flatten(), Z.flatten()])
-    survey = AirborneFEMReceivers.create(geoh5, vertices=vertices, name="survey")
+    survey = AirborneFEMReceivers.create(geoh5, vertices=vertices, name="name")
 
     survey.metadata["EM Dataset"]["Frequency configurations"] = frequency_config
 
@@ -45,7 +46,7 @@ def generate_fdem_survey(
     freqs = np.hstack(freqs).flatten()
 
     transmitters = AirborneFEMTransmitters.create(
-        geoh5, vertices=tx_locs, name="Airborne_tx"
+        geoh5, vertices=tx_locs, name=f"{name}_tx"
     )
     survey.transmitters = transmitters
     survey.channels = [float(k["Frequency"]) for k in frequency_config]

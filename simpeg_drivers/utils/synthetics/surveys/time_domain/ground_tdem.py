@@ -26,6 +26,7 @@ def generate_tdem_survey(
     Z: np.ndarray,
     channels: np.ndarray = CHANNELS,
     waveform: np.ndarray = WAVEFORM,
+    name: str = "survey",
 ) -> LargeLoopGroundTEMReceivers:
     """Create a large loop TDEM survey object from survey grid locations."""
 
@@ -91,10 +92,11 @@ def generate_tdem_survey(
         geoh5,
         vertices=np.vstack(loops),
         cells=np.vstack(loop_cells),
+        name=f"{name}_tx",
     )
     transmitters.tx_id_property = transmitters.parts + 1
     survey = LargeLoopGroundTEMReceivers.create(
-        geoh5, name="survey", vertices=np.vstack(vertices)
+        geoh5, name=name, vertices=np.vstack(vertices)
     )
     survey.transmitters = transmitters
     survey.tx_id_property = np.hstack(loop_id)

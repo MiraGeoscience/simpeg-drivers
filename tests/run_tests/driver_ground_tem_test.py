@@ -59,11 +59,12 @@ def test_tiling_ground_tem(
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(
+        method="ground tdem",
         survey=SurveyOptions(
             n_stations=n_grid_points,
             n_lines=n_grid_points,
             drape=5.0,
-            terrain=lambda x, y: np.zeros(x.shape),
+            topography=lambda x, y: np.zeros(x.shape),
         ),
         mesh=MeshOptions(refinement=refinement, padding_distance=1000.0),
         model=ModelOptions(
@@ -76,21 +77,21 @@ def test_tiling_ground_tem(
             ),
         ),
     )
-    geoh5, _, model, survey, topography = SyntheticsComponents(
-        tmp_path, method="ground tdem", options=opts
-    )
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
 
-    params = TDEMForwardOptions.build(
-        geoh5=geoh5,
-        mesh=model.parent,
-        topography_object=topography,
-        data_object=survey,
-        starting_model=model,
-        x_channel_bool=True,
-        y_channel_bool=True,
-        z_channel_bool=True,
-        tile_spatial=4,
-    )
+
+        params = TDEMForwardOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
+            starting_model=components.model,
+            x_channel_bool=True,
+            y_channel_bool=True,
+            z_channel_bool=True,
+            tile_spatial=4,
+        )
     fwr_driver = TDEMForwardDriver(params)
 
     tiles = fwr_driver.get_tiles()
@@ -98,7 +99,7 @@ def test_tiling_ground_tem(
     assert len(tiles) == 4
 
     for tile in tiles:
-        assert len(np.unique(survey.tx_id_property.values[tile])) == 1
+        assert len(np.unique(components.survey.tx_id_property.values[tile])) == 1
 
     fwr_driver.run()
 
@@ -115,11 +116,12 @@ def test_ground_tem_fwr_run(
         caplog.set_level(INFO)
     # Run the forward
     opts = SyntheticsComponentsOptions(
+        method="ground tdem",
         survey=SurveyOptions(
             n_stations=n_grid_points,
             n_lines=n_grid_points,
             drape=5.0,
-            terrain=lambda x, y: np.zeros(x.shape),
+            topography=lambda x, y: np.zeros(x.shape),
         ),
         mesh=MeshOptions(
             cell_size=cell_size, refinement=refinement, padding_distance=1000.0
@@ -134,28 +136,25 @@ def test_ground_tem_fwr_run(
             ),
         ),
     )
-    geoh5, _, model, survey, topography = SyntheticsComponents(
-        tmp_path,
-        method="ground tdem",
-        options=opts,
-    )
-    params = TDEMForwardOptions.build(
-        geoh5=geoh5,
-        mesh=model.parent,
-        topography_object=topography,
-        data_object=survey,
-        starting_model=model,
-        x_channel_bool=True,
-        y_channel_bool=True,
-        z_channel_bool=True,
-        solver_type="Mumps",
-    )
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+        params = TDEMForwardOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
+            starting_model=components.model,
+            x_channel_bool=True,
+            y_channel_bool=True,
+            z_channel_bool=True,
+            solver_type="Mumps",
+        )
 
     fwr_driver = TDEMForwardDriver(params)
 
-    with survey.workspace.open():
-        survey.transmitters.remove_cells([15])
-        survey.tx_id_property.name = "tx_id"
+    with components.survey.workspace.open():
+        components.survey.transmitters.remove_cells([15])
+        components.survey.tx_id_property.name = "tx_id"
         assert fwr_driver.inversion_data.survey.source_list[0].n_segments == 16
 
     if pytest:
@@ -178,29 +177,25 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         )
 
     with Workspace(workpath) as geoh5:
-        simpeg_group = geoh5.get_entity("Time-domain EM (TEM) Forward")[0]
-        survey = simpeg_group.get_entity("Ground TEM Rx")[0]
-        mesh = geoh5.get_entity("mesh")[0]
-        topography = geoh5.get_entity("topography")[0]
-
+        components = SyntheticsComponents(geoh5)
         data = {}
         uncertainties = {}
-        components = {
+        channels = {
             "z": "dBzdt",
         }
 
-        for comp, cname in components.items():
+        for chan, cname in channels.items():
             data[cname] = []
             uncertainties[f"{cname} uncertainties"] = []
-            for ii, _ in enumerate(survey.channels):
-                data_entity = geoh5.get_entity(f"Iteration_0_{comp}_[{ii}]")[0].copy(
-                    parent=survey
+            for ii, _ in enumerate(components.survey.channels):
+                data_entity = geoh5.get_entity(f"Iteration_0_{chan}_[{ii}]")[0].copy(
+                    parent=components.survey
                 )
                 data[cname].append(data_entity)
 
-                uncert = survey.add_data(
+                uncert = components.survey.add_data(
                     {
-                        f"uncertainty_{comp}_[{ii}]": {
+                        f"uncertainty_{chan}_[{ii}]": {
                             "values": np.ones_like(data_entity.values)
                             * np.median(np.abs(data_entity.values))
                             / 2.0
@@ -209,16 +204,16 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
                 )
                 uncertainties[f"{cname} uncertainties"].append(uncert)
 
-        survey.add_components_data(data)
-        survey.add_components_data(uncertainties)
+        components.survey.add_components_data(data)
+        components.survey.add_components_data(uncertainties)
 
         data_kwargs = {}
-        for comp in components:
-            data_kwargs[f"{comp}_channel"] = survey.fetch_property_group(
-                name=f"Iteration_0_{comp}"
+        for chan in channels:
+            data_kwargs[f"{chan}_channel"] = components.survey.fetch_property_group(
+                name=f"Iteration_0_{chan}"
             )
-            data_kwargs[f"{comp}_uncertainty"] = survey.fetch_property_group(
-                name=f"dB{comp}dt uncertainties"
+            data_kwargs[f"{chan}_uncertainty"] = components.survey.fetch_property_group(
+                name=f"dB{chan}dt uncertainties"
             )
 
         orig_dBzdt = geoh5.get_entity("Iteration_0_z_[0]")[0].values
@@ -226,9 +221,9 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         # Run the inverse
         params = TDEMInversionOptions.build(
             geoh5=geoh5,
-            mesh=mesh,
-            topography_object=topography,
-            data_object=survey,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
             starting_model=1e-3,
             reference_model=1e-3,
             chi_factor=0.1,
@@ -256,7 +251,7 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         output = get_inversion_output(
             driver.params.geoh5.h5file, driver.params.out_group.uid
         )
-        assert driver.inversion_data.entity.tx_id_property.name == "tx_id"
+        assert driver.inversion_data.entity.tx_id_property.name == "Transmitter ID"
         output["data"] = orig_dBzdt
         if pytest:
             check_target(output, target_run)

@@ -19,13 +19,14 @@ def generate_magnetotellurics_survey(
     Y: np.ndarray,
     Z: np.ndarray,
     channels: tuple = (10.0, 100.0, 1000.0),
+    name: str = "survey"
 ) -> MTReceivers:
     """Create a Magnetotellurics survey object from survey grid locations."""
 
     survey = MTReceivers.create(
         geoh5,
         vertices=np.column_stack([X.flatten(), Y.flatten(), Z.flatten()]),
-        name="survey",
+        name=name,
         components=[
             "Zxx (real)",
             "Zxx (imag)",
