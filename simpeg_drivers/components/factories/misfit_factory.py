@@ -38,7 +38,6 @@ class MisfitFactory(SimPEGFactory):
         self.simpeg_object = self.concrete_object()
         self.factory_type = self.params.inversion_type
         self.simulation = simulation
-        self.sorting = None
 
     def concrete_object(self):
         return objective_function.ComboObjectiveFunction
@@ -48,7 +47,7 @@ class MisfitFactory(SimPEGFactory):
             tiles=tiles,
             split_list=split_list,
         )
-        return global_misfit, self.sorting
+        return global_misfit
 
     def assemble_arguments(  # pylint: disable=arguments-differ
         self,

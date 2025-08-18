@@ -169,14 +169,12 @@ class InversionDriver(Driver):
 
                 self.logger.write(f"Setting up {len(tiles)} tile(s) . . .\n")
                 # Build tiled misfits and combine to form global misfit
-                self._data_misfit, self._sorting = MisfitFactory(
-                    self.params, self.simulation
-                ).build(
+                self._data_misfit = MisfitFactory(self.params, self.simulation).build(
                     tiles,
                     self.split_list,
                 )
                 self.logger.write("Saving data to file...\n")
-                self._sorting = np.hstack(tiles)
+                self._sorting = tiles
                 if isinstance(self.params, BaseInversionOptions):
                     self._data_misfit.multipliers = np.asarray(
                         self._data_misfit.multipliers, dtype=float
@@ -405,6 +403,13 @@ class InversionDriver(Driver):
                 self._simulation.active_cells = self.models.active_cells
 
         return self._simulation
+
+    @property
+    def sorting(self) -> list[np.ndarray] | None:
+        """
+        Sorting of the data locations.
+        """
+        return self._sorting
 
     @property
     def window(self):
