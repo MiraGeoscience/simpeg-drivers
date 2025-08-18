@@ -132,7 +132,6 @@ def test_ground_tem_fwr_run(
         x_channel_bool=True,
         y_channel_bool=True,
         z_channel_bool=True,
-        solver_type="Mumps",
     )
 
     fwr_driver = TDEMForwardDriver(params)
@@ -228,7 +227,6 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
             cooling_rate=2,
             max_cg_iterations=200,
             percentile=100,
-            solver_type="Mumps",
             **data_kwargs,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
