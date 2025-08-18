@@ -100,7 +100,7 @@ class TileEstimator(Driver):
             # Get the median tile
             ind = int(np.argsort([len(tile) for tile in tiles])[int(count / 2)])
             self.driver.params.compute.tile_spatial = int(count)
-            sim, _, _, mapping = create_simulation(
+            sim, mapping, _ = create_simulation(
                 self.driver.simulation,
                 None,
                 tiles[ind],
