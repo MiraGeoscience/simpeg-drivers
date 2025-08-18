@@ -80,7 +80,7 @@ def test_ip_2d_run(
         workpath = tmp_path.parent / "test_ip_2d_fwr_run0" / "inversion_test.ui.geoh5"
 
     with Workspace(workpath) as geoh5:
-        chargeability = geoh5.get_entity("Iteration_0_ip")[0]
+        chargeability = geoh5.get_entity("Iteration_0_chargeability")[0]
         mesh = geoh5.get_entity("Models")[0]
         topography = geoh5.get_entity("topography")[0]
 
