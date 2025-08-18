@@ -93,7 +93,7 @@ def test_dc_p3d_run(
         workpath = tmp_path.parent / "test_dc_p3d_fwr_run0" / "inversion_test.ui.geoh5"
 
     with Workspace(workpath) as geoh5:
-        potential = geoh5.get_entity("Iteration_0_dc")[0]
+        potential = geoh5.get_entity("Iteration_0_potential")[0]
         out_group = geoh5.get_entity("Line 1")[0].parent
         mesh = out_group.get_entity("mesh")[0]  # Finds the octree mesh
         topography = geoh5.get_entity("topography")[0]

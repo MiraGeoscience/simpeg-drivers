@@ -103,7 +103,7 @@ def test_dc_rotated_gradient_p3d_run(
         )
 
     with Workspace(workpath) as geoh5:
-        potential = geoh5.get_entity("Iteration_0_dc")[0]
+        potential = geoh5.get_entity("Iteration_0_potential")[0]
         out_group = geoh5.get_entity("Line 1")[0].parent
         mesh = out_group.get_entity("mesh")[0]  # Finds the octree mesh
         topography = geoh5.get_entity("topography")[0]
