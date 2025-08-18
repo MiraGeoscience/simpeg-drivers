@@ -56,7 +56,7 @@ class MisfitFactory(SimPEGFactory):
         split_list,
     ):
         # Base slice over frequencies
-        if self.factory_type in ["magnetotellurics", "tipper", "fdem", "fdem 1d"]:
+        if self.factory_type in ["magnetotellurics", "tipper", "fdem"]:
             channels = self.simulation.survey.frequencies
         else:
             channels = [None]
@@ -67,8 +67,8 @@ class MisfitFactory(SimPEGFactory):
         count = 0
         for channel in channels:
             tile_count = 0
-            for local_index in tiles:
-                if len(local_index) == 0:
+            for local_indices in tiles:
+                if len(local_indices) == 0:
                     continue
 
                 n_split = split_list[count]
@@ -76,7 +76,7 @@ class MisfitFactory(SimPEGFactory):
                     # executor.submit(
                     create_misfit(
                         self.simulation,
-                        local_index,
+                        local_indices,
                         channel,
                         tile_count,
                         n_split,
@@ -89,10 +89,13 @@ class MisfitFactory(SimPEGFactory):
                 count += 1
 
         local_misfits = []
-
+        local_orderings = []
         for future in futures:  # as_completed(futures):
-            local_misfits += future  # future.result()
+            misfits, orderings = future  # future.result()
+            local_misfits += misfits
+            local_orderings += orderings
 
+        self.simulation.survey.ordering = np.vstack(local_orderings)
         return [local_misfits]
 
     def assemble_keyword_arguments(self, **_):

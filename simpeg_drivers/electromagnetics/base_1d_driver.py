@@ -111,7 +111,4 @@ class Base1DDriver(InversionDriver):
         """
         n_misfits = self.inversion_data.mask.sum()
 
-        if isinstance(self.params.data_object, FEMSurvey):
-            n_misfits *= len(self.params.data_object.channels)
-
         return [1] * n_misfits

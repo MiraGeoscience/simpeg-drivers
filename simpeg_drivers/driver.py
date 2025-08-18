@@ -412,7 +412,7 @@ class InversionDriver(Driver):
         Arrays for sorting of data from tile, taking into account the
         ordering of the survey.
         """
-        return self.simulation.survey.sorting[self._sorting]
+        return self.simulation.survey.sorting
 
     @property
     def window(self):

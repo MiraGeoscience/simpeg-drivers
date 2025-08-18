@@ -99,7 +99,7 @@ def create_mesh(
 
 def create_misfit(
     simulation,
-    local_index,
+    local_indices,
     channel,
     tile_count,
     # data_count,
@@ -108,19 +108,20 @@ def create_misfit(
     inversion_type,
     forward_only,
 ):
-    local_sim, _ = create_simulation(
+    local_sim, _, _ = create_simulation(
         simulation,
         None,
-        local_index,
-        channel=None,
+        local_indices,
+        channel=channel,
         tile_id=tile_count,
         padding_cells=padding_cells,
     )
 
     local_mesh = getattr(local_sim, "mesh", None)
     local_misfits = []
-    for split_ind in np.array_split(local_index, n_split):
-        local_sim, mapping = create_simulation(
+    data_slices = []
+    for split_ind in np.array_split(local_indices, n_split):
+        local_sim, mapping, data_slice = create_simulation(
             simulation,
             local_mesh,
             split_ind,
@@ -145,10 +146,11 @@ def create_misfit(
             lmisfit.name = f"{name}"
 
         local_misfits.append(lmisfit)
+        data_slices.append(data_slice)
 
         tile_count += 1
 
-    return local_misfits
+    return local_misfits, data_slices
 
 
 def create_simulation(
@@ -171,7 +173,9 @@ def create_simulation(
     :param tile_id: Tile id stored on the simulation.
     :param padding_cells: Number of padding cells around the local survey.
     """
-    local_survey = create_survey(simulation.survey, indices=indices, channel=channel)
+    local_survey, local_ordering = create_survey(
+        simulation.survey, indices=indices, channel=channel
+    )
     kwargs = {"survey": local_survey}
 
     if local_mesh is None:
@@ -186,10 +190,10 @@ def create_simulation(
     if isinstance(simulation, BaseEM1DSimulation):
         local_mesh = simulation.layers_mesh
         actives = np.ones(simulation.layers_mesh.n_cells, dtype=bool)
-        slice_ind = np.arange(
+        model_slice = np.arange(
             tile_id, simulation.mesh.n_cells, simulation.mesh.shape_cells[0]
         )[::-1]
-        mapping = maps.Projection(simulation.mesh.n_cells, slice_ind)
+        mapping = maps.Projection(simulation.mesh.n_cells, model_slice)
         kwargs["topo"] = simulation.active_cells[tile_id]
         args = ()
 
@@ -261,7 +265,7 @@ def create_simulation(
     #     "2d" not in inv_type or "pseudo" in inv_type
     # ):
     #     compute_dc_projections(inversion_data, local_sim, indices)
-    return local_sim, mapping
+    return local_sim, mapping, local_ordering
 
 
 def create_survey(survey, indices, channel=None):
@@ -269,24 +273,19 @@ def create_survey(survey, indices, channel=None):
     Extract source and receivers belonging to the indices.
     """
     sources = []
-    location_count = 0
+
+    # Return the subset of data that belongs to the tile
+    slice_inds = np.isin(survey.ordering[:, 2], indices)
+    if channel is not None:
+        ind = np.where(np.asarray(survey.frequencies) == channel)[0]
+        slice_inds *= np.isin(survey.ordering[:, 0], ind)
+
     for src in survey.source_list or [survey.source_field]:
         if channel is not None and getattr(src, "frequency", None) != channel:
             continue
 
         # Extract the indices of the receivers that belong to this source
-        locations = src.receiver_list[0].locations
-
-        # For MT and DC surveys with multiple locations per receiver
-        if isinstance(locations, tuple | list):
-            n_data = locations[0].shape[0]
-        else:
-            n_data = locations.shape[0]
-
-        rx_indices = np.arange(n_data) + location_count
-
-        _, intersect, _ = np.intersect1d(rx_indices, indices, return_indices=True)
-        location_count += n_data
+        _, intersect, _ = np.intersect1d(src.rx_ids, indices, return_indices=True)
 
         if len(intersect) == 0:
             continue
@@ -315,24 +314,19 @@ def create_survey(survey, indices, channel=None):
         new_survey = type(survey)(sources)
 
     if hasattr(survey, "dobs") and survey.dobs is not None:
-        data_slice = np.isin(survey.ordering[:, 2], indices)
         # For FEM surveys only
-        if channel is not None:
-            ind = np.where(np.asarray(survey.frequencies) == channel)[0]
-            data_slice *= np.isin(survey.ordering[:, 0], ind)
-
         new_survey.dobs = survey.dobs[
-            survey.ordering[data_slice, 0],
-            survey.ordering[data_slice, 1],
-            survey.ordering[data_slice, 2],
+            survey.ordering[slice_inds, 0],
+            survey.ordering[slice_inds, 1],
+            survey.ordering[slice_inds, 2],
         ]
         new_survey.std = survey.std[
-            survey.ordering[data_slice, 0],
-            survey.ordering[data_slice, 1],
-            survey.ordering[data_slice, 2],
+            survey.ordering[slice_inds, 0],
+            survey.ordering[slice_inds, 1],
+            survey.ordering[slice_inds, 2],
         ]
 
-    return new_survey
+    return new_survey, survey.ordering[slice_inds, :]
 
 
 def tile_locations(
