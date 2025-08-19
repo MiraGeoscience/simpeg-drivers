@@ -325,7 +325,6 @@ def create_survey(survey, indices, channel=None):
 
         receivers = []
         for rx in src.receiver_list:
-            # intersect = set(rx.local_index).intersection(indices)
             new_rx = copy(rx)
 
             # For MT and DC surveys with multiple locations per receiver
@@ -334,10 +333,12 @@ def create_survey(survey, indices, channel=None):
             else:
                 new_rx.locations = rx.locations[intersect]
 
+            new_rx.local_index = indices
             receivers.append(new_rx)
 
         if any(receivers):
             new_src = copy(src)
+            new_src.rx_ids = indices
             new_src.receiver_list = receivers
             sources.append(new_src)
 
