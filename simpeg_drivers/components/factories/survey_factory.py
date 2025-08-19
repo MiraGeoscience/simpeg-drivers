@@ -270,7 +270,6 @@ class SurveyFactory(SimPEGFactory):
                     data=data,
                     component=component,
                 )
-                rx_obj.local_index = rx_ids
                 rx_list.append(rx_obj)
                 n_times = len(receivers.channels)
                 n_rx = len(rx_ids) if isinstance(rx_ids, np.ndarray) else 1
@@ -312,8 +311,6 @@ class SurveyFactory(SimPEGFactory):
                     data=data,
                     component=component,
                 )
-
-                receiver.local_index = rx_id
                 block_ordering.append([comp_id, rx_id])
                 receivers.append(receiver)
 
@@ -329,9 +326,7 @@ class SurveyFactory(SimPEGFactory):
                     locations=locs,
                     frequency=frequency,
                 )
-                tx.rx_ids = np.unique(
-                    np.hstack([rec.local_index for rec in receivers], dtype=int)
-                )
+                tx.rx_ids = np.r_[rx_id]
                 sources.append(tx)
 
             ordering.append(

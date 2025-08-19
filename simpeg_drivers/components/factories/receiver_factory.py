@@ -153,7 +153,7 @@ class ReceiversFactory(SimPEGFactory):
             local_index=local_index,
             component=component,
         )
-        receivers.local_index = local_index
+
         if (
             self.factory_type in ["tipper"]
             and getattr(self.params.data_object, "base_stations", None) is not None

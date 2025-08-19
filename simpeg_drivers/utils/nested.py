@@ -24,6 +24,7 @@ from simpeg.electromagnetics.frequency_domain.simulation import BaseFDEMSimulati
 from simpeg.electromagnetics.frequency_domain.sources import (
     LineCurrent as FEMLineCurrent,
 )
+from simpeg.electromagnetics.natural_source import Simulation3DPrimarySecondary
 from simpeg.electromagnetics.static.induced_polarization.simulation import (
     Simulation3DNodal as Simulation3DIP,
 )
@@ -288,10 +289,14 @@ def create_simulation(
 
     local_sim = type(simulation)(*args, **kwargs)
 
-    if isinstance(simulation, BaseFDEMSimulation | BaseTDEMSimulation):
+    if isinstance(
+        simulation, BaseFDEMSimulation | BaseTDEMSimulation
+    ) and not isinstance(simulation, Simulation3DPrimarySecondary):
         compute_em_projections(simulation.survey.locations, local_sim)
     elif isinstance(simulation, Simulation3DRes | Simulation3DIP):
-        compute_dc_projections(simulation.survey.locations, local_sim)
+        compute_dc_projections(
+            simulation.survey.locations, simulation.survey.cells, local_sim
+        )
     return local_sim, mapping, local_ordering
 
 
@@ -331,12 +336,11 @@ def create_survey(survey, indices, channel=None):
             else:
                 new_rx.locations = rx.locations[intersect]
 
-            new_rx.local_index = new_rx.local_index[intersect]
             receivers.append(new_rx)
 
         if any(receivers):
             new_src = copy(src)
-            new_src.rx_ids = new_src.rx_ids[intersect]
+            new_src.rx_ids = src.rx_ids[intersect]
             new_src.receiver_list = receivers
             sources.append(new_src)
 

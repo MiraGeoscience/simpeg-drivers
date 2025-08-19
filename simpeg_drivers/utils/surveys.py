@@ -156,28 +156,29 @@ def compute_em_projections(locations, simulation):
         )
 
     for source in simulation.survey.source_list:
+        indices = source.rx_ids
         for receiver in source.receiver_list:
             projection = 0.0
             for orientation, comp in zip(receiver.orientation, "xyz", strict=True):
                 if orientation == 0:
                     continue
-                projection += orientation * projections[comp][receiver.local_index, :]
+                projection += orientation * projections[comp][indices, :]
             receiver.spatialP = projection
 
 
-def compute_dc_projections(locations, simulation):
+def compute_dc_projections(locations, cells, simulation):
     """
     Pre-compute projections for the receivers for efficiency.
     """
     projection = simulation.mesh.get_interpolation_matrix(locations, "nodes")
 
     for source in simulation.survey.source_list:
+        indices = source.rx_ids
         for receiver in source.receiver_list:
-            cells = receiver.local_index
-            proj_mn = projection[cells[:, 0], :]
+            proj_mn = projection[cells[indices, 0], :]
 
             # Check if dipole receiver
-            if not np.all(cells[:, 0] == cells[:, 1]):
-                proj_mn -= projection[cells[:, 1], :]
+            if not np.all(cells[indices, 0] == cells[indices, 1]):
+                proj_mn -= projection[cells[indices, 1], :]
 
             receiver.spatialP = proj_mn  # pylint: disable=protected-access
