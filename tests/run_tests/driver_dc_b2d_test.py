@@ -29,12 +29,22 @@ from simpeg_drivers.electricals.options import (
     FileControlOptions,
 )
 from simpeg_drivers.options import (
-    ActiveCellsOptions,
     DrapeModelOptions,
     LineSelectionOptions,
 )
-from simpeg_drivers.utils.utils import get_inversion_output
-from tests.testing_utils import check_target, setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.driver import (
+    SyntheticsComponents,
+)
+from simpeg_drivers.utils.synthetics.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticsComponentsOptions,
+)
+from tests.utils.targets import (
+    check_target,
+    get_inversion_output,
+)
 
 
 # To test the full run and validate the inversion.
@@ -50,35 +60,32 @@ def test_dc_p3d_fwr_run(
     refinement=(4, 6),
 ):
     # Run the forward
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.01,
-        anomaly=10.0,
-        n_electrodes=n_electrodes,
-        n_lines=n_lines,
-        refinement=refinement,
-        inversion_type="direct current pseudo 3d",
-        drape_height=0.0,
-        flatten=False,
+    opts = SyntheticsComponentsOptions(
+        method="direct current pseudo 3d",
+        survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
+        mesh=MeshOptions(refinement=refinement),
+        model=ModelOptions(background=0.01, anomaly=10.0),
     )
-    params = DCBatch2DForwardOptions.build(
-        geoh5=geoh5,
-        mesh=model.parent,
-        drape_model=DrapeModelOptions(
-            u_cell_size=5.0,
-            v_cell_size=5.0,
-            depth_core=100.0,
-            expansion_factor=1.1,
-            horizontal_padding=1000.0,
-            vertical_padding=1000.0,
-        ),
-        topography_object=topography,
-        data_object=survey,
-        starting_model=model,
-        line_selection=LineSelectionOptions(
-            line_object=geoh5.get_entity("line_ids")[0]
-        ),
-    )
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5=geoh5, options=opts)
+        params = DCBatch2DForwardOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            drape_model=DrapeModelOptions(
+                u_cell_size=5.0,
+                v_cell_size=5.0,
+                depth_core=100.0,
+                expansion_factor=1.1,
+                horizontal_padding=1000.0,
+                vertical_padding=1000.0,
+            ),
+            topography_object=components.topography,
+            data_object=components.survey,
+            starting_model=components.model,
+            line_selection=LineSelectionOptions(
+                line_object=components.survey.get_data("line_ids")[0]
+            ),
+        )
     fwr_driver = DCBatch2DForwardDriver(params)
     fwr_driver.run()
 
@@ -93,15 +100,13 @@ def test_dc_p3d_run(
         workpath = tmp_path.parent / "test_dc_p3d_fwr_run0" / "inversion_test.ui.geoh5"
 
     with Workspace(workpath) as geoh5:
+        components = SyntheticsComponents(geoh5)
         potential = geoh5.get_entity("Iteration_0_dc")[0]
-        out_group = geoh5.get_entity("Line 1")[0].parent
-        mesh = out_group.get_entity("mesh")[0]  # Finds the octree mesh
-        topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
         params = DCBatch2DInversionOptions.build(
             geoh5=geoh5,
-            mesh=mesh,
+            mesh=components.mesh,
             drape_model=DrapeModelOptions(
                 u_cell_size=5.0,
                 v_cell_size=5.0,
@@ -110,7 +115,7 @@ def test_dc_p3d_run(
                 horizontal_padding=1000.0,
                 vertical_padding=1000.0,
             ),
-            topography_object=topography,
+            topography_object=components.topography,
             data_object=potential.parent,
             potential_channel=potential,
             potential_uncertainty=1e-3,

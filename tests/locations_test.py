@@ -16,42 +16,44 @@ import numpy as np
 import pytest
 from geoh5py import Workspace
 from geoh5py.objects import Curve, Grid2D, Points
-from scipy.spatial import ConvexHull
 
 from simpeg_drivers.components.locations import InversionLocations
-from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import MVIInversionOptions
+from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
+from simpeg_drivers.utils.synthetics.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticsComponentsOptions,
+)
 from simpeg_drivers.utils.utils import tile_locations
-from tests.testing_utils import Geoh5Tester, setup_inversion_workspace
 
 
 def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
-    geoh5, enitiy, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.0,
-        anomaly=0.05,
-        refinement=(2,),
-        n_electrodes=2,
-        n_lines=2,
-        inversion_type="magnetic_vector",
+    opts = SyntheticsComponentsOptions(
+        method="magnetic_vector",
+        survey=SurveyOptions(n_lines=2, n_stations=2),
+        mesh=MeshOptions(refinement=(2,)),
+        model=ModelOptions(background=0.0, anomaly=0.05),
     )
-    with geoh5.open():
-        tmi_channel = survey.add_data(
-            {"tmi": {"values": np.random.rand(survey.n_vertices)}}
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+        tmi_channel = components.survey.add_data(
+            {"tmi": {"values": np.random.rand(components.survey.n_vertices)}}
         )
-    params = MVIInversionOptions.build(
-        geoh5=geoh5,
-        data_object=survey,
-        tmi_channel=tmi_channel,
-        tmi_uncertainty=1.0,
-        topography_object=topography,
-        mesh=model.parent,
-        starting_model=model,
-        inducing_field_strength=50000.0,
-        inducing_field_inclination=60.0,
-        inducing_field_declination=30.0,
-    )
-    return params
+        params = MVIInversionOptions.build(
+            geoh5=geoh5,
+            data_object=components.survey,
+            tmi_channel=tmi_channel,
+            tmi_uncertainty=1.0,
+            topography_object=components.topography,
+            mesh=components.model.parent,
+            starting_model=components.model,
+            inducing_field_strength=50000.0,
+            inducing_field_inclination=60.0,
+            inducing_field_declination=30.0,
+        )
+        return params
 
 
 def test_mask(tmp_path: Path):

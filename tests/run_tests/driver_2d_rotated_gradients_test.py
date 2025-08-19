@@ -11,14 +11,11 @@
 from __future__ import annotations
 
 from pathlib import Path
-from unittest.mock import patch
 
 import numpy as np
 from geoapps_utils.modelling.plates import PlateModel
-from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.groups.property_group import PropertyGroup
 from geoh5py.workspace import Workspace
-from pytest import raises
 
 from simpeg_drivers.electricals.direct_current.two_dimensions.driver import (
     DC2DForwardDriver,
@@ -29,12 +26,20 @@ from simpeg_drivers.electricals.direct_current.two_dimensions.options import (
     DC2DInversionOptions,
 )
 from simpeg_drivers.options import (
-    ActiveCellsOptions,
     DrapeModelOptions,
     LineSelectionOptions,
 )
-from simpeg_drivers.utils.utils import get_inversion_output
-from tests.testing_utils import check_target, setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
+from simpeg_drivers.utils.synthetics.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticsComponentsOptions,
+)
+from tests.utils.targets import (
+    check_target,
+    get_inversion_output,
+)
 
 
 # To test the full run and validate the inversion.
@@ -49,47 +54,49 @@ def test_dc2d_rotated_grad_fwr_run(
     n_lines=3,
     refinement=(4, 6),
 ):
-    plate_model = PlateModel(
-        strike_length=1000.0,
-        dip_length=150.0,
-        width=20.0,
-        origin=(50.0, 0.0, -30),
-        direction=90,
-        dip=45,
-    )
+    filepath = Path(tmp_path) / "inversion_test.ui.geoh5"
+    with Workspace.create(filepath) as geoh5:
+        # Run the forward
+        components = SyntheticsComponents(
+            geoh5=geoh5,
+            options=SyntheticsComponentsOptions(
+                method="direct current 2d",
+                survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
+                mesh=MeshOptions(refinement=refinement),
+                model=ModelOptions(
+                    background=0.01,
+                    anomaly=10.0,
+                    plate=PlateModel(
+                        strike_length=1000.0,
+                        dip_length=150.0,
+                        width=20.0,
+                        origin=(50.0, 0.0, -30),
+                        direction=90,
+                        dip=45,
+                    ),
+                ),
+            ),
+        )
 
-    # Run the forward
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        plate_model=plate_model,
-        background=0.01,
-        anomaly=10.0,
-        n_electrodes=n_electrodes,
-        n_lines=n_lines,
-        refinement=refinement,
-        inversion_type="direct current 2d",
-        drape_height=0.0,
-        flatten=False,
-    )
-    line_selection = LineSelectionOptions(
-        line_object=geoh5.get_entity("line_ids")[0],
-        line_id=101,
-    )
-    params = DC2DForwardOptions.build(
-        geoh5=geoh5,
-        data_object=survey,
-        line_selection=line_selection,
-        drape_model=DrapeModelOptions(
-            u_cell_size=5.0,
-            v_cell_size=5.0,
-            depth_core=100.0,
-            horizontal_padding=100.0,
-            vertical_padding=100.0,
-            expansion_factor=1.1,
-        ),
-        starting_model=model,
-        topography_object=topography,
-    )
+        line_selection = LineSelectionOptions(
+            line_object=components.survey.get_data("line_ids")[0],
+            line_id=101,
+        )
+        params = DC2DForwardOptions.build(
+            geoh5=geoh5,
+            data_object=components.survey,
+            line_selection=line_selection,
+            drape_model=DrapeModelOptions(
+                u_cell_size=5.0,
+                v_cell_size=5.0,
+                depth_core=100.0,
+                horizontal_padding=100.0,
+                vertical_padding=100.0,
+                expansion_factor=1.1,
+            ),
+            starting_model=components.model,
+            topography_object=components.topography,
+        )
     fwr_driver = DC2DForwardDriver(params)
     fwr_driver.run()
 
@@ -109,7 +116,7 @@ def test_dc2d_rotated_grad_run(
 
     with Workspace(workpath) as geoh5:
         potential = geoh5.get_entity("Iteration_0_dc")[0]
-        topography = geoh5.get_entity("topography")[0]
+        components = SyntheticsComponents(geoh5)
 
         orig_potential = potential.values.copy()
         mesh = geoh5.get_entity("Models")[0]
@@ -140,7 +147,7 @@ def test_dc2d_rotated_grad_run(
                 vertical_padding=100.0,
                 expansion_factor=1.1,
             ),
-            topography_object=topography,
+            topography_object=components.topography,
             line_selection=LineSelectionOptions(
                 line_object=geoh5.get_entity("line_ids")[0],
                 line_id=101,

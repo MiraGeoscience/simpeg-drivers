@@ -24,9 +24,19 @@ from simpeg_drivers.natural_sources.tipper.driver import (
     TipperForwardDriver,
     TipperInversionDriver,
 )
-from simpeg_drivers.options import ActiveCellsOptions
-from simpeg_drivers.utils.utils import get_inversion_output
-from tests.testing_utils import check_target, setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.driver import (
+    SyntheticsComponents,
+)
+from simpeg_drivers.utils.synthetics.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticsComponentsOptions,
+)
+from tests.utils.targets import (
+    check_target,
+    get_inversion_output,
+)
 
 
 # To test the full run and validate the inversion.
@@ -42,32 +52,30 @@ def test_tipper_fwr_run(
     cell_size=(20.0, 20.0, 20.0),
 ):
     # Run the forward
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=100.0,
-        anomaly=1.0,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
-        refinement=refinement,
-        cell_size=cell_size,
-        inversion_type="tipper",
-        drape_height=15.0,
-        flatten=False,
+    opts = SyntheticsComponentsOptions(
+        method="tipper",
+        survey=SurveyOptions(
+            n_stations=n_grid_points, n_lines=n_grid_points, drape=15.0
+        ),
+        mesh=MeshOptions(cell_size=cell_size, refinement=refinement),
+        model=ModelOptions(background=100.0),
     )
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
 
-    params = TipperForwardOptions.build(
-        geoh5=geoh5,
-        mesh=model.parent,
-        topography_object=topography,
-        data_object=survey,
-        starting_model=model,
-        model_type="Resistivity (Ohm-m)",
-        background_conductivity=1e2,
-        txz_real_channel_bool=True,
-        txz_imag_channel_bool=True,
-        tyz_real_channel_bool=True,
-        tyz_imag_channel_bool=True,
-    )
+        params = TipperForwardOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
+            starting_model=components.model,
+            model_type="Resistivity (Ohm-m)",
+            background_conductivity=1e2,
+            txz_real_channel_bool=True,
+            txz_imag_channel_bool=True,
+            tyz_real_channel_bool=True,
+            tyz_imag_channel_bool=True,
+        )
 
     fwr_driver = TipperForwardDriver(params)
 
@@ -82,13 +90,10 @@ def test_tipper_run(tmp_path: Path, max_iterations=1, pytest=True):
         workpath = tmp_path.parent / "test_tipper_fwr_run0" / "inversion_test.ui.geoh5"
 
     with Workspace(workpath) as geoh5:
-        survey = next(
-            child
-            for child in geoh5.get_entity("survey")
-            if not isinstance(child.parent, SimPEGGroup)
-        )
-        mesh = geoh5.get_entity("mesh")[0]
-        topography = geoh5.get_entity("topography")[0]
+        components = SyntheticsComponents(geoh5=geoh5)
+        survey = components.survey
+        mesh = components.mesh
+        topography = components.topography
 
         data = {}
         uncertainties = {}

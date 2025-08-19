@@ -11,35 +11,41 @@
 from pathlib import Path
 
 import numpy as np
+from geoh5py import Workspace
 
-from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import GravityInversionOptions
 from simpeg_drivers.potential_fields.gravity.driver import GravityInversionDriver
-from tests.testing_utils import setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
+from simpeg_drivers.utils.synthetics.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticsComponentsOptions,
+)
 
 
 def test_smallness_terms(tmp_path: Path):
     n_grid_points = 2
     refinement = (2,)
 
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.0,
-        anomaly=0.75,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
-        refinement=refinement,
-        flatten=False,
+    opts = SyntheticsComponentsOptions(
+        method="gravity",
+        survey=SurveyOptions(n_stations=n_grid_points, n_lines=n_grid_points),
+        mesh=MeshOptions(refinement=refinement),
+        model=ModelOptions(anomaly=0.75),
     )
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
 
-    with geoh5.open():
-        gz = survey.add_data({"gz": {"values": np.ones(survey.n_vertices)}})
-        mesh = model.parent
+        gz = components.survey.add_data(
+            {"gz": {"values": np.ones(components.survey.n_vertices)}}
+        )
+        mesh = components.model.parent
 
         params = GravityInversionOptions.build(
             geoh5=geoh5,
             mesh=mesh,
-            topography_object=topography,
+            topography_object=components.topography,
             data_object=gz.parent,
             starting_model=1e-4,
             reference_model=0.0,
@@ -61,23 +67,22 @@ def test_target_chi(tmp_path: Path, caplog):
     n_grid_points = 2
     refinement = (2,)
 
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.0,
-        anomaly=0.75,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
-        refinement=refinement,
-        flatten=False,
+    opts = SyntheticsComponentsOptions(
+        method="gravity",
+        survey=SurveyOptions(n_station=n_grid_points, n_lines=n_grid_points),
+        mesh=MeshOptions(refinement=refinement),
+        model=ModelOptions(anomaly=0.75),
     )
-
-    with geoh5.open():
-        gz = survey.add_data({"gz": {"values": np.ones(survey.n_vertices)}})
-        mesh = model.parent
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+        gz = components.survey.add_data(
+            {"gz": {"values": np.ones(components.survey.n_vertices)}}
+        )
+        mesh = components.model.parent
         params = GravityInversionOptions.build(
             geoh5=geoh5,
             mesh=mesh,
-            topography_object=topography,
+            topography_object=components.topography,
             data_object=gz.parent,
             gz_channel=gz,
             gz_uncertainty=2e-3,

@@ -14,7 +14,6 @@ from __future__ import annotations
 import warnings
 from copy import deepcopy
 from typing import TYPE_CHECKING
-from uuid import UUID
 
 import numpy as np
 from discretize import TensorMesh, TreeMesh
@@ -434,31 +433,6 @@ def get_drape_model(
         sorting = sorting[::-1].T.flatten()
         val.append(sorting)
     return val
-
-
-def get_inversion_output(h5file: str | Workspace, inversion_group: str | UUID):
-    """
-    Recover inversion iterations from a ContainerGroup comments.
-    """
-    if isinstance(h5file, Workspace):
-        workspace = h5file
-    else:
-        workspace = Workspace(h5file)
-
-    try:
-        group = workspace.get_entity(inversion_group)[0]
-    except IndexError as exc:
-        raise IndexError(
-            f"BaseInversion group {inversion_group} could not be found in the target geoh5 {h5file}"
-        ) from exc
-
-    outfile = group.get_entity("SimPEG.out")[0]
-    out = list(outfile.file_bytes.decode("utf-8").replace("\r", "").split("\n"))[:-1]
-    cols = out.pop(0).split(" ")
-    out = [[string_to_numeric(k) for k in elem.split(" ")] for elem in out]
-    out = dict(zip(cols, list(map(list, zip(*out, strict=True))), strict=True))
-
-    return out
 
 
 def xyz_2_drape_model(

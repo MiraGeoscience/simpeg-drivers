@@ -14,12 +14,11 @@ from pathlib import Path
 from unittest.mock import patch
 
 import numpy as np
-from geoapps_utils.modelling.plates import PlateModel
 from geoapps_utils.utils.importing import GeoAppsError
+from geoapps_utils.utils.locations import gaussian
 from geoh5py.workspace import Workspace
 from pytest import raises
 
-from simpeg_drivers.options import ActiveCellsOptions, ModelOptions
 from simpeg_drivers.potential_fields import (
     GravityForwardOptions,
     GravityInversionOptions,
@@ -28,8 +27,17 @@ from simpeg_drivers.potential_fields.gravity.driver import (
     GravityForwardDriver,
     GravityInversionDriver,
 )
-from simpeg_drivers.utils.utils import get_inversion_output
-from tests.testing_utils import check_target, setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
+from simpeg_drivers.utils.synthetics.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticsComponentsOptions,
+)
+from tests.utils.targets import (
+    check_target,
+    get_inversion_output,
+)
 
 
 # To test the full run and validate the inversion.
@@ -42,34 +50,30 @@ def test_gravity_fwr_run(
     n_grid_points=2,
     refinement=(2,),
 ):
-    plate_model = PlateModel(
-        strike_length=40.0,
-        dip_length=40.0,
-        width=40.0,
-        origin=(0.0, 0.0, 10.0),
-    )
+    filepath = Path(tmp_path) / "inversion_test.ui.geoh5"
+    with Workspace.create(filepath) as geoh5:
+        # Run the forward
+        components = SyntheticsComponents(
+            geoh5=geoh5,
+            options=SyntheticsComponentsOptions(
+                method="gravity",
+                survey=SurveyOptions(
+                    n_stations=n_grid_points, n_lines=n_grid_points, drape=5.0
+                ),
+                mesh=MeshOptions(refinement=refinement),
+                model=ModelOptions(anomaly=0.75),
+            ),
+        )
 
-    # Run the forward
-    geoh5, mesh, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        plate_model,
-        background=0.0,
-        anomaly=0.75,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
-        refinement=refinement,
-        inversion_type="gravity",
-        flatten=False,
-    )
+        params = GravityForwardOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
+            starting_model=components.model,
+            gz_channel_bool=True,
+        )
 
-    params = GravityForwardOptions.build(
-        geoh5=geoh5,
-        mesh=mesh,
-        topography_object=topography,
-        data_object=survey,
-        starting_model=model,
-        gz_channel_bool=True,
-    )
     fwr_driver = GravityForwardDriver(params)
     fwr_driver.run()
 
@@ -80,15 +84,14 @@ def test_array_too_large_run(
     workpath = tmp_path.parent / "test_gravity_fwr_run0" / "inversion_test.ui.geoh5"
 
     with Workspace(workpath) as geoh5:
+        components = SyntheticsComponents(geoh5)
         gz = geoh5.get_entity("Iteration_0_gz")[0]
-        mesh = geoh5.get_entity("mesh")[0]
-        topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
         params = GravityInversionOptions.build(
             geoh5=geoh5,
-            mesh=mesh,
-            topography_object=topography,
+            mesh=components.mesh,
+            topography_object=components.topography,
             data_object=gz.parent,
             gz_channel=gz,
             gz_uncertainty=1e-4,
@@ -114,24 +117,22 @@ def test_gravity_run(
         workpath = tmp_path.parent / "test_gravity_fwr_run0" / "inversion_test.ui.geoh5"
 
     with Workspace(workpath) as geoh5:
-        group = geoh5.get_entity("Gravity Forward")[0]
         gz = geoh5.get_entity("Iteration_0_gz")[0]
         orig_gz = gz.values.copy()
-        mesh = group.get_entity("mesh")[0]
-        model = mesh.get_entity("starting_model")[0]
+        components = SyntheticsComponents(geoh5)
 
-        inds = (mesh.centroids[:, 0] > -35) & (mesh.centroids[:, 0] < 35)
-        norms = np.ones(mesh.n_cells) * 2
+        inds = (components.mesh.centroids[:, 0] > -35) & (
+            components.mesh.centroids[:, 0] < 35
+        )
+        norms = np.ones(components.mesh.n_cells) * 2
         norms[inds] = 0
-        gradient_norms = mesh.add_data({"norms": {"values": norms}})
+        gradient_norms = components.mesh.add_data({"norms": {"values": norms}})
 
         # Test mesh UBC ordered
-        ind = np.argsort(mesh.octree_cells, order=["K", "J", "I"])
-        mesh.octree_cells = mesh.octree_cells[ind]
-        model.values = model.values[ind]
+        ind = np.argsort(components.mesh.octree_cells, order=["K", "J", "I"])
+        components.mesh.octree_cells = components.mesh.octree_cells[ind]
+        components.model.values = components.model.values[ind]
         gradient_norms.values = gradient_norms.values[ind]
-
-        topography = geoh5.get_entity("topography")[0]
 
         # Turn some values to nan
         values = gz.values.copy()
@@ -141,7 +142,7 @@ def test_gravity_run(
         # Run the inverse
         params = GravityInversionOptions.build(
             geoh5=geoh5,
-            mesh=mesh,
+            mesh=components.mesh,
             data_object=gz.parent,
             s_norm=0.0,
             x_norm=gradient_norms,
@@ -154,7 +155,7 @@ def test_gravity_run(
             initial_beta_ratio=1e-2,
             percentile=100,
             starting_model=1e-4,
-            topography_object=topography,
+            topography_object=components.topography,
             reference_model=0.0,
             save_sensitivities=True,
         )

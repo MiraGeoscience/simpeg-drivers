@@ -22,8 +22,22 @@ from simpeg_drivers.potential_fields import (
     GravityInversionOptions,
 )
 from simpeg_drivers.potential_fields.gravity.driver import GravityInversionDriver
-from simpeg_drivers.utils.utils import get_inversion_output
-from tests.testing_utils import check_target, setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.driver import (
+    SyntheticsComponents,
+)
+from simpeg_drivers.utils.synthetics.options import (
+    ActiveCellsOptions as SyntheticsActiveCellsOptions,
+)
+from simpeg_drivers.utils.synthetics.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticsComponentsOptions,
+)
+from tests.utils.targets import (
+    check_target,
+    get_inversion_output,
+)
 
 
 # To test the full run and validate the inversion.
@@ -38,21 +52,24 @@ def test_joint_surveys_fwr_run(
     refinement=(2,),
 ):
     # Create local problem A
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.0,
-        anomaly=0.75,
-        refinement=refinement,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
+    opts = SyntheticsComponentsOptions(
+        method="gravity",
+        survey=SurveyOptions(
+            n_stations=n_grid_points, n_lines=n_grid_points, drape=5.0, name="survey A"
+        ),
+        mesh=MeshOptions(refinement=refinement, name="mesh A"),
+        model=ModelOptions(anomaly=0.75, name="model A"),
+        active=SyntheticsActiveCellsOptions(name="active A"),
     )
-    params = GravityForwardOptions.build(
-        geoh5=geoh5,
-        mesh=model.parent,
-        topography_object=topography,
-        data_object=survey,
-        starting_model=model,
-    )
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+        params = GravityForwardOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
+            starting_model=components.model,
+        )
     fwr_driver_a = GravityInversionDriver(params)
 
     with fwr_driver_a.out_group.workspace.open():
@@ -60,24 +77,26 @@ def test_joint_surveys_fwr_run(
 
     # Create local problem B
     with geoh5.open():
-        _, _, model, survey, _ = setup_inversion_workspace(
-            tmp_path,
-            background=0.0,
-            anomaly=0.75,
-            refinement=[0, 2],
-            n_electrodes=int(n_grid_points / 2),
-            n_lines=int(n_grid_points / 2),
-            flatten=False,
-            geoh5=geoh5,
-            drape_height=10.0,
+        opts = SyntheticsComponentsOptions(
+            method="gravity",
+            survey=SurveyOptions(
+                n_stations=int(n_grid_points / 2),
+                n_lines=int(n_grid_points / 2),
+                drape=10.0,
+                name="survey B",
+            ),
+            mesh=MeshOptions(refinement=(0, 2), name="mesh B"),
+            model=ModelOptions(anomaly=0.75, name="model B"),
+            active=SyntheticsActiveCellsOptions(name="active B"),
         )
-    params = GravityForwardOptions.build(
-        geoh5=geoh5,
-        mesh=model.parent,
-        topography_object=topography,
-        data_object=survey,
-        starting_model=model,
-    )
+        components = SyntheticsComponents(geoh5, options=opts)
+        params = GravityForwardOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
+            starting_model=components.model,
+        )
     fwr_driver_b = GravityInversionDriver(params)
 
     with fwr_driver_b.out_group.workspace.open():

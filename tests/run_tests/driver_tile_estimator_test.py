@@ -13,15 +13,21 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+from geoh5py import Workspace
 
-from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import MagneticInversionOptions
 from simpeg_drivers.potential_fields.magnetic_scalar.driver import (
     MagneticInversionDriver,
 )
+from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
+from simpeg_drivers.utils.synthetics.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticsComponentsOptions,
+)
 from simpeg_drivers.utils.tile_estimate import TileEstimator, TileParameters
 from simpeg_drivers.utils.utils import simpeg_group_to_driver
-from tests.testing_utils import setup_inversion_workspace
 
 
 def test_tile_estimator_run(
@@ -31,32 +37,31 @@ def test_tile_estimator_run(
 ):
     inducing_field = (49999.8, 90.0, 0.0)
     # Run the forward
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.0,
-        anomaly=0.05,
-        refinement=refinement,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
-        flatten=False,
+
+    opts = SyntheticsComponentsOptions(
+        method="magnetic_scalar",
+        survey=SurveyOptions(n_stations=n_grid_points, n_lines=n_grid_points),
+        mesh=MeshOptions(refinement=refinement),
+        model=ModelOptions(anomaly=0.05),
     )
-    with geoh5.open():
-        tmi_channel = survey.add_data(
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+        tmi_channel = components.survey.add_data(
             {
-                "tmi": {"values": np.random.rand(survey.n_vertices)},
+                "tmi": {"values": np.random.rand(components.survey.n_vertices)},
             }
         )
-    params = MagneticInversionOptions.build(
-        geoh5=geoh5,
-        mesh=model.parent,
-        topography_object=topography,
-        inducing_field_strength=inducing_field[0],
-        inducing_field_inclination=inducing_field[1],
-        inducing_field_declination=inducing_field[2],
-        data_object=survey,
-        tmi_channel=tmi_channel,
-        starting_model=model,
-    )
+        params = MagneticInversionOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            inducing_field_strength=inducing_field[0],
+            inducing_field_inclination=inducing_field[1],
+            inducing_field_declination=inducing_field[2],
+            data_object=components.survey,
+            tmi_channel=tmi_channel,
+            starting_model=components.model,
+        )
 
     driver = MagneticInversionDriver(params)
     tile_params = TileParameters(geoh5=geoh5, simulation=driver.out_group)
