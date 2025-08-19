@@ -291,9 +291,7 @@ def create_simulation(
     if isinstance(simulation, BaseFDEMSimulation | BaseTDEMSimulation):
         compute_em_projections(simulation.survey.locations, local_sim)
     elif isinstance(simulation, Simulation3DRes | Simulation3DIP):
-        compute_dc_projections(
-            simulation.survey.locations, simulation.survey.cells, local_sim
-        )
+        compute_dc_projections(simulation.survey.locations, local_sim)
     return local_sim, mapping, local_ordering
 
 
@@ -333,12 +331,12 @@ def create_survey(survey, indices, channel=None):
             else:
                 new_rx.locations = rx.locations[intersect]
 
-            new_rx.local_index = indices
+            new_rx.local_index = new_rx.local_index[intersect]
             receivers.append(new_rx)
 
         if any(receivers):
             new_src = copy(src)
-            new_src.rx_ids = indices
+            new_src.rx_ids = new_src.rx_ids[intersect]
             new_src.receiver_list = receivers
             sources.append(new_src)
 
