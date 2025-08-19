@@ -1,18 +1,14 @@
-[tool.poetry]
+[build-system]
+requires = ["poetry-core>=1.8.0"]
+build-backend = "poetry.core.masonry.api"
+
+[project]
 name = "simpeg-drivers"
-version = "0.4.0-alpha.1"
+version = "0.4.0a1"
+requires-python = '>=3.10,<4.0'
+
 description = "Application to run SimPEG inversions with geoh5 files from Geoscience Analyst."
 license = "MIT"
-authors = ["Mira Geoscience <support@mirageoscience.com>"]
-maintainers = [
-    "Benjamin Kary <benjamink@mirageoscience.com>",
-    "Dominique Fournier <dominiquef@mirageoscience.com>",
-]
-repository = "https://github.com/MiraGeoscience/simpeg-drivers"
-documentation = "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/"
-homepage = "https://www.mirageoscience.com/mining-industry-software/python-integration/"
-readme = "package.rst"
-
 keywords = [
     "direct current resistivity",
     "earth science",
@@ -27,6 +23,21 @@ keywords = [
     "open science",
     "simpeg",
 ]
+readme = "package.rst"
+dynamic = ["dependencies", "classifiers"]
+authors = [{ name = "Mira Geoscience", email = "support@mirageoscience.com" }]
+maintainers = [
+  { name = "Benjamin Kary", email = "benjamink@mirageoscience.com" },
+  { name = "Dominique Fournier", email = "dominiquef@mirageoscience.com" }
+]
+
+[project.urls]
+repository = "https://github.com/MiraGeoscience/simpeg-drivers"
+documentation = "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/"
+homepage = "https://www.mirageoscience.com/mining-industry-software/python-integration/"
+
+[tool.poetry]
+requires-poetry = '>=2.0,<3.0'
 
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -54,8 +65,6 @@ include = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.10"
-
 # note: py-deps-clock defines custom mapping from dask to dask-core
 dask = ">=2025.3, <2025.4.dev"  # also in simpeg[dask]
 
@@ -203,7 +212,3 @@ fail_under = 85
 [tool.coverage.html]
 skip_empty = true
 skip_covered = true
-
-[build-system]
-requires = ["poetry-core>=1.0.0", "setuptools"]
-build-backend = "poetry.core.masonry.api"
