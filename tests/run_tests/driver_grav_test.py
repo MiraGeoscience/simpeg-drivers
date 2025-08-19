@@ -121,7 +121,9 @@ def test_gravity_run(
         orig_gz = gz.values.copy()
         components = SyntheticsComponents(geoh5)
 
-        inds = (components.mesh.centroids[:, 0] > -35) & (components.mesh.centroids[:, 0] < 35)
+        inds = (components.mesh.centroids[:, 0] > -35) & (
+            components.mesh.centroids[:, 0] < 35
+        )
         norms = np.ones(components.mesh.n_cells) * 2
         norms[inds] = 0
         gradient_norms = components.mesh.add_data({"norms": {"values": norms}})

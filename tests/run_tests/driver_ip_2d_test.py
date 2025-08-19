@@ -59,7 +59,7 @@ def test_ip_2d_fwr_run(
         model=ModelOptions(background=1e-6, anomaly=1e-1),
     )
     with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
-        components = SyntheticsComponents(geoh5,  options=opts)
+        components = SyntheticsComponents(geoh5, options=opts)
         params = IP2DForwardOptions.build(
             geoh5=geoh5,
             data_object=components.survey,
@@ -72,7 +72,7 @@ def test_ip_2d_fwr_run(
                 line_object=geoh5.get_entity("line_ids")[0],
                 line_id=101,
             ),
-    )
+        )
 
     fwr_driver = IP2DForwardDriver(params)
     fwr_driver.run()
