@@ -20,14 +20,27 @@ from scipy.spatial import cKDTree
 from scipy.spatial.distance import cdist
 from simpeg import data, data_misfit, maps, meta
 from simpeg.electromagnetics.base_1d import BaseEM1DSimulation
+from simpeg.electromagnetics.frequency_domain.simulation import BaseFDEMSimulation
 from simpeg.electromagnetics.frequency_domain.sources import (
     LineCurrent as FEMLineCurrent,
 )
+from simpeg.electromagnetics.static.induced_polarization.simulation import (
+    Simulation3DNodal as Simulation3DIP,
+)
+from simpeg.electromagnetics.static.resistivity.simulation import (
+    Simulation3DNodal as Simulation3DRes,
+)
+from simpeg.electromagnetics.time_domain.simulation import BaseTDEMSimulation
 from simpeg.electromagnetics.time_domain.sources import LineCurrent as TEMLineCurrent
 from simpeg.simulation import BaseSimulation
 from simpeg.survey import BaseSurvey
 
-from .surveys import get_intersecting_cells, get_unique_locations
+from simpeg_drivers.utils.surveys import (
+    compute_dc_projections,
+    compute_em_projections,
+    get_intersecting_cells,
+    get_unique_locations,
+)
 
 
 def create_mesh(
@@ -275,14 +288,12 @@ def create_simulation(
 
     local_sim = type(simulation)(*args, **kwargs)
 
-    # TODO bring back
-    # inv_type = inversion_data.params.inversion_type
-    # if inv_type in ["fdem", "tdem"]:
-    #     compute_em_projections(inversion_data, local_sim)
-    # elif ("current" in inv_type or "polarization" in inv_type) and (
-    #     "2d" not in inv_type or "pseudo" in inv_type
-    # ):
-    #     compute_dc_projections(inversion_data, local_sim, indices)
+    if isinstance(simulation, BaseFDEMSimulation | BaseTDEMSimulation):
+        compute_em_projections(simulation.survey.locations, local_sim)
+    elif isinstance(simulation, Simulation3DRes | Simulation3DIP):
+        compute_dc_projections(
+            simulation.survey.locations, simulation.survey.cells, local_sim
+        )
     return local_sim, mapping, local_ordering
 
 
