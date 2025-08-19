@@ -20,21 +20,28 @@ from simpeg_drivers.plate_simulation.models.options import (
 )
 from simpeg_drivers.plate_simulation.options import MeshOptions, PlateSimulationOptions
 from simpeg_drivers.potential_fields.gravity.options import GravityForwardOptions
-from tests.testing_utils import setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
+from simpeg_drivers.utils.synthetics.options import (
+    MeshOptions as SyntheticsMeshOptions,
+)
+from simpeg_drivers.utils.synthetics.options import (
+    ModelOptions as SyntheticsModelOptions,
+)
+from simpeg_drivers.utils.synthetics.options import (
+    SurveyOptions,
+    SyntheticsComponentsOptions,
+)
 
 
 def test_gravity_plate_simulation(tmp_path):
-    geoh5, mesh, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.0,
-        anomaly=0.0,
-        n_electrodes=8,
-        n_lines=8,
-        inversion_type="gravity",
-        flatten=False,
+    opts = SyntheticsComponentsOptions(
+        method="gravity",
+        survey=SurveyOptions(n_stations=8, n_lines=8, drape=5.0),
+        mesh=SyntheticsMeshOptions(),
+        model=SyntheticsModelOptions(anomaly=0.0),
     )
-
-    with geoh5.open() as ws:
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
         mesh_params = MeshOptions(
             u_cell_size=10.0,
             v_cell_size=10.0,
@@ -66,19 +73,19 @@ def test_gravity_plate_simulation(tmp_path):
         )
 
         options = GravityForwardOptions.build(
-            topography_object=topography,
-            data_object=survey,
-            geoh5=ws,
+            topography_object=components.topography,
+            data_object=components.survey,
+            geoh5=geoh5,
             starting_model=0.1,
         )
 
-        gravity_inversion = SimPEGGroup.create(ws)
+        gravity_inversion = SimPEGGroup.create(geoh5)
         gravity_inversion.options = options.serialize()
 
         params = PlateSimulationOptions(
             title="test",
             run_command="run",
-            geoh5=ws,
+            geoh5=geoh5,
             mesh=mesh_params,
             model=model_params,
             simulation=gravity_inversion,

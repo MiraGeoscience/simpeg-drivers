@@ -13,47 +13,52 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+from geoh5py import Workspace
 
 from simpeg_drivers.components import InversionData, InversionMesh, InversionTopography
 from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import MVIInversionOptions
-from tests.testing_utils import Geoh5Tester, setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
+from simpeg_drivers.utils.synthetics.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticsComponentsOptions,
+)
 
 
 def test_get_locations(tmp_path: Path):
-    geoh5, mesh, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.0,
-        anomaly=0.05,
-        refinement=(2,),
-        n_electrodes=2,
-        n_lines=2,
-        inversion_type="magnetic_vector",
+    opts = SyntheticsComponentsOptions(
+        method="magnetic_vector",
+        survey=SurveyOptions(n_stations=2, n_lines=2),
+        mesh=MeshOptions(refinement=(2,)),
+        model=ModelOptions(anomaly=0.05),
     )
-    with geoh5.open():
-        tmi_channel, gyz_channel = survey.add_data(
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+        tmi_channel, gyz_channel = components.survey.add_data(
             {
-                "tmi": {"values": np.random.rand(survey.n_vertices)},
-                "gyz": {"values": np.random.rand(survey.n_vertices)},
+                "tmi": {"values": np.random.rand(components.survey.n_vertices)},
+                "gyz": {"values": np.random.rand(components.survey.n_vertices)},
             }
         )
-        elevation = topography.add_data(
-            {"elevation": {"values": topography.vertices[:, 2]}}
+        elevation = components.topography.add_data(
+            {"elevation": {"values": components.topography.vertices[:, 2]}}
         )
-    params = MVIInversionOptions.build(
-        geoh5=geoh5,
-        mesh=mesh,
-        data_object=survey,
-        tmi_channel=tmi_channel,
-        tmi_uncertainty=0.01,
-        active_cells=ActiveCellsOptions(
-            topography_object=topography, topography=elevation
-        ),
-        inducing_field_strength=50000.0,
-        inducing_field_inclination=60.0,
-        inducing_field_declination=0.0,
-        starting_model=1.0,
-    )
+        params = MVIInversionOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            data_object=components.survey,
+            tmi_channel=tmi_channel,
+            tmi_uncertainty=0.01,
+            active_cells=ActiveCellsOptions(
+                topography_object=components.topography, topography=elevation
+            ),
+            inducing_field_strength=50000.0,
+            inducing_field_inclination=60.0,
+            inducing_field_declination=0.0,
+            starting_model=1.0,
+        )
 
     geoh5 = params.geoh5
     with geoh5.open():
@@ -66,14 +71,14 @@ def test_get_locations(tmp_path: Path):
 
         # Check that boundary cells are handled properly
         # Shift one of the survey vertices to the corner
-        survey.vertices[0, :] = mesh.centroids[0, :]
-        geoh5.update_attribute(survey, "vertices")
+        components.survey.vertices[0, :] = components.mesh.centroids[0, :]
+        geoh5.update_attribute(components.survey, "vertices")
         inversion_mesh = InversionMesh(geoh5, params)
         inversion_data = InversionData(geoh5, params)
         params.inversion_type = "magnetotellurics"
         active_cells = topo.active_cells(inversion_mesh, inversion_data)
 
-        mesh.add_data(
+        components.mesh.add_data(
             {
                 "active_cells": {
                     "values": active_cells,

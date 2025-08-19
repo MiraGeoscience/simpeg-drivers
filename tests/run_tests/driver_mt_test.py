@@ -15,7 +15,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-from dask.distributed import LocalCluster, performance_report
 from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 
@@ -27,9 +26,19 @@ from simpeg_drivers.natural_sources.magnetotellurics.options import (
     MTForwardOptions,
     MTInversionOptions,
 )
-from simpeg_drivers.options import ActiveCellsOptions
-from simpeg_drivers.utils.utils import get_inversion_output
-from tests.testing_utils import check_target, setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.driver import (
+    SyntheticsComponents,
+)
+from simpeg_drivers.utils.synthetics.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticsComponentsOptions,
+)
+from tests.utils.targets import (
+    check_target,
+    get_inversion_output,
+)
 
 
 # To test the full run and validate the inversion.
@@ -92,35 +101,31 @@ def test_magnetotellurics_fwr_run(
     cell_size=(20.0, 20.0, 20.0),
 ):
     # Run the forward
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.01,
-        anomaly=1.0,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
-        refinement=refinement,
-        cell_size=cell_size,
-        drape_height=0.0,
-        inversion_type="magnetotellurics",
-        flatten=False,
+    opts = SyntheticsComponentsOptions(
+        method="magnetotellurics",
+        survey=SurveyOptions(n_stations=n_grid_points, n_lines=n_grid_points),
+        mesh=MeshOptions(cell_size=cell_size, refinement=refinement),
+        model=ModelOptions(background=0.01),
     )
-    params = MTForwardOptions.build(
-        geoh5=geoh5,
-        mesh=model.parent,
-        topography_object=topography,
-        data_object=survey,
-        starting_model=model,
-        background_conductivity=1e-2,
-        zxx_real_channel_bool=True,
-        zxx_imag_channel_bool=True,
-        zxy_real_channel_bool=True,
-        zxy_imag_channel_bool=True,
-        zyx_real_channel_bool=True,
-        zyx_imag_channel_bool=True,
-        zyy_real_channel_bool=True,
-        zyy_imag_channel_bool=True,
-        solver_type="Mumps",
-    )
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+        params = MTForwardOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
+            starting_model=components.model,
+            background_conductivity=1e-2,
+            zxx_real_channel_bool=True,
+            zxx_imag_channel_bool=True,
+            zxy_real_channel_bool=True,
+            zxy_imag_channel_bool=True,
+            zyx_real_channel_bool=True,
+            zyx_imag_channel_bool=True,
+            zyy_real_channel_bool=True,
+            zyy_imag_channel_bool=True,
+            solver_type="Mumps",
+        )
 
     fwr_driver = MTForwardDriver(params)
     fwr_driver.run()
@@ -137,13 +142,10 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
         )
 
     with Workspace(workpath) as geoh5:
-        survey = next(
-            child
-            for child in geoh5.get_entity("survey")
-            if not isinstance(child.parent, SimPEGGroup)
-        )
-        mesh = geoh5.get_entity("mesh")[0]
-        topography = geoh5.get_entity("topography")[0]
+        components = SyntheticsComponents(geoh5)
+        survey = components.survey
+        mesh = components.mesh
+        topography = components.topography
         data_kwargs = setup_data(geoh5, survey)
 
         orig_zyy_real_1 = geoh5.get_entity("Iteration_0_zyy_real_[0]")[0].values

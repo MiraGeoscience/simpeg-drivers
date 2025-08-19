@@ -23,9 +23,19 @@ from simpeg_drivers.electricals.direct_current.three_dimensions.options import (
     DC3DForwardOptions,
     DC3DInversionOptions,
 )
-from simpeg_drivers.options import ActiveCellsOptions
-from simpeg_drivers.utils.utils import get_inversion_output
-from tests.testing_utils import check_target, setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.driver import (
+    SyntheticsComponents,
+)
+from simpeg_drivers.utils.synthetics.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticsComponentsOptions,
+)
+from tests.utils.targets import (
+    check_target,
+    get_inversion_output,
+)
 
 
 # To test the full run and validate the inversion.
@@ -41,37 +51,38 @@ def test_dc_3d_fwr_run(
     refinement=(4, 6),
 ):
     # Run the forward
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.01,
-        anomaly=10,
-        n_electrodes=n_electrodes,
-        n_lines=n_lines,
-        refinement=refinement,
-        drape_height=0.0,
-        inversion_type="direct current 3d",
-        flatten=False,
+    opts = SyntheticsComponentsOptions(
+        method="direct current 3d",
+        survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
+        mesh=MeshOptions(refinement=refinement),
+        model=ModelOptions(background=0.01, anomaly=10.0),
     )
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
 
-    # Randomly flip order of receivers
-    old = np.random.randint(0, survey.cells.shape[0], n_electrodes)
-    indices = np.ones(survey.cells.shape[0], dtype=bool)
-    indices[old] = False
+        # Randomly flip order of receivers
+        old = np.random.randint(0, components.survey.cells.shape[0], n_electrodes)
+        indices = np.ones(components.survey.cells.shape[0], dtype=bool)
+        indices[old] = False
 
-    tx_id = np.r_[survey.ab_cell_id.values[indices], survey.ab_cell_id.values[~indices]]
-    cells = np.vstack([survey.cells[indices, :], survey.cells[~indices, :]])
+        tx_id = np.r_[
+            components.survey.ab_cell_id.values[indices],
+            components.survey.ab_cell_id.values[~indices],
+        ]
+        cells = np.vstack(
+            [components.survey.cells[indices, :], components.survey.cells[~indices, :]]
+        )
 
-    with survey.workspace.open():
-        survey.ab_cell_id = tx_id
-        survey.cells = cells
+        components.survey.ab_cell_id = tx_id
+        components.survey.cells = cells
 
-    params = DC3DForwardOptions.build(
-        geoh5=geoh5,
-        mesh=model.parent,
-        topography_object=topography,
-        data_object=survey,
-        starting_model=model,
-    )
+        params = DC3DForwardOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
+            starting_model=components.model,
+        )
     fwr_driver = DC3DForwardDriver(params)
     fwr_driver.run()
 
@@ -87,15 +98,14 @@ def test_dc_3d_run(
         workpath = tmp_path.parent / "test_dc_3d_fwr_run0" / "inversion_test.ui.geoh5"
 
     with Workspace(workpath) as geoh5:
+        components = SyntheticsComponents(geoh5)
         potential = geoh5.get_entity("Iteration_0_potential")[0]
-        mesh = geoh5.get_entity("mesh")[0]
-        topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
         params = DC3DInversionOptions.build(
             geoh5=geoh5,
-            mesh=mesh,
-            topography_object=topography,
+            mesh=components.mesh,
+            topography_object=components.topography,
             data_object=potential.parent,
             starting_model=1e-2,
             reference_model=1e-2,
@@ -140,24 +150,21 @@ def test_dc_single_line_fwr_run(
     refinement=(4, 6),
 ):
     # Run the forward
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.01,
-        anomaly=10,
-        n_electrodes=n_electrodes,
-        n_lines=n_lines,
-        refinement=refinement,
-        drape_height=0.0,
-        inversion_type="direct current 3d",
-        flatten=False,
+    opts = SyntheticsComponentsOptions(
+        method="direct current 3d",
+        survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
+        mesh=MeshOptions(refinement=refinement),
+        model=ModelOptions(background=0.01, anomaly=10.0),
     )
-    params = DC3DForwardOptions.build(
-        geoh5=geoh5,
-        mesh=model.parent,
-        topography_object=topography,
-        data_object=survey,
-        starting_model=model,
-    )
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+        params = DC3DForwardOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
+            starting_model=components.model,
+        )
 
     fwr_driver = DC3DForwardDriver(params)
     assert np.all(fwr_driver.window.window["size"] > 0)

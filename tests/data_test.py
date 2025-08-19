@@ -31,36 +31,42 @@ from simpeg_drivers.potential_fields.magnetic_vector.driver import (
 from simpeg_drivers.potential_fields.magnetic_vector.options import (
     MVIInversionOptions,
 )
-from tests.testing_utils import setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
+from simpeg_drivers.utils.synthetics.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticsComponentsOptions,
+)
 
 
 def get_mvi_params(tmp_path: Path, **kwargs) -> MVIInversionOptions:
-    geoh5, entity, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.0,
-        anomaly=0.05,
-        refinement=(2,),
-        n_electrodes=2,
-        n_lines=2,
-        inversion_type="magnetic_vector",
-    )
-    with geoh5.open():
-        tmi_channel = survey.add_data(
-            {"tmi": {"values": np.random.rand(survey.n_vertices)}}
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        opts = SyntheticsComponentsOptions(
+            method="magnetic_vector",
+            survey=SurveyOptions(n_stations=2, n_lines=2),
+            mesh=MeshOptions(refinement=(2,)),
+            model=ModelOptions(anomaly=0.05),
         )
-    params = MVIInversionOptions.build(
-        geoh5=geoh5,
-        data_object=survey,
-        tmi_channel=tmi_channel,
-        tmi_uncertainty=1.0,
-        topography_object=topography,
-        mesh=model.parent,
-        starting_model=model,
-        inducing_field_strength=50000.0,
-        inducing_field_inclination=60.0,
-        inducing_field_declination=30.0,
-        **kwargs,
-    )
+    components = SyntheticsComponents(geoh5=geoh5, options=opts)
+
+    with geoh5.open():
+        tmi_channel = components.survey.add_data(
+            {"tmi": {"values": np.random.rand(components.survey.n_vertices)}}
+        )
+        params = MVIInversionOptions.build(
+            geoh5=geoh5,
+            data_object=components.survey,
+            tmi_channel=tmi_channel,
+            tmi_uncertainty=1.0,
+            topography_object=components.topography,
+            mesh=components.model.parent,
+            starting_model=components.model,
+            inducing_field_strength=50000.0,
+            inducing_field_inclination=60.0,
+            inducing_field_declination=30.0,
+            **kwargs,
+        )
     return params
 
 
@@ -245,23 +251,20 @@ def test_get_survey(tmp_path: Path):
 
 def test_data_parts(tmp_path: Path):
     n_lines = 8
-    geoh5, entity, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.01,
-        anomaly=10,
-        n_electrodes=10,
-        n_lines=n_lines,
-        drape_height=0.0,
-        inversion_type="direct current 3d",
-        flatten=False,
+    opts = SyntheticsComponentsOptions(
+        method="direct current 3d",
+        survey=SurveyOptions(n_stations=10, n_lines=n_lines),
+        mesh=MeshOptions(),
+        model=ModelOptions(background=0.01, anomaly=10.0),
     )
-    with geoh5.open():
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
         params = DC3DForwardOptions.build(
             geoh5=geoh5,
-            data_object=survey,
-            topography_object=topography,
-            mesh=model.parent,
-            starting_model=model,
+            data_object=components.survey,
+            topography_object=components.topography,
+            mesh=components.model.parent,
+            starting_model=components.model,
         )
         data = InversionData(geoh5, params)
 
