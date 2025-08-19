@@ -15,7 +15,6 @@ from pathlib import Path
 import numpy as np
 from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
-from pytest import raises
 
 from simpeg_drivers.electromagnetics.time_domain_1d.driver import (
     TDEM1DForwardDriver,
@@ -25,9 +24,19 @@ from simpeg_drivers.electromagnetics.time_domain_1d.options import (
     TDEM1DForwardOptions,
     TDEM1DInversionOptions,
 )
-from simpeg_drivers.options import ActiveCellsOptions
-from simpeg_drivers.utils.utils import get_inversion_output
-from tests.testing_utils import check_target, setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.driver import (
+    SyntheticsComponents,
+)
+from simpeg_drivers.utils.synthetics.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticsComponentsOptions,
+)
+from tests.utils.targets import (
+    check_target,
+    get_inversion_output,
+)
 
 
 # To test the full run and validate the inversion.
@@ -42,28 +51,30 @@ def test_airborne_tem_1d_fwr_run(
     cell_size=(20.0, 20.0, 20.0),
 ):
     # Run the forward
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.1,
-        anomaly=1.0,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
-        cell_size=cell_size,
-        refinement=refinement,
-        inversion_type="airborne tdem 1d",
-        drape_height=10.0,
-        padding_distance=400.0,
-        flatten=False,
+    opts = SyntheticsComponentsOptions(
+        method="airborne tdem 1d",
+        survey=SurveyOptions(
+            n_stations=n_grid_points, n_lines=n_grid_points, drape=10.0
+        ),
+        mesh=MeshOptions(
+            cell_size=cell_size, refinement=refinement, padding_distance=400.0
+        ),
+        model=ModelOptions(background=0.1),
     )
-    params = TDEM1DForwardOptions.build(
-        geoh5=geoh5,
-        mesh=model.parent,
-        topography_object=topography,
-        data_object=survey,
-        starting_model=model,
-        z_channel_bool=True,
-        solver_type="Mumps",
-    )
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(
+            geoh5,
+            options=opts,
+        )
+        params = TDEM1DForwardOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
+            starting_model=components.model,
+            z_channel_bool=True,
+            solver_type="Mumps",
+        )
 
     fwr_driver = TDEM1DForwardDriver(params)
 
@@ -80,31 +91,25 @@ def test_airborne_tem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
         )
 
     with Workspace(workpath) as geoh5:
-        survey = next(
-            child
-            for child in geoh5.get_entity("Airborne_rx")
-            if not isinstance(child.parent, SimPEGGroup)
-        )
-        mesh = geoh5.get_entity("mesh")[0]
-        topography = geoh5.get_entity("topography")[0]
+        components = SyntheticsComponents(geoh5=geoh5)
         data = {}
         uncertainties = {}
-        components = {
+        channels = {
             "z": "dBzdt",
         }
 
-        for comp, cname in components.items():
+        for chan, cname in channels.items():
             data[cname] = []
             uncertainties[f"{cname} uncertainties"] = []
-            for ii, _ in enumerate(survey.channels):
-                data_entity = geoh5.get_entity(f"Iteration_0_{comp}_[{ii}]")[0].copy(
-                    parent=survey
+            for ii, _ in enumerate(components.survey.channels):
+                data_entity = geoh5.get_entity(f"Iteration_0_{chan}_[{ii}]")[0].copy(
+                    parent=components.survey
                 )
                 data[cname].append(data_entity)
 
-                uncert = survey.add_data(
+                uncert = components.survey.add_data(
                     {
-                        f"uncertainty_{comp}_[{ii}]": {
+                        f"uncertainty_{chan}_[{ii}]": {
                             "values": np.ones_like(data_entity.values)
                             * (np.percentile(np.abs(data_entity.values), 10) / 2.0)
                         }
@@ -112,16 +117,16 @@ def test_airborne_tem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
                 )
                 uncertainties[f"{cname} uncertainties"].append(uncert)
 
-        survey.add_components_data(data)
-        survey.add_components_data(uncertainties)
+        components.survey.add_components_data(data)
+        components.survey.add_components_data(uncertainties)
 
         data_kwargs = {}
-        for comp in components:
-            data_kwargs[f"{comp}_channel"] = survey.fetch_property_group(
-                name=f"dB{comp}dt"
+        for chan in channels:
+            data_kwargs[f"{chan}_channel"] = components.survey.fetch_property_group(
+                name=f"dB{chan}dt"
             )
-            data_kwargs[f"{comp}_uncertainty"] = survey.fetch_property_group(
-                name=f"dB{comp}dt uncertainties"
+            data_kwargs[f"{chan}_uncertainty"] = components.survey.fetch_property_group(
+                name=f"dB{chan}dt uncertainties"
             )
 
         orig_dBzdt = geoh5.get_entity("Iteration_0_z_[0]")[0].values
@@ -129,9 +134,9 @@ def test_airborne_tem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
         # Run the inverse
         params = TDEM1DInversionOptions.build(
             geoh5=geoh5,
-            mesh=mesh,
-            topography_object=topography,
-            data_object=survey,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
             starting_model=5e-1,
             reference_model=1e-1,
             s_norm=0.0,

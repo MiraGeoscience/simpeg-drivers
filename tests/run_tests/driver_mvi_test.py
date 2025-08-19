@@ -19,9 +19,7 @@ from geoh5py.groups import PropertyGroup
 from geoh5py.groups.property_group import GroupTypeEnum
 from geoh5py.objects import Curve
 from geoh5py.workspace import Workspace
-from pytest import warns
 
-from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import (
     MVIForwardOptions,
     MVIInversionOptions,
@@ -30,8 +28,19 @@ from simpeg_drivers.potential_fields.magnetic_vector.driver import (
     MVIForwardDriver,
     MVIInversionDriver,
 )
-from simpeg_drivers.utils.utils import get_inversion_output
-from tests.testing_utils import check_target, setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.driver import (
+    SyntheticsComponents,
+)
+from simpeg_drivers.utils.synthetics.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticsComponentsOptions,
+)
+from tests.utils.targets import (
+    check_target,
+    get_inversion_output,
+)
 
 
 # To test the full run and validate the inversion.
@@ -46,33 +55,37 @@ def test_magnetic_vector_fwr_run(
     refinement=(2,),
 ):
     # Run the forward
-    geoh5, _, model, points, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.0,
-        anomaly=0.05,
-        refinement=refinement,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
+    opts = SyntheticsComponentsOptions(
+        method="magnetic_vector",
+        survey=SurveyOptions(
+            n_stations=n_grid_points, n_lines=n_grid_points, drape=5.0
+        ),
+        mesh=MeshOptions(refinement=refinement),
+        model=ModelOptions(anomaly=0.05),
     )
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
 
-    # Unitest dealing with Curve
-    with geoh5.open():
-        survey = Curve.create(geoh5, name=points.name, vertices=points.vertices)
-        geoh5.remove_entity(points)
-    inducing_field = (50000.0, 90.0, 0.0)
-    params = MVIForwardOptions.build(
-        forward_only=True,
-        geoh5=geoh5,
-        mesh=model.parent,
-        topography_object=topography,
-        inducing_field_strength=inducing_field[0],
-        inducing_field_inclination=inducing_field[1],
-        inducing_field_declination=inducing_field[2],
-        data_object=survey,
-        starting_model=model,
-        starting_inclination=45,
-        starting_declination=270,
-    )
+        # Unitest dealing with Curve
+
+        _ = Curve.create(
+            geoh5, name=components.survey.name, vertices=components.survey.vertices
+        )
+        geoh5.remove_entity(components.survey)
+        inducing_field = (50000.0, 90.0, 0.0)
+        params = MVIForwardOptions.build(
+            forward_only=True,
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            inducing_field_strength=inducing_field[0],
+            inducing_field_inclination=inducing_field[1],
+            inducing_field_declination=inducing_field[2],
+            data_object=components.survey,
+            starting_model=components.model,
+            starting_inclination=45,
+            starting_declination=270,
+        )
     fwr_driver = MVIForwardDriver(params)
     fwr_driver.run()
 
@@ -95,8 +108,9 @@ def test_magnetic_vector_run(
     with Workspace(workpath) as geoh5:
         tmi = geoh5.get_entity("Iteration_0_tmi")[0]
         orig_tmi = tmi.values.copy()
-        mesh = geoh5.get_entity("mesh")[0]
-        topography = geoh5.get_entity("topography")[0]
+        components = SyntheticsComponents(geoh5=geoh5)
+        mesh = components.mesh
+        topography = components.topography
         inducing_field = (50000.0, 90.0, 0.0)
         dip, direction = mesh.add_data(
             {

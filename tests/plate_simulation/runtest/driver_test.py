@@ -8,54 +8,58 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-import numpy as np
 from geoh5py import Workspace
 from geoh5py.groups import SimPEGGroup
-from geoh5py.objects import AirborneTEMReceivers, ObjectBase, Octree, Surface
 from geoh5py.ui_json import InputFile
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.electromagnetics.time_domain.options import TDEMForwardOptions
 from simpeg_drivers.plate_simulation.driver import (
-    PlateSimulationDriver,
     PlateSimulationOptions,
 )
 from simpeg_drivers.plate_simulation.models.options import ModelOptions
 from simpeg_drivers.plate_simulation.options import MeshOptions
 from simpeg_drivers.potential_fields.gravity.options import GravityForwardOptions
-from tests.testing_utils import setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
+from simpeg_drivers.utils.synthetics.options import (
+    MeshOptions as SyntheticsMeshOptions,
+)
+from simpeg_drivers.utils.synthetics.options import (
+    ModelOptions as SyntheticsModelOptions,
+)
+from simpeg_drivers.utils.synthetics.options import (
+    SurveyOptions,
+    SyntheticsComponentsOptions,
+)
 
 
 # pylint: disable=too-many-statements
 def test_plate_simulation_params_from_input_file(tmp_path):
-    geoh5, mesh, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.0,
-        anomaly=0.0,
-        n_electrodes=8,
-        n_lines=8,
-        inversion_type="gravity",
-        flatten=False,
+    opts = SyntheticsComponentsOptions(
+        method="gravity",
+        survey=SurveyOptions(n_stations=8, n_lines=8),
+        mesh=SyntheticsMeshOptions(),
+        model=SyntheticsModelOptions(anomaly=0.0),
     )
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
 
-    with geoh5.open() as ws:
         ifile = InputFile.read_ui_json(
             assets_path() / "uijson" / "plate_simulation.ui.json", validate=False
         )
         ifile.data["name"] = "test_gravity_plate_simulation"
-        ifile.data["geoh5"] = ws
+        ifile.data["geoh5"] = geoh5
 
         # Add simulation parameter
-        gravity_inversion = SimPEGGroup.create(ws)
+        gravity_inversion = SimPEGGroup.create(geoh5)
 
         options = GravityForwardOptions.model_construct()
         fwr_ifile = InputFile.read_ui_json(options.default_ui_json)
         options_dict = fwr_ifile.ui_json
         options_dict["inversion_type"] = "gravity"
         options_dict["forward_only"] = True
-        options_dict["geoh5"] = str(ws.h5file)
-        options_dict["topography_object"]["value"] = str(topography.uid)
-        options_dict["data_object"]["value"] = str(survey.uid)
+        options_dict["geoh5"] = str(geoh5.h5file)
+        options_dict["topography_object"]["value"] = str(components.topography.uid)
+        options_dict["data_object"]["value"] = str(components.survey.uid)
         gravity_inversion.options = options_dict
         ifile.data["simulation"] = gravity_inversion
 
@@ -95,9 +99,12 @@ def test_plate_simulation_params_from_input_file(tmp_path):
 
     assert simulation_parameters.inversion_type == "gravity"
     assert simulation_parameters.forward_only
-    assert simulation_parameters.geoh5.h5file == ws.h5file
-    assert simulation_parameters.active_cells.topography_object.uid == topography.uid
-    assert simulation_parameters.data_object.uid == survey.uid
+    assert simulation_parameters.geoh5.h5file == geoh5.h5file
+    assert (
+        simulation_parameters.active_cells.topography_object.uid
+        == components.topography.uid
+    )
+    assert simulation_parameters.data_object.uid == components.survey.uid
 
     assert isinstance(params.mesh, MeshOptions)
     assert params.mesh.u_cell_size == 10.0

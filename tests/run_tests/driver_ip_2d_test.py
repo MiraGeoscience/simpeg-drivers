@@ -23,9 +23,20 @@ from simpeg_drivers.electricals.induced_polarization.two_dimensions.driver impor
     IP2DForwardDriver,
     IP2DInversionDriver,
 )
-from simpeg_drivers.options import ActiveCellsOptions, LineSelectionOptions
-from simpeg_drivers.utils.utils import get_inversion_output
-from tests.testing_utils import check_target, setup_inversion_workspace
+from simpeg_drivers.options import LineSelectionOptions
+from simpeg_drivers.utils.synthetics.driver import (
+    SyntheticsComponents,
+)
+from simpeg_drivers.utils.synthetics.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticsComponentsOptions,
+)
+from tests.utils.targets import (
+    check_target,
+    get_inversion_output,
+)
 
 
 # To test the full run and validate the inversion.
@@ -41,30 +52,27 @@ def test_ip_2d_fwr_run(
     refinement=(4, 6),
 ):
     # Run the forward
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=1e-6,
-        anomaly=1e-1,
-        n_electrodes=n_electrodes,
-        n_lines=n_lines,
-        refinement=refinement,
-        inversion_type="induced polarization 2d",
-        flatten=False,
-        drape_height=0.0,
+    opts = SyntheticsComponentsOptions(
+        method="induced polarization 2d",
+        survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
+        mesh=MeshOptions(refinement=refinement),
+        model=ModelOptions(background=1e-6, anomaly=1e-1),
     )
-    params = IP2DForwardOptions.build(
-        geoh5=geoh5,
-        data_object=survey,
-        mesh=model.parent,
-        topography_object=topography,
-        starting_model=model,
-        conductivity_model=1e2,
-        model_type="Resistivity (Ohm-m)",
-        line_selection=LineSelectionOptions(
-            line_object=geoh5.get_entity("line_ids")[0],
-            line_id=101,
-        ),
-    )
+    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+        params = IP2DForwardOptions.build(
+            geoh5=geoh5,
+            data_object=components.survey,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            starting_model=components.model,
+            conductivity_model=1e2,
+            model_type="Resistivity (Ohm-m)",
+            line_selection=LineSelectionOptions(
+                line_object=geoh5.get_entity("line_ids")[0],
+                line_id=101,
+            ),
+        )
 
     fwr_driver = IP2DForwardDriver(params)
     fwr_driver.run()
@@ -80,15 +88,14 @@ def test_ip_2d_run(
         workpath = tmp_path.parent / "test_ip_2d_fwr_run0" / "inversion_test.ui.geoh5"
 
     with Workspace(workpath) as geoh5:
+        components = SyntheticsComponents(geoh5)
         chargeability = geoh5.get_entity("Iteration_0_chargeability")[0]
-        mesh = geoh5.get_entity("Models")[0]
-        topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
         params = IP2DInversionOptions.build(
             geoh5=geoh5,
-            mesh=mesh,
-            topography_object=topography,
+            mesh=components.mesh,
+            topography_object=components.topography,
             data_object=chargeability.parent,
             chargeability_channel=chargeability,
             chargeability_uncertainty=2e-4,
