@@ -26,7 +26,7 @@ def generate_airborne_tdem_survey(
     Z: np.ndarray,
     channels: np.ndarray = CHANNELS,
     waveform: np.ndarray = WAVEFORM,
-    name: str = "survey"
+    name: str = "survey",
 ) -> AirborneTEMReceivers:
     """Create an Airborne TDEM survey object from survey grid locations"""
     vertices = np.column_stack([X.flatten(), Y.flatten(), Z.flatten()])
