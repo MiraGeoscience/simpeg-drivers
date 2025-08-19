@@ -188,7 +188,7 @@ def test_joint_cross_gradient_inv_run(
 
             mesh = components.mesh
             survey = components.survey
-            data = next([k for k in survey.children if "Iteration_0" in k.name])
+            data = next(k for k in survey.children if "Iteration_0" in k.name)
             orig_data.append(data.values)
 
             if suffix == "A":

@@ -194,7 +194,7 @@ def test_homogeneous_run(
                     parent=global_mesh,
                 )
 
-            data = next([k for k in survey.children if "Iteration_0" in k.name])
+            data = next(k for k in survey.children if "Iteration_0" in k.name)
             orig_data.append(data.values)
 
             ref_model = mesh.get_entity("starting_model")[0].copy(name="ref_model")
