@@ -49,5 +49,5 @@ def get_model(
 
     model[~active] = np.nan
     model = mesh.add_data({options.name: {"values": model}})
-
+    assert isinstance(model, FloatData)
     return model

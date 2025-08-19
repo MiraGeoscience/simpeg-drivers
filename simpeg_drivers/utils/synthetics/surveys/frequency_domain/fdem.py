@@ -31,15 +31,15 @@ def generate_fdem_survey(
 
     survey.metadata["EM Dataset"]["Frequency configurations"] = frequency_config
 
-    tx_locs = []
-    freqs = []
+    tx_locs_list = []
+    frequency_list = []
     for config in frequency_config:
         tx_vertices = vertices.copy()
         tx_vertices[:, 0] -= config["Offset"]
-        tx_locs.append(tx_vertices)
-        freqs.append([[config["Frequency"]] * len(vertices)])
-    tx_locs = np.vstack(tx_locs)
-    freqs = np.hstack(freqs).flatten()
+        tx_locs_list.append(tx_vertices)
+        frequency_list.append([[config["Frequency"]] * len(vertices)])
+    tx_locs = np.vstack(tx_locs_list)
+    freqs = np.hstack(frequency_list).flatten()
 
     transmitters = AirborneFEMTransmitters.create(
         geoh5, vertices=tx_locs, name=f"{name}_tx"

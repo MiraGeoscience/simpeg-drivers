@@ -25,6 +25,15 @@ class SurveyOptions(BaseModel):
     topography: Callable = lambda x, y: gaussian(x, y, amplitude=50.0, width=100.0)
     name: str = "survey"
 
+    @property
+    def limits(self) -> list[float]:
+        return [
+            self.center[0] - self.width / 2,
+            self.center[0] + self.width / 2,
+            self.center[1] - self.height / 2,
+            self.center[1] + self.height / 2,
+        ]
+
 
 class MeshOptions(BaseModel):
     cell_size: tuple[float, float, float] = (5.0, 5.0, 5.0)

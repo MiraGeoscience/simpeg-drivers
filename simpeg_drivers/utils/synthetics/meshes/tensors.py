@@ -9,14 +9,14 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 import numpy as np
-from discretize import TensorMesh
-from geoh5py.objects import DrapeModel, ObjectBase
+from geoh5py.data import IntegerData
+from geoh5py.objects import CellObject, DrapeModel
 
 from simpeg_drivers.utils.utils import get_drape_model
 
 
 def get_tensor_mesh(
-    survey: ObjectBase,
+    survey: CellObject,
     cell_size: tuple[float, float, float],
     padding_distance: float,
     line_id: int = 101,
@@ -36,7 +36,9 @@ def get_tensor_mesh(
     :return mesh: The discretize tensor mesh object for computations.
     """
 
-    lines = survey.get_entity("line_ids")[0].values
+    line_data = survey.get_entity("line_ids")[0]
+    assert isinstance(line_data, IntegerData)
+    lines = line_data.values
     entity, mesh, _ = get_drape_model(  # pylint: disable=unbalanced-tuple-unpacking
         survey.workspace,
         name,

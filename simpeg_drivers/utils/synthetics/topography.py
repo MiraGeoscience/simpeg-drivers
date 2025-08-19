@@ -26,17 +26,10 @@ def get_topography_surface(geoh5: Workspace, options: SurveyOptions) -> Surface:
     :param options: Survey options. Extents will be 2x the survey extents.
     """
 
-    survey_limits = [
-        options.center[0] - options.width / 2,
-        options.center[0] + options.width / 2,
-        options.center[1] - options.height / 2,
-        options.center[1] + options.height / 2,
-    ]
-
     X, Y, Z = grid_layout(
-        limits=tuple(2 * k for k in survey_limits),
-        station_spacing=int(np.ceil((survey_limits[1] - survey_limits[0]) / 4)),
-        line_spacing=int(np.ceil((survey_limits[3] - survey_limits[2]) / 4)),
+        limits=[2 * k for k in options.limits],  # type: ignore
+        station_spacing=int(np.ceil((options.limits[1] - options.limits[0]) / 4)),
+        line_spacing=int(np.ceil((options.limits[3] - options.limits[2]) / 4)),
         topography=options.topography,
     )
 

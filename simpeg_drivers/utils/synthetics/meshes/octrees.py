@@ -11,13 +11,13 @@
 import numpy as np
 from discretize import TreeMesh
 from discretize.utils import mesh_builder_xyz
-from geoh5py.objects import ObjectBase, Octree, Surface
+from geoh5py.objects import Octree, Points, Surface
 from octree_creation_app.driver import OctreeDriver
 from octree_creation_app.utils import treemesh_2_octree
 
 
 def get_base_octree(
-    survey: ObjectBase,
+    survey: Points,
     topography: Surface,
     cell_size: tuple[float, float, float],
     refinement: tuple,
@@ -53,7 +53,7 @@ def get_base_octree(
 
 
 def get_octree_mesh(
-    survey: ObjectBase,
+    survey: Points,
     topography: Surface,
     cell_size: tuple[float, float, float],
     refinement: tuple,

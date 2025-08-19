@@ -95,9 +95,7 @@ def generate_tdem_survey(
         name=f"{name}_tx",
     )
     transmitters.tx_id_property = transmitters.parts + 1
-    survey = LargeLoopGroundTEMReceivers.create(
-        geoh5, name=name, vertices=np.vstack(vertices)
-    )
+    survey = LargeLoopGroundTEMReceivers.create(geoh5, name=name, vertices=vertices)
     survey.transmitters = transmitters
     survey.tx_id_property = np.hstack(loop_id)
 

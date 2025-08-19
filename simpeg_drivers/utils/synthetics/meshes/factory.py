@@ -9,7 +9,7 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 from discretize import TensorMesh, TreeMesh
-from geoh5py.objects import DrapeModel, ObjectBase, Octree, Surface
+from geoh5py.objects import CellObject, DrapeModel, Octree, Points, Surface
 
 from simpeg_drivers.utils.synthetics.options import MeshOptions
 
@@ -19,13 +19,14 @@ from .tensors import get_tensor_mesh
 
 def get_mesh(
     method: str,
-    survey: ObjectBase,
+    survey: Points,
     topography: Surface,
     options: MeshOptions,
 ) -> DrapeModel | Octree:
     """Factory for mesh creation with behaviour modified by the provided method."""
 
     if "2d" in method:
+        assert isinstance(survey, CellObject)
         return get_tensor_mesh(
             survey=survey,
             cell_size=options.cell_size,

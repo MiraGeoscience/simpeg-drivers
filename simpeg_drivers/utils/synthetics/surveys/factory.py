@@ -25,7 +25,7 @@ from .time_domain.ground_tdem import generate_tdem_survey
 
 
 def grid_layout(
-    limits: tuple[float, float, float, float],
+    limits: list[float],
     station_spacing: int,
     line_spacing: int,
     topography: Callable,
@@ -60,14 +60,8 @@ def get_survey(
     :param options: Survey options.
     """
 
-    limits = [
-        options.center[0] - options.width / 2,
-        options.center[0] + options.width / 2,
-        options.center[1] - options.height / 2,
-        options.center[1] + options.height / 2,
-    ]
     X, Y, Z = grid_layout(
-        limits=limits,
+        limits=options.limits,
         station_spacing=options.n_stations,
         line_spacing=options.n_lines,
         topography=options.topography,
