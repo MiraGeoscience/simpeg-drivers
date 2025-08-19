@@ -21,7 +21,7 @@ from geoh5py.groups import UIJsonGroup
 from geoh5py.objects import Octree, Points, Surface
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile, monitored_directory_copy
-from octree_creation_app.driver import OctreeDriver
+from grid_apps.octree_creation.driver import OctreeDriver
 from param_sweeps.generate import generate
 
 from simpeg_drivers.driver import InversionDriver, InversionLogger

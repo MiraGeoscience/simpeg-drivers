@@ -33,8 +33,8 @@ from geoh5py.objects import (
     TipperBaseStations,
     TipperReceivers,
 )
-from octree_creation_app.driver import OctreeDriver
-from octree_creation_app.utils import treemesh_2_octree
+from grid_apps.octree_creation.driver import OctreeDriver
+from grid_apps.utils import treemesh_2_octree
 from scipy.spatial import Delaunay
 from simpeg import utils
 

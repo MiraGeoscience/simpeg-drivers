@@ -24,7 +24,7 @@
 import numpy as np
 from geoh5py import Workspace
 from geoh5py.objects import Points
-from octree_creation_app.driver import OctreeDriver
+from grid_apps.octree_creation.driver import OctreeDriver
 from scipy.interpolate import LinearNDInterpolator
 from scipy.ndimage import gaussian_filter
 

@@ -79,8 +79,8 @@ python-mumps = ">=0.0.3, <0.0.4.dev"
 #geoh5py = {version = ">=0.12.0a, <0.13.dev", source = "pypi", allow-prereleases = true}
 geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "develop"}
 
-#octree-creation-app = {version = ">=0.4.0a, <0.5.dev", source = "pypi", allow-prereleases = true}
-octree-creation-app = {git = "https://github.com/MiraGeoscience/octree-creation-app.git", rev = "develop"}
+#grid-apps = {version = ">=0.1.0a, <0.2.dev", source = "pypi", allow-prereleases = true}
+grid-apps = {git = "https://github.com/MiraGeoscience/grid-apps.git", rev = "develop"}
 
 #geoapps-utils = {version = ">=0.6.0a, <0.7.dev", source = "pypi", allow-prereleases = true}
 geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "develop"}
