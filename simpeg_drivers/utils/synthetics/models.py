@@ -10,6 +10,7 @@
 
 import numpy as np
 from geoapps_utils.modelling.plates import make_plate
+from geoh5py.data import FloatData
 from geoh5py.objects import DrapeModel, Octree
 
 from simpeg_drivers.utils.synthetics.options import ModelOptions
@@ -20,7 +21,7 @@ def get_model(
     mesh: Octree | DrapeModel,
     active: np.ndarray,
     options: ModelOptions,
-) -> np.ndarray:
+) -> FloatData:
     """
     Create a halfspace and plate model in the cell centers of the provided mesh.
 
