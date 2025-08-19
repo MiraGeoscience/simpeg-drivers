@@ -36,19 +36,19 @@ def create_mesh(
     padding_cells: int = 8,
     minimum_level: int = 4,
     finalize: bool = True,
-):
+) -> TreeMesh | TensorMesh:
     """
     Create a nested mesh with the same extent as the input global mesh.
     Refinement levels are preserved only around the input locations (local survey).
 
-    Parameters
-    ----------
 
-    locations: Array of coordinates for the local survey shape(*, 3).
-    base_mesh: Input global TreeMesh object.
-    padding_cells: Used for 'method'= 'padding_cells'. Number of cells in each concentric shell.
-    minimum_level: Minimum octree level to preserve everywhere outside the local survey area.
-    finalize: Return a finalized local treemesh.
+    :param survey: SimPEG survey object.
+    :param base_mesh: Input global TreeMesh object.
+    :param padding_cells: Used for 'method'= 'padding_cells'. Number of cells in each concentric shell.
+    :param minimum_level: Minimum octree level to preserve everywhere outside the local survey area.
+    :param finalize: Return a finalized local treemesh.
+
+    :return: A TreeMesh object with the same extent as the input global mesh.
     """
     if not isinstance(base_mesh, TreeMesh):
         return base_mesh
@@ -102,12 +102,29 @@ def create_misfit(
     local_indices,
     channel,
     tile_count,
-    # data_count,
     n_split,
     padding_cells,
     inversion_type,
     forward_only,
 ):
+    """
+    Create a list of local misfits based on the local indices.
+
+    The local indices are further split into smaller chunks if requested, sharing
+    the same mesh.
+
+    :param simulation: SimPEG simulation object.
+    :param local_indices: Indices of the receiver locations belonging to the tile.
+    :param channel: Channel of the simulationm, for frequency systems only.
+    :param tile_count: Current tile ID, used to name the file on disk and for sampling
+      of topography for 1D simulations.
+    :param n_split: Number of splits to create for the local indices.
+    :param padding_cells: Number of padding cells around the local survey.
+    :param inversion_type: Type of inversion, used to name the misfit (joint inversion).
+    :param forward_only: If False, data is transferred to the local simulation.
+
+    :return: List of local misfits and data slices.
+    """
     local_sim, _, _ = create_simulation(
         simulation,
         None,
@@ -165,13 +182,14 @@ def create_simulation(
     """
     Generate a survey, mesh and simulation based on indices.
 
-    :param inversion_data: InversionData object.
-    :param mesh: Octree mesh.
-    :param active_cells: Active cell model.
+    :param simulation: SimPEG.simulation object.
+    :param local_mesh: Local mesh for the simulation, else created.
     :param indices: Indices of receivers belonging to the tile.
-    :param channel: Channel number for frequency or time channels.
+    :param channel: Channel of the simulation, for frequency simulations only.
     :param tile_id: Tile id stored on the simulation.
     :param padding_cells: Number of padding cells around the local survey.
+
+    :return: Local simulation, mapping and local ordering.
     """
     local_survey, local_ordering = create_survey(
         simulation.survey, indices=indices, channel=channel
@@ -271,6 +289,10 @@ def create_simulation(
 def create_survey(survey, indices, channel=None):
     """
     Extract source and receivers belonging to the indices.
+
+    :param survey: SimPEG survey object.
+    :param indices: Indices of the receivers belonging to the tile.
+    :param channel: Channel of the survey, for frequency systems only.
     """
     sources = []
 
@@ -345,6 +367,7 @@ def tile_locations(
     :param locations: Array of locations.
     :param n_tiles: Number of tiles (for 'cluster')
     :param labels: Array of values to append to the locations
+    :param sorting: Array of indices to sort the locations before clustering.
 
     :return: List of arrays containing the indices of the points in each tile.
     """
