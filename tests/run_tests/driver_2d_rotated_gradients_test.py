@@ -115,7 +115,7 @@ def test_dc2d_rotated_grad_run(
         )
 
     with Workspace(workpath) as geoh5:
-        potential = geoh5.get_entity("Iteration_0_dc")[0]
+        potential = geoh5.get_entity("Iteration_0_potential")[0]
         components = SyntheticsComponents(geoh5)
 
         orig_potential = potential.values.copy()

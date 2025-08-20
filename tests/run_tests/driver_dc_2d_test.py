@@ -94,7 +94,7 @@ def test_dc_2d_run(tmp_path: Path, max_iterations=1, pytest=True):
         workpath = tmp_path.parent / "test_dc_2d_fwr_run0" / "inversion_test.ui.geoh5"
 
     with Workspace(workpath) as geoh5:
-        potential = geoh5.get_entity("Iteration_0_dc")[0]
+        potential = geoh5.get_entity("Iteration_0_potential")[0]
         components = SyntheticsComponents(geoh5)
 
         # Run the inverse

@@ -20,6 +20,9 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from geoh5py.groups.property_group import GroupTypeEnum
+from geoh5py.objects.surveys.electromagnetics.base import FEMSurvey
+from geoh5py.objects.surveys.electromagnetics.magnetotellurics import MTReceivers
+from geoh5py.objects.surveys.electromagnetics.tipper import TipperReceivers
 from numpy import sqrt
 from simpeg import directives, maps
 from simpeg.utils.mat_utils import cartesian2amplitude_dip_azimuth
@@ -180,8 +183,6 @@ class DirectivesFactory:
                 self.params
             ).build(
                 inversion_object=self.driver.inversion_data,
-                active_cells=self.driver.models.active_cells,
-                sorting=np.argsort(np.hstack(self.driver.sorting)),
                 name="Apparent Resistivity",
             )
         return self._save_iteration_apparent_resistivity_directive
@@ -223,10 +224,6 @@ class DirectivesFactory:
                 self.params
             ).build(
                 inversion_object=self.driver.inversion_data,
-                active_cells=self.driver.models.active_cells,
-                sorting=np.argsort(np.hstack(self.driver.sorting)),
-                ordering=self.driver.ordering,
-                global_misfit=self.driver.data_misfit,
                 name="Data",
             )
         return self._save_iteration_data_directive
@@ -265,9 +262,6 @@ class DirectivesFactory:
                 self.params
             ).build(
                 inversion_object=self.driver.inversion_data,
-                active_cells=self.driver.models.active_cells,
-                sorting=np.argsort(np.hstack(self.driver.sorting)),
-                ordering=self.driver.ordering,
                 name="Residual",
             )
         return self._save_iteration_residual_directive
@@ -366,8 +360,6 @@ class SaveGeoh5Factory(SimPEGFactory, ABC):
         self,
         inversion_object=None,
         active_cells=None,
-        sorting=None,
-        ordering=None,
         transform=None,
         global_misfit=None,
         name=None,
@@ -386,8 +378,6 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
         self,
         inversion_object=None,
         active_cells=None,
-        sorting=None,
-        ordering=None,
         transform=None,
         global_misfit=None,
         name=None,
@@ -450,8 +440,6 @@ class SaveSensitivitiesGeoh5Factory(SaveGeoh5Factory):
         self,
         inversion_object=None,
         active_cells=None,
-        sorting=None,
-        ordering=None,
         transform=None,
         global_misfit=None,
         name=None,
@@ -497,103 +485,67 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
     def assemble_keyword_arguments(
         self,
         inversion_object=None,
-        active_cells=None,
-        sorting=None,
-        ordering=None,
-        transform=None,
-        global_misfit=None,
         name=None,
     ):
-        if self.factory_type in [
-            "fdem",
-            "fdem 1d",
-            "tdem",
-            "tdem 1d",
-            "magnetotellurics",
-            "tipper",
-        ]:
-            kwargs = self.assemble_data_keywords_em(
-                inversion_object=inversion_object,
-                active_cells=active_cells,
-                sorting=sorting,
-                ordering=ordering,
-                transform=transform,
-                global_misfit=global_misfit,
-                name=name,
-            )
+        receivers = inversion_object.entity
+        channels = getattr(receivers, "channels", [None])
+        components = list(inversion_object.observed)
+        ordering = inversion_object.survey.ordering
+        n_locations = len(np.unique(ordering[:, 2]))
 
-        elif self.factory_type in [
+        def reshape(values):
+            data = np.zeros((len(channels), len(components), n_locations))
+            data[ordering[:, 0], ordering[:, 1], ordering[:, 2]] = values
+            return data
+
+        kwargs = {
+            "data_type": inversion_object.observed_data_types,
+            "association": "VERTEX",
+            "transforms": [
+                np.hstack(
+                    [
+                        1 / inversion_object.normalizations[chan][comp]
+                        for chan in channels
+                        for comp in components
+                    ],
+                ),
+            ],
+            "channels": channels,
+            "components": components,
+            "reshape": reshape,
+        }
+
+        if self.factory_type in [
             "direct current 3d",
             "direct current 2d",
             "induced polarization 3d",
             "induced polarization 2d",
         ]:
             kwargs = self.assemble_data_keywords_dcip(
-                inversion_object=inversion_object,
-                active_cells=active_cells,
-                sorting=sorting,
-                transform=transform,
-                global_misfit=global_misfit,
-                name=name,
+                inversion_object=inversion_object, name=name, **kwargs
             )
 
         elif self.factory_type in ["gravity", "magnetic scalar", "magnetic vector"]:
             kwargs = self.assemble_data_keywords_potential_fields(
                 inversion_object=inversion_object,
-                active_cells=active_cells,
-                sorting=sorting,
-                transform=transform,
-                global_misfit=global_misfit,
                 name=name,
+                **kwargs,
             )
-        else:
-            return None
-
-        if transform is not None:
-            kwargs["transforms"].append(transform)
 
         return kwargs
 
     @staticmethod
     def assemble_data_keywords_potential_fields(
         inversion_object=None,
-        active_cells=None,
-        sorting=None,
-        transform=None,
-        global_misfit=None,
         name=None,
+        **kwargs,
     ):
-        components = list(inversion_object.observed)
-        channels = [None]
-        kwargs = {
-            "data_type": inversion_object.observed_data_types,
-            "transforms": [
-                np.hstack(
-                    [
-                        inversion_object.normalizations[chan][comp]
-                        for chan in channels
-                        for comp in components
-                    ]
-                )
-            ],
-            "channels": channels,
-            "components": components,
-            "association": "VERTEX",
-            "reshape": lambda x: x.reshape(
-                (len(channels), len(components), -1), order="F"
-            ),
-        }
-
-        if sorting is not None:
-            kwargs["sorting"] = np.hstack(sorting)
-
         if name == "Residual":
             kwargs["label"] = name
             data = inversion_object.normalize(inversion_object.observed)
 
             def potfield_transform(x):
-                data_stack = np.row_stack(list(data.values()))
-                data_stack = data_stack[:, np.argsort(sorting)]
+                data_stack = np.vstack([k[None] for k in data.values()])
                 return data_stack.ravel() - x
 
             kwargs.pop("data_type")
@@ -604,48 +556,22 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
     def assemble_data_keywords_dcip(
         self,
         inversion_object=None,
-        active_cells=None,
-        sorting=None,
-        transform=None,
-        global_misfit=None,
         name=None,
+        **kwargs,
     ):
         components = list(inversion_object.observed)
-        channels = [None]
-        is_dc = True if "direct current" in self.factory_type else False
-        component = "dc" if is_dc else "ip"
-        kwargs = {
-            "data_type": inversion_object.observed_data_types,
-            "transforms": [
-                np.hstack(
-                    [
-                        inversion_object.normalizations[chan][comp]
-                        for chan in channels
-                        for comp in components
-                    ]
-                )
-            ],
-            "channels": channels,
-            "components": [component],
-            "reshape": lambda x: x.reshape(
-                (len(channels), len(components), -1), order="F"
-            ),
-            "association": "CELL",
-        }
+        kwargs["association"] = "CELL"
 
-        if sorting is not None:
-            kwargs["sorting"] = np.hstack(sorting)
-
-        if is_dc and name == "Apparent Resistivity":
+        if "direct current" in self.factory_type and name == "Apparent Resistivity":
             kwargs["transforms"].insert(
                 0,
-                inversion_object.survey.apparent_resistivity[np.argsort(sorting)],
+                inversion_object.survey.apparent_resistivity,
             )
             kwargs["channels"] = ["apparent_resistivity"]
             observed = self.params.geoh5.get_entity("Observed_apparent_resistivity")[0]
             if observed is not None:
                 kwargs["data_type"] = {
-                    component: {"apparent_resistivity": observed.entity_type}
+                    components[0]: {"apparent_resistivity": observed.entity_type}
                 }
 
         if name == "Residual":
@@ -653,52 +579,10 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
             data = inversion_object.normalize(inversion_object.observed)
 
             def dcip_transform(x):
-                data_stack = np.row_stack(list(data.values())).ravel()
-                sorting_stack = np.tile(np.argsort(sorting), len(data))
-                return data_stack[sorting_stack] - x
+                data_stack = np.vstack([k[None] for k in data.values()])
+                return data_stack.ravel() - x
 
             kwargs["transforms"].insert(0, dcip_transform)
             kwargs.pop("data_type")
-
-        return kwargs
-
-    def assemble_data_keywords_em(
-        self,
-        inversion_object=None,
-        active_cells=None,
-        sorting=None,
-        ordering=None,
-        transform=None,
-        global_misfit=None,
-        name=None,
-    ):
-        receivers = inversion_object.entity
-        channels = np.array(receivers.channels, dtype=float)
-        components = list(inversion_object.observed)
-        ordering = np.vstack(ordering)
-        channel_ids = ordering[:, 0]
-        component_ids = ordering[:, 1]
-        rx_ids = ordering[:, 2]
-
-        def reshape(values):
-            data = np.zeros((len(channels), len(components), receivers.n_vertices))
-            data[channel_ids, component_ids, rx_ids] = values
-            return data
-
-        kwargs = {
-            "data_type": inversion_object.observed_data_types,
-            "association": "VERTEX",
-            "transforms": np.hstack(
-                [
-                    1 / inversion_object.normalizations[chan][comp]
-                    for chan in channels
-                    for comp in components
-                ]
-            ),
-            "channels": channels,
-            "components": components,
-            "sorting": sorting,
-            "_reshape": reshape,
-        }
 
         return kwargs

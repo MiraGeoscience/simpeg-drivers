@@ -466,21 +466,13 @@ class EMDataMixin:
         if property_group is None:
             return dict.fromkeys(frequencies)
 
-        data = {}
         group = next(
             k for k in self.data_object.property_groups if k.uid == property_group.uid
         )
-        property_names = [self.geoh5.get_entity(p)[0].name for p in group.properties]
-        properties = [self.geoh5.get_entity(p)[0].values for p in group.properties]
-        for i, f in enumerate(frequencies):
-            try:
-                f_ind = property_names.index(
-                    next(k for k in property_names if f"{f:.2e}" in k)
-                )  # Safer if data was saved with geoapps naming convention
-                data[f] = properties[f_ind]
-            except StopIteration:
-                data[f] = properties[i]  # in case of other naming conventions
-
+        data = {
+            freq: self.geoh5.get_entity(p)[0].values
+            for freq, p in zip(frequencies, group.properties, strict=False)
+        }
         return data
 
 
@@ -633,7 +625,7 @@ class BaseInversionOptions(CoreOptions):
         data = getattr(self, "_".join([component, "channel"]), None)
         if isinstance(data, NumericData):
             data = data.values
-        return data
+        return {None: data}
 
     def component_uncertainty(self, component: str) -> np.ndarray | None:
         """
@@ -648,6 +640,6 @@ class BaseInversionOptions(CoreOptions):
         if isinstance(data, NumericData):
             data = data.values
         elif isinstance(data, float):
-            data *= np.ones_like(self.component_data(component))
+            data *= np.ones_like(self.component_data(component)[None])
 
-        return data
+        return {None: data}
