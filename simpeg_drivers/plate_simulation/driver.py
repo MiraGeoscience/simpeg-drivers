@@ -32,7 +32,7 @@ from simpeg_drivers.plate_simulation.models.series import DikeSwarm, Geology
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
 
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, propagate=False)
 
 
 class PlateSimulationDriver(Driver):
