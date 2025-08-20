@@ -90,6 +90,7 @@ def test_tiling_ground_tem(
             y_channel_bool=True,
             z_channel_bool=True,
             tile_spatial=4,
+            solver_type="Mumps",
         )
     fwr_driver = TDEMForwardDriver(params)
 
