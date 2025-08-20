@@ -99,7 +99,7 @@ def test_dc_3d_run(
 
     with Workspace(workpath) as geoh5:
         components = SyntheticsComponents(geoh5)
-        potential = geoh5.get_entity("Iteration_0_dc")[0]
+        potential = geoh5.get_entity("Iteration_0_potential")[0]
 
         # Run the inverse
         params = DC3DInversionOptions.build(

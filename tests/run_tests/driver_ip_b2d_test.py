@@ -106,7 +106,7 @@ def test_ip_p3d_run(
 
     with Workspace(workpath) as geoh5:
         components = SyntheticsComponents(geoh5)
-        chargeability = geoh5.get_entity("Iteration_0_ip")[0]
+        chargeability = geoh5.get_entity("Iteration_0_chargeability")[0]
 
         # Run the inverse
         params = IPBatch2DInversionOptions.build(

@@ -159,19 +159,22 @@ def test_survey_data(tmp_path: Path):
     # test locations
 
     np.testing.assert_array_equal(
-        verts[driver.sorting[0], :2], local_survey_a.receiver_locations[:, :2]
+        verts[np.hstack(driver.sorting), :2],
+        np.vstack(
+            [
+                local_survey_a.receiver_locations[:, :2],
+                local_survey_b.receiver_locations[:, :2],
+            ]
+        ),
     )
-    np.testing.assert_array_equal(
-        verts[driver.sorting[1], :2], local_survey_b.receiver_locations[:, :2]
-    )
+
     assert all(local_survey_a.receiver_locations[:, 2] == 0.0)
     assert all(local_survey_b.receiver_locations[:, 2] == 0.0)
 
     # test observed data
-    sorting = np.hstack(driver.sorting)
     expected_dobs = np.column_stack(
         [bxx_data.values, byy_data.values, bzz_data.values]
-    )[sorting].ravel()
+    )[np.hstack(driver.sorting)].ravel()
     survey_dobs = [local_survey_a.dobs, local_survey_b.dobs]
     np.testing.assert_array_equal(expected_dobs, np.hstack(survey_dobs))
 
@@ -221,9 +224,9 @@ def test_get_uncertainty_component(tmp_path: Path):
     with geoh5.open():
         data = InversionData(geoh5, params)
         unc = params.uncertainties["tmi"]
-        assert len(np.unique(unc)) == 1
-        assert np.unique(unc)[0] == 1
-        assert len(unc) == data.entity.n_vertices
+        assert len(unc) == 1
+        assert np.unique(unc[None])[0] == 1
+        assert len(unc[None]) == data.entity.n_vertices
 
 
 def test_normalize(tmp_path: Path):
@@ -233,7 +236,7 @@ def test_normalize(tmp_path: Path):
         data = InversionData(geoh5, params)
         data.normalizations = data.get_normalizations()
         test_data = data.normalize(data.observed)
-        assert all(test_data["tmi"] == params.data["tmi"])
+        assert all(test_data["tmi"][None] == params.data["tmi"][None])
         assert len(test_data) == 1
 
 
@@ -243,7 +246,7 @@ def test_get_survey(tmp_path: Path):
     with geoh5.open():
         data = InversionData(geoh5, params)
         survey = data.create_survey()
-        assert isinstance(survey[0], simpeg.potential_fields.magnetics.Survey)
+        assert isinstance(survey, simpeg.potential_fields.magnetics.Survey)
 
 
 def test_data_parts(tmp_path: Path):
