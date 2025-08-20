@@ -77,6 +77,9 @@ def test_counterclockwise_sort():
     segments = np.c_[np.arange(len(vertices)), np.arange(1, len(vertices) + 1)]
     segments[-1, 1] = 0
 
+    # Add a second loop far offsetted
+    vertices = np.vstack([vertices, vertices + np.c_[0, -2], vertices + np.c_[-2, -2]])
+
     ccw_sorted = counter_clockwise_sort(segments, vertices)
 
     np.testing.assert_equal(ccw_sorted[0, :], [0, 5])
