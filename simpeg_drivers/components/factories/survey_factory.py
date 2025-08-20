@@ -282,7 +282,7 @@ class SurveyFactory(SimPEGFactory):
                 )
 
             tx = tx_factory.build(rx_list, locations=cur_tx_locs, waveform=waveform)
-            tx.rx_ids = np.asarray(rx_ids, dtype=int)
+            tx.rx_ids = np.r_[rx_ids].astype(int)
             tx_list.append(tx)
 
         self.ordering = np.vstack(ordering).astype(int)
