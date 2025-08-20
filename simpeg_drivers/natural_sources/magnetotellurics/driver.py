@@ -20,11 +20,9 @@ class MTForwardDriver(InversionDriver):
     """Magnetotellurics forward driver."""
 
     _options_class = MTForwardOptions
-    _validations = None
 
 
 class MTInversionDriver(InversionDriver):
     """Magnetotellurics inversion driver."""
 
     _options_class = MTInversionOptions
-    _validations = None

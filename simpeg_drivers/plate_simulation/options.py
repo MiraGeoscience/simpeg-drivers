@@ -16,7 +16,7 @@ from geoapps_utils.driver.data import BaseData
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
 from geoh5py.objects import ObjectBase, Points, Surface
 from geoh5py.ui_json import InputFile
-from octree_creation_app.params import OctreeParams
+from grid_apps.octree_creation.options import OctreeOptions
 from pydantic import BaseModel
 
 from simpeg_drivers import assets_path
@@ -90,7 +90,7 @@ class MeshOptions(BaseModel):
                 }
             )
 
-        octree_params = OctreeParams(
+        octree_params = OctreeOptions(
             geoh5=survey.workspace,
             objects=survey,
             u_cell_size=self.u_cell_size,

@@ -25,7 +25,7 @@ import numpy as np
 from geoh5py.groups import UIJsonGroup
 from geoh5py.objects import ObjectBase
 from geoh5py.shared.utils import fetch_active_workspace
-from octree_creation_app.params import OctreeParams
+from grid_apps.octree_creation.options import OctreeOptions
 
 from simpeg_drivers.utils.surveys import station_spacing
 
@@ -72,7 +72,7 @@ def auto_mesh_parameters(
     topography_refinement: list[int] | None = None,
     cell_size_factor: int = 2,
     inversion_type: str | None = None,
-) -> OctreeParams:
+) -> OctreeOptions:
     """
     Return a mesh optimized for the provided data extents and spacing.
 
@@ -126,7 +126,7 @@ def auto_mesh_parameters(
             ],
             "out_group": out_group,
         }
-        params = OctreeParams(**params_dict)
+        params = OctreeOptions(**params_dict)
         options = params.serialize()
         options.pop("out_group")
         out_group.options = options
