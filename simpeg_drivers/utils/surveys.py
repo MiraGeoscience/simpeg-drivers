@@ -51,7 +51,7 @@ def counter_clockwise_sort(segments: np.ndarray, vertices: np.ndarray) -> np.nda
 
     :return: Sorted segments.
     """
-    center = np.mean(vertices, axis=0)
+    center = np.mean(vertices[segments[:, 0], :2], axis=0)
     center_to_vertices = vertices[segments[:, 0], :2] - center[:2]
     deltas = vertices[segments[:, 1], :2] - vertices[segments[:, 0], :2]
     cross = np.cross(center_to_vertices, deltas)
