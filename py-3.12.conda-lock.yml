@@ -2348,7 +2348,7 @@ package:
   category: dev
   optional: true
 - name: jsonschema
-  version: 4.25.0
+  version: 4.25.1
   manager: conda
   platform: linux-64
   dependencies:
@@ -2357,14 +2357,14 @@ package:
     python: '>=3.9'
     referencing: '>=0.28.4'
     rpds-py: '>=0.7.1'
-  url: https://repo.prefix.dev/conda-forge/noarch/jsonschema-4.25.0-pyhe01879c_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/jsonschema-4.25.1-pyhe01879c_0.conda
   hash:
-    md5: c6e3fd94e058dba67d917f38a11b50ab
-    sha256: 87ba7cf3a65c8e8d1005368b9aee3f49e295115381b7a0b180e56f7b68b5975f
+    md5: 341fd940c242cf33e832c0402face56f
+    sha256: ac377ef7762e49cb9c4f985f1281eeff471e9adc3402526eea78e6ac6589cf1d
   category: dev
   optional: true
 - name: jsonschema
-  version: 4.25.0
+  version: 4.25.1
   manager: conda
   platform: win-64
   dependencies:
@@ -2373,10 +2373,10 @@ package:
     python: '>=3.9'
     referencing: '>=0.28.4'
     rpds-py: '>=0.7.1'
-  url: https://repo.prefix.dev/conda-forge/noarch/jsonschema-4.25.0-pyhe01879c_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/jsonschema-4.25.1-pyhe01879c_0.conda
   hash:
-    md5: c6e3fd94e058dba67d917f38a11b50ab
-    sha256: 87ba7cf3a65c8e8d1005368b9aee3f49e295115381b7a0b180e56f7b68b5975f
+    md5: 341fd940c242cf33e832c0402face56f
+    sha256: ac377ef7762e49cb9c4f985f1281eeff471e9adc3402526eea78e6ac6589cf1d
   category: dev
   optional: true
 - name: jsonschema-specifications
@@ -2406,7 +2406,7 @@ package:
   category: dev
   optional: true
 - name: jsonschema-with-format-nongpl
-  version: 4.25.0
+  version: 4.25.1
   manager: conda
   platform: linux-64
   dependencies:
@@ -2414,20 +2414,20 @@ package:
     idna: ''
     isoduration: ''
     jsonpointer: '>1.13'
-    jsonschema: '>=4.25.0,<4.25.1.0a0'
+    jsonschema: '>=4.25.1,<4.25.2.0a0'
     rfc3339-validator: ''
     rfc3986-validator: '>0.1.0'
     rfc3987-syntax: '>=1.1.0'
     uri-template: ''
     webcolors: '>=24.6.0'
-  url: https://repo.prefix.dev/conda-forge/noarch/jsonschema-with-format-nongpl-4.25.0-he01879c_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/jsonschema-with-format-nongpl-4.25.1-he01879c_0.conda
   hash:
-    md5: f4c7afaf838ab5bb1c4e73eb3095fb26
-    sha256: 72604d07afaddf2156e61d128256d686aee4a7bdc06e235d7be352955de7527a
+    md5: 13e31c573c884962318a738405ca3487
+    sha256: aef6705fe1335e6472e1b6365fcdb586356b18dceff72d8d6a315fc90e900ccf
   category: dev
   optional: true
 - name: jsonschema-with-format-nongpl
-  version: 4.25.0
+  version: 4.25.1
   manager: conda
   platform: win-64
   dependencies:
@@ -2435,16 +2435,16 @@ package:
     idna: ''
     isoduration: ''
     jsonpointer: '>1.13'
-    jsonschema: '>=4.25.0,<4.25.1.0a0'
+    jsonschema: '>=4.25.1,<4.25.2.0a0'
     rfc3339-validator: ''
     rfc3986-validator: '>0.1.0'
     rfc3987-syntax: '>=1.1.0'
     uri-template: ''
     webcolors: '>=24.6.0'
-  url: https://repo.prefix.dev/conda-forge/noarch/jsonschema-with-format-nongpl-4.25.0-he01879c_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/jsonschema-with-format-nongpl-4.25.1-he01879c_0.conda
   hash:
-    md5: f4c7afaf838ab5bb1c4e73eb3095fb26
-    sha256: 72604d07afaddf2156e61d128256d686aee4a7bdc06e235d7be352955de7527a
+    md5: 13e31c573c884962318a738405ca3487
+    sha256: aef6705fe1335e6472e1b6365fcdb586356b18dceff72d8d6a315fc90e900ccf
   category: dev
   optional: true
 - name: jupyter-book
@@ -6456,7 +6456,7 @@ package:
   category: dev
   optional: true
 - name: requests
-  version: 2.32.4
+  version: 2.32.5
   manager: conda
   platform: linux-64
   dependencies:
@@ -6465,14 +6465,14 @@ package:
     idna: '>=2.5,<4'
     python: '>=3.9'
     urllib3: '>=1.21.1,<3'
-  url: https://repo.prefix.dev/conda-forge/noarch/requests-2.32.4-pyhd8ed1ab_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/requests-2.32.5-pyhd8ed1ab_0.conda
   hash:
-    md5: f6082eae112814f1447b56a5e1f6ed05
-    sha256: 9866aaf7a13c6cfbe665ec7b330647a0fb10a81e6f9b8fee33642232a1920e18
+    md5: db0c6b99149880c8ba515cf4abe93ee4
+    sha256: 8dc54e94721e9ab545d7234aa5192b74102263d3e704e6d0c8aa7008f2da2a7b
   category: dev
   optional: true
 - name: requests
-  version: 2.32.4
+  version: 2.32.5
   manager: conda
   platform: win-64
   dependencies:
@@ -6481,10 +6481,10 @@ package:
     idna: '>=2.5,<4'
     python: '>=3.9'
     urllib3: '>=1.21.1,<3'
-  url: https://repo.prefix.dev/conda-forge/noarch/requests-2.32.4-pyhd8ed1ab_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/requests-2.32.5-pyhd8ed1ab_0.conda
   hash:
-    md5: f6082eae112814f1447b56a5e1f6ed05
-    sha256: 9866aaf7a13c6cfbe665ec7b330647a0fb10a81e6f9b8fee33642232a1920e18
+    md5: db0c6b99149880c8ba515cf4abe93ee4
+    sha256: 8dc54e94721e9ab545d7234aa5192b74102263d3e704e6d0c8aa7008f2da2a7b
   category: dev
   optional: true
 - name: rfc3339-validator
@@ -8615,12 +8615,12 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@183ed8f654bc393eeafdf89b2c258a224f4b4b73
+  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@4bb027706ed3726d42b75d349df087dcdf8450f9
   hash:
-    sha256: 183ed8f654bc393eeafdf89b2c258a224f4b4b73
+    sha256: 4bb027706ed3726d42b75d349df087dcdf8450f9
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@183ed8f654bc393eeafdf89b2c258a224f4b4b73
+    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@4bb027706ed3726d42b75d349df087dcdf8450f9
   category: main
   optional: false
 - name: geoapps-utils
@@ -8632,12 +8632,12 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@183ed8f654bc393eeafdf89b2c258a224f4b4b73
+  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@4bb027706ed3726d42b75d349df087dcdf8450f9
   hash:
-    sha256: 183ed8f654bc393eeafdf89b2c258a224f4b4b73
+    sha256: 4bb027706ed3726d42b75d349df087dcdf8450f9
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@183ed8f654bc393eeafdf89b2c258a224f4b4b73
+    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@4bb027706ed3726d42b75d349df087dcdf8450f9
   category: main
   optional: false
 - name: geoh5py
@@ -8649,12 +8649,12 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pillow: '>=10.3.0,<10.4.0'
     pydantic: '>=2.5.2,<3.0.0'
-  url: git+https://github.com/MiraGeoscience/geoh5py.git@cef8a1a904ab0338cd7ecb0f762db5f7a35f02e8
+  url: git+https://github.com/MiraGeoscience/geoh5py.git@12bf67269934b26a307c69857c01dd3b4c4742e9
   hash:
-    sha256: cef8a1a904ab0338cd7ecb0f762db5f7a35f02e8
+    sha256: 12bf67269934b26a307c69857c01dd3b4c4742e9
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoh5py.git@cef8a1a904ab0338cd7ecb0f762db5f7a35f02e8
+    url: git+https://github.com/MiraGeoscience/geoh5py.git@12bf67269934b26a307c69857c01dd3b4c4742e9
   category: main
   optional: false
 - name: geoh5py
@@ -8666,16 +8666,16 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pillow: '>=10.3.0,<10.4.0'
     pydantic: '>=2.5.2,<3.0.0'
-  url: git+https://github.com/MiraGeoscience/geoh5py.git@cef8a1a904ab0338cd7ecb0f762db5f7a35f02e8
+  url: git+https://github.com/MiraGeoscience/geoh5py.git@12bf67269934b26a307c69857c01dd3b4c4742e9
   hash:
-    sha256: cef8a1a904ab0338cd7ecb0f762db5f7a35f02e8
+    sha256: 12bf67269934b26a307c69857c01dd3b4c4742e9
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoh5py.git@cef8a1a904ab0338cd7ecb0f762db5f7a35f02e8
+    url: git+https://github.com/MiraGeoscience/geoh5py.git@12bf67269934b26a307c69857c01dd3b4c4742e9
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.23.0.1.post2.dev55+mira.g2e61aceb1
+  version: 0.23.0.1.post2.dev57+mira.gdc256f618
   manager: pip
   platform: linux-64
   dependencies:
@@ -8687,16 +8687,16 @@ package:
     numpy: '>=1.22'
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@2e61aceb15b21e896c6190b8426075e9a04cf78e
+  url: git+https://github.com/MiraGeoscience/simpeg.git@dc256f618543d8ee94fd36737749715fe497f8b7
   hash:
-    sha256: 2e61aceb15b21e896c6190b8426075e9a04cf78e
+    sha256: dc256f618543d8ee94fd36737749715fe497f8b7
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@2e61aceb15b21e896c6190b8426075e9a04cf78e
+    url: git+https://github.com/MiraGeoscience/simpeg.git@dc256f618543d8ee94fd36737749715fe497f8b7
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.23.0.1.post2.dev55+mira.g2e61aceb1
+  version: 0.23.0.1.post2.dev57+mira.gdc256f618
   manager: pip
   platform: win-64
   dependencies:
@@ -8708,12 +8708,12 @@ package:
     numpy: '>=1.22'
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@2e61aceb15b21e896c6190b8426075e9a04cf78e
+  url: git+https://github.com/MiraGeoscience/simpeg.git@dc256f618543d8ee94fd36737749715fe497f8b7
   hash:
-    sha256: 2e61aceb15b21e896c6190b8426075e9a04cf78e
+    sha256: dc256f618543d8ee94fd36737749715fe497f8b7
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@2e61aceb15b21e896c6190b8426075e9a04cf78e
+    url: git+https://github.com/MiraGeoscience/simpeg.git@dc256f618543d8ee94fd36737749715fe497f8b7
   category: main
   optional: false
 - name: octree-creation-app
