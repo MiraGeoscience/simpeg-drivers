@@ -50,6 +50,7 @@ from simpeg import (
     optimization,
     simulation,
 )
+from simpeg.electromagnetics.time_domain.simulation_1d import BaseEM1DSimulation
 from simpeg.potential_fields.base import BasePFSimulation
 from simpeg.regularization import (
     BaseRegularization,
@@ -86,7 +87,6 @@ mlogger.setLevel(logging.WARNING)
 class InversionDriver(Driver):
     _options_class = BaseForwardOptions | BaseInversionOptions
     _inversion_type: str | None = None
-    _validations = None
 
     def __init__(self, params: BaseForwardOptions | BaseInversionOptions):
         super().__init__(params)
@@ -118,7 +118,6 @@ class InversionDriver(Driver):
         if self._client is None:
             try:
                 self._client = get_client()
-                # self._workers = [worker.worker_address for worker in self.client.cluster.workers.values()]
             except ValueError:
                 self._client = False
 
@@ -129,7 +128,10 @@ class InversionDriver(Driver):
         """List of workers"""
         if self._workers is None:
             if self.client:
-                self._workers = list(self.client.cluster.workers.values())
+                self._workers = [
+                    (worker.worker_address,)
+                    for worker in self.client.cluster.workers.values()
+                ]
             else:
                 self._workers = []
         return self._workers
@@ -169,22 +171,12 @@ class InversionDriver(Driver):
 
                 self.logger.write(f"Setting up {len(tiles)} tile(s) . . .\n")
                 # Build tiled misfits and combine to form global misfit
-                self._data_misfit = MisfitFactory(self.params, self.simulation).build(
+                self._data_misfit = MisfitFactory(self).build(
                     tiles,
                     self.split_list,
                 )
                 self.logger.write("Saving data to file...\n")
                 self._sorting = tiles
-                if isinstance(self.params, BaseInversionOptions):
-                    self._data_misfit.multipliers = np.asarray(
-                        self._data_misfit.multipliers, dtype=float
-                    )
-
-            if self.client:
-                self.logger.write(
-                    "Broadcasting simulations to distributed workers...\n"
-                )
-                self.distributed_misfits()
 
         return self._data_misfit
 
@@ -194,17 +186,6 @@ class InversionDriver(Driver):
             with fetch_active_workspace(self.workspace, mode="r+"):
                 self._directives = DirectivesFactory(self)
         return self._directives
-
-    def distributed_misfits(self):
-        """
-        Method to convert MetaSimulations to DaskMetaSimulations with futures.
-        """
-        distributed_misfits = dask.objective_function.DaskComboMisfits(
-            self.data_misfit.objfcts,
-            multipliers=self.data_misfit.multipliers,
-            client=self.client,
-        )
-        self._data_misfit = distributed_misfits
 
     @property
     def inverse_problem(self):

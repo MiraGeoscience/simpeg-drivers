@@ -140,7 +140,7 @@ def create_misfit(
     """
     local_mesh = None
     if shared_indices is not None:
-        local_survey, local_ordering = create_survey(
+        local_survey = create_survey(
             simulation.survey, indices=shared_indices, channel=channel
         )
         local_mesh = create_mesh(
@@ -150,7 +150,7 @@ def create_misfit(
             padding_cells=padding_cells,
         )
 
-    local_sim, mapping, data_slice = create_simulation(
+    local_sim, mapping = create_simulation(
         simulation,
         local_mesh,
         local_indices,
@@ -172,7 +172,7 @@ def create_misfit(
 
         local_misfit.name = f"{name}"
 
-    return local_misfit, data_slice
+    return local_misfit
 
 
 def create_simulation(
@@ -196,9 +196,7 @@ def create_simulation(
 
     :return: Local simulation, mapping and local ordering.
     """
-    local_survey, local_ordering = create_survey(
-        simulation.survey, indices=indices, channel=channel
-    )
+    local_survey = create_survey(simulation.survey, indices=indices, channel=channel)
     kwargs = {"survey": local_survey}
 
     if local_mesh is None:
@@ -288,7 +286,7 @@ def create_simulation(
         compute_dc_projections(
             simulation.survey.locations, simulation.survey.cells, local_sim
         )
-    return local_sim, mapping, local_ordering
+    return local_sim, mapping
 
 
 def create_survey(survey, indices, channel=None):
@@ -300,13 +298,6 @@ def create_survey(survey, indices, channel=None):
     :param channel: Channel of the survey, for frequency systems only.
     """
     sources = []
-
-    # Return the subset of data that belongs to the tile
-    slice_inds = np.isin(survey.ordering[:, 2], indices)
-    if channel is not None:
-        ind = np.where(np.asarray(survey.frequencies) == channel)[0]
-        slice_inds *= np.isin(survey.ordering[:, 0], ind)
-
     for src in survey.source_list or [survey.source_field]:
         if channel is not None and getattr(src, "frequency", None) != channel:
             continue
@@ -341,6 +332,9 @@ def create_survey(survey, indices, channel=None):
         new_survey = type(survey)(sources)
 
     if hasattr(survey, "dobs") and survey.dobs is not None:
+        # Return the subset of data that belongs to the tile
+        slice_inds = slice_from_ordering(survey, indices, channel=channel)
+
         # For FEM surveys only
         new_survey.dobs = survey.dobs[
             survey.ordering[slice_inds, 0],
@@ -353,7 +347,30 @@ def create_survey(survey, indices, channel=None):
             survey.ordering[slice_inds, 2],
         ]
 
-    return new_survey, survey.ordering[slice_inds, :]
+    return new_survey
+
+
+def slice_from_ordering(
+    survey: BaseSurvey,
+    receiver_indices: np.ndarray,
+    channel: int | None = None,
+):
+    """
+    Create an ordering array from the survey and slice indices.
+
+    :param survey: SimPEG survey object.
+    :param slice_inds: Indices of the receivers belonging to the tile.
+    :param channel: Channel of the survey, for frequency systems only.
+
+    :return: Ordering array.
+    """
+    ordering_slice = np.isin(survey.ordering[:, 2], receiver_indices)
+
+    if channel is not None:
+        ind = np.where(np.asarray(survey.frequencies) == channel)[0]
+        ordering_slice *= np.isin(survey.ordering[:, 0], ind)
+
+    return ordering_slice
 
 
 def tile_locations(
