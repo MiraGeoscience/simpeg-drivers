@@ -11,33 +11,34 @@
 
 from __future__ import annotations
 
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from typing import TYPE_CHECKING
 
 import numpy as np
+from dask import compute, delayed
 from simpeg import objective_function
-from simpeg.simulation import BaseSimulation
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 from simpeg_drivers.utils.nested import create_misfit
 
 
 if TYPE_CHECKING:
-    from geoapps_utils.driver.params import BaseParams
-
+    from simpeg_drivers.driver import InversionDriver
     from simpeg_drivers.options import BaseOptions
 
 
 class MisfitFactory(SimPEGFactory):
     """Build SimPEG global misfit function."""
 
-    def __init__(self, params: BaseParams | BaseOptions, simulation: BaseSimulation):
+    def __init__(self, driver: InversionDriver):
         """
         :param params: Options object containing SimPEG object parameters.
         """
-        super().__init__(params)
+        super().__init__(driver.params)
+        self.driver = driver
         self.simpeg_object = self.concrete_object()
         self.factory_type = self.params.inversion_type
-        self.simulation = simulation
+        self.simulation = driver.simulation
 
     def concrete_object(self):
         return objective_function.ComboObjectiveFunction
@@ -61,38 +62,36 @@ class MisfitFactory(SimPEGFactory):
             channels = [None]
 
         futures = []
-        # TODO bring back on GEOPY-2182
-        # with ProcessPoolExecutor() as executor:
+        delayed_creation = delayed(create_misfit)
+
         count = 0
+        tile_count = 0
         for channel in channels:
-            tile_count = 0
             for local_indices in tiles:
                 if len(local_indices) == 0:
                     continue
 
-                n_split = split_list[count]
-                futures.append(
-                    # executor.submit(
-                    create_misfit(
-                        self.simulation,
-                        local_indices,
-                        channel,
-                        tile_count,
-                        n_split,
-                        self.params.padding_cells,
-                        self.params.inversion_type,
-                        self.params.forward_only,
+                for split_ind in np.array_split(local_indices, split_list[count]):
+                    futures.append(
+                        delayed_creation(
+                            self.simulation,
+                            split_ind,
+                            channel,
+                            tile_count,
+                            self.params.padding_cells,
+                            self.params.inversion_type,
+                            self.params.forward_only,
+                            shared_indices=local_indices,
+                        )
                     )
-                )
-                tile_count += np.sum(n_split)
+                    tile_count += 1
                 count += 1
 
         local_misfits = []
         local_orderings = []
-        for future in futures:  # as_completed(futures):
-            misfits, orderings = future  # future.result()
-            local_misfits += misfits
-            local_orderings += orderings
+        for misfit, ordering in compute(futures)[0]:
+            local_misfits.append(misfit)
+            local_orderings.append(ordering)
 
         self.simulation.survey.ordering = np.vstack(local_orderings)
         return [local_misfits]

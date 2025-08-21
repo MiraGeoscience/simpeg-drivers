@@ -116,10 +116,10 @@ def create_misfit(
     local_indices,
     channel,
     tile_count,
-    n_split,
     padding_cells,
     inversion_type,
     forward_only,
+    shared_indices=None,
 ):
     """
     Create a list of local misfits based on the local indices.
@@ -132,61 +132,52 @@ def create_misfit(
     :param channel: Channel of the simulationm, for frequency systems only.
     :param tile_count: Current tile ID, used to name the file on disk and for sampling
       of topography for 1D simulations.
-    :param n_split: Number of splits to create for the local indices.
     :param padding_cells: Number of padding cells around the local survey.
     :param inversion_type: Type of inversion, used to name the misfit (joint inversion).
     :param forward_only: If False, data is transferred to the local simulation.
 
     :return: List of local misfits and data slices.
     """
-    local_sim, _, _ = create_simulation(
+    local_mesh = None
+    if shared_indices is not None:
+        local_survey, local_ordering = create_survey(
+            simulation.survey, indices=shared_indices, channel=channel
+        )
+        local_mesh = create_mesh(
+            local_survey,
+            simulation.mesh,
+            minimum_level=3,
+            padding_cells=padding_cells,
+        )
+
+    local_sim, mapping, data_slice = create_simulation(
         simulation,
-        None,
+        local_mesh,
         local_indices,
         channel=channel,
         tile_id=tile_count,
         padding_cells=padding_cells,
     )
+    meta_simulation = meta.MetaSimulation(simulations=[local_sim], mappings=[mapping])
 
-    local_mesh = getattr(local_sim, "mesh", None)
-    local_misfits = []
-    data_slices = []
-    for split_ind in np.array_split(local_indices, n_split):
-        local_sim, mapping, data_slice = create_simulation(
-            simulation,
-            local_mesh,
-            split_ind,
-            channel=channel,
-            tile_id=tile_count,
-            padding_cells=padding_cells,
-        )
-        meta_simulation = meta.MetaSimulation(
-            simulations=[local_sim], mappings=[mapping]
-        )
+    local_data = data.Data(local_sim.survey)
+    local_misfit = data_misfit.L2DataMisfit(local_data, meta_simulation)
+    if not forward_only:
+        local_data.dobs = local_sim.survey.dobs
+        local_data.standard_deviation = local_sim.survey.std
+        name = inversion_type
+        name += f": Tile {tile_count + 1}"
+        if channel is not None:
+            name += f": Channel {channel}"
 
-        local_data = data.Data(local_sim.survey)
-        lmisfit = data_misfit.L2DataMisfit(local_data, meta_simulation)
-        if not forward_only:
-            local_data.dobs = local_sim.survey.dobs
-            local_data.standard_deviation = local_sim.survey.std
-            name = inversion_type
-            name += f": Tile {tile_count + 1}"
-            if channel is not None:
-                name += f": Channel {channel}"
+        local_misfit.name = f"{name}"
 
-            lmisfit.name = f"{name}"
-
-        local_misfits.append(lmisfit)
-        data_slices.append(data_slice)
-
-        tile_count += 1
-
-    return local_misfits, data_slices
+    return local_misfit, data_slice
 
 
 def create_simulation(
     simulation: BaseSimulation,
-    local_mesh: TreeMesh | None,
+    local_mesh: TreeMesh | TensorMesh | None,
     indices: np.ndarray,
     *,
     channel: int | None = None,
@@ -252,14 +243,14 @@ def create_simulation(
             kwargs["chiMap"] = maps.IdentityMap(nP=n_actives)
 
         kwargs["active_cells"] = actives
-        kwargs["sensitivity_path"] = (
+        kwargs["sensitivity_path"] = str(
             Path(simulation.sensitivity_path).parent / f"Tile{tile_id}.zarr"
         )
 
     if getattr(simulation, "_rhoMap", None) is not None:
         kwargs["rhoMap"] = maps.IdentityMap(nP=n_actives)
         kwargs["active_cells"] = actives
-        kwargs["sensitivity_path"] = (
+        kwargs["sensitivity_path"] = str(
             Path(simulation.sensitivity_path).parent / f"Tile{tile_id}.zarr"
         )
 
