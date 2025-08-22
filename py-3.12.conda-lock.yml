@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: d3f6839c7d9ab3576b1808d9f1a2c3c60548a7c2c6a55c70f399e51ee3052040
-    linux-64: 4573afe541246abdcc3b1dd3eaebe69348f71a0bfed06a53c897f32ac38c2fa0
+    win-64: e6a7f9b65a8eab774bcc6e97dd60c58d129bef69f0979db3e945d74561748784
+    linux-64: faba276316c29373b2d6b7b8c7642398283e4ca103c3aa3df2fd0358aea7e262
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -8792,35 +8792,5 @@ package:
   source:
     type: url
     url: git+https://github.com/MiraGeoscience/octree-creation-app.git@7e04880d7da72ba0fc46a2aacafa172cca010c81
-  category: main
-  optional: false
-- name: param-sweeps
-  version: 0.3.0-alpha.1
-  manager: pip
-  platform: linux-64
-  dependencies:
-    geoh5py: 0.12.0a1
-    numpy: '>=1.26.0,<1.27.0'
-  url: git+https://github.com/MiraGeoscience/param-sweeps.git@ba132694b432f76848573964f07b791c27734879
-  hash:
-    sha256: ba132694b432f76848573964f07b791c27734879
-  source:
-    type: url
-    url: git+https://github.com/MiraGeoscience/param-sweeps.git@ba132694b432f76848573964f07b791c27734879
-  category: main
-  optional: false
-- name: param-sweeps
-  version: 0.3.0-alpha.1
-  manager: pip
-  platform: win-64
-  dependencies:
-    geoh5py: 0.12.0a1
-    numpy: '>=1.26.0,<1.27.0'
-  url: git+https://github.com/MiraGeoscience/param-sweeps.git@ba132694b432f76848573964f07b791c27734879
-  hash:
-    sha256: ba132694b432f76848573964f07b791c27734879
-  source:
-    type: url
-    url: git+https://github.com/MiraGeoscience/param-sweeps.git@ba132694b432f76848573964f07b791c27734879
   category: main
   optional: false
