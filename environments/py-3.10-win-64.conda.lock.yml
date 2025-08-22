@@ -146,9 +146,8 @@ dependencies:
   - pip:
       - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@25bf69c7afdfce5e9d4ac7d667c88790aad9c934
       - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@bdf223def86a077a7e3f02b631fbffd7727527f2
-      - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@e5bc756e65c0deb2c35e9b5bad8b4572697e2f9f
+      - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@b950dd55b4fb70d2ef28488a3f684c374a170b9f
       - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@dc256f618543d8ee94fd36737749715fe497f8b7
-      - octree-creation-app @ git+https://github.com/MiraGeoscience/octree-creation-app.git@7e04880d7da72ba0fc46a2aacafa172cca010c81
 
 variables:
   KMP_WARNINGS: 0
