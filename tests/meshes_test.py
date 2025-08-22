@@ -17,7 +17,7 @@ import pytest
 from discretize import TreeMesh
 from geoh5py import Workspace
 from geoh5py.objects import Octree
-from octree_creation_app.utils import treemesh_2_octree
+from grid_apps.utils import treemesh_2_octree
 
 from simpeg_drivers.components import InversionMesh
 from simpeg_drivers.options import ActiveCellsOptions

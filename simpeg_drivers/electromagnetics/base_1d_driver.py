@@ -34,7 +34,6 @@ class Base1DDriver(InversionDriver):
     """Base 1D driver for electromagnetic simulations."""
 
     _options_class = None
-    _validations = None
 
     def __init__(self, workspace: Workspace, **kwargs):
         super().__init__(workspace, **kwargs)
