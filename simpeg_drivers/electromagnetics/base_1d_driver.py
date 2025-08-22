@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+import multiprocessing
 from logging import getLogger
 
 import numpy as np
@@ -103,3 +104,16 @@ class Base1DDriver(InversionDriver):
             self._simulation.active_cells = self.topo_z_drape
 
         return self._simulation
+
+    @property
+    def workers(self):
+        """List of workers"""
+        if self._workers is None:
+            if self.client:
+                self._workers = [
+                    (worker.worker_address,)
+                    for worker in self.client.cluster.workers.values()
+                ]
+            else:
+                self._workers = np.arange(multiprocessing.cpu_count()).tolist()
+        return self._workers

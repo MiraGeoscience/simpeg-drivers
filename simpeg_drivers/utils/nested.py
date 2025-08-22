@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import warnings
+from collections.abc import Iterable
 from copy import copy
 from pathlib import Path
 
@@ -18,7 +19,7 @@ from discretize import TensorMesh, TreeMesh
 from scipy.optimize import linear_sum_assignment
 from scipy.spatial import cKDTree
 from scipy.spatial.distance import cdist
-from simpeg import data, data_misfit, maps, meta
+from simpeg import data, data_misfit, maps, meta, objective_function
 from simpeg.electromagnetics.base_1d import BaseEM1DSimulation
 from simpeg.electromagnetics.frequency_domain.simulation import BaseFDEMSimulation
 from simpeg.electromagnetics.frequency_domain.sources import (
@@ -129,7 +130,7 @@ def create_misfit(
 
     :param simulation: SimPEG simulation object.
     :param local_indices: Indices of the receiver locations belonging to the tile.
-    :param channel: Channel of the simulationm, for frequency systems only.
+    :param channel: Channel of the simulation, for frequency systems only.
     :param tile_count: Current tile ID, used to name the file on disk and for sampling
       of topography for 1D simulations.
     :param padding_cells: Number of padding cells around the local survey.
@@ -138,6 +139,24 @@ def create_misfit(
 
     :return: List of local misfits and data slices.
     """
+    # Split into smaller chunks
+    if isinstance(simulation, BaseEM1DSimulation) and isinstance(
+        local_indices, Iterable
+    ):
+        misfit_list = [
+            create_misfit(
+                simulation,
+                ind,
+                channel,
+                tile_count,
+                padding_cells,
+                inversion_type,
+                forward_only,
+            )
+            for ind in local_indices
+        ]
+        return objective_function.ComboObjectiveFunction(misfit_list)
+
     local_mesh = None
     if shared_indices is not None:
         local_survey = create_survey(
@@ -178,7 +197,7 @@ def create_misfit(
 def create_simulation(
     simulation: BaseSimulation,
     local_mesh: TreeMesh | TensorMesh | None,
-    indices: np.ndarray,
+    indices: np.ndarray | int,
     *,
     channel: int | None = None,
     tile_id: int | None = None,
@@ -212,10 +231,10 @@ def create_simulation(
         local_mesh = simulation.layers_mesh
         actives = np.ones(simulation.layers_mesh.n_cells, dtype=bool)
         model_slice = np.arange(
-            tile_id, simulation.mesh.n_cells, simulation.mesh.shape_cells[0]
+            indices, simulation.mesh.n_cells, simulation.mesh.shape_cells[0]
         )[::-1]
         mapping = maps.Projection(simulation.mesh.n_cells, model_slice)
-        kwargs["topo"] = simulation.active_cells[tile_id]
+        kwargs["topo"] = simulation.active_cells[indices]
         args = ()
 
     elif isinstance(local_mesh, TreeMesh):

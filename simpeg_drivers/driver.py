@@ -141,7 +141,7 @@ class InversionDriver(Driver):
         Number of splits for the data misfit to be distributed evenly among workers.
         """
         if len(self.workers) == 0:
-            return tiles
+            return [[tile] for tile in tiles]
 
         n_tiles = self.params.compute.tile_spatial
 
@@ -162,7 +162,7 @@ class InversionDriver(Driver):
 
         flat_tile_list = []
         for tile, split in zip(tiles, split_list):
-            flat_tile_list += np.array_split(tile, split)
+            flat_tile_list.append(np.array_split(tile, split))
         return flat_tile_list
 
     @property
@@ -603,7 +603,7 @@ class InversionDriver(Driver):
             return [np.arange(self.inversion_data.mask.sum())]
 
         if "1d" in self.params.inversion_type:
-            return np.arange(self.inversion_data.mask.sum()).reshape((-1, 1))
+            return [np.arange(self.inversion_data.mask.sum())]
 
         return tile_locations(
             self.inversion_data.locations,

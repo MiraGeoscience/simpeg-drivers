@@ -69,56 +69,54 @@ class MisfitFactory(SimPEGFactory):
             delayed_simulation = self.simulation
             delayed_creation = delayed(create_misfit)
 
-        count = 0
         tile_count = 0
         ct = time()
         local_orderings = []
         for channel in channels:
             for local_indices in tiles:
-                if len(local_indices) == 0:
-                    continue
+                for sub_ind in local_indices:
+                    if len(sub_ind) == 0:
+                        continue
 
-                # for sub_ind in np.array_split(local_indices, split_list[count]):
-                ordering_slice = slice_from_ordering(
-                    self.simulation.survey, local_indices, channel=channel
-                )
-
-                local_orderings.append(
-                    self.simulation.survey.ordering[ordering_slice, :]
-                )
-
-                # Distribute the work across workers round-robin style
-                if use_futures:
-                    worker_ind = tile_count % len(self.driver.workers)
-                    futures.append(
-                        self.driver.client.submit(
-                            create_misfit,
-                            delayed_simulation,
-                            local_indices,
-                            channel,
-                            tile_count,
-                            self.params.padding_cells,
-                            self.params.inversion_type,
-                            self.params.forward_only,
-                            shared_indices=local_indices,
-                            workers=self.driver.workers[worker_ind],
-                        )
+                    ordering_slice = slice_from_ordering(
+                        self.simulation.survey, sub_ind, channel=channel
                     )
-                else:
-                    futures.append(
-                        delayed_creation(
-                            delayed_simulation,
-                            local_indices,
-                            channel,
-                            tile_count,
-                            self.params.padding_cells,
-                            self.params.inversion_type,
-                            self.params.forward_only,
-                            shared_indices=local_indices,
-                        )
+
+                    local_orderings.append(
+                        self.simulation.survey.ordering[ordering_slice, :]
                     )
+
+                    # Distribute the work across workers round-robin style
+                    if use_futures:
+                        worker_ind = tile_count % len(self.driver.workers)
+                        futures.append(
+                            self.driver.client.submit(
+                                create_misfit,
+                                delayed_simulation,
+                                sub_ind,
+                                channel,
+                                tile_count,
+                                self.params.padding_cells,
+                                self.params.inversion_type,
+                                self.params.forward_only,
+                                shared_indices=np.hstack(local_indices),
+                                workers=self.driver.workers[worker_ind],
+                            )
+                        )
+                    else:
+                        futures.append(
+                            delayed_creation(
+                                delayed_simulation,
+                                sub_ind,
+                                channel,
+                                tile_count,
+                                self.params.padding_cells,
+                                self.params.inversion_type,
+                                self.params.forward_only,
+                                shared_indices=np.hstack(local_indices),
+                            )
+                        )
                     tile_count += 1
-                count += 1
 
         self.simulation.survey.ordering = np.vstack(local_orderings)
 
