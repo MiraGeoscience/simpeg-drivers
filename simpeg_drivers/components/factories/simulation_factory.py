@@ -143,28 +143,28 @@ class SimulationFactory(SimPEGFactory):
             else self.params.store_sensitivities
         )
         kwargs["solver"] = self.solver
-
+        active_cells = models.active_cells
         if self.factory_type == "magnetic vector":
-            kwargs["active_cells"] = models.active_cells
-            kwargs["chiMap"] = maps.IdentityMap(nP=int(models.active_cells.sum()) * 3)
+            kwargs["active_cells"] = active_cells
+            kwargs["chiMap"] = maps.IdentityMap(nP=int(active_cells.sum()) * 3)
             kwargs["model_type"] = "vector"
 
         if self.factory_type == "magnetic scalar":
-            kwargs["active_cells"] = models.active_cells
-            kwargs["chiMap"] = maps.IdentityMap(nP=int(models.active_cells.sum()))
+            kwargs["active_cells"] = active_cells
+            kwargs["chiMap"] = maps.IdentityMap(nP=int(active_cells.sum()))
 
         if self.factory_type == "gravity":
-            kwargs["active_cells"] = models.active_cells
-            kwargs["rhoMap"] = maps.IdentityMap(nP=int(models.active_cells.sum()))
+            kwargs["active_cells"] = active_cells
+            kwargs["rhoMap"] = maps.IdentityMap(nP=int(active_cells.sum()))
 
         if "induced polarization" in self.factory_type:
             etamap = maps.InjectActiveCells(
-                mesh, active_cells=models.active_cells, value_inactive=0
+                mesh, active_cells=active_cells, value_inactive=0
             )
             kwargs["etaMap"] = etamap
             kwargs["sigma"] = (
                 maps.InjectActiveCells(
-                    mesh, active_cells=models.active_cells, value_inactive=1e-8
+                    mesh, active_cells=active_cells, value_inactive=1e-8
                 )
                 * models.conductivity_model
             )
@@ -178,7 +178,7 @@ class SimulationFactory(SimPEGFactory):
             "tdem",
         ]:
             actmap = maps.InjectActiveCells(
-                mesh, active_cells=models.active_cells, value_inactive=np.log(1e-8)
+                mesh, active_cells=active_cells, value_inactive=np.log(1e-8)
             )
             kwargs["sigmaMap"] = maps.ExpMap(mesh) * actmap
 

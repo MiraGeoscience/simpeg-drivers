@@ -17,17 +17,15 @@ from typing import ClassVar
 from geoh5py.groups import PropertyGroup
 
 from simpeg_drivers import assets_path
+from simpeg_drivers.electromagnetics.base_1d_options import Base1DOptions
 from simpeg_drivers.electromagnetics.frequency_domain.options import (
     FDEMForwardOptions,
     FDEMInversionOptions,
 )
-from simpeg_drivers.options import (
-    DirectiveOptions,
-    DrapeModelOptions,
-)
+from simpeg_drivers.options import DirectiveOptions
 
 
-class FDEM1DForwardOptions(FDEMForwardOptions):
+class FDEM1DForwardOptions(FDEMForwardOptions, Base1DOptions):
     """
     Frequency Domain Electromagnetic forward options.
 
@@ -45,17 +43,8 @@ class FDEM1DForwardOptions(FDEMForwardOptions):
     z_real_channel_bool: bool
     z_imag_channel_bool: bool
 
-    drape_model: DrapeModelOptions = DrapeModelOptions(
-        u_cell_size=10.0,
-        v_cell_size=10.0,
-        depth_core=100.0,
-        horizontal_padding=0.0,
-        vertical_padding=100.0,
-        expansion_factor=1.1,
-    )
 
-
-class FDEM1DInversionOptions(FDEMInversionOptions):
+class FDEM1DInversionOptions(FDEMInversionOptions, Base1DOptions):
     """
     Frequency Domain Electromagnetic Inversion options.
 
@@ -71,14 +60,6 @@ class FDEM1DInversionOptions(FDEMInversionOptions):
     title: str = "Frequency-domain EM-1D (FEM-1D) Inversion"
     inversion_type: str = "fdem 1d"
 
-    drape_model: DrapeModelOptions = DrapeModelOptions(
-        u_cell_size=10.0,
-        v_cell_size=10.0,
-        depth_core=100.0,
-        horizontal_padding=0.0,
-        vertical_padding=100.0,
-        expansion_factor=1.1,
-    )
     directives: DirectiveOptions = DirectiveOptions(
         sens_wts_threshold=100.0,
     )
