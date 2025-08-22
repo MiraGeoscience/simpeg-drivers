@@ -187,29 +187,43 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
             inactive_ind = run_ws.get_entity("active_cells")[0].values == 0
             assert np.all(nan_ind == inactive_ind)
 
-    # test that one channel works
-    data_kwargs = {k: v for k, v in data_kwargs.items() if "zxx_real" in k}
-    geoh5.open()
-    params = MTInversionOptions.build(
-        geoh5=geoh5,
-        mesh=geoh5.get_entity("mesh")[0],
-        topography_object=topography,
-        data_object=survey,
-        starting_model=0.01,
-        background_conductivity=1e-2,
-        max_global_iterations=0,
-        **data_kwargs,
-    )
-    params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
-    MTInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
+
+def test_magnetotellurics_tiles(tmp_path: Path, pytest=True):
+    # pass
+    workpath = tmp_path / "inversion_test.ui.geoh5"
+    if pytest:
+        workpath = (
+            tmp_path.parent
+            / "test_magnetotellurics_fwr_run0"
+            / "inversion_test.ui.geoh5"
+        )
+    with Workspace(workpath) as geoh5:
+        components = SyntheticsComponents(geoh5)
+        survey = components.survey
+        mesh = components.mesh
+        topography = components.topography
+        data_kwargs = setup_data(geoh5, survey)
+
+        # test that one channel works
+        data_kwargs = {k: v for k, v in data_kwargs.items() if "zxx_real" in k}
+        geoh5.open()
+        params = MTInversionOptions.build(
+            geoh5=geoh5,
+            mesh=mesh,
+            topography_object=topography,
+            data_object=survey,
+            starting_model=0.01,
+            background_conductivity=1e-2,
+            max_global_iterations=0,
+            n_workers=2,
+            **data_kwargs,
+        )
 
     driver = MTInversionDriver(params)
 
     # Fake a distributed cluster
-    n_workers = 5
-    params.n_workers = n_workers
-    driver._workers = ["abc"] * n_workers  # pylint: disable=protected-access
-    assert len(driver.data_misfit.objfcts) == 5
+    driver._workers = ["abc"] * 2  # pylint: disable=protected-access
+    assert len(driver.data_misfit.objfcts) == 6
 
 
 if __name__ == "__main__":

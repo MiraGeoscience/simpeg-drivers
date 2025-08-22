@@ -103,12 +103,3 @@ class Base1DDriver(InversionDriver):
             self._simulation.active_cells = self.topo_z_drape
 
         return self._simulation
-
-    @property
-    def split_list(self):
-        """
-        Split the list of data into chunks for parallel processing.
-        """
-        n_misfits = self.inversion_data.mask.sum()
-
-        return [1] * n_misfits

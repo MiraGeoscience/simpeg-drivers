@@ -12,12 +12,13 @@
 from __future__ import annotations
 
 from concurrent.futures import ProcessPoolExecutor, as_completed
+from time import time
 from typing import TYPE_CHECKING
 
 import numpy as np
 from dask import compute, delayed
 from dask.diagnostics import ProgressBar
-from dask.distributed import Client, Future
+from dask.distributed import Client, Future, LocalCluster
 from simpeg import objective_function
 from simpeg.dask import objective_function as dask_objective_function
 from simpeg.electromagnetics.base_1d import BaseEM1DSimulation
@@ -48,9 +49,7 @@ class MisfitFactory(SimPEGFactory):
         return objective_function.ComboObjectiveFunction
 
     def assemble_arguments(  # pylint: disable=arguments-differ
-        self,
-        tiles,
-        split_list,
+        self, tiles
     ):
         # Base slice over frequencies
         if self.factory_type in ["magnetotellurics", "tipper", "fdem"]:
@@ -72,70 +71,76 @@ class MisfitFactory(SimPEGFactory):
 
         count = 0
         tile_count = 0
-        # client = Client()
+        ct = time()
         local_orderings = []
         for channel in channels:
             for local_indices in tiles:
                 if len(local_indices) == 0:
                     continue
 
-                for sub_ind in np.array_split(local_indices, split_list[count]):
-                    ordering_slice = slice_from_ordering(
-                        self.simulation.survey, sub_ind, channel=channel
-                    )
+                # for sub_ind in np.array_split(local_indices, split_list[count]):
+                ordering_slice = slice_from_ordering(
+                    self.simulation.survey, local_indices, channel=channel
+                )
 
-                    local_orderings.append(
-                        self.simulation.survey.ordering[ordering_slice, :]
-                    )
+                local_orderings.append(
+                    self.simulation.survey.ordering[ordering_slice, :]
+                )
 
-                    # Distribute the work across workers round-robin style
-                    if use_futures:
-                        worker_ind = tile_count % len(self.driver.workers)
-                        futures.append(
-                            self.driver.client.submit(
-                                create_misfit,
-                                delayed_simulation,
-                                sub_ind,
-                                channel,
-                                tile_count,
-                                self.params.padding_cells,
-                                self.params.inversion_type,
-                                self.params.forward_only,
-                                shared_indices=local_indices,
-                                workers=self.driver.workers[worker_ind],
-                            )
+                # Distribute the work across workers round-robin style
+                if use_futures:
+                    worker_ind = tile_count % len(self.driver.workers)
+                    futures.append(
+                        self.driver.client.submit(
+                            create_misfit,
+                            delayed_simulation,
+                            local_indices,
+                            channel,
+                            tile_count,
+                            self.params.padding_cells,
+                            self.params.inversion_type,
+                            self.params.forward_only,
+                            shared_indices=local_indices,
+                            workers=self.driver.workers[worker_ind],
                         )
-                    else:
-                        futures.append(
-                            delayed_creation(
-                                delayed_simulation,
-                                sub_ind,
-                                channel,
-                                tile_count,
-                                self.params.padding_cells,
-                                self.params.inversion_type,
-                                self.params.forward_only,
-                                shared_indices=local_indices,
-                            )
+                    )
+                else:
+                    futures.append(
+                        delayed_creation(
+                            delayed_simulation,
+                            local_indices,
+                            channel,
+                            tile_count,
+                            self.params.padding_cells,
+                            self.params.inversion_type,
+                            self.params.forward_only,
+                            shared_indices=local_indices,
                         )
+                    )
                     tile_count += 1
                 count += 1
 
         self.simulation.survey.ordering = np.vstack(local_orderings)
 
         if use_futures:
+            print(f"Assembled misfit in {time() - ct:.1f} seconds")
+
             return futures
 
         with ProgressBar():
-            return compute(futures)[0]
+            vals = compute(futures)[0]
+
+            print(f"Assembled misfit in {time() - ct:.1f} seconds")
+
+            return vals
 
     def assemble_keyword_arguments(self, **_):
         """Implementation of abstract method from SimPEGFactory."""
 
-    def build(self, tiles, split_list, **_):
+    def build(self, tiles, **_):
         """To be over-ridden in factory implementations."""
 
-        misfits = self.assemble_arguments(tiles, split_list)
+        misfits = self.assemble_arguments(tiles)
 
         if self.driver.client:
             return dask_objective_function.DistributedComboMisfits(

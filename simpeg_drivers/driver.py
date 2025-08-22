@@ -106,7 +106,7 @@ class InversionDriver(Driver):
         self._optimization: optimization.ProjectedGNCG | None = None
         self._regularization: None = None
         self._simulation: simulation.BaseSimulation | None = None
-        self._sorting: list[np.ndarray] | None = None
+
         self._ordering: list[np.ndarray] | None = None
         self._mappings: list[maps.IdentityMap] | None = None
         self._window = None
@@ -136,30 +136,34 @@ class InversionDriver(Driver):
                 self._workers = []
         return self._workers
 
-    @property
-    def split_list(self):
+    def split_list(self, tiles: list[np.ndarray]) -> list[np.ndarray]:
         """
         Number of splits for the data misfit to be distributed evenly among workers.
         """
-        n_misfits = self.params.compute.tile_spatial
-
-        if isinstance(self.params.data_object, FEMSurvey):
-            n_misfits *= len(self.params.data_object.channels)
-
-        split_list = [1] * n_misfits
-
         if len(self.workers) == 0:
-            return split_list
+            return tiles
+
+        n_tiles = self.params.compute.tile_spatial
+
+        n_channels = 1
+        if isinstance(self.params.data_object, FEMSurvey):
+            n_channels = len(self.params.data_object.channels)
+
+        split_list = [1] * n_tiles
 
         count = 0
-        while np.sum(split_list) % len(self.workers) != 0:
-            split_list[count % n_misfits] += 1
+        while (np.sum(split_list) * n_channels) % len(self.workers) != 0:
+            split_list[count % n_tiles] += 1
             count += 1
 
         self.logger.write(
             f"Number of misfits: {np.sum(split_list)} distributed over {len(self.workers)} workers.\n"
         )
-        return split_list
+
+        flat_tile_list = []
+        for tile, split in zip(tiles, split_list):
+            flat_tile_list += np.array_split(tile, split)
+        return flat_tile_list
 
     @property
     def data_misfit(self):
@@ -172,11 +176,9 @@ class InversionDriver(Driver):
                 self.logger.write(f"Setting up {len(tiles)} tile(s) . . .\n")
                 # Build tiled misfits and combine to form global misfit
                 self._data_misfit = MisfitFactory(self).build(
-                    tiles,
-                    self.split_list,
+                    self.split_list(tiles),
                 )
                 self.logger.write("Saving data to file...\n")
-                self._sorting = tiles
 
         return self._data_misfit
 
@@ -384,13 +386,6 @@ class InversionDriver(Driver):
                 self._simulation.active_cells = self.models.active_cells
 
         return self._simulation
-
-    @property
-    def sorting(self) -> list[np.ndarray] | None:
-        """
-        Sorting of the data locations.
-        """
-        return self._sorting
 
     @property
     def window(self):
@@ -745,7 +740,9 @@ class InversionLogger:
 
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
+    file = Path(
+        r"C:\Users\dominiquef\Downloads\forrestania__simpeg1d\forrestania__simpeg1d_v1.ui.json"
+    ).resolve()
     input_file = InputFile.read_ui_json(file)
     n_workers = input_file.data.get("n_workers", None)
     n_threads = input_file.data.get("n_threads", None)
