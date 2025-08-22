@@ -68,7 +68,7 @@ include = [
 # note: py-deps-clock defines custom mapping from dask to dask-core
 dask = ">=2025.3, <2025.4.dev"  # also in simpeg[dask]
 
-discretize = "0.11.*"  # also in simpeg, octree-creation-app
+discretize = "0.11.*"  # also in simpeg, grid-apps
 distributed = ">=2025.3, <2025.4.dev"  # for dask[distributed]
 numpy = "~1.26.0" # also in geoh5py, simpeg
 pydantic = "^2.5.2"  # also in geoh5py, curve-apps, geoapps-utils
