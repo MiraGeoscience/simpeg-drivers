@@ -15,6 +15,7 @@ from pathlib import Path
 
 import numpy as np
 from geoapps_utils.base import Driver, get_logger
+from geoapps_utils.param_sweeps.generate import generate
 from geoapps_utils.utils.transformations import azimuth_to_unit_vector
 from geoh5py.data import FloatData, ReferencedData
 from geoh5py.groups import UIJsonGroup
@@ -22,7 +23,6 @@ from geoh5py.objects import Octree, Points, Surface
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile, monitored_directory_copy
 from grid_apps.octree_creation.driver import OctreeDriver
-from param_sweeps.generate import generate
 
 from simpeg_drivers.driver import InversionDriver, InversionLogger
 from simpeg_drivers.options import BaseForwardOptions
@@ -32,7 +32,7 @@ from simpeg_drivers.plate_simulation.models.series import DikeSwarm, Geology
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
 
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, propagate=False)
 
 
 class PlateSimulationDriver(Driver):

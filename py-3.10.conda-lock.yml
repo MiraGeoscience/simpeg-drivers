@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: afb1c10339c4c180cd200e7fb18bfa0b1a79eeaf2936102a169de6beb9bdf706
-    linux-64: 951d0e25ecbfd95cd4250992ff4a2fd809d3fcbaaff150dc70296bb2f71736c8
+    win-64: 03d1f3ef4c61f2960917993a4919e1b140142b11a1eb751062ca845672f6e6b4
+    linux-64: df903f8d5f97aa53e048a59653b36a5acf8ff615a3b907992eb74b753d8cf30a
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -8598,15 +8598,14 @@ package:
     geoapps-utils: 0.6.0a1
     geoh5py: 0.12.0a1
     numpy: '>=1.26.0,<1.27.0'
-    octree-creation-app: 0.4.0a1
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: git+https://github.com/MiraGeoscience/grid-apps.git@e5bc756e65c0deb2c35e9b5bad8b4572697e2f9f
+  url: git+https://github.com/MiraGeoscience/grid-apps.git@b950dd55b4fb70d2ef28488a3f684c374a170b9f
   hash:
-    sha256: e5bc756e65c0deb2c35e9b5bad8b4572697e2f9f
+    sha256: b950dd55b4fb70d2ef28488a3f684c374a170b9f
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/grid-apps.git@e5bc756e65c0deb2c35e9b5bad8b4572697e2f9f
+    url: git+https://github.com/MiraGeoscience/grid-apps.git@b950dd55b4fb70d2ef28488a3f684c374a170b9f
   category: main
   optional: false
 - name: grid-apps
@@ -8618,15 +8617,14 @@ package:
     geoapps-utils: 0.6.0a1
     geoh5py: 0.12.0a1
     numpy: '>=1.26.0,<1.27.0'
-    octree-creation-app: 0.4.0a1
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: git+https://github.com/MiraGeoscience/grid-apps.git@e5bc756e65c0deb2c35e9b5bad8b4572697e2f9f
+  url: git+https://github.com/MiraGeoscience/grid-apps.git@b950dd55b4fb70d2ef28488a3f684c374a170b9f
   hash:
-    sha256: e5bc756e65c0deb2c35e9b5bad8b4572697e2f9f
+    sha256: b950dd55b4fb70d2ef28488a3f684c374a170b9f
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/grid-apps.git@e5bc756e65c0deb2c35e9b5bad8b4572697e2f9f
+    url: git+https://github.com/MiraGeoscience/grid-apps.git@b950dd55b4fb70d2ef28488a3f684c374a170b9f
   category: main
   optional: false
 - name: mira-simpeg
@@ -8669,73 +8667,5 @@ package:
   source:
     type: url
     url: git+https://github.com/MiraGeoscience/simpeg.git@dc256f618543d8ee94fd36737749715fe497f8b7
-  category: main
-  optional: false
-- name: octree-creation-app
-  version: 0.4.0a1
-  manager: pip
-  platform: linux-64
-  dependencies:
-    discretize: ==0.11.*
-    geoapps-utils: 0.6.0a1
-    geoh5py: 0.12.0a1
-    numpy: '>=1.26.0,<1.27.0'
-    pydantic: '>=2.5.2,<3.0.0'
-    scipy: '>=1.14.0,<1.15.0'
-  url: git+https://github.com/MiraGeoscience/octree-creation-app.git@7e04880d7da72ba0fc46a2aacafa172cca010c81
-  hash:
-    sha256: 7e04880d7da72ba0fc46a2aacafa172cca010c81
-  source:
-    type: url
-    url: git+https://github.com/MiraGeoscience/octree-creation-app.git@7e04880d7da72ba0fc46a2aacafa172cca010c81
-  category: main
-  optional: false
-- name: octree-creation-app
-  version: 0.4.0a1
-  manager: pip
-  platform: win-64
-  dependencies:
-    discretize: ==0.11.*
-    geoapps-utils: 0.6.0a1
-    geoh5py: 0.12.0a1
-    numpy: '>=1.26.0,<1.27.0'
-    pydantic: '>=2.5.2,<3.0.0'
-    scipy: '>=1.14.0,<1.15.0'
-  url: git+https://github.com/MiraGeoscience/octree-creation-app.git@7e04880d7da72ba0fc46a2aacafa172cca010c81
-  hash:
-    sha256: 7e04880d7da72ba0fc46a2aacafa172cca010c81
-  source:
-    type: url
-    url: git+https://github.com/MiraGeoscience/octree-creation-app.git@7e04880d7da72ba0fc46a2aacafa172cca010c81
-  category: main
-  optional: false
-- name: param-sweeps
-  version: 0.3.0-alpha.1
-  manager: pip
-  platform: linux-64
-  dependencies:
-    geoh5py: 0.12.0a1
-    numpy: '>=1.26.0,<1.27.0'
-  url: git+https://github.com/MiraGeoscience/param-sweeps.git@ba132694b432f76848573964f07b791c27734879
-  hash:
-    sha256: ba132694b432f76848573964f07b791c27734879
-  source:
-    type: url
-    url: git+https://github.com/MiraGeoscience/param-sweeps.git@ba132694b432f76848573964f07b791c27734879
-  category: main
-  optional: false
-- name: param-sweeps
-  version: 0.3.0-alpha.1
-  manager: pip
-  platform: win-64
-  dependencies:
-    geoh5py: 0.12.0a1
-    numpy: '>=1.26.0,<1.27.0'
-  url: git+https://github.com/MiraGeoscience/param-sweeps.git@ba132694b432f76848573964f07b791c27734879
-  hash:
-    sha256: ba132694b432f76848573964f07b791c27734879
-  source:
-    type: url
-    url: git+https://github.com/MiraGeoscience/param-sweeps.git@ba132694b432f76848573964f07b791c27734879
   category: main
   optional: false
