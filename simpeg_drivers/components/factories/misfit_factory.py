@@ -11,17 +11,14 @@
 
 from __future__ import annotations
 
-from concurrent.futures import ProcessPoolExecutor, as_completed
 from time import time
 from typing import TYPE_CHECKING
 
 import numpy as np
 from dask import compute, delayed
 from dask.diagnostics import ProgressBar
-from dask.distributed import Client, Future, LocalCluster
 from simpeg import objective_function
 from simpeg.dask import objective_function as dask_objective_function
-from simpeg.electromagnetics.base_1d import BaseEM1DSimulation
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 from simpeg_drivers.utils.nested import create_misfit, slice_from_ordering
@@ -145,8 +142,6 @@ class MisfitFactory(SimPEGFactory):
                 misfits,
                 client=self.driver.client,
             )
-        elif isinstance(self.driver.simulation, BaseEM1DSimulation):
-            return dask_objective_function.DaskComboMisfits(misfits)
 
         return self.simpeg_object(  # pylint: disable=not-callable
             misfits

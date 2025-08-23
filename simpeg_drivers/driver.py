@@ -748,6 +748,11 @@ if __name__ == "__main__":
     n_threads = input_file.data.get("n_threads", None)
     save_report = input_file.data.get("performance_report", False)
 
+    # Force distributed on 1D problems
+    if "1D" in input_file.data["title"] and n_workers is None:
+        n_threads = 2 or n_threads
+        n_workers = multiprocessing.cpu_count() // n_threads
+
     cluster = (
         LocalCluster(processes=True, n_workers=n_workers, threads_per_worker=n_threads)
         if ((n_workers is not None and n_workers > 1) or n_threads is not None)
