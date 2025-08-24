@@ -11,7 +11,6 @@
 
 from __future__ import annotations
 
-from time import time
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -54,8 +53,6 @@ class MisfitFactory(SimPEGFactory):
         else:
             channels = [None]
 
-        futures = []
-
         use_futures = (
             self.driver.client
         )  # and not isinstance(self.driver.simulation, BaseEM1DSimulation)
@@ -64,10 +61,9 @@ class MisfitFactory(SimPEGFactory):
             delayed_simulation = self.driver.client.scatter(self.driver.simulation)
         else:
             delayed_simulation = self.simulation
-            delayed_creation = delayed(create_misfit)
 
+        misfits = []
         tile_count = 0
-        ct = time()
         local_orderings = []
         for channel in channels:
             for local_indices in tiles:
@@ -86,7 +82,7 @@ class MisfitFactory(SimPEGFactory):
                     # Distribute the work across workers round-robin style
                     if use_futures:
                         worker_ind = tile_count % len(self.driver.workers)
-                        futures.append(
+                        misfits.append(
                             self.driver.client.submit(
                                 create_misfit,
                                 delayed_simulation,
@@ -101,8 +97,8 @@ class MisfitFactory(SimPEGFactory):
                             )
                         )
                     else:
-                        futures.append(
-                            delayed_creation(
+                        misfits.append(
+                            create_misfit(
                                 delayed_simulation,
                                 sub_ind,
                                 channel,
@@ -117,17 +113,7 @@ class MisfitFactory(SimPEGFactory):
 
         self.simulation.survey.ordering = np.vstack(local_orderings)
 
-        if use_futures:
-            print(f"Assembled misfit in {time() - ct:.1f} seconds")
-
-            return futures
-
-        with ProgressBar():
-            vals = compute(futures)[0]
-
-            print(f"Assembled misfit in {time() - ct:.1f} seconds")
-
-            return vals
+        return misfits
 
     def assemble_keyword_arguments(self, **_):
         """Implementation of abstract method from SimPEGFactory."""
