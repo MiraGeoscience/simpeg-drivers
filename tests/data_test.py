@@ -160,7 +160,7 @@ def test_survey_data(tmp_path: Path):
     # test locations
 
     np.testing.assert_array_equal(
-        verts[np.hstack(driver.simulation.survey.sorting), :2],
+        verts[np.hstack(driver.ordering[::3, -1]), :2],
         np.vstack(
             [
                 local_survey_a.receiver_locations[:, :2],
@@ -175,7 +175,7 @@ def test_survey_data(tmp_path: Path):
     # test observed data
     expected_dobs = np.column_stack(
         [bxx_data.values, byy_data.values, bzz_data.values]
-    )[np.hstack(driver.simulation.survey.sorting)].ravel()
+    )[np.hstack(driver.ordering[::3, -1])].ravel()
     survey_dobs = [local_survey_a.dobs, local_survey_b.dobs]
     np.testing.assert_array_equal(expected_dobs, np.hstack(survey_dobs))
 
