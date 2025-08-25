@@ -14,45 +14,38 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
+from dask import compute, delayed
+from dask.diagnostics import ProgressBar
 from simpeg import objective_function
-from simpeg.simulation import BaseSimulation
+from simpeg.dask import objective_function as dask_objective_function
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
-from simpeg_drivers.utils.nested import create_misfit
+from simpeg_drivers.utils.nested import create_misfit, slice_from_ordering
 
 
 if TYPE_CHECKING:
-    from geoapps_utils.driver.params import BaseParams
-
+    from simpeg_drivers.driver import InversionDriver
     from simpeg_drivers.options import BaseOptions
 
 
 class MisfitFactory(SimPEGFactory):
     """Build SimPEG global misfit function."""
 
-    def __init__(self, params: BaseParams | BaseOptions, simulation: BaseSimulation):
+    def __init__(self, driver: InversionDriver):
         """
         :param params: Options object containing SimPEG object parameters.
         """
-        super().__init__(params)
+        super().__init__(driver.params)
+        self.driver = driver
         self.simpeg_object = self.concrete_object()
         self.factory_type = self.params.inversion_type
-        self.simulation = simulation
+        self.simulation = driver.simulation
 
     def concrete_object(self):
         return objective_function.ComboObjectiveFunction
 
-    def build(self, tiles, split_list):  # pylint: disable=arguments-differ
-        global_misfit = super().build(
-            tiles=tiles,
-            split_list=split_list,
-        )
-        return global_misfit
-
     def assemble_arguments(  # pylint: disable=arguments-differ
-        self,
-        tiles,
-        split_list,
+        self, tiles
     ):
         # Base slice over frequencies
         if self.factory_type in ["magnetotellurics", "tipper", "fdem"]:
@@ -60,43 +53,82 @@ class MisfitFactory(SimPEGFactory):
         else:
             channels = [None]
 
-        futures = []
-        # TODO bring back on GEOPY-2182
-        # with ProcessPoolExecutor() as executor:
-        count = 0
-        for channel in channels:
-            tile_count = 0
-            for local_indices in tiles:
-                if len(local_indices) == 0:
-                    continue
+        use_futures = (
+            self.driver.client
+        )  # and not isinstance(self.driver.simulation, BaseEM1DSimulation)
 
-                n_split = split_list[count]
-                futures.append(
-                    # executor.submit(
-                    create_misfit(
-                        self.simulation,
-                        local_indices,
-                        channel,
-                        tile_count,
-                        n_split,
-                        self.params.padding_cells,
-                        self.params.inversion_type,
-                        self.params.forward_only,
-                    )
-                )
-                tile_count += np.sum(n_split)
-                count += 1
+        if use_futures:
+            delayed_simulation = self.driver.client.scatter(self.driver.simulation)
+        else:
+            delayed_simulation = self.simulation
 
-        local_misfits = []
+        misfits = []
+        tile_count = 0
         local_orderings = []
-        for future in futures:  # as_completed(futures):
-            misfits, orderings = future  # future.result()
-            local_misfits += misfits
-            local_orderings += orderings
+        for channel in channels:
+            for local_indices in tiles:
+                for sub_ind in local_indices:
+                    if len(sub_ind) == 0:
+                        continue
+
+                    ordering_slice = slice_from_ordering(
+                        self.simulation.survey, sub_ind, channel=channel
+                    )
+
+                    local_orderings.append(
+                        self.simulation.survey.ordering[ordering_slice, :]
+                    )
+
+                    # Distribute the work across workers round-robin style
+                    if use_futures:
+                        worker_ind = tile_count % len(self.driver.workers)
+                        misfits.append(
+                            self.driver.client.submit(
+                                create_misfit,
+                                delayed_simulation,
+                                sub_ind,
+                                channel,
+                                tile_count,
+                                self.params.padding_cells,
+                                self.params.inversion_type,
+                                self.params.forward_only,
+                                shared_indices=np.hstack(local_indices),
+                                workers=self.driver.workers[worker_ind],
+                            )
+                        )
+                    else:
+                        misfits.append(
+                            create_misfit(
+                                delayed_simulation,
+                                sub_ind,
+                                channel,
+                                tile_count,
+                                self.params.padding_cells,
+                                self.params.inversion_type,
+                                self.params.forward_only,
+                                shared_indices=np.hstack(local_indices),
+                            )
+                        )
+                    tile_count += 1
 
         self.simulation.survey.ordering = np.vstack(local_orderings)
-        return [local_misfits]
+
+        return misfits
 
     def assemble_keyword_arguments(self, **_):
         """Implementation of abstract method from SimPEGFactory."""
-        return {}
+
+    def build(self, tiles, **_):
+        """To be over-ridden in factory implementations."""
+
+        misfits = self.assemble_arguments(tiles)
+
+        if self.driver.client:
+            return dask_objective_function.DistributedComboMisfits(
+                misfits,
+                client=self.driver.client,
+            )
+
+        return self.simpeg_object(  # pylint: disable=not-callable
+            misfits
+        )

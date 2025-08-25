@@ -38,10 +38,11 @@ from simpeg_drivers.utils.synthetics.options import (
     SurveyOptions,
     SyntheticsComponentsOptions,
 )
+from tests.utils.targets import get_workspace
 
 
 def get_mvi_params(tmp_path: Path, **kwargs) -> MVIInversionOptions:
-    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         opts = SyntheticsComponentsOptions(
             method="magnetic_vector",
             survey=SurveyOptions(n_stations=2, n_lines=2),
@@ -159,7 +160,7 @@ def test_survey_data(tmp_path: Path):
     # test locations
 
     np.testing.assert_array_equal(
-        verts[np.hstack(driver.sorting), :2],
+        verts[np.hstack(driver.ordering[::3, -1]), :2],
         np.vstack(
             [
                 local_survey_a.receiver_locations[:, :2],
@@ -174,7 +175,7 @@ def test_survey_data(tmp_path: Path):
     # test observed data
     expected_dobs = np.column_stack(
         [bxx_data.values, byy_data.values, bzz_data.values]
-    )[np.hstack(driver.sorting)].ravel()
+    )[np.hstack(driver.ordering[::3, -1])].ravel()
     survey_dobs = [local_survey_a.dobs, local_survey_b.dobs]
     np.testing.assert_array_equal(expected_dobs, np.hstack(survey_dobs))
 
@@ -257,7 +258,7 @@ def test_data_parts(tmp_path: Path):
         mesh=MeshOptions(),
         model=ModelOptions(background=0.01, anomaly=10.0),
     )
-    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
         params = DC3DForwardOptions.build(
             geoh5=geoh5,

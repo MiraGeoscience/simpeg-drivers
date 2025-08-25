@@ -9,6 +9,8 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 import warnings
+from contextlib import contextmanager
+from pathlib import Path
 from uuid import UUID
 
 import numpy as np
@@ -70,3 +72,16 @@ def check_target(output: dict, target: dict, tolerance=0.05):
     np.testing.assert_array_less(
         np.abs(output["phi_d"][1] - target["phi_d"]) / target["phi_d"], tolerance
     )
+
+
+@contextmanager
+def get_workspace(filepath: Path | str):
+    try:
+        if filepath.is_file():
+            filepath.unlink()
+        geoh5 = Workspace.create(filepath)
+
+        yield geoh5
+
+    finally:
+        geoh5.close()

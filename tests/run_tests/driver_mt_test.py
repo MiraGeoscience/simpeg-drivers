@@ -35,10 +35,7 @@ from simpeg_drivers.utils.synthetics.options import (
     SurveyOptions,
     SyntheticsComponentsOptions,
 )
-from tests.utils.targets import (
-    check_target,
-    get_inversion_output,
-)
+from tests.utils.targets import check_target, get_inversion_output, get_workspace
 
 
 # To test the full run and validate the inversion.
@@ -107,7 +104,7 @@ def test_magnetotellurics_fwr_run(
         mesh=MeshOptions(cell_size=cell_size, refinement=refinement),
         model=ModelOptions(background=0.01),
     )
-    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
         params = MTForwardOptions.build(
             geoh5=geoh5,
@@ -187,29 +184,47 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
             inactive_ind = run_ws.get_entity("active_cells")[0].values == 0
             assert np.all(nan_ind == inactive_ind)
 
-    # test that one channel works
-    data_kwargs = {k: v for k, v in data_kwargs.items() if "zxx_real" in k}
-    geoh5.open()
-    params = MTInversionOptions.build(
-        geoh5=geoh5,
-        mesh=geoh5.get_entity("mesh")[0],
-        topography_object=topography,
-        data_object=survey,
-        starting_model=0.01,
-        background_conductivity=1e-2,
-        max_global_iterations=0,
-        **data_kwargs,
+
+def test_magnetotellurics_tiles(
+    tmp_path: Path,
+    n_grid_points=32,
+    refinement=(2,),
+    cell_size=(20.0, 20.0, 20.0),
+):
+    workpath = tmp_path / f"{__name__}.geoh5"
+    opts = SyntheticsComponentsOptions(
+        method="magnetotellurics",
+        survey=SurveyOptions(n_stations=n_grid_points, n_lines=n_grid_points),
+        mesh=MeshOptions(cell_size=cell_size, refinement=refinement),
+        model=ModelOptions(background=0.01),
     )
-    params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
-    MTInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
+    with Workspace.create(workpath) as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+        geoh5.open()
+        params = MTForwardOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
+            starting_model=components.model,
+            background_conductivity=1e-2,
+            zxx_real_channel_bool=True,
+            zxx_imag_channel_bool=True,
+            zxy_real_channel_bool=True,
+            zxy_imag_channel_bool=True,
+            zyx_real_channel_bool=True,
+            zyx_imag_channel_bool=True,
+            zyy_real_channel_bool=True,
+            zyy_imag_channel_bool=True,
+            tile_spatial=3,
+            solver_type="Mumps",
+        )
 
     driver = MTInversionDriver(params)
 
     # Fake a distributed cluster
-    n_workers = 5
-    params.n_workers = n_workers
-    driver._workers = ["abc"] * n_workers  # pylint: disable=protected-access
-    assert len(driver.data_misfit.objfcts) == 5
+    driver._workers = ["abc"] * 4  # pylint: disable=protected-access
+    assert len(driver.data_misfit.objfcts) == 12
 
 
 if __name__ == "__main__":

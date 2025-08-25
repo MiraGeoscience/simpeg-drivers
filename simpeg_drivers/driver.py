@@ -50,6 +50,7 @@ from simpeg import (
     optimization,
     simulation,
 )
+from simpeg.electromagnetics.time_domain.simulation_1d import BaseEM1DSimulation
 from simpeg.potential_fields.base import BasePFSimulation
 from simpeg.regularization import (
     BaseRegularization,
@@ -86,7 +87,6 @@ mlogger.setLevel(logging.WARNING)
 class InversionDriver(Driver):
     _options_class = BaseForwardOptions | BaseInversionOptions
     _inversion_type: str | None = None
-    _validations = None
 
     def __init__(self, params: BaseForwardOptions | BaseInversionOptions):
         super().__init__(params)
@@ -106,7 +106,7 @@ class InversionDriver(Driver):
         self._optimization: optimization.ProjectedGNCG | None = None
         self._regularization: None = None
         self._simulation: simulation.BaseSimulation | None = None
-        self._sorting: list[np.ndarray] | None = None
+
         self._ordering: list[np.ndarray] | None = None
         self._mappings: list[maps.IdentityMap] | None = None
         self._window = None
@@ -118,7 +118,6 @@ class InversionDriver(Driver):
         if self._client is None:
             try:
                 self._client = get_client()
-                # self._workers = [worker.worker_address for worker in self.client.cluster.workers.values()]
             except ValueError:
                 self._client = False
 
@@ -129,35 +128,42 @@ class InversionDriver(Driver):
         """List of workers"""
         if self._workers is None:
             if self.client:
-                self._workers = list(self.client.cluster.workers.values())
+                self._workers = [
+                    (worker.worker_address,)
+                    for worker in self.client.cluster.workers.values()
+                ]
             else:
                 self._workers = []
         return self._workers
 
-    @property
-    def split_list(self):
+    def split_list(self, tiles: list[np.ndarray]) -> list[np.ndarray]:
         """
         Number of splits for the data misfit to be distributed evenly among workers.
         """
-        n_misfits = self.params.compute.tile_spatial
-
-        if isinstance(self.params.data_object, FEMSurvey):
-            n_misfits *= len(self.params.data_object.channels)
-
-        split_list = [1] * n_misfits
-
         if len(self.workers) == 0:
-            return split_list
+            return [[tile] for tile in tiles]
+
+        n_tiles = self.params.compute.tile_spatial
+
+        n_channels = 1
+        if isinstance(self.params.data_object, FEMSurvey):
+            n_channels = len(self.params.data_object.channels)
+
+        split_list = [1] * n_tiles
 
         count = 0
-        while np.sum(split_list) % len(self.workers) != 0:
-            split_list[count % n_misfits] += 1
+        while (np.sum(split_list) * n_channels) % len(self.workers) != 0:
+            split_list[count % n_tiles] += 1
             count += 1
 
         self.logger.write(
             f"Number of misfits: {np.sum(split_list)} distributed over {len(self.workers)} workers.\n"
         )
-        return split_list
+
+        flat_tile_list = []
+        for tile, split in zip(tiles, split_list):
+            flat_tile_list.append(np.array_split(tile, split))
+        return flat_tile_list
 
     @property
     def data_misfit(self):
@@ -169,22 +175,10 @@ class InversionDriver(Driver):
 
                 self.logger.write(f"Setting up {len(tiles)} tile(s) . . .\n")
                 # Build tiled misfits and combine to form global misfit
-                self._data_misfit = MisfitFactory(self.params, self.simulation).build(
-                    tiles,
-                    self.split_list,
+                self._data_misfit = MisfitFactory(self).build(
+                    self.split_list(tiles),
                 )
                 self.logger.write("Saving data to file...\n")
-                self._sorting = tiles
-                if isinstance(self.params, BaseInversionOptions):
-                    self._data_misfit.multipliers = np.asarray(
-                        self._data_misfit.multipliers, dtype=float
-                    )
-
-            if self.client:
-                self.logger.write(
-                    "Broadcasting simulations to distributed workers...\n"
-                )
-                self.distributed_misfits()
 
         return self._data_misfit
 
@@ -194,17 +188,6 @@ class InversionDriver(Driver):
             with fetch_active_workspace(self.workspace, mode="r+"):
                 self._directives = DirectivesFactory(self)
         return self._directives
-
-    def distributed_misfits(self):
-        """
-        Method to convert MetaSimulations to DaskMetaSimulations with futures.
-        """
-        distributed_misfits = dask.objective_function.DaskComboMisfits(
-            self.data_misfit.objfcts,
-            multipliers=self.data_misfit.multipliers,
-            client=self.client,
-        )
-        self._data_misfit = distributed_misfits
 
     @property
     def inverse_problem(self):
@@ -405,13 +388,6 @@ class InversionDriver(Driver):
         return self._simulation
 
     @property
-    def sorting(self) -> list[np.ndarray] | None:
-        """
-        Sorting of the data locations.
-        """
-        return self._sorting
-
-    @property
     def window(self):
         """Inversion window"""
         if getattr(self, "_window", None) is None:
@@ -424,10 +400,10 @@ class InversionDriver(Driver):
         self.logger.start()
         self.configure_dask()
 
-        simpeg_inversion = self.inversion
+        with fetch_active_workspace(self.workspace, mode="r+"):
+            simpeg_inversion = self.inversion
 
-        if Path(self.params.input_file.path_name).is_file():
-            with fetch_active_workspace(self.workspace, mode="r+"):
+            if Path(self.params.input_file.path_name).is_file():
                 self.out_group.add_file(self.params.input_file.path_name)
 
         predicted = None
@@ -627,7 +603,7 @@ class InversionDriver(Driver):
             return [np.arange(self.inversion_data.mask.sum())]
 
         if "1d" in self.params.inversion_type:
-            return np.arange(self.inversion_data.mask.sum()).reshape((-1, 1))
+            return [np.arange(self.inversion_data.mask.sum())]
 
         return tile_locations(
             self.inversion_data.locations,
@@ -764,11 +740,18 @@ class InversionLogger:
 
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
+    file = Path(
+        r"C:\Users\dominiquef\Downloads\forrestania__simpeg1d\forrestania__simpeg1d_v1.ui.json"
+    ).resolve()
     input_file = InputFile.read_ui_json(file)
     n_workers = input_file.data.get("n_workers", None)
     n_threads = input_file.data.get("n_threads", None)
     save_report = input_file.data.get("performance_report", False)
+
+    # Force distributed on 1D problems
+    if "1D" in input_file.data["title"] and n_workers is None:
+        n_threads = 2 or n_threads
+        n_workers = multiprocessing.cpu_count() // n_threads
 
     cluster = (
         LocalCluster(processes=True, n_workers=n_workers, threads_per_worker=n_threads)

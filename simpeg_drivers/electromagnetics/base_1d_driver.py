@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+import multiprocessing
 from logging import getLogger
 
 import numpy as np
@@ -104,10 +105,14 @@ class Base1DDriver(InversionDriver):
         return self._simulation
 
     @property
-    def split_list(self):
-        """
-        Split the list of data into chunks for parallel processing.
-        """
-        n_misfits = self.inversion_data.mask.sum()
-
-        return [1] * n_misfits
+    def workers(self):
+        """List of workers"""
+        if self._workers is None:
+            if self.client:
+                self._workers = [
+                    (worker.worker_address,)
+                    for worker in self.client.cluster.workers.values()
+                ]
+            else:
+                self._workers = np.arange(multiprocessing.cpu_count()).tolist()
+        return self._workers

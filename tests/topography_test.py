@@ -25,6 +25,7 @@ from simpeg_drivers.utils.synthetics.options import (
     SurveyOptions,
     SyntheticsComponentsOptions,
 )
+from tests.utils.targets import get_workspace
 
 
 def test_get_locations(tmp_path: Path):
@@ -34,7 +35,7 @@ def test_get_locations(tmp_path: Path):
         mesh=MeshOptions(refinement=(2,)),
         model=ModelOptions(anomaly=0.05),
     )
-    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
         tmi_channel, gyz_channel = components.survey.add_data(
             {

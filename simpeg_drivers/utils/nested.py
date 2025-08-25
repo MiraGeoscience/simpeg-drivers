@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import warnings
+from collections.abc import Iterable
 from copy import copy
 from pathlib import Path
 
@@ -18,7 +19,7 @@ from discretize import TensorMesh, TreeMesh
 from scipy.optimize import linear_sum_assignment
 from scipy.spatial import cKDTree
 from scipy.spatial.distance import cdist
-from simpeg import data, data_misfit, maps, meta
+from simpeg import data, data_misfit, maps, meta, objective_function
 from simpeg.electromagnetics.base_1d import BaseEM1DSimulation
 from simpeg.electromagnetics.frequency_domain.simulation import BaseFDEMSimulation
 from simpeg.electromagnetics.frequency_domain.sources import (
@@ -116,10 +117,10 @@ def create_misfit(
     local_indices,
     channel,
     tile_count,
-    n_split,
     padding_cells,
     inversion_type,
     forward_only,
+    shared_indices=None,
 ):
     """
     Create a list of local misfits based on the local indices.
@@ -129,65 +130,74 @@ def create_misfit(
 
     :param simulation: SimPEG simulation object.
     :param local_indices: Indices of the receiver locations belonging to the tile.
-    :param channel: Channel of the simulationm, for frequency systems only.
+    :param channel: Channel of the simulation, for frequency systems only.
     :param tile_count: Current tile ID, used to name the file on disk and for sampling
       of topography for 1D simulations.
-    :param n_split: Number of splits to create for the local indices.
     :param padding_cells: Number of padding cells around the local survey.
     :param inversion_type: Type of inversion, used to name the misfit (joint inversion).
     :param forward_only: If False, data is transferred to the local simulation.
 
     :return: List of local misfits and data slices.
     """
-    local_sim, _, _ = create_simulation(
+    # Split into smaller chunks
+    if isinstance(simulation, BaseEM1DSimulation) and isinstance(
+        local_indices, Iterable
+    ):
+        misfit_list = [
+            create_misfit(
+                simulation,
+                ind,
+                channel,
+                tile_count,
+                padding_cells,
+                inversion_type,
+                forward_only,
+            )
+            for ind in local_indices
+        ]
+        return objective_function.ComboObjectiveFunction(misfit_list)
+
+    local_mesh = None
+    if shared_indices is not None:
+        local_survey = create_survey(
+            simulation.survey, indices=shared_indices, channel=channel
+        )
+        local_mesh = create_mesh(
+            local_survey,
+            simulation.mesh,
+            minimum_level=3,
+            padding_cells=padding_cells,
+        )
+
+    local_sim, mapping = create_simulation(
         simulation,
-        None,
+        local_mesh,
         local_indices,
         channel=channel,
         tile_id=tile_count,
         padding_cells=padding_cells,
     )
+    meta_simulation = meta.MetaSimulation(simulations=[local_sim], mappings=[mapping])
 
-    local_mesh = getattr(local_sim, "mesh", None)
-    local_misfits = []
-    data_slices = []
-    for split_ind in np.array_split(local_indices, n_split):
-        local_sim, mapping, data_slice = create_simulation(
-            simulation,
-            local_mesh,
-            split_ind,
-            channel=channel,
-            tile_id=tile_count,
-            padding_cells=padding_cells,
-        )
-        meta_simulation = meta.MetaSimulation(
-            simulations=[local_sim], mappings=[mapping]
-        )
+    local_data = data.Data(local_sim.survey)
+    local_misfit = data_misfit.L2DataMisfit(local_data, meta_simulation)
+    if not forward_only:
+        local_data.dobs = local_sim.survey.dobs
+        local_data.standard_deviation = local_sim.survey.std
+        name = inversion_type
+        name += f": Tile {tile_count + 1}"
+        if channel is not None:
+            name += f": Channel {channel}"
 
-        local_data = data.Data(local_sim.survey)
-        lmisfit = data_misfit.L2DataMisfit(local_data, meta_simulation)
-        if not forward_only:
-            local_data.dobs = local_sim.survey.dobs
-            local_data.standard_deviation = local_sim.survey.std
-            name = inversion_type
-            name += f": Tile {tile_count + 1}"
-            if channel is not None:
-                name += f": Channel {channel}"
+        local_misfit.name = f"{name}"
 
-            lmisfit.name = f"{name}"
-
-        local_misfits.append(lmisfit)
-        data_slices.append(data_slice)
-
-        tile_count += 1
-
-    return local_misfits, data_slices
+    return local_misfit
 
 
 def create_simulation(
     simulation: BaseSimulation,
-    local_mesh: TreeMesh | None,
-    indices: np.ndarray,
+    local_mesh: TreeMesh | TensorMesh | None,
+    indices: np.ndarray | int,
     *,
     channel: int | None = None,
     tile_id: int | None = None,
@@ -205,9 +215,7 @@ def create_simulation(
 
     :return: Local simulation, mapping and local ordering.
     """
-    local_survey, local_ordering = create_survey(
-        simulation.survey, indices=indices, channel=channel
-    )
+    local_survey = create_survey(simulation.survey, indices=indices, channel=channel)
     kwargs = {"survey": local_survey}
 
     if local_mesh is None:
@@ -223,10 +231,10 @@ def create_simulation(
         local_mesh = simulation.layers_mesh
         actives = np.ones(simulation.layers_mesh.n_cells, dtype=bool)
         model_slice = np.arange(
-            tile_id, simulation.mesh.n_cells, simulation.mesh.shape_cells[0]
+            indices, simulation.mesh.n_cells, simulation.mesh.shape_cells[0]
         )[::-1]
         mapping = maps.Projection(simulation.mesh.n_cells, model_slice)
-        kwargs["topo"] = simulation.active_cells[tile_id]
+        kwargs["topo"] = simulation.active_cells[indices]
         args = ()
 
     elif isinstance(local_mesh, TreeMesh):
@@ -252,14 +260,14 @@ def create_simulation(
             kwargs["chiMap"] = maps.IdentityMap(nP=n_actives)
 
         kwargs["active_cells"] = actives
-        kwargs["sensitivity_path"] = (
+        kwargs["sensitivity_path"] = str(
             Path(simulation.sensitivity_path).parent / f"Tile{tile_id}.zarr"
         )
 
     if getattr(simulation, "_rhoMap", None) is not None:
         kwargs["rhoMap"] = maps.IdentityMap(nP=n_actives)
         kwargs["active_cells"] = actives
-        kwargs["sensitivity_path"] = (
+        kwargs["sensitivity_path"] = str(
             Path(simulation.sensitivity_path).parent / f"Tile{tile_id}.zarr"
         )
 
@@ -297,7 +305,7 @@ def create_simulation(
         compute_dc_projections(
             simulation.survey.locations, simulation.survey.cells, local_sim
         )
-    return local_sim, mapping, local_ordering
+    return local_sim, mapping
 
 
 def create_survey(survey, indices, channel=None):
@@ -309,13 +317,6 @@ def create_survey(survey, indices, channel=None):
     :param channel: Channel of the survey, for frequency systems only.
     """
     sources = []
-
-    # Return the subset of data that belongs to the tile
-    slice_inds = np.isin(survey.ordering[:, 2], indices)
-    if channel is not None:
-        ind = np.where(np.asarray(survey.frequencies) == channel)[0]
-        slice_inds *= np.isin(survey.ordering[:, 0], ind)
-
     for src in survey.source_list or [survey.source_field]:
         if channel is not None and getattr(src, "frequency", None) != channel:
             continue
@@ -350,6 +351,9 @@ def create_survey(survey, indices, channel=None):
         new_survey = type(survey)(sources)
 
     if hasattr(survey, "dobs") and survey.dobs is not None:
+        # Return the subset of data that belongs to the tile
+        slice_inds = slice_from_ordering(survey, indices, channel=channel)
+
         # For FEM surveys only
         new_survey.dobs = survey.dobs[
             survey.ordering[slice_inds, 0],
@@ -362,7 +366,30 @@ def create_survey(survey, indices, channel=None):
             survey.ordering[slice_inds, 2],
         ]
 
-    return new_survey, survey.ordering[slice_inds, :]
+    return new_survey
+
+
+def slice_from_ordering(
+    survey: BaseSurvey,
+    receiver_indices: np.ndarray,
+    channel: int | None = None,
+):
+    """
+    Create an ordering array from the survey and slice indices.
+
+    :param survey: SimPEG survey object.
+    :param slice_inds: Indices of the receivers belonging to the tile.
+    :param channel: Channel of the survey, for frequency systems only.
+
+    :return: Ordering array.
+    """
+    ordering_slice = np.isin(survey.ordering[:, 2], receiver_indices)
+
+    if channel is not None:
+        ind = np.where(np.asarray(survey.frequencies) == channel)[0]
+        ordering_slice *= np.isin(survey.ordering[:, 0], ind)
+
+    return ordering_slice
 
 
 def tile_locations(
