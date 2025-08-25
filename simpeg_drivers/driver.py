@@ -400,10 +400,10 @@ class InversionDriver(Driver):
         self.logger.start()
         self.configure_dask()
 
-        simpeg_inversion = self.inversion
+        with fetch_active_workspace(self.workspace, mode="r+"):
+            simpeg_inversion = self.inversion
 
-        if Path(self.params.input_file.path_name).is_file():
-            with fetch_active_workspace(self.workspace, mode="r+"):
+            if Path(self.params.input_file.path_name).is_file():
                 self.out_group.add_file(self.params.input_file.path_name)
 
         predicted = None
