@@ -36,6 +36,7 @@ from simpeg_drivers.utils.synthetics.options import (
     SurveyOptions,
     SyntheticsComponentsOptions,
 )
+from tests.utils.targets import get_workspace
 
 
 logger = logging.getLogger(__name__)
@@ -244,7 +245,7 @@ def test_gravity_uijson(tmp_path):
     opts = SyntheticsComponentsOptions(
         method="gravity", model=ModelOptions(anomaly=0.75)
     )
-    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
         gz_channel = components.survey.add_data(
             {"gz": {"values": np.ones(components.survey.n_vertices)}}
