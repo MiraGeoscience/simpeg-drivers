@@ -740,9 +740,7 @@ class InversionLogger:
 
 
 if __name__ == "__main__":
-    file = Path(
-        r"C:\Users\dominiquef\Downloads\forrestania__simpeg1d\forrestania__simpeg1d_v1.ui.json"
-    ).resolve()
+    file = Path(sys.argv[1]).resolve()
     input_file = InputFile.read_ui_json(file)
     n_workers = input_file.data.get("n_workers", None)
     n_threads = input_file.data.get("n_threads", None)
