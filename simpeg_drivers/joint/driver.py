@@ -20,7 +20,7 @@ from pathlib import Path
 import numpy as np
 from geoh5py.groups.property_group_type import GroupTypeEnum
 from geoh5py.shared.utils import fetch_active_workspace
-from octree_creation_app.utils import (
+from grid_apps.utils import (
     collocate_octrees,
     create_octree_from_octrees,
     treemesh_2_octree,

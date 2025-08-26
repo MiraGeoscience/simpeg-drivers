@@ -12,8 +12,8 @@ import numpy as np
 from discretize import TreeMesh
 from discretize.utils import mesh_builder_xyz
 from geoh5py.objects import Octree, Points, Surface
-from octree_creation_app.driver import OctreeDriver
-from octree_creation_app.utils import treemesh_2_octree
+from grid_apps.octree_creation.driver import OctreeDriver
+from grid_apps.utils import treemesh_2_octree
 
 
 def get_base_octree(

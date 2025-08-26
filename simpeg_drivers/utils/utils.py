@@ -27,7 +27,7 @@ from geoh5py.objects.surveys.direct_current import PotentialElectrode
 from geoh5py.objects.surveys.electromagnetics.base import LargeLoopGroundEMSurvey
 from geoh5py.shared import INTEGER_NDV
 from geoh5py.ui_json import InputFile
-from octree_creation_app.utils import octree_2_treemesh
+from grid_apps.utils import octree_2_treemesh
 from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator, interp1d
 from scipy.spatial import ConvexHull, Delaunay, cKDTree
 

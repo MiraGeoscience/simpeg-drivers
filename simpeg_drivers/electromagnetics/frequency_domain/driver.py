@@ -23,7 +23,6 @@ class FDEMForwardDriver(InversionDriver):
     """Frequency Domain Electromagnetic forward driver."""
 
     _options_class = FDEMForwardOptions
-    _validations = None
 
     def __init__(self, params: FDEMForwardOptions):
         super().__init__(params)
@@ -33,4 +32,3 @@ class FDEMInversionDriver(InversionDriver):
     """Frequency Domain Electromagnetic inversion driver."""
 
     _options_class = FDEMInversionOptions
-    _validations = None

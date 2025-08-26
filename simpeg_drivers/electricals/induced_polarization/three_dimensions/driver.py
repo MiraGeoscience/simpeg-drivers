@@ -23,11 +23,9 @@ class IP3DForwardDriver(InversionDriver):
     """Induced Polarization 3D forward driver."""
 
     _options_class = IP3DForwardOptions
-    _validations = None
 
 
 class IP3DInversionDriver(InversionDriver):
     """Induced Polarization 3D inversion driver."""
 
     _options_class = IP3DInversionOptions
-    _validations = None

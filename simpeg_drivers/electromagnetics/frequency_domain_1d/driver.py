@@ -23,11 +23,9 @@ class FDEM1DForwardDriver(Base1DDriver):
     """Frequency Domain 1D Electromagnetic forward driver."""
 
     _options_class = FDEM1DForwardOptions
-    _validations = None
 
 
 class FDEM1DInversionDriver(Base1DDriver):
     """Frequency Domain 1D Electromagnetic inversion driver."""
 
     _options_class = FDEM1DInversionOptions
-    _validations = None

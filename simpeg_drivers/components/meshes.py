@@ -19,9 +19,9 @@ from discretize import TensorMesh, TreeMesh
 from geoh5py import Workspace
 from geoh5py.groups import UIJsonGroup
 from geoh5py.objects import DrapeModel, Octree
-from octree_creation_app.driver import OctreeDriver
-from octree_creation_app.params import OctreeParams
-from octree_creation_app.utils import octree_2_treemesh, treemesh_2_octree
+from grid_apps.octree_creation.driver import OctreeDriver
+from grid_apps.octree_creation.options import OctreeOptions
+from grid_apps.utils import octree_2_treemesh, treemesh_2_octree
 from scipy.sparse import csr_matrix, identity
 
 from simpeg_drivers.options import BaseForwardOptions, BaseInversionOptions

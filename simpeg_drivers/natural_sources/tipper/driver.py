@@ -20,11 +20,9 @@ class TipperForwardDriver(InversionDriver):
     """Tipper forward driver."""
 
     _options_class = TipperForwardOptions
-    _validations = None
 
 
 class TipperInversionDriver(InversionDriver):
     """Tipper inversion driver."""
 
     _options_class = TipperInversionOptions
-    _validations = None

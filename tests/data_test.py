@@ -17,8 +17,8 @@ import simpeg
 from discretize.utils import mesh_builder_xyz
 from geoh5py.objects import Points
 from geoh5py.workspace import Workspace
-from octree_creation_app.driver import OctreeDriver
-from octree_creation_app.utils import treemesh_2_octree
+from grid_apps.octree_creation.driver import OctreeDriver
+from grid_apps.utils import treemesh_2_octree
 
 from simpeg_drivers.components import InversionData
 from simpeg_drivers.electricals.direct_current.three_dimensions.options import (

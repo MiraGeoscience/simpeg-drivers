@@ -33,7 +33,6 @@ from .options import JointCrossGradientOptions
 
 class JointCrossGradientDriver(BaseJointDriver):
     _options_class = JointCrossGradientOptions
-    _validations = None
 
     def __init__(self, params: JointCrossGradientOptions):
         self._wires = None

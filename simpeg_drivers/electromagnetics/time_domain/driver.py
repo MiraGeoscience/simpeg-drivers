@@ -28,11 +28,9 @@ class TDEMForwardDriver(InversionDriver):
     """Time Domain Electromagnetic forward driver."""
 
     _options_class = TDEMForwardOptions
-    _validations = None
 
 
 class TDEMInversionDriver(InversionDriver):
     """Time Domain Electromagnetic inversion driver."""
 
     _options_class = TDEMInversionOptions
-    _validations = None

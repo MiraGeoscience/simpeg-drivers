@@ -10,8 +10,8 @@
 
 import numpy as np
 from geoh5py.objects import Surface
-from octree_creation_app.driver import OctreeDriver
-from octree_creation_app.params import OctreeParams
+from grid_apps.octree_creation.driver import OctreeDriver
+from grid_apps.octree_creation.options import OctreeOptions
 
 
 def get_topo_mesh(workspace):
@@ -46,7 +46,7 @@ def get_topo_mesh(workspace):
             }
         ],
     }
-    params = OctreeParams(**kwargs)
+    params = OctreeOptions(**kwargs)
     params.write_ui_json(workspace.h5file.parent / "octree.ui.json")
     driver = OctreeDriver(params)
     octree = driver.run()
