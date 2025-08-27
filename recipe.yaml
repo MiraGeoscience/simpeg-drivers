@@ -58,6 +58,7 @@ tests:
   - python:
       imports:
         - simpeg_drivers
+        - simpeg_drivers._version
         - simpeg
         - geoh5py
         - dask
