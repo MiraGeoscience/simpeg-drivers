@@ -30,16 +30,20 @@ class SimPEGDriversUIJson(BaseUIJson):
     @field_validator("version", mode="before")
     @classmethod
     def verify_and_update_version(cls, value: str) -> str:
-        package_version = cls.comparable_version(simpeg_drivers.__version__)
-        input_version = cls.comparable_version(value)
-        if input_version != package_version:
+        if not value:
+            value = simpeg_drivers.__version__
+
+        input_public = Version(str(value)).public
+        package_public = Version(simpeg_drivers.__version__).public
+
+        if input_public != package_public:
             logger.warning(
                 "Provided ui.json file version '%s' does not match the current "
                 "simpeg-drivers version '%s'. This may lead to unpredictable behavior.",
                 value,
                 simpeg_drivers.__version__,
             )
-        return value
+        return input_public
 
     @staticmethod
     def comparable_version(value: str) -> str:
