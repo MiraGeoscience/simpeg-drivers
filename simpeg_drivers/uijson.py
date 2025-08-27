@@ -71,7 +71,7 @@ class SimPEGDriversUIJson(BaseUIJson):
 
         with open(cls.default_ui_json, encoding="utf-8") as file:
             data = json.load(file)
-            data["version"] = simpeg_drivers.__version__
+            data["version"] = Version(simpeg_drivers.__version__).public
 
         uijson = cls.model_construct(**data)
         data = uijson.model_dump_json(indent=4, exclude_unset=False)
