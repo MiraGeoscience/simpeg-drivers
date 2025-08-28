@@ -26,6 +26,7 @@ class SimPEGDriversUIJson(BaseUIJson):
     def __get_pydantic_core_schema__(cls, *args, **kwargs):
         # This is a workaround for Pydantic v2 to allow field_serializer below to work on inherited models
         from pydantic import GetCoreSchemaHandler
+
         schema = super().__get_pydantic_core_schema__(*args, **kwargs)
         handler = GetCoreSchemaHandler(schema)
         return handler(schema)
@@ -36,9 +37,11 @@ class SimPEGDriversUIJson(BaseUIJson):
         return str(Version(str(value)).public)
 
     from pydantic import field_serializer
-    @field_serializer('version')
+
+    @field_serializer("version")
     def serialize_version(self, value):
         return self._version_public(value)
+
     """Base class for simpeg-drivers UIJson."""
 
     icon: str
