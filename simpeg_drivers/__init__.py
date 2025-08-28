@@ -12,8 +12,9 @@
 from __future__ import annotations
 
 import logging
-from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
+
+from packaging.version import Version
 
 
 try:
@@ -27,7 +28,13 @@ except ModuleNotFoundError:  # pragma: no cover
 
 logging.basicConfig(level=logging.INFO)
 
-__all__ = ["DRIVER_MAP", "assets_path"]
+
+__all__ = ["DRIVER_MAP", "assets_path", "public_version"]
+
+
+def public_version() -> str:
+    """Return the current public version."""
+    return Version(__version__).public
 
 
 def assets_path() -> Path:

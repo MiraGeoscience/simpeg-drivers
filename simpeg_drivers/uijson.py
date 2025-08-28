@@ -15,7 +15,7 @@ from geoh5py.ui_json.ui_json import BaseUIJson
 from packaging.version import Version
 from pydantic import field_validator
 
-import simpeg_drivers
+from . import public_version
 
 
 logger = logging.getLogger(__name__)
@@ -30,14 +30,17 @@ class SimPEGDriversUIJson(BaseUIJson):
     @field_validator("version", mode="before")
     @classmethod
     def verify_and_update_version(cls, value: str) -> str:
-        package_version = cls.comparable_version(simpeg_drivers.__version__)
+        package_version = cls.comparable_version(public_version())
+        if package_version == "0.0.0":  # dynamic version did not get generated
+            return value
+
         input_version = cls.comparable_version(value)
         if input_version != package_version:
             logger.warning(
                 "Provided ui.json file version '%s' does not match the current "
                 "simpeg-drivers version '%s'. This may lead to unpredictable behavior.",
                 value,
-                simpeg_drivers.__version__,
+                public_version(),
             )
         return value
 
@@ -71,7 +74,7 @@ class SimPEGDriversUIJson(BaseUIJson):
 
         with open(cls.default_ui_json, encoding="utf-8") as file:
             data = json.load(file)
-            data["version"] = simpeg_drivers.__version__
+            data["version"] = public_version()
 
         uijson = cls.model_construct(**data)
         data = uijson.model_dump_json(indent=4, exclude_unset=False)
