@@ -11,12 +11,10 @@
 
 from __future__ import annotations
 
-
-from importlib.metadata import PackageNotFoundError, version
-
-
 import logging
+from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
+
 
 try:
     from ._version import __version__
@@ -25,7 +23,6 @@ except ModuleNotFoundError:  # pragma: no cover
 
     __date_str = datetime.today().strftime("%Y%m%d")
     __version__ = "0.0.0.dev0+" + __date_str
-
 
 
 logging.basicConfig(level=logging.INFO)
