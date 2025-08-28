@@ -22,7 +22,6 @@ logger = logging.getLogger(__name__)
 
 
 class SimPEGDriversUIJson(BaseUIJson):
-
     @staticmethod
     def _version_public(value):
         # Always return only the public part of the version string
