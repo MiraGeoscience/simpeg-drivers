@@ -35,7 +35,9 @@ class SimPEGDriversUIJson(BaseUIJson):
         input_version = cls.comparable_version(value)
         input_public = Version(str(value)).public
         package_public = Version(simpeg_drivers.__version__).public
-        if cls.comparable_version(input_public) != cls.comparable_version(package_public):
+        if cls.comparable_version(input_public) != cls.comparable_version(
+            package_public
+        ):
             logger.warning(
                 "Provided ui.json file version '%s' does not match the current "
                 "simpeg-drivers version '%s'. This may lead to unpredictable behavior.",
