@@ -18,7 +18,7 @@ from pathlib import Path
 
 try:
     from ._version import __version__
-except ModuleNotFoundError:  # pragma: no cover
+except ModuleNotFoundError:
     from datetime import datetime
 
     __date_str = datetime.today().strftime("%Y%m%d")
