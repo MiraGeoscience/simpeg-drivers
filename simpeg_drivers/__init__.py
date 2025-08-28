@@ -24,6 +24,7 @@ except ModuleNotFoundError:  # pragma: no cover
     __date_str = datetime.today().strftime("%Y%m%d")
     __version__ = "0.0.0.dev0+" + __date_str
 
+
 logging.basicConfig(level=logging.INFO)
 
 __all__ = ["DRIVER_MAP", "assets_path"]

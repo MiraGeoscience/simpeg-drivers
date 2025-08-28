@@ -145,4 +145,5 @@ dmypy.json
 # tempory generated files
 pyproject-sha.toml
 
+#version ignore
 simpeg_drivers/_version.py

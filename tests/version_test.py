@@ -52,7 +52,7 @@ def _version_module_exists():
 
 @pytest.mark.skipif(
     _version_module_exists(),
-    reason="simpeg_drivers._version can be imported: package is built",
+    reason="simpeg_drivers._version can be found: package is built",
 )
 def test_fallback_version_is_zero():
     project_version = Version(simpeg_drivers.__version__)
@@ -65,7 +65,7 @@ def test_fallback_version_is_zero():
 
 @pytest.mark.skipif(
     not _version_module_exists(),
-    reason="(simpeg_drivers._version cannot be imported: uses a fallback version",
+    reason="simpeg_drivers._version cannot be found: uses a fallback version",
 )
 def test_conda_version_is_consistent():
     project_version = Version(simpeg_drivers.__version__)
