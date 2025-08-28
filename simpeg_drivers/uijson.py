@@ -22,14 +22,6 @@ logger = logging.getLogger(__name__)
 
 
 class SimPEGDriversUIJson(BaseUIJson):
-    @classmethod
-    def __get_pydantic_core_schema__(cls, *args, **kwargs):
-        # This is a workaround for Pydantic v2 to allow field_serializer below to work on inherited models
-        from pydantic import GetCoreSchemaHandler
-
-        schema = super().__get_pydantic_core_schema__(*args, **kwargs)
-        handler = GetCoreSchemaHandler(schema)
-        return handler(schema)
 
     @staticmethod
     def _version_public(value):
