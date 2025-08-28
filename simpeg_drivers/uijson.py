@@ -48,12 +48,16 @@ class SimPEGDriversUIJson(BaseUIJson):
     def comparable_version(value: str) -> str:
         """Normalize the version string for comparison.
 
-        Remove the post-release information, or the pre-release information if it is an rc version.
-        For example, if the version is "0.2.0.post1", it will return "0.2.0".
-        If the version is "0.2.0rc1", it will return "0.2.0".
-
+        Remove the dev and post-release information, or the pre-release information if it is an rc version.
         Then, it will return the public version of the version object.
-        For example, if the version is "0.2.0+local", it will return "0.2.0".
+
+        Examples:
+            * for version "0.2.0.post1", return "0.2.0"
+            * for version "0.2.0.dev1", return "0.2.0"
+            * for version "0.2.0a1.dev1", return "0.2.0a1"
+            * for version "0.2.0a1", return "0.2.0a1" (unchanged)
+            * for version "0.2.0rc1", return "0.2.0"
+            * for version "0.2.0+local", return "0.2.0"
         """
         version = Version(value)
 
