@@ -42,8 +42,6 @@ class SimPEGDriversUIJson(BaseUIJson):
     def serialize_version(self, value):
         return self._version_public(value)
 
-    """Base class for simpeg-drivers UIJson."""
-
     icon: str
     documentation: str = "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html"
 
