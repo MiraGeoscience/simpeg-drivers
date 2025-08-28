@@ -72,11 +72,12 @@ class SimPEGDriversUIJson(BaseUIJson):
 
     @classmethod
     def write_default(cls):
-        """Write the default UIJson file to disk with updated version."""
+        """Write the default UIJson file to disk with updated version (public only)."""
 
         with open(cls.default_ui_json, encoding="utf-8") as file:
             data = json.load(file)
-            data["version"] = Version(simpeg_drivers.__version__).public
+            # Always write only the public part of the version (no local tag)
+            data["version"] = str(Version(simpeg_drivers.__version__).public)
 
         uijson = cls.model_construct(**data)
         data = uijson.model_dump_json(indent=4, exclude_unset=False)
