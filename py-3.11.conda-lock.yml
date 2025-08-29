@@ -8005,13 +8005,13 @@ package:
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
-    libgcc: '>=13'
+    libgcc: '>=14'
     python: '>=3.11,<3.12.0a0'
     python_abi: 3.11.*
-  url: https://repo.prefix.dev/conda-forge/linux-64/unicodedata2-16.0.0-py311h9ecbd09_0.conda
+  url: https://repo.prefix.dev/conda-forge/linux-64/unicodedata2-16.0.0-py311h49ec1c0_1.conda
   hash:
-    md5: 51a12678b609f5794985fda8372b1a49
-    sha256: e786fb0925515fffc83e393d2a0e2814eaf9be8a434f1982b399841a2c07980b
+    md5: 3457bd5c93b085bec51cdab58fbd1882
+    sha256: e2715a04632d75de539c1510238886ff1d6fc5b7e9e2ec240d8c11c175c1fffd
   category: main
   optional: false
 - name: unicodedata2
@@ -8022,12 +8022,12 @@ package:
     python: '>=3.11,<3.12.0a0'
     python_abi: 3.11.*
     ucrt: '>=10.0.20348.0'
-    vc: '>=14.2,<15'
-    vc14_runtime: '>=14.29.30139'
-  url: https://repo.prefix.dev/conda-forge/win-64/unicodedata2-16.0.0-py311he736701_0.conda
+    vc: '>=14.3,<15'
+    vc14_runtime: '>=14.44.35208'
+  url: https://repo.prefix.dev/conda-forge/win-64/unicodedata2-16.0.0-py311h3485c13_1.conda
   hash:
-    md5: 5ec4da89151e9d55f9ecad019f2d1e58
-    sha256: 3f626553bfb49ac756cf40e0c10ecb3a915a86f64e036924ab956b37ad1fa9f4
+    md5: 969071f934c7c811f014688e5ec4178f
+    sha256: d692506a8f0f9452c72d5b4b6d7d39bca7c383ab85749d82a77ad652ccbef940
   category: main
   optional: false
 - name: uri-template
@@ -8609,7 +8609,7 @@ package:
   manager: pip
   platform: linux-64
   dependencies:
-    geoh5py: 0.12.0a2.dev44+fd5f8fb1
+    geoh5py: 0.12.0a2.dev58+2c9248c6
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
@@ -8626,7 +8626,7 @@ package:
   manager: pip
   platform: win-64
   dependencies:
-    geoh5py: 0.12.0a2.dev44+fd5f8fb1
+    geoh5py: 0.12.0a2.dev58+2c9248c6
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
@@ -8639,7 +8639,7 @@ package:
   category: main
   optional: false
 - name: geoh5py
-  version: 0.12.0a2.dev44+fd5f8fb1
+  version: 0.12.0a2.dev58+2c9248c6
   manager: pip
   platform: linux-64
   dependencies:
@@ -8647,16 +8647,16 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pillow: '>=10.3.0,<10.4.0'
     pydantic: '>=2.5.2,<3.0.0'
-  url: git+https://github.com/MiraGeoscience/geoh5py.git@fd5f8fb1dcd764c01eb4d43ab26201c5bceb34ef
+  url: git+https://github.com/MiraGeoscience/geoh5py.git@2c9248c60e4166fadb973fcd4f1777bb2ee964f6
   hash:
-    sha256: fd5f8fb1dcd764c01eb4d43ab26201c5bceb34ef
+    sha256: 2c9248c60e4166fadb973fcd4f1777bb2ee964f6
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoh5py.git@fd5f8fb1dcd764c01eb4d43ab26201c5bceb34ef
+    url: git+https://github.com/MiraGeoscience/geoh5py.git@2c9248c60e4166fadb973fcd4f1777bb2ee964f6
   category: main
   optional: false
 - name: geoh5py
-  version: 0.12.0a2.dev44+fd5f8fb1
+  version: 0.12.0a2.dev58+2c9248c6
   manager: pip
   platform: win-64
   dependencies:
@@ -8664,12 +8664,12 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pillow: '>=10.3.0,<10.4.0'
     pydantic: '>=2.5.2,<3.0.0'
-  url: git+https://github.com/MiraGeoscience/geoh5py.git@fd5f8fb1dcd764c01eb4d43ab26201c5bceb34ef
+  url: git+https://github.com/MiraGeoscience/geoh5py.git@2c9248c60e4166fadb973fcd4f1777bb2ee964f6
   hash:
-    sha256: fd5f8fb1dcd764c01eb4d43ab26201c5bceb34ef
+    sha256: 2c9248c60e4166fadb973fcd4f1777bb2ee964f6
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoh5py.git@fd5f8fb1dcd764c01eb4d43ab26201c5bceb34ef
+    url: git+https://github.com/MiraGeoscience/geoh5py.git@2c9248c60e4166fadb973fcd4f1777bb2ee964f6
   category: main
   optional: false
 - name: grid-apps
@@ -8679,7 +8679,7 @@ package:
   dependencies:
     discretize: '>=0.11.0,<0.12.dev'
     geoapps-utils: 0.6.0a2.dev61+655afd7
-    geoh5py: 0.12.0a2.dev44+fd5f8fb1
+    geoh5py: 0.12.0a2.dev58+2c9248c6
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
@@ -8698,7 +8698,7 @@ package:
   dependencies:
     discretize: '>=0.11.0,<0.12.dev'
     geoapps-utils: 0.6.0a2.dev61+655afd7
-    geoh5py: 0.12.0a2.dev44+fd5f8fb1
+    geoh5py: 0.12.0a2.dev58+2c9248c6
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
