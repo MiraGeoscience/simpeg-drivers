@@ -137,14 +137,13 @@ class MisfitFactory(SimPEGFactory):
         """
         attributes = []
         for ii, misfit in enumerate(misfits):
-            worker_ind = ii % len(self.driver.workers)
             if self.driver.client:
+                worker_ind = ii % len(self.driver.workers)
                 attributes.append(
                     self.driver.client.submit(
                         _get_ordering, misfit, workers=self.driver.workers[worker_ind]
                     )
                 )
-
             else:
                 attributes += _get_ordering(misfit)
 
