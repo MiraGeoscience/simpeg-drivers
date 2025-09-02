@@ -6,7 +6,7 @@ channels:
   - conda-forge
   - nodefaults
 dependencies:
-  - _openmp_mutex=4.5=3_kmp_llvm
+  - _openmp_mutex=4.5=4_kmp_llvm
   - annotated-types=0.7.0=pyhd8ed1ab_1
   - asciitree=0.3.3=py_2
   - bokeh=3.6.3=pyhd8ed1ab_0
@@ -44,7 +44,7 @@ dependencies:
   - jinja2=3.1.6=pyhd8ed1ab_0
   - joblib=1.5.2=pyhd8ed1ab_0
   - keyutils=1.6.3=hb9d3cd8_0
-  - kiwisolver=1.4.9=py311h724c32c_0
+  - kiwisolver=1.4.9=py311h724c32c_1
   - krb5=1.21.3=h659f571_0
   - lcms2=2.17=h717163a_0
   - ld_impl_linux-64=2.44=h1423503_1
@@ -144,7 +144,7 @@ dependencies:
   - typing-inspection=0.4.1=pyhd8ed1ab_0
   - typing_extensions=4.15.0=pyhcf101f3_0
   - tzdata=2025b=h78e105d_0
-  - unicodedata2=16.0.0=py311h9ecbd09_0
+  - unicodedata2=16.0.0=py311h49ec1c0_1
   - urllib3=2.5.0=pyhd8ed1ab_0
   - wheel=0.45.1=pyhd8ed1ab_1
   - wrapt=1.17.3=py311h49ec1c0_0
@@ -158,8 +158,8 @@ dependencies:
   - zstandard=0.23.0=py311h49ec1c0_3
   - zstd=1.5.7=hb8e6e7a_2
   - pip:
-    - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@111b167f8d9a185ff6f140f055297f0a6945de6e
-    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@fd5f8fb1dcd764c01eb4d43ab26201c5bceb34ef
+    - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@655afd735989270d5d03b80a98cbe22844b47066
+    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@2c9248c60e4166fadb973fcd4f1777bb2ee964f6
     - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@416815352706add295a9d2b90814d2291068a85e
     - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@d794a0b24aafb4beccc7984e68b6904be44f860f
 
