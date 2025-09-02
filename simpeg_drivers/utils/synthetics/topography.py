@@ -27,9 +27,9 @@ def get_topography_surface(geoh5: Workspace, options: SurveyOptions) -> Surface:
     """
 
     X, Y, Z = grid_layout(
-        limits=[16 * k for k in options.limits],  # type: ignore
-        station_spacing=int(np.ceil((options.limits[1] - options.limits[0]) / 2)),
-        line_spacing=int(np.ceil((options.limits[3] - options.limits[2]) / 2)),
+        limits=[2 * k for k in options.limits],  # type: ignore
+        station_spacing=int(np.ceil((options.limits[1] - options.limits[0]) / 4)),
+        line_spacing=int(np.ceil((options.limits[3] - options.limits[2]) / 4)),
         topography=options.topography,
     )
 

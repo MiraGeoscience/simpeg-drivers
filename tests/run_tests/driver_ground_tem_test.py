@@ -159,12 +159,12 @@ def test_ground_tem_fwr_run(
         assert fwr_driver.inversion_data.survey.source_list[0].n_segments == 16
 
     if pytest:
-        assert len(caplog.records) == 2
-        for record in caplog.records:
+        assert len(caplog.records) == 3
+        for record in caplog.records[1:]:
             assert record.levelname == "INFO"
             assert "counter-clockwise" in record.message
 
-        assert "closed" in caplog.records[0].message
+        assert "closed" in caplog.records[1].message
 
     assert fwr_driver.data_misfit.objfcts[0].simulation.simulations[0].solver == Mumps
     fwr_driver.run()
