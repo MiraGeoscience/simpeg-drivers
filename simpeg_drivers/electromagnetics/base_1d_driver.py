@@ -16,6 +16,7 @@ from logging import getLogger
 import numpy as np
 from discretize import TensorMesh
 from discretize.utils import mesh_utils
+from geoapps_utils.utils.locations import topo_drape_elevation
 from geoh5py import Workspace
 from geoh5py.objects import FEMSurvey
 from geoh5py.shared.merging.drape_model import DrapeModelMerger
@@ -24,7 +25,7 @@ from geoh5py.ui_json.ui_json import fetch_active_workspace
 from simpeg_drivers.components.factories import MisfitFactory, SimulationFactory
 from simpeg_drivers.components.meshes import InversionMesh
 from simpeg_drivers.driver import InversionDriver
-from simpeg_drivers.utils.utils import topo_drape_elevation, xyz_2_drape_model
+from simpeg_drivers.utils.utils import xyz_2_drape_model
 
 
 logger = getLogger(__name__)
