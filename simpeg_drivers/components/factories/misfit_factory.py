@@ -136,14 +136,9 @@ class MisfitFactory(SimPEGFactory):
         :return: List of collected attributes.
         """
         attributes = []
-        for ii, misfit in enumerate(misfits):
+        for misfit in misfits:
             if self.driver.client:
-                worker_ind = ii % len(self.driver.workers)
-                attributes.append(
-                    self.driver.client.submit(
-                        _get_ordering, misfit, workers=self.driver.workers[worker_ind]
-                    )
-                )
+                attributes.append(self.driver.client.submit(_get_ordering, misfit))
             else:
                 attributes += _get_ordering(misfit)
 
