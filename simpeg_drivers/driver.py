@@ -750,7 +750,7 @@ if __name__ == "__main__":
 
     # Force distributed on 1D problems
     if "1D" in input_file.data["title"] and n_workers is None:
-        n_threads = 2 or n_threads
+        n_threads = n_threads or 2
         n_workers = multiprocessing.cpu_count() // n_threads
 
     cluster = (
