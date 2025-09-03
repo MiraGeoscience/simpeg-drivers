@@ -110,11 +110,11 @@ class InversionDriver(Driver):
         self._ordering: list[np.ndarray] | None = None
         self._mappings: list[maps.IdentityMap] | None = None
         self._window = None
-        self._client: Client | None = None
+        self._client: Client | bool | None = None
         self._workers: list[str] | None = None
 
     @property
-    def client(self):
+    def client(self) -> Client | bool | None:
         if self._client is None:
             try:
                 self._client = get_client()
