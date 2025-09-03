@@ -36,7 +36,6 @@ from tqdm import tqdm
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.components.data import InversionData
-from simpeg_drivers.components.factories.misfit_factory import MisfitFactory
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.utils.nested import create_simulation, tile_locations
 from simpeg_drivers.utils.utils import (

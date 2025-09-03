@@ -177,7 +177,9 @@ class InversionDriver(Driver):
 
                 self.logger.write(f"Setting up {len(tiles)} tile(s) . . .\n")
                 # Build tiled misfits and combine to form global misfit
-                self._data_misfit = MisfitFactory(self).build(
+                self._data_misfit = MisfitFactory(
+                    self.params, self.client, self.simulation, self.workers
+                ).build(
                     self.split_list(tiles),
                 )
                 self.logger.write("Saving data to file...\n")
