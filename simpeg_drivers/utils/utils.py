@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 from discretize import TensorMesh, TreeMesh
 from discretize.utils import mesh_utils
-from geoapps_utils.utils.conversions import string_to_numeric
+from geoapps_utils.utils.locations import mask_under_horizon
 from geoapps_utils.utils.numerical import running_mean, traveling_salesman
 from geoh5py import Workspace
 from geoh5py.data import NumericData
@@ -463,10 +463,7 @@ def cell_size_z(drape_model: DrapeModel) -> np.ndarray:
 
 
 def active_from_xyz(
-    mesh: DrapeModel | Octree,
-    topo: np.ndarray,
-    grid_reference="center",
-    method="linear",
+    mesh: DrapeModel | Octree, topo: np.ndarray, grid_reference="center"
 ):
     """Returns an active cell index array below a surface
 
@@ -494,47 +491,8 @@ def active_from_xyz(
     else:
         raise ValueError("'grid_reference' must be one of 'center', 'top', or 'bottom'")
 
-    z_locations = topo_drape_elevation(locations, topo, method=method)
-    # fill_nan(locations, z_locations, filler=topo[:, -1])
-
     # Return the active cell array
-    return locations[:, -1] < z_locations[:, -1]
-
-
-def topo_drape_elevation(locations, topo, method="linear") -> np.ndarray:
-    """
-    Get draped elevation at locations.
-
-    Values are extrapolated to nearest neighbour if requested outside the
-    convex hull of the input topography points.
-
-    :param locations: n x 3 array of locations
-    :param topo: n x 3 array of topography points
-    :param method: Type of topography interpolation, either 'linear' or 'nearest'
-
-    :return: An array of z elevations for every input locations.
-    """
-    if method == "linear":
-        delaunay_2d = Delaunay(topo[:, :-1])
-        z_interpolate = LinearNDInterpolator(delaunay_2d, topo[:, -1])
-    elif method == "nearest":
-        z_interpolate = NearestNDInterpolator(topo[:, :-1], topo[:, -1])
-    else:
-        raise ValueError("Method must be 'linear', or 'nearest'")
-
-    unique_locs, inds = np.unique(
-        locations[:, :-1].round(), axis=0, return_inverse=True
-    )
-    z_locations = z_interpolate(unique_locs)[inds]
-
-    # Apply nearest neighbour if in extrapolation
-    ind_nan = np.isnan(z_locations)
-    if any(ind_nan):
-        tree = cKDTree(topo)
-        _, ind = tree.query(locations[ind_nan, :])
-        z_locations[ind_nan] = topo[ind, -1]
-
-    return np.c_[locations[:, :-1], z_locations]
+    return mask_under_horizon(locations, topo)
 
 
 def truncate_locs_depths(locs: np.ndarray, depth_core: float) -> np.ndarray:

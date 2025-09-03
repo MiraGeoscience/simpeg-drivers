@@ -136,6 +136,7 @@ def create_misfit(
     :param padding_cells: Number of padding cells around the local survey.
     :param inversion_type: Type of inversion, used to name the misfit (joint inversion).
     :param forward_only: If False, data is transferred to the local simulation.
+    :param shared_indices: Indices used to create a shared mesh for multiple tiles.
 
     :return: List of local misfits and data slices.
     """
@@ -351,9 +352,10 @@ def create_survey(survey, indices, channel=None):
     else:
         new_survey = type(survey)(sources)
 
+    slice_inds = slice_from_ordering(survey, indices, channel=channel)
+    new_survey.ordering = survey.ordering[slice_inds, :]
     if hasattr(survey, "dobs") and survey.dobs is not None:
         # Return the subset of data that belongs to the tile
-        slice_inds = slice_from_ordering(survey, indices, channel=channel)
 
         # For FEM surveys only
         new_survey.dobs = survey.dobs[
@@ -366,7 +368,6 @@ def create_survey(survey, indices, channel=None):
             survey.ordering[slice_inds, 1],
             survey.ordering[slice_inds, 2],
         ]
-
     return new_survey
 
 

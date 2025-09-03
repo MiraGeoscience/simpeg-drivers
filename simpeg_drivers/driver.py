@@ -50,8 +50,8 @@ from simpeg import (
     optimization,
     simulation,
 )
-from simpeg.electromagnetics.time_domain.simulation_1d import BaseEM1DSimulation
-from simpeg.potential_fields.base import BasePFSimulation
+from simpeg.electromagnetics.frequency_domain.simulation_1d import Simulation1DLayered
+
 from simpeg.regularization import (
     BaseRegularization,
     RegularizationMesh,
@@ -146,7 +146,9 @@ class InversionDriver(Driver):
         n_tiles = self.params.compute.tile_spatial
 
         n_channels = 1
-        if isinstance(self.params.data_object, FEMSurvey):
+        if isinstance(self.params.data_object, FEMSurvey) and not isinstance(
+            self.simulation, Simulation1DLayered
+        ):
             n_channels = len(self.params.data_object.channels)
 
         split_list = [1] * n_tiles
@@ -740,9 +742,7 @@ class InversionLogger:
 
 
 if __name__ == "__main__":
-    file = Path(
-        r"C:\Users\dominiquef\Downloads\forrestania__simpeg1d\forrestania__simpeg1d_v1.ui.json"
-    ).resolve()
+    file = Path(sys.argv[1]).resolve()
     input_file = InputFile.read_ui_json(file)
     n_workers = input_file.data.get("n_workers", None)
     n_threads = input_file.data.get("n_threads", None)

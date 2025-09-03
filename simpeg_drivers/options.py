@@ -42,8 +42,8 @@ from pydantic import (
     model_validator,
 )
 
-import simpeg_drivers
-from simpeg_drivers.utils.regularization import direction_and_dip
+from . import public_version
+from .utils.regularization import direction_and_dip
 
 
 logger = getLogger(__name__)
@@ -175,7 +175,7 @@ class CoreOptions(Options):
     )
 
     title: str | None = None
-    version: str = simpeg_drivers.__version__
+    version: str = public_version()
     icon: str | None = None
     inversion_type: str
     documentation: str | None = None
@@ -259,7 +259,7 @@ class CoreOptions(Options):
 
     def _create_input_file_from_attributes(self) -> InputFile:
         ifile = super()._create_input_file_from_attributes()
-        ifile.set_data_value("version", simpeg_drivers.__version__)
+        ifile.set_data_value("version", public_version())
         return ifile
 
 

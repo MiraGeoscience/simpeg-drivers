@@ -83,6 +83,8 @@ def simpeg_uijson_factory_fixture(workspace):
     [
         # Normal version
         ("1.2.3", "1.2.3"),
+        # Dev version
+        ("1.2.3.dev1", "1.2.3"),
         # Post-release version
         ("1.2.3.post1", "1.2.3"),
         # RC pre-release version
@@ -93,8 +95,14 @@ def simpeg_uijson_factory_fixture(workspace):
         ("1.2.3b1", "1.2.3b1"),
         # Local version
         ("1.2.3+local", "1.2.3"),
-        # Combined cases
+        # Combined cases with RC and post
         ("1.2.3rc1.post2+local", "1.2.3"),
+        # Combined cases with RC and dev
+        ("1.2.3rc1.dev2+local", "1.2.3"),
+        # Combined cases with pre non-RC and post
+        ("1.2.3b1.post2+local", "1.2.3b1"),
+        # Combined cases with pre non-RC and dev
+        ("1.2.3b1.dev2+local", "1.2.3b1"),
     ],
 )
 def test_comparable_version(version_input, expected):

@@ -18,6 +18,7 @@ from dask import compute, delayed
 from dask.diagnostics import ProgressBar
 from simpeg import objective_function
 from simpeg.dask import objective_function as dask_objective_function
+from simpeg.objective_function import ComboObjectiveFunction
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 from simpeg_drivers.utils.nested import create_misfit, slice_from_ordering
@@ -64,20 +65,11 @@ class MisfitFactory(SimPEGFactory):
 
         misfits = []
         tile_count = 0
-        local_orderings = []
         for channel in channels:
             for local_indices in tiles:
                 for sub_ind in local_indices:
                     if len(sub_ind) == 0:
                         continue
-
-                    ordering_slice = slice_from_ordering(
-                        self.simulation.survey, sub_ind, channel=channel
-                    )
-
-                    local_orderings.append(
-                        self.simulation.survey.ordering[ordering_slice, :]
-                    )
 
                     # Distribute the work across workers round-robin style
                     if use_futures:
@@ -111,6 +103,8 @@ class MisfitFactory(SimPEGFactory):
                         )
                     tile_count += 1
 
+        local_orderings = self.collect_ordering_from_misfits(misfits)
+
         self.simulation.survey.ordering = np.vstack(local_orderings)
 
         return misfits
@@ -132,3 +126,41 @@ class MisfitFactory(SimPEGFactory):
         return self.simpeg_object(  # pylint: disable=not-callable
             misfits
         )
+
+    def collect_ordering_from_misfits(self, misfits):
+        """Collect attributes from misfit objects.
+
+        :param misfits : List of misfit objects.
+        :param attribute :  Attribute to collect.
+
+        :return: List of collected attributes.
+        """
+        attributes = []
+        for ii, misfit in enumerate(misfits):
+            if self.driver.client:
+                worker_ind = ii % len(self.driver.workers)
+                attributes.append(
+                    self.driver.client.submit(
+                        _get_ordering, misfit, workers=self.driver.workers[worker_ind]
+                    )
+                )
+            else:
+                attributes += _get_ordering(misfit)
+
+        if self.driver.client:
+            ordering = []
+            for future in self.driver.client.gather(attributes):
+                ordering += future
+            return ordering
+        return attributes
+
+
+def _get_ordering(obj):
+    """Recursively get ordering from components of misfit function."""
+    attributes = []
+    if isinstance(obj, ComboObjectiveFunction):
+        for misfit in obj.objfcts:
+            attributes += _get_ordering(misfit)
+
+        return attributes
+    return [obj.simulation.simulations[0].survey.ordering]

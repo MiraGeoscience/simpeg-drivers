@@ -43,7 +43,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_mvi_run = {"data_norm": 149.10117594929326, "phi_d": 58.6, "phi_m": 0.0079}
+target_mvi_run = {"data_norm": 149.10117594929326, "phi_d": 19.3, "phi_m": 0.00797}
 
 
 def test_magnetic_vector_fwr_run(
@@ -172,7 +172,7 @@ def test_magnetic_vector_run(
             mesh = out_group.get_entity("mesh")[0]
             assert len(mesh.property_groups) == 6
             assert len(mesh.fetch_property_group("Iteration_0").properties) == 2
-            assert len(mesh.fetch_property_group("LP models").properties) == 6
+            assert len(mesh.fetch_property_group("LP models").properties) == 3
             assert (
                 mesh.fetch_property_group("Iteration_1").property_group_type
                 == GroupTypeEnum.DIPDIR

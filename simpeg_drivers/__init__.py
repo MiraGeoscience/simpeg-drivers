@@ -11,17 +11,30 @@
 
 from __future__ import annotations
 
-
-__version__ = "0.4.0a1"
-
-
 import logging
 from pathlib import Path
+
+from packaging.version import Version
+
+
+try:
+    from ._version import __version__
+except ModuleNotFoundError:  # pragma: no cover
+    from datetime import datetime
+
+    __date_str = datetime.today().strftime("%Y%m%d")
+    __version__ = "0.0.0.dev0+" + __date_str
 
 
 logging.basicConfig(level=logging.INFO)
 
-__all__ = ["DRIVER_MAP", "assets_path"]
+
+__all__ = ["DRIVER_MAP", "assets_path", "public_version"]
+
+
+def public_version() -> str:
+    """Return the current public version."""
+    return Version(__version__).public
 
 
 def assets_path() -> Path:
