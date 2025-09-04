@@ -11,10 +11,8 @@
 from pathlib import Path
 
 import numpy as np
-from dask.distributed import LocalCluster
 from geoh5py.objects import Octree
 from geoh5py.workspace import Workspace
-from scipy.special.cython_special import spherical_yn
 
 from simpeg_drivers.electricals.direct_current.three_dimensions.driver import (
     DC3DInversionDriver,
@@ -197,10 +195,6 @@ def test_joint_surveys_inv_run(
 def test_joint_surveys_conductivity_run(
     tmp_path,
 ):
-    # Test the mechanics with misfits as futures
-    cluster = LocalCluster(n_workers=2, threads_per_worker=1)
-    cluster.get_client()
-
     opts = SyntheticsComponentsOptions(
         method="direct-current",
         survey=SurveyOptions(n_stations=4, n_lines=4, name="survey A"),
