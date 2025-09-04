@@ -41,40 +41,34 @@ class JointSurveyDriver(BaseJointDriver):
     def validate_create_models(self):
         """Check if all models were provided, otherwise use the first driver models."""
         for model_type in self.models.model_types:
-            model_class = getattr(self.models, model_type)
-            if (
-                model_class is None
-                and getattr(self.drivers[0].models, model_type) is not None
-            ):
-                model_local_values = getattr(self.drivers[0].models, model_type)
-                projection = (
-                    self.drivers[0]
-                    .data_misfit.model_map.deriv(np.ones(self.models.n_active))
-                    .T
-                )
-                norm = np.array(np.sum(projection, axis=1)).flatten()
-                model = (projection * model_local_values) / (norm + 1e-8)
+            model = getattr(self.models, model_type)
+            if model is not None or getattr(self.drivers[0].models, model_type) is None:
+                continue
 
-                if self.drivers[0].models.is_sigma and model_type in [
-                    "starting",
-                    "reference",
-                    "lower_bound",
-                    "upper_bound",
-                    "conductivity",
-                ]:
-                    model = np.exp(model)
-                    if (
-                        getattr(self.params.models, "model_type", None)
-                        == "Resistivity (Ohm-m)"
-                    ):
-                        logger.info(
-                            "Converting input %s model to %s",
-                            model_type,
-                            getattr(self.params.models, "model_type", None),
-                        )
-                        model = 1.0 / model
+            model_local_values = getattr(self.drivers[0].models, model_type)
+            projection = (
+                self.drivers[0]
+                .data_misfit.model_map.deriv(np.ones(self.models.n_active))
+                .T
+            )
+            norm = np.array(np.sum(projection, axis=1)).flatten()
+            model = (projection * model_local_values) / (norm + 1e-8)
 
-                getattr(self.models, f"_{model_type}").model = model
+            if self.drivers[0].models.is_sigma and model_type in [
+                "starting_model",
+                "reference_model",
+                "lower_bound",
+                "upper_bound",
+                "conductivity_model",
+            ]:
+                model = np.exp(model)
+                if (
+                    getattr(self.params.models, "model_type", None)
+                    == "Resistivity (Ohm-m)"
+                ):
+                    model = 1.0 / model
+
+            getattr(self.models, f"_{model_type}").model = model
 
     @property
     def wires(self):

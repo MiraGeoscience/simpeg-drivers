@@ -42,4 +42,6 @@ class JointSurveysOptions(BaseJointOptions):
                 "All physical properties must be the same. "
                 f"Provided SimPEG groups for {physical_properties}."
             )
+
+        self.physical_property = physical_properties[0]
         return self

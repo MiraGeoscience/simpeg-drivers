@@ -11,9 +11,17 @@
 from pathlib import Path
 
 import numpy as np
+from dask.distributed import LocalCluster
 from geoh5py.objects import Octree
 from geoh5py.workspace import Workspace
+from scipy.special.cython_special import spherical_yn
 
+from simpeg_drivers.electricals.direct_current.three_dimensions.driver import (
+    DC3DInversionDriver,
+)
+from simpeg_drivers.electricals.direct_current.three_dimensions.options import (
+    DC3DInversionOptions,
+)
 from simpeg_drivers.joint.joint_surveys import JointSurveysOptions
 from simpeg_drivers.joint.joint_surveys.driver import JointSurveyDriver
 from simpeg_drivers.options import ActiveCellsOptions
@@ -184,6 +192,65 @@ def test_joint_surveys_inv_run(
 
         if unittest:
             check_target(output, target_run)
+
+
+def test_joint_surveys_conductivity_run(
+    tmp_path,
+):
+    # Test the mechanics with misfits as futures
+    cluster = LocalCluster(n_workers=2, threads_per_worker=1)
+    cluster.get_client()
+
+    opts = SyntheticsComponentsOptions(
+        method="direct-current",
+        survey=SurveyOptions(n_stations=4, n_lines=4, name="survey A"),
+        mesh=MeshOptions(refinement=(2, 2, 2), name="mesh A"),
+        model=ModelOptions(anomaly=0.1, name="model A"),
+        active=SyntheticsActiveCellsOptions(name="active A"),
+    )
+
+    with Workspace.create(tmp_path / f"{__name__}.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+
+        survey = components.survey
+        obs, uncrt = survey.add_data(
+            {
+                "Potentials": {"values": np.random.randn(survey.n_cells)},
+                "Uncertainty": {"values": np.ones(survey.n_cells) * 1e-3},
+            }
+        )
+        params = DC3DInversionOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            potential_channel=obs,
+            potential_uncertainty=uncrt,
+            data_object=components.survey,
+            starting_model=components.model,
+            reference_model=5.0,
+            model_type="Resistivity (Ohm-m)",
+        )
+        driver_A = DC3DInversionDriver(params)
+        driver_B = DC3DInversionDriver(params)
+
+        # Run the inverse
+        joint_params = JointSurveysOptions.build(
+            geoh5=geoh5,
+            active_cells=ActiveCellsOptions(topography_object=components.topography),
+            mesh=components.mesh,
+            group_a=driver_A.params.out_group,
+            group_b=driver_B.params.out_group,
+            starting_model=20.0,
+            # Default to Conductivity (S/m)
+        )
+
+        driver = JointSurveyDriver(joint_params)
+        assert np.isclose(
+            driver.models.reference_model[0], np.log(1 / 5.0)
+        )  # Took it from driver_A
+        assert np.isclose(
+            driver.models.starting_model[0], np.log(20.0)
+        )  # Took it from joint params
 
 
 if __name__ == "__main__":
