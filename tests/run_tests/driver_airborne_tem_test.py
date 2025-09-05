@@ -34,10 +34,7 @@ from simpeg_drivers.utils.synthetics.options import (
     SurveyOptions,
     SyntheticsComponentsOptions,
 )
-from tests.utils.targets import (
-    check_target,
-    get_inversion_output,
-)
+from tests.utils.targets import check_target, get_inversion_output, get_workspace
 
 
 # To test the full run and validate the inversion.
@@ -57,7 +54,7 @@ def test_bad_waveform(tmp_path: Path):
         mesh=MeshOptions(refinement=refinement, padding_distance=400.0),
         model=ModelOptions(background=0.001),
     )
-    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
         params = TDEMForwardOptions.build(
             geoh5=geoh5,
@@ -95,7 +92,7 @@ def test_airborne_tem_fwr_run(
         ),
         model=ModelOptions(background=0.001),
     )
-    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
         params = TDEMForwardOptions.build(
             geoh5=geoh5,

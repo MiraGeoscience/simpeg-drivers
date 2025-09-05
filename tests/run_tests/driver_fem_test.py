@@ -37,10 +37,7 @@ from simpeg_drivers.utils.synthetics.options import (
     SurveyOptions,
     SyntheticsComponentsOptions,
 )
-from tests.utils.targets import (
-    check_target,
-    get_inversion_output,
-)
+from tests.utils.targets import check_target, get_inversion_output, get_workspace
 
 
 # To test the full run and validate the inversion.
@@ -57,7 +54,7 @@ def test_fem_name_change(tmp_path, caplog):
         mesh=MeshOptions(refinement=(2,), padding_distance=400.0),
         model=ModelOptions(background=1e-3),
     )
-    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
         with caplog.at_level(logging.WARNING):
             FDEMForwardOptions.build(
@@ -101,7 +98,7 @@ def test_fem_fwr_run(
             ),
         ),
     )
-    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
         params = FDEMForwardOptions.build(
             geoh5=geoh5,

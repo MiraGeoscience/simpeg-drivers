@@ -37,10 +37,7 @@ from simpeg_drivers.utils.synthetics.options import (
     SurveyOptions,
     SyntheticsComponentsOptions,
 )
-from tests.utils.targets import (
-    check_target,
-    get_inversion_output,
-)
+from tests.utils.targets import check_target, get_inversion_output, get_workspace
 
 
 # To test the full run and validate the inversion.
@@ -62,7 +59,7 @@ def test_dc_2d_fwr_run(
         mesh=MeshOptions(refinement=refinement),
         model=ModelOptions(background=0.01, anomaly=10),
     )
-    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
 
         line_selection = LineSelectionOptions(

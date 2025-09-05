@@ -30,6 +30,7 @@ from simpeg_drivers.utils.synthetics.options import (
     SurveyOptions,
     SyntheticsComponentsOptions,
 )
+from tests.utils.targets import get_workspace
 
 
 # pylint: disable=too-many-statements
@@ -40,7 +41,7 @@ def test_plate_simulation_params_from_input_file(tmp_path):
         mesh=SyntheticsMeshOptions(),
         model=SyntheticsModelOptions(anomaly=0.0),
     )
-    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
 
         ifile = InputFile.read_ui_json(

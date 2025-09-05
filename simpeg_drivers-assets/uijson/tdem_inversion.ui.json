@@ -321,7 +321,9 @@
         ],
         "label": "Gradient rotation",
         "parent": "mesh",
-        "value": ""
+        "value": "",
+        "optional": true,
+        "enabled": false
     },
     "s_norm": {
         "association": "Cell",

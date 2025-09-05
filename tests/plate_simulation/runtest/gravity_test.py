@@ -31,6 +31,7 @@ from simpeg_drivers.utils.synthetics.options import (
     SurveyOptions,
     SyntheticsComponentsOptions,
 )
+from tests.utils.targets import get_workspace
 
 
 def test_gravity_plate_simulation(tmp_path):
@@ -40,7 +41,7 @@ def test_gravity_plate_simulation(tmp_path):
         mesh=SyntheticsMeshOptions(),
         model=SyntheticsModelOptions(anomaly=0.0),
     )
-    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
         mesh_params = MeshOptions(
             u_cell_size=10.0,

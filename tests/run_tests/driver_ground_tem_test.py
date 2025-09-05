@@ -35,10 +35,7 @@ from simpeg_drivers.utils.synthetics.options import (
     SurveyOptions,
     SyntheticsComponentsOptions,
 )
-from tests.utils.targets import (
-    check_target,
-    get_inversion_output,
-)
+from tests.utils.targets import check_target, get_inversion_output, get_workspace
 
 
 logger = getLogger(__name__)
@@ -78,7 +75,7 @@ def test_tiling_ground_tem(
             ),
         ),
     )
-    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
         params = TDEMForwardOptions.build(
             geoh5=geoh5,
@@ -137,7 +134,7 @@ def test_ground_tem_fwr_run(
             ),
         ),
     )
-    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
         components.survey.transmitters.remove_cells([15])
         params = TDEMForwardOptions.build(

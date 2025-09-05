@@ -33,15 +33,12 @@ from simpeg_drivers.utils.synthetics.options import (
     SurveyOptions,
     SyntheticsComponentsOptions,
 )
-from tests.utils.targets import (
-    check_target,
-    get_inversion_output,
-)
+from tests.utils.targets import check_target, get_inversion_output, get_workspace
 
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
-target_run = {"data_norm": 6.15712e-10, "phi_d": 109, "phi_m": 102000}
+target_run = {"data_norm": 6.15712e-10, "phi_d": 57.8, "phi_m": 124000}
 
 
 def test_airborne_tem_1d_fwr_run(
@@ -61,7 +58,7 @@ def test_airborne_tem_1d_fwr_run(
         ),
         model=ModelOptions(background=0.1),
     )
-    with Workspace.create(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(
             geoh5,
             options=opts,

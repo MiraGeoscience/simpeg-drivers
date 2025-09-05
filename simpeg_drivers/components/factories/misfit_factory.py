@@ -15,44 +15,37 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from simpeg import objective_function
-from simpeg.simulation import BaseSimulation
+from simpeg.dask import objective_function as dask_objective_function
+from simpeg.objective_function import ComboObjectiveFunction
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 from simpeg_drivers.utils.nested import create_misfit
 
 
 if TYPE_CHECKING:
-    from geoapps_utils.driver.params import BaseParams
-
     from simpeg_drivers.options import BaseOptions
 
 
 class MisfitFactory(SimPEGFactory):
     """Build SimPEG global misfit function."""
 
-    def __init__(self, params: BaseParams | BaseOptions, simulation: BaseSimulation):
+    def __init__(self, params, client, simulation, workers):
         """
         :param params: Options object containing SimPEG object parameters.
         """
         super().__init__(params)
+
         self.simpeg_object = self.concrete_object()
         self.factory_type = self.params.inversion_type
         self.simulation = simulation
+        self.client = client
+        self.workers = workers
 
     def concrete_object(self):
         return objective_function.ComboObjectiveFunction
 
-    def build(self, tiles, split_list):  # pylint: disable=arguments-differ
-        global_misfit = super().build(
-            tiles=tiles,
-            split_list=split_list,
-        )
-        return global_misfit
-
     def assemble_arguments(  # pylint: disable=arguments-differ
-        self,
-        tiles,
-        split_list,
+        self, tiles
     ):
         # Base slice over frequencies
         if self.factory_type in ["magnetotellurics", "tipper", "fdem"]:
@@ -60,43 +53,106 @@ class MisfitFactory(SimPEGFactory):
         else:
             channels = [None]
 
-        futures = []
-        # TODO bring back on GEOPY-2182
-        # with ProcessPoolExecutor() as executor:
-        count = 0
+        use_futures = self.client
+
+        if use_futures:
+            delayed_simulation = self.client.scatter(self.simulation)
+        else:
+            delayed_simulation = self.simulation
+
+        misfits = []
+        tile_count = 0
         for channel in channels:
-            tile_count = 0
             for local_indices in tiles:
-                if len(local_indices) == 0:
-                    continue
+                for sub_ind in local_indices:
+                    if len(sub_ind) == 0:
+                        continue
 
-                n_split = split_list[count]
-                futures.append(
-                    # executor.submit(
-                    create_misfit(
-                        self.simulation,
-                        local_indices,
-                        channel,
-                        tile_count,
-                        n_split,
-                        self.params.padding_cells,
-                        self.params.inversion_type,
-                        self.params.forward_only,
-                    )
-                )
-                tile_count += np.sum(n_split)
-                count += 1
+                    # Distribute the work across workers round-robin style
+                    if use_futures:
+                        worker_ind = tile_count % len(self.workers)
+                        misfits.append(
+                            self.client.submit(
+                                create_misfit,
+                                delayed_simulation,
+                                sub_ind,
+                                channel,
+                                tile_count,
+                                self.params.padding_cells,
+                                self.params.inversion_type,
+                                self.params.forward_only,
+                                shared_indices=np.hstack(local_indices),
+                                workers=self.workers[worker_ind],
+                            )
+                        )
+                    else:
+                        misfits.append(
+                            create_misfit(
+                                delayed_simulation,
+                                sub_ind,
+                                channel,
+                                tile_count,
+                                self.params.padding_cells,
+                                self.params.inversion_type,
+                                self.params.forward_only,
+                                shared_indices=np.hstack(local_indices),
+                            )
+                        )
+                    tile_count += 1
 
-        local_misfits = []
-        local_orderings = []
-        for future in futures:  # as_completed(futures):
-            misfits, orderings = future  # future.result()
-            local_misfits += misfits
-            local_orderings += orderings
+        local_orderings = self.collect_ordering_from_misfits(misfits)
 
         self.simulation.survey.ordering = np.vstack(local_orderings)
-        return [local_misfits]
+
+        return misfits
 
     def assemble_keyword_arguments(self, **_):
         """Implementation of abstract method from SimPEGFactory."""
-        return {}
+
+    def build(self, tiles, **_):
+        """To be over-ridden in factory implementations."""
+
+        misfits = self.assemble_arguments(tiles)
+
+        if self.client:
+            return dask_objective_function.DistributedComboMisfits(
+                misfits,
+                client=self.client,
+            )
+
+        return self.simpeg_object(  # pylint: disable=not-callable
+            misfits
+        )
+
+    def collect_ordering_from_misfits(self, misfits):
+        """Collect attributes from misfit objects.
+
+        :param misfits : List of misfit objects.
+        :param attribute :  Attribute to collect.
+
+        :return: List of collected attributes.
+        """
+        attributes = []
+        for misfit in misfits:
+            if self.client:
+                attributes.append(self.client.submit(_get_ordering, misfit))
+            else:
+                attributes += _get_ordering(misfit)
+
+        if self.client:
+            ordering = []
+            for future in self.client.gather(attributes):
+                ordering += future
+            return ordering
+        return attributes
+
+
+def _get_ordering(obj):
+    """Recursively get ordering from components of misfit function."""
+    attributes = []
+    if isinstance(obj, ComboObjectiveFunction):
+        for misfit in obj.objfcts:
+            attributes += _get_ordering(misfit)
+
+        return attributes
+    return [obj.simulation.simulations[0].survey.ordering]

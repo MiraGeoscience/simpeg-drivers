@@ -45,7 +45,6 @@ def test_version_is_consistent():
 def _version_module_exists():
     try:
         importlib.import_module("simpeg_drivers._version")
-
         return True
     except ModuleNotFoundError:
         return False
