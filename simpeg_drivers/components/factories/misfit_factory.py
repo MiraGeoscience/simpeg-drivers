@@ -14,33 +14,32 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
-from dask import compute, delayed
-from dask.diagnostics import ProgressBar
 from simpeg import objective_function
 from simpeg.dask import objective_function as dask_objective_function
 from simpeg.objective_function import ComboObjectiveFunction
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
-from simpeg_drivers.utils.nested import create_misfit, slice_from_ordering
+from simpeg_drivers.utils.nested import create_misfit
 
 
 if TYPE_CHECKING:
-    from simpeg_drivers.driver import InversionDriver
     from simpeg_drivers.options import BaseOptions
 
 
 class MisfitFactory(SimPEGFactory):
     """Build SimPEG global misfit function."""
 
-    def __init__(self, driver: InversionDriver):
+    def __init__(self, params, client, simulation, workers):
         """
         :param params: Options object containing SimPEG object parameters.
         """
-        super().__init__(driver.params)
-        self.driver = driver
+        super().__init__(params)
+
         self.simpeg_object = self.concrete_object()
         self.factory_type = self.params.inversion_type
-        self.simulation = driver.simulation
+        self.simulation = simulation
+        self.client = client
+        self.workers = workers
 
     def concrete_object(self):
         return objective_function.ComboObjectiveFunction
@@ -54,12 +53,10 @@ class MisfitFactory(SimPEGFactory):
         else:
             channels = [None]
 
-        use_futures = (
-            self.driver.client
-        )  # and not isinstance(self.driver.simulation, BaseEM1DSimulation)
+        use_futures = self.client
 
         if use_futures:
-            delayed_simulation = self.driver.client.scatter(self.driver.simulation)
+            delayed_simulation = self.client.scatter(self.simulation)
         else:
             delayed_simulation = self.simulation
 
@@ -73,9 +70,9 @@ class MisfitFactory(SimPEGFactory):
 
                     # Distribute the work across workers round-robin style
                     if use_futures:
-                        worker_ind = tile_count % len(self.driver.workers)
+                        worker_ind = tile_count % len(self.workers)
                         misfits.append(
-                            self.driver.client.submit(
+                            self.client.submit(
                                 create_misfit,
                                 delayed_simulation,
                                 sub_ind,
@@ -85,7 +82,7 @@ class MisfitFactory(SimPEGFactory):
                                 self.params.inversion_type,
                                 self.params.forward_only,
                                 shared_indices=np.hstack(local_indices),
-                                workers=self.driver.workers[worker_ind],
+                                workers=self.workers[worker_ind],
                             )
                         )
                     else:
@@ -117,10 +114,10 @@ class MisfitFactory(SimPEGFactory):
 
         misfits = self.assemble_arguments(tiles)
 
-        if self.driver.client:
+        if self.client:
             return dask_objective_function.DistributedComboMisfits(
                 misfits,
-                client=self.driver.client,
+                client=self.client,
             )
 
         return self.simpeg_object(  # pylint: disable=not-callable
@@ -136,20 +133,15 @@ class MisfitFactory(SimPEGFactory):
         :return: List of collected attributes.
         """
         attributes = []
-        for ii, misfit in enumerate(misfits):
-            if self.driver.client:
-                worker_ind = ii % len(self.driver.workers)
-                attributes.append(
-                    self.driver.client.submit(
-                        _get_ordering, misfit, workers=self.driver.workers[worker_ind]
-                    )
-                )
+        for misfit in misfits:
+            if self.client:
+                attributes.append(self.client.submit(_get_ordering, misfit))
             else:
                 attributes += _get_ordering(misfit)
 
-        if self.driver.client:
+        if self.client:
             ordering = []
-            for future in self.driver.client.gather(attributes):
+            for future in self.client.gather(attributes):
                 ordering += future
             return ordering
         return attributes

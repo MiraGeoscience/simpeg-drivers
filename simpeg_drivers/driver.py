@@ -110,11 +110,11 @@ class InversionDriver(Driver):
         self._ordering: list[np.ndarray] | None = None
         self._mappings: list[maps.IdentityMap] | None = None
         self._window = None
-        self._client: Client | None = None
+        self._client: Client | bool | None = None
         self._workers: list[str] | None = None
 
     @property
-    def client(self):
+    def client(self) -> Client | bool | None:
         if self._client is None:
             try:
                 self._client = get_client()
@@ -177,7 +177,9 @@ class InversionDriver(Driver):
 
                 self.logger.write(f"Setting up {len(tiles)} tile(s) . . .\n")
                 # Build tiled misfits and combine to form global misfit
-                self._data_misfit = MisfitFactory(self).build(
+                self._data_misfit = MisfitFactory(
+                    self.params, self.client, self.simulation, self.workers
+                ).build(
                     self.split_list(tiles),
                 )
                 self.logger.write("Saving data to file...\n")
@@ -750,7 +752,7 @@ if __name__ == "__main__":
 
     # Force distributed on 1D problems
     if "1D" in input_file.data["title"] and n_workers is None:
-        n_threads = 2 or n_threads
+        n_threads = n_threads or 2
         n_workers = multiprocessing.cpu_count() // n_threads
 
     cluster = (

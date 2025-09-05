@@ -18,6 +18,7 @@ from logging import getLogger
 from pathlib import Path
 
 import numpy as np
+import simpeg.dask.objective_function as dask_objective_function
 from geoh5py.groups.property_group_type import GroupTypeEnum
 from geoh5py.shared.utils import fetch_active_workspace
 from grid_apps.utils import (
@@ -60,12 +61,19 @@ class BaseJointDriver(InversionDriver):
                 if driver.data_misfit is not None:
                     objective_functions += driver.data_misfit.objfcts
 
-                    for fun in driver.data_misfit.objfcts:
-                        fun.name = f"Group {label.upper()} {fun.name}"
+                    for ii, fun in enumerate(driver.data_misfit.objfcts):
+                        fun.name = f"Group_{label.upper()}:Tile_{ii}"
 
                     multipliers += [
                         getattr(self.params, f"group_{label}_multiplier") ** 2.0
                     ] * len(driver.data_misfit.objfcts)
+
+            if self.client:
+                return dask_objective_function.DistributedComboMisfits(
+                    objfcts=objective_functions,
+                    multipliers=multipliers,
+                    client=self.client,
+                )
 
             self._data_misfit = ComboObjectiveFunction(
                 objfcts=objective_functions, multipliers=multipliers
@@ -125,20 +133,17 @@ class BaseJointDriver(InversionDriver):
                 enforce_active=False,
                 components=driver.n_blocks,
             )
+            tile_map = projection * wire
             driver.params.active_model = None
             driver.models.active_cells = projection.local_active
-            driver.data_misfit.model_map = projection * wire
+            driver.data_misfit.model_map = tile_map
 
             multipliers = []
-            for mult, func in driver.data_misfit:
-                mappings = []
-                for mapping in func.simulation.mappings:
-                    mappings.append(mapping * projection * wire)
-
-                func.simulation.mappings = mappings
-                multipliers.append(
-                    mult * (func.simulation.mappings[0].shape[0] / projection.shape[1])
-                )
+            mappings = self._get_set_simulation_mappings(driver.data_misfit, tile_map)
+            for mult, mapping in zip(
+                driver.data_misfit.multipliers, mappings, strict=False
+            ):
+                multipliers.append(mult * (mapping[0].shape[0] / projection.shape[1]))
 
             driver.data_misfit.multipliers = multipliers
         self.validate_create_models()
@@ -226,9 +231,6 @@ class BaseJointDriver(InversionDriver):
         if Path(self.params.input_file.path_name).is_file():
             with fetch_active_workspace(self.workspace, mode="r+"):
                 self.out_group.add_file(self.params.input_file.path_name)
-
-        if self.client:
-            self.distributed_misfits()
 
         if self.params.forward_only:
             print("Running the forward simulation ...")
@@ -363,6 +365,12 @@ class BaseJointDriver(InversionDriver):
         self._directives = DirectivesFactory(self)
         directives_list = []
         count = 0
+
+        if self.client:
+            misfits = np.hstack(self.data_misfit._workloads).tolist()  # pylint: disable=protected-access
+        else:
+            misfits = self.data_misfit.objfcts
+
         for driver in self.drivers:
             driver_directives = DirectivesFactory(driver)
 
@@ -397,7 +405,9 @@ class BaseJointDriver(InversionDriver):
             ]:
                 directive = getattr(driver_directives, name)
                 if directive is not None:
-                    directive.joint_index = [count + ii for ii in range(n_tiles)]
+                    directive.joint_index = [
+                        misfits.index(fun) for fun in driver.data_misfit.objfcts
+                    ]
                     directives_list.append(directive)
 
             count += n_tiles
@@ -466,3 +476,37 @@ class BaseJointDriver(InversionDriver):
         for directive in self.directives.directive_list:
             if isinstance(directive, directives.SaveLogFilesGeoH5):
                 directive.write(1)
+
+    def _get_set_simulation_mappings(self, misfits, mapping):
+        """Collect attributes from misfit objects.
+
+        :param misfits : List of misfit objects.
+        :param attribute :  Attribute to collect.
+
+        :return: List of collected attributes.
+        """
+        futures = []
+        for misfit in misfits.objfcts:
+            if self.client:
+                futures.append(self.client.submit(_get_set_mapping, misfit, mapping))
+            else:
+                futures.append(_get_set_mapping(misfit, mapping))
+
+        if self.client:
+            mappings = []
+            for future in self.client.gather(futures):
+                mappings.append(future)
+            return mappings
+        return futures
+
+
+def _get_set_mapping(obj, mapping) -> list:
+    """Recursively get ordering from components of misfit function."""
+
+    mappings = []
+    for fun in obj.simulation.mappings:
+        mappings.append(fun * mapping)
+
+    obj.simulation.mappings = mappings
+
+    return mappings
