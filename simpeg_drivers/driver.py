@@ -316,7 +316,7 @@ class InversionDriver(Driver):
     def out_group(self):
         """The SimPEGGroup"""
         if self._out_group is None:
-            if self.params.out_group is not None:
+            if isinstance(self.params.out_group, SimPEGGroup):
                 self._out_group = self.params.out_group
                 return self._out_group
 
@@ -405,6 +405,9 @@ class InversionDriver(Driver):
         self.configure_dask()
 
         with fetch_active_workspace(self.workspace, mode="r+"):
+            if not isinstance(self.out_group, SimPEGGroup):
+                raise GeoAppsError("Output group could not be created.")
+
             simpeg_inversion = self.inversion
 
             if Path(self.params.input_file.path_name).is_file():
