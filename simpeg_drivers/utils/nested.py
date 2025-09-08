@@ -287,7 +287,8 @@ def create_simulation(
         kwargs["sigma"] = proj * mapping * simulation.sigma[simulation.active_cells]
 
     for key in [
-        "max_chunk_sizestore_sensitivities",
+        "max_chunk_size",
+        "store_sensitivities",
         "solver",
         "t0",
         "time_steps",
