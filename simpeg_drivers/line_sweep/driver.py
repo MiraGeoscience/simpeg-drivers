@@ -39,12 +39,6 @@ class LineSweepDriver(SweepDriver, InversionDriver):
         self.batch2d_params = params
         self.cleanup = params.file_control.cleanup
 
-        if (
-            hasattr(self.batch2d_params, "out_group")
-            and self.batch2d_params.out_group is None
-        ):
-            self.batch2d_params.out_group = self.out_group
-
         params = self.setup_params()
         params.inversion_type = self.batch2d_params.inversion_type
         super().__init__(params)
@@ -65,7 +59,7 @@ class LineSweepDriver(SweepDriver, InversionDriver):
                     self.batch2d_params.geoh5, name=name
                 )
                 self.batch2d_params.out_group = self._out_group
-                self.batch2d_params.update_group_options()
+                self.batch2d_params.update_out_group_options()
 
         return self._out_group
 
@@ -159,7 +153,7 @@ class LineSweepDriver(SweepDriver, InversionDriver):
 
                 local_simpeg_group = mesh.parent.copy(
                     name=f"Line {line}",
-                    parent=self.batch2d_params.out_group,
+                    parent=self.out_group,
                     copy_children=False,
                 )
                 local_simpeg_group.options = mesh.parent.options
@@ -233,7 +227,7 @@ class LineSweepDriver(SweepDriver, InversionDriver):
                 method="nearest",
             )
 
-        octree_model.copy(parent=self.batch2d_params.out_group)
+        octree_model.copy(parent=self.out_group)
 
     def collect_line_data(self, survey, line_indices, data):
         """
