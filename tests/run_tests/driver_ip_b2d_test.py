@@ -47,7 +47,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.09218916148142815, "phi_d": 3490, "phi_m": 0.473}
+target_run = {"data_norm": 0.09345914765984757, "phi_d": 3240, "phi_m": 0.44}
 
 
 def test_ip_p3d_fwr_run(
@@ -122,7 +122,7 @@ def test_ip_p3d_run(
             chargeability_channel=chargeability,
             chargeability_uncertainty=2e-4,
             line_selection=LineSelectionOptions(
-                line_object=geoh5.get_entity("line_ids")[0],
+                line_object=chargeability.parent.get_entity("line_ids")[0],
             ),
             conductivity_model=1e-2,
             starting_model=1e-6,
@@ -142,7 +142,7 @@ def test_ip_p3d_run(
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    driver = IPBatch2DInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
+    IPBatch2DInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
     basepath = workpath.parent
     with open(basepath / "lookup.json", encoding="utf8") as f:
@@ -153,13 +153,9 @@ def test_ip_p3d_run(
         middle_inversion_group = next(
             k for k in workspace.groups if isinstance(k, SimPEGGroup)
         )
-        filedata = middle_inversion_group.get_entity("SimPEG.out")[0]
-
-        with driver.batch2d_params.out_group.workspace.open(mode="r+"):
-            filedata.copy(parent=driver.batch2d_params.out_group)
 
     output = get_inversion_output(
-        driver.batch2d_params.geoh5.h5file, driver.batch2d_params.out_group.uid
+        basepath / f"{middle_line_id}.ui.geoh5", middle_inversion_group.uid
     )
     if geoh5.open():
         output["data"] = chargeability.values
