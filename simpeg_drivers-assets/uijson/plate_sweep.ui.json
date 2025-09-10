@@ -1,0 +1,211 @@
+{
+    "version": "0.2.0-alpha.1",
+    "title": "Plate Sweep",
+    "icon": "maxwellplate",
+    "documentation": "https://mirageoscience-plate-simulation.readthedocs-hosted.com/en/latest/",
+    "conda_environment": "simpeg_drivers",
+    "run_command": "simpeg_drivers.plate_simulation.driver",
+    "geoh5": "",
+    "monitoring_directory": "",
+    "worker": {
+        "main": true,
+        "group": "Options",
+        "label": "Plate simulation",
+        "groupType": "{55ed3daf-c192-4d4b-a439-60fa987fe2b8}",
+        "value": "",
+        "enabled": true,
+        "tooltip": "Plate simulation options that will be overwritten by sweep parameters."
+    },
+    "background_start": {
+        "main": true,
+        "group": "Background",
+        "label": "starting",
+        "value": 2000.0
+    },
+    "background_stop": {
+        "main": true,
+        "group": "Background",
+        "optional": true,
+        "enabled": false,
+        "label": "ending",
+        "value": 2000.0
+    },
+    "background_count": {
+        "main": true,
+        "group": "Background",
+        "dependency": "background_stop",
+        "dependencyType": "enabled",
+        "enabled": false,
+        "label": "number of samples",
+        "value": 1
+    },
+    "overburden_start": {
+        "main": true,
+        "group": "Overburden",
+        "label": "starting",
+        "value": 8000.0
+    },
+    "overburden_stop": {
+        "main": true,
+        "group": "Overburden",
+        "optional": true,
+        "enabled": false,
+        "label": "ending",
+        "value": 8000.0
+    },
+    "overburden_count": {
+        "main": true,
+        "group": "Overburden",
+        "dependency": "overburden_stop",
+        "dependencyType": "enabled",
+        "enabled": false,
+        "label": "number of samples",
+        "value": 1
+    },
+    "thickness_start": {
+        "main": true,
+        "group": "Thickness",
+        "label": "starting",
+        "value": 200.0
+    },
+    "thickness_stop": {
+        "main": true,
+        "group": "Thickness",
+        "optional": true,
+        "enabled": false,
+        "label": "ending",
+        "value": 200.0
+    },
+    "thickness_count": {
+        "main": true,
+        "group": "Thickness",
+        "dependency": "thickness_stop",
+        "dependencyType": "enabled",
+        "enabled": false,
+        "label": "number of samples",
+        "value": 1
+    },
+    "plate_start": {
+        "main": true,
+        "group": "Plate",
+        "label": "starting",
+        "value": 20.0
+    },
+    "plate_stop": {
+        "main": true,
+        "group": "Plate",
+        "optional": true,
+        "enabled": false,
+        "label": "ending",
+        "value": 20.0
+    },
+    "plate_count": {
+        "main": true,
+        "group": "Plate",
+        "dependency": "plate_stop",
+        "dependencyType": "enabled",
+        "enabled": false,
+        "label": "number of samples",
+        "value": 1
+    },
+    "width_start": {
+        "main": true,
+        "group": "Width",
+        "label": "starting",
+        "value": 90.0
+    },
+    "width_stop": {
+        "main": true,
+        "group": "Width",
+        "optional": true,
+        "enabled": false,
+        "label": "ending",
+        "value": 90.0
+    },
+    "width_count": {
+        "main": true,
+        "group": "Width",
+        "dependency": "width_stop",
+        "dependencyType": "enabled",
+        "enabled": false,
+        "label": "number of samples",
+        "value": 1
+    },
+    "strike_length_start": {
+        "main": true,
+        "group": "Strike length",
+        "label": "starting",
+        "value": 800.0
+    },
+    "strike_length_stop": {
+        "main": true,
+        "group": "Strike length",
+        "optional": true,
+        "enabled": false,
+        "label": "ending",
+        "value": 800.0
+    },
+    "strike_length_count": {
+        "main": true,
+        "group": "Strike length",
+        "dependency": "strike_length_stop",
+        "dependencyType": "enabled",
+        "enabled": false,
+        "label": "number of samples",
+        "value": 1
+    },
+    "dip_length_start": {
+        "main": true,
+        "group": "Dip length",
+        "label": "starting",
+        "value": 800.0
+    },
+    "dip_length_stop": {
+        "main": true,
+        "group": "Dip length",
+        "optional": true,
+        "enabled": false,
+        "label": "ending",
+        "value": 800.0
+    },
+    "dip_length_count": {
+        "main": true,
+        "group": "Dip length",
+        "dependency": "dip_length_stop",
+        "dependencyType": "enabled",
+        "enabled": false,
+        "label": "number of samples",
+        "value": 1
+    },
+    "dip_start": {
+        "main": true,
+        "group": "Dip",
+        "label": "starting",
+        "value": 60.0
+    },
+    "dip_stop": {
+        "main": true,
+        "group": "Dip",
+        "optional": true,
+        "enabled": false,
+        "label": "ending",
+        "value": 60.0
+    },
+    "dip_count": {
+        "main": true,
+        "group": "Dip",
+        "dependency": "dip_stop",
+        "dependencyType": "enabled",
+        "enabled": false,
+        "label": "number of samples",
+        "value": 1
+    },
+    "out_group": {
+        "label": "Out group",
+        "value": "{00000000-0000-0000-0000-000000000000}",
+        "groupType": "{BB50AC61-A657-4926-9C82-067658E246A0}",
+        "visible": true,
+        "optional": true,
+        "enabled": false
+    }
+}
