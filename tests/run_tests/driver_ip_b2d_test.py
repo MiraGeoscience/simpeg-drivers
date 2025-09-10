@@ -103,7 +103,9 @@ def test_ip_p3d_run(
 
     with Workspace(workpath) as geoh5:
         components = SyntheticsComponents(geoh5)
-        chargeability = geoh5.get_entity("Iteration_0_chargeability")[0]
+        fwr_group = geoh5.get_entity("Induced polarization pseudo 3d Forward")[0]
+        survey = fwr_group.get_entity("survey")[0]
+        chargeability = survey.get_data("Iteration_0_chargeability")[0]
 
         # Run the inverse
         params = IPBatch2DInversionOptions.build(

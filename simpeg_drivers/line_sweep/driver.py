@@ -18,14 +18,16 @@ from pathlib import Path
 import numpy as np
 from geoapps_utils.param_sweeps.driver import SweepDriver, SweepParams
 from geoapps_utils.param_sweeps.generate import generate
+from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.data import FilenameData
-from geoh5py.groups import SimPEGGroup
-from geoh5py.objects import DrapeModel, PotentialElectrode
+from geoh5py.groups import ContainerGroup, SimPEGGroup
+from geoh5py.objects import DrapeModel, PotentialElectrode, Surface
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.driver import InversionDriver
+from simpeg_drivers.options import BaseInversionOptions
 from simpeg_drivers.utils.utils import active_from_xyz, drape_to_octree
 
 
@@ -50,9 +52,9 @@ class LineSweepDriver(SweepDriver, InversionDriver):
             with fetch_active_workspace(self.workspace, mode="r+"):
                 name = self.batch2d_params.inversion_type.capitalize()
                 if self.batch2d_params.forward_only:
-                    name += "Forward"
+                    name += " Forward"
                 else:
-                    name += "Inversion"
+                    name += " Inversion"
 
                 # with fetch_active_workspace(self.geoh5, mode="r+"):
                 self._out_group = SimPEGGroup.create(
@@ -63,10 +65,17 @@ class LineSweepDriver(SweepDriver, InversionDriver):
 
         return self._out_group
 
-    def run(self):  # pylint: disable=W0221
-        super().run()  # pylint: disable=W0221
+    def run(self):
+        """
+        Run the line sweep driver.
+        """
         with fetch_active_workspace(self.workspace, mode="r+"):
+            if not isinstance(self.out_group, SimPEGGroup):
+                raise GeoAppsError("Output group could not be created.")
+
+            super().run()
             self.collect_results()
+
         if self.cleanup:
             self.file_cleanup()
 
@@ -131,9 +140,23 @@ class LineSweepDriver(SweepDriver, InversionDriver):
                 out_group = next(
                     group for group in ws.groups if isinstance(group, SimPEGGroup)
                 )
+                run_group = ContainerGroup.create(
+                    self.workspace, name=f"Line {line}", parent=self.out_group
+                )
+                local_simpeg_group = out_group.copy(
+                    parent=run_group, copy_children=True, copy_relatives=True
+                )
+                # Remove the duplicate topo
+                self.workspace.remove_entity(
+                    next(
+                        child
+                        for child in run_group.children
+                        if isinstance(child, Surface)
+                    )
+                )
                 survey = next(
                     child
-                    for child in out_group.children
+                    for child in local_simpeg_group.children
                     if isinstance(child, PotentialElectrode)
                 )
                 line_data = survey.get_entity(
@@ -147,16 +170,9 @@ class LineSweepDriver(SweepDriver, InversionDriver):
                 data = self.collect_line_data(survey, line_indices, data)
                 mesh = next(
                     child
-                    for child in out_group.children
+                    for child in local_simpeg_group.children
                     if isinstance(child, DrapeModel)
                 )
-
-                local_simpeg_group = mesh.parent.copy(
-                    name=f"Line {line}",
-                    parent=self.out_group,
-                    copy_children=False,
-                )
-                local_simpeg_group.options = mesh.parent.options
                 filedata = [
                     k for k in out_group.children if isinstance(k, FilenameData)
                 ]
@@ -176,8 +192,7 @@ class LineSweepDriver(SweepDriver, InversionDriver):
 
                     fdat.copy(parent=out_group)
 
-                sub_mesh = mesh.copy(parent=local_simpeg_group)
-                drape_models.append(sub_mesh)
+                drape_models.append(mesh)
 
         # Write new log files to disk
         with open(ws.h5file.parent / "SimPEG.out", "w", encoding="utf8") as f:
@@ -213,9 +228,7 @@ class LineSweepDriver(SweepDriver, InversionDriver):
                 [int(re.findall(r"\d+", n)[0]) for n in k] for k in iter_children
             ]
             last_iterations = [np.where(k == np.max(k))[0][0] for k in iter_numbers]
-            label = iter_children[0][0].replace(
-                re.findall(r"\d+", iter_children[0][0])[0], "final"
-            )
+            label = re.sub(r"\d+", "final", iter_children[0][0])
             children = {
                 label: [c[last_iterations[i]] for i, c in enumerate(iter_children)]
             }
@@ -233,13 +246,23 @@ class LineSweepDriver(SweepDriver, InversionDriver):
         """
         Fill chunks of values from one line
         """
-        for child in survey.children:  # initialize data values dictionary
-            if "Iteration" in child.name and child.name not in data:
-                data[child.name] = {"values": np.zeros_like(line_indices) * np.nan}
+        for name in survey.get_data_list():
+            if "Iteration" not in name:
+                continue
 
-        for child in survey.children:
-            if "Iteration" in child.name:
-                data[child.name]["values"][line_indices] = child.values
+            child = survey.get_entity(name)[0]
+            if name not in data:
+                data[name] = {"values": np.zeros_like(line_indices) * np.nan}
+
+            data[name]["values"][line_indices] = child.values
+
+            if isinstance(self.batch2d_params, BaseInversionOptions):
+                label = re.sub(r"\d+", "final", name)
+
+                if label not in data:
+                    data[label] = {"values": np.zeros_like(line_indices) * np.nan}
+
+                data[label]["values"][line_indices] = child.values
 
         return data
 
