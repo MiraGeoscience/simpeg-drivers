@@ -18,6 +18,7 @@ from pathlib import Path
 import numpy as np
 from geoapps_utils.param_sweeps.driver import SweepDriver, SweepParams
 from geoapps_utils.param_sweeps.generate import generate
+from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.data import FilenameData
 from geoh5py.groups import SimPEGGroup
 from geoh5py.objects import DrapeModel, PotentialElectrode
@@ -147,7 +148,7 @@ class LineSweepDriver(SweepDriver, InversionDriver):
                 )
 
                 if not line_data:
-                    raise ValueError(f"Line {line} not found in {survey.name}")
+                    raise GeoAppsError(f"Line {line} not found in {survey.name}")
 
                 line_indices = line_ids == line
                 data = self.collect_line_data(survey, line_indices, data)

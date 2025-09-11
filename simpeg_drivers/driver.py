@@ -84,6 +84,9 @@ mlogger = logging.getLogger("distributed")
 mlogger.setLevel(logging.WARNING)
 
 
+logger = logging.getLogger("simpeg-drivers")
+
+
 class InversionDriver(Driver):
     _options_class = BaseForwardOptions | BaseInversionOptions
     _inversion_type: str | None = None
@@ -646,14 +649,19 @@ class InversionDriver(Driver):
         else:
             ifile = InputFile.read_ui_json(filepath, **kwargs)
 
-        if driver_class is None:
-            driver = cls.from_input_file(ifile)
-        else:
-            with ifile.data["geoh5"].open(mode="r+"):
-                params = driver_class._options_class.build(ifile)
-                driver = driver_class(params)
+        try:
+            if driver_class is None:
+                driver = cls.from_input_file(ifile)
+            else:
+                with ifile.data["geoh5"].open(mode="r+"):
+                    params = driver_class._options_class.build(ifile)
+                    driver = driver_class(params)
 
-        driver.run()
+            driver.run()
+
+        except GeoAppsError as error:
+            logger.warning("\n\nApplicationError: %s\n\n", error)
+            sys.exit(1)
 
         return driver
 
