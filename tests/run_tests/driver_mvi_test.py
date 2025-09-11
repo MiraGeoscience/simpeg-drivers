@@ -20,6 +20,7 @@ from geoh5py.groups.property_group import GroupTypeEnum
 from geoh5py.objects import Curve
 from geoh5py.workspace import Workspace
 
+from simpeg_drivers.components.factories import DirectivesFactory
 from simpeg_drivers.potential_fields import (
     MVIForwardOptions,
     MVIInversionOptions,
@@ -178,6 +179,58 @@ def test_magnetic_vector_run(
                 == GroupTypeEnum.DIPDIR
             )
             check_target(output, target_mvi_run)
+
+
+def test_magnetic_vector_reference(
+    tmp_path: Path,
+    n_grid_points=3,
+    refinement=(2,),
+):
+    # Run the forward
+    opts = SyntheticsComponentsOptions(
+        method="magnetic_vector",
+        survey=SurveyOptions(
+            n_stations=n_grid_points, n_lines=n_grid_points, drape=5.0
+        ),
+        mesh=MeshOptions(refinement=refinement),
+        model=ModelOptions(anomaly=0.05),
+    )
+    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+
+        tmi = components.survey.add_data(
+            {"tmi": {"values": np.random.randn(components.survey.n_vertices)}}
+        )
+        inducing_field = (50000.0, 90.0, 0.0)
+        params = MVIInversionOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            inducing_field_strength=inducing_field[0],
+            inducing_field_inclination=inducing_field[1],
+            inducing_field_declination=inducing_field[2],
+            tmi_channel=tmi,
+            tmi_uncertainty=5.0,
+            data_object=components.survey,
+            starting_model=components.model,
+            reference_model=1.0,
+            reference_inclination=30,
+            reference_declination=0,
+        )
+    driver = MVIInversionDriver(params)
+
+    directives = DirectivesFactory(driver)
+    assert np.all(directives.vector_inversion_directive.reference_angles)
+    assert np.all(driver.models.reference_inclination == 30)
+    assert np.all(driver.models.reference_declination == 0)
+
+    np.allclose(
+        np.kron(
+            np.r_[0, np.cos(-np.deg2rad(30)), np.sin(-np.deg2rad(30))],
+            np.ones(driver.models.n_active),
+        ),
+        driver.models.reference_model,
+    )
 
 
 if __name__ == "__main__":
