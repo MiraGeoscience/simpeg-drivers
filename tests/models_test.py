@@ -14,6 +14,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.objects import Points
 
 from simpeg_drivers.components import (
@@ -115,7 +116,7 @@ def test_negative_reference_model(tmp_path: Path):
     with geoh5.open():
         driver = DC3DForwardDriver(params)
 
-        with pytest.raises(ValueError, match="must be positive when"):
+        with pytest.raises(GeoAppsError, match="must be positive when"):
             _ = driver.models.starting_model
 
 
