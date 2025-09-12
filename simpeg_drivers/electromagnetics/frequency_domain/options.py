@@ -15,6 +15,7 @@ from logging import getLogger
 from pathlib import Path
 from typing import ClassVar, TypeAlias
 
+from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.groups import PropertyGroup
 from geoh5py.objects import (
     AirborneFEMReceivers,
@@ -56,7 +57,7 @@ class BaseFDEMOptions(EMDataMixin):
 
         except KeyError as exception:
             msg = "Metadata must contain 'Frequency configurations' dictionary with 'Offset' data."
-            raise KeyError(msg) from exception
+            raise GeoAppsError(msg) from exception
 
         return tx_offsets
 

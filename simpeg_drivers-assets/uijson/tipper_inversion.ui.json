@@ -17,36 +17,6 @@
         "meshType": "{0b639533-f35b-44d8-92a8-f70ecff3fd26}",
         "value": ""
     },
-    "txz_real_channel": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
-        "main": true,
-        "label": "Txz real",
-        "parent": "data_object",
-        "optional": true,
-        "enabled": true,
-        "value": ""
-    },
-    "txz_real_uncertainty": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
-        "main": true,
-        "label": "Uncertainty",
-        "parent": "data_object",
-        "dependency": "txz_real_channel",
-        "dependencyType": "enabled",
-        "value": ""
-    },
     "txz_imag_channel": {
         "association": [
             "Cell",
@@ -77,7 +47,7 @@
         "dependencyType": "enabled",
         "value": ""
     },
-    "tyz_real_channel": {
+    "txz_real_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -86,13 +56,13 @@
         "group": "Data",
         "dataGroupType": "Multi-element",
         "main": true,
-        "label": "Tyz real",
+        "label": "Txz real",
         "parent": "data_object",
         "optional": true,
         "enabled": true,
         "value": ""
     },
-    "tyz_real_uncertainty": {
+    "txz_real_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -103,7 +73,7 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "tyz_real_channel",
+        "dependency": "txz_real_channel",
         "dependencyType": "enabled",
         "value": ""
     },
@@ -134,6 +104,36 @@
         "label": "Uncertainty",
         "parent": "data_object",
         "dependency": "tyz_imag_channel",
+        "dependencyType": "enabled",
+        "value": ""
+    },
+    "tyz_real_channel": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data",
+        "dataGroupType": "Multi-element",
+        "main": true,
+        "label": "Tyz real",
+        "parent": "data_object",
+        "optional": true,
+        "enabled": true,
+        "value": ""
+    },
+    "tyz_real_uncertainty": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data",
+        "dataGroupType": "Multi-element",
+        "main": true,
+        "label": "Uncertainty",
+        "parent": "data_object",
+        "dependency": "tyz_real_channel",
         "dependencyType": "enabled",
         "value": ""
     },

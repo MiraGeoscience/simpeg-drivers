@@ -164,7 +164,7 @@ class LineSweepDriver(SweepDriver, InversionDriver):
                 )
 
                 if not line_data:
-                    raise ValueError(f"Line {line} not found in {survey.name}")
+                    raise GeoAppsError(f"Line {line} not found in {survey.name}")
 
                 line_indices = line_ids == line
                 data = self.collect_line_data(survey, line_indices, data)
