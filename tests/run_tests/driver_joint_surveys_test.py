@@ -199,7 +199,7 @@ def test_joint_surveys_conductivity_run(
         method="direct-current",
         survey=SurveyOptions(n_stations=4, n_lines=4, name="survey A"),
         mesh=MeshOptions(refinement=(2, 2, 2), name="mesh A"),
-        model=ModelOptions(anomaly=0.1, name="model A"),
+        model=ModelOptions(anomaly=0.1, background=0.01, name="model A"),
         active=SyntheticsActiveCellsOptions(name="active A"),
     )
 

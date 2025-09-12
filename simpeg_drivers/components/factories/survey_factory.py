@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
 import numpy as np
 import simpeg.electromagnetics.time_domain as tdem
-from geoh5py.objects.surveys.electromagnetics.airborne_fem import AirborneFEMReceivers
+from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.objects.surveys.electromagnetics.ground_tem import (
     LargeLoopGroundTEMTransmitters,
 )
@@ -207,14 +207,14 @@ class SurveyFactory(SimPEGFactory):
         if receivers.channels[-1] > (
             receivers.waveform[:, 0].max() - receivers.timing_mark
         ):
-            raise ValueError(
+            raise GeoAppsError(
                 f"The latest time channel {receivers.channels[-1]} exceeds "
                 f"the waveform discretization. Revise waveform."
             )
 
         if isinstance(transmitters, LargeLoopGroundTEMTransmitters):
             if receivers.tx_id_property is None:
-                raise ValueError(
+                raise GeoAppsError(
                     "Transmitter ID property required for LargeLoopGroundTEMReceivers"
                 )
 

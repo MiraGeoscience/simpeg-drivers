@@ -10,15 +10,15 @@
     "inversion_type": "magnetic vector",
     "physical_property": "susceptibility",
     "forward_only": false,
-    "inducing_field_strength": {
-        "min": 0.1,
-        "max": 100000.0,
+    "inducing_field_declination": {
+        "min": -180.0,
+        "max": 180.0,
         "precision": 2,
         "lineEdit": false,
         "main": true,
         "group": "Inducing field",
-        "label": "Strength (nT)",
-        "value": 50000.0
+        "label": "Declination (deg)",
+        "value": 0.0
     },
     "inducing_field_inclination": {
         "min": -90.0,
@@ -30,15 +30,15 @@
         "label": "Inclination (deg)",
         "value": 90.0
     },
-    "inducing_field_declination": {
-        "min": -180.0,
-        "max": 180.0,
+    "inducing_field_strength": {
+        "min": 0.0,
+        "max": 100000.0,
         "precision": 2,
         "lineEdit": false,
         "main": true,
         "group": "Inducing field",
-        "label": "Declination (deg)",
-        "value": 0.0
+        "label": "Strength (nT)",
+        "value": 50000.0
     },
     "data_object": {
         "main": true,
