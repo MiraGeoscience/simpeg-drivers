@@ -88,9 +88,8 @@ class BaseJointDriver(InversionDriver):
             drivers = []
             # Create sub-drivers
             for group in self.params.groups:
-                _ = group.options  # Triggers something... otherwise ui_json is empty
-                group = group.copy(parent=self.params.out_group)
                 driver = simpeg_group_to_driver(group, self.workspace)
+                driver.out_group.parent = self.out_group
                 drivers.append(driver)
 
             self._drivers = drivers

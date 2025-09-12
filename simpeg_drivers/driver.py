@@ -95,6 +95,7 @@ class InversionDriver(Driver):
         super().__init__(params)
 
         self.inversion_type = self.params.inversion_type
+        self._out_group = self.validate_out_group(self.params.out_group)
         self._data_misfit: objective_function.ComboObjectiveFunction | None = None
         self._directives: list[directives.InversionDirective] | None = None
         self._inverse_problem: inverse_problem.BaseInvProblem | None = None
@@ -316,25 +317,33 @@ class InversionDriver(Driver):
         return self.inversion_data.survey.ordering
 
     @property
-    def out_group(self):
-        """The SimPEGGroup"""
-        if self._out_group is None:
-            if isinstance(self.params.out_group, SimPEGGroup):
-                self._out_group = self.params.out_group
-                return self._out_group
-
-            with fetch_active_workspace(self.workspace, mode="r+"):
-                name = self.params.inversion_type.capitalize()
-                if self.params.forward_only:
-                    name += " Forward"
-                else:
-                    name += " Inversion"
-
-                self._out_group = SimPEGGroup.create(self.params.geoh5, name=name)
-                self.params.out_group = self._out_group
-                self.params.update_out_group_options()
-
+    def out_group(self) -> SimPEGGroup:
+        """
+        Returns the output group for the simulation.
+        """
         return self._out_group
+
+    def validate_out_group(self, out_group: SimPEGGroup | None) -> SimPEGGroup:
+        """
+        Validate or create a SimPEGGroup to store results.
+
+        :param out_group: Output group from selection.
+        """
+        if isinstance(out_group, SimPEGGroup):
+            return out_group
+
+        with fetch_active_workspace(self.workspace, mode="r+"):
+            name = self.params.inversion_type.capitalize()
+            if self.params.forward_only:
+                name += " Forward"
+            else:
+                name += " Inversion"
+
+            out_group = SimPEGGroup.create(self.workspace, name=name)
+            self.params.out_group = out_group
+            self.params.update_out_group_options()
+
+        return out_group
 
     @property
     def params(self) -> BaseForwardOptions | BaseInversionOptions:
@@ -408,11 +417,6 @@ class InversionDriver(Driver):
         self.configure_dask()
 
         with fetch_active_workspace(self.workspace, mode="r+"):
-            if not isinstance(self.out_group, SimPEGGroup):
-                raise GeoAppsError(
-                    f"Output group should be a valid SimPEGGroup, received: {type(self.out_group)}."
-                )
-
             simpeg_inversion = self.inversion
 
             if Path(self.params.input_file.path_name).is_file():
