@@ -332,9 +332,11 @@ class DirectivesFactory:
         """Directive to update vector model."""
         if self._vector_inversion_directive is None and "vector" in self.factory_type:
             reference_angles = (
-                getattr(self.driver.params, "reference_model", None) is not None,
-                getattr(self.driver.params, "reference_inclination", None) is not None,
-                getattr(self.driver.params, "reference_declination", None) is not None,
+                getattr(self.driver.params.models, "reference_model", None) is not None,
+                getattr(self.driver.params.models, "reference_inclination", None)
+                is not None,
+                getattr(self.driver.params.models, "reference_declination", None)
+                is not None,
             )
 
             self._vector_inversion_directive = directives.VectorInversion(

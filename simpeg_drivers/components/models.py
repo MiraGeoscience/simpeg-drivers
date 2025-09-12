@@ -220,18 +220,16 @@ class InversionModelCollection:
 
         ref_model = mref.copy()
 
-        if (
-            self.is_sigma
-            and self.driver.params.models.model_type == "Resistivity (Ohm-m)"
-        ):
-            ref_model = 1 / ref_model
+        if self.is_sigma:
+            if self.driver.params.models.model_type == "Resistivity (Ohm-m)":
+                ref_model = 1 / ref_model
 
-        ref_model = np.log(ref_model) if self.is_sigma else ref_model
+            ref_model = np.log(ref_model)
 
         if self.is_vector:
             field_vecs = dip_azimuth2cartesian(
-                self.starting_inclination,
-                self.starting_declination,
+                self.reference_inclination,
+                self.reference_declination,
             )
             ref_model = (field_vecs.T * ref_model).flatten()
 
