@@ -17,28 +17,28 @@
         "meshType": "{0b639533-f35b-44d8-92a8-f70ecff3fd26}",
         "value": ""
     },
-    "txz_real_channel_bool": {
-        "group": "Survey",
-        "main": true,
-        "label": "Txz real",
-        "value": true
-    },
     "txz_imag_channel_bool": {
         "group": "Survey",
         "main": true,
         "label": "Txz imaginary",
         "value": true
     },
-    "tyz_real_channel_bool": {
+    "txz_real_channel_bool": {
         "group": "Survey",
         "main": true,
-        "label": "Tyz real",
+        "label": "Txz real",
         "value": true
     },
     "tyz_imag_channel_bool": {
         "group": "Survey",
         "main": true,
         "label": "Tyz imaginary",
+        "value": true
+    },
+    "tyz_real_channel_bool": {
+        "group": "Survey",
+        "main": true,
+        "label": "Tyz real",
         "value": true
     },
     "mesh": {

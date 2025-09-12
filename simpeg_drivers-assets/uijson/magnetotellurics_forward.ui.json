@@ -17,22 +17,16 @@
         "meshType": "{b99bd6e5-4fe1-45a5-bd2f-75fc31f91b38}",
         "value": ""
     },
-    "zxx_real_channel_bool": {
-        "group": "Survey",
-        "main": true,
-        "label": "Zxx real",
-        "value": true
-    },
     "zxx_imag_channel_bool": {
         "group": "Survey",
         "main": true,
         "label": "Zxx imaginary",
         "value": true
     },
-    "zxy_real_channel_bool": {
+    "zxx_real_channel_bool": {
         "group": "Survey",
         "main": true,
-        "label": "Zxy real",
+        "label": "Zxx real",
         "value": true
     },
     "zxy_imag_channel_bool": {
@@ -41,10 +35,10 @@
         "label": "Zxy imaginary",
         "value": true
     },
-    "zyx_real_channel_bool": {
+    "zxy_real_channel_bool": {
         "group": "Survey",
         "main": true,
-        "label": "Zyx real",
+        "label": "Zxy real",
         "value": true
     },
     "zyx_imag_channel_bool": {
@@ -53,16 +47,22 @@
         "label": "Zyx imaginary",
         "value": true
     },
-    "zyy_real_channel_bool": {
+    "zyx_real_channel_bool": {
         "group": "Survey",
         "main": true,
-        "label": "Zyy real",
+        "label": "Zyx real",
         "value": true
     },
     "zyy_imag_channel_bool": {
         "group": "Survey",
         "main": true,
         "label": "Zyy imaginary",
+        "value": true
+    },
+    "zyy_real_channel_bool": {
+        "group": "Survey",
+        "main": true,
+        "label": "Zyy real",
         "value": true
     },
     "mesh": {

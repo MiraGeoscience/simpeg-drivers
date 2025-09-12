@@ -19,36 +19,6 @@
         ],
         "value": ""
     },
-    "z_real_channel": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
-        "main": true,
-        "label": "z-real component",
-        "parent": "data_object",
-        "optional": true,
-        "enabled": true,
-        "value": ""
-    },
-    "z_real_uncertainty": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
-        "main": true,
-        "label": "Uncertainty",
-        "parent": "data_object",
-        "dependency": "z_real_channel",
-        "dependencyType": "enabled",
-        "value": ""
-    },
     "z_imag_channel": {
         "association": [
             "Cell",
@@ -76,6 +46,36 @@
         "label": "Uncertainty",
         "parent": "data_object",
         "dependency": "z_imag_channel",
+        "dependencyType": "enabled",
+        "value": ""
+    },
+    "z_real_channel": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data",
+        "dataGroupType": "Multi-element",
+        "main": true,
+        "label": "z-real component",
+        "parent": "data_object",
+        "optional": true,
+        "enabled": true,
+        "value": ""
+    },
+    "z_real_uncertainty": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data",
+        "dataGroupType": "Multi-element",
+        "main": true,
+        "label": "Uncertainty",
+        "parent": "data_object",
+        "dependency": "z_real_channel",
         "dependencyType": "enabled",
         "value": ""
     },
