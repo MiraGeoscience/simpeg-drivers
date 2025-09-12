@@ -11,59 +11,75 @@
 import sys
 from pathlib import Path
 
+from geoapps_utils.base import Driver
+from geoapps_utils.utils.importing import GeoAppsError
+from geoapps_utils.utils.logger import get_logger
 from geoh5py import Workspace
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json.input_file import InputFile
-from geoh5py.ui_json.ui_json import BaseUIJson
 
-from simpeg_drivers import assets_path
 from simpeg_drivers.plate_simulation.driver import PlateSimulationDriver
-from simpeg_drivers.plate_simulation.sweep.options import PlateSweepOptions
+from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
+from simpeg_drivers.plate_simulation.sweep.options import SweepOptions
 from simpeg_drivers.plate_simulation.sweep.uijson import PlateSweepUIJson
 
 
-class PlateSweepDriver:
-    def __init__(self, options: PlateSweepOptions):
-        self.options = options
+logger = get_logger(name=__name__, level_name=False, propagate=False, add_name=False)
+
+
+# TODO: Can we make this generic (PlateSweepDriver -> SweepDriver)?
+class PlateSweepDriver(Driver):
+    _params_class = SweepOptions
 
     @classmethod
-    def start(cls, uijson: str | Path | BaseUIJson):
-        if isinstance(uijson, str):
-            uijson = Path(uijson).resolve()
+    def start(cls, filepath: str | Path, mode="r+", **kwargs) -> Driver:
+        _ = kwargs
+        logger.info("Loading input file . . .")
+        filepath = Path(filepath).resolve()
+        uijson = PlateSweepUIJson.read(filepath)
 
-        if isinstance(uijson, Path):
-            uijson = PlateSweepUIJson.read(uijson)
+        with Workspace(uijson.geoh5) as workspace:
+            try:
+                options = SweepOptions.build(uijson.to_params(workspace=workspace))
+                logger.info("Initializing application . . .")
+                driver = cls(options)
+                logger.info("Running application . . .")
+                driver.run()
+                logger.info("Results saved to %s", options.geoh5.h5file)
 
-        options = PlateSweepOptions.from_uijson(uijson)
-        driver = cls(options=options)
-        driver.run()
+            except GeoAppsError as error:
+                logger.warning("\n\nApplicationError: %s\n\n", error)
+                sys.exit(1)
+
+        return driver
 
     def run(self):
-        with fetch_active_workspace(self.options.geoh5) as geoh5:
-            for kwargs in self.options.product:
-                workpath = geoh5.h5file.parent
-                uid = PlateSweepOptions.uuid_from_params(kwargs.values())
-                h5file = workpath / f"{uid}.geoh5"
-                if h5file.exists():
-                    continue
+        for kwargs in self.params.trials:
+            uid = SweepOptions.uuid_from_params(kwargs.values())
+            ifile = InputFile(ui_json=self.params.template.options, validate=False)
+            for key, value in kwargs.items():
+                ifile.set_data_value(key, value)
+            PlateSweepDriver.run_worker(uid, ifile.data, self.params.template)
 
-                worker = geoh5.get_entity(self.options.worker)[0]
-                with Workspace.create(h5file) as geoh5:
-                    worker.copy(parent=geoh5, copy_relatives=True)
-                    # TODO: I probably need to update the group options here
-                    # TODO: Check that copy_relatives has worked for nested groups. There
-                    #  should be a survey object in the new geoh5 file.
+    @staticmethod
+    def run_worker(uid, data, out_group):
+        # create files and run plate simulation, switch geoh5
 
-                    ifile = InputFile(ui_json=worker.options, validate=False)
-                    for key, value in kwargs.items():
-                        ifile.set_data_value(key, value)
+        workpath = data["geoh5"].h5file.parent
+        h5file = workpath / f"{uid}.geoh5"
+        if h5file.exists():
+            return
 
-                    worker.options = ifile.ui_json
-                    ifile.write_ui_json(name=f"{id}.ui.json", path=workpath)
-                    PlateSimulationDriver.start(workpath / f"{id}.ui.json")
-                    assert True
+        with Workspace.create(h5file, mode="r+") as geoh5:
+            with fetch_active_workspace(out_group.workspace):
+                out_group.copy(parent=geoh5, copy_relatives=True)
+            data["geoh5"] = geoh5
+            options = PlateSimulationOptions.build(data)
+            filepath = workpath / f"{uid}.ui.json"
+            options.write_ui_json(filepath)
+            PlateSimulationDriver.start(filepath)
 
 
 if __name__ == "__main__":
     file = Path(sys.argv[1]).resolve()
-    PlateSweepDriver.start(PlateSweepUIJson(file))
+    PlateSweepDriver.start(PlateSweepUIJson.read(file))

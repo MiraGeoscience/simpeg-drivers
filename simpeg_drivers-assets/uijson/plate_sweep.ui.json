@@ -7,7 +7,7 @@
     "run_command": "simpeg_drivers.plate_simulation.driver",
     "geoh5": "",
     "monitoring_directory": "",
-    "worker": {
+    "template": {
         "main": true,
         "group": "Options",
         "label": "Plate simulation",
@@ -202,7 +202,7 @@
     },
     "out_group": {
         "label": "Out group",
-        "value": "{00000000-0000-0000-0000-000000000000}",
+        "value": "",
         "groupType": "{BB50AC61-A657-4926-9C82-067658E246A0}",
         "visible": true,
         "optional": true,

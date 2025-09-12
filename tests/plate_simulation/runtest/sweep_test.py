@@ -42,6 +42,8 @@ def setup_plate_sweep(workspace) -> SimPEGGroup:
     plate_ifile = InputFile.read_ui_json(options.default_ui_json)
     options_dict = plate_ifile.ui_json
     options_dict["simulation"]["value"] = str(gravity.uid)
+    options_dict["overburden"]["value"] = 100.0
+    options_dict["thickness"]["value"] = 20.0
     options_dict["u_cell_size"]["value"] = 10.0
     options_dict["v_cell_size"]["value"] = 10.0
     options_dict["w_cell_size"]["value"] = 10.0
@@ -72,13 +74,14 @@ def test_sweep(tmp_path):
         )
         ifile.data["name"] = "test_gravity_plate_simulation"
         ifile.data["geoh5"] = str(ws.h5file)
-        ifile.data["worker"] = str(plate_simulation.uid)
+        ifile.data["template"] = str(plate_simulation.uid)
         ifile.data["background_start"] = 0.0
         ifile.data["background_stop"] = 100.0
         ifile.data["background_count"] = 2
         ifile.data["plate_start"] = 500.0
         ifile.data["plate_stop"] = 1000.0
         ifile.data["plate_count"] = 2
+        ifile.data["out_group"] = None
 
         ifile.write_ui_json(name="plate_sweep.ui.json", path=tmp_path)
         PlateSweepDriver.start(tmp_path / "plate_sweep.ui.json")
