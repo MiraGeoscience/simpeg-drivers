@@ -71,7 +71,9 @@ class LineSweepDriver(SweepDriver, InversionDriver):
         """
         with fetch_active_workspace(self.workspace, mode="r+"):
             if not isinstance(self.out_group, SimPEGGroup):
-                raise GeoAppsError("Output group could not be created.")
+                raise GeoAppsError(
+                    f"Output group should be a valid SimPEGGroup, received: {type(self.out_group)}."
+                )
 
             super().run()
             self.collect_results()
