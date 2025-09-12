@@ -84,4 +84,4 @@ def test_sweep(tmp_path):
         ifile.data["out_group"] = None
 
         ifile.write_ui_json(name="plate_sweep.ui.json", path=tmp_path)
-        PlateSweepDriver.start(tmp_path / "plate_sweep.ui.json")
+    PlateSweepDriver.start(tmp_path / "plate_sweep.ui.json")

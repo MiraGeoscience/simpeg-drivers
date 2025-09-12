@@ -8,6 +8,7 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
+import shutil
 import sys
 from pathlib import Path
 
@@ -15,6 +16,7 @@ from geoapps_utils.base import Driver
 from geoapps_utils.utils.importing import GeoAppsError
 from geoapps_utils.utils.logger import get_logger
 from geoh5py import Workspace
+from geoh5py.groups import SimPEGGroup
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json.input_file import InputFile
 
@@ -32,13 +34,13 @@ class PlateSweepDriver(Driver):
     _params_class = SweepOptions
 
     @classmethod
-    def start(cls, filepath: str | Path, mode="r+", **kwargs) -> Driver:
+    def start(cls, filepath: str | Path, mode="r", **kwargs) -> Driver:
         _ = kwargs
         logger.info("Loading input file . . .")
         filepath = Path(filepath).resolve()
         uijson = PlateSweepUIJson.read(filepath)
 
-        with Workspace(uijson.geoh5) as workspace:
+        with Workspace(uijson.geoh5, mode=mode) as workspace:
             try:
                 options = SweepOptions.build(uijson.to_params(workspace=workspace))
                 logger.info("Initializing application . . .")
@@ -56,28 +58,33 @@ class PlateSweepDriver(Driver):
     def run(self):
         for kwargs in self.params.trials:
             uid = SweepOptions.uuid_from_params(kwargs.values())
-            ifile = InputFile(ui_json=self.params.template.options, validate=False)
-            for key, value in kwargs.items():
-                ifile.set_data_value(key, value)
-            PlateSweepDriver.run_worker(uid, ifile.data, self.params.template)
+            PlateSweepDriver.run_worker(uid, kwargs, self.workspace.h5file)
 
     @staticmethod
-    def run_worker(uid, data, out_group):
-        # create files and run plate simulation, switch geoh5
-
-        workpath = data["geoh5"].h5file.parent
+    def run_worker(uid, data, workspace_path):
+        # Eventually will take the path from the options set by user
+        workpath = workspace_path.parent
         h5file = workpath / f"{uid}.geoh5"
         if h5file.exists():
             return
 
-        with Workspace.create(h5file, mode="r+") as geoh5:
-            with fetch_active_workspace(out_group.workspace):
-                out_group.copy(parent=geoh5, copy_relatives=True)
-            data["geoh5"] = geoh5
-            options = PlateSimulationOptions.build(data)
-            filepath = workpath / f"{uid}.ui.json"
-            options.write_ui_json(filepath)
-            PlateSimulationDriver.start(filepath)
+        shutil.copy(workspace_path, h5file)
+        with Workspace(h5file, mode="r+") as geoh5:
+            plate_simulation = next(
+                group
+                for group in geoh5.groups
+                if isinstance(group, SimPEGGroup)
+                and "plate_simulation" in group.options.get("run_command")
+            )
+            plate_simulation.options["geoh5"] = geoh5
+
+            ifile = InputFile(ui_json=plate_simulation.options, validate=False)
+            param_dict = ifile.data
+            param_dict.update(data)
+
+            options = PlateSimulationOptions.build(param_dict)
+            driver = PlateSimulationDriver(options)
+            driver.run()
 
 
 if __name__ == "__main__":
