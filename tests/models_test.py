@@ -13,13 +13,20 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-from geoh5py import Workspace
+import pytest
+from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.objects import Points
 
 from simpeg_drivers.components import (
     InversionMesh,
     InversionModel,
     InversionModelCollection,
+)
+from simpeg_drivers.electricals.direct_current.three_dimensions.driver import (
+    DC3DForwardDriver,
+)
+from simpeg_drivers.electricals.direct_current.three_dimensions.options import (
+    DC3DForwardOptions,
 )
 from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import MVIInversionOptions
@@ -43,7 +50,7 @@ def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
         mesh=MeshOptions(refinement=(2,)),
         model=ModelOptions(anomaly=0.05),
     )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / f"{__name__}.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
         mesh = components.model.parent
         ref_inducing = mesh.add_data(
@@ -79,6 +86,38 @@ def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
         )
 
     return params
+
+
+def get_dc_params(tmp_path: Path) -> MVIInversionOptions:
+    opts = SyntheticsComponentsOptions(
+        method="direct_current",
+        survey=SurveyOptions(n_stations=4, n_lines=2),
+        mesh=MeshOptions(refinement=(2,)),
+        model=ModelOptions(anomaly=0.05),
+    )
+    with get_workspace(tmp_path / f"{__name__}.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+        mesh = components.model.parent
+        params = DC3DForwardOptions.build(
+            geoh5=geoh5,
+            data_object=components.survey,
+            tmi_channel_bool=True,
+            mesh=mesh,
+            active_cells=ActiveCellsOptions(topography_object=components.topography),
+            starting_model=-1e-04,
+        )
+
+    return params
+
+
+def test_negative_reference_model(tmp_path: Path):
+    params = get_dc_params(tmp_path)
+    geoh5 = params.geoh5
+    with geoh5.open():
+        driver = DC3DForwardDriver(params)
+
+        with pytest.raises(GeoAppsError, match="must be positive when"):
+            _ = driver.models.starting_model
 
 
 def test_zero_reference_model(tmp_path: Path):

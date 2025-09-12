@@ -17,6 +17,7 @@ from logging import getLogger
 from typing import TYPE_CHECKING
 
 import numpy as np
+from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.objects import (
     CurrentElectrode,
     Curve,
@@ -128,7 +129,7 @@ class EntityFactory(AbstractFactory):
         Validate that the transmitter loops are counter-clockwise sorted and closed.
         """
         if transmitter.receivers.tx_id_property is None:
-            raise ValueError(
+            raise GeoAppsError(
                 "Transmitter ID property required for LargeLoopGroundTEMReceivers"
             )
 

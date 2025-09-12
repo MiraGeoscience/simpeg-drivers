@@ -14,14 +14,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
-from geoapps_utils.base import Driver
+from geoapps_utils.utils.importing import GeoAppsError
 from geoapps_utils.utils.numerical import weighted_average
-from geoapps_utils.utils.transformations import rotate_xyz
 from geoh5py.data import Data, FloatData, NumericData
 from geoh5py.data.data_type import GeometricDataValueMapType
 from geoh5py.objects import ObjectBase
 from simpeg.utils.mat_utils import (
-    cartesian2amplitude_dip_azimuth,
     dip_azimuth2cartesian,
     mkvc,
 )
@@ -76,15 +74,25 @@ class InversionModelCollection:
         self.is_sigma = self.driver.params.physical_property == "conductivity"
         self.is_vector = self.driver.params.inversion_type == "magnetic vector"
 
-        self._starting_model = InversionModel(driver, "starting_model")
+        self._starting_model = InversionModel(
+            driver, "starting_model", is_sigma=self.is_sigma
+        )
         self._starting_inclination = InversionModel(driver, "starting_inclination")
         self._starting_declination = InversionModel(driver, "starting_declination")
-        self._reference_model = InversionModel(driver, "reference_model")
+        self._reference_model = InversionModel(
+            driver, "reference_model", is_sigma=self.is_sigma
+        )
         self._reference_inclination = InversionModel(driver, "reference_inclination")
         self._reference_declination = InversionModel(driver, "reference_declination")
-        self._lower_bound = InversionModel(driver, "lower_bound")
-        self._upper_bound = InversionModel(driver, "upper_bound")
-        self._conductivity_model = InversionModel(driver, "conductivity_model")
+        self._lower_bound = InversionModel(
+            driver, "lower_bound", is_sigma=self.is_sigma
+        )
+        self._upper_bound = InversionModel(
+            driver, "upper_bound", is_sigma=self.is_sigma
+        )
+        self._conductivity_model = InversionModel(
+            driver, "conductivity_model", is_sigma=self.is_sigma
+        )
         self._alpha_s = InversionModel(driver, "alpha_s")
         self._length_scale_x = InversionModel(driver, "length_scale_x")
         self._length_scale_y = InversionModel(driver, "length_scale_y")
@@ -498,6 +506,7 @@ class InversionModel:
         driver: InversionDriver,
         model_type: str,
         trim_active_cells: bool = True,
+        is_sigma: bool = False,
     ):
         """
         :param driver: InversionDriver object.
@@ -507,6 +516,7 @@ class InversionModel:
         """
         self.driver = driver
         self.model_type = model_type
+        self.is_sigma = is_sigma
         self.model: np.ndarray | None = None
         self.trim_active_cells = trim_active_cells
         self._initialize()
@@ -522,6 +532,12 @@ class InversionModel:
         model = self._get(self.model_type)
 
         if model is not None:
+            if self.is_sigma and np.any(model <= 0):
+                raise GeoAppsError(
+                    f"All values in {self.model_type} must be positive when "
+                    "inversion is in log-conductivity space."
+                )
+
             self.model = mkvc(model)
 
             if isinstance(self._fetch_reference(self.model_type), Data):
