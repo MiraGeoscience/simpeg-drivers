@@ -103,7 +103,7 @@ def test_ip_p3d_run(
 
     with Workspace(workpath) as geoh5:
         components = SyntheticsComponents(geoh5)
-        fwr_group = geoh5.get_entity("Induced polarization pseudo 3d Forward")[0]
+        fwr_group = geoh5.get_entity("Induced Polarization (IP) 2D Batch Forward")[0]
         survey = fwr_group.get_entity("survey")[0]
         chargeability = survey.get_data("Iteration_0_chargeability")[0]
 
