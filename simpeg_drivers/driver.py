@@ -333,13 +333,7 @@ class InversionDriver(Driver):
             return out_group
 
         with fetch_active_workspace(self.workspace, mode="r+"):
-            name = self.params.inversion_type.capitalize()
-            if self.params.forward_only:
-                name += " Forward"
-            else:
-                name += " Inversion"
-
-            out_group = SimPEGGroup.create(self.workspace, name=name)
+            out_group = SimPEGGroup.create(self.workspace, name=self.params.title)
             self.params.out_group = out_group
             self.params.update_out_group_options()
 
