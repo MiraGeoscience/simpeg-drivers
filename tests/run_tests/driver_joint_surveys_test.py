@@ -165,8 +165,8 @@ def test_joint_surveys_inv_run(
             geoh5=geoh5,
             active_cells=ActiveCellsOptions(active_model=active_model),
             mesh=drivers[0].params.mesh,
-            group_a=drivers[0].params.out_group,
-            group_b=drivers[1].params.out_group,
+            group_a=drivers[0].out_group,
+            group_b=drivers[1].out_group,
             starting_model=1e-4,
             reference_model=0.0,
             s_norm=0.0,
@@ -232,8 +232,8 @@ def test_joint_surveys_conductivity_run(
             geoh5=geoh5,
             active_cells=ActiveCellsOptions(topography_object=components.topography),
             mesh=components.mesh,
-            group_a=driver_A.params.out_group,
-            group_b=driver_B.params.out_group,
+            group_a=driver_A.out_group,
+            group_b=driver_B.out_group,
             starting_model=20.0,
             # Default to Conductivity (S/m)
         )

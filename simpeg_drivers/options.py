@@ -213,35 +213,6 @@ class CoreOptions(Options):
             )
         return value
 
-    @model_validator(mode="before")
-    @classmethod
-    def out_group_if_none(cls, data):
-        group = data.get("out_group", None)
-
-        if isinstance(group, SimPEGGroup):
-            return data
-
-        if isinstance(group, UIJsonGroup | type(None)):
-            name = (
-                cls.model_fields["title"].default  # pylint: disable=unsubscriptable-object
-                if group is None
-                else group.name
-            )
-            with fetch_active_workspace(data["geoh5"], mode="r+") as geoh5:
-                group = SimPEGGroup.create(geoh5, name=name)
-
-        data["out_group"] = group
-
-        return data
-
-    @model_validator(mode="after")
-    def update_out_group_options(self):
-        assert self.out_group is not None
-        with fetch_active_workspace(self.geoh5, mode="r+"):
-            self.out_group.options = self.serialize()
-            self.out_group.metadata = None
-        return self
-
     @property
     def workpath(self):
         return Path(self.geoh5.h5file).parent
