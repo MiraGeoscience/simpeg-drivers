@@ -16,12 +16,11 @@ build:
       - git config filter.lfs.smudge  "`pwd`/git-lfs smudge -- %f"
       - git config filter.lfs.clean "`pwd`/git-lfs clean -- %f"
       # Make LFS available in current repository
-      - export GIT_LFS_SKIP_SMUDGE=1
-      - ./git-lfs install --skip-smudge
+      - ./git-lfs install
       # Download content from remote
-      # - ./git-lfs fetch
+      - ./git-lfs fetch
       # Make local files to have the real content on them
-      # - ./git-lfs checkout
+      - ./git-lfs checkout
     pre_build:
       # Generate on-the-fly Sphinx configuration from Jupyter Book's _config.yml
       - "jupyter-book config sphinx docs/"
