@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import ClassVar
 
 from geoapps_utils.driver.data import BaseData
-from geoh5py.groups import SimPEGGroup, UIJsonGroup
+from geoh5py.groups import SimPEGGroup
 from geoh5py.objects import ObjectBase, Points, Surface
 from geoh5py.ui_json import InputFile
 from grid_apps.octree_creation.options import OctreeOptions
@@ -127,7 +127,7 @@ class PlateSimulationOptions(BaseData):
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/plate_simulation.ui.json"
     title: ClassVar[str] = "Plate Simulation"
     run_command: ClassVar[str] = "simpeg_drivers.plate_simulation.driver"
-    out_group: UIJsonGroup | None = None
+    out_group: SimPEGGroup | None = None
 
     mesh: MeshOptions
     model: ModelOptions
