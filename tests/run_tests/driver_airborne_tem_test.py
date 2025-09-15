@@ -74,6 +74,12 @@ def test_bad_waveform(tmp_path: Path):
     with raises(GeoAppsError, match="The latest time"):
         _ = fwr_driver.inversion_data.survey
 
+    with geoh5:
+        params.data_object.channels[-1] = 0.7
+
+    with raises(GeoAppsError, match="Multiple channels found within single time step"):
+        _ = fwr_driver.inversion_data.survey
+
 
 def test_airborne_tem_fwr_run(
     tmp_path: Path,
