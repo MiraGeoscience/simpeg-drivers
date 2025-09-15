@@ -37,7 +37,6 @@ class LineSweepDriver(SweepDriver, InversionDriver):
     _params_class = SweepParams
 
     def __init__(self, params):
-        self._out_group = None
         self.batch2d_params = params
         self.cleanup = params.file_control.cleanup
 
@@ -50,20 +49,31 @@ class LineSweepDriver(SweepDriver, InversionDriver):
         """The SimPEGGroup"""
         if self._out_group is None:
             with fetch_active_workspace(self.workspace, mode="r+"):
-                name = self.batch2d_params.inversion_type.capitalize()
-                if self.batch2d_params.forward_only:
-                    name += " Forward"
-                else:
-                    name += " Inversion"
-
-                # with fetch_active_workspace(self.geoh5, mode="r+"):
                 self._out_group = SimPEGGroup.create(
-                    self.batch2d_params.geoh5, name=name
+                    self.batch2d_params.geoh5, name=self.batch2d_params.title
                 )
                 self.batch2d_params.out_group = self._out_group
                 self.batch2d_params.update_out_group_options()
 
         return self._out_group
+
+    def validate_out_group(self, out_group: SimPEGGroup | None) -> SimPEGGroup:
+        """
+        Validate or create a SimPEGGroup to store results.
+
+        :param out_group: Output group from selection.
+        """
+        if isinstance(out_group, SimPEGGroup):
+            return out_group
+
+        with fetch_active_workspace(self.workspace, mode="r+"):
+            out_group = SimPEGGroup.create(
+                self.workspace, name=self.batch2d_params.title
+            )
+            self.batch2d_params.out_group = out_group
+            self.batch2d_params.update_out_group_options()
+
+        return out_group
 
     def run(self):
         """
