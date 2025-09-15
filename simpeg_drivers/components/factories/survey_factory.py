@@ -203,13 +203,12 @@ class SurveyFactory(SimPEGFactory):
     def _tdem_arguments(self, data=None):
         receivers = data.entity
         transmitters = receivers.transmitters
+        channels = np.array(receivers.channels) * self.params.unit_conversion
 
-        if receivers.channels[-1] > (
-            receivers.waveform[:, 0].max() - receivers.timing_mark
-        ):
+        if any(channels > (self.params.time_steps.sum() - self.params.timing_mark)):
             raise GeoAppsError(
                 f"The latest time channel {receivers.channels[-1]} exceeds "
-                f"the waveform discretization. Revise waveform."
+                f"the waveform discretization. Check waveform sampling from start to end."
             )
 
         if isinstance(transmitters, LargeLoopGroundTEMTransmitters):
@@ -238,6 +237,16 @@ class SurveyFactory(SimPEGFactory):
         wave_times = (
             receivers.waveform[:, 0] - receivers.timing_mark
         ) * self.params.unit_conversion
+
+        # Check single channel per time gate
+        _, count = np.unique(
+            np.searchsorted(wave_times, channels, side="right"), return_counts=True
+        )
+        if np.any(count > 1):
+            raise GeoAppsError(
+                "Multiple channels found within single time step. "
+                "Check waveform sampling on the off-times."
+            )
 
         if "1d" in self.factory_type:
             on_times = wave_times <= 0.0
