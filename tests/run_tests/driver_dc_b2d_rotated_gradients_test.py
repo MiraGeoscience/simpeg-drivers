@@ -110,7 +110,7 @@ def test_dc_rotated_gradient_p3d_run(
     with Workspace(workpath) as geoh5:
         components = SyntheticsComponents(geoh5)
 
-        fwr_group = geoh5.get_entity("Direct current pseudo 3d Forward")[0]
+        fwr_group = geoh5.get_entity("Direct Current (DC) 2D Batch Forward")[0]
         survey = fwr_group.get_entity("survey")[0]
         potential = survey.get_data("Iteration_0_potential")[0]
         # Create property group with orientation
