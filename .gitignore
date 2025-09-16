@@ -8,6 +8,7 @@ __pycache__/
 *.so
 
 .conda-env/
+.pixi/
 
 # Distribution / packaging
 .Python

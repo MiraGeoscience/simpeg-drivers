@@ -21,15 +21,18 @@ build:
       - ./git-lfs fetch
       # Make local files to have the real content on them
       - ./git-lfs checkout
+      - |
+        set -e
+        # Install pixi
+        curl -fsSL https://pixi.sh/install.sh | bash
+        export PATH="$HOME/.pixi/bin:$PATH"
+        echo 'export PATH="$HOME/.pixi/bin:$PATH"' >> $BASH_ENV
     pre_build:
       # Generate on-the-fly Sphinx configuration from Jupyter Book's _config.yml
       - "jupyter-book config sphinx docs/"
-      - "pip install . --no-deps"
+      - "pixi run --environment dev postinstall"
 
 sphinx:
   builder: html
   configuration: docs/conf.py
   fail_on_warning: false
-
-conda:
-  environment: docs/environment.yml
