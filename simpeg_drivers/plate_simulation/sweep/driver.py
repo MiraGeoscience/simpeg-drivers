@@ -65,7 +65,7 @@ class PlateSweepDriver(Driver):
 
             with fetch_active_workspace(self.workspace, mode="r+"):
                 self._out_group = SimPEGGroup.create(
-                    self.params.geoh5, name="Plate Sweep"
+                    self.params.geoh5, name=self.params.title
                 )
                 self._out_group.options = self.params.serialize()
 
