@@ -59,7 +59,7 @@ dependencies:
   - fasteners=0.19=pyhd8ed1ab_1
   - fonttools=4.59.2=py312h05f76fc_0
   - fqdn=1.5.1=pyhd8ed1ab_1
-  - freetype=2.14.0=h57928b3_1
+  - freetype=2.14.1=h57928b3_0
   - fsspec=2025.9.0=pyhd8ed1ab_0
   - geoana=0.7.2=py312hbaa7e33_0
   - greenlet=3.2.4=py312hbb81ca0_1
@@ -71,6 +71,7 @@ dependencies:
   - httpcore=1.0.9=pyh29332c3_0
   - httpx=0.28.1=pyhd8ed1ab_0
   - hyperframe=6.1.0=pyhd8ed1ab_0
+  - icu=75.1=he0c23c2_0
   - idna=3.10=pyhd8ed1ab_1
   - imagesize=1.4.1=pyhd8ed1ab_0
   - importlib-metadata=8.7.0=pyhe01879c_1
@@ -121,8 +122,8 @@ dependencies:
   - libdlf=0.3.0=pyhd8ed1ab_1
   - libexpat=2.7.1=hac47afa_0
   - libffi=3.4.6=h537db12_1
-  - libfreetype=2.14.0=h57928b3_1
-  - libfreetype6=2.14.0=hdbac1cb_1
+  - libfreetype=2.14.1=h57928b3_0
+  - libfreetype6=2.14.1=hdbac1cb_0
   - libgcc=15.1.0=h1383e82_5
   - libgomp=15.1.0=h1383e82_5
   - libhwloc=2.12.1=default_h64bd3f2_1002
@@ -139,8 +140,8 @@ dependencies:
   - libwebp-base=1.6.0=h4d5522a_0
   - libwinpthread=12.0.0.r4.gg4f2fc60ca=h57928b3_9
   - libxcb=1.17.0=h0e4246c_0
-  - libxml2=2.14.6=h5d26750_1
-  - libxml2-16=2.14.6=h692994f_1
+  - libxml2=2.15.0=ha29bfb0_0
+  - libxml2-16=2.15.0=h06f855e_0
   - libzlib=1.3.1=h2466b09_2
   - linkify-it-py=2.0.3=pyhd8ed1ab_1
   - llvm-openmp=20.1.8=hfa2b4ca_2
@@ -170,7 +171,7 @@ dependencies:
   - numcodecs=0.15.1=py312h72972c8_0
   - numpy=1.26.4=py312h8753938_0
   - openjpeg=2.5.3=h24db6dd_1
-  - openssl=3.5.2=h725018a_0
+  - openssl=3.5.3=h725018a_0
   - overrides=7.7.0=pyhd8ed1ab_1
   - packaging=25.0=pyh29332c3_1
   - pandas=2.3.2=py312hc128f0a_0
@@ -191,14 +192,14 @@ dependencies:
   - pybtex=0.25.1=pyhd8ed1ab_0
   - pybtex-docutils=1.0.3=py312h2e8e312_2
   - pycparser=2.22=pyh29332c3_1
-  - pydantic=2.11.7=pyh3cfb1c2_0
+  - pydantic=2.11.9=pyh3cfb1c2_0
   - pydantic-core=2.33.2=py312h8422cdd_0
   - pydata-sphinx-theme=0.15.4=pyhd8ed1ab_0
   - pydiso=0.1.2=py312h01acb21_0
   - pygments=2.19.2=pyhd8ed1ab_0
   - pylint=3.3.8=pyhe01879c_0
   - pymatsolver=0.3.1=pyh48887ae_201
-  - pyparsing=3.2.3=pyhe01879c_2
+  - pyparsing=3.2.4=pyhcf101f3_0
   - pysocks=1.7.1=pyh09c184e_7
   - pytest=8.4.2=pyhd8ed1ab_0
   - pytest-cov=7.0.0=pyhcf101f3_1
@@ -296,11 +297,11 @@ dependencies:
   - zeromq=4.3.5=h5bddc39_9
   - zict=3.0.0=pyhd8ed1ab_1
   - zipp=3.23.0=pyhd8ed1ab_0
-  - zstandard=0.24.0=py312ha680012_1
+  - zstandard=0.25.0=py312he5662c2_0
   - zstd=1.5.7=hbeecb71_2
   - pip:
-    - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@a6627f0a6e663e9c3f0e9874f401a34ab8990488
-    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@a05ed0984fc78d2b324c730ccd4294c0fde0f901
+    - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@a91e9479d6e948728ad430e0db526c75013c9773
+    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@496248c06ecbc113df0f0b76e1afc4610c469bf5
     - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@416815352706add295a9d2b90814d2291068a85e
     - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@7da0cb45b4ff1213d1cca120773971aa8468a5c1
 

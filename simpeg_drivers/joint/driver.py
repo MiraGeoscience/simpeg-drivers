@@ -89,7 +89,10 @@ class BaseJointDriver(InversionDriver):
             # Create sub-drivers
             for group in self.params.groups:
                 driver = simpeg_group_to_driver(group, self.workspace)
-                driver.out_group.parent = self.out_group
+                new = driver.out_group.copy(
+                    copy_children=False, copy_relatives=False, parent=self.out_group
+                )
+                driver.out_group = new
                 drivers.append(driver)
 
             self._drivers = drivers

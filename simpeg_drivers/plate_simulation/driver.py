@@ -20,8 +20,9 @@ from geoapps_utils.utils.transformations import azimuth_to_unit_vector
 from geoh5py.data import FloatData, ReferencedData
 from geoh5py.groups import UIJsonGroup
 from geoh5py.objects import Octree, Points, Surface
-from geoh5py.shared.utils import fetch_active_workspace
+from geoh5py.shared.utils import fetch_active_workspace, stringify
 from geoh5py.ui_json import InputFile, monitored_directory_copy
+from geoh5py.ui_json.utils import demote
 from grid_apps.octree_creation.driver import OctreeDriver
 
 from simpeg_drivers.driver import InversionDriver, InversionLogger
@@ -104,9 +105,7 @@ class PlateSimulationDriver(Driver):
             )
             out_group.entity_type.name = "Plate Simulation"
             self.params = self.params.model_copy(update={"out_group": out_group})
-            out_group.options = InputFile.stringify(
-                InputFile.demote(self.params.input_file.ui_json)
-            )
+            out_group.options = stringify(demote(self.params.input_file.ui_json))
             out_group.metadata = None
 
         return out_group
