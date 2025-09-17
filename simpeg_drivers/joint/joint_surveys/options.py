@@ -14,6 +14,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import ClassVar
 
+from geoapps_utils.utils.importing import GeoAppsError
 from pydantic import model_validator
 
 from simpeg_drivers import assets_path
@@ -38,7 +39,7 @@ class JointSurveysOptions(BaseJointOptions):
     def all_groups_same_physical_property(self):
         physical_properties = [k.options["physical_property"] for k in self.groups]
         if len(list(set(physical_properties))) > 1:
-            raise ValueError(
+            raise GeoAppsError(
                 "All physical properties must be the same. "
                 f"Provided SimPEG groups for {physical_properties}."
             )

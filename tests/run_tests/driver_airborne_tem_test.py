@@ -13,7 +13,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-from geoh5py.groups import SimPEGGroup
+from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.workspace import Workspace
 from pytest import raises
 
@@ -71,7 +71,13 @@ def test_bad_waveform(tmp_path: Path):
 
         params.data_object.channels[-1] = 1000.0
 
-    with raises(ValueError, match="The latest time"):
+    with raises(GeoAppsError, match="The latest time"):
+        _ = fwr_driver.inversion_data.survey
+
+    with geoh5:
+        params.data_object.channels[-1] = 0.7
+
+    with raises(GeoAppsError, match="Multiple channels found within single time step"):
         _ = fwr_driver.inversion_data.survey
 
 

@@ -17,6 +17,7 @@ from typing import Annotated, Any, ClassVar, Literal, TypeAlias
 
 import numpy as np
 from geoapps_utils.base import Options
+from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.data import (
     BooleanData,
     DataAssociationEnum,
@@ -28,9 +29,8 @@ from geoh5py.data import (
 from geoh5py.groups import PropertyGroup, SimPEGGroup, UIJsonGroup
 from geoh5py.objects import DrapeModel, Grid2D, Octree, Points
 from geoh5py.objects.surveys.electromagnetics.base import BaseEMSurvey
-from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
-from geoh5py.ui_json.templates import data_parameter
+from geoh5py.ui_json.utils import fetch_active_workspace
 from pydantic import (
     AliasChoices,
     BaseModel,
@@ -89,7 +89,7 @@ class ActiveCellsOptions(BaseModel):
     @classmethod
     def at_least_one(cls, data):
         if all(v is None for v in data.values()):
-            raise ValueError("Must provide either topography or active model.")
+            raise GeoAppsError("Must provide either topography or active model.")
         return data
 
     @model_serializer(mode="wrap")
@@ -208,39 +208,10 @@ class CoreOptions(Options):
     @classmethod
     def mesh_cannot_be_rotated(cls, value: Octree):
         if isinstance(value, Octree) and value.rotation not in [0.0, None]:
-            raise ValueError(
+            raise GeoAppsError(
                 "Rotated meshes are not supported. Please use a mesh with an angle of 0.0."
             )
         return value
-
-    @model_validator(mode="before")
-    @classmethod
-    def out_group_if_none(cls, data):
-        group = data.get("out_group", None)
-
-        if isinstance(group, SimPEGGroup):
-            return data
-
-        if isinstance(group, UIJsonGroup | type(None)):
-            name = (
-                cls.model_fields["title"].default  # pylint: disable=unsubscriptable-object
-                if group is None
-                else group.name
-            )
-            with fetch_active_workspace(data["geoh5"], mode="r+") as geoh5:
-                group = SimPEGGroup.create(geoh5, name=name)
-
-        data["out_group"] = group
-
-        return data
-
-    @model_validator(mode="after")
-    def update_out_group_options(self):
-        assert self.out_group is not None
-        with fetch_active_workspace(self.geoh5, mode="r+"):
-            self.out_group.options = self.serialize()
-            self.out_group.metadata = None
-        return self
 
     @property
     def workpath(self):
@@ -520,13 +491,13 @@ class LineSelectionOptions(BaseModel):
     @classmethod
     def validate_cell_association(cls, value):
         if value.association is not DataAssociationEnum.CELL:
-            raise ValueError("Line identifier must be associated with cells.")
+            raise GeoAppsError("Line identifier must be associated with cells.")
         return value
 
     @model_validator(mode="after")
     def line_id_referenced(self):
         if self.line_id not in self.line_object.values:
-            raise ValueError("Line id isn't referenced in the line object.")
+            raise GeoAppsError("Line id isn't referenced in the line object.")
         return self
 
 

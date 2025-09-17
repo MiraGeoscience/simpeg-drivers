@@ -19,16 +19,16 @@
         ],
         "value": ""
     },
-    "z_real_channel_bool": {
-        "group": "Survey",
-        "main": true,
-        "label": "Z real component",
-        "value": true
-    },
     "z_imag_channel_bool": {
         "group": "Survey",
         "main": true,
         "label": "Z imag component",
+        "value": true
+    },
+    "z_real_channel_bool": {
+        "group": "Survey",
+        "main": true,
+        "label": "Z real component",
         "value": true
     },
     "u_cell_size": {

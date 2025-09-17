@@ -313,7 +313,6 @@ def get_drape_model(
     :return object_out: Output block model.
     """
     locations = truncate_locs_depths(locations, depth_core)
-    depth_core = minimum_depth_core(locations, depth_core, h[1])
     order = traveling_salesman(locations)
 
     # Smooth the locations
@@ -511,25 +510,6 @@ def truncate_locs_depths(locs: np.ndarray, depth_core: float) -> np.ndarray:
         core_bottom_elev  # sets locations below core to core bottom
     )
     return locs
-
-
-def minimum_depth_core(
-    locs: np.ndarray, depth_core: float, core_z_cell_size: int
-) -> float:
-    """
-    Get minimum depth core.
-
-    :param locs: Location points.
-    :param depth_core: Depth of core mesh below locs.
-    :param core_z_cell_size: Cell size in z direction.
-
-    :return depth_core: Minimum depth core.
-    """
-    zrange = locs[:, -1].max() - locs[:, -1].min()  # locs z range
-    if depth_core >= zrange:
-        return depth_core - zrange + core_z_cell_size
-    else:
-        return depth_core
 
 
 def get_neighbouring_cells(mesh: TreeMesh, indices: list | np.ndarray) -> tuple:

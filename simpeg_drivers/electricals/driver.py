@@ -151,12 +151,6 @@ class BaseBatch2DDriver(LineSweepDriver):
 
         kwargs_2d = {}
         with fetch_active_workspace(self.workspace, mode="r+"):
-            self._window = InversionWindow(self.workspace, self.batch2d_params)
-            self._inversion_data = InversionData(self.workspace, self.batch2d_params)
-            self._inversion_topography = InversionTopography(
-                self.workspace, self.batch2d_params
-            )
-
             for uid, trial in lookup.items():
                 if trial["status"] != "pending":
                     continue
@@ -236,3 +230,23 @@ class BaseBatch2DDriver(LineSweepDriver):
                 lookup[uid]["status"] = "written"
 
         _ = self.update_lookup(lookup)  # pylint: disable=no-member
+
+    @property
+    def inversion_data(self) -> InversionData:
+        """Inversion data"""
+        if getattr(self, "_inversion_data", None) is None:
+            with fetch_active_workspace(self.workspace, mode="r+"):
+                self._inversion_data = InversionData(
+                    self.workspace, self.batch2d_params
+                )
+
+        return self._inversion_data
+
+    @property
+    def inversion_topography(self):
+        """Inversion topography"""
+        if getattr(self, "_inversion_topography", None) is None:
+            self._inversion_topography = InversionTopography(
+                self.workspace, self.batch2d_params
+            )
+        return self._inversion_topography
