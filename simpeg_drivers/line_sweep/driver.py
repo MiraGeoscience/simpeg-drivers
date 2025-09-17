@@ -47,15 +47,16 @@ class LineSweepDriver(SweepDriver, InversionDriver):
     @property
     def out_group(self):
         """The SimPEGGroup"""
-        if self._out_group is None:
-            with fetch_active_workspace(self.workspace, mode="r+"):
-                self._out_group = SimPEGGroup.create(
-                    self.batch2d_params.geoh5, name=self.batch2d_params.title
-                )
-                self.batch2d_params.out_group = self._out_group
-                self.batch2d_params.update_out_group_options()
-
         return self._out_group
+
+    @out_group.setter
+    def out_group(self, value: SimPEGGroup):
+        if not isinstance(value, SimPEGGroup):
+            raise TypeError("Output group must be a SimPEGGroup.")
+
+        self.batch2d_params.out_group = value
+        self.batch2d_params.update_out_group_options()
+        self._out_group = value
 
     def validate_out_group(self, out_group: SimPEGGroup | None) -> SimPEGGroup:
         """
@@ -70,8 +71,6 @@ class LineSweepDriver(SweepDriver, InversionDriver):
             out_group = SimPEGGroup.create(
                 self.workspace, name=self.batch2d_params.title
             )
-            self.batch2d_params.out_group = out_group
-            self.batch2d_params.update_out_group_options()
 
         return out_group
 
@@ -157,14 +156,6 @@ class LineSweepDriver(SweepDriver, InversionDriver):
                 )
                 local_simpeg_group = out_group.copy(
                     parent=run_group, copy_children=True, copy_relatives=True
-                )
-                # Remove the duplicate topo
-                self.workspace.remove_entity(
-                    next(
-                        child
-                        for child in run_group.children
-                        if isinstance(child, Surface)
-                    )
                 )
                 survey = next(
                     child
