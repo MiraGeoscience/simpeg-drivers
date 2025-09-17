@@ -189,7 +189,7 @@ dependencies:
   - zstd=1.5.7=hbeecb71_2
   - pip:
       - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@a91e9479d6e948728ad430e0db526c75013c9773
-      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@496248c06ecbc113df0f0b76e1afc4610c469bf5
+      - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@2c39fbbaceb60a1d3e5a519826f3a59a908ec822
       - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@416815352706add295a9d2b90814d2291068a85e
       - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@7da0cb45b4ff1213d1cca120773971aa8468a5c1
 
