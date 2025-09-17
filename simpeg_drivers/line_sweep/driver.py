@@ -158,14 +158,6 @@ class LineSweepDriver(SweepDriver, InversionDriver):
                 local_simpeg_group = out_group.copy(
                     parent=run_group, copy_children=True, copy_relatives=True
                 )
-                # Remove the duplicate topo
-                self.workspace.remove_entity(
-                    next(
-                        child
-                        for child in run_group.children
-                        if isinstance(child, Surface)
-                    )
-                )
                 survey = next(
                     child
                     for child in local_simpeg_group.children
