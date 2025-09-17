@@ -16,6 +16,21 @@
         "enabled": true,
         "tooltip": "Plate simulation options that will be overwritten by sweep parameters."
     },
+    "workdir": {
+        "main": true,
+        "group": "Options",
+        "label": "Working directory",
+        "fileDescription": [
+            "Directory"
+        ],
+        "fileType": [
+            "directory"
+        ],
+        "directoryOnly": true,
+        "optional": true,
+        "enabled": false,
+        "value": ""
+    },
     "background_start": {
         "main": true,
         "group": "Background",

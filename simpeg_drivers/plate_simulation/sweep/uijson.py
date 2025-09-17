@@ -10,7 +10,7 @@
 
 from geoh5py import Workspace
 from geoh5py.shared.utils import fetch_active_workspace
-from geoh5py.ui_json.forms import FloatForm, GroupForm, IntegerForm
+from geoh5py.ui_json.forms import FileForm, FloatForm, GroupForm, IntegerForm
 from geoh5py.ui_json.ui_json import BaseUIJson
 from pydantic import ConfigDict
 
@@ -44,3 +44,4 @@ class PlateSweepUIJson(BaseUIJson):
     dip_stop: FloatForm
     dip_count: IntegerForm
     out_group: GroupForm | None
+    workdir: FileForm | None

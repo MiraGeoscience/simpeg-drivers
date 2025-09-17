@@ -18,7 +18,7 @@ from geoapps_utils.base import Options
 from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.groups import SimPEGGroup
 from geoh5py.ui_json import InputFile
-from pydantic import BaseModel, ConfigDict, ValidationError
+from pydantic import BaseModel, ValidationError, field_serializer
 from typing_extensions import Self
 
 from simpeg_drivers import assets_path
@@ -62,6 +62,11 @@ class SweepOptions(Options):
     out_group: SimPEGGroup | None = None
     template: SimPEGGroup
     sweeps: list[ParamSweep]
+    workdir: Path | None = None
+
+    @field_serializer("workdir")
+    def workdir_to_string(self, workdir):
+        return str(workdir)
 
     @classmethod
     def build(cls, input_data: InputFile | dict | None = None, **kwargs) -> Self:
@@ -92,6 +97,7 @@ class SweepOptions(Options):
 
         sweep_params = [k.removesuffix("_start") for k in options if "_start" in k]
         options["sweeps"] = [collect_sweep(param) for param in sweep_params]
+        options["workdir"] = options["workdir"][0] if options.get("workdir") else None
 
         try:
             out = cls(**options)

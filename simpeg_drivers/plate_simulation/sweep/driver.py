@@ -69,7 +69,9 @@ class PlateSweepDriver(Driver):
 
         for kwargs in self.params.trials:
             uid = SweepOptions.uuid_from_params(kwargs.values())
-            PlateSweepDriver.run_worker(uid, kwargs, self.workspace.h5file)
+            PlateSweepDriver.run_worker(
+                uid, kwargs, self.workspace.h5file, self.params.workdir
+            )
 
     @property
     def out_group(self) -> SimPEGGroup:
@@ -94,18 +96,17 @@ class PlateSweepDriver(Driver):
             )
             out_group.entity_type.name = "Plate Sweep"
             self.params = self.params.model_copy(update={"out_group": out_group})
-            options = demote(self.params.input_file.ui_json)
-            out_group.options = options
-            # out_group.options = self.params.serialize()
+            out_group.options = demote(self.params.input_file.ui_json)
             out_group.metadata = None
 
         return out_group
 
     @staticmethod
-    def run_worker(uid: str, data: dict, h5file: Path):
-        # Eventually will take the path from the options set by user
-        workpath = h5file.parent
-        workerfile = workpath / f"{uid}.geoh5"
+    def run_worker(uid: str, data: dict, h5file: Path, workdir: Path | None):
+        if workdir is None:
+            workdir = h5file.parent
+
+        workerfile = workdir / f"{uid}.geoh5"
         if workerfile.exists():
             return
 
@@ -124,8 +125,8 @@ class PlateSweepDriver(Driver):
             options = PlateSimulationOptions.build(
                 ifile.data, geoh5=worker, out_group=plate_simulation
             )
-            options.write_ui_json(workpath / f"{uid}.ui.json")
-            PlateSimulationDriver.start(workpath / f"{uid}.ui.json")
+            options.write_ui_json(workdir / f"{uid}.ui.json")
+            PlateSimulationDriver.start(workdir / f"{uid}.ui.json")
 
 
 if __name__ == "__main__":

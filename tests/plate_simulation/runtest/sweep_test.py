@@ -8,6 +8,8 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
+import os
+
 from geoh5py import Workspace
 from geoh5py.groups import SimPEGGroup
 from geoh5py.ui_json import InputFile
@@ -66,6 +68,9 @@ def setup_plate_sweep(workspace) -> SimPEGGroup:
 
 
 def test_sweep(tmp_path):
+    workdir = tmp_path / "my_workdir"
+    os.mkdir(workdir)
+    assert workdir.exists()
     with Workspace.create(tmp_path / "test.geoh5") as ws:
         plate_simulation = setup_plate_sweep(ws)
 
@@ -75,6 +80,7 @@ def test_sweep(tmp_path):
         ifile.data["name"] = "test_gravity_plate_simulation"
         ifile.data["geoh5"] = str(ws.h5file)
         ifile.data["template"] = str(plate_simulation.uid)
+        ifile.data["workdir"] = str(workdir)
         ifile.data["background_start"] = 0.0
         ifile.data["background_stop"] = 100.0
         ifile.data["background_count"] = 2
