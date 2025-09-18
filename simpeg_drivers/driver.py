@@ -95,7 +95,7 @@ class InversionDriver(Driver):
         super().__init__(params)
 
         self.inversion_type = self.params.inversion_type
-        self._out_group = self.validate_out_group(self.params.out_group)
+        self.out_group = self.validate_out_group(self.params.out_group)
         self._data_misfit: objective_function.ComboObjectiveFunction | None = None
         self._directives: list[directives.InversionDirective] | None = None
         self._inverse_problem: inverse_problem.BaseInvProblem | None = None
@@ -323,6 +323,15 @@ class InversionDriver(Driver):
         """
         return self._out_group
 
+    @out_group.setter
+    def out_group(self, value: SimPEGGroup):
+        if not isinstance(value, SimPEGGroup):
+            raise TypeError("Output group must be a SimPEGGroup.")
+
+        self.params.out_group = value
+        self.params.update_out_group_options()
+        self._out_group = value
+
     def validate_out_group(self, out_group: SimPEGGroup | None) -> SimPEGGroup:
         """
         Validate or create a SimPEGGroup to store results.
@@ -334,8 +343,6 @@ class InversionDriver(Driver):
 
         with fetch_active_workspace(self.workspace, mode="r+"):
             out_group = SimPEGGroup.create(self.workspace, name=self.params.title)
-            self.params.out_group = out_group
-            self.params.update_out_group_options()
 
         return out_group
 
