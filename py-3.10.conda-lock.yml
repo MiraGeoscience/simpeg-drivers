@@ -1412,7 +1412,7 @@ package:
   category: main
   optional: false
 - name: fonttools
-  version: 4.59.2
+  version: 4.60.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -1423,14 +1423,14 @@ package:
     python: '>=3.10,<3.11.0a0'
     python_abi: 3.10.*
     unicodedata2: '>=15.1.0'
-  url: https://repo.prefix.dev/conda-forge/linux-64/fonttools-4.59.2-py310h3406613_0.conda
+  url: https://repo.prefix.dev/conda-forge/linux-64/fonttools-4.60.0-py310h3406613_0.conda
   hash:
-    md5: 32dab042830c3c31f89cdb6273585165
-    sha256: afbdc6fd696ce74a94dd558512f532a8e71c653a18f226b1bae9b37e447ae4f0
+    md5: 3f0e123bda4a6794b7b96dfa98b5db23
+    sha256: 179889e74cbb0db999f28b56e0b7ab4faaa75d8651bbc5a75c57e9e036920cff
   category: main
   optional: false
 - name: fonttools
-  version: 4.59.2
+  version: 4.60.0
   manager: conda
   platform: win-64
   dependencies:
@@ -1442,10 +1442,10 @@ package:
     unicodedata2: '>=15.1.0'
     vc: '>=14.3,<15'
     vc14_runtime: '>=14.44.35208'
-  url: https://repo.prefix.dev/conda-forge/win-64/fonttools-4.59.2-py310hdb0e946_0.conda
+  url: https://repo.prefix.dev/conda-forge/win-64/fonttools-4.60.0-py310hdb0e946_0.conda
   hash:
-    md5: 2072c4ef8b99bee252d62c4bfbf6c2e6
-    sha256: 93eaf4c063327cb9a47ed383608e34c79329eb1fcc030f4fa5c1d945c7878269
+    md5: ea3b8e17b32b860d6070b0a4c2d1f66a
+    sha256: 8c3fa33cdf46d36b581fcabaa57067ca49848f9d2af64bd69d641283b0278ccc
   category: main
   optional: false
 - name: fqdn
@@ -8573,7 +8573,7 @@ package:
   manager: pip
   platform: linux-64
   dependencies:
-    geoh5py: 0.12.0a2.dev105+496248c0
+    geoh5py: 0.12.0a2.dev113+2c39fbba
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
@@ -8590,7 +8590,7 @@ package:
   manager: pip
   platform: win-64
   dependencies:
-    geoh5py: 0.12.0a2.dev105+496248c0
+    geoh5py: 0.12.0a2.dev113+2c39fbba
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
@@ -8603,7 +8603,7 @@ package:
   category: main
   optional: false
 - name: geoh5py
-  version: 0.12.0a2.dev105+496248c0
+  version: 0.12.0a2.dev113+2c39fbba
   manager: pip
   platform: linux-64
   dependencies:
@@ -8612,16 +8612,16 @@ package:
     pillow: '>=10.3.0,<10.4.0'
     pydantic: '>=2.5.2,<3.0.0'
     pylint: '>=3.3.8,<4.0.0'
-  url: git+https://github.com/MiraGeoscience/geoh5py.git@496248c06ecbc113df0f0b76e1afc4610c469bf5
+  url: git+https://github.com/MiraGeoscience/geoh5py.git@2c39fbbaceb60a1d3e5a519826f3a59a908ec822
   hash:
-    sha256: 496248c06ecbc113df0f0b76e1afc4610c469bf5
+    sha256: 2c39fbbaceb60a1d3e5a519826f3a59a908ec822
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoh5py.git@496248c06ecbc113df0f0b76e1afc4610c469bf5
+    url: git+https://github.com/MiraGeoscience/geoh5py.git@2c39fbbaceb60a1d3e5a519826f3a59a908ec822
   category: main
   optional: false
 - name: geoh5py
-  version: 0.12.0a2.dev105+496248c0
+  version: 0.12.0a2.dev113+2c39fbba
   manager: pip
   platform: win-64
   dependencies:
@@ -8630,12 +8630,12 @@ package:
     pillow: '>=10.3.0,<10.4.0'
     pydantic: '>=2.5.2,<3.0.0'
     pylint: '>=3.3.8,<4.0.0'
-  url: git+https://github.com/MiraGeoscience/geoh5py.git@496248c06ecbc113df0f0b76e1afc4610c469bf5
+  url: git+https://github.com/MiraGeoscience/geoh5py.git@2c39fbbaceb60a1d3e5a519826f3a59a908ec822
   hash:
-    sha256: 496248c06ecbc113df0f0b76e1afc4610c469bf5
+    sha256: 2c39fbbaceb60a1d3e5a519826f3a59a908ec822
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoh5py.git@496248c06ecbc113df0f0b76e1afc4610c469bf5
+    url: git+https://github.com/MiraGeoscience/geoh5py.git@2c39fbbaceb60a1d3e5a519826f3a59a908ec822
   category: main
   optional: false
 - name: grid-apps
@@ -8645,7 +8645,7 @@ package:
   dependencies:
     discretize: '>=0.11.0,<0.12.dev'
     geoapps-utils: 0.6.0a1.dev72+a91e947
-    geoh5py: 0.12.0a2.dev105+496248c0
+    geoh5py: 0.12.0a2.dev113+2c39fbba
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
@@ -8664,7 +8664,7 @@ package:
   dependencies:
     discretize: '>=0.11.0,<0.12.dev'
     geoapps-utils: 0.6.0a1.dev72+a91e947
-    geoh5py: 0.12.0a2.dev105+496248c0
+    geoh5py: 0.12.0a2.dev113+2c39fbba
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
@@ -8677,7 +8677,7 @@ package:
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.23.0.1.post2.dev96+mira.g7da0cb45b
+  version: 0.23.0.1.post2.dev99+mira.g998d6f581
   manager: pip
   platform: linux-64
   dependencies:
@@ -8689,16 +8689,16 @@ package:
     numpy: '>=1.22'
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@7da0cb45b4ff1213d1cca120773971aa8468a5c1
+  url: git+https://github.com/MiraGeoscience/simpeg.git@998d6f58198e4aff55a401e8a6545b93eb8bfd64
   hash:
-    sha256: 7da0cb45b4ff1213d1cca120773971aa8468a5c1
+    sha256: 998d6f58198e4aff55a401e8a6545b93eb8bfd64
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@7da0cb45b4ff1213d1cca120773971aa8468a5c1
+    url: git+https://github.com/MiraGeoscience/simpeg.git@998d6f58198e4aff55a401e8a6545b93eb8bfd64
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.23.0.1.post2.dev96+mira.g7da0cb45b
+  version: 0.23.0.1.post2.dev99+mira.g998d6f581
   manager: pip
   platform: win-64
   dependencies:
@@ -8710,11 +8710,11 @@ package:
     numpy: '>=1.22'
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@7da0cb45b4ff1213d1cca120773971aa8468a5c1
+  url: git+https://github.com/MiraGeoscience/simpeg.git@998d6f58198e4aff55a401e8a6545b93eb8bfd64
   hash:
-    sha256: 7da0cb45b4ff1213d1cca120773971aa8468a5c1
+    sha256: 998d6f58198e4aff55a401e8a6545b93eb8bfd64
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@7da0cb45b4ff1213d1cca120773971aa8468a5c1
+    url: git+https://github.com/MiraGeoscience/simpeg.git@998d6f58198e4aff55a401e8a6545b93eb8bfd64
   category: main
   optional: false

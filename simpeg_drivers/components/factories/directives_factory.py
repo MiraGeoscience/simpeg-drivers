@@ -340,7 +340,7 @@ class DirectivesFactory:
             )
 
             self._vector_inversion_directive = directives.VectorInversion(
-                [objective.simulation for objective in self.driver.data_misfit.objfcts],
+                self.driver.data_misfit.objfcts,
                 self.driver.regularization,
                 chifact_target=self.driver.params.cooling_schedule.chi_factor * 2,
                 reference_angles=reference_angles,

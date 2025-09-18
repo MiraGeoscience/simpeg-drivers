@@ -15,6 +15,7 @@ import logging
 from pathlib import Path
 
 import numpy as np
+from dask.distributed import LocalCluster, performance_report
 from geoh5py.groups import PropertyGroup
 from geoh5py.groups.property_group import GroupTypeEnum
 from geoh5py.objects import Curve
@@ -65,7 +66,6 @@ def test_magnetic_vector_fwr_run(
         components = SyntheticsComponents(geoh5, options=opts)
 
         # Unitest dealing with Curve
-
         _ = Curve.create(
             geoh5, name=components.survey.name, vertices=components.survey.vertices
         )
@@ -235,7 +235,13 @@ def test_magnetic_vector_reference(
 
 if __name__ == "__main__":
     # Full run
-    test_magnetic_vector_fwr_run(Path("./"), n_grid_points=20, refinement=(4, 8))
-    test_magnetic_vector_run(
-        Path("./"), None, max_iterations=30, upper_bound=1e-1, pytest=False
-    )
+    with LocalCluster(processes=True, n_workers=2, threads_per_worker=6) as cluster:
+        with cluster.get_client():
+            # Full run
+            with performance_report(filename="diagnostics.html"):
+                test_magnetic_vector_fwr_run(
+                    Path("./"), n_grid_points=20, refinement=(4, 8)
+                )
+                test_magnetic_vector_run(
+                    Path("./"), None, max_iterations=30, upper_bound=1e-1, pytest=False
+                )
