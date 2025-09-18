@@ -129,7 +129,7 @@ dependencies:
   - partd=1.4.2=pyhd8ed1ab_0
   - pillow=10.3.0=py312h381445a_1
   - pip=25.2=pyh8b19718_0
-  - psutil=7.0.0=py312he06e257_1
+  - psutil=7.1.0=py312he06e257_0
   - pthread-stubs=0.4=h0e40799_1002
   - pyarrow=21.0.0=py312h2e8e312_0
   - pyarrow-core=21.0.0=py312h6654431_0_cuda
@@ -191,7 +191,7 @@ dependencies:
       - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@a91e9479d6e948728ad430e0db526c75013c9773
       - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@2c39fbbaceb60a1d3e5a519826f3a59a908ec822
       - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@416815352706add295a9d2b90814d2291068a85e
-      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@7da0cb45b4ff1213d1cca120773971aa8468a5c1
+      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@998d6f58198e4aff55a401e8a6545b93eb8bfd64
 
 variables:
   KMP_WARNINGS: 0

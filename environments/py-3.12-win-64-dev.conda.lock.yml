@@ -61,7 +61,7 @@ dependencies:
   - dask=2025.3.0=pyhd8ed1ab_0
   - dask-core=2025.3.0=pyhd8ed1ab_0
   - dataclasses=0.8=pyhc8e2a94_3
-  - debugpy=1.8.16=py312ha1a9051_1
+  - debugpy=1.8.17=py312ha1a9051_0
   - decorator=5.2.1=pyhd8ed1ab_0
   - defusedxml=0.7.1=pyhd8ed1ab_0
   - deprecated=1.2.18=pyhd8ed1ab_0
@@ -220,7 +220,7 @@ dependencies:
   - pluggy=1.6.0=pyhd8ed1ab_0
   - prometheus_client=0.22.1=pyhd8ed1ab_0
   - prompt-toolkit=3.0.52=pyha770c72_0
-  - psutil=7.0.0=py312he06e257_1
+  - psutil=7.1.0=py312he06e257_0
   - pthread-stubs=0.4=h0e40799_1002
   - pure_eval=0.2.3=pyhd8ed1ab_1
   - pyarrow=21.0.0=py312h2e8e312_0
@@ -342,7 +342,7 @@ dependencies:
       - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@a91e9479d6e948728ad430e0db526c75013c9773
       - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@2c39fbbaceb60a1d3e5a519826f3a59a908ec822
       - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@416815352706add295a9d2b90814d2291068a85e
-      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@7da0cb45b4ff1213d1cca120773971aa8468a5c1
+      - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@998d6f58198e4aff55a401e8a6545b93eb8bfd64
 
 variables:
   KMP_WARNINGS: 0

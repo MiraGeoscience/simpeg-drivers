@@ -1693,7 +1693,7 @@ package:
   category: dev
   optional: true
 - name: debugpy
-  version: 1.8.16
+  version: 1.8.17
   manager: conda
   platform: linux-64
   dependencies:
@@ -1702,14 +1702,14 @@ package:
     libstdcxx: '>=14'
     python: ''
     python_abi: 3.10.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/debugpy-1.8.16-py310h25320af_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/debugpy-1.8.17-py310h25320af_0.conda
   hash:
-    md5: a9ee3a04283917f4cec4cd435412f369
-    sha256: fb94cf5a0a450454575c91775e7264d7cf342a2c3362a509773622e00d84565f
+    md5: df12e1e922f79a4a407bc9566e9fba3f
+    sha256: fa33b347b22f94cb5814dc263755ad6c3d50e1b3046c8629aec87c867e46b636
   category: dev
   optional: true
 - name: debugpy
-  version: 1.8.16
+  version: 1.8.17
   manager: conda
   platform: win-64
   dependencies:
@@ -1718,10 +1718,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.3,<15'
     vc14_runtime: '>=14.44.35208'
-  url: https://conda.anaconda.org/conda-forge/win-64/debugpy-1.8.16-py310h699e580_1.conda
+  url: https://conda.anaconda.org/conda-forge/win-64/debugpy-1.8.17-py310h699e580_0.conda
   hash:
-    md5: 1d71884ba204388b715dbec129327cac
-    sha256: c65a200b15c7e33824fcd2f99a649e9ea70da6461919c3e8541f7f0bd42bf084
+    md5: c5f45e2388843736453e689720338930
+    sha256: c042d64a510cd3fb95431e5cc21e8d3c7adcaeac75f46f84b6f67acc9a0f1d33
   category: dev
   optional: true
 - name: decorator
@@ -6189,10 +6189,10 @@ package:
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/linux-64/nlohmann_json-3.12.0-h3f2d84a_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/nlohmann_json-3.12.0-h54a6638_1.conda
   hash:
-    md5: d76872d096d063e226482c99337209dc
-    sha256: e2fc624d6f9b2f1b695b6be6b905844613e813aa180520e73365062683fe7b49
+    md5: 16c2a0e9c4a166e53632cfca4f68d020
+    sha256: fd2cbd8dfc006c72f45843672664a8e4b99b2f8137654eaae8c3d46dca776f63
   category: main
   optional: false
 - name: notebook
@@ -6848,7 +6848,7 @@ package:
   category: dev
   optional: true
 - name: psutil
-  version: 7.0.0
+  version: 7.1.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -6856,14 +6856,14 @@ package:
     libgcc: '>=14'
     python: '>=3.10,<3.11.0a0'
     python_abi: 3.10.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/psutil-7.0.0-py310h7c4b9e2_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/psutil-7.1.0-py310h7c4b9e2_0.conda
   hash:
-    md5: 165e1696a6859b5cd915f9486f171ace
-    sha256: b549034b2331dfa794371aeb844bc7f14730ea93b84758cefb0dedac36a62133
+    md5: b1683bdb8b834126823a034d5f29efb2
+    sha256: 3e814f2a006c4a031ad6a08c4d44ed754e035b6eb25533237c8cdfa52d63f103
   category: main
   optional: false
 - name: psutil
-  version: 7.0.0
+  version: 7.1.0
   manager: conda
   platform: win-64
   dependencies:
@@ -6872,10 +6872,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.3,<15'
     vc14_runtime: '>=14.44.35208'
-  url: https://conda.anaconda.org/conda-forge/win-64/psutil-7.0.0-py310h29418f3_1.conda
+  url: https://conda.anaconda.org/conda-forge/win-64/psutil-7.1.0-py310h29418f3_0.conda
   hash:
-    md5: 02aed3c30affdc36098278220f0ab5fd
-    sha256: ae31f38509f1b92a4f27cfdd3cabea269172cb2912e85581671e2b27df15e561
+    md5: 992be434ac9ae7a39f2f4147f2a66b86
+    sha256: 7649d52b779df546d54f1d74e41164d0e052370a7a3d9d506ab685f6162980c2
   category: main
   optional: false
 - name: pthread-stubs
@@ -10171,7 +10171,7 @@ package:
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.23.0.1.post2.dev96+mira.g7da0cb45b
+  version: 0.23.0.1.post2.dev99+mira.g998d6f581
   manager: pip
   platform: linux-64
   dependencies:
@@ -10183,16 +10183,16 @@ package:
     numpy: '>=1.22'
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@7da0cb45b4ff1213d1cca120773971aa8468a5c1
+  url: git+https://github.com/MiraGeoscience/simpeg.git@998d6f58198e4aff55a401e8a6545b93eb8bfd64
   hash:
-    sha256: 7da0cb45b4ff1213d1cca120773971aa8468a5c1
+    sha256: 998d6f58198e4aff55a401e8a6545b93eb8bfd64
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@7da0cb45b4ff1213d1cca120773971aa8468a5c1
+    url: git+https://github.com/MiraGeoscience/simpeg.git@998d6f58198e4aff55a401e8a6545b93eb8bfd64
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.23.0.1.post2.dev96+mira.g7da0cb45b
+  version: 0.23.0.1.post2.dev99+mira.g998d6f581
   manager: pip
   platform: win-64
   dependencies:
@@ -10204,11 +10204,11 @@ package:
     numpy: '>=1.22'
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@7da0cb45b4ff1213d1cca120773971aa8468a5c1
+  url: git+https://github.com/MiraGeoscience/simpeg.git@998d6f58198e4aff55a401e8a6545b93eb8bfd64
   hash:
-    sha256: 7da0cb45b4ff1213d1cca120773971aa8468a5c1
+    sha256: 998d6f58198e4aff55a401e8a6545b93eb8bfd64
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@7da0cb45b4ff1213d1cca120773971aa8468a5c1
+    url: git+https://github.com/MiraGeoscience/simpeg.git@998d6f58198e4aff55a401e8a6545b93eb8bfd64
   category: main
   optional: false
