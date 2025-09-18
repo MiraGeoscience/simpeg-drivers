@@ -98,6 +98,13 @@ class MisfitFactory(SimPEGFactory):
                                 shared_indices=np.hstack(local_indices),
                             )
                         )
+
+                    name = f"{self.params.inversion_type}: Tile {tile_count + 1}"
+                    if channel is not None:
+                        name += f": Channel {channel}"
+
+                    misfits[-1].name = f"{name}"
+
                     tile_count += 1
 
         local_orderings = self.collect_ordering_from_misfits(misfits)

@@ -185,12 +185,6 @@ def create_misfit(
     if not forward_only:
         local_data.dobs = local_sim.survey.dobs
         local_data.standard_deviation = local_sim.survey.std
-        name = inversion_type
-        name += f": Tile {tile_count + 1}"
-        if channel is not None:
-            name += f": Channel {channel}"
-
-        local_misfit.name = f"{name}"
 
     return local_misfit
 
