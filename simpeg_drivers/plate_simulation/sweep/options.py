@@ -64,6 +64,19 @@ class SweepOptions(Options):
     sweeps: list[ParamSweep]
     workdir: Path | None = None
 
+    @field_serializer("sweeps")
+    def sweeps_to_params(self, sweeps):
+        out = {}
+        for sweep in sweeps:
+            if sweep.count < 2:
+                out[f"{sweep.name}_start"] = sweep.start
+                continue
+            for key, value in sweep.model_dump().items():
+                if key == "name":
+                    continue
+                out[f"{sweep.name}_{key}"] = value
+        return out
+
     @field_serializer("workdir")
     def workdir_to_string(self, workdir):
         return str(workdir)
