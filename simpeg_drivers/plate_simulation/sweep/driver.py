@@ -41,38 +41,6 @@ class PlateSweepDriver(Driver):
 
         self._out_group = self.validate_out_group(self.params.out_group)
 
-    @classmethod
-    def start(cls, filepath: str | Path, mode="r", **kwargs) -> Driver:
-        """Start the parameter sweep from a ui.json file."""
-        _ = kwargs
-        logger.info("Loading input file . . .")
-        filepath = Path(filepath).resolve()
-        uijson = PlateSweepUIJson.read(filepath)
-
-        with Workspace(uijson.geoh5, mode=mode) as workspace:
-            try:
-                options = SweepOptions.build(uijson.to_params(workspace=workspace))
-                logger.info("Initializing application . . .")
-                driver = cls(options)
-                logger.info("Running application . . .")
-                driver.run()
-                logger.info("Results saved to %s", options.geoh5.h5file)
-
-            except GeoAppsError as error:
-                logger.warning("\n\nApplicationError: %s\n\n", error)
-                sys.exit(1)
-
-        return driver
-
-    def run(self):
-        """Loop over all trials and run a worker for each unique parameter set."""
-
-        for kwargs in self.params.trials:
-            uid = SweepOptions.uuid_from_params(kwargs.values())
-            PlateSweepDriver.run_worker(
-                uid, kwargs, self.workspace.h5file, self.params.workdir
-            )
-
     @property
     def out_group(self) -> SimPEGGroup:
         """
@@ -101,6 +69,45 @@ class PlateSweepDriver(Driver):
 
         return out_group
 
+    @classmethod
+    def start(cls, filepath: str | Path, mode="r", **kwargs) -> Driver:
+        """Start the parameter sweep from a ui.json file."""
+        _ = kwargs
+        logger.info("Loading input file . . .")
+        filepath = Path(filepath).resolve()
+        uijson = PlateSweepUIJson.read(filepath)
+
+        with Workspace(uijson.geoh5, mode=mode) as workspace:
+            try:
+                options = SweepOptions.build(uijson.to_params(workspace=workspace))
+                logger.info("Initializing application . . .")
+                driver = cls(options)
+                logger.info("Running application . . .")
+                driver.run()
+                logger.info("Results saved to %s", options.geoh5.h5file)
+
+            except GeoAppsError as error:
+                logger.warning("\n\nApplicationError: %s\n\n", error)
+                sys.exit(1)
+
+        return driver
+
+    def run(self):
+        """Loop over all trials and run a worker for each unique parameter set."""
+
+        trials = self.params.trials
+        logger.info(
+            "Running %d trials of %s . . .",
+            len(trials),
+            self.params.template.options["title"],
+        )
+        for kwargs in trials:
+            uid = SweepOptions.uuid_from_params(kwargs)
+            kwargs.update({"out_group": str(self.out_group.uid)})
+            PlateSweepDriver.run_worker(
+                uid, kwargs, self.workspace.h5file, self.params.workdir
+            )
+
     @staticmethod
     def run_worker(uid: str, data: dict, h5file: Path, workdir: Path | None):
         if workdir is None:
@@ -108,6 +115,7 @@ class PlateSweepDriver(Driver):
 
         workerfile = workdir / f"{uid}.geoh5"
         if workerfile.exists():
+            logger.info("Skipping trial %s, since the file already exists.", uid)
             return
 
         shutil.copy(h5file, workerfile)

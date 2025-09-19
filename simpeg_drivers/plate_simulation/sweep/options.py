@@ -138,7 +138,7 @@ class SweepOptions(Options):
         return [dict(zip(names, i, strict=True)) for i in iterations]
 
     @staticmethod
-    def uuid_from_params(params: tuple) -> str:
+    def uuid_from_params(params: dict) -> str:
         """
         Create a deterministic uuid.
 
@@ -146,4 +146,5 @@ class SweepOptions(Options):
 
         :returns: Unique but recoverable uuid file identifier string.
         """
-        return str(uuid.uuid5(uuid.NAMESPACE_DNS, str(hash(params))))
+        param_string = ",".join([f"{k}:{params[k]}" for k in sorted(params)])
+        return str(uuid.uuid5(uuid.NAMESPACE_DNS, param_string))

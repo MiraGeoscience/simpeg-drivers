@@ -37,6 +37,7 @@ def setup_plate_sweep(workspace) -> SimPEGGroup:
     options_dict["geoh5"] = str(workspace.h5file)
     options_dict["topography_object"]["value"] = str(topo.uid)
     options_dict["data_object"]["value"] = str(data.uid)
+    options_dict["out_group"]["value"] = str(gravity.uid)
     gravity.options = options_dict
 
     simulation = SimPEGGroup.create(workspace, name="plate simulation")
@@ -62,6 +63,7 @@ def setup_plate_sweep(workspace) -> SimPEGGroup:
     options_dict["elevation"]["value"] = -250.0
     options_dict["reference_surface"]["value"] = "topography"
     options_dict["reference_type"]["value"] = "mean"
+    options_dict["out_group"]["value"] = str(simulation.uid)
     simulation.options = options_dict
 
     return simulation
