@@ -36,8 +36,8 @@ class ParamSweep(BaseModel):
 
     name: str
     start: float
-    stop: float
-    count: int
+    stop: float | None
+    count: int | None
 
     def __call__(self) -> tuple[float, float, int]:
         return (self.start, self.stop, self.count)
@@ -68,7 +68,7 @@ class SweepOptions(Options):
     def sweeps_to_params(self, sweeps):
         out = {}
         for sweep in sweeps:
-            if sweep.count < 2:
+            if sweep.stop is not None and sweep.count < 2:
                 out[f"{sweep.name}_start"] = sweep.start
                 continue
             for key, value in sweep.model_dump().items():
@@ -110,7 +110,14 @@ class SweepOptions(Options):
 
         sweep_params = [k.removesuffix("_start") for k in options if "_start" in k]
         options["sweeps"] = [collect_sweep(param) for param in sweep_params]
-        options["workdir"] = options["workdir"][0] if options.get("workdir") else None
+        workdir = options["workdir"]
+        if isinstance(workdir, str):
+            options["workdir"] = Path(workdir)
+        if isinstance(workdir, list):
+            if len(workdir) == 0:
+                options["workdir"] = None
+            else:
+                options["workdir"] = Path(workdir[0])
 
         try:
             out = cls(**options)

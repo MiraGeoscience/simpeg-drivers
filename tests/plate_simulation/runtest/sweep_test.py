@@ -17,6 +17,7 @@ from geoh5py.ui_json import InputFile
 from simpeg_drivers import assets_path
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
 from simpeg_drivers.plate_simulation.sweep.driver import PlateSweepDriver
+from simpeg_drivers.plate_simulation.sweep.options import SweepOptions
 from simpeg_drivers.potential_fields.gravity.options import GravityForwardOptions
 from simpeg_drivers.utils.synthetics.options import SurveyOptions
 from simpeg_drivers.utils.synthetics.surveys.factory import get_survey
@@ -80,7 +81,7 @@ def test_sweep(tmp_path):
             assets_path() / "uijson" / "plate_sweep.ui.json", validate=False
         )
         ifile.data["name"] = "test_gravity_plate_simulation"
-        ifile.data["geoh5"] = str(ws.h5file)
+        ifile.data["geoh5"] = ws
         ifile.data["template"] = str(plate_simulation.uid)
         ifile.data["workdir"] = str(workdir)
         ifile.data["background_start"] = 0.0
@@ -95,3 +96,16 @@ def test_sweep(tmp_path):
 
         ifile.write_ui_json(name="plate_sweep.ui.json", path=tmp_path)
     PlateSweepDriver.start(tmp_path / "plate_sweep.ui.json")
+
+    with Workspace(tmp_path / "test.geoh5"):
+        ifile = InputFile.read_ui_json(tmp_path / "plate_sweep.ui.json")
+        options = SweepOptions.build(ifile)
+        sweeps = options.sweeps.copy()
+        sweeps[3].count = 3  # change plate count to 3
+        options = options.model_copy(update={"sweeps": sweeps, "_input_file": None})
+        options.write_ui_json(path=tmp_path / "plate_sweep_modified.ui.json")
+
+    PlateSweepDriver.start(tmp_path / "plate_sweep_modified.ui.json")
+
+    n = len(list(workdir.glob("*.ui.json")))
+    assert n == 7  # 7 trials and one for octree.
