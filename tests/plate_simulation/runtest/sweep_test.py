@@ -99,11 +99,8 @@ def test_sweep(tmp_path):
 
     with Workspace(tmp_path / "test.geoh5"):
         ifile = InputFile.read_ui_json(tmp_path / "plate_sweep.ui.json")
-        options = SweepOptions.build(ifile)
-        sweeps = options.sweeps.copy()
-        sweeps[3].count = 3  # change plate count to 3
-        options = options.model_copy(update={"sweeps": sweeps, "_input_file": None})
-        options.write_ui_json(path=tmp_path / "plate_sweep_modified.ui.json")
+        ifile.set_data_value("background_count", 3)
+        ifile.write_ui_json(path=tmp_path, name="plate_sweep_modified.ui.json")
 
     PlateSweepDriver.start(tmp_path / "plate_sweep_modified.ui.json")
 
