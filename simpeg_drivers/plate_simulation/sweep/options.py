@@ -16,7 +16,7 @@ from typing import ClassVar
 import numpy as np
 from geoapps_utils.base import Options
 from geoapps_utils.utils.importing import GeoAppsError
-from geoh5py.groups import SimPEGGroup
+from geoh5py.groups import SimPEGGroup, UIJsonGroup
 from geoh5py.ui_json import InputFile
 from pydantic import BaseModel, ValidationError, field_serializer
 from typing_extensions import Self
@@ -60,7 +60,7 @@ class SweepOptions(Options):
     title: ClassVar[str] = "Plate Sweep"
     run_command: ClassVar[str] = "simpeg_drivers.plate_simulation.sweep.driver"
     out_group: SimPEGGroup | None = None
-    template: SimPEGGroup
+    template: SimPEGGroup | UIJsonGroup
     sweeps: list[ParamSweep]
     workdir: Path | None = None
 

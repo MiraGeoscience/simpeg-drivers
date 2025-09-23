@@ -16,7 +16,7 @@ from geoapps_utils.base import Driver
 from geoapps_utils.utils.importing import GeoAppsError
 from geoapps_utils.utils.logger import get_logger
 from geoh5py import Workspace
-from geoh5py.groups import SimPEGGroup
+from geoh5py.groups import SimPEGGroup, UIJsonGroup
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json.input_file import InputFile
 from geoh5py.ui_json.utils import demote
@@ -123,7 +123,7 @@ class PlateSweepDriver(Driver):
             plate_simulation = next(
                 group
                 for group in worker.groups
-                if isinstance(group, SimPEGGroup)
+                if isinstance(group, SimPEGGroup | UIJsonGroup)
                 and "plate_simulation.driver" in group.options.get("run_command")
             )
 
