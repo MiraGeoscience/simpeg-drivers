@@ -18,7 +18,7 @@ from geoapps_utils.base import Options
 from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
 from geoh5py.ui_json import InputFile
-from pydantic import BaseModel, ValidationError, field_serializer
+from pydantic import BaseModel, ConfigDict, ValidationError, field_serializer
 from typing_extensions import Self
 
 from simpeg_drivers import assets_path
@@ -54,6 +54,8 @@ class SweepOptions(Options):
     :param sweeps:  Sweep parameters to be combined to create a series of trials run
         by the template application.
     """
+
+    model_config = ConfigDict(frozen=False, arbitrary_types_allowed=True)
 
     name: ClassVar[str] = "plate_sweep"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/plate_sweep.ui.json"

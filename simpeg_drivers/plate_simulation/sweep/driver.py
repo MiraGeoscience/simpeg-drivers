@@ -8,18 +8,24 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
+import contextlib
+import cProfile
+import pstats
 import shutil
 import sys
+import uuid
 from pathlib import Path
 
+import numpy as np
+from dask.distributed import Client, LocalCluster, get_client, performance_report
 from geoapps_utils.base import Driver
+from geoapps_utils.run import load_ui_json
 from geoapps_utils.utils.importing import GeoAppsError
 from geoapps_utils.utils.logger import get_logger
 from geoh5py import Workspace
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
-from geoh5py.shared.utils import fetch_active_workspace
+from geoh5py.shared.utils import fetch_active_workspace, stringify
 from geoh5py.ui_json.input_file import InputFile
-from geoh5py.ui_json.utils import demote
 
 from simpeg_drivers.plate_simulation.driver import PlateSimulationDriver
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
@@ -39,7 +45,9 @@ class PlateSweepDriver(Driver):
     def __init__(self, params: SweepOptions):
         super().__init__(params)
 
-        self._out_group = self.validate_out_group(self.params.out_group)
+        self._client: Client | bool | None = None
+        self._workers: list[str] | None = None
+        self.out_group = self.validate_out_group(self.params.out_group)
 
     @property
     def out_group(self) -> SimPEGGroup:
@@ -47,6 +55,17 @@ class PlateSweepDriver(Driver):
         Returns the output group for the simulation.
         """
         return self._out_group
+
+    @out_group.setter
+    def out_group(self, value: SimPEGGroup):
+        if not isinstance(value, SimPEGGroup):
+            raise TypeError("Output group must be a SimPEGGroup.")
+
+        if self.params.out_group != value:
+            self.params.out_group = value
+            self.params.update_out_group_options()
+
+        self._out_group = value
 
     def validate_out_group(self, out_group: SimPEGGroup | None) -> SimPEGGroup:
         """
@@ -60,12 +79,9 @@ class PlateSweepDriver(Driver):
         with fetch_active_workspace(self.params.geoh5, mode="r+"):
             out_group = SimPEGGroup.create(
                 self.params.geoh5,
-                name="Plate Sweep",
+                name=self.params.title,
             )
-            out_group.entity_type.name = "Plate Sweep"
-            self.params = self.params.model_copy(update={"out_group": out_group})
-            out_group.options = demote(self.params.input_file.ui_json)
-            out_group.metadata = None
+            out_group.entity_type.name = self.params.title
 
         return out_group
 
@@ -101,12 +117,37 @@ class PlateSweepDriver(Driver):
             len(trials),
             self.params.template.options["title"],
         )
-        for kwargs in trials:
-            uid = SweepOptions.uuid_from_params(kwargs)
-            kwargs.update({"out_group": str(self.out_group.uid)})
-            PlateSweepDriver.run_worker(
-                uid, kwargs, self.workspace.h5file, self.params.workdir
-            )
+
+        use_futures = self.client
+
+        if use_futures:
+            blocks = np.array_split(trials, len(self.workers))
+        else:
+            blocks = trials
+
+        futures = []
+        for block in blocks:
+            if use_futures:
+                futures.append(
+                    self.client.submit(
+                        trial_runs,
+                        block,
+                        self.params.geoh5.h5file,
+                        self.params.workdir,
+                        self.out_group.uid,
+                    )
+                )
+
+            else:
+                trial_runs(
+                    [block],
+                    self.params.geoh5.h5file,
+                    self.params.workdir,
+                    self.out_group.uid,
+                )
+
+        if use_futures:
+            _ = self.client.gather(futures)
 
     @staticmethod
     def run_worker(uid: str, data: dict, h5file: Path, workdir: Path | None):
@@ -136,7 +177,76 @@ class PlateSweepDriver(Driver):
             options.write_ui_json(workdir / f"{uid}.ui.json")
             PlateSimulationDriver.start(workdir / f"{uid}.ui.json")
 
+    @property
+    def client(self) -> Client | bool | None:
+        if self._client is None:
+            try:
+                self._client = get_client()
+            except ValueError:
+                self._client = False
+
+        return self._client
+
+    @property
+    def workers(self):
+        """List of workers"""
+        if self._workers is None:
+            if self.client:
+                self._workers = [
+                    (worker.worker_address,)
+                    for worker in self.client.cluster.workers.values()
+                ]
+            else:
+                self._workers = []
+        return self._workers
+
+
+def trial_runs(
+    trials: list[dict], h5file: Path, workdir: Path | None, out_group_id: uuid.UUID
+):
+    """
+    Loop through a list of trials and run a worker for each unique parameter set.
+    """
+    for kwargs in trials:
+        uid = SweepOptions.uuid_from_params(kwargs)
+        kwargs.update({"out_group": str(out_group_id)})
+        PlateSweepDriver.run_worker(uid, kwargs, h5file, workdir)
+
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
-    PlateSweepDriver.start(file)
+    file = Path(r"C:\Users\dominiquef\Desktop\Tests\GEOPY-2466.ui.json").resolve()
+
+    input_file = load_ui_json(file)
+    n_workers = input_file.get("n_workers", None)
+    n_threads = input_file.get("n_threads", None)
+    save_report = input_file.get("performance_report", False)
+
+    cluster = (
+        LocalCluster(processes=True, n_workers=n_workers, threads_per_worker=n_threads)
+        if ((n_workers is not None and n_workers > 1) or n_threads is not None)
+        else None
+    )
+    profiler = cProfile.Profile()
+    profiler.enable()
+
+    with (
+        cluster.get_client()
+        if cluster is not None
+        else contextlib.nullcontext() as client
+    ):
+        # Full run
+        with (
+            performance_report(filename=file.parent / "dask_profile.html")
+            if (save_report and isinstance(client, Client))
+            else contextlib.nullcontext()
+        ):
+            PlateSweepDriver.start(file)
+            sys.stdout.close()
+
+    profiler.disable()
+
+    if save_report:
+        with open(file.parent / "runtime_profile.txt", encoding="utf-8", mode="w") as s:
+            ps = pstats.Stats(profiler, stream=s)
+            ps.sort_stats("cumulative")
+            ps.print_stats()
