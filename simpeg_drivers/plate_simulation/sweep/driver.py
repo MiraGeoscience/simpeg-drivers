@@ -70,9 +70,8 @@ class PlateSweepDriver(Driver):
         return out_group
 
     @classmethod
-    def start(cls, filepath: str | Path, mode="r", **kwargs) -> Driver:
+    def start(cls, filepath: str | Path, mode="r", **_) -> Driver:
         """Start the parameter sweep from a ui.json file."""
-        _ = kwargs
         logger.info("Loading input file . . .")
         filepath = Path(filepath).resolve()
         uijson = PlateSweepUIJson.read(filepath)
