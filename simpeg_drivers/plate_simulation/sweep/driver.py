@@ -19,7 +19,6 @@ from geoh5py import Workspace
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json.input_file import InputFile
-from geoh5py.ui_json.utils import demote
 
 from simpeg_drivers.plate_simulation.driver import PlateSimulationDriver
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
