@@ -60,9 +60,9 @@ class PlateSweepDriver(Driver):
         with fetch_active_workspace(self.params.geoh5, mode="r+"):
             out_group = SimPEGGroup.create(
                 self.params.geoh5,
-                name="Plate Sweep",
+                name=self.params.title,
             )
-            out_group.entity_type.name = "Plate Sweep"
+            out_group.entity_type.name = self.params.title
             self.params = self.params.model_copy(update={"out_group": out_group})
             out_group.options = demote(self.params.input_file.ui_json)
             out_group.metadata = None
