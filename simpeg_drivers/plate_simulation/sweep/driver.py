@@ -64,7 +64,7 @@ class PlateSweepDriver(Driver):
             )
             out_group.entity_type.name = self.params.title
             self.params = self.params.model_copy(update={"out_group": out_group})
-            out_group.options = demote(self.params.input_file.ui_json)
+            out_group.options = self.params.serialize()
             out_group.metadata = None
 
         return out_group
