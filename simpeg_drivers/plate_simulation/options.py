@@ -12,7 +12,7 @@ from copy import deepcopy
 from pathlib import Path
 from typing import ClassVar
 
-from geoapps_utils.driver.data import BaseData
+from geoapps_utils.base import Options
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
 from geoh5py.objects import ObjectBase, Points, Surface
 from geoh5py.ui_json import InputFile
@@ -111,7 +111,7 @@ class MeshOptions(BaseModel):
         return octree_params
 
 
-class PlateSimulationOptions(BaseData):
+class PlateSimulationOptions(Options):
     """
     Parameters for the plate simulation driver.
 

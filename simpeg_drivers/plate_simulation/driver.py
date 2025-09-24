@@ -14,8 +14,8 @@ import sys
 from pathlib import Path
 
 import numpy as np
+from dask.distributed import Client
 from geoapps_utils.base import Driver, get_logger
-from geoapps_utils.param_sweeps.generate import generate
 from geoapps_utils.utils.transformations import azimuth_to_unit_vector
 from geoh5py.data import FloatData, ReferencedData
 from geoh5py.groups import UIJsonGroup
@@ -24,7 +24,7 @@ from geoh5py.shared.utils import fetch_active_workspace, stringify
 from geoh5py.ui_json import InputFile, monitored_directory_copy
 from grid_apps.octree_creation.driver import OctreeDriver
 
-from simpeg_drivers.driver import InversionDriver, InversionLogger
+from simpeg_drivers.driver import BaseDriver, InversionDriver
 from simpeg_drivers.options import BaseForwardOptions
 from simpeg_drivers.plate_simulation.models.events import Anomaly, Erosion, Overburden
 from simpeg_drivers.plate_simulation.models.parametric import Plate
@@ -35,7 +35,7 @@ from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
 logger = get_logger(__name__, propagate=False)
 
 
-class PlateSimulationDriver(Driver):
+class PlateSimulationDriver(BaseDriver):
     """
     Driver for simulating background + plate + overburden model.
 
@@ -49,8 +49,13 @@ class PlateSimulationDriver(Driver):
 
     _params_class = PlateSimulationOptions
 
-    def __init__(self, params: PlateSimulationOptions):
-        super().__init__(params)
+    def __init__(
+        self,
+        params: PlateSimulationOptions,
+        client: Client | bool | None = None,
+        workers: list[tuple[str]] | None = None,
+    ):
+        super().__init__(params, client=client, workers=workers)
 
         self._plates: list[Plate] | None = None
         self._survey: Points | None = None
@@ -128,7 +133,9 @@ class PlateSimulationDriver(Driver):
                 driver_class = InversionDriver.driver_class_from_name(
                     self.simulation_parameters.inversion_type, forward_only=True
                 )
-                self._simulation_driver = driver_class(self.simulation_parameters)
+                self._simulation_driver = driver_class(
+                    self.simulation_parameters, client=self.client
+                )
                 self._simulation_driver.out_group.parent = self.out_group
 
         return self._simulation_driver
@@ -312,18 +319,6 @@ class PlateSimulationDriver(Driver):
 
         if ifile.data is None:  # type: ignore
             raise ValueError("Input file has no data loaded.")
-
-        generate_sweep = ifile.data["generate_sweep"]  # type: ignore
-        if generate_sweep:
-            filepath = Path(ifile.path_name)  # type: ignore
-            ifile.data["generate_sweep"] = False  # type: ignore
-            name = filepath.name
-            path = filepath.parent
-            ifile.write_ui_json(name=name, path=path)  # type: ignore
-            generate(  # pylint: disable=unexpected-keyword-arg
-                str(filepath), update_values={"conda_environment": "plate_simulation"}
-            )
-            return None
 
         with ifile.geoh5.open(mode="r+"):  # type: ignore
             params = PlateSimulationOptions.build(ifile)

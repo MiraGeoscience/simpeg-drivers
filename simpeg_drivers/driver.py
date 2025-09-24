@@ -31,7 +31,7 @@ from dask import config as dconf
 
 from dask.distributed import get_client, Client, LocalCluster, performance_report
 
-from geoapps_utils.base import Driver
+from geoapps_utils.base import Driver, Options
 from geoapps_utils.utils.importing import GeoAppsError
 from geoapps_utils.param_sweeps.driver import SweepParams
 
@@ -87,12 +87,86 @@ mlogger.setLevel(logging.WARNING)
 logger = logging.getLogger("simpeg-drivers")
 
 
-class InversionDriver(Driver):
+class BaseDriver(Driver):
+    """
+    Base class for drivers handling the parallel setup.
+    """
+
+    def __init__(
+        self,
+        params: Options,
+        client: Client | bool | None = None,
+        workers: list[str] | None = None,
+    ):
+        super().__init__(params)
+        self._client: Client | bool = self.validate_client(client)
+        self._workers: list[tuple[str]] | None = self.validate_workers(workers)
+
+    @property
+    def client(self) -> Client | bool | None:
+        """
+        Dask client or False if not using Dask.distributed.
+        """
+        return self._client
+
+    @property
+    def workers(self) -> list[tuple[str]]:
+        """List of workers stored as a list of tuples."""
+        return self._workers
+
+    def validate_client(self, client: Client | bool | None) -> Client | bool:
+        """
+        Validate or create a Dask client.
+        """
+        if client is None:
+            try:
+                client = get_client()
+            except ValueError:
+                client = False
+        return client
+
+    def validate_workers(self, workers: list[tuple[str]] | None) -> list[tuple[str]]:
+        """
+        Validate the list of workers.
+        """
+        if self.client and self.client.cluster is not None:
+            available_workers = [
+                (worker.worker_address,)
+                for worker in self.client.cluster.workers.values()
+            ]
+        else:
+            available_workers = []
+
+        if workers is None:
+            return available_workers
+
+        if not isinstance(workers, list) or not all(
+            isinstance(w, tuple) for w in workers
+        ):
+            raise TypeError("Workers must be a list of tuple[str].")
+
+        if self.client and self.client.cluster is not None:
+            invalid_workers = [w for w in workers if w not in available_workers]
+            if invalid_workers:
+                raise ValueError(
+                    f"The following workers are not available: {invalid_workers}. "
+                    f"Available workers are: {available_workers}."
+                )
+
+        return workers
+
+
+class InversionDriver(BaseDriver):
     _options_class = BaseForwardOptions | BaseInversionOptions
     _inversion_type: str | None = None
 
-    def __init__(self, params: BaseForwardOptions | BaseInversionOptions):
-        super().__init__(params)
+    def __init__(
+        self,
+        params: BaseForwardOptions | BaseInversionOptions,
+        client: Client | bool | None = None,
+        workers: list[tuple[str]] | None = None,
+    ):
+        super().__init__(params, client=client, workers=workers)
 
         self.inversion_type = self.params.inversion_type
         self.out_group = self.validate_out_group(self.params.out_group)
@@ -114,31 +188,6 @@ class InversionDriver(Driver):
         self._ordering: list[np.ndarray] | None = None
         self._mappings: list[maps.IdentityMap] | None = None
         self._window = None
-        self._client: Client | bool | None = None
-        self._workers: list[str] | None = None
-
-    @property
-    def client(self) -> Client | bool | None:
-        if self._client is None:
-            try:
-                self._client = get_client()
-            except ValueError:
-                self._client = False
-
-        return self._client
-
-    @property
-    def workers(self):
-        """List of workers"""
-        if self._workers is None:
-            if self.client:
-                self._workers = [
-                    (worker.worker_address,)
-                    for worker in self.client.cluster.workers.values()
-                ]
-            else:
-                self._workers = []
-        return self._workers
 
     def split_list(self, tiles: list[np.ndarray]) -> list[np.ndarray]:
         """
