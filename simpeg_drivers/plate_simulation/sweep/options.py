@@ -61,6 +61,8 @@ class SweepOptions(Options):
     title: ClassVar[str] = "Plate Sweep"
     run_command: ClassVar[str] = "simpeg_drivers.plate_simulation.sweep.driver"
     out_group: SimPEGGroup | None = None
+    forward_only: bool = True
+    inversion_type: str = "plate sweep"
     template: SimPEGGroup | UIJsonGroup
     sweeps: list[ParamSweep]
     workdir: Path | None = None
@@ -119,8 +121,10 @@ class SweepOptions(Options):
     @property
     def trials(self) -> list[dict]:
         """Returns a list of parameter combinations to run for each trial."""
-        names = [s.name for s in self.sweeps]
-        iterations = itertools.product(*[np.linspace(*s()) for s in self.sweeps])
+        names = [s.name for s in self.sweeps if all(s())]
+        iterations = itertools.product(
+            *[np.linspace(*s()) for s in self.sweeps if all(s())]
+        )
         return [dict(zip(names, i, strict=True)) for i in iterations]
 
     @staticmethod
