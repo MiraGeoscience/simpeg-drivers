@@ -134,7 +134,7 @@ class PlateSimulationDriver(BaseDriver):
                     self.simulation_parameters.inversion_type, forward_only=True
                 )
                 self._simulation_driver = driver_class(
-                    self.simulation_parameters, client=self.client
+                    self.simulation_parameters, client=self.client, workers=self.workers
                 )
                 self._simulation_driver.out_group.parent = self.out_group
 

@@ -129,11 +129,8 @@ class BaseDriver(Driver):
         """
         Validate the list of workers.
         """
-        if self.client and self.client.cluster is not None:
-            available_workers = [
-                (worker.worker_address,)
-                for worker in self.client.cluster.workers.values()
-            ]
+        if self.client:
+            available_workers = [(worker,) for worker in self.client.nthreads()]
         else:
             available_workers = []
 
@@ -145,7 +142,7 @@ class BaseDriver(Driver):
         ):
             raise TypeError("Workers must be a list of tuple[str].")
 
-        if self.client and self.client.cluster is not None:
+        if self.client:
             invalid_workers = [w for w in workers if w not in available_workers]
             if invalid_workers:
                 raise ValueError(
@@ -833,12 +830,12 @@ if __name__ == "__main__":
     with (
         cluster.get_client()
         if cluster is not None
-        else contextlib.nullcontext() as client
+        else contextlib.nullcontext() as context_client
     ):
         # Full run
         with (
             performance_report(filename=file.parent / "dask_profile.html")
-            if (save_report and isinstance(client, Client))
+            if (save_report and isinstance(context_client, Client))
             else contextlib.nullcontext()
         ):
             InversionDriver.start(input_file)

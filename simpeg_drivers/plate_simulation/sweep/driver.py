@@ -13,7 +13,6 @@ import cProfile
 import pstats
 import shutil
 import sys
-import uuid
 from pathlib import Path
 
 import numpy as np
@@ -133,7 +132,7 @@ class PlateSweepDriver(BaseDriver):
                         block,
                         self.params.geoh5.h5file,
                         self.params.workdir,
-                        self.out_group.uid,
+                        self.workers[ind],
                         workers=self.workers[ind],
                     )
                 )
@@ -143,20 +142,17 @@ class PlateSweepDriver(BaseDriver):
                     [block],
                     self.params.geoh5.h5file,
                     self.params.workdir,
-                    self.out_group.uid,
                 )
 
         if use_futures:
-            _ = self.client.gather(futures)
+            self.client.gather(futures)
 
     @staticmethod
-    def run_worker(
-        uid: str,
-        data: dict,
-        h5file: Path,
-        workdir: Path | None,
-        workers: list[tuple[str]] | None = None,
+    def run_trial(
+        data: dict, h5file: Path, workdir: Path | None, worker: tuple[str] | None = None
     ):
+        uid = SweepOptions.uuid_from_params(data)
+
         if workdir is None:
             workdir = h5file.parent
 
@@ -176,27 +172,27 @@ class PlateSweepDriver(BaseDriver):
 
             opt_dict = workspace.promote(flatten(plate_simulation.options))
             opt_dict["geoh5"] = workspace
+            opt_dict["out_group"] = None
+            opt_dict.update(data)
             options = PlateSimulationOptions.build(opt_dict)
-            plate_sim = PlateSimulationDriver(options, client=False)
+            plate_sim = PlateSimulationDriver(options, workers=[worker])
             plate_sim.run()
+
+        del plate_sim
+        return None
 
 
 def trial_runs(
     trials: list[dict],
     h5file: Path,
     workdir: Path | None,
-    out_group_id: uuid.UUID,
-    workers: list[tuple[str]] | None = None,
+    worker: tuple[str] | None = None,
 ):
     """
     Loop through a list of trials and run a worker for each unique parameter set.
     """
     for kwargs in trials:
-        uid = SweepOptions.uuid_from_params(kwargs)
-        kwargs.update({"out_group": str(out_group_id)})
-        PlateSweepDriver.run_worker(uid, kwargs, h5file, workdir)
-
-    return None
+        PlateSweepDriver.run_trial(kwargs, h5file, workdir, worker=worker)
 
 
 if __name__ == "__main__":
