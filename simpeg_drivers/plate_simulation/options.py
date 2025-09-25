@@ -128,6 +128,8 @@ class PlateSimulationOptions(Options):
     title: ClassVar[str] = "Plate Simulation"
     run_command: ClassVar[str] = "simpeg_drivers.plate_simulation.driver"
     out_group: SimPEGGroup | UIJsonGroup | None = None
+    forward_only: bool = True
+    inversion_type: str = "plate simulation"
 
     mesh: MeshOptions
     model: ModelOptions

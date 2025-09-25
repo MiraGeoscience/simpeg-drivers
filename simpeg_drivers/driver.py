@@ -154,7 +154,7 @@ class BaseDriver(Driver):
 
 
 class InversionDriver(BaseDriver):
-    _options_class = BaseForwardOptions | BaseInversionOptions
+    _params_class = BaseForwardOptions | BaseInversionOptions
     _inversion_type: str | None = None
 
     def __init__(
@@ -710,7 +710,7 @@ class InversionDriver(BaseDriver):
                 driver = cls.from_input_file(ifile)
             else:
                 with ifile.data["geoh5"].open(mode="r+"):
-                    params = driver_class._options_class.build(ifile)
+                    params = driver_class._params_class.build(ifile)
                     driver = driver_class(params)
 
             driver.run()
@@ -731,16 +731,16 @@ class InversionDriver(BaseDriver):
             raise NotImplementedError(msg)
 
         mod_name, classes = DRIVER_MAP.get(name)
+        class_name = classes.get("inversion")
         if forward_only:
-            class_name = classes.get("forward", classes["inversion"])
-        else:
-            class_name = classes.get("inversion")
+            class_name = classes.get("forward", class_name)
+
         module = __import__(mod_name, fromlist=[class_name])
         return getattr(module, class_name)
 
     @classmethod
     def from_input_file(cls, ifile: InputFile) -> InversionDriver:
-        forward_only = ifile.data["forward_only"]
+        forward_only = ifile.data.get("forward_only", False)
         inversion_type = ifile.ui_json.get("inversion_type", None)
         if inversion_type is None:
             raise GeoAppsError(
@@ -753,7 +753,7 @@ class InversionDriver(BaseDriver):
         )
 
         with ifile.data["geoh5"].open(mode="r+"):
-            params = driver_class._options_class.build(ifile)
+            params = driver_class._params_class.build(ifile)
             driver = driver_class(params)
 
         return driver
@@ -808,7 +808,8 @@ class InversionLogger:
 
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
+    # file = Path(sys.argv[1]).resolve()
+    file = Path(r"C:\Users\dominiquef\Desktop\Tests\GEOPY-2466.ui.json").resolve()
     input_file = InputFile.read_ui_json(file)
     n_workers = input_file.data.get("n_workers", None)
     n_threads = input_file.data.get("n_threads", None)

@@ -8,9 +8,6 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-import contextlib
-import cProfile
-import pstats
 import shutil
 import sys
 from pathlib import Path
@@ -195,39 +192,4 @@ def run_block(
 
 if __name__ == "__main__":
     file = Path(sys.argv[1])
-    # Path(r"C:\Users\dominiquef\Desktop\Tests\GEOPY-2466.ui.json").resolve()
-
-    input_file = load_ui_json_as_dict(file)
-    n_workers = input_file.get("n_workers", None)
-    n_threads = input_file.get("n_threads", None)
-    save_report = input_file.get("performance_report", False)
-
-    cluster = (
-        LocalCluster(processes=True, n_workers=n_workers, threads_per_worker=n_threads)
-        if ((n_workers is not None and n_workers > 1) or n_threads is not None)
-        else None
-    )
-    profiler = cProfile.Profile()
-    profiler.enable()
-
-    with (
-        cluster.get_client()
-        if cluster is not None
-        else contextlib.nullcontext() as client
-    ):
-        # Full run
-        with (
-            performance_report(filename=file.parent / "dask_profile.html")
-            if (save_report and isinstance(client, Client))
-            else contextlib.nullcontext()
-        ):
-            PlateSweepDriver.start(file)
-            sys.stdout.close()
-
-    profiler.disable()
-
-    if save_report:
-        with open(file.parent / "runtime_profile.txt", encoding="utf-8", mode="w") as s:
-            ps = pstats.Stats(profiler, stream=s)
-            ps.sort_stats("cumulative")
-            ps.print_stats()
+    PlateSweepDriver.start(file)

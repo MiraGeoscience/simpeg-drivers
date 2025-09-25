@@ -4,9 +4,11 @@
     "icon": "maxwellplate",
     "documentation": "https://mirageoscience-plate-simulation.readthedocs-hosted.com/en/latest/",
     "conda_environment": "simpeg_drivers",
-    "run_command": "simpeg_drivers.plate_simulation.sweep.driver",
+    "run_command": "simpeg_drivers.driver",
     "geoh5": "",
     "monitoring_directory": "",
+    "inversion_type": "plate sweep",
+    "forward_only": true,
     "template": {
         "main": true,
         "group": "Options",
