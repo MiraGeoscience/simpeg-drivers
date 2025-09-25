@@ -18,7 +18,7 @@ from dask.distributed import Client
 from geoapps_utils.base import Driver, get_logger
 from geoapps_utils.utils.transformations import azimuth_to_unit_vector
 from geoh5py.data import FloatData, ReferencedData
-from geoh5py.groups import UIJsonGroup
+from geoh5py.groups import SimPEGGroup
 from geoh5py.objects import Octree, Points, Surface
 from geoh5py.shared.utils import fetch_active_workspace, stringify
 from geoh5py.ui_json import InputFile, monitored_directory_copy
@@ -87,23 +87,23 @@ class PlateSimulationDriver(BaseDriver):
         return self.simulation_driver
 
     @property
-    def out_group(self) -> UIJsonGroup:
+    def out_group(self) -> SimPEGGroup:
         """
         Returns the output group for the simulation.
         """
         return self._out_group
 
-    def validate_out_group(self, out_group: UIJsonGroup | None) -> UIJsonGroup:
+    def validate_out_group(self, out_group: SimPEGGroup | None) -> SimPEGGroup:
         """
-        Validate or create a UIJsonGroup to store results.
+        Validate or create a SimPEGGroup to store results.
 
-        :param value: Output group from selection.
+        :param out_group: Output group from selection.
         """
-        if isinstance(out_group, UIJsonGroup):
+        if isinstance(out_group, SimPEGGroup):
             return out_group
 
         with fetch_active_workspace(self.params.geoh5, mode="r+"):
-            out_group = UIJsonGroup.create(
+            out_group = SimPEGGroup.create(
                 self.params.geoh5,
                 name="Plate Simulation",
             )

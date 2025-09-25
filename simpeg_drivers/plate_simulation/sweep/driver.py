@@ -16,14 +16,13 @@ import sys
 from pathlib import Path
 
 import numpy as np
-from dask.distributed import Client, LocalCluster, get_client, performance_report
+from dask.distributed import Client, LocalCluster, performance_report
 from geoapps_utils.run import load_ui_json_as_dict
 from geoapps_utils.utils.importing import GeoAppsError
 from geoapps_utils.utils.logger import get_logger
 from geoh5py import Workspace
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
-from geoh5py.shared.utils import fetch_active_workspace, stringify
-from geoh5py.ui_json.input_file import InputFile
+from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json.utils import flatten
 
 from simpeg_drivers.driver import BaseDriver
@@ -196,7 +195,8 @@ def trial_runs(
 
 
 if __name__ == "__main__":
-    file = Path(r"C:\Users\dominiquef\Desktop\Tests\GEOPY-2466.ui.json").resolve()
+    file = Path(sys.argv[1])
+    # Path(r"C:\Users\dominiquef\Desktop\Tests\GEOPY-2466.ui.json").resolve()
 
     input_file = load_ui_json_as_dict(file)
     n_workers = input_file.get("n_workers", None)
