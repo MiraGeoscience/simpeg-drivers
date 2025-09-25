@@ -127,11 +127,11 @@ class PlateSimulationOptions(BaseData):
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/plate_simulation.ui.json"
     title: ClassVar[str] = "Plate Simulation"
     run_command: ClassVar[str] = "simpeg_drivers.plate_simulation.driver"
-    out_group: UIJsonGroup | None = None
+    out_group: SimPEGGroup | UIJsonGroup | None = None
 
     mesh: MeshOptions
     model: ModelOptions
-    simulation: SimPEGGroup
+    simulation: SimPEGGroup | UIJsonGroup
 
     def simulation_parameters(self) -> BaseForwardOptions:
         """
