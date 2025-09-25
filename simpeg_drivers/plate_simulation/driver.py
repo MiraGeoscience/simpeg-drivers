@@ -307,24 +307,6 @@ class PlateSimulationDriver(BaseDriver):
             plates.append(new)
         return plates
 
-    @staticmethod
-    def start(ifile: str | Path | InputFile):
-        """Run the plate simulation driver from an input file."""
-
-        if isinstance(ifile, str):
-            ifile = Path(ifile)
-
-        if isinstance(ifile, Path):
-            ifile = InputFile.read_ui_json(ifile)
-
-        if ifile.data is None:  # type: ignore
-            raise ValueError("Input file has no data loaded.")
-
-        with ifile.geoh5.open(mode="r+"):  # type: ignore
-            params = PlateSimulationOptions.build(ifile)
-
-            return PlateSimulationDriver(params).run()
-
 
 if __name__ == "__main__":
     file = Path(sys.argv[1])

@@ -32,6 +32,7 @@ from dask import config as dconf
 from dask.distributed import get_client, Client, LocalCluster, performance_report
 
 from geoapps_utils.base import Driver, Options
+from geoapps_utils.run import load_ui_json_as_dict
 from geoapps_utils.utils.importing import GeoAppsError
 from geoapps_utils.param_sweeps.driver import SweepParams
 
@@ -688,36 +689,16 @@ class InversionDriver(BaseDriver):
             dconf.set(scheduler="threads", pool=ThreadPool(n_cpu))
 
     @classmethod
-    def start(
-        cls, filepath: str | Path | InputFile, driver_class=None, **kwargs
-    ) -> InversionDriver:
+    def start(cls, filepath: str | Path | InputFile, **kwargs) -> BaseDriver:
         """
         Start the inversion driver.
 
         :param filepath: Path to the input file or InputFile object.
-        :param driver_class: Optional driver class to use instead of the default.
         :param kwargs: Additional keyword arguments for InputFile read_ui_json.
 
         :return: InversionDriver instance with the specified parameters.
         """
-        if isinstance(filepath, InputFile):
-            ifile = filepath
-        else:
-            ifile = InputFile.read_ui_json(filepath, **kwargs)
-
-        try:
-            if driver_class is None:
-                driver = cls.from_input_file(ifile)
-            else:
-                with ifile.data["geoh5"].open(mode="r+"):
-                    params = driver_class._params_class.build(ifile)
-                    driver = driver_class(params)
-
-            driver.run()
-
-        except GeoAppsError as error:
-            logger.warning("\n\nApplicationError: %s\n\n", error)
-            sys.exit(1)
+        driver = super().start(filepath, **kwargs)
 
         return driver
 
@@ -739,24 +720,16 @@ class InversionDriver(BaseDriver):
         return getattr(module, class_name)
 
     @classmethod
-    def from_input_file(cls, ifile: InputFile) -> InversionDriver:
-        forward_only = ifile.data.get("forward_only", False)
-        inversion_type = ifile.ui_json.get("inversion_type", None)
+    def from_input_file(cls, data: dict) -> type[InversionDriver]:
+        forward_only = data.get("forward_only", False)
+        inversion_type = data.get("inversion_type", "")
         if inversion_type is None:
             raise GeoAppsError(
                 "Key/value 'inversion_type' not found in the input file. "
                 "Please specify the inversion type in the UI JSON."
             )
 
-        driver_class = cls.driver_class_from_name(
-            inversion_type, forward_only=forward_only
-        )
-
-        with ifile.data["geoh5"].open(mode="r+"):
-            params = driver_class._params_class.build(ifile)
-            driver = driver_class(params)
-
-        return driver
+        return cls.driver_class_from_name(inversion_type, forward_only=forward_only)
 
 
 class InversionLogger:
@@ -810,13 +783,15 @@ class InversionLogger:
 if __name__ == "__main__":
     # file = Path(sys.argv[1]).resolve()
     file = Path(r"C:\Users\dominiquef\Desktop\Tests\GEOPY-2466.ui.json").resolve()
-    input_file = InputFile.read_ui_json(file)
-    n_workers = input_file.data.get("n_workers", None)
-    n_threads = input_file.data.get("n_threads", None)
-    save_report = input_file.data.get("performance_report", False)
+    input_file = load_ui_json_as_dict(file)
+    n_workers = input_file.get("n_workers", None)
+    n_threads = input_file.get("n_threads", None)
+    save_report = input_file.get("performance_report", False)
+
+    driver_class = InversionDriver.from_input_file(input_file)
 
     # Force distributed on 1D problems
-    if "1D" in input_file.data["title"] and n_workers is None:
+    if "1D" in input_file.get("title") and n_workers is None:
         n_threads = n_threads or 2
         n_workers = multiprocessing.cpu_count() // n_threads
 
@@ -839,7 +814,7 @@ if __name__ == "__main__":
             if (save_report and isinstance(context_client, Client))
             else contextlib.nullcontext()
         ):
-            InversionDriver.start(input_file)
+            driver_class.start(file)
             sys.stdout.close()
 
     profiler.disable()
