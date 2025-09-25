@@ -15,7 +15,6 @@ from typing import ClassVar
 
 import numpy as np
 from geoapps_utils.base import Options
-from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
 from geoh5py.ui_json import InputFile
 from pydantic import BaseModel, ConfigDict, ValidationError, field_serializer
@@ -83,31 +82,25 @@ class SweepOptions(Options):
     def workdir_to_string(self, workdir):
         return str(workdir)
 
-    @classmethod
-    def build(cls, input_data: InputFile | dict | None = None, **kwargs) -> Self:
+    @staticmethod
+    def collect_input_from_dict(model: type[BaseModel], data: dict):
         """
-        Build a dataclass from a dictionary or InputFile.
+        Recursively replace BaseModel objects with nested dictionary of 'data' values.
 
-        :param input_data: Dictionary of parameters and values.
+        Also collects sweep parameters into a list of ParamSweep objects.
 
-        :return: Dataclass of application parameters.
+        :param base_model: BaseModel object to structure data for.
+        :param data: Flat dictionary of parameters and values without nesting structure
+            and with sweep parameters collected into list.
         """
-        data = input_data or {}
-        if isinstance(input_data, InputFile) and input_data.data is not None:
-            data = input_data.data.copy()
-
-        if not isinstance(data, dict):
-            raise TypeError("Input data must be a dictionary or InputFile.")
-
-        data.update(kwargs)
-        options = Options.collect_input_from_dict(cls, data)  # type: ignore
+        options = Options.collect_input_from_dict(model, data)
 
         def collect_sweep(param: str) -> dict:
             return {
                 "name": param,
-                "start": options.get(f"{param}_start"),
-                "stop": options.get(f"{param}_stop"),
-                "count": options.get(f"{param}_count"),
+                "start": options.pop(f"{param}_start"),
+                "stop": options.pop(f"{param}_stop"),
+                "count": options.pop(f"{param}_count"),
             }
 
         sweep_params = [k.removesuffix("_start") for k in options if "_start" in k]
@@ -121,23 +114,7 @@ class SweepOptions(Options):
             else:
                 options["workdir"] = Path(workdir[0])
 
-        try:
-            out = cls(**options)
-        except ValidationError as errors:
-            summary = "\n - ".join(
-                f"{'.'.join(str(loc) for loc in error['loc'])}: "
-                f"{error['msg']} for value -> {error['input']}"
-                for error in errors.errors()
-            )
-
-            raise GeoAppsError(
-                f"Invalid input data for {cls.__name__}:\n - {summary}"
-            ) from errors
-
-        if isinstance(input_data, InputFile):
-            out._input_file = input_data
-
-        return out
+        return options
 
     @property
     def trials(self) -> list[dict]:

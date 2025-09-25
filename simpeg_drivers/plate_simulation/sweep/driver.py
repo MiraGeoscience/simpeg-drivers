@@ -83,9 +83,8 @@ class PlateSweepDriver(BaseDriver):
         return out_group
 
     @classmethod
-    def start(cls, filepath: str | Path, mode="r", **kwargs) -> BaseDriver:
+    def start(cls, filepath: str | Path, mode="r", **_) -> BaseDriver:
         """Start the parameter sweep from a ui.json file."""
-        _ = kwargs
         logger.info("Loading input file . . .")
         filepath = Path(filepath).resolve()
         uijson = PlateSweepUIJson.read(filepath)
@@ -127,7 +126,7 @@ class PlateSweepDriver(BaseDriver):
             if use_futures:
                 futures.append(
                     self.client.submit(
-                        trial_runs,
+                        run_block,
                         block,
                         self.params.geoh5.h5file,
                         self.params.workdir,
@@ -137,7 +136,7 @@ class PlateSweepDriver(BaseDriver):
                 )
 
             else:
-                trial_runs(
+                run_block(
                     [block],
                     self.params.geoh5.h5file,
                     self.params.workdir,
@@ -181,7 +180,7 @@ class PlateSweepDriver(BaseDriver):
         return None
 
 
-def trial_runs(
+def run_block(
     trials: list[dict],
     h5file: Path,
     workdir: Path | None,
