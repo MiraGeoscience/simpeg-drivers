@@ -45,7 +45,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_mvi_run = {"data_norm": 149.10117594929326, "phi_d": 19.3, "phi_m": 0.00797}
+target_mvi_run = {"data_norm": 149.10117434016038, "phi_d": 23.9, "phi_m": 0.0079}
 
 
 def test_magnetic_vector_fwr_run(
@@ -112,14 +112,14 @@ def test_magnetic_vector_run(
         inducing_field = (50000.0, 90.0, 0.0)
         dip, direction = mesh.add_data(
             {
-                "dip": {"values": np.zeros(mesh.n_cells)},
-                "direction": {"values": np.zeros(mesh.n_cells)},
+                "dip": {"values": np.ones(mesh.n_cells) * 45},
+                "direction": {"values": np.ones(mesh.n_cells) * 90},
             }
         )
         gradient_rotation = PropertyGroup(
             name="gradient_rotations",
             property_group_type=GroupTypeEnum.DIPDIR,
-            properties=[dip, direction],
+            properties=[direction, dip],
             parent=mesh,
         )
         # Run the inverse

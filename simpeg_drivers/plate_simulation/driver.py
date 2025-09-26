@@ -24,7 +24,7 @@ from geoh5py.shared.utils import fetch_active_workspace, stringify
 from geoh5py.ui_json import InputFile, monitored_directory_copy
 from grid_apps.octree_creation.driver import OctreeDriver
 
-from simpeg_drivers.driver import InversionDriver, InversionLogger
+from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.options import BaseForwardOptions
 from simpeg_drivers.plate_simulation.models.events import Anomaly, Erosion, Overburden
 from simpeg_drivers.plate_simulation.models.parametric import Plate

@@ -51,7 +51,7 @@ dependencies:
   - kiwisolver=1.4.9=py311h724c32c_1
   - krb5=1.21.3=h659f571_0
   - lcms2=2.17=h717163a_0
-  - ld_impl_linux-64=2.44=h1423503_1
+  - ld_impl_linux-64=2.44=ha97dd6f_2
   - lerc=4.0.0=h0aef613_1
   - libaec=1.1.4=h3f801dc_0
   - libblas=3.9.0=36_h5875eb1_mkl
@@ -171,7 +171,7 @@ dependencies:
     - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@af0d42fa2403dba53d98cc90c2b292865d2e69b1
     - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@48770d12988c340208efa22065022c34cd618ea9
     - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@ed6918388d6fc4062f72e471e415a1a22cc15d0d
-    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@998d6f58198e4aff55a401e8a6545b93eb8bfd64
+    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@6e8d69f8a47b2c4419efa243e2f2087e649eebed
 
 variables:
   KMP_WARNINGS: 0

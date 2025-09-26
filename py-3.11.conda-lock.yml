@@ -3142,10 +3142,10 @@ package:
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
-  url: https://repo.prefix.dev/conda-forge/linux-64/ld_impl_linux-64-2.44-h1423503_1.conda
+  url: https://repo.prefix.dev/conda-forge/linux-64/ld_impl_linux-64-2.44-ha97dd6f_2.conda
   hash:
-    md5: 0be7c6e070c19105f966d3758448d018
-    sha256: 1a620f27d79217c1295049ba214c2f80372062fd251b569e9873d4a953d27554
+    md5: 14bae321b8127b63cba276bd53fac237
+    sha256: 707dfb8d55d7a5c6f95c772d778ef07a7ca85417d9971796f7d3daad0b615de8
   category: main
   optional: false
 - name: lerc
@@ -8762,7 +8762,7 @@ package:
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.23.0.1.post2.dev99+mira.g998d6f581
+  version: 0.23.0.1.post2.dev101+mira.g6e8d69f8a
   manager: pip
   platform: linux-64
   dependencies:
@@ -8774,16 +8774,16 @@ package:
     numpy: '>=1.22'
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@998d6f58198e4aff55a401e8a6545b93eb8bfd64
+  url: git+https://github.com/MiraGeoscience/simpeg.git@6e8d69f8a47b2c4419efa243e2f2087e649eebed
   hash:
-    sha256: 998d6f58198e4aff55a401e8a6545b93eb8bfd64
+    sha256: 6e8d69f8a47b2c4419efa243e2f2087e649eebed
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@998d6f58198e4aff55a401e8a6545b93eb8bfd64
+    url: git+https://github.com/MiraGeoscience/simpeg.git@6e8d69f8a47b2c4419efa243e2f2087e649eebed
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.23.0.1.post2.dev99+mira.g998d6f581
+  version: 0.23.0.1.post2.dev101+mira.g6e8d69f8a
   manager: pip
   platform: win-64
   dependencies:
@@ -8795,11 +8795,11 @@ package:
     numpy: '>=1.22'
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@998d6f58198e4aff55a401e8a6545b93eb8bfd64
+  url: git+https://github.com/MiraGeoscience/simpeg.git@6e8d69f8a47b2c4419efa243e2f2087e649eebed
   hash:
-    sha256: 998d6f58198e4aff55a401e8a6545b93eb8bfd64
+    sha256: 6e8d69f8a47b2c4419efa243e2f2087e649eebed
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@998d6f58198e4aff55a401e8a6545b93eb8bfd64
+    url: git+https://github.com/MiraGeoscience/simpeg.git@6e8d69f8a47b2c4419efa243e2f2087e649eebed
   category: main
   optional: false
