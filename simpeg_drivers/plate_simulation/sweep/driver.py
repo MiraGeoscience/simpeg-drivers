@@ -100,7 +100,8 @@ class PlateSweepDriver(Driver):
             self.params.template.options["title"],
         )
         for kwargs in trials:
-            uid = SweepOptions.uuid_from_params(kwargs)
+            options = dict(self.params.template_options, **kwargs)
+            uid = SweepOptions.uuid_from_params(options)
             kwargs.update({"out_group": str(self.out_group.uid)})
             PlateSweepDriver.run_worker(
                 uid, kwargs, self.workspace.h5file, self.params.workdir

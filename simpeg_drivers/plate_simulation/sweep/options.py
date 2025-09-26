@@ -16,6 +16,9 @@ from typing import ClassVar
 import numpy as np
 from geoapps_utils.base import Options
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
+from geoh5py.shared import Entity
+from geoh5py.shared.utils import stringify
+from geoh5py.ui_json import InputFile
 from pydantic import BaseModel, field_serializer
 
 from simpeg_drivers import assets_path
@@ -100,6 +103,7 @@ class SweepOptions(Options):
             }
 
         sweep_params = [k.removesuffix("_start") for k in options if "_start" in k]
+
         options["sweeps"] = [collect_sweep(param) for param in sweep_params]
         workdir = options["workdir"]
         if isinstance(workdir, str):
@@ -120,6 +124,24 @@ class SweepOptions(Options):
         return [dict(zip(names, i, strict=True)) for i in iterations]
 
     @staticmethod
+    def all_hashable_options(options: dict):
+        ifile = InputFile(ui_json=options, validate=False)
+        exceptions = list(Options.model_fields) + ["version", "icon", "documentation"]
+        # TODO: add these to the Options fields with empty string defaults.
+        out = {k: v for k, v in ifile.data.items() if k not in exceptions}
+        for k, v in ifile.data.items():
+            if isinstance(v, SimPEGGroup | UIJsonGroup):
+                out.pop(k)
+                out.update(SweepOptions.all_hashable_options(v.options))
+
+        return out
+
+    @property
+    def template_options(self):
+        """Return a flat version of the template.options dictionary."""
+        return stringify(SweepOptions.all_hashable_options(self.template.options))
+
+    @staticmethod
     def uuid_from_params(params: dict) -> str:
         """
         Create a deterministic uuid.
@@ -128,5 +150,15 @@ class SweepOptions(Options):
 
         :returns: Unique but recoverable uuid file identifier string.
         """
-        param_string = ",".join([f"{k}:{params[k]}" for k in sorted(params)])
+
+        def format_value(v):
+            if isinstance(v, float):
+                return f"{v:.4e}"
+            if isinstance(v, Entity):
+                return str(v.uid)
+            return v
+
+        param_string = ",".join(
+            [f"{k}:{format_value(params[k])}" for k in sorted(params)]
+        )
         return str(uuid.uuid5(uuid.NAMESPACE_DNS, param_string))
