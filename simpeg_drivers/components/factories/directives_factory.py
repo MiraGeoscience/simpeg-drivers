@@ -20,9 +20,6 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from geoh5py.groups.property_group import GroupTypeEnum
-from geoh5py.objects.surveys.electromagnetics.base import FEMSurvey
-from geoh5py.objects.surveys.electromagnetics.magnetotellurics import MTReceivers
-from geoh5py.objects.surveys.electromagnetics.tipper import TipperReceivers
 from numpy import sqrt
 from simpeg import directives, maps
 from simpeg.utils.mat_utils import cartesian2amplitude_dip_azimuth
