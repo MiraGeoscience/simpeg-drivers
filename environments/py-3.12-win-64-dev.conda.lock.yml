@@ -21,7 +21,7 @@ dependencies:
   - async-lru=2.0.5=pyh29332c3_0
   - attrs=25.3.0=pyh71513ae_0
   - babel=2.17.0=pyhd8ed1ab_0
-  - beautifulsoup4=4.13.5=pyha770c72_0
+  - beautifulsoup4=4.14.2=pyha770c72_0
   - bleach=6.2.0=pyh29332c3_4
   - bleach-with-css=6.2.0=h82add2a_4
   - bokeh=3.6.3=pyhd8ed1ab_0
@@ -78,7 +78,7 @@ dependencies:
   - importlib_metadata=8.7.0=h40b2b14_1
   - iniconfig=2.0.0=pyhd8ed1ab_1
   - ipykernel=6.30.1=pyh3521513_0
-  - ipython=9.5.0=pyh6be1c34_0
+  - ipython=9.6.0=pyh6be1c34_0
   - ipython_genutils=0.2.0=pyhd8ed1ab_2
   - ipython_pygments_lexers=1.1.1=pyhd8ed1ab_0
   - ipywidgets=7.8.5=pyhd8ed1ab_0
@@ -100,7 +100,7 @@ dependencies:
   - jupyter_events=0.12.0=pyh29332c3_0
   - jupyter_server=2.17.0=pyhcf101f3_0
   - jupyter_server_terminals=0.5.3=pyhd8ed1ab_1
-  - jupyterlab=4.4.7=pyhd8ed1ab_0
+  - jupyterlab=4.4.9=pyhd8ed1ab_0
   - jupyterlab_pygments=0.3.0=pyhd8ed1ab_2
   - jupyterlab_server=2.27.3=pyhd8ed1ab_1
   - jupyterlab_widgets=1.1.11=pyhd8ed1ab_0
@@ -147,7 +147,7 @@ dependencies:
   - llvm-openmp=20.1.8=hfa2b4ca_2
   - locket=1.0.0=pyhd8ed1ab_0
   - markdown-it-py=2.2.0=pyhd8ed1ab_0
-  - markupsafe=3.0.2=py312h31fea79_1
+  - markupsafe=3.0.3=py312h05f76fc_0
   - matplotlib-base=3.8.4=py312hfee7060_2
   - matplotlib-inline=0.1.7=pyhd8ed1ab_1
   - mccabe=0.7.0=pyhd8ed1ab_1
@@ -166,7 +166,7 @@ dependencies:
   - nbconvert-pandoc=7.16.6=hed9df3c_0
   - nbformat=5.10.4=pyhd8ed1ab_1
   - nest-asyncio=1.6.0=pyhd8ed1ab_1
-  - notebook=7.4.5=pyhd8ed1ab_0
+  - notebook=7.4.7=pyhd8ed1ab_0
   - notebook-shim=0.2.4=pyhd8ed1ab_1
   - numcodecs=0.15.1=py312h72972c8_0
   - numpy=1.26.4=py312h8753938_0
@@ -214,7 +214,7 @@ dependencies:
   - pytz=2025.2=pyhd8ed1ab_0
   - pywin32=311=py312h829343e_1
   - pywinpty=2.0.15=py312h275cf98_0
-  - pyyaml=6.0.2=py312h31fea79_2
+  - pyyaml=6.0.3=py312h05f76fc_0
   - pyzmq=27.1.0=py312hbb5da91_0
   - readthedocs-sphinx-ext=2.2.5=pyhd8ed1ab_1
   - referencing=0.36.2=pyh29332c3_0
@@ -300,8 +300,8 @@ dependencies:
   - zstandard=0.25.0=py312he5662c2_0
   - zstd=1.5.7=hbeecb71_2
   - pip:
-    - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@af0d42fa2403dba53d98cc90c2b292865d2e69b1
-    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@48770d12988c340208efa22065022c34cd618ea9
+    - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@13980469f5548c3dcbd2bd208b232bf02a2f68ca
+    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@3d7c550d8271f13faf531eba83615e9ab637ac86
     - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@ed6918388d6fc4062f72e471e415a1a22cc15d0d
     - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@6e8d69f8a47b2c4419efa243e2f2087e649eebed
 
