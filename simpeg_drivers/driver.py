@@ -133,7 +133,7 @@ class BaseDriver(Driver):
         if self.client:
             available_workers = [(worker,) for worker in self.client.nthreads()]
         else:
-            available_workers = []
+            return []
 
         if workers is None:
             return available_workers
@@ -143,13 +143,12 @@ class BaseDriver(Driver):
         ):
             raise TypeError("Workers must be a list of tuple[str].")
 
-        if self.client:
-            invalid_workers = [w for w in workers if w not in available_workers]
-            if invalid_workers:
-                raise ValueError(
-                    f"The following workers are not available: {invalid_workers}. "
-                    f"Available workers are: {available_workers}."
-                )
+        invalid_workers = [w for w in workers if w not in available_workers]
+        if invalid_workers:
+            raise ValueError(
+                f"The following workers are not available: {invalid_workers}. "
+                f"Available workers are: {available_workers}."
+            )
 
         return workers
 

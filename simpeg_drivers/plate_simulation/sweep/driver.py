@@ -162,7 +162,7 @@ class PlateSweepDriver(BaseDriver):
                 group
                 for group in workspace.groups
                 if isinstance(group, SimPEGGroup | UIJsonGroup)
-                and "plate_simulation.driver" in group.options.get("run_command")
+                and "plate simulation" == group.options.get("inversion_type")
             )
 
             opt_dict = workspace.promote(flatten(plate_simulation.options))
