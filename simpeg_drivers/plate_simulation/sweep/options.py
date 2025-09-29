@@ -9,6 +9,7 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 import itertools
+import json
 import uuid
 from pathlib import Path
 from typing import ClassVar
@@ -124,7 +125,12 @@ class SweepOptions(Options):
         return [dict(zip(names, i, strict=True)) for i in iterations]
 
     @staticmethod
-    def all_hashable_options(options: dict):
+    def all_hashable_options(options: dict) -> dict:
+        """Recurses through UIJson options to return flat dictionary of all key/values."""
+
+        # TODO: Use the base UIJson to read options and flatten instead of
+        #  InputFile.  Requires GEOPY-1875.
+
         ifile = InputFile(ui_json=options, validate=False)
         exceptions = list(Options.model_fields) + ["version", "icon", "documentation"]
         # TODO: add these to the Options fields with empty string defaults.
@@ -141,15 +147,8 @@ class SweepOptions(Options):
         """Return a flat version of the template.options dictionary."""
         return stringify(SweepOptions.all_hashable_options(self.template.options))
 
-    @staticmethod
-    def uuid_from_params(params: dict) -> str:
-        """
-        Create a deterministic uuid.
-
-        :param params: Tuple containing the values of a sweep iteration.
-
-        :returns: Unique but recoverable uuid file identifier string.
-        """
+    def jsonify(self, updates: dict):
+        options = dict(self.template_options, **updates)
 
         def format_value(v):
             if isinstance(v, float):
@@ -158,7 +157,16 @@ class SweepOptions(Options):
                 return str(v.uid)
             return v
 
-        param_string = ",".join(
-            [f"{k}:{format_value(params[k])}" for k in sorted(params)]
-        )
+        return json.dumps({k: format_value(v) for k, v in options.items()}, indent=4)
+
+    @staticmethod
+    def uuid_from_params(param_string: str) -> str:
+        """
+        Create a deterministic uuid.
+
+        :param params: Tuple containing the values of a sweep iteration.
+
+        :returns: Unique but recoverable uuid file identifier string.
+        """
+
         return str(uuid.uuid5(uuid.NAMESPACE_DNS, param_string))
