@@ -90,8 +90,6 @@ def test_sweep(tmp_path):
         ifile.data["plate_start"] = 500.0
         ifile.data["plate_stop"] = 1000.0
         ifile.data["plate_count"] = 2
-        ifile.data["overburden_start"] = 100.0
-        ifile.data["thickness_start"] = 20.0
         ifile.data["out_group"] = None
 
         ifile.write_ui_json(name="plate_sweep.ui.json", path=tmp_path)

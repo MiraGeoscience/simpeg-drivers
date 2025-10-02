@@ -112,7 +112,7 @@ class PlateSweepDriver(BaseDriver):
         )
 
         use_futures = self.client
-
+        self.params.jsonify(trials[0])
         if use_futures:
             blocks = np.array_split(trials, len(self.workers))
         else:
@@ -147,7 +147,8 @@ class PlateSweepDriver(BaseDriver):
         data: dict, h5file: Path, workdir: Path | None, worker: tuple[str] | None = None
     ):
         uid = SweepOptions.uuid_from_params(data)
-
+        # string = SweepOptions.jsonify(data)
+        # uid = SweepOptions.uuid_from_params(options_string)
         if workdir is None:
             workdir = h5file.parent
 
