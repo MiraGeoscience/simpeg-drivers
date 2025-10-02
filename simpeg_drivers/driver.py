@@ -85,9 +85,6 @@ mlogger = logging.getLogger("distributed")
 mlogger.setLevel(logging.WARNING)
 
 
-logger = logging.getLogger("simpeg-drivers")
-
-
 class BaseDriver(Driver):
     """
     Base class for drivers handling the parallel setup.
@@ -162,6 +159,7 @@ class InversionDriver(BaseDriver):
         params: BaseForwardOptions | BaseInversionOptions,
         client: Client | bool | None = None,
         workers: list[tuple[str]] | None = None,
+        logger: logging.Logger | None | bool = None,
     ):
         super().__init__(params, client=client, workers=workers)
 
@@ -174,7 +172,7 @@ class InversionDriver(BaseDriver):
         self._inversion_data: InversionData | None = None
         self._inversion_mesh: InversionMesh | None = None
         self._inversion_topography: InversionTopography | None = None
-        self._logger: InversionLogger | None = None
+        self.logger: InversionLogger | None = logger
         self._mapping: list[maps.IdentityMap] | None = None
         self._models: InversionModelCollection | None = None
         self._n_values: int | None = None
@@ -208,9 +206,10 @@ class InversionDriver(BaseDriver):
             split_list[count % n_tiles] += 1
             count += 1
 
-        self.logger.write(
-            f"Number of misfits: {np.sum(split_list)} distributed over {len(self.workers)} workers.\n"
-        )
+        if self.logger:
+            self.logger.write(
+                f"Number of misfits: {np.sum(split_list)} distributed over {len(self.workers)} workers.\n"
+            )
 
         flat_tile_list = []
         for tile, split in zip(tiles, split_list):
@@ -225,14 +224,17 @@ class InversionDriver(BaseDriver):
                 # Tile locations
                 tiles = self.get_tiles()
 
-                self.logger.write(f"Setting up {len(tiles)} tile(s) . . .\n")
-                # Build tiled misfits and combine to form global misfit
+                if self.logger:
+                    self.logger.write(f"Setting up {len(tiles)} tile(s) . . .\n")
+
                 self._data_misfit = MisfitFactory(
                     self.params, self.client, self.simulation, self.workers
                 ).build(
                     self.split_list(tiles),
                 )
-                self.logger.write("Saving data to file...\n")
+
+                if self.logger:
+                    self.logger.write("Saving data to file...\n")
 
         return self._data_misfit
 
@@ -306,14 +308,24 @@ class InversionDriver(BaseDriver):
         self._inversion_type = value
 
     @property
-    def logger(self):
+    def logger(self) -> InversionLogger | None:
         """
         Inversion logger
         """
-        if getattr(self, "_logger", None) is None:
-            self._logger = InversionLogger("SimPEG.log", self)
-
         return self._logger
+
+    @logger.setter
+    def logger(self, value: InversionLogger | None | bool):
+        if value is True or value is None:
+            self._logger = InversionLogger("SimPEG.log", self)
+        elif value is False:
+            self._logger = None
+        elif isinstance(value, logging.Logger):
+            self._logger = value
+        else:
+            raise TypeError(
+                "Logger must be a InversionLogger instance, None, True or False."
+            )
 
     @property
     def models(self):
@@ -459,8 +471,10 @@ class InversionDriver(BaseDriver):
 
     def run(self):
         """Run inversion from params"""
-        sys.stdout = self.logger
-        self.logger.start()
+        if self.logger:
+            sys.stdout = self.logger
+            self.logger.start()
+
         self.configure_dask()
 
         with fetch_active_workspace(self.workspace, mode="r+"):
@@ -472,13 +486,15 @@ class InversionDriver(BaseDriver):
         predicted = None
         try:
             if self.params.forward_only:
-                self.logger.write("Running the forward simulation ...\n")
+                if self.logger:
+                    self.logger.write("Running the forward simulation ...\n")
                 predicted = simpeg_inversion.invProb.get_dpred(
                     self.models.starting_model, None
                 )
             else:
                 # Run the inversion
-                self.start_inversion_message()
+                if self.logger:
+                    self.start_inversion_message()
                 simpeg_inversion.run(self.models.starting_model)
 
         except np.core._exceptions._ArrayMemoryError as error:  # pylint: disable=protected-access
@@ -488,9 +504,10 @@ class InversionDriver(BaseDriver):
                 "or increase the number of tiles."
             ) from error
 
-        self.logger.end()
-        sys.stdout = self.logger.terminal
-        self.logger.log.close()
+        if self.logger:
+            self.logger.end()
+            sys.stdout = self.logger.terminal
+            self.logger.log.close()
 
         if self.params.forward_only:
             self.directives.save_iteration_data_directive.write(0, predicted)

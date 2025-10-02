@@ -244,7 +244,7 @@ class DirectivesFactory:
     @property
     def save_iteration_log_files(self):
         """"""
-        if self._save_iteration_log_files is None:
+        if self._save_iteration_log_files is None and self.driver.logger:
             self._save_iteration_log_files = directives.SaveLogFilesGeoH5(
                 self.driver.out_group,
             )

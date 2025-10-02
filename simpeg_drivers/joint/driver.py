@@ -226,9 +226,10 @@ class BaseJointDriver(InversionDriver):
 
     def run(self):
         """Run inversion from params"""
-        sys.stdout = self.logger
-        self.logger.start()
-        self.configure_dask()
+        if self.logger:
+            sys.stdout = self.logger
+            self.logger.start()
+            self.configure_dask()
 
         if Path(self.params.input_file.path_name).is_file():
             with fetch_active_workspace(self.workspace, mode="r+"):
@@ -248,11 +249,11 @@ class BaseJointDriver(InversionDriver):
             # Run the inversion
             self.start_inversion_message()
             self.inversion.run(self.models.starting_model)
-
-        self.logger.end()
-        sys.stdout = self.logger.terminal
-        self.logger.log.close()
-        self._update_log()
+        if self.logger:
+            self.logger.end()
+            sys.stdout = self.logger.terminal
+            self.logger.log.close()
+            self._update_log()
 
     def validate_create_mesh(self):
         """Function to validate and create the inversion mesh."""
