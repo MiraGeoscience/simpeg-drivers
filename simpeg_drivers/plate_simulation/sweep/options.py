@@ -9,6 +9,7 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 import itertools
+import json
 import uuid
 from pathlib import Path
 from typing import Any, ClassVar
@@ -126,14 +127,11 @@ class SweepOptions(Options):
         """Returns a list of parameter combinations to run for each trial."""
         names = [s.name for s in self.sweeps]
         iterations = itertools.product(*[np.linspace(*s()) for s in self.sweeps])
-        options_dict = dict_mapper(self.template_options, [self.format_value])
+        options_dict = self.template_options.copy()
 
         trials = []
         for iterate in iterations:
-            trial = dict(zip(names, iterate, strict=True))
-            trial = dict_mapper(trial, [self.format_value])
-
-            options_dict.update(trial)
+            options_dict.update(dict(zip(names, iterate, strict=True)))
             trials.append(options_dict.copy())
 
         return trials
@@ -173,6 +171,12 @@ class SweepOptions(Options):
         if isinstance(value, Entity):
             return str(value.uid)
         return value
+
+    @classmethod
+    def jsonify(cls, data: dict) -> dict:
+        """Format all values in a dictionary for json serialization."""
+        formatted = dict_mapper(data, [cls.format_value])
+        return json.dumps(formatted, indent=4)
 
     @staticmethod
     def uuid_from_params(param_string: str) -> str:
