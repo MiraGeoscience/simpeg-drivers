@@ -44,7 +44,7 @@ class PlateSimulationUIJson(BaseUIJson):
     w_cell_size: FloatForm
     depth_core: FloatForm
     max_distance: FloatForm
-    padding_cells: FloatForm
+    padding_distance: FloatForm
     diagonal_balance: BoolForm
     minimum_level: IntegerForm
     export_model: BoolForm

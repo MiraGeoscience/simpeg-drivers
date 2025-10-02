@@ -100,14 +100,17 @@ class PlateSweepDriver(Driver):
             self.params.template.options["title"],
         )
         for kwargs in trials:
-            uid = SweepOptions.uuid_from_params(kwargs)
+            options_string = self.params.jsonify(kwargs)
+            uid = SweepOptions.uuid_from_params(options_string)
             kwargs.update({"out_group": str(self.out_group.uid)})
             PlateSweepDriver.run_worker(
-                uid, kwargs, self.workspace.h5file, self.params.workdir
+                uid, kwargs, self.workspace.h5file, options_string, self.params.workdir
             )
 
     @staticmethod
-    def run_worker(uid: str, data: dict, h5file: Path, workdir: Path | None):
+    def run_worker(
+        uid: str, data: dict, h5file: Path, options_string: str, workdir: Path | None
+    ):
         if workdir is None:
             workdir = h5file.parent
 
@@ -124,7 +127,7 @@ class PlateSweepDriver(Driver):
                 if isinstance(group, SimPEGGroup | UIJsonGroup)
                 and "plate_simulation.driver" in group.options.get("run_command")
             )
-
+            plate_simulation.add_file(options_string.encode("utf-8"), name="options")
             ifile = InputFile(ui_json=plate_simulation.options, validate=False)
             for key, value in data.items():
                 ifile.set_data_value(key, value)
