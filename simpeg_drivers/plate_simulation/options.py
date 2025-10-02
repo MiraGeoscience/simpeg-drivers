@@ -104,10 +104,6 @@ class MeshOptions(BaseModel):
             diagonal_balance=self.diagonal_balance,
             refinements=refinements,
         )
-
-        assert isinstance(survey.workspace.h5file, Path)
-        path = survey.workspace.h5file.parent
-        octree_params.write_ui_json(path / "octree.ui.json")
         return octree_params
 
 

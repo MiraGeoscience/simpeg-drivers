@@ -71,15 +71,7 @@ class PlateSimulationDriver(BaseDriver):
         logger.info("running the simulation...")
         with fetch_active_workspace(self.params.geoh5, mode="r+"):
             self.simulation_driver.run()
-            self.out_group.add_ui_json()
-            if (
-                self.params.monitoring_directory is not None
-                and Path(self.params.monitoring_directory).is_dir()
-            ):
-                monitored_directory_copy(
-                    str(Path(self.params.monitoring_directory).resolve()),
-                    self.out_group,
-                )
+            self.update_monitoring_directory(self.out_group)
 
         logger.info("done.")
         logger.handlers.clear()

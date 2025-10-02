@@ -9,16 +9,15 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 import itertools
-import json
 import uuid
 from pathlib import Path
-from typing import ClassVar
+from typing import Any, ClassVar
 
 import numpy as np
 from geoapps_utils.base import Options
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
 from geoh5py.shared import Entity
-from geoh5py.shared.utils import stringify
+from geoh5py.shared.utils import dict_mapper, stringify
 from geoh5py.ui_json import InputFile
 from pydantic import BaseModel, ConfigDict, ValidationError, field_serializer
 
@@ -125,11 +124,19 @@ class SweepOptions(Options):
     @property
     def trials(self) -> list[dict]:
         """Returns a list of parameter combinations to run for each trial."""
-        names = [s.name for s in self.sweeps if all(s())]
-        iterations = itertools.product(
-            *[np.linspace(*s()) for s in self.sweeps if all(s())]
-        )
-        return [dict(zip(names, i, strict=True)) for i in iterations]
+        names = [s.name for s in self.sweeps]
+        iterations = itertools.product(*[np.linspace(*s()) for s in self.sweeps])
+        options_dict = dict_mapper(self.template_options, [self.format_value])
+
+        trials = []
+        for iterate in iterations:
+            trial = dict(zip(names, iterate, strict=True))
+            trial = dict_mapper(trial, [self.format_value])
+
+            options_dict.update(trial)
+            trials.append(options_dict.copy())
+
+        return trials
 
     @staticmethod
     def all_hashable_options(options: dict) -> dict:
@@ -145,26 +152,27 @@ class SweepOptions(Options):
         for k, v in ifile.data.items():
             if isinstance(v, SimPEGGroup | UIJsonGroup):
                 out.pop(k)
-                out.update(SweepOptions.all_hashable_options(v.options))
+                opts = v.options
+                opts["geoh5"] = options["geoh5"]
+                out.update(SweepOptions.all_hashable_options(opts))
 
         return out
 
     @property
     def template_options(self):
         """Return a flat version of the template.options dictionary."""
-        return stringify(SweepOptions.all_hashable_options(self.template.options))
+        options = self.template.options
+        options["geoh5"] = self.geoh5
+        return stringify(SweepOptions.all_hashable_options(options))
 
-    def jsonify(self, updates: dict):
-        options = dict(self.template_options, **updates)
-
-        def format_value(v):
-            if isinstance(v, float):
-                return f"{v:.4e}"
-            if isinstance(v, Entity):
-                return str(v.uid)
-            return v
-
-        return json.dumps({k: format_value(v) for k, v in options.items()}, indent=4)
+    @staticmethod
+    def format_value(value: Any) -> Any:
+        """Format a value for json serialization."""
+        if isinstance(value, float):
+            return f"{value:.4e}"
+        if isinstance(value, Entity):
+            return str(value.uid)
+        return value
 
     @staticmethod
     def uuid_from_params(param_string: str) -> str:

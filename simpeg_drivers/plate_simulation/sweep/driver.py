@@ -8,6 +8,7 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
+import json
 import shutil
 import sys
 from pathlib import Path
@@ -112,7 +113,7 @@ class PlateSweepDriver(BaseDriver):
         )
 
         use_futures = self.client
-        self.params.jsonify(trials[0])
+
         if use_futures:
             blocks = np.array_split(trials, len(self.workers))
         else:
@@ -146,9 +147,9 @@ class PlateSweepDriver(BaseDriver):
     def run_trial(
         data: dict, h5file: Path, workdir: Path | None, worker: tuple[str] | None = None
     ):
-        uid = SweepOptions.uuid_from_params(data)
-        # string = SweepOptions.jsonify(data)
-        # uid = SweepOptions.uuid_from_params(options_string)
+        options_string = json.dumps(data, indent=4)
+        uid = SweepOptions.uuid_from_params(options_string)
+
         if workdir is None:
             workdir = h5file.parent
 
@@ -172,6 +173,11 @@ class PlateSweepDriver(BaseDriver):
             opt_dict.update(data)
             options = PlateSimulationOptions.build(opt_dict)
             plate_sim = PlateSimulationDriver(options, workers=[worker])
+            plate_sim.simulation_driver.logger = False
+            # Knock out the log directive
+            plate_sim.out_group.add_file(
+                options_string.encode("utf-8"), name="options.txt"
+            )
             plate_sim.run()
 
         del plate_sim
