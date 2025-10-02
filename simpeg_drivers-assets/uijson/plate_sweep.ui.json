@@ -9,7 +9,7 @@
     "monitoring_directory": "",
     "template": {
         "main": true,
-        "group": "Options",
+        "group": "Base",
         "label": "Plate simulation",
         "groupType": [
             "{55ed3daf-c192-4d4b-a439-60fa987fe2b8}",
@@ -21,7 +21,7 @@
     },
     "workdir": {
         "main": true,
-        "group": "Options",
+        "group": "Base",
         "label": "Working directory",
         "fileDescription": [
             "Directory"
@@ -37,184 +37,162 @@
     "background_start": {
         "main": true,
         "group": "Background",
+        "groupOptional": true,
+        "enabled": false,
         "label": "starting",
-        "value": 2000.0
+        "value": 0.0
     },
     "background_stop": {
         "main": true,
         "group": "Background",
-        "optional": true,
-        "enabled": false,
+        "groupOptional": true,
         "label": "ending",
-        "value": 2000.0
+        "value": 0.0
     },
     "background_count": {
         "main": true,
         "group": "Background",
-        "dependency": "background_stop",
-        "dependencyType": "enabled",
-        "enabled": false,
+        "groupOptional": true,
         "label": "number of samples",
         "value": 1
     },
     "overburden_start": {
         "main": true,
         "group": "Overburden",
+        "groupOptional": true,
+        "enabled": false,
         "label": "starting",
         "value": 8000.0
     },
     "overburden_stop": {
         "main": true,
         "group": "Overburden",
-        "optional": true,
-        "enabled": false,
         "label": "ending",
         "value": 8000.0
     },
     "overburden_count": {
         "main": true,
         "group": "Overburden",
-        "dependency": "overburden_stop",
-        "dependencyType": "enabled",
-        "enabled": false,
         "label": "number of samples",
         "value": 1
     },
     "thickness_start": {
         "main": true,
         "group": "Thickness",
+        "groupOptional": true,
+        "enabled": false,
         "label": "starting",
         "value": 200.0
     },
     "thickness_stop": {
         "main": true,
         "group": "Thickness",
-        "optional": true,
-        "enabled": false,
         "label": "ending",
         "value": 200.0
     },
     "thickness_count": {
         "main": true,
         "group": "Thickness",
-        "dependency": "thickness_stop",
-        "dependencyType": "enabled",
-        "enabled": false,
         "label": "number of samples",
         "value": 1
     },
     "plate_start": {
         "main": true,
         "group": "Plate",
+        "groupOptional": true,
+        "enabled": false,
         "label": "starting",
         "value": 20.0
     },
     "plate_stop": {
         "main": true,
         "group": "Plate",
-        "optional": true,
-        "enabled": false,
         "label": "ending",
         "value": 20.0
     },
     "plate_count": {
         "main": true,
         "group": "Plate",
-        "dependency": "plate_stop",
-        "dependencyType": "enabled",
-        "enabled": false,
         "label": "number of samples",
         "value": 1
     },
     "width_start": {
         "main": true,
         "group": "Width",
+        "groupOptional": true,
+        "enabled": false,
         "label": "starting",
         "value": 90.0
     },
     "width_stop": {
         "main": true,
         "group": "Width",
-        "optional": true,
-        "enabled": false,
         "label": "ending",
         "value": 90.0
     },
     "width_count": {
         "main": true,
         "group": "Width",
-        "dependency": "width_stop",
-        "dependencyType": "enabled",
-        "enabled": false,
         "label": "number of samples",
         "value": 1
     },
     "strike_length_start": {
         "main": true,
         "group": "Strike length",
+        "groupOptional": true,
+        "enabled": false,
         "label": "starting",
         "value": 800.0
     },
     "strike_length_stop": {
         "main": true,
         "group": "Strike length",
-        "optional": true,
-        "enabled": false,
         "label": "ending",
         "value": 800.0
     },
     "strike_length_count": {
         "main": true,
         "group": "Strike length",
-        "dependency": "strike_length_stop",
-        "dependencyType": "enabled",
-        "enabled": false,
         "label": "number of samples",
         "value": 1
     },
     "dip_length_start": {
         "main": true,
         "group": "Dip length",
+        "groupOptional": true,
+        "enabled": false,
         "label": "starting",
         "value": 800.0
     },
     "dip_length_stop": {
         "main": true,
         "group": "Dip length",
-        "optional": true,
-        "enabled": false,
         "label": "ending",
         "value": 800.0
     },
     "dip_length_count": {
         "main": true,
         "group": "Dip length",
-        "dependency": "dip_length_stop",
-        "dependencyType": "enabled",
-        "enabled": false,
         "label": "number of samples",
         "value": 1
     },
     "dip_start": {
         "main": true,
         "group": "Dip",
+        "groupOptional": true,
+        "enabled": false,
         "label": "starting",
         "value": 60.0
     },
     "dip_stop": {
         "main": true,
         "group": "Dip",
-        "optional": true,
-        "enabled": false,
         "label": "ending",
         "value": 60.0
     },
     "dip_count": {
         "main": true,
         "group": "Dip",
-        "dependency": "dip_stop",
-        "dependencyType": "enabled",
-        "enabled": false,
         "label": "number of samples",
         "value": 1
     },
