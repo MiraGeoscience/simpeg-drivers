@@ -67,10 +67,10 @@ def check_target(output: dict, target: dict, tolerance=0.05):
         )
 
     np.testing.assert_array_less(
-        np.abs(output["phi_m"][1] - target["phi_m"]) / target["phi_m"], tolerance
+        np.abs(output["phi_m"][-1] - target["phi_m"]) / target["phi_m"], tolerance
     )
     np.testing.assert_array_less(
-        np.abs(output["phi_d"][1] - target["phi_d"]) / target["phi_d"], tolerance
+        np.abs(output["phi_d"][-1] - target["phi_d"]) / target["phi_d"], tolerance
     )
 
 
