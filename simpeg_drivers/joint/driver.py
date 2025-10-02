@@ -252,7 +252,6 @@ class BaseJointDriver(InversionDriver):
         if self.logger:
             self.logger.end()
             sys.stdout = self.logger.terminal
-            self.logger.log.close()
             self._update_log()
 
     def validate_create_mesh(self):

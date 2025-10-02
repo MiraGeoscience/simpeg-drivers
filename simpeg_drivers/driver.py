@@ -507,7 +507,6 @@ class InversionDriver(BaseDriver):
         if self.logger:
             self.logger.end()
             sys.stdout = self.logger.terminal
-            self.logger.log.close()
 
         if self.params.forward_only:
             self.directives.save_iteration_data_directive.write(0, predicted)
@@ -749,10 +748,14 @@ class InversionDriver(BaseDriver):
 
 
 class InversionLogger:
+    """
+    Logger for the inversion process.
+    """
+
     def __init__(self, logfile, driver):
         self.driver = driver
         self.terminal = sys.stdout
-        self.log = open(self.get_path(logfile), "w", encoding="utf8")
+        self.logfile = self.get_path(logfile)
         self.initial_time = time()
 
     def start(self):
@@ -772,8 +775,9 @@ class InversionLogger:
 
     def write(self, message):
         self.terminal.write(message)
-        self.log.write(message)
-        self.log.flush()
+        with open(self.logfile, "a", encoding="utf8") as logfile:
+            logfile.write(message)
+            logfile.flush()
 
     @staticmethod
     def format_seconds(seconds):
