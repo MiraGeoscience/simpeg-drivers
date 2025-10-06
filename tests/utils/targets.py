@@ -51,7 +51,7 @@ def check_target(output: dict, target: dict, tolerance=0.05):
     :param tolerance: Tolerance between output and target measured as: |a-b|/b
     """
     print(
-        f"Output: 'data_norm': {np.linalg.norm(output['data'])}, 'phi_d': {output['phi_d'][1]}, 'phi_m': {output['phi_m'][1]}"
+        f"Output: 'data_norm': {np.linalg.norm(output['data'])}, 'phi_d': {output['phi_d'][-1]}, 'phi_m': {output['phi_m'][-1]}"
     )
     print(f"Target: {target}")
 
