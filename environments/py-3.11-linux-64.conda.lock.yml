@@ -33,7 +33,7 @@ dependencies:
   - discretize=0.11.3=py311h5b7b71f_0
   - distributed=2025.3.0=pyhd8ed1ab_0
   - fasteners=0.19=pyhd8ed1ab_1
-  - fonttools=4.60.0=py311h3778330_0
+  - fonttools=4.60.1=py311h3778330_0
   - freetype=2.14.1=ha770c72_0
   - fsspec=2025.9.0=pyhd8ed1ab_0
   - geoana=0.7.2=py311h5b7b71f_0
@@ -44,7 +44,8 @@ dependencies:
   - hyperframe=6.1.0=pyhd8ed1ab_0
   - icu=75.1=he02047a_0
   - importlib-metadata=8.7.0=pyhe01879c_1
-  - isort=6.0.1=pyhd8ed1ab_1
+  - importlib_metadata=8.7.0=h40b2b14_1
+  - isort=6.1.0=pyhd8ed1ab_0
   - jinja2=3.1.6=pyhd8ed1ab_0
   - joblib=1.5.2=pyhd8ed1ab_0
   - keyutils=1.6.3=hb9d3cd8_0
@@ -94,7 +95,7 @@ dependencies:
   - libxml2=2.15.0=h26afc86_1
   - libxml2-16=2.15.0=ha9997c6_1
   - libzlib=1.3.1=hb9d3cd8_2
-  - llvm-openmp=21.1.0=h4922eb0_0
+  - llvm-openmp=21.1.2=h4922eb0_3
   - locket=1.0.0=pyhd8ed1ab_0
   - markupsafe=3.0.3=py311h3778330_0
   - matplotlib-base=3.8.4=py311ha4ca890_2
@@ -109,9 +110,9 @@ dependencies:
   - numcodecs=0.15.1=py311h7db5c69_0
   - numpy=1.26.4=py311h64a7726_0
   - openjpeg=2.5.4=h55fea9a_0
-  - openssl=3.5.3=h26f9b46_1
+  - openssl=3.5.4=h26f9b46_0
   - packaging=25.0=pyh29332c3_1
-  - pandas=2.3.2=py311hed34c8f_0
+  - pandas=2.3.3=py311hed34c8f_1
   - partd=1.4.2=pyhd8ed1ab_0
   - pillow=10.3.0=py311h82a398c_1
   - pip=25.2=pyh8b19718_0
@@ -151,7 +152,7 @@ dependencies:
   - tqdm=4.67.1=pyhd8ed1ab_1
   - trimesh=4.1.8=pyhd8ed1ab_0
   - typing-extensions=4.15.0=h396c80c_0
-  - typing-inspection=0.4.1=pyhd8ed1ab_0
+  - typing-inspection=0.4.2=pyhd8ed1ab_0
   - typing_extensions=4.15.0=pyhcf101f3_0
   - tzdata=2025b=h78e105d_0
   - unicodedata2=16.0.0=py311h49ec1c0_1
@@ -171,7 +172,7 @@ dependencies:
     - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@13980469f5548c3dcbd2bd208b232bf02a2f68ca
     - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@3d7c550d8271f13faf531eba83615e9ab637ac86
     - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@ed6918388d6fc4062f72e471e415a1a22cc15d0d
-    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@6e8d69f8a47b2c4419efa243e2f2087e649eebed
+    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@825b0b73fcc95b7b2c9629c19ea8861222adad7e
 
 variables:
   KMP_WARNINGS: 0
