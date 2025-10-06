@@ -146,13 +146,17 @@ class SweepOptions(Options):
         ifile = InputFile(ui_json=options, validate=False)
         exceptions = list(Options.model_fields) + ["version", "icon", "documentation"]
         # TODO: add these to the Options fields with empty string defaults.
-        out = {k: v for k, v in ifile.data.items() if k not in exceptions}
+        out = {}
         for k, v in ifile.data.items():
+            if k in exceptions:
+                continue
+
             if isinstance(v, SimPEGGroup | UIJsonGroup):
-                out.pop(k)
                 opts = v.options
                 opts["geoh5"] = options["geoh5"]
                 out.update(SweepOptions.all_hashable_options(opts))
+            else:
+                out[k] = v
 
         return out
 
