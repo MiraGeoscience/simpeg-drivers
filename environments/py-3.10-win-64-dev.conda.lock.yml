@@ -12,7 +12,7 @@ dependencies:
   - annotated-types=0.7.0=pyhd8ed1ab_1
   - anyio=4.11.0=pyhcf101f3_0
   - argon2-cffi=25.1.0=pyhd8ed1ab_0
-  - argon2-cffi-bindings=25.1.0=py310h29418f3_0
+  - argon2-cffi-bindings=25.1.0=py310h29418f3_1
   - arrow=1.3.0=pyhd8ed1ab_1
   - asciitree=0.3.3=py_2
   - astroid=3.3.11=py310h5588dad_1
@@ -55,7 +55,7 @@ dependencies:
   - exceptiongroup=1.3.0=pyhd8ed1ab_0
   - executing=2.2.1=pyhd8ed1ab_0
   - fasteners=0.19=pyhd8ed1ab_1
-  - fonttools=4.60.0=py310hdb0e946_0
+  - fonttools=4.60.1=py310hdb0e946_0
   - fqdn=1.5.1=pyhd8ed1ab_1
   - freetype=2.14.1=h57928b3_0
   - fsspec=2025.9.0=pyhd8ed1ab_0
@@ -80,7 +80,7 @@ dependencies:
   - ipython_genutils=0.2.0=pyhd8ed1ab_2
   - ipywidgets=7.8.5=pyhd8ed1ab_0
   - isoduration=20.11.0=pyhd8ed1ab_1
-  - isort=6.0.1=pyhd8ed1ab_1
+  - isort=6.1.0=pyhd8ed1ab_0
   - jedi=0.19.2=pyhd8ed1ab_1
   - jinja2=3.1.6=pyhd8ed1ab_0
   - joblib=1.5.2=pyhd8ed1ab_0
@@ -141,7 +141,7 @@ dependencies:
   - libxml2-16=2.15.0=h06f855e_1
   - libzlib=1.3.1=h2466b09_2
   - linkify-it-py=2.0.3=pyhd8ed1ab_1
-  - llvm-openmp=20.1.8=hfa2b4ca_2
+  - llvm-openmp=21.1.2=hfa2b4ca_3
   - locket=1.0.0=pyhd8ed1ab_0
   - markdown-it-py=2.2.0=pyhd8ed1ab_0
   - markupsafe=3.0.3=py310hdb0e946_0
@@ -168,11 +168,11 @@ dependencies:
   - numcodecs=0.13.1=py310hb4db72f_0
   - numpy=1.26.4=py310hf667824_0
   - openjpeg=2.5.4=h24db6dd_0
-  - openssl=3.5.3=h725018a_1
+  - openssl=3.5.4=h725018a_0
   - overrides=7.7.0=pyhd8ed1ab_1
   - packaging=25.0=pyh29332c3_1
-  - pandas=2.3.2=py310hed136d8_0
-  - pandoc=3.8=h57928b3_0
+  - pandas=2.3.3=py310hed136d8_1
+  - pandoc=3.8.1=h57928b3_0
   - pandocfilters=1.5.0=pyhd8ed1ab_0
   - parso=0.8.5=pyhcf101f3_0
   - partd=1.4.2=pyhd8ed1ab_0
@@ -209,7 +209,7 @@ dependencies:
   - python_abi=3.10=8_cp310
   - pytz=2025.2=pyhd8ed1ab_0
   - pywin32=311=py310h282bd7d_1
-  - pywinpty=2.0.15=py310h9e98ed7_0
+  - pywinpty=2.0.15=py310h9e98ed7_1
   - pyyaml=6.0.3=py310hdb0e946_0
   - pyzmq=27.1.0=py310h535538e_0
   - readthedocs-sphinx-ext=2.2.5=pyhd8ed1ab_1
@@ -264,7 +264,7 @@ dependencies:
   - trimesh=4.1.8=pyhd8ed1ab_0
   - types-python-dateutil=2.9.0.20250822=pyhd8ed1ab_0
   - typing-extensions=4.15.0=h396c80c_0
-  - typing-inspection=0.4.1=pyhd8ed1ab_0
+  - typing-inspection=0.4.2=pyhd8ed1ab_0
   - typing_extensions=4.15.0=pyhcf101f3_0
   - typing_utils=0.1.0=pyhd8ed1ab_1
   - tzdata=2025b=h78e105d_0
@@ -298,7 +298,7 @@ dependencies:
     - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@13980469f5548c3dcbd2bd208b232bf02a2f68ca
     - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@3d7c550d8271f13faf531eba83615e9ab637ac86
     - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@ed6918388d6fc4062f72e471e415a1a22cc15d0d
-    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@6e8d69f8a47b2c4419efa243e2f2087e649eebed
+    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@825b0b73fcc95b7b2c9629c19ea8861222adad7e
 
 variables:
   KMP_WARNINGS: 0
