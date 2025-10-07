@@ -18,7 +18,7 @@ dependencies:
   - astroid=3.3.11=py311h38be061_1
   - asttokens=3.0.0=pyhd8ed1ab_1
   - async-lru=2.0.5=pyh29332c3_0
-  - attrs=25.3.0=pyh71513ae_0
+  - attrs=25.4.0=pyh71513ae_0
   - babel=2.17.0=pyhd8ed1ab_0
   - beautifulsoup4=4.14.2=pyha770c72_0
   - bleach=6.2.0=pyh29332c3_4
@@ -127,10 +127,10 @@ dependencies:
   - libffi=3.4.6=h2dba641_1
   - libfreetype=2.14.1=ha770c72_0
   - libfreetype6=2.14.1=h73754d4_0
-  - libgcc=15.2.0=h767d61c_5
-  - libgcc-ng=15.2.0=h69a702a_5
-  - libgfortran=15.2.0=h69a702a_5
-  - libgfortran5=15.2.0=hcd61629_5
+  - libgcc=15.2.0=h767d61c_6
+  - libgcc-ng=15.2.0=h69a702a_6
+  - libgfortran=15.2.0=h69a702a_6
+  - libgfortran5=15.2.0=hcd61629_6
   - libhwloc=2.12.1=default_h7f8ec31_1002
   - libiconv=1.18=h3b78370_2
   - libjpeg-turbo=3.1.0=hb9d3cd8_0
@@ -144,8 +144,8 @@ dependencies:
   - libspatialindex=2.0.0=he02047a_0
   - libsqlite=3.50.4=h0c1763c_0
   - libssh2=1.11.1=hcf80075_0
-  - libstdcxx=15.2.0=h8f9b012_5
-  - libstdcxx-ng=15.2.0=h4852527_5
+  - libstdcxx=15.2.0=h8f9b012_6
+  - libstdcxx-ng=15.2.0=h4852527_6
   - libtiff=4.7.1=h8261f1e_0
   - libuuid=2.41.2=he9a06e4_0
   - libwebp-base=1.6.0=hd42ef1d_0
@@ -264,7 +264,7 @@ dependencies:
   - sphinxcontrib-jsmath=1.0.1=pyhd8ed1ab_1
   - sphinxcontrib-qthelp=2.0.0=pyhd8ed1ab_1
   - sphinxcontrib-serializinghtml=1.1.10=pyhd8ed1ab_1
-  - sqlalchemy=2.0.43=py311h49ec1c0_0
+  - sqlalchemy=2.0.43=py311h49ec1c0_1
   - stack_data=0.6.3=pyhd8ed1ab_1
   - tabulate=0.9.0=pyhd8ed1ab_2
   - tbb=2021.13.0=hb60516a_3
@@ -309,7 +309,7 @@ dependencies:
   - zstd=1.5.7=hb8e6e7a_2
   - pip:
     - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@13980469f5548c3dcbd2bd208b232bf02a2f68ca
-    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@3d7c550d8271f13faf531eba83615e9ab637ac86
+    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@e5a08e7bfed421e16b59c318ea430aec55a2c005
     - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@ed6918388d6fc4062f72e471e415a1a22cc15d0d
     - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@825b0b73fcc95b7b2c9629c19ea8861222adad7e
 

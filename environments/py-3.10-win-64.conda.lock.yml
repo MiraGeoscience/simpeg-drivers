@@ -63,8 +63,8 @@ dependencies:
   - libffi=3.4.6=h537db12_1
   - libfreetype=2.14.1=h57928b3_0
   - libfreetype6=2.14.1=hdbac1cb_0
-  - libgcc=15.2.0=h1383e82_5
-  - libgomp=15.2.0=h1383e82_5
+  - libgcc=15.2.0=h1383e82_6
+  - libgomp=15.2.0=h1383e82_6
   - libhwloc=2.12.1=default_h64bd3f2_1002
   - libiconv=1.18=hc1393d2_2
   - libjpeg-turbo=3.1.0=h2466b09_0
@@ -76,7 +76,7 @@ dependencies:
   - libssh2=1.11.1=h9aa295b_0
   - libtiff=4.7.1=h550210a_0
   - libwebp-base=1.6.0=h4d5522a_0
-  - libwinpthread=12.0.0.r4.gg4f2fc60ca=h57928b3_9
+  - libwinpthread=12.0.0.r4.gg4f2fc60ca=h57928b3_10
   - libxcb=1.17.0=h0e4246c_0
   - libxml2=2.15.0=ha29bfb0_1
   - libxml2-16=2.15.0=h06f855e_1
@@ -156,7 +156,7 @@ dependencies:
   - zstd=1.5.7=hbeecb71_2
   - pip:
     - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@13980469f5548c3dcbd2bd208b232bf02a2f68ca
-    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@3d7c550d8271f13faf531eba83615e9ab637ac86
+    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@e5a08e7bfed421e16b59c318ea430aec55a2c005
     - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@ed6918388d6fc4062f72e471e415a1a22cc15d0d
     - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@825b0b73fcc95b7b2c9629c19ea8861222adad7e
 
