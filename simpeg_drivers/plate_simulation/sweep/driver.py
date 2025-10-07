@@ -169,6 +169,7 @@ class PlateSweepDriver(BaseDriver):
             opt_dict = workspace.promote(flatten(plate_simulation.options))
             opt_dict["geoh5"] = workspace
             opt_dict["out_group"] = None
+            opt_dict["monitoring_directory"] = None
             opt_dict.update(data)
             options = PlateSimulationOptions.build(opt_dict)
             plate_sim = PlateSimulationDriver(options, workers=[worker])
