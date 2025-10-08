@@ -12,7 +12,7 @@ from copy import deepcopy
 from pathlib import Path
 from typing import ClassVar
 
-from geoapps_utils.driver.data import BaseData
+from geoapps_utils.base import Options
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
 from geoh5py.objects import ObjectBase, Points, Surface
 from geoh5py.ui_json import InputFile
@@ -104,14 +104,10 @@ class MeshOptions(BaseModel):
             diagonal_balance=self.diagonal_balance,
             refinements=refinements,
         )
-
-        assert isinstance(survey.workspace.h5file, Path)
-        path = survey.workspace.h5file.parent
-        octree_params.write_ui_json(path / "octree.ui.json")
         return octree_params
 
 
-class PlateSimulationOptions(BaseData):
+class PlateSimulationOptions(Options):
     """
     Parameters for the plate simulation driver.
 
@@ -128,6 +124,8 @@ class PlateSimulationOptions(BaseData):
     title: ClassVar[str] = "Plate Simulation"
     run_command: ClassVar[str] = "simpeg_drivers.plate_simulation.driver"
     out_group: SimPEGGroup | UIJsonGroup | None = None
+    forward_only: bool = True
+    inversion_type: str = "plate simulation"
 
     mesh: MeshOptions
     model: ModelOptions

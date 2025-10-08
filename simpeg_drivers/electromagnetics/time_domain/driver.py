@@ -27,10 +27,10 @@ from .options import (
 class TDEMForwardDriver(InversionDriver):
     """Time Domain Electromagnetic forward driver."""
 
-    _options_class = TDEMForwardOptions
+    _params_class = TDEMForwardOptions
 
 
 class TDEMInversionDriver(InversionDriver):
     """Time Domain Electromagnetic inversion driver."""
 
-    _options_class = TDEMInversionOptions
+    _params_class = TDEMInversionOptions

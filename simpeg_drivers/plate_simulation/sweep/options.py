@@ -12,17 +12,18 @@ import itertools
 import json
 import uuid
 from pathlib import Path
-from typing import ClassVar
+from typing import Any, ClassVar
 
 import numpy as np
 from geoapps_utils.base import Options
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
 from geoh5py.shared import Entity
-from geoh5py.shared.utils import stringify
+from geoh5py.shared.utils import dict_mapper, stringify
 from geoh5py.ui_json import InputFile
-from pydantic import BaseModel, field_serializer
+from pydantic import BaseModel, ConfigDict, ValidationError, field_serializer
 
 from simpeg_drivers import assets_path
+from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
 
 
 class ParamSweep(BaseModel):
@@ -56,11 +57,15 @@ class SweepOptions(Options):
         by the template application.
     """
 
+    model_config = ConfigDict(frozen=False, arbitrary_types_allowed=True)
+
     name: ClassVar[str] = "plate_sweep"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/plate_sweep.ui.json"
     title: ClassVar[str] = "Plate Sweep"
     run_command: ClassVar[str] = "simpeg_drivers.plate_simulation.sweep.driver"
     out_group: SimPEGGroup | None = None
+    forward_only: bool = True
+    inversion_type: str = "plate sweep"
     template: SimPEGGroup | UIJsonGroup
     sweeps: list[ParamSweep]
     workdir: Path | None = None
@@ -122,7 +127,14 @@ class SweepOptions(Options):
         """Returns a list of parameter combinations to run for each trial."""
         names = [s.name for s in self.sweeps]
         iterations = itertools.product(*[np.linspace(*s()) for s in self.sweeps])
-        return [dict(zip(names, i, strict=True)) for i in iterations]
+        options_dict = self.template_options.copy()
+
+        trials = []
+        for iterate in iterations:
+            options_dict.update(dict(zip(names, iterate, strict=True)))
+            trials.append(options_dict.copy())
+
+        return trials
 
     @staticmethod
     def all_hashable_options(options: dict) -> dict:
@@ -134,30 +146,41 @@ class SweepOptions(Options):
         ifile = InputFile(ui_json=options, validate=False)
         exceptions = list(Options.model_fields) + ["version", "icon", "documentation"]
         # TODO: add these to the Options fields with empty string defaults.
-        out = {k: v for k, v in ifile.data.items() if k not in exceptions}
+        out = {}
         for k, v in ifile.data.items():
+            if k in exceptions:
+                continue
+
             if isinstance(v, SimPEGGroup | UIJsonGroup):
-                out.pop(k)
-                out.update(SweepOptions.all_hashable_options(v.options))
+                opts = v.options
+                opts["geoh5"] = options["geoh5"]
+                out.update(SweepOptions.all_hashable_options(opts))
+            else:
+                out[k] = v
 
         return out
 
     @property
     def template_options(self):
         """Return a flat version of the template.options dictionary."""
-        return stringify(SweepOptions.all_hashable_options(self.template.options))
+        options = self.template.options
+        options["geoh5"] = self.geoh5
+        return stringify(SweepOptions.all_hashable_options(options))
 
-    def jsonify(self, updates: dict):
-        options = dict(self.template_options, **updates)
+    @staticmethod
+    def format_value(value: Any) -> Any:
+        """Format a value for json serialization."""
+        if isinstance(value, float):
+            return f"{value:.4e}"
+        if isinstance(value, Entity):
+            return str(value.uid)
+        return value
 
-        def format_value(v):
-            if isinstance(v, float):
-                return f"{v:.4e}"
-            if isinstance(v, Entity):
-                return str(v.uid)
-            return v
-
-        return json.dumps({k: format_value(v) for k, v in options.items()}, indent=4)
+    @classmethod
+    def jsonify(cls, data: dict) -> dict:
+        """Format all values in a dictionary for json serialization."""
+        formatted = dict_mapper(data, [cls.format_value])
+        return json.dumps(formatted, indent=4)
 
     @staticmethod
     def uuid_from_params(param_string: str) -> str:

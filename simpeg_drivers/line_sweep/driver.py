@@ -18,6 +18,7 @@ from pathlib import Path
 import numpy as np
 from geoapps_utils.param_sweeps.driver import SweepDriver, SweepParams
 from geoapps_utils.param_sweeps.generate import generate
+from geoapps_utils.run import load_ui_json_as_dict
 from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.data import FilenameData
 from geoh5py.groups import ContainerGroup, SimPEGGroup
@@ -77,6 +78,8 @@ class LineSweepDriver(SweepDriver, InversionDriver):
     def run(self):
         """
         Run the line sweep driver.
+
+        TODO: Add parallelization on GEOPY-2490
         """
         with fetch_active_workspace(self.workspace, mode="r+"):
             if not isinstance(self.out_group, SimPEGGroup):
@@ -84,7 +87,26 @@ class LineSweepDriver(SweepDriver, InversionDriver):
                     f"Output group should be a valid SimPEGGroup, received: {type(self.out_group)}."
                 )
 
-            super().run()
+            lookup = self.get_lookup()
+            self.write_files(lookup)
+
+            for name, trial in lookup.items():
+                file_path = Path(self.working_directory) / f"{name}.ui.json"
+                if trial["status"] == "complete":
+                    continue
+
+                trial["status"] = "processing"
+                self.update_lookup(lookup)
+                params_dict = load_ui_json_as_dict(file_path)
+                driver = self.driver_class_from_name(
+                    params_dict["inversion_type"],
+                    forward_only=params_dict["forward_only"],
+                )
+                driver.start(file_path)
+
+                trial["status"] = "complete"
+                self.update_lookup(lookup)
+
             self.collect_results()
 
         if self.cleanup:
