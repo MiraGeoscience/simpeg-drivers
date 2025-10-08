@@ -50,6 +50,8 @@ def clean_index_array(index_array: np.ndarray) -> np.ndarray:
     Remove duplicate rows or rows with -1 in index array.
 
     :param index_array: Array of index pairs.
+
+    :return: Cleaned array of index pairs.
     """
     array = np.unique(index_array, axis=0)
 
@@ -71,6 +73,9 @@ def collect_all_neighbors(
     :param neighbors_backwards: Direct neighbors in reverse order.
     :param adjacent: Adjacent neighbors (corners).
     :param adjacent_backwards: Adjacent neighbors in reverse order.
+
+    :return: List of arrays of cell neighbors in all principle directions. List
+    length is 8 for 2D meshes and 26 for 3D meshes.
     """
     neighbours_lists = [
         neighbors[0],  # [i+1, j]
@@ -120,8 +125,15 @@ def collect_all_neighbors(
     return all_neighbors
 
 
-def cell_adjacent(mesh, backward=False) -> list[np.ndarray]:
-    """Find all adjacent (corner) cells from cell neighbor array."""
+def cell_adjacent(mesh: TreeMesh, backward: bool = False) -> list[np.ndarray]:
+    """
+    Find all adjacent (corner) cells from cell neighbor array.
+
+    :param mesh: Input TreeMesh
+    :param backward: If True, find the opposite corner neighbors.
+
+    :return: Array of adjacent cell neighbors.
+    """
     neighbors = [
         cell_neighbors_along_axis(mesh, "x"),
         cell_neighbors_along_axis(mesh, "y"),
@@ -184,6 +196,8 @@ def rotate_xz_2d(mesh: TreeMesh, phi: np.ndarray) -> ssp.csr_matrix:
         compensate for cell aspect ratio.
     :param phi: Angle in radians for clockwise rotation about the
         y-axis (xz plane).
+
+    :return: Sparse rotation matrix
     """
 
     if mesh.dim != 2:
@@ -210,6 +224,8 @@ def rotate_yz_3d(mesh: TreeMesh, theta: np.ndarray) -> ssp.csr_matrix:
         compensate for cell aspect ratio.
     :param theta: Angle in radians for clockwise rotation about the
         x-axis (yz plane).
+
+    :return: Sparse rotation matrix
     """
     hy = mesh.h_gridded[:, 1]
     hz = mesh.h_gridded[:, 2]
@@ -226,6 +242,8 @@ def rotate_xy_3d(mesh: TreeMesh, phi: np.ndarray) -> ssp.csr_matrix:
         compensate for cell aspect ratio.
     :param phi: Angle in radians for clockwise rotation about the
         z-axis (xy plane).
+
+    :return: Sparse rotation matrix
     """
     hx = mesh.h_gridded[:, 0]
     hy = mesh.h_gridded[:, 1]
@@ -244,6 +262,8 @@ def get_cell_normals(n_cells: int, axis: str, outward: bool, dim: int) -> np.nda
         False for inward facing normals.
     :param dim: Dimension of the mesh. Either 2 for drape model or 3
         for octree.
+
+    :return: Array of cell normals.
     """
 
     ind = 1 if outward else -1
