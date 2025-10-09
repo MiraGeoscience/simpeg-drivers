@@ -243,5 +243,5 @@ if __name__ == "__main__":
                     Path("./"), n_grid_points=20, refinement=(4, 8)
                 )
                 test_magnetic_vector_run(
-                    Path("./"), None, max_iterations=30, upper_bound=1e-1, pytest=False
+                    Path("./"), None, max_iterations=30, upper_bound=5e-3, pytest=False
                 )
