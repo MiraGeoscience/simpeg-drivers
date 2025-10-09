@@ -13,13 +13,15 @@ import sys
 from pathlib import Path
 
 import numpy as np
-from dask.distributed import Client, LocalCluster, performance_report
-from geoapps_utils.run import load_ui_json_as_dict
 from geoapps_utils.utils.importing import GeoAppsError
 from geoapps_utils.utils.logger import get_logger
 from geoh5py import Workspace
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
-from geoh5py.shared.utils import fetch_active_workspace
+from geoh5py.shared.utils import (
+    dict_to_json_str,
+    fetch_active_workspace,
+    uuid_from_values,
+)
 from geoh5py.ui_json.utils import flatten
 
 from simpeg_drivers.driver import BaseDriver
@@ -146,8 +148,16 @@ class PlateSweepDriver(BaseDriver):
     def run_trial(
         data: dict, h5file: Path, workdir: Path | None, worker: tuple[str] | None = None
     ):
-        json_string = SweepOptions.jsonify(data)
-        uid = SweepOptions.uuid_from_params(json_string)
+        """
+        Run a single trial of the plate simulation with name encoding from the parameters.
+
+        :param data: Dictionary of parameters for the trial.
+        :param h5file: Path to the geoh5 file.
+        :param workdir: Working directory to copy the geoh5 file to.
+        :param worker: Dask.distributed.Worker to run the trial on.
+        """
+        json_string = dict_to_json_str(data)
+        uid = uuid_from_values(json_string)
 
         if workdir is None:
             workdir = h5file.parent

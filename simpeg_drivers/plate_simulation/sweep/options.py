@@ -9,21 +9,17 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 import itertools
-import json
-import uuid
 from pathlib import Path
-from typing import Any, ClassVar
+from typing import ClassVar
 
 import numpy as np
 from geoapps_utils.base import Options
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
-from geoh5py.shared import Entity
-from geoh5py.shared.utils import dict_mapper, stringify
+from geoh5py.shared.utils import stringify
 from geoh5py.ui_json import InputFile
-from pydantic import BaseModel, ConfigDict, ValidationError, field_serializer
+from pydantic import BaseModel, ConfigDict, field_serializer
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
 
 
 class ParamSweep(BaseModel):
@@ -166,30 +162,3 @@ class SweepOptions(Options):
         options = self.template.options
         options["geoh5"] = self.geoh5
         return stringify(SweepOptions.all_hashable_options(options))
-
-    @staticmethod
-    def format_value(value: Any) -> Any:
-        """Format a value for json serialization."""
-        if isinstance(value, float):
-            return f"{value:.4e}"
-        if isinstance(value, Entity):
-            return str(value.uid)
-        return value
-
-    @classmethod
-    def jsonify(cls, data: dict) -> dict:
-        """Format all values in a dictionary for json serialization."""
-        formatted = dict_mapper(data, [cls.format_value])
-        return json.dumps(formatted, indent=4)
-
-    @staticmethod
-    def uuid_from_params(param_string: str) -> str:
-        """
-        Create a deterministic uuid.
-
-        :param params: Tuple containing the values of a sweep iteration.
-
-        :returns: Unique but recoverable uuid file identifier string.
-        """
-
-        return str(uuid.uuid5(uuid.NAMESPACE_DNS, param_string))
