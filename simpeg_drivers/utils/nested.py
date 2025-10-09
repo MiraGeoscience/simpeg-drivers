@@ -298,7 +298,7 @@ def create_simulation(
         }
     )
     local_sim.sensitivity_path = str(
-        Path(simulation.sensitivity_path) / f"Tile{file_uid}.zarr"
+        Path(simulation.sensitivity_path) / f"{file_uid}.zarr"
     )
 
     if isinstance(

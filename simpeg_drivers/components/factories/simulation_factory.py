@@ -189,4 +189,5 @@ class SimulationFactory(SimPEGFactory):
             kwargs["sigmaMap"] = maps.ExpMap(mesh)
             kwargs["thicknesses"] = mesh.h[1][1:][::-1]
 
+        kwargs["sensitivity_path"] = self.params.workpath.resolve() / "sensitivities"
         return kwargs
