@@ -22,7 +22,6 @@ if TYPE_CHECKING:
 
     from simpeg_drivers.options import BaseOptions
 
-from pathlib import Path
 
 import numpy as np
 from simpeg import maps
@@ -191,14 +190,3 @@ class SimulationFactory(SimPEGFactory):
             kwargs["thicknesses"] = mesh.h[1][1:][::-1]
 
         return kwargs
-
-    def _get_sensitivity_path(self, tile_id: int) -> str:
-        """Build path to destination of on-disk sensitivities."""
-        out_dir = Path(self.params.workpath) / "sensitivities"
-
-        if tile_id is None:
-            sens_path = out_dir / "Tile.zarr"
-        else:
-            sens_path = out_dir / f"Tile{tile_id}.zarr"
-
-        return str(sens_path)
