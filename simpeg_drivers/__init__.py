@@ -168,4 +168,12 @@ DRIVER_MAP = {
         "simpeg_drivers.natural_sources.tipper.driver",
         {"forward": "TipperForwardDriver", "inversion": "TipperInversionDriver"},
     ),
+    "plate simulation": (
+        "simpeg_drivers.plate_simulation.driver",
+        {"forward": "PlateSimulationDriver"},
+    ),
+    "plate sweep": (
+        "simpeg_drivers.plate_simulation.sweep.driver",
+        {"forward": "PlateSweepDriver"},
+    ),
 }

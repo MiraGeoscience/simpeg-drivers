@@ -403,7 +403,7 @@ def test_legacy_uijson(tmp_path: Path):
                     ifile.data[CHANNEL_NAME[inversion_type] + "_channel"] = channel
                     ifile.data[CHANNEL_NAME[inversion_type] + "_uncertainty"] = channel
 
-            driver = InversionDriver.from_input_file(ifile)
+            driver = InversionDriver.from_input_file(ifile.data)
 
             if hasattr(driver.params, "cooling_factor"):
                 assert driver.params.cooling_factor == 4.0
