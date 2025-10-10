@@ -287,14 +287,12 @@ def create_simulation(
             kwargs[key] = getattr(simulation, key)
 
     local_sim = type(simulation)(*args, **kwargs)
-    center = local_survey.receiver_locations.mean(axis=0)
     file_uid = uuid_from_values(
         {
             "mesh": local_mesh.n_cells,
-            "center_x": center[0],
-            "center_y": center[1],
-            "center_z": center[2],
+            "survey": int(local_survey.nD),
             "tile_id": tile_id,
+            "type": str(type(simulation)),
         }
     )
     local_sim.sensitivity_path = str(
