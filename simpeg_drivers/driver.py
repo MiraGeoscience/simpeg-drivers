@@ -98,6 +98,12 @@ class BaseDriver(Driver):
     ):
         super().__init__(params)
         self._client: Client | bool = self.validate_client(client)
+
+        if getattr(self.params, "store_sensitivities", None) == "disk" and self.client:
+            raise GeoAppsError(
+                "Disk storage of sensitivities is not compatible with distributed processing."
+            )
+
         self._workers: list[tuple[str]] | None = self.validate_workers(workers)
 
     @property
@@ -811,12 +817,6 @@ if __name__ == "__main__":
         n_workers is not None and n_workers > 1
     ) or n_threads is not None
     storage_device = input_file.get("store_sensitivities", "ram")
-
-    if storage_device == "disk" and distributed_process:
-        raise GeoAppsError(
-            "Disk storage of sensitivities is not compatible with distributed processing."
-        )
-
     driver_class = InversionDriver.from_input_file(input_file)
 
     # Force distributed on 1D problems
