@@ -9,7 +9,6 @@ dependencies:
   - _openmp_mutex=4.5=4_kmp_llvm
   - annotated-types=0.7.0=pyhd8ed1ab_1
   - asciitree=0.3.3=py_2
-  - astroid=3.3.11=py310hff52083_1
   - bokeh=3.6.3=pyhd8ed1ab_0
   - brotli=1.1.0=hb03c661_4
   - brotli-bin=1.1.0=hb03c661_4
@@ -28,8 +27,7 @@ dependencies:
   - cycler=0.12.1=pyhd8ed1ab_1
   - cytoolz=1.0.1=py310ha75aee5_0
   - dask-core=2025.3.0=pyhd8ed1ab_0
-  - dill=0.4.0=pyhd8ed1ab_0
-  - discretize=0.11.3=py310ha2bacc8_0
+  - discretize=0.11.3=py310hc563356_1
   - distributed=2025.3.0=pyhd8ed1ab_0
   - fasteners=0.19=pyhd8ed1ab_1
   - fonttools=4.60.1=py310h3406613_0
@@ -43,8 +41,6 @@ dependencies:
   - hyperframe=6.1.0=pyhd8ed1ab_0
   - icu=75.1=he02047a_0
   - importlib-metadata=8.7.0=pyhe01879c_1
-  - importlib_metadata=8.7.0=h40b2b14_1
-  - isort=6.1.0=pyhd8ed1ab_0
   - jinja2=3.1.6=pyhd8ed1ab_0
   - joblib=1.5.2=pyhd8ed1ab_0
   - keyutils=1.6.3=hb9d3cd8_0
@@ -68,10 +64,10 @@ dependencies:
   - libffi=3.4.6=h2dba641_1
   - libfreetype=2.14.1=ha770c72_0
   - libfreetype6=2.14.1=h73754d4_0
-  - libgcc=15.2.0=h767d61c_6
-  - libgcc-ng=15.2.0=h69a702a_6
-  - libgfortran=15.2.0=h69a702a_6
-  - libgfortran5=15.2.0=hcd61629_6
+  - libgcc=15.2.0=h767d61c_7
+  - libgcc-ng=15.2.0=h69a702a_7
+  - libgfortran=15.2.0=h69a702a_7
+  - libgfortran5=15.2.0=hcd61629_7
   - libhwloc=2.12.1=default_h7f8ec31_1002
   - libiconv=1.18=h3b78370_2
   - libjpeg-turbo=3.1.0=hb9d3cd8_0
@@ -84,8 +80,8 @@ dependencies:
   - libspatialindex=2.0.0=he02047a_0
   - libsqlite=3.50.4=h0c1763c_0
   - libssh2=1.11.1=hcf80075_0
-  - libstdcxx=15.2.0=h8f9b012_6
-  - libstdcxx-ng=15.2.0=h4852527_6
+  - libstdcxx=15.2.0=h8f9b012_7
+  - libstdcxx-ng=15.2.0=h4852527_7
   - libtiff=4.7.1=h8261f1e_0
   - libuuid=2.41.2=he9a06e4_0
   - libwebp-base=1.6.0=hd42ef1d_0
@@ -98,10 +94,9 @@ dependencies:
   - locket=1.0.0=pyhd8ed1ab_0
   - markupsafe=3.0.3=py310h3406613_0
   - matplotlib-base=3.8.4=py310hef631a5_2
-  - mccabe=0.7.0=pyhd8ed1ab_1
   - metis=5.1.0=hd0bcaf9_1007
   - mkl=2024.2.2=ha770c72_17
-  - msgpack-python=1.1.1=py310h03d9f68_1
+  - msgpack-python=1.1.2=py310h03d9f68_0
   - mumps-include=5.7.3=h82cca05_10
   - mumps-seq=5.7.3=h06cbf8f_10
   - munkres=1.1.4=pyhd8ed1ab_1
@@ -115,14 +110,12 @@ dependencies:
   - partd=1.4.2=pyhd8ed1ab_0
   - pillow=10.3.0=py310hebfe307_1
   - pip=25.2=pyh8b19718_0
-  - platformdirs=4.4.0=pyhcf101f3_0
   - psutil=7.1.0=py310h7c4b9e2_0
   - pthread-stubs=0.4=hb9d3cd8_1002
   - pycparser=2.22=pyh29332c3_1
-  - pydantic=2.11.10=pyh3cfb1c2_0
-  - pydantic-core=2.33.2=py310hbcd0ec0_0
+  - pydantic=2.12.0=pyh3cfb1c2_0
+  - pydantic-core=2.41.1=py310hd8f68c5_0
   - pydiso=0.1.2=py310h69a6472_0
-  - pylint=3.3.9=pyhcf101f3_0
   - pymatsolver=0.3.1=pyh48887ae_201
   - pyparsing=3.2.5=pyhcf101f3_0
   - pysocks=1.7.1=pyha55dd90_7
@@ -144,8 +137,6 @@ dependencies:
   - tblib=3.1.0=pyhd8ed1ab_0
   - threadpoolctl=3.6.0=pyhecae5ae_0
   - tk=8.6.13=noxft_hd72426e_102
-  - tomli=2.2.1=pyhe01879c_2
-  - tomlkit=0.13.3=pyha770c72_0
   - toolz=1.0.0=pyhd8ed1ab_1
   - tornado=6.5.2=py310h7c4b9e2_1
   - tqdm=4.67.1=pyhd8ed1ab_1
@@ -168,9 +159,9 @@ dependencies:
   - zstd=1.5.7=hb8e6e7a_2
   - pip:
     - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@13980469f5548c3dcbd2bd208b232bf02a2f68ca
-    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@e5a08e7bfed421e16b59c318ea430aec55a2c005
+    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@4478dce78b44f77f6d3b6283c006818b71b31869
     - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@ed6918388d6fc4062f72e471e415a1a22cc15d0d
-    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@825b0b73fcc95b7b2c9629c19ea8861222adad7e
+    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@cb0b8a4f4d6ecd4856cd04c5d3e4fe97a3f2dc2b
 
 variables:
   KMP_WARNINGS: 0
