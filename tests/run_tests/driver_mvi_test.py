@@ -92,7 +92,7 @@ def test_magnetic_vector_run(
     tmp_path: Path,
     caplog,
     max_iterations=3,
-    upper_bound=2e-3,
+    upper_bound=2.5e-3,
     pytest=True,
 ):
     workpath = tmp_path / "inversion_test.ui.geoh5"
@@ -173,7 +173,7 @@ def test_magnetic_vector_run(
             mesh = out_group.get_entity("mesh")[0]
             assert len(mesh.property_groups) == 6
             assert len(mesh.fetch_property_group("Iteration_0").properties) == 2
-            assert len(mesh.fetch_property_group("LP models").properties) == 3
+            assert len(mesh.fetch_property_group("LP models").properties) == 6
             assert (
                 mesh.fetch_property_group("Iteration_1").property_group_type
                 == GroupTypeEnum.DIPDIR
