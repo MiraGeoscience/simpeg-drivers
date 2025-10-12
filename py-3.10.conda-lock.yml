@@ -276,55 +276,57 @@ package:
   category: main
   optional: false
 - name: astroid
-  version: 3.3.11
+  version: 4.0.1
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.10,<3.11.0a0'
     python_abi: 3.10.*
     typing_extensions: '>=4'
-  url: https://repo.prefix.dev/conda-forge/linux-64/astroid-3.3.11-py310hff52083_1.conda
+  url: https://repo.prefix.dev/conda-forge/linux-64/astroid-4.0.1-py310hff52083_0.conda
   hash:
-    md5: cf84a0665b3e7ec2056ae606b4ce1378
-    sha256: 223f1330a5ddb1b3b28be57f966c04603902e0bb7b22dbb4a29f1d1240ec1ed7
+    md5: a1d5b7328f148b69f14441d4d4212bf5
+    sha256: 89f324ecb8efa3fae52a2d64ebdcfcf1c66ca548b3b7ce8e9af355331c5eac77
   category: dev
   optional: true
 - name: astroid
-  version: 3.3.11
+  version: 4.0.1
   manager: conda
   platform: win-64
   dependencies:
     python: '>=3.10,<3.11.0a0'
     python_abi: 3.10.*
     typing_extensions: '>=4'
-  url: https://repo.prefix.dev/conda-forge/win-64/astroid-3.3.11-py310h5588dad_1.conda
+  url: https://repo.prefix.dev/conda-forge/win-64/astroid-4.0.1-py310h5588dad_0.conda
   hash:
-    md5: 6cd63bf117fad2a1359e93bdaab4884f
-    sha256: 1daca67f30e02b3d1116aa512ac263e7c8ace9bba77341fb3eff7d3a930197a6
+    md5: 9310978872d340d9e02a40369563293e
+    sha256: fc9a1101d04d8d19d7f7dbde882d98498259555cd98398bc86104e3c10cca645
   category: dev
   optional: true
 - name: asttokens
-  version: 3.0.0
+  version: 2.4.1
   manager: conda
   platform: linux-64
   dependencies:
-    python: '>=3.9'
-  url: https://repo.prefix.dev/conda-forge/noarch/asttokens-3.0.0-pyhd8ed1ab_1.conda
+    python: '>=3.5'
+    six: '>=1.12.0'
+  url: https://repo.prefix.dev/conda-forge/noarch/asttokens-2.4.1-pyhd8ed1ab_0.conda
   hash:
-    md5: 8f587de4bcf981e26228f268df374a9b
-    sha256: 93b14414b3b3ed91e286e1cbe4e7a60c4e1b1c730b0814d1e452a8ac4b9af593
+    md5: 5f25798dcefd8252ce5f9dc494d5f571
+    sha256: 708168f026df19a0344983754d27d1f7b28bb21afc7b97a82f02c4798a3d2111
   category: dev
   optional: true
 - name: asttokens
-  version: 3.0.0
+  version: 2.4.1
   manager: conda
   platform: win-64
   dependencies:
-    python: '>=3.9'
-  url: https://repo.prefix.dev/conda-forge/noarch/asttokens-3.0.0-pyhd8ed1ab_1.conda
+    python: '>=3.5'
+    six: '>=1.12.0'
+  url: https://repo.prefix.dev/conda-forge/noarch/asttokens-2.4.1-pyhd8ed1ab_0.conda
   hash:
-    md5: 8f587de4bcf981e26228f268df374a9b
-    sha256: 93b14414b3b3ed91e286e1cbe4e7a60c4e1b1c730b0814d1e452a8ac4b9af593
+    md5: 5f25798dcefd8252ce5f9dc494d5f571
+    sha256: 708168f026df19a0344983754d27d1f7b28bb21afc7b97a82f02c4798a3d2111
   category: dev
   optional: true
 - name: async-lru
@@ -1866,27 +1868,27 @@ package:
   category: main
   optional: false
 - name: idna
-  version: '3.10'
+  version: '3.11'
   manager: conda
   platform: linux-64
   dependencies:
-    python: '>=3.9'
-  url: https://repo.prefix.dev/conda-forge/noarch/idna-3.10-pyhd8ed1ab_1.conda
+    python: '>=3.10'
+  url: https://repo.prefix.dev/conda-forge/noarch/idna-3.11-pyhd8ed1ab_0.conda
   hash:
-    md5: 39a4f67be3286c86d696df570b1201b7
-    sha256: d7a472c9fd479e2e8dcb83fb8d433fce971ea369d704ece380e876f9c3494e87
+    md5: 53abe63df7e10a6ba605dc5f9f961d36
+    sha256: ae89d0299ada2a3162c2614a9d26557a92aa6a77120ce142f8e0109bbf0342b0
   category: dev
   optional: true
 - name: idna
-  version: '3.10'
+  version: '3.11'
   manager: conda
   platform: win-64
   dependencies:
-    python: '>=3.9'
-  url: https://repo.prefix.dev/conda-forge/noarch/idna-3.10-pyhd8ed1ab_1.conda
+    python: '>=3.10'
+  url: https://repo.prefix.dev/conda-forge/noarch/idna-3.11-pyhd8ed1ab_0.conda
   hash:
-    md5: 39a4f67be3286c86d696df570b1201b7
-    sha256: d7a472c9fd479e2e8dcb83fb8d433fce971ea369d704ece380e876f9c3494e87
+    md5: 53abe63df7e10a6ba605dc5f9f961d36
+    sha256: ae89d0299ada2a3162c2614a9d26557a92aa6a77120ce142f8e0109bbf0342b0
   category: dev
   optional: true
 - name: imagesize
@@ -2172,29 +2174,29 @@ package:
   category: dev
   optional: true
 - name: isort
-  version: 6.1.0
+  version: 7.0.0
   manager: conda
   platform: linux-64
   dependencies:
     importlib-metadata: '>=4.6.0'
     python: '>=3.10,<4.0'
-  url: https://repo.prefix.dev/conda-forge/noarch/isort-6.1.0-pyhd8ed1ab_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/isort-7.0.0-pyhd8ed1ab_0.conda
   hash:
-    md5: 1600dda6f61d2bc551676c2cebeb14e8
-    sha256: f93e415768129866c8f6b307bfb354fea17c17c1ecd287b32cb14ae9afc1c517
+    md5: 55a61979242077b2cc377c74326ea9f0
+    sha256: 13b0005877f553eb2e5c50447c9d0047e7257124ec2d1569d7dad35697790237
   category: dev
   optional: true
 - name: isort
-  version: 6.1.0
+  version: 7.0.0
   manager: conda
   platform: win-64
   dependencies:
     importlib-metadata: '>=4.6.0'
     python: '>=3.10,<4.0'
-  url: https://repo.prefix.dev/conda-forge/noarch/isort-6.1.0-pyhd8ed1ab_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/isort-7.0.0-pyhd8ed1ab_0.conda
   hash:
-    md5: 1600dda6f61d2bc551676c2cebeb14e8
-    sha256: f93e415768129866c8f6b307bfb354fea17c17c1ecd287b32cb14ae9afc1c517
+    md5: 55a61979242077b2cc377c74326ea9f0
+    sha256: 13b0005877f553eb2e5c50447c9d0047e7257124ec2d1569d7dad35697790237
   category: dev
   optional: true
 - name: jedi
@@ -4204,29 +4206,29 @@ package:
   category: dev
   optional: true
 - name: llvm-openmp
-  version: 21.1.2
+  version: 21.1.3
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
-  url: https://repo.prefix.dev/conda-forge/linux-64/llvm-openmp-21.1.2-h4922eb0_3.conda
+  url: https://repo.prefix.dev/conda-forge/linux-64/llvm-openmp-21.1.3-h4922eb0_0.conda
   hash:
-    md5: 361a5a5b9c201a56fb418a51f66490c1
-    sha256: 2b8d157370cb9202d4970a2353a02517ccf72e81f2d95920570aef934d0508fd
+    md5: df07762772ecb4f3be02f1c508095a55
+    sha256: bf146db240ad78bd6f2553c064395894c5c69aedc620d60b4bdda8d415823b77
   category: main
   optional: false
 - name: llvm-openmp
-  version: 21.1.2
+  version: 21.1.3
   manager: conda
   platform: win-64
   dependencies:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.3,<15'
     vc14_runtime: '>=14.44.35208'
-  url: https://repo.prefix.dev/conda-forge/win-64/llvm-openmp-21.1.2-hfa2b4ca_3.conda
+  url: https://repo.prefix.dev/conda-forge/win-64/llvm-openmp-21.1.3-hfa2b4ca_0.conda
   hash:
-    md5: 166437478d1ec2f9815180e86a3acebd
-    sha256: 7fb9351d8b566dac4c3f7f20aaf200edfeb8d123ca98be5abe80e38e13f09ee5
+    md5: b1dd38bdf96540a6dedf0d196108c9a1
+    sha256: 54826ea90c80ca04640b0fc1a0b3aabfd0f4e60e03c270b2a919a3655f21bc78
   category: main
   optional: false
 - name: locket
@@ -5873,45 +5875,43 @@ package:
   category: dev
   optional: true
 - name: pylint
-  version: 3.3.9
+  version: 4.0.0
   manager: conda
   platform: linux-64
   dependencies:
-    astroid: '>=3.3.8,<3.4.0-dev0'
+    astroid: '>=4.0.1,<=4.1.0.dev0'
     colorama: '>=0.4.5'
     dill: '>=0.3.7'
-    isort: '>=4.2.5,<7,!=5.13.0'
+    isort: '>=5,<8,!=5.13'
     mccabe: '>=0.6,<0.8'
-    platformdirs: '>=2.2.0'
+    platformdirs: '>=2.2'
     python: ''
     tomli: '>=1.1.0'
     tomlkit: '>=0.10.1'
-    typing_extensions: '>=3.10.0'
-  url: https://repo.prefix.dev/conda-forge/noarch/pylint-3.3.9-pyhcf101f3_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/pylint-4.0.0-pyhcf101f3_0.conda
   hash:
-    md5: 3d773559e6b319a802a7c831b7f59138
-    sha256: aed395678d4fdcec6ae66c22f06a16a92be600751979e75f6fb39f7c60b9ebf7
+    md5: f8e2acdbff0aec11d3def36760615f07
+    sha256: 0a3de6ab1c2d7648ad3e22ea426b369c655d32a5294f005a66630413f93b5703
   category: dev
   optional: true
 - name: pylint
-  version: 3.3.9
+  version: 4.0.0
   manager: conda
   platform: win-64
   dependencies:
-    astroid: '>=3.3.8,<3.4.0-dev0'
+    astroid: '>=4.0.1,<=4.1.0.dev0'
     colorama: '>=0.4.5'
     dill: '>=0.3.7'
-    isort: '>=4.2.5,<7,!=5.13.0'
+    isort: '>=5,<8,!=5.13'
     mccabe: '>=0.6,<0.8'
-    platformdirs: '>=2.2.0'
+    platformdirs: '>=2.2'
     python: '>=3.10'
     tomli: '>=1.1.0'
     tomlkit: '>=0.10.1'
-    typing_extensions: '>=3.10.0'
-  url: https://repo.prefix.dev/conda-forge/noarch/pylint-3.3.9-pyhcf101f3_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/pylint-4.0.0-pyhcf101f3_0.conda
   hash:
-    md5: 3d773559e6b319a802a7c831b7f59138
-    sha256: aed395678d4fdcec6ae66c22f06a16a92be600751979e75f6fb39f7c60b9ebf7
+    md5: f8e2acdbff0aec11d3def36760615f07
+    sha256: 0a3de6ab1c2d7648ad3e22ea426b369c655d32a5294f005a66630413f93b5703
   category: dev
   optional: true
 - name: pymatsolver
@@ -8677,7 +8677,7 @@ package:
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.23.0.1.post2.dev110+mira.gcb0b8a4f4
+  version: 0.23.0.1.post2.dev112+mira.g78903c94a
   manager: pip
   platform: linux-64
   dependencies:
@@ -8689,16 +8689,16 @@ package:
     numpy: '>=1.22'
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@cb0b8a4f4d6ecd4856cd04c5d3e4fe97a3f2dc2b
+  url: git+https://github.com/MiraGeoscience/simpeg.git@78903c94ab6638fe0e431fe8412e8b5f1561f250
   hash:
-    sha256: cb0b8a4f4d6ecd4856cd04c5d3e4fe97a3f2dc2b
+    sha256: 78903c94ab6638fe0e431fe8412e8b5f1561f250
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@cb0b8a4f4d6ecd4856cd04c5d3e4fe97a3f2dc2b
+    url: git+https://github.com/MiraGeoscience/simpeg.git@78903c94ab6638fe0e431fe8412e8b5f1561f250
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.23.0.1.post2.dev110+mira.gcb0b8a4f4
+  version: 0.23.0.1.post2.dev112+mira.g78903c94a
   manager: pip
   platform: win-64
   dependencies:
@@ -8710,11 +8710,11 @@ package:
     numpy: '>=1.22'
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@cb0b8a4f4d6ecd4856cd04c5d3e4fe97a3f2dc2b
+  url: git+https://github.com/MiraGeoscience/simpeg.git@78903c94ab6638fe0e431fe8412e8b5f1561f250
   hash:
-    sha256: cb0b8a4f4d6ecd4856cd04c5d3e4fe97a3f2dc2b
+    sha256: 78903c94ab6638fe0e431fe8412e8b5f1561f250
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@cb0b8a4f4d6ecd4856cd04c5d3e4fe97a3f2dc2b
+    url: git+https://github.com/MiraGeoscience/simpeg.git@78903c94ab6638fe0e431fe8412e8b5f1561f250
   category: main
   optional: false

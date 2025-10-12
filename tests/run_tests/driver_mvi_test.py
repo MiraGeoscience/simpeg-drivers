@@ -45,7 +45,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_mvi_run = {"data_norm": 149.10117434016038, "phi_d": 81.3, "phi_m": 0.0812}
+target_mvi_run = {"data_norm": 149.10117434016038, "phi_d": 1070, "phi_m": 0.129}
 
 
 def test_magnetic_vector_fwr_run(
@@ -151,7 +151,7 @@ def test_magnetic_vector_run(
             assert "Skipping deprecated field: lower_bound" in caplog.text
 
     driver = MVIInversionDriver(params)
-    assert np.all(driver.models.lower_bound == (-upper_bound / 3**0.5))
+    assert np.all(driver.models.lower_bound == -upper_bound)
     driver.run()
 
     if pytest:
@@ -171,9 +171,9 @@ def test_magnetic_vector_run(
 
             out_group = run_ws.get_entity("Magnetic Vector Inversion")[0]
             mesh = out_group.get_entity("mesh")[0]
-            assert len(mesh.property_groups) == 5
+            assert len(mesh.property_groups) == 6
             assert len(mesh.fetch_property_group("Iteration_0").properties) == 2
-            assert len(mesh.fetch_property_group("L2 models").properties) == 12
+            assert len(mesh.fetch_property_group("LP models").properties) == 6
             assert (
                 mesh.fetch_property_group("Iteration_1").property_group_type
                 == GroupTypeEnum.DIPDIR
