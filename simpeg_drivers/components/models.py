@@ -289,7 +289,7 @@ class InversionModelCollection:
             lbound[is_finite] = np.log(lbound[is_finite])
 
         if self.is_vector:
-            lbound = np.tile(lbound, 3)
+            lbound = np.tile(lbound, 3) / np.sqrt(3)
 
         return lbound
 
