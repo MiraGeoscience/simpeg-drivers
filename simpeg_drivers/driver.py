@@ -366,6 +366,7 @@ class InversionDriver(BaseDriver):
                 tolCG=self.params.optimization.tol_cg,
                 stepOffBoundsFact=1e-8,
                 LSshorten=0.25,
+                require_decrease=False,
             )
         return self._optimization
 
