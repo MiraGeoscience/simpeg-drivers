@@ -81,7 +81,7 @@ class DirectivesFactory:
             and self._beta_estimate_by_eigenvalues_directive is None
         ):
             self._beta_estimate_by_eigenvalues_directive = (
-                directives.BetaEstimateDerivative(
+                directives.BetaEstimateMaxDerivative(
                     beta0_ratio=self.params.cooling_schedule.initial_beta_ratio,
                     random_seed=0,
                 )
