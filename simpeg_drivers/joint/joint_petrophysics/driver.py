@@ -29,7 +29,7 @@ from .options import JointPetrophysicsOptions
 
 
 class JointPetrophysicsDriver(BaseJointDriver):
-    _options_class = JointPetrophysicsOptions
+    _params_class = JointPetrophysicsOptions
 
     def __init__(self, params: JointPetrophysicsOptions):
         self._wires = None

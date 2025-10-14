@@ -19,10 +19,10 @@ from .options import MTForwardOptions, MTInversionOptions
 class MTForwardDriver(InversionDriver):
     """Magnetotellurics forward driver."""
 
-    _options_class = MTForwardOptions
+    _params_class = MTForwardOptions
 
 
 class MTInversionDriver(InversionDriver):
     """Magnetotellurics inversion driver."""
 
-    _options_class = MTInversionOptions
+    _params_class = MTInversionOptions

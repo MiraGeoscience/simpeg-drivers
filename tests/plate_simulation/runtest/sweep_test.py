@@ -102,5 +102,5 @@ def test_sweep(tmp_path):
 
     PlateSweepDriver.start(tmp_path / "plate_sweep_modified.ui.json")
 
-    n = len(list(workdir.glob("*.ui.json")))
-    assert n == 7  # 7 trials and one for octree.
+    n = len(list(workdir.glob("*.geoh5")))
+    assert n == 6

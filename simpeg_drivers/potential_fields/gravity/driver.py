@@ -21,10 +21,10 @@ from simpeg_drivers.potential_fields.gravity.options import (
 class GravityForwardDriver(InversionDriver):
     """Gravity forward driver."""
 
-    _options_class = GravityForwardOptions
+    _params_class = GravityForwardOptions
 
 
 class GravityInversionDriver(InversionDriver):
     """Gravity inversion driver."""
 
-    _options_class = GravityInversionOptions
+    _params_class = GravityInversionOptions

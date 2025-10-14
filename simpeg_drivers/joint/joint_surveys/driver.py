@@ -30,7 +30,7 @@ logger = getLogger(__name__)
 class JointSurveyDriver(BaseJointDriver):
     """Joint surveys inversion driver"""
 
-    _options_class = JointSurveysOptions
+    _params_class = JointSurveysOptions
 
     def __init__(self, params: JointSurveysOptions):
         super().__init__(params)

@@ -19,10 +19,10 @@ from .options import TipperForwardOptions, TipperInversionOptions
 class TipperForwardDriver(InversionDriver):
     """Tipper forward driver."""
 
-    _options_class = TipperForwardOptions
+    _params_class = TipperForwardOptions
 
 
 class TipperInversionDriver(InversionDriver):
     """Tipper inversion driver."""
 
-    _options_class = TipperInversionOptions
+    _params_class = TipperInversionOptions

@@ -125,6 +125,7 @@ class MisfitFactory(SimPEGFactory):
             return dask_objective_function.DistributedComboMisfits(
                 misfits,
                 client=self.client,
+                workers=self.workers,
             )
 
         return self.simpeg_object(  # pylint: disable=not-callable

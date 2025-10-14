@@ -81,7 +81,7 @@ class Base2DDriver(InversionDriver):
 class BaseBatch2DDriver(LineSweepDriver):
     """Base class for batch 2D DC and IP forward and inversion drivers."""
 
-    _options_class: type[BaseForwardOptions | BaseInversionOptions]
+    _params_class: type[BaseForwardOptions | BaseInversionOptions]
     _params_2d_class: type[BaseForwardOptions | BaseInversionOptions]
 
     _model_list: list[str] = []

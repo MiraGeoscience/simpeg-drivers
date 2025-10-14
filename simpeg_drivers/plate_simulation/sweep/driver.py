@@ -12,14 +12,17 @@ import shutil
 import sys
 from pathlib import Path
 
-from geoapps_utils.base import Driver
+import numpy as np
+from dask.distributed import Client, LocalCluster, performance_report
+from geoapps_utils.run import load_ui_json_as_dict
 from geoapps_utils.utils.importing import GeoAppsError
 from geoapps_utils.utils.logger import get_logger
 from geoh5py import Workspace
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
 from geoh5py.shared.utils import fetch_active_workspace
-from geoh5py.ui_json.input_file import InputFile
+from geoh5py.ui_json.utils import flatten
 
+from simpeg_drivers.driver import BaseDriver
 from simpeg_drivers.plate_simulation.driver import PlateSimulationDriver
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
 from simpeg_drivers.plate_simulation.sweep.options import SweepOptions
@@ -30,15 +33,15 @@ logger = get_logger(name=__name__, level_name=False, propagate=False, add_name=F
 
 
 # TODO: Can we make this generic (PlateSweepDriver -> SweepDriver)?
-class PlateSweepDriver(Driver):
+class PlateSweepDriver(BaseDriver):
     """Sets up and manages workers to run all combinations of swepts parameters."""
 
     _params_class = SweepOptions
 
-    def __init__(self, params: SweepOptions):
-        super().__init__(params)
+    def __init__(self, params: SweepOptions, workers: list[tuple[str]] | None = None):
+        super().__init__(params, workers=workers)
 
-        self._out_group = self.validate_out_group(self.params.out_group)
+        self.out_group = self.validate_out_group(self.params.out_group)
 
     @property
     def out_group(self) -> SimPEGGroup:
@@ -46,6 +49,17 @@ class PlateSweepDriver(Driver):
         Returns the output group for the simulation.
         """
         return self._out_group
+
+    @out_group.setter
+    def out_group(self, value: SimPEGGroup):
+        if not isinstance(value, SimPEGGroup):
+            raise TypeError("Output group must be a SimPEGGroup.")
+
+        if self.params.out_group != value:
+            self.params.out_group = value
+            self.params.update_out_group_options()
+
+        self._out_group = value
 
     def validate_out_group(self, out_group: SimPEGGroup | None) -> SimPEGGroup:
         """
@@ -62,14 +76,11 @@ class PlateSweepDriver(Driver):
                 name=self.params.title,
             )
             out_group.entity_type.name = self.params.title
-            self.params = self.params.model_copy(update={"out_group": out_group})
-            out_group.options = self.params.serialize()
-            out_group.metadata = None
 
         return out_group
 
     @classmethod
-    def start(cls, filepath: str | Path, mode="r", **_) -> Driver:
+    def start(cls, filepath: str | Path, mode="r", **_) -> BaseDriver:
         """Start the parameter sweep from a ui.json file."""
         logger.info("Loading input file . . .")
         filepath = Path(filepath).resolve()
@@ -99,18 +110,45 @@ class PlateSweepDriver(Driver):
             len(trials),
             self.params.template.options["title"],
         )
-        for kwargs in trials:
-            options_string = self.params.jsonify(kwargs)
-            uid = SweepOptions.uuid_from_params(options_string)
-            kwargs.update({"out_group": str(self.out_group.uid)})
-            PlateSweepDriver.run_worker(
-                uid, kwargs, self.workspace.h5file, options_string, self.params.workdir
-            )
+
+        use_futures = self.client
+
+        if use_futures:
+            blocks = np.array_split(trials, len(self.workers))
+        else:
+            blocks = trials
+
+        futures = []
+        for ind, block in enumerate(blocks):
+            if use_futures:
+                futures.append(
+                    self.client.submit(
+                        run_block,
+                        block,
+                        self.params.geoh5.h5file,
+                        self.params.workdir,
+                        self.workers[ind],
+                        workers=self.workers[ind],
+                    )
+                )
+
+            else:
+                run_block(
+                    [block],
+                    self.params.geoh5.h5file,
+                    self.params.workdir,
+                )
+
+        if use_futures:
+            self.client.gather(futures)
 
     @staticmethod
-    def run_worker(
-        uid: str, data: dict, h5file: Path, options_string: str, workdir: Path | None
+    def run_trial(
+        data: dict, h5file: Path, workdir: Path | None, worker: tuple[str] | None = None
     ):
+        json_string = SweepOptions.jsonify(data)
+        uid = SweepOptions.uuid_from_params(json_string)
+
         if workdir is None:
             workdir = h5file.parent
 
@@ -120,24 +158,45 @@ class PlateSweepDriver(Driver):
             return
 
         shutil.copy(h5file, workerfile)
-        with Workspace(workerfile, mode="r+") as worker:
+        with Workspace(workerfile, mode="r+") as workspace:
             plate_simulation = next(
                 group
-                for group in worker.groups
+                for group in workspace.groups
                 if isinstance(group, SimPEGGroup | UIJsonGroup)
-                and "plate_simulation.driver" in group.options.get("run_command")
+                and "plate simulation" == group.options.get("inversion_type")
             )
-            plate_simulation.add_file(options_string.encode("utf-8"), name="options")
-            ifile = InputFile(ui_json=plate_simulation.options, validate=False)
-            for key, value in data.items():
-                ifile.set_data_value(key, value)
-            options = PlateSimulationOptions.build(
-                ifile.data, geoh5=worker, out_group=plate_simulation
+
+            opt_dict = workspace.promote(flatten(plate_simulation.options))
+            opt_dict["geoh5"] = workspace
+            opt_dict["out_group"] = None
+            opt_dict["monitoring_directory"] = None
+            opt_dict.update(data)
+            options = PlateSimulationOptions.build(opt_dict)
+            plate_sim = PlateSimulationDriver(options, workers=[worker])
+            plate_sim.simulation_driver.logger = False
+            # Knock out the log directive
+            plate_sim.out_group.add_file(
+                json_string.encode("utf-8"), name="options.txt"
             )
-            options.write_ui_json(workdir / f"{uid}.ui.json")
-            PlateSimulationDriver.start(workdir / f"{uid}.ui.json")
+            plate_sim.run()
+
+        del plate_sim
+        return None
+
+
+def run_block(
+    trials: list[dict],
+    h5file: Path,
+    workdir: Path | None,
+    worker: tuple[str] | None = None,
+):
+    """
+    Loop through a list of trials and run a worker for each unique parameter set.
+    """
+    for kwargs in trials:
+        PlateSweepDriver.run_trial(kwargs, h5file, workdir, worker=worker)
 
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
+    file = Path(sys.argv[1])
     PlateSweepDriver.start(file)
