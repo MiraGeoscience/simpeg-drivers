@@ -82,6 +82,7 @@ class MisfitFactory(SimPEGFactory):
                                 self.params.inversion_type,
                                 self.params.forward_only,
                                 shared_indices=np.hstack(local_indices),
+                                worker=self.workers[worker_ind],
                                 workers=self.workers[worker_ind],
                             )
                         )

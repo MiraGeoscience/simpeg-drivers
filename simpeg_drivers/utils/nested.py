@@ -15,12 +15,14 @@ from copy import copy
 from pathlib import Path
 
 import numpy as np
+from dask.distributed import get_client
 from discretize import TensorMesh, TreeMesh
 from geoh5py.shared.utils import uuid_from_values
 from scipy.optimize import linear_sum_assignment
 from scipy.spatial import cKDTree
 from scipy.spatial.distance import cdist
 from simpeg import data, data_misfit, maps, meta, objective_function
+from simpeg.dask.objective_function import DistributedComboMisfits
 from simpeg.electromagnetics.base_1d import BaseEM1DSimulation
 from simpeg.electromagnetics.frequency_domain.simulation import BaseFDEMSimulation
 from simpeg.electromagnetics.frequency_domain.sources import (
@@ -122,6 +124,7 @@ def create_misfit(
     inversion_type,
     forward_only,
     shared_indices=None,
+    worker=None,
 ):
     """
     Create a list of local misfits based on the local indices.
@@ -142,11 +145,20 @@ def create_misfit(
     :return: List of local misfits and data slices.
     """
     # Split into smaller chunks
+
     if isinstance(simulation, BaseEM1DSimulation) and isinstance(
         local_indices, Iterable
     ):
-        misfit_list = [
-            create_misfit(
+        try:
+            client = get_client()
+            simulation = client.scatter(simulation)
+        except ValueError:
+            client = None
+
+        misfit_list = []
+
+        for ind in local_indices:
+            args = (
                 simulation,
                 ind,
                 channel,
@@ -154,9 +166,25 @@ def create_misfit(
                 padding_cells,
                 inversion_type,
                 forward_only,
+                None,
             )
-            for ind in local_indices
-        ]
+            if client:
+                misfit_list.append(client.submit(create_misfit, *args, workers=worker))
+            else:
+                misfit_list.append(
+                    create_misfit(
+                        *args,
+                    )
+                )
+
+        if client:
+            misfit_list = client.gather(misfit_list)
+            return DistributedComboMisfits(
+                misfit_list,
+                client=client,
+                workers=[worker],
+            )
+
         return objective_function.ComboObjectiveFunction(misfit_list)
 
     local_mesh = None
@@ -214,15 +242,6 @@ def create_simulation(
     local_survey = create_survey(simulation.survey, indices=indices, channel=channel)
     kwargs = {"survey": local_survey}
 
-    if local_mesh is None:
-        local_mesh = create_mesh(
-            local_survey,
-            simulation.mesh,
-            minimum_level=3,
-            padding_cells=padding_cells,
-        )
-
-    args = (local_mesh,)
     if isinstance(simulation, BaseEM1DSimulation):
         local_mesh = simulation.layers_mesh
         actives = np.ones(simulation.layers_mesh.n_cells, dtype=bool)
@@ -232,20 +251,32 @@ def create_simulation(
         mapping = maps.Projection(simulation.mesh.n_cells, model_slice)
         kwargs["topo"] = simulation.active_cells[indices]
         args = ()
-
-    elif isinstance(local_mesh, TreeMesh):
-        mapping = maps.TileMap(
-            simulation.mesh,
-            simulation.active_cells,
-            local_mesh,
-            enforce_active=True,
-            components=3 if getattr(simulation, "model_type", None) == "vector" else 1,
-        )
-        actives = mapping.local_active
-    # For DCIP-2D
     else:
-        actives = simulation.active_cells
-        mapping = maps.IdentityMap(nP=int(actives.sum()))
+        if local_mesh is None:
+            local_mesh = create_mesh(
+                local_survey,
+                simulation.mesh,
+                minimum_level=3,
+                padding_cells=padding_cells,
+            )
+
+        args = (local_mesh,)
+
+        if isinstance(local_mesh, TreeMesh):
+            mapping = maps.TileMap(
+                simulation.mesh,
+                simulation.active_cells,
+                local_mesh,
+                enforce_active=True,
+                components=3
+                if getattr(simulation, "model_type", None) == "vector"
+                else 1,
+            )
+            actives = mapping.local_active
+        # For DCIP-2D
+        else:
+            actives = simulation.active_cells
+            mapping = maps.IdentityMap(nP=int(actives.sum()))
 
     n_actives = int(actives.sum())
     if getattr(simulation, "_chiMap", None) is not None:
