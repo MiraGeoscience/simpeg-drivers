@@ -105,7 +105,7 @@ grid-apps = {git = "https://github.com/MiraGeoscience/grid-apps.git", rev = "dev
 geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "develop"}
 
 #mira-simpeg = {version = ">=0.23.0.1b1, <0.23.1.dev", source="pypi", allow-prereleases = true, extras = ["dask"]}
-mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", rev = "GEOPY-425", extras = ["dask"]}
+mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", rev = "develop", extras = ["dask"]}
 
 ## about pip dependencies
 # to be specified to work with conda-lock

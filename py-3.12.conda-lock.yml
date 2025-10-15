@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: 1b43671e286270aca83861cbeab024b2a738f924ec3cc36e030e71cc1052ff5c
-    linux-64: 8842013daafcc1c2c5e1dfed527f95c25eaa92dbffde9b500b3dea699aa8de32
+    win-64: 1184306731b94290082a07ff69198b9bab01231154ed953a92d9f4ce512366a2
+    linux-64: 81aedccfb6112401b5a94619d03cb65bd3c0a1242f995c2c22516fc86dbbaec5
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -8723,7 +8723,7 @@ package:
   category: main
   optional: false
 - name: geoapps-utils
-  version: 0.6.0a1.dev103+1398046
+  version: 0.6.0a1.dev108+ed5f5cf
   manager: pip
   platform: linux-64
   dependencies:
@@ -8731,16 +8731,16 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@13980469f5548c3dcbd2bd208b232bf02a2f68ca
+  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@ed5f5cf8cd1a3ef9c3ec13140215d4b5d3da0a31
   hash:
-    sha256: 13980469f5548c3dcbd2bd208b232bf02a2f68ca
+    sha256: ed5f5cf8cd1a3ef9c3ec13140215d4b5d3da0a31
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@13980469f5548c3dcbd2bd208b232bf02a2f68ca
+    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@ed5f5cf8cd1a3ef9c3ec13140215d4b5d3da0a31
   category: main
   optional: false
 - name: geoapps-utils
-  version: 0.6.0a1.dev103+1398046
+  version: 0.6.0a1.dev108+ed5f5cf
   manager: pip
   platform: win-64
   dependencies:
@@ -8748,12 +8748,12 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@13980469f5548c3dcbd2bd208b232bf02a2f68ca
+  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@ed5f5cf8cd1a3ef9c3ec13140215d4b5d3da0a31
   hash:
-    sha256: 13980469f5548c3dcbd2bd208b232bf02a2f68ca
+    sha256: ed5f5cf8cd1a3ef9c3ec13140215d4b5d3da0a31
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@13980469f5548c3dcbd2bd208b232bf02a2f68ca
+    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@ed5f5cf8cd1a3ef9c3ec13140215d4b5d3da0a31
   category: main
   optional: false
 - name: geoh5py
@@ -8796,7 +8796,7 @@ package:
   platform: linux-64
   dependencies:
     discretize: '>=0.11.0,<0.12.dev'
-    geoapps-utils: 0.6.0a1.dev103+1398046
+    geoapps-utils: 0.6.0a1.dev108+ed5f5cf
     geoh5py: 0.12.0a2.dev149+b7e7ecdb
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
@@ -8815,7 +8815,7 @@ package:
   platform: win-64
   dependencies:
     discretize: '>=0.11.0,<0.12.dev'
-    geoapps-utils: 0.6.0a1.dev103+1398046
+    geoapps-utils: 0.6.0a1.dev108+ed5f5cf
     geoh5py: 0.12.0a2.dev149+b7e7ecdb
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
@@ -8829,7 +8829,7 @@ package:
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.23.0.1.post2.dev120+mira.g523df6ad8
+  version: 0.23.0.1.post2.dev121+mira.g7564c0999
   manager: pip
   platform: linux-64
   dependencies:
@@ -8841,16 +8841,16 @@ package:
     numpy: '>=1.22'
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@523df6ad8f2cf115fae9d66d818401a76dbb69f6
+  url: git+https://github.com/MiraGeoscience/simpeg.git@7564c0999208f9ff8f9e3733f5ffd22da9b333ee
   hash:
-    sha256: 523df6ad8f2cf115fae9d66d818401a76dbb69f6
+    sha256: 7564c0999208f9ff8f9e3733f5ffd22da9b333ee
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@523df6ad8f2cf115fae9d66d818401a76dbb69f6
+    url: git+https://github.com/MiraGeoscience/simpeg.git@7564c0999208f9ff8f9e3733f5ffd22da9b333ee
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.23.0.1.post2.dev120+mira.g523df6ad8
+  version: 0.23.0.1.post2.dev121+mira.g7564c0999
   manager: pip
   platform: win-64
   dependencies:
@@ -8862,11 +8862,11 @@ package:
     numpy: '>=1.22'
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@523df6ad8f2cf115fae9d66d818401a76dbb69f6
+  url: git+https://github.com/MiraGeoscience/simpeg.git@7564c0999208f9ff8f9e3733f5ffd22da9b333ee
   hash:
-    sha256: 523df6ad8f2cf115fae9d66d818401a76dbb69f6
+    sha256: 7564c0999208f9ff8f9e3733f5ffd22da9b333ee
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@523df6ad8f2cf115fae9d66d818401a76dbb69f6
+    url: git+https://github.com/MiraGeoscience/simpeg.git@7564c0999208f9ff8f9e3733f5ffd22da9b333ee
   category: main
   optional: false
