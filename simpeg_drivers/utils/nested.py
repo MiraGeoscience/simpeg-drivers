@@ -16,6 +16,7 @@ from pathlib import Path
 
 import numpy as np
 from discretize import TensorMesh, TreeMesh
+from geoh5py.shared.utils import uuid_from_values
 from scipy.optimize import linear_sum_assignment
 from scipy.spatial import cKDTree
 from scipy.spatial.distance import cdist
@@ -255,16 +256,10 @@ def create_simulation(
             kwargs["chiMap"] = maps.IdentityMap(nP=n_actives)
 
         kwargs["active_cells"] = actives
-        kwargs["sensitivity_path"] = str(
-            Path(simulation.sensitivity_path).parent / f"Tile{tile_id}.zarr"
-        )
 
     if getattr(simulation, "_rhoMap", None) is not None:
         kwargs["rhoMap"] = maps.IdentityMap(nP=n_actives)
         kwargs["active_cells"] = actives
-        kwargs["sensitivity_path"] = str(
-            Path(simulation.sensitivity_path).parent / f"Tile{tile_id}.zarr"
-        )
 
     if getattr(simulation, "_sigmaMap", None) is not None:
         kwargs["sigmaMap"] = maps.ExpMap(local_mesh) * maps.InjectActiveCells(
@@ -292,6 +287,17 @@ def create_simulation(
             kwargs[key] = getattr(simulation, key)
 
     local_sim = type(simulation)(*args, **kwargs)
+    file_uid = uuid_from_values(
+        {
+            "mesh": local_mesh.n_cells,
+            "survey": int(local_survey.nD),
+            "tile_id": tile_id,
+            "type": str(type(simulation)),
+        }
+    )
+    local_sim.sensitivity_path = str(
+        Path(simulation.sensitivity_path) / f"{file_uid}.zarr"
+    )
 
     if isinstance(
         simulation, BaseFDEMSimulation | BaseTDEMSimulation
