@@ -16,12 +16,13 @@ import numpy as np
 import pytest
 from discretize import TreeMesh
 from geoh5py import Workspace
-from geoh5py.objects import Octree
+from geoh5py.objects import Grid2D, Octree
 from grid_apps.utils import treemesh_2_octree
 
 from simpeg_drivers.components import InversionMesh
 from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import MVIInversionOptions
+from simpeg_drivers.potential_fields.magnetic_vector.driver import MVIInversionDriver
 from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
 from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
@@ -32,7 +33,7 @@ from simpeg_drivers.utils.synthetics.options import (
 from tests.utils.targets import get_workspace
 
 
-def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
+def get_mvi_params(tmp_path: Path, updates=None) -> MVIInversionOptions:
     opts = SyntheticsComponentsOptions(
         method="magnetic_vector",
         survey=SurveyOptions(n_stations=4, n_lines=4),
@@ -52,20 +53,22 @@ def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
             {"elevation": {"values": components.topography.vertices[:, 2]}}
         )
 
-        params = MVIInversionOptions.build(
-            geoh5=geoh5,
-            data_object=components.survey,
-            tmi_channel=tmi_channel,
-            tmi_uncertainty=0.01,
-            active_cells=ActiveCellsOptions(
-                topography_object=components.topography, topography=elevation
-            ),
-            inducing_field_strength=50000.0,
-            inducing_field_inclination=60.0,
-            inducing_field_declination=30.0,
-            mesh=mesh,
-            starting_model=components.model,
-        )
+        kwargs = {
+            "geoh5": geoh5,
+            "data_object": components.survey,
+            "tmi_channel": tmi_channel,
+            "tmi_uncertainty": 0.01,
+            "topography_object": components.topography,
+            "topography": elevation,
+            "inducing_field_strength": 50000.0,
+            "inducing_field_inclination": 60.0,
+            "inducing_field_declination": 30.0,
+            "mesh": mesh,
+            "starting_model": components.model,
+        }
+        if updates is not None:
+            kwargs.update(updates)
+        params = MVIInversionOptions.build(**kwargs)
     return params
 
 
@@ -214,3 +217,27 @@ def test_raise_on_rotated_negative_cell_size(tmp_path):
         msg = "Cannot convert negative cell sizes for rotated mesh."
         with pytest.raises(ValueError, match=msg):
             InversionMesh.ensure_cell_convention(mesh)
+
+
+def test_handle_grid2d(tmp_path):
+    with Workspace(tmp_path / "test.geoh5") as ws:
+        topo = Grid2D.create(
+            ws,
+            name="topography",
+            u_cell_size=25.0,
+            v_cell_size=25.0,
+            u_count=16,
+            v_count=16,
+            origin=(-200.0, -200.0, 0.0),
+        )
+        elev = topo.add_data(
+            {
+                "elevation": {
+                    "values": np.zeros(len(topo.centroids)),
+                }
+            }
+        )
+
+    updates = {"mesh": None, "topography_object": topo, "topography": elev}
+    params = get_mvi_params(tmp_path, updates=updates)
+    MVIInversionDriver(params)  # Doesn't crash
