@@ -56,10 +56,12 @@ class MisfitFactory(SimPEGFactory):
         use_futures = self.client
 
         if use_futures:
+            print("Scattering simulation to workers")
             delayed_simulation = self.client.scatter(self.simulation, broadcast=True)
         else:
             delayed_simulation = self.simulation
 
+        print("looping over tiles and channels to create misfit functions")
         misfits = []
         tile_count = 0
         for channel in channels:
@@ -71,6 +73,7 @@ class MisfitFactory(SimPEGFactory):
                     # Distribute the work across workers round-robin style
                     if use_futures:
                         worker_ind = tile_count % len(self.workers)
+                        print(f"Count {tile_count}")
                         misfits.append(
                             self.client.submit(
                                 create_misfit,
