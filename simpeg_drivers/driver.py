@@ -98,6 +98,12 @@ class BaseDriver(Driver):
     ):
         super().__init__(params)
         self._client: Client | bool = self.validate_client(client)
+
+        if getattr(self.params, "store_sensitivities", None) == "disk" and self.client:
+            raise GeoAppsError(
+                "Disk storage of sensitivities is not compatible with distributed processing."
+            )
+
         self._workers: list[tuple[str]] | None = self.validate_workers(workers)
 
     @property
@@ -807,16 +813,20 @@ if __name__ == "__main__":
     n_threads = input_file.get("n_threads", None)
     save_report = input_file.get("performance_report", False)
 
-    driver_class = InversionDriver.from_input_file(input_file)
-
     # Force distributed on 1D problems
     if "1D" in input_file.get("title") and n_workers is None:
         n_threads = n_threads or 2
         n_workers = multiprocessing.cpu_count() // n_threads
 
+    distributed_process = (
+        n_workers is not None and n_workers > 1
+    ) or n_threads is not None
+    storage_device = input_file.get("store_sensitivities", "ram")
+    driver_class = InversionDriver.from_input_file(input_file)
+
     cluster = (
         LocalCluster(processes=True, n_workers=n_workers, threads_per_worker=n_threads)
-        if ((n_workers is not None and n_workers > 1) or n_threads is not None)
+        if distributed_process
         else None
     )
     profiler = cProfile.Profile()

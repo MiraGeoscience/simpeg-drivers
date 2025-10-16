@@ -57,12 +57,16 @@ class SourcesFactory(SimPEGFactory):
             return dc_sources.Dipole
 
         elif "fdem" in self.factory_type:
-            if "fdem 1d" == self.factory_type and np.allclose(
-                np.kron(
-                    np.ones((len(self.params.data_object.channels), 1)),
-                    self.params.data_object.vertices,
-                ),
-                self.params.data_object.complement.vertices,
+            if "fdem 1d" == self.factory_type and np.all(
+                np.linalg.norm(
+                    np.kron(
+                        np.ones((len(self.params.data_object.channels), 1)),
+                        self.params.data_object.vertices,
+                    )
+                    - self.params.data_object.complement.vertices,
+                    axis=1,
+                )
+                < 0.01
             ):
                 return fem_sources.CircularLoop
 

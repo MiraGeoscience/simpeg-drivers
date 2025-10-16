@@ -34,14 +34,14 @@ dependencies:
   - cached_property=1.5.2=pyha770c72_1
   - certifi=2025.10.5=pyhd8ed1ab_0
   - cffi=2.0.0=py312he06e257_0
-  - charset-normalizer=3.4.3=pyhd8ed1ab_0
+  - charset-normalizer=3.4.4=pyhd8ed1ab_0
   - click=8.3.0=pyh7428d3b_0
   - cloudpickle=3.1.1=pyhd8ed1ab_0
   - colorama=0.4.6=pyhd8ed1ab_1
   - comm=0.2.3=pyhe01879c_0
   - contourpy=1.3.3=py312hf90b1b7_2
   - coverage=7.10.7=py312h05f76fc_0
-  - cpython=3.12.11=py312hd8ed1ab_0
+  - cpython=3.12.12=py312hd8ed1ab_0
   - cycler=0.12.1=pyhd8ed1ab_1
   - cytoolz=1.0.1=py312h4389bb4_0
   - dask-core=2025.3.0=pyhd8ed1ab_0
@@ -77,7 +77,7 @@ dependencies:
   - importlib-metadata=8.7.0=pyhe01879c_1
   - importlib_metadata=8.7.0=h40b2b14_1
   - iniconfig=2.0.0=pyhd8ed1ab_1
-  - ipykernel=6.30.1=pyh3521513_0
+  - ipykernel=7.0.1=pyh6dadd2b_0
   - ipython=9.6.0=pyh6be1c34_0
   - ipython_genutils=0.2.0=pyhd8ed1ab_2
   - ipython_pygments_lexers=1.1.1=pyhd8ed1ab_0
@@ -192,8 +192,8 @@ dependencies:
   - pybtex=0.25.1=pyhd8ed1ab_0
   - pybtex-docutils=1.0.3=py312h2e8e312_3
   - pycparser=2.22=pyh29332c3_1
-  - pydantic=2.12.0=pyh3cfb1c2_0
-  - pydantic-core=2.41.1=py312hdabe01f_0
+  - pydantic=2.12.1=pyh3cfb1c2_0
+  - pydantic-core=2.41.3=py312hdabe01f_0
   - pydata-sphinx-theme=0.15.4=pyhd8ed1ab_0
   - pydiso=0.1.2=py312h01acb21_0
   - pygments=2.19.2=pyhd8ed1ab_0
@@ -203,10 +203,10 @@ dependencies:
   - pysocks=1.7.1=pyh09c184e_7
   - pytest=8.4.2=pyhd8ed1ab_0
   - pytest-cov=7.0.0=pyhcf101f3_1
-  - python=3.12.11=h3f84c4b_0_cpython
+  - python=3.12.12=h30ce641_0_cpython
   - python-dateutil=2.9.0.post0=pyhe01879c_2
   - python-fastjsonschema=2.21.2=pyhe01879c_0
-  - python-gil=3.12.11=hd8ed1ab_0
+  - python-gil=3.12.12=hd8ed1ab_0
   - python-json-logger=2.0.7=pyhd8ed1ab_0
   - python-mumps=0.0.3=py312h8095395_0
   - python-tzdata=2025.2=pyhd8ed1ab_0
@@ -217,7 +217,7 @@ dependencies:
   - pyyaml=6.0.3=py312h05f76fc_0
   - pyzmq=27.1.0=py312hbb5da91_0
   - readthedocs-sphinx-ext=2.2.5=pyhd8ed1ab_1
-  - referencing=0.36.2=pyh29332c3_0
+  - referencing=0.37.0=pyhcf101f3_0
   - requests=2.32.5=pyhd8ed1ab_0
   - rfc3339-validator=0.1.4=pyhd8ed1ab_1
   - rfc3986-validator=0.1.1=pyh9f0ad1d_0
@@ -277,9 +277,9 @@ dependencies:
   - unicodedata2=16.0.0=py312he06e257_1
   - uri-template=1.3.0=pyhd8ed1ab_1
   - urllib3=2.5.0=pyhd8ed1ab_0
-  - vc=14.3=h41ae7f8_31
-  - vc14_runtime=14.44.35208=h818238b_31
-  - vcomp14=14.44.35208=h818238b_31
+  - vc=14.3=h2b53caa_32
+  - vc14_runtime=14.44.35208=h818238b_32
+  - vcomp14=14.44.35208=h818238b_32
   - wcwidth=0.2.14=pyhd8ed1ab_0
   - webcolors=24.11.1=pyhd8ed1ab_0
   - webencodings=0.5.1=pyhd8ed1ab_3
@@ -300,10 +300,10 @@ dependencies:
   - zstandard=0.25.0=py312he5662c2_0
   - zstd=1.5.7=hbeecb71_2
   - pip:
-    - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@13980469f5548c3dcbd2bd208b232bf02a2f68ca
-    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@4478dce78b44f77f6d3b6283c006818b71b31869
+    - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@ed5f5cf8cd1a3ef9c3ec13140215d4b5d3da0a31
+    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@b7e7ecdb90fb6daa40c9d7348380542fd1131994
     - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@ed6918388d6fc4062f72e471e415a1a22cc15d0d
-    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@78903c94ab6638fe0e431fe8412e8b5f1561f250
+    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@7564c0999208f9ff8f9e3733f5ffd22da9b333ee
 
 variables:
   KMP_WARNINGS: 0
