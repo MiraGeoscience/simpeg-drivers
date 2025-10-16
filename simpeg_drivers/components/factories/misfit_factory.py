@@ -56,7 +56,7 @@ class MisfitFactory(SimPEGFactory):
         use_futures = self.client
 
         if use_futures:
-            delayed_simulation = self.client.scatter(self.simulation)
+            delayed_simulation = self.client.scatter(self.simulation, broadcast=True)
         else:
             delayed_simulation = self.simulation
 
@@ -107,7 +107,7 @@ class MisfitFactory(SimPEGFactory):
                     misfits[-1].name = f"{name}"
 
                     tile_count += 1
-
+        print(f"Number of futures{len(misfits)}")
         local_orderings = self.collect_ordering_from_misfits(misfits)
 
         self.simulation.survey.ordering = np.vstack(local_orderings)
