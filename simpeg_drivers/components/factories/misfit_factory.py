@@ -56,8 +56,8 @@ class MisfitFactory(SimPEGFactory):
         use_futures = self.client
 
         if use_futures:
-            print("Scattering simulation to workers")
-            delayed_simulation = self.client.scatter(self.simulation, broadcast=True)
+            print("Scattering simulation to workers - no broacast")
+            delayed_simulation = self.client.scatter(self.simulation)
         else:
             delayed_simulation = self.simulation
 
