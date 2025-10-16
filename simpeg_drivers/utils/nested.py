@@ -149,12 +149,12 @@ def create_misfit(
     if isinstance(simulation, BaseEM1DSimulation) and isinstance(
         local_indices, Iterable
     ):
-        # if worker:
-        #     client = get_client()
-        #     simulation = client.scatter(simulation)
-        #     local_indices = np.array_split(local_indices, client.nthreads()[worker[0]])
-        # else:
-        #     client = None
+        if worker:
+            client = get_client()
+            simulation = client.scatter(simulation, workers=worker)
+            local_indices = np.array_split(local_indices, client.nthreads()[worker[0]])
+        else:
+            client = None
 
         misfit_list = []
 
@@ -169,22 +169,22 @@ def create_misfit(
                 forward_only,
                 None,
             )
-            # if client:
-            #     misfit_list.append(client.submit(create_misfit, *args, workers=worker))
-            # else:
-            misfit_list.append(
-                create_misfit(
-                    *args,
+            if client:
+                misfit_list.append(client.submit(create_misfit, *args, workers=worker))
+            else:
+                misfit_list.append(
+                    create_misfit(
+                        *args,
+                    )
                 )
-            )
 
-        # if client:
-        #     misfit_list = client.gather(misfit_list)
-        #     return DistributedComboMisfits(
-        #         misfit_list,
-        #         client=client,
-        #         workers=[worker],
-        #     )
+        if client:
+            misfit_list = client.gather(misfit_list)
+            return DistributedComboMisfits(
+                misfit_list,
+                client=client,
+                workers=[worker] * len(misfit_list),
+            )
 
         return objective_function.ComboObjectiveFunction(misfit_list)
 
