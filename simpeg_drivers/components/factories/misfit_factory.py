@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import os
 import pickle
-import tempfile
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -59,7 +58,7 @@ class MisfitFactory(SimPEGFactory):
 
         use_futures = self.client
 
-        with tempfile.NamedTemporaryFile(mode="wb", delete=False) as temp_file:
+        with open(self.params.workpath / "simulation.pkl", mode="wb") as temp_file:
             # Pickle the object to the temporary file
             pickle.dump(self.simulation, temp_file)
 
@@ -68,7 +67,7 @@ class MisfitFactory(SimPEGFactory):
         # else:
         #     delayed_simulation = self.simulation
         #
-        print("looping over tiles and channels to create misfit functions")
+
         misfits = []
         tile_count = 0
         for channel in channels:
@@ -91,7 +90,6 @@ class MisfitFactory(SimPEGFactory):
                                 self.params.padding_cells,
                                 self.params.forward_only,
                                 shared_indices=np.hstack(local_indices),
-                                worker=self.workers[worker_ind],
                                 workers=self.workers[worker_ind],
                             )
                         )

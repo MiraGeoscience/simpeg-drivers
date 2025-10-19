@@ -838,7 +838,12 @@ if __name__ == "__main__":
     driver_class = InversionDriver.from_input_file(input_file)
 
     cluster = (
-        LocalCluster(processes=True, n_workers=n_workers, threads_per_worker=n_threads)
+        LocalCluster(
+            processes=True,
+            n_workers=n_workers,
+            threads_per_worker=n_threads,
+            local_directory=file.parent,
+        )
         if distributed_process
         else None
     )
