@@ -692,7 +692,7 @@ class InversionDriver(BaseDriver):
 
         if "1d" in self.params.inversion_type:
             # Heuristic to avoid too many chunks
-            n_chunks = n_data // 32
+            n_chunks = n_data // self.params.compute.max_chunk_size
 
             if self.params.compute.n_workers:
                 n_chunks /= self.params.compute.n_workers
