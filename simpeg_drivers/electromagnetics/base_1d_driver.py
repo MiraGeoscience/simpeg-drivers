@@ -102,6 +102,7 @@ class Base1DDriver(InversionDriver):
             self._simulation.mesh = self.inversion_mesh.mesh
             self._simulation.layers_mesh = self.layers_mesh
             self._simulation.active_cells = self.topo_z_drape
+            self._simulation._fhtfilt = None  # pylint: disable=protected-access
 
         return self._simulation
 

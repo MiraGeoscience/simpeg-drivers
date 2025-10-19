@@ -9,12 +9,15 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 from __future__ import annotations
 
+import pickle
 import warnings
 from collections.abc import Iterable
 from copy import copy
+from itertools import chain
 from pathlib import Path
 
 import numpy as np
+from dask import compute, delayed
 from dask.distributed import get_client
 from discretize import TensorMesh, TreeMesh
 from geoh5py.shared.utils import uuid_from_values
@@ -116,15 +119,14 @@ def create_mesh(
 
 
 def create_misfit(
-    simulation,
     local_indices,
+    simulation_file,
     channel,
     tile_count,
     padding_cells,
-    inversion_type,
     forward_only,
     shared_indices=None,
-    worker=None,
+    # worker=None,
 ):
     """
     Create a list of local misfits based on the local indices.
@@ -145,78 +147,109 @@ def create_misfit(
     :return: List of local misfits and data slices.
     """
     # Split into smaller chunks
+    with open(simulation_file, "rb") as file:
+        simulation = pickle.load(file)
 
     if isinstance(simulation, BaseEM1DSimulation) and isinstance(
         local_indices, Iterable
     ):
-        if worker:
-            client = get_client()
-            simulation = client.scatter(simulation, workers=worker)
-            local_indices = np.array_split(local_indices, client.nthreads()[worker[0]])
-        else:
-            client = None
+        # if worker:
+        #     client = get_client()
+        #     simulation = client.scatter(simulation, workers=worker)
+        #     local_indices = np.array_split(local_indices, np.max([1, client.nthreads()[worker[0]]]))
+        # else:
+        #     delayed_create = delayed(_misfits_from_indices)
+        #     client = None
+        #     local_indices = np.array_split(local_indices, cpu_count())
 
         misfit_list = []
+        # print(f"In {np.min(local_indices)} to {np.max(local_indices)}")
+        args = (
+            simulation,
+            channel,
+            tile_count,
+            padding_cells,
+            forward_only,
+        )
+        # for ind in local_indices:
+        # if client:
+        #     misfit_list.append(client.submit(_misfits_from_indices, ind, *args, workers=worker))
+        # else:
+        misfit_list = _misfits_from_indices(
+            local_indices,
+            *args,
+        )
 
-        for ind in local_indices:
-            args = (
-                simulation,
-                ind,
-                channel,
-                tile_count,
-                padding_cells,
-                inversion_type,
-                forward_only,
-                None,
-            )
-            if client:
-                misfit_list.append(client.submit(create_misfit, *args, workers=worker))
-            else:
-                misfit_list.append(
-                    create_misfit(
-                        *args,
-                    )
-                )
+        # if client:
+        #     misfit_list = client.gather(misfit_list)
+        #     return [
+        #         objective_function.ComboObjectiveFunction(misfit)
+        #         for misfit in misfit_list
+        #     ]
+        #     return DistributedComboMisfits(
+        #         misfit_list,
+        #         client=client,
+        #         workers=[worker] * len(misfit_list),
+        #     )
 
-        if client:
-            misfit_list = client.gather(misfit_list)
-            return DistributedComboMisfits(
-                misfit_list,
-                client=client,
-                workers=[worker] * len(misfit_list),
-            )
-
+        # misfit_list = compute(misfit_list)
+        # misfit_list = list(chain.from_iterable(misfit_list))
         return objective_function.ComboObjectiveFunction(misfit_list)
 
-    local_mesh = None
-    if shared_indices is not None:
-        local_survey = create_survey(
-            simulation.survey, indices=shared_indices, channel=channel
-        )
-        local_mesh = create_mesh(
-            local_survey,
-            simulation.mesh,
-            minimum_level=3,
+    misfits = _misfits_from_indices(
+        [local_indices],
+        simulation,
+        channel,
+        tile_count,
+        padding_cells,
+        forward_only,
+        shared_indices=shared_indices,
+    )
+    return objective_function.ComboObjectiveFunction(misfits)
+
+
+def _misfits_from_indices(
+    indices,
+    simulation,
+    channel,
+    tile_count,
+    padding_cells,
+    forward_only,
+    shared_indices=None,
+) -> list[data_misfit.L2DataMisfit]:
+    local_misfits = []
+    for ind in indices:
+        local_mesh = None
+        if shared_indices is not None:
+            local_survey = create_survey(
+                simulation.survey, indices=shared_indices, channel=channel
+            )
+            local_mesh = create_mesh(
+                local_survey,
+                simulation.mesh,
+                minimum_level=3,
+                padding_cells=padding_cells,
+            )
+
+        local_sim, mapping = create_simulation(
+            simulation,
+            local_mesh,
+            ind,
+            channel=channel,
+            tile_id=tile_count,
             padding_cells=padding_cells,
         )
+        meta_simulation = meta.MetaSimulation(
+            simulations=[local_sim], mappings=[mapping]
+        )
+        local_data = data.Data(local_sim.survey)
+        if not forward_only:
+            local_data.dobs = local_sim.survey.dobs
+            local_data.standard_deviation = local_sim.survey.std
 
-    local_sim, mapping = create_simulation(
-        simulation,
-        local_mesh,
-        local_indices,
-        channel=channel,
-        tile_id=tile_count,
-        padding_cells=padding_cells,
-    )
-    meta_simulation = meta.MetaSimulation(simulations=[local_sim], mappings=[mapping])
+        local_misfits.append(data_misfit.L2DataMisfit(local_data, meta_simulation))
 
-    local_data = data.Data(local_sim.survey)
-    local_misfit = data_misfit.L2DataMisfit(local_data, meta_simulation)
-    if not forward_only:
-        local_data.dobs = local_sim.survey.dobs
-        local_data.standard_deviation = local_sim.survey.std
-
-    return local_misfit
+    return local_misfits
 
 
 def create_simulation(
@@ -351,7 +384,14 @@ def create_survey(survey, indices, channel=None):
     :param channel: Channel of the survey, for frequency systems only.
     """
     sources = []
-    for src in survey.source_list or [survey.source_field]:
+
+    if survey.source_list:
+        src_inds = np.unique(survey.ordering[survey.ordering[:, 2] == indices, 3])
+        source_list = [survey.source_list[ind] for ind in src_inds]
+    else:
+        source_list = [survey.source_field]
+
+    for src in source_list:
         if channel is not None and getattr(src, "frequency", None) != channel:
             continue
 

@@ -197,7 +197,7 @@ class InversionDriver(BaseDriver):
         if len(self.workers) == 0:
             return [[tile] for tile in tiles]
 
-        n_tiles = self.params.compute.tile_spatial
+        n_tiles = len(tiles)
 
         n_channels = 1
         if isinstance(self.params.data_object, FEMSurvey) and not isinstance(
@@ -684,11 +684,23 @@ class InversionDriver(BaseDriver):
         return objective_function.ComboObjectiveFunction(objfcts=reg_funcs)
 
     def get_tiles(self):
+        n_data = self.inversion_data.mask.sum()
+        indices = np.arange(n_data)
+
         if "2d" in self.params.inversion_type:
-            return [np.arange(self.inversion_data.mask.sum())]
+            return [indices]
 
         if "1d" in self.params.inversion_type:
-            return [np.arange(self.inversion_data.mask.sum())]
+            # Heuristic to avoid too many chunks
+            n_chunks = n_data // 32
+
+            if self.params.compute.n_workers:
+                n_chunks /= self.params.compute.n_workers
+                n_chunks = int(n_chunks) * self.params.compute.n_workers
+
+            n_chunks = np.max([n_chunks, 1])
+
+            return np.array_split(indices, n_chunks)
 
         return tile_locations(
             self.inversion_data.locations,
@@ -808,6 +820,7 @@ class InversionLogger:
 
 if __name__ == "__main__":
     file = Path(sys.argv[1]).resolve()
+    # file = Path(r"C:\Users\dominiquef\Desktop\DIGHEM_1d_run4 - Copy.ui.json")
     input_file = load_ui_json_as_dict(file)
     n_workers = input_file.get("n_workers", None)
     n_threads = input_file.get("n_threads", None)

@@ -11,9 +11,13 @@
 
 from __future__ import annotations
 
+import os
+import pickle
+import tempfile
 from typing import TYPE_CHECKING
 
 import numpy as np
+from dask.distributed import wait
 from simpeg import objective_function
 from simpeg.dask import objective_function as dask_objective_function
 from simpeg.objective_function import ComboObjectiveFunction
@@ -55,12 +59,15 @@ class MisfitFactory(SimPEGFactory):
 
         use_futures = self.client
 
-        if use_futures:
-            print("Scattering simulation to workers - no broacast")
-            delayed_simulation = self.client.scatter(self.simulation)
-        else:
-            delayed_simulation = self.simulation
+        with tempfile.NamedTemporaryFile(mode="wb", delete=False) as temp_file:
+            # Pickle the object to the temporary file
+            pickle.dump(self.simulation, temp_file)
 
+        # if use_futures:
+        #     delayed_simulation = self.client.scatter(self.simulation)
+        # else:
+        #     delayed_simulation = self.simulation
+        #
         print("looping over tiles and channels to create misfit functions")
         misfits = []
         tile_count = 0
@@ -73,31 +80,36 @@ class MisfitFactory(SimPEGFactory):
                     # Distribute the work across workers round-robin style
                     if use_futures:
                         worker_ind = tile_count % len(self.workers)
-                        print(f"Count {tile_count}")
+
                         misfits.append(
                             self.client.submit(
                                 create_misfit,
-                                delayed_simulation,
                                 sub_ind,
+                                temp_file.name,
                                 channel,
                                 tile_count,
                                 self.params.padding_cells,
-                                self.params.inversion_type,
                                 self.params.forward_only,
                                 shared_indices=np.hstack(local_indices),
                                 worker=self.workers[worker_ind],
                                 workers=self.workers[worker_ind],
                             )
                         )
+                        # sub_process.append(misfits[-1])
+
+                        # if worker_ind == len(self.workers) - 1:
+                        #     print("Submitted to all workers, gathering results")
+                        #     wait(sub_process)
+                        #     sub_process = []
+
                     else:
                         misfits.append(
                             create_misfit(
-                                delayed_simulation,
                                 sub_ind,
+                                temp_file.name,
                                 channel,
                                 tile_count,
                                 self.params.padding_cells,
-                                self.params.inversion_type,
                                 self.params.forward_only,
                                 shared_indices=np.hstack(local_indices),
                             )
@@ -110,6 +122,10 @@ class MisfitFactory(SimPEGFactory):
                     misfits[-1].name = f"{name}"
 
                     tile_count += 1
+
+        if use_futures:
+            wait(misfits)
+        os.unlink(temp_file.name)
         print(f"Number of futures{len(misfits)}")
         local_orderings = self.collect_ordering_from_misfits(misfits)
 
