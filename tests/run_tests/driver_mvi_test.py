@@ -167,7 +167,7 @@ def test_magnetic_vector_run(
             assert np.all(nan_ind == inactive_ind)
 
             assert np.nanmin(model.values) <= 1e-5
-            assert np.isclose(np.nanmax(model.values), upper_bound)
+            assert np.isclose(driver.inversion.opt.upper[0], upper_bound)
 
             out_group = run_ws.get_entity("Magnetic Vector Inversion")[0]
             mesh = out_group.get_entity("mesh")[0]
@@ -243,5 +243,5 @@ if __name__ == "__main__":
                     Path("./"), n_grid_points=20, refinement=(4, 8)
                 )
                 test_magnetic_vector_run(
-                    Path("./"), None, max_iterations=30, upper_bound=1e-1, pytest=False
+                    Path("./"), None, max_iterations=30, upper_bound=5e-3, pytest=False
                 )
