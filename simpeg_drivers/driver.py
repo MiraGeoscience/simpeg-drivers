@@ -13,11 +13,6 @@
 
 from __future__ import annotations
 
-import os
-
-os.environ["OMP_NUM_THREADS"] = "12"
-
-
 import cProfile
 import pstats
 
@@ -44,6 +39,7 @@ from geoapps_utils.param_sweeps.driver import SweepParams
 from geoh5py.groups import SimPEGGroup
 from geoh5py.objects import FEMSurvey
 from geoh5py.shared.utils import fetch_active_workspace
+from geoh5py.shared.exceptions import Geoh5FileClosedError
 from geoh5py.ui_json import InputFile
 
 from simpeg import (
@@ -494,7 +490,11 @@ class InversionDriver(BaseDriver):
             if Path(self.params.input_file.path_name).is_file():
                 self.out_group.add_file(self.params.input_file.path_name)
 
-        self.workspace.geoh5.close()
+        try:
+            self.workspace.geoh5.close()
+        except Geoh5FileClosedError:
+            pass
+
         predicted = None
         try:
             if self.params.forward_only:
@@ -825,8 +825,7 @@ class InversionLogger:
 
 
 if __name__ == "__main__":
-    # file = Path(sys.argv[1]).resolve()
-    file = Path(r"C:\Users\dominiquef\Desktop\Tests\GEOPY-2526.ui.json").resolve()
+    file = Path(sys.argv[1]).resolve()
     input_file = load_ui_json_as_dict(file)
     n_workers = input_file.get("n_workers", None)
     n_threads = input_file.get("n_threads", None)
