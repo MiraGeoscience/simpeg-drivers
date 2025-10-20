@@ -148,46 +148,68 @@ def create_misfit(
     with open(simulation_file, "rb") as file:
         simulation = pickle.load(file)
 
-    if isinstance(simulation, BaseEM1DSimulation) and isinstance(
-        local_indices, Iterable
-    ):
-        shared_indices = None  # No shared mesh for 1D simulations
-    else:
-        local_indices = [local_indices]  # All indices share the same mesh
+    args = (
+        simulation,
+        channel,
+        tile_count,
+        padding_cells,
+        forward_only,
+    )
+
+    if not isinstance(simulation, BaseEM1DSimulation):
+        return _misfit_from_indices(local_indices, *args, shared_indices=shared_indices)
 
     local_misfits = []
     for ind in local_indices:
-        local_mesh = None
-        if shared_indices is not None:
-            local_survey = create_survey(
-                simulation.survey, indices=shared_indices, channel=channel
+        local_misfits.append(
+            _misfit_from_indices(
+                ind,
+                *args,
             )
-            local_mesh = create_mesh(
-                local_survey,
-                simulation.mesh,
-                minimum_level=3,
-                padding_cells=padding_cells,
-            )
-
-        local_sim, mapping = create_simulation(
-            simulation,
-            local_mesh,
-            ind,
-            channel=channel,
-            tile_id=tile_count,
-            padding_cells=padding_cells,
         )
-        meta_simulation = meta.MetaSimulation(
-            simulations=[local_sim], mappings=[mapping]
-        )
-        local_data = data.Data(local_sim.survey)
-        if not forward_only:
-            local_data.dobs = local_sim.survey.dobs
-            local_data.standard_deviation = local_sim.survey.std
-
-        local_misfits.append(data_misfit.L2DataMisfit(local_data, meta_simulation))
 
     return objective_function.ComboObjectiveFunction(local_misfits)
+
+
+def _misfit_from_indices(
+    indices,
+    simulation,
+    channel,
+    tile_count,
+    padding_cells,
+    forward_only,
+    shared_indices=None,
+):
+    """
+    Create a local misfit based on the input indices.
+    """
+    local_mesh = None
+    if shared_indices is not None:
+        local_survey = create_survey(
+            simulation.survey, indices=shared_indices, channel=channel
+        )
+        local_mesh = create_mesh(
+            local_survey,
+            simulation.mesh,
+            minimum_level=3,
+            padding_cells=padding_cells,
+        )
+
+    local_sim, mapping = create_simulation(
+        simulation,
+        local_mesh,
+        indices,
+        channel=channel,
+        tile_id=tile_count,
+        padding_cells=padding_cells,
+    )
+    meta_simulation = meta.MetaSimulation(simulations=[local_sim], mappings=[mapping])
+    local_data = data.Data(local_sim.survey)
+    if not forward_only:
+        local_data.dobs = local_sim.survey.dobs
+        local_data.standard_deviation = local_sim.survey.std
+
+    return data_misfit.L2DataMisfit(local_data, meta_simulation)
 
 
 def create_simulation(
