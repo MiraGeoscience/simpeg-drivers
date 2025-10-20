@@ -494,6 +494,7 @@ class InversionDriver(BaseDriver):
             if Path(self.params.input_file.path_name).is_file():
                 self.out_group.add_file(self.params.input_file.path_name)
 
+        self.workspace.geoh5.close()
         predicted = None
         try:
             if self.params.forward_only:
@@ -824,7 +825,8 @@ class InversionLogger:
 
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
+    # file = Path(sys.argv[1]).resolve()
+    file = Path(r"C:\Users\dominiquef\Desktop\Tests\GEOPY-2526.ui.json").resolve()
     input_file = load_ui_json_as_dict(file)
     n_workers = input_file.get("n_workers", None)
     n_threads = input_file.get("n_threads", None)
@@ -844,7 +846,7 @@ if __name__ == "__main__":
     distributed_process = (
         n_workers is not None and n_workers > 1
     ) or n_threads is not None
-    storage_device = input_file.get("store_sensitivities", "ram")
+
     driver_class = InversionDriver.from_input_file(input_file)
 
     cluster = (
