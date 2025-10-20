@@ -151,7 +151,7 @@ class SurveyFactory(SimPEGFactory):
             return None
 
         receiver_entity = data.entity
-        source_ids, order = np.unique(
+        unique_src_ids, order = np.unique(
             receiver_entity.ab_cell_id.values, return_index=True
         )
         currents = receiver_entity.current_electrodes
@@ -166,7 +166,9 @@ class SurveyFactory(SimPEGFactory):
         sources = []
         sorting = []
         source_ids = []
-        for source_id in source_ids[np.argsort(order)]:  # Cycle in original order
+        for ii, source_id in enumerate(
+            unique_src_ids[np.argsort(order)]
+        ):  # Cycle in original order
             receiver_indices = np.where(receiver_entity.ab_cell_id.values == source_id)[
                 0
             ]
@@ -193,7 +195,7 @@ class SurveyFactory(SimPEGFactory):
             )
             source.rx_ids = np.asarray(receiver_indices)
             sources.append(source)
-            source_ids.append(np.full(receiver_indices.shape, source_id))
+            source_ids.append(np.full(receiver_indices.shape, ii))
 
         self.ordering = np.c_[
             np.zeros(receiver_entity.n_cells),  # Single channel

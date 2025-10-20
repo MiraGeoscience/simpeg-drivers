@@ -70,6 +70,15 @@ class MisfitFactory(SimPEGFactory):
                     if len(sub_ind) == 0:
                         continue
 
+                    args = (
+                        sub_ind,
+                        temp_file.name,
+                        channel,
+                        tile_count,
+                        self.params.padding_cells,
+                        self.params.forward_only,
+                        np.hstack(local_indices),
+                    )
                     # Distribute the work across workers round-robin style
                     if use_futures:
                         worker_ind = tile_count % len(self.workers)
@@ -77,35 +86,13 @@ class MisfitFactory(SimPEGFactory):
                         misfits.append(
                             self.client.submit(
                                 create_misfit,
-                                sub_ind,
-                                temp_file.name,
-                                channel,
-                                tile_count,
-                                self.params.padding_cells,
-                                self.params.forward_only,
-                                shared_indices=np.hstack(local_indices),
+                                *args,
                                 workers=self.workers[worker_ind],
                             )
                         )
-                        # sub_process.append(misfits[-1])
-
-                        # if worker_ind == len(self.workers) - 1:
-                        #     print("Submitted to all workers, gathering results")
-                        #     wait(sub_process)
-                        #     sub_process = []
 
                     else:
-                        misfits.append(
-                            create_misfit(
-                                sub_ind,
-                                temp_file.name,
-                                channel,
-                                tile_count,
-                                self.params.padding_cells,
-                                self.params.forward_only,
-                                shared_indices=np.hstack(local_indices),
-                            )
-                        )
+                        misfits.append(create_misfit(*args))
 
                     name = f"{self.params.inversion_type}: Tile {tile_count + 1}"
                     if channel is not None:
