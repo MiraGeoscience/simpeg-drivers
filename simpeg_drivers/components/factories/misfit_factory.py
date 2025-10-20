@@ -58,15 +58,9 @@ class MisfitFactory(SimPEGFactory):
 
         use_futures = self.client
 
+        # Pickle the simulation to the temporary file
         with open(self.params.workpath / "simulation.pkl", mode="wb") as temp_file:
-            # Pickle the object to the temporary file
             pickle.dump(self.simulation, temp_file)
-
-        # if use_futures:
-        #     delayed_simulation = self.client.scatter(self.simulation)
-        # else:
-        #     delayed_simulation = self.simulation
-        #
 
         misfits = []
         tile_count = 0
@@ -124,9 +118,8 @@ class MisfitFactory(SimPEGFactory):
         if use_futures:
             wait(misfits)
         os.unlink(temp_file.name)
-        print(f"Number of futures{len(misfits)}")
-        local_orderings = self.collect_ordering_from_misfits(misfits)
 
+        local_orderings = self.collect_ordering_from_misfits(misfits)
         self.simulation.survey.ordering = np.vstack(local_orderings)
 
         return misfits

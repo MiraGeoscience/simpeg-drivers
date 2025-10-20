@@ -126,21 +126,19 @@ def create_misfit(
     padding_cells,
     forward_only,
     shared_indices=None,
-    # worker=None,
-):
+) -> objective_function.ComboObjectiveFunction:
     """
     Create a list of local misfits based on the local indices.
 
     The local indices are further split into smaller chunks if requested, sharing
     the same mesh.
 
-    :param simulation: SimPEG simulation object.
     :param local_indices: Indices of the receiver locations belonging to the tile.
+    :param simulation_path: Path to the SimPEG simulation object pickled to file.
     :param channel: Channel of the simulation, for frequency systems only.
     :param tile_count: Current tile ID, used to name the file on disk and for sampling
       of topography for 1D simulations.
     :param padding_cells: Number of padding cells around the local survey.
-    :param inversion_type: Type of inversion, used to name the misfit (joint inversion).
     :param forward_only: If False, data is transferred to the local simulation.
     :param shared_indices: Indices used to create a shared mesh for multiple tiles.
 
@@ -153,72 +151,12 @@ def create_misfit(
     if isinstance(simulation, BaseEM1DSimulation) and isinstance(
         local_indices, Iterable
     ):
-        # if worker:
-        #     client = get_client()
-        #     simulation = client.scatter(simulation, workers=worker)
-        #     local_indices = np.array_split(local_indices, np.max([1, client.nthreads()[worker[0]]]))
-        # else:
-        #     delayed_create = delayed(_misfits_from_indices)
-        #     client = None
-        #     local_indices = np.array_split(local_indices, cpu_count())
+        shared_indices = None  # No shared mesh for 1D simulations
+    else:
+        local_indices = [local_indices]  # All indices share the same mesh
 
-        misfit_list = []
-        # print(f"In {np.min(local_indices)} to {np.max(local_indices)}")
-        args = (
-            simulation,
-            channel,
-            tile_count,
-            padding_cells,
-            forward_only,
-        )
-        # for ind in local_indices:
-        # if client:
-        #     misfit_list.append(client.submit(_misfits_from_indices, ind, *args, workers=worker))
-        # else:
-        misfit_list = _misfits_from_indices(
-            local_indices,
-            *args,
-        )
-
-        # if client:
-        #     misfit_list = client.gather(misfit_list)
-        #     return [
-        #         objective_function.ComboObjectiveFunction(misfit)
-        #         for misfit in misfit_list
-        #     ]
-        #     return DistributedComboMisfits(
-        #         misfit_list,
-        #         client=client,
-        #         workers=[worker] * len(misfit_list),
-        #     )
-
-        # misfit_list = compute(misfit_list)
-        # misfit_list = list(chain.from_iterable(misfit_list))
-        return objective_function.ComboObjectiveFunction(misfit_list)
-
-    misfits = _misfits_from_indices(
-        [local_indices],
-        simulation,
-        channel,
-        tile_count,
-        padding_cells,
-        forward_only,
-        shared_indices=shared_indices,
-    )
-    return objective_function.ComboObjectiveFunction(misfits)
-
-
-def _misfits_from_indices(
-    indices,
-    simulation,
-    channel,
-    tile_count,
-    padding_cells,
-    forward_only,
-    shared_indices=None,
-) -> list[data_misfit.L2DataMisfit]:
     local_misfits = []
-    for ind in indices:
+    for ind in local_indices:
         local_mesh = None
         if shared_indices is not None:
             local_survey = create_survey(
@@ -249,7 +187,7 @@ def _misfits_from_indices(
 
         local_misfits.append(data_misfit.L2DataMisfit(local_data, meta_simulation))
 
-    return local_misfits
+    return objective_function.ComboObjectiveFunction(local_misfits)
 
 
 def create_simulation(
