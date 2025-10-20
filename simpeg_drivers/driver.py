@@ -13,6 +13,11 @@
 
 from __future__ import annotations
 
+import os
+
+os.environ["OMP_NUM_THREADS"] = "12"
+
+
 import cProfile
 import pstats
 
@@ -820,7 +825,6 @@ class InversionLogger:
 
 if __name__ == "__main__":
     file = Path(sys.argv[1]).resolve()
-    # file = Path(r"C:\Users\dominiquef\Desktop\DIGHEM_1d_run4 - Copy.ui.json")
     input_file = load_ui_json_as_dict(file)
     n_workers = input_file.get("n_workers", None)
     n_threads = input_file.get("n_threads", None)
@@ -828,8 +832,14 @@ if __name__ == "__main__":
 
     # Force distributed on 1D problems
     if "1D" in input_file.get("title") and n_workers is None:
-        n_threads = n_threads or 2
-        n_workers = multiprocessing.cpu_count() // n_threads
+        cpu_count = multiprocessing.cpu_count()
+
+        if cpu_count < 16:
+            n_threads = n_threads or 2
+        else:
+            n_threads = n_threads or 4
+
+        n_workers = cpu_count // n_threads
 
     distributed_process = (
         n_workers is not None and n_workers > 1
