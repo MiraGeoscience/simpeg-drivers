@@ -240,9 +240,6 @@ class InversionDriver(BaseDriver):
                     self.split_list(tiles),
                 )
 
-                if self.logger:
-                    self.logger.write("Saving data to file...\n")
-
         return self._data_misfit
 
     @property
@@ -439,6 +436,9 @@ class InversionDriver(BaseDriver):
     def regularization(self):
         if getattr(self, "_regularization", None) is None:
             with fetch_active_workspace(self.workspace, mode="r"):
+                if self.logger:
+                    self.logger.write("Creating the regularization functions...\n")
+
                 self._regularization = self.get_regularization()
 
         return self._regularization
@@ -489,11 +489,6 @@ class InversionDriver(BaseDriver):
 
             if Path(self.params.input_file.path_name).is_file():
                 self.out_group.add_file(self.params.input_file.path_name)
-
-        try:
-            self.workspace.geoh5.close()
-        except Geoh5FileClosedError:
-            pass
 
         predicted = None
         try:
