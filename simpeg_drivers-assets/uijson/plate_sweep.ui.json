@@ -32,7 +32,8 @@
             "directory"
         ],
         "directoryOnly": true,
-        "enabled": true,
+        "enabled": false,
+        "optional": true,
         "value": ""
     },
     "background_start": {
