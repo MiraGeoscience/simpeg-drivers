@@ -346,7 +346,7 @@ def create_survey(survey, indices, channel=None):
     sources = []
 
     if survey.source_list:
-        _, rows, _ = np.intersect1d(survey.ordering[:, 2], indices, return_indices=True)
+        rows = np.isin(survey.ordering[:, 2], indices)
         src_inds = np.unique(survey.ordering[rows, 3])
         source_list = [survey.source_list[ind] for ind in src_inds]
     else:
