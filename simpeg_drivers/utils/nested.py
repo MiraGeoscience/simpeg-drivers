@@ -122,7 +122,7 @@ def create_mesh(
 def create_misfit(
     local_indices: Iterable[int],
     simulation_file: str | Path,
-    channel: int | None,
+    channel: float | None,
     tile_count: int,
     padding_cells: int,
     forward_only: bool,
@@ -175,7 +175,7 @@ def create_misfit(
 def _misfit_from_indices(
     indices: Iterable[int] | int,
     simulation: BaseSimulation,
-    channel: int | None,
+    channel: float | None,
     tile_count: int,
     padding_cells: int,
     forward_only: bool,
@@ -218,7 +218,7 @@ def create_simulation(
     local_mesh: TreeMesh | TensorMesh | None,
     indices: Iterable[int] | int,
     *,
-    channel: int | None = None,
+    channel: float | None = None,
     tile_id: int | None = None,
     padding_cells=100,
 ):
@@ -336,7 +336,9 @@ def create_simulation(
     return local_sim, mapping
 
 
-def create_survey(survey, indices, channel=None):
+def create_survey(
+    survey: BaseSurvey, indices: Iterable[int] | int, channel: float | None = None
+):
     """
     Extract source and receivers belonging to the indices.
 
@@ -408,7 +410,7 @@ def create_survey(survey, indices, channel=None):
 def slice_from_ordering(
     survey: BaseSurvey,
     receiver_indices: np.ndarray,
-    channel: int | None = None,
+    channel: float | None = None,
 ):
     """
     Create an ordering array from the survey and slice indices.
