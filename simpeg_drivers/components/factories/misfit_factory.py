@@ -59,7 +59,9 @@ class MisfitFactory(SimPEGFactory):
         use_futures = self.client
 
         # Pickle the simulation to the temporary file
-        with open(self.params.workpath / "simulation.pkl", mode="wb") as temp_file:
+        with open(
+            self.params.workpath / (self.params.geoh5.h5file.stem + ".pkl"), mode="wb"
+        ) as temp_file:
             pickle.dump(self.simulation, temp_file)
 
         misfits = []

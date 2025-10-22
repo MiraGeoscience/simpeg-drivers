@@ -105,11 +105,7 @@ class SweepOptions(Options):
             }
 
         sweep_params = [k.removesuffix("_start") for k in options if "_start" in k]
-
         options["sweeps"] = [collect_sweep(param) for param in sweep_params]
-        workdir = options["workdir"]
-        if len(workdir) == 0:
-            options["workdir"] = "./"
 
         return options
 
