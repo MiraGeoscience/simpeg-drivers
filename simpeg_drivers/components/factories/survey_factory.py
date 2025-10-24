@@ -350,17 +350,17 @@ class SurveyFactory(SimPEGFactory):
                 sources.append(tx)
 
             source_ids = (
-                np.kron(
-                    np.arange(len(receiver_groups)), np.ones(len(receivers))
-                ).astype(int)
+                np.repeat(np.arange(len(receiver_groups)), len(receivers)).astype(int)
                 + tx_count
             )
             ordering.append(
-                np.c_[
-                    np.ones(block_ordering.shape[0]) * freq_id,
-                    block_ordering,
-                    source_ids,  # Source IDs
-                ]
+                np.column_stack(
+                    [
+                        np.ones(block_ordering.shape[0]) * freq_id,
+                        block_ordering,
+                        source_ids,  # Source IDs
+                    ]
+                )
             )
 
             tx_count = source_ids.max() + 1

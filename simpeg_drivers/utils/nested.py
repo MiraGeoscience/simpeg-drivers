@@ -26,6 +26,7 @@ from scipy.spatial import cKDTree
 from scipy.spatial.distance import cdist
 from simpeg import data, data_misfit, maps, meta, objective_function
 from simpeg.dask.objective_function import DistributedComboMisfits
+from simpeg.data_misfit import L2DataMisfit
 from simpeg.electromagnetics.base_1d import BaseEM1DSimulation
 from simpeg.electromagnetics.frequency_domain.simulation import BaseFDEMSimulation
 from simpeg.electromagnetics.frequency_domain.sources import (
@@ -119,14 +120,14 @@ def create_mesh(
 
 
 def create_misfit(
-    local_indices,
-    simulation_file,
-    channel,
-    tile_count,
-    padding_cells,
-    forward_only,
-    shared_indices=None,
-) -> objective_function.ComboObjectiveFunction:
+    local_indices: Iterable[int],
+    simulation_file: str | Path,
+    channel: float | None,
+    tile_count: int,
+    padding_cells: int,
+    forward_only: bool,
+    shared_indices: list[int] | None = None,
+) -> objective_function.ComboObjectiveFunction | L2DataMisfit:
     """
     Create a list of local misfits based on the local indices.
 
@@ -134,7 +135,7 @@ def create_misfit(
     the same mesh.
 
     :param local_indices: Indices of the receiver locations belonging to the tile.
-    :param simulation_path: Path to the SimPEG simulation object pickled to file.
+    :param simulation_file: Path to the SimPEG simulation object pickled to file.
     :param channel: Channel of the simulation, for frequency systems only.
     :param tile_count: Current tile ID, used to name the file on disk and for sampling
       of topography for 1D simulations.
@@ -172,13 +173,13 @@ def create_misfit(
 
 
 def _misfit_from_indices(
-    indices,
-    simulation,
-    channel,
-    tile_count,
-    padding_cells,
-    forward_only,
-    shared_indices=None,
+    indices: Iterable[int] | int,
+    simulation: BaseSimulation,
+    channel: float | None,
+    tile_count: int,
+    padding_cells: int,
+    forward_only: bool,
+    shared_indices: list[int] | None = None,
 ):
     """
     Create a local misfit based on the input indices.
@@ -215,9 +216,9 @@ def _misfit_from_indices(
 def create_simulation(
     simulation: BaseSimulation,
     local_mesh: TreeMesh | TensorMesh | None,
-    indices: np.ndarray | int,
+    indices: Iterable[int] | int,
     *,
-    channel: int | None = None,
+    channel: float | None = None,
     tile_id: int | None = None,
     padding_cells=100,
 ):
@@ -262,9 +263,9 @@ def create_simulation(
                 simulation.active_cells,
                 local_mesh,
                 enforce_active=True,
-                components=3
-                if getattr(simulation, "model_type", None) == "vector"
-                else 1,
+                components=(
+                    3 if getattr(simulation, "model_type", None) == "vector" else 1
+                ),
             )
             actives = mapping.local_active
         # For DCIP-2D
@@ -335,7 +336,9 @@ def create_simulation(
     return local_sim, mapping
 
 
-def create_survey(survey, indices, channel=None):
+def create_survey(
+    survey: BaseSurvey, indices: Iterable[int] | int, channel: float | None = None
+):
     """
     Extract source and receivers belonging to the indices.
 
@@ -407,7 +410,7 @@ def create_survey(survey, indices, channel=None):
 def slice_from_ordering(
     survey: BaseSurvey,
     receiver_indices: np.ndarray,
-    channel: int | None = None,
+    channel: float | None = None,
 ):
     """
     Create an ordering array from the survey and slice indices.
