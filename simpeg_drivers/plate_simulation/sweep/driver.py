@@ -146,7 +146,7 @@ class PlateSweepDriver(BaseDriver):
 
     @staticmethod
     def run_trial(
-        data: dict, h5file: Path, workdir: Path | None, worker: tuple[str] | None = None
+        data: dict, h5file: Path, workdir: str, worker: tuple[str] | None = None
     ):
         """
         Run a single trial of the plate simulation with name encoding from the parameters.
@@ -159,10 +159,12 @@ class PlateSweepDriver(BaseDriver):
         json_string = dict_to_json_str(data)
         uid = uuid_from_values(json_string)
 
-        if workdir is None:
-            workdir = h5file.parent
+        workerdir = h5file.parent / workdir
 
-        workerfile = workdir / f"{uid}.geoh5"
+        if not workerdir.exists():
+            workerdir.mkdir(exist_ok=True)
+
+        workerfile = workerdir / f"{uid}.geoh5"
         if workerfile.exists():
             logger.info("Skipping trial %s, since the file already exists.", uid)
             return
@@ -197,7 +199,7 @@ class PlateSweepDriver(BaseDriver):
 def run_block(
     trials: list[dict],
     h5file: Path,
-    workdir: Path | None,
+    workdir: str,
     worker: tuple[str] | None = None,
 ):
     """

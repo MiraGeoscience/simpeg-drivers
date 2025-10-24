@@ -24,16 +24,12 @@
     "workdir": {
         "main": true,
         "group": "Base",
-        "label": "Working directory",
-        "fileDescription": [
-            "Directory"
-        ],
-        "fileType": [
-            "directory"
-        ],
+        "label": "Output directory",
         "directoryOnly": true,
-        "enabled": true,
-        "value": ""
+        "enabled": false,
+        "optional": true,
+        "tootip": "Directory to store simulation results, relative to the working geoh5.",
+        "value": "./simulations"
     },
     "background_start": {
         "main": true,
