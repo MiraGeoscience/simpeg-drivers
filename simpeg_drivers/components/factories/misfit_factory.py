@@ -16,7 +16,7 @@ import pickle
 from typing import TYPE_CHECKING
 
 import numpy as np
-from dask.distributed import wait
+from dask.distributed import Future, wait
 from simpeg import objective_function
 from simpeg.dask import objective_function as dask_objective_function
 from simpeg.electromagnetics.base_1d import BaseEM1DSimulation
@@ -144,12 +144,12 @@ class MisfitFactory(SimPEGFactory):
         """
         attributes = []
         for misfit in misfits:
-            if self.client:
+            if isinstance(misfit, Future):
                 attributes.append(self.client.submit(_get_ordering, misfit))
             else:
                 attributes += _get_ordering(misfit)
 
-        if self.client:
+        if isinstance(next(attributes), Future):
             ordering = []
             for future in self.client.gather(attributes):
                 ordering += future
