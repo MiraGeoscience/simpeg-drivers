@@ -19,6 +19,7 @@ import numpy as np
 from dask.distributed import wait
 from simpeg import objective_function
 from simpeg.dask import objective_function as dask_objective_function
+from simpeg.electromagnetics.base_1d import BaseEM1DSimulation
 from simpeg.objective_function import ComboObjectiveFunction
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
@@ -56,7 +57,7 @@ class MisfitFactory(SimPEGFactory):
         else:
             channels = [None]
 
-        use_futures = self.client
+        use_futures = self.client and isinstance(self.simulation, BaseEM1DSimulation)
 
         # Pickle the simulation to the temporary file
         with open(
