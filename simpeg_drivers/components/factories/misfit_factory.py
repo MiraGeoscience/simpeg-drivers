@@ -149,7 +149,7 @@ class MisfitFactory(SimPEGFactory):
             else:
                 attributes += _get_ordering(misfit)
 
-        if isinstance(next(attributes), Future):
+        if isinstance(attributes[0], Future):
             ordering = []
             for future in self.client.gather(attributes):
                 ordering += future
