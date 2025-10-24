@@ -101,6 +101,7 @@ class SurveyFactory(SimPEGFactory):
                 np.zeros(n_rx * n_comp),  # Single channel
                 np.kron(np.ones(n_rx), np.arange(n_comp)),  # Components
                 np.kron(np.arange(n_rx), np.ones(n_comp)),  # Receivers
+                np.zeros(n_rx * n_comp),  # Single source
             ].astype(int)
             self.sorting = np.arange(n_rx, dtype=int)
 
@@ -150,7 +151,7 @@ class SurveyFactory(SimPEGFactory):
             return None
 
         receiver_entity = data.entity
-        source_ids, order = np.unique(
+        unique_src_ids, order = np.unique(
             receiver_entity.ab_cell_id.values, return_index=True
         )
         currents = receiver_entity.current_electrodes
@@ -164,7 +165,10 @@ class SurveyFactory(SimPEGFactory):
 
         sources = []
         sorting = []
-        for source_id in source_ids[np.argsort(order)]:  # Cycle in original order
+        source_ids = []
+        for ii, source_id in enumerate(
+            unique_src_ids[np.argsort(order)]
+        ):  # Cycle in original order
             receiver_indices = np.where(receiver_entity.ab_cell_id.values == source_id)[
                 0
             ]
@@ -191,11 +195,13 @@ class SurveyFactory(SimPEGFactory):
             )
             source.rx_ids = np.asarray(receiver_indices)
             sources.append(source)
+            source_ids.append(np.full(receiver_indices.shape, ii))
 
         self.ordering = np.c_[
             np.zeros(receiver_entity.n_cells),  # Single channel
             np.zeros(receiver_entity.n_cells),  # Single component
             np.hstack(sorting),  # Multi-receivers
+            np.hstack(source_ids),  # Sources
         ].astype(int)
         self.sorting = np.hstack(sorting).astype(int)
         return [sources]
@@ -269,7 +275,10 @@ class SurveyFactory(SimPEGFactory):
         rx_factory = ReceiversFactory(self.params)
         tx_factory = SourcesFactory(self.params)
         ordering = []
-        for cur_tx_locs, rx_ids in zip(tx_locs, sorting, strict=True):
+
+        for count, (cur_tx_locs, rx_ids) in enumerate(
+            zip(tx_locs, sorting, strict=True)
+        ):
             locs = receivers.vertices[rx_ids, :]
             rx_list = []
 
@@ -287,6 +296,7 @@ class SurveyFactory(SimPEGFactory):
                         np.kron(np.arange(n_times), np.ones(n_rx)),
                         np.ones(n_times * n_rx) * comp_id,
                         np.kron(np.ones(n_times), np.asarray(rx_ids)),
+                        np.full(n_times * n_rx, count),
                     ]
                 )
 
@@ -327,6 +337,7 @@ class SurveyFactory(SimPEGFactory):
 
         block_ordering = np.vstack(block_ordering)
         ordering = []
+        tx_count = 0
         for freq_id, frequency in enumerate(channels):
             for rx_id, receivers in enumerate(receiver_groups):
                 locs = tx_locs[frequency == frequencies, :][rx_id, :]
@@ -338,14 +349,21 @@ class SurveyFactory(SimPEGFactory):
                 tx.rx_ids = np.r_[rx_id]
                 sources.append(tx)
 
+            source_ids = (
+                np.repeat(np.arange(len(receiver_groups)), len(receivers)).astype(int)
+                + tx_count
+            )
             ordering.append(
-                np.hstack(
+                np.column_stack(
                     [
-                        np.ones((block_ordering.shape[0], 1)) * freq_id,
+                        np.ones(block_ordering.shape[0]) * freq_id,
                         block_ordering,
+                        source_ids,  # Source IDs
                     ]
                 )
             )
+
+            tx_count = source_ids.max() + 1
 
         self.ordering = np.vstack(ordering).astype(int)
         self.sorting = np.arange(rx_locs.shape[0], dtype=int)
@@ -392,6 +410,7 @@ class SurveyFactory(SimPEGFactory):
                     [
                         np.ones((block_ordering.shape[0], 1)) * freq_id,
                         block_ordering,
+                        np.ones((block_ordering.shape[0], 1)) * freq_id,  # Source IDs
                     ]
                 )
             )

@@ -547,7 +547,7 @@
         "optional": true,
         "enabled": true,
         "label": "Maximum chunk size (Mb)",
-        "value": 128,
+        "value": 512,
         "verbose": 3,
         "visible": false,
         "tooltip": "Limit the chunk size used by Dask for distributed computation"

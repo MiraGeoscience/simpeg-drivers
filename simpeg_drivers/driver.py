@@ -39,6 +39,7 @@ from geoapps_utils.param_sweeps.driver import SweepParams
 from geoh5py.groups import SimPEGGroup
 from geoh5py.objects import FEMSurvey
 from geoh5py.shared.utils import fetch_active_workspace
+from geoh5py.shared.exceptions import Geoh5FileClosedError
 from geoh5py.ui_json import InputFile
 
 from simpeg import (
@@ -197,7 +198,7 @@ class InversionDriver(BaseDriver):
         if len(self.workers) == 0:
             return [[tile] for tile in tiles]
 
-        n_tiles = self.params.compute.tile_spatial
+        n_tiles = len(tiles)
 
         n_channels = 1
         if isinstance(self.params.data_object, FEMSurvey) and not isinstance(
@@ -238,9 +239,6 @@ class InversionDriver(BaseDriver):
                 ).build(
                     self.split_list(tiles),
                 )
-
-                if self.logger:
-                    self.logger.write("Saving data to file...\n")
 
         return self._data_misfit
 
@@ -438,6 +436,9 @@ class InversionDriver(BaseDriver):
     def regularization(self):
         if getattr(self, "_regularization", None) is None:
             with fetch_active_workspace(self.workspace, mode="r"):
+                if self.logger:
+                    self.logger.write("Creating the regularization functions...\n")
+
                 self._regularization = self.get_regularization()
 
         return self._regularization
@@ -684,11 +685,23 @@ class InversionDriver(BaseDriver):
         return objective_function.ComboObjectiveFunction(objfcts=reg_funcs)
 
     def get_tiles(self):
+        n_data = self.inversion_data.mask.sum()
+        indices = np.arange(n_data)
+
         if "2d" in self.params.inversion_type:
-            return [np.arange(self.inversion_data.mask.sum())]
+            return [indices]
 
         if "1d" in self.params.inversion_type:
-            return [np.arange(self.inversion_data.mask.sum())]
+            # Heuristic to avoid too many chunks
+            n_chunks = n_data // self.params.compute.max_chunk_size
+
+            if self.params.compute.n_workers:
+                n_chunks /= self.params.compute.n_workers
+                n_chunks = int(n_chunks) * self.params.compute.n_workers
+
+            n_chunks = np.max([n_chunks, 1])
+
+            return np.array_split(indices, n_chunks)
 
         return tile_locations(
             self.inversion_data.locations,
@@ -815,17 +828,28 @@ if __name__ == "__main__":
 
     # Force distributed on 1D problems
     if "1D" in input_file.get("title") and n_workers is None:
-        n_threads = n_threads or 2
-        n_workers = multiprocessing.cpu_count() // n_threads
+        cpu_count = multiprocessing.cpu_count()
+
+        if cpu_count < 16:
+            n_threads = n_threads or 2
+        else:
+            n_threads = n_threads or 4
+
+        n_workers = cpu_count // n_threads
 
     distributed_process = (
         n_workers is not None and n_workers > 1
     ) or n_threads is not None
-    storage_device = input_file.get("store_sensitivities", "ram")
+
     driver_class = InversionDriver.from_input_file(input_file)
 
     cluster = (
-        LocalCluster(processes=True, n_workers=n_workers, threads_per_worker=n_threads)
+        LocalCluster(
+            processes=True,
+            n_workers=n_workers,
+            threads_per_worker=n_threads,
+            local_directory=file.parent,
+        )
         if distributed_process
         else None
     )

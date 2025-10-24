@@ -103,6 +103,13 @@ class Base1DDriver(InversionDriver):
             self._simulation.layers_mesh = self.layers_mesh
             self._simulation.active_cells = self.topo_z_drape
 
+            # Remove cached filters for pickling
+            if hasattr(self._simulation, "_fhtfilt"):
+                self._simulation._fhtfilt = None  # pylint: disable=protected-access
+
+            if hasattr(self._simulation, "_fftfilt"):
+                self._simulation._fftfilt = None  # pylint: disable=protected-access
+
         return self._simulation
 
     @property
