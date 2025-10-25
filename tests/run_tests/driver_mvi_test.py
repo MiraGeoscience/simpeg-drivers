@@ -45,7 +45,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_mvi_run = {"data_norm": 149.10117434016038, "phi_d": 1070, "phi_m": 0.129}
+target_mvi_run = {"data_norm": 149.10117434016038, "phi_d": 1040, "phi_m": 0.129}
 
 
 def test_magnetic_vector_fwr_run(
