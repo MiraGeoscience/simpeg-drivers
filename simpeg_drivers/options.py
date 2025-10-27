@@ -93,11 +93,11 @@ class ActiveCellsOptions(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def grid_topo_must_have_elevation_channel(cls, data):
-        if isinstance(data["topography_object"], Grid2D):
-            if data["topography"] is None:
+    def topo_grid_must_have_elevation_channel(cls, data):
+        if isinstance(data.get("topography_object", None), Grid2D):
+            if data.get("topography", None) is None:
                 raise ValueError(
-                    "Grid2D topography_object must have an 'elevation' channel."
+                    "Grid2D topography must be accompanied by a valid elevation channel."
                 )
         return data
 
