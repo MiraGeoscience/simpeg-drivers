@@ -276,9 +276,9 @@ class InversionModelCollection:
             bound_model = -self._upper_bound.model
 
         if bound_model is None:
-            return -np.inf
-
-        lbound = bound_model.copy()
+            lbound = np.full(self.n_active, -np.inf)
+        else:
+            lbound = bound_model.copy()
 
         if self.is_sigma:
             is_finite = np.isfinite(lbound)
@@ -304,9 +304,9 @@ class InversionModelCollection:
             bound_model = self._upper_bound.model
 
         if bound_model is None:
-            return np.inf
-
-        ubound = bound_model.copy()
+            ubound = np.full(self.n_active, np.inf)
+        else:
+            ubound = bound_model.copy()
 
         if self.is_sigma:
             is_finite = np.isfinite(ubound)

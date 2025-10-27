@@ -510,9 +510,13 @@ def set_rotated_operators(
     )
 
     grad_op_active = mesh.Pac.T @ (unit_grad_op @ mesh.Pac)
+
+    # Remove extra partial volume from missing neighbors
+    row_sum = np.asarray(grad_op_active.sum(axis=1)).ravel()
+    grad_op_active -= sdiag(row_sum)
+
     vol_avg_op = mesh.Pac.T @ (vol_avg_op @ mesh.Pac)
-    active_faces = np.isclose(grad_op_active @ np.ones(mesh.n_cells), 0)
-    active_faces &= grad_op_active.max(axis=1).toarray().ravel() != 0
+    active_faces = grad_op_active.max(axis=1).toarray().ravel() != 0
 
     vol_avg_op = vol_avg_op[active_faces, :]
     vol_avg_op = sdiag(np.asarray(vol_avg_op.sum(axis=1)).ravel() ** -1) @ vol_avg_op
