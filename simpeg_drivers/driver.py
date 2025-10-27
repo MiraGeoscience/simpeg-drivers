@@ -848,7 +848,6 @@ if __name__ == "__main__":
             processes=True,
             n_workers=n_workers,
             threads_per_worker=n_threads,
-            local_directory=file.parent,
         )
         if distributed_process
         else None
