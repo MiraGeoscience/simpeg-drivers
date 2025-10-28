@@ -148,7 +148,7 @@ class MisfitFactory(SimPEGFactory):
                     self.client.submit(
                         _get_ordering,
                         misfit,
-                        workers=self.client.who_has(misfit)[misfit.key]
+                        workers=self.client.who_has(misfit)[misfit.key],
                     )
                 )
             else:
