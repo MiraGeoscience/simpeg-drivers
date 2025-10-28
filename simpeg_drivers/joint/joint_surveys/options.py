@@ -39,7 +39,7 @@ class JointSurveysOptions(BaseJointOptions):
     def all_groups_same_physical_property(self):
         physical_properties = [k.options["physical_property"] for k in self.groups]
         if len(list(set(physical_properties))) > 1:
-            raise GeoAppsError(
+            raise ValueError(
                 "All physical properties must be the same. "
                 f"Provided SimPEG groups for {physical_properties}."
             )

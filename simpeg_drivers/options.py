@@ -89,7 +89,7 @@ class ActiveCellsOptions(BaseModel):
     @classmethod
     def at_least_one(cls, data):
         if all(v is None for v in data.values()):
-            raise GeoAppsError("Must provide either topography or active model.")
+            raise ValueError("Must provide either topography or active model.")
         return data
 
     @model_serializer(mode="wrap")
@@ -208,7 +208,7 @@ class CoreOptions(Options):
     @classmethod
     def mesh_cannot_be_rotated(cls, value: Octree):
         if isinstance(value, Octree) and value.rotation not in [0.0, None]:
-            raise GeoAppsError(
+            raise ValueError(
                 "Rotated meshes are not supported. Please use a mesh with an angle of 0.0."
             )
         return value
@@ -491,13 +491,13 @@ class LineSelectionOptions(BaseModel):
     @classmethod
     def validate_cell_association(cls, value):
         if value.association is not DataAssociationEnum.CELL:
-            raise GeoAppsError("Line identifier must be associated with cells.")
+            raise ValueError("Line identifier must be associated with cells.")
         return value
 
     @model_validator(mode="after")
     def line_id_referenced(self):
         if self.line_id not in self.line_object.values:
-            raise GeoAppsError("Line id isn't referenced in the line object.")
+            raise ValueError("Line id isn't referenced in the line object.")
         return self
 
 
