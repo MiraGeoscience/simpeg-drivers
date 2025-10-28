@@ -500,8 +500,8 @@ class BaseJointDriver(InversionDriver):
         futures = []
 
         for misfit in misfits.objfcts:
-            delayed_mapping = self.client.scatter(mapping)
             if self.client:
+                delayed_mapping = self.client.scatter(mapping)
                 futures.append(
                     self.client.submit(
                         _get_set_mapping,
