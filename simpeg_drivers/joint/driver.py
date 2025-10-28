@@ -499,7 +499,6 @@ class BaseJointDriver(InversionDriver):
         """
         futures = []
 
-
         for misfit in misfits.objfcts:
             delayed_mapping = self.client.scatter(mapping)
             if self.client:
@@ -508,7 +507,7 @@ class BaseJointDriver(InversionDriver):
                         _get_set_mapping,
                         misfit,
                         delayed_mapping,
-                        workers=self.client.who_has(misfit)[misfit.key]
+                        workers=self.client.who_has(misfit)[misfit.key],
                     )
                 )
             else:
