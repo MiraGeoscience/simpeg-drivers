@@ -144,7 +144,13 @@ class MisfitFactory(SimPEGFactory):
         attributes = []
         for misfit in misfits:
             if self.client:
-                attributes.append(self.client.submit(_get_ordering, misfit))
+                attributes.append(
+                    self.client.submit(
+                        _get_ordering,
+                        misfit,
+                        workers=self.client.who_has(misfit)[misfit.key]
+                    )
+                )
             else:
                 attributes += _get_ordering(misfit)
 
