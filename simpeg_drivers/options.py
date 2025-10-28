@@ -17,7 +17,6 @@ from typing import Annotated, Any, ClassVar, Literal, TypeAlias
 
 import numpy as np
 from geoapps_utils.base import Options
-from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.data import (
     BooleanData,
     DataAssociationEnum,
@@ -90,6 +89,16 @@ class ActiveCellsOptions(BaseModel):
     def at_least_one(cls, data):
         if all(v is None for v in data.values()):
             raise ValueError("Must provide either topography or active model.")
+        return data
+
+    @model_validator(mode="before")
+    @classmethod
+    def topo_grid_must_have_elevation_channel(cls, data):
+        if isinstance(data.get("topography_object", None), Grid2D):
+            if data.get("topography", None) is None:
+                raise ValueError(
+                    "Grid2D topography must be accompanied by a valid elevation channel."
+                )
         return data
 
     @model_serializer(mode="wrap")
