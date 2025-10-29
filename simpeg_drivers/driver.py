@@ -539,28 +539,38 @@ class InversionDriver(BaseDriver):
         # SimPEG reports half phi_d, so we scale to match
         has_chi_start = self.params.irls.starting_chi_factor is not None
         chi_start = (
-            self.params.rescaled_starting_chi_factor
+            self.params.irls.starting_chi_factor
             if has_chi_start
-            else self.params.rescaled_chi_factor
+            else self.params.cooling_schecule.chi_factor
         )
 
         if getattr(self, "drivers", None) is not None:  # joint problem
-            data_count = np.sum(
+            finite_data_count = np.sum(
                 [
-                    d.params.finite_data_ratio * d.inversion_data.n_data
-                    for d in getattr(self, "drivers")
+                    driver.inversion_data.n_data(finite_only=True)
+                    for driver in getattr(self, "drivers")
+                ]
+            )
+            total_data_count = np.sum(
+                [
+                    driver.inversion_data.n_data(finite_only=False)
+                    for driver in getattr(self, "drivers")
                 ]
             )
         else:
-            data_count = self.params.finite_data_ratio * self.inversion_data.n_data
+            finite_data_count = self.inversion_data.n_data(finite_only=True)
+            total_data_count = self.inversion_data.n_data(finite_only=False)
 
+        rescale = finite_data_count / total_data_count
+        rescaled_chi_factor = self.params.cooling_schedule.chi_factor * rescale
+        rescaled_starting_chi_factor = chi_start * rescale
         self.logger.write(
-            f"Target Misfit: {self.params.rescaled_chi_factor * data_count:.2e} ({data_count} data "
-            f"with chifact = {self.params.rescaled_chi_factor})\n"
+            f"Target Misfit: {rescaled_chi_factor * finite_data_count:.2e} ({finite_data_count} data "
+            f"with chifact = {rescaled_chi_factor})\n"
         )
         self.logger.write(
-            f"IRLS Start Misfit: {chi_start * data_count:.2e} ({data_count} data "
-            f"with chifact = {chi_start})\n"
+            f"IRLS Start Misfit: {rescaled_starting_chi_factor * finite_data_count:.2e} ({finite_data_count} data "
+            f"with chifact = {rescaled_starting_chi_factor})\n"
         )
 
     @property

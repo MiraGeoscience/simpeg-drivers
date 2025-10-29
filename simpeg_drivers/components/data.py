@@ -398,14 +398,21 @@ class InversionData(InversionLocations):
 
         return self._survey
 
-    @property
-    def n_data(self):
+    def n_data(self, finite_only=True):
         n_data = 0
         for comp in self.params.active_components:
             if isinstance(self.observed[comp], dict):
                 for channel in self.observed[comp]:
-                    n_data += len(self.observed[comp][channel])
+                    n_data += (
+                        np.isfinite(self.observed[comp][channel]).sum()
+                        if finite_only
+                        else len(self.observed[comp][channel])
+                    )
             else:
-                n_data += len(self.observed[comp])
+                n_data += (
+                    np.isfinite(self.observed[comp]).sum()
+                    if finite_only
+                    else len(self.observed[comp])
+                )
 
         return n_data

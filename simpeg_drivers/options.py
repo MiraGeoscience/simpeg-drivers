@@ -580,30 +580,6 @@ class BaseInversionOptions(CoreOptions):
     store_sensitivities: str = "ram"
 
     @property
-    def rescaled_chi_factor(self):
-        return self.cooling_schedule.chi_factor * self.finite_data_ratio
-
-    @property
-    def rescaled_starting_chi_factor(self):
-        return self.irls.starting_chi_factor * self.finite_data_ratio
-
-    @property
-    def finite_data_ratio(self):
-        """Returns the ratio of finite data to total data."""
-        finite_data, total_data = 0, 0
-        for comp in self.active_components:
-            data = self.component_data(comp)
-            if isinstance(data, dict):
-                for values in data.values():
-                    finite_data += np.isfinite(values).sum()
-                    total_data += len(values)
-            else:
-                finite_data += np.isfinite(self.component_data(comp)).sum()
-                total_data += len(self.component_data(comp))
-
-        return finite_data / total_data
-
-    @property
     def active_components(self) -> list[str]:
         """Return list of active components."""
         return [
