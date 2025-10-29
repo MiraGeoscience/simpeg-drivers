@@ -159,8 +159,17 @@ def test_gravity_run(
             save_sensitivities=True,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
+    assert params.cooling_schedule.chi_factor == 1.0
+    assert params.irls.starting_chi_factor == 1.0
+    assert params.rescaled_chi_factor == 0.75
+    assert params.rescaled_starting_chi_factor == 0.75
 
     driver = GravityInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
+
+    with open(workpath.parent / "SimPEG.log", encoding="utf8") as file:
+        content = file.read()
+        assert "Target Misfit: 2.25e+00 (3.0 data with chifact = 0.75)" in content
+        assert "IRLS Start Misfit: 2.25e+00 (3.0 data with chifact = 0.75)" in content
 
     assert driver.params.data_object.uid != gz.parent.uid
     assert np.all(np.isinf(driver.models.upper_bound))
