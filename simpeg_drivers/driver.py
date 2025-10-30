@@ -559,7 +559,7 @@ class InversionDriver(BaseDriver):
         chi_start = (
             self.params.irls.starting_chi_factor
             if has_chi_start
-            else self.params.cooling_schecule.chi_factor
+            else self.params.cooling_schedule.chi_factor
         )
 
         finite_data_count, total_data_count = self.count_data()
