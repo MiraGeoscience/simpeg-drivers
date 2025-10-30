@@ -358,7 +358,9 @@ class CoolingSceduleOptions(BaseModel):
     Options controlling the trade-off schedule between data misfit and
     model regularization.
 
-    :param chi_factor: Target chi factor for the data misfit.
+    :param chi_factor: Target chi factor for the data misfit.  Input value will be
+        adjusted to account for the number of finite data so that factor used will
+        be smaller if the data contains nan values.
     :param cooling_factor: Factor by which the regularization parameter is reduced.
     :param cooling_rate: Rate at which the regularization parameter is reduced.
     :param initial_beta: Initial regularization parameter.
@@ -464,7 +466,9 @@ class IRLSOptions(BaseModel):
     :param epsilon_cooling_factor: Factor by which the epsilon value is reduced
     :param max_irls_iterations: Maximum number of IRLS iterations.
     :param percentile: Percentile of the model values used to compute the initial epsilon value.
-    :param starting_chi_factor: Starting chi factor for IRLS.
+    :param starting_chi_factor: Starting chi factor for IRLS.  Input value will be adjusted to
+        account for the number of finite data so that factor used will be smaller if the data
+        contains nan values.
     """
 
     model_config = ConfigDict(

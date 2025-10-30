@@ -279,17 +279,19 @@ class DirectivesFactory:
     def update_irls_directive(self):
         """Directive to update IRLS."""
         if self._update_irls_directive is None:
-            start_chi_fact = self.params.irls.starting_chi_factor
+            finite_data_count, total_data_count = self.driver.count_data()
+            rescale = finite_data_count / total_data_count
+            chi_factor = self.params.cooling_schedule.chi_factor * rescale
 
-            if (
-                start_chi_fact is not None
-                and self.params.cooling_schedule.chi_factor > start_chi_fact
-            ):
-                logger.warning(
-                    "Starting chi factor is greater than target chi factor.\n"
-                    "Setting the target chi factor to the starting chi factor."
-                )
-                start_chi_fact = self.params.cooling_schedule.chi_factor
+            starting_chi_factor = self.params.irls.starting_chi_factor
+            if starting_chi_factor is not None:
+                starting_chi_factor *= rescale
+                if chi_factor > starting_chi_factor:
+                    logger.warning(
+                        "Starting chi factor is greater than target chi factor.\n"
+                        "Setting the target chi factor to the starting chi factor."
+                    )
+                    starting_chi_factor = chi_factor
 
             self._update_irls_directive = directives.UpdateIRLS(
                 f_min_change=self.params.optimization.f_min_change,
@@ -299,8 +301,8 @@ class DirectivesFactory:
                 cooling_rate=self.params.cooling_schedule.cooling_rate,
                 cooling_factor=self.params.cooling_schedule.cooling_factor,
                 irls_cooling_factor=self.params.irls.epsilon_cooling_factor,
-                chifact_start=start_chi_fact or self.params.cooling_schedule.chi_factor,
-                chifact_target=self.params.cooling_schedule.chi_factor,
+                chifact_start=starting_chi_factor or chi_factor,
+                chifact_target=chi_factor,
             )
         return self._update_irls_directive
 

@@ -1490,27 +1490,27 @@ package:
   category: main
   optional: false
 - name: fsspec
-  version: 2025.9.0
+  version: 2025.10.0
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.10'
-  url: https://repo.prefix.dev/conda-forge/noarch/fsspec-2025.9.0-pyhd8ed1ab_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/fsspec-2025.10.0-pyhd8ed1ab_0.conda
   hash:
-    md5: 76f492bd8ba8a0fb80ffe16fc1a75b3b
-    sha256: 05e55a2bd5e4d7f661d1f4c291ca8e65179f68234d18eb70fc00f50934d3c4d3
+    md5: d18004c37182f83b9818b714825a7627
+    sha256: df5cb57bb668cd5b2072d8bd66380ff7acb12e8c337f47dd4b9a75a6a6496a6d
   category: main
   optional: false
 - name: fsspec
-  version: 2025.9.0
+  version: 2025.10.0
   manager: conda
   platform: win-64
   dependencies:
     python: '>=3.10'
-  url: https://repo.prefix.dev/conda-forge/noarch/fsspec-2025.9.0-pyhd8ed1ab_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/fsspec-2025.10.0-pyhd8ed1ab_0.conda
   hash:
-    md5: 76f492bd8ba8a0fb80ffe16fc1a75b3b
-    sha256: 05e55a2bd5e4d7f661d1f4c291ca8e65179f68234d18eb70fc00f50934d3c4d3
+    md5: d18004c37182f83b9818b714825a7627
+    sha256: df5cb57bb668cd5b2072d8bd66380ff7acb12e8c337f47dd4b9a75a6a6496a6d
   category: main
   optional: false
 - name: geoana
@@ -5486,10 +5486,10 @@ package:
     libgcc: '>=14'
     python: ''
     python_abi: 3.10.*
-  url: https://repo.prefix.dev/conda-forge/linux-64/psutil-7.1.2-py310h139afa4_0.conda
+  url: https://repo.prefix.dev/conda-forge/linux-64/psutil-7.1.2-py310h139afa4_1.conda
   hash:
-    md5: ee005b66348b73dede98088db6a5b4fc
-    sha256: 2f631edfb32a2a3b99be176aebda98cd56492b849e5486c9a4583bff4c8768a8
+    md5: efba82ceedda289af9a8b3d17223d5dd
+    sha256: 1cbd20848900745160a1c963260a2bb08670bc0f6e7c05608b49cb2ee589dd4f
   category: main
   optional: false
 - name: psutil
@@ -5502,10 +5502,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.3,<15'
     vc14_runtime: '>=14.44.35208'
-  url: https://repo.prefix.dev/conda-forge/win-64/psutil-7.1.2-py310h1637853_0.conda
+  url: https://repo.prefix.dev/conda-forge/win-64/psutil-7.1.2-py310h1637853_1.conda
   hash:
-    md5: 43af0cd123cf8bf7ad0e9bba40a086b6
-    sha256: 9d1215092d4aa75fd06a6f2e48430356314b43d83039c7f37d8eead254f1ac48
+    md5: 4dec7711517a197313114025828e67fa
+    sha256: 93ac561e4890b9005f32a5ef624a96c51fbeaa94d90dd71000bbff93a653d9a8
   category: main
   optional: false
 - name: pthread-stubs
@@ -8272,27 +8272,27 @@ package:
   category: main
   optional: false
 - name: xyzservices
-  version: 2025.4.0
+  version: 2025.10.0
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.8'
-  url: https://repo.prefix.dev/conda-forge/noarch/xyzservices-2025.4.0-pyhd8ed1ab_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/xyzservices-2025.10.0-pyhd8ed1ab_0.conda
   hash:
-    md5: 5663fa346821cd06dc1ece2c2600be2c
-    sha256: ac6d4d4133b1e0f69075158cdf00fccad20e29fc6cc45faa480cec37a84af6ae
+    md5: c98904dfa356df2e386db8af043be202
+    sha256: c1b83ca08b11b5e8fa610e5e9721cf62bc67300fb951b7a189a0882565e2b391
   category: main
   optional: false
 - name: xyzservices
-  version: 2025.4.0
+  version: 2025.10.0
   manager: conda
   platform: win-64
   dependencies:
     python: '>=3.8'
-  url: https://repo.prefix.dev/conda-forge/noarch/xyzservices-2025.4.0-pyhd8ed1ab_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/xyzservices-2025.10.0-pyhd8ed1ab_0.conda
   hash:
-    md5: 5663fa346821cd06dc1ece2c2600be2c
-    sha256: ac6d4d4133b1e0f69075158cdf00fccad20e29fc6cc45faa480cec37a84af6ae
+    md5: c98904dfa356df2e386db8af043be202
+    sha256: c1b83ca08b11b5e8fa610e5e9721cf62bc67300fb951b7a189a0882565e2b391
   category: main
   optional: false
 - name: yaml
@@ -8504,7 +8504,7 @@ package:
   manager: pip
   platform: linux-64
   dependencies:
-    geoh5py: 0.12.0b1
+    geoh5py: 0.12.0b3
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
@@ -8521,7 +8521,7 @@ package:
   manager: pip
   platform: win-64
   dependencies:
-    geoh5py: 0.12.0b1
+    geoh5py: 0.12.0b3
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
@@ -8534,7 +8534,7 @@ package:
   category: main
   optional: false
 - name: geoh5py
-  version: 0.12.0b1
+  version: 0.12.0b3
   manager: pip
   platform: linux-64
   dependencies:
@@ -8542,16 +8542,16 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pillow: '>=10.3.0,<10.4.0'
     pydantic: '>=2.5.2,<3.0.0'
-  url: git+https://github.com/MiraGeoscience/geoh5py.git@f75f2110f23d633524b63b74e2774bd0fde07891
+  url: git+https://github.com/MiraGeoscience/geoh5py.git@61191f47410bbbb072e32cb29b37b3bb2370722a
   hash:
-    sha256: f75f2110f23d633524b63b74e2774bd0fde07891
+    sha256: 61191f47410bbbb072e32cb29b37b3bb2370722a
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoh5py.git@f75f2110f23d633524b63b74e2774bd0fde07891
+    url: git+https://github.com/MiraGeoscience/geoh5py.git@61191f47410bbbb072e32cb29b37b3bb2370722a
   category: main
   optional: false
 - name: geoh5py
-  version: 0.12.0b1
+  version: 0.12.0b3
   manager: pip
   platform: win-64
   dependencies:
@@ -8559,12 +8559,12 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pillow: '>=10.3.0,<10.4.0'
     pydantic: '>=2.5.2,<3.0.0'
-  url: git+https://github.com/MiraGeoscience/geoh5py.git@f75f2110f23d633524b63b74e2774bd0fde07891
+  url: git+https://github.com/MiraGeoscience/geoh5py.git@61191f47410bbbb072e32cb29b37b3bb2370722a
   hash:
-    sha256: f75f2110f23d633524b63b74e2774bd0fde07891
+    sha256: 61191f47410bbbb072e32cb29b37b3bb2370722a
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoh5py.git@f75f2110f23d633524b63b74e2774bd0fde07891
+    url: git+https://github.com/MiraGeoscience/geoh5py.git@61191f47410bbbb072e32cb29b37b3bb2370722a
   category: main
   optional: false
 - name: grid-apps
@@ -8574,7 +8574,7 @@ package:
   dependencies:
     discretize: '>=0.11.0,<0.12.dev'
     geoapps-utils: 0.6.0a1.dev108+ed5f5cf
-    geoh5py: 0.12.0b1
+    geoh5py: 0.12.0b3
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
@@ -8593,7 +8593,7 @@ package:
   dependencies:
     discretize: '>=0.11.0,<0.12.dev'
     geoapps-utils: 0.6.0a1.dev108+ed5f5cf
-    geoh5py: 0.12.0b1
+    geoh5py: 0.12.0b3
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
