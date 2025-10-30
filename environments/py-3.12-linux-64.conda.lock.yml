@@ -10,16 +10,16 @@ dependencies:
   - annotated-types=0.7.0=pyhd8ed1ab_1
   - asciitree=0.3.3=py_2
   - bokeh=3.6.3=pyhd8ed1ab_0
-  - brotli=1.1.0=hb03c661_4
-  - brotli-bin=1.1.0=hb03c661_4
-  - brotli-python=1.1.0=py312h1289d80_4
+  - brotli=1.2.0=h41a2e66_0
+  - brotli-bin=1.2.0=hf2c8021_0
+  - brotli-python=1.2.0=py312h67db365_0
   - bzip2=1.0.8=hda65f42_8
   - c-ares=1.34.5=hb9d3cd8_0
   - ca-certificates=2025.10.5=hbd8a1cb_0
   - cached-property=1.5.2=hd8ed1ab_1
   - cached_property=1.5.2=pyha770c72_1
   - certifi=2025.10.5=pyhd8ed1ab_0
-  - cffi=2.0.0=py312h35888ee_0
+  - cffi=2.0.0=py312h460c074_1
   - click=8.3.0=pyh707e725_0
   - cloudpickle=3.1.1=pyhd8ed1ab_0
   - colorama=0.4.6=pyhd8ed1ab_1
@@ -47,13 +47,13 @@ dependencies:
   - kiwisolver=1.4.9=py312h0a2e395_1
   - krb5=1.21.3=h659f571_0
   - lcms2=2.17=h717163a_0
-  - ld_impl_linux-64=2.44=ha97dd6f_2
+  - ld_impl_linux-64=2.44=h1aa0949_4
   - lerc=4.0.0=h0aef613_1
   - libaec=1.1.4=h3f801dc_0
   - libblas=3.9.0=37_h5875eb1_mkl
-  - libbrotlicommon=1.1.0=hb03c661_4
-  - libbrotlidec=1.1.0=hb03c661_4
-  - libbrotlienc=1.1.0=hb03c661_4
+  - libbrotlicommon=1.2.0=h09219d5_0
+  - libbrotlidec=1.2.0=hd53d788_0
+  - libbrotlienc=1.2.0=h02bd7ab_0
   - libcblas=3.9.0=37_hfef963f_mkl
   - libcurl=8.16.0=h4e3cde8_0
   - libdeflate=1.24=h86f0d12_0
@@ -61,7 +61,7 @@ dependencies:
   - libedit=3.1.20250104=pl5321h7949ede_0
   - libev=4.33=hd590300_2
   - libexpat=2.7.1=hecca717_0
-  - libffi=3.4.6=h2dba641_1
+  - libffi=3.5.2=h9ec8514_0
   - libfreetype=2.14.1=ha770c72_0
   - libfreetype6=2.14.1=h73754d4_0
   - libgcc=15.2.0=h767d61c_7
@@ -110,7 +110,7 @@ dependencies:
   - partd=1.4.2=pyhd8ed1ab_0
   - pillow=10.3.0=py312h287a98d_1
   - pip=25.2=pyh8b19718_0
-  - psutil=7.1.1=py312h4c3975b_0
+  - psutil=7.1.2=py312h5253ce2_0
   - pthread-stubs=0.4=hb9d3cd8_1002
   - pycparser=2.22=pyh29332c3_1
   - pydantic=2.12.3=pyh3cfb1c2_0
@@ -119,7 +119,7 @@ dependencies:
   - pymatsolver=0.3.1=pyh48887ae_201
   - pyparsing=3.2.5=pyhcf101f3_0
   - pysocks=1.7.1=pyha55dd90_7
-  - python=3.12.12=hfe2f287_0_cpython
+  - python=3.12.12=hd63d673_1_cpython
   - python-dateutil=2.9.0.post0=pyhe01879c_2
   - python-mumps=0.0.3=py312h6ad3ee3_0
   - python-tzdata=2025.2=pyhd8ed1ab_0
@@ -160,7 +160,7 @@ dependencies:
   - zstd=1.5.7=hb8e6e7a_2
   - pip:
     - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@ed5f5cf8cd1a3ef9c3ec13140215d4b5d3da0a31
-    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@ad308257fed905370b41557f86dea6ea85fa6fb3
+    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@f75f2110f23d633524b63b74e2774bd0fde07891
     - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@b3352058d585613d34ff3042675a79a3b3e4bfbd
     - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@489775b595d5abce81d49b52bfefcecc3181c5c5
 
