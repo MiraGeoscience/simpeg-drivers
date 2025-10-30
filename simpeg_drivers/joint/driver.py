@@ -65,7 +65,8 @@ class BaseJointDriver(InversionDriver):
                         fun.name = f"Group_{label.upper()}:Tile_{ii}"
 
                     multipliers += [
-                        getattr(self.params, f"group_{label}_multiplier") ** 2.0
+                        (getattr(self.params, f"group_{label}_multiplier") or 1.0)
+                        ** 2.0
                     ] * len(driver.data_misfit.objfcts)
 
             if self.client:

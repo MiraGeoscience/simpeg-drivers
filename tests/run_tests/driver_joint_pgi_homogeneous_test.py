@@ -143,7 +143,7 @@ def test_homogeneous_run(
         orig_data = []
         petrophysics = None
         gradient_rotation = None
-        mesh = None
+
         for suffix in "AB":
             components = SyntheticsComponents(
                 geoh5=geoh5,
@@ -226,6 +226,19 @@ def test_homogeneous_run(
                 )
                 drivers.append(MagneticInversionDriver(params))
 
+        # Test if single group is valid
+        params = JointPetrophysicsOptions.build(
+            topography_object=topography,
+            geoh5=geoh5,
+            group_a=drivers[0].out_group,
+            mesh=global_mesh,
+            petrophysical_model=petrophysics,
+        )
+        driver = JointPetrophysicsDriver(params)
+        assert len(driver.data_misfit.objfcts) == 1
+        assert driver.data_misfit.multipliers == [1.0]
+
+        # Re-build full
         params = JointPetrophysicsOptions.build(
             topography_object=topography,
             geoh5=geoh5,
