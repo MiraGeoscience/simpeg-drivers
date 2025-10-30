@@ -536,6 +536,23 @@ class InversionDriver(BaseDriver):
                 if isinstance(directive, directives.SaveLogFilesGeoH5):
                     directive.write(1)
 
+    def count_data(self):
+        """
+        Returns the finite (not nan) and total data counts for drivers.
+
+        Iterates and accumulates over collection of drivers if joint inversion.
+        """
+        drivers = [self]
+        if hasattr(self, "drivers"):
+            drivers = self.drivers
+
+        finite_data_count, total_data_count = 0, 0
+        for driver in drivers:
+            finite_data_count += driver.inversion_data.n_data(finite_only=True)
+            total_data_count += driver.inversion_data.n_data(finite_only=False)
+
+        return finite_data_count, total_data_count
+
     def start_inversion_message(self):
         # SimPEG reports half phi_d, so we scale to match
         has_chi_start = self.params.irls.starting_chi_factor is not None
@@ -545,33 +562,17 @@ class InversionDriver(BaseDriver):
             else self.params.cooling_schecule.chi_factor
         )
 
-        if getattr(self, "drivers", None) is not None:  # joint problem
-            finite_data_count = np.sum(
-                [
-                    driver.inversion_data.n_data(finite_only=True)
-                    for driver in getattr(self, "drivers")
-                ]
-            )
-            total_data_count = np.sum(
-                [
-                    driver.inversion_data.n_data(finite_only=False)
-                    for driver in getattr(self, "drivers")
-                ]
-            )
-        else:
-            finite_data_count = self.inversion_data.n_data(finite_only=True)
-            total_data_count = self.inversion_data.n_data(finite_only=False)
-
+        finite_data_count, total_data_count = self.count_data()
         rescale = finite_data_count / total_data_count
         rescaled_chi_factor = self.params.cooling_schedule.chi_factor * rescale
         rescaled_starting_chi_factor = chi_start * rescale
         self.logger.write(
             f"Target Misfit: {rescaled_chi_factor * finite_data_count:.2e} ({finite_data_count} data "
-            f"with chifact = {rescaled_chi_factor})\n"
+            f"with chifact = {self.params.cooling_schedule.chi_factor})\n"
         )
         self.logger.write(
             f"IRLS Start Misfit: {rescaled_starting_chi_factor * finite_data_count:.2e} ({finite_data_count} data "
-            f"with chifact = {rescaled_starting_chi_factor})\n"
+            f"with chifact = {self.params.irls.starting_chi_factor})\n"
         )
 
     @property

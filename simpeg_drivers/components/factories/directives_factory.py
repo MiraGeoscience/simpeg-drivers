@@ -279,15 +279,7 @@ class DirectivesFactory:
     def update_irls_directive(self):
         """Directive to update IRLS."""
         if self._update_irls_directive is None:
-            drivers = (
-                self.driver.drivers
-                if hasattr(self.driver, "drivers")
-                else [self.driver]
-            )
-            finite_data_count, total_data_count = 0, 0
-            for driver in drivers:
-                finite_data_count += driver.inversion_data.n_data(finite_only=True)
-                total_data_count += driver.inversion_data.n_data(finite_only=False)
+            finite_data_count, total_data_count = self.driver.count_data()
             rescale = finite_data_count / total_data_count
             chi_factor = self.params.cooling_schedule.chi_factor * rescale
 
