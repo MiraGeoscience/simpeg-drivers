@@ -10,15 +10,15 @@ dependencies:
   - annotated-types=0.7.0=pyhd8ed1ab_1
   - asciitree=0.3.3=py_2
   - bokeh=3.6.3=pyhd8ed1ab_0
-  - brotli=1.1.0=hfd05255_4
-  - brotli-bin=1.1.0=hfd05255_4
-  - brotli-python=1.1.0=py310h73ae2b4_4
+  - brotli=1.2.0=h17ff524_0
+  - brotli-bin=1.2.0=h6910e44_0
+  - brotli-python=1.2.0=py310h8abc2a3_0
   - bzip2=1.0.8=h0ad9c76_8
   - ca-certificates=2025.10.5=h4c7d964_0
   - cached-property=1.5.2=hd8ed1ab_1
   - cached_property=1.5.2=pyha770c72_1
   - certifi=2025.10.5=pyhd8ed1ab_0
-  - cffi=2.0.0=py310h29418f3_0
+  - cffi=2.0.0=py310h29418f3_1
   - click=8.3.0=pyh7428d3b_0
   - cloudpickle=3.1.1=pyhd8ed1ab_0
   - colorama=0.4.6=pyhd8ed1ab_1
@@ -47,9 +47,9 @@ dependencies:
   - lerc=4.0.0=h6470a55_1
   - libaec=1.1.4=h20038f6_0
   - libblas=3.9.0=35_h5709861_mkl
-  - libbrotlicommon=1.1.0=hfd05255_4
-  - libbrotlidec=1.1.0=hfd05255_4
-  - libbrotlienc=1.1.0=hfd05255_4
+  - libbrotlicommon=1.2.0=hc82b238_0
+  - libbrotlidec=1.2.0=h431afc6_0
+  - libbrotlienc=1.2.0=ha521d6b_0
   - libcblas=3.9.0=35_h2a3cdd5_mkl
   - libcurl=8.16.0=h43ecb02_0
   - libdeflate=1.24=h76ddb4d_0
@@ -93,7 +93,7 @@ dependencies:
   - partd=1.4.2=pyhd8ed1ab_0
   - pillow=10.3.0=py310h3e38d90_1
   - pip=25.2=pyh8b19718_0
-  - psutil=7.1.1=py310h29418f3_0
+  - psutil=7.1.2=py310h1637853_0
   - pthread-stubs=0.4=h0e40799_1002
   - pycparser=2.22=pyh29332c3_1
   - pydantic=2.12.3=pyh3cfb1c2_0
@@ -102,7 +102,7 @@ dependencies:
   - pymatsolver=0.3.1=pyh48887ae_201
   - pyparsing=3.2.5=pyhcf101f3_0
   - pysocks=1.7.1=pyh09c184e_7
-  - python=3.10.19=hcb012bd_1_cpython
+  - python=3.10.19=hc20f281_2_cpython
   - python-dateutil=2.9.0.post0=pyhe01879c_2
   - python-mumps=0.0.3=py310hb64895d_0
   - python-tzdata=2025.2=pyhd8ed1ab_0
@@ -146,7 +146,7 @@ dependencies:
   - zstd=1.5.7=hbeecb71_2
   - pip:
     - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@ed5f5cf8cd1a3ef9c3ec13140215d4b5d3da0a31
-    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@ad308257fed905370b41557f86dea6ea85fa6fb3
+    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@f75f2110f23d633524b63b74e2774bd0fde07891
     - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@b3352058d585613d34ff3042675a79a3b3e4bfbd
     - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@489775b595d5abce81d49b52bfefcecc3181c5c5
 

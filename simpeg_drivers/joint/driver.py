@@ -498,9 +498,18 @@ class BaseJointDriver(InversionDriver):
         :return: List of collected attributes.
         """
         futures = []
+
         for misfit in misfits.objfcts:
             if self.client:
-                futures.append(self.client.submit(_get_set_mapping, misfit, mapping))
+                delayed_mapping = self.client.scatter(mapping)
+                futures.append(
+                    self.client.submit(
+                        _get_set_mapping,
+                        misfit,
+                        delayed_mapping,
+                        workers=self.client.who_has(misfit)[misfit.key],
+                    )
+                )
             else:
                 futures.append(_get_set_mapping(misfit, mapping))
 
