@@ -26,13 +26,13 @@ dependencies:
   - cycler=0.12.1=pyhd8ed1ab_1
   - cytoolz=1.1.0=py312he06e257_1
   - dask-core=2025.3.0=pyhd8ed1ab_0
-  - deprecated=1.2.18=pyhd8ed1ab_0
+  - deprecated=1.3.1=pyhd8ed1ab_0
   - discretize=0.11.3=py312h9b46583_1
   - distributed=2025.3.0=pyhd8ed1ab_0
   - fasteners=0.19=pyhd8ed1ab_1
   - fonttools=4.60.1=py312h05f76fc_0
   - freetype=2.14.1=h57928b3_0
-  - fsspec=2025.9.0=pyhd8ed1ab_0
+  - fsspec=2025.10.0=pyhd8ed1ab_0
   - geoana=0.7.2=py312h9b46583_1
   - h2=4.3.0=pyhcf101f3_0
   - h5py=3.15.1=nompi_py312h03cd2ba_100
@@ -94,7 +94,7 @@ dependencies:
   - partd=1.4.2=pyhd8ed1ab_0
   - pillow=10.3.0=py312h381445a_1
   - pip=25.2=pyh8b19718_0
-  - psutil=7.1.2=py312he5662c2_0
+  - psutil=7.1.2=py312he5662c2_1
   - pthread-stubs=0.4=h0e40799_1002
   - pycparser=2.22=pyh29332c3_1
   - pydantic=2.12.3=pyh3cfb1c2_0
@@ -139,7 +139,7 @@ dependencies:
   - wrapt=1.17.3=py312he06e257_1
   - xorg-libxau=1.0.12=h0e40799_0
   - xorg-libxdmcp=1.1.5=h0e40799_0
-  - xyzservices=2025.4.0=pyhd8ed1ab_0
+  - xyzservices=2025.10.0=pyhd8ed1ab_0
   - yaml=0.2.5=h6a83c73_3
   - zarr=2.14.2=pyhd8ed1ab_0
   - zict=3.0.0=pyhd8ed1ab_1
@@ -148,7 +148,7 @@ dependencies:
   - zstd=1.5.7=hbeecb71_2
   - pip:
     - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@ed5f5cf8cd1a3ef9c3ec13140215d4b5d3da0a31
-    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@f75f2110f23d633524b63b74e2774bd0fde07891
+    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@61191f47410bbbb072e32cb29b37b3bb2370722a
     - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@b3352058d585613d34ff3042675a79a3b3e4bfbd
     - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@489775b595d5abce81d49b52bfefcecc3181c5c5
 
