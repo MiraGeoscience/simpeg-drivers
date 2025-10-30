@@ -10,6 +10,7 @@
 
 from __future__ import annotations
 
+import shutil
 from pathlib import Path
 
 import numpy as np
@@ -74,11 +75,22 @@ def setup_inversion_results(
     GravityInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
 
-def test_sensitivity_percent_cutoff_run(tmp_path):
+def test_setup_inversion_results(tmp_path: Path):
     setup_inversion_results(
         tmp_path,
         n_grid_points=2,
         refinement=(2,),
+    )
+
+    with Workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        sensitivity = geoh5.get_entity("Iteration_1_sensitivities")[0]
+        assert sensitivity is not None
+
+
+def test_sensitivity_percent_cutoff_run(tmp_path):
+    shutil.copy(
+        tmp_path / "../test_setup_inversion_results0/inversion_test.ui.geoh5",
+        tmp_path / "inversion_test.ui.geoh5",
     )
 
     with Workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
@@ -102,10 +114,9 @@ def test_sensitivity_percent_cutoff_run(tmp_path):
 
 
 def test_sensitivity_cutoff_percentile_run(tmp_path):
-    setup_inversion_results(
-        tmp_path,
-        n_grid_points=2,
-        refinement=(2,),
+    shutil.copy(
+        tmp_path / "../test_setup_inversion_results0/inversion_test.ui.geoh5",
+        tmp_path / "inversion_test.ui.geoh5",
     )
 
     with Workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
@@ -131,10 +142,9 @@ def test_sensitivity_cutoff_percentile_run(tmp_path):
 
 
 def test_sensitivity_cutoff_log_percent_run(tmp_path):
-    setup_inversion_results(
-        tmp_path,
-        n_grid_points=2,
-        refinement=(2,),
+    shutil.copy(
+        tmp_path / "../test_setup_inversion_results0/inversion_test.ui.geoh5",
+        tmp_path / "inversion_test.ui.geoh5",
     )
 
     with Workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
