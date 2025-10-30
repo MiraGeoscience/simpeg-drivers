@@ -64,8 +64,8 @@ def lower_percent_mask(data: np.ndarray, cutoff: float, logspace=False) -> np.nd
     if logspace:
         data[data == 0] = np.nan
         data = np.log10(data)
-        data -= np.nanmin(data)
 
+    data -= np.nanmin(data)
     scaled_data = data * 100 / np.nanmax(data)
     mask = scaled_data > cutoff
 
