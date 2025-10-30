@@ -567,11 +567,11 @@ class InversionDriver(BaseDriver):
         rescaled_chi_factor = self.params.cooling_schedule.chi_factor * rescale
         rescaled_starting_chi_factor = chi_start * rescale
         self.logger.write(
-            f"Target Misfit: {rescaled_chi_factor * finite_data_count:.2e} ({finite_data_count} data "
+            f"Target Misfit: {rescaled_chi_factor * total_data_count:.2e} ({finite_data_count} data "
             f"with chifact = {self.params.cooling_schedule.chi_factor})\n"
         )
         self.logger.write(
-            f"IRLS Start Misfit: {rescaled_starting_chi_factor * finite_data_count:.2e} ({finite_data_count} data "
+            f"IRLS Start Misfit: {rescaled_starting_chi_factor * total_data_count:.2e} ({finite_data_count} data "
             f"with chifact = {self.params.irls.starting_chi_factor})\n"
         )
 

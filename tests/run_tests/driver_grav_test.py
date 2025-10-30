@@ -166,8 +166,8 @@ def test_gravity_run(
 
     with open(workpath.parent / "SimPEG.log", encoding="utf8") as file:
         content = file.read()
-        assert "Target Misfit: 2.25e+00 (3 data with chifact = 1.0)" in content
-        assert "IRLS Start Misfit: 2.25e+00 (3 data with chifact = 1.0)" in content
+        assert "Target Misfit: 3.00e+00 (3 data with chifact = 1.0)" in content
+        assert "IRLS Start Misfit: 3.00e+00 (3 data with chifact = 1.0)" in content
 
     assert driver.params.data_object.uid != gz.parent.uid
     assert np.all(np.isinf(driver.models.upper_bound))
