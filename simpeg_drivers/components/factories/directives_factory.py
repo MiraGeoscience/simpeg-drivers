@@ -144,7 +144,7 @@ class DirectivesFactory:
         ]:
             save_directive = getattr(self, directive)
             if save_directive is not None:
-                directives_list.append(getattr(self, directive))
+                directives_list.append(save_directive)
 
                 if (
                     isinstance(save_directive, directives.SaveDataGeoH5)
