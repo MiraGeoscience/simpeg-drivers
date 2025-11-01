@@ -200,8 +200,10 @@ class DirectivesFactory:
     @property
     def save_sensitivities_directive(self):
         """"""
-        if self._save_sensitivities_directive is None and isinstance(
-            self.params, BaseInversionOptions
+        if (
+            self._save_sensitivities_directive is None
+            and isinstance(self.params, BaseInversionOptions)
+            and self.params.directives.save_sensitivities
         ):
             self._save_sensitivities_directive = SaveSensitivitiesGeoh5Factory(
                 self.params
