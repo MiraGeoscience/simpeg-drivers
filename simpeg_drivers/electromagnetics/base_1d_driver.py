@@ -97,6 +97,7 @@ class Base1DDriver(InversionDriver):
                 mesh=self.inversion_mesh.mesh,
                 models=self.models,
                 survey=self.inversion_data.survey,
+                topo=[0, 0, -np.inf],  # Overload for global
             )
 
             self._simulation.mesh = self.inversion_mesh.mesh
