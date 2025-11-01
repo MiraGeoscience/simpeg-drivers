@@ -143,7 +143,6 @@ def test_fem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
             percentile=100,
             cooling_rate=3,
             chi_factor=0.25,
-            save_sensitivities=False,
             **data_kwargs,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
@@ -155,7 +154,7 @@ def test_fem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
             driver.params.geoh5.h5file, driver.params.out_group.uid
         )
         output["data"] = orig_z_real_1
-        assert not run_ws.get_entity("Iteration_0_sensitivities")[0]
+
         assert (
             run_ws.get_entity("Iteration_1_z_imag_[1]")[0].entity_type.uid
             == run_ws.get_entity("Observed_z_imag_[1]")[0].entity_type.uid
