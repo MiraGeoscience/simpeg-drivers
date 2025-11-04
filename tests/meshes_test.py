@@ -43,7 +43,7 @@ def get_mvi_params(tmp_path: Path, updates=None) -> MVIInversionOptions:
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
         mesh = components.model.parent
-        tmi_channel, gyz_channel = components.survey.add_data(
+        tmi_channel, _gyz_channel = components.survey.add_data(
             {
                 "tmi": {"values": np.random.rand(components.survey.n_vertices)},
                 "gyz": {"values": np.random.rand(components.survey.n_vertices)},
