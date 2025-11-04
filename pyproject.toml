@@ -126,11 +126,9 @@ pylint = "*"
 pytest = "*"
 pytest-cov = "*"
 pyyaml = '*'
-jinja2 = '*'
 packaging = '*'
 readthedocs-sphinx-ext = "*"
 sphinx = "^5.0"
-tomli = "*"
 nbconvert = "~7.16.4"
 
 [tool.conda-lock]

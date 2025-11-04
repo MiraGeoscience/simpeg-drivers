@@ -37,7 +37,7 @@ def test_get_locations(tmp_path: Path):
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
-        tmi_channel, gyz_channel = components.survey.add_data(
+        tmi_channel, _gyz_channel = components.survey.add_data(
             {
                 "tmi": {"values": np.random.rand(components.survey.n_vertices)},
                 "gyz": {"values": np.random.rand(components.survey.n_vertices)},
