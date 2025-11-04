@@ -76,7 +76,9 @@ tests:
 
 about:
   license: MIT
-  license_file: LICENSE
+  license_file:
+    - LICENSE
+    - docs/THIRD_PARTY_SOFTWARE.rst
   homepage: https://www.mirageoscience.com/mining-industry-software/python-integration/
   repository: https://github.com/MiraGeoscience/simpeg-drivers
   documentation: https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/
