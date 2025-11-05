@@ -26,6 +26,8 @@ from multiprocessing.pool import ThreadPool
 from pathlib import Path
 from time import time
 
+from typing_extensions import Self
+
 import numpy as np
 from dask import config as dconf
 
@@ -738,7 +740,7 @@ class InversionDriver(BaseDriver):
             dconf.set(scheduler="threads", pool=ThreadPool(n_cpu))
 
     @classmethod
-    def start(cls, filepath: str | Path | InputFile, **kwargs) -> BaseDriver:
+    def start(cls, filepath: str | Path | InputFile, **kwargs) -> Self:
         """
         Start the inversion driver.
 

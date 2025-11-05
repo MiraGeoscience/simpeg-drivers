@@ -5424,41 +5424,41 @@ package:
   category: main
   optional: false
 - name: pydantic
-  version: 2.12.3
+  version: 2.12.4
   manager: conda
   platform: linux-64
   dependencies:
     annotated-types: '>=0.6.0'
-    pydantic-core: 2.41.4
+    pydantic-core: 2.41.5
     python: '>=3.10'
     typing-extensions: '>=4.6.1'
     typing-inspection: '>=0.4.2'
     typing_extensions: '>=4.14.1'
-  url: https://repo.prefix.dev/conda-forge/noarch/pydantic-2.12.3-pyh3cfb1c2_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/pydantic-2.12.4-pyh3cfb1c2_0.conda
   hash:
-    md5: 2cb5d62fdf68deb0263663598feb9fc5
-    sha256: 6a940747e8445653224dcff95fadf1060c66b9e544fdb0ed469b70a98c3aee7e
+    md5: bf6ce72315b6759453d8c90a894e9e4c
+    sha256: c51297f0f6ef13776cc5b61c37d00c0d45faaed34f81d196e64bebc989f3e497
   category: main
   optional: false
 - name: pydantic
-  version: 2.12.3
+  version: 2.12.4
   manager: conda
   platform: win-64
   dependencies:
     annotated-types: '>=0.6.0'
-    pydantic-core: 2.41.4
+    pydantic-core: 2.41.5
     python: '>=3.10'
     typing-extensions: '>=4.6.1'
     typing-inspection: '>=0.4.2'
     typing_extensions: '>=4.14.1'
-  url: https://repo.prefix.dev/conda-forge/noarch/pydantic-2.12.3-pyh3cfb1c2_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/pydantic-2.12.4-pyh3cfb1c2_0.conda
   hash:
-    md5: 2cb5d62fdf68deb0263663598feb9fc5
-    sha256: 6a940747e8445653224dcff95fadf1060c66b9e544fdb0ed469b70a98c3aee7e
+    md5: bf6ce72315b6759453d8c90a894e9e4c
+    sha256: c51297f0f6ef13776cc5b61c37d00c0d45faaed34f81d196e64bebc989f3e497
   category: main
   optional: false
 - name: pydantic-core
-  version: 2.41.4
+  version: 2.41.5
   manager: conda
   platform: linux-64
   dependencies:
@@ -5467,14 +5467,14 @@ package:
     python: ''
     python_abi: 3.12.*
     typing-extensions: '>=4.6.0,!=4.7.0'
-  url: https://repo.prefix.dev/conda-forge/linux-64/pydantic-core-2.41.4-py312h868fb18_0.conda
+  url: https://repo.prefix.dev/conda-forge/linux-64/pydantic-core-2.41.5-py312h868fb18_0.conda
   hash:
-    md5: e0767518fa45df8b484421a405f764c6
-    sha256: c0bcd8b16188ecb0b9148701d166888a91103e898c2401a45b290e8483d5bbca
+    md5: c7017a8aaec0ee5a5212d004e73bfdef
+    sha256: d1b924c342f3b526bb0a0d74e7ef8a8294f9df71355f0bbc619f9d3486931fe6
   category: main
   optional: false
 - name: pydantic-core
-  version: 2.41.4
+  version: 2.41.5
   manager: conda
   platform: win-64
   dependencies:
@@ -5484,10 +5484,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.3,<15'
     vc14_runtime: '>=14.44.35208'
-  url: https://repo.prefix.dev/conda-forge/win-64/pydantic-core-2.41.4-py312hdabe01f_0.conda
+  url: https://repo.prefix.dev/conda-forge/win-64/pydantic-core-2.41.5-py312hdabe01f_0.conda
   hash:
-    md5: fa35bb0b9c3dca0da27c46ed61a5dfd4
-    sha256: ee389c910c4fb3329c0dc36f3d68212c759c6082e7fa03d3d2ca85c2899b0a6b
+    md5: 79baaa876cfe843b62b0bcc3d0a1db2e
+    sha256: 931c28d0a67d4c0a388f172ffc1ee956a32a386fa5490b643406a1e02e8135d9
   category: main
   optional: false
 - name: pydiso

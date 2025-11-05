@@ -197,8 +197,8 @@ dependencies:
   - ptyprocess=0.7.0=pyhd8ed1ab_1
   - pure_eval=0.2.3=pyhd8ed1ab_1
   - pycparser=2.22=pyh29332c3_1
-  - pydantic=2.12.3=pyh3cfb1c2_0
-  - pydantic-core=2.41.4=py310hd8f68c5_0
+  - pydantic=2.12.4=pyh3cfb1c2_0
+  - pydantic-core=2.41.5=py310hd8f68c5_0
   - pydiso=0.1.2=py310h4b187eb_1
   - pygments=2.19.2=pyhd8ed1ab_0
   - pylint=4.0.2=pyhcf101f3_0
