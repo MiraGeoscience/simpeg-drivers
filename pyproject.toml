@@ -100,8 +100,8 @@ geoh5py = {version = ">=0.12.0b1, <0.13.dev", source = "pypi", allow-prereleases
 grid-apps = {version = ">=0.1.0b1, <0.2.dev", source = "pypi", allow-prereleases = true}
 #grid-apps = {git = "https://github.com/MiraGeoscience/grid-apps.git", rev = "develop"}
 
-#geoapps-utils = {version = ">=0.6.b1, <0.7.dev", source = "pypi", allow-prereleases = true}
-geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "GEOPY-2561"}
+geoapps-utils = {version = ">=0.6.b1, <0.7.dev", source = "pypi", allow-prereleases = true}
+#geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "develop"}
 
 mira-simpeg = {version = ">=0.23.0.2b1, <0.23.1.dev", source="pypi", allow-prereleases = true, extras = ["dask"]}
 #mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", rev = "develop", extras = ["dask"]}
