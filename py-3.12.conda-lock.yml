@@ -1983,53 +1983,49 @@ package:
   category: dev
   optional: true
 - name: ipython
-  version: 9.6.0
+  version: 9.7.0
   manager: conda
   platform: linux-64
   dependencies:
     __unix: ''
-    decorator: ''
-    exceptiongroup: ''
-    ipython_pygments_lexers: ''
-    jedi: '>=0.16'
-    matplotlib-inline: ''
+    decorator: '>=4.3.2'
+    ipython_pygments_lexers: '>=1.0.0'
+    jedi: '>=0.18.1'
+    matplotlib-inline: '>=0.1.5'
     pexpect: '>4.3'
-    pickleshare: ''
     prompt-toolkit: '>=3.0.41,<3.1.0'
-    pygments: '>=2.4.0'
+    pygments: '>=2.11.0'
     python: ''
-    stack_data: ''
+    stack_data: '>=0.6.0'
     traitlets: '>=5.13.0'
     typing_extensions: '>=4.6'
-  url: https://repo.prefix.dev/conda-forge/noarch/ipython-9.6.0-pyhfa0c392_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/ipython-9.7.0-pyh53cf698_0.conda
   hash:
-    md5: ad6641ef96dd7872acbb802fa3fcb8d1
-    sha256: 5b679431867704b46c0f412de1a4963bf2c9b65e55a325a22c4624f88b939453
+    md5: 2d6b86a2e11b8cb2f20a432158ef10b9
+    sha256: b27fb08b14d82e896f35fe5ce889665aabb075bd540f9761c838d1d09a3d9704
   category: dev
   optional: true
 - name: ipython
-  version: 9.6.0
+  version: 9.7.0
   manager: conda
   platform: win-64
   dependencies:
     __win: ''
-    colorama: ''
-    decorator: ''
-    exceptiongroup: ''
-    ipython_pygments_lexers: ''
-    jedi: '>=0.16'
-    matplotlib-inline: ''
-    pickleshare: ''
+    colorama: '>=0.4.4'
+    decorator: '>=4.3.2'
+    ipython_pygments_lexers: '>=1.0.0'
+    jedi: '>=0.18.1'
+    matplotlib-inline: '>=0.1.5'
     prompt-toolkit: '>=3.0.41,<3.1.0'
-    pygments: '>=2.4.0'
+    pygments: '>=2.11.0'
     python: ''
-    stack_data: ''
+    stack_data: '>=0.6.0'
     traitlets: '>=5.13.0'
     typing_extensions: '>=4.6'
-  url: https://repo.prefix.dev/conda-forge/noarch/ipython-9.6.0-pyh6be1c34_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/ipython-9.7.0-pyhe2676ad_0.conda
   hash:
-    md5: ee8541586a0ba8824b5072a540bcc016
-    sha256: 0ff7971573863a912ee397c5696f551f4d1a6fb77db59947f6aee4ba04aa25fe
+    md5: a1ac3cd378490356e0299d0ca95809d1
+    sha256: 3f48685fce2d2d75d24e9b18eba7d6d55f973d56cd4092064c98bb7f95a77dcc
   category: dev
   optional: true
 - name: ipython_genutils
@@ -3165,7 +3161,7 @@ package:
   category: main
   optional: false
 - name: libcurl
-  version: 8.16.0
+  version: 8.17.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -3177,14 +3173,14 @@ package:
     libzlib: '>=1.3.1,<2.0a0'
     openssl: '>=3.5.4,<4.0a0'
     zstd: '>=1.5.7,<1.6.0a0'
-  url: https://repo.prefix.dev/conda-forge/linux-64/libcurl-8.16.0-h4e3cde8_0.conda
+  url: https://repo.prefix.dev/conda-forge/linux-64/libcurl-8.17.0-h4e3cde8_0.conda
   hash:
-    md5: a401aa9329350320c7d3809a7a5a1640
-    sha256: f21af777602d17ced05f168898e759fb0bac5af09ba72c5ece245dd0f14e0fec
+    md5: 01e149d4a53185622dc2e788281961f2
+    sha256: 100e29ca864c32af15a5cc354f502d07b2600218740fdf2439fa7d66b50b3529
   category: main
   optional: false
 - name: libcurl
-  version: 8.16.0
+  version: 8.17.0
   manager: conda
   platform: win-64
   dependencies:
@@ -3194,10 +3190,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.3,<15'
     vc14_runtime: '>=14.44.35208'
-  url: https://repo.prefix.dev/conda-forge/win-64/libcurl-8.16.0-h43ecb02_0.conda
+  url: https://repo.prefix.dev/conda-forge/win-64/libcurl-8.17.0-h43ecb02_0.conda
   hash:
-    md5: e9d8964076d40f974bd85d5588394b3f
-    sha256: 863284424dc6f64ee4a619cfb2490b85c7d51729fbf029603b30e2682532a9a6
+    md5: cfade9be135edb796837e7d4c288c0fb
+    sha256: 651daa5d2bad505b5c72b1d5d4d8c7fc0776ab420e67af997ca9391b6854b1b3
   category: main
   optional: false
 - name: libdeflate
@@ -4067,29 +4063,29 @@ package:
   category: main
   optional: false
 - name: llvm-openmp
-  version: 21.1.4
+  version: 21.1.5
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
-  url: https://repo.prefix.dev/conda-forge/linux-64/llvm-openmp-21.1.4-h4922eb0_0.conda
+  url: https://repo.prefix.dev/conda-forge/linux-64/llvm-openmp-21.1.5-h4922eb0_0.conda
   hash:
-    md5: bd436383c8b7d4c64af6e0e382ce277a
-    sha256: d018aacb17fb7cc3a3871020cc9e27aade4b450abc8efc84975025c1b02d273e
+    md5: 527e993cefc9ac376b8fb112f47cc2e0
+    sha256: b80325cd93884912ab78717dc5c2145373e5aefeb1ad6af34267ab33b5a7eea4
   category: main
   optional: false
 - name: llvm-openmp
-  version: 21.1.4
+  version: 21.1.5
   manager: conda
   platform: win-64
   dependencies:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.3,<15'
     vc14_runtime: '>=14.44.35208'
-  url: https://repo.prefix.dev/conda-forge/win-64/llvm-openmp-21.1.4-hfa2b4ca_0.conda
+  url: https://repo.prefix.dev/conda-forge/win-64/llvm-openmp-21.1.5-hfa2b4ca_0.conda
   hash:
-    md5: 5d56fdf8c9dc4c385704317e6743fca4
-    sha256: 397d1874330592e57c6378a83dff194c6d1875cab44a41f9fdee8c3fe20bbe6b
+    md5: 3bd3154b24a1b9489d4ab04d62ffcc86
+    sha256: 8c5106720e5414f48344fd28eae4db4f1a382336d8a0f30f71d41d8ae730fbb6
   category: main
   optional: false
 - name: locket
@@ -5135,30 +5131,6 @@ package:
     sha256: 202af1de83b585d36445dc1fda94266697341994d1a3328fabde4989e1b3d07a
   category: dev
   optional: true
-- name: pickleshare
-  version: 0.7.5
-  manager: conda
-  platform: linux-64
-  dependencies:
-    python: '>=3.9'
-  url: https://repo.prefix.dev/conda-forge/noarch/pickleshare-0.7.5-pyhd8ed1ab_1004.conda
-  hash:
-    md5: 11a9d1d09a3615fc07c3faf79bc0b943
-    sha256: e2ac3d66c367dada209fc6da43e645672364b9fd5f9d28b9f016e24b81af475b
-  category: dev
-  optional: true
-- name: pickleshare
-  version: 0.7.5
-  manager: conda
-  platform: win-64
-  dependencies:
-    python: '>=3.9'
-  url: https://repo.prefix.dev/conda-forge/noarch/pickleshare-0.7.5-pyhd8ed1ab_1004.conda
-  hash:
-    md5: 11a9d1d09a3615fc07c3faf79bc0b943
-    sha256: e2ac3d66c367dada209fc6da43e645672364b9fd5f9d28b9f016e24b81af475b
-  category: dev
-  optional: true
 - name: pillow
   version: 10.3.0
   manager: conda
@@ -5713,12 +5685,12 @@ package:
     packaging: '>=20'
     pluggy: '>=1.5,<2'
     pygments: '>=2.7.2'
-    python: '>=3.10'
+    python: ''
     tomli: '>=1'
-  url: https://repo.prefix.dev/conda-forge/noarch/pytest-8.4.2-pyhd8ed1ab_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/pytest-8.4.2-pyhcf101f3_1.conda
   hash:
-    md5: 1f987505580cb972cf28dc5f74a0f81b
-    sha256: 41053d9893e379a3133bb9b557b98a3d2142fca474fb6b964ba5d97515f78e2d
+    md5: da0c42269086f5170e2b296878ec13a6
+    sha256: 39f41a52eb6f927caf5cd42a2ff98a09bb850ce9758b432869374b6253826962
   category: dev
   optional: true
 - name: pytest
@@ -5732,12 +5704,12 @@ package:
     packaging: '>=20'
     pluggy: '>=1.5,<2'
     pygments: '>=2.7.2'
-    python: '>=3.10'
+    python: ''
     tomli: '>=1'
-  url: https://repo.prefix.dev/conda-forge/noarch/pytest-8.4.2-pyhd8ed1ab_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/pytest-8.4.2-pyhcf101f3_1.conda
   hash:
-    md5: 1f987505580cb972cf28dc5f74a0f81b
-    sha256: 41053d9893e379a3133bb9b557b98a3d2142fca474fb6b964ba5d97515f78e2d
+    md5: da0c42269086f5170e2b296878ec13a6
+    sha256: 39f41a52eb6f927caf5cd42a2ff98a09bb850ce9758b432869374b6253826962
   category: dev
   optional: true
 - name: pytest-cov
@@ -8050,7 +8022,7 @@ package:
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.23.0.2b1
+  version: 0.23.0.2b3
   manager: pip
   platform: linux-64
   dependencies:
@@ -8065,13 +8037,13 @@ package:
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
     zarr: '*'
-  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/geoplus-pypi-dev/mira-simpeg/0.23.0.2b1/mira_simpeg-0.23.0.2b1-py3-none-any.whl
+  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/geoplus-pypi-dev/mira-simpeg/0.23.0.2b3/mira_simpeg-0.23.0.2b3-py3-none-any.whl
   hash:
-    sha256: 12b67f436963430261be99e37635264528b911bdbea4c9be16593463e5f6d54e
+    sha256: 05a809903fd5871ed0a6b3b7ad3f25f4980fffb65e925e45be3d244466217ac9
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.23.0.2b1
+  version: 0.23.0.2b3
   manager: pip
   platform: win-64
   dependencies:
@@ -8086,8 +8058,8 @@ package:
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
     zarr: '*'
-  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/geoplus-pypi-dev/mira-simpeg/0.23.0.2b1/mira_simpeg-0.23.0.2b1-py3-none-any.whl
+  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/geoplus-pypi-dev/mira-simpeg/0.23.0.2b3/mira_simpeg-0.23.0.2b3-py3-none-any.whl
   hash:
-    sha256: 12b67f436963430261be99e37635264528b911bdbea4c9be16593463e5f6d54e
+    sha256: 05a809903fd5871ed0a6b3b7ad3f25f4980fffb65e925e45be3d244466217ac9
   category: main
   optional: false
