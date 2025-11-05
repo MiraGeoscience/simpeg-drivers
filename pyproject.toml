@@ -18,6 +18,10 @@ requires-python = '>=3.10,<4.0'
 
 description = "Application to run SimPEG inversions with geoh5 files from Geoscience Analyst."
 license = "MIT"
+license-files = [
+    "LICENSE",
+    "docs/THIRD_PARTY_SOFTWARE.rst",
+]
 keywords = [
     "direct current resistivity",
     "earth science",
@@ -65,12 +69,7 @@ packages = [
 ]
 
 include = [
-    { path = "COPYING" },
-    { path = "COPYING.LESSER" },
-    { path = "LICENSE" },
-    { path = "README.rst" },
-    { path = "THIRD_PARTY_SOFTWARE.rst" },
-    { path = "docs/**/THIRD_PARTY_SOFTWARE.rst" },
+    { path = "simpeg_drivers/_version.py", format = ["sdist", "wheel"] },
 ]
 version = "0.0.0.dev0"
 
@@ -126,11 +125,9 @@ pylint = "*"
 pytest = "*"
 pytest-cov = "*"
 pyyaml = '*'
-jinja2 = '*'
 packaging = '*'
 readthedocs-sphinx-ext = "*"
 sphinx = "^5.0"
-tomli = "*"
 nbconvert = "~7.16.4"
 
 [tool.conda-lock]
