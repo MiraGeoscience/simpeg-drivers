@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: b3bafc91b46092ea8d73661dc4e01f372b7d5b9550e3793f855ed382ff152afb
-    linux-64: c2eb8ea440937825b991f1a9ca495d24a3ae8d501aaa0c5e6da2624aebf55dac
+    win-64: d213ba290206d8da750434e52d9824112027cb2cec2bed20b0bc8a782652abc8
+    linux-64: 44e9b390494f89230b48f2074d6767ada5cf47201e6b13ed4a09f07d0e74f92e
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -7854,7 +7854,7 @@ package:
   category: main
   optional: false
 - name: geoapps-utils
-  version: 0.6.0b1
+  version: 0.6.0b2.dev1+ff99cd0
   manager: pip
   platform: linux-64
   dependencies:
@@ -7862,13 +7862,16 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/geoplus-pypi-dev/geoapps-utils/0.6.0b1/geoapps_utils-0.6.0b1-py3-none-any.whl
+  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@ff99cd060c244d4fa9853ba878de48ad11626257
   hash:
-    sha256: 51278b061cb1a884c2609381c6189ac19ed84fc42a5bb81dd9a63f911a0f8d65
+    sha256: ff99cd060c244d4fa9853ba878de48ad11626257
+  source:
+    type: url
+    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@ff99cd060c244d4fa9853ba878de48ad11626257
   category: main
   optional: false
 - name: geoapps-utils
-  version: 0.6.0b1
+  version: 0.6.0b2.dev1+ff99cd0
   manager: pip
   platform: win-64
   dependencies:
@@ -7876,9 +7879,12 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/geoplus-pypi-dev/geoapps-utils/0.6.0b1/geoapps_utils-0.6.0b1-py3-none-any.whl
+  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@ff99cd060c244d4fa9853ba878de48ad11626257
   hash:
-    sha256: 51278b061cb1a884c2609381c6189ac19ed84fc42a5bb81dd9a63f911a0f8d65
+    sha256: ff99cd060c244d4fa9853ba878de48ad11626257
+  source:
+    type: url
+    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@ff99cd060c244d4fa9853ba878de48ad11626257
   category: main
   optional: false
 - name: geoh5py
