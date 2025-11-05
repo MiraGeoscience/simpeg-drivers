@@ -79,7 +79,7 @@ dependencies:
   - libpng=1.6.50=h421ea60_1
   - libscotch=7.0.6=hea33c07_1
   - libspatialindex=2.0.0=he02047a_0
-  - libsqlite=3.50.4=h0c1763c_0
+  - libsqlite=3.51.0=hee844dc_0
   - libssh2=1.11.1=hcf80075_0
   - libstdcxx=15.2.0=h8f9b012_7
   - libstdcxx-ng=15.2.0=h4852527_7
@@ -146,7 +146,7 @@ dependencies:
   - typing-inspection=0.4.2=pyhd8ed1ab_0
   - typing_extensions=4.15.0=pyhcf101f3_0
   - tzdata=2025b=h78e105d_0
-  - unicodedata2=16.0.0=py312h4c3975b_1
+  - unicodedata2=17.0.0=py312h4c3975b_0
   - urllib3=2.5.0=pyhd8ed1ab_0
   - wheel=0.45.1=pyhd8ed1ab_1
   - wrapt=1.17.3=py312h4c3975b_1
@@ -162,7 +162,7 @@ dependencies:
   - pip:
     - geoapps-utils == 0.6.0b1 --hash=sha256:51278b061cb1a884c2609381c6189ac19ed84fc42a5bb81dd9a63f911a0f8d65
     - geoh5py == 0.12.0b3 --hash=sha256:59932ee0ba044509c4389b547d50e381f62e32eea8c5e22d69526880a37489b5
-    - grid-apps == 0.1.0b1 --hash=sha256:eb3b1d9d60d1e843640ceb4802925cedef405994ef246f962939a5d1c4fd1a7c
+    - grid-apps == 0.1.0b2 --hash=sha256:36896a6c272ba074aabf882ffb3d288dc816400d720564a41faa561c3dfc3c8b
     - mira-simpeg == 0.23.0.2b1 --hash=sha256:12b67f436963430261be99e37635264528b911bdbea4c9be16593463e5f6d54e
 
 variables:

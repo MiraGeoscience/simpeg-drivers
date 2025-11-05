@@ -3630,31 +3630,32 @@ package:
   category: main
   optional: false
 - name: libsqlite
-  version: 3.50.4
+  version: 3.51.0
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
+    icu: '>=75.1,<76.0a0'
     libgcc: '>=14'
     libzlib: '>=1.3.1,<2.0a0'
-  url: https://repo.prefix.dev/conda-forge/linux-64/libsqlite-3.50.4-h0c1763c_0.conda
+  url: https://repo.prefix.dev/conda-forge/linux-64/libsqlite-3.51.0-hee844dc_0.conda
   hash:
-    md5: 0b367fad34931cb79e0d6b7e5c06bb1c
-    sha256: 6d9c32fc369af5a84875725f7ddfbfc2ace795c28f246dc70055a79f9b2003da
+    md5: 729a572a3ebb8c43933b30edcc628ceb
+    sha256: 4c992dcd0e34b68f843e75406f7f303b1b97c248d18f3c7c330bdc0bc26ae0b3
   category: main
   optional: false
 - name: libsqlite
-  version: 3.50.4
+  version: 3.51.0
   manager: conda
   platform: win-64
   dependencies:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.3,<15'
     vc14_runtime: '>=14.44.35208'
-  url: https://repo.prefix.dev/conda-forge/win-64/libsqlite-3.50.4-hf5d6505_0.conda
+  url: https://repo.prefix.dev/conda-forge/win-64/libsqlite-3.51.0-hf5d6505_0.conda
   hash:
-    md5: ccb20d946040f86f0c05b644d5eadeca
-    sha256: 5dc4f07b2d6270ac0c874caec53c6984caaaa84bc0d3eb593b0edf3dc8492efa
+    md5: d2c9300ebd2848862929b18c264d1b1e
+    sha256: 2373bd7450693bd0f624966e1bee2f49b0bf0ffbc114275ed0a43cf35aec5b21
   category: main
   optional: false
 - name: libssh2
@@ -7206,7 +7207,7 @@ package:
   category: main
   optional: false
 - name: unicodedata2
-  version: 16.0.0
+  version: 17.0.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -7214,14 +7215,14 @@ package:
     libgcc: '>=14'
     python: '>=3.10,<3.11.0a0'
     python_abi: 3.10.*
-  url: https://repo.prefix.dev/conda-forge/linux-64/unicodedata2-16.0.0-py310h7c4b9e2_1.conda
+  url: https://repo.prefix.dev/conda-forge/linux-64/unicodedata2-17.0.0-py310h7c4b9e2_0.conda
   hash:
-    md5: 1d54e461bda325196725cdd07ae046cb
-    sha256: dfe21eb5cbabda72a2e9f4a4a894d6af1389f3dde9340fb454d30cf3375898e7
+    md5: 2321fe047faf8cdd92c0928e0c2b03e5
+    sha256: 74435806cd2a6fb2b8a7279a73e4f5fd0277906f07b50bd71ce27edcbab6fb8f
   category: main
   optional: false
 - name: unicodedata2
-  version: 16.0.0
+  version: 17.0.0
   manager: conda
   platform: win-64
   dependencies:
@@ -7230,10 +7231,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.3,<15'
     vc14_runtime: '>=14.44.35208'
-  url: https://repo.prefix.dev/conda-forge/win-64/unicodedata2-16.0.0-py310h29418f3_1.conda
+  url: https://repo.prefix.dev/conda-forge/win-64/unicodedata2-17.0.0-py310h29418f3_0.conda
   hash:
-    md5: 228ad20cfebef80487ad5903b33d3abd
-    sha256: 7c112c804effc021f91f25e59ee2cfa4d6ed76019ec722dd78b9808c118cc9ab
+    md5: 66efdaa7df254af1663e0cd0331d41a7
+    sha256: 354c2bf1f291f4b82f6970a8969a52098b7bae1119af4cf4eac31edb1e659298
   category: main
   optional: false
 - name: uri-template
@@ -7852,7 +7853,7 @@ package:
   category: main
   optional: false
 - name: grid-apps
-  version: 0.1.0b1
+  version: 0.1.0b2
   manager: pip
   platform: linux-64
   dependencies:
@@ -7862,13 +7863,13 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/geoplus-pypi-dev/grid-apps/0.1.0b1/grid_apps-0.1.0b1-py3-none-any.whl
+  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/geoplus-pypi-dev/grid-apps/0.1.0b2/grid_apps-0.1.0b2-py3-none-any.whl
   hash:
-    sha256: eb3b1d9d60d1e843640ceb4802925cedef405994ef246f962939a5d1c4fd1a7c
+    sha256: 36896a6c272ba074aabf882ffb3d288dc816400d720564a41faa561c3dfc3c8b
   category: main
   optional: false
 - name: grid-apps
-  version: 0.1.0b1
+  version: 0.1.0b2
   manager: pip
   platform: win-64
   dependencies:
@@ -7878,9 +7879,9 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pydantic: '>=2.5.2,<3.0.0'
     scipy: '>=1.14.0,<1.15.0'
-  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/geoplus-pypi-dev/grid-apps/0.1.0b1/grid_apps-0.1.0b1-py3-none-any.whl
+  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/geoplus-pypi-dev/grid-apps/0.1.0b2/grid_apps-0.1.0b2-py3-none-any.whl
   hash:
-    sha256: eb3b1d9d60d1e843640ceb4802925cedef405994ef246f962939a5d1c4fd1a7c
+    sha256: 36896a6c272ba074aabf882ffb3d288dc816400d720564a41faa561c3dfc3c8b
   category: main
   optional: false
 - name: mira-simpeg
