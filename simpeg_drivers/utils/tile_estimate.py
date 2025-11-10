@@ -203,7 +203,7 @@ class TileEstimator(Driver):
         for ind in range(1, len(problem_sizes) - 1):
             size = problem_sizes[ind - 1 : ind + 2].copy()
             counts = tile_counts[ind - 1 : ind + 2].astype(float)
-            rad, x0, y0 = fit_circle(counts, size)
+            rad, _x0, _y0 = fit_circle(counts, size)
             radiis.append(rad[0])
 
         optimal = tile_counts[np.argmin(radiis)]

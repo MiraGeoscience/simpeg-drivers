@@ -74,5 +74,5 @@ def test_sensitivity_mask(tmp_path):
             sensitivity_mask(sensitivity=data, cutoff=10, method="log_percent")
             == lower_percent_mask(data.values, 10, logspace=True)
         )
-        with pytest.raises(ValueError, match="Invalid method. Must be 'percentile'"):
+        with pytest.raises(ValueError, match=r"Invalid method\. Must be 'percentile'"):
             sensitivity_mask(sensitivity=data, cutoff=10, method="invalid_method")
