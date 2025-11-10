@@ -637,10 +637,9 @@ class InversionModel:
         if isinstance(model, NumericData):
             model = self.obj_2_mesh(model, self.driver.inversion_mesh.entity)
             model = (self.driver.inversion_mesh.permutation @ model).astype(model.dtype)
-        else:
+        elif isinstance(model, int | float):
             nc = self.driver.inversion_mesh.mesh.n_cells
-            if isinstance(model, int | float):
-                model *= np.ones(nc)
+            model *= np.ones(nc)
 
         return model
 
