@@ -106,6 +106,10 @@ def test_magnetotellurics_fwr_run(
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
+
+        # Test for label index supporting ints - bypass setter
+        components.survey.edit_em_metadata({"Channels": [10, 100, 1000]})
+
         params = MTForwardOptions.build(
             geoh5=geoh5,
             mesh=components.mesh,
@@ -126,6 +130,9 @@ def test_magnetotellurics_fwr_run(
 
     fwr_driver = MTForwardDriver(params)
     fwr_driver.run()
+
+    with Workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        assert geoh5.get_entity("Iteration_0_zyy_real_[0]")[0] is not None
 
 
 def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
