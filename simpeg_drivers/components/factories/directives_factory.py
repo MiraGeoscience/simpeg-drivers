@@ -489,7 +489,10 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
         name=None,
     ):
         receivers = inversion_object.entity
-        channels = getattr(receivers, "channels", [None])
+        channels = [
+            float(val) if val else None
+            for val in getattr(receivers, "channels", [None])
+        ]
         components = list(inversion_object.observed)
         ordering = inversion_object.survey.ordering
         n_locations = len(np.unique(ordering[:, 2]))
