@@ -121,19 +121,17 @@ class SimulationFactory(SimPEGFactory):
         survey=None,
         mesh=None,
         models=None,
+        **kwargs,
     ):
         if "1d" in self.factory_type:
             return ()
 
         return [mesh]
 
-    def assemble_keyword_arguments(
-        self,
-        survey=None,
-        mesh=None,
-        models=None,
-    ):
-        kwargs = {}
+    def assemble_keyword_arguments(self, survey=None, mesh=None, models=None, **kwargs):
+        if not kwargs:
+            kwargs = {}
+
         kwargs["survey"] = survey
         kwargs["max_chunk_size"] = self.params.compute.max_chunk_size
         kwargs["store_sensitivities"] = (
