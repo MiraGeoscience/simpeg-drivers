@@ -185,6 +185,7 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
             driver.params.geoh5.h5file, driver.params.out_group.uid
         )
         output["data"] = orig_zyy_real_1
+        assert not run_ws.get_entity("Iteration_0_sensitivities")[0]
         if pytest:
             check_target(output, target_run, tolerance=0.2)
             nan_ind = np.isnan(run_ws.get_entity("Iteration_0_model")[0].values)
