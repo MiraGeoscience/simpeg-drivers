@@ -144,7 +144,7 @@ class DirectivesFactory:
         ]:
             save_directive = getattr(self, directive)
             if save_directive is not None:
-                directives_list.append(getattr(self, directive))
+                directives_list.append(save_directive)
 
                 if (
                     isinstance(save_directive, directives.SaveDataGeoH5)
@@ -200,8 +200,10 @@ class DirectivesFactory:
     @property
     def save_sensitivities_directive(self):
         """"""
-        if self._save_sensitivities_directive is None and isinstance(
-            self.params, BaseInversionOptions
+        if (
+            self._save_sensitivities_directive is None
+            and isinstance(self.params, BaseInversionOptions)
+            and self.params.directives.save_sensitivities
         ):
             self._save_sensitivities_directive = SaveSensitivitiesGeoh5Factory(
                 self.params
