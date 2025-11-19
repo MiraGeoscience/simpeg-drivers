@@ -93,14 +93,14 @@ python-mumps = ">=0.0.3, <0.0.4.dev"
 
 ## Pip dependencies from Git repositories
 #----------------------------------------
-geoh5py = {version = ">=0.12.0b1, <0.13.dev", source = "pypi", allow-prereleases = true}
+geoh5py = {version = ">=0.12.0b4, <0.13.dev", source = "pypi", allow-prereleases = true}
 #geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "develop"}
 
 grid-apps = {version = ">=0.1.0b1, <0.2.dev", source = "pypi", allow-prereleases = true}
 #grid-apps = {git = "https://github.com/MiraGeoscience/grid-apps.git", rev = "develop"}
 
-#geoapps-utils = {version = ">=0.6.b1, <0.7.dev", source = "pypi", allow-prereleases = true}
-geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "GEOPY-2574B"}
+geoapps-utils = {version = ">=0.6.b2, <0.7.dev", source = "pypi", allow-prereleases = true}
+#geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "GEOPY-2574B"}
 
 mira-simpeg = {version = ">=0.23.0.2b1, <0.23.1.dev", source="pypi", allow-prereleases = true, extras = ["dask"]}
 #mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", rev = "develop", extras = ["dask"]}
@@ -142,7 +142,7 @@ bokeh = ">=3.6.0, <3.7.dev"   # optional, for dask reporting
 fsspec = ">=2022.0"  # from simpeg[dask]
 geoana = ">=0.7.0, <0.8.dev"  # from simpeg
 h5py = ">=3.2.1, <4.0.dev"  # from geoh5py
-matplotlib-base = ">=3.8.4, <3.9.dev"  # from simpeg
+matplotlib-base = ">=3.8.4, <3.9.dev"  # from geoapps-utils, simpeg
 mkl = ">=2024.2.2"
 Pillow = ">=10.3.0, <10.4.dev"  # from geoh5py
 pymatsolver = ">=0.3.0, <0.4.dev"  # from simpeg
