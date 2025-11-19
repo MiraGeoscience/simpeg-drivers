@@ -127,7 +127,10 @@ def test_dc_3d_run(
 
     driver = DC3DInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
     # Should not be auto-scaling
-    np.testing.assert_allclose(driver.data_misfit.multipliers, [1, 1, 1])
+    np.testing.assert_allclose(
+        driver.data_misfit.multipliers,  # pylint: disable=no-member  ## cannot infer start() return type)
+        [1, 1, 1],
+    )
     output = get_inversion_output(
         driver.params.geoh5.h5file, driver.params.out_group.uid
     )

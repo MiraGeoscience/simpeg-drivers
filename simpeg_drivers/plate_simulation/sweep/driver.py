@@ -8,6 +8,8 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
+from __future__ import annotations
+
 import shutil
 import sys
 from pathlib import Path
@@ -23,6 +25,7 @@ from geoh5py.shared.utils import (
     uuid_from_values,
 )
 from geoh5py.ui_json.utils import flatten
+from typing_extensions import Self
 
 from simpeg_drivers.driver import BaseDriver
 from simpeg_drivers.plate_simulation.driver import PlateSimulationDriver
@@ -82,7 +85,7 @@ class PlateSweepDriver(BaseDriver):
         return out_group
 
     @classmethod
-    def start(cls, filepath: str | Path, mode="r", **_) -> BaseDriver:
+    def start(cls, filepath: str | Path, mode="r", **_) -> Self:
         """Start the parameter sweep from a ui.json file."""
         logger.info("Loading input file . . .")
         filepath = Path(filepath).resolve()
