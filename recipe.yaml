@@ -29,7 +29,7 @@ requirements:
     - python >=${{ python_min }}
     # Mira packages
     - geoapps-utils >=0.6.0b2, <0.7.dev
-    - geoh5py >=0.12.0b4, <0.13.dev
+    - geoh5py >=0.12.0b5, <0.13.dev
     - grid-apps >=0.1.0b1, <0.2.dev
     - mira-simpeg >=0.23.0.2b1, <0.23.1.dev
 

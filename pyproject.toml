@@ -93,7 +93,7 @@ python-mumps = ">=0.0.3, <0.0.4.dev"
 
 ## Pip dependencies from Git repositories
 #----------------------------------------
-geoh5py = {version = ">=0.12.0b4, <0.13.dev", source = "pypi", allow-prereleases = true}
+geoh5py = {version = ">=0.12.0b5, <0.13.dev", source = "pypi", allow-prereleases = true}
 #geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "develop"}
 
 grid-apps = {version = ">=0.1.0b1, <0.2.dev", source = "pypi", allow-prereleases = true}

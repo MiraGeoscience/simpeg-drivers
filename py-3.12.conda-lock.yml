@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: 0b94275a51a720976826410e1b4a9e47c33ea6f601317b52405c45143cf74194
-    linux-64: f612aac5fdc05470d8d78d67178c7189a0010ca69e2cb14f16e1e3d92b8278fa
+    win-64: c9380f74b321599b4dd248751f8fbc9077031e8bcb6ab031978a48525b03ce81
+    linux-64: cd1b13e8fa5fff23f6b05e82a624bd406a203b29c5e583fe878576831cbf8ff2
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -6973,29 +6973,29 @@ package:
   category: main
   optional: false
 - name: tinycss2
-  version: 1.4.0
+  version: 1.5.0
   manager: conda
   platform: linux-64
   dependencies:
-    python: '>=3.5'
+    python: ''
     webencodings: '>=0.4'
-  url: https://repo.prefix.dev/conda-forge/noarch/tinycss2-1.4.0-pyhd8ed1ab_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/tinycss2-1.5.0-pyhcf101f3_0.conda
   hash:
-    md5: f1acf5fdefa8300de697982bcb1761c9
-    sha256: cad582d6f978276522f84bd209a5ddac824742fe2d452af6acf900f8650a73a2
+    md5: 2caf483992d5d92b232451f843bdc8af
+    sha256: 9e8b4edf44ff0301c6d969a6ff5cceb340f1411ec65d5a99d0eafab36ecfdc23
   category: dev
   optional: true
 - name: tinycss2
-  version: 1.4.0
+  version: 1.5.0
   manager: conda
   platform: win-64
   dependencies:
-    python: '>=3.5'
+    python: ''
     webencodings: '>=0.4'
-  url: https://repo.prefix.dev/conda-forge/noarch/tinycss2-1.4.0-pyhd8ed1ab_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/tinycss2-1.5.0-pyhcf101f3_0.conda
   hash:
-    md5: f1acf5fdefa8300de697982bcb1761c9
-    sha256: cad582d6f978276522f84bd209a5ddac824742fe2d452af6acf900f8650a73a2
+    md5: 2caf483992d5d92b232451f843bdc8af
+    sha256: 9e8b4edf44ff0301c6d969a6ff5cceb340f1411ec65d5a99d0eafab36ecfdc23
   category: dev
   optional: true
 - name: tk
@@ -7988,7 +7988,7 @@ package:
   category: main
   optional: false
 - name: geoh5py
-  version: 0.12.0b4
+  version: 0.12.0b5
   manager: pip
   platform: linux-64
   dependencies:
@@ -7996,13 +7996,13 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pillow: '>=10.3.0,<10.4.0'
     pydantic: '>=2.5.2,<3.0.0'
-  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/geoplus-pypi-dev/geoh5py/0.12.0b4/geoh5py-0.12.0b4-py3-none-any.whl
+  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/geoplus-pypi-dev/geoh5py/0.12.0b5/geoh5py-0.12.0b5-py3-none-any.whl
   hash:
-    sha256: 25f5dde56f90450bc35c179e7e7d716c5e0c6dfdff365b716efee1d6d05594d4
+    sha256: aa99d36ffcbb51f4e3e18a13eb71bf32ee5662de730eee7c3b4fd10bd1ec30b7
   category: main
   optional: false
 - name: geoh5py
-  version: 0.12.0b4
+  version: 0.12.0b5
   manager: pip
   platform: win-64
   dependencies:
@@ -8010,9 +8010,9 @@ package:
     numpy: '>=1.26.0,<1.27.0'
     pillow: '>=10.3.0,<10.4.0'
     pydantic: '>=2.5.2,<3.0.0'
-  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/geoplus-pypi-dev/geoh5py/0.12.0b4/geoh5py-0.12.0b4-py3-none-any.whl
+  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/geoplus-pypi-dev/geoh5py/0.12.0b5/geoh5py-0.12.0b5-py3-none-any.whl
   hash:
-    sha256: 25f5dde56f90450bc35c179e7e7d716c5e0c6dfdff365b716efee1d6d05594d4
+    sha256: aa99d36ffcbb51f4e3e18a13eb71bf32ee5662de730eee7c3b4fd10bd1ec30b7
   category: main
   optional: false
 - name: grid-apps
@@ -8048,7 +8048,7 @@ package:
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.23.0.2b3
+  version: 0.23.0.2b4
   manager: pip
   platform: linux-64
   dependencies:
@@ -8063,13 +8063,13 @@ package:
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
     zarr: '*'
-  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/geoplus-pypi-dev/mira-simpeg/0.23.0.2b3/mira_simpeg-0.23.0.2b3-py3-none-any.whl
+  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/geoplus-pypi-dev/mira-simpeg/0.23.0.2b4/mira_simpeg-0.23.0.2b4-py3-none-any.whl
   hash:
-    sha256: 05a809903fd5871ed0a6b3b7ad3f25f4980fffb65e925e45be3d244466217ac9
+    sha256: 33a8f714b0e55da38ae18c995a7a943eccec98559946d9fa35cf4a9f609ce21a
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.23.0.2b3
+  version: 0.23.0.2b4
   manager: pip
   platform: win-64
   dependencies:
@@ -8084,8 +8084,8 @@ package:
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
     zarr: '*'
-  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/geoplus-pypi-dev/mira-simpeg/0.23.0.2b3/mira_simpeg-0.23.0.2b3-py3-none-any.whl
+  url: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/geoplus-pypi-dev/mira-simpeg/0.23.0.2b4/mira_simpeg-0.23.0.2b4-py3-none-any.whl
   hash:
-    sha256: 05a809903fd5871ed0a6b3b7ad3f25f4980fffb65e925e45be3d244466217ac9
+    sha256: 33a8f714b0e55da38ae18c995a7a943eccec98559946d9fa35cf4a9f609ce21a
   category: main
   optional: false
