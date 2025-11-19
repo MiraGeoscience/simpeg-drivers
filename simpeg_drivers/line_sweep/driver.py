@@ -236,7 +236,7 @@ class LineSweepDriver(SweepDriver, InversionDriver):
             self.batch2d_params.mesh,
             self.inversion_topography.locations,
             triangulation=getattr(
-                self.params.active_cells.topography_object, "cells", None
+                self.batch2d_params.active_cells.topography_object, "cells", None
             ),
         )
         common_children = set.intersection(
