@@ -59,14 +59,14 @@ requirements:
 tests:
   - python:
       imports:
+        - ${{ module_name }}
+        - ${{ module_name }}._version
         - dask
         - distributed
         - geoapps_utils
         - geoh5py
         - grid_apps
         - simpeg
-        - simpeg_drivers
-        - simpeg_drivers._version
       pip_check: true
 
   - script:
@@ -77,7 +77,7 @@ tests:
     files:
       source:
         - tests/
-  
+
   - package_contents:
       files:
         - site-packages/${{ module_name }}/_version.py
