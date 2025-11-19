@@ -300,7 +300,7 @@ class InversionData(InversionLocations):
                 if comp in ["gz", "bz", "gxz", "gyz", "bxz", "byz"]:
                     normalizations[chan][comp] = -1 * np.ones(self.mask.sum())
                 elif self.params.inversion_type in ["magnetotellurics"]:
-                    normalizations[chan][comp] = -1 * np.ones(self.mask.sum())
+                    normalizations[chan][comp] = np.ones(self.mask.sum())
                 elif self.params.inversion_type in ["tipper"]:
                     if "imag" in comp:
                         normalizations[chan][comp] = -1 * np.ones(self.mask.sum())
