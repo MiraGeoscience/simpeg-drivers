@@ -233,7 +233,11 @@ class LineSweepDriver(SweepDriver, InversionDriver):
 
         # interpolate drape model children common to all drape models into octree
         active = active_from_xyz(
-            self.batch2d_params.mesh, self.inversion_topography.locations
+            self.batch2d_params.mesh,
+            self.inversion_topography.locations,
+            triangulation=getattr(
+                self.params.active_cells.topography_object, "cells", None
+            ),
         )
         common_children = set.intersection(
             *[{c.name for c in d.children} for d in drape_models]

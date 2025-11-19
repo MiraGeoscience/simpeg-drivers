@@ -462,7 +462,10 @@ def cell_size_z(drape_model: DrapeModel) -> np.ndarray:
 
 
 def active_from_xyz(
-    mesh: DrapeModel | Octree, topo: np.ndarray, grid_reference="center"
+    mesh: DrapeModel | Octree,
+    topo: np.ndarray,
+    grid_reference="center",
+    triangulation: np.ndarray | None = None,
 ):
     """Returns an active cell index array below a surface
 
@@ -491,7 +494,7 @@ def active_from_xyz(
         raise ValueError("'grid_reference' must be one of 'center', 'top', or 'bottom'")
 
     # Return the active cell array
-    return mask_under_horizon(locations, topo)
+    return mask_under_horizon(locations, topo, triangulation=triangulation)
 
 
 def truncate_locs_depths(locs: np.ndarray, depth_core: float) -> np.ndarray:
