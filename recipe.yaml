@@ -4,6 +4,7 @@ context:
   name: "simpeg-drivers"
   version: "0.0.0.dev0"  # This will be replaced by the actual version in the build process
   python_min: "3.10"
+  module_name: ${{ name|lower|replace("-", "_") }}
 
 package:
   name: ${{ name|lower }}
@@ -76,6 +77,10 @@ tests:
     files:
       source:
         - tests/
+  
+  - package_contents:
+      files:
+        - site-packages/${{ module_name }}/_version.py
 
 about:
   license: MIT
