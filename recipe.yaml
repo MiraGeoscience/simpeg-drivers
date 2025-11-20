@@ -4,6 +4,7 @@ context:
   name: "simpeg-drivers"
   version: "0.0.0.dev0"  # This will be replaced by the actual version in the build process
   python_min: "3.10"
+  module_name: ${{ name|lower|replace("-", "_") }}
 
 package:
   name: ${{ name|lower }}
@@ -27,8 +28,8 @@ requirements:
   run:
     - python >=${{ python_min }}
     # Mira packages
-    - geoapps-utils >=0.6.0b1, <0.7.dev
-    - geoh5py >=0.12.0b1, <0.13.dev
+    - geoapps-utils >=0.6.0b2, <0.7.dev
+    - geoh5py >=0.12.0b5, <0.13.dev
     - grid-apps >=0.1.0b1, <0.2.dev
     - mira-simpeg >=0.23.0.2b1, <0.23.1.dev
 
@@ -58,14 +59,14 @@ requirements:
 tests:
   - python:
       imports:
+        - ${{ module_name }}
+        - ${{ module_name }}._version
         - dask
         - distributed
         - geoapps_utils
         - geoh5py
         - grid_apps
         - simpeg
-        - simpeg_drivers
-        - simpeg_drivers._version
       pip_check: true
 
   - script:
@@ -76,6 +77,10 @@ tests:
     files:
       source:
         - tests/
+
+  - package_contents:
+      files:
+        - site-packages/${{ module_name }}/_version.py
 
 about:
   license: MIT
