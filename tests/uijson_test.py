@@ -165,6 +165,7 @@ def test_version_warning(
 def test_write_default(tmp_path):
     default_path = tmp_path / "default.ui.json"
     data = {
+        "icon": "",
         "version": "0.1.0",
         "title": "My app",
         "geoh5": "",

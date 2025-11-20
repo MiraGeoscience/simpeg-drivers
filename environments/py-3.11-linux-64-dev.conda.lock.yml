@@ -6,40 +6,40 @@ channels:
   - conda-forge
   - nodefaults
 dependencies:
-  - _openmp_mutex=4.5=5_kmp_llvm
+  - _openmp_mutex=4.5=6_kmp_llvm
   - alabaster=0.7.16=pyhd8ed1ab_0
   - annotated-types=0.7.0=pyhd8ed1ab_1
   - anyio=4.11.0=pyhcf101f3_0
   - argon2-cffi=25.1.0=pyhd8ed1ab_0
-  - argon2-cffi-bindings=25.1.0=py311h49ec1c0_1
+  - argon2-cffi-bindings=25.1.0=py311h49ec1c0_2
   - arrow=1.4.0=pyhcf101f3_0
   - asciitree=0.3.3=py_2
-  - astroid=4.0.1=py311h38be061_0
-  - asttokens=2.4.1=pyhd8ed1ab_0
+  - astroid=4.0.2=py311h38be061_0
+  - asttokens=3.0.1=pyhd8ed1ab_0
   - async-lru=2.0.5=pyh29332c3_0
   - attrs=25.4.0=pyh71513ae_0
   - babel=2.17.0=pyhd8ed1ab_0
   - beautifulsoup4=4.14.2=pyha770c72_0
-  - bleach=6.2.0=pyh29332c3_4
-  - bleach-with-css=6.2.0=h82add2a_4
+  - bleach=6.3.0=pyhcf101f3_0
+  - bleach-with-css=6.3.0=h5f6438b_0
   - bokeh=3.6.3=pyhd8ed1ab_0
   - brotli=1.2.0=h41a2e66_0
   - brotli-bin=1.2.0=hf2c8021_0
   - brotli-python=1.2.0=py311h7c6b74e_0
   - bzip2=1.0.8=hda65f42_8
   - c-ares=1.34.5=hb9d3cd8_0
-  - ca-certificates=2025.10.5=hbd8a1cb_0
+  - ca-certificates=2025.11.12=hbd8a1cb_0
   - cached-property=1.5.2=hd8ed1ab_1
   - cached_property=1.5.2=pyha770c72_1
-  - certifi=2025.10.5=pyhd8ed1ab_0
+  - certifi=2025.11.12=pyhd8ed1ab_0
   - cffi=2.0.0=py311h03d9500_1
   - charset-normalizer=3.4.4=pyhd8ed1ab_0
-  - click=8.3.0=pyh707e725_0
+  - click=8.3.1=pyh707e725_0
   - cloudpickle=3.1.2=pyhd8ed1ab_0
   - colorama=0.4.6=pyhd8ed1ab_1
   - comm=0.2.3=pyhe01879c_0
-  - contourpy=1.3.3=py311hdf67eae_2
-  - coverage=7.11.0=py311h3778330_0
+  - contourpy=1.3.3=py311hdf67eae_3
+  - coverage=7.12.0=py311h3778330_0
   - cycler=0.12.1=pyhd8ed1ab_1
   - cytoolz=1.1.0=py311h49ec1c0_1
   - dask-core=2025.3.0=pyhd8ed1ab_0
@@ -71,6 +71,7 @@ dependencies:
   - idna=3.11=pyhd8ed1ab_0
   - imagesize=1.4.1=pyhd8ed1ab_0
   - importlib-metadata=8.7.0=pyhe01879c_1
+  - importlib_resources=6.5.2=pyhd8ed1ab_0
   - iniconfig=2.3.0=pyhd8ed1ab_0
   - ipykernel=7.1.0=pyha191276_0
   - ipython=9.7.0=pyh53cf698_0
@@ -94,17 +95,17 @@ dependencies:
   - jupyter_events=0.12.0=pyh29332c3_0
   - jupyter_server=2.17.0=pyhcf101f3_0
   - jupyter_server_terminals=0.5.3=pyhd8ed1ab_1
-  - jupyterlab=4.4.10=pyhd8ed1ab_0
+  - jupyterlab=4.5.0=pyhd8ed1ab_0
   - jupyterlab_pygments=0.3.0=pyhd8ed1ab_2
   - jupyterlab_server=2.28.0=pyhcf101f3_0
   - jupyterlab_widgets=1.1.11=pyhd8ed1ab_0
   - jupytext=1.18.1=pyh80e38bb_0
   - keyutils=1.6.3=hb9d3cd8_0
-  - kiwisolver=1.4.9=py311h724c32c_1
+  - kiwisolver=1.4.9=py311h724c32c_2
   - krb5=1.21.3=h659f571_0
   - lark=1.3.1=pyhd8ed1ab_0
   - lcms2=2.17=h717163a_0
-  - ld_impl_linux-64=2.44=h1aa0949_4
+  - ld_impl_linux-64=2.45=h1aa0949_0
   - lerc=4.0.0=h0aef613_1
   - libaec=1.1.4=h3f801dc_0
   - libblas=3.9.0=37_h5875eb1_mkl
@@ -117,7 +118,7 @@ dependencies:
   - libdlf=0.3.0=pyhd8ed1ab_1
   - libedit=3.1.20250104=pl5321h7949ede_0
   - libev=4.33=hd590300_2
-  - libexpat=2.7.1=hecca717_0
+  - libexpat=2.7.3=hecca717_0
   - libffi=3.5.2=h9ec8514_0
   - libfreetype=2.14.1=ha770c72_0
   - libfreetype6=2.14.1=h73754d4_0
@@ -149,7 +150,7 @@ dependencies:
   - libxml2=2.15.1=h26afc86_0
   - libxml2-16=2.15.1=ha9997c6_0
   - libzlib=1.3.1=hb9d3cd8_2
-  - llvm-openmp=21.1.5=h4922eb0_0
+  - llvm-openmp=21.1.6=h4922eb0_0
   - locket=1.0.0=pyhd8ed1ab_0
   - markdown-it-py=4.0.0=pyhd8ed1ab_0
   - markupsafe=3.0.3=py311h3778330_0
@@ -161,7 +162,7 @@ dependencies:
   - metis=5.1.0=hd0bcaf9_1007
   - mistune=3.1.4=pyhcf101f3_0
   - mkl=2024.2.2=ha770c72_17
-  - msgpack-python=1.1.2=py311hdf67eae_0
+  - msgpack-python=1.1.2=py311hdf67eae_1
   - mumps-include=5.7.3=h82cca05_10
   - mumps-seq=5.7.3=h06cbf8f_10
   - munkres=1.1.4=pyhd8ed1ab_1
@@ -173,12 +174,12 @@ dependencies:
   - ncurses=6.5=h2d0b736_3
   - nest-asyncio=1.6.0=pyhd8ed1ab_1
   - nodejs=22.6.0=hc19f0b3_1
-  - notebook=7.4.7=pyhd8ed1ab_0
+  - notebook=7.5.0=pyhcf101f3_0
   - notebook-shim=0.2.4=pyhd8ed1ab_1
   - numcodecs=0.15.1=py311h7db5c69_0
   - numpy=1.26.4=py311h64a7726_0
   - openjpeg=2.5.4=h55fea9a_0
-  - openssl=3.5.4=h26f9b46_0
+  - openssl=3.6.0=h26f9b46_0
   - overrides=7.7.0=pyhd8ed1ab_1
   - packaging=25.0=pyh29332c3_1
   - pandas=2.3.3=py311hed34c8f_1
@@ -188,7 +189,7 @@ dependencies:
   - partd=1.4.2=pyhd8ed1ab_0
   - pexpect=4.9.0=pyhd8ed1ab_1
   - pillow=10.3.0=py311h82a398c_1
-  - pip=25.2=pyh8b19718_0
+  - pip=25.3=pyh8b19718_0
   - platformdirs=4.5.0=pyhcf101f3_0
   - pluggy=1.6.0=pyhd8ed1ab_0
   - prometheus_client=0.23.1=pyhd8ed1ab_0
@@ -199,14 +200,14 @@ dependencies:
   - pure_eval=0.2.3=pyhd8ed1ab_1
   - pycparser=2.22=pyh29332c3_1
   - pydantic=2.12.4=pyh3cfb1c2_0
-  - pydantic-core=2.41.5=py311h902ca64_0
+  - pydantic-core=2.41.5=py311h902ca64_1
   - pydiso=0.1.2=py311h6070e36_1
   - pygments=2.19.2=pyhd8ed1ab_0
-  - pylint=4.0.2=pyhcf101f3_0
+  - pylint=4.0.3=pyhcf101f3_0
   - pymatsolver=0.3.1=pyh48887ae_201
   - pyparsing=3.2.5=pyhcf101f3_0
   - pysocks=1.7.1=pyha55dd90_7
-  - pytest=8.4.2=pyhcf101f3_1
+  - pytest=9.0.1=pyhcf101f3_0
   - pytest-cov=7.0.0=pyhcf101f3_1
   - python=3.11.14=hd63d673_2_cpython
   - python-dateutil=2.9.0.post0=pyhe01879c_2
@@ -225,14 +226,14 @@ dependencies:
   - rfc3339-validator=0.1.4=pyhd8ed1ab_1
   - rfc3986-validator=0.1.1=pyh9f0ad1d_0
   - rfc3987-syntax=1.1.0=pyhe01879c_1
-  - rpds-py=0.28.0=py311h902ca64_1
+  - rpds-py=0.29.0=py311h902ca64_0
   - rtree=1.2.0=py311ha1603b9_1
   - scikit-learn=1.6.1=py311h57cc02b_0
   - scipy=1.14.1=py311he9a78e4_2
   - send2trash=1.8.3=pyh0d859eb_1
   - setuptools=80.9.0=pyhff2d567_0
   - six=1.17.0=pyhe01879c_1
-  - sniffio=1.3.1=pyhd8ed1ab_1
+  - sniffio=1.3.1=pyhd8ed1ab_2
   - snowballstemmer=3.0.1=pyhd8ed1ab_0
   - sortedcontainers=2.4.0=pyhd8ed1ab_1
   - soupsieve=2.8=pyhd8ed1ab_0
@@ -244,16 +245,16 @@ dependencies:
   - sphinxcontrib-qthelp=2.0.0=pyhd8ed1ab_1
   - sphinxcontrib-serializinghtml=1.1.10=pyhd8ed1ab_1
   - stack_data=0.6.3=pyhd8ed1ab_1
-  - tbb=2021.13.0=hb60516a_3
-  - tblib=3.2.1=pyhcf101f3_0
+  - tbb=2021.13.0=h8d10470_4
+  - tblib=3.2.2=pyhcf101f3_0
   - terminado=0.18.1=pyh0d859eb_0
   - threadpoolctl=3.6.0=pyhecae5ae_0
-  - tinycss2=1.4.0=pyhd8ed1ab_0
-  - tk=8.6.13=noxft_hd72426e_102
+  - tinycss2=1.5.0=pyhcf101f3_0
+  - tk=8.6.13=noxft_ha0e22de_103
   - tomli=2.3.0=pyhcf101f3_0
   - tomlkit=0.13.3=pyha770c72_0
   - toolz=1.1.0=pyhd8ed1ab_1
-  - tornado=6.5.2=py311h49ec1c0_1
+  - tornado=6.5.2=py311h49ec1c0_2
   - tqdm=4.67.1=pyhd8ed1ab_1
   - traitlets=5.14.3=pyhd8ed1ab_1
   - trimesh=4.1.8=pyhd8ed1ab_0
@@ -262,7 +263,7 @@ dependencies:
   - typing_extensions=4.15.0=pyhcf101f3_0
   - typing_utils=0.1.0=pyhd8ed1ab_1
   - tzdata=2025b=h78e105d_0
-  - unicodedata2=17.0.0=py311h49ec1c0_0
+  - unicodedata2=17.0.0=py311h49ec1c0_1
   - uri-template=1.3.0=pyhd8ed1ab_1
   - urllib3=2.5.0=pyhd8ed1ab_0
   - wcwidth=0.2.14=pyhd8ed1ab_0
@@ -272,8 +273,8 @@ dependencies:
   - wheel=0.45.1=pyhd8ed1ab_1
   - widgetsnbextension=3.6.10=pyhd8ed1ab_0
   - wrapt=1.17.3=py311h49ec1c0_1
-  - xorg-libxau=1.0.12=hb9d3cd8_0
-  - xorg-libxdmcp=1.1.5=hb9d3cd8_0
+  - xorg-libxau=1.0.12=hb03c661_1
+  - xorg-libxdmcp=1.1.5=hb03c661_1
   - xyzservices=2025.10.0=pyhd8ed1ab_0
   - yaml=0.2.5=h280c20c_3
   - zarr=2.14.2=pyhd8ed1ab_0
@@ -281,13 +282,13 @@ dependencies:
   - zict=3.0.0=pyhd8ed1ab_1
   - zipp=3.23.0=pyhd8ed1ab_0
   - zlib=1.3.1=hb9d3cd8_2
-  - zstandard=0.25.0=py311haee01d2_0
+  - zstandard=0.25.0=py311haee01d2_1
   - zstd=1.5.7=hb8e6e7a_2
   - pip:
-    - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@80c46588d47b70a1dd26aef06ccfa24bc1585502
-    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@a9f5721079c097b1fa484ff8424146c6cd1a8c0c
+    - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@15d04763f768cb6f56a3049c9c83a12c88f3060f
+    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@6e27ace156c5f5898a77ae96566dea1d90de8cd8
     - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@d6a42611003c184354e1367de41a88783b928166
-    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@268b4944c9bc46a69e9273c9f0d1235612e72b0c
+    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@374bd3eb0266841ae256ff8fdbf96cfa6d20f469
 
 variables:
   KMP_WARNINGS: 0

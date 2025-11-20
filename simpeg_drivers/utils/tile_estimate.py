@@ -185,7 +185,11 @@ class TileEstimator(Driver):
         """
         if self._active_cells is None:
             self._active_cells = active_from_xyz(
-                self.driver.inversion_mesh.entity, self.data.locations
+                self.driver.inversion_mesh.entity,
+                self.data.locations,
+                triangulation=getattr(
+                    self.params.active_cells.topography_object, "cells", None
+                ),
             )
         return self._active_cells
 
