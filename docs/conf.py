@@ -37,7 +37,7 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.todo",
 ]
-
+master_doc = 'index.md'
 templates_path = ["_templates"]
 exclude_patterns = []
 todo_include_todos = True
