@@ -4,7 +4,6 @@
 title: Simpeg-Drivers - Geophysical Inversion with ANALYST
 author: Mira Geoscience
 logo: images/GA-Python_2.png
-root: index.rst
 
 # Force re-execution of notebooks on each build.
 # See https://jupyterbook.org/content/execute.html

@@ -54,7 +54,7 @@ repos:
         exclude: (^\.|^docs/(?!intro\.md))
         args:
         -   --full-scan-files
-        -   index.rst
+        -   index.md
     -   id: prepare-commit-msg
     -   id: check-commit-msg
 -   repo: local
