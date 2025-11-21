@@ -38,6 +38,7 @@ extensions = [
     "sphinx.ext.todo",
     "sphinxcontrib.bibtex"
 ]
+bibtex_bibfiles = ['references.bib']
 master_doc = 'index'
 templates_path = ["_templates"]
 exclude_patterns = []
