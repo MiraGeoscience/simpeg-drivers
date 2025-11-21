@@ -6,8 +6,7 @@ build:
   tools:
     python: "mambaforge-22.9"
     commands:
-      # Generate on-the-fly Sphinx configuration from Jupyter Book's _config.yml
-      - jupyter-book config sphinx docs/
+      - python jupyter-book config sphinx docs/
   jobs:
     post_checkout:
       # Download and uncompress the binary
