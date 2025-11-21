@@ -21,9 +21,9 @@ build:
       - ./git-lfs fetch
       # Make local files to have the real content on them
       - ./git-lfs checkout
-      # Generate on-the-fly Sphinx configuration from Jupyter Book's _config.yml
-      - echo "jupyter-book config sphinx docs/"
     pre_build:
+      # Generate on-the-fly Sphinx configuration from Jupyter Book's _config.yml
+      - jupyter-book config sphinx docs/
       - "pip install . --no-deps"
 
 sphinx:
