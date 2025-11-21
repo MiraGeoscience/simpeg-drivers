@@ -36,6 +36,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.todo",
+    "sphinxcontrib.bibtex"
 ]
 master_doc = 'index'
 templates_path = ["_templates"]
@@ -46,11 +47,6 @@ todo_include_todos = True
 # https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#module-sphinx.ext.autodoc
 
 autodoc_typehints = "signature"
-
-source_suffix = {
-    '.rst': 'restructuredtext',
-    '.md': 'markdown',
-}
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
