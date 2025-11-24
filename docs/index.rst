@@ -12,9 +12,9 @@ This document contains training material for geophysical inversions using `SimPE
    :maxdepth: 2
    :caption: Contents:
 
-   fundamentals/index
-   tutorials/introduction
-   case_studies/index
+   ./fundamentals/index
+   ./tutorials/introduction
+   ./case_studies/index
    THIRD_PARTY_SOFTWARE
 
 
