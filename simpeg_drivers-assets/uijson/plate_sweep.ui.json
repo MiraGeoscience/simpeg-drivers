@@ -193,6 +193,26 @@
         "label": "number of samples",
         "value": 1
     },
+    "dip_direction_start": {
+        "main": true,
+        "group": "Dip Dir",
+        "groupOptional": true,
+        "enabled": false,
+        "label": "starting",
+        "value": 60.0
+    },
+    "dip_direction_stop": {
+        "main": true,
+        "group": "Dip Dir",
+        "label": "ending",
+        "value": 60.0
+    },
+    "dip_direction_count": {
+        "main": true,
+        "group": "Dip Dir",
+        "label": "number of samples",
+        "value": 1
+    },
     "out_group": {
         "label": "SimPEGGroup",
         "value": "",
