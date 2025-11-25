@@ -8,7 +8,6 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-import os
 
 from geoh5py import Workspace
 from geoh5py.groups import SimPEGGroup
@@ -72,8 +71,7 @@ def setup_plate_sweep(workspace) -> SimPEGGroup:
 
 def test_sweep(tmp_path):
     workdir = tmp_path / "my_workdir"
-    os.mkdir(workdir)
-    assert workdir.exists()
+
     with Workspace.create(tmp_path / "test.geoh5") as ws:
         plate_simulation = setup_plate_sweep(ws)
 
@@ -94,6 +92,8 @@ def test_sweep(tmp_path):
 
         ifile.write_ui_json(name="plate_sweep.ui.json", path=tmp_path)
     PlateSweepDriver.start(tmp_path / "plate_sweep.ui.json")
+
+    assert workdir.exists()
 
     with Workspace(tmp_path / "test.geoh5"):
         ifile = InputFile.read_ui_json(tmp_path / "plate_sweep.ui.json")
