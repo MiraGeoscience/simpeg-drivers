@@ -31,10 +31,11 @@
         "main": true,
         "label": "Data type",
         "tooltip": [
-            "Set the units of the data.<dl>",
-            "Data are expected to be normalized by the source strength, dependent on the type:<dl>",
-            "<dt>Dipole</dt><dd>Current * area * number of turns (NIA).</dd><dl>",
-            "<dt>Wire</dt><dd>Current * number of turns (NI).</dd>"
+            "Set the units of the data.<p>",
+            "Data are expected to be normalized by the source strength, dependent on the type: <dl>",
+            "<dt>Dipole</dt><dd>Current * area * number of turns (NIA).</dd>",
+            "<dt>Wire</dt><dd>Current * number of turns (NI).</dd>",
+            "</dl>"
         ],
         "value": "dB/dt (T/s)"
     },
