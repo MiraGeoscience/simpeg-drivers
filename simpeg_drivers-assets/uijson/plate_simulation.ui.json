@@ -1,6 +1,6 @@
 {
     "version": "0.2.0-alpha.1",
-    "title": "Plate simulation",
+    "title": "Plate Simulation",
     "icon": "maxwellplate",
     "documentation": "https://mirageoscience-plate-simulation.readthedocs-hosted.com/en/latest/",
     "conda_environment": "simpeg_drivers",
