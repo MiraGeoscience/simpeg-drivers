@@ -74,7 +74,10 @@ class JointSurveyDriver(BaseJointDriver):
     def wires(self):
         """Model projections"""
         if self._wires is None:
-            wires = [maps.IdentityMap(nP=self.models.n_active) for _ in self.drivers]
+            wires = [
+                maps.IdentityMap(nP=driver.n_values * driver.n_blocks)
+                for driver in self.drivers
+            ]
             self._wires = wires
 
         return self._wires
