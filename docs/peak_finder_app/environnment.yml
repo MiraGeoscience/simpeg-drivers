@@ -1,0 +1,18 @@
+name: gempy-drivers-docs
+
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pip
+  - pip:
+    - sphinx
+    - sphinx_issues
+    - sphinx_rtd_theme
+    - sphinxcontrib-bibtex
+    - sphinxcontrib-googleanalytics
+    - numpydoc
+    - geoh5py
+    - geoapps-utils
+    - curve-apps
