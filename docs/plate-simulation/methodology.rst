@@ -254,7 +254,7 @@ The results of the simulation are stored in the SimPEG group named in the
     stored in property groups, and an octree mesh containing the model parameterized
     in the interface.*
 
-To iterate on the design of experiment, a user can simply copy the options, edit, and
+To iterate on the design of experiment, simply copy the options, edit, and
 run again.
 
 .. figure:: /images/plate-simulation/methodology/copy_options.png
@@ -265,8 +265,8 @@ run again.
 If the user wishes to sweep one or more of the input parameters to run a large number of
 simulations, they can use the ``generate sweep file`` option to write a file used
 by the `param-sweeps <https://github.com/MiraGeoscience/param-sweeps>`_ package to do just
-that. It is beyond the scope of this document to discuss the use of that package, but
-there is a Github readme that explains it's usage.
+that. It is beyond the scope of this document to discuss the use of that package;
+refer to its README for further details.
 
 .. figure:: /images/plate-simulation/methodology/sweep_option.png
     :align: center
