@@ -17,5 +17,5 @@ details are parameterized in a ui.json file that can be rendered in
 
 See:
 
-- :doc:`Basic Usage <plate_simulation_usage>`
-- :doc:`Methodology <plate_simulation_methodology>`
+- :ref:`Basic Usage <plate_simulation_usage>`
+- :ref:`Methodology <plate_simulation_methodology>`

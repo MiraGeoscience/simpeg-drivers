@@ -65,7 +65,7 @@ Background
 ~~~~~~~~~~
 
 All model values within plate-simulation are to be provided in
-Ohm-meters.  The basement resistivity is actually closer to a
+ohm-metres.  The basement resistivity is actually closer to a
 halfspace in the sense that it fills the model anywhere outside
 of the overburden and plate.  So the basement resistivity should
 be chosen as an effective resistivity for the whole geological
@@ -124,7 +124,7 @@ spacing and will share the same resistivity, size and orientation.
 
     *Model created by choosing three plates spaced at 200m.*
 
-The plate resistivity is expected to be entered in Ohm-meters.
+The plate resistivity is expected to be entered in ohm-metres.
 
 .. figure:: /images/plate-simulation/methodology/model/plate_resistivity_option.png
     :align: center
