@@ -15,9 +15,7 @@ simulate data over the parameterized model.  The mesh, model and simulation
 details are parameterized in a ui.json file that can be rendered in
 `Geoscience ANALYST Pro <https://www.mirageoscience.com/mining-industry-software/geoscience-analyst-pro/>`_.
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Table of content
+See:
 
-   plate_simulation_usage
-   plate_simulation_methodology
+- :doc:`Basic Usage <plate_simulation_usage>`
+- :doc:`Methodology <plate_simulation_methodology>`
