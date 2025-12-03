@@ -146,7 +146,7 @@ parameters for that particular plate.
     :align: center
     :width: 100%
 
-    *A dipping plate striking northeast with annotations for it's thickness,
+    *A dipping plate striking northeast with annotations for its thickness,
     strike length and dip length.*
 
 The orientation of the plate is provided in terms of a dip and dip direction.
@@ -230,7 +230,7 @@ the 'Edit Options' entry.
 
     *Editing the SimPEG group options.*
 
-Since plate-simulation will create it's own mesh and model, the mesh and
+Since plate-simulation will create its own mesh and model, the mesh and
 conductivity selections can be ignored.  Selecting a value will not conflict
 with the plate-simulation objects and will simply be ignored.  In contrast, the
 survey, topography and at least one component must be selected to run the simulation.
