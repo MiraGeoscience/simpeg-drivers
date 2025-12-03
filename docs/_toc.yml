@@ -37,5 +37,7 @@ chapters:
 - file: plate-simulation/index
   sections:
   - file: plate-simulation/usage
+    title: Basic Usage
   - file: plate-simulation/methodology
+    title: Methodology
 - file: THIRD_PARTY_SOFTWARE
