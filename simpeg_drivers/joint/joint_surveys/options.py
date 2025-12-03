@@ -19,7 +19,6 @@ from pydantic import model_validator
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.joint.options import BaseJointOptions, JointModelOptions
-from simpeg_drivers.options import ConductivityModelOptions
 
 
 class JointSurveysModelOptions(JointModelOptions):
