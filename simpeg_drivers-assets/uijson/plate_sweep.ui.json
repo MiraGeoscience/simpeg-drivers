@@ -2,7 +2,7 @@
     "version": "0.2.0-alpha.1",
     "title": "Plate Sweep",
     "icon": "maxwellplate",
-    "documentation": "https://mirageoscience-plate-simulation.readthedocs-hosted.com/en/latest/",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/plate-simulation/",
     "conda_environment": "simpeg_drivers",
     "run_command": "simpeg_drivers.driver",
     "geoh5": "",
