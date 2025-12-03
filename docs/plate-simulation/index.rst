@@ -19,5 +19,5 @@ details are parameterized in a ui.json file that can be rendered in
    :maxdepth: 2
    :caption: Table of content
 
-   plate_simulationusage
+   plate_simulation_usage
    plate_simulation_methodology
