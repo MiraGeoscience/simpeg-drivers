@@ -15,7 +15,7 @@ User-interface
 
 The user-interface is accessible from Geoscience ANALYST Pro Geophysics menu.
 
-.. figure:: ./images/plate-simulation/basic_usage/analyst_geophysics_menu.png
+.. figure:: /images/plate-simulation/basic_usage/analyst_geophysics_menu.png
         :align: center
         :width: 800
 
