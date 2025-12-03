@@ -1,7 +1,7 @@
 .. _plate_simulation_methodology:
 
-Methodology
-===========
+Plate Simulation: Methodology
+=============================
 
 In order to simulate geohpysical data from a physical property model, we
 need three things: a computational mesh, a discretization of the model

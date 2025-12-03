@@ -1,7 +1,7 @@
 .. _plate_simulation_index:
 
-About
-=====
+Plate Simulation
+================
 
 .. figure:: /images/plate-simulation/index.png
    :align: center

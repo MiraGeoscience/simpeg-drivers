@@ -1,7 +1,7 @@
 .. _plate_simulation_usage:
 
-Basic usage
-===========
+Plate Simulation: Basic usage
+=============================
 
 The main entry points to the various modules is the `plate_simulation.ui.json <https://github.com/MiraGeoscience/plate-simulation/blob/develop/plate_simulation-assets/uijson/plate_simulation.ui.json>`_
 file. The ``ui.json`` has the dual purpose of (1) rendering a user-interface from
