@@ -64,7 +64,7 @@ class JointSurveyDriver(BaseJointDriver):
                 model = np.exp(model)
                 if (
                     getattr(self.params.models, "model_type", None)
-                    == "Resistivity (Ohm-m)"
+                    == "Resistivity (ohm-m)"
                 ):
                     model = 1.0 / model
 

@@ -319,7 +319,7 @@ class ConductivityModelOptions(ModelOptions):
     Options for the conductivity model used in all of EM methods.
     """
 
-    model_type: Literal["Conductivity (S/m)", "Resistivity (Ohm-m)"] = (
+    model_type: Literal["Conductivity (S/m)", "Resistivity (ohm-m)"] = (
         "Conductivity (S/m)"
     )
     conductivity_model: float | FloatData | None = Field(

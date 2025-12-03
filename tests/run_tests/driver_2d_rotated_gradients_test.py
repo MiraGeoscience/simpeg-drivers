@@ -153,7 +153,7 @@ def test_dc2d_rotated_grad_run(
             gradient_rotation=pg,
             potential_channel=potential,
             potential_uncertainty=1e-3,
-            model_type="Resistivity (Ohm-m)",
+            model_type="Resistivity (ohm-m)",
             starting_model=100.0,
             reference_model=100.0,
             s_norm=1.0,
