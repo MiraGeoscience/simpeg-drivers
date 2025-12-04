@@ -11,14 +11,20 @@
 
 from __future__ import annotations
 
+from enum import Enum
 from pathlib import Path
-from typing import ClassVar, Literal
+from typing import ClassVar
 
 from geoh5py.data import FloatData
 from pydantic import model_validator
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.joint.options import BaseJointOptions, JointModelOptions
+
+
+class ModelTypeEnum(str, Enum):
+    conductivity = "Conductivity (S/m)"
+    resistivity = "Resistivity (ohm-m)"
 
 
 class JointSurveysModelOptions(JointModelOptions):
@@ -30,9 +36,7 @@ class JointSurveysModelOptions(JointModelOptions):
     :param reference_model: The reference model for the inversion.
     """
 
-    model_type: Literal["Conductivity (S/m)", "Resistivity (Ohm-m)"] = (
-        "Conductivity (S/m)"
-    )
+    model_type: ModelTypeEnum = ModelTypeEnum.conductivity
     starting_model: float | FloatData | None = None
     reference_model: float | FloatData | None = None
 
