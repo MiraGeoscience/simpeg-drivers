@@ -210,7 +210,7 @@ def test_joint_cross_gradient_inv_run(
                     topography_object=topography,
                     data_object=survey,
                     potential_channel=data,
-                    model_type="Resistivity (Ohm-m)",
+                    model_type="Resistivity (ohm-m)",
                     potential_uncertainty=5e-4,
                     tile_spatial=1,
                     starting_model=100.0,

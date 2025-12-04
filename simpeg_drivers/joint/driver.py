@@ -451,7 +451,7 @@ class BaseJointDriver(InversionDriver):
         )
 
         model_directive.label = driver.params.physical_property
-        if getattr(driver.params.models, "model_type", None) == "Resistivity (Ohm-m)":
+        if getattr(driver.params.models, "model_type", None) == "Resistivity (ohm-m)":
             model_directive.label = "resistivity_model"
 
         model_directive.transforms = [wire, *model_directive.transforms]

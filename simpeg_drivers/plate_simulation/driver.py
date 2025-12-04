@@ -137,7 +137,7 @@ class PlateSimulationDriver(BaseDriver):
         if self._simulation_parameters is None:
             self._simulation_parameters = self.params.simulation_parameters()
             if self._simulation_parameters.physical_property == "conductivity":
-                self._simulation_parameters.models.model_type = "Resistivity (Ohm-m)"
+                self._simulation_parameters.models.model_type = "Resistivity (ohm-m)"
         return self._simulation_parameters
 
     @property
