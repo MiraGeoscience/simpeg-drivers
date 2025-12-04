@@ -69,9 +69,11 @@ class LineSweepDriver(SweepDriver, InversionDriver):
             return out_group
 
         with fetch_active_workspace(self.workspace, mode="r+"):
-            out_group = SimPEGGroup.create(
-                self.workspace, name=self.batch2d_params.title
-            )
+            out_group = self.workspace.get_entity(self.batch2d_params.title)[0]
+            if out_group is None:
+                out_group = SimPEGGroup.create(
+                    self.workspace, name=self.batch2d_params.title
+                )
 
         return out_group
 
