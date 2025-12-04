@@ -11,7 +11,6 @@
 
 from __future__ import annotations
 
-from enum import Enum
 from pathlib import Path
 from typing import ClassVar
 
@@ -20,11 +19,7 @@ from pydantic import model_validator
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.joint.options import BaseJointOptions, JointModelOptions
-
-
-class ModelTypeEnum(str, Enum):
-    conductivity = "Conductivity (S/m)"
-    resistivity = "Resistivity (ohm-m)"
+from simpeg_drivers.options import ModelTypeEnum
 
 
 class JointSurveysModelOptions(JointModelOptions):

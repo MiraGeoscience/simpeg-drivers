@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+from enum import Enum
 from logging import getLogger
 from pathlib import Path
 from typing import Annotated, Any, ClassVar, Literal, TypeAlias
@@ -314,14 +315,17 @@ class ModelOptions(BaseModel):
         return None
 
 
+class ModelTypeEnum(str, Enum):
+    conductivity = "Conductivity (S/m)"
+    resistivity = "Resistivity (ohm-m)"
+
+
 class ConductivityModelOptions(ModelOptions):
     """
     Options for the conductivity model used in all of EM methods.
     """
 
-    model_type: Literal["Conductivity (S/m)", "Resistivity (ohm-m)"] = (
-        "Conductivity (S/m)"
-    )
+    model_type: ModelTypeEnum = ModelTypeEnum.conductivity
     conductivity_model: float | FloatData | None = Field(
         None,
         validation_alias=AliasChoices("background_conductivity", "conductivity_model"),
