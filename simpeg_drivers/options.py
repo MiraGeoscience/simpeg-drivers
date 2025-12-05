@@ -195,10 +195,7 @@ class CoreOptions(Options):
     compute: ComputeOptions = ComputeOptions()
     out_group: SimPEGGroup | UIJsonGroup | None = None
     generate_sweep: bool = False
-    workspace_geoh5: Path | None = Field(
-        default=None,
-        exclude=True,
-    )
+    workspace_geoh5: Annotated[Path | None, Field(default=None, exclude=True)]
     # List of deprecated parameters
     deprecations: Deprecations
 
@@ -322,10 +319,15 @@ class ConductivityModelOptions(ModelOptions):
     model_type: Literal["Conductivity (S/m)", "Resistivity (ohm-m)"] = (
         "Conductivity (S/m)"
     )
-    conductivity_model: float | FloatData | None = Field(
-        None,
-        validation_alias=AliasChoices("background_conductivity", "conductivity_model"),
-    )
+    conductivity_model: Annotated[
+        float | FloatData | None,
+        Field(
+            None,
+            validation_alias=AliasChoices(
+                "background_conductivity", "conductivity_model"
+            ),
+        ),
+    ]
 
 
 class BaseForwardOptions(CoreOptions):
@@ -368,12 +370,13 @@ class CoolingSceduleOptions(BaseModel):
     """
 
     chi_factor: float = 1.0
-    cooling_factor: float = Field(
-        2.0, validation_alias=AliasChoices("cooling_factor", "coolingFactor")
-    )
-    cooling_rate: int = Field(
-        1, validation_alias=AliasChoices("cooling_rate", "coolingRate")
-    )
+    cooling_factor: Annotated[
+        float,
+        Field(2.0, validation_alias=AliasChoices("cooling_factor", "coolingFactor")),
+    ]
+    cooling_rate: Annotated[
+        int, Field(1, validation_alias=AliasChoices("cooling_rate", "coolingRate"))
+    ]
     initial_beta: float | None = None
     initial_beta_ratio: float | None = 100.0
 
@@ -476,13 +479,16 @@ class IRLSOptions(BaseModel):
     )
 
     beta_tol: float = 0.5
-    epsilon_cooling_factor: float = Field(
-        1.2, validation_alias=AliasChoices("epsilon_cooling_factor", "coolEpsFact")
-    )
+    epsilon_cooling_factor: Annotated[
+        float,
+        Field(
+            1.2, validation_alias=AliasChoices("epsilon_cooling_factor", "coolEpsFact")
+        ),
+    ]
     max_irls_iterations: int = 25
-    percentile: float = Field(
-        95, validation_alias=AliasChoices("percentile", "prctile")
-    )
+    percentile: Annotated[
+        float, Field(95, validation_alias=AliasChoices("percentile", "prctile"))
+    ]
     starting_chi_factor: float = 1.0
 
 

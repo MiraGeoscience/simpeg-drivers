@@ -9,7 +9,7 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 from pathlib import Path
-from typing import ClassVar
+from typing import Annotated, ClassVar
 
 from geoh5py.ui_json.annotations import Deprecated
 from geoh5py.ui_json.forms import (
@@ -117,22 +117,24 @@ class GravityInversionUIJson(SimPEGDriversUIJson):
     max_irls_iterations: IntegerForm
     starting_chi_factor: FloatForm
     beta_tol: FloatForm
-    percentile: IntegerForm = Field(
-        validation_alias=AliasChoices("percentile", "prctile")
-    )
+    percentile: Annotated[
+        IntegerForm, Field(validation_alias=AliasChoices("percentile", "prctile"))
+    ]
     chi_factor: FloatForm
     auto_scale_misfits: BoolForm
     initial_beta_ratio: FloatForm
     initial_beta: FloatForm
-    cooling_factor: FloatForm = Field(
-        validation_alias=AliasChoices("cooling_factor", "coolingFactor")
-    )
-    cooling_rate: IntegerForm = Field(
-        validation_alias=AliasChoices("cooling_rate", "coolingRate")
-    )
-    epsilon_cooling_factor: float = Field(
-        validation_alias=AliasChoices("epsilon_cooling_factor", "coolEpsFact")
-    )
+    cooling_factor: Annotated[
+        FloatForm,
+        Field(validation_alias=AliasChoices("cooling_factor", "coolingFactor")),
+    ]
+    cooling_rate: Annotated[
+        IntegerForm, Field(validation_alias=AliasChoices("cooling_rate", "coolingRate"))
+    ]
+    epsilon_cooling_factor: Annotated[
+        float,
+        Field(validation_alias=AliasChoices("epsilon_cooling_factor", "coolEpsFact")),
+    ]
     max_global_iterations: IntegerForm
     max_line_search_iterations: IntegerForm
     max_cg_iterations: IntegerForm
