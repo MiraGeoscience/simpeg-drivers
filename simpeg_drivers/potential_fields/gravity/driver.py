@@ -22,6 +22,7 @@ class GravityForwardDriver(InversionDriver):
     """Gravity forward driver."""
 
     _params_class = GravityForwardOptions
+    print("Hello from GravityForwardDriver")
 
 
 class GravityInversionDriver(InversionDriver):
