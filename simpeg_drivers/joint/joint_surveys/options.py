@@ -14,8 +14,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import ClassVar
 
-from geoapps_utils.utils.importing import GeoAppsError
-from pydantic import model_validator
+from pydantic import field_validator, model_validator
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.joint.options import BaseJointOptions
@@ -34,6 +33,19 @@ class JointSurveysOptions(BaseJointOptions):
     inversion_type: str = "joint surveys"
 
     models: ConductivityModelOptions
+
+    @field_validator("group_a", "group_b", "group_c")
+    @classmethod
+    def no_mvi_groups(cls, val):
+        if val is None:
+            return val
+
+        if "magnetic vector" in val.options.get("inversion_type", ""):
+            raise ValueError(
+                f"Joint inversion doesn't currently support MVI data as passed in "
+                f"the group: {val.name}."
+            )
+        return val
 
     @model_validator(mode="after")
     def all_groups_same_physical_property(self):
