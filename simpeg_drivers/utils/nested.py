@@ -275,7 +275,7 @@ def create_simulation(
 
     n_actives = int(actives.sum())
     if getattr(simulation, "_chiMap", None) is not None:
-        if simulation.model_type and simulation.model_type.lower() == "vector":
+        if simulation.model_type == "vector":
             kwargs["chiMap"] = maps.IdentityMap(nP=n_actives * 3)
             kwargs["model_type"] = "vector"
         else:

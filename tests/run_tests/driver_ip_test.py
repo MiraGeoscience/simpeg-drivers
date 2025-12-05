@@ -90,7 +90,7 @@ def test_ip_3d_run(
             topography_object=topography,
             data_object=potential.parent,
             conductivity_model=1e2,
-            model_type="Resistivity (ohm-m)",
+            model_type="Resistivity (Ohm-m)",
             reference_model=1e-6,
             starting_model=1e-6,
             s_norm=0.0,

@@ -113,7 +113,7 @@ def test_dc_2d_run(tmp_path: Path, max_iterations=1, pytest=True):
             data_object=potential.parent,
             potential_channel=potential,
             potential_uncertainty=1e-3,
-            model_type="Resistivity (ohm-m)",
+            model_type="Resistivity (Ohm-m)",
             starting_model=100.0,
             reference_model=100.0,
             s_norm=0.0,
