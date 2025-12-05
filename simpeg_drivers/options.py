@@ -317,7 +317,7 @@ class ModelOptions(BaseModel):
 
 class ModelTypeEnum(str, Enum):
     conductivity = "Conductivity (S/m)"
-    resistivity = "Resistivity (ohm-m)"
+    resistivity = "Resistivity (Ohm-m)"
 
 
 class ConductivityModelOptions(ModelOptions):
