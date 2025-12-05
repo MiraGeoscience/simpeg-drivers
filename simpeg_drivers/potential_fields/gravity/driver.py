@@ -11,21 +11,22 @@
 
 from __future__ import annotations
 
+import sys
+import traceback
+import warnings
+
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.potential_fields.gravity.options import (
     GravityForwardOptions,
     GravityInversionOptions,
 )
 
-import traceback
-import warnings
-import sys
 
 def warn_with_traceback(message, category, filename, lineno, file=None, line=None):
-
-    log = file if hasattr(file,'write') else sys.stderr
+    log = file if hasattr(file, "write") else sys.stderr
     traceback.print_stack(file=log)
     log.write(warnings.formatwarning(message, category, filename, lineno, line))
+
 
 warnings.showwarning = warn_with_traceback
 
@@ -34,7 +35,7 @@ class GravityForwardDriver(InversionDriver):
     """Gravity forward driver."""
 
     _params_class = GravityForwardOptions
-    print("Hello from GravityForwardDriver")
+    print("Hello from GravityForwardDriver1111")
 
 
 class GravityInversionDriver(InversionDriver):
