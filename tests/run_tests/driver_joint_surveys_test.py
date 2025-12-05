@@ -225,7 +225,7 @@ def test_joint_surveys_conductivity_run(
             data_object=components.survey,
             starting_model=components.model,
             reference_model=5.0,
-            model_type="Resistivity (ohm-m)",
+            model_type="Resistivity (Ohm-m)",
         )
         driver_A = DC3DInversionDriver(params)
         driver_B = DC3DInversionDriver(params)

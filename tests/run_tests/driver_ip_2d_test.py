@@ -64,7 +64,7 @@ def test_ip_2d_fwr_run(
             topography_object=components.topography,
             starting_model=components.model,
             conductivity_model=1e2,
-            model_type="Resistivity (ohm-m)",
+            model_type="Resistivity (Ohm-m)",
             line_selection=LineSelectionOptions(
                 line_object=geoh5.get_entity("line_ids")[0],
                 line_id=101,

@@ -84,7 +84,7 @@
     "model_type": {
         "choiceList": [
             "Conductivity (S/m)",
-            "Resistivity (ohm-m)"
+            "Resistivity (Ohm-m)"
         ],
         "main": true,
         "group": "Mesh and models",
