@@ -1,6 +1,6 @@
 {
     "version": "0.4.0",
-    "title": "Magnetic Vector (MVI) Inversion",
+    "title": "Magnetic Inversion",
     "icon": "surveyairbornemagnetics",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
     "conda_environment": "simpeg_drivers",
