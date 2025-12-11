@@ -456,8 +456,8 @@
         "enabled": false,
         "tooltip": "Optionally set the SimPEG group to which results will be saved"
     },
-    "n_workers": "",
-    "n_threads": "",
+    "n_workers": null,
+    "n_threads": null,
     "max_ram": "",
     "performance_report": false,
     "distributed_workers": ""
