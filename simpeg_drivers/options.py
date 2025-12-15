@@ -131,7 +131,7 @@ class ComputeOptions(BaseModel):
     max_ram: float | None = None
     n_cpu: int | None = None
     n_threads: int | None = None
-    n_workers: int | None = 1
+    n_workers: int | None = None
     performance_report: bool = False
     solver_type: Literal["Pardiso", "Mumps"] = "Pardiso"
     tile_spatial: int = 1
