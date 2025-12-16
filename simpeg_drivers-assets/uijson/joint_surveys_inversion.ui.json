@@ -112,7 +112,7 @@
         "group": "Mesh and models",
         "isValue": true,
         "parent": "mesh",
-        "label": "Lower bound)",
+        "label": "Lower bound",
         "property": "",
         "optional": true,
         "value": -10.0,
