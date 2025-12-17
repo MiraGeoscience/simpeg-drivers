@@ -28,10 +28,10 @@ requirements:
   run:
     - python >=${{ python_min }}
     # Mira packages
-    - geoapps-utils >=0.6.0rc1, <0.7.dev
-    - geoh5py >=0.12.0rc2, <0.13.dev
-    - grid-apps >=0.1.0rc1, <0.2.dev
-    - mira-simpeg >=0.23.0.2rc1, <0.23.1.dev
+    - geoapps-utils >=0.7.0a, 0.7.*
+    - geoh5py >=0.13.0a, 0.13.*
+    - grid-apps >=0.2.0a, 0.2.*
+    - mira-simpeg >=0.23.0.3a, 0.23.0.*
 
     # direct dependencies
     - dask-core >=2025.3, <2025.4.dev
