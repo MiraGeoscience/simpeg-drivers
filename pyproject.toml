@@ -80,7 +80,7 @@ dask = ">=2025.3, <2025.4.dev"  # also in simpeg[dask]
 discretize = "0.11.*"  # also in simpeg, grid-apps
 distributed = ">=2025.3, <2025.4.dev"  # for dask[distributed]
 numpy = "~1.26.0" # also in geoh5py, simpeg
-pydantic = "~2.11"  # also in geoh5py, curve-apps, geoapps-utils
+pydantic = "^2.12.0"  # also in geoh5py, curve-apps, geoapps-utils
 Rtree = "~1.2.0"
 scikit-learn = "~1.6.0"
 scipy = "~1.14.0"
