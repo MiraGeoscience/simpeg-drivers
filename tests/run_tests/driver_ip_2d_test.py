@@ -39,7 +39,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.09045976331683352, "phi_d": 19600, "phi_m": 0.213}
+target_run = {"data_norm": 0.09193270795959556, "phi_d": 18300, "phi_m": 0.191}
 
 
 def test_ip_2d_fwr_run(
@@ -97,7 +97,7 @@ def test_ip_2d_run(
             chargeability_channel=chargeability,
             chargeability_uncertainty=2e-4,
             line_selection=LineSelectionOptions(
-                line_object=geoh5.get_entity("line_ids")[0],
+                line_object=chargeability.parent.get_entity("line_ids")[0],
                 line_id=101,
             ),
             starting_model=1e-6,

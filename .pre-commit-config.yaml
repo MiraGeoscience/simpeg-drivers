@@ -11,26 +11,27 @@ ci:
     autoupdate_schedule: monthly
 
 repos:
--   repo: https://github.com/python-poetry/poetry
-    rev: 2.1.3
-    hooks:
-    -   id: poetry-check
+# -   repo: https://github.com/python-poetry/poetry  # TODO: re-enable with pixi (does not support source=pypi)
+#     rev: 2.2.1
+#     hooks:
+#     -   id: poetry-check
+#         args: [--no-plugins]
 -   repo: https://github.com/hadialqattan/pycln
-    rev: v2.5.0
+    rev: v2.6.0
     hooks:
     -   id: pycln
         args: [--config=pyproject.toml]
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.12
+    rev: v0.14.4
     hooks:
-    -   id: ruff
+    -   id: ruff-check
         args:
         -   --fix
         -   --exit-non-zero-on-fix
 #        -   --unsafe-fixes
     -   id: ruff-format
 # -  repo: https://github.com/pre-commit/mirrors-mypy  # TODO: fix mypy errors
-#    rev: v1.11.0
+#    rev: v1.18.2
 #    hooks:
 #    -   id: mypy
 #        additional_dependencies: [
@@ -72,7 +73,7 @@ repos:
         exclude: (^pixi\.lock|-lock\.ya?ml|\benvironments/.*\.ya?ml|\.ipynb|^THIRD_PARTY_SOFTWARE\.rst)$
         entry: codespell -I .codespellignore
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
     -   id: trailing-whitespace
         exclude: \.mdj$

@@ -1,23 +1,27 @@
 [build-system]
 requires = [
-  "poetry-core>=1.8.0",
-  "poetry-dynamic-versioning>=1.9.1,<2.0",
+  "poetry-core >=1.8.0",
+  "poetry-dynamic-versioning >=1.9.1, ==1.*",
   # list dependencies to work with PIP_NO_DEPS=1
-  "MarkupSafe>=2.0",
-  "dunamai>=1.25,<2.0",
-  "jinja2>=3.0,<4.0",
-  "packaging>=24.0",
-  "tomlkit>=0.13",
+  "MarkupSafe >=2.0",
+  "dunamai >=1.25, ==1.*",
+  "jinja2 ==3.*",
+  "packaging >=24.0",
+  "tomlkit >=0.13",
 ]
 build-backend = "poetry_dynamic_versioning.backend"
 
 
 [project]
 name = "simpeg-drivers"
-requires-python = '>=3.10,<4.0'
+requires-python = ">=3.10, ==3.*"
 
 description = "Application to run SimPEG inversions with geoh5 files from Geoscience Analyst."
 license = "MIT"
+license-files = [
+    "LICENSE",
+    "docs/THIRD_PARTY_SOFTWARE.rst",
+]
 keywords = [
     "direct current resistivity",
     "earth science",
@@ -65,7 +69,7 @@ documentation = "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/"
 homepage = "https://www.mirageoscience.com/mining-industry-software/python-integration/"
 
 [tool.poetry]
-requires-poetry = '>=2.0,<3.0'
+requires-poetry = "2.*"
 
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -84,12 +88,7 @@ packages = [
 ]
 
 include = [
-    { path = "COPYING" },
-    { path = "COPYING.LESSER" },
-    { path = "LICENSE" },
-    { path = "README.rst" },
-    { path = "THIRD_PARTY_SOFTWARE.rst" },
-    { path = "docs/**/THIRD_PARTY_SOFTWARE.rst" },
+    { path = "simpeg_drivers/_version.py", format = ["sdist", "wheel"] },
 ]
 version = "0.0.0.dev0"
 [tool.poetry-dynamic-versioning]

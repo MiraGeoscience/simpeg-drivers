@@ -185,7 +185,11 @@ class TileEstimator(Driver):
         """
         if self._active_cells is None:
             self._active_cells = active_from_xyz(
-                self.driver.inversion_mesh.entity, self.data.locations
+                self.driver.inversion_mesh.entity,
+                self.data.locations,
+                triangulation=getattr(
+                    self.params.active_cells.topography_object, "cells", None
+                ),
             )
         return self._active_cells
 
@@ -203,7 +207,7 @@ class TileEstimator(Driver):
         for ind in range(1, len(problem_sizes) - 1):
             size = problem_sizes[ind - 1 : ind + 2].copy()
             counts = tile_counts[ind - 1 : ind + 2].astype(float)
-            rad, x0, y0 = fit_circle(counts, size)
+            rad, _x0, _y0 = fit_circle(counts, size)
             radiis.append(rad[0])
 
         optimal = tile_counts[np.argmin(radiis)]

@@ -37,6 +37,8 @@ from simpeg_drivers.utils.synthetics.options import (
 from tests.utils.targets import check_target, get_inversion_output, get_workspace
 
 
+# pylint: disable=no-member
+
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 target_run = {"data_norm": 0.0028055270497087128, "phi_d": 8.24e-06, "phi_m": 0.0234}
@@ -159,9 +161,16 @@ def test_gravity_run(
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
     driver = GravityInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
+    assert driver.directives.directive_list[0].chifact_start == 0.75
+    assert driver.directives.directive_list[0].chifact_target == 0.75
+
+    with open(workpath.parent / "SimPEG.log", encoding="utf8") as file:
+        content = file.read()
+        assert "Target Misfit: 3.00e+00 (3 data with chifact = 1.0)" in content
+        assert "IRLS Start Misfit: 3.00e+00 (3 data with chifact = 1.0)" in content
 
     assert driver.params.data_object.uid != gz.parent.uid
-    assert driver.models.upper_bound is np.inf
+    assert np.all(np.isinf(driver.models.upper_bound))
 
     with Workspace(driver.params.geoh5.h5file) as run_ws:
         output = get_inversion_output(

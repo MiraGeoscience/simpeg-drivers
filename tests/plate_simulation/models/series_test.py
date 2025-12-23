@@ -104,7 +104,7 @@ def test_scenario(tmp_path):
 
         with pytest.raises(
             GeologyViolationError,
-            match="Overburden events must occur before the final erosion in the history.",
+            match=r"Overburden events must occur before the final erosion in the history\.",
         ):
             Geology(
                 workspace=ws,
@@ -115,7 +115,7 @@ def test_scenario(tmp_path):
 
         with pytest.raises(
             GeologyViolationError,
-            match="The last event in a geological history must be an erosion.",
+            match=r"The last event in a geological history must be an erosion\.",
         ):
             Geology(
                 workspace=ws,

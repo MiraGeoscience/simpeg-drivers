@@ -13,6 +13,7 @@ from pathlib import Path
 import numpy as np
 from geoh5py.objects import Octree
 from geoh5py.workspace import Workspace
+from simpeg.directives import SavePropertyGroup
 
 from simpeg_drivers.electricals.direct_current.three_dimensions.driver import (
     DC3DInversionDriver,
@@ -20,6 +21,8 @@ from simpeg_drivers.electricals.direct_current.three_dimensions.driver import (
 from simpeg_drivers.electricals.direct_current.three_dimensions.options import (
     DC3DInversionOptions,
 )
+from simpeg_drivers.electromagnetics.time_domain.driver import TDEMInversionDriver
+from simpeg_drivers.electromagnetics.time_domain.options import TDEMInversionOptions
 from simpeg_drivers.joint.joint_surveys import JointSurveysOptions
 from simpeg_drivers.joint.joint_surveys.driver import JointSurveyDriver
 from simpeg_drivers.options import ActiveCellsOptions
@@ -165,8 +168,8 @@ def test_joint_surveys_inv_run(
             geoh5=geoh5,
             active_cells=ActiveCellsOptions(active_model=active_model),
             mesh=drivers[0].params.mesh,
-            group_a=drivers[0].params.out_group,
-            group_b=drivers[1].params.out_group,
+            group_a=drivers[0].out_group,
+            group_b=drivers[1].out_group,
             starting_model=1e-4,
             reference_model=0.0,
             s_norm=0.0,
@@ -232,8 +235,8 @@ def test_joint_surveys_conductivity_run(
             geoh5=geoh5,
             active_cells=ActiveCellsOptions(topography_object=components.topography),
             mesh=components.mesh,
-            group_a=driver_A.params.out_group,
-            group_b=driver_B.params.out_group,
+            group_a=driver_A.out_group,
+            group_b=driver_B.out_group,
             starting_model=20.0,
             # Default to Conductivity (S/m)
         )
@@ -245,6 +248,90 @@ def test_joint_surveys_conductivity_run(
         assert np.isclose(
             driver.models.starting_model[0], np.log(20.0)
         )  # Took it from joint params
+
+
+def test_joint_surveys_tem_run(
+    tmp_path,
+):
+    opts = SyntheticsComponentsOptions(
+        method="airborne tdem",
+        survey=SurveyOptions(n_stations=4, n_lines=4, name="survey A"),
+        mesh=MeshOptions(refinement=(2, 2, 2), name="mesh A"),
+        model=ModelOptions(anomaly=0.1, background=0.01, name="model A"),
+        active=SyntheticsActiveCellsOptions(name="active A"),
+    )
+
+    with Workspace.create(tmp_path / f"{__name__}.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+
+        data = {}
+        uncertainties = {}
+        channels = {
+            "z": "dBzdt",
+        }
+        survey = components.survey
+        for cname in channels.values():
+            data[cname] = []
+            uncertainties[f"{cname} uncertainties"] = []
+            for ii, _ in enumerate(components.survey.channels):
+                data_entity, uncert = survey.add_data(
+                    {
+                        f"{cname}_[{ii}]": {
+                            "values": np.random.randn(survey.n_vertices)
+                        },
+                        f"{cname}_unc[{ii}]": {
+                            "values": np.ones(survey.n_vertices) * 1e-3
+                        },
+                    }
+                )
+                data[cname].append(data_entity)
+                uncertainties[f"{cname} uncertainties"].append(uncert)
+
+        components.survey.add_components_data(data)
+        components.survey.add_components_data(uncertainties)
+
+        data_kwargs = {}
+        for chan in channels:
+            data_kwargs[f"{chan}_channel"] = components.survey.fetch_property_group(
+                name=f"dB{chan}dt"
+            )
+            data_kwargs[f"{chan}_uncertainty"] = components.survey.fetch_property_group(
+                name=f"dB{chan}dt uncertainties"
+            )
+
+        # Run the inverse
+        params = TDEMInversionOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
+            starting_model=1e-3,
+            **data_kwargs,
+        )
+        driver_A = TDEMInversionDriver(params)
+        driver_B = TDEMInversionDriver(params)
+
+        # Run the inverse
+        joint_params = JointSurveysOptions.build(
+            geoh5=geoh5,
+            active_cells=ActiveCellsOptions(topography_object=components.topography),
+            mesh=components.mesh,
+            group_a=driver_A.out_group,
+            group_b=driver_B.out_group,
+            starting_model=1e-3,
+        )
+
+        driver = JointSurveyDriver(joint_params)
+        assert (
+            len(
+                [
+                    group
+                    for group in driver.directives.directive_list
+                    if isinstance(group, SavePropertyGroup)
+                ]
+            )
+            == 5
+        )
 
 
 if __name__ == "__main__":

@@ -199,6 +199,7 @@ def test_joint_cross_gradient_inv_run(
                     gz_uncertainty=1e-2,
                     starting_model=0.0,
                     reference_model=0.0,
+                    upper_bound=1.0,
                 )
                 drivers.append(GravityInversionDriver(params))
             elif suffix == "C":
@@ -240,11 +241,11 @@ def test_joint_cross_gradient_inv_run(
         joint_params = JointCrossGradientOptions.build(
             geoh5=geoh5,
             topography_object=topography,
-            group_a=drivers[0].params.out_group,
+            group_a=drivers[0].out_group,
             group_a_multiplier=1.0,
-            group_b=drivers[1].params.out_group,
+            group_b=drivers[1].out_group,
             group_b_multiplier=1.0,
-            group_c=drivers[2].params.out_group,
+            group_c=drivers[2].out_group,
             group_c_multiplier=1.0,
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e1,

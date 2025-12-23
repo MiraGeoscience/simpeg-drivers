@@ -1,5 +1,5 @@
 {
-    "version": "0.3.0-alpha.6",
+    "version": "0.4.0",
     "title": "Induced Polarization (IP) 3D Forward",
     "icon": "PotentialElectrode",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
@@ -96,7 +96,7 @@
         "optional": true,
         "enabled": false,
         "label": "Elevation channel",
-        "tooltip": "Set elevation from channel.  If not set the topography will be set from the geometry of the selected 'topography' object",
+        "tooltip": "Set elevation from channel. If not set the topography will be set from the geometry of the selected 'topography' object",
         "parent": "topography_object",
         "dependency": "topography_object",
         "dependencyType": "enabled",
@@ -116,7 +116,7 @@
         "dependency": "topography_object",
         "dependencyType": "disabled",
         "label": "Active model",
-        "tooltip": "Provide the active cell boolean model directly if topography not set",
+        "tooltip": "Provide the active cell Boolean model directly if topography not set",
         "parent": "mesh",
         "value": ""
     },
@@ -180,8 +180,8 @@
         "visible": false,
         "tooltip": "Generates a file for sweeping parameters instead of running the application"
     },
-    "n_workers": "",
-    "n_threads": "",
+    "n_workers": null,
+    "n_threads": null,
     "max_ram": "",
     "performance_report": false,
     "distributed_workers": ""

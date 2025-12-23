@@ -19,12 +19,12 @@ from .options import DC3DForwardOptions, DC3DInversionOptions
 class DC3DForwardDriver(InversionDriver):
     """Direct Current 3D forward driver."""
 
-    _options_class = DC3DForwardOptions
+    _params_class = DC3DForwardOptions
     _validation = None
 
 
 class DC3DInversionDriver(InversionDriver):
     """Direct Current 3D inversion driver."""
 
-    _options_class = DC3DInversionOptions
+    _params_class = DC3DInversionOptions
     _validation = None

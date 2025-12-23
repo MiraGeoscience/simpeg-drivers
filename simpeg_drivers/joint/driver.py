@@ -38,6 +38,7 @@ from simpeg_drivers.components.factories import (
 )
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.joint.options import BaseJointOptions
+from simpeg_drivers.options import ModelTypeEnum
 from simpeg_drivers.utils.utils import simpeg_group_to_driver
 
 
@@ -65,7 +66,8 @@ class BaseJointDriver(InversionDriver):
                         fun.name = f"Group_{label.upper()}:Tile_{ii}"
 
                     multipliers += [
-                        getattr(self.params, f"group_{label}_multiplier") ** 2.0
+                        (getattr(self.params, f"group_{label}_multiplier") or 1.0)
+                        ** 2.0
                     ] * len(driver.data_misfit.objfcts)
 
             if self.client:
@@ -88,9 +90,11 @@ class BaseJointDriver(InversionDriver):
             drivers = []
             # Create sub-drivers
             for group in self.params.groups:
-                _ = group.options  # Triggers something... otherwise ui_json is empty
-                group = group.copy(parent=self.params.out_group)
                 driver = simpeg_group_to_driver(group, self.workspace)
+                new = driver.out_group.copy(
+                    copy_children=False, copy_relatives=False, parent=self.out_group
+                )
+                driver.out_group = new
                 drivers.append(driver)
 
             self._drivers = drivers
@@ -224,9 +228,10 @@ class BaseJointDriver(InversionDriver):
 
     def run(self):
         """Run inversion from params"""
-        sys.stdout = self.logger
-        self.logger.start()
-        self.configure_dask()
+        if self.logger:
+            sys.stdout = self.logger
+            self.logger.start()
+            self.configure_dask()
 
         if Path(self.params.input_file.path_name).is_file():
             with fetch_active_workspace(self.workspace, mode="r+"):
@@ -246,11 +251,10 @@ class BaseJointDriver(InversionDriver):
             # Run the inversion
             self.start_inversion_message()
             self.inversion.run(self.models.starting_model)
-
-        self.logger.end()
-        sys.stdout = self.logger.terminal
-        self.logger.log.close()
-        self._update_log()
+        if self.logger:
+            self.logger.end()
+            sys.stdout = self.logger.terminal
+            self._update_log()
 
     def validate_create_mesh(self):
         """Function to validate and create the inversion mesh."""
@@ -410,6 +414,16 @@ class BaseJointDriver(InversionDriver):
                     ]
                     directives_list.append(directive)
 
+                if (
+                    isinstance(directive, directives.SaveDataGeoH5)
+                    and len(directive.channels) > 1
+                ):
+                    save_group = directives.SavePropertyGroup(
+                        driver.inversion_data.entity,
+                        channels=directive.channels,
+                        components=directive.components,
+                    )
+                    directives_list.append(save_group)
             count += n_tiles
 
         return directives_list
@@ -438,7 +452,10 @@ class BaseJointDriver(InversionDriver):
         )
 
         model_directive.label = driver.params.physical_property
-        if getattr(driver.params.models, "model_type", None) == "Resistivity (Ohm-m)":
+        if (
+            getattr(driver.params.models, "model_type", None)
+            == ModelTypeEnum.resistivity
+        ):
             model_directive.label = "resistivity_model"
 
         model_directive.transforms = [wire, *model_directive.transforms]
@@ -486,9 +503,18 @@ class BaseJointDriver(InversionDriver):
         :return: List of collected attributes.
         """
         futures = []
+
         for misfit in misfits.objfcts:
             if self.client:
-                futures.append(self.client.submit(_get_set_mapping, misfit, mapping))
+                delayed_mapping = self.client.scatter(mapping)
+                futures.append(
+                    self.client.submit(
+                        _get_set_mapping,
+                        misfit,
+                        delayed_mapping,
+                        workers=self.client.who_has(misfit)[misfit.key],
+                    )
+                )
             else:
                 futures.append(_get_set_mapping(misfit, mapping))
 

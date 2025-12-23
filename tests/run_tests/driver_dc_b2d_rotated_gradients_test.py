@@ -49,7 +49,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 1.1039080237658845, "phi_d": 185, "phi_m": 0.491}
+target_run = {"data_norm": 1.1060093911270892, "phi_d": 209, "phi_m": 0.468}
 
 
 def test_dc_rotated_p3d_fwr_run(
@@ -109,8 +109,10 @@ def test_dc_rotated_gradient_p3d_run(
 
     with Workspace(workpath) as geoh5:
         components = SyntheticsComponents(geoh5)
-        potential = geoh5.get_entity("Iteration_0_potential")[0]
 
+        fwr_group = geoh5.get_entity("Direct Current (DC) 2D Batch Forward")[0]
+        survey = fwr_group.get_entity("survey")[0]
+        potential = survey.get_data("Iteration_0_potential")[0]
         # Create property group with orientation
         dip = np.ones(components.mesh.n_cells) * 45
         azimuth = np.ones(components.mesh.n_cells) * 90
@@ -145,7 +147,7 @@ def test_dc_rotated_gradient_p3d_run(
             potential_channel=potential,
             potential_uncertainty=1e-3,
             line_selection=LineSelectionOptions(
-                line_object=geoh5.get_entity("line_ids")[0]
+                line_object=potential.parent.get_entity("line_ids")[0]
             ),
             starting_model=1e-2,
             reference_model=1e-2,
@@ -162,7 +164,7 @@ def test_dc_rotated_gradient_p3d_run(
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    driver = DCBatch2DInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
+    DCBatch2DInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
     basepath = workpath.parent
     with open(basepath / "lookup.json", encoding="utf8") as f:
@@ -173,13 +175,9 @@ def test_dc_rotated_gradient_p3d_run(
         middle_inversion_group = next(
             k for k in workspace.groups if isinstance(k, SimPEGGroup)
         )
-        filedata = middle_inversion_group.get_entity("SimPEG.out")[0]
-
-        with driver.batch2d_params.out_group.workspace.open(mode="r+"):
-            filedata.copy(parent=driver.batch2d_params.out_group)
 
     output = get_inversion_output(
-        driver.batch2d_params.geoh5.h5file, driver.batch2d_params.out_group.uid
+        basepath / f"{middle_line_id}.ui.geoh5", middle_inversion_group.uid
     )
     if geoh5.open():
         output["data"] = potential.values
