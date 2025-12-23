@@ -8058,44 +8058,44 @@ package:
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.23.0.2b5.dev1+g374bd3eb0
+  version: 0.23.0.3a0
   manager: pip
   platform: linux-64
   dependencies:
     discretize: '>=0.11'
     geoana: '>=0.7.0'
-    geoh5py: '>=0.12.0b3,<0.13.dev'
+    geoh5py: '>=0.12.0rc,<0.14.dev'
     libdlf: '*'
     matplotlib: '*'
     numpy: '>=1.22'
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@374bd3eb0266841ae256ff8fdbf96cfa6d20f469
+  url: git+https://github.com/MiraGeoscience/simpeg.git@252c943f92b39a632dcc26c8b50c971a3951a601
   hash:
-    sha256: 374bd3eb0266841ae256ff8fdbf96cfa6d20f469
+    sha256: 252c943f92b39a632dcc26c8b50c971a3951a601
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@374bd3eb0266841ae256ff8fdbf96cfa6d20f469
+    url: git+https://github.com/MiraGeoscience/simpeg.git@252c943f92b39a632dcc26c8b50c971a3951a601
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.23.0.2b5.dev1+g374bd3eb0
+  version: 0.23.0.3a0
   manager: pip
   platform: win-64
   dependencies:
     discretize: '>=0.11'
     geoana: '>=0.7.0'
-    geoh5py: '>=0.12.0b3,<0.13.dev'
+    geoh5py: '>=0.12.0rc,<0.14.dev'
     libdlf: '*'
     matplotlib: '*'
     numpy: '>=1.22'
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@374bd3eb0266841ae256ff8fdbf96cfa6d20f469
+  url: git+https://github.com/MiraGeoscience/simpeg.git@252c943f92b39a632dcc26c8b50c971a3951a601
   hash:
-    sha256: 374bd3eb0266841ae256ff8fdbf96cfa6d20f469
+    sha256: 252c943f92b39a632dcc26c8b50c971a3951a601
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@374bd3eb0266841ae256ff8fdbf96cfa6d20f469
+    url: git+https://github.com/MiraGeoscience/simpeg.git@252c943f92b39a632dcc26c8b50c971a3951a601
   category: main
   optional: false
