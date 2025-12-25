@@ -56,6 +56,7 @@ default = { features = ["py310", "blas-mkl", "mirageo-git", "test", "dev", "lint
 linter = { features = ["py310", "blas-mkl", "mirageo-git", "test", "linter"], solve-group = "default" }
 mirageo-local = { features = ["py310", "blas-mkl", "mirageo-git"], solve-group = "default" }
 docs = { features = ["py310", "doc"], no-default-feature = true }
+distrib = { features = ["distrib"], no-default-feature = true }
 
 [feature.py310.dependencies]
 python = "3.10.*"
@@ -104,6 +105,18 @@ pylint = "4.*"
 [feature.linter.tasks]
 lint = {cmd = "pylint", description = "Run pylint"}
 
+[feature.test.tasks]
+test = {cmd = "pytest --cov --cov-report=xml", description = "Run pytest with coverage reporting"}
+
+[feature.test.tasks.test-local]
+description = "Run tests using local development versions of dependencies (e.g., ../geoh5py)"
+args = [{ arg = "packages", default = "geoh5py simpeg-drivers grid-apps mira-simpeg" }]
+depends-on = [
+    {task = "use-local-deps", args = [ "{{ packages }}" ]},
+    {task = "show-pip-source", args =  [ "{{ packages }}" ]},
+    {task = "test"}
+]
+
 [feature.doc.dependencies]
 jupyter-book = "*"
 jupyter_client = "*"
@@ -121,3 +134,68 @@ sphinx-issues = "*"
 sphinx-rtd-theme = "*"
 sphinxcontrib-bibtex = "*"
 sphinxcontrib-googleanalytics = '*'
+
+[feature.doc.tasks._install-no-deps]
+description = "Install package without dependencies (internal task for docs)"
+cmd = "uv pip install --no-deps ."
+
+[feature.doc.tasks.build-docs]
+description = "Build Sphinx documentation (default: HTML output to docs/_build/html)"
+args = [
+  { arg = "builder",   default = "html" },
+  { arg = "outputdir", default = "docs/_build" },
+]
+depends-on = ["_install-no-deps"]
+cmd = "sphinx-build -T -nW -b {{builder}} docs {{outputdir}}/{{builder}}"
+
+[tasks.show-pip-source]
+description = "Display package metadata and installation source for given pip packages"
+args = [{ arg = "packages", default = "geoh5py" }]
+cmd = "uv pip show {{packages}}"
+
+[tasks.use-local-deps]
+description = "Install local editable versions of packages from sibling directories (e.g., ../geoh5py)"
+args = [{ arg = "packages", default = "geoh5py" }]
+cmd = """
+uv pip install --no-deps --force-reinstall \
+{% for package in packages | split %} -e ../{{ package | trim }}{% endfor %}
+"""
+
+[tasks.test-pyvers]
+description = "Run tests across all Python versions (3.10, 3.11, 3.12)"
+depends-on = [
+    {task = "test", environment = "py310"},
+    {task = "test", environment = "py311"},
+    {task = "test", environment = "py312"},
+]
+
+[feature.distrib.tasks.export-to-conda]
+description = "Export environment to conda environment YAML file (not locked)"
+args = ["env", {arg = "output_name", default = "exported"}]
+cmd = "pixi workspace export conda-environment -e {{ env }} {{ output_name }}.pixi.conda.yml"
+
+[feature.distrib.tasks.analyst-uijson-install]
+description = "Install UI JSON files for Geoscience ANALYST integration"
+args = [
+  {arg = "env_name", default = "mirageo"},
+  {arg = "menu", default = "local/simpeg-drivers"},
+]
+cmd = "python ./install_uijson.py --env {{env_name}} --menu {{menu}}"
+
+[feature.distrib.tasks.analyst-env-install]
+description = "Install conda environment in Geoscience ANALYST using MambaEnvRunner"
+args = [
+  {arg = "env_name", default = "src-simpeg-drivers"},
+  {arg = "env_file_name", default = "simpeg-drivers"},
+]
+env = { MIRA_CMD_RUNNER_DIR = "$ProgramFiles/Mira Geoscience/Geoscience ANALYST/CmdRunner" }
+cmd = '"$MIRA_CMD_RUNNER_DIR/MambaEnvRunner.exe" --install "{{ env_file_name }}.pixi.conda.yml" --name {{env_name}}'
+depends-on = [{task = "export-to-conda", args = ["mirageo-local", "{{ env_file_name }}"]}]
+
+[feature.distrib.tasks.analyst-install]
+description = "Full installation to Geoscience ANALYST (environment + UI JSON files)"
+args = [{arg = "tag", default = "local"}]
+depends-on = [
+  {task = "analyst-env-install", args = ["{{tag}}-simpeg-drivers", "{{tag}}"]},
+  {task = "analyst-uijson-install", args = ["{{tag}}-simpeg-drivers", "{{tag}}/simpeg-drivers"]}
+]
