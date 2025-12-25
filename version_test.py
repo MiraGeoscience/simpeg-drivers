@@ -1,12 +1,10 @@
-# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
-#                                                                                   '
-#  This file is part of simpeg-drivers package.                                     '
-#                                                                                   '
-#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
-#  (see LICENSE file at the root of this source code package).                      '
-#                                                                                   '
-# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2025 Mira Geoscience Ltd.                                     '
+#                                                                              '
+#  This file is part of my-app package.                                        '
+#                                                                              '
+#  All rights reserved.                                                        '
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
 from __future__ import annotations
@@ -16,11 +14,10 @@ import json
 import re
 from pathlib import Path
 
+import my_app
 import pytest
 import yaml
 from packaging.version import Version
-
-import simpeg_drivers
 
 
 def _get_json_version() -> str:
@@ -40,7 +37,7 @@ def _get_conda_recipe_version_def() -> str:
 
 def _version_module_exists():
     try:
-        importlib.import_module("simpeg_drivers._version")
+        importlib.import_module("my_app._version")
         return True
     except ModuleNotFoundError:
         return False
@@ -55,10 +52,10 @@ def test_conda_recipe_version_loads_json():
 
 @pytest.mark.skipif(
     _version_module_exists(),
-    reason="simpeg_drivers._version can be found: package is built",
+    reason="my_app._version can be found: package is built",
 )
 def test_fallback_version_is_zero():
-    project_version = Version(simpeg_drivers.__version__)
+    project_version = Version(my_app.__version__)
     fallback_version = Version("0.0.0.dev0")
     assert project_version.base_version == fallback_version.base_version
     assert project_version.pre is None
@@ -68,9 +65,9 @@ def test_fallback_version_is_zero():
 
 @pytest.mark.skipif(
     not _version_module_exists(),
-    reason="simpeg_drivers._version cannot be found: uses a fallback version",
+    reason="my_app._version cannot be found: uses a fallback version",
 )
 def test_version_json_is_consistent():
-    project_version = Version(simpeg_drivers.__version__)
+    project_version = Version(my_app.__version__)
     json_version = Version(_get_json_version())
     assert project_version == json_version

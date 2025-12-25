@@ -8,7 +8,6 @@ __pycache__/
 *.so
 
 .conda-env/
-.pixi/
 
 # Distribution / packaging
 .Python
@@ -143,8 +142,15 @@ dmypy.json
 # geoh5 locks
 *.geoh5.lock
 
-# tempory generated files
-pyproject-sha.toml
+# not using poetry to lock, but pixi
+poetry.lock
 
-#version ignore
+# auto-generated version file
 simpeg_drivers/_version.py
+/_version.json
+
+# not using poetry to lock, but pixi
+poetry.lock
+
+# generated conda env files by pixi
+*.pixi.conda.yml
