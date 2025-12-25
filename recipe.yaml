@@ -31,7 +31,7 @@ requirements:
     - geoapps-utils >=0.7.0a, 0.7.*
     - geoh5py >=0.13.0a, 0.13.*
     - grid-apps >=0.2.0a, 0.2.*
-    - mira-simpeg >=0.23.0.3a, 0.23.0.*
+    - mira-simpeg >=0.23.0.3a, <0.23.0.4.dev
 
     # direct dependencies
     - dask-core 2025.3.*

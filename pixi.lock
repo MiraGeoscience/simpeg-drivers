@@ -189,10 +189,10 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zipp-3.23.0-pyhcf101f3_1.conda
       - conda: https://repo.prefix.dev/conda-forge/linux-64/zstd-1.5.7-hb78ec9c_6.conda
-      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git#3a0ee39b295c1a1fad831a7f88a2e8630b99b2c6
-      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git#2ddfbccc8ad581c8810b4568fd5795b7148f0c34
-      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git#99e51cbe794114ce08ab3bb16efcc6749b14914a
-      - pypi: git+https://github.com/MiraGeoscience/simpeg.git#252c943f92b39a632dcc26c8b50c971a3951a601
+      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git?rev=develop#3a0ee39b295c1a1fad831a7f88a2e8630b99b2c6
+      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git?rev=develop#2ddfbccc8ad581c8810b4568fd5795b7148f0c34
+      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git?rev=develop#99e51cbe794114ce08ab3bb16efcc6749b14914a
+      - pypi: git+https://github.com/MiraGeoscience/simpeg.git?rev=develop#62df930b7440442aaf1f56deaf0b8ef85957fb90
       - pypi: ./
       win-64:
       - conda: https://repo.prefix.dev/conda-forge/win-64/_openmp_mutex-4.5-2_gnu.conda
@@ -361,10 +361,10 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zipp-3.23.0-pyhcf101f3_1.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zstd-1.5.7-h534d264_6.conda
-      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git#3a0ee39b295c1a1fad831a7f88a2e8630b99b2c6
-      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git#2ddfbccc8ad581c8810b4568fd5795b7148f0c34
-      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git#99e51cbe794114ce08ab3bb16efcc6749b14914a
-      - pypi: git+https://github.com/MiraGeoscience/simpeg.git#252c943f92b39a632dcc26c8b50c971a3951a601
+      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git?rev=develop#3a0ee39b295c1a1fad831a7f88a2e8630b99b2c6
+      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git?rev=develop#2ddfbccc8ad581c8810b4568fd5795b7148f0c34
+      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git?rev=develop#99e51cbe794114ce08ab3bb16efcc6749b14914a
+      - pypi: git+https://github.com/MiraGeoscience/simpeg.git?rev=develop#62df930b7440442aaf1f56deaf0b8ef85957fb90
       - pypi: ./
   distrib:
     channels:
@@ -766,10 +766,10 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zipp-3.23.0-pyhcf101f3_1.conda
       - conda: https://repo.prefix.dev/conda-forge/linux-64/zstd-1.5.7-hb78ec9c_6.conda
-      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git#3a0ee39b295c1a1fad831a7f88a2e8630b99b2c6
-      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git#2ddfbccc8ad581c8810b4568fd5795b7148f0c34
-      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git#99e51cbe794114ce08ab3bb16efcc6749b14914a
-      - pypi: git+https://github.com/MiraGeoscience/simpeg.git#252c943f92b39a632dcc26c8b50c971a3951a601
+      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git?rev=develop#3a0ee39b295c1a1fad831a7f88a2e8630b99b2c6
+      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git?rev=develop#2ddfbccc8ad581c8810b4568fd5795b7148f0c34
+      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git?rev=develop#99e51cbe794114ce08ab3bb16efcc6749b14914a
+      - pypi: git+https://github.com/MiraGeoscience/simpeg.git?rev=develop#62df930b7440442aaf1f56deaf0b8ef85957fb90
       - pypi: ./
       win-64:
       - conda: https://repo.prefix.dev/conda-forge/win-64/_openmp_mutex-4.5-2_gnu.conda
@@ -923,10 +923,10 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zipp-3.23.0-pyhcf101f3_1.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zstd-1.5.7-h534d264_6.conda
-      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git#3a0ee39b295c1a1fad831a7f88a2e8630b99b2c6
-      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git#2ddfbccc8ad581c8810b4568fd5795b7148f0c34
-      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git#99e51cbe794114ce08ab3bb16efcc6749b14914a
-      - pypi: git+https://github.com/MiraGeoscience/simpeg.git#252c943f92b39a632dcc26c8b50c971a3951a601
+      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git?rev=develop#3a0ee39b295c1a1fad831a7f88a2e8630b99b2c6
+      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git?rev=develop#2ddfbccc8ad581c8810b4568fd5795b7148f0c34
+      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git?rev=develop#99e51cbe794114ce08ab3bb16efcc6749b14914a
+      - pypi: git+https://github.com/MiraGeoscience/simpeg.git?rev=develop#62df930b7440442aaf1f56deaf0b8ef85957fb90
       - pypi: ./
   mirageo-local:
     channels:
@@ -1084,10 +1084,10 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zipp-3.23.0-pyhcf101f3_1.conda
       - conda: https://repo.prefix.dev/conda-forge/linux-64/zstd-1.5.7-hb78ec9c_6.conda
-      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git#3a0ee39b295c1a1fad831a7f88a2e8630b99b2c6
-      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git#2ddfbccc8ad581c8810b4568fd5795b7148f0c34
-      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git#99e51cbe794114ce08ab3bb16efcc6749b14914a
-      - pypi: git+https://github.com/MiraGeoscience/simpeg.git#252c943f92b39a632dcc26c8b50c971a3951a601
+      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git?rev=develop#3a0ee39b295c1a1fad831a7f88a2e8630b99b2c6
+      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git?rev=develop#2ddfbccc8ad581c8810b4568fd5795b7148f0c34
+      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git?rev=develop#99e51cbe794114ce08ab3bb16efcc6749b14914a
+      - pypi: git+https://github.com/MiraGeoscience/simpeg.git?rev=develop#62df930b7440442aaf1f56deaf0b8ef85957fb90
       - pypi: ./
       win-64:
       - conda: https://repo.prefix.dev/conda-forge/win-64/_openmp_mutex-4.5-2_gnu.conda
@@ -1225,10 +1225,10 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zipp-3.23.0-pyhcf101f3_1.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zstd-1.5.7-h534d264_6.conda
-      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git#3a0ee39b295c1a1fad831a7f88a2e8630b99b2c6
-      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git#2ddfbccc8ad581c8810b4568fd5795b7148f0c34
-      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git#99e51cbe794114ce08ab3bb16efcc6749b14914a
-      - pypi: git+https://github.com/MiraGeoscience/simpeg.git#252c943f92b39a632dcc26c8b50c971a3951a601
+      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git?rev=develop#3a0ee39b295c1a1fad831a7f88a2e8630b99b2c6
+      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git?rev=develop#2ddfbccc8ad581c8810b4568fd5795b7148f0c34
+      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git?rev=develop#99e51cbe794114ce08ab3bb16efcc6749b14914a
+      - pypi: git+https://github.com/MiraGeoscience/simpeg.git?rev=develop#62df930b7440442aaf1f56deaf0b8ef85957fb90
       - pypi: ./
   py310:
     channels:
@@ -1402,10 +1402,10 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zipp-3.23.0-pyhcf101f3_1.conda
       - conda: https://repo.prefix.dev/conda-forge/linux-64/zstd-1.5.7-hb78ec9c_6.conda
-      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git#3a0ee39b295c1a1fad831a7f88a2e8630b99b2c6
-      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git#2ddfbccc8ad581c8810b4568fd5795b7148f0c34
-      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git#99e51cbe794114ce08ab3bb16efcc6749b14914a
-      - pypi: git+https://github.com/MiraGeoscience/simpeg.git#252c943f92b39a632dcc26c8b50c971a3951a601
+      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git?rev=develop#3a0ee39b295c1a1fad831a7f88a2e8630b99b2c6
+      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git?rev=develop#2ddfbccc8ad581c8810b4568fd5795b7148f0c34
+      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git?rev=develop#99e51cbe794114ce08ab3bb16efcc6749b14914a
+      - pypi: git+https://github.com/MiraGeoscience/simpeg.git?rev=develop#62df930b7440442aaf1f56deaf0b8ef85957fb90
       - pypi: ./
       win-64:
       - conda: https://repo.prefix.dev/conda-forge/win-64/_openmp_mutex-4.5-2_gnu.conda
@@ -1559,10 +1559,10 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zipp-3.23.0-pyhcf101f3_1.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zstd-1.5.7-h534d264_6.conda
-      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git#3a0ee39b295c1a1fad831a7f88a2e8630b99b2c6
-      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git#2ddfbccc8ad581c8810b4568fd5795b7148f0c34
-      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git#99e51cbe794114ce08ab3bb16efcc6749b14914a
-      - pypi: git+https://github.com/MiraGeoscience/simpeg.git#252c943f92b39a632dcc26c8b50c971a3951a601
+      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git?rev=develop#3a0ee39b295c1a1fad831a7f88a2e8630b99b2c6
+      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git?rev=develop#2ddfbccc8ad581c8810b4568fd5795b7148f0c34
+      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git?rev=develop#99e51cbe794114ce08ab3bb16efcc6749b14914a
+      - pypi: git+https://github.com/MiraGeoscience/simpeg.git?rev=develop#62df930b7440442aaf1f56deaf0b8ef85957fb90
       - pypi: ./
   py311:
     channels:
@@ -1738,10 +1738,10 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zipp-3.23.0-pyhcf101f3_1.conda
       - conda: https://repo.prefix.dev/conda-forge/linux-64/zstd-1.5.7-hb78ec9c_6.conda
-      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git#3a0ee39b295c1a1fad831a7f88a2e8630b99b2c6
-      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git#2ddfbccc8ad581c8810b4568fd5795b7148f0c34
-      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git#99e51cbe794114ce08ab3bb16efcc6749b14914a
-      - pypi: git+https://github.com/MiraGeoscience/simpeg.git#252c943f92b39a632dcc26c8b50c971a3951a601
+      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git?rev=develop#3a0ee39b295c1a1fad831a7f88a2e8630b99b2c6
+      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git?rev=develop#2ddfbccc8ad581c8810b4568fd5795b7148f0c34
+      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git?rev=develop#99e51cbe794114ce08ab3bb16efcc6749b14914a
+      - pypi: git+https://github.com/MiraGeoscience/simpeg.git?rev=develop#62df930b7440442aaf1f56deaf0b8ef85957fb90
       - pypi: ./
       win-64:
       - conda: https://repo.prefix.dev/conda-forge/win-64/_openmp_mutex-4.5-2_gnu.conda
@@ -1897,10 +1897,10 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zipp-3.23.0-pyhcf101f3_1.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zstd-1.5.7-h534d264_6.conda
-      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git#3a0ee39b295c1a1fad831a7f88a2e8630b99b2c6
-      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git#2ddfbccc8ad581c8810b4568fd5795b7148f0c34
-      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git#99e51cbe794114ce08ab3bb16efcc6749b14914a
-      - pypi: git+https://github.com/MiraGeoscience/simpeg.git#252c943f92b39a632dcc26c8b50c971a3951a601
+      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git?rev=develop#3a0ee39b295c1a1fad831a7f88a2e8630b99b2c6
+      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git?rev=develop#2ddfbccc8ad581c8810b4568fd5795b7148f0c34
+      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git?rev=develop#99e51cbe794114ce08ab3bb16efcc6749b14914a
+      - pypi: git+https://github.com/MiraGeoscience/simpeg.git?rev=develop#62df930b7440442aaf1f56deaf0b8ef85957fb90
       - pypi: ./
   py312:
     channels:
@@ -2076,10 +2076,10 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zipp-3.23.0-pyhcf101f3_1.conda
       - conda: https://repo.prefix.dev/conda-forge/linux-64/zstd-1.5.7-hb78ec9c_6.conda
-      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git#3a0ee39b295c1a1fad831a7f88a2e8630b99b2c6
-      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git#2ddfbccc8ad581c8810b4568fd5795b7148f0c34
-      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git#99e51cbe794114ce08ab3bb16efcc6749b14914a
-      - pypi: git+https://github.com/MiraGeoscience/simpeg.git#252c943f92b39a632dcc26c8b50c971a3951a601
+      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git?rev=develop#3a0ee39b295c1a1fad831a7f88a2e8630b99b2c6
+      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git?rev=develop#2ddfbccc8ad581c8810b4568fd5795b7148f0c34
+      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git?rev=develop#99e51cbe794114ce08ab3bb16efcc6749b14914a
+      - pypi: git+https://github.com/MiraGeoscience/simpeg.git?rev=develop#62df930b7440442aaf1f56deaf0b8ef85957fb90
       - pypi: ./
       win-64:
       - conda: https://repo.prefix.dev/conda-forge/win-64/_openmp_mutex-4.5-2_gnu.conda
@@ -2235,10 +2235,10 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zipp-3.23.0-pyhcf101f3_1.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zstd-1.5.7-h534d264_6.conda
-      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git#3a0ee39b295c1a1fad831a7f88a2e8630b99b2c6
-      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git#2ddfbccc8ad581c8810b4568fd5795b7148f0c34
-      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git#99e51cbe794114ce08ab3bb16efcc6749b14914a
-      - pypi: git+https://github.com/MiraGeoscience/simpeg.git#252c943f92b39a632dcc26c8b50c971a3951a601
+      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git?rev=develop#3a0ee39b295c1a1fad831a7f88a2e8630b99b2c6
+      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git?rev=develop#2ddfbccc8ad581c8810b4568fd5795b7148f0c34
+      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git?rev=develop#99e51cbe794114ce08ab3bb16efcc6749b14914a
+      - pypi: git+https://github.com/MiraGeoscience/simpeg.git?rev=develop#62df930b7440442aaf1f56deaf0b8ef85957fb90
       - pypi: ./
 packages:
 - conda: https://repo.prefix.dev/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
@@ -3654,7 +3654,7 @@ packages:
   - pkg:pypi/geoana?source=hash-mapping
   size: 221990
   timestamp: 1760549374916
-- pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git#3a0ee39b295c1a1fad831a7f88a2e8630b99b2c6
+- pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git?rev=develop#3a0ee39b295c1a1fad831a7f88a2e8630b99b2c6
   name: geoapps-utils
   version: 0.7.0a2.dev1+3a0ee39
   requires_dist:
@@ -3664,7 +3664,7 @@ packages:
   - pydantic>=2.12.0,<3.0.0
   - scipy>=1.14.0,<1.15.0
   requires_python: '>=3.10,<4.0'
-- pypi: git+https://github.com/MiraGeoscience/geoh5py.git#2ddfbccc8ad581c8810b4568fd5795b7148f0c34
+- pypi: git+https://github.com/MiraGeoscience/geoh5py.git?rev=develop#2ddfbccc8ad581c8810b4568fd5795b7148f0c34
   name: geoh5py
   version: 0.13.0a1
   requires_dist:
@@ -3673,7 +3673,7 @@ packages:
   - numpy>=1.26.0,<1.27.0
   - pydantic>=2.12.0,<3.0.0
   requires_python: '>=3.10,<4.0'
-- pypi: git+https://github.com/MiraGeoscience/grid-apps.git#99e51cbe794114ce08ab3bb16efcc6749b14914a
+- pypi: git+https://github.com/MiraGeoscience/grid-apps.git?rev=develop#99e51cbe794114ce08ab3bb16efcc6749b14914a
   name: grid-apps
   version: 0.2.0a2.dev2+99e51cb
   requires_dist:
@@ -5614,9 +5614,9 @@ packages:
   purls: []
   size: 3923560
   timestamp: 1728064567817
-- pypi: git+https://github.com/MiraGeoscience/simpeg.git#252c943f92b39a632dcc26c8b50c971a3951a601
+- pypi: git+https://github.com/MiraGeoscience/simpeg.git?rev=develop#62df930b7440442aaf1f56deaf0b8ef85957fb90
   name: mira-simpeg
-  version: 0.23.0.3a0
+  version: 0.23.0.3a1.dev2+g62df930b7
   requires_dist:
   - discretize>=0.11
   - geoana>=0.7.0
@@ -8234,7 +8234,7 @@ packages:
 - pypi: ./
   name: simpeg-drivers
   version: 0.0.0.dev0+local
-  sha256: 6052c54c968724ef9193b2a13e25ccfbb872d5508aaa45577e07a632592c73f2
+  sha256: 550d2a554a062fae6b2266a3232a5983d5ae28860b7f129f91b51b97e96b71f4
   requires_dist:
   - dask>=2025.3,<2025.4.dev0
   - discretize==0.11.*
@@ -8242,7 +8242,7 @@ packages:
   - geoapps-utils>=0.7.0a0,<0.8.dev0
   - geoh5py>=0.13.0a0,<0.14.dev0
   - grid-apps>=0.2.0a0,<0.3.dev0
-  - mira-simpeg>=0.23.0.3a0,<0.23.1.dev0
+  - mira-simpeg>=0.23.0.3a0,<0.23.0.4.dev0
   - numpy==1.26.*
   - pydantic>=2.12.0,<3.dev0
   - pydiso==0.1.*

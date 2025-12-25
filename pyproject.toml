@@ -50,7 +50,7 @@ dependencies = [
     "geoh5py >=0.13.0a, ==0.13.*",
     "grid-apps >=0.2.0a, ==0.2.*",
     "geoapps-utils >=0.7.0a, ==0.7.*",
-    "mira-simpeg >=0.23.0.3a, ==0.23.0.*",
+    "mira-simpeg >=0.23.0.3a, <0.23.0.4.dev",
     # other dependencies
     "dask >=2025.3, ==2025.3.*",
     "discretize ==0.11.*",
