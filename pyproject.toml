@@ -52,10 +52,10 @@ dependencies = [
     "geoapps-utils >=0.7.0a, ==0.7.*",
     "mira-simpeg >=0.23.0.3a, <0.23.0.4.dev",
     # other dependencies
-    "dask >=2025.3, ==2025.3.*",
+    "dask ==2025.3.*",
     "discretize ==0.11.*",
-    "distributed >=2025.3, ==2025.3.*",
-    "numpy == 1.26.*",
+    "distributed ==2025.3.*",
+    "numpy ==1.26.*",
     "pydantic >=2.12.0, ==2.*",
     "rtree ==1.2.*",
     "scikit-learn ==1.6.*",

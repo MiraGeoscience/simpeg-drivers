@@ -73,6 +73,8 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+# conf.py is generated  by jupyter-book
+docs/conf.py
 
 # PyBuilder
 target/
