@@ -54,7 +54,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 390.70695894864303, "phi_d": 2020, "phi_m": 8.98}
+target_run = {"data_norm": 390.70695894864303, "phi_d": 2030, "phi_m": 9.23}
 INDUCING_FIELD = (50000.0, 90.0, 0.0)
 
 
@@ -143,7 +143,7 @@ def test_homogeneous_run(
         orig_data = []
         petrophysics = None
         gradient_rotation = None
-        mesh = None
+
         for suffix in "AB":
             components = SyntheticsComponents(
                 geoh5=geoh5,
@@ -226,12 +226,25 @@ def test_homogeneous_run(
                 )
                 drivers.append(MagneticInversionDriver(params))
 
+        # Test if single group is valid
         params = JointPetrophysicsOptions.build(
             topography_object=topography,
             geoh5=geoh5,
-            group_a=drivers[0].params.out_group,
+            group_a=drivers[0].out_group,
+            mesh=global_mesh,
+            petrophysical_model=petrophysics,
+        )
+        driver = JointPetrophysicsDriver(params)
+        assert len(driver.data_misfit.objfcts) == 1
+        assert driver.data_misfit.multipliers == [1.0]
+
+        # Re-build full
+        params = JointPetrophysicsOptions.build(
+            topography_object=topography,
+            geoh5=geoh5,
+            group_a=drivers[0].out_group,
             group_a_multiplier=1.0,
-            group_b=drivers[1].params.out_group,
+            group_b=drivers[1].out_group,
             group_b_multiplier=1.0,
             mesh=global_mesh,
             gradient_rotation=gradient_rotation,
@@ -248,12 +261,12 @@ def test_homogeneous_run(
     if pytest:
         with Workspace(driver.params.geoh5.h5file) as run_ws:
             output = get_inversion_output(
-                driver.params.geoh5.h5file, driver.params.out_group.uid
+                driver.params.geoh5.h5file, driver.out_group.uid
             )
             output["data"] = np.hstack(orig_data)
             check_target(output, target_run)
 
-            out_group = run_ws.get_entity(driver.params.out_group.uid)[0]
+            out_group = run_ws.get_entity(driver.out_group.uid)[0]
             mesh = out_group.get_entity("mesh A")[0]
             petro_model = mesh.get_entity("petrophysical_model")[0]
             assert len(np.unique(petro_model.values)) == 4

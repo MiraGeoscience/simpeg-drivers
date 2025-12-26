@@ -26,18 +26,22 @@ from multiprocessing.pool import ThreadPool
 from pathlib import Path
 from time import time
 
+from typing_extensions import Self
+
 import numpy as np
 from dask import config as dconf
 
 from dask.distributed import get_client, Client, LocalCluster, performance_report
 
-from geoapps_utils.base import Driver
+from geoapps_utils.base import Driver, Options
+from geoapps_utils.run import load_ui_json_as_dict
 from geoapps_utils.utils.importing import GeoAppsError
 from geoapps_utils.param_sweeps.driver import SweepParams
 
 from geoh5py.groups import SimPEGGroup
 from geoh5py.objects import FEMSurvey
 from geoh5py.shared.utils import fetch_active_workspace
+from geoh5py.shared.exceptions import Geoh5FileClosedError
 from geoh5py.ui_json import InputFile
 
 from simpeg import (
@@ -84,17 +88,92 @@ mlogger = logging.getLogger("distributed")
 mlogger.setLevel(logging.WARNING)
 
 
-logger = logging.getLogger("simpeg-drivers")
+class BaseDriver(Driver):
+    """
+    Base class for drivers handling the parallel setup.
+    """
+
+    def __init__(
+        self,
+        params: Options,
+        client: Client | bool | None = None,
+        workers: list[str] | None = None,
+    ):
+        super().__init__(params)
+        self._client: Client | bool = self.validate_client(client)
+
+        if getattr(self.params, "store_sensitivities", None) == "disk" and self.client:
+            raise GeoAppsError(
+                "Disk storage of sensitivities is not compatible with distributed processing."
+            )
+
+        self._workers: list[tuple[str]] | None = self.validate_workers(workers)
+
+    @property
+    def client(self) -> Client | bool | None:
+        """
+        Dask client or False if not using Dask.distributed.
+        """
+        return self._client
+
+    @property
+    def workers(self) -> list[tuple[str]]:
+        """List of workers stored as a list of tuples."""
+        return self._workers
+
+    def validate_client(self, client: Client | bool | None) -> Client | bool:
+        """
+        Validate or create a Dask client.
+        """
+        if client is None:
+            try:
+                client = get_client()
+            except ValueError:
+                client = False
+        return client
+
+    def validate_workers(self, workers: list[tuple[str]] | None) -> list[tuple[str]]:
+        """
+        Validate the list of workers.
+        """
+        if self.client:
+            available_workers = [(worker,) for worker in self.client.nthreads()]
+        else:
+            return []
+
+        if workers is None:
+            return available_workers
+
+        if not isinstance(workers, list) or not all(
+            isinstance(w, tuple) for w in workers
+        ):
+            raise TypeError("Workers must be a list of tuple[str].")
+
+        invalid_workers = [w for w in workers if w not in available_workers]
+        if invalid_workers:
+            raise ValueError(
+                f"The following workers are not available: {invalid_workers}. "
+                f"Available workers are: {available_workers}."
+            )
+
+        return workers
 
 
-class InversionDriver(Driver):
-    _options_class = BaseForwardOptions | BaseInversionOptions
+class InversionDriver(BaseDriver):
+    _params_class = BaseForwardOptions | BaseInversionOptions
     _inversion_type: str | None = None
 
-    def __init__(self, params: BaseForwardOptions | BaseInversionOptions):
-        super().__init__(params)
+    def __init__(
+        self,
+        params: BaseForwardOptions | BaseInversionOptions,
+        client: Client | bool | None = None,
+        workers: list[tuple[str]] | None = None,
+        logger: logging.Logger | None | bool = None,
+    ):
+        super().__init__(params, client=client, workers=workers)
 
         self.inversion_type = self.params.inversion_type
+        self.out_group = self.validate_out_group(self.params.out_group)
         self._data_misfit: objective_function.ComboObjectiveFunction | None = None
         self._directives: list[directives.InversionDirective] | None = None
         self._inverse_problem: inverse_problem.BaseInvProblem | None = None
@@ -102,7 +181,7 @@ class InversionDriver(Driver):
         self._inversion_data: InversionData | None = None
         self._inversion_mesh: InversionMesh | None = None
         self._inversion_topography: InversionTopography | None = None
-        self._logger: InversionLogger | None = None
+        self.logger: InversionLogger | None = logger
         self._mapping: list[maps.IdentityMap] | None = None
         self._models: InversionModelCollection | None = None
         self._n_values: int | None = None
@@ -113,31 +192,6 @@ class InversionDriver(Driver):
         self._ordering: list[np.ndarray] | None = None
         self._mappings: list[maps.IdentityMap] | None = None
         self._window = None
-        self._client: Client | bool | None = None
-        self._workers: list[str] | None = None
-
-    @property
-    def client(self) -> Client | bool | None:
-        if self._client is None:
-            try:
-                self._client = get_client()
-            except ValueError:
-                self._client = False
-
-        return self._client
-
-    @property
-    def workers(self):
-        """List of workers"""
-        if self._workers is None:
-            if self.client:
-                self._workers = [
-                    (worker.worker_address,)
-                    for worker in self.client.cluster.workers.values()
-                ]
-            else:
-                self._workers = []
-        return self._workers
 
     def split_list(self, tiles: list[np.ndarray]) -> list[np.ndarray]:
         """
@@ -146,7 +200,7 @@ class InversionDriver(Driver):
         if len(self.workers) == 0:
             return [[tile] for tile in tiles]
 
-        n_tiles = self.params.compute.tile_spatial
+        n_tiles = len(tiles)
 
         n_channels = 1
         if isinstance(self.params.data_object, FEMSurvey) and not isinstance(
@@ -161,9 +215,10 @@ class InversionDriver(Driver):
             split_list[count % n_tiles] += 1
             count += 1
 
-        self.logger.write(
-            f"Number of misfits: {np.sum(split_list)} distributed over {len(self.workers)} workers.\n"
-        )
+        if self.logger:
+            self.logger.write(
+                f"Number of misfits: {np.sum(split_list)} distributed over {len(self.workers)} workers.\n"
+            )
 
         flat_tile_list = []
         for tile, split in zip(tiles, split_list):
@@ -178,14 +233,14 @@ class InversionDriver(Driver):
                 # Tile locations
                 tiles = self.get_tiles()
 
-                self.logger.write(f"Setting up {len(tiles)} tile(s) . . .\n")
-                # Build tiled misfits and combine to form global misfit
+                if self.logger:
+                    self.logger.write(f"Setting up {len(tiles)} tile(s) . . .\n")
+
                 self._data_misfit = MisfitFactory(
                     self.params, self.client, self.simulation, self.workers
                 ).build(
                     self.split_list(tiles),
                 )
-                self.logger.write("Saving data to file...\n")
 
         return self._data_misfit
 
@@ -259,14 +314,24 @@ class InversionDriver(Driver):
         self._inversion_type = value
 
     @property
-    def logger(self):
+    def logger(self) -> InversionLogger | None:
         """
         Inversion logger
         """
-        if getattr(self, "_logger", None) is None:
-            self._logger = InversionLogger("SimPEG.log", self)
-
         return self._logger
+
+    @logger.setter
+    def logger(self, value: InversionLogger | None | bool):
+        if value is True or value is None:
+            self._logger = InversionLogger("SimPEG.log", self)
+        elif value is False:
+            self._logger = None
+        elif isinstance(value, logging.Logger):
+            self._logger = value
+        else:
+            raise TypeError(
+                "Logger must be a InversionLogger instance, None, True or False."
+            )
 
     @property
     def models(self):
@@ -316,25 +381,34 @@ class InversionDriver(Driver):
         return self.inversion_data.survey.ordering
 
     @property
-    def out_group(self):
-        """The SimPEGGroup"""
-        if self._out_group is None:
-            if self.params.out_group is not None:
-                self._out_group = self.params.out_group
-                return self._out_group
-
-            with fetch_active_workspace(self.workspace, mode="r+"):
-                name = self.params.inversion_type.capitalize()
-                if self.params.forward_only:
-                    name += " Forward"
-                else:
-                    name += " Inversion"
-
-                self._out_group = SimPEGGroup.create(self.params.geoh5, name=name)
-                self.params.out_group = self._out_group
-                self.params.update_out_group_options()
-
+    def out_group(self) -> SimPEGGroup:
+        """
+        Returns the output group for the simulation.
+        """
         return self._out_group
+
+    @out_group.setter
+    def out_group(self, value: SimPEGGroup):
+        if not isinstance(value, SimPEGGroup):
+            raise TypeError("Output group must be a SimPEGGroup.")
+
+        self.params.out_group = value
+        self.params.update_out_group_options()
+        self._out_group = value
+
+    def validate_out_group(self, out_group: SimPEGGroup | None) -> SimPEGGroup:
+        """
+        Validate or create a SimPEGGroup to store results.
+
+        :param out_group: Output group from selection.
+        """
+        if isinstance(out_group, SimPEGGroup):
+            return out_group
+
+        with fetch_active_workspace(self.workspace, mode="r+"):
+            out_group = SimPEGGroup.create(self.workspace, name=self.params.title)
+
+        return out_group
 
     @property
     def params(self) -> BaseForwardOptions | BaseInversionOptions:
@@ -364,6 +438,9 @@ class InversionDriver(Driver):
     def regularization(self):
         if getattr(self, "_regularization", None) is None:
             with fetch_active_workspace(self.workspace, mode="r"):
+                if self.logger:
+                    self.logger.write("Creating the regularization functions...\n")
+
                 self._regularization = self.get_regularization()
 
         return self._regularization
@@ -403,8 +480,10 @@ class InversionDriver(Driver):
 
     def run(self):
         """Run inversion from params"""
-        sys.stdout = self.logger
-        self.logger.start()
+        if self.logger:
+            sys.stdout = self.logger
+            self.logger.start()
+
         self.configure_dask()
 
         with fetch_active_workspace(self.workspace, mode="r+"):
@@ -416,13 +495,15 @@ class InversionDriver(Driver):
         predicted = None
         try:
             if self.params.forward_only:
-                self.logger.write("Running the forward simulation ...\n")
+                if self.logger:
+                    self.logger.write("Running the forward simulation ...\n")
                 predicted = simpeg_inversion.invProb.get_dpred(
                     self.models.starting_model, None
                 )
             else:
                 # Run the inversion
-                self.start_inversion_message()
+                if self.logger:
+                    self.start_inversion_message()
                 simpeg_inversion.run(self.models.starting_model)
 
         except np.core._exceptions._ArrayMemoryError as error:  # pylint: disable=protected-access
@@ -432,9 +513,9 @@ class InversionDriver(Driver):
                 "or increase the number of tiles."
             ) from error
 
-        self.logger.end()
-        sys.stdout = self.logger.terminal
-        self.logger.log.close()
+        if self.logger:
+            self.logger.end()
+            sys.stdout = self.logger.terminal
 
         if self.params.forward_only:
             self.directives.save_iteration_data_directive.write(0, predicted)
@@ -452,9 +533,27 @@ class InversionDriver(Driver):
                     components=self.directives.save_iteration_data_directive.components,
                 ).write(0)
 
-        for directive in self.directives.save_directives:
-            if isinstance(directive, directives.SaveLogFilesGeoH5):
-                directive.write(1)
+        with fetch_active_workspace(self.workspace, mode="r+"):
+            for directive in self.directives.save_directives:
+                if isinstance(directive, directives.SaveLogFilesGeoH5):
+                    directive.write(1)
+
+    def count_data(self):
+        """
+        Returns the finite (not nan) and total data counts for drivers.
+
+        Iterates and accumulates over collection of drivers if joint inversion.
+        """
+        drivers = [self]
+        if hasattr(self, "drivers"):
+            drivers = self.drivers
+
+        finite_data_count, total_data_count = 0, 0
+        for driver in drivers:
+            finite_data_count += driver.inversion_data.n_data(finite_only=True)
+            total_data_count += driver.inversion_data.n_data(finite_only=False)
+
+        return finite_data_count, total_data_count
 
     def start_inversion_message(self):
         # SimPEG reports half phi_d, so we scale to match
@@ -465,20 +564,17 @@ class InversionDriver(Driver):
             else self.params.cooling_schedule.chi_factor
         )
 
-        if getattr(self, "drivers", None) is not None:  # joint problem
-            data_count = np.sum(
-                [d.inversion_data.n_data for d in getattr(self, "drivers")]
-            )
-        else:
-            data_count = self.inversion_data.n_data
-
+        finite_data_count, total_data_count = self.count_data()
+        rescale = finite_data_count / total_data_count
+        rescaled_chi_factor = self.params.cooling_schedule.chi_factor * rescale
+        rescaled_starting_chi_factor = chi_start * rescale
         self.logger.write(
-            f"Target Misfit: {self.params.cooling_schedule.chi_factor * data_count:.2e} ({data_count} data "
+            f"Target Misfit: {rescaled_chi_factor * total_data_count:.2e} ({finite_data_count} data "
             f"with chifact = {self.params.cooling_schedule.chi_factor})\n"
         )
         self.logger.write(
-            f"IRLS Start Misfit: {chi_start * data_count:.2e} ({data_count} data "
-            f"with chifact = {chi_start})\n"
+            f"IRLS Start Misfit: {rescaled_starting_chi_factor * total_data_count:.2e} ({finite_data_count} data "
+            f"with chifact = {self.params.irls.starting_chi_factor})\n"
         )
 
     @property
@@ -606,11 +702,23 @@ class InversionDriver(Driver):
         return objective_function.ComboObjectiveFunction(objfcts=reg_funcs)
 
     def get_tiles(self):
+        n_data = self.inversion_data.mask.sum()
+        indices = np.arange(n_data)
+
         if "2d" in self.params.inversion_type:
-            return [np.arange(self.inversion_data.mask.sum())]
+            return [indices]
 
         if "1d" in self.params.inversion_type:
-            return [np.arange(self.inversion_data.mask.sum())]
+            # Heuristic to avoid too many chunks
+            n_chunks = n_data // self.params.compute.max_chunk_size
+
+            if self.params.compute.n_workers:
+                n_chunks /= self.params.compute.n_workers
+                n_chunks = int(n_chunks) * self.params.compute.n_workers
+
+            n_chunks = np.max([n_chunks, 1])
+
+            return np.array_split(indices, n_chunks)
 
         return tile_locations(
             self.inversion_data.locations,
@@ -632,36 +740,16 @@ class InversionDriver(Driver):
             dconf.set(scheduler="threads", pool=ThreadPool(n_cpu))
 
     @classmethod
-    def start(
-        cls, filepath: str | Path | InputFile, driver_class=None, **kwargs
-    ) -> InversionDriver:
+    def start(cls, filepath: str | Path | InputFile, **kwargs) -> Self:
         """
         Start the inversion driver.
 
         :param filepath: Path to the input file or InputFile object.
-        :param driver_class: Optional driver class to use instead of the default.
         :param kwargs: Additional keyword arguments for InputFile read_ui_json.
 
         :return: InversionDriver instance with the specified parameters.
         """
-        if isinstance(filepath, InputFile):
-            ifile = filepath
-        else:
-            ifile = InputFile.read_ui_json(filepath, **kwargs)
-
-        try:
-            if driver_class is None:
-                driver = cls.from_input_file(ifile)
-            else:
-                with ifile.data["geoh5"].open(mode="r+"):
-                    params = driver_class._options_class.build(ifile)
-                    driver = driver_class(params)
-
-            driver.run()
-
-        except GeoAppsError as error:
-            logger.warning("\n\nApplicationError: %s\n\n", error)
-            sys.exit(1)
+        driver = super().start(filepath, **kwargs)
 
         return driver
 
@@ -675,39 +763,35 @@ class InversionDriver(Driver):
             raise NotImplementedError(msg)
 
         mod_name, classes = DRIVER_MAP.get(name)
+        class_name = classes.get("inversion")
         if forward_only:
-            class_name = classes.get("forward", classes["inversion"])
-        else:
-            class_name = classes.get("inversion")
+            class_name = classes.get("forward", class_name)
+
         module = __import__(mod_name, fromlist=[class_name])
         return getattr(module, class_name)
 
     @classmethod
-    def from_input_file(cls, ifile: InputFile) -> InversionDriver:
-        forward_only = ifile.data["forward_only"]
-        inversion_type = ifile.ui_json.get("inversion_type", None)
+    def from_input_file(cls, data: dict) -> type[InversionDriver]:
+        forward_only = data.get("forward_only", False)
+        inversion_type = data.get("inversion_type", "")
         if inversion_type is None:
             raise GeoAppsError(
                 "Key/value 'inversion_type' not found in the input file. "
                 "Please specify the inversion type in the UI JSON."
             )
 
-        driver_class = cls.driver_class_from_name(
-            inversion_type, forward_only=forward_only
-        )
-
-        with ifile.data["geoh5"].open(mode="r+"):
-            params = driver_class._options_class.build(ifile)
-            driver = driver_class(params)
-
-        return driver
+        return cls.driver_class_from_name(inversion_type, forward_only=forward_only)
 
 
 class InversionLogger:
+    """
+    Logger for the inversion process.
+    """
+
     def __init__(self, logfile, driver):
         self.driver = driver
         self.terminal = sys.stdout
-        self.log = open(self.get_path(logfile), "w", encoding="utf8")
+        self.logfile = self.get_path(logfile)
         self.initial_time = time()
 
     def start(self):
@@ -727,8 +811,9 @@ class InversionLogger:
 
     def write(self, message):
         self.terminal.write(message)
-        self.log.write(message)
-        self.log.flush()
+        with open(self.logfile, "a", encoding="utf8") as logfile:
+            logfile.write(message)
+            logfile.flush()
 
     @staticmethod
     def format_seconds(seconds):
@@ -753,19 +838,35 @@ class InversionLogger:
 
 if __name__ == "__main__":
     file = Path(sys.argv[1]).resolve()
-    input_file = InputFile.read_ui_json(file)
-    n_workers = input_file.data.get("n_workers", None)
-    n_threads = input_file.data.get("n_threads", None)
-    save_report = input_file.data.get("performance_report", False)
+    input_file = load_ui_json_as_dict(file)
+    n_workers = input_file.get("n_workers", None)
+    n_threads = input_file.get("n_threads", None)
+    save_report = input_file.get("performance_report", False)
 
     # Force distributed on 1D problems
-    if "1D" in input_file.data["title"] and n_workers is None:
-        n_threads = n_threads or 2
-        n_workers = multiprocessing.cpu_count() // n_threads
+    if "1D" in input_file.get("title") and n_workers is None:
+        cpu_count = multiprocessing.cpu_count()
+
+        if cpu_count < 16:
+            n_threads = n_threads or 2
+        else:
+            n_threads = n_threads or 4
+
+        n_workers = cpu_count // n_threads
+
+    distributed_process = (
+        n_workers is not None and n_workers > 1
+    ) or n_threads is not None
+
+    driver_class = InversionDriver.from_input_file(input_file)
 
     cluster = (
-        LocalCluster(processes=True, n_workers=n_workers, threads_per_worker=n_threads)
-        if ((n_workers is not None and n_workers > 1) or n_threads is not None)
+        LocalCluster(
+            processes=True,
+            n_workers=n_workers,
+            threads_per_worker=n_threads,
+        )
+        if distributed_process
         else None
     )
     profiler = cProfile.Profile()
@@ -774,15 +875,15 @@ if __name__ == "__main__":
     with (
         cluster.get_client()
         if cluster is not None
-        else contextlib.nullcontext() as client
+        else contextlib.nullcontext() as context_client
     ):
         # Full run
         with (
             performance_report(filename=file.parent / "dask_profile.html")
-            if (save_report and isinstance(client, Client))
+            if (save_report and isinstance(context_client, Client))
             else contextlib.nullcontext()
         ):
-            InversionDriver.start(input_file)
+            driver_class.start(file)
             sys.stdout.close()
 
     profiler.disable()

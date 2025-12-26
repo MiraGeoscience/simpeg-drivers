@@ -22,10 +22,10 @@ from .options import (
 class IP3DForwardDriver(InversionDriver):
     """Induced Polarization 3D forward driver."""
 
-    _options_class = IP3DForwardOptions
+    _params_class = IP3DForwardOptions
 
 
 class IP3DInversionDriver(InversionDriver):
     """Induced Polarization 3D inversion driver."""
 
-    _options_class = IP3DInversionOptions
+    _params_class = IP3DInversionOptions

@@ -19,10 +19,10 @@ from .options import DC2DForwardOptions, DC2DInversionOptions
 class DC2DForwardDriver(Base2DDriver):
     """Direct Current 2D forward driver."""
 
-    _options_class = DC2DForwardOptions
+    _params_class = DC2DForwardOptions
 
 
 class DC2DInversionDriver(Base2DDriver):
     """Direct Current 2D inversion driver."""
 
-    _options_class = DC2DInversionOptions
+    _params_class = DC2DInversionOptions

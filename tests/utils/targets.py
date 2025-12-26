@@ -51,7 +51,7 @@ def check_target(output: dict, target: dict, tolerance=0.05):
     :param tolerance: Tolerance between output and target measured as: |a-b|/b
     """
     print(
-        f"Output: 'data_norm': {np.linalg.norm(output['data'])}, 'phi_d': {output['phi_d'][1]}, 'phi_m': {output['phi_m'][1]}"
+        f"Output: 'data_norm': {np.linalg.norm(output['data'])}, 'phi_d': {output['phi_d'][-1]}, 'phi_m': {output['phi_m'][-1]}"
     )
     print(f"Target: {target}")
 
@@ -67,10 +67,10 @@ def check_target(output: dict, target: dict, tolerance=0.05):
         )
 
     np.testing.assert_array_less(
-        np.abs(output["phi_m"][1] - target["phi_m"]) / target["phi_m"], tolerance
+        np.abs(output["phi_m"][-1] - target["phi_m"]) / target["phi_m"], tolerance
     )
     np.testing.assert_array_less(
-        np.abs(output["phi_d"][1] - target["phi_d"]) / target["phi_d"], tolerance
+        np.abs(output["phi_d"][-1] - target["phi_d"]) / target["phi_d"], tolerance
     )
 
 

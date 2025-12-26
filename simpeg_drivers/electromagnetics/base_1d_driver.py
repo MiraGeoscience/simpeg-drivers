@@ -35,7 +35,7 @@ logger = getLogger(__name__)
 class Base1DDriver(InversionDriver):
     """Base 1D driver for electromagnetic simulations."""
 
-    _options_class = None
+    _params_class = None
 
     def __init__(self, workspace: Workspace, **kwargs):
         super().__init__(workspace, **kwargs)
@@ -97,11 +97,19 @@ class Base1DDriver(InversionDriver):
                 mesh=self.inversion_mesh.mesh,
                 models=self.models,
                 survey=self.inversion_data.survey,
+                topo=[0, 0, -np.inf],  # Bypass check for global simulation
             )
 
             self._simulation.mesh = self.inversion_mesh.mesh
             self._simulation.layers_mesh = self.layers_mesh
             self._simulation.active_cells = self.topo_z_drape
+
+            # Remove cached filters for pickling
+            if hasattr(self._simulation, "_fhtfilt"):
+                self._simulation._fhtfilt = None  # pylint: disable=protected-access
+
+            if hasattr(self._simulation, "_fftfilt"):
+                self._simulation._fftfilt = None  # pylint: disable=protected-access
 
         return self._simulation
 

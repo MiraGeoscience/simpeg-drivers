@@ -12,10 +12,9 @@ import numpy as np
 from discretize import TreeMesh
 
 from simpeg_drivers.utils.regularization import (
-    cell_adjacent,
+    cell_neighbors,
     cell_neighbors_along_axis,
-    collect_all_neighbors,
-    direction_and_dip,
+    cell_neighbors_lists,
     ensure_dip_direction_convention,
 )
 
@@ -56,13 +55,11 @@ def test_cell_neighbors_along_axis():
 def test_collect_all_neighbors():
     mesh = get_mesh()
     centers = mesh.cell_centers
-    neighbors = [cell_neighbors_along_axis(mesh, k) for k in "xyz"]
-    neighbors_bck = [np.fliplr(k) for k in neighbors]
-    corners = cell_adjacent(neighbors)
-    corners_bck = cell_adjacent(neighbors_bck)
-    all_neighbors = collect_all_neighbors(
-        neighbors, neighbors_bck, corners, corners_bck
-    )
+    neighbors_lists = cell_neighbors_lists(mesh)
+    assert len(neighbors_lists) == 26
+
+    all_neighbors = cell_neighbors(mesh)
+
     assert np.allclose(centers[7], [15.0, 15.0, 15.0])
     neighbor_centers = centers[all_neighbors[all_neighbors[:, 0] == 7][:, 1]].tolist()
     assert [5, 5, 5] in neighbor_centers

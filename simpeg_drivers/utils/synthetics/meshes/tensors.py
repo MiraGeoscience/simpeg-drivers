@@ -39,7 +39,7 @@ def get_tensor_mesh(
     line_data = survey.get_entity("line_ids")[0]
     assert isinstance(line_data, IntegerData)
     lines = line_data.values
-    entity, mesh, _ = get_drape_model(  # pylint: disable=unbalanced-tuple-unpacking
+    entity, _mesh, _ = get_drape_model(  # pylint: disable=unbalanced-tuple-unpacking
         survey.workspace,
         name,
         survey.vertices[np.unique(survey.cells[lines == line_id, :]), :],

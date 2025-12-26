@@ -41,7 +41,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.032649770, "phi_d": 6.68, "phi_m": 263}
+target_run = {"data_norm": 0.032649770, "phi_d": 7.13, "phi_m": 282}
 
 
 def setup_data(workspace, survey):
@@ -106,6 +106,10 @@ def test_magnetotellurics_fwr_run(
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
+
+        # Test for label index supporting ints - bypass setter
+        components.survey.edit_em_metadata({"Channels": [10, 100, 1000]})
+
         params = MTForwardOptions.build(
             geoh5=geoh5,
             mesh=components.mesh,
@@ -126,6 +130,9 @@ def test_magnetotellurics_fwr_run(
 
     fwr_driver = MTForwardDriver(params)
     fwr_driver.run()
+
+    with Workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        assert geoh5.get_entity("Iteration_0_zyy_real_[0]")[0] is not None
 
 
 def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
@@ -178,8 +185,9 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
             driver.params.geoh5.h5file, driver.params.out_group.uid
         )
         output["data"] = orig_zyy_real_1
+        assert not run_ws.get_entity("Iteration_0_sensitivities")[0]
         if pytest:
-            check_target(output, target_run, tolerance=0.2)
+            check_target(output, target_run, tolerance=0.1)
             nan_ind = np.isnan(run_ws.get_entity("Iteration_0_model")[0].values)
             inactive_ind = run_ws.get_entity("active_cells")[0].values == 0
             assert np.all(nan_ind == inactive_ind)

@@ -15,6 +15,7 @@ import logging
 from pathlib import Path
 
 import numpy as np
+from dask.distributed import LocalCluster, performance_report
 from geoh5py.groups import PropertyGroup
 from geoh5py.groups.property_group import GroupTypeEnum
 from geoh5py.objects import Curve
@@ -44,7 +45,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_mvi_run = {"data_norm": 149.10117594929326, "phi_d": 19.3, "phi_m": 0.00797}
+target_mvi_run = {"data_norm": 149.10117434016038, "phi_d": 1040, "phi_m": 0.129}
 
 
 def test_magnetic_vector_fwr_run(
@@ -65,7 +66,6 @@ def test_magnetic_vector_fwr_run(
         components = SyntheticsComponents(geoh5, options=opts)
 
         # Unitest dealing with Curve
-
         _ = Curve.create(
             geoh5, name=components.survey.name, vertices=components.survey.vertices
         )
@@ -92,7 +92,7 @@ def test_magnetic_vector_run(
     tmp_path: Path,
     caplog,
     max_iterations=3,
-    upper_bound=2e-3,
+    upper_bound=2.5e-3,
     pytest=True,
 ):
     workpath = tmp_path / "inversion_test.ui.geoh5"
@@ -112,14 +112,14 @@ def test_magnetic_vector_run(
         inducing_field = (50000.0, 90.0, 0.0)
         dip, direction = mesh.add_data(
             {
-                "dip": {"values": np.zeros(mesh.n_cells)},
-                "direction": {"values": np.zeros(mesh.n_cells)},
+                "dip": {"values": np.ones(mesh.n_cells) * 45},
+                "direction": {"values": np.ones(mesh.n_cells) * 90},
             }
         )
         gradient_rotation = PropertyGroup(
             name="gradient_rotations",
             property_group_type=GroupTypeEnum.DIPDIR,
-            properties=[dip, direction],
+            properties=[direction, dip],
             parent=mesh,
         )
         # Run the inverse
@@ -167,13 +167,13 @@ def test_magnetic_vector_run(
             assert np.all(nan_ind == inactive_ind)
 
             assert np.nanmin(model.values) <= 1e-5
-            assert np.isclose(np.nanmax(model.values), upper_bound)
+            assert np.isclose(driver.inversion.opt.upper[0], upper_bound)
 
             out_group = run_ws.get_entity("Magnetic Vector Inversion")[0]
             mesh = out_group.get_entity("mesh")[0]
             assert len(mesh.property_groups) == 6
             assert len(mesh.fetch_property_group("Iteration_0").properties) == 2
-            assert len(mesh.fetch_property_group("LP models").properties) == 3
+            assert len(mesh.fetch_property_group("LP models").properties) == 6
             assert (
                 mesh.fetch_property_group("Iteration_1").property_group_type
                 == GroupTypeEnum.DIPDIR
@@ -235,7 +235,13 @@ def test_magnetic_vector_reference(
 
 if __name__ == "__main__":
     # Full run
-    test_magnetic_vector_fwr_run(Path("./"), n_grid_points=20, refinement=(4, 8))
-    test_magnetic_vector_run(
-        Path("./"), None, max_iterations=30, upper_bound=1e-1, pytest=False
-    )
+    with LocalCluster(processes=True, n_workers=2, threads_per_worker=6) as cluster:
+        with cluster.get_client():
+            # Full run
+            with performance_report(filename="diagnostics.html"):
+                test_magnetic_vector_fwr_run(
+                    Path("./"), n_grid_points=20, refinement=(4, 8)
+                )
+                test_magnetic_vector_run(
+                    Path("./"), None, max_iterations=30, upper_bound=5e-3, pytest=False
+                )

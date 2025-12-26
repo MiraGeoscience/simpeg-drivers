@@ -15,7 +15,7 @@ dependencies:
   - discretize
   - pip
   - ipykernel
-  - jupyter-book
+  - jupyter-book=1.0
   - jupytext
   - notebook
   - zarr

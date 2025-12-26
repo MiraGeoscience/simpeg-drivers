@@ -1,5 +1,5 @@
 {
-    "version": "0.3.0-alpha.6",
+    "version": "0.4.0",
     "title": "Induced Polarization (IP) 2D Batch Inversion",
     "icon": "PotentialElectrode",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
@@ -203,7 +203,7 @@
         "optional": true,
         "enabled": false,
         "label": "Elevation channel",
-        "tooltip": "Set elevation from channel.  If not set the topography will be set from the geometry of the selected 'topography' object",
+        "tooltip": "Set elevation from channel. If not set the topography will be set from the geometry of the selected 'topography' object",
         "parent": "topography_object",
         "dependency": "topography_object",
         "dependencyType": "enabled",
@@ -223,7 +223,7 @@
         "dependency": "topography_object",
         "dependencyType": "disabled",
         "label": "Active model",
-        "tooltip": "Provide the active cell boolean model directly if topography not set",
+        "tooltip": "Provide the active cell Boolean model directly if topography not set",
         "parent": "mesh",
         "value": ""
     },
@@ -451,7 +451,7 @@
         "min": 1,
         "enabled": true,
         "verbose": 3,
-        "tooltip": "Perform an Armijo backtracking linesearch for the provided number of iterations"
+        "tooltip": "Perform an Armijo backtracking line search for the provided number of iterations"
     },
     "max_cg_iterations": {
         "min": 0,

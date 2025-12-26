@@ -11,13 +11,13 @@
 
 from __future__ import annotations
 
+from enum import Enum
 from logging import getLogger
 from pathlib import Path
 from typing import Annotated, Any, ClassVar, Literal, TypeAlias
 
 import numpy as np
 from geoapps_utils.base import Options
-from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.data import (
     BooleanData,
     DataAssociationEnum,
@@ -89,7 +89,17 @@ class ActiveCellsOptions(BaseModel):
     @classmethod
     def at_least_one(cls, data):
         if all(v is None for v in data.values()):
-            raise GeoAppsError("Must provide either topography or active model.")
+            raise ValueError("Must provide either topography or active model.")
+        return data
+
+    @model_validator(mode="before")
+    @classmethod
+    def topo_grid_must_have_elevation_channel(cls, data):
+        if isinstance(data.get("topography_object", None), Grid2D):
+            if data.get("topography", None) is None:
+                raise ValueError(
+                    "Grid2D topography must be accompanied by a valid elevation channel."
+                )
         return data
 
     @model_serializer(mode="wrap")
@@ -208,39 +218,10 @@ class CoreOptions(Options):
     @classmethod
     def mesh_cannot_be_rotated(cls, value: Octree):
         if isinstance(value, Octree) and value.rotation not in [0.0, None]:
-            raise GeoAppsError(
+            raise ValueError(
                 "Rotated meshes are not supported. Please use a mesh with an angle of 0.0."
             )
         return value
-
-    @model_validator(mode="before")
-    @classmethod
-    def out_group_if_none(cls, data):
-        group = data.get("out_group", None)
-
-        if isinstance(group, SimPEGGroup):
-            return data
-
-        if isinstance(group, UIJsonGroup | type(None)):
-            name = (
-                cls.model_fields["title"].default  # pylint: disable=unsubscriptable-object
-                if group is None
-                else group.name
-            )
-            with fetch_active_workspace(data["geoh5"], mode="r+") as geoh5:
-                group = SimPEGGroup.create(geoh5, name=name)
-
-        data["out_group"] = group
-
-        return data
-
-    @model_validator(mode="after")
-    def update_out_group_options(self):
-        assert self.out_group is not None
-        with fetch_active_workspace(self.geoh5, mode="r+"):
-            self.out_group.options = self.serialize()
-            self.out_group.metadata = None
-        return self
 
     @property
     def workpath(self):
@@ -334,14 +315,17 @@ class ModelOptions(BaseModel):
         return None
 
 
+class ModelTypeEnum(str, Enum):
+    conductivity = "Conductivity (S/m)"
+    resistivity = "Resistivity (Ohm-m)"
+
+
 class ConductivityModelOptions(ModelOptions):
     """
     Options for the conductivity model used in all of EM methods.
     """
 
-    model_type: Literal["Conductivity (S/m)", "Resistivity (Ohm-m)"] = (
-        "Conductivity (S/m)"
-    )
+    model_type: ModelTypeEnum = ModelTypeEnum.conductivity
     conductivity_model: float | FloatData | None = Field(
         None,
         validation_alias=AliasChoices("background_conductivity", "conductivity_model"),
@@ -378,7 +362,9 @@ class CoolingSceduleOptions(BaseModel):
     Options controlling the trade-off schedule between data misfit and
     model regularization.
 
-    :param chi_factor: Target chi factor for the data misfit.
+    :param chi_factor: Target chi factor for the data misfit.  Input value will be
+        adjusted to account for the number of finite data so that factor used will
+        be smaller if the data contains nan values.
     :param cooling_factor: Factor by which the regularization parameter is reduced.
     :param cooling_rate: Rate at which the regularization parameter is reduced.
     :param initial_beta: Initial regularization parameter.
@@ -484,7 +470,9 @@ class IRLSOptions(BaseModel):
     :param epsilon_cooling_factor: Factor by which the epsilon value is reduced
     :param max_irls_iterations: Maximum number of IRLS iterations.
     :param percentile: Percentile of the model values used to compute the initial epsilon value.
-    :param starting_chi_factor: Starting chi factor for IRLS.
+    :param starting_chi_factor: Starting chi factor for IRLS.  Input value will be adjusted to
+        account for the number of finite data so that factor used will be smaller if the data
+        contains nan values.
     """
 
     model_config = ConfigDict(
@@ -520,13 +508,13 @@ class LineSelectionOptions(BaseModel):
     @classmethod
     def validate_cell_association(cls, value):
         if value.association is not DataAssociationEnum.CELL:
-            raise GeoAppsError("Line identifier must be associated with cells.")
+            raise ValueError("Line identifier must be associated with cells.")
         return value
 
     @model_validator(mode="after")
     def line_id_referenced(self):
         if self.line_id not in self.line_object.values:
-            raise GeoAppsError("Line id isn't referenced in the line object.")
+            raise ValueError("Line id isn't referenced in the line object.")
         return self
 
 

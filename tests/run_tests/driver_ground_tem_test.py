@@ -110,7 +110,7 @@ def test_ground_tem_fwr_run(
     cell_size=(20.0, 20.0, 20.0),
     pytest=True,
 ):
-    if pytest:
+    if pytest and caplog:
         caplog.set_level(INFO)
     # Run the forward
     opts = SyntheticsComponentsOptions(
@@ -151,11 +151,12 @@ def test_ground_tem_fwr_run(
 
     fwr_driver = TDEMForwardDriver(params)
 
+    assert fwr_driver.out_group is not None
     with components.survey.workspace.open():
         components.survey.tx_id_property.name = "tx_id"
         assert fwr_driver.inversion_data.survey.source_list[0].n_segments == 16
 
-    if pytest:
+    if pytest and caplog:
         assert len(caplog.records) == 3
         for record in caplog.records[1:]:
             assert record.levelname == "INFO"
@@ -163,7 +164,9 @@ def test_ground_tem_fwr_run(
 
         assert "closed" in caplog.records[1].message
 
-    assert fwr_driver.data_misfit.objfcts[0].simulation.simulations[0].solver == Mumps
+        assert (
+            fwr_driver.data_misfit.objfcts[0].simulation.simulations[0].solver == Mumps
+        )
     fwr_driver.run()
 
 
@@ -208,7 +211,7 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         data_kwargs = {}
         for chan in channels:
             data_kwargs[f"{chan}_channel"] = components.survey.fetch_property_group(
-                name=f"Iteration_0_{chan}"
+                name=f"dB{chan}dt"
             )
             data_kwargs[f"{chan}_uncertainty"] = components.survey.fetch_property_group(
                 name=f"dB{chan}dt uncertainties"

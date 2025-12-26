@@ -14,12 +14,12 @@ from __future__ import annotations
 from logging import getLogger
 
 import numpy as np
-from geoh5py.groups.property_group_type import GroupTypeEnum
 from geoh5py.shared.utils import fetch_active_workspace
 from simpeg import maps
 
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.joint.driver import BaseJointDriver
+from simpeg_drivers.options import ModelTypeEnum
 
 from .options import JointSurveysOptions
 
@@ -30,7 +30,7 @@ logger = getLogger(__name__)
 class JointSurveyDriver(BaseJointDriver):
     """Joint surveys inversion driver"""
 
-    _options_class = JointSurveysOptions
+    _params_class = JointSurveysOptions
 
     def __init__(self, params: JointSurveysOptions):
         super().__init__(params)
@@ -64,7 +64,7 @@ class JointSurveyDriver(BaseJointDriver):
                 model = np.exp(model)
                 if (
                     getattr(self.params.models, "model_type", None)
-                    == "Resistivity (Ohm-m)"
+                    == ModelTypeEnum.resistivity
                 ):
                     model = 1.0 / model
 

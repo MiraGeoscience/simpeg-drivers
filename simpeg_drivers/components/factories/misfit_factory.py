@@ -11,9 +11,12 @@
 
 from __future__ import annotations
 
+import os
+import pickle
 from typing import TYPE_CHECKING
 
 import numpy as np
+from dask.distributed import wait
 from simpeg import objective_function
 from simpeg.dask import objective_function as dask_objective_function
 from simpeg.objective_function import ComboObjectiveFunction
@@ -55,10 +58,11 @@ class MisfitFactory(SimPEGFactory):
 
         use_futures = self.client
 
-        if use_futures:
-            delayed_simulation = self.client.scatter(self.simulation)
-        else:
-            delayed_simulation = self.simulation
+        # Pickle the simulation to the temporary file
+        with open(
+            self.params.workpath / (self.params.geoh5.h5file.stem + ".pkl"), mode="wb"
+        ) as temp_file:
+            pickle.dump(self.simulation, temp_file)
 
         misfits = []
         tile_count = 0
@@ -68,40 +72,44 @@ class MisfitFactory(SimPEGFactory):
                     if len(sub_ind) == 0:
                         continue
 
+                    args = (
+                        sub_ind,
+                        temp_file.name,
+                        channel,
+                        tile_count,
+                        self.params.padding_cells,
+                        self.params.forward_only,
+                        np.hstack(local_indices),
+                    )
                     # Distribute the work across workers round-robin style
                     if use_futures:
                         worker_ind = tile_count % len(self.workers)
+
                         misfits.append(
                             self.client.submit(
                                 create_misfit,
-                                delayed_simulation,
-                                sub_ind,
-                                channel,
-                                tile_count,
-                                self.params.padding_cells,
-                                self.params.inversion_type,
-                                self.params.forward_only,
-                                shared_indices=np.hstack(local_indices),
+                                *args,
                                 workers=self.workers[worker_ind],
                             )
                         )
+
                     else:
-                        misfits.append(
-                            create_misfit(
-                                delayed_simulation,
-                                sub_ind,
-                                channel,
-                                tile_count,
-                                self.params.padding_cells,
-                                self.params.inversion_type,
-                                self.params.forward_only,
-                                shared_indices=np.hstack(local_indices),
-                            )
-                        )
+                        misfits.append(create_misfit(*args))
+
+                    name = f"{self.params.inversion_type}: Tile {tile_count + 1}"
+                    if channel is not None:
+                        name += f": Channel {channel}"
+
+                    misfits[-1].name = f"{name}"
+
                     tile_count += 1
 
-        local_orderings = self.collect_ordering_from_misfits(misfits)
+                    if use_futures and tile_count % len(self.workers) == 0:
+                        wait(misfits)
 
+        os.unlink(temp_file.name)
+
+        local_orderings = self.collect_ordering_from_misfits(misfits)
         self.simulation.survey.ordering = np.vstack(local_orderings)
 
         return misfits
@@ -118,6 +126,7 @@ class MisfitFactory(SimPEGFactory):
             return dask_objective_function.DistributedComboMisfits(
                 misfits,
                 client=self.client,
+                workers=self.workers,
             )
 
         return self.simpeg_object(  # pylint: disable=not-callable
@@ -135,7 +144,13 @@ class MisfitFactory(SimPEGFactory):
         attributes = []
         for misfit in misfits:
             if self.client:
-                attributes.append(self.client.submit(_get_ordering, misfit))
+                attributes.append(
+                    self.client.submit(
+                        _get_ordering,
+                        misfit,
+                        workers=self.client.who_has(misfit)[misfit.key],
+                    )
+                )
             else:
                 attributes += _get_ordering(misfit)
 
