@@ -55,7 +55,7 @@ py312 = { features = ["py312", "blas-mkl", "mirageo-git", "test", "linter"] }
 default = { features = ["py310", "blas-mkl", "mirageo-git", "test", "dev", "linter"], solve-group = "default" }
 linter = { features = ["py310", "blas-mkl", "mirageo-git", "test", "linter"], solve-group = "default" }
 mirageo-local = { features = ["py310", "blas-mkl", "mirageo-git"], solve-group = "default" }
-docs = { features = ["py310", "doc"], no-default-feature = true }
+docs = {features = ["py310", "doc"], solve-group = "default"}
 distrib = { features = ["distrib"], no-default-feature = true }
 
 [feature.py310.dependencies]
@@ -118,10 +118,9 @@ depends-on = [
 ]
 
 [feature.doc.dependencies]
-jupyter-book = "*"
+jupyter-book = "1.0.*"
 jupyter_client = "*"
 jupytext = "*"
-matplotlib = "*"
 matplotlib-base = "*"
 nbsphinx = "*"
 nbstripout = "*"
@@ -135,18 +134,27 @@ sphinx-rtd-theme = "*"
 sphinxcontrib-bibtex = "*"
 sphinxcontrib-googleanalytics = '*'
 
-[feature.doc.tasks._install-no-deps]
-description = "Install package without dependencies (internal task for docs)"
-cmd = "uv pip install --no-deps ."
+[feature.doc.tasks.config-docs]
+cmd = "jupyter-book config sphinx docs/"
 
 [feature.doc.tasks.build-docs]
-description = "Build Sphinx documentation (default: HTML output to docs/_build/html)"
 args = [
   { arg = "builder",   default = "html" },
   { arg = "outputdir", default = "docs/_build" },
 ]
-depends-on = ["_install-no-deps"]
-cmd = "sphinx-build -T -nW -b {{builder}} docs {{outputdir}}/{{builder}}"
+
+depends-on = ["config-docs"]
+# TODO: add -W option to fail on warnings
+cmd = "export PYTHONPATH=./docs/_ext && sphinx-build -T -n -b {{builder}} docs/ {{outputdir}}/{{builder}}"
+
+[feature.doc.tasks.jupyter-book-build]
+args = [
+  { arg = "builder",   default = "html" },
+  { arg = "outputdir", default = "docs" },
+]
+
+# TODO: add -W option to fail on warnings
+cmd = "jupyter-book build -v -n --builder {{builder}} docs --path-output {{outputdir}}"
 
 [tasks.show-pip-source]
 description = "Display package metadata and installation source for given pip packages"
