@@ -1,0 +1,209 @@
+[workspace]
+requires-pixi = ">=0.54"
+channels = ["https://repo.prefix.dev/conda-forge"]
+platforms = ["win-64", "linux-64"]
+
+[activation]
+# do not use dynamic versioning with this source editable package,
+# or version changes with each commit and pixi.lock is detected as out-of-date
+env = { POETRY_DYNAMIC_VERSIONING_OVERRIDE = "simpeg-drivers=0.0.0.dev0+local" }
+
+[dependencies]
+# dependencies resolved from conda
+## direct dependencies:
+#----------------------
+dask-core = "2025.3.*"
+discretize = "0.11.*"
+distributed = "2025.3.*"
+numpy = "1.26.*"
+pydantic = ">=2.12.0, 2.*"
+rtree = "1.2.*"
+scikit-learn = "1.6.*"
+scipy = "1.14.*"
+tqdm = ">=4.66.1, 4.*"
+trimesh = ">=4.1.3, 4.1.*"
+# Simpeg solvers (get both for convenience, even if only one is needed)
+pydiso = "0.1.*"
+python-mumps = ">=0.0.3, <0.0.4.dev"
+
+## indirect dependencies from remaining pip packages:
+#----------------------------------------------------
+pillow = "10.3.*"
+bokeh = "3.6.*"
+fsspec = ">=2022.0"
+geoana = ">=0.7.0, 0.7.*"
+h5py = ">=3.2.1, 3.*"
+matplotlib-base = ">=3.8.4, 3.8.*"
+pymatsolver = "0.3.*"
+zarr = ">=2.14.2, 2.14.*"
+
+[pypi-dependencies]
+simpeg-drivers = {path = ".", editable = true}
+
+[environments]
+#prod-py310 = { features = ["py310", "blas-mkl", "mirageo"], solve-group = "prod-py310" }
+#prod-py311 = { features = ["py311", "blas-mkl", "mirageo"], solve-group = "prod-py311" }
+#prod-py312 = { features = ["py312", "blas-mkl", "mirageo"], solve-group = "prod-py312" }
+#test-prod-py310 = { features = ["py310", "blas-mkl", "mirageo", "test"], solve-group = "prod-py310" }
+#test-prod-py311 = { features = ["py311", "blas-mkl", "mirageo", "test"], solve-group = "prod-py311" }
+#test-prod-py312 = { features = ["py312", "blas-mkl", "mirageo", "test"], solve-group = "prod-py312" }
+
+py310 = { features = ["py310", "blas-mkl", "mirageo-git", "test", "linter"], solve-group = "default" }
+py311 = { features = ["py311", "blas-mkl", "mirageo-git", "test", "linter"] }
+py312 = { features = ["py312", "blas-mkl", "mirageo-git", "test", "linter"] }
+
+default = { features = ["py310", "blas-mkl", "mirageo-git", "test", "dev", "linter"], solve-group = "default" }
+linter = { features = ["py310", "blas-mkl", "mirageo-git", "test", "linter"], solve-group = "default" }
+mirageo-local = { features = ["py310", "blas-mkl", "mirageo-git"], solve-group = "default" }
+docs = {features = ["py310", "doc"], solve-group = "default"}
+distrib = { features = ["distrib"], no-default-feature = true }
+
+[feature.py310.dependencies]
+python = "3.10.*"
+
+[feature.py311.dependencies]
+python = "3.11.*"
+
+[feature.py312.dependencies]
+python = "3.12.*"
+
+#[tool.pixi.feature.mirageo.dependencies]
+# geoapps-utils = ">=0.7.0a, 0.7.*"
+# geoh5py = ">=0.13.0a, 0.13.*"
+# grid-apps = ">=0.2.0a, 0.2.*"
+# mira-simpeg = ">=0.23.0.3a, 0.23.0.*"
+
+[feature.mirageo-git.pypi-dependencies]
+geoapps-utils = { git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "develop" }
+geoh5py = { git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "develop" }
+grid-apps = { git = "https://github.com/MiraGeoscience/grid-apps.git", rev = "develop" }
+mira-simpeg = { git = "https://github.com/MiraGeoscience/simpeg.git", rev = "develop" }
+
+[feature.dev.dependencies]
+docutils = "*"
+ipython = "*"
+pixi-pycharm = ">=0.0.10,<0.0.11"
+pygments = "*"
+
+[feature.blas-mkl.dependencies]
+libblas = {version = "*", build = "*mkl"}  # because simpeg already brings in the MKL
+mkl = ">=2024.2.2"
+
+[feature.dev.tasks]
+repl = {description = "Launch interactive Python shell (IPython)", cmd = "ipython"}
+
+[feature.test.dependencies]
+packaging = "*"
+pytest = "*"
+pytest-cov = "*"
+pytest-mock = "*"
+pyyaml = "*"
+
+[feature.linter.dependencies]
+pylint = "4.*"
+
+[feature.linter.tasks]
+lint = {cmd = "pylint", description = "Run pylint"}
+
+[feature.test.tasks]
+test = {cmd = "pytest --cov --cov-report=xml", description = "Run pytest with coverage reporting"}
+
+[feature.test.tasks.test-local]
+description = "Run tests using local development versions of dependencies (e.g., ../geoh5py)"
+args = [{ arg = "packages", default = "geoh5py simpeg-drivers grid-apps mira-simpeg" }]
+depends-on = [
+    {task = "use-local-deps", args = [ "{{ packages }}" ]},
+    {task = "show-pip-source", args =  [ "{{ packages }}" ]},
+    {task = "test"}
+]
+
+[feature.doc.dependencies]
+jupyter-book = "1.0.*"
+jupyter_client = "*"
+jupytext = "*"
+matplotlib-base = "*"
+nbsphinx = "*"
+nbstripout = "*"
+notebook = "*"
+numpydoc = "*"
+scipy = "*"
+sphinx = "*"
+sphinx-autodoc-typehints = "*"
+sphinx-issues = "*"
+sphinx-rtd-theme = "*"
+sphinxcontrib-bibtex = "*"
+sphinxcontrib-googleanalytics = '*'
+
+[feature.doc.tasks.config-docs]
+cmd = "jupyter-book config sphinx docs/"
+
+[feature.doc.tasks.build-docs]
+args = [
+  { arg = "builder",   default = "html" },
+  { arg = "outputdir", default = "docs/_build" },
+]
+
+depends-on = ["config-docs"]
+# TODO: add -W option to fail on warnings
+cmd = "export PYTHONPATH=./docs/_ext && sphinx-build -T -n -b {{builder}} docs/ {{outputdir}}/{{builder}}"
+
+[feature.doc.tasks.jupyter-book-build]
+args = [
+  { arg = "builder",   default = "html" },
+  { arg = "outputdir", default = "docs" },
+]
+
+# TODO: add -W option to fail on warnings
+cmd = "jupyter-book build -v -n --builder {{builder}} docs --path-output {{outputdir}}"
+
+[tasks.show-pip-source]
+description = "Display package metadata and installation source for given pip packages"
+args = [{ arg = "packages", default = "geoh5py" }]
+cmd = "uv pip show {{packages}}"
+
+[tasks.use-local-deps]
+description = "Install local editable versions of packages from sibling directories (e.g., ../geoh5py)"
+args = [{ arg = "packages", default = "geoh5py" }]
+cmd = """
+uv pip install --no-deps --force-reinstall \
+{% for package in packages | split %} -e ../{{ package | trim }}{% endfor %}
+"""
+
+[tasks.test-pyvers]
+description = "Run tests across all Python versions (3.10, 3.11, 3.12)"
+depends-on = [
+    {task = "test", environment = "py310"},
+    {task = "test", environment = "py311"},
+    {task = "test", environment = "py312"},
+]
+
+[feature.distrib.tasks.export-to-conda]
+description = "Export environment to conda environment YAML file (not locked)"
+args = ["env", {arg = "output_name", default = "exported"}]
+cmd = "pixi workspace export conda-environment -e {{ env }} {{ output_name }}.pixi.conda.yml"
+
+[feature.distrib.tasks.analyst-uijson-install]
+description = "Install UI JSON files for Geoscience ANALYST integration"
+args = [
+  {arg = "env_name", default = "mirageo"},
+  {arg = "menu", default = "local/simpeg-drivers"},
+]
+cmd = "python ./install_uijson.py --env {{env_name}} --menu {{menu}}"
+
+[feature.distrib.tasks.analyst-env-install]
+description = "Install conda environment in Geoscience ANALYST using MambaEnvRunner"
+args = [
+  {arg = "env_name", default = "src-simpeg-drivers"},
+  {arg = "env_file_name", default = "simpeg-drivers"},
+]
+env = { MIRA_CMD_RUNNER_DIR = "$ProgramFiles/Mira Geoscience/Geoscience ANALYST/CmdRunner" }
+cmd = '"$MIRA_CMD_RUNNER_DIR/MambaEnvRunner.exe" --install "{{ env_file_name }}.pixi.conda.yml" --name {{env_name}}'
+depends-on = [{task = "export-to-conda", args = ["mirageo-local", "{{ env_file_name }}"]}]
+
+[feature.distrib.tasks.analyst-install]
+description = "Full installation to Geoscience ANALYST (environment + UI JSON files)"
+args = [{arg = "tag", default = "local"}]
+depends-on = [
+  {task = "analyst-env-install", args = ["{{tag}}-simpeg-drivers", "{{tag}}"]},
+  {task = "analyst-uijson-install", args = ["{{tag}}-simpeg-drivers", "{{tag}}/simpeg-drivers"]}
+]

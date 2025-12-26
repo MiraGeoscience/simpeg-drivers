@@ -25,7 +25,7 @@ from simpeg import directives, maps
 from simpeg.utils.mat_utils import cartesian2amplitude_dip_azimuth
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
-from simpeg_drivers.options import BaseInversionOptions
+from simpeg_drivers.options import BaseInversionOptions, ModelTypeEnum
 
 
 if TYPE_CHECKING:
@@ -418,7 +418,7 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
                 inversion_object.permutation.T,
             ]
 
-            if self.params.models.model_type == "Resistivity (Ohm-m)":
+            if self.params.models.model_type == ModelTypeEnum.resistivity:
                 kwargs["transforms"].append(lambda x: 1 / x)
 
         if "1d" in self.factory_type:

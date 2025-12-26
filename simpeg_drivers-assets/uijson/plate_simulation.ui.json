@@ -1,8 +1,8 @@
 {
-    "version": "0.2.0-alpha.1",
-    "title": "Plate simulation",
+    "version": "0.4.0",
+    "title": "Plate Simulation",
     "icon": "maxwellplate",
-    "documentation": "https://mirageoscience-plate-simulation.readthedocs-hosted.com/en/latest/",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/plate-simulation/",
     "conda_environment": "simpeg_drivers",
     "run_command": "simpeg_drivers.driver",
     "geoh5": "",
@@ -57,7 +57,7 @@
         "label": "Number of plates",
         "value": 1,
         "enabled": true,
-        "tooltip": "If more than one the plates will be parallel, equally spaced over the center of the model"
+        "tooltip": "If more than one the plates will be parallel, equally spaced over the centre of the model"
     },
     "spacing": {
         "main": true,
@@ -125,7 +125,7 @@
         "group": "Plate",
         "value": true,
         "enabled": true,
-        "tooltip": "If checked locations are relative to the survey center and either topography or overburden in z according to 'Depth reference' selection"
+        "tooltip": "If checked locations are relative to the survey centre and either topography or overburden in z according to 'Depth reference' selection"
     },
     "easting": {
         "label": "Easting (m)",
@@ -133,7 +133,7 @@
         "main": true,
         "value": 0.0,
         "enabled": true,
-        "tooltip": "If relative locations, Easting is relative to the center of the survey"
+        "tooltip": "If relative locations, Easting is relative to the centre of the survey"
     },
     "northing": {
         "label": "Northing (m)",
@@ -141,7 +141,7 @@
         "group": "Plate",
         "value": 0.0,
         "enabled": true,
-        "tooltip": "If relative locations, Northing is relative to the center of the survey"
+        "tooltip": "If relative locations, Northing is relative to the centre of the survey"
     },
     "elevation": {
         "label": "Elevation (m)",

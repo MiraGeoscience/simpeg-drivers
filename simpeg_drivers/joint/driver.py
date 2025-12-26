@@ -38,6 +38,7 @@ from simpeg_drivers.components.factories import (
 )
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.joint.options import BaseJointOptions
+from simpeg_drivers.options import ModelTypeEnum
 from simpeg_drivers.utils.utils import simpeg_group_to_driver
 
 
@@ -451,7 +452,10 @@ class BaseJointDriver(InversionDriver):
         )
 
         model_directive.label = driver.params.physical_property
-        if getattr(driver.params.models, "model_type", None) == "Resistivity (Ohm-m)":
+        if (
+            getattr(driver.params.models, "model_type", None)
+            == ModelTypeEnum.resistivity
+        ):
             model_directive.label = "resistivity_model"
 
         model_directive.transforms = [wire, *model_directive.transforms]
