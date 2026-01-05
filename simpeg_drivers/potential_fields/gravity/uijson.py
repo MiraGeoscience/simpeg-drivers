@@ -77,42 +77,42 @@ class GravityInversionUIJson(SimPEGDriversUIJson):
     forward_only: bool
     data_object: ObjectForm
     gz_channel: DataForm
-    gz_uncertainty: DataForm
+    gz_uncertainty: DataOrValueForm
     gx_channel: DataForm
-    gx_uncertainty: DataForm
+    gx_uncertainty: DataOrValueForm
     gy_channel: DataForm
-    gy_uncertainty: DataForm
+    gy_uncertainty: DataOrValueForm
     guv_channel: DataForm
-    guv_uncertainty: DataForm
+    guv_uncertainty: DataOrValueForm
     gxy_channel: DataForm
-    gxy_uncertainty: DataForm
+    gxy_uncertainty: DataOrValueForm
     gxx_channel: DataForm
-    gxx_uncertainty: DataForm
+    gxx_uncertainty: DataOrValueForm
     gyy_channel: DataForm
-    gyy_uncertainty: DataForm
+    gyy_uncertainty: DataOrValueForm
     gzz_channel: DataForm
-    gzz_uncertainty: DataForm
+    gzz_uncertainty: DataOrValueForm
     gxz_channel: DataForm
-    gxz_uncertainty: DataForm
+    gxz_uncertainty: DataOrValueForm
     gyz_channel: DataForm
-    gyz_uncertainty: DataForm
+    gyz_uncertainty: DataOrValueForm
     mesh: ObjectForm
-    starting_model: DataForm
-    reference_model: DataForm
-    lower_bound: DataForm
-    upper_bound: DataForm
+    starting_model: DataOrValueForm
+    reference_model: DataOrValueForm
+    lower_bound: DataOrValueForm
+    upper_bound: DataOrValueForm
     topography_object: ObjectForm
     topography: DataForm
     active_model: DataForm
-    alpha_s: DataForm
-    length_scale_x: DataForm
-    length_scale_y: DataForm
-    length_scale_z: DataForm
+    alpha_s: DataOrValueForm
+    length_scale_x: DataOrValueForm
+    length_scale_y: DataOrValueForm
+    length_scale_z: DataOrValueForm
     gradient_rotation: DataForm
-    s_norm: DataForm
-    x_norm: DataForm
-    y_norm: DataForm
-    z_norm: DataForm
+    s_norm: DataOrValueForm
+    x_norm: DataOrValueForm
+    y_norm: DataOrValueForm
+    z_norm: DataOrValueForm
     gradient_type: ChoiceForm
     max_irls_iterations: IntegerForm
     starting_chi_factor: FloatForm
