@@ -16,6 +16,7 @@ from geoh5py.ui_json.forms import (
     BoolForm,
     ChoiceForm,
     DataForm,
+    DataOrValueForm,
     FloatForm,
     GroupForm,
     IntegerForm,
