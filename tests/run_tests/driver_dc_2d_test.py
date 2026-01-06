@@ -14,7 +14,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-from geoh5py.data import ReferencedData
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.electricals.direct_current.two_dimensions.driver import (
@@ -26,22 +25,25 @@ from simpeg_drivers.electricals.direct_current.two_dimensions.options import (
     DC2DInversionOptions,
 )
 from simpeg_drivers.options import (
-    ActiveCellsOptions,
     DrapeModelOptions,
     LineSelectionOptions,
 )
-from simpeg_drivers.utils.utils import get_inversion_output
-from tests.testing_utils import check_target, setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.driver import (
+    SyntheticsComponents,
+)
+from simpeg_drivers.utils.synthetics.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticsComponentsOptions,
+)
+from tests.utils.targets import check_target, get_inversion_output, get_workspace
 
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {
-    "data_norm": 0.59563,
-    "phi_d": 2820,
-    "phi_m": 16.8,
-}
+target_run = {"data_norm": 0.6072705410748107, "phi_d": 2820, "phi_m": 21}
 
 
 def test_dc_2d_fwr_run(
@@ -51,36 +53,34 @@ def test_dc_2d_fwr_run(
     refinement=(4, 6),
 ):
     # Run the forward
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.01,
-        anomaly=10,
-        n_electrodes=n_electrodes,
-        n_lines=n_lines,
-        refinement=refinement,
-        inversion_type="direct current 2d",
-        drape_height=0.0,
-        flatten=False,
+    opts = SyntheticsComponentsOptions(
+        method="direct current 2d",
+        survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
+        mesh=MeshOptions(refinement=refinement),
+        model=ModelOptions(background=0.01, anomaly=10),
     )
-    line_selection = LineSelectionOptions(
-        line_object=geoh5.get_entity("line_ids")[0],
-        line_id=101,
-    )
-    params = DC2DForwardOptions(
-        geoh5=geoh5,
-        data_object=survey,
-        line_selection=line_selection,
-        drape_model=DrapeModelOptions(
-            u_cell_size=5.0,
-            v_cell_size=5.0,
-            depth_core=100.0,
-            horizontal_padding=100.0,
-            vertical_padding=100.0,
-            expansion_factor=1.1,
-        ),
-        starting_model=model,
-        active_cells=ActiveCellsOptions(topography_object=topography),
-    )
+    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+
+        line_selection = LineSelectionOptions(
+            line_object=components.survey.get_data("line_ids")[0],
+            line_id=101,
+        )
+        params = DC2DForwardOptions.build(
+            geoh5=geoh5,
+            data_object=components.survey,
+            line_selection=line_selection,
+            drape_model=DrapeModelOptions(
+                u_cell_size=5.0,
+                v_cell_size=5.0,
+                depth_core=100.0,
+                horizontal_padding=100.0,
+                vertical_padding=100.0,
+                expansion_factor=1.1,
+            ),
+            starting_model=components.model,
+            topography_object=components.topography,
+        )
     fwr_driver = DC2DForwardDriver(params)
     fwr_driver.run()
 
@@ -91,11 +91,11 @@ def test_dc_2d_run(tmp_path: Path, max_iterations=1, pytest=True):
         workpath = tmp_path.parent / "test_dc_2d_fwr_run0" / "inversion_test.ui.geoh5"
 
     with Workspace(workpath) as geoh5:
-        potential = geoh5.get_entity("Iteration_0_dc")[0]
-        topography = geoh5.get_entity("topography")[0]
+        potential = geoh5.get_entity("Iteration_0_potential")[0]
+        components = SyntheticsComponents(geoh5)
 
         # Run the inverse
-        params = DC2DInversionOptions(
+        params = DC2DInversionOptions.build(
             geoh5=geoh5,
             drape_model=DrapeModelOptions(
                 u_cell_size=5.0,
@@ -105,7 +105,7 @@ def test_dc_2d_run(tmp_path: Path, max_iterations=1, pytest=True):
                 vertical_padding=100.0,
                 expansion_factor=1.1,
             ),
-            active_cells=ActiveCellsOptions(topography_object=topography),
+            topography_object=components.topography,
             line_selection=LineSelectionOptions(
                 line_object=geoh5.get_entity("line_ids")[0],
                 line_id=101,
@@ -119,7 +119,6 @@ def test_dc_2d_run(tmp_path: Path, max_iterations=1, pytest=True):
             s_norm=0.0,
             x_norm=1.0,
             z_norm=1.0,
-            gradient_type="components",
             max_global_iterations=max_iterations,
             initial_beta=None,
             initial_beta_ratio=1e0,

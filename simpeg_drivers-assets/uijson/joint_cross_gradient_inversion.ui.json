@@ -1,5 +1,5 @@
 {
-    "version": "0.3.0-alpha.6",
+    "version": "0.4.0",
     "title": "Joint Cross Gradient Inversion",
     "icon": "function",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
@@ -126,7 +126,7 @@
         "optional": true,
         "enabled": false,
         "label": "Elevation channel",
-        "tooltip": "Set elevation from channel.  If not set the topography will be set from the geometry of the selected 'topography' object",
+        "tooltip": "Set elevation from channel. If not set the topography will be set from the geometry of the selected 'topography' object",
         "parent": "topography_object",
         "dependency": "topography_object",
         "dependencyType": "enabled",
@@ -146,17 +146,22 @@
         "dependency": "topography_object",
         "dependencyType": "disabled",
         "label": "Active model",
-        "tooltip": "Provide the active cell boolean model directly if topography not set",
+        "tooltip": "Provide the active cell Boolean model directly if topography not set",
         "parent": "mesh",
         "value": ""
     },
     "alpha_s": {
         "min": 0.0,
         "group": "Regularization",
-        "groupOptional": true,
-        "label": "Smallness weight",
+        "label": "Reference weight",
         "value": 1.0,
+        "groupOptional": true,
         "tooltip": "Constant ratio compared to other weights. Larger values result in models that remain close to the reference model",
+        "isValue": true,
+        "parent": "mesh",
+        "association": "Cell",
+        "dataType": "Float",
+        "property": "",
         "enabled": false
     },
     "length_scale_x": {
@@ -165,7 +170,12 @@
         "label": "X-smoothness weight",
         "tooltip": "Larger values relative to other smoothness weights will result in x biased smoothness",
         "value": 1.0,
-        "enabled": false
+        "isValue": true,
+        "parent": "mesh",
+        "association": "Cell",
+        "dataType": "Float",
+        "property": "",
+        "enabled": true
     },
     "length_scale_y": {
         "min": 0.0,
@@ -173,7 +183,12 @@
         "label": "Y-smoothness weight",
         "tooltip": "Larger values relative to other smoothness weights will result in y biased smoothness",
         "value": 1.0,
-        "enabled": false
+        "isValue": true,
+        "parent": "mesh",
+        "association": "Cell",
+        "dataType": "Float",
+        "property": "",
+        "enabled": true
     },
     "length_scale_z": {
         "min": 0.0,
@@ -181,13 +196,22 @@
         "label": "Z-smoothness weight",
         "tooltip": "Larger values relative to other smoothness weights will result in z biased smoothess",
         "value": 1.0,
-        "enabled": false
+        "isValue": true,
+        "parent": "mesh",
+        "association": "Cell",
+        "dataType": "Float",
+        "property": "",
+        "enabled": true
     },
     "gradient_rotation": {
         "group": "Regularization",
         "association": "Cell",
         "dataType": "Float",
-        "dataGroupType": "Dip direction & dip",
+        "dataGroupType": [
+            "Strike & dip",
+            "Dip direction & dip",
+            "3D vector"
+        ],
         "label": "Gradient rotation",
         "optional": true,
         "enabled": false,
@@ -200,9 +224,12 @@
         "group": "Regularization",
         "label": "Smallness norm",
         "value": 0.0,
-        "precision": 2,
-        "lineEdit": false,
-        "enabled": false
+        "isValue": true,
+        "parent": "mesh",
+        "association": "Cell",
+        "dataType": "Float",
+        "property": "",
+        "enabled": true
     },
     "x_norm": {
         "min": 0.0,
@@ -210,9 +237,12 @@
         "group": "Regularization",
         "label": "X-smoothness norm",
         "value": 2.0,
-        "precision": 2,
-        "lineEdit": false,
-        "enabled": false
+        "isValue": true,
+        "parent": "mesh",
+        "association": "Cell",
+        "dataType": "Float",
+        "property": "",
+        "enabled": true
     },
     "y_norm": {
         "min": 0.0,
@@ -220,9 +250,12 @@
         "group": "Regularization",
         "label": "Y-smoothness norm",
         "value": 2.0,
-        "precision": 2,
-        "lineEdit": false,
-        "enabled": false
+        "isValue": true,
+        "parent": "mesh",
+        "association": "Cell",
+        "dataType": "Float",
+        "property": "",
+        "enabled": true
     },
     "z_norm": {
         "min": 0.0,
@@ -230,11 +263,13 @@
         "group": "Regularization",
         "label": "Z-smoothness norm",
         "value": 2.0,
-        "precision": 2,
-        "lineEdit": false,
-        "enabled": false
+        "isValue": true,
+        "parent": "mesh",
+        "association": "Cell",
+        "dataType": "Float",
+        "property": "",
+        "enabled": true
     },
-    "gradient_type": "total",
     "max_irls_iterations": {
         "min": 0,
         "group": "Sparse/blocky model",
@@ -351,7 +386,7 @@
         "min": 1,
         "enabled": true,
         "verbose": 3,
-        "tooltip": "Perform an Armijo backtracking linesearch for the provided number of iterations"
+        "tooltip": "Perform an Armijo backtracking line search for the provided number of iterations"
     },
     "max_cg_iterations": {
         "min": 0,
@@ -422,8 +457,6 @@
         "tooltip": "Direct solver to use for the forward calculations",
         "value": "Pardiso"
     },
-    "tile_spatial": 1,
-    "parallelized": true,
     "store_sensitivities": {
         "choiceList": [
             "disk",
@@ -460,6 +493,7 @@
         "group": "Python run preferences",
         "main": true,
         "value": false,
+        "visible": false,
         "tooltip": "Generates a file for sweeping parameters instead of running the application"
     },
     "n_workers": "",

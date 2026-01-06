@@ -15,7 +15,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-from dask.distributed import LocalCluster, performance_report
 from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 
@@ -27,15 +26,22 @@ from simpeg_drivers.natural_sources.magnetotellurics.options import (
     MTForwardOptions,
     MTInversionOptions,
 )
-from simpeg_drivers.options import ActiveCellsOptions
-from simpeg_drivers.utils.utils import get_inversion_output
-from tests.testing_utils import check_target, setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.driver import (
+    SyntheticsComponents,
+)
+from simpeg_drivers.utils.synthetics.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticsComponentsOptions,
+)
+from tests.utils.targets import check_target, get_inversion_output, get_workspace
 
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.032649770, "phi_d": 6.68, "phi_m": 263}
+target_run = {"data_norm": 0.032649770, "phi_d": 7.13, "phi_m": 282}
 
 
 def setup_data(workspace, survey):
@@ -92,38 +98,41 @@ def test_magnetotellurics_fwr_run(
     cell_size=(20.0, 20.0, 20.0),
 ):
     # Run the forward
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.01,
-        anomaly=1.0,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
-        refinement=refinement,
-        cell_size=cell_size,
-        drape_height=0.0,
-        inversion_type="magnetotellurics",
-        flatten=False,
+    opts = SyntheticsComponentsOptions(
+        method="magnetotellurics",
+        survey=SurveyOptions(n_stations=n_grid_points, n_lines=n_grid_points),
+        mesh=MeshOptions(cell_size=cell_size, refinement=refinement),
+        model=ModelOptions(background=0.01),
     )
-    params = MTForwardOptions(
-        geoh5=geoh5,
-        mesh=model.parent,
-        active_cells=ActiveCellsOptions(topography_object=topography),
-        data_object=survey,
-        starting_model=model,
-        background_conductivity=1e-2,
-        zxx_real_channel_bool=True,
-        zxx_imag_channel_bool=True,
-        zxy_real_channel_bool=True,
-        zxy_imag_channel_bool=True,
-        zyx_real_channel_bool=True,
-        zyx_imag_channel_bool=True,
-        zyy_real_channel_bool=True,
-        zyy_imag_channel_bool=True,
-        solver_type="Mumps",
-    )
+    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+
+        # Test for label index supporting ints - bypass setter
+        components.survey.edit_em_metadata({"Channels": [10, 100, 1000]})
+
+        params = MTForwardOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
+            starting_model=components.model,
+            background_conductivity=1e-2,
+            zxx_real_channel_bool=True,
+            zxx_imag_channel_bool=True,
+            zxy_real_channel_bool=True,
+            zxy_imag_channel_bool=True,
+            zyx_real_channel_bool=True,
+            zyx_imag_channel_bool=True,
+            zyy_real_channel_bool=True,
+            zyy_imag_channel_bool=True,
+            solver_type="Mumps",
+        )
 
     fwr_driver = MTForwardDriver(params)
     fwr_driver.run()
+
+    with Workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        assert geoh5.get_entity("Iteration_0_zyy_real_[0]")[0] is not None
 
 
 def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
@@ -137,22 +146,19 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
         )
 
     with Workspace(workpath) as geoh5:
-        survey = next(
-            child
-            for child in geoh5.get_entity("survey")
-            if not isinstance(child.parent, SimPEGGroup)
-        )
-        mesh = geoh5.get_entity("mesh")[0]
-        topography = geoh5.get_entity("topography")[0]
+        components = SyntheticsComponents(geoh5)
+        survey = components.survey
+        mesh = components.mesh
+        topography = components.topography
         data_kwargs = setup_data(geoh5, survey)
 
         orig_zyy_real_1 = geoh5.get_entity("Iteration_0_zyy_real_[0]")[0].values
 
         # Run the inverse
-        params = MTInversionOptions(
+        params = MTInversionOptions.build(
             geoh5=geoh5,
             mesh=mesh,
-            active_cells=ActiveCellsOptions(topography_object=topography),
+            topography_object=topography,
             data_object=survey,
             starting_model=100.0,
             reference_model=100.0,
@@ -161,16 +167,13 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
             x_norm=1.0,
             y_norm=1.0,
             z_norm=1.0,
-            gradient_type="components",
             cooling_rate=1,
             lower_bound=0.75,
             model_type="Resistivity (Ohm-m)",
             background_conductivity=100.0,
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e3,
-            sens_wts_threshold=1.0,
             percentile=100,
-            store_sensitivities="ram",
             solver_type="Mumps",
             **data_kwargs,
         )
@@ -182,35 +185,54 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
             driver.params.geoh5.h5file, driver.params.out_group.uid
         )
         output["data"] = orig_zyy_real_1
+        assert not run_ws.get_entity("Iteration_0_sensitivities")[0]
         if pytest:
-            check_target(output, target_run, tolerance=0.2)
+            check_target(output, target_run, tolerance=0.1)
             nan_ind = np.isnan(run_ws.get_entity("Iteration_0_model")[0].values)
             inactive_ind = run_ws.get_entity("active_cells")[0].values == 0
             assert np.all(nan_ind == inactive_ind)
 
-    # test that one channel works
-    data_kwargs = {k: v for k, v in data_kwargs.items() if "zxx_real" in k}
-    geoh5.open()
-    params = MTInversionOptions(
-        geoh5=geoh5,
-        mesh=geoh5.get_entity("mesh")[0],
-        active_cells=ActiveCellsOptions(topography_object=topography),
-        data_object=survey,
-        starting_model=0.01,
-        background_conductivity=1e-2,
-        max_global_iterations=0,
-        **data_kwargs,
+
+def test_magnetotellurics_tiles(
+    tmp_path: Path,
+    n_grid_points=32,
+    refinement=(2,),
+    cell_size=(20.0, 20.0, 20.0),
+):
+    workpath = tmp_path / f"{__name__}.geoh5"
+    opts = SyntheticsComponentsOptions(
+        method="magnetotellurics",
+        survey=SurveyOptions(n_stations=n_grid_points, n_lines=n_grid_points),
+        mesh=MeshOptions(cell_size=cell_size, refinement=refinement),
+        model=ModelOptions(background=0.01),
     )
-    params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
-    MTInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
+    with Workspace.create(workpath) as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+        geoh5.open()
+        params = MTForwardOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
+            starting_model=components.model,
+            background_conductivity=1e-2,
+            zxx_real_channel_bool=True,
+            zxx_imag_channel_bool=True,
+            zxy_real_channel_bool=True,
+            zxy_imag_channel_bool=True,
+            zyx_real_channel_bool=True,
+            zyx_imag_channel_bool=True,
+            zyy_real_channel_bool=True,
+            zyy_imag_channel_bool=True,
+            tile_spatial=3,
+            solver_type="Mumps",
+        )
 
     driver = MTInversionDriver(params)
 
     # Fake a distributed cluster
-    n_workers = 5
-    params.n_workers = n_workers
-    driver._workers = ["abc"] * n_workers  # pylint: disable=protected-access
-    assert len(driver.data_misfit.objfcts) == 5
+    driver._workers = ["abc"] * 4  # pylint: disable=protected-access
+    assert len(driver.data_misfit.objfcts) == 12
 
 
 if __name__ == "__main__":

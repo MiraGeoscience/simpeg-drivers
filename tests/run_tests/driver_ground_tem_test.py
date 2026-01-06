@@ -14,6 +14,7 @@ from logging import INFO, getLogger
 from pathlib import Path
 
 import numpy as np
+from geoapps_utils.modelling.plates import PlateModel
 from geoh5py.workspace import Workspace
 from pymatsolver.direct import Mumps
 
@@ -25,9 +26,16 @@ from simpeg_drivers.electromagnetics.time_domain.options import (
     TDEMForwardOptions,
     TDEMInversionOptions,
 )
-from simpeg_drivers.options import ActiveCellsOptions
-from simpeg_drivers.utils.utils import get_inversion_output
-from tests.testing_utils import check_target, setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.driver import (
+    SyntheticsComponents,
+)
+from simpeg_drivers.utils.synthetics.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticsComponentsOptions,
+)
+from tests.utils.targets import check_target, get_inversion_output, get_workspace
 
 
 logger = getLogger(__name__)
@@ -47,38 +55,49 @@ def test_tiling_ground_tem(
     **_,
 ):
     # Run the forward
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.001,
-        anomaly=1.0,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
-        refinement=refinement,
-        inversion_type="ground tdem",
-        drape_height=5.0,
-        padding_distance=1000.0,
-        flatten=True,
+    opts = SyntheticsComponentsOptions(
+        method="ground tdem",
+        survey=SurveyOptions(
+            n_stations=n_grid_points,
+            n_lines=n_grid_points,
+            drape=5.0,
+            topography=lambda x, y: np.zeros(x.shape),
+            name="ground_tdem_survey",
+        ),
+        mesh=MeshOptions(refinement=refinement, padding_distance=1000.0),
+        model=ModelOptions(
+            background=0.001,
+            plate=PlateModel(
+                strike_length=40.0,
+                dip_length=40.0,
+                width=40.0,
+                origin=(0.0, 0.0, -50.0),
+            ),
+        ),
     )
-
-    params = TDEMForwardOptions(
-        geoh5=geoh5,
-        mesh=model.parent,
-        active_cells=ActiveCellsOptions(topography_object=topography),
-        data_object=survey,
-        starting_model=model,
-        x_channel_bool=True,
-        y_channel_bool=True,
-        z_channel_bool=True,
-        tile_spatial=4,
-    )
+    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+        params = TDEMForwardOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
+            starting_model=components.model,
+            x_channel_bool=True,
+            y_channel_bool=True,
+            z_channel_bool=True,
+            tile_spatial=4,
+            solver_type="Mumps",
+        )
     fwr_driver = TDEMForwardDriver(params)
 
-    tiles = fwr_driver.get_tiles()
+    with geoh5.open():
+        tiles = fwr_driver.get_tiles()
 
     assert len(tiles) == 4
 
     for tile in tiles:
-        assert len(np.unique(survey.tx_id_property.values[tile])) == 1
+        assert len(np.unique(components.survey.tx_id_property.values[tile])) == 1
 
     fwr_driver.run()
 
@@ -91,50 +110,63 @@ def test_ground_tem_fwr_run(
     cell_size=(20.0, 20.0, 20.0),
     pytest=True,
 ):
-    if pytest:
+    if pytest and caplog:
         caplog.set_level(INFO)
     # Run the forward
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.001,
-        anomaly=1.0,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
-        refinement=refinement,
-        inversion_type="ground tdem",
-        drape_height=5.0,
-        cell_size=cell_size,
-        padding_distance=1000.0,
-        flatten=True,
+    opts = SyntheticsComponentsOptions(
+        method="ground tdem",
+        survey=SurveyOptions(
+            n_stations=n_grid_points,
+            n_lines=n_grid_points,
+            drape=5.0,
+            topography=lambda x, y: np.zeros(x.shape),
+        ),
+        mesh=MeshOptions(
+            cell_size=cell_size, refinement=refinement, padding_distance=1000.0
+        ),
+        model=ModelOptions(
+            background=0.001,
+            plate=PlateModel(
+                strike_length=40.0,
+                dip_length=40.0,
+                width=40.0,
+                origin=(0.0, 0.0, -50.0),
+            ),
+        ),
     )
-    params = TDEMForwardOptions(
-        geoh5=geoh5,
-        mesh=model.parent,
-        active_cells=ActiveCellsOptions(topography_object=topography),
-        data_object=survey,
-        starting_model=model,
-        x_channel_bool=True,
-        y_channel_bool=True,
-        z_channel_bool=True,
-        solver_type="Mumps",
-    )
+    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+        components.survey.transmitters.remove_cells([15])
+        params = TDEMForwardOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
+            starting_model=components.model,
+            x_channel_bool=True,
+            y_channel_bool=True,
+            z_channel_bool=True,
+            solver_type="Mumps",
+        )
 
     fwr_driver = TDEMForwardDriver(params)
 
-    with survey.workspace.open():
-        survey.transmitters.remove_cells([15])
-        survey.tx_id_property.name = "tx_id"
+    assert fwr_driver.out_group is not None
+    with components.survey.workspace.open():
+        components.survey.tx_id_property.name = "tx_id"
         assert fwr_driver.inversion_data.survey.source_list[0].n_segments == 16
 
-    if pytest:
-        assert len(caplog.records) == 2
-        for record in caplog.records:
+    if pytest and caplog:
+        assert len(caplog.records) == 3
+        for record in caplog.records[1:]:
             assert record.levelname == "INFO"
             assert "counter-clockwise" in record.message
 
-        assert "closed" in caplog.records[0].message
+        assert "closed" in caplog.records[1].message
 
-    assert fwr_driver.data_misfit.objfcts[0].simulation.simulations[0].solver == Mumps
+        assert (
+            fwr_driver.data_misfit.objfcts[0].simulation.simulations[0].solver == Mumps
+        )
     fwr_driver.run()
 
 
@@ -146,29 +178,25 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         )
 
     with Workspace(workpath) as geoh5:
-        simpeg_group = geoh5.get_entity("Time-domain EM (TEM) Forward")[0]
-        survey = simpeg_group.get_entity("Ground TEM Rx")[0]
-        mesh = geoh5.get_entity("mesh")[0]
-        topography = geoh5.get_entity("topography")[0]
-
+        components = SyntheticsComponents(geoh5)
         data = {}
         uncertainties = {}
-        components = {
+        channels = {
             "z": "dBzdt",
         }
 
-        for comp, cname in components.items():
+        for chan, cname in channels.items():
             data[cname] = []
             uncertainties[f"{cname} uncertainties"] = []
-            for ii, _ in enumerate(survey.channels):
-                data_entity = geoh5.get_entity(f"Iteration_0_{comp}_[{ii}]")[0].copy(
-                    parent=survey
+            for ii, _ in enumerate(components.survey.channels):
+                data_entity = geoh5.get_entity(f"Iteration_0_{chan}_[{ii}]")[0].copy(
+                    parent=components.survey
                 )
                 data[cname].append(data_entity)
 
-                uncert = survey.add_data(
+                uncert = components.survey.add_data(
                     {
-                        f"uncertainty_{comp}_[{ii}]": {
+                        f"uncertainty_{chan}_[{ii}]": {
                             "values": np.ones_like(data_entity.values)
                             * np.median(np.abs(data_entity.values))
                             / 2.0
@@ -177,26 +205,26 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
                 )
                 uncertainties[f"{cname} uncertainties"].append(uncert)
 
-        survey.add_components_data(data)
-        survey.add_components_data(uncertainties)
+        components.survey.add_components_data(data)
+        components.survey.add_components_data(uncertainties)
 
         data_kwargs = {}
-        for comp in components:
-            data_kwargs[f"{comp}_channel"] = survey.fetch_property_group(
-                name=f"Iteration_0_{comp}"
+        for chan in channels:
+            data_kwargs[f"{chan}_channel"] = components.survey.fetch_property_group(
+                name=f"dB{chan}dt"
             )
-            data_kwargs[f"{comp}_uncertainty"] = survey.fetch_property_group(
-                name=f"dB{comp}dt uncertainties"
+            data_kwargs[f"{chan}_uncertainty"] = components.survey.fetch_property_group(
+                name=f"dB{chan}dt uncertainties"
             )
 
         orig_dBzdt = geoh5.get_entity("Iteration_0_z_[0]")[0].values
 
         # Run the inverse
-        params = TDEMInversionOptions(
+        params = TDEMInversionOptions.build(
             geoh5=geoh5,
-            mesh=mesh,
-            active_cells=ActiveCellsOptions(topography_object=topography),
-            data_object=survey,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
             starting_model=1e-3,
             reference_model=1e-3,
             chi_factor=0.1,
@@ -205,7 +233,6 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
             y_norm=2.0,
             z_norm=2.0,
             alpha_s=0e-1,
-            gradient_type="total",
             lower_bound=2e-6,
             upper_bound=1e2,
             max_global_iterations=max_iterations,
@@ -213,8 +240,6 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
             cooling_rate=2,
             max_cg_iterations=200,
             percentile=100,
-            sens_wts_threshold=1.0,
-            store_sensitivities="ram",
             solver_type="Mumps",
             **data_kwargs,
         )
@@ -227,7 +252,7 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         output = get_inversion_output(
             driver.params.geoh5.h5file, driver.params.out_group.uid
         )
-        assert driver.inversion_data.entity.tx_id_property.name == "tx_id"
+        assert driver.inversion_data.entity.tx_id_property.name == "Transmitter ID"
         output["data"] = orig_dBzdt
         if pytest:
             check_target(output, target_run)

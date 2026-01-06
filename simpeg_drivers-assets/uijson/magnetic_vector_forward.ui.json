@@ -1,5 +1,5 @@
 {
-    "version": "0.3.0-alpha.6",
+    "version": "0.4.0",
     "title": "Magnetic Vector (MVI) Forward",
     "icon": "surveyairbornemagnetics",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
@@ -10,15 +10,15 @@
     "inversion_type": "magnetic vector",
     "physical_property": "susceptibility",
     "forward_only": true,
-    "inducing_field_strength": {
-        "min": 0.1,
-        "max": 100000.0,
+    "inducing_field_declination": {
+        "min": -180.0,
+        "max": 180.0,
         "precision": 2,
         "lineEdit": false,
         "main": true,
         "group": "Inducing field",
-        "label": "Strength (nT)",
-        "value": 50000.0
+        "label": "Declination (deg)",
+        "value": 0.0
     },
     "inducing_field_inclination": {
         "min": -90.0,
@@ -30,15 +30,15 @@
         "label": "Inclination (deg)",
         "value": 90.0
     },
-    "inducing_field_declination": {
-        "min": -180.0,
-        "max": 180.0,
+    "inducing_field_strength": {
+        "min": 0.0,
+        "max": 100000.0,
         "precision": 2,
         "lineEdit": false,
         "main": true,
         "group": "Inducing field",
-        "label": "Declination (deg)",
-        "value": 0.0
+        "label": "Strength (nT)",
+        "value": 50000.0
     },
     "topography_object": {
         "main": true,
@@ -67,7 +67,7 @@
         "optional": true,
         "enabled": false,
         "label": "Elevation channel",
-        "tooltip": "Set elevation from channel.  If not set the topography will be set from the geometry of the selected 'topography' object",
+        "tooltip": "Set elevation from channel. If not set the topography will be set from the geometry of the selected 'topography' object",
         "parent": "topography_object",
         "dependency": "topography_object",
         "dependencyType": "enabled",
@@ -87,7 +87,7 @@
         "dependency": "topography_object",
         "dependencyType": "disabled",
         "label": "Active model",
-        "tooltip": "Provide the active cell boolean model directly if topography not set",
+        "tooltip": "Provide the active cell Boolean model directly if topography not set",
         "parent": "mesh",
         "value": ""
     },
@@ -222,7 +222,6 @@
         "property": "",
         "value": 0.0
     },
-    "save_sensitivities": false,
     "n_cpu": {
         "min": 1,
         "group": "Compute",
@@ -271,6 +270,7 @@
         "group": "Python run preferences",
         "main": true,
         "value": false,
+        "visible": false,
         "tooltip": "Generates a file for sweeping parameters instead of running the application"
     },
     "n_workers": "",

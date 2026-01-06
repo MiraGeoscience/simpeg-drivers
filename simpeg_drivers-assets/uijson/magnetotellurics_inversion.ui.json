@@ -1,5 +1,5 @@
 {
-    "version": "0.3.0-alpha.6",
+    "version": "0.4.0",
     "title": "Magnetotellurics (MT) Inversion",
     "icon": "surveymagnetotellurics",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
@@ -15,36 +15,6 @@
         "group": "Data",
         "label": "Object",
         "meshType": "{b99bd6e5-4fe1-45a5-bd2f-75fc31f91b38}",
-        "value": ""
-    },
-    "zxx_real_channel": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
-        "main": true,
-        "label": "Zxx real",
-        "parent": "data_object",
-        "optional": true,
-        "enabled": true,
-        "value": ""
-    },
-    "zxx_real_uncertainty": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
-        "main": true,
-        "label": "Uncertainty",
-        "parent": "data_object",
-        "dependency": "zxx_real_channel",
-        "dependencyType": "enabled",
         "value": ""
     },
     "zxx_imag_channel": {
@@ -77,7 +47,7 @@
         "dependencyType": "enabled",
         "value": ""
     },
-    "zxy_real_channel": {
+    "zxx_real_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -86,13 +56,13 @@
         "group": "Data",
         "dataGroupType": "Multi-element",
         "main": true,
-        "label": "Zxy real",
+        "label": "Zxx real",
         "parent": "data_object",
         "optional": true,
         "enabled": true,
         "value": ""
     },
-    "zxy_real_uncertainty": {
+    "zxx_real_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -103,7 +73,7 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "zxy_real_channel",
+        "dependency": "zxx_real_channel",
         "dependencyType": "enabled",
         "value": ""
     },
@@ -137,7 +107,7 @@
         "dependencyType": "enabled",
         "value": ""
     },
-    "zyx_real_channel": {
+    "zxy_real_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -146,13 +116,13 @@
         "group": "Data",
         "dataGroupType": "Multi-element",
         "main": true,
-        "label": "Zyx real",
+        "label": "Zxy real",
         "parent": "data_object",
         "optional": true,
         "enabled": true,
         "value": ""
     },
-    "zyx_real_uncertainty": {
+    "zxy_real_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -163,7 +133,7 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "zyx_real_channel",
+        "dependency": "zxy_real_channel",
         "dependencyType": "enabled",
         "value": ""
     },
@@ -197,7 +167,7 @@
         "dependencyType": "enabled",
         "value": ""
     },
-    "zyy_real_channel": {
+    "zyx_real_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -206,13 +176,13 @@
         "group": "Data",
         "dataGroupType": "Multi-element",
         "main": true,
-        "label": "Zyy real",
+        "label": "Zyx real",
         "parent": "data_object",
         "optional": true,
         "enabled": true,
         "value": ""
     },
-    "zyy_real_uncertainty": {
+    "zyx_real_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -223,7 +193,7 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "zyy_real_channel",
+        "dependency": "zyx_real_channel",
         "dependencyType": "enabled",
         "value": ""
     },
@@ -254,6 +224,36 @@
         "label": "Uncertainty",
         "parent": "data_object",
         "dependency": "zyy_imag_channel",
+        "dependencyType": "enabled",
+        "value": ""
+    },
+    "zyy_real_channel": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data",
+        "dataGroupType": "Multi-element",
+        "main": true,
+        "label": "Zyy real",
+        "parent": "data_object",
+        "optional": true,
+        "enabled": true,
+        "value": ""
+    },
+    "zyy_real_uncertainty": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data",
+        "dataGroupType": "Multi-element",
+        "main": true,
+        "label": "Uncertainty",
+        "parent": "data_object",
+        "dependency": "zyy_real_channel",
         "dependencyType": "enabled",
         "value": ""
     },
@@ -374,7 +374,7 @@
         "optional": true,
         "enabled": false,
         "label": "Elevation channel",
-        "tooltip": "Set elevation from channel.  If not set the topography will be set from the geometry of the selected 'topography' object",
+        "tooltip": "Set elevation from channel. If not set the topography will be set from the geometry of the selected 'topography' object",
         "parent": "topography_object",
         "dependency": "topography_object",
         "dependencyType": "enabled",
@@ -394,7 +394,7 @@
         "dependency": "topography_object",
         "dependencyType": "disabled",
         "label": "Active model",
-        "tooltip": "Provide the active cell boolean model directly if topography not set",
+        "tooltip": "Provide the active cell Boolean model directly if topography not set",
         "parent": "mesh",
         "value": ""
     },
@@ -458,7 +458,8 @@
         "dataType": "Float",
         "dataGroupType": [
             "Strike & dip",
-            "Dip direction & dip"
+            "Dip direction & dip",
+            "3D vector"
         ],
         "label": "Gradient rotation",
         "optional": true,
@@ -532,7 +533,6 @@
         "enabled": true,
         "tooltip": "Lp-norm used in the z-smoothness term of the objective function"
     },
-    "gradient_type": "total",
     "max_irls_iterations": {
         "min": 0,
         "group": "Sparse/blocky model",
@@ -649,7 +649,7 @@
         "min": 1,
         "enabled": true,
         "verbose": 3,
-        "tooltip": "Perform an Armijo backtracking linesearch for the provided number of iterations"
+        "tooltip": "Perform an Armijo backtracking line search for the provided number of iterations"
     },
     "max_cg_iterations": {
         "min": 0,
@@ -768,6 +768,7 @@
         "group": "Python run preferences",
         "main": true,
         "value": false,
+        "visible": false,
         "tooltip": "Generates a file for sweeping parameters instead of running the application"
     },
     "n_workers": "",

@@ -10,15 +10,15 @@
     "inversion_type": "magnetic scalar",
     "physical_property": "susceptibility",
     "forward_only": true,
-    "inducing_field_strength": {
-        "min": 0.0,
-        "max": 100000.0,
+    "inducing_field_declination": {
+        "min": -180.0,
+        "max": 180.0,
         "precision": 2,
         "lineEdit": false,
         "main": true,
         "group": "Inducing field",
-        "label": "Strength (nT)",
-        "value": 50000.0
+        "label": "Declination (deg)",
+        "value": 0.0
     },
     "inducing_field_inclination": {
         "min": -90.0,
@@ -30,15 +30,15 @@
         "label": "Inclination (deg)",
         "value": 90.0
     },
-    "inducing_field_declination": {
-        "min": -180.0,
-        "max": 180.0,
+    "inducing_field_strength": {
+        "min": 0.0,
+        "max": 100000.0,
         "precision": 2,
         "lineEdit": false,
         "main": true,
         "group": "Inducing field",
-        "label": "Declination (deg)",
-        "value": 0.0
+        "label": "Strength (nT)",
+        "value": 50000.0
     },
     "topography_object": {
         "main": true,
@@ -190,7 +190,6 @@
         "property": "",
         "value": 0.0001
     },
-    "save_sensitivities": false,
     "n_cpu": {
         "min": 1,
         "group": "Compute",
@@ -239,6 +238,7 @@
         "group": "Python run preferences",
         "main": true,
         "value": false,
+        "visible": false,
         "tooltip": "Generates a file for sweeping parameters instead of running the application"
     },
     "n_workers": "",

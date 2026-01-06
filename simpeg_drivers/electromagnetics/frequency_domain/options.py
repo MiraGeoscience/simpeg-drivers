@@ -15,6 +15,7 @@ from logging import getLogger
 from pathlib import Path
 from typing import ClassVar, TypeAlias
 
+from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.groups import PropertyGroup
 from geoh5py.objects import (
     AirborneFEMReceivers,
@@ -24,7 +25,12 @@ from geoh5py.objects import (
 from pydantic import field_validator
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.options import BaseForwardOptions, BaseInversionOptions, EMDataMixin
+from simpeg_drivers.options import (
+    BaseForwardOptions,
+    BaseInversionOptions,
+    ConductivityModelOptions,
+    EMDataMixin,
+)
 
 
 Receivers: TypeAlias = (
@@ -39,11 +45,6 @@ class BaseFDEMOptions(EMDataMixin):
     Base Frequency Domain Electromagnetic options.
     """
 
-    physical_property: str = "conductivity"
-    data_object: Receivers
-    inversion_type: str = "fdem"
-    model_type: str = "Conductivity (S/m)"
-
     @property
     def tx_offsets(self):
         """Return transmitter offsets from frequency metadata"""
@@ -56,7 +57,7 @@ class BaseFDEMOptions(EMDataMixin):
 
         except KeyError as exception:
             msg = "Metadata must contain 'Frequency configurations' dictionary with 'Offset' data."
-            raise KeyError(msg) from exception
+            raise GeoAppsError(msg) from exception
 
         return tx_offsets
 
@@ -81,7 +82,7 @@ class BaseFDEMOptions(EMDataMixin):
         return value
 
 
-class FDEMForwardOptions(BaseFDEMOptions, BaseForwardOptions):
+class FDEMForwardOptions(BaseForwardOptions, BaseFDEMOptions):
     """
     Frequency Domain Electromagnetic Forward options.
 
@@ -93,9 +94,13 @@ class FDEMForwardOptions(BaseFDEMOptions, BaseForwardOptions):
     name: ClassVar[str] = "Frequency Domain Electromagnetics Forward"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/fdem_forward.ui.json"
     title: str = "Frequency-domain EM (FEM) Forward"
+    physical_property: str = "conductivity"
+    inversion_type: str = "fdem"
 
+    data_object: Receivers
     z_real_channel_bool: bool
     z_imag_channel_bool: bool
+    models: ConductivityModelOptions
 
 
 class FDEMInversionOptions(BaseFDEMOptions, BaseInversionOptions):
@@ -112,8 +117,12 @@ class FDEMInversionOptions(BaseFDEMOptions, BaseInversionOptions):
     name: ClassVar[str] = "Frequency Domain Electromagnetics Inversion"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/fdem_inversion.ui.json"
     title: str = "Frequency-domain EM (FEM) Inversion"
+    physical_property: str = "conductivity"
+    inversion_type: str = "fdem"
 
+    data_object: Receivers
     z_real_channel: PropertyGroup | None = None
     z_real_uncertainty: PropertyGroup | None = None
     z_imag_channel: PropertyGroup | None = None
     z_imag_uncertainty: PropertyGroup | None = None
+    models: ConductivityModelOptions

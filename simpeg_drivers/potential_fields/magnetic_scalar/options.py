@@ -17,7 +17,20 @@ from typing import ClassVar
 from geoh5py.data import FloatData
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.options import BaseForwardOptions, BaseInversionOptions
+from simpeg_drivers.options import (
+    BaseForwardOptions,
+    BaseInversionOptions,
+    DirectiveOptions,
+    ModelOptions,
+)
+
+
+class MagneticModelOptions(ModelOptions):
+    """
+    ModelOptions class with defaulted lower bound.
+    """
+
+    lower_bound: float | FloatData | None = 0
 
 
 class MagneticForwardOptions(BaseForwardOptions):
@@ -55,6 +68,11 @@ class MagneticForwardOptions(BaseForwardOptions):
     byy_channel_bool: bool = False
     byz_channel_bool: bool = False
     bzz_channel_bool: bool = False
+    inducing_field_strength: float | FloatData
+    inducing_field_inclination: float | FloatData
+    inducing_field_declination: float | FloatData
+
+    models: MagneticModelOptions
 
 
 class MagneticInversionOptions(BaseInversionOptions):
@@ -118,4 +136,7 @@ class MagneticInversionOptions(BaseInversionOptions):
     inducing_field_strength: float | FloatData
     inducing_field_inclination: float | FloatData
     inducing_field_declination: float | FloatData
-    lower_bound: float | FloatData | None = 0.0
+
+    models: MagneticModelOptions
+
+    directives: DirectiveOptions = DirectiveOptions(sens_wts_threshold=1e-3)

@@ -21,12 +21,10 @@ from simpeg_drivers.potential_fields.magnetic_scalar.options import (
 class MagneticForwardDriver(InversionDriver):
     """Magnetic forward driver."""
 
-    _options_class = MagneticForwardOptions
-    _validations = None
+    _params_class = MagneticForwardOptions
 
 
 class MagneticInversionDriver(InversionDriver):
     """Magnetic inversion driver."""
 
-    _options_class = MagneticInversionOptions
-    _validations = None
+    _params_class = MagneticInversionOptions

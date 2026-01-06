@@ -8,7 +8,8 @@ logo: images/GA-Python_2.png
 # Force re-execution of notebooks on each build.
 # See https://jupyterbook.org/content/execute.html
 execute:
-  execute_notebooks: force
+  execute_notebooks: auto
+  exclude_patterns: [case_studies/Forrestania/python_code/*,]
 
 # Define the name of the latex output file for PDF builds
 latex:

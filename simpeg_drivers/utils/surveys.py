@@ -51,7 +51,7 @@ def counter_clockwise_sort(segments: np.ndarray, vertices: np.ndarray) -> np.nda
 
     :return: Sorted segments.
     """
-    center = np.mean(vertices, axis=0)
+    center = np.mean(vertices[segments[:, 0], :2], axis=0)
     center_to_vertices = vertices[segments[:, 0], :2] - center[:2]
     deltas = vertices[segments[:, 1], :2] - vertices[segments[:, 0], :2]
     cross = np.cross(center_to_vertices, deltas)
@@ -143,3 +143,42 @@ def get_unique_locations(survey: BaseSurvey) -> np.ndarray:
         locations = survey.receiver_locations
 
     return np.unique(locations, axis=0)
+
+
+def compute_em_projections(locations, simulation):
+    """
+    Pre-compute projections for the receivers for efficiency.
+    """
+    projections = {}
+    for component in "xyz":
+        projections[component] = simulation.mesh.get_interpolation_matrix(
+            locations, "faces_" + component[0]
+        )
+
+    for source in simulation.survey.source_list:
+        indices = source.rx_ids
+        for receiver in source.receiver_list:
+            projection = 0.0
+            for orientation, comp in zip(receiver.orientation, "xyz", strict=True):
+                if orientation == 0:
+                    continue
+                projection += orientation * projections[comp][indices, :]
+            receiver.spatialP = projection
+
+
+def compute_dc_projections(locations, cells, simulation):
+    """
+    Pre-compute projections for the receivers for efficiency.
+    """
+    projection = simulation.mesh.get_interpolation_matrix(locations, "nodes")
+
+    for source in simulation.survey.source_list:
+        indices = source.rx_ids
+        for receiver in source.receiver_list:
+            proj_mn = projection[cells[indices, 0], :]
+
+            # Check if dipole receiver
+            if not np.all(cells[indices, 0] == cells[indices, 1]):
+                proj_mn -= projection[cells[indices, 1], :]
+
+            receiver.spatialP = proj_mn  # pylint: disable=protected-access

@@ -17,7 +17,7 @@ from typing import ClassVar
 from geoh5py.objects import Octree
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.joint.options import BaseJointOptions
+from simpeg_drivers.joint.options import BaseJointOptions, JointModelOptions
 
 
 class JointCrossGradientOptions(BaseJointOptions):
@@ -25,11 +25,11 @@ class JointCrossGradientOptions(BaseJointOptions):
     Joint Cross Gradient inversion options.
 
     :param cross_gradient_weight_a_b:  Weight applied to the cross gradient
-        regularizations.
+        regularization between the first and second models.
     :param cross_gradient_weight_c_a:  Weight applied to the cross gradient
-        regularizations.
+        regularization between the first and third models.
     :param cross_gradient_weight_c_b:  Weight applied to the cross gradient
-        regularizations.
+        regularization between the second and third model.
     """
 
     name: ClassVar[str] = "Joint Cross Gradient Inversion"
@@ -44,3 +44,5 @@ class JointCrossGradientOptions(BaseJointOptions):
     cross_gradient_weight_a_b: float = 1.0
     cross_gradient_weight_c_a: float | None = None
     cross_gradient_weight_c_b: float | None = None
+
+    models: JointModelOptions = JointModelOptions()

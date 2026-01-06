@@ -16,60 +16,101 @@ import re
 from pathlib import Path
 
 import numpy as np
+from geoapps_utils.param_sweeps.driver import SweepDriver, SweepParams
+from geoapps_utils.param_sweeps.generate import generate
+from geoapps_utils.run import load_ui_json_as_dict
+from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.data import FilenameData
-from geoh5py.groups import SimPEGGroup
-from geoh5py.objects import DrapeModel, PotentialElectrode
+from geoh5py.groups import ContainerGroup, SimPEGGroup
+from geoh5py.objects import DrapeModel, PotentialElectrode, Surface
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import InputFile
 from geoh5py.workspace import Workspace
-from param_sweeps.driver import SweepDriver, SweepParams
-from param_sweeps.generate import generate
 
 from simpeg_drivers.driver import InversionDriver
+from simpeg_drivers.options import BaseInversionOptions
 from simpeg_drivers.utils.utils import active_from_xyz, drape_to_octree
 
 
 class LineSweepDriver(SweepDriver, InversionDriver):
     """Line Sweep driver for batch 2D forward and inversion drivers."""
 
+    _params_class = SweepParams
+
     def __init__(self, params):
-        self._out_group = None
-        self.workspace = params.geoh5
         self.batch2d_params = params
         self.cleanup = params.file_control.cleanup
 
-        if (
-            hasattr(self.batch2d_params, "out_group")
-            and self.batch2d_params.out_group is None
-        ):
-            self.batch2d_params.out_group = self.out_group
-
-        super().__init__(self.setup_params())
+        params = self.setup_params()
+        params.inversion_type = self.batch2d_params.inversion_type
+        super().__init__(params)
 
     @property
     def out_group(self):
         """The SimPEGGroup"""
-        if self._out_group is None:
-            with fetch_active_workspace(self.workspace, mode="r+"):
-                name = self.batch2d_params.inversion_type.capitalize()
-                if self.batch2d_params.forward_only:
-                    name += "Forward"
-                else:
-                    name += "Inversion"
-
-                # with fetch_active_workspace(self.geoh5, mode="r+"):
-                self._out_group = SimPEGGroup.create(
-                    self.batch2d_params.geoh5, name=name
-                )
-                self.batch2d_params.out_group = self._out_group
-                self.batch2d_params.update_group_options()
-
         return self._out_group
 
-    def run(self):  # pylint: disable=W0221
-        super().run()  # pylint: disable=W0221
+    @out_group.setter
+    def out_group(self, value: SimPEGGroup):
+        if not isinstance(value, SimPEGGroup):
+            raise TypeError("Output group must be a SimPEGGroup.")
+
+        self.batch2d_params.out_group = value
+        self.batch2d_params.update_out_group_options()
+        self._out_group = value
+
+    def validate_out_group(self, out_group: SimPEGGroup | None) -> SimPEGGroup:
+        """
+        Validate or create a SimPEGGroup to store results.
+
+        :param out_group: Output group from selection.
+        """
+        if isinstance(out_group, SimPEGGroup):
+            return out_group
+
         with fetch_active_workspace(self.workspace, mode="r+"):
+            out_group = self.workspace.get_entity(self.batch2d_params.title)[0]
+            if out_group is None:
+                out_group = SimPEGGroup.create(
+                    self.workspace, name=self.batch2d_params.title
+                )
+
+        return out_group
+
+    def run(self):
+        """
+        Run the line sweep driver.
+
+        TODO: Add parallelization on GEOPY-2490
+        """
+        with fetch_active_workspace(self.workspace, mode="r+"):
+            if not isinstance(self.out_group, SimPEGGroup):
+                raise GeoAppsError(
+                    f"Output group should be a valid SimPEGGroup, received: {type(self.out_group)}."
+                )
+
+            lookup = self.get_lookup()
+            self.write_files(lookup)
+
+            for name, trial in lookup.items():
+                file_path = Path(self.working_directory) / f"{name}.ui.json"
+                if trial["status"] == "complete":
+                    continue
+
+                trial["status"] = "processing"
+                self.update_lookup(lookup)
+                params_dict = load_ui_json_as_dict(file_path)
+                driver = self.driver_class_from_name(
+                    params_dict["inversion_type"],
+                    forward_only=params_dict["forward_only"],
+                )
+                driver.start(file_path)
+
+                trial["status"] = "complete"
+                self.update_lookup(lookup)
+
             self.collect_results()
+
         if self.cleanup:
             self.file_cleanup()
 
@@ -97,7 +138,7 @@ class LineSweepDriver(SweepDriver, InversionDriver):
         ifile.data["line_id_start"] = int(lines.min())
         ifile.data["line_id_end"] = int(lines.max())
         ifile.data["line_id_n"] = len(np.unique(lines))
-        sweep_params = SweepParams.from_input_file(ifile)
+        sweep_params = SweepParams.build(ifile)
         sweep_params.geoh5 = self.workspace
         return sweep_params
 
@@ -134,9 +175,15 @@ class LineSweepDriver(SweepDriver, InversionDriver):
                 out_group = next(
                     group for group in ws.groups if isinstance(group, SimPEGGroup)
                 )
+                run_group = ContainerGroup.create(
+                    self.workspace, name=f"Line {line}", parent=self.out_group
+                )
+                local_simpeg_group = out_group.copy(
+                    parent=run_group, copy_children=True, copy_relatives=True
+                )
                 survey = next(
                     child
-                    for child in out_group.children
+                    for child in local_simpeg_group.children
                     if isinstance(child, PotentialElectrode)
                 )
                 line_data = survey.get_entity(
@@ -144,22 +191,15 @@ class LineSweepDriver(SweepDriver, InversionDriver):
                 )
 
                 if not line_data:
-                    raise ValueError(f"Line {line} not found in {survey.name}")
+                    raise GeoAppsError(f"Line {line} not found in {survey.name}")
 
                 line_indices = line_ids == line
                 data = self.collect_line_data(survey, line_indices, data)
                 mesh = next(
                     child
-                    for child in out_group.children
+                    for child in local_simpeg_group.children
                     if isinstance(child, DrapeModel)
                 )
-
-                local_simpeg_group = mesh.parent.copy(
-                    name=f"Line {line}",
-                    parent=self.batch2d_params.out_group,
-                    copy_children=False,
-                )
-                local_simpeg_group.options = mesh.parent.options
                 filedata = [
                     k for k in out_group.children if isinstance(k, FilenameData)
                 ]
@@ -179,8 +219,7 @@ class LineSweepDriver(SweepDriver, InversionDriver):
 
                     fdat.copy(parent=out_group)
 
-                sub_mesh = mesh.copy(parent=local_simpeg_group)
-                drape_models.append(sub_mesh)
+                drape_models.append(mesh)
 
         # Write new log files to disk
         with open(ws.h5file.parent / "SimPEG.out", "w", encoding="utf8") as f:
@@ -196,7 +235,11 @@ class LineSweepDriver(SweepDriver, InversionDriver):
 
         # interpolate drape model children common to all drape models into octree
         active = active_from_xyz(
-            self.batch2d_params.mesh, self.inversion_topography.locations
+            self.batch2d_params.mesh,
+            self.inversion_topography.locations,
+            triangulation=getattr(
+                self.batch2d_params.active_cells.topography_object, "cells", None
+            ),
         )
         common_children = set.intersection(
             *[{c.name for c in d.children} for d in drape_models]
@@ -216,9 +259,7 @@ class LineSweepDriver(SweepDriver, InversionDriver):
                 [int(re.findall(r"\d+", n)[0]) for n in k] for k in iter_children
             ]
             last_iterations = [np.where(k == np.max(k))[0][0] for k in iter_numbers]
-            label = iter_children[0][0].replace(
-                re.findall(r"\d+", iter_children[0][0])[0], "final"
-            )
+            label = re.sub(r"\d+", "final", iter_children[0][0])
             children = {
                 label: [c[last_iterations[i]] for i, c in enumerate(iter_children)]
             }
@@ -230,18 +271,33 @@ class LineSweepDriver(SweepDriver, InversionDriver):
                 method="nearest",
             )
 
-        octree_model.copy(parent=self.batch2d_params.out_group)
+        octree_model.copy(parent=self.out_group)
 
     def collect_line_data(self, survey, line_indices, data):
         """
         Fill chunks of values from one line
         """
-        for child in survey.children:  # initialize data values dictionary
-            if "Iteration" in child.name and child.name not in data:
-                data[child.name] = {"values": np.zeros_like(line_indices) * np.nan}
+        for name in survey.get_data_list():
+            if "Iteration" not in name:
+                continue
 
-        for child in survey.children:
-            if "Iteration" in child.name:
-                data[child.name]["values"][line_indices] = child.values
+            child = survey.get_entity(name)[0]
+            if name not in data:
+                data[name] = {"values": np.zeros_like(line_indices) * np.nan}
+
+            data[name]["values"][line_indices] = child.values
+
+            if isinstance(self.batch2d_params, BaseInversionOptions):
+                label = re.sub(r"\d+", "final", name)
+
+                if label not in data:
+                    data[label] = {"values": np.zeros_like(line_indices) * np.nan}
+
+                data[label]["values"][line_indices] = child.values
 
         return data
+
+    @property
+    def workspace(self):
+        """Application workspace."""
+        return self.batch2d_params.geoh5

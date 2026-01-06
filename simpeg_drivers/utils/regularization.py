@@ -11,6 +11,13 @@
 import numpy as np
 import scipy.sparse as ssp
 from discretize import TreeMesh
+from geoapps_utils.utils.transformations import (
+    cartesian_normal_to_direction_and_dip,
+    x_rotation_matrix,
+    z_rotation_matrix,
+)
+from geoh5py.groups import PropertyGroup
+from geoh5py.groups.property_group_type import GroupTypeEnum
 from simpeg.regularization import SparseSmoothness
 from simpeg.utils import mkvc, sdiag
 
@@ -33,18 +40,32 @@ def cell_neighbors_along_axis(mesh: TreeMesh, axis: str) -> np.ndarray:
         stencil = getattr(mesh, f"cell_gradient_{axis}")
 
     ith_neighbor, jth_neighbor, _ = ssp.find(stencil)
-    n_stencils = int(ith_neighbor.shape[0] / 2)
-    stencil_indices = jth_neighbor[np.argsort(ith_neighbor)].reshape((n_stencils, 2))
+    stencil_indices = jth_neighbor[np.argsort(ith_neighbor)].reshape((-1, 2))
 
     return np.sort(stencil_indices, axis=1)
+
+
+def clean_index_array(index_array: np.ndarray) -> np.ndarray:
+    """
+    Remove duplicate rows or rows with -1 in index array.
+
+    :param index_array: Array of index pairs.
+
+    :return: Cleaned array of index pairs.
+    """
+    array = np.unique(index_array, axis=0)
+
+    # Remove all the -1 for TreeMesh
+    mask = ~np.any(array == -1, axis=1)
+    return array[mask, :]
 
 
 def collect_all_neighbors(
     neighbors: list[np.ndarray],
     neighbors_backwards: list[np.ndarray],
-    adjacent: list[np.ndarray],
-    adjacent_backwards: list[np.ndarray],
-) -> np.ndarray:
+    adjacent: np.ndarray,
+    adjacent_backwards: np.ndarray,
+) -> list[np.ndarray]:
     """
     Collect all neighbors for cells in the mesh.
 
@@ -52,108 +73,119 @@ def collect_all_neighbors(
     :param neighbors_backwards: Direct neighbors in reverse order.
     :param adjacent: Adjacent neighbors (corners).
     :param adjacent_backwards: Adjacent neighbors in reverse order.
+
+    :return: List of arrays of cell neighbors in all principle directions. List
+    length is 8 for 2D meshes and 26 for 3D meshes.
     """
-    all_neighbors = []  # Store
-
-    all_neighbors += [neighbors[0]]
-    all_neighbors += [neighbors[1]]
-
-    all_neighbors += [np.c_[neighbors[0][:, 0], adjacent[0][neighbors[0][:, 1]]]]
-    all_neighbors += [np.c_[neighbors[0][:, 1], adjacent[0][neighbors[0][:, 0]]]]
-
-    all_neighbors += [np.c_[adjacent[1][neighbors[1][:, 0]], neighbors[1][:, 1]]]
-    all_neighbors += [np.c_[adjacent[1][neighbors[1][:, 1]], neighbors[1][:, 0]]]
-
-    # Repeat backward for Treemesh
-    all_neighbors += [neighbors_backwards[0]]
-    all_neighbors += [neighbors_backwards[1]]
-
-    all_neighbors += [
+    neighbours_lists = [
+        neighbors[0],  # [i+1, j]
+        neighbors[1],  # [i, j+1]
+        np.c_[neighbors[0][:, 0], adjacent[:, 0][neighbors[0][:, 1]]],  # [i+1, j+1]
+        np.c_[neighbors[0][:, 1], adjacent[:, 0][neighbors[0][:, 0]]],  # [i-1, j+1]
+        np.c_[adjacent[:, 1][neighbors[1][:, 1]], neighbors[1][:, 0]],  # [i+1, j-1]
+        # Repeat backward for Treemesh
+        neighbors_backwards[0],  # [i-1, j]
+        neighbors_backwards[1],  # [i, j-1]
         np.c_[
             neighbors_backwards[0][:, 0],
-            adjacent_backwards[0][neighbors_backwards[0][:, 1]],
-        ]
-    ]
-    all_neighbors += [
-        np.c_[
-            neighbors_backwards[0][:, 1],
-            adjacent_backwards[0][neighbors_backwards[0][:, 0]],
-        ]
+            adjacent_backwards[:, 0][neighbors_backwards[0][:, 1]],
+        ],  # [i-1, j-1]
     ]
 
     # Stack all and keep only unique pairs
-    all_neighbors = np.vstack(all_neighbors)
-    all_neighbors = np.unique(all_neighbors, axis=0)
-
-    # Remove all the -1 for TreeMesh
-    all_neighbors = all_neighbors[
-        (all_neighbors[:, 0] != -1) & (all_neighbors[:, 1] != -1), :
-    ]
+    all_neighbors = [clean_index_array(elem) for elem in neighbours_lists]
 
     # Use all the neighbours on the xy plane to find neighbours in z
     if len(neighbors) == 3:
-        all_neighbors_z = []
+        max_index = np.vstack(all_neighbors).max() + 1
+        neigh_z = np.c_[np.arange(max_index), np.full(max_index, -1)].astype("int")
+        neigh_z[neighbors[2][:, 0], 1] = neighbors[2][:, 1]
 
-        all_neighbors_z += [neighbors[2]]
-        all_neighbors_z += [neighbors_backwards[2]]
+        neigh_z_back = np.c_[np.arange(max_index), np.full(max_index, -1)].astype("int")
+        neigh_z_back[neighbors_backwards[2][:, 0], 1] = neighbors_backwards[2][:, 1]
 
-        all_neighbors_z += [
-            np.c_[all_neighbors[:, 0], adjacent[2][all_neighbors[:, 1]]]
+        z_list = [
+            neighbors[2],  # z-positive
+            neighbors_backwards[2],  # z-negative
         ]
-        all_neighbors_z += [
-            np.c_[all_neighbors[:, 1], adjacent[2][all_neighbors[:, 0]]]
-        ]
+        for elem in all_neighbors:  # All x and y neighbors
+            z_list.append(
+                clean_index_array(
+                    np.c_[elem[:, 0], neigh_z[elem[:, 1], 1]]
+                )  # [i, j, k+1]
+            )
+            z_list.append(
+                clean_index_array(
+                    np.c_[elem[:, 0], neigh_z_back[elem[:, 1], 1]]
+                )  # [i, j, k-1]
+            )
 
-        all_neighbors_z += [
-            np.c_[all_neighbors[:, 0], adjacent_backwards[2][all_neighbors[:, 1]]]
-        ]
-        all_neighbors_z += [
-            np.c_[all_neighbors[:, 1], adjacent_backwards[2][all_neighbors[:, 0]]]
-        ]
-
-        # Stack all and keep only unique pairs
-        all_neighbors = np.vstack([all_neighbors, np.vstack(all_neighbors_z)])
-        all_neighbors = np.unique(all_neighbors, axis=0)
-
-        # Remove all the -1 for TreeMesh
-        all_neighbors = all_neighbors[
-            (all_neighbors[:, 0] != -1) & (all_neighbors[:, 1] != -1), :
-        ]
+        all_neighbors += z_list
 
     return all_neighbors
 
 
-def cell_adjacent(neighbors: list[np.ndarray]) -> list[np.ndarray]:
-    """Find all adjacent cells (corners) from cell neighbor array."""
+def cell_adjacent(mesh: TreeMesh, backward: bool = False) -> list[np.ndarray]:
+    """
+    Find all adjacent (corner) cells from cell neighbor array.
 
-    dim = len(neighbors)
-    max_index = np.max(np.vstack(neighbors))
-    corners = -1 * np.ones((dim, max_index + 1), dtype="int")
+    :param mesh: Input TreeMesh
+    :param backward: If True, find the opposite corner neighbors.
 
-    corners[0, neighbors[1][:, 0]] = neighbors[1][:, 1]
-    corners[1, neighbors[0][:, 1]] = neighbors[0][:, 0]
-    if dim == 3:
-        corners[2, neighbors[2][:, 0]] = neighbors[2][:, 1]
+    :return: Array of adjacent cell neighbors.
+    """
+    neighbors = [
+        cell_neighbors_along_axis(mesh, "x"),
+        cell_neighbors_along_axis(mesh, "y"),
+    ]
 
-    return [np.array(k) for k in corners.tolist()]
+    if backward:
+        neighbors = [np.fliplr(k) for k in neighbors]
+
+    corners = -1 * np.ones((mesh.n_cells, 2), dtype="int")
+
+    corners[neighbors[1][:, 0], 0] = neighbors[1][:, 1]
+    corners[neighbors[0][:, 1], 1] = neighbors[0][:, 0]
+
+    return corners
 
 
-def cell_neighbors(mesh: TreeMesh) -> np.ndarray:
-    """Find all cell neighbors in a TreeMesh."""
+def cell_neighbors_lists(mesh: TreeMesh) -> list[np.ndarray]:
+    """
+    Find cell neighbors in all directions.
 
-    neighbors = []
-    neighbors.append(cell_neighbors_along_axis(mesh, "x"))
-    neighbors.append(cell_neighbors_along_axis(mesh, "y"))
+    :param mesh: Input TreeMesh.
+
+    :return: List of arrays of cell neighbors in all principle directions. List
+    length is 8 for 2D meshes and 26 for 3D meshes.
+    """
+    neighbors = [
+        cell_neighbors_along_axis(mesh, "x"),
+        cell_neighbors_along_axis(mesh, "y"),
+    ]
+
     if mesh.dim == 3:
         neighbors.append(cell_neighbors_along_axis(mesh, "z"))
 
     neighbors_backwards = [np.fliplr(k) for k in neighbors]
-    corners = cell_adjacent(neighbors)
-    corners_backwards = cell_adjacent(neighbors_backwards)
+    corners = cell_adjacent(mesh)
+    corners_backwards = cell_adjacent(mesh, backward=True)
 
     return collect_all_neighbors(
         neighbors, neighbors_backwards, corners, corners_backwards
     )
+
+
+def cell_neighbors(mesh: TreeMesh) -> np.ndarray:
+    """
+    Find all cell neighbors in a TreeMesh.
+
+    :param mesh: Input TreeMesh.
+
+    :return: Array of unique and sorted cell neighbor pairs.
+    """
+    neighbors_lists = cell_neighbors_lists(mesh)
+    return np.unique(np.vstack(neighbors_lists), axis=1)
 
 
 def rotate_xz_2d(mesh: TreeMesh, phi: np.ndarray) -> ssp.csr_matrix:
@@ -164,6 +196,8 @@ def rotate_xz_2d(mesh: TreeMesh, phi: np.ndarray) -> ssp.csr_matrix:
         compensate for cell aspect ratio.
     :param phi: Angle in radians for clockwise rotation about the
         y-axis (xz plane).
+
+    :return: Sparse rotation matrix
     """
 
     if mesh.dim != 2:
@@ -190,19 +224,14 @@ def rotate_yz_3d(mesh: TreeMesh, theta: np.ndarray) -> ssp.csr_matrix:
         compensate for cell aspect ratio.
     :param theta: Angle in radians for clockwise rotation about the
         x-axis (yz plane).
-    """
 
-    n_cells = len(theta)
+    :return: Sparse rotation matrix
+    """
     hy = mesh.h_gridded[:, 1]
     hz = mesh.h_gridded[:, 2]
     theta = -np.arctan2((np.sin(theta) / hz), (np.cos(theta) / hy))
 
-    rxa = mkvc(np.c_[np.ones(n_cells), np.cos(theta), np.cos(theta)].T)
-    rxb = mkvc(np.c_[np.zeros(n_cells), np.sin(theta), np.zeros(n_cells)].T)
-    rxc = mkvc(np.c_[np.zeros(n_cells), -np.sin(theta), np.zeros(n_cells)].T)
-    Rx = ssp.diags([rxb[:-1], rxa, rxc[:-1]], [-1, 0, 1])
-
-    return Rx
+    return x_rotation_matrix(theta)
 
 
 def rotate_xy_3d(mesh: TreeMesh, phi: np.ndarray) -> ssp.csr_matrix:
@@ -213,21 +242,17 @@ def rotate_xy_3d(mesh: TreeMesh, phi: np.ndarray) -> ssp.csr_matrix:
         compensate for cell aspect ratio.
     :param phi: Angle in radians for clockwise rotation about the
         z-axis (xy plane).
+
+    :return: Sparse rotation matrix
     """
-    n_cells = len(phi)
     hx = mesh.h_gridded[:, 0]
     hy = mesh.h_gridded[:, 1]
     phi = -np.arctan2((np.sin(phi) / hy), (np.cos(phi) / hx))
 
-    rza = mkvc(np.c_[np.cos(phi), np.cos(phi), np.ones(n_cells)].T)
-    rzb = mkvc(np.c_[np.sin(phi), np.zeros(n_cells), np.zeros(n_cells)].T)
-    rzc = mkvc(np.c_[-np.sin(phi), np.zeros(n_cells), np.zeros(n_cells)].T)
-    Rz = ssp.diags([rzb[:-1], rza, rzc[:-1]], [-1, 0, 1])
-
-    return Rz
+    return z_rotation_matrix(phi)
 
 
-def get_cell_normals(n_cells: int, axis: str, outward: bool) -> np.ndarray:
+def get_cell_normals(n_cells: int, axis: str, outward: bool, dim: int) -> np.ndarray:
     """
     Returns cell normals for given axis and all cells.
 
@@ -235,16 +260,23 @@ def get_cell_normals(n_cells: int, axis: str, outward: bool) -> np.ndarray:
     :param axis: Cartesian axis (one of 'x', 'y', or 'z'
     :param outward: Direction of the normal. True for outward facing,
         False for inward facing normals.
+    :param dim: Dimension of the mesh. Either 2 for drape model or 3
+        for octree.
+
+    :return: Array of cell normals.
     """
 
     ind = 1 if outward else -1
 
     if axis == "x":
-        normals = np.kron(np.ones(n_cells), np.c_[ind, 0, 0])
+        n = np.c_[ind, 0] if dim == 2 else np.c_[ind, 0, 0]
+        normals = np.kron(np.ones(n_cells), n)
     elif axis == "y":
-        normals = np.kron(np.ones(n_cells), np.c_[0, ind, 0])
+        n = np.c_[0, ind] if dim == 2 else np.c_[0, ind, 0]
+        normals = np.kron(np.ones(n_cells), n)
     elif axis == "z":
-        normals = np.kron(np.ones(n_cells), np.c_[0, 0, ind])
+        n = np.c_[0, ind] if dim == 2 else np.c_[0, 0, ind]
+        normals = np.kron(np.ones(n_cells), n)
     else:
         raise ValueError("Axis must be one of 'x', 'y', or 'z'.")
 
@@ -340,20 +372,20 @@ def gradient_operator(
     :param volumes: Partial volume array.
     :param n_cells: Number of cells in mesh.
     """
-    Grad = ssp.csr_matrix(
+    grad = ssp.csr_matrix(
         (volumes, (neighbors[:, 0], neighbors[:, 1])), shape=(n_cells, n_cells)
     )
 
     # Normalize rows
-    Vol = mkvc(Grad.sum(axis=1))
-    Vol[Vol > 0] = 1.0 / Vol[Vol > 0]
-    Grad = -sdiag(Vol) * Grad
+    vol = mkvc(grad.sum(axis=1))
+    vol[vol > 0] = 1.0 / vol[vol > 0]
+    grad = -sdiag(vol) * grad
 
     diag = np.ones(n_cells)
-    diag[Vol == 0] = 0
-    Grad = sdiag(diag) + Grad
+    diag[vol == 0] = 0
+    grad = sdiag(diag) + grad
 
-    return Grad
+    return grad
 
 
 def rotated_gradient(
@@ -365,7 +397,7 @@ def rotated_gradient(
     forward: bool = True,
 ) -> ssp.csr_matrix:
     """
-    Calculated rotated gradient operator using partial volumes.
+    Calculated rotated gradient operator using unit partial volumes.
 
     :param mesh: Input TreeMesh.
     :param neighbors: Cell neighbors array.
@@ -377,20 +409,73 @@ def rotated_gradient(
     """
 
     n_cells = mesh.n_cells
+    dim = mesh.dim
     if any(len(k) != n_cells for k in [dip, direction]):
         raise ValueError(
             "Input angle arrays are not the same size as the number of "
             "cells in the mesh."
         )
 
-    Rx = rotate_yz_3d(mesh, dip)
-    Rz = rotate_xy_3d(mesh, direction)
-    normals = get_cell_normals(n_cells, axis, forward)
-    rotated_normals = (Rz * (Rx * normals.T)).reshape(n_cells, mesh.dim)
-    volumes, neighbors = partial_volumes(mesh, neighbors, rotated_normals)
+    normals = get_cell_normals(n_cells, axis, forward, dim)
+    if dim == 3:
+        Rx = rotate_yz_3d(mesh, dip)
+        Rz = rotate_xy_3d(mesh, direction)
+        rotated_normals = (Rz * (Rx * normals.T)).reshape(n_cells, dim)
+    elif dim == 2:
+        Ry = rotate_xz_2d(mesh, dip)
+        rotated_normals = (Ry * normals.T).reshape(n_cells, dim)
+
+    volumes, neighbors = partial_volumes(
+        mesh,
+        neighbors,
+        rotated_normals,  # pylint: disable=possibly-used-before-assignment
+    )
 
     unit_grad = gradient_operator(neighbors, volumes, n_cells)
-    return sdiag(1 / mesh.h_gridded[:, "xyz".find(axis)]) @ unit_grad
+
+    return unit_grad
+
+
+def ensure_dip_direction_convention(
+    orientations: np.ndarray, group_type: str
+) -> np.ndarray:
+    """
+    Ensure orientations array has dip and direction convention.
+
+    :param orientations: Array of orientations.  Either n * 2 if Strike & dip
+        or Dip direction & dip group_type, or n * 3 if 3D Vector group_type defining the normal of the dipping plane.
+    :param group_type as specified in geoh5py.GroupTypeEnum.
+    """
+
+    if group_type == GroupTypeEnum.VECTOR:
+        orientations = np.rad2deg(cartesian_normal_to_direction_and_dip(orientations))
+
+    if group_type in [GroupTypeEnum.STRIKEDIP]:
+        orientations[:, 0] = 90.0 + orientations[:, 0]
+
+    return orientations
+
+
+def direction_and_dip(property_group: PropertyGroup) -> list[np.ndarray]:
+    """Conversion of orientation group to direction and dip."""
+
+    group_type = property_group.property_group_type
+    if group_type not in [
+        GroupTypeEnum.VECTOR,
+        GroupTypeEnum.STRIKEDIP,
+        GroupTypeEnum.DIPDIR,
+    ]:
+        raise ValueError(
+            "Property group does not contain orientation data. "
+            "Type must be one of '3D vector', 'Strike & dip', or "
+            "'Dip direction & dip'."
+        )
+
+    orientations = np.vstack(
+        [property_group.parent.get_data(k)[0].values for k in property_group.properties]
+    ).T
+
+    return ensure_dip_direction_convention(orientations, group_type)
 
 
 def set_rotated_operators(
@@ -412,26 +497,41 @@ def set_rotated_operators(
     :param forward: Whether to use forward or backward difference for
         derivative approximations.
     """
-    grad_op = rotated_gradient(
-        function.regularization_mesh.mesh, neighbors, axis, dip, direction, forward
+    mesh = function.regularization_mesh
+    axes = "xyz" if mesh.dim == 3 else "xz"
+
+    h_cell = mesh.mesh.h_gridded[:, axes.find(axis)]
+
+    unit_grad_op = rotated_gradient(mesh.mesh, neighbors, axis, dip, direction, forward)
+
+    vol_avg_op = abs(unit_grad_op)
+    vol_avg_op.data = (
+        vol_avg_op.data * mesh.mesh.cell_volumes[unit_grad_op.nonzero()[1]]
     )
-    grad_op_active = function.regularization_mesh.Pac.T @ (
-        grad_op @ function.regularization_mesh.Pac
-    )
-    active_faces = np.isclose(
-        grad_op_active @ np.ones(function.regularization_mesh.n_cells), 0
-    )
-    active_faces &= grad_op_active.max(axis=1).toarray().ravel() != 0
+
+    grad_op_active = mesh.Pac.T @ (unit_grad_op @ mesh.Pac)
+
+    # Remove extra partial volume from missing neighbors
+    row_sum = np.asarray(grad_op_active.sum(axis=1)).ravel()
+    grad_op_active -= sdiag(row_sum)
+
+    vol_avg_op = mesh.Pac.T @ (vol_avg_op @ mesh.Pac)
+    active_faces = grad_op_active.max(axis=1).toarray().ravel() != 0
+
+    vol_avg_op = vol_avg_op[active_faces, :]
+    vol_avg_op = sdiag(np.asarray(vol_avg_op.sum(axis=1)).ravel() ** -1) @ vol_avg_op
+    h_op = sdiag(vol_avg_op @ (mesh.Pac.T @ h_cell**-1.0))
+    grad_op = h_op @ grad_op_active[active_faces, :]
 
     setattr(
-        function.regularization_mesh,
+        mesh,
         f"_cell_gradient_{function.orientation}",
-        grad_op_active[active_faces, :],
+        grad_op,
     )
     setattr(
-        function.regularization_mesh,
+        mesh,
         f"_aveCC2F{function.orientation}",
-        sdiag(np.ones(function.regularization_mesh.n_cells))[active_faces, :],
+        vol_avg_op,
     )
 
     return function

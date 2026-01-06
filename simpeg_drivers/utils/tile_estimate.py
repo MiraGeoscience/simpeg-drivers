@@ -28,27 +28,26 @@ from typing import ClassVar
 import matplotlib.pyplot as plt
 import numpy as np
 from discretize import TreeMesh
-from geoapps_utils.driver.data import BaseData
-from geoapps_utils.driver.driver import BaseDriver
+from geoapps_utils.base import Driver, Options
 from geoapps_utils.utils.numerical import fibonacci_series, fit_circle
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
 from scipy.interpolate import interp1d
 from tqdm import tqdm
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.components.factories.misfit_factory import MisfitFactory
+from simpeg_drivers.components.data import InversionData
 from simpeg_drivers.driver import InversionDriver
+from simpeg_drivers.utils.nested import create_simulation, tile_locations
 from simpeg_drivers.utils.utils import (
     active_from_xyz,
     simpeg_group_to_driver,
-    tile_locations,
 )
 
 
 logger = logging.getLogger(__name__)
 
 
-class TileParameters(BaseData):
+class TileParameters(Options):
     """
     Parameters for the tile estimator.
     """
@@ -60,7 +59,7 @@ class TileParameters(BaseData):
     out_group: UIJsonGroup | None = None
 
 
-class TileEstimator(BaseDriver):
+class TileEstimator(Driver):
     """
     Class to estimate the optimal number of tiles for a given mesh and receiver locations.
 
@@ -76,7 +75,7 @@ class TileEstimator(BaseDriver):
     def __init__(self, params: TileParameters):
         self._driver: InversionDriver | None = None
         self._mesh: TreeMesh | None = None
-        self._locations: np.ndarray | None = None
+        self._data: np.ndarray | None = None
         self._active_cells: np.ndarray | None = None
 
         super().__init__(params)
@@ -93,22 +92,16 @@ class TileEstimator(BaseDriver):
             counts.append(max_tiles)
 
         for count in tqdm(counts, desc="Estimating tiles:"):
-            if count > len(self.locations):
+            if count > len(self.data.locations):
                 break
 
-            tiles = tile_locations(
-                self.locations,
-                count,
-                method="kmeans",
-            )
+            tiles = tile_locations(self.data.locations, count, labels=self.data.parts)
             # Get the median tile
             ind = int(np.argsort([len(tile) for tile in tiles])[int(count / 2)])
-            self.driver.params.tile_spatial = int(count)
-            sim, _, _, mapping = MisfitFactory.create_nested_simulation(
-                self.driver.inversion_data,
-                self.driver.inversion_mesh,
+            self.driver.params.compute.tile_spatial = int(count)
+            sim, mapping = create_simulation(
+                self.driver.simulation,
                 None,
-                self.active_cells,
                 tiles[ind],
                 tile_id=ind,
                 padding_cells=self.driver.params.padding_cells,
@@ -146,7 +139,7 @@ class TileEstimator(BaseDriver):
             fig_name = "tile_estimator.png"
             logger.info("Saving figure '%s' to disk and to geoh5.", fig_name)
             path = self.params.geoh5.h5file.parent / fig_name
-            figure = self.plot(results, self.locations, optimal)
+            figure = self.plot(results, self.data, optimal)
             figure.savefig(path)
             out_group.add_file(path)
 
@@ -176,14 +169,14 @@ class TileEstimator(BaseDriver):
         return self._mesh
 
     @property
-    def locations(self) -> np.ndarray:
+    def data(self) -> InversionData:
         """
-        All receiver locations.
+        All receiver data locations.
         """
-        if self._locations is None:
-            self._locations = self.driver.inversion_data.locations
+        if self._data is None:
+            self._data = self.driver.inversion_data
 
-        return self._locations
+        return self._data
 
     @property
     def active_cells(self) -> np.ndarray:
@@ -192,7 +185,11 @@ class TileEstimator(BaseDriver):
         """
         if self._active_cells is None:
             self._active_cells = active_from_xyz(
-                self.driver.inversion_mesh.entity, self.locations, method="nearest"
+                self.driver.inversion_mesh.entity,
+                self.data.locations,
+                triangulation=getattr(
+                    self.params.active_cells.topography_object, "cells", None
+                ),
             )
         return self._active_cells
 
@@ -210,7 +207,7 @@ class TileEstimator(BaseDriver):
         for ind in range(1, len(problem_sizes) - 1):
             size = problem_sizes[ind - 1 : ind + 2].copy()
             counts = tile_counts[ind - 1 : ind + 2].astype(float)
-            rad, x0, y0 = fit_circle(counts, size)
+            rad, _x0, _y0 = fit_circle(counts, size)
             radiis.append(rad[0])
 
         optimal = tile_counts[np.argmin(radiis)]
@@ -221,7 +218,7 @@ class TileEstimator(BaseDriver):
         Generate a new SimPEGGroup with the optimal number of tiles.
         """
         out_group = self.params.simulation.copy(copy_children=False)
-        self.driver.params.tile_spatial = optimal
+        self.driver.params.compute.tile_spatial = optimal
         self.driver.params.out_group = out_group
         out_group.options = self.driver.params.serialize()
         out_group.metadata = None
@@ -232,7 +229,7 @@ class TileEstimator(BaseDriver):
         return out_group
 
     @staticmethod
-    def plot(results: dict, locations: np.ndarray, optimal: int):
+    def plot(results: dict, data: InversionData, optimal: int):
         """
         Plot the results of the tile estimator.
 
@@ -255,12 +252,12 @@ class TileEstimator(BaseDriver):
 
         ax2 = plt.subplot(2, 1, 2)
         tiles = tile_locations(
-            locations,
+            data.locations,
             optimal,
-            method="kmeans",
+            labels=data.parts,
         )
         for tile in tiles:
-            ax2.scatter(locations[tile, 0], locations[tile, 1], s=1)
+            ax2.scatter(data.locations[tile, 0], data.locations[tile, 1], s=1)
 
         ax2.set_xlabel("Easting (m)")
         ax2.set_ylabel("Northing (m)")

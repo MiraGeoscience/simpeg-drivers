@@ -11,15 +11,13 @@
 
 from __future__ import annotations
 
-import warnings
 from copy import deepcopy
 from typing import TYPE_CHECKING
-from uuid import UUID
 
 import numpy as np
 from discretize import TensorMesh, TreeMesh
 from discretize.utils import mesh_utils
-from geoapps_utils.utils.conversions import string_to_numeric
+from geoapps_utils.utils.locations import mask_under_horizon
 from geoapps_utils.utils.numerical import running_mean, traveling_salesman
 from geoh5py import Workspace
 from geoh5py.data import NumericData
@@ -29,21 +27,13 @@ from geoh5py.objects.surveys.direct_current import PotentialElectrode
 from geoh5py.objects.surveys.electromagnetics.base import LargeLoopGroundEMSurvey
 from geoh5py.shared import INTEGER_NDV
 from geoh5py.ui_json import InputFile
-from octree_creation_app.utils import octree_2_treemesh
+from grid_apps.utils import octree_2_treemesh
 from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator, interp1d
 from scipy.spatial import ConvexHull, Delaunay, cKDTree
-from simpeg.electromagnetics.frequency_domain.sources import (
-    LineCurrent as FEMLineCurrent,
-)
-from simpeg.electromagnetics.time_domain.sources import LineCurrent as TEMLineCurrent
-from simpeg.survey import BaseSurvey
-from simpeg.utils import mkvc
 
 from simpeg_drivers import DRIVER_MAP
 from simpeg_drivers.utils.surveys import (
     compute_alongline_distance,
-    get_intersecting_cells,
-    get_unique_locations,
 )
 
 
@@ -138,70 +128,6 @@ def calculate_2D_trend(
         f"Removed {order}th order polynomial trend with mean: {np.mean(data_trend):.6g}"
     )
     return data_trend, params
-
-
-def create_nested_mesh(
-    survey: BaseSurvey,
-    base_mesh: TreeMesh,
-    padding_cells: int = 8,
-    minimum_level: int = 4,
-    finalize: bool = True,
-):
-    """
-    Create a nested mesh with the same extent as the input global mesh.
-    Refinement levels are preserved only around the input locations (local survey).
-
-    Parameters
-    ----------
-
-    locations: Array of coordinates for the local survey shape(*, 3).
-    base_mesh: Input global TreeMesh object.
-    padding_cells: Used for 'method'= 'padding_cells'. Number of cells in each concentric shell.
-    minimum_level: Minimum octree level to preserve everywhere outside the local survey area.
-    finalize: Return a finalized local treemesh.
-    """
-    locations = get_unique_locations(survey)
-    nested_mesh = TreeMesh(
-        [base_mesh.h[0], base_mesh.h[1], base_mesh.h[2]],
-        x0=base_mesh.x0,
-        diagonal_balance=False,
-    )
-    base_level = base_mesh.max_level - minimum_level
-    base_refinement = base_mesh.cell_levels_by_index(np.arange(base_mesh.nC))
-    base_refinement[base_refinement > base_level] = base_level
-    nested_mesh.insert_cells(
-        base_mesh.gridCC,
-        base_refinement,
-        finalize=False,
-    )
-    base_cell = np.min([base_mesh.h[0][0], base_mesh.h[1][0]])
-    tx_loops = []
-    for source in survey.source_list:
-        if isinstance(source, TEMLineCurrent | FEMLineCurrent):
-            mesh_indices = get_intersecting_cells(source.location, base_mesh)
-            tx_loops.append(base_mesh.cell_centers[mesh_indices, :])
-
-    if tx_loops:
-        locations = np.vstack([locations, *tx_loops])
-
-    tree = cKDTree(locations[:, :2])
-    rad, _ = tree.query(base_mesh.gridCC[:, :2])
-    pad_distance = 0.0
-    for ii in range(minimum_level):
-        pad_distance += base_cell * 2**ii * padding_cells
-        indices = np.where(rad < pad_distance)[0]
-        levels = base_mesh.cell_levels_by_index(indices)
-        levels[levels > (base_mesh.max_level - ii)] = base_mesh.max_level - ii
-        nested_mesh.insert_cells(
-            base_mesh.gridCC[indices, :],
-            levels,
-            finalize=False,
-        )
-
-    if finalize:
-        nested_mesh.finalize()
-
-    return nested_mesh
 
 
 def drape_to_octree(
@@ -387,7 +313,6 @@ def get_drape_model(
     :return object_out: Output block model.
     """
     locations = truncate_locs_depths(locations, depth_core)
-    depth_core = minimum_depth_core(locations, depth_core, h[1])
     order = traveling_salesman(locations)
 
     # Smooth the locations
@@ -435,31 +360,6 @@ def get_drape_model(
     return val
 
 
-def get_inversion_output(h5file: str | Workspace, inversion_group: str | UUID):
-    """
-    Recover inversion iterations from a ContainerGroup comments.
-    """
-    if isinstance(h5file, Workspace):
-        workspace = h5file
-    else:
-        workspace = Workspace(h5file)
-
-    try:
-        group = workspace.get_entity(inversion_group)[0]
-    except IndexError as exc:
-        raise IndexError(
-            f"BaseInversion group {inversion_group} could not be found in the target geoh5 {h5file}"
-        ) from exc
-
-    outfile = group.get_entity("SimPEG.out")[0]
-    out = list(outfile.file_bytes.decode("utf-8").replace("\r", "").split("\n"))[:-1]
-    cols = out.pop(0).split(" ")
-    out = [[string_to_numeric(k) for k in elem.split(" ")] for elem in out]
-    out = dict(zip(cols, list(map(list, zip(*out, strict=True))), strict=True))
-
-    return out
-
-
 def xyz_2_drape_model(
     workspace, locations, depths, name=None, parent=None
 ) -> DrapeModel:
@@ -503,168 +403,6 @@ def xyz_2_drape_model(
         }
     )
     return model
-
-
-def tile_locations(
-    locations,
-    n_tiles,
-    minimize=True,
-    method="kmeans",
-    bounding_box=False,
-    count=False,
-    unique_id=False,
-):
-    """
-    Function to tile a survey points into smaller square subsets of points
-
-    :param numpy.ndarray locations: n x 2 array of locations [x,y]
-    :param integer n_tiles: number of tiles (for 'cluster'), or number of
-        refinement steps ('other')
-    :param Bool minimize: shrink tile sizes to minimum
-    :param string method: set to 'kmeans' to use better quality clustering, or anything
-        else to use more memory efficient method for large problems
-    :param bounding_box: bool [False]
-        Return the SW and NE corners of each tile.
-    :param count: bool [False]
-        Return the number of locations in each tile.
-    :param unique_id: bool [False]
-        Return the unique identifiers of all tiles.
-
-    RETURNS:
-    :param list: Return a list of arrays with the for the SW and NE
-                        limits of each tiles
-    :param integer binCount: Number of points in each tile
-    :param list labels: Cluster index of each point n=0:(nTargetTiles-1)
-    :param numpy.array tile_numbers: Vector of tile numbers for each count in binCount
-
-    NOTE: All X Y and xy products are legacy now values, and are only used
-    for plotting functions. They are not used in any calculations and could
-    be dropped from the return calls in future versions.
-
-
-    """
-
-    if method == "kmeans":
-        # Best for smaller problems
-
-        # Cluster
-        # TODO turn off filter once sklearn has dealt with the issue causing the warning
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", category=UserWarning)
-            from sklearn.cluster import KMeans
-
-            cluster = KMeans(n_clusters=n_tiles, random_state=0, n_init="auto")
-            cluster.fit_predict(locations[:, :2])
-
-        labels = cluster.labels_
-
-        # nData in each tile
-        binCount = np.zeros(int(n_tiles))
-
-        # x and y limits on each tile
-        X1 = np.zeros_like(binCount)
-        X2 = np.zeros_like(binCount)
-        Y1 = np.zeros_like(binCount)
-        Y2 = np.zeros_like(binCount)
-
-        for ii in range(int(n_tiles)):
-            mask = cluster.labels_ == ii
-            X1[ii] = locations[mask, 0].min()
-            X2[ii] = locations[mask, 0].max()
-            Y1[ii] = locations[mask, 1].min()
-            Y2[ii] = locations[mask, 1].max()
-            binCount[ii] = mask.sum()
-
-        xy1 = np.c_[X1[binCount > 0], Y1[binCount > 0]]
-        xy2 = np.c_[X2[binCount > 0], Y2[binCount > 0]]
-
-        # Get the tile numbers that exist, for compatibility with the next method
-        tile_id = np.unique(cluster.labels_)
-
-    else:
-        # Works on larger problems
-        # Initialize variables
-        # Test each refinement level for maximum space coverage
-        nTx = 1
-        nTy = 1
-        for _ in range(int(n_tiles + 1)):
-            nTx += 1
-            nTy += 1
-
-            testx = np.percentile(locations[:, 0], np.arange(0, 100, 100 / nTx))
-            testy = np.percentile(locations[:, 1], np.arange(0, 100, 100 / nTy))
-
-            dx = testx[:-1] - testx[1:]
-            dy = testy[:-1] - testy[1:]
-
-            if np.mean(dx) > np.mean(dy):
-                nTx -= 1
-            else:
-                nTy -= 1
-
-            print(nTx, nTy)
-        tilex = np.percentile(locations[:, 0], np.arange(0, 100, 100 / nTx))
-        tiley = np.percentile(locations[:, 1], np.arange(0, 100, 100 / nTy))
-
-        X1, Y1 = np.meshgrid(tilex, tiley)
-        X2, Y2 = np.meshgrid(
-            np.r_[tilex[1:], locations[:, 0].max()],
-            np.r_[tiley[1:], locations[:, 1].max()],
-        )
-
-        # Plot data and tiles
-        X1, Y1, X2, Y2 = mkvc(X1), mkvc(Y1), mkvc(X2), mkvc(Y2)
-        binCount = np.zeros_like(X1)
-        labels = np.zeros_like(locations[:, 0])
-        for ii in range(X1.shape[0]):
-            mask = (
-                (locations[:, 0] >= X1[ii])
-                * (locations[:, 0] <= X2[ii])
-                * (locations[:, 1] >= Y1[ii])
-                * (locations[:, 1] <= Y2[ii])
-            ) == 1
-
-            # Re-adjust the window size for tight fit
-            if minimize:
-                if mask.sum():
-                    X1[ii], X2[ii] = (
-                        locations[:, 0][mask].min(),
-                        locations[:, 0][mask].max(),
-                    )
-                    Y1[ii], Y2[ii] = (
-                        locations[:, 1][mask].min(),
-                        locations[:, 1][mask].max(),
-                    )
-
-            labels[mask] = ii
-            binCount[ii] = mask.sum()
-
-        xy1 = np.c_[X1[binCount > 0], Y1[binCount > 0]]
-        xy2 = np.c_[X2[binCount > 0], Y2[binCount > 0]]
-
-        # Get the tile numbers that exist
-        # Since some tiles may have 0 data locations, and are removed by
-        # [binCount > 0], the tile numbers are no longer contiguous 0:nTiles
-        tile_id = np.unique(labels)
-
-    tiles = []
-    for tid in tile_id.tolist():
-        tiles += [np.where(labels == tid)[0]]
-
-    out = [tiles]
-
-    if bounding_box:
-        out.append([xy1, xy2])
-
-    if count:
-        out.append(binCount[binCount > 0])
-
-    if unique_id:
-        out.append(tile_id)
-
-    if len(out) == 1:
-        return out[0]
-    return tuple(out)
 
 
 def get_containing_cells(
@@ -727,7 +465,7 @@ def active_from_xyz(
     mesh: DrapeModel | Octree,
     topo: np.ndarray,
     grid_reference="center",
-    method="linear",
+    triangulation: np.ndarray | None = None,
 ):
     """Returns an active cell index array below a surface
 
@@ -755,47 +493,8 @@ def active_from_xyz(
     else:
         raise ValueError("'grid_reference' must be one of 'center', 'top', or 'bottom'")
 
-    z_locations = topo_drape_elevation(locations, topo, method=method)
-    # fill_nan(locations, z_locations, filler=topo[:, -1])
-
     # Return the active cell array
-    return locations[:, -1] < z_locations[:, -1]
-
-
-def topo_drape_elevation(locations, topo, method="linear") -> np.ndarray:
-    """
-    Get draped elevation at locations.
-
-    Values are extrapolated to nearest neighbour if requested outside the
-    convex hull of the input topography points.
-
-    :param locations: n x 3 array of locations
-    :param topo: n x 3 array of topography points
-    :param method: Type of topography interpolation, either 'linear' or 'nearest'
-
-    :return: An array of z elevations for every input locations.
-    """
-    if method == "linear":
-        delaunay_2d = Delaunay(topo[:, :-1])
-        z_interpolate = LinearNDInterpolator(delaunay_2d, topo[:, -1])
-    elif method == "nearest":
-        z_interpolate = NearestNDInterpolator(topo[:, :-1], topo[:, -1])
-    else:
-        raise ValueError("Method must be 'linear', or 'nearest'")
-
-    unique_locs, inds = np.unique(
-        locations[:, :-1].round(), axis=0, return_inverse=True
-    )
-    z_locations = z_interpolate(unique_locs)[inds]
-
-    # Apply nearest neighbour if in extrapolation
-    ind_nan = np.isnan(z_locations)
-    if any(ind_nan):
-        tree = cKDTree(topo)
-        _, ind = tree.query(locations[ind_nan, :])
-        z_locations[ind_nan] = topo[ind, -1]
-
-    return np.c_[locations[:, :-1], z_locations]
+    return mask_under_horizon(locations, topo, triangulation=triangulation)
 
 
 def truncate_locs_depths(locs: np.ndarray, depth_core: float) -> np.ndarray:
@@ -814,25 +513,6 @@ def truncate_locs_depths(locs: np.ndarray, depth_core: float) -> np.ndarray:
         core_bottom_elev  # sets locations below core to core bottom
     )
     return locs
-
-
-def minimum_depth_core(
-    locs: np.ndarray, depth_core: float, core_z_cell_size: int
-) -> float:
-    """
-    Get minimum depth core.
-
-    :param locs: Location points.
-    :param depth_core: Depth of core mesh below locs.
-    :param core_z_cell_size: Cell size in z direction.
-
-    :return depth_core: Minimum depth core.
-    """
-    zrange = locs[:, -1].max() - locs[:, -1].min()  # locs z range
-    if depth_core >= zrange:
-        return depth_core - zrange + core_z_cell_size
-    else:
-        return depth_core
 
 
 def get_neighbouring_cells(mesh: TreeMesh, indices: list | np.ndarray) -> tuple:
@@ -889,6 +569,6 @@ def simpeg_group_to_driver(group: SimPEGGroup, workspace: Workspace) -> Inversio
     inversion_driver = getattr(module, class_name)
 
     ifile.set_data_value("out_group", group)
-    params = inversion_driver._options_class.build(ifile)  # pylint: disable=protected-access
+    params = inversion_driver._params_class.build(ifile)  # pylint: disable=protected-access
 
     return inversion_driver(params)

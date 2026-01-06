@@ -22,15 +22,22 @@ from simpeg_drivers.electricals.induced_polarization.three_dimensions.driver imp
     IP3DForwardDriver,
     IP3DInversionDriver,
 )
-from simpeg_drivers.options import ActiveCellsOptions
-from simpeg_drivers.utils.utils import get_inversion_output
-from tests.testing_utils import check_target, setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.driver import (
+    SyntheticsComponents,
+)
+from simpeg_drivers.utils.synthetics.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticsComponentsOptions,
+)
+from tests.utils.targets import check_target, get_inversion_output, get_workspace
 
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.0082997, "phi_d": 178, "phi_m": 0.684}
+target_run = {"data_norm": 0.008301530028556213, "phi_d": 107, "phi_m": 0.863}
 
 
 def test_ip_3d_fwr_run(
@@ -40,25 +47,22 @@ def test_ip_3d_fwr_run(
     refinement=(4, 6),
 ):
     # Run the forward
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=1e-6,
-        anomaly=1e-1,
-        n_electrodes=n_electrodes,
-        n_lines=n_lines,
-        refinement=refinement,
-        drape_height=0.0,
-        inversion_type="induced polarization 3d",
-        flatten=False,
+    opts = SyntheticsComponentsOptions(
+        method="induced polarization 3d",
+        survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
+        mesh=MeshOptions(refinement=refinement),
+        model=ModelOptions(background=1e-6, anomaly=1e-1),
     )
-    params = IP3DForwardOptions(
-        geoh5=geoh5,
-        mesh=model.parent,
-        active_cells=ActiveCellsOptions(topography_object=topography),
-        data_object=survey,
-        starting_model=model,
-        conductivity_model=1e-2,
-    )
+    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+        params = IP3DForwardOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
+            starting_model=components.model,
+            conductivity_model=1e-2,
+        )
 
     fwr_driver = IP3DForwardDriver(params)
     fwr_driver.run()
@@ -75,15 +79,15 @@ def test_ip_3d_run(
         workpath = tmp_path.parent / "test_ip_3d_fwr_run0" / "inversion_test.ui.geoh5"
 
     with Workspace(workpath) as geoh5:
-        potential = geoh5.get_entity("Iteration_0_ip")[0]
+        potential = geoh5.get_entity("Iteration_0_chargeability")[0]
         mesh = geoh5.get_entity("mesh")[0]
         topography = geoh5.get_entity("topography")[0]
 
         # Run the inverse
-        params = IP3DInversionOptions(
+        params = IP3DInversionOptions.build(
             geoh5=geoh5,
             mesh=mesh,
-            active_cells=ActiveCellsOptions(topography_object=topography),
+            topography_object=topography,
             data_object=potential.parent,
             conductivity_model=1e2,
             model_type="Resistivity (Ohm-m)",
@@ -93,7 +97,6 @@ def test_ip_3d_run(
             x_norm=0.0,
             y_norm=0.0,
             z_norm=0.0,
-            gradient_type="components",
             chargeability_channel=potential,
             chargeability_uncertainty=2e-4,
             max_global_iterations=max_iterations,
@@ -102,7 +105,6 @@ def test_ip_3d_run(
             percentile=100,
             upper_bound=0.1,
             tile_spatial=n_lines,
-            store_sensitivities="ram",
             cooling_rate=1,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")

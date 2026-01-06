@@ -25,6 +25,7 @@ from simpeg import directives, maps
 from simpeg.utils.mat_utils import cartesian2amplitude_dip_azimuth
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
+from simpeg_drivers.options import BaseInversionOptions, ModelTypeEnum
 
 
 if TYPE_CHECKING:
@@ -53,16 +54,36 @@ class DirectivesFactory:
         self._save_iteration_apparent_resistivity_directive = None
         self._scale_misfits = None
 
+    @staticmethod
+    def configure_save_directives(directives_list):
+        """
+        Find all SaveGeoH5 directives in the list and set their open_geoh5 and
+        close_geoh5 flags such that the first and last directive handles the
+        opening and closing of the target geoh5.
+
+        :param directives_list: List of directives to configure.
+        """
+        save_dirs = []
+        for directive in directives_list:
+            if isinstance(directive, directives.BaseSaveGeoH5):
+                directive.close_geoh5 = False
+                directive.open_geoh5 = False
+                save_dirs.append(directive)
+
+        save_dirs[0].open_geoh5 = True
+        save_dirs[-1].close_geoh5 = True
+
     @property
     def beta_estimate_by_eigenvalues_directive(self):
         """"""
         if (
-            self.params.initial_beta is None
+            self.params.cooling_schedule.initial_beta is None
             and self._beta_estimate_by_eigenvalues_directive is None
         ):
             self._beta_estimate_by_eigenvalues_directive = (
                 directives.BetaEstimateDerivative(
-                    beta0_ratio=self.params.initial_beta_ratio, random_seed=0
+                    beta0_ratio=self.params.cooling_schedule.initial_beta_ratio,
+                    random_seed=0,
                 )
             )
 
@@ -76,6 +97,8 @@ class DirectivesFactory:
                 self._directive_list = self.inversion_directives + self.save_directives
             else:
                 self._directive_list = self.save_directives
+
+            self.configure_save_directives(self._directive_list)
 
         return self._directive_list
 
@@ -121,7 +144,7 @@ class DirectivesFactory:
         ]:
             save_directive = getattr(self, directive)
             if save_directive is not None:
-                directives_list.append(getattr(self, directive))
+                directives_list.append(save_directive)
 
                 if (
                     isinstance(save_directive, directives.SaveDataGeoH5)
@@ -157,8 +180,6 @@ class DirectivesFactory:
                 self.params
             ).build(
                 inversion_object=self.driver.inversion_data,
-                active_cells=self.driver.models.active_cells,
-                sorting=np.argsort(np.hstack(self.driver.sorting)),
                 name="Apparent Resistivity",
             )
         return self._save_iteration_apparent_resistivity_directive
@@ -181,7 +202,8 @@ class DirectivesFactory:
         """"""
         if (
             self._save_sensitivities_directive is None
-            and self.params.save_sensitivities
+            and isinstance(self.params, BaseInversionOptions)
+            and self.params.directives.save_sensitivities
         ):
             self._save_sensitivities_directive = SaveSensitivitiesGeoh5Factory(
                 self.params
@@ -201,10 +223,6 @@ class DirectivesFactory:
                 self.params
             ).build(
                 inversion_object=self.driver.inversion_data,
-                active_cells=self.driver.models.active_cells,
-                sorting=np.argsort(np.hstack(self.driver.sorting)),
-                ordering=self.driver.ordering,
-                global_misfit=self.driver.data_misfit,
                 name="Data",
             )
         return self._save_iteration_data_directive
@@ -225,7 +243,7 @@ class DirectivesFactory:
     @property
     def save_iteration_log_files(self):
         """"""
-        if self._save_iteration_log_files is None:
+        if self._save_iteration_log_files is None and self.driver.logger:
             self._save_iteration_log_files = directives.SaveLogFilesGeoH5(
                 self.driver.out_group,
             )
@@ -243,9 +261,6 @@ class DirectivesFactory:
                 self.params
             ).build(
                 inversion_object=self.driver.inversion_data,
-                active_cells=self.driver.models.active_cells,
-                sorting=np.argsort(np.hstack(self.driver.sorting)),
-                ordering=self.driver.ordering,
                 name="Residual",
             )
         return self._save_iteration_residual_directive
@@ -254,7 +269,7 @@ class DirectivesFactory:
     def scale_misfits(self):
         if (
             self._scale_misfits is None
-            and self.params.auto_scale_misfits
+            and self.params.directives.auto_scale_misfits
             and len(self.driver.data_misfit.objfcts) > 1
         ):
             self._scale_misfits = directives.ScaleMisfitMultipliers(
@@ -266,25 +281,30 @@ class DirectivesFactory:
     def update_irls_directive(self):
         """Directive to update IRLS."""
         if self._update_irls_directive is None:
-            start_chi_fact = self.params.starting_chi_factor
+            finite_data_count, total_data_count = self.driver.count_data()
+            rescale = finite_data_count / total_data_count
+            chi_factor = self.params.cooling_schedule.chi_factor * rescale
 
-            if start_chi_fact is not None and self.params.chi_factor > start_chi_fact:
-                logger.warning(
-                    "Starting chi factor is greater than target chi factor.\n"
-                    "Setting the target chi factor to the starting chi factor."
-                )
-                start_chi_fact = self.params.chi_factor
+            starting_chi_factor = self.params.irls.starting_chi_factor
+            if starting_chi_factor is not None:
+                starting_chi_factor *= rescale
+                if chi_factor > starting_chi_factor:
+                    logger.warning(
+                        "Starting chi factor is greater than target chi factor.\n"
+                        "Setting the target chi factor to the starting chi factor."
+                    )
+                    starting_chi_factor = chi_factor
 
             self._update_irls_directive = directives.UpdateIRLS(
-                f_min_change=self.params.f_min_change,
-                max_irls_iterations=self.params.max_irls_iterations,
-                misfit_tolerance=self.params.beta_tol,
-                percentile=self.params.percentile,
-                cooling_rate=self.params.cooling_rate,
-                cooling_factor=self.params.cooling_factor,
-                irls_cooling_factor=self.params.epsilon_cooling_factor,
-                chifact_start=start_chi_fact or self.params.chi_factor,
-                chifact_target=self.params.chi_factor,
+                f_min_change=self.params.optimization.f_min_change,
+                max_irls_iterations=self.params.irls.max_irls_iterations,
+                misfit_tolerance=self.params.irls.beta_tol,
+                percentile=self.params.irls.percentile,
+                cooling_rate=self.params.cooling_schedule.cooling_rate,
+                cooling_factor=self.params.cooling_schedule.cooling_factor,
+                irls_cooling_factor=self.params.irls.epsilon_cooling_factor,
+                chifact_start=starting_chi_factor or chi_factor,
+                chifact_target=chi_factor,
             )
         return self._update_irls_directive
 
@@ -301,8 +321,8 @@ class DirectivesFactory:
         if self._update_sensitivity_weights_directive is None:
             self._update_sensitivity_weights_directive = (
                 directives.UpdateSensitivityWeights(
-                    every_iteration=self.params.every_iteration_bool,
-                    threshold_value=self.params.sens_wts_threshold / 100.0,
+                    every_iteration=self.params.directives.every_iteration_bool,
+                    threshold_value=self.params.directives.sens_wts_threshold / 100.0,
                 )
             )
 
@@ -313,15 +333,17 @@ class DirectivesFactory:
         """Directive to update vector model."""
         if self._vector_inversion_directive is None and "vector" in self.factory_type:
             reference_angles = (
-                getattr(self.driver.params, "reference_model", None) is not None,
-                getattr(self.driver.params, "reference_inclination", None) is not None,
-                getattr(self.driver.params, "reference_declination", None) is not None,
+                getattr(self.driver.params.models, "reference_model", None) is not None,
+                getattr(self.driver.params.models, "reference_inclination", None)
+                is not None,
+                getattr(self.driver.params.models, "reference_declination", None)
+                is not None,
             )
 
             self._vector_inversion_directive = directives.VectorInversion(
-                [objective.simulation for objective in self.driver.data_misfit.objfcts],
+                self.driver.data_misfit.objfcts,
                 self.driver.regularization,
-                chifact_target=self.driver.params.chi_factor * 2,
+                chifact_target=self.driver.params.cooling_schedule.chi_factor * 2,
                 reference_angles=reference_angles,
             )
         return self._vector_inversion_directive
@@ -341,8 +363,6 @@ class SaveGeoh5Factory(SimPEGFactory, ABC):
         self,
         inversion_object=None,
         active_cells=None,
-        sorting=None,
-        ordering=None,
         transform=None,
         global_misfit=None,
         name=None,
@@ -361,8 +381,6 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
         self,
         inversion_object=None,
         active_cells=None,
-        sorting=None,
-        ordering=None,
         transform=None,
         global_misfit=None,
         name=None,
@@ -400,7 +418,7 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
                 inversion_object.permutation.T,
             ]
 
-            if self.params.model_type == "Resistivity (Ohm-m)":
+            if self.params.models.model_type == ModelTypeEnum.resistivity:
                 kwargs["transforms"].append(lambda x: 1 / x)
 
         if "1d" in self.factory_type:
@@ -425,8 +443,6 @@ class SaveSensitivitiesGeoh5Factory(SaveGeoh5Factory):
         self,
         inversion_object=None,
         active_cells=None,
-        sorting=None,
-        ordering=None,
         transform=None,
         global_misfit=None,
         name=None,
@@ -451,7 +467,7 @@ class SaveSensitivitiesGeoh5Factory(SaveGeoh5Factory):
         }
 
         if self.factory_type == "magnetic vector":
-            kwargs["channels"] = [""]
+            kwargs["channels"] = [None]
             kwargs["transforms"] = [
                 lambda x: x.reshape((-1, 3), order="F"),
                 lambda x: np.linalg.norm(x, axis=1),
@@ -472,106 +488,70 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
     def assemble_keyword_arguments(
         self,
         inversion_object=None,
-        active_cells=None,
-        sorting=None,
-        ordering=None,
-        transform=None,
-        global_misfit=None,
         name=None,
     ):
-        if self.factory_type in [
-            "fdem",
-            "fdem 1d",
-            "tdem",
-            "tdem 1d",
-            "magnetotellurics",
-            "tipper",
-        ]:
-            kwargs = self.assemble_data_keywords_em(
-                inversion_object=inversion_object,
-                active_cells=active_cells,
-                sorting=sorting,
-                ordering=ordering,
-                transform=transform,
-                global_misfit=global_misfit,
-                name=name,
-            )
+        receivers = inversion_object.entity
+        channels = [
+            float(val) if val else None
+            for val in getattr(receivers, "channels", [None])
+        ]
+        components = list(inversion_object.observed)
+        ordering = inversion_object.survey.ordering
+        n_locations = len(np.unique(ordering[:, 2]))
 
-        elif self.factory_type in [
+        def reshape(values):
+            data = np.zeros((len(channels), len(components), n_locations))
+            data[ordering[:, 0], ordering[:, 1], ordering[:, 2]] = values
+            return data
+
+        kwargs = {
+            "data_type": inversion_object.observed_data_types,
+            "association": "VERTEX",
+            "transforms": [
+                np.hstack(
+                    [
+                        1 / inversion_object.normalizations[chan][comp]
+                        for chan in channels
+                        for comp in components
+                    ],
+                ),
+            ],
+            "channels": channels,
+            "components": components,
+            "reshape": reshape,
+        }
+
+        if self.factory_type in [
             "direct current 3d",
             "direct current 2d",
             "induced polarization 3d",
             "induced polarization 2d",
         ]:
             kwargs = self.assemble_data_keywords_dcip(
-                inversion_object=inversion_object,
-                active_cells=active_cells,
-                sorting=sorting,
-                transform=transform,
-                global_misfit=global_misfit,
-                name=name,
+                inversion_object=inversion_object, name=name, **kwargs
             )
 
         elif self.factory_type in ["gravity", "magnetic scalar", "magnetic vector"]:
             kwargs = self.assemble_data_keywords_potential_fields(
                 inversion_object=inversion_object,
-                active_cells=active_cells,
-                sorting=sorting,
-                transform=transform,
-                global_misfit=global_misfit,
                 name=name,
+                **kwargs,
             )
-        else:
-            return None
-
-        if transform is not None:
-            kwargs["transforms"].append(transform)
 
         return kwargs
 
     @staticmethod
     def assemble_data_keywords_potential_fields(
         inversion_object=None,
-        active_cells=None,
-        sorting=None,
-        transform=None,
-        global_misfit=None,
         name=None,
+        **kwargs,
     ):
-        components = list(inversion_object.observed)
-        channels = [None]
-        kwargs = {
-            "data_type": {
-                comp: {channel: dtype for channel in channels}
-                for comp, dtype in inversion_object.observed_data_types.items()
-            },
-            "transforms": [
-                np.hstack(
-                    [
-                        inversion_object.normalizations[chan][comp]
-                        for chan in channels
-                        for comp in components
-                    ]
-                )
-            ],
-            "channels": channels,
-            "components": components,
-            "association": "VERTEX",
-            "reshape": lambda x: x.reshape(
-                (len(channels), len(components), -1), order="F"
-            ),
-        }
-
-        if sorting is not None:
-            kwargs["sorting"] = np.hstack(sorting)
-
         if name == "Residual":
             kwargs["label"] = name
             data = inversion_object.normalize(inversion_object.observed)
 
             def potfield_transform(x):
-                data_stack = np.row_stack(list(data.values()))
-                data_stack = data_stack[:, np.argsort(sorting)]
+                data_stack = np.vstack([k[None] for k in data.values()])
                 return data_stack.ravel() - x
 
             kwargs.pop("data_type")
@@ -582,47 +562,22 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
     def assemble_data_keywords_dcip(
         self,
         inversion_object=None,
-        active_cells=None,
-        sorting=None,
-        transform=None,
-        global_misfit=None,
         name=None,
+        **kwargs,
     ):
         components = list(inversion_object.observed)
-        channels = [""]
-        is_dc = True if "direct current" in self.factory_type else False
-        component = "dc" if is_dc else "ip"
-        kwargs = {
-            "data_type": {
-                comp: {channel: dtype for channel in channels}
-                for comp, dtype in inversion_object.observed_data_types.items()
-            },
-            "transforms": [
-                np.hstack(
-                    [inversion_object.normalizations[None][c] for c in components]
-                )
-            ],
-            "channels": channels,
-            "components": [component],
-            "reshape": lambda x: x.reshape(
-                (len(channels), len(components), -1), order="F"
-            ),
-            "association": "CELL",
-        }
+        kwargs["association"] = "CELL"
 
-        if sorting is not None:
-            kwargs["sorting"] = np.hstack(sorting)
-
-        if is_dc and name == "Apparent Resistivity":
+        if "direct current" in self.factory_type and name == "Apparent Resistivity":
             kwargs["transforms"].insert(
                 0,
-                inversion_object.survey.apparent_resistivity[np.argsort(sorting)],
+                inversion_object.survey.apparent_resistivity,
             )
             kwargs["channels"] = ["apparent_resistivity"]
             observed = self.params.geoh5.get_entity("Observed_apparent_resistivity")[0]
             if observed is not None:
                 kwargs["data_type"] = {
-                    component: {"apparent_resistivity": observed.entity_type}
+                    components[0]: {"apparent_resistivity": observed.entity_type}
                 }
 
         if name == "Residual":
@@ -630,52 +585,10 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
             data = inversion_object.normalize(inversion_object.observed)
 
             def dcip_transform(x):
-                data_stack = np.row_stack(list(data.values())).ravel()
-                sorting_stack = np.tile(np.argsort(sorting), len(data))
-                return data_stack[sorting_stack] - x
+                data_stack = np.vstack([k[None] for k in data.values()])
+                return data_stack.ravel() - x
 
             kwargs["transforms"].insert(0, dcip_transform)
             kwargs.pop("data_type")
-
-        return kwargs
-
-    def assemble_data_keywords_em(
-        self,
-        inversion_object=None,
-        active_cells=None,
-        sorting=None,
-        ordering=None,
-        transform=None,
-        global_misfit=None,
-        name=None,
-    ):
-        receivers = inversion_object.entity
-        channels = np.array(receivers.channels, dtype=float)
-        components = list(inversion_object.observed)
-        ordering = np.vstack(ordering)
-        channel_ids = ordering[:, 0]
-        component_ids = ordering[:, 1]
-        rx_ids = ordering[:, 2]
-
-        def reshape(values):
-            data = np.zeros((len(channels), len(components), receivers.n_vertices))
-            data[channel_ids, component_ids, rx_ids] = values
-            return data
-
-        kwargs = {
-            "data_type": inversion_object.observed_data_types,
-            "association": "VERTEX",
-            "transforms": np.hstack(
-                [
-                    1 / inversion_object.normalizations[chan][comp]
-                    for chan in channels
-                    for comp in components
-                ]
-            ),
-            "channels": [f"[{ind}]" for ind, _ in enumerate(channels)],
-            "components": components,
-            "sorting": sorting,
-            "_reshape": reshape,
-        }
 
         return kwargs

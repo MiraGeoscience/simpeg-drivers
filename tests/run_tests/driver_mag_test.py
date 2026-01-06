@@ -16,7 +16,6 @@ import numpy as np
 from dask.distributed import LocalCluster, performance_report
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import (
     MagneticForwardOptions,
     MagneticInversionOptions,
@@ -25,8 +24,16 @@ from simpeg_drivers.potential_fields.magnetic_scalar.driver import (
     MagneticForwardDriver,
     MagneticInversionDriver,
 )
-from simpeg_drivers.utils.utils import get_inversion_output
-from tests.testing_utils import check_target, setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.driver import (
+    SyntheticsComponents,
+)
+from simpeg_drivers.utils.synthetics.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticsComponentsOptions,
+)
+from tests.utils.targets import check_target, get_inversion_output, get_workspace
 
 
 # To test the full run and validate the inversion.
@@ -41,29 +48,29 @@ def test_susceptibility_fwr_run(
     refinement=(2,),
 ):
     # Run the forward
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.0,
-        anomaly=0.05,
-        refinement=refinement,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
-        inversion_type="magnetic",
-        flatten=False,
+    opts = SyntheticsComponentsOptions(
+        method="magnetic",
+        survey=SurveyOptions(
+            n_stations=n_grid_points, n_lines=n_grid_points, drape=5.0
+        ),
+        mesh=MeshOptions(refinement=refinement),
+        model=ModelOptions(anomaly=0.05),
     )
-    inducing_field = (49999.8, 90.0, 0.0)
-    active_cells = ActiveCellsOptions(topography_object=topography)
-    params = MagneticForwardOptions(
-        forward_only=True,
-        geoh5=geoh5,
-        mesh=model.parent,
-        active_cells=active_cells,
-        inducing_field_strength=inducing_field[0],
-        inducing_field_inclination=inducing_field[1],
-        inducing_field_declination=inducing_field[2],
-        data_object=survey,
-        starting_model=model,
-    )
+    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+        inducing_field = (49999.8, 90.0, 0.0)
+
+        params = MagneticForwardOptions.build(
+            forward_only=True,
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            inducing_field_strength=inducing_field[0],
+            inducing_field_inclination=inducing_field[1],
+            inducing_field_declination=inducing_field[2],
+            data_object=components.survey,
+            starting_model=components.model,
+        )
     # params.workpath = tmp_path
     fwr_driver = MagneticForwardDriver(params)
     fwr_driver.run()
@@ -88,16 +95,16 @@ def test_susceptibility_run(
     with Workspace(workpath) as geoh5:
         tmi = geoh5.get_entity("Iteration_0_tmi")[0]
         orig_tmi = tmi.values.copy()
-        mesh = geoh5.get_entity("mesh")[0]
+        components = SyntheticsComponents(geoh5=geoh5)
+        mesh = components.mesh
         active_cells = mesh.get_entity("active_cells")[0]
         inducing_field = (50000.0, 90.0, 0.0)
 
         # Run the inverse
-        active_cells = ActiveCellsOptions(active_model=active_cells)
-        params = MagneticInversionOptions(
+        params = MagneticInversionOptions.build(
             geoh5=geoh5,
             mesh=mesh,
-            active_cells=active_cells,
+            active_model=active_cells,
             inducing_field_strength=inducing_field[0],
             inducing_field_inclination=inducing_field[1],
             inducing_field_declination=inducing_field[2],
@@ -109,15 +116,13 @@ def test_susceptibility_run(
             y_norm=1.0,
             z_norm=1.0,
             initial_beta_ratio=1e1,
-            gradient_type="components",
             tmi_channel=tmi,
             tmi_uncertainty=1.0,
             max_global_iterations=max_iterations,
-            store_sensitivities="ram",
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    assert params.lower_bound == 0.0
+    assert params.models.lower_bound == 0.0
     driver = MagneticInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
     with Workspace(driver.params.geoh5.h5file) as run_ws:

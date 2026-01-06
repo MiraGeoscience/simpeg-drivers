@@ -32,6 +32,7 @@ from geoh5py.shared import Entity
 from simpeg_drivers.components.data import InversionData
 from simpeg_drivers.components.locations import InversionLocations
 from simpeg_drivers.components.models import InversionModel
+from simpeg_drivers.electromagnetics.base_1d_options import Base1DOptions
 from simpeg_drivers.utils.utils import (
     active_from_xyz,
     floating_active,
@@ -92,6 +93,9 @@ class InversionTopography(InversionLocations):
             "induced polarization 2d",
         ] or isinstance(data.entity, LargeLoopGroundEMSurvey)
 
+        if isinstance(self.params, Base1DOptions):
+            return np.ones(mesh.mesh.n_cells, dtype=bool)
+
         if isinstance(self.params.active_cells.active_model, NumericData):
             active_cells = InversionModel.obj_2_mesh(
                 self.params.active_cells.active_model, mesh.entity
@@ -101,6 +105,9 @@ class InversionTopography(InversionLocations):
                 mesh.entity,
                 self.locations,
                 grid_reference="bottom" if forced_to_surface else "center",
+                triangulation=getattr(
+                    self.params.active_cells.topography_object, "cells", None
+                ),
             )
 
         active_cells = (mesh.permutation @ active_cells).astype(bool)

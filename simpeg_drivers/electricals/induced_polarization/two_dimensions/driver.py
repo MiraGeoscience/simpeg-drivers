@@ -22,12 +22,10 @@ from .options import (
 class IP2DForwardDriver(Base2DDriver):
     """Induced Polarization 2D forward driver."""
 
-    _options_class = IP2DForwardOptions
-    _validations = None
+    _params_class = IP2DForwardOptions
 
 
 class IP2DInversionDriver(Base2DDriver):
     """Induced Polarization 2D inversion driver."""
 
-    _options_class = IP2DInversionOptions
-    _validations = None
+    _params_class = IP2DInversionOptions

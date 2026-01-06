@@ -187,7 +187,6 @@
         "parent": "mesh",
         "value": ""
     },
-    "save_sensitivities": false,
     "n_cpu": {
         "min": 1,
         "group": "Compute",
@@ -207,7 +206,6 @@
         "tooltip": "Direct solver to use for the forward calculations",
         "value": "Pardiso"
     },
-    "tile_spatial": 1,
     "max_chunk_size": {
         "min": 0,
         "group": "Compute",
@@ -234,6 +232,7 @@
         "group": "Python run preferences",
         "main": true,
         "value": false,
+        "visible": false,
         "tooltip": "Generates a file for sweeping parameters instead of running the application."
     },
     "n_workers": "",

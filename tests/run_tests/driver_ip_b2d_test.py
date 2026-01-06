@@ -32,14 +32,22 @@ from simpeg_drivers.options import (
     DrapeModelOptions,
     LineSelectionOptions,
 )
-from simpeg_drivers.utils.utils import get_inversion_output
-from tests.testing_utils import check_target, setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.driver import (
+    SyntheticsComponents,
+)
+from simpeg_drivers.utils.synthetics.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticsComponentsOptions,
+)
+from tests.utils.targets import check_target, get_inversion_output, get_workspace
 
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.0919313, "phi_d": 25600, "phi_m": 0.201}
+target_run = {"data_norm": 0.09345914765984757, "phi_d": 3240, "phi_m": 0.44}
 
 
 def test_ip_p3d_fwr_run(
@@ -49,39 +57,36 @@ def test_ip_p3d_fwr_run(
     refinement=(4, 6),
 ):
     # Run the forward
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=1e-6,
-        anomaly=1e-1,
-        n_electrodes=n_electrodes,
-        n_lines=n_lines,
-        refinement=refinement,
-        inversion_type="induced polarization pseudo 3d",
-        drape_height=0.0,
-        flatten=False,
+    opts = SyntheticsComponentsOptions(
+        method="induced polarization pseudo 3d",
+        survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
+        mesh=MeshOptions(refinement=refinement),
+        model=ModelOptions(background=1e-6, anomaly=1e-1),
     )
+    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
 
-    params = IPBatch2DForwardOptions(
-        geoh5=geoh5,
-        mesh=model.parent,
-        drape_model=DrapeModelOptions(
-            u_cell_size=5.0,
-            v_cell_size=5.0,
-            depth_core=100.0,
-            expansion_factor=1.1,
-            horizontal_padding=100.0,
-            vertical_padding=100.0,
-        ),
-        active_cells=ActiveCellsOptions(
-            topography_object=topography,
-        ),
-        data_object=survey,
-        conductivity_model=1e-2,
-        starting_model=model,
-        line_selection=LineSelectionOptions(
-            line_object=geoh5.get_entity("line_ids")[0]
-        ),
-    )
+        params = IPBatch2DForwardOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            drape_model=DrapeModelOptions(
+                u_cell_size=5.0,
+                v_cell_size=5.0,
+                depth_core=100.0,
+                expansion_factor=1.1,
+                horizontal_padding=100.0,
+                vertical_padding=100.0,
+            ),
+            active_cells=ActiveCellsOptions(
+                topography_object=components.topography,
+            ),
+            data_object=components.survey,
+            conductivity_model=1e-2,
+            starting_model=components.model,
+            line_selection=LineSelectionOptions(
+                line_object=geoh5.get_entity("line_ids")[0]
+            ),
+        )
 
     fwr_driver = IPBatch2DForwardDriver(params)
     fwr_driver.run()
@@ -97,15 +102,15 @@ def test_ip_p3d_run(
         workpath = tmp_path.parent / "test_ip_p3d_fwr_run0" / "inversion_test.ui.geoh5"
 
     with Workspace(workpath) as geoh5:
-        chargeability = geoh5.get_entity("Iteration_0_ip")[0]
-        out_group = geoh5.get_entity("Line 1")[0].parent
-        mesh = out_group.get_entity("mesh")[0]  # Finds the octree mesh
-        topography = geoh5.get_entity("topography")[0]
+        components = SyntheticsComponents(geoh5)
+        fwr_group = geoh5.get_entity("Induced Polarization (IP) 2D Batch Forward")[0]
+        survey = fwr_group.get_entity("survey")[0]
+        chargeability = survey.get_data("Iteration_0_chargeability")[0]
 
         # Run the inverse
-        params = IPBatch2DInversionOptions(
+        params = IPBatch2DInversionOptions.build(
             geoh5=geoh5,
-            mesh=mesh,
+            mesh=components.mesh,
             drape_model=DrapeModelOptions(
                 u_cell_size=5.0,
                 v_cell_size=5.0,
@@ -114,12 +119,12 @@ def test_ip_p3d_run(
                 horizontal_padding=1000.0,
                 vertical_padding=1000.0,
             ),
-            active_cells=ActiveCellsOptions(topography_object=topography),
+            topography_object=components.topography,
             data_object=chargeability.parent,
             chargeability_channel=chargeability,
             chargeability_uncertainty=2e-4,
             line_selection=LineSelectionOptions(
-                line_object=geoh5.get_entity("line_ids")[0],
+                line_object=chargeability.parent.get_entity("line_ids")[0],
             ),
             conductivity_model=1e-2,
             starting_model=1e-6,
@@ -129,7 +134,6 @@ def test_ip_p3d_run(
             z_norm=0.0,
             length_scale_x=1.0,
             length_scale_z=1.0,
-            gradient_type="components",
             max_global_iterations=max_iterations,
             initial_beta=None,
             initial_beta_ratio=1e0,
@@ -140,7 +144,7 @@ def test_ip_p3d_run(
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    driver = IPBatch2DInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
+    IPBatch2DInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
     basepath = workpath.parent
     with open(basepath / "lookup.json", encoding="utf8") as f:
@@ -151,13 +155,9 @@ def test_ip_p3d_run(
         middle_inversion_group = next(
             k for k in workspace.groups if isinstance(k, SimPEGGroup)
         )
-        filedata = middle_inversion_group.get_entity("SimPEG.out")[0]
-
-        with driver.batch2d_params.out_group.workspace.open(mode="r+"):
-            filedata.copy(parent=driver.batch2d_params.out_group)
 
     output = get_inversion_output(
-        driver.batch2d_params.geoh5.h5file, driver.batch2d_params.out_group.uid
+        basepath / f"{middle_line_id}.ui.geoh5", middle_inversion_group.uid
     )
     if geoh5.open():
         output["data"] = chargeability.values

@@ -13,15 +13,17 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-import pytest
 import simpeg
 from discretize.utils import mesh_builder_xyz
 from geoh5py.objects import Points
 from geoh5py.workspace import Workspace
-from octree_creation_app.driver import OctreeDriver
-from octree_creation_app.utils import treemesh_2_octree
+from grid_apps.octree_creation.driver import OctreeDriver
+from grid_apps.utils import treemesh_2_octree
 
 from simpeg_drivers.components import InversionData
+from simpeg_drivers.electricals.direct_current.three_dimensions.options import (
+    DC3DForwardOptions,
+)
 from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields.magnetic_vector.driver import (
     MVIInversionDriver,
@@ -29,32 +31,43 @@ from simpeg_drivers.potential_fields.magnetic_vector.driver import (
 from simpeg_drivers.potential_fields.magnetic_vector.options import (
     MVIInversionOptions,
 )
-from tests.testing_utils import Geoh5Tester, setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
+from simpeg_drivers.utils.synthetics.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticsComponentsOptions,
+)
+from tests.utils.targets import get_workspace
 
 
 def get_mvi_params(tmp_path: Path, **kwargs) -> MVIInversionOptions:
-    geoh5, entity, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.0,
-        anomaly=0.05,
-        refinement=(2,),
-        n_electrodes=2,
-        n_lines=2,
-        inversion_type="magnetic_vector",
-    )
-    with geoh5.open():
-        tmi_channel = survey.add_data(
-            {"tmi": {"values": np.random.rand(survey.n_vertices)}}
+    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        opts = SyntheticsComponentsOptions(
+            method="magnetic_vector",
+            survey=SurveyOptions(n_stations=2, n_lines=2),
+            mesh=MeshOptions(refinement=(2,)),
+            model=ModelOptions(anomaly=0.05),
         )
-    params = MVIInversionOptions(
-        geoh5=geoh5,
-        data_object=survey,
-        tmi_channel=tmi_channel,
-        active_cells=ActiveCellsOptions(topography_object=topography),
-        mesh=model.parent,
-        starting_model=model,
-        **kwargs,
-    )
+    components = SyntheticsComponents(geoh5=geoh5, options=opts)
+
+    with geoh5.open():
+        tmi_channel = components.survey.add_data(
+            {"tmi": {"values": np.random.rand(components.survey.n_vertices)}}
+        )
+        params = MVIInversionOptions.build(
+            geoh5=geoh5,
+            data_object=components.survey,
+            tmi_channel=tmi_channel,
+            tmi_uncertainty=1.0,
+            topography_object=components.topography,
+            mesh=components.model.parent,
+            starting_model=components.model,
+            inducing_field_strength=50000.0,
+            inducing_field_inclination=60.0,
+            inducing_field_declination=30.0,
+            **kwargs,
+        )
     return params
 
 
@@ -115,7 +128,7 @@ def test_survey_data(tmp_path: Path):
         active_cells = ActiveCellsOptions(
             topography_object=test_topo_object, topography=topo
         )
-        params = MVIInversionOptions(
+        params = MVIInversionOptions.build(
             geoh5=workspace,
             data_object=test_data_object,
             active_cells=active_cells,
@@ -128,6 +141,9 @@ def test_survey_data(tmp_path: Path):
             mesh=mesh,
             starting_model=0.0,
             tile_spatial=2,
+            inducing_field_strength=50000.0,
+            inducing_field_inclination=60.0,
+            inducing_field_declination=30.0,
         )
 
         driver = MVIInversionDriver(params)
@@ -144,19 +160,22 @@ def test_survey_data(tmp_path: Path):
     # test locations
 
     np.testing.assert_array_equal(
-        verts[driver.sorting[0], :2], local_survey_a.receiver_locations[:, :2]
+        verts[np.hstack(driver.ordering[::3, 2]), :2],
+        np.vstack(
+            [
+                local_survey_a.receiver_locations[:, :2],
+                local_survey_b.receiver_locations[:, :2],
+            ]
+        ),
     )
-    np.testing.assert_array_equal(
-        verts[driver.sorting[1], :2], local_survey_b.receiver_locations[:, :2]
-    )
+
     assert all(local_survey_a.receiver_locations[:, 2] == 0.0)
     assert all(local_survey_b.receiver_locations[:, 2] == 0.0)
 
     # test observed data
-    sorting = np.hstack(driver.sorting)
     expected_dobs = np.column_stack(
         [bxx_data.values, byy_data.values, bzz_data.values]
-    )[sorting].ravel()
+    )[np.hstack(driver.ordering[::3, 2])].ravel()
     survey_dobs = [local_survey_a.dobs, local_survey_b.dobs]
     np.testing.assert_array_equal(expected_dobs, np.hstack(survey_dobs))
 
@@ -201,14 +220,14 @@ def test_has_tensor():
 
 
 def test_get_uncertainty_component(tmp_path: Path):
-    params = get_mvi_params(tmp_path, tmi_uncertainty=1.0)
+    params = get_mvi_params(tmp_path)
     geoh5 = params.geoh5
     with geoh5.open():
         data = InversionData(geoh5, params)
         unc = params.uncertainties["tmi"]
-        assert len(np.unique(unc)) == 1
-        assert np.unique(unc)[0] == 1
-        assert len(unc) == data.entity.n_vertices
+        assert len(unc) == 1
+        assert np.unique(unc[None])[0] == 1
+        assert len(unc[None]) == data.entity.n_vertices
 
 
 def test_normalize(tmp_path: Path):
@@ -218,14 +237,36 @@ def test_normalize(tmp_path: Path):
         data = InversionData(geoh5, params)
         data.normalizations = data.get_normalizations()
         test_data = data.normalize(data.observed)
-        assert all(test_data["tmi"] == params.data["tmi"])
+        assert all(test_data["tmi"][None] == params.data["tmi"][None])
         assert len(test_data) == 1
 
 
 def test_get_survey(tmp_path: Path):
-    params = get_mvi_params(tmp_path, tmi_uncertainty=1.0)
+    params = get_mvi_params(tmp_path)
     geoh5 = params.geoh5
     with geoh5.open():
         data = InversionData(geoh5, params)
         survey = data.create_survey()
-        assert isinstance(survey[0], simpeg.potential_fields.magnetics.Survey)
+        assert isinstance(survey, simpeg.potential_fields.magnetics.Survey)
+
+
+def test_data_parts(tmp_path: Path):
+    n_lines = 8
+    opts = SyntheticsComponentsOptions(
+        method="direct current 3d",
+        survey=SurveyOptions(n_stations=10, n_lines=n_lines),
+        mesh=MeshOptions(),
+        model=ModelOptions(background=0.01, anomaly=10.0),
+    )
+    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+        params = DC3DForwardOptions.build(
+            geoh5=geoh5,
+            data_object=components.survey,
+            topography_object=components.topography,
+            mesh=components.model.parent,
+            starting_model=components.model,
+        )
+        data = InversionData(geoh5, params)
+
+        assert len(set(data.parts)) == n_lines

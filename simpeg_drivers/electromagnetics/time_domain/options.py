@@ -14,6 +14,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import ClassVar, TypeAlias
 
+import numpy as np
 from geoh5py.groups import PropertyGroup
 from geoh5py.objects import (
     AirborneTEMReceivers,
@@ -22,7 +23,12 @@ from geoh5py.objects import (
 )
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.options import BaseForwardOptions, BaseInversionOptions, EMDataMixin
+from simpeg_drivers.options import (
+    BaseForwardOptions,
+    BaseInversionOptions,
+    ConductivityModelOptions,
+    EMDataMixin,
+)
 
 
 Receivers: TypeAlias = (
@@ -30,30 +36,16 @@ Receivers: TypeAlias = (
 )
 
 
-class TDEMForwardOptions(EMDataMixin, BaseForwardOptions):
+class BaseTDEMOptions(EMDataMixin):
     """
-    Time Domain Electromagnetic forward options.
+    Base class for Time Domain Electromagnetic options.
 
-    :param z_channel_bool: Z-component data channel boolean.
-    :param x_channel_bool: X-component data channel boolean.
-    :param y_channel_bool: Y-component data channel boolean.
-    :param model_type: Specify whether the models are provided in resistivity or conductivity.
-    :param data_units: Units for the TEM data
+    :param data_object: The data object containing the TDEM data.
+    :param physical_property: The physical property being modeled (e.g., conductivity).
+    :param data_units: The units of the TDEM data (e.g., "Airborne dB/dt (V/Am^4)").
     """
 
-    name: ClassVar[str] = "Time Domain Electromagnetics Forward"
-    default_ui_json: ClassVar[Path] = assets_path() / "uijson/tdem_forward.ui.json"
-
-    title: str = "Time-domain EM (TEM) Forward"
-    physical_property: str = "conductivity"
-    inversion_type: str = "tdem"
-
-    data_object: Receivers
-    z_channel_bool: bool | None = None
-    x_channel_bool: bool | None = None
-    y_channel_bool: bool | None = None
-    data_units: str = "dB/dt (T/s)"
-    model_type: str = "Conductivity (S/m)"
+    data_units: str = "Airborne dB/dt (V/Am^4)"
 
     @property
     def unit_conversion(self):
@@ -65,8 +57,47 @@ class TDEMForwardOptions(EMDataMixin, BaseForwardOptions):
         }
         return conversion[self.data_object.unit]
 
+    @property
+    def timing_mark(self):
+        """
+        Return the "zero time" mark of the TDEM data in the appropriate units.
+        """
+        return self.data_object.timing_mark * self.unit_conversion
 
-class TDEMInversionOptions(EMDataMixin, BaseInversionOptions):
+    @property
+    def time_steps(self):
+        """
+        Return the time steps of the TDEM data in the appropriate units.
+        """
+        return (
+            np.round((np.diff(np.unique(self.data_object.waveform[:, 0]))), decimals=6)
+            * self.unit_conversion
+        )
+
+
+class TDEMForwardOptions(BaseTDEMOptions, BaseForwardOptions):
+    """
+    Time Domain Electromagnetic forward options.
+
+    :param z_channel_bool: Z-component data channel boolean.
+    :param x_channel_bool: X-component data channel boolean.
+    :param y_channel_bool: Y-component data channel boolean.
+    """
+
+    name: ClassVar[str] = "Time Domain Electromagnetics Forward"
+    default_ui_json: ClassVar[Path] = assets_path() / "uijson/tdem_forward.ui.json"
+    title: str = "Time-domain EM (TEM) Forward"
+    physical_property: str = "conductivity"
+    inversion_type: str = "tdem"
+
+    data_object: Receivers
+    z_channel_bool: bool | None = None
+    x_channel_bool: bool | None = None
+    y_channel_bool: bool | None = None
+    models: ConductivityModelOptions
+
+
+class TDEMInversionOptions(BaseTDEMOptions, BaseInversionOptions):
     """
     Time Domain Electromagnetic Inversion options.
 
@@ -76,13 +107,10 @@ class TDEMInversionOptions(EMDataMixin, BaseInversionOptions):
     :param x_uncertainty: X-component data channel uncertainty.
     :param y_channel: Y-component data channel.
     :param y_uncertainty: Y-component data channel uncertainty.
-    :param model_type: Specify whether the models are provided in resistivity or conductivity.
-    :param data_units: Units for the TEM data
     """
 
     name: ClassVar[str] = "Time Domain Electromagnetics Inversion"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/tdem_inversion.ui.json"
-
     title: str = "Time-domain EM (TEM) Inversion"
     physical_property: str = "conductivity"
     inversion_type: str = "tdem"
@@ -94,15 +122,4 @@ class TDEMInversionOptions(EMDataMixin, BaseInversionOptions):
     x_uncertainty: PropertyGroup | None = None
     y_channel: PropertyGroup | None = None
     y_uncertainty: PropertyGroup | None = None
-    data_units: str = "dB/dt (T/s)"
-    model_type: str = "Conductivity (S/m)"
-
-    @property
-    def unit_conversion(self):
-        """Return time unit conversion factor."""
-        conversion = {
-            "Seconds (s)": 1.0,
-            "Milliseconds (ms)": 1e-3,
-            "Microseconds (us)": 1e-6,
-        }
-        return conversion[self.data_object.unit]
+    models: ConductivityModelOptions

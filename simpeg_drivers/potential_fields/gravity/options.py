@@ -17,7 +17,11 @@ from typing import ClassVar
 from geoh5py.data import FloatData
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.options import BaseForwardOptions, BaseInversionOptions
+from simpeg_drivers.options import (
+    BaseForwardOptions,
+    BaseInversionOptions,
+    DirectiveOptions,
+)
 
 
 class GravityForwardOptions(BaseForwardOptions):
@@ -41,7 +45,7 @@ class GravityForwardOptions(BaseForwardOptions):
     title: str = "Gravity Forward"
     physical_property: str = "density"
     inversion_type: str = "gravity"
-    workspace_geoh5: Path | None = None
+
     gx_channel_bool: bool = False
     gy_channel_bool: bool = False
     gz_channel_bool: bool = True
@@ -84,7 +88,7 @@ class GravityInversionOptions(BaseInversionOptions):
     title: str = "Gravity Inversion"
     physical_property: str = "density"
     inversion_type: str = "gravity"
-    workspace_geoh5: Path | None = None
+
     gx_channel: FloatData | None = None
     gy_channel: FloatData | None = None
     gz_channel: FloatData | None = None
@@ -105,3 +109,5 @@ class GravityInversionOptions(BaseInversionOptions):
     gyy_uncertainty: FloatData | float | None = None
     gyz_uncertainty: FloatData | float | None = None
     gzz_uncertainty: FloatData | float | None = None
+
+    directives: DirectiveOptions = DirectiveOptions(sens_wts_threshold=1e-3)

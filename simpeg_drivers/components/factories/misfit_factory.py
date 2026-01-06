@@ -11,254 +11,163 @@
 
 from __future__ import annotations
 
+import os
+import pickle
 from typing import TYPE_CHECKING
+
+import numpy as np
+from dask.distributed import wait
+from simpeg import objective_function
+from simpeg.dask import objective_function as dask_objective_function
+from simpeg.objective_function import ComboObjectiveFunction
+
+from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
+from simpeg_drivers.utils.nested import create_misfit
 
 
 if TYPE_CHECKING:
-    from geoapps_utils.driver.params import BaseParams
-
-    from simpeg_drivers.components.data import InversionData
-    from simpeg_drivers.components.meshes import InversionMesh
     from simpeg_drivers.options import BaseOptions
-
-import numpy as np
-from geoh5py.objects import Octree
-from simpeg import data, data_misfit, maps, meta, objective_function
-
-from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 
 
 class MisfitFactory(SimPEGFactory):
     """Build SimPEG global misfit function."""
 
-    def __init__(self, params: BaseParams | BaseOptions, models=None):
+    def __init__(self, params, client, simulation, workers):
         """
         :param params: Options object containing SimPEG object parameters.
         """
         super().__init__(params)
+
         self.simpeg_object = self.concrete_object()
         self.factory_type = self.params.inversion_type
-        self.models = models
-        self.sorting = None
-        self.ordering = None
+        self.simulation = simulation
+        self.client = client
+        self.workers = workers
 
     def concrete_object(self):
         return objective_function.ComboObjectiveFunction
 
-    def build(self, tiles, split_list, inversion_data, inversion_mesh, active_cells):  # pylint: disable=arguments-differ
-        global_misfit = super().build(
-            tiles=tiles,
-            split_list=split_list,
-            inversion_data=inversion_data,
-            inversion_mesh=inversion_mesh,
-            active_cells=active_cells,
-        )
-        return global_misfit, self.sorting, self.ordering
-
     def assemble_arguments(  # pylint: disable=arguments-differ
-        self,
-        tiles,
-        split_list,
-        inversion_data,
-        inversion_mesh,
-        active_cells,
+        self, tiles
     ):
         # Base slice over frequencies
         if self.factory_type in ["magnetotellurics", "tipper", "fdem"]:
-            channels = np.unique([list(v) for v in inversion_data.observed.values()])
+            channels = self.simulation.survey.frequencies
         else:
             channels = [None]
 
-        local_misfits = []
+        use_futures = self.client
 
-        self.sorting = []
-        self.ordering = []
+        # Pickle the simulation to the temporary file
+        with open(
+            self.params.workpath / (self.params.geoh5.h5file.stem + ".pkl"), mode="wb"
+        ) as temp_file:
+            pickle.dump(self.simulation, temp_file)
+
+        misfits = []
         tile_count = 0
-        data_count = 0
-        misfit_count = 0
-        for local_index in tiles:
-            if len(local_index) == 0:
-                continue
+        for channel in channels:
+            for local_indices in tiles:
+                for sub_ind in local_indices:
+                    if len(sub_ind) == 0:
+                        continue
 
-            local_sim, _, _, _ = self.create_nested_simulation(
-                inversion_data,
-                inversion_mesh,
-                None,
-                active_cells,
-                local_index,
-                channel=None,
-                tile_id=tile_count,
-                padding_cells=self.params.padding_cells,
-            )
+                    args = (
+                        sub_ind,
+                        temp_file.name,
+                        channel,
+                        tile_count,
+                        self.params.padding_cells,
+                        self.params.forward_only,
+                        np.hstack(local_indices),
+                    )
+                    # Distribute the work across workers round-robin style
+                    if use_futures:
+                        worker_ind = tile_count % len(self.workers)
 
-            local_mesh = getattr(local_sim, "mesh", None)
-
-            for count, channel in enumerate(channels):
-                n_split = split_list[misfit_count]
-                for split_ind in np.array_split(local_index, n_split):
-                    local_sim, split_ind, ordering, mapping = (
-                        self.create_nested_simulation(
-                            inversion_data,
-                            inversion_mesh,
-                            local_mesh,
-                            active_cells,
-                            split_ind,
-                            channel=channel,
-                            tile_id=tile_count,
-                            padding_cells=self.params.padding_cells,
+                        misfits.append(
+                            self.client.submit(
+                                create_misfit,
+                                *args,
+                                workers=self.workers[worker_ind],
+                            )
                         )
-                    )
-
-                    if count == 0:
-                        if self.factory_type in [
-                            "fdem",
-                            "tdem",
-                            "magnetotellurics",
-                            "tipper",
-                        ]:
-                            self.sorting.append(
-                                np.arange(
-                                    data_count,
-                                    data_count + len(split_ind),
-                                    dtype=int,
-                                )
-                            )
-                            data_count += len(split_ind)
-                        else:
-                            self.sorting.append(split_ind)
-
-                    # TODO this should be done in the simulation factory
-                    if "induced polarization" in self.params.inversion_type:
-                        if "2d" in self.params.inversion_type:
-                            proj = maps.InjectActiveCells(
-                                inversion_mesh.mesh, active_cells, value_inactive=1e-8
-                            )
-                        else:
-                            proj = maps.InjectActiveCells(
-                                mapping.local_mesh,
-                                mapping.local_active,
-                                value_inactive=1e-8,
-                            )
-
-                        local_sim.sigma = proj * mapping * self.models.conductivity
-
-                    simulation = meta.MetaSimulation(
-                        simulations=[local_sim], mappings=[mapping]
-                    )
-
-                    local_data = data.Data(local_sim.survey)
-
-                    if self.params.forward_only:
-                        lmisfit = data_misfit.L2DataMisfit(local_data, simulation)
 
                     else:
-                        local_data.dobs = local_sim.survey.dobs
-                        local_data.standard_deviation = local_sim.survey.std
-                        lmisfit = data_misfit.L2DataMisfit(
-                            local_data,
-                            simulation,
-                        )
+                        misfits.append(create_misfit(*args))
 
-                        name = self.params.inversion_type
+                    name = f"{self.params.inversion_type}: Tile {tile_count + 1}"
+                    if channel is not None:
+                        name += f": Channel {channel}"
 
-                        if len(tiles) > 1 or n_split > 1:
-                            name += f": Tile {tile_count + 1}"
-                        if len(channels) > 1:
-                            name += f": Channel {channel}"
-
-                        lmisfit.name = f"{name}"
-
-                    local_misfits.append(lmisfit)
-                    self.ordering.append(ordering)
+                    misfits[-1].name = f"{name}"
 
                     tile_count += 1
 
-                misfit_count += 1
+                    if use_futures and tile_count % len(self.workers) == 0:
+                        wait(misfits)
 
-        return [local_misfits]
+        os.unlink(temp_file.name)
+
+        local_orderings = self.collect_ordering_from_misfits(misfits)
+        self.simulation.survey.ordering = np.vstack(local_orderings)
+
+        return misfits
 
     def assemble_keyword_arguments(self, **_):
         """Implementation of abstract method from SimPEGFactory."""
-        return {}
 
-    @staticmethod
-    def create_nested_simulation(
-        inversion_data: InversionData,
-        inversion_mesh: InversionMesh,
-        local_mesh: Octree | None,
-        active_cells: np.ndarray,
-        indices: np.ndarray,
-        *,
-        channel: int | None = None,
-        tile_id: int | None = None,
-        padding_cells=100,
-    ):
+    def build(self, tiles, **_):
+        """To be over-ridden in factory implementations."""
+
+        misfits = self.assemble_arguments(tiles)
+
+        if self.client:
+            return dask_objective_function.DistributedComboMisfits(
+                misfits,
+                client=self.client,
+                workers=self.workers,
+            )
+
+        return self.simpeg_object(  # pylint: disable=not-callable
+            misfits
+        )
+
+    def collect_ordering_from_misfits(self, misfits):
+        """Collect attributes from misfit objects.
+
+        :param misfits : List of misfit objects.
+        :param attribute :  Attribute to collect.
+
+        :return: List of collected attributes.
         """
-        Generate a survey, mesh and simulation based on indices.
+        attributes = []
+        for misfit in misfits:
+            if self.client:
+                attributes.append(
+                    self.client.submit(
+                        _get_ordering,
+                        misfit,
+                        workers=self.client.who_has(misfit)[misfit.key],
+                    )
+                )
+            else:
+                attributes += _get_ordering(misfit)
 
-        :param inversion_data: InversionData object.
-        :param mesh: Octree mesh.
-        :param active_cells: Active cell model.
-        :param indices: Indices of receivers belonging to the tile.
-        :param channel: Channel number for frequency or time channels.
-        :param tile_id: Tile id stored on the simulation.
-        :param padding_cells: Number of padding cells around the local survey.
-        """
-        survey, indices, ordering = inversion_data.create_survey(
-            local_index=indices, channel=channel
-        )
-        local_sim, mapping = inversion_data.simulation(
-            inversion_mesh,
-            local_mesh,
-            active_cells,
-            survey,
-            tile_id=tile_id,
-            padding_cells=padding_cells,
-        )
-        inv_type = inversion_data.params.inversion_type
-        if inv_type in ["fdem", "tdem"]:
-            compute_em_projections(inversion_data, local_sim)
-        elif ("current" in inv_type or "polarization" in inv_type) and (
-            "2d" not in inv_type or "pseudo" in inv_type
-        ):
-            compute_dc_projections(inversion_data, local_sim, indices)
-        return local_sim, np.hstack(indices), ordering, mapping
+        if self.client:
+            ordering = []
+            for future in self.client.gather(attributes):
+                ordering += future
+            return ordering
+        return attributes
 
 
-def compute_em_projections(inversion_data, simulation):
-    """
-    Pre-compute projections for the receivers for efficiency.
-    """
-    rx_locs = inversion_data.entity.vertices
-    projections = {}
-    for component in "xyz":
-        projections[component] = simulation.mesh.get_interpolation_matrix(
-            rx_locs, "faces_" + component[0]
-        )
+def _get_ordering(obj):
+    """Recursively get ordering from components of misfit function."""
+    attributes = []
+    if isinstance(obj, ComboObjectiveFunction):
+        for misfit in obj.objfcts:
+            attributes += _get_ordering(misfit)
 
-    for source in simulation.survey.source_list:
-        for receiver in source.receiver_list:
-            projection = 0.0
-            for orientation, comp in zip(receiver.orientation, "xyz", strict=True):
-                if orientation == 0:
-                    continue
-                projection += orientation * projections[comp][receiver.local_index, :]
-            receiver.spatialP = projection
-
-
-def compute_dc_projections(inversion_data, simulation, indices):
-    """
-    Pre-compute projections for the receivers for efficiency.
-    """
-    rx_locs = inversion_data.entity.vertices
-    mn_pairs = inversion_data.entity.cells
-    projection = simulation.mesh.get_interpolation_matrix(rx_locs, "nodes")
-
-    for source, ind in zip(simulation.survey.source_list, indices, strict=True):
-        proj_mn = projection[mn_pairs[ind, 0], :]
-
-        # Check if dipole receiver
-        if not np.all(mn_pairs[ind, 0] == mn_pairs[ind, 1]):
-            proj_mn -= projection[mn_pairs[ind, 1], :]
-
-        source.receiver_list[0].spatialP = proj_mn  # pylint: disable=protected-access
+        return attributes
+    return [obj.simulation.simulations[0].survey.ordering]

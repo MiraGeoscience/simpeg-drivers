@@ -12,9 +12,10 @@ import numpy as np
 from discretize import TreeMesh
 
 from simpeg_drivers.utils.regularization import (
-    cell_adjacent,
+    cell_neighbors,
     cell_neighbors_along_axis,
-    collect_all_neighbors,
+    cell_neighbors_lists,
+    ensure_dip_direction_convention,
 )
 
 
@@ -54,13 +55,11 @@ def test_cell_neighbors_along_axis():
 def test_collect_all_neighbors():
     mesh = get_mesh()
     centers = mesh.cell_centers
-    neighbors = [cell_neighbors_along_axis(mesh, k) for k in "xyz"]
-    neighbors_bck = [np.fliplr(k) for k in neighbors]
-    corners = cell_adjacent(neighbors)
-    corners_bck = cell_adjacent(neighbors_bck)
-    all_neighbors = collect_all_neighbors(
-        neighbors, neighbors_bck, corners, corners_bck
-    )
+    neighbors_lists = cell_neighbors_lists(mesh)
+    assert len(neighbors_lists) == 26
+
+    all_neighbors = cell_neighbors(mesh)
+
     assert np.allclose(centers[7], [15.0, 15.0, 15.0])
     neighbor_centers = centers[all_neighbors[all_neighbors[:, 0] == 7][:, 1]].tolist()
     assert [5, 5, 5] in neighbor_centers
@@ -90,3 +89,45 @@ def test_collect_all_neighbors():
     assert [15, 25, 25] in neighbor_centers
     assert [25, 25, 25] in neighbor_centers
     assert [15, 15, 15] not in neighbor_centers
+
+
+def test_ensure_dip_direction_convention():
+    # Rotate the vertical unit vector 37 degrees to the west and then 16
+    # degrees counter-clockwise about the z-axis.  Should result in a dip
+    # direction of 270 - 16 = 254 and a dip of 37.
+    Ry = np.array(
+        [
+            [
+                np.cos(np.deg2rad(-37)),
+                0,
+                np.sin(np.deg2rad(-37)),
+            ],
+            [0, 1, 0],
+            [-np.sin(np.deg2rad(-37)), 0, np.cos(np.deg2rad(-37))],
+        ]
+    )
+    Rz = np.array(
+        [
+            [np.cos(np.deg2rad(16)), -np.sin(np.deg2rad(16)), 0],
+            [np.sin(np.deg2rad(16)), np.cos(np.deg2rad(16)), 0],
+            [0, 0, 1],
+        ]
+    )
+    arbitrary_vector = Rz.dot(Ry.dot([0, 0, 1]))
+
+    orientations = np.array(
+        [
+            [1, 0, 1],
+            [0, 1, 1],
+            [-1, 0, 1],
+            [0, -1, 1],
+            [1, 0, np.sqrt(3)],
+            [0, 1, np.sqrt(3)],
+            [-1, 0, np.sqrt(3)],
+            [0, -1, np.sqrt(3)],
+            arbitrary_vector.tolist(),
+        ]
+    )
+    dir_dip = ensure_dip_direction_convention(orientations, group_type="3D vector")
+    assert np.allclose(dir_dip[:, 0], [90, 0, 270, 180] * 2 + [254])
+    assert np.allclose(dir_dip[:, 1], [45] * 4 + [30] * 4 + [37])

@@ -1,5 +1,5 @@
 {
-    "version": "0.3.0-alpha.6",
+    "version": "0.4.0",
     "title": "Frequency-domain EM (FEM) Forward",
     "icon": "surveyairborneem",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
@@ -19,16 +19,16 @@
         ],
         "value": ""
     },
-    "z_real_channel_bool": {
-        "group": "Survey",
-        "main": true,
-        "label": "Z real component",
-        "value": true
-    },
     "z_imag_channel_bool": {
         "group": "Survey",
         "main": true,
         "label": "Z imag component",
+        "value": true
+    },
+    "z_real_channel_bool": {
+        "group": "Survey",
+        "main": true,
+        "label": "Z real component",
         "value": true
     },
     "mesh": {
@@ -93,7 +93,7 @@
         "optional": true,
         "enabled": false,
         "label": "Elevation channel",
-        "tooltip": "Set elevation from channel.  If not set the topography will be set from the geometry of the selected 'topography' object",
+        "tooltip": "Set elevation from channel. If not set the topography will be set from the geometry of the selected 'topography' object",
         "parent": "topography_object",
         "dependency": "topography_object",
         "dependencyType": "enabled",
@@ -113,11 +113,10 @@
         "dependency": "topography_object",
         "dependencyType": "disabled",
         "label": "Active model",
-        "tooltip": "Provide the active cell boolean model directly if topography not set",
+        "tooltip": "Provide the active cell Boolean model directly if topography not set",
         "parent": "mesh",
         "value": ""
     },
-    "save_sensitivities": false,
     "n_cpu": {
         "min": 1,
         "group": "Compute",
@@ -175,6 +174,7 @@
         "group": "Python run preferences",
         "main": true,
         "value": false,
+        "visible": false,
         "tooltip": "Generates a file for sweeping parameters instead of running the application"
     },
     "n_workers": "",

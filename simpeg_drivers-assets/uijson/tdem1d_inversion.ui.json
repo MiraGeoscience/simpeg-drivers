@@ -1,5 +1,5 @@
 {
-    "version": "0.3.0-alpha.6",
+    "version": "0.4.0",
     "title": "Time-domain EM (TEM) 1D Inversion",
     "icon": "surveyairborneem",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
@@ -22,14 +22,21 @@
     },
     "data_units": {
         "choiceList": [
-            "dB/dt (T/s)",
-            "B (T)",
-            "H (A/m)"
+            "Airborne dB/dt (V/Am^4)",
+            "Airborne B (T/Am^2)",
+            "Ground dB/dt (V/Am^2)",
+            "Ground B (T/A)"
         ],
-        "group": "Data",
+        "group": "Survey",
         "main": true,
         "label": "Data type",
-        "tooltip": "Set the units of the data",
+        "tooltip": [
+            "Set the units of the data.<p>",
+            "Data are expected to be normalized by the source strength, dependent on the type: <dl>",
+            "<dt>Dipole</dt><dd>Current * area * number of turns (NIA).</dd>",
+            "<dt>Wire</dt><dd>Current * number of turns (NI).</dd>",
+            "</dl>"
+        ],
         "value": "dB/dt (T/s)"
     },
     "z_channel": {
@@ -206,7 +213,7 @@
         "optional": true,
         "enabled": false,
         "label": "Elevation channel",
-        "tooltip": "Set elevation from channel.  If not set the topography will be set from the geometry of the selected 'topography' object",
+        "tooltip": "Set elevation from channel. If not set the topography will be set from the geometry of the selected 'topography' object",
         "parent": "topography_object",
         "dependency": "topography_object",
         "dependencyType": "enabled",
@@ -227,7 +234,7 @@
         "dependency": "topography_object",
         "dependencyType": "disabled",
         "label": "Active model",
-        "tooltip": "Provide the active cell boolean model directly if topography not set",
+        "tooltip": "Provide the active cell Boolean model directly if topography not set",
         "parent": "mesh",
         "value": ""
     },
@@ -325,7 +332,6 @@
         "enabled": true,
         "tooltip": "Lp-norm used in the z-smoothness term of the objective function"
     },
-    "gradient_type": "total",
     "max_irls_iterations": {
         "min": 0,
         "group": "Sparse/blocky model",
@@ -442,7 +448,7 @@
         "min": 1,
         "enabled": true,
         "verbose": 3,
-        "tooltip": "Perform an Armijo backtracking linesearch for the provided number of iterations"
+        "tooltip": "Perform an Armijo backtracking line search for the provided number of iterations"
     },
     "max_cg_iterations": {
         "min": 0,
@@ -542,7 +548,7 @@
         "optional": true,
         "enabled": true,
         "label": "Maximum chunk size (Mb)",
-        "value": 128,
+        "value": 512,
         "verbose": 3,
         "visible": false,
         "tooltip": "Limit the chunk size used by Dask for distributed computation"
@@ -562,6 +568,7 @@
         "group": "Python run preferences",
         "main": true,
         "value": false,
+        "visible": false,
         "tooltip": "Generates a file for sweeping parameters instead of running the application"
     },
     "n_workers": "",

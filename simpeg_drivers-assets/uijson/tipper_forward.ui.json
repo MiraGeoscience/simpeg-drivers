@@ -1,5 +1,5 @@
 {
-    "version": "0.3.0-alpha.6",
+    "version": "0.4.0",
     "title": "Tipper Forward",
     "icon": "surveyztem",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
@@ -17,28 +17,28 @@
         "meshType": "{0b639533-f35b-44d8-92a8-f70ecff3fd26}",
         "value": ""
     },
-    "txz_real_channel_bool": {
-        "group": "Survey",
-        "main": true,
-        "label": "Txz real",
-        "value": true
-    },
     "txz_imag_channel_bool": {
         "group": "Survey",
         "main": true,
         "label": "Txz imaginary",
         "value": true
     },
-    "tyz_real_channel_bool": {
+    "txz_real_channel_bool": {
         "group": "Survey",
         "main": true,
-        "label": "Tyz real",
+        "label": "Txz real",
         "value": true
     },
     "tyz_imag_channel_bool": {
         "group": "Survey",
         "main": true,
         "label": "Tyz imaginary",
+        "value": true
+    },
+    "tyz_real_channel_bool": {
+        "group": "Survey",
+        "main": true,
+        "label": "Tyz real",
         "value": true
     },
     "mesh": {
@@ -110,7 +110,7 @@
         "optional": true,
         "enabled": false,
         "label": "Elevation channel",
-        "tooltip": "Set elevation from channel.  If not set the topography will be set from the geometry of the selected 'topography' object",
+        "tooltip": "Set elevation from channel. If not set the topography will be set from the geometry of the selected 'topography' object",
         "parent": "topography_object",
         "dependency": "topography_object",
         "dependencyType": "enabled",
@@ -130,11 +130,10 @@
         "dependency": "topography_object",
         "dependencyType": "disabled",
         "label": "Active model",
-        "tooltip": "Provide the active cell boolean model directly if topography not set",
+        "tooltip": "Provide the active cell Boolean model directly if topography not set",
         "parent": "mesh",
         "value": ""
     },
-    "save_sensitivities": false,
     "n_cpu": {
         "min": 1,
         "group": "Compute",
@@ -192,6 +191,7 @@
         "group": "Python run preferences",
         "main": true,
         "value": false,
+        "visible": false,
         "tooltip": "Generates a file for sweeping parameters instead of running the application"
     },
     "n_workers": "",

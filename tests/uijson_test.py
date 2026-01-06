@@ -25,11 +25,18 @@ from pydantic import AliasChoices, Field
 import simpeg_drivers
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.line_sweep.driver import LineSweepDriver
-from simpeg_drivers.options import ActiveCellsOptions, Deprecations
+from simpeg_drivers.options import Deprecations, IRLSOptions
 from simpeg_drivers.potential_fields.gravity.options import GravityInversionOptions
 from simpeg_drivers.potential_fields.gravity.uijson import GravityInversionUIJson
 from simpeg_drivers.uijson import SimPEGDriversUIJson
-from tests.testing_utils import setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
+from simpeg_drivers.utils.synthetics.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticsComponentsOptions,
+)
+from tests.utils.targets import get_workspace
 
 
 logger = logging.getLogger(__name__)
@@ -76,6 +83,8 @@ def simpeg_uijson_factory_fixture(workspace):
     [
         # Normal version
         ("1.2.3", "1.2.3"),
+        # Dev version
+        ("1.2.3.dev1", "1.2.3"),
         # Post-release version
         ("1.2.3.post1", "1.2.3"),
         # RC pre-release version
@@ -86,8 +95,14 @@ def simpeg_uijson_factory_fixture(workspace):
         ("1.2.3b1", "1.2.3b1"),
         # Local version
         ("1.2.3+local", "1.2.3"),
-        # Combined cases
+        # Combined cases with RC and post
         ("1.2.3rc1.post2+local", "1.2.3"),
+        # Combined cases with RC and dev
+        ("1.2.3rc1.dev2+local", "1.2.3"),
+        # Combined cases with pre non-RC and post
+        ("1.2.3b1.post2+local", "1.2.3b1"),
+        # Combined cases with pre non-RC and dev
+        ("1.2.3b1.dev2+local", "1.2.3b1"),
     ],
 )
 def test_comparable_version(version_input, expected):
@@ -176,16 +191,29 @@ def test_write_default(tmp_path):
     ) == SimPEGDriversUIJson.comparable_version(simpeg_drivers.__version__)
 
 
+def test_alias_options():
+    geoh5 = Workspace()
+
+    class Options(BaseData):
+        irls: IRLSOptions = IRLSOptions()
+        name: str = "My Inversion"
+
+    options = Options.build(geoh5=geoh5, coolEpsFact=0.1)
+    assert options.irls.epsilon_cooling_factor == 0.1
+
+
 def test_deprecated_options(caplog):
     geoh5 = Workspace()
 
     class Options(BaseData):
+        irls: IRLSOptions = IRLSOptions()
+        name: str = "My Inversion"
         deprecations: Deprecations
 
     with caplog.at_level(logging.WARNING):
-        options = Options.build(geoh5=geoh5, parallelized="abc")
+        options = Options.build(geoh5=geoh5, gradient_type="abc")
 
-    assert "Deprecated field 'parallelized' will be ignored" in caplog.text
+    assert "Deprecated field 'gradient_type' will be ignored" in caplog.text
     assert "deprecations" not in options.model_dump()
     assert "parallelized" not in options.model_dump()
 
@@ -222,25 +250,28 @@ def test_gravity_uijson(tmp_path):
     import warnings
 
     warnings.filterwarnings("error")
-    geoh5, _, starting_model, survey, topography = setup_inversion_workspace(
-        tmp_path, background=0.0, anomaly=0.75, inversion_type="gravity"
+    opts = SyntheticsComponentsOptions(
+        method="gravity", model=ModelOptions(anomaly=0.75)
     )
-    with geoh5.open():
-        gz_channel = survey.add_data({"gz": {"values": np.ones(survey.n_vertices)}})
-        gz_uncerts = survey.add_data({"gz_unc": {"values": np.ones(survey.n_vertices)}})
+    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+        gz_channel = components.survey.add_data(
+            {"gz": {"values": np.ones(components.survey.n_vertices)}}
+        )
+        gz_uncerts = components.survey.add_data(
+            {"gz_unc": {"values": np.ones(components.survey.n_vertices)}}
+        )
 
-    opts = GravityInversionOptions(
-        version="old news",
-        geoh5=geoh5,
-        data_object=survey,
-        gz_channel=gz_channel,
-        gz_uncertainty=gz_uncerts,
-        mesh=starting_model.parent,
-        starting_model=starting_model,
-        active_cells=ActiveCellsOptions(
-            topography_object=topography,
-        ),
-    )
+        opts = GravityInversionOptions.build(
+            version="old news",
+            geoh5=geoh5,
+            data_object=components.survey,
+            gz_channel=gz_channel,
+            gz_uncertainty=gz_uncerts,
+            mesh=components.mesh,
+            starting_model=components.model,
+            topography_object=components.topography,
+        )
     params_uijson_path = tmp_path / "from_params.ui.json"
     opts.write_ui_json(params_uijson_path)
 
@@ -315,21 +346,25 @@ def test_legacy_uijson(tmp_path: Path):
             )
 
             work_path.mkdir(parents=True)
-            geoh5, mesh, model, survey, topo = setup_inversion_workspace(
-                work_path,
-                background=1.0,
-                anomaly=2.0,
-                n_electrodes=10,
-                n_lines=3,
-                inversion_type=inversion_type,
+            opts = SyntheticsComponentsOptions(
+                method=inversion_type,
+                survey=SurveyOptions(
+                    n_stations=10,
+                    n_lines=3,
+                ),
+                mesh=MeshOptions(),
+                model=ModelOptions(
+                    background=1.0,
+                    anomaly=2.0,
+                ),
             )
-
-            with geoh5.open(mode="r+"):
+            with Workspace.create(work_path / "inversion_test.ui.geoh5") as geoh5:
+                components = SyntheticsComponents(geoh5, options=opts)
                 ifile.data["geoh5"] = geoh5
-                ifile.data["mesh"] = mesh
-                ifile.data["starting_model"] = model
-                ifile.data["data_object"] = survey
-                ifile.data["topography_object"] = topo
+                ifile.data["mesh"] = components.mesh
+                ifile.data["starting_model"] = components.model
+                ifile.data["data_object"] = components.survey
+                ifile.data["topography_object"] = components.topography
 
                 # Test deprecated name
                 ifile.data["coolingFactor"] = 4.0
@@ -339,19 +374,19 @@ def test_legacy_uijson(tmp_path: Path):
                     ifile.data["line_object"] = line_id
 
                 if not forward:
-                    n_vals = survey.n_vertices
+                    n_vals = components.survey.n_vertices
                     if (
                         "direct current" in inversion_type
                         or "induced polarization" in inversion_type
                     ):
-                        n_vals = survey.n_cells
+                        n_vals = components.survey.n_cells
 
-                    channels = getattr(survey, "channels", [1])
+                    channels = getattr(components.survey, "channels", [1])
 
                     data = []
                     for channel in channels:
                         data.append(
-                            survey.add_data(
+                            components.survey.add_data(
                                 {
                                     CHANNEL_NAME[inversion_type] + f"[{channel}]": {
                                         "values": np.ones(n_vals)
@@ -361,14 +396,14 @@ def test_legacy_uijson(tmp_path: Path):
                         )
 
                     if len(data) > 1:
-                        channel = survey.add_data_to_group(data, "Group")
+                        channel = components.survey.add_data_to_group(data, "Group")
                     else:
                         channel = data[0]
 
                     ifile.data[CHANNEL_NAME[inversion_type] + "_channel"] = channel
                     ifile.data[CHANNEL_NAME[inversion_type] + "_uncertainty"] = channel
 
-            driver = InversionDriver.from_input_file(ifile)
+            driver = InversionDriver.from_input_file(ifile.data)
 
             if hasattr(driver.params, "cooling_factor"):
                 assert driver.params.cooling_factor == 4.0

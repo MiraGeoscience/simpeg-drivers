@@ -21,15 +21,13 @@ from .options import MVIForwardOptions, MVIInversionOptions
 class MVIForwardDriver(InversionDriver):
     """Magnetic Vector forward driver."""
 
-    _options_class = MVIForwardOptions
-    _validations = None
+    _params_class = MVIForwardOptions
 
 
 class MVIInversionDriver(InversionDriver):
     """Magnetic Vector inversion driver."""
 
-    _options_class = MVIInversionOptions
-    _validations = None
+    _params_class = MVIInversionOptions
 
     @property
     def mapping(self) -> list[maps.Projection] | None:

@@ -14,10 +14,10 @@ from __future__ import annotations
 from enum import Enum
 from logging import getLogger
 from pathlib import Path
-from typing import Annotated, Any, ClassVar, TypeAlias
+from typing import Annotated, Any, ClassVar, Literal, TypeAlias
 
 import numpy as np
-from geoapps_utils.driver.data import BaseData
+from geoapps_utils.base import Options
 from geoh5py.data import (
     BooleanData,
     DataAssociationEnum,
@@ -28,8 +28,9 @@ from geoh5py.data import (
 )
 from geoh5py.groups import PropertyGroup, SimPEGGroup, UIJsonGroup
 from geoh5py.objects import DrapeModel, Grid2D, Octree, Points
-from geoh5py.shared.utils import fetch_active_workspace
+from geoh5py.objects.surveys.electromagnetics.base import BaseEMSurvey
 from geoh5py.ui_json import InputFile
+from geoh5py.ui_json.utils import fetch_active_workspace
 from pydantic import (
     AliasChoices,
     BaseModel,
@@ -37,10 +38,12 @@ from pydantic import (
     ConfigDict,
     Field,
     field_validator,
+    model_serializer,
     model_validator,
 )
 
-import simpeg_drivers
+from . import public_version
+from .utils.regularization import direction_and_dip
 
 
 logger = getLogger(__name__)
@@ -89,14 +92,50 @@ class ActiveCellsOptions(BaseModel):
             raise ValueError("Must provide either topography or active model.")
         return data
 
+    @model_validator(mode="before")
+    @classmethod
+    def topo_grid_must_have_elevation_channel(cls, data):
+        if isinstance(data.get("topography_object", None), Grid2D):
+            if data.get("topography", None) is None:
+                raise ValueError(
+                    "Grid2D topography must be accompanied by a valid elevation channel."
+                )
+        return data
 
-class SolverType(str, Enum):
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler) -> dict[str, Any]:
+        result = handler(self)
+
+        if "topography_object" not in result:
+            result["topography_object"] = self.topography_object
+
+        return result
+
+
+class ComputeOptions(BaseModel):
     """
-    Supported solvers.
+    Options related to compute resources and parallelization.
+
+    :param distributed_workers: Distributed workers.
+    :param max_chunk_size: Maximum chunk size used for parallel operations.
+    :param max_ram: Maximum amount of RAM available
+    :param n_cpu: Number of CPUs to use for parallel operations.
+    :param n_threads: Number of threads per worker
+    :param n_workers: Number of distributed workers to use.
+    :param performance_report: Generate an HTML report from dask.diagnostics
+    :param solver_type: Type of solver to use for the inversion.
+    :param tile_spatial: Number of tiles to split the data.
     """
 
-    Pardiso = "Pardiso"
-    Mumps = "Mumps"
+    distributed_workers: str | None = None
+    max_chunk_size: int = 128
+    max_ram: float | None = None
+    n_cpu: int | None = None
+    n_threads: int | None = None
+    n_workers: int | None = 1
+    performance_report: bool = False
+    solver_type: Literal["Pardiso", "Mumps"] = "Pardiso"
+    tile_spatial: int = 1
 
 
 class DeprecatedOptions(BaseModel):
@@ -104,13 +143,15 @@ class DeprecatedOptions(BaseModel):
     List of deprecated options.
     """
 
+    beta_search: Deprecated
     chunk_by_rows: Deprecated
-    parallelized: Deprecated
     ga_group: Deprecated
-    z_from_topo: Deprecated
-    receivers_radar_drape: Deprecated
-    receivers_offset_z: Deprecated
     gps_receivers_offset: Deprecated
+    gradient_type: Deprecated
+    receivers_offset_z: Deprecated
+    receivers_radar_drape: Deprecated
+    parallelized: Deprecated
+    z_from_topo: Deprecated
 
 
 Deprecations = Annotated[
@@ -118,7 +159,7 @@ Deprecations = Annotated[
 ]
 
 
-class CoreOptions(BaseData):
+class CoreOptions(Options):
     """
     Core parameters shared by inverse and forward operations.
 
@@ -127,22 +168,10 @@ class CoreOptions(BaseData):
     :param conda_environment: Name of the conda environment used to run the
         application with all of its dependencies.
     :param inversion_type: Type of inversion.
-    :param data_object: Data object containing survey geometry and data
-        channels.
-    :param mesh: Mesh object containing models (starting, reference, active, etc..).
-    :param starting_model: Starting model used to start inversion or for simulating
-        data in the forward operation.
     :param active_cells: Active cell data as either a topography surface/data or a 3D model.
-    :param tile_spatial: Number of tiles to split the data.
-    :param max_chunk_size: Maximum chunk size used for parallel operations.
-    :param save_sensitivities: Save sensitivities to file.
+
     :param out_group: Output group to save results.
     :param generate_sweep: Generate sweep file instead of running the app.
-    :param distributed_workers: Distributed workers.
-    :param n_threads: Number of threads per worker
-    :param n_workers: Number of distributed workers to use.
-    :param max_ram: Maximum amount of RAM available
-    :param performance_report: Generate an HTML report from dask.diagnostics
     """
 
     # TODO: Refactor to allow frozen True.  Currently params.data_object is
@@ -156,33 +185,34 @@ class CoreOptions(BaseData):
     )
 
     title: str | None = None
+    version: str = public_version()
     icon: str | None = None
-    documentation: str | None = None
-    version: str = simpeg_drivers.__version__
-    run_command: str = "simpeg_drivers.driver"
-    conda_environment: str = "simpeg_drivers"
     inversion_type: str
-    data_object: Points
-    mesh: Octree | DrapeModel | None
-    starting_model: float | FloatData
+    documentation: str | None = None
+    conda_environment: str = "simpeg_drivers"
+    run_command: str = "simpeg_drivers.driver"
+    mesh: Octree | Grid2D | DrapeModel | None = None
     active_cells: ActiveCellsOptions
-    tile_spatial: int = 1
-
-    solver_type: SolverType = SolverType.Pardiso
-    save_sensitivities: bool = False
-    max_chunk_size: int = 128
+    compute: ComputeOptions = ComputeOptions()
     out_group: SimPEGGroup | UIJsonGroup | None = None
     generate_sweep: bool = False
-    distributed_workers: str | None = None
-    n_workers: int | None = 1
-    n_threads: int | None = None
-    max_ram: float | None = None
-    performance_report: bool = False
-    gradient_type: str = "total"  # To properly deprecate in the future
-    n_cpu: int | None = None  # To properly deprecate in the future
-
+    workspace_geoh5: Path | None = Field(
+        default=None,
+        exclude=True,
+    )
     # List of deprecated parameters
     deprecations: Deprecations
+
+    @property
+    def components(self) -> list[str]:
+        """Return list of component names."""
+        return [self._component_name(k) for k in self.__dict__ if "channel" in k]
+
+    def _component_name(self, component: str) -> str:
+        """Strip the '_channel' and '_channel_bool' suffixes from data name."""
+        return "_".join(
+            [k for k in component.split("_") if k not in ["channel", "bool"]]
+        )
 
     @field_validator("mesh", mode="before")
     @classmethod
@@ -193,43 +223,365 @@ class CoreOptions(BaseData):
             )
         return value
 
-    @model_validator(mode="before")
-    @classmethod
-    def out_group_if_none(cls, data):
-        group = data.get("out_group", None)
-
-        if isinstance(group, SimPEGGroup):
-            return data
-
-        if isinstance(group, UIJsonGroup | type(None)):
-            name = (
-                cls.model_fields["title"].default  # pylint: disable=unsubscriptable-object
-                if group is None
-                else group.name
-            )
-            with fetch_active_workspace(data["geoh5"], mode="r+") as geoh5:
-                group = SimPEGGroup.create(geoh5, name=name)
-
-        data["out_group"] = group
-
-        return data
-
-    @model_validator(mode="after")
-    def update_out_group_options(self):
-        assert self.out_group is not None
-        with fetch_active_workspace(self.geoh5, mode="r+"):
-            self.out_group.options = self.serialize()
-            self.out_group.metadata = None
-        return self
-
     @property
     def workpath(self):
         return Path(self.geoh5.h5file).parent
 
     @property
-    def components(self) -> list[str]:
-        """Return list of component names."""
-        return [self._component_name(k) for k in self.__dict__ if "channel" in k]
+    def padding_cells(self) -> int:
+        """
+        Default padding cells used for tiling.
+        """
+        # Keep whole mesh for 1 tile
+        if self.compute.tile_spatial == 1:
+            return 100
+
+        return 4 if self.inversion_type in ["fdem", "tdem"] else 6
+
+    def _create_input_file_from_attributes(self) -> InputFile:
+        ifile = super()._create_input_file_from_attributes()
+        ifile.set_data_value("version", public_version())
+        return ifile
+
+
+class ModelOptions(BaseModel):
+    """
+    Base class for model parameters.
+
+    :param starting_model: Starting model.
+    :param reference_model: Reference model.
+    :param lower_bound: Lower bound.
+    :param upper_bound: Upper bound.
+    :param alpha_s: Scale on the reference model.
+    :param length_scale_x: Length scale along the u-direction.
+    :param length_scale_y: Length scale along the v-direction.
+    :param length_scale_z: Length scale along the z-direction.
+    :param gradient_rotation: Property group for gradient rotation angles.
+    :param s_norm: Norm applied on the reference model.
+    :param x_norm: Norm applied on the smoothing along the u-direction.
+    :param y_norm: Norm applied on the smoothing along the v-direction.
+    :param z_norm: Norm applied on the smoothing along the w-direction.
+    """
+
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True,
+    )
+
+    # Model options
+    starting_model: float | FloatData
+    reference_model: float | FloatData | None = None
+    lower_bound: float | FloatData | None = None
+    upper_bound: float | FloatData | None = None
+
+    # Model values for regularization
+    alpha_s: float | FloatData | None = 1.0
+    length_scale_x: float | FloatData = 1.0
+    length_scale_y: float | FloatData | None = 1.0
+    length_scale_z: float | FloatData = 1.0
+    gradient_rotation: PropertyGroup | None = None
+
+    # Model values for IRLS
+    s_norm: float | FloatData | None = 0.0
+    x_norm: float | FloatData = 2.0
+    y_norm: float | FloatData | None = 2.0
+    z_norm: float | FloatData = 2.0
+
+    @property
+    def gradient_direction(self) -> np.ndarray:
+        if self.gradient_orientations is None:
+            return None
+        return self.gradient_orientations[:, 0]
+
+    @property
+    def gradient_dip(self) -> np.ndarray:
+        if self.gradient_orientations is None:
+            return None
+        return self.gradient_orientations[:, 1]
+
+    @property
+    def gradient_orientations(self) -> tuple(float, float):
+        """
+        Direction and dip angles for rotated gradient regularization.
+
+        Angles are in radians and are clockwise from North for direction
+        and clockwise from horizontal for dip.
+        """
+
+        if self.gradient_rotation is not None:
+            orientations = direction_and_dip(self.gradient_rotation)
+
+            return np.deg2rad(orientations)
+
+        return None
+
+
+class ModelTypeEnum(str, Enum):
+    conductivity = "Conductivity (S/m)"
+    resistivity = "Resistivity (Ohm-m)"
+
+
+class ConductivityModelOptions(ModelOptions):
+    """
+    Options for the conductivity model used in all of EM methods.
+    """
+
+    model_type: ModelTypeEnum = ModelTypeEnum.conductivity
+    conductivity_model: float | FloatData | None = Field(
+        None,
+        validation_alias=AliasChoices("background_conductivity", "conductivity_model"),
+    )
+
+
+class BaseForwardOptions(CoreOptions):
+    """
+    Base class for forward parameters.
+
+    See CoreData class docstring for addition parameters descriptions.
+
+    :param data_object: Data object containing the survey data.
+    :param models: Model options for the forward simulation.
+    """
+
+    forward_only: bool = True
+    data_object: Points
+    models: ModelOptions
+
+    @property
+    def active_components(self) -> list[str]:
+        """Return list of active components."""
+        return [k for k in self.components if getattr(self, f"{k}_channel_bool")]
+
+    @property
+    def data(self) -> InversionDataDict:
+        """Return dictionary of data components and associated values."""
+        return dict.fromkeys(self.active_components)
+
+
+class CoolingSceduleOptions(BaseModel):
+    """
+    Options controlling the trade-off schedule between data misfit and
+    model regularization.
+
+    :param chi_factor: Target chi factor for the data misfit.  Input value will be
+        adjusted to account for the number of finite data so that factor used will
+        be smaller if the data contains nan values.
+    :param cooling_factor: Factor by which the regularization parameter is reduced.
+    :param cooling_rate: Rate at which the regularization parameter is reduced.
+    :param initial_beta: Initial regularization parameter.
+    :param initial_beta_ratio: Initial ratio of regularization to data misfit.
+    """
+
+    chi_factor: float = 1.0
+    cooling_factor: float = Field(
+        2.0, validation_alias=AliasChoices("cooling_factor", "coolingFactor")
+    )
+    cooling_rate: int = Field(
+        1, validation_alias=AliasChoices("cooling_rate", "coolingRate")
+    )
+    initial_beta: float | None = None
+    initial_beta_ratio: float | None = 100.0
+
+
+class DirectiveOptions(BaseModel):
+    """
+    Directive options for inversion.
+
+    :param auto_scale_misfits: Automatically scale misfits of sub objectives.
+    :param beta_search: Beta search.
+    :param every_iteration_bool: Update the sensitivity weights every iteration.
+    :param save_sensitivities: Save sensitivities to file.
+    :param sens_wts_threshold: Threshold for sensitivity weights.
+    """
+
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True,
+    )
+    auto_scale_misfits: bool = False
+    every_iteration_bool: bool = True
+    save_sensitivities: bool = False
+    sens_wts_threshold: float | None = 1e-0
+
+
+class DrapeModelOptions(BaseModel):
+    """
+    Drape model parameters for 2D simulation/inversion].
+
+    :param u_cell_size: Horizontal cell size for the drape model.
+    :param v_cell_size: Vertical cell size for the drape model.
+    :param depth_core: Depth of the core region.
+    :param horizontal_padding: Horizontal padding.
+    :param vertical_padding: Vertical padding.
+    :param expansion_factor: Expansion factor for the drape model.
+    """
+
+    u_cell_size: float | None = 25.0
+    v_cell_size: float | None = 25.0
+    depth_core: float | None = 100.0
+    horizontal_padding: float | None = 100.0
+    vertical_padding: float | None = 100.0
+    expansion_factor: float | None = 1.1
+
+
+class EMDataMixin:
+    """
+    Mixin class to add data and uncertainty access from property groups.
+    """
+
+    data_object: BaseEMSurvey
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def component_data(self, component: str):
+        """Return data values associated with the component."""
+        property_group = getattr(self, "_".join([component, "channel"]), None)
+        return self.property_group_data(property_group)
+
+    def component_uncertainty(self, component: str):
+        """Return uncertainty values associated with the component."""
+        property_group = getattr(self, "_".join([component, "uncertainty"]), None)
+        return self.property_group_data(property_group)
+
+    def property_group_data(self, property_group: PropertyGroup):
+        """
+        Return dictionary of channel/data.
+
+        :param property_group: Property group uid
+        """
+        frequencies = self.data_object.channels
+        if property_group is None:
+            return dict.fromkeys(frequencies)
+
+        group = next(
+            k for k in self.data_object.property_groups if k.uid == property_group.uid
+        )
+        data = {
+            freq: self.geoh5.get_entity(p)[0].values
+            for freq, p in zip(frequencies, group.properties, strict=False)
+        }
+        return data
+
+
+class IRLSOptions(BaseModel):
+    """
+    IRLS (Iteratively Reweighted Least Squares) options for inversion.
+
+    :param beta_tol: Tolerance for the beta parameter.
+    :param epsilon_cooling_factor: Factor by which the epsilon value is reduced
+    :param max_irls_iterations: Maximum number of IRLS iterations.
+    :param percentile: Percentile of the model values used to compute the initial epsilon value.
+    :param starting_chi_factor: Starting chi factor for IRLS.  Input value will be adjusted to
+        account for the number of finite data so that factor used will be smaller if the data
+        contains nan values.
+    """
+
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True,
+    )
+
+    beta_tol: float = 0.5
+    epsilon_cooling_factor: float = Field(
+        1.2, validation_alias=AliasChoices("epsilon_cooling_factor", "coolEpsFact")
+    )
+    max_irls_iterations: int = 25
+    percentile: float = Field(
+        95, validation_alias=AliasChoices("percentile", "prctile")
+    )
+    starting_chi_factor: float = 1.0
+
+
+class LineSelectionOptions(BaseModel):
+    """
+    Line selection parameters for 2D inversions.
+
+    :param line_id: Line identifier for simulation/inversion.
+    :param line_object: Reference data categorizing survey by line ids.
+    """
+
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True,
+    )
+    line_id: int = 1
+    line_object: ReferencedData
+
+    @field_validator("line_object", mode="before")
+    @classmethod
+    def validate_cell_association(cls, value):
+        if value.association is not DataAssociationEnum.CELL:
+            raise ValueError("Line identifier must be associated with cells.")
+        return value
+
+    @model_validator(mode="after")
+    def line_id_referenced(self):
+        if self.line_id not in self.line_object.values:
+            raise ValueError("Line id isn't referenced in the line object.")
+        return self
+
+
+class OptimizationOptions(BaseModel):
+    """
+    Optimization parameters for inversion.
+
+    :param f_min_change: F min change.
+    :param max_cg_iterations: Maximum CG iterations.
+    :param max_global_iterations: Maximum global iterations.
+    :param max_line_search_iterations: Maximum line search iterations.
+    :param tol_cg: Tolerance CG.
+    """
+
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True,
+    )
+
+    f_min_change: float = 1e-2
+    max_cg_iterations: int = 30
+    max_global_iterations: int = 50
+    max_line_search_iterations: int = 20
+    tol_cg: float = 1e-4
+
+
+class BaseInversionOptions(CoreOptions):
+    """
+    Base class for inversion parameters.
+
+    See CoreData class docstring for addition parameters descriptions.
+
+    :param name: Name of the inversion.
+    :param title: Title of the inversion.
+    :param run_command: Command (module name) used to run the application from
+        command line.
+    :param forward_only: If True, only run the forward simulation.
+    :param conda_environment: Name of the conda environment used to run the program
+    :param data_object: Data object containing the survey data.
+    :param models: Model options for the inversion.
+    :param regularization: Options specific to the regularization function.
+    :param irls: Options specific to the IRLS (Iteratively Reweighted Least Squares) directive.
+    :param directives: Additional directives to be used in the inversion.
+    :param cooling_schedule: Options controlling the trade-off schedule between data misfit and model regularization.
+    :param optimization: Options for the optimization algorithm used in the inversion.
+    :param store_sensitivities: Where to store sensitivities, either in RAM or on disk.
+    """
+
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True,
+    )
+
+    name: ClassVar[str] = "Inversion"
+
+    title: str = "Geophysical inversion"
+    run_command: str = "simpeg_drivers.driver"
+
+    forward_only: bool = False
+    conda_environment: str = "simpeg_drivers"
+
+    data_object: Points
+    models: ModelOptions
+    irls: IRLSOptions = IRLSOptions()
+    directives: DirectiveOptions = DirectiveOptions()
+    cooling_schedule: CoolingSceduleOptions = CoolingSceduleOptions()
+    optimization: OptimizationOptions = OptimizationOptions()
+
+    store_sensitivities: str = "ram"
 
     @property
     def active_components(self) -> list[str]:
@@ -261,7 +613,7 @@ class CoreOptions(BaseData):
         data = getattr(self, "_".join([component, "channel"]), None)
         if isinstance(data, NumericData):
             data = data.values
-        return data
+        return {None: data}
 
     def component_uncertainty(self, component: str) -> np.ndarray | None:
         """
@@ -276,274 +628,6 @@ class CoreOptions(BaseData):
         if isinstance(data, NumericData):
             data = data.values
         elif isinstance(data, float):
-            data *= np.ones_like(self.component_data(component))
+            data *= np.ones_like(self.component_data(component)[None])
 
-        return data
-
-    def _component_name(self, component: str) -> str:
-        """Strip the '_channel' and '_channel_bool' suffixes from data name."""
-        return "_".join(
-            [k for k in component.split("_") if k not in ["channel", "bool"]]
-        )
-
-    @property
-    def padding_cells(self) -> int:
-        """
-        Default padding cells used for tiling.
-        """
-        # Keep whole mesh for 1 tile
-        if self.tile_spatial == 1:
-            return 100
-
-        return 4 if self.inversion_type in ["fdem", "tdem"] else 6
-
-    def _create_input_file_from_attributes(self) -> InputFile:
-        ifile = super()._create_input_file_from_attributes()
-        ifile.set_data_value("version", simpeg_drivers.__version__)
-        return ifile
-
-
-class BaseForwardOptions(CoreOptions):
-    """
-    Base class for forward parameters.
-
-    See CoreData class docstring for addition parameters descriptions."""
-
-    forward_only: bool = True
-
-    @property
-    def active_components(self) -> list[str]:
-        """Return list of active components."""
-        return [k for k in self.components if getattr(self, f"{k}_channel_bool")]
-
-
-class BaseInversionOptions(CoreOptions):
-    """
-    Base class for inversion parameters.
-
-    See CoreData class docstring for addition parameters descriptions.
-
-    :param reference_model: Reference model.
-    :param lower_bound: Lower bound.
-    :param upper_bound: Upper bound.
-
-    :param alpha_s: Alpha s.
-    :param length_scale_x: Length scale x.
-    :param length_scale_y: Length scale y.
-    :param length_scale_z: Length scale z.
-    :param gradient_rotation: Property group for gradient rotation angles.
-
-    :param s_norm: S norm.
-    :param x_norm: X norm.
-    :param y_norm: Y norm.
-    :param z_norm: Z norm.
-    :param max_irls_iterations: Maximum IRLS iterations.
-    :param starting_chi_factor: Starting chi factor.
-
-    :param percentile: Percentile.
-    :param beta_tol: Beta tolerance.
-
-    :param chi_factor: Chi factor.
-    :param auto_scale_misfits: Automatically scale misfits.
-    :param initial_beta: Initial beta.
-    :param initial_beta_ratio: Initial beta ratio.
-    :param cooling_factor: Cooling factor.
-
-    :param cooling_rate: Cooling rate.
-    :param max_global_iterations: Maximum global iterations.
-    :param max_line_search_iterations: Maximum line search iterations.
-    :param max_cg_iterations: Maximum CG iterations.
-    :param tol_cg: Tolerance CG.
-    :param f_min_change: F min change.
-
-    :param sens_wts_threshold: Sensitivity weights threshold.
-    :param every_iteration_bool: Every iteration bool.
-
-    :param solver_type: Direct solver provider.  Either Mumps or Pardiso.
-    :param tile_spatial: Tile the data spatially.
-    :param store_sensitivities: Store sensitivities.
-    :param out_group: Output group.
-    :param generate_sweep: Generate sweep.
-    :param epsilon_cooling_factor: Cool eps fact.
-    :param beta_search: Beta search.
-    """
-
-    model_config = ConfigDict(
-        arbitrary_types_allowed=True,
-    )
-
-    name: ClassVar[str] = "Inversion"
-
-    title: str = "Geophysical inversion"
-    run_command: str = "simpeg_drivers.driver"
-
-    forward_only: bool = False
-    conda_environment: str = "simpeg_drivers"
-
-    reference_model: float | FloatData | None = None
-    lower_bound: float | FloatData | None = None
-    upper_bound: float | FloatData | None = None
-
-    alpha_s: float | FloatData | None = 1.0
-    length_scale_x: float | FloatData = 1.0
-    length_scale_y: float | FloatData | None = 1.0
-    length_scale_z: float | FloatData = 1.0
-    gradient_rotation: PropertyGroup | None = None
-
-    s_norm: float | FloatData | None = 0.0
-    x_norm: float | FloatData = 2.0
-    y_norm: float | FloatData | None = 2.0
-    z_norm: float | FloatData = 2.0
-
-    max_irls_iterations: int = 25
-    starting_chi_factor: float = 1.0
-
-    chi_factor: float = 1.0
-    auto_scale_misfits: bool = True
-    initial_beta_ratio: float | None = 100.0
-    initial_beta: float | None = None
-
-    cooling_factor: float = Field(
-        2.0, validation_alias=AliasChoices("cooling_factor", "coolingFactor")
-    )
-    cooling_rate: int = Field(
-        1, validation_alias=AliasChoices("cooling_rate", "coolingRate")
-    )
-    epsilon_cooling_factor: float = Field(
-        1.2, validation_alias=AliasChoices("epsilon_cooling_factor", "coolEpsFact")
-    )
-
-    max_global_iterations: int = 50
-    max_line_search_iterations: int = 20
-    max_cg_iterations: int = 30
-    tol_cg: float = 1e-4
-    f_min_change: float = 1e-2
-    solver_type: SolverType = SolverType.Pardiso
-
-    sens_wts_threshold: float = 1e-3
-    every_iteration_bool: bool = True
-
-    store_sensitivities: str = "ram"
-
-    beta_tol: float = 0.5
-
-    percentile: float = Field(
-        95, validation_alias=AliasChoices("percentile", "prctile")
-    )
-
-    @property
-    def gradient_dip(self) -> np.ndarray | None:
-        """Gradient dip angle in clockwise radians from horizontal."""
-        if self.gradient_rotation is not None:
-            dip_uid = self.gradient_rotation.properties[1]
-            dips = self.geoh5.get_entity(dip_uid)[0].values
-            return np.deg2rad(dips)
-        return None
-
-    @property
-    def gradient_direction(self) -> np.ndarray | None:
-        """Gradient direction angle in clockwise radians from north"""
-        if self.gradient_rotation is not None:
-            from geoh5py.groups.property_group_type import GroupTypeEnum
-
-            direction_uid = self.gradient_rotation.properties[0]
-            directions = self.geoh5.get_entity(direction_uid)[0].values
-            if self.gradient_rotation.property_group_type == GroupTypeEnum.STRIKEDIP:
-                directions += 90.0
-            return np.deg2rad(directions)
-        return None
-
-
-class EMDataMixin:
-    """
-    Mixin class to add data and uncertainty access from property groups.
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def component_data(self, component: str):
-        """Return data values associated with the component."""
-        property_group = getattr(self, "_".join([component, "channel"]), None)
-        return self.property_group_data(property_group)
-
-    def component_uncertainty(self, component: str):
-        """Return uncertainty values associated with the component."""
-        property_group = getattr(self, "_".join([component, "uncertainty"]), None)
-        return self.property_group_data(property_group)
-
-    def property_group_data(self, property_group: PropertyGroup):
-        """
-        Return dictionary of channel/data.
-
-        :param property_group: Property group uid
-        """
-        frequencies = self.data_object.channels
-        if property_group is None:
-            return {f: None for f in frequencies}
-
-        data = {}
-        group = next(
-            k for k in self.data_object.property_groups if k.uid == property_group.uid
-        )
-        property_names = [self.geoh5.get_entity(p)[0].name for p in group.properties]
-        properties = [self.geoh5.get_entity(p)[0].values for p in group.properties]
-        for i, f in enumerate(frequencies):
-            try:
-                f_ind = property_names.index(
-                    next(k for k in property_names if f"{f:.2e}" in k)
-                )  # Safer if data was saved with geoapps naming convention
-                data[f] = properties[f_ind]
-            except StopIteration:
-                data[f] = properties[i]  # in case of other naming conventions
-
-        return data
-
-
-class DrapeModelOptions(BaseModel):
-    """
-    Drape model parameters for 2D simulation/inversion].
-
-    :param u_cell_size: Horizontal cell size for the drape model.
-    :param v_cell_size: Vertical cell size for the drape model.
-    :param depth_core: Depth of the core region.
-    :param horizontal_padding: Horizontal padding.
-    :param vertical_padding: Vertical padding.
-    :param expansion_factor: Expansion factor for the drape model.
-    """
-
-    u_cell_size: float | None = 25.0
-    v_cell_size: float | None = 25.0
-    depth_core: float | None = 100.0
-    horizontal_padding: float | None = 100.0
-    vertical_padding: float | None = 100.0
-    expansion_factor: float | None = 1.1
-
-
-class LineSelectionOptions(BaseModel):
-    """
-    Line selection parameters for 2D inversions.
-
-    :param line_object: Reference data categorizing survey by line ids.
-    :param line_id: Line identifier for simulation/inversion.
-    """
-
-    model_config = ConfigDict(
-        arbitrary_types_allowed=True,
-    )
-
-    line_object: ReferencedData
-    line_id: int = 1
-
-    @field_validator("line_object", mode="before")
-    @classmethod
-    def validate_cell_association(cls, value):
-        if value.association is not DataAssociationEnum.CELL:
-            raise ValueError("Line identifier must be associated with cells.")
-        return value
-
-    @model_validator(mode="after")
-    def line_id_referenced(self):
-        if self.line_id not in self.line_object.values:
-            raise ValueError("Line id isn't referenced in the line object.")
-        return self
+        return {None: data}

@@ -11,20 +11,22 @@
 
 from __future__ import annotations
 
+import multiprocessing
 from logging import getLogger
 
 import numpy as np
 from discretize import TensorMesh
 from discretize.utils import mesh_utils
+from geoapps_utils.utils.locations import topo_drape_elevation
 from geoh5py import Workspace
 from geoh5py.objects import FEMSurvey
 from geoh5py.shared.merging.drape_model import DrapeModelMerger
 from geoh5py.ui_json.ui_json import fetch_active_workspace
 
-from simpeg_drivers.components.factories import MisfitFactory
+from simpeg_drivers.components.factories import MisfitFactory, SimulationFactory
 from simpeg_drivers.components.meshes import InversionMesh
 from simpeg_drivers.driver import InversionDriver
-from simpeg_drivers.utils.utils import topo_drape_elevation, xyz_2_drape_model
+from simpeg_drivers.utils.utils import xyz_2_drape_model
 
 
 logger = getLogger(__name__)
@@ -33,8 +35,7 @@ logger = getLogger(__name__)
 class Base1DDriver(InversionDriver):
     """Base 1D driver for electromagnetic simulations."""
 
-    _options_class = None
-    _validations = None
+    _params_class = None
 
     def __init__(self, workspace: Workspace, **kwargs):
         super().__init__(workspace, **kwargs)
@@ -69,7 +70,6 @@ class Base1DDriver(InversionDriver):
             self._inversion_mesh = InversionMesh(
                 self.workspace, self.params, entity=entity
             )
-            self._inversion_mesh.layers_mesh = self.layers_mesh
 
         return self._inversion_mesh
 
@@ -87,47 +87,41 @@ class Base1DDriver(InversionDriver):
         return layers_mesh
 
     @property
-    def data_misfit(self):
-        """The Simpeg.data_misfit class"""
-        if getattr(self, "_data_misfit", None) is None:
-            with fetch_active_workspace(self.workspace, mode="r+"):
-                # Tile locations
-                tiles = self.get_tiles()
+    def simulation(self):
+        """
+        The simulation object used in the inversion.
+        """
+        if getattr(self, "_simulation", None) is None:
+            simulation_factory = SimulationFactory(self.params)
+            self._simulation = simulation_factory.build(
+                mesh=self.inversion_mesh.mesh,
+                models=self.models,
+                survey=self.inversion_data.survey,
+                topo=[0, 0, -np.inf],  # Bypass check for global simulation
+            )
 
-                logger.info("Setting up %i tile(s) . . .", len(tiles))
-                # Build tiled misfits and combine to form global misfit
-                self._data_misfit, self._sorting, self._ordering = MisfitFactory(
-                    self.params, models=self.models
-                ).build(
-                    tiles,
-                    self.split_list,
-                    self.inversion_data,
-                    self.inversion_mesh,
-                    self.topo_z_drape,
-                )
-                self.models.active_cells = np.ones(
-                    self.inversion_mesh.mesh.n_cells, dtype=bool
-                )
-                logger.info("Done.")
+            self._simulation.mesh = self.inversion_mesh.mesh
+            self._simulation.layers_mesh = self.layers_mesh
+            self._simulation.active_cells = self.topo_z_drape
 
-                self.inversion_data.save_data()
-                self._data_misfit.multipliers = np.asarray(
-                    self._data_misfit.multipliers, dtype=float
-                )
+            # Remove cached filters for pickling
+            if hasattr(self._simulation, "_fhtfilt"):
+                self._simulation._fhtfilt = None  # pylint: disable=protected-access
 
-            if self.client:
-                self.distributed_misfits()
+            if hasattr(self._simulation, "_fftfilt"):
+                self._simulation._fftfilt = None  # pylint: disable=protected-access
 
-        return self._data_misfit
+        return self._simulation
 
     @property
-    def split_list(self):
-        """
-        Split the list of data into chunks for parallel processing.
-        """
-        n_misfits = len(self.inversion_data.indices)
-
-        if isinstance(self.params.data_object, FEMSurvey):
-            n_misfits *= len(self.params.data_object.channels)
-
-        return [1] * n_misfits
+    def workers(self):
+        """List of workers"""
+        if self._workers is None:
+            if self.client:
+                self._workers = [
+                    (worker.worker_address,)
+                    for worker in self.client.cluster.workers.values()
+                ]
+            else:
+                self._workers = np.arange(multiprocessing.cpu_count()).tolist()
+        return self._workers

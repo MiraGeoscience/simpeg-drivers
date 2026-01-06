@@ -16,47 +16,59 @@ import numpy as np
 import pytest
 from discretize import TreeMesh
 from geoh5py import Workspace
-from geoh5py.objects import Octree
-from octree_creation_app.utils import treemesh_2_octree
+from geoh5py.objects import Grid2D, Octree
+from grid_apps.utils import treemesh_2_octree
 
 from simpeg_drivers.components import InversionMesh
 from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import MVIInversionOptions
-from tests.testing_utils import Geoh5Tester, setup_inversion_workspace
+from simpeg_drivers.potential_fields.magnetic_vector.driver import MVIInversionDriver
+from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
+from simpeg_drivers.utils.synthetics.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticsComponentsOptions,
+)
+from tests.utils.targets import get_workspace
 
 
-def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
-    geoh5, entity, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.0,
-        anomaly=0.05,
-        refinement=(2,),
-        n_electrodes=4,
-        n_lines=4,
-        inversion_type="magnetic_vector",
+def get_mvi_params(tmp_path: Path, updates=None) -> MVIInversionOptions:
+    opts = SyntheticsComponentsOptions(
+        method="magnetic_vector",
+        survey=SurveyOptions(n_stations=4, n_lines=4),
+        mesh=MeshOptions(refinement=(2,)),
+        model=ModelOptions(anomaly=0.05),
     )
-    with geoh5.open():
-        mesh = model.parent
-        tmi_channel, gyz_channel = survey.add_data(
+    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+        mesh = components.model.parent
+        tmi_channel, _gyz_channel = components.survey.add_data(
             {
-                "tmi": {"values": np.random.rand(survey.n_vertices)},
-                "gyz": {"values": np.random.rand(survey.n_vertices)},
+                "tmi": {"values": np.random.rand(components.survey.n_vertices)},
+                "gyz": {"values": np.random.rand(components.survey.n_vertices)},
             }
         )
-        elevation = topography.add_data(
-            {"elevation": {"values": topography.vertices[:, 2]}}
+        elevation = components.topography.add_data(
+            {"elevation": {"values": components.topography.vertices[:, 2]}}
         )
 
-    params = MVIInversionOptions(
-        geoh5=geoh5,
-        data_object=survey,
-        tmi_channel=tmi_channel,
-        active_cells=ActiveCellsOptions(
-            topography_object=topography, topography=elevation
-        ),
-        mesh=mesh,
-        starting_model=model,
-    )
+        kwargs = {
+            "geoh5": geoh5,
+            "data_object": components.survey,
+            "tmi_channel": tmi_channel,
+            "tmi_uncertainty": 0.01,
+            "topography_object": components.topography,
+            "topography": elevation,
+            "inducing_field_strength": 50000.0,
+            "inducing_field_inclination": 60.0,
+            "inducing_field_declination": 30.0,
+            "mesh": mesh,
+            "starting_model": components.model,
+        }
+        if updates is not None:
+            kwargs.update(updates)
+        params = MVIInversionOptions.build(**kwargs)
     return params
 
 
@@ -205,3 +217,27 @@ def test_raise_on_rotated_negative_cell_size(tmp_path):
         msg = "Cannot convert negative cell sizes for rotated mesh."
         with pytest.raises(ValueError, match=msg):
             InversionMesh.ensure_cell_convention(mesh)
+
+
+def test_handle_grid2d(tmp_path):
+    with Workspace(tmp_path / "test.geoh5") as ws:
+        topo = Grid2D.create(
+            ws,
+            name="topography",
+            u_cell_size=25.0,
+            v_cell_size=25.0,
+            u_count=16,
+            v_count=16,
+            origin=(-200.0, -200.0, 0.0),
+        )
+        elev = topo.add_data(
+            {
+                "elevation": {
+                    "values": np.zeros(len(topo.centroids)),
+                }
+            }
+        )
+
+    updates = {"mesh": None, "topography_object": topo, "topography": elev}
+    params = get_mvi_params(tmp_path, updates=updates)
+    MVIInversionDriver(params)  # Doesn't crash

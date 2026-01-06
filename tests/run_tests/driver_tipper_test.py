@@ -24,15 +24,22 @@ from simpeg_drivers.natural_sources.tipper.driver import (
     TipperForwardDriver,
     TipperInversionDriver,
 )
-from simpeg_drivers.options import ActiveCellsOptions
-from simpeg_drivers.utils.utils import get_inversion_output
-from tests.testing_utils import check_target, setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.driver import (
+    SyntheticsComponents,
+)
+from simpeg_drivers.utils.synthetics.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticsComponentsOptions,
+)
+from tests.utils.targets import check_target, get_inversion_output, get_workspace
 
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.006549595043425509, "phi_d": 223, "phi_m": 255}
+target_run = {"data_norm": 0.006549595419474837, "phi_d": 221, "phi_m": 270}
 
 
 def test_tipper_fwr_run(
@@ -42,37 +49,35 @@ def test_tipper_fwr_run(
     cell_size=(20.0, 20.0, 20.0),
 ):
     # Run the forward
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=100,
-        anomaly=1.0,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
-        refinement=refinement,
-        cell_size=cell_size,
-        inversion_type="tipper",
-        drape_height=15.0,
-        flatten=False,
+    opts = SyntheticsComponentsOptions(
+        method="tipper",
+        survey=SurveyOptions(
+            n_stations=n_grid_points, n_lines=n_grid_points, drape=15.0
+        ),
+        mesh=MeshOptions(cell_size=cell_size, refinement=refinement),
+        model=ModelOptions(background=100.0),
     )
+    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
 
-    params = TipperForwardOptions(
-        geoh5=geoh5,
-        mesh=model.parent,
-        active_cells=ActiveCellsOptions(topography_object=topography),
-        data_object=survey,
-        starting_model=model,
-        model_type="Resistivity (Ohm-m)",
-        background_conductivity=1e2,
-        txz_real_channel_bool=True,
-        txz_imag_channel_bool=True,
-        tyz_real_channel_bool=True,
-        tyz_imag_channel_bool=True,
-    )
+        params = TipperForwardOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
+            starting_model=components.model,
+            model_type="Resistivity (Ohm-m)",
+            background_conductivity=1e2,
+            txz_real_channel_bool=True,
+            txz_imag_channel_bool=True,
+            tyz_real_channel_bool=True,
+            tyz_imag_channel_bool=True,
+        )
 
     fwr_driver = TipperForwardDriver(params)
 
     # Should always be returning conductivity for simpeg simulations
-    assert not np.any(np.exp(fwr_driver.models.starting) > 1.01)
+    assert not np.any(np.exp(fwr_driver.models.starting_model) > 1.01)
     fwr_driver.run()
 
 
@@ -82,13 +87,10 @@ def test_tipper_run(tmp_path: Path, max_iterations=1, pytest=True):
         workpath = tmp_path.parent / "test_tipper_fwr_run0" / "inversion_test.ui.geoh5"
 
     with Workspace(workpath) as geoh5:
-        survey = next(
-            child
-            for child in geoh5.get_entity("survey")
-            if not isinstance(child.parent, SimPEGGroup)
-        )
-        mesh = geoh5.get_entity("mesh")[0]
-        topography = geoh5.get_entity("topography")[0]
+        components = SyntheticsComponents(geoh5=geoh5)
+        survey = components.survey
+        mesh = components.mesh
+        topography = components.topography
 
         data = {}
         uncertainties = {}
@@ -131,10 +133,10 @@ def test_tipper_run(tmp_path: Path, max_iterations=1, pytest=True):
         orig_tyz_real_1 = geoh5.get_entity("Iteration_0_tyz_real_[0]")[0].values
 
         # Run the inverse
-        params = TipperInversionOptions(
+        params = TipperInversionOptions.build(
             geoh5=geoh5,
             mesh=mesh,
-            active_cells=ActiveCellsOptions(topography_object=topography),
+            topography_object=topography,
             data_object=survey,
             starting_model=1e2,
             reference_model=1e2,
@@ -144,7 +146,6 @@ def test_tipper_run(tmp_path: Path, max_iterations=1, pytest=True):
             y_norm=1.0,
             z_norm=1.0,
             alpha_s=1.0,
-            gradient_type="components",
             model_type="Resistivity (Ohm-m)",
             lower_bound=0.75,
             max_global_iterations=max_iterations,
@@ -154,7 +155,6 @@ def test_tipper_run(tmp_path: Path, max_iterations=1, pytest=True):
             percentile=100,
             chi_factor=1.0,
             max_line_search_iterations=5,
-            store_sensitivities="ram",
             **data_kwargs,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")

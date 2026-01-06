@@ -14,15 +14,17 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
-from geoapps_utils.driver.driver import BaseDriver
+from geoapps_utils.utils.importing import GeoAppsError
 from geoapps_utils.utils.numerical import weighted_average
-from geoapps_utils.utils.transformations import rotate_xyz
-from geoh5py.data import NumericData
+from geoh5py.data import Data, FloatData, NumericData
+from geoh5py.data.data_type import GeometricDataValueMapType
+from geoh5py.objects import ObjectBase
 from simpeg.utils.mat_utils import (
-    cartesian2amplitude_dip_azimuth,
     dip_azimuth2cartesian,
     mkvc,
 )
+
+from simpeg_drivers.options import ModelTypeEnum
 
 
 if TYPE_CHECKING:
@@ -30,11 +32,15 @@ if TYPE_CHECKING:
 
 
 MODEL_TYPES = [
-    "starting",
-    "reference",
+    "starting_model",
+    "starting_inclination",
+    "starting_declination",
+    "reference_model",
+    "reference_inclination",
+    "reference_declination",
     "lower_bound",
     "upper_bound",
-    "conductivity",
+    "conductivity_model",
     "alpha_s",
     "length_scale_x",
     "length_scale_y",
@@ -45,6 +51,7 @@ MODEL_TYPES = [
     "x_norm",
     "y_norm",
     "z_norm",
+    "petrophysical_model",
 ]
 
 
@@ -67,34 +74,42 @@ class InversionModelCollection:
         self._active_cells: np.ndarray | None = None
         self._driver = driver
         self.is_sigma = self.driver.params.physical_property == "conductivity"
-        is_vector = (
-            True if self.driver.params.inversion_type == "magnetic vector" else False
+        self.is_vector = self.driver.params.inversion_type == "magnetic vector"
+
+        self._starting_model = InversionModel(
+            driver, "starting_model", is_sigma=self.is_sigma
         )
-        self._starting = InversionModel(driver, "starting", is_vector=is_vector)
-        self._reference = InversionModel(driver, "reference", is_vector=is_vector)
-        self._lower_bound = InversionModel(driver, "lower_bound", is_vector=is_vector)
-        self._upper_bound = InversionModel(driver, "upper_bound", is_vector=is_vector)
-        self._conductivity = InversionModel(driver, "conductivity", is_vector=is_vector)
-        self._alpha_s = InversionModel(driver, "alpha_s", is_vector=is_vector)
-        self._length_scale_x = InversionModel(
-            driver, "length_scale_x", is_vector=is_vector
+        self._starting_inclination = InversionModel(driver, "starting_inclination")
+        self._starting_declination = InversionModel(driver, "starting_declination")
+        self._reference_model = InversionModel(
+            driver, "reference_model", is_sigma=self.is_sigma
         )
-        self._length_scale_y = InversionModel(
-            driver, "length_scale_y", is_vector=is_vector
+        self._reference_inclination = InversionModel(driver, "reference_inclination")
+        self._reference_declination = InversionModel(driver, "reference_declination")
+        self._lower_bound = InversionModel(
+            driver, "lower_bound", is_sigma=self.is_sigma
         )
-        self._length_scale_z = InversionModel(
-            driver, "length_scale_z", is_vector=is_vector
+        self._upper_bound = InversionModel(
+            driver, "upper_bound", is_sigma=self.is_sigma
         )
+        self._conductivity_model = InversionModel(
+            driver, "conductivity_model", is_sigma=self.is_sigma
+        )
+        self._alpha_s = InversionModel(driver, "alpha_s")
+        self._length_scale_x = InversionModel(driver, "length_scale_x")
+        self._length_scale_y = InversionModel(driver, "length_scale_y")
+        self._length_scale_z = InversionModel(driver, "length_scale_z")
         self._gradient_dip = InversionModel(
             driver, "gradient_dip", trim_active_cells=False
         )
         self._gradient_direction = InversionModel(
             driver, "gradient_direction", trim_active_cells=False
         )
-        self._s_norm = InversionModel(driver, "s_norm", is_vector=is_vector)
-        self._x_norm = InversionModel(driver, "x_norm", is_vector=is_vector)
-        self._y_norm = InversionModel(driver, "y_norm", is_vector=is_vector)
-        self._z_norm = InversionModel(driver, "z_norm", is_vector=is_vector)
+        self._s_norm = InversionModel(driver, "s_norm")
+        self._x_norm = InversionModel(driver, "x_norm")
+        self._y_norm = InversionModel(driver, "y_norm")
+        self._z_norm = InversionModel(driver, "z_norm")
+        self._petrophysical_model = InversionModel(driver, "petrophysical_model")
 
     @property
     def n_active(self) -> int:
@@ -145,23 +160,57 @@ class InversionModelCollection:
         self._active_cells = active_cells
 
     @property
-    def starting(self) -> np.ndarray | None:
-        if self._starting.model is None:
+    def starting_model(self) -> np.ndarray | None:
+        if self._starting_model.model is None:
             return None
 
-        mstart = self._starting.model.copy()
+        mstart = self._starting_model.model.copy()
 
         if mstart is not None and self.is_sigma:
-            if getattr(self.driver.params, "model_type", None) == "Resistivity (Ohm-m)":
+            if self.driver.params.models.model_type == ModelTypeEnum.resistivity:
                 mstart = 1 / mstart
 
             mstart = np.log(mstart)
 
+        if self.is_vector:
+            field_vecs = dip_azimuth2cartesian(
+                self.starting_inclination,
+                self.starting_declination,
+            )
+            mstart = (field_vecs.T * mstart).flatten()
+
         return mstart
 
     @property
-    def reference(self) -> np.ndarray | None:
-        mref = self._reference.model
+    def starting_inclination(self) -> np.ndarray | None:
+        value = self._starting_inclination.model
+
+        if value is None and self.is_vector:
+            return (
+                np.ones_like(self._starting_model.model)
+                * self.driver.params.inducing_field_inclination
+            )
+
+        if value is not None:
+            value[np.isnan(value)] = 0
+
+        return value
+
+    @property
+    def starting_declination(self) -> np.ndarray | None:
+        value = self._starting_declination.model
+
+        if value is None and self.is_vector:
+            return (
+                np.ones_like(self._starting_model.model)
+                * self.driver.params.inducing_field_declination
+            )
+
+        return value
+
+    @property
+    def reference_model(self) -> np.ndarray | None:
+        mref = self._reference_model.model
 
         if self.driver.params.forward_only:
             return mref
@@ -173,21 +222,50 @@ class InversionModelCollection:
 
         ref_model = mref.copy()
 
-        if (
-            self.is_sigma
-            and getattr(self.driver.params, "model_type", None) == "Resistivity (Ohm-m)"
-        ):
-            ref_model = 1 / ref_model
+        if self.is_sigma:
+            if self.driver.params.models.model_type == ModelTypeEnum.resistivity:
+                ref_model = 1 / ref_model
 
-        ref_model = np.log(ref_model) if self.is_sigma else ref_model
+            ref_model = np.log(ref_model)
+
+        if self.is_vector:
+            field_vecs = dip_azimuth2cartesian(
+                self.reference_inclination,
+                self.reference_declination,
+            )
+            ref_model = (field_vecs.T * ref_model).flatten()
 
         return ref_model
 
     @property
+    def reference_inclination(self) -> np.ndarray | None:
+        value = self._reference_inclination.model
+
+        if value is None and self.is_vector:
+            return (
+                np.ones(self.active_cells.sum())
+                * self.driver.params.inducing_field_inclination
+            )
+
+        return value
+
+    @property
+    def reference_declination(self) -> np.ndarray | None:
+        value = self._reference_declination.model
+
+        if value is None and self.is_vector:
+            return (
+                np.ones(self.active_cells.sum())
+                * self.driver.params.inducing_field_declination
+            )
+
+        return value
+
+    @property
     def lower_bound(self) -> np.ndarray | None:
         if (
-            getattr(self.driver.params, "model_type", None) == "Resistivity (Ohm-m)"
-            and self.is_sigma
+            self.is_sigma
+            and self.driver.params.models.model_type == ModelTypeEnum.resistivity
         ):
             bound_model = self._upper_bound.model
         else:
@@ -200,54 +278,60 @@ class InversionModelCollection:
             bound_model = -self._upper_bound.model
 
         if bound_model is None:
-            return -np.inf
-
-        lbound = bound_model.copy()
+            lbound = np.full(self.n_active, -np.inf)
+        else:
+            lbound = bound_model.copy()
 
         if self.is_sigma:
             is_finite = np.isfinite(lbound)
 
-            if getattr(self.driver.params, "model_type", None) == "Resistivity (Ohm-m)":
+            if self.driver.params.models.model_type == ModelTypeEnum.resistivity:
                 lbound[is_finite] = 1 / lbound[is_finite]
 
             lbound[is_finite] = np.log(lbound[is_finite])
+
+        if self.is_vector:
+            lbound = np.tile(lbound, 3)
 
         return lbound
 
     @property
     def upper_bound(self) -> np.ndarray | None:
         if (
-            getattr(self.driver.params, "model_type", None) == "Resistivity (Ohm-m)"
-            and self.is_sigma
+            self.is_sigma
+            and self.driver.params.models.model_type == ModelTypeEnum.resistivity
         ):
             bound_model = self._lower_bound.model
         else:
             bound_model = self._upper_bound.model
 
         if bound_model is None:
-            return np.inf
-
-        ubound = bound_model.copy()
+            ubound = np.full(self.n_active, np.inf)
+        else:
+            ubound = bound_model.copy()
 
         if self.is_sigma:
             is_finite = np.isfinite(ubound)
 
-            if getattr(self.driver.params, "model_type", None) == "Resistivity (Ohm-m)":
+            if self.driver.params.models.model_type == ModelTypeEnum.resistivity:
                 ubound[is_finite] = 1 / ubound[is_finite]
 
             ubound[is_finite] = np.log(ubound[is_finite])
 
+        if self.is_vector:
+            ubound = np.tile(ubound, 3)
+
         return ubound
 
     @property
-    def conductivity(self) -> np.ndarray | None:
-        if self._conductivity.model is None:
+    def conductivity_model(self) -> np.ndarray | None:
+        if self._conductivity_model.model is None:
             return None
 
-        background_sigma = self._conductivity.model.copy()
+        background_sigma = self._conductivity_model.model.copy()
 
         if background_sigma is not None:
-            if getattr(self.driver.params, "model_type", None) == "Resistivity (Ohm-m)":
+            if self.driver.params.models.model_type == ModelTypeEnum.resistivity:
                 background_sigma = 1 / background_sigma
 
             # Don't apply log if IP inversion
@@ -261,28 +345,112 @@ class InversionModelCollection:
         if self._alpha_s.model is None:
             return None
 
-        return self._alpha_s.model.copy()
+        alpha = self._alpha_s.model.copy()
+
+        if self.is_vector:
+            alpha = np.tile(alpha, 3)
+
+        return alpha
 
     @property
     def length_scale_x(self) -> np.ndarray | None:
         if self._length_scale_x.model is None:
             return None
 
-        return self._length_scale_x.model.copy()
+        length_scale = self._length_scale_x.model.copy()
+
+        if self.is_vector:
+            length_scale = np.tile(length_scale, 3)
+        return length_scale
 
     @property
     def length_scale_y(self) -> np.ndarray | None:
         if self._length_scale_y.model is None:
             return None
 
-        return self._length_scale_y.model.copy()
+        length_scale = self._length_scale_y.model.copy()
+
+        if self.is_vector:
+            length_scale = np.tile(length_scale, 3)
+        return length_scale
 
     @property
     def length_scale_z(self) -> np.ndarray | None:
         if self._length_scale_z.model is None:
             return None
 
-        return self._length_scale_z.model.copy()
+        length_scale = self._length_scale_z.model.copy()
+
+        if self.is_vector:
+            length_scale = np.tile(length_scale, 3)
+        return length_scale
+
+    @property
+    def s_norm(self) -> np.ndarray | None:
+        if self._s_norm.model is None:
+            return None
+
+        s_norm = self._s_norm.model.copy()
+
+        if self.is_vector:
+            s_norm = np.tile(s_norm, 3)
+
+        return s_norm
+
+    @property
+    def x_norm(self) -> np.ndarray | None:
+        if self._x_norm.model is None:
+            return None
+
+        x_norm = self._x_norm.model.copy()
+
+        if self.is_vector:
+            x_norm = np.tile(x_norm, 3)
+
+        return x_norm
+
+    @property
+    def y_norm(self) -> np.ndarray | None:
+        if self._y_norm.model is None:
+            return None
+
+        y_norm = self._y_norm.model.copy()
+
+        if self.is_vector:
+            y_norm = np.tile(y_norm, 3)
+
+        return y_norm
+
+    @property
+    def z_norm(self) -> np.ndarray | None:
+        if self._z_norm.model is None:
+            return None
+
+        z_norm = self._z_norm.model.copy()
+
+        if self.is_vector:
+            z_norm = np.tile(z_norm, 3)
+
+        return z_norm
+
+    def _model_method_wrapper(self, method, name=None, **kwargs):
+        """wraps individual model's specific method and applies in loop over model types."""
+        returned_items = {}
+        for mtype in MODEL_TYPES:
+            model = getattr(self, f"_{mtype}")
+            if model.model is not None:
+                f = getattr(model, method)
+                returned_items[mtype] = f(**kwargs)
+
+        if name is not None:
+            return returned_items[name]
+
+    @property
+    def petrophysical_model(self) -> np.ndarray | None:
+        if self._petrophysical_model.model is None:
+            return None
+
+        return self._petrophysical_model.model.copy()
 
     @property
     def gradient_dip(self) -> np.ndarray | None:
@@ -298,50 +466,6 @@ class InversionModelCollection:
 
         return self._gradient_direction.model.copy()
 
-    @property
-    def s_norm(self) -> np.ndarray | None:
-        if self._s_norm.model is None:
-            return None
-
-        s_norm = self._s_norm.model.copy()
-        return s_norm
-
-    @property
-    def x_norm(self) -> np.ndarray | None:
-        if self._x_norm.model is None:
-            return None
-
-        x_norm = self._x_norm.model.copy()
-        return x_norm
-
-    @property
-    def y_norm(self) -> np.ndarray | None:
-        if self._y_norm.model is None:
-            return None
-
-        y_norm = self._y_norm.model.copy()
-        return y_norm
-
-    @property
-    def z_norm(self) -> np.ndarray | None:
-        if self._z_norm.model is None:
-            return None
-
-        z_norm = self._z_norm.model.copy()
-        return z_norm
-
-    def _model_method_wrapper(self, method, name=None, **kwargs):
-        """wraps individual model's specific method and applies in loop over model types."""
-        returned_items = {}
-        for mtype in MODEL_TYPES:
-            model = getattr(self, f"_{mtype}")
-            if model.model is not None:
-                f = getattr(model, method)
-                returned_items[mtype] = f(**kwargs)
-
-        if name is not None:
-            return returned_items[name]
-
     def remove_air(self, active_cells: np.ndarray):
         """Use active cells vector to remove air cells from model"""
         self._model_method_wrapper("remove_air", active_cells=active_cells)
@@ -351,7 +475,7 @@ class InversionModelCollection:
         Reorder model values stored in cell centers of a TreeMesh to
         their original octree mesh sorting.
 
-        :param: name: model type name ("starting", "reference",
+        :param: name: model type name ("starting_model", "reference_model",
             "lower_bound", or "upper_bound").
 
         :return: Vector of model values reordered for octree mesh.
@@ -381,8 +505,8 @@ class InversionModel:
         self,
         driver: InversionDriver,
         model_type: str,
-        is_vector: bool = False,
         trim_active_cells: bool = True,
+        is_sigma: bool = False,
     ):
         """
         :param driver: InversionDriver object.
@@ -392,8 +516,8 @@ class InversionModel:
         """
         self.driver = driver
         self.model_type = model_type
+        self.is_sigma = is_sigma
         self.model: np.ndarray | None = None
-        self.is_vector = is_vector
         self.trim_active_cells = trim_active_cells
         self._initialize()
 
@@ -405,55 +529,25 @@ class InversionModel:
         are provided, then values are projected onto the direction of the
         inducing field.
         """
-        if self.model_type in ["starting", "reference", "conductivity"]:
-            model = self._get(self.model_type + "_model")
-
-            if self.is_vector:
-                inclination = self._get(self.model_type + "_inclination")
-                declination = self._get(self.model_type + "_declination")
-
-                if inclination is None:
-                    inclination = (
-                        np.ones(self.driver.inversion_mesh.n_cells)
-                        * self.driver.params.inducing_field_inclination
-                    )
-
-                if declination is None:
-                    declination = (
-                        np.ones(self.driver.inversion_mesh.n_cells)
-                        * self.driver.params.inducing_field_declination
-                    )
-
-                inclination[np.isnan(inclination)] = 0
-                declination[np.isnan(declination)] = 0
-                field_vecs = dip_azimuth2cartesian(
-                    inclination,
-                    declination,
-                )
-
-                if model is not None:
-                    model += 1e-8  # make sure the incl/decl don't zero out
-                    model = (field_vecs.T * model).T
-
-        else:
-            model = self._get(self.model_type)
-
-            if (
-                model is not None
-                and self.is_vector
-                and model.shape[0] == self.driver.inversion_mesh.n_cells
-            ):
-                model = np.tile(model, 3 if self.is_vector else 1)
+        model = self._get(self.model_type)
 
         if model is not None:
+            if self.is_sigma and np.any(model <= 0):
+                raise GeoAppsError(
+                    f"All values in {self.model_type} must be positive when "
+                    "inversion is in log-conductivity space."
+                )
+
             self.model = mkvc(model)
-            self.save_model()
+
+            if isinstance(self._fetch_reference(self.model_type), Data):
+                self.save_model()
 
     def remove_air(self, active_cells):
         """Use active cells vector to remove air cells from model"""
 
         if self.model is not None and self.trim_active_cells:
-            self.model = self.model[np.tile(active_cells, 3 if self.is_vector else 1)]
+            self.model = self.model[active_cells]
 
     def permute_2_octree(self) -> np.ndarray | None:
         """
@@ -465,11 +559,6 @@ class InversionModel:
         if self.model is None:
             return None
 
-        if self.is_vector:
-            return mkvc(
-                self.driver.inversion_mesh.permutation.T
-                @ self.model.reshape((-1, 3), order="F")
-            )
         return self.driver.inversion_mesh.permutation.T @ self.model
 
     def save_model(self):
@@ -479,59 +568,51 @@ class InversionModel:
         if remapped_model is None:
             return
 
-        if self.is_vector:
-            if self.model_type in ["starting", "reference"]:
-                aid = cartesian2amplitude_dip_azimuth(remapped_model)
-                aid[np.isnan(aid[:, 0]), 1:] = np.nan
-                self.driver.inversion_mesh.entity.add_data(
-                    {f"{self.model_type}_inclination": {"values": aid[:, 1]}}
-                )
-                self.driver.inversion_mesh.entity.add_data(
-                    {f"{self.model_type}_declination": {"values": aid[:, 2]}}
-                )
-                remapped_model = aid[:, 0]
-            elif "norm" in self.model_type:
-                remapped_model = np.mean(
-                    remapped_model.reshape((-1, 3), order="F"), axis=1
-                )
-            else:
-                remapped_model = np.linalg.norm(
-                    remapped_model.reshape((-1, 3), order="F"), axis=1
-                )
-
         model_type = self.model_type
         if (
-            model_type == "conductivity"
-            and getattr(self.driver.params, "model_type", None) == "Resistivity (Ohm-m)"
+            model_type == "conductivity_model"
+            and self.driver.params.models.model_type == ModelTypeEnum.resistivity
         ):
-            model_type = "resistivity"
+            model_type = "resistivity_model"
+
+        entity_type = None
+        if isinstance(self._fetch_reference(self.model_type), NumericData):
+            entity_type = self._fetch_reference(self.model_type).entity_type
 
         self.driver.inversion_mesh.entity.add_data(
-            {f"{model_type}_model": {"values": remapped_model}}
+            {
+                f"{model_type}": {
+                    "values": remapped_model,
+                    "entity_type": entity_type,
+                }
+            }
         )
 
     def edit_ndv_model(self, model):
         """Change values to NDV on models and save to workspace."""
-        for field in ["model", "inclination", "declination"]:
-            model_type = self.model_type
-            if (
-                model_type == "conductivity"
-                and getattr(self.driver.params, "model_type", None)
-                == "Resistivity (Ohm-m)"
-            ):
-                model_type = "resistivity"
 
-            data_obj = self.driver.inversion_mesh.entity.get_data(
-                f"{model_type}_{field}"
+        model_type = self.model_type
+        if (
+            getattr(self.driver.params.models, "model_type", None)
+            == ModelTypeEnum.resistivity
+        ):
+            model_type = "resistivity_model"
+
+        data_obj = self.driver.inversion_mesh.entity.get_data(model_type)
+        if (
+            any(data_obj)
+            and isinstance(data_obj[0], NumericData)
+            and data_obj[0].values is not None
+        ):
+            values = data_obj[0].values.copy()
+            values[~model.astype(bool)] = (
+                np.nan if isinstance(data_obj[0], FloatData) else 0
             )
-            if (
-                any(data_obj)
-                and isinstance(data_obj[0], NumericData)
-                and data_obj[0].values is not None
-            ):
-                values = data_obj[0].values.copy()
-                values[~model.astype(bool)] = np.nan
-                data_obj[0].values = values
+            data_obj[0].values = values
+
+    def _fetch_reference(self, name: str) -> NumericData | None:
+        value = getattr(self.driver.params.models, name, None)
+        return value
 
     def _get(self, name: str) -> np.ndarray | None:
         """
@@ -540,18 +621,12 @@ class InversionModel:
         :param name: model name as stored in self.driver.params
         :return: vector with appropriate size for problem.
         """
+        model = self._fetch_reference(name)
 
-        if hasattr(self.driver.params, name):
-            model = getattr(self.driver.params, name)
+        if model is None:
+            return None
 
-            if "reference" in name and model is None:
-                model = self._get("starting")
-
-            model_values = self._get_value(model)
-
-            return model_values
-
-        return None
+        return self._get_value(model)
 
     def _get_value(self, model: float | NumericData) -> np.ndarray:
         """
@@ -563,7 +638,7 @@ class InversionModel:
         """
         if isinstance(model, NumericData):
             model = self.obj_2_mesh(model, self.driver.inversion_mesh.entity)
-            model = self.driver.inversion_mesh.permutation @ model
+            model = (self.driver.inversion_mesh.permutation @ model).astype(model.dtype)
         else:
             nc = self.driver.inversion_mesh.mesh.n_cells
             if isinstance(model, int | float):
@@ -572,7 +647,7 @@ class InversionModel:
         return model
 
     @staticmethod
-    def obj_2_mesh(data, destination) -> np.ndarray:
+    def obj_2_mesh(data: Data, destination: ObjectBase) -> np.ndarray:
         """
         Interpolates obj into inversion mesh using nearest neighbors of parent.
 
@@ -584,9 +659,15 @@ class InversionModel:
         """
         xyz_out = destination.locations
         xyz_in = data.parent.locations
-        full_vector = weighted_average(xyz_in, xyz_out, [data.values], n=1)[0]
 
-        return full_vector
+        values = data.values.astype(float)
+
+        if isinstance(data.entity_type, GeometricDataValueMapType):
+            values[values == 0] = np.nan
+
+        full_vector = weighted_average(xyz_in, xyz_out, [values], n=1)[0]
+
+        return full_vector.astype(data.values.dtype)
 
     @property
     def model_type(self):

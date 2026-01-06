@@ -19,7 +19,12 @@ from geoh5py.groups import PropertyGroup
 from geoh5py.objects import MTReceivers
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.options import BaseForwardOptions, BaseInversionOptions, EMDataMixin
+from simpeg_drivers.options import (
+    BaseForwardOptions,
+    BaseInversionOptions,
+    ConductivityModelOptions,
+    EMDataMixin,
+)
 
 
 class MTForwardOptions(EMDataMixin, BaseForwardOptions):
@@ -34,7 +39,6 @@ class MTForwardOptions(EMDataMixin, BaseForwardOptions):
     :param zyx_imag_channel_bool: Boolean for zyx imaginary channel.
     :param zyy_real_channel_bool: Boolean for zyy real channel.
     :param zyy_imag_channel_bool: Boolean for zyy imaginary channel.
-    :param background_conductivity: Background conductivity model.
     :param model_type: Specify whether the models are provided in resistivity or conductivity.
     """
 
@@ -56,8 +60,7 @@ class MTForwardOptions(EMDataMixin, BaseForwardOptions):
     zyx_imag_channel_bool: bool | None = None
     zyy_real_channel_bool: bool | None = None
     zyy_imag_channel_bool: bool | None = None
-    background_conductivity: float | FloatData
-    model_type: str = "Conductivity (S/m)"
+    models: ConductivityModelOptions
 
     @property
     def channels(self) -> list[str]:
@@ -84,8 +87,6 @@ class MTInversionOptions(EMDataMixin, BaseInversionOptions):
     :param zyy_real_uncertainty: Real component of Zyy uncertainty.
     :param zyy_imag_channel: Imaginary component of Zyy data.
     :param zyy_imag_uncertainty: Imaginary component of Zyy uncertainty.
-    :param background_conductivity: Background conductivity model.
-    :param model_type: Specify whether the models are provided in resistivity or conductivity.
     """
 
     name: ClassVar[str] = "Magnetotellurics Inversion"
@@ -114,5 +115,5 @@ class MTInversionOptions(EMDataMixin, BaseInversionOptions):
     zyy_real_uncertainty: PropertyGroup | None = None
     zyy_imag_channel: PropertyGroup | None = None
     zyy_imag_uncertainty: PropertyGroup | None = None
-    background_conductivity: float | FloatData
-    model_type: str = "Conductivity (S/m)"
+
+    models: ConductivityModelOptions

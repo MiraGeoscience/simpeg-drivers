@@ -26,15 +26,22 @@ from simpeg_drivers.electromagnetics.frequency_domain_1d.options import (
     FDEM1DForwardOptions,
     FDEM1DInversionOptions,
 )
-from simpeg_drivers.options import ActiveCellsOptions
-from simpeg_drivers.utils.utils import get_inversion_output
-from tests.testing_utils import check_target, setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.driver import (
+    SyntheticsComponents,
+)
+from simpeg_drivers.utils.synthetics.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticsComponentsOptions,
+)
+from tests.utils.targets import check_target, get_inversion_output, get_workspace
 
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 638.15180, "phi_d": 59500, "phi_m": 168}
+target_run = {"data_norm": 638.1518041350254, "phi_d": 177000, "phi_m": 2860}
 
 
 def test_fem_fwr_1d_run(
@@ -44,28 +51,27 @@ def test_fem_fwr_1d_run(
     cell_size=(20.0, 20.0, 20.0),
 ):
     # Run the forward
-    geoh5, _, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=1e-4,
-        anomaly=0.1,
-        n_electrodes=n_grid_points,
-        n_lines=n_grid_points,
-        refinement=refinement,
-        drape_height=10.0,
-        cell_size=cell_size,
-        padding_distance=400,
-        inversion_type="fdem 1d",
-        flatten=False,
+    opts = SyntheticsComponentsOptions(
+        method="fdem 1d",
+        survey=SurveyOptions(
+            n_stations=n_grid_points, n_lines=n_grid_points, drape=10.0
+        ),
+        mesh=MeshOptions(
+            cell_size=cell_size, refinement=refinement, padding_distance=400.0
+        ),
+        model=ModelOptions(background=1e-4, anomaly=0.1),
     )
-    params = FDEM1DForwardOptions(
-        geoh5=geoh5,
-        mesh=model.parent,
-        active_cells=ActiveCellsOptions(topography_object=topography),
-        data_object=survey,
-        starting_model=model,
-        z_real_channel_bool=True,
-        z_imag_channel_bool=True,
-    )
+    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5=geoh5, options=opts)
+        params = FDEM1DForwardOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
+            starting_model=components.model,
+            z_real_channel_bool=True,
+            z_imag_channel_bool=True,
+        )
 
     fwr_driver = FDEM1DForwardDriver(params)
     fwr_driver.run()
@@ -77,32 +83,26 @@ def test_fem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
         workpath = tmp_path.parent / "test_fem_fwr_1d_run0" / "inversion_test.ui.geoh5"
 
     with Workspace(workpath) as geoh5:
-        survey = next(
-            child
-            for child in geoh5.get_entity("Airborne_rx")
-            if not isinstance(child.parent, SimPEGGroup)
-        )
-        mesh = geoh5.get_entity("mesh")[0]
-        topography = geoh5.get_entity("topography")[0]
+        components = SyntheticsComponents(geoh5)
         data = {}
         uncertainties = {}
-        components = {
+        channels = {
             "z_real": "z_real",
             "z_imag": "z_imag",
         }
 
-        for comp, cname in components.items():
+        for chan, cname in channels.items():
             data[cname] = []
             uncertainties[f"{cname} uncertainties"] = []
-            for ind, freq in enumerate(survey.channels):
-                data_entity = geoh5.get_entity(f"Iteration_0_{comp}_[{ind}]")[0].copy(
-                    parent=survey
+            for ind, freq in enumerate(components.survey.channels):
+                data_entity = geoh5.get_entity(f"Iteration_0_{chan}_[{ind}]")[0].copy(
+                    parent=components.survey
                 )
                 data[cname].append(data_entity)
                 abs_val = np.abs(data_entity.values)
-                uncert = survey.add_data(
+                uncert = components.survey.add_data(
                     {
-                        f"uncertainty_{comp}_[{ind}]": {
+                        f"uncertainty_{chan}_[{ind}]": {
                             "values": np.ones_like(abs_val)
                             * freq
                             / 200.0  # * 2**(np.abs(ind-1))
@@ -110,42 +110,39 @@ def test_fem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
                     }
                 )
                 uncertainties[f"{cname} uncertainties"].append(
-                    uncert.copy(parent=survey)
+                    uncert.copy(parent=components.survey)
                 )
 
-        data_groups = survey.add_components_data(data)
-        uncert_groups = survey.add_components_data(uncertainties)
+        data_groups = components.survey.add_components_data(data)
+        uncert_groups = components.survey.add_components_data(uncertainties)
 
         data_kwargs = {}
-        for comp, data_group, uncert_group in zip(
-            components, data_groups, uncert_groups, strict=True
+        for chan, data_group, uncert_group in zip(
+            channels, data_groups, uncert_groups, strict=True
         ):
-            data_kwargs[f"{comp}_channel"] = data_group
-            data_kwargs[f"{comp}_uncertainty"] = uncert_group
+            data_kwargs[f"{chan}_channel"] = data_group
+            data_kwargs[f"{chan}_uncertainty"] = uncert_group
 
         orig_z_real_1 = geoh5.get_entity("Iteration_0_z_real_[0]")[0].values
 
         # Run the inverse
-        params = FDEM1DInversionOptions(
+        params = FDEM1DInversionOptions.build(
             geoh5=geoh5,
-            mesh=mesh,
-            active_cells=ActiveCellsOptions(topography_object=topography),
-            data_object=survey,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
             starting_model=1e-3,
             reference_model=1e-3,
             alpha_s=0.0,
             s_norm=0.0,
             x_norm=0.0,
             z_norm=0.0,
-            gradient_type="components",
             upper_bound=0.75,
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e1,
             percentile=100,
             cooling_rate=3,
             chi_factor=0.25,
-            store_sensitivities="ram",
-            sens_wts_threshold=1.0,
             **data_kwargs,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")

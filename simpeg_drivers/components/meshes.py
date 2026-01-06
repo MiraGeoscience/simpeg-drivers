@@ -18,10 +18,10 @@ import numpy as np
 from discretize import TensorMesh, TreeMesh
 from geoh5py import Workspace
 from geoh5py.groups import UIJsonGroup
-from geoh5py.objects import DrapeModel, Octree
-from octree_creation_app.driver import OctreeDriver
-from octree_creation_app.params import OctreeParams
-from octree_creation_app.utils import octree_2_treemesh, treemesh_2_octree
+from geoh5py.objects import DrapeModel, Grid2D, Octree, Points
+from grid_apps.octree_creation.driver import OctreeDriver
+from grid_apps.octree_creation.options import OctreeOptions
+from grid_apps.utils import octree_2_treemesh, treemesh_2_octree
 from scipy.sparse import csr_matrix, identity
 
 from simpeg_drivers.options import BaseForwardOptions, BaseInversionOptions
@@ -113,9 +113,19 @@ class InversionMesh:
     def _auto_mesh(self):
         """Automate meshing based on data and topography objects."""
 
+        topography = self.params.active_cells.topography_object
+        if isinstance(topography, Grid2D):
+            with Workspace() as ws:
+                vertices = topography.centroids.copy()
+                if self.params.active_cells.topography is not None:
+                    vertices = np.column_stack(
+                        [vertices[:, :2], self.params.active_cells.topography.values]
+                    )
+                topography = Points.create(ws, vertices=vertices)
+
         params = auto_mesh_parameters(
-            self.params.data_object,
-            self.params.active_cells.topography_object,
+            survey=self.params.data_object,
+            topography=topography,
             inversion_type=self.params.inversion_type,
         )
         driver = OctreeDriver(params)

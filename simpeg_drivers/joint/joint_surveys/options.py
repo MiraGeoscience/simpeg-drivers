@@ -15,10 +15,25 @@ from pathlib import Path
 from typing import ClassVar
 
 from geoh5py.data import FloatData
-from pydantic import model_validator
+from pydantic import field_validator, model_validator
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.joint.options import BaseJointOptions
+from simpeg_drivers.joint.options import BaseJointOptions, JointModelOptions
+from simpeg_drivers.options import ModelTypeEnum
+
+
+class JointSurveysModelOptions(JointModelOptions):
+    """
+    Joint Surveys model options.
+
+    :param model_type: The physical property type for the inversion.
+    :param starting_model: The starting model for the inversion.
+    :param reference_model: The reference model for the inversion.
+    """
+
+    model_type: ModelTypeEnum = ModelTypeEnum.conductivity
+    starting_model: float | FloatData | None = None
+    reference_model: float | FloatData | None = None
 
 
 class JointSurveysOptions(BaseJointOptions):
@@ -30,14 +45,22 @@ class JointSurveysOptions(BaseJointOptions):
     )
 
     title: str = "Joint Surveys Inversion"
-
     inversion_type: str = "joint surveys"
 
-    model_type: str = "Conductivity (S/m)"
-    starting_model: float | FloatData
-    reference_model: float | FloatData | None = None
-    lower_bound: float | FloatData | None = None
-    upper_bound: float | FloatData | None = None
+    models: JointSurveysModelOptions
+
+    @field_validator("group_a", "group_b", "group_c")
+    @classmethod
+    def no_mvi_groups(cls, val):
+        if val is None:
+            return val
+
+        if "magnetic vector" in val.options.get("inversion_type", ""):
+            raise ValueError(
+                f"Joint inversion doesn't currently support MVI data as passed in "
+                f"the group: {val.name}."
+            )
+        return val
 
     @model_validator(mode="after")
     def all_groups_same_physical_property(self):
@@ -47,4 +70,6 @@ class JointSurveysOptions(BaseJointOptions):
                 "All physical properties must be the same. "
                 f"Provided SimPEG groups for {physical_properties}."
             )
+
+        self.physical_property = physical_properties[0]
         return self

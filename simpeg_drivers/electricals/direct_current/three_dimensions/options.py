@@ -15,9 +15,14 @@ from pathlib import Path
 from typing import ClassVar
 
 from geoh5py.data import FloatData
+from geoh5py.objects import PotentialElectrode
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.options import BaseForwardOptions, BaseInversionOptions
+from simpeg_drivers.options import (
+    BaseForwardOptions,
+    BaseInversionOptions,
+    ConductivityModelOptions,
+)
 
 
 class DC3DForwardOptions(BaseForwardOptions):
@@ -25,8 +30,6 @@ class DC3DForwardOptions(BaseForwardOptions):
     Direct Current 3D forward options.
 
     :param potential_channel_bool: Potential channel boolean.
-    :param model_type: Specify whether the models are provided in
-        resistivity or conductivity.
     """
 
     name: ClassVar[str] = "Direct Current 3D Forward"
@@ -38,8 +41,9 @@ class DC3DForwardOptions(BaseForwardOptions):
     physical_property: str = "conductivity"
     inversion_type: str = "direct current 3d"
 
+    data_object: PotentialElectrode
     potential_channel_bool: bool = True
-    model_type: str = "Conductivity (S/m)"
+    models: ConductivityModelOptions
 
 
 class DC3DInversionOptions(BaseInversionOptions):
@@ -48,8 +52,6 @@ class DC3DInversionOptions(BaseInversionOptions):
 
     :param potential_channel: Potential data channel.
     :param potential_uncertainty: Potential data uncertainty channel.
-    :param model_type: Specify whether the models are provided in
-        resistivity or conductivity.
     """
 
     name: ClassVar[str] = "Direct Current 3D Inversion"
@@ -61,6 +63,7 @@ class DC3DInversionOptions(BaseInversionOptions):
     physical_property: str = "conductivity"
     inversion_type: str = "direct current 3d"
 
+    data_object: PotentialElectrode
     potential_channel: FloatData
     potential_uncertainty: float | FloatData | None = None
-    model_type: str = "Conductivity (S/m)"
+    models: ConductivityModelOptions

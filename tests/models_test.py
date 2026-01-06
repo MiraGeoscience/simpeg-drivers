@@ -13,6 +13,8 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+import pytest
+from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.objects import Points
 
 from simpeg_drivers.components import (
@@ -20,51 +22,102 @@ from simpeg_drivers.components import (
     InversionModel,
     InversionModelCollection,
 )
+from simpeg_drivers.electricals.direct_current.three_dimensions.driver import (
+    DC3DForwardDriver,
+)
+from simpeg_drivers.electricals.direct_current.three_dimensions.options import (
+    DC3DForwardOptions,
+)
 from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields import MVIInversionOptions
 from simpeg_drivers.potential_fields.magnetic_vector.driver import (
     MVIInversionDriver,
 )
-from tests.testing_utils import Geoh5Tester, setup_inversion_workspace
+from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
+from simpeg_drivers.utils.synthetics.options import (
+    MeshOptions,
+    ModelOptions,
+    SurveyOptions,
+    SyntheticsComponentsOptions,
+)
+from tests.utils.targets import get_workspace
 
 
 def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
-    geoh5, entity, model, survey, topography = setup_inversion_workspace(
-        tmp_path,
-        background=0.0,
-        anomaly=0.05,
-        refinement=(2,),
-        n_electrodes=2,
-        n_lines=2,
-        inversion_type="magnetic_vector",
+    opts = SyntheticsComponentsOptions(
+        method="magnetic_vector",
+        survey=SurveyOptions(n_stations=2, n_lines=2),
+        mesh=MeshOptions(refinement=(2,)),
+        model=ModelOptions(anomaly=0.05),
     )
-    with geoh5.open():
-        mesh = model.parent
-        tmi_channel = survey.add_data(
+    with get_workspace(tmp_path / f"{__name__}.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+        mesh = components.model.parent
+        ref_inducing = mesh.add_data(
             {
-                "tmi": {"values": np.random.rand(survey.n_vertices)},
+                "reference_inclination": {"values": np.ones(mesh.n_cells) * 79.0},
+                "reference_declination": {"values": np.ones(mesh.n_cells) * 11.0},
             }
         )
-        elevation = topography.add_data(
-            {"elevation": {"values": topography.vertices[:, 2]}}
+        tmi_channel = components.survey.add_data(
+            {
+                "tmi": {"values": np.random.rand(components.survey.n_vertices)},
+            }
         )
-    params = MVIInversionOptions(
-        geoh5=geoh5,
-        data_object=survey,
-        tmi_channel=tmi_channel,
-        mesh=mesh,
-        active_cells=ActiveCellsOptions(
-            topography_object=topography, topography=elevation
-        ),
-        starting_model=1e-04,
-        inducing_field_inclination=79.0,
-        inducing_field_declination=11.0,
-        reference_model=0.0,
-        reference_inclination=79.0,
-        reference_declination=11.0,
-    )
+        elevation = components.topography.add_data(
+            {"elevation": {"values": components.topography.vertices[:, 2]}}
+        )
+        params = MVIInversionOptions.build(
+            geoh5=geoh5,
+            data_object=components.survey,
+            tmi_channel=tmi_channel,
+            tmi_uncertainty=1.0,
+            mesh=mesh,
+            active_cells=ActiveCellsOptions(
+                topography_object=components.topography, topography=elevation
+            ),
+            starting_model=1e-04,
+            inducing_field_inclination=79.0,
+            inducing_field_declination=11.0,
+            reference_model=0.0,
+            inducing_field_strength=50000.0,
+            reference_inclination=ref_inducing[0],
+            reference_declination=ref_inducing[1],
+        )
 
     return params
+
+
+def get_dc_params(tmp_path: Path) -> MVIInversionOptions:
+    opts = SyntheticsComponentsOptions(
+        method="direct_current",
+        survey=SurveyOptions(n_stations=4, n_lines=2),
+        mesh=MeshOptions(refinement=(2,)),
+        model=ModelOptions(anomaly=0.05),
+    )
+    with get_workspace(tmp_path / f"{__name__}.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+        mesh = components.model.parent
+        params = DC3DForwardOptions.build(
+            geoh5=geoh5,
+            data_object=components.survey,
+            tmi_channel_bool=True,
+            mesh=mesh,
+            active_cells=ActiveCellsOptions(topography_object=components.topography),
+            starting_model=-1e-04,
+        )
+
+    return params
+
+
+def test_negative_reference_model(tmp_path: Path):
+    params = get_dc_params(tmp_path)
+    geoh5 = params.geoh5
+    with geoh5.open():
+        driver = DC3DForwardDriver(params)
+
+        with pytest.raises(GeoAppsError, match="must be positive when"):
+            _ = driver.models.starting_model
 
 
 def test_zero_reference_model(tmp_path: Path):
@@ -72,7 +125,7 @@ def test_zero_reference_model(tmp_path: Path):
     geoh5 = params.geoh5
     with geoh5.open():
         driver = MVIInversionDriver(params)
-        _ = InversionModel(driver, "reference", is_vector=True)
+        _ = InversionModel(driver, "reference_model")
         incl = np.unique(geoh5.get_entity("reference_inclination")[0].values)
         decl = np.unique(geoh5.get_entity("reference_declination")[0].values)
     assert len(incl) == 1
@@ -87,18 +140,23 @@ def test_collection(tmp_path: Path):
         driver = MVIInversionDriver(params)
         models = InversionModelCollection(driver)
         models.remove_air(driver.models.active_cells)
-        starting = InversionModel(driver, "starting", is_vector=True)
+        starting = InversionModel(driver, "starting_model")
         starting.remove_air(driver.models.active_cells)
-        np.testing.assert_allclose(models.starting, starting.model, atol=1e-7)
+        assert len(models.starting_model) == 3 * len(starting.model)
+        np.testing.assert_allclose(
+            np.linalg.norm(models.starting_model.reshape((-1, 3), order="F"), axis=1),
+            starting.model,
+            atol=1e-7,
+        )
 
 
 def test_initialize(tmp_path: Path):
     params = get_mvi_params(tmp_path)
     with params.geoh5.open():
         driver = MVIInversionDriver(params)
-        starting_model = InversionModel(driver, "starting", is_vector=True)
-        assert len(starting_model.model) == 3 * driver.inversion_mesh.n_cells
-        assert len(np.unique(starting_model.model)) == 3
+        starting_model = InversionModel(driver, "starting_model")
+        assert len(starting_model.model) == driver.inversion_mesh.n_cells
+        assert len(np.unique(starting_model.model)) == 1
 
 
 def test_model_from_object(tmp_path: Path):
@@ -116,11 +174,11 @@ def test_model_from_object(tmp_path: Path):
         point_object = Points.create(geoh5, name="test_point", vertices=cc)
         point_object.add_data({"test_data": {"values": vals}})
         data_object = geoh5.get_entity("test_data")[0]
-        params.lower_bound = data_object
-        lower_bound = InversionModel(driver, "lower_bound", is_vector=True)
-        nc = int(len(lower_bound.model) / 3)
+        params.models.upper_bound = data_object
+        upper_bound = InversionModel(driver, "upper_bound")
+
         A = driver.inversion_mesh.mesh.cell_centers
-        b = lower_bound.model[:nc]
+        b = upper_bound.model
         from scipy.linalg import lstsq
 
         m = lstsq(A, b)[0]

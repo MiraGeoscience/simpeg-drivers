@@ -20,6 +20,7 @@ import numpy as np
 from geoapps_utils.utils.locations import get_locations
 from geoapps_utils.utils.numerical import weighted_average
 from geoh5py.data import Data
+from geoh5py.groups import PropertyGroup
 from geoh5py.objects import DrapeModel
 from geoh5py.ui_json.ui_json import fetch_active_workspace
 from geoh5py.workspace import Workspace
@@ -80,9 +81,9 @@ class Base2DDriver(InversionDriver):
 class BaseBatch2DDriver(LineSweepDriver):
     """Base class for batch 2D DC and IP forward and inversion drivers."""
 
-    _options_class: type[BaseForwardOptions | BaseInversionOptions]
+    _params_class: type[BaseForwardOptions | BaseInversionOptions]
     _params_2d_class: type[BaseForwardOptions | BaseInversionOptions]
-    _validations = None
+
     _model_list: list[str] = []
 
     def __init__(self, params):
@@ -96,14 +97,22 @@ class BaseBatch2DDriver(LineSweepDriver):
 
         :param mesh: Destination DrapeModel object.
         """
-        models = {"starting_model": self.batch2d_params.starting_model}
+        models = {"starting_model": self.batch2d_params.models.starting_model}
 
         for model in self._model_list:
-            models[model] = getattr(self.batch2d_params, model)
+            models[model] = getattr(self.batch2d_params, model, None)
 
         if not self.batch2d_params.forward_only:
             for model in ["reference_model", "lower_bound", "upper_bound"]:
-                models[model] = getattr(self.batch2d_params, model)
+                models[model] = getattr(self.batch2d_params.models, model)
+
+            if self.batch2d_params.models.gradient_rotation is not None:
+                group_properties = {}
+                for prop in self.batch2d_params.models.gradient_rotation.properties:
+                    model = self.batch2d_params.mesh.get_data(prop)[0]
+                    group_properties[model.name] = model
+
+                models.update(group_properties)
 
         if self.batch2d_params.mesh is not None:
             xyz_in = get_locations(self.workspace, self.batch2d_params.mesh)
@@ -122,6 +131,19 @@ class BaseBatch2DDriver(LineSweepDriver):
                 model_object = mesh.add_data({name: {"values": model_values}})
                 models[name] = model_object
 
+            if (
+                not self.batch2d_params.forward_only
+                and self.batch2d_params.models.gradient_rotation is not None
+            ):
+                pg = PropertyGroup(
+                    mesh,
+                    properties=[models[prop] for prop in group_properties],
+                    property_group_type=self.batch2d_params.models.gradient_rotation.property_group_type,
+                )
+                models["gradient_rotation"] = pg
+                del models["azimuth"]
+                del models["dip"]
+
         return models
 
     def write_files(self, lookup):
@@ -129,13 +151,6 @@ class BaseBatch2DDriver(LineSweepDriver):
 
         kwargs_2d = {}
         with fetch_active_workspace(self.workspace, mode="r+"):
-            self._window = InversionWindow(self.workspace, self.batch2d_params)
-            self._inversion_data = InversionData(self.workspace, self.batch2d_params)
-            self._inversion_data.save_data()
-            self._inversion_topography = InversionTopography(
-                self.workspace, self.batch2d_params
-            )
-
             for uid, trial in lookup.items():
                 if trial["status"] != "pending":
                     continue
@@ -215,3 +230,23 @@ class BaseBatch2DDriver(LineSweepDriver):
                 lookup[uid]["status"] = "written"
 
         _ = self.update_lookup(lookup)  # pylint: disable=no-member
+
+    @property
+    def inversion_data(self) -> InversionData:
+        """Inversion data"""
+        if getattr(self, "_inversion_data", None) is None:
+            with fetch_active_workspace(self.workspace, mode="r+"):
+                self._inversion_data = InversionData(
+                    self.workspace, self.batch2d_params
+                )
+
+        return self._inversion_data
+
+    @property
+    def inversion_topography(self):
+        """Inversion topography"""
+        if getattr(self, "_inversion_topography", None) is None:
+            self._inversion_topography = InversionTopography(
+                self.workspace, self.batch2d_params
+            )
+        return self._inversion_topography

@@ -293,12 +293,12 @@
         "dataType": "Float",
         "dataGroupType": [
             "Strike & dip",
-            "Dip direction & dip"
+            "Dip direction & dip",
+            "3D vector"
         ],
         "label": "Gradient rotation",
         "optional": true,
         "enabled": false,
-        "visible": false,
         "parent": "mesh",
         "value": ""
     },
@@ -353,7 +353,6 @@
         "enabled": true,
         "tooltip": "Lp-norm used in the z-smoothness term of the objective function."
     },
-    "gradient_type": "total",
     "max_irls_iterations": {
         "min": 0,
         "group": "Sparse/blocky model",
@@ -444,7 +443,7 @@
     "cooling_rate": {
         "group": "Optimization",
         "label": "Iterations per beta",
-        "value": 2,
+        "value": 1,
         "min": 1,
         "LineEdit": false,
         "max": 10,
@@ -501,7 +500,7 @@
         "group": "Update sensitivity weights directive",
         "tooltip": "Update sensitivity weight threshold",
         "label": "Threshold (%)",
-        "value": 0.001,
+        "value": 1.0,
         "max": 100.0,
         "min": 0.0,
         "precision": 3,
@@ -578,6 +577,7 @@
         "group": "Python run preferences",
         "main": true,
         "value": false,
+        "visible": false,
         "tooltip": "Generates a file for sweeping parameters instead of running the application."
     },
     "n_workers": "",
