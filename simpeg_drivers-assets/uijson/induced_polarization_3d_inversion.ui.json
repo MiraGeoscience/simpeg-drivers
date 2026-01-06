@@ -136,7 +136,7 @@
         "group": "Mesh and models",
         "isValue": true,
         "parent": "mesh",
-        "label": "Upper bound (V/V",
+        "label": "Upper bound (V/V)",
         "property": "",
         "optional": true,
         "value": 100.0,
