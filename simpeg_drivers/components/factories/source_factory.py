@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2026 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -24,6 +24,7 @@ import simpeg.potential_fields.magnetics.sources as mag_sources
 from geoh5py.objects import LargeLoopGroundTEMReceivers
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
+from simpeg_drivers.options import ModelTypeEnum
 
 
 if TYPE_CHECKING:
@@ -138,7 +139,10 @@ class SourcesFactory(SimPEGFactory):
         if self.factory_type in ["magnetotellurics", "tipper"]:
             background = deepcopy(self.params.models.conductivity_model)
 
-            if getattr(self.params.models, "model_type", None) == "Resistivity (Ohm-m)":
+            if (
+                getattr(self.params.models, "model_type", None)
+                == ModelTypeEnum.resistivity
+            ):
                 background **= -1.0
 
             kwargs["sigma_primary"] = [background]

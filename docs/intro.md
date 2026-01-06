@@ -17,4 +17,4 @@ This document contains training material for geophysical inversions using [SimPE
 ```{bibliography}
 ```
 
- Copyright (c) 2024-2026 Mira Geoscience Ltd.
+ Copyright (c) 2023-2026 Mira Geoscience Ltd.

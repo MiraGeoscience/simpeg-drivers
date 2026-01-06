@@ -80,4 +80,4 @@ SOFTWARE.
 
 Copyright
 ^^^^^^^^^
-Copyright (c) 2025-2026 Mira Geoscience Ltd.
+Copyright (c) 2023-2026 Mira Geoscience Ltd.

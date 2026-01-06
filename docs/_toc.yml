@@ -34,4 +34,10 @@ chapters:
         - file: case_studies/Forrestania/python_code/unconstrained_gravity_inv_training
         - file: case_studies/Forrestania/python_code/unconstrained_magnetics_inv_training
         - file: case_studies/Forrestania/python_code/joint_grav_mag
+- file: plate-simulation/index
+  sections:
+  - file: plate-simulation/usage
+    title: Basic Usage
+  - file: plate-simulation/methodology
+    title: Methodology
 - file: THIRD_PARTY_SOFTWARE
