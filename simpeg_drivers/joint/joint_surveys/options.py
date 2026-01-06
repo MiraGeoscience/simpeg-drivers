@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -14,12 +14,26 @@ from __future__ import annotations
 from pathlib import Path
 from typing import ClassVar
 
-from geoapps_utils.utils.importing import GeoAppsError
-from pydantic import model_validator
+from geoh5py.data import FloatData
+from pydantic import field_validator, model_validator
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.joint.options import BaseJointOptions
-from simpeg_drivers.options import ConductivityModelOptions
+from simpeg_drivers.joint.options import BaseJointOptions, JointModelOptions
+from simpeg_drivers.options import ModelTypeEnum
+
+
+class JointSurveysModelOptions(JointModelOptions):
+    """
+    Joint Surveys model options.
+
+    :param model_type: The physical property type for the inversion.
+    :param starting_model: The starting model for the inversion.
+    :param reference_model: The reference model for the inversion.
+    """
+
+    model_type: ModelTypeEnum = ModelTypeEnum.conductivity
+    starting_model: float | FloatData | None = None
+    reference_model: float | FloatData | None = None
 
 
 class JointSurveysOptions(BaseJointOptions):
@@ -33,7 +47,20 @@ class JointSurveysOptions(BaseJointOptions):
     title: str = "Joint Surveys Inversion"
     inversion_type: str = "joint surveys"
 
-    models: ConductivityModelOptions
+    models: JointSurveysModelOptions
+
+    @field_validator("group_a", "group_b", "group_c")
+    @classmethod
+    def no_mvi_groups(cls, val):
+        if val is None:
+            return val
+
+        if "magnetic vector" in val.options.get("inversion_type", ""):
+            raise ValueError(
+                f"Joint inversion doesn't currently support MVI data as passed in "
+                f"the group: {val.name}."
+            )
+        return val
 
     @model_validator(mode="after")
     def all_groups_same_physical_property(self):
