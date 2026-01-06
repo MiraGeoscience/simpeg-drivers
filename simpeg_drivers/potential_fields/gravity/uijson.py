@@ -47,7 +47,7 @@ class GravityForwardUIJson(SimPEGDriversUIJson):
     gxz_channel_bool: BoolForm
     gyz_channel_bool: BoolForm
     mesh: ObjectForm
-    starting_model: DataForm
+    starting_model: DataOrValueForm
     topography_object: ObjectForm
     topography: DataForm
     active_model: DataForm
@@ -143,7 +143,7 @@ class GravityInversionUIJson(SimPEGDriversUIJson):
     every_iteration_bool: BoolForm
     save_sensitivities: BoolForm
     n_cpu: IntegerForm
-    tile_spatial: DataForm
+    tile_spatial: DataOrValueForm
     store_sensitivities: ChoiceForm
     max_chunk_size: IntegerForm
 
