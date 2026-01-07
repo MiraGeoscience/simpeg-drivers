@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -69,9 +69,11 @@ class LineSweepDriver(SweepDriver, InversionDriver):
             return out_group
 
         with fetch_active_workspace(self.workspace, mode="r+"):
-            out_group = SimPEGGroup.create(
-                self.workspace, name=self.batch2d_params.title
-            )
+            out_group = self.workspace.get_entity(self.batch2d_params.title)[0]
+            if out_group is None:
+                out_group = SimPEGGroup.create(
+                    self.workspace, name=self.batch2d_params.title
+                )
 
         return out_group
 

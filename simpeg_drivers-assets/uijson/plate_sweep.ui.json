@@ -2,7 +2,7 @@
     "version": "0.2.0-alpha.1",
     "title": "Plate Sweep",
     "icon": "maxwellplate",
-    "documentation": "https://mirageoscience-plate-simulation.readthedocs-hosted.com/en/latest/",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/plate-simulation/",
     "conda_environment": "simpeg_drivers",
     "run_command": "simpeg_drivers.driver",
     "geoh5": "",
@@ -190,6 +190,26 @@
     "dip_count": {
         "main": true,
         "group": "Dip",
+        "label": "number of samples",
+        "value": 1
+    },
+    "dip_direction_start": {
+        "main": true,
+        "group": "Dip Dir",
+        "groupOptional": true,
+        "enabled": false,
+        "label": "starting",
+        "value": 60.0
+    },
+    "dip_direction_stop": {
+        "main": true,
+        "group": "Dip Dir",
+        "label": "ending",
+        "value": 60.0
+    },
+    "dip_direction_count": {
+        "main": true,
+        "group": "Dip Dir",
         "label": "number of samples",
         "value": 1
     },

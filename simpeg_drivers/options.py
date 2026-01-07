@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -11,12 +11,14 @@
 
 from __future__ import annotations
 
+from enum import Enum
 from logging import getLogger
 from pathlib import Path
 from typing import Annotated, Any, ClassVar, Literal, TypeAlias
 
 import numpy as np
 from geoapps_utils.base import Options
+from geoapps_utils.utils.numerical import weighted_average
 from geoh5py.data import (
     BooleanData,
     DataAssociationEnum,
@@ -29,7 +31,6 @@ from geoh5py.groups import PropertyGroup, SimPEGGroup, UIJsonGroup
 from geoh5py.objects import DrapeModel, Grid2D, Octree, Points
 from geoh5py.objects.surveys.electromagnetics.base import BaseEMSurvey
 from geoh5py.ui_json import InputFile
-from geoh5py.ui_json.utils import fetch_active_workspace
 from pydantic import (
     AliasChoices,
     BaseModel,
@@ -131,7 +132,7 @@ class ComputeOptions(BaseModel):
     max_ram: float | None = None
     n_cpu: int | None = None
     n_threads: int | None = None
-    n_workers: int | None = 1
+    n_workers: int | None = None
     performance_report: bool = False
     solver_type: Literal["Pardiso", "Mumps"] = "Pardiso"
     tile_spatial: int = 1
@@ -285,6 +286,8 @@ class ModelOptions(BaseModel):
     y_norm: float | FloatData | None = 2.0
     z_norm: float | FloatData = 2.0
 
+    _gradient_orientations: np.ndarray | None = None
+
     @property
     def gradient_direction(self) -> np.ndarray:
         if self.gradient_orientations is None:
@@ -306,12 +309,25 @@ class ModelOptions(BaseModel):
         and clockwise from horizontal for dip.
         """
 
-        if self.gradient_rotation is not None:
+        if self._gradient_orientations is None and self.gradient_rotation is not None:
             orientations = direction_and_dip(self.gradient_rotation)
 
-            return np.deg2rad(orientations)
+            angles = np.deg2rad(orientations)
+            # Deal with aircells here
+            orientations = weighted_average(
+                self.gradient_rotation.parent.centroids,
+                self.gradient_rotation.parent.centroids,
+                [angles[:, 0], angles[:, 1]],
+            )
 
-        return None
+            self._gradient_orientations = np.vstack(orientations).T
+
+        return self._gradient_orientations
+
+
+class ModelTypeEnum(str, Enum):
+    conductivity = "Conductivity (S/m)"
+    resistivity = "Resistivity (Ohm-m)"
 
 
 class ConductivityModelOptions(ModelOptions):
@@ -319,9 +335,7 @@ class ConductivityModelOptions(ModelOptions):
     Options for the conductivity model used in all of EM methods.
     """
 
-    model_type: Literal["Conductivity (S/m)", "Resistivity (Ohm-m)"] = (
-        "Conductivity (S/m)"
-    )
+    model_type: ModelTypeEnum = ModelTypeEnum.conductivity
     conductivity_model: float | FloatData | None = Field(
         None,
         validation_alias=AliasChoices("background_conductivity", "conductivity_model"),

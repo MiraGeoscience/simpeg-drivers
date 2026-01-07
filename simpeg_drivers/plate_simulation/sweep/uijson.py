@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -41,5 +41,8 @@ class PlateSweepUIJson(BaseUIJson):
     dip_start: FloatForm
     dip_stop: FloatForm
     dip_count: IntegerForm
+    dip_direction_start: FloatForm
+    dip_direction_stop: FloatForm
+    dip_direction_count: IntegerForm
     out_group: GroupForm | None
     workdir: StringForm | None
