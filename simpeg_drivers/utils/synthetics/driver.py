@@ -86,7 +86,7 @@ class SyntheticsComponents:
 
     @property
     def active(self):
-        entity = self.geoh5.get_entity(self.options.active.name)[0]
+        entity = self.mesh.get_entity(self.options.active.name)[0]
         assert isinstance(entity, FloatData | type(None))
         if entity is None:
             entity = get_active(self.mesh, self.topography)
@@ -95,7 +95,7 @@ class SyntheticsComponents:
 
     @property
     def model(self):
-        entity = self.geoh5.get_entity(self.options.model.name)[0]
+        entity = self.mesh.get_entity(self.options.model.name)[0]
         assert isinstance(entity, FloatData | type(None))
         if entity is None:
             assert self.options is not None
