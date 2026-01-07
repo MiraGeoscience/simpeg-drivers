@@ -130,6 +130,7 @@ class BaseJointDriver(InversionDriver):
         self.models.active_cells = global_actives
         for driver, wire in zip(self.drivers, self.wires, strict=True):
             logger.info("Initializing driver %s", driver.params.name)
+            # Create a projection from global mesh to driver specific mesh
             projection = TileMap(
                 self.inversion_mesh.mesh,
                 global_actives,
@@ -140,6 +141,8 @@ class BaseJointDriver(InversionDriver):
             tile_map = projection * wire
             driver.params.active_model = None
             driver.models.active_cells = projection.local_active
+
+            # Keep a copy on the top combo/future for saving directives and model creation
             driver.data_misfit.model_map = tile_map
 
             multipliers = []

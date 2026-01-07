@@ -40,19 +40,25 @@ class JointSurveyDriver(BaseJointDriver):
 
     def validate_create_models(self):
         """Check if all models were provided, otherwise use the first driver models."""
+        # Create projection for first driver to global mesh
+        mapping = maps.TileMap(
+            self.inversion_mesh.mesh,
+            self.models.active_cells,
+            self.drivers[0].inversion_mesh.mesh,
+            enforce_active=False,
+        )
+        projection = mapping.deriv(np.ones(self.models.n_active)).T
+        norm = np.array(np.sum(projection, axis=1)).flatten()
+
         for model_type in self.models.model_types:
             model = getattr(self.models, model_type)
             if model is not None or getattr(self.drivers[0].models, model_type) is None:
                 continue
 
             model_local_values = getattr(self.drivers[0].models, model_type)
-            projection = (
-                self.drivers[0]
-                .data_misfit.model_map.deriv(np.ones(self.models.n_active))
-                .T
-            )
-            norm = np.array(np.sum(projection, axis=1)).flatten()
-            model = (projection * model_local_values) / (norm + 1e-8)
+            model = (
+                projection * model_local_values[: self.drivers[0].models.n_active]
+            ) / (norm + 1e-8)
 
             if self.drivers[0].models.is_sigma and model_type in [
                 "starting_model",
@@ -70,11 +76,17 @@ class JointSurveyDriver(BaseJointDriver):
 
             getattr(self.models, f"_{model_type}").model = model
 
+        # For MVI, set is_vector from first driver
+        self.models.is_vector = self.drivers[0].models.is_vector
+
     @property
     def wires(self):
         """Model projections"""
         if self._wires is None:
-            wires = [maps.IdentityMap(nP=self.models.n_active) for _ in self.drivers]
+            wires = [
+                maps.IdentityMap(nP=self.models.n_active * driver.n_blocks)
+                for driver in self.drivers
+            ]
             self._wires = wires
 
         return self._wires

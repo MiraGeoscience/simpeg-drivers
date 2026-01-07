@@ -10,7 +10,7 @@
 
 import numpy as np
 from geoh5py import Workspace
-from geoh5py.data import FloatData
+from geoh5py.data import BooleanData, FloatData
 from geoh5py.objects import DrapeModel, ObjectBase, Octree, Surface
 
 from simpeg_drivers.utils.synthetics.meshes.factory import get_mesh
@@ -86,8 +86,8 @@ class SyntheticsComponents:
 
     @property
     def active(self):
-        entity = self.geoh5.get_entity(self.options.active.name)[0]
-        assert isinstance(entity, FloatData | type(None))
+        entity = self.mesh.get_entity(self.options.active.name)[0]
+        assert isinstance(entity, BooleanData | type(None))
         if entity is None:
             entity = get_active(self.mesh, self.topography)
         self._active = entity
@@ -95,7 +95,7 @@ class SyntheticsComponents:
 
     @property
     def model(self):
-        entity = self.geoh5.get_entity(self.options.model.name)[0]
+        entity = self.mesh.get_entity(self.options.model.name)[0]
         assert isinstance(entity, FloatData | type(None))
         if entity is None:
             assert self.options is not None
