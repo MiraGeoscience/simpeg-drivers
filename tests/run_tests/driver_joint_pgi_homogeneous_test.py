@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -54,7 +54,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 390.70695894864303, "phi_d": 2020, "phi_m": 8.98}
+target_run = {"data_norm": 390.70695894864303, "phi_d": 2030, "phi_m": 9.23}
 INDUCING_FIELD = (50000.0, 90.0, 0.0)
 
 
@@ -143,7 +143,7 @@ def test_homogeneous_run(
         orig_data = []
         petrophysics = None
         gradient_rotation = None
-        mesh = None
+
         for suffix in "AB":
             components = SyntheticsComponents(
                 geoh5=geoh5,
@@ -226,6 +226,19 @@ def test_homogeneous_run(
                 )
                 drivers.append(MagneticInversionDriver(params))
 
+        # Test if single group is valid
+        params = JointPetrophysicsOptions.build(
+            topography_object=topography,
+            geoh5=geoh5,
+            group_a=drivers[0].out_group,
+            mesh=global_mesh,
+            petrophysical_model=petrophysics,
+        )
+        driver = JointPetrophysicsDriver(params)
+        assert len(driver.data_misfit.objfcts) == 1
+        assert driver.data_misfit.multipliers == [1.0]
+
+        # Re-build full
         params = JointPetrophysicsOptions.build(
             topography_object=topography,
             geoh5=geoh5,

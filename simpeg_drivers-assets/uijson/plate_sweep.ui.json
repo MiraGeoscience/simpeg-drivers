@@ -2,7 +2,7 @@
     "version": "0.2.0-alpha.1",
     "title": "Plate Sweep",
     "icon": "maxwellplate",
-    "documentation": "https://mirageoscience-plate-simulation.readthedocs-hosted.com/en/latest/",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/plate-simulation/",
     "conda_environment": "simpeg_drivers",
     "run_command": "simpeg_drivers.driver",
     "geoh5": "",
@@ -24,16 +24,12 @@
     "workdir": {
         "main": true,
         "group": "Base",
-        "label": "Working directory",
-        "fileDescription": [
-            "Directory"
-        ],
-        "fileType": [
-            "directory"
-        ],
+        "label": "Output directory",
         "directoryOnly": true,
-        "enabled": true,
-        "value": ""
+        "enabled": false,
+        "optional": true,
+        "tootip": "Directory to store simulation results, relative to the working geoh5.",
+        "value": "./simulations"
     },
     "background_start": {
         "main": true,
@@ -194,6 +190,26 @@
     "dip_count": {
         "main": true,
         "group": "Dip",
+        "label": "number of samples",
+        "value": 1
+    },
+    "dip_direction_start": {
+        "main": true,
+        "group": "Dip Dir",
+        "groupOptional": true,
+        "enabled": false,
+        "label": "starting",
+        "value": 60.0
+    },
+    "dip_direction_stop": {
+        "main": true,
+        "group": "Dip Dir",
+        "label": "ending",
+        "value": 60.0
+    },
+    "dip_direction_count": {
+        "main": true,
+        "group": "Dip Dir",
         "label": "number of samples",
         "value": 1
     },

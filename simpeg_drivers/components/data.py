@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -300,7 +300,7 @@ class InversionData(InversionLocations):
                 if comp in ["gz", "bz", "gxz", "gyz", "bxz", "byz"]:
                     normalizations[chan][comp] = -1 * np.ones(self.mask.sum())
                 elif self.params.inversion_type in ["magnetotellurics"]:
-                    normalizations[chan][comp] = -1 * np.ones(self.mask.sum())
+                    normalizations[chan][comp] = np.ones(self.mask.sum())
                 elif self.params.inversion_type in ["tipper"]:
                     if "imag" in comp:
                         normalizations[chan][comp] = -1 * np.ones(self.mask.sum())
@@ -336,6 +336,10 @@ class InversionData(InversionLocations):
         survey.ordering = survey_factory.ordering
         survey.sorting = survey_factory.sorting
         survey.locations = self.entity.vertices
+
+        # Make sure the ordering of channels stays the same
+        if hasattr(survey, "_frequencies"):
+            survey._frequencies = self.entity.channels  # pylint: disable=protected-access
 
         # Save apparent resistivity in geoh5 order
         if "direct current" in self.params.inversion_type:
@@ -394,14 +398,21 @@ class InversionData(InversionLocations):
 
         return self._survey
 
-    @property
-    def n_data(self):
+    def n_data(self, finite_only=True):
         n_data = 0
         for comp in self.params.active_components:
             if isinstance(self.observed[comp], dict):
                 for channel in self.observed[comp]:
-                    n_data += len(self.observed[comp][channel])
+                    n_data += (
+                        np.isfinite(self.observed[comp][channel]).sum()
+                        if finite_only
+                        else len(self.observed[comp][channel])
+                    )
             else:
-                n_data += len(self.observed[comp])
+                n_data += (
+                    np.isfinite(self.observed[comp]).sum()
+                    if finite_only
+                    else len(self.observed[comp])
+                )
 
         return n_data

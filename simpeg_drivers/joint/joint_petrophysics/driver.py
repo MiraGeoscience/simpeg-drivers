@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -59,23 +59,25 @@ class JointPetrophysicsDriver(BaseJointDriver):
                     )
                 )
                 directives_list += self._get_global_model_save_directives()
-                directives_list.append(
-                    directives.SavePGIModel(
-                        self.inversion_mesh.entity,
-                        self.pgi_regularization,
-                        self.geo_units,
-                        [driver.params.physical_property for driver in self.drivers],
-                        transforms=[
-                            lambda x: np.r_[list(self.geo_units)][self.class_mapping][
-                                x.astype(int)
-                            ],
-                            maps.InjectActiveCells(
-                                self.inversion_mesh.mesh, self.models.active_cells, 0
-                            ),
-                        ],
-                        reference_type=self.params.models.petrophysical_model.entity_type,
-                    )
-                )
+
+                # TODO: To bring back once we let the classification change
+                # directives_list.append(
+                #     directives.SavePGIModel(
+                #         self.inversion_mesh.entity,
+                #         self.pgi_regularization,
+                #         self.geo_units,
+                #         [driver.params.physical_property for driver in self.drivers],
+                #         transforms=[
+                #             lambda x: np.r_[list(self.geo_units)][self.class_mapping][
+                #                 x.astype(int)
+                #             ],
+                #             maps.InjectActiveCells(
+                #                 self.inversion_mesh.mesh, self.models.active_cells, 0
+                #             ),
+                #         ],
+                #         reference_type=self.params.models.petrophysical_model.entity_type,
+                #     )
+                # )
                 directives_list.append(
                     directives.SaveLPModelGroup(
                         self.inversion_mesh.entity,

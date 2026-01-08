@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -8,9 +8,7 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-from geoh5py import Workspace
-from geoh5py.shared.utils import fetch_active_workspace
-from geoh5py.ui_json.forms import FileForm, FloatForm, GroupForm, IntegerForm
+from geoh5py.ui_json.forms import FloatForm, GroupForm, IntegerForm, StringForm
 from geoh5py.ui_json.ui_json import BaseUIJson
 from pydantic import ConfigDict
 
@@ -43,5 +41,8 @@ class PlateSweepUIJson(BaseUIJson):
     dip_start: FloatForm
     dip_stop: FloatForm
     dip_count: IntegerForm
+    dip_direction_start: FloatForm
+    dip_direction_stop: FloatForm
+    dip_direction_count: IntegerForm
     out_group: GroupForm | None
-    workdir: FileForm | None
+    workdir: StringForm | None

@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -26,6 +26,8 @@ from multiprocessing.pool import ThreadPool
 from pathlib import Path
 from time import time
 
+from typing_extensions import Self
+
 import numpy as np
 from dask import config as dconf
 
@@ -39,6 +41,7 @@ from geoapps_utils.param_sweeps.driver import SweepParams
 from geoh5py.groups import SimPEGGroup
 from geoh5py.objects import FEMSurvey
 from geoh5py.shared.utils import fetch_active_workspace
+from geoh5py.shared.exceptions import Geoh5FileClosedError
 from geoh5py.ui_json import InputFile
 
 from simpeg import (
@@ -98,6 +101,12 @@ class BaseDriver(Driver):
     ):
         super().__init__(params)
         self._client: Client | bool = self.validate_client(client)
+
+        if getattr(self.params, "store_sensitivities", None) == "disk" and self.client:
+            raise GeoAppsError(
+                "Disk storage of sensitivities is not compatible with distributed processing."
+            )
+
         self._workers: list[tuple[str]] | None = self.validate_workers(workers)
 
     @property
@@ -191,7 +200,7 @@ class InversionDriver(BaseDriver):
         if len(self.workers) == 0:
             return [[tile] for tile in tiles]
 
-        n_tiles = self.params.compute.tile_spatial
+        n_tiles = len(tiles)
 
         n_channels = 1
         if isinstance(self.params.data_object, FEMSurvey) and not isinstance(
@@ -232,9 +241,6 @@ class InversionDriver(BaseDriver):
                 ).build(
                     self.split_list(tiles),
                 )
-
-                if self.logger:
-                    self.logger.write("Saving data to file...\n")
 
         return self._data_misfit
 
@@ -433,6 +439,9 @@ class InversionDriver(BaseDriver):
     def regularization(self):
         if getattr(self, "_regularization", None) is None:
             with fetch_active_workspace(self.workspace, mode="r"):
+                if self.logger:
+                    self.logger.write("Creating the regularization functions...\n")
+
                 self._regularization = self.get_regularization()
 
         return self._regularization
@@ -525,9 +534,27 @@ class InversionDriver(BaseDriver):
                     components=self.directives.save_iteration_data_directive.components,
                 ).write(0)
 
-        for directive in self.directives.save_directives:
-            if isinstance(directive, directives.SaveLogFilesGeoH5):
-                directive.write(1)
+        with fetch_active_workspace(self.workspace, mode="r+"):
+            for directive in self.directives.save_directives:
+                if isinstance(directive, directives.SaveLogFilesGeoH5):
+                    directive.write(1)
+
+    def count_data(self):
+        """
+        Returns the finite (not nan) and total data counts for drivers.
+
+        Iterates and accumulates over collection of drivers if joint inversion.
+        """
+        drivers = [self]
+        if hasattr(self, "drivers"):
+            drivers = self.drivers
+
+        finite_data_count, total_data_count = 0, 0
+        for driver in drivers:
+            finite_data_count += driver.inversion_data.n_data(finite_only=True)
+            total_data_count += driver.inversion_data.n_data(finite_only=False)
+
+        return finite_data_count, total_data_count
 
     def start_inversion_message(self):
         # SimPEG reports half phi_d, so we scale to match
@@ -538,20 +565,17 @@ class InversionDriver(BaseDriver):
             else self.params.cooling_schedule.chi_factor
         )
 
-        if getattr(self, "drivers", None) is not None:  # joint problem
-            data_count = np.sum(
-                [d.inversion_data.n_data for d in getattr(self, "drivers")]
-            )
-        else:
-            data_count = self.inversion_data.n_data
-
+        finite_data_count, total_data_count = self.count_data()
+        rescale = finite_data_count / total_data_count
+        rescaled_chi_factor = self.params.cooling_schedule.chi_factor * rescale
+        rescaled_starting_chi_factor = chi_start * rescale
         self.logger.write(
-            f"Target Misfit: {self.params.cooling_schedule.chi_factor * data_count:.2e} ({data_count} data "
+            f"Target Misfit: {rescaled_chi_factor * total_data_count:.2e} ({finite_data_count} data "
             f"with chifact = {self.params.cooling_schedule.chi_factor})\n"
         )
         self.logger.write(
-            f"IRLS Start Misfit: {chi_start * data_count:.2e} ({data_count} data "
-            f"with chifact = {chi_start})\n"
+            f"IRLS Start Misfit: {rescaled_starting_chi_factor * total_data_count:.2e} ({finite_data_count} data "
+            f"with chifact = {self.params.irls.starting_chi_factor})\n"
         )
 
     @property
@@ -679,11 +703,23 @@ class InversionDriver(BaseDriver):
         return objective_function.ComboObjectiveFunction(objfcts=reg_funcs)
 
     def get_tiles(self):
+        n_data = self.inversion_data.mask.sum()
+        indices = np.arange(n_data)
+
         if "2d" in self.params.inversion_type:
-            return [np.arange(self.inversion_data.mask.sum())]
+            return [indices]
 
         if "1d" in self.params.inversion_type:
-            return [np.arange(self.inversion_data.mask.sum())]
+            # Heuristic to avoid too many chunks
+            n_chunks = n_data // self.params.compute.max_chunk_size
+
+            if self.params.compute.n_workers:
+                n_chunks /= self.params.compute.n_workers
+                n_chunks = int(n_chunks) * self.params.compute.n_workers
+
+            n_chunks = np.max([n_chunks, 1])
+
+            return np.array_split(indices, n_chunks)
 
         return tile_locations(
             self.inversion_data.locations,
@@ -705,7 +741,7 @@ class InversionDriver(BaseDriver):
             dconf.set(scheduler="threads", pool=ThreadPool(n_cpu))
 
     @classmethod
-    def start(cls, filepath: str | Path | InputFile, **kwargs) -> BaseDriver:
+    def start(cls, filepath: str | Path | InputFile, **kwargs) -> Self:
         """
         Start the inversion driver.
 
@@ -808,16 +844,30 @@ if __name__ == "__main__":
     n_threads = input_file.get("n_threads", None)
     save_report = input_file.get("performance_report", False)
 
-    driver_class = InversionDriver.from_input_file(input_file)
-
     # Force distributed on 1D problems
     if "1D" in input_file.get("title") and n_workers is None:
-        n_threads = n_threads or 2
-        n_workers = multiprocessing.cpu_count() // n_threads
+        cpu_count = multiprocessing.cpu_count()
+
+        if cpu_count < 16:
+            n_threads = n_threads or 2
+        else:
+            n_threads = n_threads or 4
+
+        n_workers = cpu_count // n_threads
+
+    distributed_process = (
+        n_workers is not None and n_workers > 1
+    ) or n_threads is not None
+
+    driver_class = InversionDriver.from_input_file(input_file)
 
     cluster = (
-        LocalCluster(processes=True, n_workers=n_workers, threads_per_worker=n_threads)
-        if ((n_workers is not None and n_workers > 1) or n_threads is not None)
+        LocalCluster(
+            processes=True,
+            n_workers=n_workers,
+            threads_per_worker=n_threads,
+        )
+        if distributed_process
         else None
     )
     profiler = cProfile.Profile()

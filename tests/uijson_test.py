@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -165,6 +165,7 @@ def test_version_warning(
 def test_write_default(tmp_path):
     default_path = tmp_path / "default.ui.json"
     data = {
+        "icon": "",
         "version": "0.1.0",
         "title": "My app",
         "geoh5": "",

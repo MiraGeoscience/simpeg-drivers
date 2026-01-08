@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -11,13 +11,14 @@
 
 from __future__ import annotations
 
+from enum import Enum
 from logging import getLogger
 from pathlib import Path
 from typing import Annotated, Any, ClassVar, Literal, TypeAlias
 
 import numpy as np
 from geoapps_utils.base import Options
-from geoapps_utils.utils.importing import GeoAppsError
+from geoapps_utils.utils.numerical import weighted_average
 from geoh5py.data import (
     BooleanData,
     DataAssociationEnum,
@@ -30,7 +31,6 @@ from geoh5py.groups import PropertyGroup, SimPEGGroup, UIJsonGroup
 from geoh5py.objects import DrapeModel, Grid2D, Octree, Points
 from geoh5py.objects.surveys.electromagnetics.base import BaseEMSurvey
 from geoh5py.ui_json import InputFile
-from geoh5py.ui_json.utils import fetch_active_workspace
 from pydantic import (
     AliasChoices,
     BaseModel,
@@ -89,7 +89,17 @@ class ActiveCellsOptions(BaseModel):
     @classmethod
     def at_least_one(cls, data):
         if all(v is None for v in data.values()):
-            raise GeoAppsError("Must provide either topography or active model.")
+            raise ValueError("Must provide either topography or active model.")
+        return data
+
+    @model_validator(mode="before")
+    @classmethod
+    def topo_grid_must_have_elevation_channel(cls, data):
+        if isinstance(data.get("topography_object", None), Grid2D):
+            if data.get("topography", None) is None:
+                raise ValueError(
+                    "Grid2D topography must be accompanied by a valid elevation channel."
+                )
         return data
 
     @model_serializer(mode="wrap")
@@ -122,7 +132,7 @@ class ComputeOptions(BaseModel):
     max_ram: float | None = None
     n_cpu: int | None = None
     n_threads: int | None = None
-    n_workers: int | None = 1
+    n_workers: int | None = None
     performance_report: bool = False
     solver_type: Literal["Pardiso", "Mumps"] = "Pardiso"
     tile_spatial: int = 1
@@ -208,7 +218,7 @@ class CoreOptions(Options):
     @classmethod
     def mesh_cannot_be_rotated(cls, value: Octree):
         if isinstance(value, Octree) and value.rotation not in [0.0, None]:
-            raise GeoAppsError(
+            raise ValueError(
                 "Rotated meshes are not supported. Please use a mesh with an angle of 0.0."
             )
         return value
@@ -276,6 +286,8 @@ class ModelOptions(BaseModel):
     y_norm: float | FloatData | None = 2.0
     z_norm: float | FloatData = 2.0
 
+    _gradient_orientations: np.ndarray | None = None
+
     @property
     def gradient_direction(self) -> np.ndarray:
         if self.gradient_orientations is None:
@@ -297,12 +309,25 @@ class ModelOptions(BaseModel):
         and clockwise from horizontal for dip.
         """
 
-        if self.gradient_rotation is not None:
+        if self._gradient_orientations is None and self.gradient_rotation is not None:
             orientations = direction_and_dip(self.gradient_rotation)
 
-            return np.deg2rad(orientations)
+            angles = np.deg2rad(orientations)
+            # Deal with aircells here
+            orientations = weighted_average(
+                self.gradient_rotation.parent.centroids,
+                self.gradient_rotation.parent.centroids,
+                [angles[:, 0], angles[:, 1]],
+            )
 
-        return None
+            self._gradient_orientations = np.vstack(orientations).T
+
+        return self._gradient_orientations
+
+
+class ModelTypeEnum(str, Enum):
+    conductivity = "Conductivity (S/m)"
+    resistivity = "Resistivity (Ohm-m)"
 
 
 class ConductivityModelOptions(ModelOptions):
@@ -310,9 +335,7 @@ class ConductivityModelOptions(ModelOptions):
     Options for the conductivity model used in all of EM methods.
     """
 
-    model_type: Literal["Conductivity (S/m)", "Resistivity (Ohm-m)"] = (
-        "Conductivity (S/m)"
-    )
+    model_type: ModelTypeEnum = ModelTypeEnum.conductivity
     conductivity_model: float | FloatData | None = Field(
         None,
         validation_alias=AliasChoices("background_conductivity", "conductivity_model"),
@@ -349,7 +372,9 @@ class CoolingSceduleOptions(BaseModel):
     Options controlling the trade-off schedule between data misfit and
     model regularization.
 
-    :param chi_factor: Target chi factor for the data misfit.
+    :param chi_factor: Target chi factor for the data misfit.  Input value will be
+        adjusted to account for the number of finite data so that factor used will
+        be smaller if the data contains nan values.
     :param cooling_factor: Factor by which the regularization parameter is reduced.
     :param cooling_rate: Rate at which the regularization parameter is reduced.
     :param initial_beta: Initial regularization parameter.
@@ -455,7 +480,9 @@ class IRLSOptions(BaseModel):
     :param epsilon_cooling_factor: Factor by which the epsilon value is reduced
     :param max_irls_iterations: Maximum number of IRLS iterations.
     :param percentile: Percentile of the model values used to compute the initial epsilon value.
-    :param starting_chi_factor: Starting chi factor for IRLS.
+    :param starting_chi_factor: Starting chi factor for IRLS.  Input value will be adjusted to
+        account for the number of finite data so that factor used will be smaller if the data
+        contains nan values.
     """
 
     model_config = ConfigDict(
@@ -491,13 +518,13 @@ class LineSelectionOptions(BaseModel):
     @classmethod
     def validate_cell_association(cls, value):
         if value.association is not DataAssociationEnum.CELL:
-            raise GeoAppsError("Line identifier must be associated with cells.")
+            raise ValueError("Line identifier must be associated with cells.")
         return value
 
     @model_validator(mode="after")
     def line_id_referenced(self):
         if self.line_id not in self.line_object.values:
-            raise GeoAppsError("Line id isn't referenced in the line object.")
+            raise ValueError("Line id isn't referenced in the line object.")
         return self
 
 

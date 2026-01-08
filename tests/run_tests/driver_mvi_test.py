@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -45,7 +45,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_mvi_run = {"data_norm": 149.10117434016038, "phi_d": 1.95, "phi_m": 0.147}
+target_mvi_run = {"data_norm": 149.10117434016038, "phi_d": 1040, "phi_m": 0.129}
 
 
 def test_magnetic_vector_fwr_run(
@@ -92,7 +92,7 @@ def test_magnetic_vector_run(
     tmp_path: Path,
     caplog,
     max_iterations=3,
-    upper_bound=2e-3,
+    upper_bound=2.5e-3,
     pytest=True,
 ):
     workpath = tmp_path / "inversion_test.ui.geoh5"
@@ -167,13 +167,13 @@ def test_magnetic_vector_run(
             assert np.all(nan_ind == inactive_ind)
 
             assert np.nanmin(model.values) <= 1e-5
-            assert np.isclose(np.nanmax(model.values), upper_bound)
+            assert np.isclose(driver.inversion.opt.upper[0], upper_bound)
 
             out_group = run_ws.get_entity("Magnetic Vector Inversion")[0]
             mesh = out_group.get_entity("mesh")[0]
             assert len(mesh.property_groups) == 6
             assert len(mesh.fetch_property_group("Iteration_0").properties) == 2
-            assert len(mesh.fetch_property_group("LP models").properties) == 3
+            assert len(mesh.fetch_property_group("LP models").properties) == 6
             assert (
                 mesh.fetch_property_group("Iteration_1").property_group_type
                 == GroupTypeEnum.DIPDIR
@@ -243,5 +243,5 @@ if __name__ == "__main__":
                     Path("./"), n_grid_points=20, refinement=(4, 8)
                 )
                 test_magnetic_vector_run(
-                    Path("./"), None, max_iterations=30, upper_bound=1e-1, pytest=False
+                    Path("./"), None, max_iterations=30, upper_bound=5e-3, pytest=False
                 )

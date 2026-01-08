@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -38,6 +38,7 @@ from simpeg_drivers.components.factories import (
 )
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.joint.options import BaseJointOptions
+from simpeg_drivers.options import ModelTypeEnum
 from simpeg_drivers.utils.utils import simpeg_group_to_driver
 
 
@@ -65,7 +66,8 @@ class BaseJointDriver(InversionDriver):
                         fun.name = f"Group_{label.upper()}:Tile_{ii}"
 
                     multipliers += [
-                        getattr(self.params, f"group_{label}_multiplier") ** 2.0
+                        (getattr(self.params, f"group_{label}_multiplier") or 1.0)
+                        ** 2.0
                     ] * len(driver.data_misfit.objfcts)
 
             if self.client:
@@ -450,7 +452,10 @@ class BaseJointDriver(InversionDriver):
         )
 
         model_directive.label = driver.params.physical_property
-        if getattr(driver.params.models, "model_type", None) == "Resistivity (Ohm-m)":
+        if (
+            getattr(driver.params.models, "model_type", None)
+            == ModelTypeEnum.resistivity
+        ):
             model_directive.label = "resistivity_model"
 
         model_directive.transforms = [wire, *model_directive.transforms]
@@ -498,9 +503,18 @@ class BaseJointDriver(InversionDriver):
         :return: List of collected attributes.
         """
         futures = []
+
         for misfit in misfits.objfcts:
             if self.client:
-                futures.append(self.client.submit(_get_set_mapping, misfit, mapping))
+                delayed_mapping = self.client.scatter(mapping)
+                futures.append(
+                    self.client.submit(
+                        _get_set_mapping,
+                        misfit,
+                        delayed_mapping,
+                        workers=self.client.who_has(misfit)[misfit.key],
+                    )
+                )
             else:
                 futures.append(_get_set_mapping(misfit, mapping))
 

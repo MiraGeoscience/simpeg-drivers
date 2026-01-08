@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -25,7 +25,7 @@ from simpeg import directives, maps
 from simpeg.utils.mat_utils import cartesian2amplitude_dip_azimuth
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
-from simpeg_drivers.options import BaseInversionOptions
+from simpeg_drivers.options import BaseInversionOptions, ModelTypeEnum
 
 
 if TYPE_CHECKING:
@@ -144,7 +144,7 @@ class DirectivesFactory:
         ]:
             save_directive = getattr(self, directive)
             if save_directive is not None:
-                directives_list.append(getattr(self, directive))
+                directives_list.append(save_directive)
 
                 if (
                     isinstance(save_directive, directives.SaveDataGeoH5)
@@ -200,8 +200,10 @@ class DirectivesFactory:
     @property
     def save_sensitivities_directive(self):
         """"""
-        if self._save_sensitivities_directive is None and isinstance(
-            self.params, BaseInversionOptions
+        if (
+            self._save_sensitivities_directive is None
+            and isinstance(self.params, BaseInversionOptions)
+            and self.params.directives.save_sensitivities
         ):
             self._save_sensitivities_directive = SaveSensitivitiesGeoh5Factory(
                 self.params
@@ -279,17 +281,19 @@ class DirectivesFactory:
     def update_irls_directive(self):
         """Directive to update IRLS."""
         if self._update_irls_directive is None:
-            start_chi_fact = self.params.irls.starting_chi_factor
+            finite_data_count, total_data_count = self.driver.count_data()
+            rescale = finite_data_count / total_data_count
+            chi_factor = self.params.cooling_schedule.chi_factor * rescale
 
-            if (
-                start_chi_fact is not None
-                and self.params.cooling_schedule.chi_factor > start_chi_fact
-            ):
-                logger.warning(
-                    "Starting chi factor is greater than target chi factor.\n"
-                    "Setting the target chi factor to the starting chi factor."
-                )
-                start_chi_fact = self.params.cooling_schedule.chi_factor
+            starting_chi_factor = self.params.irls.starting_chi_factor
+            if starting_chi_factor is not None:
+                starting_chi_factor *= rescale
+                if chi_factor > starting_chi_factor:
+                    logger.warning(
+                        "Starting chi factor is greater than target chi factor.\n"
+                        "Setting the target chi factor to the starting chi factor."
+                    )
+                    starting_chi_factor = chi_factor
 
             self._update_irls_directive = directives.UpdateIRLS(
                 f_min_change=self.params.optimization.f_min_change,
@@ -299,8 +303,8 @@ class DirectivesFactory:
                 cooling_rate=self.params.cooling_schedule.cooling_rate,
                 cooling_factor=self.params.cooling_schedule.cooling_factor,
                 irls_cooling_factor=self.params.irls.epsilon_cooling_factor,
-                chifact_start=start_chi_fact or self.params.cooling_schedule.chi_factor,
-                chifact_target=self.params.cooling_schedule.chi_factor,
+                chifact_start=starting_chi_factor or chi_factor,
+                chifact_target=chi_factor,
             )
         return self._update_irls_directive
 
@@ -414,7 +418,7 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
                 inversion_object.permutation.T,
             ]
 
-            if self.params.models.model_type == "Resistivity (Ohm-m)":
+            if self.params.models.model_type == ModelTypeEnum.resistivity:
                 kwargs["transforms"].append(lambda x: 1 / x)
 
         if "1d" in self.factory_type:
@@ -487,7 +491,10 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
         name=None,
     ):
         receivers = inversion_object.entity
-        channels = getattr(receivers, "channels", [None])
+        channels = [
+            float(val) if val else None
+            for val in getattr(receivers, "channels", [None])
+        ]
         components = list(inversion_object.observed)
         ordering = inversion_object.survey.ordering
         n_locations = len(np.unique(ordering[:, 2]))

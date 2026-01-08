@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import ClassVar
 
 from geoh5py.data import FloatData, ReferencedData
+from geoh5py.groups import SimPEGGroup
 from geoh5py.objects import Octree
 
 from simpeg_drivers import assets_path
@@ -49,6 +50,8 @@ class JointPetrophysicsOptions(BaseJointOptions):
     title: str = "Joint Petrophysically Guided Inversion (PGI)"
     inversion_type: str = "joint petrophysics"
 
+    group_a_multiplier: float | None = None
     group_b_multiplier: float | None = None
+    group_b: SimPEGGroup | None = None
     mesh: Octree
     models: JointPetrophysicsModelOptions

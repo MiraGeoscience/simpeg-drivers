@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -42,7 +42,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.6464643069717512, "phi_d": 1160, "phi_m": 5.29}
+target_run = {"data_norm": 0.6464643069717512, "phi_d": 1150, "phi_m": 5.37}
 
 
 def test_dc2d_rotated_grad_fwr_run(
@@ -52,7 +52,7 @@ def test_dc2d_rotated_grad_fwr_run(
     refinement=(4, 6),
 ):
     filepath = Path(tmp_path) / "inversion_test.ui.geoh5"
-    with Workspace.create(filepath) as geoh5:
+    with get_workspace(filepath) as geoh5:
         # Run the forward
         components = SyntheticsComponents(
             geoh5=geoh5,

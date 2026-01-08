@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -199,6 +199,7 @@ def test_joint_cross_gradient_inv_run(
                     gz_uncertainty=1e-2,
                     starting_model=0.0,
                     reference_model=0.0,
+                    upper_bound=1.0,
                 )
                 drivers.append(GravityInversionDriver(params))
             elif suffix == "C":
