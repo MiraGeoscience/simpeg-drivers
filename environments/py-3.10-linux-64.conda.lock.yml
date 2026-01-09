@@ -159,7 +159,7 @@ dependencies:
     - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@3a0ee39b295c1a1fad831a7f88a2e8630b99b2c6
     - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@872fd38e1f3a73fad567de7825e5e2bb0aadab72
     - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@99e51cbe794114ce08ab3bb16efcc6749b14914a
-    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@db5b15c1d458c71890cc32171260c40eada88c79
+    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@7d744e889c77fa74ab5addcd26b7c709f395eb77
 
 variables:
   KMP_WARNINGS: 0

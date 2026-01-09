@@ -8074,7 +8074,7 @@ package:
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.23.0.3a1.dev103+gdb5b15c1d
+  version: 0.23.0.3a1.dev105+g7d744e889
   manager: pip
   platform: linux-64
   dependencies:
@@ -8087,16 +8087,16 @@ package:
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
     typing-extensions: '*'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@db5b15c1d458c71890cc32171260c40eada88c79
+  url: git+https://github.com/MiraGeoscience/simpeg.git@7d744e889c77fa74ab5addcd26b7c709f395eb77
   hash:
-    sha256: db5b15c1d458c71890cc32171260c40eada88c79
+    sha256: 7d744e889c77fa74ab5addcd26b7c709f395eb77
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@db5b15c1d458c71890cc32171260c40eada88c79
+    url: git+https://github.com/MiraGeoscience/simpeg.git@7d744e889c77fa74ab5addcd26b7c709f395eb77
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.23.0.3a1.dev103+gdb5b15c1d
+  version: 0.23.0.3a1.dev105+g7d744e889
   manager: pip
   platform: win-64
   dependencies:
@@ -8109,11 +8109,11 @@ package:
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
     typing-extensions: '*'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@db5b15c1d458c71890cc32171260c40eada88c79
+  url: git+https://github.com/MiraGeoscience/simpeg.git@7d744e889c77fa74ab5addcd26b7c709f395eb77
   hash:
-    sha256: db5b15c1d458c71890cc32171260c40eada88c79
+    sha256: 7d744e889c77fa74ab5addcd26b7c709f395eb77
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@db5b15c1d458c71890cc32171260c40eada88c79
+    url: git+https://github.com/MiraGeoscience/simpeg.git@7d744e889c77fa74ab5addcd26b7c709f395eb77
   category: main
   optional: false
