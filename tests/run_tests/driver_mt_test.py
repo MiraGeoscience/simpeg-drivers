@@ -238,7 +238,7 @@ def test_magnetotellurics_tiles(
 if __name__ == "__main__":
     # Full run
     test_magnetotellurics_fwr_run(
-        Path("./"), n_grid_points=8, cell_size=(5.0, 5.0, 5.0), refinement=(4, 8)
+        Path("./"), n_grid_points=8, cell_size=(5.0, 5.0, 5.0), refinement=(4, 4)
     )
     test_magnetotellurics_run(
         Path("./"),

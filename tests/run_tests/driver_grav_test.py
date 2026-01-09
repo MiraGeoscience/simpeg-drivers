@@ -204,7 +204,7 @@ if __name__ == "__main__":
     test_gravity_fwr_run(
         Path("./"),
         n_grid_points=20,
-        refinement=(4, 8),
+        refinement=(4, 4),
     )
 
     test_gravity_run(

@@ -56,9 +56,8 @@ def get_octree_mesh(
     survey: Points,
     topography: Surface,
     cell_size: tuple[float, float, float],
-    refinement: tuple,
+    refinement: tuple | list,
     padding_distance: float,
-    refine_on_receivers: bool,
     name: str = "mesh",
 ) -> Octree:
     """Generate a survey centered mesh with topography and survey refinement.
@@ -70,19 +69,17 @@ def get_octree_mesh(
     :param refinement: Tuple containing the number of cells to refine at each
         level around the topography.
     :param padding: Distance to pad the mesh in all directions.
-    :param refine_on_receivers: Refine on the survey locations or not.
 
     :return entity: The geoh5py Octree object to store the results of
         computation in the shared cells of the computational mesh.
     :return mesh: The discretize TreeMesh object for computations.
     """
 
-    mesh = get_base_octree(survey, topography, cell_size, refinement, padding_distance)
+    mesh = get_base_octree(survey, topography, cell_size, (0, 0, 2), padding_distance)
 
-    if refine_on_receivers:
-        mesh = OctreeDriver.refine_tree_from_points(
-            mesh, survey.vertices, levels=[2], finalize=False
-        )
+    mesh = OctreeDriver.refine_tree_from_points(
+        mesh, survey.vertices, levels=refinement, finalize=False
+    )
 
     mesh.finalize()
     entity = treemesh_2_octree(survey.workspace, mesh, name=name)

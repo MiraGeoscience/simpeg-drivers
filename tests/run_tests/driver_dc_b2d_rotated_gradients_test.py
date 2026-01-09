@@ -188,7 +188,7 @@ def test_dc_rotated_gradient_p3d_run(
 if __name__ == "__main__":
     # Full run
     test_dc_rotated_p3d_fwr_run(
-        Path("./"), n_electrodes=20, n_lines=3, refinement=(4, 8)
+        Path("./"), n_electrodes=20, n_lines=3, refinement=(4, 4)
     )
     test_dc_rotated_gradient_p3d_run(
         Path("./"),

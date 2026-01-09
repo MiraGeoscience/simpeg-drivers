@@ -149,6 +149,6 @@ if __name__ == "__main__":
             # Full run
             with performance_report(filename="diagnostics.html"):
                 test_susceptibility_fwr_run(
-                    Path("./"), n_grid_points=20, refinement=(4, 8)
+                    Path("./"), n_grid_points=20, refinement=(4, 4)
                 )
                 test_susceptibility_run(Path("./"), max_iterations=30, pytest=False)

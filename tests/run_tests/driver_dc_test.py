@@ -177,7 +177,7 @@ if __name__ == "__main__":
         Path("./"),
         n_electrodes=20,
         n_lines=5,
-        refinement=(4, 8),
+        refinement=(4, 4),
     )
 
     test_dc_3d_run(

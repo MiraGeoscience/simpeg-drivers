@@ -240,7 +240,7 @@ if __name__ == "__main__":
             # Full run
             with performance_report(filename="diagnostics.html"):
                 test_magnetic_vector_fwr_run(
-                    Path("./"), n_grid_points=20, refinement=(4, 8)
+                    Path("./"), n_grid_points=20, refinement=(4, 4)
                 )
                 test_magnetic_vector_run(
                     Path("./"), None, max_iterations=30, upper_bound=5e-3, pytest=False

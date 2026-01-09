@@ -278,7 +278,7 @@ if __name__ == "__main__":
         Path("./"),
         n_grid_points=16,
         n_lines=5,
-        refinement=(4, 8),
+        refinement=(4, 4),
     )
     test_joint_cross_gradient_inv_run(
         Path("./"),

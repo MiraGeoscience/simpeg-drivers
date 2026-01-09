@@ -191,7 +191,7 @@ if __name__ == "__main__":
         Path("./"),
         n_electrodes=20,
         n_lines=3,
-        refinement=(4, 8),
+        refinement=(4, 4),
     )
 
     test_dc2d_rotated_grad_run(

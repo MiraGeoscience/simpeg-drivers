@@ -339,7 +339,7 @@ if __name__ == "__main__":
     test_joint_surveys_fwr_run(
         Path("./"),
         n_grid_points=20,
-        refinement=(4, 8),
+        refinement=(4, 4),
     )
     test_joint_surveys_inv_run(
         Path("./"),
