@@ -49,19 +49,6 @@ class JointSurveysOptions(BaseJointOptions):
 
     models: JointSurveysModelOptions
 
-    @field_validator("group_a", "group_b", "group_c")
-    @classmethod
-    def no_mvi_groups(cls, val):
-        if val is None:
-            return val
-
-        if "magnetic vector" in val.options.get("inversion_type", ""):
-            raise ValueError(
-                f"Joint inversion doesn't currently support MVI data as passed in "
-                f"the group: {val.name}."
-            )
-        return val
-
     @model_validator(mode="after")
     def all_groups_same_physical_property(self):
         physical_properties = [k.options["physical_property"] for k in self.groups]

@@ -13,7 +13,7 @@ from pathlib import Path
 import numpy as np
 from geoh5py.objects import Octree
 from geoh5py.workspace import Workspace
-from simpeg.directives import SavePropertyGroup
+from simpeg.directives import SaveModelGeoH5, SavePropertyGroup
 
 from simpeg_drivers.electricals.direct_current.three_dimensions.driver import (
     DC3DInversionDriver,
@@ -31,6 +31,8 @@ from simpeg_drivers.potential_fields import (
     GravityInversionOptions,
 )
 from simpeg_drivers.potential_fields.gravity.driver import GravityInversionDriver
+from simpeg_drivers.potential_fields.magnetic_vector.driver import MVIInversionDriver
+from simpeg_drivers.potential_fields.magnetic_vector.options import MVIInversionOptions
 from simpeg_drivers.utils.synthetics.driver import (
     SyntheticsComponents,
 )
@@ -193,6 +195,89 @@ def test_joint_surveys_inv_run(
 
         if unittest:
             check_target(output, target_run)
+
+
+def test_joint_surveys_mvi_run(tmp_path, anomaly=0.05):
+    drivers = []
+
+    with Workspace.create(tmp_path / f"{__name__}.geoh5") as geoh5:
+        for ii in range(1, 3):
+            opts = SyntheticsComponentsOptions(
+                method="magnetic_vector",
+                survey=SurveyOptions(
+                    n_stations=3**ii,
+                    n_lines=3**ii,
+                    drape=5.0,
+                    name=f"Survey Driver[{ii}]",
+                ),
+                mesh=MeshOptions(refinement=(2**ii, 2, 2), name=f"Mesh Driver[{ii}]"),
+                model=ModelOptions(anomaly=anomaly),
+            )
+            components = SyntheticsComponents(geoh5, options=opts)
+            survey = components.survey
+            obs, uncrt = survey.add_data(
+                {
+                    "TMI": {"values": np.random.randn(survey.n_vertices)},
+                    "Uncertainty": {"values": np.ones(survey.n_vertices) * 1e-3},
+                }
+            )
+
+            # Add an inclination model on the first driver only to test handling of
+            # models from the main driver
+            if ii == 1:
+                model = components.model.values
+                model[model > 0] = 45.0
+                model[model <= 0] = 90.0
+                inc_mod = components.mesh.add_data(
+                    {"Inclination Model": {"values": model}}
+                )
+            else:
+                inc_mod = None
+
+            params = MVIInversionOptions.build(
+                geoh5=geoh5,
+                mesh=components.mesh,
+                topography_object=components.topography,
+                tmi_channel=obs,
+                tmi_uncertainty=uncrt,
+                inducing_field_strength=45000,
+                inducing_field_inclination=90.0,
+                inducing_field_declination=0.0,
+                data_object=survey,
+                starting_model=components.model,
+                starting_inclination=inc_mod,
+                reference_model=0.0,
+            )
+            drivers.append(MVIInversionDriver(params))
+
+        # Run the inverse
+        joint_params = JointSurveysOptions.build(
+            geoh5=geoh5,
+            active_cells=ActiveCellsOptions(topography_object=components.topography),
+            group_a=drivers[0].out_group,
+            group_b=drivers[1].out_group,
+            starting_model=0.01,
+            # Default to Conductivity (S/m)
+        )
+
+        driver = JointSurveyDriver(joint_params)
+        assert np.isclose(driver.models.reference_model[0], 0)  # Took it from driver_A
+        assert driver.models.starting_model.shape == (driver.models.n_active * 3,)
+        assert np.isclose(
+            driver.models.starting_model.max(), 0.01 * np.cos(np.deg2rad(45.0))
+        )
+
+        # Test saving the starting models on each mesh (open file to validate)
+        assert (
+            len(
+                [
+                    directive.write(0, driver.models.starting_model)
+                    for directive in driver.directives.directive_list
+                    if isinstance(directive, SaveModelGeoH5)
+                ]
+            )
+            == 3
+        )
 
 
 def test_joint_surveys_conductivity_run(
