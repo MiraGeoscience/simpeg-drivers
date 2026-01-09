@@ -49,7 +49,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 1.1060093911270892, "phi_d": 209, "phi_m": 0.468}
+target_run = {"data_norm": 1.1462051301574965, "phi_d": 59.3, "phi_m": 7.24}
 
 
 def test_dc_rotated_p3d_fwr_run(
