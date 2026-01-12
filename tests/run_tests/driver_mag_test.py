@@ -39,7 +39,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 8.71227951689941, "phi_d": 37.5, "phi_m": 5.72e-06}
+target_run = {"data_norm": 13.010175158724156, "phi_d": 91.4, "phi_m": 1.01e-05}
 
 
 def test_susceptibility_fwr_run(
@@ -115,7 +115,7 @@ def test_susceptibility_run(
             x_norm=1.0,
             y_norm=1.0,
             z_norm=1.0,
-            initial_beta_ratio=1e1,
+            initial_beta_ratio=1e0,
             tmi_channel=tmi,
             tmi_uncertainty=1.0,
             max_global_iterations=max_iterations,
@@ -149,6 +149,6 @@ if __name__ == "__main__":
             # Full run
             with performance_report(filename="diagnostics.html"):
                 test_susceptibility_fwr_run(
-                    Path("./"), n_grid_points=20, refinement=(4, 8)
+                    Path("./"), n_grid_points=20, refinement=(4, 4)
                 )
                 test_susceptibility_run(Path("./"), max_iterations=30, pytest=False)

@@ -15,7 +15,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.natural_sources.magnetotellurics.driver import (
@@ -41,7 +40,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.032649770, "phi_d": 7.13, "phi_m": 282}
+target_run = {"data_norm": 0.0197168136860386, "phi_d": 1.85, "phi_m": 22.9}
 
 
 def setup_data(workspace, survey):
@@ -238,7 +237,7 @@ def test_magnetotellurics_tiles(
 if __name__ == "__main__":
     # Full run
     test_magnetotellurics_fwr_run(
-        Path("./"), n_grid_points=8, cell_size=(5.0, 5.0, 5.0), refinement=(4, 8)
+        Path("./"), n_grid_points=8, cell_size=(5.0, 5.0, 5.0), refinement=(4, 4)
     )
     test_magnetotellurics_run(
         Path("./"),

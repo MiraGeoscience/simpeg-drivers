@@ -36,7 +36,7 @@ TARGET = 1132.1998
 def test_automesh(
     tmp_path: Path,
     n_grid_points=20,
-    refinement=(4, 8),
+    refinement=(4, 4),
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(

@@ -45,7 +45,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_mvi_run = {"data_norm": 149.10117434016038, "phi_d": 1040, "phi_m": 0.129}
+target_mvi_run = {"data_norm": 149.10117434016036, "phi_d": 1060, "phi_m": 0.0432}
 
 
 def test_magnetic_vector_fwr_run(
@@ -144,7 +144,7 @@ def test_magnetic_vector_run(
                 lower_bound=1e-6,
                 upper_bound=upper_bound,
                 max_global_iterations=max_iterations,
-                initial_beta_ratio=1e1,
+                initial_beta_ratio=2e-2,
             )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
         if caplog:
@@ -240,7 +240,7 @@ if __name__ == "__main__":
             # Full run
             with performance_report(filename="diagnostics.html"):
                 test_magnetic_vector_fwr_run(
-                    Path("./"), n_grid_points=20, refinement=(4, 8)
+                    Path("./"), n_grid_points=20, refinement=(4, 4)
                 )
                 test_magnetic_vector_run(
                     Path("./"), None, max_iterations=30, upper_bound=5e-3, pytest=False

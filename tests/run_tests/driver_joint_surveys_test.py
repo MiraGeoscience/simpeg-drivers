@@ -51,7 +51,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.2997791660779469, "phi_d": 398, "phi_m": 102}
+target_run = {"data_norm": 0.2997791602206556, "phi_d": 1510, "phi_m": 41}
 
 
 def test_joint_surveys_fwr_run(
@@ -424,7 +424,7 @@ if __name__ == "__main__":
     test_joint_surveys_fwr_run(
         Path("./"),
         n_grid_points=20,
-        refinement=(4, 8),
+        refinement=(4, 4),
     )
     test_joint_surveys_inv_run(
         Path("./"),

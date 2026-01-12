@@ -40,6 +40,5 @@ def get_mesh(
         cell_size=options.cell_size,
         refinement=options.refinement,
         padding_distance=options.padding_distance,
-        refine_on_receivers=method in ["fdem", "airborne tdem"],
         name=options.name,
     )

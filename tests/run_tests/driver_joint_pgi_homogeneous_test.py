@@ -54,7 +54,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 390.70695894864303, "phi_d": 2030, "phi_m": 9.23}
+target_run = {"data_norm": 440.08021575766554, "phi_d": 1010, "phi_m": 42500}
 INDUCING_FIELD = (50000.0, 90.0, 0.0)
 
 
@@ -269,7 +269,7 @@ def test_homogeneous_run(
             out_group = run_ws.get_entity(driver.out_group.uid)[0]
             mesh = out_group.get_entity("mesh A")[0]
             petro_model = mesh.get_entity("petrophysical_model")[0]
-            assert len(np.unique(petro_model.values)) == 4
+            assert len(np.unique(petro_model.values)) == 5
 
 
 if __name__ == "__main__":
@@ -277,7 +277,7 @@ if __name__ == "__main__":
     test_homogeneous_fwr_run(
         Path("./"),
         n_grid_points=20,
-        refinement=(4, 8),
+        refinement=(4, 4),
     )
 
     test_homogeneous_run(
