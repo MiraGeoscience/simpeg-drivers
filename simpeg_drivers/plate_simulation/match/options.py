@@ -14,12 +14,10 @@ from typing import ClassVar
 
 import numpy as np
 from geoapps_utils.base import Options
-from geoh5py.groups import PropertyGroup, UIJsonGroup
-from geoh5py.objects import Points
+from geoh5py.groups import PropertyGroup, SimPEGGroup
+from geoh5py.objects import Grid2D, Points
 from geoh5py.objects.surveys.electromagnetics.airborne_tem import AirborneTEMReceivers
-from geoh5py.shared.utils import stringify
-from geoh5py.ui_json import InputFile
-from pydantic import BaseModel, ConfigDict, field_serializer
+from pydantic import ConfigDict
 
 from simpeg_drivers import assets_path
 
@@ -30,7 +28,7 @@ class MatchOptions(Options):
 
     :param survey: A Time-Domain Airborne TEM survey object.
     :param data: A property group containing observed data.
-    :param targets: A Points object containing the target locations.
+    :param queries: A Points object containing the target locations.
     :param strike_angles: An optional data array containing strike angles for each
         target location.
     :param simulations: Directory to store simulation files.
@@ -42,10 +40,13 @@ class MatchOptions(Options):
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/plate_match.ui.json"
     title: ClassVar[str] = "Plate Match"
     run_command: ClassVar[str] = "simpeg_drivers.plate_simulation.match.driver"
-    out_group: UIJsonGroup | None = None
+    out_group: SimPEGGroup | None = None
 
     survey: AirborneTEMReceivers
     data: PropertyGroup
-    targets: Points
+    queries: Points
     strike_angles: np.ndarray | None = None
+    max_distance: float = 1000.0
+    topography_object: Points | Grid2D
+    topography: np.ndarray | None = None
     simulations: ClassVar[Path]
