@@ -125,3 +125,27 @@ class Base1DDriver(InversionDriver):
             else:
                 self._workers = np.arange(multiprocessing.cpu_count()).tolist()
         return self._workers
+
+    @classmethod
+    def start_dask_run(
+        cls,
+        ifile,
+        n_workers: int | None = None,
+        n_threads: int | None = None,
+        save_report: bool = True,
+    ):
+        """Overload configurations of BaseDriver Dask config settings."""
+        # Force distributed on 1D problems
+        if n_workers is None:
+            cpu_count = multiprocessing.cpu_count()
+
+            if cpu_count < 16:
+                n_threads = n_threads or 2
+            else:
+                n_threads = n_threads or 4
+
+            n_workers = cpu_count // n_threads
+
+        super().start_dask_run(
+            ifile, n_workers=n_workers, n_threads=n_threads, save_report=save_report
+        )

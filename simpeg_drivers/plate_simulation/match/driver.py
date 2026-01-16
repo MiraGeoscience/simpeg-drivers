@@ -10,10 +10,13 @@
 
 from __future__ import annotations
 
+import multiprocessing
 import sys
 from pathlib import Path
+from time import time
 
 import numpy as np
+from geoapps_utils.run import load_ui_json_as_dict
 from geoapps_utils.utils.importing import GeoAppsError
 from geoapps_utils.utils.locations import topo_drape_elevation
 from geoapps_utils.utils.logger import get_logger
@@ -25,15 +28,15 @@ from geoh5py.shared.utils import (
     fetch_active_workspace,
 )
 from geoh5py.ui_json import InputFile
-from geoh5py.ui_json.ui_json import BaseUIJson
 from scipy import signal
 from scipy.sparse import csr_matrix, diags
 from scipy.spatial import cKDTree
-from tqdm import tqdm
 from typing_extensions import Self
 
 from simpeg_drivers.driver import BaseDriver
 from simpeg_drivers.plate_simulation.match.options import MatchOptions
+
+# from simpeg_drivers.plate_simulation.match.uijson import PlateMatchUIJson
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
 
 
@@ -51,8 +54,59 @@ class PlateMatchDriver(BaseDriver):
         super().__init__(params, workers=workers)
 
         self._drape_heights = self.set_drape_height()
-
+        self._template = self.get_template()
+        self._time_mask, self._time_projection = self.time_mask_and_projection()
         self.out_group = self.validate_out_group(self.params.out_group)
+
+    def get_template(self):
+        """
+        Get a template simulation to extract time sampling.
+        """
+        with Workspace(self.params.simulation_files[0], mode="r") as ws:
+            survey = fetch_survey(ws)
+            if survey.channels is None:
+                raise GeoAppsError(
+                    f"No time channels found in survey of {self.params.simulation_files[0]}"
+                )
+
+            if survey.vertices is None:
+                raise GeoAppsError(
+                    f"No receiver locations found in survey of {self.params.simulation_files[0]}"
+                )
+
+        return survey
+
+    def time_mask_and_projection(self) -> tuple[np.ndarray, csr_matrix]:
+        """
+        Create a time mask and interpolation matrix from simulation to observation times.
+
+        Assumes that all simulations in the directory have the same time sampling.
+
+        :return: Time mask and time interpolation matrix.
+        """
+
+        simulated_times = np.asarray(self._template.channels)
+
+        query_times = np.asarray(self.params.survey.channels)
+        # Only interpolate for times within the simulated range
+        time_mask = (query_times > simulated_times.min()) & (
+            query_times < simulated_times.max()
+        )
+        query_times = query_times[time_mask]
+        right = np.searchsorted(simulated_times, query_times)
+        inds = np.r_[right - 1, right]
+        row_ids = np.tile(np.arange(len(query_times)), 2)
+
+        # Create inverse distance weighting matrix
+        weights = (np.abs(query_times[row_ids] - simulated_times[inds]) + 1e-12) ** -1
+        time_projection = csr_matrix(
+            (weights.flatten(), (row_ids, np.hstack(inds.flatten()))),
+            shape=(len(query_times), len(simulated_times)),
+        )
+        row_sum = np.asarray(time_projection.sum(axis=1)).flatten() ** -1.0
+        time_projection = diags(row_sum) @ time_projection
+
+        return time_mask, time_projection
 
     @property
     def out_group(self) -> SimPEGGroup:
@@ -95,7 +149,9 @@ class PlateMatchDriver(BaseDriver):
         """Start the parameter matching from a ui.json file."""
         logger.info("Loading input file . . .")
         filepath = Path(filepath).resolve()
-        # uijson = BaseUIJson.read(filepath)
+
+        # TODO: Replace with UIJson when fully implemented
+        # uijson = PlateMatchUIJson.read(filepath)
         uijson = InputFile.read_ui_json(filepath)
 
         with uijson.geoh5.open(mode=mode):
@@ -130,42 +186,15 @@ class PlateMatchDriver(BaseDriver):
         )
         return topo_drape_z[:, 2]
 
-    def normalized_data(self, property_group: PropertyGroup, threshold=5) -> np.ndarray:
-        """
-        Return data from a property group with symlog scaling and zero mean.
-
-        :param property_group: Property group containing data channels.
-        :param threshold: Percentile threshold for symlog normalization.
-
-        :return: Normalized data array.
-        """
-        table = property_group.table()
-        data_array = np.vstack([table[name] for name in table.dtype.names])
-        thresh = np.percentile(np.abs(data_array), threshold)
-        log_data = symlog(data_array, thresh)
-        return log_data - np.mean(log_data, axis=1)[:, None]
-
-    def fetch_survey(self, workspace: Workspace) -> AirborneTEMReceivers | None:
-        """Fetch the survey from the workspace."""
-        for group in workspace.groups:
-            if isinstance(group, SimPEGGroup):
-                for child in group.children:
-                    if isinstance(child, AirborneTEMReceivers):
-                        return child
-
-        return None
-
     def spatial_interpolation(
         self,
         indices: np.ndarray,
-        locations: np.ndarray,
         strike_angle: float | None = None,
     ) -> csr_matrix:
         """
         Create a spatial interpolation matrix from simulation to observation locations.
 
         :param indices: Indices for the line segment of the observation locations.
-        :param locations: Positions to interpolate from.
         :param strike_angle: Optional strike angle to correct azimuths.
 
         :return: Spatial interpolation matrix.
@@ -177,7 +206,7 @@ class PlateMatchDriver(BaseDriver):
         )  # Align azimuths to zero
 
         # Convert to polar coordinates (distance, azimuth, height)
-        query_polar = self.xyz_to_polar(locations)
+        query_polar = self.xyz_to_polar(self._template.vertices)
 
         # Get the 8 nearest neighbors in the simulation to each observation point
         sim_tree = cKDTree(query_polar)
@@ -187,7 +216,7 @@ class PlateMatchDriver(BaseDriver):
         row_ids = np.kron(np.arange(local_polar.shape[0]), np.ones(8))
         inv_dist_op = csr_matrix(
             (weights.flatten(), (row_ids, np.hstack(inds.flatten()))),
-            shape=(local_polar.shape[0], locations.shape[0]),
+            shape=(local_polar.shape[0], self._template.vertices.shape[0]),
         )
 
         # Normalize the rows
@@ -213,32 +242,6 @@ class PlateMatchDriver(BaseDriver):
         azimuths = 90 - (np.rad2deg(np.arctan2(xyz[:, 0], xyz[:, 1])) % 180)
         return np.c_[distances, azimuths, xyz[:, 2]]
 
-    @staticmethod
-    def time_interpolation(
-        query_times: np.ndarray, sim_times: np.ndarray
-    ) -> csr_matrix:
-        """
-        Create a time interpolation matrix from simulation to observation times.
-
-        :param query_times: Observation times.
-        :param sim_times: Simulation times.
-
-        :return: Time interpolation matrix.
-        """
-        right = np.searchsorted(sim_times, query_times)
-
-        inds = np.r_[right - 1, right]
-
-        row_ids = np.tile(np.arange(len(query_times)), 2)
-        weights = (np.abs(query_times[row_ids] - sim_times[inds]) + 1e-12) ** -1
-
-        time_projection = csr_matrix(
-            (weights.flatten(), (row_ids, np.hstack(inds.flatten()))),
-            shape=(len(query_times), len(sim_times)),
-        )
-        row_sum = np.asarray(time_projection.sum(axis=1)).flatten() ** -1.0
-        return diags(row_sum) @ time_projection
-
     def get_segment_indices(self, nearest: int) -> np.ndarray:
         """
         Get indices of line segment for a given nearest vertex.
@@ -259,96 +262,49 @@ class PlateMatchDriver(BaseDriver):
 
     def run(self):
         """Loop over all trials and run a worker for each unique parameter set."""
-
         logger.info(
             "Running %s . . .",
             self.params.title,
         )
-        observed = self.normalized_data(self.params.data)
-
-        scores = []
-        files_id = []
+        observed = normalized_data(self.params.data)[self._time_mask, :]
         tree = cKDTree(self.params.survey.vertices[:, :2])
-        spatial_projection = None
-        time_projection = None
+
         for ii, query in enumerate(self.params.queries.vertices):
-            for sim_file in tqdm(self.params.simulation_files):
-                with Workspace(sim_file, mode="r") as ws:
-                    survey = self.fetch_survey(ws)
+            tasks = []
+            nearest = tree.query(query[:2], k=1)[1]
+            indices = self.get_segment_indices(nearest)
+            spatial_projection = self.spatial_interpolation(
+                indices,
+                self.params.strike_angles.values[ii],
+            )
 
-                    if survey is None:
-                        logger.warning("No survey found in %s, skipping.", sim_file)
-                        continue
+            file_split = np.array_split(self.params.simulation_files, len(self.workers))
 
-                    simulated = self.normalized_data(
-                        survey.get_entity("Iteration_0_z")[0]
+            ct = time()
+            for file_batch in file_split:
+                tasks.append(
+                    self.client.submit(
+                        process_files_batch,
+                        file_batch,
+                        spatial_projection,
+                        self._time_projection,
+                        observed[:, indices],
                     )
+                )
 
-                    # Create a projection matrix to interpolate simulated data to the observation locations
-                    # Assume that lines of simulations are centered at origin
-                    if spatial_projection is None:
-                        nearest = tree.query(query[:2], k=1)[1]
-                        indices = self.get_segment_indices(nearest)
-                        spatial_projection = self.spatial_interpolation(
-                            indices,
-                            survey.vertices,
-                            self.params.strike_angles.values[ii],
-                        )
+            scores = np.hstack(self.client.gather(tasks))
 
-                    if time_projection is None:
-                        query_times = np.asarray(self.params.survey.channels)
-                        simulated_times = np.asarray(survey.channels)
-
-                        # Only interpolate for times within the simulated range
-                        time_mask = (query_times > simulated_times.min()) & (
-                            query_times < simulated_times.max()
-                        )
-                        time_projection = self.time_interpolation(
-                            query_times[time_mask], simulated_times
-                        )
-                        observed = observed[time_mask, :]
-
-                    pred = time_projection @ (spatial_projection @ simulated.T).T
-
-                    score = 0.0
-
-                    # if sim_file.stem == "0e50d2da-7ab0-5484-9ffd-365f076cce98":
-                    #
-                    #     fig, ax = plt.figure(), plt.subplot()
-
-                    # Metric: normalized cross-correlation
-                    for obs, pre in zip(observed[:, indices], pred, strict=True):
-                        # Full cross-correlation
-                        corr = signal.correlate(
-                            obs, pre, mode="full"
-                        )  # corr[k] ~ sum_t y[t] * x[t - k]
-                        # Normalize by energy to get correlation coefficient in [-1, 1]
-                        denom = np.linalg.norm(pre) * np.linalg.norm(obs)
-                        if denom == 0:
-                            corr_norm = np.zeros_like(corr)
-                        else:
-                            corr_norm = corr / denom
-
-                        score += np.max(corr_norm)
-                        # if sim_file.stem == "0e50d2da-7ab0-5484-9ffd-365f076cce98":
-                        #     ax.plot(obs , 'r')
-                        #     ax.plot(pre, 'k')
-
-                    # if sim_file.stem == "0e50d2da-7ab0-5484-9ffd-365f076cce98":
-                    #     plt.show()
-
-                    scores.append(score)
-                    files_id.append(sim_file)
-
-            spatial_projection = None
-            time_projection = None
-
+            print(f"Processing time: {time() - ct:.1f} seconds")
             ranked = np.argsort(scores)
-            print("Top 3 matches:")
+
             for rank in ranked[-1:][::-1]:
-                print(f"File: {files_id[rank].stem:30s} Score: {scores[rank]:.4f}")
-                with Workspace(files_id[rank], mode="r") as ws:
-                    survey = self.fetch_survey(ws)
+                logger.info(
+                    "File: %s \nScore: %.4f",
+                    self.params.simulation_files[rank].name,
+                    scores[rank],
+                )
+                with Workspace(self.params.simulation_files[rank], mode="r") as ws:
+                    survey = fetch_survey(ws)
                     ui_json = survey.parent.parent.options
                     ui_json["geoh5"] = ws
                     ifile = InputFile(ui_json=ui_json)
@@ -357,13 +313,112 @@ class PlateMatchDriver(BaseDriver):
                     plate = survey.parent.parent.get_entity("plate")[0].copy(
                         parent=self.params.out_group
                     )
-                    plate.vertices = plate.vertices + query
+
+                    # Set position of plate to query location
+                    center = self.params.survey.vertices[nearest]
+                    center[2] = self._drape_heights[nearest]
+                    plate.vertices = plate.vertices + center
                     plate.metadata = options.model.model_dump()
 
                 print(f"Best parameters:{options.model.model_dump_json(indent=2)}")
 
+    @classmethod
+    def start_dask_run(
+        cls,
+        ifile,
+        n_workers: int | None = None,
+        n_threads: int | None = None,
+        save_report: bool = True,
+    ):
+        """Overload configurations of BaseDriver Dask config settings."""
+        # Force distributed on 1D problems
+        if n_workers is None:
+            cpu_count = multiprocessing.cpu_count()
+
+            if cpu_count < 16:
+                n_threads = n_threads or 2
+            else:
+                n_threads = n_threads or 4
+
+            n_workers = cpu_count // n_threads
+
+        super().start_dask_run(
+            ifile, n_workers=n_workers, n_threads=n_threads, save_report=save_report
+        )
+
+
+def normalized_data(property_group: PropertyGroup, threshold=5) -> np.ndarray:
+    """
+    Return data from a property group with symlog scaling and zero mean.
+
+    :param property_group: Property group containing data channels.
+    :param threshold: Percentile threshold for symlog normalization.
+
+    :return: Normalized data array.
+    """
+    table = property_group.table()
+    data_array = np.vstack([table[name] for name in table.dtype.names])
+    thresh = np.percentile(np.abs(data_array), threshold)
+    log_data = symlog(data_array, thresh)
+    return log_data - np.mean(log_data, axis=1)[:, None]
+
+
+def fetch_survey(workspace: Workspace) -> AirborneTEMReceivers | None:
+    """Fetch the survey from the workspace."""
+    for group in workspace.groups:
+        if isinstance(group, SimPEGGroup):
+            for child in group.children:
+                if isinstance(child, AirborneTEMReceivers):
+                    return child
+
+    return None
+
+
+def process_files_batch(
+    files: Path | list[Path], spatial_projection, time_projection, observed
+):
+    scores = []
+
+    if isinstance(files, Path):
+        files = [files]
+
+    for sim_file in files:
+        with Workspace(sim_file, mode="r") as ws:
+            survey = fetch_survey(ws)
+
+            if survey is None:
+                logger.warning("No survey found in %s, skipping.", sim_file)
+                continue
+
+            simulated = normalized_data(survey.get_entity("Iteration_0_z")[0])
+
+            pred = time_projection @ (spatial_projection @ simulated.T).T
+            score = 0.0
+
+            # Metric: normalized cross-correlation
+            for obs, pre in zip(observed, pred, strict=True):
+                # Full cross-correlation
+                corr = signal.correlate(obs, pre, mode="full")
+                # Normalize by energy to get correlation coefficient in [-1, 1]
+                denom = np.linalg.norm(pre) * np.linalg.norm(obs)
+                if denom == 0:
+                    corr_norm = np.zeros_like(corr)
+                else:
+                    corr_norm = corr / denom
+
+                score += np.max(corr_norm)
+
+            scores.append(score)
+
+    return scores
+
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1])
-    # file = Path(r"C:\Users\dominiquef\Documents\Workspace\Teck\RnD\plate_match_v2.ui.json")
-    PlateMatchDriver.start(file)
+    file = Path(sys.argv[1]).resolve()
+    input_file = load_ui_json_as_dict(file)
+    PlateMatchDriver.start_dask_run(
+        file,
+        n_workers=input_file.get("n_workers", None),
+        n_threads=input_file.get("n_threads", None),
+        save_report=input_file.get("performance_report", False),
+    )

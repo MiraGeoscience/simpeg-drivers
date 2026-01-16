@@ -16,21 +16,17 @@ from __future__ import annotations
 import cProfile
 import pstats
 
-import multiprocessing
 import contextlib
 from copy import deepcopy
 import sys
 from datetime import datetime, timedelta
 import logging
-from multiprocessing.pool import ThreadPool
 from pathlib import Path
 from time import time
 
 from typing_extensions import Self
 
 import numpy as np
-from dask import config as dconf
-
 from dask.distributed import get_client, Client, LocalCluster, performance_report
 
 from geoapps_utils.base import Driver, Options
@@ -41,7 +37,6 @@ from geoapps_utils.param_sweeps.driver import SweepParams
 from geoh5py.groups import SimPEGGroup
 from geoh5py.objects import FEMSurvey
 from geoh5py.shared.utils import fetch_active_workspace
-from geoh5py.shared.exceptions import Geoh5FileClosedError
 from geoh5py.ui_json import InputFile
 
 from simpeg import (
@@ -157,6 +152,62 @@ class BaseDriver(Driver):
             )
 
         return workers
+
+    @classmethod
+    def start_dask_run(
+        cls,
+        ifile,
+        n_workers: int | None = None,
+        n_threads: int | None = None,
+        save_report: bool = True,
+    ):
+        """
+        Sets Dask config settings.
+
+        :param ifile: Input file path.
+        :param n_workers: Number of Dask workers.
+        :param n_threads: Number of threads per Dask worker.
+        :param save_report: Whether to save a performance report.
+        """
+        distributed_process = (
+            n_workers is not None and n_workers > 1
+        ) or n_threads is not None
+
+        cluster = (
+            LocalCluster(
+                processes=True,
+                n_workers=n_workers,
+                threads_per_worker=n_threads,
+            )
+            if distributed_process
+            else None
+        )
+        profiler = cProfile.Profile()
+        profiler.enable()
+
+        with (
+            cluster.get_client()
+            if cluster is not None
+            else contextlib.nullcontext() as context_client
+        ):
+            # Full run
+            with (
+                performance_report(filename=ifile.parent / "dask_profile.html")
+                if (save_report and isinstance(context_client, Client))
+                else contextlib.nullcontext()
+            ):
+                cls.start(ifile)
+                sys.stdout.close()
+
+        profiler.disable()
+
+        if save_report:
+            with open(
+                ifile.parent / "runtime_profile.txt", encoding="utf-8", mode="w"
+            ) as s:
+                ps = pstats.Stats(profiler, stream=s)
+                ps.sort_stats("cumulative")
+                ps.print_stats()
 
 
 class InversionDriver(BaseDriver):
@@ -485,8 +536,6 @@ class InversionDriver(BaseDriver):
             sys.stdout = self.logger
             self.logger.start()
 
-        self.configure_dask()
-
         with fetch_active_workspace(self.workspace, mode="r+"):
             simpeg_inversion = self.inversion
 
@@ -728,18 +777,6 @@ class InversionDriver(BaseDriver):
             sorting=self.simulation.survey.sorting,
         )
 
-    def configure_dask(self):
-        """Sets Dask config settings."""
-
-        if self.client:
-            dconf.set(scheduler=self.client)
-        else:
-            n_cpu = self.params.compute.n_cpu
-            if n_cpu is None:
-                n_cpu = int(multiprocessing.cpu_count())
-
-            dconf.set(scheduler="threads", pool=ThreadPool(n_cpu))
-
     @classmethod
     def start(cls, filepath: str | Path | InputFile, **kwargs) -> Self:
         """
@@ -840,57 +877,11 @@ class InversionLogger:
 if __name__ == "__main__":
     file = Path(sys.argv[1]).resolve()
     input_file = load_ui_json_as_dict(file)
-    n_workers = input_file.get("n_workers", None)
-    n_threads = input_file.get("n_threads", None)
-    save_report = input_file.get("performance_report", False)
-
-    # Force distributed on 1D problems
-    if "1D" in input_file.get("title") and n_workers is None:
-        cpu_count = multiprocessing.cpu_count()
-
-        if cpu_count < 16:
-            n_threads = n_threads or 2
-        else:
-            n_threads = n_threads or 4
-
-        n_workers = cpu_count // n_threads
-
-    distributed_process = (
-        n_workers is not None and n_workers > 1
-    ) or n_threads is not None
-
+    # Need to know the driver class before starting dask
     driver_class = InversionDriver.from_input_file(input_file)
-
-    cluster = (
-        LocalCluster(
-            processes=True,
-            n_workers=n_workers,
-            threads_per_worker=n_threads,
-        )
-        if distributed_process
-        else None
+    driver_class.start_dask_run(
+        file,
+        n_workers=input_file.get("n_workers", None),
+        n_threads=input_file.get("n_threads", None),
+        save_report=input_file.get("performance_report", False),
     )
-    profiler = cProfile.Profile()
-    profiler.enable()
-
-    with (
-        cluster.get_client()
-        if cluster is not None
-        else contextlib.nullcontext() as context_client
-    ):
-        # Full run
-        with (
-            performance_report(filename=file.parent / "dask_profile.html")
-            if (save_report and isinstance(context_client, Client))
-            else contextlib.nullcontext()
-        ):
-            driver_class.start(file)
-            sys.stdout.close()
-
-    profiler.disable()
-
-    if save_report:
-        with open(file.parent / "runtime_profile.txt", encoding="utf-8", mode="w") as s:
-            ps = pstats.Stats(profiler, stream=s)
-            ps.sort_stats("cumulative")
-            ps.print_stats()
