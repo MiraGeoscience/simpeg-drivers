@@ -358,6 +358,7 @@ class PlateMatchDriver(BaseDriver):
                         parent=self.params.out_group
                     )
                     plate.vertices = plate.vertices + query
+                    plate.metadata = options.model.model_dump()
 
                 print(f"Best parameters:{options.model.model_dump_json(indent=2)}")
 
