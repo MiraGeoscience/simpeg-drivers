@@ -14,6 +14,7 @@ from typing import ClassVar
 
 import numpy as np
 from geoapps_utils.base import Options
+from geoh5py.data import FloatData
 from geoh5py.groups import PropertyGroup, SimPEGGroup
 from geoh5py.objects import Grid2D, Points
 from geoh5py.objects.surveys.electromagnetics.airborne_tem import AirborneTEMReceivers
@@ -45,8 +46,19 @@ class MatchOptions(Options):
     survey: AirborneTEMReceivers
     data: PropertyGroup
     queries: Points
-    strike_angles: np.ndarray | None = None
+    strike_angles: FloatData | None = None
     max_distance: float = 1000.0
     topography_object: Points | Grid2D
-    topography: np.ndarray | None = None
-    simulations: ClassVar[Path]
+    topography: FloatData | None = None
+    simulations: str
+
+    @property
+    def simulation_files(self) -> list[Path]:
+        """Path to simulation files directory."""
+        sim_dir = self.geoh5.h5file.parent / self.simulations
+        simulation_files = []
+        for file in sim_dir.iterdir():
+            if Path(file).resolve().suffix == ".geoh5":
+                simulation_files.append(Path(file))
+
+        return simulation_files

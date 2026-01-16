@@ -4,7 +4,7 @@
     "icon": "maxwellplate",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/plate-simulation/",
     "conda_environment": "simpeg_drivers",
-    "run_command": "simpeg_drivers.driver",
+    "run_command": "simpeg_drivers.plate_simulation.match.driver",
     "geoh5": "",
     "monitoring_directory": "",
     "inversion_type": "plate match",
@@ -103,7 +103,7 @@
     "out_group": {
         "label": "UIJsonGroup",
         "value": "",
-        "groupType": "{BB50AC61-A657-4926-9C82-067658E246A0}",
+        "groupType": "{55ed3daf-c192-4d4b-a439-60fa987fe2b8}",
         "visible": true,
         "optional": true,
         "enabled": false
