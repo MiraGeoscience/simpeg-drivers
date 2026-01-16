@@ -56,7 +56,6 @@ class PlateMatchDriver(BaseDriver):
         self._drape_heights = self.set_drape_height()
         self._template = self.get_template()
         self._time_mask, self._time_projection = self.time_mask_and_projection()
-        self.out_group = self.validate_out_group(self.params.out_group)
 
     def get_template(self):
         """
@@ -84,9 +83,7 @@ class PlateMatchDriver(BaseDriver):
 
         :return: Time mask and time interpolation matrix.
         """
-
         simulated_times = np.asarray(self._template.channels)
-
         query_times = np.asarray(self.params.survey.channels)
         # Only interpolate for times within the simulated range
         time_mask = (query_times > simulated_times.min()) & (
@@ -94,55 +91,15 @@ class PlateMatchDriver(BaseDriver):
         )
         query_times = query_times[time_mask]
         right = np.searchsorted(simulated_times, query_times)
-        inds = np.r_[right - 1, right]
-        row_ids = np.tile(np.arange(len(query_times)), 2)
+        inds = np.c_[right - 1, right].flatten()
+        row_ids = np.repeat(np.arange(len(query_times)), 2)
 
-        # Create inverse distance weighting matrix
-        weights = (np.abs(query_times[row_ids] - simulated_times[inds]) + 1e-12) ** -1
-        time_projection = csr_matrix(
-            (weights.flatten(), (row_ids, np.hstack(inds.flatten()))),
-            shape=(len(query_times), len(simulated_times)),
+        # Create inverse distance weighting matrix based on time difference
+        time_diff = np.abs(query_times[row_ids] - simulated_times[inds])
+        time_projection = self.inverse_weighted_operator(
+            time_diff, inds, (len(query_times), len(simulated_times)), 1.0, 1e-12
         )
-        row_sum = np.asarray(time_projection.sum(axis=1)).flatten() ** -1.0
-        time_projection = diags(row_sum) @ time_projection
-
         return time_mask, time_projection
-
-    @property
-    def out_group(self) -> SimPEGGroup:
-        """
-        Returns the output group for the simulation.
-        """
-        return self._out_group
-
-    @out_group.setter
-    def out_group(self, value: SimPEGGroup):
-        if not isinstance(value, SimPEGGroup):
-            raise TypeError("Output group must be a SimPEGGroup.")
-
-        if self.params.out_group != value:
-            self.params.out_group = value
-            self.params.update_out_group_options()
-
-        self._out_group = value
-
-    def validate_out_group(self, out_group: SimPEGGroup | None) -> SimPEGGroup:
-        """
-        Validate or create a SimPEGGroup to store results.
-
-        :param out_group: Output group from selection.
-        """
-        if isinstance(out_group, SimPEGGroup):
-            return out_group
-
-        with fetch_active_workspace(self.params.geoh5, mode="r+"):
-            out_group = SimPEGGroup.create(
-                self.params.geoh5,
-                name=self.params.title,
-            )
-            out_group.entity_type.name = self.params.title
-
-        return out_group
 
     @classmethod
     def start(cls, filepath: str | Path, mode="r+", **_) -> Self:
@@ -212,13 +169,40 @@ class PlateMatchDriver(BaseDriver):
         sim_tree = cKDTree(query_polar)
         rad, inds = sim_tree.query(local_polar, k=8)
 
-        weights = (rad**2.0 + 1e-1) ** -1
-        row_ids = np.kron(np.arange(local_polar.shape[0]), np.ones(8))
-        inv_dist_op = csr_matrix(
-            (weights.flatten(), (row_ids, np.hstack(inds.flatten()))),
-            shape=(local_polar.shape[0], self._template.vertices.shape[0]),
+        return self.inverse_weighted_operator(
+            rad.flatten(),
+            inds.flatten(),
+            (local_polar.shape[0], self._template.vertices.shape[0]),
+            2.0,
+            1e-1,
         )
 
+    @staticmethod
+    def inverse_weighted_operator(
+        values: np.ndarray,
+        col_indices: np.ndarray,
+        shape: tuple,
+        power: float,
+        threshold: float,
+    ) -> csr_matrix:
+        """
+        Create an inverse distance weighted sparse matrix.
+
+        :param values: Distance values.
+        :param col_indices: Column indices for the sparse matrix.
+        :param shape: Shape of the sparse matrix.
+        :param power: Power for the inverse distance weighting.
+        :param threshold: Threshold to avoid singularities.
+
+        :return: Inverse distance weighted sparse matrix.
+        """
+        weights = (values**power + threshold) ** -1
+        n_vals_row = weights.shape[0] // shape[0]
+        row_ids = np.repeat(np.arange(shape[0]), n_vals_row)
+        inv_dist_op = csr_matrix(
+            (weights, (row_ids, col_indices)),
+            shape=shape,
+        )
         # Normalize the rows
         row_sum = np.asarray(inv_dist_op.sum(axis=1)).flatten() ** -1.0
         return diags(row_sum) @ inv_dist_op
@@ -391,7 +375,6 @@ def process_files_batch(
                 continue
 
             simulated = normalized_data(survey.get_entity("Iteration_0_z")[0])
-
             pred = time_projection @ (spatial_projection @ simulated.T).T
             score = 0.0
 
@@ -414,7 +397,10 @@ def process_files_batch(
 
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
+    # file = Path(sys.argv[1]).resolve()
+    file = Path(
+        r"C:\Users\dominiquef\Documents\Workspace\Teck\RnD\plate_match_v2.ui.json"
+    )
     input_file = load_ui_json_as_dict(file)
     PlateMatchDriver.start_dask_run(
         file,
