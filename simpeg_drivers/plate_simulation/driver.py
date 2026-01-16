@@ -62,7 +62,6 @@ class PlateSimulationDriver(BaseDriver):
         self._model: FloatData | None = None
         self._simulation_parameters: BaseForwardOptions | None = None
         self._simulation_driver: InversionDriver | None = None
-        self._out_group = self.validate_out_group(self.params.out_group)
 
     def run(self) -> InversionDriver:
         """Create octree mesh, fill model, and simulate."""
@@ -76,13 +75,6 @@ class PlateSimulationDriver(BaseDriver):
         logger.handlers.clear()
 
         return self.simulation_driver
-
-    @property
-    def out_group(self) -> SimPEGGroup:
-        """
-        Returns the output group for the simulation.
-        """
-        return self._out_group
 
     def validate_out_group(self, out_group: SimPEGGroup | None) -> SimPEGGroup:
         """

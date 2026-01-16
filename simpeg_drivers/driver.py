@@ -95,6 +95,7 @@ class BaseDriver(Driver):
         workers: list[str] | None = None,
     ):
         super().__init__(params)
+        self.out_group = self.validate_out_group(self.params.out_group)
         self._client: Client | bool = self.validate_client(client)
 
         if getattr(self.params, "store_sensitivities", None) == "disk" and self.client:
@@ -103,6 +104,42 @@ class BaseDriver(Driver):
             )
 
         self._workers: list[tuple[str]] | None = self.validate_workers(workers)
+
+    @property
+    def out_group(self) -> SimPEGGroup:
+        """
+        Returns the output group for the simulation.
+        """
+        return self._out_group
+
+    @out_group.setter
+    def out_group(self, value: SimPEGGroup):
+        if not isinstance(value, SimPEGGroup):
+            raise TypeError("Output group must be a SimPEGGroup.")
+
+        if self.params.out_group != value:
+            self.params.out_group = value
+            self.params.update_out_group_options()
+
+        self._out_group = value
+
+    def validate_out_group(self, out_group: SimPEGGroup | None) -> SimPEGGroup:
+        """
+        Validate or create a SimPEGGroup to store results.
+
+        :param out_group: Output group from selection.
+        """
+        if isinstance(out_group, SimPEGGroup):
+            return out_group
+
+        with fetch_active_workspace(self.params.geoh5, mode="r+"):
+            out_group = SimPEGGroup.create(
+                self.params.geoh5,
+                name=self.params.title,
+            )
+            out_group.entity_type.name = self.params.title
+
+        return out_group
 
     @property
     def client(self) -> Client | bool | None:
@@ -224,7 +261,6 @@ class InversionDriver(BaseDriver):
         super().__init__(params, client=client, workers=workers)
 
         self.inversion_type = self.params.inversion_type
-        self.out_group = self.validate_out_group(self.params.out_group)
         self._data_misfit: objective_function.ComboObjectiveFunction | None = None
         self._directives: list[directives.InversionDirective] | None = None
         self._inverse_problem: inverse_problem.BaseInvProblem | None = None
@@ -431,36 +467,6 @@ class InversionDriver(BaseDriver):
     def ordering(self):
         """List of ordering of the data."""
         return self.inversion_data.survey.ordering
-
-    @property
-    def out_group(self) -> SimPEGGroup:
-        """
-        Returns the output group for the simulation.
-        """
-        return self._out_group
-
-    @out_group.setter
-    def out_group(self, value: SimPEGGroup):
-        if not isinstance(value, SimPEGGroup):
-            raise TypeError("Output group must be a SimPEGGroup.")
-
-        self.params.out_group = value
-        self.params.update_out_group_options()
-        self._out_group = value
-
-    def validate_out_group(self, out_group: SimPEGGroup | None) -> SimPEGGroup:
-        """
-        Validate or create a SimPEGGroup to store results.
-
-        :param out_group: Output group from selection.
-        """
-        if isinstance(out_group, SimPEGGroup):
-            return out_group
-
-        with fetch_active_workspace(self.workspace, mode="r+"):
-            out_group = SimPEGGroup.create(self.workspace, name=self.params.title)
-
-        return out_group
 
     @property
     def params(self) -> BaseForwardOptions | BaseInversionOptions:
