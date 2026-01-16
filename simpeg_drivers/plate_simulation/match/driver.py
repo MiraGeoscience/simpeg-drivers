@@ -13,9 +13,9 @@ from __future__ import annotations
 import multiprocessing
 import sys
 from pathlib import Path
-from time import time
 
 import numpy as np
+from dask.distributed import progress
 from geoapps_utils.run import load_ui_json_as_dict
 from geoapps_utils.utils.importing import GeoAppsError
 from geoapps_utils.utils.locations import topo_drape_elevation
@@ -278,9 +278,10 @@ class PlateMatchDriver(BaseDriver):
                 self.params.strike_angles.values[ii],
             )
 
-            file_split = np.array_split(self.params.simulation_files, len(self.workers))
+            file_split = np.array_split(
+                self.params.simulation_files, len(self.workers) * 10
+            )
 
-            ct = time()
             for file_batch in file_split:
                 tasks.append(
                     self.client.submit(
@@ -291,10 +292,9 @@ class PlateMatchDriver(BaseDriver):
                         observed[:, indices],
                     )
                 )
-
+            # Display progress bar
+            progress(tasks)
             scores = np.hstack(self.client.gather(tasks))
-
-            print(f"Processing time: {time() - ct:.1f} seconds")
             ranked = np.argsort(scores)
 
             for rank in ranked[-1:][::-1]:
