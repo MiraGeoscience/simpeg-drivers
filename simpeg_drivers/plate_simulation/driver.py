@@ -15,7 +15,7 @@ from pathlib import Path
 
 import numpy as np
 from dask.distributed import Client
-from geoapps_utils.base import Driver, get_logger
+from geoapps_utils.base import get_logger
 from geoapps_utils.utils.transformations import azimuth_to_unit_vector
 from geoh5py.data import FloatData, ReferencedData
 from geoh5py.groups import SimPEGGroup
@@ -40,10 +40,8 @@ class PlateSimulationDriver(BaseDriver):
 
     :param params: Parameters for plate simulation (mesh, model and
         series).
-    :param plate: Plate object used to add anomaly to the model.
-    :param mesh: Octree mesh in which model is built for the simulation.
-    :param model: Model to simulate.
-    :param survey: Survey object for the simulation
+    :param client: Dask client for parallel processing.
+    :param workers: List of worker addresses for Dask client.
     """
 
     _params_class = PlateSimulationOptions

@@ -29,18 +29,15 @@ from geoh5py.shared.utils import (
 )
 from geoh5py.ui_json import InputFile
 from scipy import signal
-from scipy.sparse import csr_matrix, diags
+from scipy.sparse import csr_matrix
 from scipy.spatial import cKDTree
 from typing_extensions import Self
 
 from simpeg_drivers.driver import BaseDriver
-from simpeg_drivers.plate_simulation.match.options import MatchOptions
-
-# from simpeg_drivers.plate_simulation.match.uijson import PlateMatchUIJson
+from simpeg_drivers.plate_simulation.match.options import PlateMatchOptions
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
+from simpeg_drivers.utils.utils import inverse_weighted_operator, xyz_to_polar
 
-
-# import matplotlib.pyplot as plt
 
 logger = get_logger(name=__name__, level_name=False, propagate=False, add_name=False)
 
@@ -48,9 +45,11 @@ logger = get_logger(name=__name__, level_name=False, propagate=False, add_name=F
 class PlateMatchDriver(BaseDriver):
     """Sets up and manages workers to run all combinations of swepts parameters."""
 
-    _params_class = MatchOptions
+    _params_class = PlateMatchOptions
 
-    def __init__(self, params: MatchOptions, workers: list[tuple[str]] | None = None):
+    def __init__(
+        self, params: PlateMatchOptions, workers: list[tuple[str]] | None = None
+    ):
         super().__init__(params, workers=workers)
 
         self._drape_heights = self.set_drape_height()
@@ -96,7 +95,7 @@ class PlateMatchDriver(BaseDriver):
 
         # Create inverse distance weighting matrix based on time difference
         time_diff = np.abs(query_times[row_ids] - simulated_times[inds])
-        time_projection = self.inverse_weighted_operator(
+        time_projection = inverse_weighted_operator(
             time_diff, inds, (len(query_times), len(simulated_times)), 1.0, 1e-12
         )
         return time_mask, time_projection
@@ -113,7 +112,7 @@ class PlateMatchDriver(BaseDriver):
 
         with uijson.geoh5.open(mode=mode):
             try:
-                options = MatchOptions.build(uijson)
+                options = PlateMatchOptions.build(uijson)
                 logger.info("Initializing application . . .")
                 driver = cls(options)
                 logger.info("Running application . . .")
@@ -157,74 +156,25 @@ class PlateMatchDriver(BaseDriver):
         :return: Spatial interpolation matrix.
         """
         # Compute local coordinates for the current line segment
-        local_polar = self.xyz_to_polar(self.params.survey.vertices[indices, :])
+        local_polar = xyz_to_polar(self.params.survey.vertices[indices, :])
         local_polar[:, 1] = (
             0.0 if strike_angle is None else strike_angle
         )  # Align azimuths to zero
 
         # Convert to polar coordinates (distance, azimuth, height)
-        query_polar = self.xyz_to_polar(self._template.vertices)
+        query_polar = xyz_to_polar(self._template.vertices)
 
         # Get the 8 nearest neighbors in the simulation to each observation point
         sim_tree = cKDTree(query_polar)
         rad, inds = sim_tree.query(local_polar, k=8)
 
-        return self.inverse_weighted_operator(
+        return inverse_weighted_operator(
             rad.flatten(),
             inds.flatten(),
             (local_polar.shape[0], self._template.vertices.shape[0]),
             2.0,
             1e-1,
         )
-
-    @staticmethod
-    def inverse_weighted_operator(
-        values: np.ndarray,
-        col_indices: np.ndarray,
-        shape: tuple,
-        power: float,
-        threshold: float,
-    ) -> csr_matrix:
-        """
-        Create an inverse distance weighted sparse matrix.
-
-        :param values: Distance values.
-        :param col_indices: Column indices for the sparse matrix.
-        :param shape: Shape of the sparse matrix.
-        :param power: Power for the inverse distance weighting.
-        :param threshold: Threshold to avoid singularities.
-
-        :return: Inverse distance weighted sparse matrix.
-        """
-        weights = (values**power + threshold) ** -1
-        n_vals_row = weights.shape[0] // shape[0]
-        row_ids = np.repeat(np.arange(shape[0]), n_vals_row)
-        inv_dist_op = csr_matrix(
-            (weights, (row_ids, col_indices)),
-            shape=shape,
-        )
-        # Normalize the rows
-        row_sum = np.asarray(inv_dist_op.sum(axis=1)).flatten() ** -1.0
-        return diags(row_sum) @ inv_dist_op
-
-    @staticmethod
-    def xyz_to_polar(xyz: np.ndarray) -> np.ndarray:
-        """
-        Convert Cartesian coordinates to polar coordinates defined as
-        (distance, azimuth, height), where distance is signed based on the
-        x-coordinate relative to the mean location.
-
-        :param xyz: Cartesian coordinates.
-
-        :return: Polar coordinates (distance, azimuth, height).
-        """
-        mean_loc = np.mean(xyz, axis=0)
-        distances = np.sign(xyz[:, 0] - mean_loc[0]) * np.linalg.norm(
-            xyz[:, :2] - mean_loc[:2], axis=1
-        )
-
-        azimuths = 90 - (np.rad2deg(np.arctan2(xyz[:, 0], xyz[:, 1])) % 180)
-        return np.c_[distances, azimuths, xyz[:, 2]]
 
     def get_segment_indices(self, nearest: int) -> np.ndarray:
         """

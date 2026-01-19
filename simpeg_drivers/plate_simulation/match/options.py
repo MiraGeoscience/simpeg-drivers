@@ -23,7 +23,7 @@ from pydantic import ConfigDict
 from simpeg_drivers import assets_path
 
 
-class MatchOptions(Options):
+class PlateMatchOptions(Options):
     """
     Options for matching signal from a survey against a library of simulations.
 
@@ -39,8 +39,8 @@ class MatchOptions(Options):
 
     name: ClassVar[str] = "plate_match"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/plate_match.ui.json"
-    title: ClassVar[str] = "Plate Match"
-    run_command: ClassVar[str] = "simpeg_drivers.plate_simulation.match.driver"
+    title: str = "Plate Match"
+    run_command: str = "simpeg_drivers.plate_simulation.match.driver"
     out_group: SimPEGGroup | None = None
 
     survey: AirborneTEMReceivers
@@ -50,7 +50,7 @@ class MatchOptions(Options):
     max_distance: float = 1000.0
     topography_object: Points | Grid2D
     topography: FloatData | None = None
-    simulations: str
+    simulations: str | Path
 
     @property
     def simulation_files(self) -> list[Path]:

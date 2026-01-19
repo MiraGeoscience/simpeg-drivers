@@ -29,6 +29,7 @@ from geoh5py.shared import INTEGER_NDV
 from geoh5py.ui_json import InputFile
 from grid_apps.utils import octree_2_treemesh
 from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator, interp1d
+from scipy.sparse import csr_matrix, diags
 from scipy.spatial import ConvexHull, Delaunay, cKDTree
 
 from simpeg_drivers import DRIVER_MAP
@@ -572,3 +573,50 @@ def simpeg_group_to_driver(group: SimPEGGroup, workspace: Workspace) -> Inversio
     params = inversion_driver._params_class.build(ifile)  # pylint: disable=protected-access
 
     return inversion_driver(params)
+
+
+def xyz_to_polar(locations: np.ndarray) -> np.ndarray:
+    """
+    Convert Cartesian coordinates to polar coordinates defined as
+    (distance, azimuth, height), where distance is signed based on the
+    x-coordinate relative to the mean location.
+
+    :param locations: Cartesian coordinates.
+
+    :return: Polar coordinates (distance, azimuth, height).
+    """
+    xyz = locations - np.mean(locations, axis=0)
+    distances = np.sign(xyz[:, 0]) * np.linalg.norm(xyz[:, :2], axis=1)
+
+    azimuths = 90 - (np.rad2deg(np.arctan2(xyz[:, 0], xyz[:, 1])) % 180)
+    return np.c_[distances, azimuths, locations[:, 2]]
+
+
+def inverse_weighted_operator(
+    values: np.ndarray,
+    col_indices: np.ndarray,
+    shape: tuple,
+    power: float,
+    threshold: float,
+) -> csr_matrix:
+    """
+    Create an inverse distance weighted sparse matrix.
+
+    :param values: Distance values.
+    :param col_indices: Column indices for the sparse matrix.
+    :param shape: Shape of the sparse matrix.
+    :param power: Power for the inverse distance weighting.
+    :param threshold: Threshold to avoid singularities.
+
+    :return: Inverse distance weighted sparse matrix.
+    """
+    weights = (values**power + threshold) ** -1
+    n_vals_row = weights.shape[0] // shape[0]
+    row_ids = np.repeat(np.arange(shape[0]), n_vals_row)
+    inv_dist_op = csr_matrix(
+        (weights, (row_ids, col_indices)),
+        shape=shape,
+    )
+    # Normalize the rows
+    row_sum = np.asarray(inv_dist_op.sum(axis=1)).flatten() ** -1.0
+    return diags(row_sum) @ inv_dist_op
