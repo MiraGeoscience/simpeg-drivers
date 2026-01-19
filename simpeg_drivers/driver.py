@@ -448,16 +448,16 @@ class InversionDriver(BaseDriver):
     def optimization(self):
         if getattr(self, "_optimization", None) is None:
             if self.params.forward_only:
-                return optimization.ProjectedGNCG()
+                return optimization.ProjectedGNCG(cg_rtol=1.0)
 
             self._optimization = optimization.ProjectedGNCG(
                 maxIter=self.params.optimization.max_global_iterations,
                 lower=self.models.lower_bound,
                 upper=self.models.upper_bound,
                 maxIterLS=self.params.optimization.max_line_search_iterations,
-                maxIterCG=self.params.optimization.max_cg_iterations,
-                tolCG=self.params.optimization.tol_cg,
-                stepOffBoundsFact=1e-8,
+                cg_maxiter=self.params.optimization.max_cg_iterations,
+                cg_rtol=self.params.optimization.tol_cg,
+                active_set_grad_scale=1e-8,
                 LSshorten=0.25,
                 require_decrease=False,
             )
