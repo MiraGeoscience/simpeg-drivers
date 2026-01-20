@@ -7,15 +7,22 @@
 #  (see LICENSE file at the root of this source code package).                      '
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
+import shutil
 from pathlib import Path
 
 import numpy as np
 from geoh5py import Workspace
 from geoh5py.groups import PropertyGroup
 from geoh5py.objects import Points
+from geoh5py.ui_json import InputFile
 
+from simpeg_drivers import assets_path
+from simpeg_drivers.electromagnetics.time_domain.driver import TDEMForwardDriver
+from simpeg_drivers.electromagnetics.time_domain.options import TDEMForwardOptions
+from simpeg_drivers.plate_simulation.driver import PlateSimulationDriver
+from simpeg_drivers.plate_simulation.match.driver import PlateMatchDriver, fetch_survey
 from simpeg_drivers.plate_simulation.match.options import PlateMatchOptions
+from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
 from simpeg_drivers.utils.synthetics.driver import (
     SyntheticsComponents,
 )
@@ -31,9 +38,7 @@ from tests.utils.targets import get_workspace
 def generate_example(geoh5: Workspace, n_grid_points: int, refinement: tuple[int]):
     opts = SyntheticsComponentsOptions(
         method="airborne tdem",
-        survey=SurveyOptions(
-            n_stations=n_grid_points, n_lines=n_grid_points, drape=10.0
-        ),
+        survey=SurveyOptions(n_stations=n_grid_points, n_lines=1, drape=10.0),
         mesh=MeshOptions(refinement=refinement, padding_distance=400.0),
         model=ModelOptions(background=0.001),
     )
@@ -41,6 +46,9 @@ def generate_example(geoh5: Workspace, n_grid_points: int, refinement: tuple[int
     vals = components.survey.add_data(
         {"observed_data": {"values": np.random.randn(components.survey.n_vertices)}},
     )
+
+    # Shift survey up (for single line)
+    components.survey.vertices = components.survey.vertices + np.r_[0, 100, 0]
     components.property_group = PropertyGroup(components.survey, properties=vals)
     components.queries = Points.create(geoh5, vertices=np.random.randn(1, 3))
 
@@ -75,3 +83,72 @@ def test_file_parsing(tmp_path: Path):
     sim_files = options.simulation_files
     assert len(sim_files) == 1
     assert sim_files[0].name == f"{__name__}.geoh5"
+
+
+def test_matching_driver(tmp_path: Path):
+    """
+    Generate a few files and test the
+    plate_simulation.match.Options.simulation_files() method.
+    """
+
+    # Generate simulation files
+    with get_workspace(tmp_path / f"{__name__}.geoh5") as geoh5:
+        components = generate_example(geoh5, n_grid_points=5, refinement=(2,))
+
+        params = TDEMForwardOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=components.survey,
+            starting_model=components.model,
+            x_channel_bool=True,
+            y_channel_bool=True,
+            z_channel_bool=True,
+        )
+
+        fwr_driver = TDEMForwardDriver(params)
+
+        ifile = InputFile.read_ui_json(
+            assets_path() / "uijson" / "plate_simulation.ui.json", validate=False
+        )
+        ifile.data["geoh5"] = geoh5
+        ifile.data["simulation"] = fwr_driver.out_group
+
+        plate_options = PlateSimulationOptions.build(ifile.data)
+        driver = PlateSimulationDriver(plate_options)
+        driver.run()
+
+    # Make copies of the generated simulation file to emulate a sweep
+    file = tmp_path / f"{__name__}.geoh5"
+    new_dir = tmp_path / "simulations"
+    new_dir.mkdir(parents=True, exist_ok=True)
+
+    for ii in range(1, 5):
+        new_file = new_dir / (file.stem + f"_[{ii}].geoh5")
+        shutil.copy(file, new_file)
+
+        # Modify the data slightly
+        with Workspace(new_file) as sim_geoh5:
+            survey = fetch_survey(sim_geoh5)
+            prop_group = survey.get_entity("Iteration_0_z")[0]
+            scale = np.cos(np.linspace(-np.pi / ii, np.pi / ii, survey.n_vertices))
+
+            for uid in prop_group.properties:
+                child = survey.get_entity(uid)[0]
+                child.values = child.values * scale
+
+    # Random choice of file
+    with geoh5.open():
+        survey = fetch_survey(geoh5)
+        options = PlateMatchOptions(
+            geoh5=geoh5,
+            survey=survey,
+            data=survey.get_entity("Iteration_0_z")[0],
+            queries=components.queries,
+            topography_object=components.topography,
+            simulations=new_dir,
+        )
+        match_driver = PlateMatchDriver(options)
+        results = match_driver.run()
+
+        assert results[0] == file.stem + f"_[{4}].geoh5"

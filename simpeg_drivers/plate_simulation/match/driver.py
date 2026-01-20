@@ -15,12 +15,14 @@ import sys
 from pathlib import Path
 
 import numpy as np
-from dask.distributed import progress
+from dask.distributed import Future, progress
 from geoapps_utils.run import load_ui_json_as_dict
 from geoapps_utils.utils.importing import GeoAppsError
 from geoapps_utils.utils.locations import topo_drape_elevation
 from geoapps_utils.utils.logger import get_logger
+from geoapps_utils.utils.numerical import inverse_weighted_operator
 from geoapps_utils.utils.plotting import symlog
+from geoapps_utils.utils.transformations import xyz_to_polar
 from geoh5py import Workspace
 from geoh5py.groups import PropertyGroup, SimPEGGroup
 from geoh5py.objects import AirborneTEMReceivers, Surface
@@ -36,7 +38,6 @@ from typing_extensions import Self
 from simpeg_drivers.driver import BaseDriver
 from simpeg_drivers.plate_simulation.match.options import PlateMatchOptions
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
-from simpeg_drivers.utils.utils import inverse_weighted_operator, xyz_to_polar
 
 
 logger = get_logger(name=__name__, level_name=False, propagate=False, add_name=False)
@@ -52,7 +53,7 @@ class PlateMatchDriver(BaseDriver):
     ):
         super().__init__(params, workers=workers)
 
-        self._drape_heights = self.set_drape_height()
+        self._drape_heights = self._get_drape_heights()
         self._template = self.get_template()
         self._time_mask, self._time_projection = self.time_mask_and_projection()
 
@@ -85,12 +86,12 @@ class PlateMatchDriver(BaseDriver):
         simulated_times = np.asarray(self._template.channels)
         query_times = np.asarray(self.params.survey.channels)
         # Only interpolate for times within the simulated range
-        time_mask = (query_times > simulated_times.min()) & (
-            query_times < simulated_times.max()
+        time_mask = (query_times >= simulated_times.min()) & (
+            query_times <= simulated_times.max()
         )
         query_times = query_times[time_mask]
         right = np.searchsorted(simulated_times, query_times)
-        inds = np.c_[right - 1, right].flatten()
+        inds = np.c_[np.maximum(0, right - 1), right].flatten()
         row_ids = np.repeat(np.arange(len(query_times)), 2)
 
         # Create inverse distance weighting matrix based on time difference
@@ -125,7 +126,7 @@ class PlateMatchDriver(BaseDriver):
 
         return driver
 
-    def set_drape_height(self) -> np.ndarray:
+    def _get_drape_heights(self) -> np.ndarray:
         """Set drape heights based on topography object and optional topography data."""
 
         topo = self.params.topography_object.locations
@@ -156,18 +157,24 @@ class PlateMatchDriver(BaseDriver):
         :return: Spatial interpolation matrix.
         """
         # Compute local coordinates for the current line segment
-        local_polar = xyz_to_polar(self.params.survey.vertices[indices, :])
+        local_polar = xyz_to_polar(
+            self.params.survey.vertices[indices]
+            - np.r_[self.params.survey.vertices[indices, :2].mean(axis=0), 0]
+        )
+        local_polar[local_polar[:, 1] >= 180, 0] *= -1  # Wrap azimuths
         local_polar[:, 1] = (
             0.0 if strike_angle is None else strike_angle
         )  # Align azimuths to zero
 
         # Convert to polar coordinates (distance, azimuth, height)
         query_polar = xyz_to_polar(self._template.vertices)
+        query_polar[query_polar[:, 1] >= 180, 0] *= -1
+        query_polar[:, 1] = query_polar[:, 1] % 180  # Wrap azimuths
 
         # Get the 8 nearest neighbors in the simulation to each observation point
         sim_tree = cKDTree(query_polar)
         rad, inds = sim_tree.query(local_polar, k=8)
-
+        inds = np.minimum(query_polar.shape[0] - 1, inds)
         return inverse_weighted_operator(
             rad.flatten(),
             inds.flatten(),
@@ -175,24 +182,6 @@ class PlateMatchDriver(BaseDriver):
             2.0,
             1e-1,
         )
-
-    def get_segment_indices(self, nearest: int) -> np.ndarray:
-        """
-        Get indices of line segment for a given nearest vertex.
-
-        :param nearest: Nearest vertex index.
-        """
-        line_mask = np.where(
-            self.params.survey.parts == self.params.survey.parts[nearest]
-        )[0]
-        distances = np.linalg.norm(
-            self.params.survey.vertices[nearest, :2]
-            - self.params.survey.vertices[line_mask, :2],
-            axis=1,
-        )
-        dist_mask = distances < self.params.max_distance
-        indices = line_mask[dist_mask]
-        return indices
 
     def run(self):
         """Loop over all trials and run a worker for each unique parameter set."""
@@ -202,59 +191,74 @@ class PlateMatchDriver(BaseDriver):
         )
         observed = normalized_data(self.params.data)[self._time_mask, :]
         tree = cKDTree(self.params.survey.vertices[:, :2])
-
+        results = []
         for ii, query in enumerate(self.params.queries.vertices):
-            tasks = []
+            # Find the nearest survey location to the query point
             nearest = tree.query(query[:2], k=1)[1]
-            indices = self.get_segment_indices(nearest)
+            indices = self.params.survey.get_segment_indices(
+                nearest, self.params.max_distance
+            )
             spatial_projection = self.spatial_interpolation(
                 indices,
-                self.params.strike_angles.values[ii],
+                0
+                if self.params.strike_angles is None
+                else self.params.strike_angles.values[ii],
             )
-
             file_split = np.array_split(
-                self.params.simulation_files, len(self.workers) * 10
+                self.params.simulation_files, np.maximum(1, len(self.workers) * 10)
             )
 
+            tasks = []
             for file_batch in file_split:
+                args = (
+                    file_batch,
+                    spatial_projection,
+                    self._time_projection,
+                    observed[:, indices],
+                )
+
                 tasks.append(
-                    self.client.submit(
-                        process_files_batch,
-                        file_batch,
-                        spatial_projection,
-                        self._time_projection,
-                        observed[:, indices],
-                    )
+                    self.client.submit(process_files_batch, *args)
+                    if self.client
+                    else process_files_batch(*args)
                 )
+
             # Display progress bar
-            progress(tasks)
-            scores = np.hstack(self.client.gather(tasks))
-            ranked = np.argsort(scores)
+            if isinstance(tasks[0], Future):
+                progress(tasks)
+                self.client.gather(tasks)
 
-            for rank in ranked[-1:][::-1]:
-                logger.info(
-                    "File: %s \nScore: %.4f",
-                    self.params.simulation_files[rank].name,
-                    scores[rank],
+            scores = np.hstack(tasks)
+            ranked = np.argsort(scores)[::-1]
+
+            # TODO: Return top N matches
+            # for rank in ranked[-1:][::-1]:
+            logger.info(
+                "File: %s \nScore: %.4f",
+                self.params.simulation_files[ranked[0]].name,
+                scores[ranked[0]],
+            )
+            with Workspace(self.params.simulation_files[ranked[0]], mode="r") as ws:
+                survey = fetch_survey(ws)
+                ui_json = survey.parent.parent.options
+                ui_json["geoh5"] = ws
+                ifile = InputFile(ui_json=ui_json)
+                options = PlateSimulationOptions.build(ifile)
+
+                plate = survey.parent.parent.get_entity("plate")[0].copy(
+                    parent=self.params.out_group
                 )
-                with Workspace(self.params.simulation_files[rank], mode="r") as ws:
-                    survey = fetch_survey(ws)
-                    ui_json = survey.parent.parent.options
-                    ui_json["geoh5"] = ws
-                    ifile = InputFile(ui_json=ui_json)
-                    options = PlateSimulationOptions.build(ifile)
 
-                    plate = survey.parent.parent.get_entity("plate")[0].copy(
-                        parent=self.params.out_group
-                    )
+                # Set position of plate to query location
+                center = self.params.survey.vertices[nearest]
+                center[2] = self._drape_heights[nearest]
+                plate.vertices = plate.vertices + center
+                plate.metadata = options.model.model_dump()
 
-                    # Set position of plate to query location
-                    center = self.params.survey.vertices[nearest]
-                    center[2] = self._drape_heights[nearest]
-                    plate.vertices = plate.vertices + center
-                    plate.metadata = options.model.model_dump()
+            print(f"Best parameters:{options.model.model_dump_json(indent=2)}")
+            results.append(self.params.simulation_files[ranked[0]].name)
 
-                print(f"Best parameters:{options.model.model_dump_json(indent=2)}")
+        return results
 
     @classmethod
     def start_dask_run(
