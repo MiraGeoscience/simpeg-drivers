@@ -22,7 +22,7 @@ from geoapps_utils.utils.locations import topo_drape_elevation
 from geoapps_utils.utils.logger import get_logger
 from geoapps_utils.utils.numerical import inverse_weighted_operator
 from geoapps_utils.utils.plotting import symlog
-from geoapps_utils.utils.transformations import xyz_to_polar
+from geoapps_utils.utils.transformations import cartesian_to_polar
 from geoh5py import Workspace
 from geoh5py.groups import PropertyGroup, SimPEGGroup
 from geoh5py.objects import AirborneTEMReceivers, Surface
@@ -157,9 +157,9 @@ class PlateMatchDriver(BaseDriver):
         :return: Spatial interpolation matrix.
         """
         # Compute local coordinates for the current line segment
-        local_polar = xyz_to_polar(
-            self.params.survey.vertices[indices]
-            - np.r_[self.params.survey.vertices[indices, :2].mean(axis=0), 0]
+        local_polar = cartesian_to_polar(
+            self.params.survey.vertices[indices],
+            origin=np.r_[self.params.survey.vertices[indices, :2].mean(axis=0), 0],
         )
         local_polar[local_polar[:, 1] >= 180, 0] *= -1  # Wrap azimuths
         local_polar[:, 1] = (
@@ -167,7 +167,7 @@ class PlateMatchDriver(BaseDriver):
         )  # Align azimuths to zero
 
         # Convert to polar coordinates (distance, azimuth, height)
-        query_polar = xyz_to_polar(self._template.vertices)
+        query_polar = cartesian_to_polar(self._template.vertices)
         query_polar[query_polar[:, 1] >= 180, 0] *= -1
         query_polar[:, 1] = query_polar[:, 1] % 180  # Wrap azimuths
 
