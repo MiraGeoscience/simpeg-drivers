@@ -850,7 +850,7 @@ class InversionLogger:
 
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
+    file = Path(r"C:\Users\dominiquef\Desktop\Tests\GEOPY-2620D.ui.json").resolve()
     input_file = load_ui_json_as_dict(file)
     n_workers = input_file.get("n_workers", None)
     n_threads = input_file.get("n_threads", None)

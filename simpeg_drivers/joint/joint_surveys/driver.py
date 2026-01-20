@@ -15,7 +15,7 @@ from logging import getLogger
 
 import numpy as np
 from geoh5py.shared.utils import fetch_active_workspace
-from simpeg import maps
+from simpeg import directives, maps
 
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.joint.driver import BaseJointDriver
@@ -109,6 +109,39 @@ class JointSurveyDriver(BaseJointDriver):
         )
 
         return directives_list
+
+    @property
+    def directives(self):
+        if getattr(self, "_directives", None) is None and not self.params.forward_only:
+            with fetch_active_workspace(self.workspace, mode="r+"):
+                directives_list = self._get_joint_directives()
+
+                if self.models.is_vector:
+                    for directive in directives_list:
+                        if isinstance(directive, directives.VectorInversion):
+                            directives_list.remove(directive)
+
+                    reference_angles = (
+                        getattr(self.params.models, "reference_model", None)
+                        is not None,
+                        getattr(self.params.models, "reference_inclination", None)
+                        is not None,
+                        getattr(self.params.models, "reference_declination", None)
+                        is not None,
+                    )
+
+                    vector_directive = directives.VectorInversion(
+                        self.data_misfit.objfcts,
+                        self.regularization,
+                        chifact_target=self.params.cooling_schedule.chi_factor * 2,
+                        reference_angles=reference_angles,
+                    )
+
+                    directives_list = [vector_directive] + directives_list
+
+                self._directives.directive_list = directives_list
+
+        return self._directives
 
 
 JointSurveyDriver.n_values = InversionDriver.n_values
