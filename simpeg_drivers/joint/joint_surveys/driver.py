@@ -56,6 +56,15 @@ class JointSurveyDriver(BaseJointDriver):
                 continue
 
             model_local_values = getattr(self.drivers[0].models, model_type)
+
+            if (
+                self.drivers[0].models.is_vector
+                and len(model_local_values) > self.drivers[0].models.n_active
+            ):
+                model_local_values = np.linalg.norm(
+                    model_local_values.reshape((-1, 3), order="F"), axis=1
+                )
+
             model = (
                 projection * model_local_values[: self.drivers[0].models.n_active]
             ) / (norm + 1e-8)

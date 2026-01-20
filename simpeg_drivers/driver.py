@@ -579,10 +579,22 @@ class InversionDriver(BaseDriver):
         )
 
     @property
-    def mapping(self) -> list[maps.IdentityMap] | None:
+    def mapping(self) -> list[maps.Projection] | None:
         """Model mapping for the inversion."""
         if self._mapping is None:
-            self.mapping = maps.IdentityMap(nP=self.n_values)
+            mapping = []
+            start = 0
+            n_blocks = 3 if self.models.is_vector else 1
+
+            for _ in range(n_blocks):
+                mapping.append(
+                    maps.Projection(
+                        self.n_values * n_blocks, slice(start, start + self.n_values)
+                    )
+                )
+                start += self.n_values
+
+            self._mapping = mapping
 
         return self._mapping
 
