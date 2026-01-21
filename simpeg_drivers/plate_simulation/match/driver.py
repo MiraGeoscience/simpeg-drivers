@@ -44,7 +44,7 @@ logger = get_logger(name=__name__, level_name=False, propagate=False, add_name=F
 
 
 class PlateMatchDriver(BaseDriver):
-    """Sets up and manages workers to run all combinations of swepts parameters."""
+    """Sets up and manages workers to run all combinations of swept parameters."""
 
     _params_class = PlateMatchOptions
 
@@ -218,9 +218,9 @@ class PlateMatchDriver(BaseDriver):
                 )
 
                 tasks.append(
-                    self.client.submit(process_files_batch, *args)
+                    self.client.submit(batch_files_score, *args)
                     if self.client
-                    else process_files_batch(*args)
+                    else batch_files_score(*args)
                 )
 
             # Display progress bar
@@ -312,9 +312,19 @@ def fetch_survey(workspace: Workspace) -> AirborneTEMReceivers | None:
     return None
 
 
-def process_files_batch(
+def batch_files_score(
     files: Path | list[Path], spatial_projection, time_projection, observed
-):
+) -> list[float]:
+    """
+    Process a batch of simulation files and compute scores against observed data.
+
+    :param files: Simulation file or list of simulation files to process.
+    :param spatial_projection: Spatial interpolation matrix.
+    :param time_projection: Time interpolation matrix.
+    :param observed: Observed data array.
+
+    :return: List of scores for each simulation file.
+    """
     scores = []
 
     if isinstance(files, Path):
