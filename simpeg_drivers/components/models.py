@@ -233,6 +233,7 @@ class InversionModelCollection:
                 self.reference_inclination,
                 self.reference_declination,
             )
+            ref_model += 1e-8  # To avoid zeroing the angles
             ref_model = (field_vecs.T * ref_model).flatten()
 
         return ref_model
@@ -271,11 +272,11 @@ class InversionModelCollection:
         else:
             bound_model = self._lower_bound.model
 
-        if (
-            self.driver.params.inversion_type == "magnetic vector"
-            and self._upper_bound.model is not None
-        ):
-            bound_model = -self._upper_bound.model
+        if self.driver.params.inversion_type == "magnetic vector":
+            bound_model = None
+
+            if self._upper_bound.model is not None:
+                bound_model = -self._upper_bound.model
 
         if bound_model is None:
             lbound = np.full(self.n_active, -np.inf)
