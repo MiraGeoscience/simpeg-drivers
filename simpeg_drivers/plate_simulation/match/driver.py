@@ -263,7 +263,7 @@ class PlateMatchDriver(BaseDriver):
     @classmethod
     def start_dask_run(
         cls,
-        ifile,
+        json_path: Path,
         n_workers: int | None = None,
         n_threads: int | None = None,
         save_report: bool = True,
@@ -281,7 +281,7 @@ class PlateMatchDriver(BaseDriver):
             n_workers = cpu_count // n_threads
 
         super().start_dask_run(
-            ifile, n_workers=n_workers, n_threads=n_threads, save_report=save_report
+            json_path, n_workers=n_workers, n_threads=n_threads, save_report=save_report
         )
 
 
