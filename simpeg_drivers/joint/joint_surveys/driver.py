@@ -57,13 +57,11 @@ class JointSurveyDriver(BaseJointDriver):
 
             model_local_values = getattr(self.drivers[0].models, model_type)
 
-            if (
-                self.drivers[0].models.is_vector
-                and len(model_local_values) > self.drivers[0].models.n_active
-            ):
-                model_local_values = np.linalg.norm(
-                    model_local_values.reshape((-1, 3), order="F"), axis=1
-                )
+            # All get augmented to 3N for vector models
+            if self.drivers[0].models.is_vector and "clination" not in model_type:
+                model_local_values = getattr(
+                    self.drivers[0].models, f"_{model_type}"
+                ).model
 
             model = (
                 projection * model_local_values[: self.drivers[0].models.n_active]
