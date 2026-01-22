@@ -22,7 +22,7 @@ from geoapps_utils.utils.locations import topo_drape_elevation
 from geoapps_utils.utils.logger import get_logger
 from geoapps_utils.utils.numerical import inverse_weighted_operator
 from geoapps_utils.utils.plotting import symlog
-from geoapps_utils.utils.transformations import xyz_to_polar
+from geoapps_utils.utils.transformations import cartesian_to_polar
 from geoh5py import Workspace
 from geoh5py.groups import PropertyGroup, SimPEGGroup
 from geoh5py.objects import AirborneTEMReceivers, Surface
@@ -44,7 +44,7 @@ logger = get_logger(name=__name__, level_name=False, propagate=False, add_name=F
 
 
 class PlateMatchDriver(BaseDriver):
-    """Sets up and manages workers to run all combinations of swepts parameters."""
+    """Sets up and manages workers to run all combinations of swept parameters."""
 
     _params_class = PlateMatchOptions
 
@@ -157,9 +157,9 @@ class PlateMatchDriver(BaseDriver):
         :return: Spatial interpolation matrix.
         """
         # Compute local coordinates for the current line segment
-        local_polar = xyz_to_polar(
-            self.params.survey.vertices[indices]
-            - np.r_[self.params.survey.vertices[indices, :2].mean(axis=0), 0]
+        local_polar = cartesian_to_polar(
+            self.params.survey.vertices[indices],
+            origin=np.r_[self.params.survey.vertices[indices, :2].mean(axis=0), 0],
         )
         local_polar[local_polar[:, 1] >= 180, 0] *= -1  # Wrap azimuths
         local_polar[:, 1] = (
@@ -167,7 +167,7 @@ class PlateMatchDriver(BaseDriver):
         )  # Align azimuths to zero
 
         # Convert to polar coordinates (distance, azimuth, height)
-        query_polar = xyz_to_polar(self._template.vertices)
+        query_polar = cartesian_to_polar(self._template.vertices)
         query_polar[query_polar[:, 1] >= 180, 0] *= -1
         query_polar[:, 1] = query_polar[:, 1] % 180  # Wrap azimuths
 
@@ -218,9 +218,9 @@ class PlateMatchDriver(BaseDriver):
                 )
 
                 tasks.append(
-                    self.client.submit(process_files_batch, *args)
+                    self.client.submit(batch_files_score, *args)
                     if self.client
-                    else process_files_batch(*args)
+                    else batch_files_score(*args)
                 )
 
             # Display progress bar
@@ -263,7 +263,7 @@ class PlateMatchDriver(BaseDriver):
     @classmethod
     def start_dask_run(
         cls,
-        ifile,
+        json_path: Path,
         n_workers: int | None = None,
         n_threads: int | None = None,
         save_report: bool = True,
@@ -281,7 +281,7 @@ class PlateMatchDriver(BaseDriver):
             n_workers = cpu_count // n_threads
 
         super().start_dask_run(
-            ifile, n_workers=n_workers, n_threads=n_threads, save_report=save_report
+            json_path, n_workers=n_workers, n_threads=n_threads, save_report=save_report
         )
 
 
@@ -312,9 +312,19 @@ def fetch_survey(workspace: Workspace) -> AirborneTEMReceivers | None:
     return None
 
 
-def process_files_batch(
+def batch_files_score(
     files: Path | list[Path], spatial_projection, time_projection, observed
-):
+) -> list[float]:
+    """
+    Process a batch of simulation files and compute scores against observed data.
+
+    :param files: Simulation file or list of simulation files to process.
+    :param spatial_projection: Spatial interpolation matrix.
+    :param time_projection: Time interpolation matrix.
+    :param observed: Observed data array.
+
+    :return: List of scores for each simulation file.
+    """
     scores = []
 
     if isinstance(files, Path):

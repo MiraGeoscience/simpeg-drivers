@@ -193,7 +193,7 @@ class BaseDriver(Driver):
     @classmethod
     def start_dask_run(
         cls,
-        ifile,
+        json_path: Path,
         n_workers: int | None = None,
         n_threads: int | None = None,
         save_report: bool = True,
@@ -201,7 +201,7 @@ class BaseDriver(Driver):
         """
         Sets Dask config settings.
 
-        :param ifile: Input file path.
+        :param json_path: Path to input file (.ui.json) for the application.
         :param n_workers: Number of Dask workers.
         :param n_threads: Number of threads per Dask worker.
         :param save_report: Whether to save a performance report.
@@ -229,18 +229,18 @@ class BaseDriver(Driver):
         ):
             # Full run
             with (
-                performance_report(filename=ifile.parent / "dask_profile.html")
+                performance_report(filename=json_path.parent / "dask_profile.html")
                 if (save_report and isinstance(context_client, Client))
                 else contextlib.nullcontext()
             ):
-                cls.start(ifile)
+                cls.start(json_path)
                 sys.stdout.close()
 
         profiler.disable()
 
         if save_report:
             with open(
-                ifile.parent / "runtime_profile.txt", encoding="utf-8", mode="w"
+                json_path.parent / "runtime_profile.txt", encoding="utf-8", mode="w"
             ) as s:
                 ps = pstats.Stats(profiler, stream=s)
                 ps.sort_stats("cumulative")
