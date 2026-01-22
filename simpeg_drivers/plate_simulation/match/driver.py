@@ -26,9 +26,6 @@ from geoapps_utils.utils.transformations import cartesian_to_polar
 from geoh5py import Workspace
 from geoh5py.groups import PropertyGroup, SimPEGGroup
 from geoh5py.objects import AirborneTEMReceivers, Surface
-from geoh5py.shared.utils import (
-    fetch_active_workspace,
-)
 from geoh5py.ui_json import InputFile
 from scipy import signal
 from scipy.sparse import csr_matrix
@@ -57,20 +54,20 @@ class PlateMatchDriver(BaseDriver):
         self._template = self.get_template()
         self._time_mask, self._time_projection = self.time_mask_and_projection()
 
-    def get_template(self):
+    def get_template(self) -> AirborneTEMReceivers:
         """
         Get a template simulation to extract time sampling.
         """
         with Workspace(self.params.simulation_files[0], mode="r") as ws:
             survey = fetch_survey(ws)
+            if not isinstance(survey, AirborneTEMReceivers):
+                raise GeoAppsError(
+                    f"No survey found under Plate Simulation of {self.params.simulation_files[0]}"
+                )
+
             if survey.channels is None:
                 raise GeoAppsError(
                     f"No time channels found in survey of {self.params.simulation_files[0]}"
-                )
-
-            if survey.vertices is None:
-                raise GeoAppsError(
-                    f"No receiver locations found in survey of {self.params.simulation_files[0]}"
                 )
 
         return survey
