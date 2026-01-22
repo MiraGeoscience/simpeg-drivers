@@ -351,10 +351,7 @@ def process_files_batch(
 
 
 if __name__ == "__main__":
-    # file = Path(sys.argv[1]).resolve()
-    file = Path(
-        r"C:\Users\dominiquef\Documents\Workspace\Teck\RnD\plate_match_v2.ui.json"
-    )
+    file = Path(sys.argv[1]).resolve()
     input_file = load_ui_json_as_dict(file)
     PlateMatchDriver.start_dask_run(
         file,
