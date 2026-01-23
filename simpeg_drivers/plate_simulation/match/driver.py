@@ -223,7 +223,7 @@ class PlateMatchDriver(BaseDriver):
             # Display progress bar
             if isinstance(tasks[0], Future):
                 progress(tasks)
-                tasks = self.client.gather(tasks)
+                self.client.gather(tasks)
 
             scores = np.hstack(tasks)
             ranked = np.argsort(scores)[::-1]
