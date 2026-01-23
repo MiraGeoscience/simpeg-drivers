@@ -176,4 +176,8 @@ DRIVER_MAP = {
         "simpeg_drivers.plate_simulation.sweep.driver",
         {"forward": "PlateSweepDriver"},
     ),
+    "plate match": (
+        "simpeg_drivers.plate_simulation.match.driver",
+        {"forward": "PlateMatchDriver"},
+    ),
 }

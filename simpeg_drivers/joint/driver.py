@@ -234,7 +234,6 @@ class BaseJointDriver(InversionDriver):
         if self.logger:
             sys.stdout = self.logger
             self.logger.start()
-            self.configure_dask()
 
         if Path(self.params.input_file.path_name).is_file():
             with fetch_active_workspace(self.workspace, mode="r+"):
