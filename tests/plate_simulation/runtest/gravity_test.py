@@ -9,7 +9,6 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 import numpy as np
-from geoh5py import Workspace
 from geoh5py.groups import SimPEGGroup
 
 from simpeg_drivers.plate_simulation.driver import PlateSimulationDriver

@@ -16,21 +16,17 @@ from __future__ import annotations
 import cProfile
 import pstats
 
-import multiprocessing
 import contextlib
 from copy import deepcopy
 import sys
 from datetime import datetime, timedelta
 import logging
-from multiprocessing.pool import ThreadPool
 from pathlib import Path
 from time import time
 
 from typing_extensions import Self
 
 import numpy as np
-from dask import config as dconf
-
 from dask.distributed import get_client, Client, LocalCluster, performance_report
 
 from geoapps_utils.base import Driver, Options
@@ -41,7 +37,6 @@ from geoapps_utils.param_sweeps.driver import SweepParams
 from geoh5py.groups import SimPEGGroup
 from geoh5py.objects import FEMSurvey
 from geoh5py.shared.utils import fetch_active_workspace
-from geoh5py.shared.exceptions import Geoh5FileClosedError
 from geoh5py.ui_json import InputFile
 
 from simpeg import (
@@ -100,6 +95,7 @@ class BaseDriver(Driver):
         workers: list[str] | None = None,
     ):
         super().__init__(params)
+        self.out_group = self.validate_out_group(self.params.out_group)
         self._client: Client | bool = self.validate_client(client)
 
         if getattr(self.params, "store_sensitivities", None) == "disk" and self.client:
@@ -108,6 +104,42 @@ class BaseDriver(Driver):
             )
 
         self._workers: list[tuple[str]] | None = self.validate_workers(workers)
+
+    @property
+    def out_group(self) -> SimPEGGroup:
+        """
+        Returns the output group for the simulation.
+        """
+        return self._out_group
+
+    @out_group.setter
+    def out_group(self, value: SimPEGGroup):
+        if not isinstance(value, SimPEGGroup):
+            raise TypeError("Output group must be a SimPEGGroup.")
+
+        if self.params.out_group != value:
+            self.params.out_group = value
+            self.params.update_out_group_options()
+
+        self._out_group = value
+
+    def validate_out_group(self, out_group: SimPEGGroup | None) -> SimPEGGroup:
+        """
+        Validate or create a SimPEGGroup to store results.
+
+        :param out_group: Output group from selection.
+        """
+        if isinstance(out_group, SimPEGGroup):
+            return out_group
+
+        with fetch_active_workspace(self.params.geoh5, mode="r+"):
+            out_group = SimPEGGroup.create(
+                self.params.geoh5,
+                name=self.params.title,
+            )
+            out_group.entity_type.name = self.params.title
+
+        return out_group
 
     @property
     def client(self) -> Client | bool | None:
@@ -158,6 +190,62 @@ class BaseDriver(Driver):
 
         return workers
 
+    @classmethod
+    def start_dask_run(
+        cls,
+        json_path: Path,
+        n_workers: int | None = None,
+        n_threads: int | None = None,
+        save_report: bool = True,
+    ):
+        """
+        Sets Dask config settings.
+
+        :param json_path: Path to input file (.ui.json) for the application.
+        :param n_workers: Number of Dask workers.
+        :param n_threads: Number of threads per Dask worker.
+        :param save_report: Whether to save a performance report.
+        """
+        distributed_process = (
+            n_workers is not None and n_workers > 1
+        ) or n_threads is not None
+
+        cluster = (
+            LocalCluster(
+                processes=True,
+                n_workers=n_workers,
+                threads_per_worker=n_threads,
+            )
+            if distributed_process
+            else None
+        )
+        profiler = cProfile.Profile()
+        profiler.enable()
+
+        with (
+            cluster.get_client()
+            if cluster is not None
+            else contextlib.nullcontext() as context_client
+        ):
+            # Full run
+            with (
+                performance_report(filename=json_path.parent / "dask_profile.html")
+                if (save_report and isinstance(context_client, Client))
+                else contextlib.nullcontext()
+            ):
+                cls.start(json_path)
+                sys.stdout.close()
+
+        profiler.disable()
+
+        if save_report:
+            with open(
+                json_path.parent / "runtime_profile.txt", encoding="utf-8", mode="w"
+            ) as s:
+                ps = pstats.Stats(profiler, stream=s)
+                ps.sort_stats("cumulative")
+                ps.print_stats()
+
 
 class InversionDriver(BaseDriver):
     _params_class = BaseForwardOptions | BaseInversionOptions
@@ -173,7 +261,6 @@ class InversionDriver(BaseDriver):
         super().__init__(params, client=client, workers=workers)
 
         self.inversion_type = self.params.inversion_type
-        self.out_group = self.validate_out_group(self.params.out_group)
         self._data_misfit: objective_function.ComboObjectiveFunction | None = None
         self._directives: list[directives.InversionDirective] | None = None
         self._inverse_problem: inverse_problem.BaseInvProblem | None = None
@@ -361,16 +448,16 @@ class InversionDriver(BaseDriver):
     def optimization(self):
         if getattr(self, "_optimization", None) is None:
             if self.params.forward_only:
-                return optimization.ProjectedGNCG()
+                return optimization.ProjectedGNCG(cg_rtol=1.0)
 
             self._optimization = optimization.ProjectedGNCG(
                 maxIter=self.params.optimization.max_global_iterations,
                 lower=self.models.lower_bound,
                 upper=self.models.upper_bound,
                 maxIterLS=self.params.optimization.max_line_search_iterations,
-                maxIterCG=self.params.optimization.max_cg_iterations,
-                tolCG=self.params.optimization.tol_cg,
-                stepOffBoundsFact=1e-8,
+                cg_maxiter=self.params.optimization.max_cg_iterations,
+                cg_rtol=self.params.optimization.tol_cg,
+                active_set_grad_scale=1e-8,
                 LSshorten=0.25,
                 require_decrease=False,
             )
@@ -380,36 +467,6 @@ class InversionDriver(BaseDriver):
     def ordering(self):
         """List of ordering of the data."""
         return self.inversion_data.survey.ordering
-
-    @property
-    def out_group(self) -> SimPEGGroup:
-        """
-        Returns the output group for the simulation.
-        """
-        return self._out_group
-
-    @out_group.setter
-    def out_group(self, value: SimPEGGroup):
-        if not isinstance(value, SimPEGGroup):
-            raise TypeError("Output group must be a SimPEGGroup.")
-
-        self.params.out_group = value
-        self.params.update_out_group_options()
-        self._out_group = value
-
-    def validate_out_group(self, out_group: SimPEGGroup | None) -> SimPEGGroup:
-        """
-        Validate or create a SimPEGGroup to store results.
-
-        :param out_group: Output group from selection.
-        """
-        if isinstance(out_group, SimPEGGroup):
-            return out_group
-
-        with fetch_active_workspace(self.workspace, mode="r+"):
-            out_group = SimPEGGroup.create(self.workspace, name=self.params.title)
-
-        return out_group
 
     @property
     def params(self) -> BaseForwardOptions | BaseInversionOptions:
@@ -484,8 +541,6 @@ class InversionDriver(BaseDriver):
         if self.logger:
             sys.stdout = self.logger
             self.logger.start()
-
-        self.configure_dask()
 
         with fetch_active_workspace(self.workspace, mode="r+"):
             simpeg_inversion = self.inversion
@@ -728,18 +783,6 @@ class InversionDriver(BaseDriver):
             sorting=self.simulation.survey.sorting,
         )
 
-    def configure_dask(self):
-        """Sets Dask config settings."""
-
-        if self.client:
-            dconf.set(scheduler=self.client)
-        else:
-            n_cpu = self.params.compute.n_cpu
-            if n_cpu is None:
-                n_cpu = int(multiprocessing.cpu_count())
-
-            dconf.set(scheduler="threads", pool=ThreadPool(n_cpu))
-
     @classmethod
     def start(cls, filepath: str | Path | InputFile, **kwargs) -> Self:
         """
@@ -840,57 +883,11 @@ class InversionLogger:
 if __name__ == "__main__":
     file = Path(sys.argv[1]).resolve()
     input_file = load_ui_json_as_dict(file)
-    n_workers = input_file.get("n_workers", None)
-    n_threads = input_file.get("n_threads", None)
-    save_report = input_file.get("performance_report", False)
-
-    # Force distributed on 1D problems
-    if "1D" in input_file.get("title") and n_workers is None:
-        cpu_count = multiprocessing.cpu_count()
-
-        if cpu_count < 16:
-            n_threads = n_threads or 2
-        else:
-            n_threads = n_threads or 4
-
-        n_workers = cpu_count // n_threads
-
-    distributed_process = (
-        n_workers is not None and n_workers > 1
-    ) or n_threads is not None
-
+    # Need to know the driver class before starting dask
     driver_class = InversionDriver.from_input_file(input_file)
-
-    cluster = (
-        LocalCluster(
-            processes=True,
-            n_workers=n_workers,
-            threads_per_worker=n_threads,
-        )
-        if distributed_process
-        else None
+    driver_class.start_dask_run(
+        file,
+        n_workers=input_file.get("n_workers", None),
+        n_threads=input_file.get("n_threads", None),
+        save_report=input_file.get("performance_report", False),
     )
-    profiler = cProfile.Profile()
-    profiler.enable()
-
-    with (
-        cluster.get_client()
-        if cluster is not None
-        else contextlib.nullcontext() as context_client
-    ):
-        # Full run
-        with (
-            performance_report(filename=file.parent / "dask_profile.html")
-            if (save_report and isinstance(context_client, Client))
-            else contextlib.nullcontext()
-        ):
-            driver_class.start(file)
-            sys.stdout.close()
-
-    profiler.disable()
-
-    if save_report:
-        with open(file.parent / "runtime_profile.txt", encoding="utf-8", mode="w") as s:
-            ps = pstats.Stats(profiler, stream=s)
-            ps.sort_stats("cumulative")
-            ps.print_stats()
