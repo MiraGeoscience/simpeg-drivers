@@ -330,10 +330,9 @@ class InversionDriver(BaseDriver):
                 self._data_misfit = MisfitFactory(
                     self.params,
                     self.simulation,
-                    self.tiles,
                     client=self.client,
                     workers=self.workers,
-                ).build()
+                ).build(self.tiles)
 
         return self._data_misfit
 
@@ -789,7 +788,7 @@ class InversionDriver(BaseDriver):
             sorting=self.simulation.survey.sorting,
         )
 
-        self.split_list(tiles)
+        tiles = self.split_list(tiles)
 
         # Base slice over frequencies
         if self.params.inversion_type in ["magnetotellurics", "tipper", "fdem"]:

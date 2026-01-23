@@ -273,7 +273,7 @@ class DirectivesFactory:
             and len(self.driver.data_misfit.objfcts) > 1
         ):
             self._scale_misfits = directives.ScaleMisfitMultipliers(
-                self.params.geoh5.h5file.parent
+                self.params.geoh5.h5file.parent, self.driver.tiles
             )
         return self._scale_misfits
 

@@ -44,7 +44,6 @@ class MisfitFactory(SimPEGFactory):
         self,
         params,
         simulation,
-        tiles: dict[list[np.ndarray]],
         client: Client | bool,
         workers: list[tuple[str]],
     ):
@@ -52,7 +51,6 @@ class MisfitFactory(SimPEGFactory):
 
         self.simpeg_object = self.concrete_object()
         self.simulation = simulation
-        self.tiles = tiles
         self.client = client
         self.workers = workers
 
@@ -61,6 +59,7 @@ class MisfitFactory(SimPEGFactory):
 
     def assemble_arguments(  # pylint: disable=arguments-differ
         self,
+        tiles: dict[list[np.ndarray]],
     ):
         use_futures = self.client
 
@@ -72,21 +71,18 @@ class MisfitFactory(SimPEGFactory):
 
         misfits = []
         tile_count = 0
-        for channel, tiles in self.tiles.items():
-            for local_indices in tiles:
+        for channel, tile_list in tiles.items():
+            for tile in tile_list:
                 # Split again but use the same mesh extent based on tile vertices
-                for sub_ind in local_indices:
-                    if len(sub_ind) == 0:
-                        continue
-
+                for sub_indices in tile:
                     args = (
-                        sub_ind,
+                        sub_indices,
                         temp_file.name,
                         channel,
                         tile_count,
                         self.params.padding_cells,
                         self.params.forward_only,
-                        np.hstack(local_indices),
+                        np.hstack(tile),
                     )
                     # Distribute the work across workers round-robin style
                     if use_futures:
@@ -124,10 +120,10 @@ class MisfitFactory(SimPEGFactory):
     def assemble_keyword_arguments(self, **_):
         """Implementation of abstract method from SimPEGFactory."""
 
-    def build(self, **_):
+    def build(self, tiles, **_):
         """To be over-ridden in factory implementations."""
 
-        misfits = self.assemble_arguments()
+        misfits = self.assemble_arguments(tiles)
 
         if self.client:
             return dask_objective_function.DistributedComboMisfits(
