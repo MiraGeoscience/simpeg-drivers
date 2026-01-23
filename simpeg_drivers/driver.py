@@ -103,7 +103,7 @@ class BaseDriver(Driver):
                 "Disk storage of sensitivities is not compatible with distributed processing."
             )
 
-        self._workers: list[tuple[str]] | None = self.validate_workers(workers)
+        self._workers: list[tuple[str]] = self.validate_workers(workers)
 
     @property
     def out_group(self) -> SimPEGGroup:
@@ -142,7 +142,7 @@ class BaseDriver(Driver):
         return out_group
 
     @property
-    def client(self) -> Client | bool | None:
+    def client(self) -> Client | bool:
         """
         Dask client or False if not using Dask.distributed.
         """
@@ -279,6 +279,7 @@ class InversionDriver(BaseDriver):
         self._ordering: list[np.ndarray] | None = None
         self._mappings: list[maps.IdentityMap] | None = None
         self._window = None
+        self.tiles: dict[list[np.ndarray]]
 
     def split_list(self, tiles: list[np.ndarray]) -> list[np.ndarray]:
         """
@@ -309,7 +310,9 @@ class InversionDriver(BaseDriver):
 
         flat_tile_list = []
         for tile, split in zip(tiles, split_list):
-            flat_tile_list.append(np.array_split(tile, split))
+            flat_tile_list.append(
+                sub for sub in np.array_split(tile, split) if len(sub) > 0
+            )
         return flat_tile_list
 
     @property
@@ -318,16 +321,19 @@ class InversionDriver(BaseDriver):
         if getattr(self, "_data_misfit", None) is None:
             with fetch_active_workspace(self.workspace, mode="r+"):
                 # Tile locations
-                tiles = self.get_tiles()
+                if self.logger and self.params.compute.tile_spatial > 1:
+                    self.logger.write(
+                        f"Setting up {self.params.compute.tile_spatial} tiles . . .\n"
+                    )
 
-                if self.logger:
-                    self.logger.write(f"Setting up {len(tiles)} tile(s) . . .\n")
-
+                self.tiles = self.get_tiles()
                 self._data_misfit = MisfitFactory(
-                    self.params, self.client, self.simulation, self.workers
-                ).build(
-                    self.split_list(tiles),
-                )
+                    self.params,
+                    self.simulation,
+                    self.tiles,
+                    client=self.client,
+                    workers=self.workers,
+                ).build()
 
         return self._data_misfit
 
@@ -776,12 +782,23 @@ class InversionDriver(BaseDriver):
 
             return np.array_split(indices, n_chunks)
 
-        return tile_locations(
+        tiles = tile_locations(
             self.inversion_data.locations,
             self.params.compute.tile_spatial,
             labels=self.inversion_data.parts,
             sorting=self.simulation.survey.sorting,
         )
+
+        self.split_list(tiles)
+
+        # Base slice over frequencies
+        if self.params.inversion_type in ["magnetotellurics", "tipper", "fdem"]:
+            channels = self.simulation.survey.frequencies
+        else:
+            channels = [None]
+
+        # Duplicate tiles for each channel
+        return {channel: tiles for channel in channels}
 
     @classmethod
     def start(cls, filepath: str | Path | InputFile, **kwargs) -> Self:

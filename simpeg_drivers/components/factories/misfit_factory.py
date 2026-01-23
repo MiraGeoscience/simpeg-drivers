@@ -16,7 +16,7 @@ import pickle
 from typing import TYPE_CHECKING
 
 import numpy as np
-from dask.distributed import wait
+from dask.distributed import Client, wait
 from simpeg import objective_function
 from simpeg.dask import objective_function as dask_objective_function
 from simpeg.objective_function import ComboObjectiveFunction
@@ -30,17 +30,29 @@ if TYPE_CHECKING:
 
 
 class MisfitFactory(SimPEGFactory):
-    """Build SimPEG global misfit function."""
+    """
+    Build SimPEG global misfit function.
 
-    def __init__(self, params, client, simulation, workers):
-        """
-        :param params: Options object containing SimPEG object parameters.
-        """
+    :param params: Options object containing SimPEG object parameters.
+    :param simulation: SimPEG simulation object.
+    :param tiles: Dictionary of nested lists with arrays of indices for the tiles.
+    :param client: Dask client or boolean to indicate whether to use dask.
+    :param workers: List of worker addresses to use for dask computations.
+    """
+
+    def __init__(
+        self,
+        params,
+        simulation,
+        tiles: dict[list[np.ndarray]],
+        client: Client | bool,
+        workers: list[tuple[str]],
+    ):
         super().__init__(params)
 
         self.simpeg_object = self.concrete_object()
-        self.factory_type = self.params.inversion_type
         self.simulation = simulation
+        self.tiles = tiles
         self.client = client
         self.workers = workers
 
@@ -48,14 +60,8 @@ class MisfitFactory(SimPEGFactory):
         return objective_function.ComboObjectiveFunction
 
     def assemble_arguments(  # pylint: disable=arguments-differ
-        self, tiles
+        self,
     ):
-        # Base slice over frequencies
-        if self.factory_type in ["magnetotellurics", "tipper", "fdem"]:
-            channels = self.simulation.survey.frequencies
-        else:
-            channels = [None]
-
         use_futures = self.client
 
         # Pickle the simulation to the temporary file
@@ -66,8 +72,9 @@ class MisfitFactory(SimPEGFactory):
 
         misfits = []
         tile_count = 0
-        for channel in channels:
+        for channel, tiles in self.tiles.items():
             for local_indices in tiles:
+                # Split again but use the same mesh extent based on tile vertices
                 for sub_ind in local_indices:
                     if len(sub_ind) == 0:
                         continue
@@ -117,10 +124,10 @@ class MisfitFactory(SimPEGFactory):
     def assemble_keyword_arguments(self, **_):
         """Implementation of abstract method from SimPEGFactory."""
 
-    def build(self, tiles, **_):
+    def build(self, **_):
         """To be over-ridden in factory implementations."""
 
-        misfits = self.assemble_arguments(tiles)
+        misfits = self.assemble_arguments()
 
         if self.client:
             return dask_objective_function.DistributedComboMisfits(
