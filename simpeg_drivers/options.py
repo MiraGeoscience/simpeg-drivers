@@ -396,7 +396,9 @@ class DirectiveOptions(BaseModel):
     """
     Directive options for inversion.
 
-    :param auto_scale_misfits: Automatically scale misfits of sub objectives.
+    :param auto_scale_misfits: Automatically scale misfits of joint inversions.
+    :param auto_scale_tiles: Automatically scale tiles.
+    :param auto_scale_channels: Automatically scale channels.
     :param beta_search: Beta search.
     :param every_iteration_bool: Update the sensitivity weights every iteration.
     :param save_sensitivities: Save sensitivities to file.
@@ -406,7 +408,10 @@ class DirectiveOptions(BaseModel):
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
     )
-    auto_scale_misfits: bool = False
+    auto_scale_tiles: bool = Field(
+        False, validation_alias=AliasChoices("auto_scale_misfits", "auto_scale_tiles")
+    )
+    auto_scale_channels: bool = False
     every_iteration_bool: bool = True
     save_sensitivities: bool = False
     sens_wts_threshold: float | None = 1e-0

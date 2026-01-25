@@ -22,7 +22,7 @@ from geoh5py.objects import (
     LargeLoopGroundFEMReceivers,
     MovingLoopGroundFEMReceivers,
 )
-from pydantic import field_validator
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field, field_validator
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.options import (
@@ -82,6 +82,31 @@ class BaseFDEMOptions(EMDataMixin):
         return value
 
 
+class DirectiveOptions(BaseModel):
+    """
+    Directive options for inversion.
+
+    :param auto_scale_misfits: Automatically scale misfits of joint inversions.
+    :param auto_scale_tiles: Automatically scale tiles.
+    :param auto_scale_channels: Automatically scale channels.
+    :param beta_search: Beta search.
+    :param every_iteration_bool: Update the sensitivity weights every iteration.
+    :param save_sensitivities: Save sensitivities to file.
+    :param sens_wts_threshold: Threshold for sensitivity weights.
+    """
+
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True,
+    )
+    auto_scale_tiles: bool = Field(
+        False, validation_alias=AliasChoices("auto_scale_misfits", "auto_scale_tiles")
+    )
+    auto_scale_channels: bool = False
+    every_iteration_bool: bool = True
+    save_sensitivities: bool = False
+    sens_wts_threshold: float | None = 1e-0
+
+
 class FDEMForwardOptions(BaseForwardOptions, BaseFDEMOptions):
     """
     Frequency Domain Electromagnetic Forward options.
@@ -125,4 +150,7 @@ class FDEMInversionOptions(BaseFDEMOptions, BaseInversionOptions):
     z_real_uncertainty: PropertyGroup | None = None
     z_imag_channel: PropertyGroup | None = None
     z_imag_uncertainty: PropertyGroup | None = None
+
     models: ConductivityModelOptions
+
+    directives: DirectiveOptions = DirectiveOptions()
