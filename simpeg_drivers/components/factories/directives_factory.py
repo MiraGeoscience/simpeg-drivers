@@ -272,8 +272,10 @@ class DirectivesFactory:
             and self.params.directives.auto_scale_misfits
             and len(self.driver.data_misfit.objfcts) > 1
         ):
+            nested_tiles = self.driver.get_nested_tiles()
+
             self._scale_misfits = directives.ScaleMisfitMultipliers(
-                self.params.geoh5.h5file.parent, self.driver.tiles
+                self.params.geoh5.h5file.parent, nested_tiles
             )
         return self._scale_misfits
 

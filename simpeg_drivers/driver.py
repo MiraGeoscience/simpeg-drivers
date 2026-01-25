@@ -343,6 +343,29 @@ class InversionDriver(BaseDriver):
                 self._directives = DirectivesFactory(self)
         return self._directives
 
+    def get_nested_tiles(self) -> list:
+        """
+        Get nested tiles per channel and receiver tiling.
+
+        Returns a flat list of tiles if auto_scale_misfits is False,
+        otherwise returns a nested list [channel][tile].
+        """
+        nested_tiles = []
+        for channel in self.tiles.values():
+            tile_list = []
+            for tile in channel:
+                if self.params.directives.auto_scale_misfits:
+                    tile_list.append(tile)
+                else:
+                    tile_list += tile
+
+            if self.params.directives.auto_scale_misfits:
+                nested_tiles.append(tile_list)
+            else:
+                nested_tiles += tile_list
+
+        return nested_tiles
+
     @property
     def inverse_problem(self):
         if getattr(self, "_inverse_problem", None) is None:

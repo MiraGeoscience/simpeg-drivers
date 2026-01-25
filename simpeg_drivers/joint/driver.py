@@ -58,6 +58,7 @@ class BaseJointDriver(InversionDriver):
         if getattr(self, "_data_misfit", None) is None and self.drivers is not None:
             objective_functions = []
             multipliers = []
+            tiles = []
             for label, driver in zip("abc", self.drivers, strict=False):
                 if driver.data_misfit is not None:
                     objective_functions += driver.data_misfit.objfcts
@@ -69,7 +70,9 @@ class BaseJointDriver(InversionDriver):
                         (getattr(self.params, f"group_{label}_multiplier") or 1.0)
                         ** 2.0
                     ] * len(driver.data_misfit.objfcts)
+                    tiles.append(driver.tiles)
 
+            self.tiles = tiles
             if self.client:
                 return dask_objective_function.DistributedComboMisfits(
                     objfcts=objective_functions,
@@ -115,6 +118,17 @@ class BaseJointDriver(InversionDriver):
             ~driver.inversion_mesh.mesh.is_inside(self.inversion_mesh.mesh.gridCC)
         ] = False
         return global_active
+
+    def get_nested_tiles(self):
+        """Get nested tiles from all drivers."""
+        all_tiles = []
+        for driver in self.drivers:
+            if self.params.directives.auto_scale_misfits:
+                all_tiles.append(driver.get_nested_tiles())
+            else:
+                all_tiles += driver.get_nested_tiles()
+
+        return all_tiles
 
     def initialize(self):
         """Generate sub drivers."""
