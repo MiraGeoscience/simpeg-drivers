@@ -373,13 +373,13 @@
         "enabled": true,
         "tooltip": "The global target data misfit value"
     },
-    "auto_scale_misfits": {
+    "auto_scale_tiles": {
         "group": "Cooling schedule/target",
-        "label": "Auto-scale misfits",
+        "label": "Auto-scale tiles",
         "value": false,
         "verbose": 3,
         "visible": true,
-        "tooltip": "Whether to auto-scale misfits functions (tile, frequency, joint methods) based on chi-factor"
+        "tooltip": "Whether to auto-scale misfits tiles based on chi-factor."
     },
     "initial_beta_ratio": {
         "min": 0.0,
