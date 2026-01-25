@@ -48,42 +48,6 @@ class PlateSweepDriver(BaseDriver):
 
         self.out_group = self.validate_out_group(self.params.out_group)
 
-    @property
-    def out_group(self) -> SimPEGGroup:
-        """
-        Returns the output group for the simulation.
-        """
-        return self._out_group
-
-    @out_group.setter
-    def out_group(self, value: SimPEGGroup):
-        if not isinstance(value, SimPEGGroup):
-            raise TypeError("Output group must be a SimPEGGroup.")
-
-        if self.params.out_group != value:
-            self.params.out_group = value
-            self.params.update_out_group_options()
-
-        self._out_group = value
-
-    def validate_out_group(self, out_group: SimPEGGroup | None) -> SimPEGGroup:
-        """
-        Validate or create a UIJsonGroup to store results.
-
-        :param value: Output group from selection.
-        """
-        if isinstance(out_group, SimPEGGroup):
-            return out_group
-
-        with fetch_active_workspace(self.params.geoh5, mode="r+"):
-            out_group = SimPEGGroup.create(
-                self.params.geoh5,
-                name=self.params.title,
-            )
-            out_group.entity_type.name = self.params.title
-
-        return out_group
-
     @classmethod
     def start(cls, filepath: str | Path, mode="r", **_) -> Self:
         """Start the parameter sweep from a ui.json file."""

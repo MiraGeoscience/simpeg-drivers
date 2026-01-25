@@ -20,6 +20,7 @@ from geoh5py.groups import PropertyGroup
 from geoh5py.groups.property_group import GroupTypeEnum
 from geoh5py.objects import Curve
 from geoh5py.workspace import Workspace
+from simpeg.utils.mat_utils import cartesian2amplitude_dip_azimuth
 
 from simpeg_drivers.components.factories import DirectivesFactory
 from simpeg_drivers.potential_fields import (
@@ -45,7 +46,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_mvi_run = {"data_norm": 149.10117434016036, "phi_d": 1060, "phi_m": 0.0432}
+target_mvi_run = {"data_norm": 149.10117434016036, "phi_d": 5.49, "phi_m": 0.0315}
 
 
 def test_magnetic_vector_fwr_run(
@@ -213,7 +214,7 @@ def test_magnetic_vector_reference(
             tmi_uncertainty=5.0,
             data_object=components.survey,
             starting_model=components.model,
-            reference_model=1.0,
+            reference_model=0.0,
             reference_inclination=30,
             reference_declination=0,
         )
@@ -224,13 +225,10 @@ def test_magnetic_vector_reference(
     assert np.all(driver.models.reference_inclination == 30)
     assert np.all(driver.models.reference_declination == 0)
 
-    np.allclose(
-        np.kron(
-            np.r_[0, np.cos(-np.deg2rad(30)), np.sin(-np.deg2rad(30))],
-            np.ones(driver.models.n_active),
-        ),
-        driver.models.reference_model,
-    )
+    ref_model = driver.models.reference_model
+    ref_spherical = cartesian2amplitude_dip_azimuth(ref_model.reshape(-1, 3, order="F"))
+    np.allclose(ref_spherical[0, 1], 30)
+    np.allclose(ref_spherical[0, 2], 0)
 
 
 if __name__ == "__main__":
