@@ -281,7 +281,7 @@ class InversionDriver(BaseDriver):
         self._window = None
         self.tiles: dict[list[np.ndarray]]
 
-    def split_list(self, tiles: list[np.ndarray]) -> list[np.ndarray]:
+    def split_list(self, tiles: list[np.ndarray]) -> list[list[np.ndarray]]:
         """
         Number of splits for the data misfit to be distributed evenly among workers.
         """
@@ -311,7 +311,7 @@ class InversionDriver(BaseDriver):
         flat_tile_list = []
         for tile, split in zip(tiles, split_list):
             flat_tile_list.append(
-                sub for sub in np.array_split(tile, split) if len(sub) > 0
+                [sub for sub in np.array_split(tile, split) if len(sub) > 0]
             )
         return flat_tile_list
 
