@@ -179,13 +179,22 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e1,
             percentile=100,
-            cooling_rate=3,
+            cooling_rate=1,
             chi_factor=0.25,
+            auto_scale_channels=True,
+            auto_scale_tiles=True,
+            tile_spatial=2,
             **data_kwargs,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
         driver = FDEMInversionDriver(params)
         driver.run()
+
+        np.testing.assert_allclose(
+            driver.data_misfit.multipliers,
+            [1.0, 0.5, 0.6004, 0.5, 0.5047, 0.5],
+            atol=1e-3,
+        )
 
     with geoh5.open() as run_ws:
         output = get_inversion_output(

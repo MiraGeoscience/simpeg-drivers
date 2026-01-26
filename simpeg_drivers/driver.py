@@ -354,12 +354,12 @@ class InversionDriver(BaseDriver):
         for channel in self.tiles.values():
             tile_list = []
             for tile in channel:
-                if self.params.directives.auto_scale_misfits:
+                if self.params.directives.auto_scale_tiles:
                     tile_list.append(tile)
                 else:
                     tile_list += tile
 
-            if self.params.directives.auto_scale_misfits:
+            if self.params.directives.auto_scale_channels:
                 nested_tiles.append(tile_list)
             else:
                 nested_tiles += tile_list
