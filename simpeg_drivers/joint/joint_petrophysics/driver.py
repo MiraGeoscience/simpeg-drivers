@@ -10,10 +10,7 @@
 
 from __future__ import annotations
 
-from itertools import combinations
-
 import numpy as np
-from geoh5py.groups.property_group_type import GroupTypeEnum
 from geoh5py.shared.utils import fetch_active_workspace
 from simpeg import directives, maps, utils
 from simpeg.objective_function import ComboObjectiveFunction
@@ -21,7 +18,6 @@ from simpeg.regularization.pgi import PGIsmallness
 
 from simpeg_drivers.components.factories import (
     DirectivesFactory,
-    SaveModelGeoh5Factory,
 )
 from simpeg_drivers.joint.driver import BaseJointDriver
 
@@ -48,7 +44,7 @@ class JointPetrophysicsDriver(BaseJointDriver):
     def directives(self):
         if getattr(self, "_directives", None) is None and not self.params.forward_only:
             with fetch_active_workspace(self.workspace, mode="r+"):
-                directives_list = self._get_drivers_directives()
+                directives_list = self._get_joint_directives()
                 directives_list.append(
                     directives.PGI_UpdateParameters(
                         update_gmm=True,
@@ -58,7 +54,6 @@ class JointPetrophysicsDriver(BaseJointDriver):
                         ],
                     )
                 )
-                directives_list += self._get_global_model_save_directives()
 
                 # TODO: To bring back once we let the classification change
                 # directives_list.append(
@@ -78,20 +73,8 @@ class JointPetrophysicsDriver(BaseJointDriver):
                 #         reference_type=self.params.models.petrophysical_model.entity_type,
                 #     )
                 # )
-                directives_list.append(
-                    directives.SaveLPModelGroup(
-                        self.inversion_mesh.entity,
-                        self._directives.update_irls_directive,
-                    )
-                )
-                directives_list.append(self._directives.save_iteration_log_files)
-                self._directives.directive_list = (
-                    self._directives.inversion_directives + directives_list
-                )
 
-                DirectivesFactory.configure_save_directives(
-                    self._directives.directive_list
-                )
+                self._directives.directive_list = directives_list
 
         return self._directives
 

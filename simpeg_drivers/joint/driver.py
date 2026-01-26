@@ -164,23 +164,7 @@ class BaseJointDriver(InversionDriver):
     def directives(self):
         if getattr(self, "_directives", None) is None and not self.params.forward_only:
             with fetch_active_workspace(self.workspace, mode="r+"):
-                directives_list = self._get_drivers_directives()
-
-                directives_list += self._get_global_model_save_directives()
-                directives_list.append(
-                    directives.SaveLPModelGroup(
-                        self.inversion_mesh.entity,
-                        self._directives.update_irls_directive,
-                    )
-                )
-                directives_list.append(self._directives.save_iteration_log_files)
-                self._directives.directive_list = (
-                    self._directives.inversion_directives + directives_list
-                )
-
-                DirectivesFactory.configure_save_directives(
-                    self._directives.directive_list
-                )
+                self._directives.directive_list = self._get_joint_directives()
 
         return self._directives
 
@@ -437,6 +421,24 @@ class BaseJointDriver(InversionDriver):
         directives_list = []
         for driver, wire in zip(self.drivers, self.wires, strict=True):
             directives_list += self._get_local_model_save_directives(driver, wire)
+        return directives_list
+
+    def _get_joint_directives(self) -> list[directives.Directive]:
+        """
+        Create a list of directives for the joint inversion.
+        """
+        directives_list = self._get_drivers_directives()
+        directives_list += self._get_global_model_save_directives()
+        directives_list.append(
+            directives.SaveLPModelGroup(
+                self.inversion_mesh.entity,
+                self._directives.update_irls_directive,
+            )
+        )
+        directives_list.append(self._directives.save_iteration_log_files)
+        directives_list += self._directives.inversion_directives
+        DirectivesFactory.configure_save_directives(directives_list)
+
         return directives_list
 
     def _get_local_model_save_directives(

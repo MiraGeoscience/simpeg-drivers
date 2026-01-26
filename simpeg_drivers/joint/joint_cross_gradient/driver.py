@@ -15,17 +15,11 @@ from __future__ import annotations
 
 from itertools import combinations
 
-import numpy as np
-from geoh5py.groups.property_group_type import GroupTypeEnum
 from geoh5py.shared.utils import fetch_active_workspace
-from simpeg import directives, maps
+from simpeg import maps
 from simpeg.objective_function import ComboObjectiveFunction
 from simpeg.regularization import CrossGradient
 
-from simpeg_drivers.components.factories import (
-    DirectivesFactory,
-    SaveModelGeoh5Factory,
-)
 from simpeg_drivers.joint.driver import BaseJointDriver
 
 from .options import JointCrossGradientOptions
