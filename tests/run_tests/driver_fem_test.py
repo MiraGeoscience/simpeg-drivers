@@ -182,7 +182,6 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
             cooling_rate=1,
             chi_factor=0.25,
             auto_scale_channels=True,
-            auto_scale_tiles=True,
             tile_spatial=2,
             **data_kwargs,
         )
@@ -190,9 +189,10 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
         driver = FDEMInversionDriver(params)
         driver.run()
 
+        # Scaling is done evenly on channels
         np.testing.assert_allclose(
             driver.data_misfit.multipliers,
-            [1.0, 0.5, 0.6004, 0.5, 0.5047, 0.5],
+            [1.0, 1.0, 0.6004, 0.6004, 0.5047, 0.5047],
             atol=1e-3,
         )
 

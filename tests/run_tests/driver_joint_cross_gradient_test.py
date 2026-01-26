@@ -200,6 +200,8 @@ def test_joint_cross_gradient_inv_run(
                     starting_model=0.0,
                     reference_model=0.0,
                     upper_bound=1.0,
+                    tile_spatial=2,
+                    auto_scale_tiles=True,
                 )
                 drivers.append(GravityInversionDriver(params))
             elif suffix == "C":
@@ -231,9 +233,10 @@ def test_joint_cross_gradient_inv_run(
                     data_object=survey,
                     starting_model=1e-4,
                     reference_model=0.0,
-                    tile_spatial=1,
                     tmi_channel=data,
                     tmi_uncertainty=1e1,
+                    tile_spatial=2,
+                    auto_scale_tiles=False,
                 )
                 drivers.append(MVIInversionDriver(params))
 
@@ -261,6 +264,15 @@ def test_joint_cross_gradient_inv_run(
 
     driver = JointCrossGradientDriver(joint_params)
     driver.run()
+
+    # Mix of scaling on misfits and tiles.
+    # Expecting that gravity tiles are independently scaled, but MVI tiles take
+    # the scaling from its total misfit.
+    np.testing.assert_allclose(
+        driver.data_misfit.multipliers,
+        [0.5011, 0.5, 0.5, 0.5, 1.0],
+        atol=1e-3,
+    )
 
     with Workspace(driver.params.geoh5.h5file):
         output = get_inversion_output(

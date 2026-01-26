@@ -161,6 +161,7 @@ def test_joint_surveys_inv_run(
                 gz_channel=gz,
                 gz_uncertainty=np.var(gz.values) * 2.0,
                 starting_model=0.0,
+                tile_spatial=2,
             )
             drivers.append(GravityInversionDriver(params))
 
@@ -182,10 +183,18 @@ def test_joint_surveys_inv_run(
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e-2,
             percentile=100,
+            auto_scale_misfits=True,
         )
 
     driver = JointSurveyDriver(joint_params)
     driver.run()
+
+    # The rescaling is done evenly on the two tiles for both surveys
+    np.testing.assert_allclose(
+        driver.data_misfit.multipliers,
+        [1.0, 1.0, 0.8341, 0.8341],
+        atol=1e-3,
+    )
 
     with Workspace(driver.params.geoh5.h5file):
         output = get_inversion_output(
