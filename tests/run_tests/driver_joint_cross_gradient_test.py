@@ -202,6 +202,7 @@ def test_joint_cross_gradient_inv_run(
                     upper_bound=1.0,
                     tile_spatial=2,
                     auto_scale_tiles=True,
+                    chi_factor=0.8,
                 )
                 drivers.append(GravityInversionDriver(params))
             elif suffix == "C":
@@ -263,6 +264,12 @@ def test_joint_cross_gradient_inv_run(
         )
 
     driver = JointCrossGradientDriver(joint_params)
+
+    # Check that chi factors set on the sub drivers are preserved forward
+    np.testing.assert_allclose(
+        driver.data_misfit.multipliers, [0.8, 0.8, 1.0, 1.0, 1.0], atol=1e-3
+    )
+
     driver.run()
 
     # Mix of scaling on misfits and tiles.

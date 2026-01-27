@@ -66,10 +66,14 @@ class BaseJointDriver(InversionDriver):
                     for ii, fun in enumerate(driver.data_misfit.objfcts):
                         fun.name = f"Group_{label.upper()}:Tile_{ii}"
 
-                    multipliers += [
-                        (getattr(self.params, f"group_{label}_multiplier") or 1.0)
-                        ** 2.0
-                    ] * len(driver.data_misfit.objfcts)
+                    multipliers += (
+                        [
+                            (getattr(self.params, f"group_{label}_multiplier") or 1.0)
+                            ** 2.0
+                            * driver.directives.update_irls_directive.chifact_target  # Adjust for local chi factors
+                        ]
+                        * len(driver.data_misfit.objfcts)
+                    )
                     tiles.append(driver.tiles)
 
             self.tiles = tiles
