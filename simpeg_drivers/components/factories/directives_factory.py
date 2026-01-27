@@ -277,7 +277,9 @@ class DirectivesFactory:
         ):
             nested_tiles = self.driver.get_nested_tiles()
             self._scale_misfits = directives.ScaleMisfitMultipliers(
-                self.params.geoh5.h5file.parent, nested_tiles
+                self.params.geoh5.h5file.parent,
+                nested_tiles,
+                target_chi=self.params.cooling_schedule.chi_factor,
             )
         return self._scale_misfits
 
