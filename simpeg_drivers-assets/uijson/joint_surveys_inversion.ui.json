@@ -76,7 +76,9 @@
         "main": true,
         "group": "Mesh and models",
         "label": "Model units",
-        "tooltip": "Select the units of the model",
+        "tooltip": "Allows users to enter resistivity values for conductivity inversions.",
+        "optional": true,
+        "enabled": false,
         "value": "Conductivity (S/m)"
     },
     "starting_model": {
