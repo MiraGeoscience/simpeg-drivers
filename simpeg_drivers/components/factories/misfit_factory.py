@@ -59,7 +59,7 @@ class MisfitFactory(SimPEGFactory):
 
     def assemble_arguments(  # pylint: disable=arguments-differ
         self,
-        tiles: dict[list[np.ndarray]],
+        tiles: dict[str : list[np.ndarray]],
     ):
         use_futures = self.client
 
