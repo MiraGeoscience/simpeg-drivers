@@ -68,6 +68,7 @@ def test_gravity_fwr_run(
             geoh5=geoh5,
             mesh=components.mesh,
             topography_object=components.topography,
+            model_type=None,
             data_object=components.survey,
             starting_model=components.model,
             gz_channel_bool=True,
@@ -142,6 +143,7 @@ def test_gravity_run(
         params = GravityInversionOptions.build(
             geoh5=geoh5,
             mesh=components.mesh,
+            model_type=None,
             data_object=gz.parent,
             s_norm=0.0,
             x_norm=gradient_norms,
