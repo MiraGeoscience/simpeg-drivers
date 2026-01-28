@@ -78,7 +78,6 @@ def test_dc_3d_fwr_run(
             mesh=components.mesh,
             topography_object=components.topography,
             data_object=components.survey,
-            model_type=None,
             starting_model=components.model,
         )
     fwr_driver = DC3DForwardDriver(params)
@@ -105,7 +104,6 @@ def test_dc_3d_run(
             mesh=components.mesh,
             topography_object=components.topography,
             data_object=potential.parent,
-            model_type=None,
             starting_model=1e-2,
             reference_model=1e-2,
             s_norm=0.0,

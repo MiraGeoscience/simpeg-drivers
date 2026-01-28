@@ -335,7 +335,7 @@ class ConductivityModelOptions(ModelOptions):
     Options for the conductivity model used in all of EM methods.
     """
 
-    model_type: ModelTypeEnum | None = ModelTypeEnum.conductivity
+    model_type: ModelTypeEnum = ModelTypeEnum.conductivity
     conductivity_model: float | FloatData | None = Field(
         None,
         validation_alias=AliasChoices("background_conductivity", "conductivity_model"),
