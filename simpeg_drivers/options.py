@@ -396,7 +396,6 @@ class DirectiveOptions(BaseModel):
     """
     Directive options for inversion.
 
-    :param auto_scale_misfits: Automatically scale misfits of joint inversions.
     :param auto_scale_tiles: Automatically scale tiles.
     :param auto_scale_channels: Automatically scale channels.
     :param beta_search: Beta search.

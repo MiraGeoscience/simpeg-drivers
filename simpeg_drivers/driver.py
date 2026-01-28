@@ -347,8 +347,8 @@ class InversionDriver(BaseDriver):
         """
         Get nested tiles per channel and receiver tiling.
 
-        Returns a flat list of tiles if auto_scale_misfits is False,
-        otherwise returns a nested list [channel][tile].
+        Returns a flat list of tiles if auto_scale_channels is False,
+        otherwise returns a nested list [channel][tiles].
         """
         nested_tiles = []
         for channel in self.tiles.values():
