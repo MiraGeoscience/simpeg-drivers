@@ -103,7 +103,7 @@ class BaseDriver(Driver):
                 "Disk storage of sensitivities is not compatible with distributed processing."
             )
 
-        self._workers: list[tuple[str]] = self.validate_workers(workers)
+        self._workers: list[tuple[str]] | None = self.validate_workers(workers)
 
     @property
     def out_group(self) -> SimPEGGroup:
@@ -142,7 +142,7 @@ class BaseDriver(Driver):
         return out_group
 
     @property
-    def client(self) -> Client | bool:
+    def client(self) -> Client | bool | None:
         """
         Dask client or False if not using Dask.distributed.
         """
@@ -279,7 +279,8 @@ class InversionDriver(BaseDriver):
         self._ordering: list[np.ndarray] | None = None
         self._mappings: list[maps.IdentityMap] | None = None
         self._window = None
-        self.tiles: dict[list[np.ndarray]]
+
+        self.tiles: dict[str, list[np.ndarray]]
 
     def split_list(self, tiles: list[np.ndarray]) -> list[list[np.ndarray]]:
         """
@@ -313,6 +314,7 @@ class InversionDriver(BaseDriver):
             flat_tile_list.append(
                 [sub for sub in np.array_split(tile, split) if len(sub) > 0]
             )
+
         return flat_tile_list
 
     @property
@@ -320,13 +322,13 @@ class InversionDriver(BaseDriver):
         """The Simpeg.data_misfit class"""
         if getattr(self, "_data_misfit", None) is None:
             with fetch_active_workspace(self.workspace, mode="r+"):
-                # Tile locations
                 if self.logger and self.params.compute.tile_spatial > 1:
                     self.logger.write(
                         f"Setting up {self.params.compute.tile_spatial} tiles . . .\n"
                     )
-
+                # Tile locations
                 self.tiles = self.get_tiles()
+
                 self._data_misfit = MisfitFactory(
                     self.params,
                     self.simulation,
@@ -662,10 +664,22 @@ class InversionDriver(BaseDriver):
         )
 
     @property
-    def mapping(self) -> list[maps.IdentityMap] | None:
+    def mapping(self) -> list[maps.Projection] | None:
         """Model mapping for the inversion."""
         if self._mapping is None:
-            self.mapping = maps.IdentityMap(nP=self.n_values)
+            mapping = []
+            start = 0
+            n_blocks = 3 if self.models.is_vector else 1
+
+            for _ in range(n_blocks):
+                mapping.append(
+                    maps.Projection(
+                        self.n_values * n_blocks, slice(start, start + self.n_values)
+                    )
+                )
+                start += self.n_values
+
+            self._mapping = mapping
 
         return self._mapping
 

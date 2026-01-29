@@ -252,7 +252,6 @@ class PlateMatchDriver(BaseDriver):
                 plate.vertices = plate.vertices + center
                 plate.metadata = options.model.model_dump()
 
-            print(f"Best parameters:{options.model.model_dump_json(indent=2)}")
             results.append(self.params.simulation_files[ranked[0]].name)
 
         return results

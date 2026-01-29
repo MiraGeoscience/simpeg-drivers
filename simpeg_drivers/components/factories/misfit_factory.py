@@ -31,11 +31,11 @@ if TYPE_CHECKING:
 
 class MisfitFactory(SimPEGFactory):
     """
-    Build SimPEG global misfit function.
+    Build SimPEG global misfit function
+
 
     :param params: Options object containing SimPEG object parameters.
     :param simulation: SimPEG simulation object.
-    :param tiles: Dictionary of nested lists with arrays of indices for the tiles.
     :param client: Dask client or boolean to indicate whether to use dask.
     :param workers: List of worker addresses to use for dask computations.
     """
@@ -59,7 +59,7 @@ class MisfitFactory(SimPEGFactory):
 
     def assemble_arguments(  # pylint: disable=arguments-differ
         self,
-        tiles: dict[str : list[np.ndarray]],
+        tiles: dict[str, list[np.ndarray]],
     ):
         use_futures = self.client
 
@@ -71,6 +71,7 @@ class MisfitFactory(SimPEGFactory):
 
         misfits = []
         tile_count = 0
+
         for channel, tile_list in tiles.items():
             for tile in tile_list:
                 # Split again but use the same mesh extent based on tile vertices
