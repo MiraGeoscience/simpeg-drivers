@@ -412,6 +412,7 @@ def test_joint_surveys_tem_run(
             mesh=components.mesh,
             group_a=driver_A.out_group,
             group_b=driver_B.out_group,
+            model_type=None,
             starting_model=1e-3,
         )
 

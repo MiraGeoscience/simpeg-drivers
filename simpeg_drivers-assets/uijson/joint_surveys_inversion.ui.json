@@ -76,7 +76,9 @@
         "main": true,
         "group": "Mesh and models",
         "label": "Model units",
-        "tooltip": "Select the units of the model",
+        "tooltip": "Change the model units between S/m or Ohm.m, for electromagnetic and direct-current surveys.",
+        "optional": true,
+        "enabled": false,
         "value": "Conductivity (S/m)"
     },
     "starting_model": {
