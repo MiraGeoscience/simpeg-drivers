@@ -31,7 +31,7 @@ class JointSurveysModelOptions(JointModelOptions):
     :param reference_model: The reference model for the inversion.
     """
 
-    model_type: ModelTypeEnum = ModelTypeEnum.conductivity
+    model_type: ModelTypeEnum | None = ModelTypeEnum.conductivity
     starting_model: float | FloatData | None = None
     reference_model: float | FloatData | None = None
 
