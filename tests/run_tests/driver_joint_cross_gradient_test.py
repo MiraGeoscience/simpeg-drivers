@@ -276,8 +276,14 @@ def test_joint_cross_gradient_inv_run(
     # Expecting that gravity tiles are independently scaled, but MVI tiles take
     # the scaling from its total misfit.
     np.testing.assert_allclose(
-        driver.data_misfit.multipliers,
+        driver.directives.scale_misfits.scalings,
         [0.5011, 0.5, 0.5, 0.5, 1.0],
+        atol=1e-3,
+    )
+    # Check that scaling * chi factor is reflected in data misfit multipliers
+    np.testing.assert_allclose(
+        driver.data_misfit.multipliers,
+        [0.4009, 0.4, 0.5, 0.5, 1.0],
         atol=1e-3,
     )
 
