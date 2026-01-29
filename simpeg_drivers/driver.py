@@ -286,7 +286,7 @@ class InversionDriver(BaseDriver):
         """
         Number of splits for the data misfit to be distributed evenly among workers.
         """
-        if len(self.workers) == 0:
+        if not self.workers:
             return [[tile] for tile in tiles]
 
         n_tiles = len(tiles)
@@ -815,7 +815,7 @@ class InversionDriver(BaseDriver):
             # Heuristic to avoid too many chunks
             n_chunks = n_data // self.params.compute.max_chunk_size
 
-            if len(self.workers) > 0:
+            if self.workers:
                 n_chunks /= len(self.workers)
                 n_chunks = int(n_chunks) * len(self.workers)
 
