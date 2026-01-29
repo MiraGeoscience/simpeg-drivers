@@ -103,7 +103,7 @@ class BaseDriver(Driver):
                 "Disk storage of sensitivities is not compatible with distributed processing."
             )
 
-        self._workers: list[tuple[str]] | None = self.validate_workers(workers)
+        self._workers: list[tuple[str]] = self.validate_workers(workers)
 
     @property
     def out_group(self) -> SimPEGGroup:
@@ -799,33 +799,40 @@ class InversionDriver(BaseDriver):
 
         return objective_function.ComboObjectiveFunction(objfcts=reg_funcs)
 
-    def get_tiles(self):
+    def get_tiles(self) -> dict[str, list[np.ndarray]]:
+        """
+        Parse the data locations into tiles for distributed processing.
+
+        Adapts differently to the inversion type (1D, 2D or 3D).
+
+        :return: Dictionary with channels as keys and list of tiles as values.
+        """
         n_data = self.inversion_data.mask.sum()
         indices = np.arange(n_data)
 
-        if "2d" in self.params.inversion_type:
-            return [indices]
-
+        # Split tiles based on inversion type
         if "1d" in self.params.inversion_type:
             # Heuristic to avoid too many chunks
             n_chunks = n_data // self.params.compute.max_chunk_size
 
-            if self.params.compute.n_workers:
-                n_chunks /= self.params.compute.n_workers
-                n_chunks = int(n_chunks) * self.params.compute.n_workers
+            if len(self.workers) > 0:
+                n_chunks /= len(self.workers)
+                n_chunks = int(n_chunks) * len(self.workers)
 
-            n_chunks = np.max([n_chunks, 1])
+            n_chunks = np.max([n_chunks, 1, len(self.workers)])
+            tiles = [[tile] for tile in np.array_split(indices, n_chunks)]
 
-            return np.array_split(indices, n_chunks)
+        elif "2d" in self.params.inversion_type:
+            tiles = [[indices]]
 
-        tiles = tile_locations(
-            self.inversion_data.locations,
-            self.params.compute.tile_spatial,
-            labels=self.inversion_data.parts,
-            sorting=self.simulation.survey.sorting,
-        )
-
-        tiles = self.split_list(tiles)
+        else:
+            tiles = tile_locations(
+                self.inversion_data.locations,
+                self.params.compute.tile_spatial,
+                labels=self.inversion_data.parts,
+                sorting=self.simulation.survey.sorting,
+            )
+            tiles = self.split_list(tiles)
 
         # Base slice over frequencies
         if self.params.inversion_type in ["magnetotellurics", "tipper", "fdem"]:

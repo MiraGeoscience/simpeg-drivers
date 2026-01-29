@@ -225,7 +225,7 @@ class CoreOptions(Options):
 
     @property
     def workpath(self):
-        return Path(self.geoh5.h5file).parent
+        return Path(self.geoh5.h5file).resolve().parent
 
     @property
     def padding_cells(self) -> int:
