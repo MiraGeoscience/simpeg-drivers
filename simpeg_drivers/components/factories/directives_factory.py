@@ -255,7 +255,15 @@ class DirectivesFactory:
         if (
             self._save_iteration_residual_directive is None
             and self.factory_type
-            not in ["tdem", "tdem 1d", "fdem", "fdem 1d", "magnetotellurics", "tipper"]
+            not in [
+                "apparent conductivity",
+                "tdem",
+                "tdem 1d",
+                "fdem",
+                "fdem 1d",
+                "magnetotellurics",
+                "tipper",
+            ]
         ):
             self._save_iteration_residual_directive = SaveDataGeoh5Factory(
                 self.params
@@ -403,6 +411,7 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
             ]
 
         if self.factory_type in [
+            "apparent conductivity",
             "direct current 3d",
             "direct current 2d",
             "magnetotellurics",

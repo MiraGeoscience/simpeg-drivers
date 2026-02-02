@@ -18,6 +18,7 @@ from simpeg_drivers.utils.synthetics.options import SurveyOptions
 
 from .dcip import generate_dc_survey
 from .frequency_domain.fdem import generate_fdem_survey
+from .natural_sources.apparent_conductivity import generate_apparent_conductivity_survey
 from .natural_sources.magnetotellurics import generate_magnetotellurics_survey
 from .natural_sources.tipper import generate_tipper_survey
 from .time_domain.airborne_tdem import generate_airborne_tdem_survey
@@ -76,6 +77,9 @@ def get_survey(
 
     if "tipper" in method:
         return generate_tipper_survey(geoh5, X, Y, Z, name=options.name)
+
+    if "apparent conductivity" in method:
+        return generate_apparent_conductivity_survey(geoh5, X, Y, Z, name=options.name)
 
     if method in ["fdem", "fem", "fdem 1d"]:
         return generate_fdem_survey(geoh5, X, Y, Z, name=options.name)

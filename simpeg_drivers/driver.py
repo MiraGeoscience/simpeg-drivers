@@ -893,7 +893,7 @@ class InversionLogger:
 
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
+    file = Path(r"C:\Users\dominiquef\Desktop\Tests\GEOPY-1383.ui.json").resolve()
     input_file = load_ui_json_as_dict(file)
     # Need to know the driver class before starting dask
     driver_class = InversionDriver.from_input_file(input_file)

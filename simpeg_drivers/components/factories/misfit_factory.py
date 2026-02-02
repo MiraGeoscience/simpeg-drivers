@@ -51,7 +51,12 @@ class MisfitFactory(SimPEGFactory):
         self, tiles
     ):
         # Base slice over frequencies
-        if self.factory_type in ["magnetotellurics", "tipper", "fdem"]:
+        if self.factory_type in [
+            "apparent conductivity",
+            "magnetotellurics",
+            "tipper",
+            "fdem",
+        ]:
             channels = self.simulation.survey.frequencies
         else:
             channels = [None]
