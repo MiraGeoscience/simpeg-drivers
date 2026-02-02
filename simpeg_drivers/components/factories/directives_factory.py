@@ -269,11 +269,17 @@ class DirectivesFactory:
     def scale_misfits(self):
         if (
             self._scale_misfits is None
-            and self.params.directives.auto_scale_misfits
+            and any(
+                getattr(self.params.directives, f"auto_scale_{val}", False)
+                for val in ["tiles", "channels", "misfits"]
+            )
             and len(self.driver.data_misfit.objfcts) > 1
         ):
+            nested_tiles = self.driver.get_nested_tiles()
             self._scale_misfits = directives.ScaleMisfitMultipliers(
-                self.params.geoh5.h5file.parent
+                self.params.geoh5.h5file.parent,
+                nested_tiles,
+                target_chi=self.params.cooling_schedule.chi_factor,
             )
         return self._scale_misfits
 

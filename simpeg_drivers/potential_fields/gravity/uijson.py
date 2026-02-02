@@ -122,7 +122,7 @@ class GravityInversionUIJson(SimPEGDriversUIJson):
         validation_alias=AliasChoices("percentile", "prctile")
     )
     chi_factor: FloatForm
-    auto_scale_misfits: BoolForm
+    auto_scale_tiles: BoolForm
     initial_beta_ratio: FloatForm
     initial_beta: FloatForm
     cooling_factor: FloatForm = Field(

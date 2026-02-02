@@ -19,6 +19,7 @@ from geoh5py.groups import PropertyGroup
 from geoh5py.objects import MTReceivers
 
 from simpeg_drivers import assets_path
+from simpeg_drivers.electromagnetics.frequency_domain.options import DirectiveOptions
 from simpeg_drivers.options import (
     BaseForwardOptions,
     BaseInversionOptions,
@@ -117,3 +118,5 @@ class MTInversionOptions(EMDataMixin, BaseInversionOptions):
     zyy_imag_uncertainty: PropertyGroup | None = None
 
     models: ConductivityModelOptions
+
+    directives: DirectiveOptions = DirectiveOptions()

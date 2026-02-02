@@ -370,7 +370,7 @@
         "value": true,
         "verbose": 3,
         "visible": true,
-        "tooltip": "Whether to auto-scale misfits functions (tile, frequency, joint methods) based on chi-factor"
+        "tooltip": "Whether to auto-scale misfits functions of joint methods based on chi-factor"
     },
     "initial_beta_ratio": {
         "min": 0.0,

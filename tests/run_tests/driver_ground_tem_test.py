@@ -94,9 +94,9 @@ def test_tiling_ground_tem(
     with geoh5.open():
         tiles = fwr_driver.get_tiles()
 
-    assert len(tiles) == 4
+    assert len(tiles[None]) == 4
 
-    for tile in tiles:
+    for tile in tiles[None]:
         assert len(np.unique(components.survey.tx_id_property.values[tile])) == 1
 
     fwr_driver.run()

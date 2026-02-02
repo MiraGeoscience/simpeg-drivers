@@ -22,13 +22,14 @@ from geoh5py.objects import (
     LargeLoopGroundFEMReceivers,
     MovingLoopGroundFEMReceivers,
 )
-from pydantic import field_validator
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field, field_validator
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.options import (
     BaseForwardOptions,
     BaseInversionOptions,
     ConductivityModelOptions,
+    DirectiveOptions,
     EMDataMixin,
 )
 
@@ -125,4 +126,7 @@ class FDEMInversionOptions(BaseFDEMOptions, BaseInversionOptions):
     z_real_uncertainty: PropertyGroup | None = None
     z_imag_channel: PropertyGroup | None = None
     z_imag_uncertainty: PropertyGroup | None = None
+
     models: ConductivityModelOptions
+
+    directives: DirectiveOptions = DirectiveOptions()
