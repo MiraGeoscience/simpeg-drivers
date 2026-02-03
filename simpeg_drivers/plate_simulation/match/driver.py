@@ -22,7 +22,7 @@ from geoapps_utils.utils.locations import topo_drape_elevation
 from geoapps_utils.utils.logger import get_logger
 from geoapps_utils.utils.numerical import inverse_weighted_operator
 from geoapps_utils.utils.plotting import symlog
-from geoapps_utils.utils.transformations import cartesian_to_polar
+from geoapps_utils.utils.transformations import cartesian_to_polar, rotate_xyz
 from geoh5py import Workspace
 from geoh5py.groups import PropertyGroup, SimPEGGroup
 from geoh5py.objects import AirborneTEMReceivers, Surface
@@ -195,11 +195,14 @@ class PlateMatchDriver(BaseDriver):
             indices = self.params.survey.get_segment_indices(
                 nearest, self.params.max_distance
             )
-            spatial_projection = self.spatial_interpolation(
-                indices,
+            strike_angle = (
                 0
                 if self.params.strike_angles is None
-                else self.params.strike_angles.values[ii],
+                else np.abs(self.params.strike_angles.values[ii])
+            )
+            spatial_projection = self.spatial_interpolation(
+                indices,
+                strike_angle,
             )
             file_split = np.array_split(
                 self.params.simulation_files, np.maximum(1, len(self.workers) * 10)
@@ -249,8 +252,20 @@ class PlateMatchDriver(BaseDriver):
                 # Set position of plate to query location
                 center = self.params.survey.vertices[nearest]
                 center[2] = self._drape_heights[nearest]
-                plate.vertices = plate.vertices + center
-                plate.metadata = options.model.model_dump()
+
+                # Rotate along line
+                delta = (
+                    self.params.survey.vertices[nearest + 1]
+                    - self.params.survey.vertices[nearest]
+                )
+                azm = np.rad2deg(np.arctan2(delta[1], delta[0])) + strike_angle
+                vertices = plate.vertices + center
+                vertices = rotate_xyz(vertices, center, azm)
+
+                plate.vertices = vertices
+                metadata = options.model.model_dump()
+                metadata.update({"UUID": self.params.simulation_files[ranked[0]].name})
+                plate.metadata = metadata
 
             results.append(self.params.simulation_files[ranked[0]].name)
 
