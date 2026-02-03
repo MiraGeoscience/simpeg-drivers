@@ -33,7 +33,13 @@ def generate_apparent_conductivity_survey(
         name=name,
         channels=list(channels),
     )
-    survey.base_stations = AirborneAppConBaseStations.create(geoh5, vertices=vertices)
+    base_station = AirborneAppConBaseStations.create(
+        geoh5, vertices=np.c_[-100, -100, 20]
+    )
+    base_station.tx_id_property = np.r_[1]
+
+    survey.base_stations = base_station
+    survey.tx_id_property = np.ones(survey.n_vertices, dtype=int)
     survey.remove_cells(mask_large_connections(survey, 200.0))
 
     return survey
