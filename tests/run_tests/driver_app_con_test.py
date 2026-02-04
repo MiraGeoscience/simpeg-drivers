@@ -13,6 +13,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+from geoapps_utils.modelling.plates import PlateModel
 from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 
@@ -52,10 +53,24 @@ def test_app_con_fwr_run(
     opts = SyntheticsComponentsOptions(
         method="apparent conductivity",
         survey=SurveyOptions(
-            n_stations=n_grid_points, n_lines=n_grid_points, drape=15.0
+            n_stations=n_grid_points,
+            n_lines=n_grid_points,
+            drape=15.0,
+            topography=lambda x, y: np.zeros(x.shape),
         ),
-        mesh=MeshOptions(cell_size=cell_size, refinement=refinement),
-        model=ModelOptions(background=100.0),
+        mesh=MeshOptions(
+            cell_size=cell_size, refinement=refinement, padding_distance=2000
+        ),
+        model=ModelOptions(
+            background=100.0,
+            anomaly=1.0,
+            plate=PlateModel(
+                strike_length=40.0,
+                dip_length=40.0,
+                width=40.0,
+                origin=(0.0, 0.0, -40.0),
+            ),
+        ),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
@@ -96,11 +111,14 @@ def test_app_con_run(tmp_path: Path, max_iterations=1, pytest=True):
             )
             data.append(data_entity)
 
+            # Assign uncertainties based on deviation from apparent conductivity of 0.01 S/m
             uncert = survey.add_data(
                 {
                     f"uncertainty_[{ind}]": {
-                        "values": np.ones_like(data_entity.values)
-                        * np.percentile(np.abs(data_entity.values), 1)
+                        "values": np.full(
+                            data_entity.values.shape[0],
+                            (data_entity.values.max() - data_entity.values.min()) / 4,
+                        )
                     }
                 }
             )
@@ -129,10 +147,10 @@ def test_app_con_run(tmp_path: Path, max_iterations=1, pytest=True):
             lower_bound=0.75,
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e3,
-            starting_chi_factor=1.0,
             cooling_rate=1,
             percentile=100,
-            chi_factor=1.0,
+            chi_factor=0.1,
+            starting_chi_factor=0.1,
             max_line_search_iterations=5,
             app_con_channel=data_groups,
             app_con_uncertainty=uncert_groups,
@@ -155,7 +173,7 @@ def test_app_con_run(tmp_path: Path, max_iterations=1, pytest=True):
 if __name__ == "__main__":
     # Full run
     test_app_con_fwr_run(
-        Path("./"), n_grid_points=8, cell_size=(5.0, 5.0, 5.0), refinement=(4, 4)
+        Path("./"), n_grid_points=8, cell_size=(10.0, 10.0, 10.0), refinement=(4, 4)
     )
     test_app_con_run(
         Path("./"),
