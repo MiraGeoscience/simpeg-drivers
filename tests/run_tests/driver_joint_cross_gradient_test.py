@@ -57,7 +57,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 53.29582613045845, "phi_d": 9270, "phi_m": 0.0898}
+target_run = {"data_norm": 53.29582613045845, "phi_d": 9210, "phi_m": 0.133}
 INDUCING_FIELD = (50000.0, 90.0, 0.0)
 
 
@@ -200,6 +200,9 @@ def test_joint_cross_gradient_inv_run(
                     starting_model=0.0,
                     reference_model=0.0,
                     upper_bound=1.0,
+                    tile_spatial=2,
+                    auto_scale_tiles=True,
+                    chi_factor=0.8,
                 )
                 drivers.append(GravityInversionDriver(params))
             elif suffix == "C":
@@ -231,9 +234,10 @@ def test_joint_cross_gradient_inv_run(
                     data_object=survey,
                     starting_model=1e-4,
                     reference_model=0.0,
-                    tile_spatial=1,
                     tmi_channel=data,
                     tmi_uncertainty=1e1,
+                    tile_spatial=2,
+                    auto_scale_tiles=False,
                 )
                 drivers.append(MVIInversionDriver(params))
 
@@ -260,7 +264,28 @@ def test_joint_cross_gradient_inv_run(
         )
 
     driver = JointCrossGradientDriver(joint_params)
+
+    # Check that chi factors set on the sub drivers are preserved forward
+    np.testing.assert_allclose(
+        driver.data_misfit.multipliers, [0.8, 0.8, 1.0, 1.0, 1.0], atol=1e-3
+    )
+
     driver.run()
+
+    # Mix of scaling on misfits and tiles.
+    # Expecting that gravity tiles are independently scaled, but MVI tiles take
+    # the scaling from its total misfit.
+    np.testing.assert_allclose(
+        driver.directives.scale_misfits.scalings,
+        [0.5011, 0.5, 0.5, 0.5, 1.0],
+        atol=1e-3,
+    )
+    # Check that scaling * chi factor is reflected in data misfit multipliers
+    np.testing.assert_allclose(
+        driver.data_misfit.multipliers,
+        [0.4009, 0.4, 0.5, 0.5, 1.0],
+        atol=1e-3,
+    )
 
     with Workspace(driver.params.geoh5.h5file):
         output = get_inversion_output(
