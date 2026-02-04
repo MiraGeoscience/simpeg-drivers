@@ -20,16 +20,24 @@ from simpeg_drivers.utils.utils import active_from_xyz
 
 def get_topography_surface(geoh5: Workspace, options: SurveyOptions) -> Surface:
     """
-    Returns a topography surface with 2x the limits of the survey.
+    Returns a topography surface with 4x the resolution and limits of the survey.
+
+    Topography is sampled twice as finely as the survey in both dimensions.  Since
+    the topography extents are 4x the survey extents, the
 
     :param geoh5: Geoh5 workspace.
-    :param options: Survey options. Extents will be 2x the survey extents.
+    :param options: Survey options. Extents will be 4x the survey extents.
     """
 
     X, Y, Z = grid_layout(
-        limits=[4 * k for k in options.limits],  # type: ignore
-        station_spacing=int(np.ceil((options.limits[1] - options.limits[0]) / 16)),
-        line_spacing=int(np.ceil((options.limits[3] - options.limits[2]) / 16)),
+        limits=[
+            4 * (options.center[0] - options.width / 2),
+            4 * (options.center[0] + options.width / 2),
+            4 * (options.center[1] - options.height / 2),
+            4 * (options.center[1] + options.height / 2),
+        ],
+        n_stations=8 * options.n_stations,
+        n_lines=8 * options.n_lines,
         topography=options.topography,
     )
 

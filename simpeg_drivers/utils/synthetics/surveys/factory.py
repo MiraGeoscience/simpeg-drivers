@@ -26,21 +26,21 @@ from .time_domain.ground_tdem import generate_tdem_survey
 
 def grid_layout(
     limits: list[float],
-    station_spacing: int,
-    line_spacing: int,
+    n_stations: int,
+    n_lines: int,
     topography: Callable,
 ):
     """
     Generates grid locations based on limits and spacing.
 
     :param limits: Tuple of (xmin, xmax, ymin, ymax).
-    :param station_spacing: Number of stations along each line.
-    :param line_spacing: Number of lines in the grid.
+    :param n_stations: Number of stations along each line.
+    :param n_lines: Number of lines in the grid.
     :param topography: Callable that generates the topography (z values).
     """
 
-    x = np.linspace(limits[0], limits[1], station_spacing)
-    y = np.linspace(limits[2], limits[3], line_spacing)
+    x = np.linspace(limits[0], limits[1], n_stations)
+    y = np.linspace(limits[2], limits[3], n_lines)
     X, Y = np.meshgrid(x, y)
     Z = topography(X, Y)
 
@@ -62,8 +62,8 @@ def get_survey(
 
     X, Y, Z = grid_layout(
         limits=options.limits,
-        station_spacing=options.n_stations,
-        line_spacing=options.n_lines,
+        n_stations=options.n_stations,
+        n_lines=options.n_lines,
         topography=options.topography,
     )
     Z += options.drape
