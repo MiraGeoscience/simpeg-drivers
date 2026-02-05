@@ -22,7 +22,7 @@ def generate_apparent_conductivity_survey(
     X: np.ndarray,
     Y: np.ndarray,
     Z: np.ndarray,
-    channels: tuple = (10.0, 50.0, 200.0),
+    channels: tuple = (50.0, 500.0, 5000.0),
     name: str = "survey",
 ) -> AirborneAppConReceivers:
     """Create a Tipper survey object from survey grid locations."""

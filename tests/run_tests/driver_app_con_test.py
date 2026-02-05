@@ -40,7 +40,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.01938047698245966, "phi_d": 1.54, "phi_m": 59.3}
+target_run = {"data_norm": 0.017971709375948795, "phi_d": 206, "phi_m": 8570}
 
 
 def test_app_con_fwr_run(
@@ -65,10 +65,11 @@ def test_app_con_fwr_run(
             background=100.0,
             anomaly=1.0,
             plate=PlateModel(
-                strike_length=40.0,
-                dip_length=40.0,
-                width=40.0,
-                origin=(0.0, 0.0, -40.0),
+                strike_length=60.0,
+                dip_length=60.0,
+                width=60.0,
+                dip=90,
+                origin=(0.0, 0.0, -90.0),
             ),
         ),
     )
@@ -136,7 +137,7 @@ def test_app_con_run(tmp_path: Path, max_iterations=1, pytest=True):
             topography_object=topography,
             data_object=survey,
             starting_model=1e2,
-            reference_model=1e2,
+            reference_model=None,
             background_conductivity=1e2,
             s_norm=1.0,
             x_norm=1.0,
@@ -144,9 +145,8 @@ def test_app_con_run(tmp_path: Path, max_iterations=1, pytest=True):
             z_norm=1.0,
             alpha_s=1.0,
             model_type="Resistivity (Ohm-m)",
-            lower_bound=0.75,
             max_global_iterations=max_iterations,
-            initial_beta_ratio=1e3,
+            initial_beta_ratio=1e1,
             cooling_rate=1,
             percentile=100,
             chi_factor=0.1,
