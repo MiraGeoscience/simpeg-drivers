@@ -188,6 +188,7 @@ class PlateMatchDriver(BaseDriver):
         )
         observed = normalized_data(self.params.data)[self._time_mask, :]
         tree = cKDTree(self.params.survey.vertices[:, :2])
+        names = []
         results = []
         for ii, query in enumerate(self.params.queries.vertices):
             # Find the nearest survey location to the query point
@@ -228,7 +229,7 @@ class PlateMatchDriver(BaseDriver):
                 progress(tasks)
                 tasks = self.client.gather(tasks)
 
-            scores = np.hstack(tasks)
+            scores, indices = np.vstack(tasks).T
             ranked = np.argsort(scores)[::-1]
 
             # TODO: Return top N matches
@@ -325,7 +326,7 @@ def fetch_survey(workspace: Workspace) -> AirborneTEMReceivers | None:
 
 def batch_files_score(
     files: Path | list[Path], spatial_projection, time_projection, observed
-) -> list[float]:
+) -> list[tuple[float, int]]:
     """
     Process a batch of simulation files and compute scores against observed data.
 
@@ -352,11 +353,11 @@ def batch_files_score(
             simulated = normalized_data(survey.get_entity("Iteration_0_z")[0])
             pred = time_projection @ (spatial_projection @ simulated.T).T
             score = 0.0
-
+            indices = []
             # Metric: normalized cross-correlation
             for obs, pre in zip(observed, pred, strict=True):
                 # Full cross-correlation
-                corr = signal.correlate(obs, pre, mode="full")
+                corr = signal.correlate(obs, pre, mode="same")
                 # Normalize by energy to get correlation coefficient in [-1, 1]
                 denom = np.linalg.norm(pre) * np.linalg.norm(obs)
                 if denom == 0:
@@ -365,8 +366,9 @@ def batch_files_score(
                     corr_norm = corr / denom
 
                 score += np.max(corr_norm)
+                indices.append(np.argmax(corr_norm))
 
-            scores.append(score)
+            scores.append((score, np.median(indices)))
 
     return scores
 

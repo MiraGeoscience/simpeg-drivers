@@ -110,7 +110,7 @@ def test_matching_driver(tmp_path: Path):
 
     # Generate simulation files
     with get_workspace(tmp_path / f"{__name__}.geoh5") as geoh5:
-        components = generate_example(geoh5, n_grid_points=5, refinement=(2,))
+        components = generate_example(geoh5, n_grid_points=15, refinement=(2,))
 
         params = TDEMForwardOptions.build(
             geoh5=geoh5,
@@ -153,6 +153,13 @@ def test_matching_driver(tmp_path: Path):
             for uid in prop_group.properties:
                 child = survey.get_entity(uid)[0]
                 child.values = child.values * scale
+
+            # Downsample data
+            mask = np.ones_like(child.values, dtype=bool)
+            mask[1::3] = False
+            survey.remove_vertices(mask)
+            indices = np.arange(survey.n_vertices)
+            survey.cells = np.c_[indices[:-1], indices[1:]]
 
     # Random choice of file
     with geoh5.open():
