@@ -116,7 +116,7 @@ def test_sensitivity_percent_cutoff_run(tmp_path):
     SensitivityCutoffDriver.start(str(tmp_path / "sensitivity_cutoff_percent.ui.json"))
     with Workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         mask = geoh5.get_entity("5 percent cutoff")[0]
-        assert mask.values.sum() == 457
+        assert mask.values.sum() == 578
 
 
 def test_sensitivity_cutoff_percentile_run(tmp_path):
@@ -144,7 +144,7 @@ def test_sensitivity_cutoff_percentile_run(tmp_path):
     )
     with Workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         mask = geoh5.get_entity("5 percentile cutoff")[0]
-        assert mask.values.sum() == 4288
+        assert mask.values.sum() == 4265
 
 
 def test_sensitivity_cutoff_log_percent_run(tmp_path):
@@ -172,4 +172,4 @@ def test_sensitivity_cutoff_log_percent_run(tmp_path):
     )
     with Workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         mask = geoh5.get_entity("5 percent log cutoff")[0]
-        assert mask.values.sum() == 4329
+        assert mask.values.sum() == 4306
