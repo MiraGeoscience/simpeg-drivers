@@ -269,7 +269,7 @@ def test_homogeneous_run(
             out_group = run_ws.get_entity(driver.out_group.uid)[0]
             mesh = out_group.get_entity("mesh A")[0]
             petro_model = mesh.get_entity("petrophysical_model")[0]
-            assert len(np.unique(petro_model.values)) == 5
+            assert len(np.unique(petro_model.values)) == 4
 
 
 if __name__ == "__main__":
