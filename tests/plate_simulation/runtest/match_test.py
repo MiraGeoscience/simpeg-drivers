@@ -175,4 +175,7 @@ def test_matching_driver(tmp_path: Path):
         match_driver = PlateMatchDriver(options)
         results = match_driver.run()
 
-        assert results[0] == file.stem + f"_[{4}].geoh5"
+        assert isinstance(results, Points)
+
+        names = results.get_data("file")[0]
+        assert names.values[0] == file.stem + f"_[{4}].geoh5"

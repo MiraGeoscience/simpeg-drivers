@@ -268,9 +268,23 @@ class PlateMatchDriver(BaseDriver):
                 metadata.update({"UUID": self.params.simulation_files[ranked[0]].name})
                 plate.metadata = metadata
 
-            results.append(self.params.simulation_files[ranked[0]].name)
+            names.append(self.params.simulation_files[ranked[0]].name)
+            results.append(scores[ranked[0]])
 
-        return results
+        out = self.params.queries.copy(parent=self.params.out_group)
+        out.add_data(
+            {
+                "file": {
+                    "values": np.array(names, dtype="U"),
+                    "primitive_type": "TEXT",
+                },
+                "score": {
+                    "values": np.array(results),
+                },
+            }
+        )
+
+        return out
 
     @classmethod
     def start_dask_run(
