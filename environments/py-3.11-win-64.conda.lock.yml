@@ -25,10 +25,10 @@ dependencies:
   - contourpy=1.3.3=py311h275cad7_4
   - cycler=0.12.1=pyhcf101f3_2
   - cytoolz=1.1.0=py311h3485c13_1
-  - dask-core=2025.3.0=pyhd8ed1ab_0
+  - dask-core=2025.3.1=pyhd8ed1ab_0
   - deprecated=1.3.1=pyhd8ed1ab_1
   - discretize=0.11.3=py311h05ac4f6_1
-  - distributed=2025.3.0=pyhd8ed1ab_0
+  - distributed=2025.3.1=pyhd8ed1ab_0
   - fasteners=0.19=pyhd8ed1ab_1
   - fonttools=4.61.1=py311h3f79411_0
   - freetype=2.14.1=h57928b3_0
@@ -60,8 +60,8 @@ dependencies:
   - libffi=3.5.2=h3d046cb_0
   - libfreetype=2.14.1=h57928b3_0
   - libfreetype6=2.14.1=hdbac1cb_0
-  - libgcc=15.2.0=h8ee18e1_16
-  - libgomp=15.2.0=h8ee18e1_16
+  - libgcc=15.2.0=h8ee18e1_17
+  - libgomp=15.2.0=h8ee18e1_17
   - libhwloc=2.12.2=default_h4379cf1_1000
   - libiconv=1.18=hc1393d2_2
   - libjpeg-turbo=3.1.2=hfd05255_0
@@ -94,8 +94,8 @@ dependencies:
   - pandas=3.0.0=py311h0610301_0
   - partd=1.4.2=pyhd8ed1ab_0
   - pillow=10.3.0=py311h5592be9_1
-  - pip=25.3=pyh8b19718_0
-  - psutil=7.2.1=py311hf893f09_0
+  - pip=26.0.1=pyh8b19718_0
+  - psutil=7.2.2=py311hf893f09_0
   - pthread-stubs=0.4=h0e40799_1002
   - pydantic=2.12.5=pyhcf101f3_1
   - pydantic-core=2.41.5=py311hf51aa87_1
@@ -108,7 +108,7 @@ dependencies:
   - python-mumps=0.0.3=py311h5bfbc98_0
   - python-tzdata=2025.3=pyhd8ed1ab_0
   - python_abi=3.11=8_cp311
-  - pyyaml=6.0.3=py311h3f79411_0
+  - pyyaml=6.0.3=py311h3f79411_1
   - rtree=1.2.0=py311h44d53c4_1
   - scikit-learn=1.6.1=py311hdcb8d17_0
   - scipy=1.14.1=py311hf16d85f_2
@@ -121,7 +121,7 @@ dependencies:
   - tk=8.6.13=h6ed50ae_3
   - toolz=1.1.0=pyhd8ed1ab_1
   - tornado=6.5.4=py311h3485c13_0
-  - tqdm=4.67.1=pyhd8ed1ab_1
+  - tqdm=4.67.3=pyha7b4d00_0
   - trimesh=4.1.8=pyhd8ed1ab_0
   - typing-extensions=4.15.0=h396c80c_0
   - typing-inspection=0.4.2=pyhd8ed1ab_1
@@ -135,7 +135,7 @@ dependencies:
   - vcomp14=14.44.35208=h818238b_34
   - wheel=0.46.3=pyhd8ed1ab_0
   - win_inet_pton=1.1.0=pyh7428d3b_8
-  - wrapt=2.0.1=py311h3485c13_1
+  - wrapt=2.1.1=py311h3485c13_0
   - xorg-libxau=1.0.12=hba3369d_1
   - xorg-libxdmcp=1.1.5=hba3369d_1
   - xyzservices=2025.11.0=pyhd8ed1ab_0
@@ -146,9 +146,9 @@ dependencies:
   - zstd=1.5.7=h534d264_6
   - pip:
     - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@3f02228742b4837bd456438081d0a128fc3e1b3a
-    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@4ba1b79b60b6e6615860d4a786d28b433007824e
+    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@58f1d8d8a1ff9a6047f53194611286657418fd64
     - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@99e51cbe794114ce08ab3bb16efcc6749b14914a
-    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@17c25f9b01cd385fd1206e1f5754ed9e31bb519b
+    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@ef94a62a27ecf9713377801f6632861a07e2a65c
 
 variables:
   KMP_WARNINGS: 0
