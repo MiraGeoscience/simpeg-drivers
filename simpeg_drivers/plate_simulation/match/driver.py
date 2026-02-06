@@ -135,8 +135,8 @@ class PlateMatchDriver(BaseDriver):
             index_center, self.params.max_distance
         )
         segment = self.params.survey.vertices[indices]
-        delta = np.mean(segment - segment[0, :], axis=0)
-        azimuth = 90 - np.rad2deg(np.arctan2(delta[0], delta[1]))
+        delta = np.median(np.diff(segment, axis=0), axis=0)
+        azimuth = 90 - np.rad2deg(np.arctan2(delta[1], delta[0]))
 
         plate_geometry = PlateGeometry.model_validate(
             {
@@ -244,13 +244,13 @@ class PlateMatchDriver(BaseDriver):
             strike_angle = (
                 0
                 if self.params.strike_angles is None
-                else np.abs(self.params.strike_angles.values[ii])
+                else self.params.strike_angles.values[ii]
             )
             data, flip = prepare_data(observed[:, indices])
 
             spatial_projection = self.spatial_interpolation(
                 indices,
-                strike_angle,
+                np.abs(strike_angle),
             )
             tasks = []
 
@@ -292,9 +292,10 @@ class PlateMatchDriver(BaseDriver):
 
                 dir_correction = strike_angle + 180 if flip else strike_angle
 
-                self._create_plate_from_parameters(
+                plate = self._create_plate_from_parameters(
                     int(indices[int(centers[best])]), options.model, dir_correction
                 )
+                plate.name = f"Query [{ii}]"
 
             names.append(self.params.simulation_files[best].name)
             results.append(scores[best])
@@ -354,7 +355,7 @@ def prepare_data(data: np.ndarray) -> tuple[np.ndarray, bool]:
 
     # Check if peaks migrate in a consistent direction across channels
     diffs = np.diff(max_ind)
-    if np.mean(diffs) < 0:
+    if np.median(diffs) < 0:
         return data_array[:, ::-1], True  # Reverse channels if peaks migrate up-dip
 
     return data_array, False
@@ -418,10 +419,9 @@ def batch_files_score(
                 logger.warning("No survey found in %s, skipping.", sim_file)
                 continue
 
-            simulated = normalized_data(
-                get_data_array(survey.get_entity("Iteration_0_z")[0])
-            )
+            simulated = get_data_array(survey.get_entity("Iteration_0_z")[0])
             pred = time_projection @ (spatial_projection @ simulated.T).T
+            pred = normalized_data(pred)
             score = 0.0
             indices = []
             # Metric: normalized cross-correlation

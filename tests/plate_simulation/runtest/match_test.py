@@ -175,7 +175,7 @@ def test_matching_driver(tmp_path: Path):
         survey = fetch_survey(geoh5)
 
         # Rotate the survey to test matching
-        survey.vertices = rotate_xyz(survey.vertices, [0, 0, 0], 225.0)
+        survey.vertices = rotate_xyz(survey.vertices, [0, 0, 0], 215.0)
 
         # Flip the data to simulate up-dip measurements
         prop_group = survey.get_entity("Iteration_0_z")[0]
@@ -183,11 +183,21 @@ def test_matching_driver(tmp_path: Path):
             child = survey.get_entity(uid)[0]
             child.values = child.values[::-1]
 
+        # Change the strike angle to simulate a different orientation
+        strikes = components.queries.add_data(
+            {
+                "strike": {
+                    "values": np.full(components.queries.n_vertices, -10.0),
+                }
+            }
+        )
+
         options = PlateMatchOptions(
             geoh5=geoh5,
             survey=survey,
             data=prop_group,
             queries=components.queries,
+            strike_angles=strikes,
             topography_object=components.topography,
             simulations=new_dir,
         )
@@ -199,4 +209,4 @@ def test_matching_driver(tmp_path: Path):
         names = results.get_data("file")[0]
         assert names.values[0] == file.stem + f"_[{4}].geoh5"
 
-        assert geoh5.get_entity("Maxwell Plate")[0].geometry.dip_direction == 45.0
+        assert geoh5.get_entity("Query [0]")[0].geometry.dip_direction == 45.0
