@@ -13,6 +13,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 from geoapps_utils.utils.importing import GeoAppsError
+from geoapps_utils.utils.transformations import rotate_xyz
 from geoh5py import Workspace
 from geoh5py.groups import PropertyGroup, SimPEGGroup
 from geoh5py.objects import Points
@@ -40,8 +41,14 @@ from tests.utils.targets import get_workspace
 def generate_example(geoh5: Workspace, n_grid_points: int, refinement: tuple[int]):
     opts = SyntheticsComponentsOptions(
         method="airborne tdem",
-        survey=SurveyOptions(n_stations=n_grid_points, n_lines=1, drape=10.0),
-        mesh=MeshOptions(refinement=refinement, padding_distance=400.0),
+        survey=SurveyOptions(
+            n_stations=n_grid_points,
+            n_lines=1,
+            width=1000,
+            drape=40.0,
+            topography=lambda x, y: np.zeros(x.shape),
+        ),
+        mesh=MeshOptions(refinement=refinement),
         model=ModelOptions(background=0.001),
     )
     components = SyntheticsComponents(geoh5, options=opts)
@@ -110,7 +117,7 @@ def test_matching_driver(tmp_path: Path):
 
     # Generate simulation files
     with get_workspace(tmp_path / f"{__name__}.geoh5") as geoh5:
-        components = generate_example(geoh5, n_grid_points=15, refinement=(2,))
+        components = generate_example(geoh5, n_grid_points=32, refinement=(2,))
 
         params = TDEMForwardOptions.build(
             geoh5=geoh5,
@@ -132,6 +139,8 @@ def test_matching_driver(tmp_path: Path):
         ifile.data["simulation"] = fwr_driver.out_group
 
         plate_options = PlateSimulationOptions.build(ifile.data)
+        plate_options.model.overburden_model.thickness = 40.0
+        plate_options.model.plate_model.dip_length = 300.0
         driver = PlateSimulationDriver(plate_options)
         driver.run()
 
@@ -156,14 +165,18 @@ def test_matching_driver(tmp_path: Path):
 
             # Downsample data
             mask = np.ones_like(child.values, dtype=bool)
-            mask[1::3] = False
+            mask[1::2] = False
             survey.remove_vertices(mask)
             indices = np.arange(survey.n_vertices)
             survey.cells = np.c_[indices[:-1], indices[1:]]
 
-    # Random choice of file
+    # Run the matching driver
     with geoh5.open():
         survey = fetch_survey(geoh5)
+
+        # Rotate the survey to test matching
+        survey.vertices = rotate_xyz(survey.vertices, [0, 0, 0], 225.0)
+
         options = PlateMatchOptions(
             geoh5=geoh5,
             survey=survey,

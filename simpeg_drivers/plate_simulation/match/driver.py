@@ -25,7 +25,8 @@ from geoapps_utils.utils.plotting import symlog
 from geoapps_utils.utils.transformations import cartesian_to_polar, rotate_xyz
 from geoh5py import Workspace
 from geoh5py.groups import PropertyGroup, SimPEGGroup
-from geoh5py.objects import AirborneTEMReceivers, Surface
+from geoh5py.objects import AirborneTEMReceivers, MaxwellPlate, Surface
+from geoh5py.objects.maxwell_plate import PlateGeometry
 from geoh5py.ui_json import InputFile
 from scipy import signal
 from scipy.sparse import csr_matrix
@@ -34,7 +35,7 @@ from typing_extensions import Self
 
 from simpeg_drivers.driver import BaseDriver
 from simpeg_drivers.plate_simulation.match.options import PlateMatchOptions
-from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
+from simpeg_drivers.plate_simulation.options import ModelOptions, PlateSimulationOptions
 
 
 logger = get_logger(name=__name__, level_name=False, propagate=False, add_name=False)
@@ -122,6 +123,41 @@ class PlateMatchDriver(BaseDriver):
                 sys.exit(1)
 
         return driver
+
+    def _create_plate_from_parameters(
+        self, index_center: int, model_options: ModelOptions, strike_angle: float
+    ) -> MaxwellPlate:
+        center = self.params.survey.vertices[index_center]
+        center[2] = (
+            self._drape_heights[index_center] - model_options.overburden_model.thickness
+        )
+        indices = self.params.survey.get_segment_indices(
+            index_center, self.params.max_distance
+        )
+        segment = self.params.survey.vertices[indices]
+        delta = np.mean(segment - segment[0, :], axis=0)
+        azimuth = 90 - np.rad2deg(np.arctan2(delta[0], delta[1]))
+
+        plate_geometry = PlateGeometry.model_validate(
+            {
+                "position": {
+                    "x": center[0],
+                    "y": center[1],
+                    "z": center[2],
+                },
+                "width": model_options.plate_model.dip_length,
+                "thickness": model_options.plate_model.width,
+                "length": model_options.plate_model.strike_length,
+                "dip": model_options.plate_model.dip,
+                "dip_direction": azimuth + strike_angle,
+            }
+        )
+        plate = MaxwellPlate.create(
+            self.params.geoh5, geometry=plate_geometry, parent=self.params.out_group
+        )
+        plate.metadata = model_options.model_dump()
+
+        return plate
 
     def _get_drape_heights(self) -> np.ndarray:
         """Set drape heights based on topography object and optional topography data."""
@@ -229,47 +265,28 @@ class PlateMatchDriver(BaseDriver):
                 progress(tasks)
                 tasks = self.client.gather(tasks)
 
-            scores, indices = np.vstack(tasks).T
-            ranked = np.argsort(scores)[::-1]
-
+            scores, centers = np.vstack(tasks).T
+            ranked = np.argsort(scores)
+            best = ranked[0]
             # TODO: Return top N matches
             # for rank in ranked[-1:][::-1]:
             logger.info(
                 "File: %s \nScore: %.4f",
-                self.params.simulation_files[ranked[0]].name,
-                scores[ranked[0]],
+                self.params.simulation_files[best].name,
+                scores[best],
             )
-            with Workspace(self.params.simulation_files[ranked[0]], mode="r") as ws:
+            with Workspace(self.params.simulation_files[best], mode="r") as ws:
                 survey = fetch_survey(ws)
                 ui_json = survey.parent.parent.options
                 ui_json["geoh5"] = ws
                 ifile = InputFile(ui_json=ui_json)
                 options = PlateSimulationOptions.build(ifile)
-
-                plate = survey.parent.parent.get_entity("plate")[0].copy(
-                    parent=self.params.out_group
+                self._create_plate_from_parameters(
+                    int(indices[int(centers[best])]), options.model, strike_angle
                 )
 
-                # Set position of plate to query location
-                center = self.params.survey.vertices[nearest]
-                center[2] = self._drape_heights[nearest]
-
-                # Rotate along line
-                delta = (
-                    self.params.survey.vertices[nearest + 1]
-                    - self.params.survey.vertices[nearest]
-                )
-                azm = np.rad2deg(np.arctan2(delta[1], delta[0])) + strike_angle
-                vertices = plate.vertices + center
-                vertices = rotate_xyz(vertices, center, azm)
-
-                plate.vertices = vertices
-                metadata = options.model.model_dump()
-                metadata.update({"UUID": self.params.simulation_files[ranked[0]].name})
-                plate.metadata = metadata
-
-            names.append(self.params.simulation_files[ranked[0]].name)
-            results.append(scores[ranked[0]])
+            names.append(self.params.simulation_files[best].name)
+            results.append(scores[best])
 
         out = self.params.queries.copy(parent=self.params.out_group)
         out.add_data(
@@ -313,7 +330,7 @@ class PlateMatchDriver(BaseDriver):
 
 def normalized_data(property_group: PropertyGroup, threshold=5) -> np.ndarray:
     """
-    Return data from a property group with symlog scaling and zero mean.
+    Return data from a property group with symlog, zero mean and unit max normalization.
 
     :param property_group: Property group containing data channels.
     :param threshold: Percentile threshold for symlog normalization.
@@ -324,7 +341,8 @@ def normalized_data(property_group: PropertyGroup, threshold=5) -> np.ndarray:
     data_array = np.vstack([table[name] for name in table.dtype.names])
     thresh = np.percentile(np.abs(data_array), threshold)
     log_data = symlog(data_array, thresh)
-    return log_data - np.mean(log_data, axis=1)[:, None]
+    centered_log = log_data - np.mean(log_data, axis=1)[:, None]
+    return centered_log / np.abs(centered_log).max()
 
 
 def fetch_survey(workspace: Workspace) -> AirborneTEMReceivers | None:
@@ -370,16 +388,19 @@ def batch_files_score(
             indices = []
             # Metric: normalized cross-correlation
             for obs, pre in zip(observed, pred, strict=True):
+                # Scale pre on obs
+                vals = pre / np.abs(pre).max() * np.abs(obs).max()
+
                 # Full cross-correlation
-                corr = signal.correlate(obs, pre, mode="same")
+                corr = signal.correlate(obs, vals, mode="same")
                 # Normalize by energy to get correlation coefficient in [-1, 1]
-                denom = np.linalg.norm(pre) * np.linalg.norm(obs)
+                denom = np.linalg.norm(vals) * np.linalg.norm(obs)
                 if denom == 0:
                     corr_norm = np.zeros_like(corr)
                 else:
                     corr_norm = corr / denom
 
-                score += np.max(corr_norm)
+                score += np.linalg.norm(obs - vals)
                 indices.append(np.argmax(corr_norm))
 
             scores.append((score, np.median(indices)))
