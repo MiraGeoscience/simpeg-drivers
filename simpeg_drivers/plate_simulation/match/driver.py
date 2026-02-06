@@ -149,7 +149,7 @@ class PlateMatchDriver(BaseDriver):
                 "thickness": model_options.plate_model.width,
                 "length": model_options.plate_model.strike_length,
                 "dip": model_options.plate_model.dip,
-                "dip_direction": azimuth + strike_angle,
+                "dip_direction": (azimuth + strike_angle) % 360,
             }
         )
         plate = MaxwellPlate.create(
@@ -195,6 +195,12 @@ class PlateMatchDriver(BaseDriver):
             origin=np.r_[self.params.survey.vertices[indices, :2].mean(axis=0), 0],
         )
         local_polar[local_polar[:, 1] >= 180, 0] *= -1  # Wrap azimuths
+
+        # Flip the line segment if the azimuth angle suggests the opposite direction
+        start_line = len(indices) // 2
+        if np.median(local_polar[:start_line, 1]) < 180:
+            local_polar = local_polar[::-1, :]
+
         local_polar[:, 1] = (
             0.0 if strike_angle is None else strike_angle
         )  # Align azimuths to zero
@@ -222,8 +228,11 @@ class PlateMatchDriver(BaseDriver):
             "Running %s . . .",
             self.params.title,
         )
-        observed = normalized_data(self.params.data)[self._time_mask, :]
+        observed = get_data_array(self.params.data)[self._time_mask, :]
         tree = cKDTree(self.params.survey.vertices[:, :2])
+        file_split = np.array_split(
+            self.params.simulation_files, np.maximum(1, len(self.workers) * 10)
+        )
         names = []
         results = []
         for ii, query in enumerate(self.params.queries.vertices):
@@ -237,21 +246,20 @@ class PlateMatchDriver(BaseDriver):
                 if self.params.strike_angles is None
                 else np.abs(self.params.strike_angles.values[ii])
             )
+            data, flip = prepare_data(observed[:, indices])
+
             spatial_projection = self.spatial_interpolation(
                 indices,
                 strike_angle,
             )
-            file_split = np.array_split(
-                self.params.simulation_files, np.maximum(1, len(self.workers) * 10)
-            )
-
             tasks = []
+
             for file_batch in file_split:
                 args = (
                     file_batch,
                     spatial_projection,
                     self._time_projection,
-                    observed[:, indices],
+                    data,
                 )
 
                 tasks.append(
@@ -281,8 +289,11 @@ class PlateMatchDriver(BaseDriver):
                 ui_json["geoh5"] = ws
                 ifile = InputFile(ui_json=ui_json)
                 options = PlateSimulationOptions.build(ifile)
+
+                dir_correction = strike_angle + 180 if flip else strike_angle
+
                 self._create_plate_from_parameters(
-                    int(indices[int(centers[best])]), options.model, strike_angle
+                    int(indices[int(centers[best])]), options.model, dir_correction
                 )
 
             names.append(self.params.simulation_files[best].name)
@@ -328,20 +339,45 @@ class PlateMatchDriver(BaseDriver):
         )
 
 
-def normalized_data(property_group: PropertyGroup, threshold=5) -> np.ndarray:
+def prepare_data(data: np.ndarray) -> tuple[np.ndarray, bool]:
+    """
+    Prepare data for scoring by checking for multiple channels and normalizing.
+
+    param data_array: Array of data channels per location.
+
+    :return: Tuple of prepared data array, whether locations were reversed.
+    """
+    data_array = normalized_data(data)
+
+    # Guess what the down-dip direction is based on migration of peaks
+    max_ind = np.argmax(data_array, axis=1)
+
+    # Check if peaks migrate in a consistent direction across channels
+    diffs = np.diff(max_ind)
+    if np.mean(diffs) < 0:
+        return data_array[:, ::-1], True  # Reverse channels if peaks migrate up-dip
+
+    return data_array, False
+
+
+def get_data_array(property_group: PropertyGroup) -> np.ndarray:
+    """Extract data array from a property group."""
+    table = property_group.table()
+    return np.vstack([table[name] for name in table.dtype.names])
+
+
+def normalized_data(data: np.ndarray, threshold=5) -> np.ndarray:
     """
     Return data from a property group with symlog, zero mean and unit max normalization.
 
-    :param property_group: Property group containing data channels.
+    :param data: Array of data channels per location.
     :param threshold: Percentile threshold for symlog normalization.
 
     :return: Normalized data array.
     """
-    table = property_group.table()
-    data_array = np.vstack([table[name] for name in table.dtype.names])
-    thresh = np.percentile(np.abs(data_array), threshold)
-    log_data = symlog(data_array, thresh)
-    centered_log = log_data - np.mean(log_data, axis=1)[:, None]
+    thresh = np.percentile(np.abs(data), threshold)
+    log_data = symlog(data, thresh)
+    centered_log = log_data - np.mean(log_data)
     return centered_log / np.abs(centered_log).max()
 
 
@@ -382,7 +418,9 @@ def batch_files_score(
                 logger.warning("No survey found in %s, skipping.", sim_file)
                 continue
 
-            simulated = normalized_data(survey.get_entity("Iteration_0_z")[0])
+            simulated = normalized_data(
+                get_data_array(survey.get_entity("Iteration_0_z")[0])
+            )
             pred = time_projection @ (spatial_projection @ simulated.T).T
             score = 0.0
             indices = []
