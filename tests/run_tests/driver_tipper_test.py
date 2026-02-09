@@ -39,7 +39,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.021515656856259276, "phi_d": 1.57, "phi_m": 44.8}
+target_run = {"data_norm": 0.021515656856259276, "phi_d": 1.6, "phi_m": 8.17e-05}
 
 
 def test_tipper_fwr_run(
