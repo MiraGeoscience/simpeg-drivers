@@ -54,7 +54,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 412.2653000131554, "phi_d": 975, "phi_m": 37200}
+target_run = {"data_norm": 448.4376876605882, "phi_d": 1030, "phi_m": 36200}
 INDUCING_FIELD = (50000.0, 90.0, 0.0)
 
 
@@ -80,7 +80,7 @@ def test_homogeneous_fwr_run(
         components = SyntheticsComponents(geoh5, options=opts)
 
         # Change half the model
-        ind = components.mesh.centroids[:, 0] > 0
+        ind = components.mesh.centroids[:, 0] > -2
         components.model.values[ind] = 0.05
 
         params = GravityForwardOptions.build(
@@ -107,7 +107,7 @@ def test_homogeneous_fwr_run(
         )
         components = SyntheticsComponents(geoh5, options=opts)
         # Change half the model
-        ind = components.mesh.centroids[:, 0] > 0
+        ind = components.mesh.centroids[:, 0] > -2
         components.model.values[ind] = 0.01
 
         params = MVIForwardOptions.build(
