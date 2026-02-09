@@ -374,12 +374,12 @@ def prepare_data(data: np.ndarray) -> tuple[np.ndarray, bool]:
 def get_data_array(property_group: PropertyGroup) -> np.ndarray:
     """Extract data array from a property group."""
     table = property_group.table()
-    return np.vstack([table[name] for name in table.dtype.names])
+    return np.vstack(table.tolist()).T
 
 
 def normalized_data(data: np.ndarray, threshold=5) -> np.ndarray:
     """
-    Return data from a property group with symlog, zero mean and unit max normalization.
+    Return data from a property group with symlog, zero median and unit max normalization.
 
     :param data: Array of data channels per location.
     :param threshold: Percentile threshold for symlog normalization.
@@ -388,7 +388,7 @@ def normalized_data(data: np.ndarray, threshold=5) -> np.ndarray:
     """
     thresh = np.percentile(np.abs(data), threshold)
     log_data = symlog(data, thresh)
-    centered_log = log_data - np.mean(log_data)
+    centered_log = log_data - np.median(log_data)
     return centered_log / np.abs(centered_log).max()
 
 
