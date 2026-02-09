@@ -39,9 +39,12 @@ def generate_tipper_survey(
         ],
         channels=list(channels),
     )
-    survey.base_stations = TipperBaseStations.create(
-        geoh5, vertices=np.c_[vertices[0, :]].T
-    )
+    base_station = TipperBaseStations.create(geoh5, vertices=np.c_[vertices[0, :]].T)
+    base_station.tx_id_property = np.r_[1]
+
+    survey.base_stations = base_station
+    survey.tx_id_property = np.ones(survey.n_vertices, dtype=int)
+
     survey.remove_cells(mask_large_connections(survey, 200.0))
 
     return survey
