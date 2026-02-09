@@ -140,7 +140,7 @@
         "isValue": true,
         "parent": "mesh",
         "label": "Background",
-        "tooltip": "Background model in the 'Model units' (S/m or Ohm-m).",
+        "tooltip": "Background model in the model units (S/m or Ohm-m)",
         "property": "",
         "value": 0.001
     },

@@ -210,7 +210,7 @@
         "optional": true,
         "enabled": false,
         "label": "Elevation channel",
-        "tooltip": "Set elevation from channel.  If not set the topography will be set from the geometry of the selected 'topography' object.",
+        "tooltip": "Set elevation from channel. If not set the topography will be set from the geometry of the selected 'topography' object.",
         "parent": "topography_object",
         "dependency": "topography_object",
         "dependencyType": "enabled",
@@ -346,7 +346,7 @@
         "min": 0,
         "group": "Sparse/blocky model",
         "label": "Maximum IRLS iterations",
-        "tooltip": "Incomplete Re-weighted Least Squares iterations for non-L2 problems",
+        "tooltip": "Incomplete re-weighted least squares iterations for non-L2 problems",
         "value": 25,
         "enabled": true,
         "verbose": 2
