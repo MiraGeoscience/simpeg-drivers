@@ -127,6 +127,16 @@ class PlateMatchDriver(BaseDriver):
     def _create_plate_from_parameters(
         self, index_center: int, model_options: ModelOptions, strike_angle: float
     ) -> MaxwellPlate:
+        """
+        Create a MaxwellPlate object from the parameters of the survey and model options
+        at the location of the query point.
+
+        :param index_center: Index of the center point in the survey vertices.
+        :param model_options: Model options containing plate geometry parameters.
+        :param strike_angle: Strike angle to correct the plate orientation.
+
+        :return: MaxwellPlate object created from the parameters.
+        """
         center = self.params.survey.vertices[index_center]
         center[2] = (
             self._drape_heights[index_center] - model_options.overburden_model.thickness
