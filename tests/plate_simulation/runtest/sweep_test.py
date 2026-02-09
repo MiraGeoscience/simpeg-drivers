@@ -16,17 +16,16 @@ from geoh5py.ui_json import InputFile
 from simpeg_drivers import assets_path
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
 from simpeg_drivers.plate_simulation.sweep.driver import PlateSweepDriver
-from simpeg_drivers.plate_simulation.sweep.options import SweepOptions
 from simpeg_drivers.potential_fields.gravity.options import GravityForwardOptions
-from simpeg_drivers.utils.synthetics.options import SurveyOptions
+from simpeg_drivers.utils.synthetics.options import SyntheticsComponentsOptions
 from simpeg_drivers.utils.synthetics.surveys.factory import get_survey
 from simpeg_drivers.utils.synthetics.topography import get_topography_surface
 
 
 def setup_plate_sweep(workspace) -> SimPEGGroup:
-    survey_options = SurveyOptions()
-    data = get_survey(workspace, method="gravity", options=survey_options)
-    topo = get_topography_surface(workspace, survey_options)
+    options = SyntheticsComponentsOptions()
+    data = get_survey(workspace, method="gravity", options=options.survey)
+    topo = get_topography_surface(workspace, options)
 
     gravity = SimPEGGroup.create(workspace, name="gravity fwd")
     options = GravityForwardOptions.model_construct()
