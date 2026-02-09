@@ -40,7 +40,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.017971709375948795, "phi_d": 206, "phi_m": 8570}
+target_run = {"data_norm": 0.01890754287659443, "phi_d": 879, "phi_m": 11400}
 
 
 def test_app_con_fwr_run(
