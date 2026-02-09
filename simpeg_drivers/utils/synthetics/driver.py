@@ -50,7 +50,7 @@ class SyntheticsComponents:
             assert self.options is not None
             entity = get_topography_surface(
                 geoh5=self.geoh5,
-                options=self.options.survey,
+                options=self.options,
             )
         self._topography = entity
         return self._topography
