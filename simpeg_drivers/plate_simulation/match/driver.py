@@ -54,6 +54,12 @@ class PlateMatchDriver(BaseDriver):
         self._drape_heights = self._get_drape_heights()
         self._template = self.get_template()
         self._time_mask, self._time_projection = self.time_mask_and_projection()
+        self._spatial_tree = cKDTree(self.params.survey.vertices[:, :2])
+
+    @property
+    def spatial_tree(self):
+        """KDTree for spatial locations of the survey."""
+        return self._spatial_tree
 
     def get_template(self) -> AirborneTEMReceivers:
         """
@@ -98,6 +104,26 @@ class PlateMatchDriver(BaseDriver):
             time_diff, inds, (len(query_times), len(simulated_times)), 1.0, 1e-12
         )
         return time_mask, time_projection
+
+    def spatial_mask_and_projection(
+        self, query: np.ndarray, strike_angle: float
+    ) -> tuple[np.ndarray, csr_matrix]:
+        """
+        Create a spatial mask and interpolation matrix from simulation to observation locations.
+
+        :param indices: Indices for the line segment of the observation locations.
+
+        :return: Spatial mask and spatial interpolation matrix.
+        """
+        nearest = self.spatial_tree.query(query[:2], k=1)[1]
+        indices = self.params.survey.get_segment_indices(
+            nearest, self.params.max_distance
+        )
+        spatial_projection = self.spatial_interpolation(
+            indices,
+            np.abs(strike_angle),
+        )
+        return indices, spatial_projection
 
     @classmethod
     def start(cls, filepath: str | Path, mode="r+", **_) -> Self:
@@ -239,55 +265,24 @@ class PlateMatchDriver(BaseDriver):
             self.params.title,
         )
         observed = get_data_array(self.params.data)[self._time_mask, :]
-        tree = cKDTree(self.params.survey.vertices[:, :2])
-        file_split = np.array_split(
-            self.params.simulation_files, np.maximum(1, len(self.workers) * 10)
+        strike_angle = (
+            np.zeros(self.params.queries.n_vertices)
+            if self.params.strike_angles is None
+            else self.params.strike_angles.values
         )
         names = []
         results = []
         for ii, query in enumerate(self.params.queries.vertices):
             # Find the nearest survey location to the query point
-            nearest = tree.query(query[:2], k=1)[1]
-            indices = self.params.survey.get_segment_indices(
-                nearest, self.params.max_distance
-            )
-            strike_angle = (
-                0
-                if self.params.strike_angles is None
-                else self.params.strike_angles.values[ii]
+            indices, spatial_projection = self.spatial_mask_and_projection(
+                query, strike_angle[ii]
             )
             data, flip = prepare_data(observed[:, indices])
 
-            spatial_projection = self.spatial_interpolation(
-                indices,
-                np.abs(strike_angle),
-            )
-            tasks = []
-
-            for file_batch in file_split:
-                args = (
-                    file_batch,
-                    spatial_projection,
-                    self._time_projection,
-                    data,
-                )
-
-                tasks.append(
-                    self.client.submit(batch_files_score, *args)
-                    if self.client
-                    else batch_files_score(*args)
-                )
-
-            # Display progress bar
-            if isinstance(tasks[0], Future):
-                progress(tasks)
-                tasks = self.client.gather(tasks)
-
-            scores, centers = np.vstack(tasks).T
+            # Loop through files and compute scores and find the best match
+            scores, centers = self.run_scores(spatial_projection, data)
             ranked = np.argsort(scores)
             best = ranked[0]
-            # TODO: Return top N matches
-            # for rank in ranked[-1:][::-1]:
             logger.info(
                 "File: %s \nScore: %.4f",
                 self.params.simulation_files[best].name,
@@ -334,7 +329,6 @@ class PlateMatchDriver(BaseDriver):
         save_report: bool = True,
     ):
         """Overload configurations of BaseDriver Dask config settings."""
-        # Force distributed on 1D problems
         if n_workers is None:
             cpu_count = multiprocessing.cpu_count()
 
@@ -348,6 +342,42 @@ class PlateMatchDriver(BaseDriver):
         super().start_dask_run(
             json_path, n_workers=n_workers, n_threads=n_threads, save_report=save_report
         )
+
+    def run_scores(self, spatial_projection, data) -> tuple[np.ndarray, np.ndarray]:
+        """
+        Run the scoring function for all simulation files in parallel using Dask.
+
+        :param spatial_projection: Spatial interpolation matrix for the current query.
+        :param data: Prepared observed data for the current query.
+
+        :return: Tuple of scores and corresponding center indices for each simulation file.
+        """
+        file_split = np.array_split(
+            self.params.simulation_files, np.maximum(1, len(self.workers) * 10)
+        )
+        tasks = []
+        for file_batch in file_split:
+            args = (
+                file_batch,
+                spatial_projection,
+                self._time_projection,
+                data,
+            )
+
+            tasks.append(
+                self.client.submit(batch_files_score, *args)
+                if self.client
+                else batch_files_score(*args)
+            )
+
+        # Display progress bar
+        if isinstance(tasks[0], Future):
+            progress(tasks)
+            tasks = self.client.gather(tasks)
+
+        scores, centers = np.vstack(tasks).T
+
+        return scores, centers
 
 
 def prepare_data(data: np.ndarray) -> tuple[np.ndarray, bool]:
@@ -372,7 +402,13 @@ def prepare_data(data: np.ndarray) -> tuple[np.ndarray, bool]:
 
 
 def get_data_array(property_group: PropertyGroup) -> np.ndarray:
-    """Extract data array from a property group."""
+    """
+    Extract data array from a property group.
+
+    :param property_group: Property group containing data values.
+
+    :return: Data array with shape (n_times, n_locations).
+    """
     table = property_group.table()
     return np.vstack(table.tolist()).T
 
@@ -408,6 +444,9 @@ def batch_files_score(
 ) -> list[tuple[float, int]]:
     """
     Process a batch of simulation files and compute scores against observed data.
+
+    Attempt to find the best collocation of the simulated and observed data by
+    finding the median index of the maximum correlation across channels.
 
     :param files: Simulation file or list of simulation files to process.
     :param spatial_projection: Spatial interpolation matrix.
