@@ -106,16 +106,17 @@ class PlateMatchDriver(BaseDriver):
         return time_mask, time_projection
 
     def spatial_mask_and_projection(
-        self, query: np.ndarray, strike_angle: float
+        self, location: np.ndarray, strike_angle: float
     ) -> tuple[np.ndarray, csr_matrix]:
         """
         Create a spatial mask and interpolation matrix from simulation to observation locations.
 
-        :param indices: Indices for the line segment of the observation locations.
+        :param location: Query location (x, y, z).
+        :param strike_angle: Strike angle with respect to the plate orientation.
 
         :return: Spatial mask and spatial interpolation matrix.
         """
-        nearest = self.spatial_tree.query(query[:2], k=1)[1]
+        nearest = self.spatial_tree.query(location[:2], k=1)[1]
         indices = self.params.survey.get_segment_indices(
             nearest, self.params.max_distance
         )
@@ -384,7 +385,7 @@ def prepare_data(data: np.ndarray) -> tuple[np.ndarray, bool]:
     """
     Prepare data for scoring by checking for multiple channels and normalizing.
 
-    param data_array: Array of data channels per location.
+    param data: Array of data channels per location.
 
     :return: Tuple of prepared data array, whether locations were reversed.
     """
