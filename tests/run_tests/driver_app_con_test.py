@@ -153,7 +153,7 @@ def test_app_con_run(tmp_path: Path, max_iterations=1, pytest=True):
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
         driver = AppConInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
-
+        print(driver.models.active_cells.sum())
     with geoh5.open() as run_ws:
         output = get_inversion_output(
             driver.params.geoh5.h5file, driver.params.out_group.uid
