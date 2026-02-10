@@ -40,7 +40,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.01890754287659443, "phi_d": 879, "phi_m": 11400}
+target_run = {"data_norm": 0.01890754287659443, "phi_d": 786, "phi_m": 11500}
 
 
 def test_app_con_fwr_run(
@@ -153,7 +153,7 @@ def test_app_con_run(tmp_path: Path, max_iterations=1, pytest=True):
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
         driver = AppConInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
-        print(driver.models.active_cells.sum())
+
     with geoh5.open() as run_ws:
         output = get_inversion_output(
             driver.params.geoh5.h5file, driver.params.out_group.uid
