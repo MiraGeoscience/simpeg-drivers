@@ -632,7 +632,7 @@
         "value": false,
         "verbose": 3,
         "visible": true,
-        "tooltip": "Whether to auto-scale the misfit function of tiles based on chi-factor."
+        "tooltip": "Whether to auto-scale the misfit function of tiles based on chi-factor"
     },
     "initial_beta_ratio": {
         "min": 0.0,
