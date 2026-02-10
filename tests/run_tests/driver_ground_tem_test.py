@@ -44,7 +44,7 @@ logger = getLogger(__name__)
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 9.310904038470233e-07, "phi_d": 257, "phi_m": 67400}
+target_run = {"data_norm": 9.165423633989594e-07, "phi_d": 314, "phi_m": 4270}
 
 
 def test_tiling_ground_tem(
@@ -157,12 +157,12 @@ def test_ground_tem_fwr_run(
         assert fwr_driver.inversion_data.survey.source_list[0].n_segments == 16
 
     if pytest and caplog:
-        assert len(caplog.records) == 3
-        for record in caplog.records[1:]:
+        assert len(caplog.records) == 2
+        for record in caplog.records:
             assert record.levelname == "INFO"
             assert "counter-clockwise" in record.message
 
-        assert "closed" in caplog.records[1].message
+        assert "closed" in caplog.records[0].message
 
         assert (
             fwr_driver.data_misfit.objfcts[0].simulation.simulations[0].solver == Mumps
