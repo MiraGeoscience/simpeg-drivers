@@ -426,9 +426,12 @@ def normalized_data(data: np.ndarray, threshold=5) -> np.ndarray:
 
     :return: Normalized data array.
     """
+    print(np.abs(data).min(), np.abs(data).max())
     thresh = np.percentile(np.abs(data), threshold)
+    print(thresh)
     log_data = symlog(data, thresh)
     centered_log = log_data - np.median(log_data)
+    print(centered_log.min(), centered_log.max())
     return centered_log / np.abs(centered_log).max()
 
 

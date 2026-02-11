@@ -185,7 +185,7 @@ def test_matching_driver(tmp_path: Path):
         for uid in prop_group.properties:
             child = survey.get_entity(uid)[0]
             child.values = child.values[::-1]
-
+            print(child.values.min(), child.values.max())
         # Change the strike angle to simulate a different orientation
         strikes = components.queries.add_data(
             {
