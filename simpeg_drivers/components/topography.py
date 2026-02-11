@@ -101,22 +101,24 @@ class InversionTopography(InversionLocations):
                 self.params.active_cells.active_model, mesh.entity
             )
         else:
-            centers = self.params.active_cells.topography_object.centroids
+            topography = self.params.active_cells.topography_object
+            locations = getattr(topography, "centroids", None) or self.locations
             xmin, xmax, ymin, ymax, zmin, zmax = mesh.entity.extent.ravel(order="F")
             mask = (
-                (centers[:, 0] > xmin)
-                & (centers[:, 0] < xmax)
-                & (centers[:, 1] > ymin)
-                & (centers[:, 1] < ymax)
-                & (centers[:, 2] > zmin)
-                & (centers[:, 2] < zmax)
+                (locations[:, 0] > xmin)
+                & (locations[:, 0] < xmax)
+                & (locations[:, 1] > ymin)
+                & (locations[:, 1] < ymax)
+                & (locations[:, 2] > zmin)
+                & (locations[:, 2] < zmax)
             )
-            cells = self.params.active_cells.topography_object.cells[mask, :]
+
+            cells = getattr(topography, "cells", None)
             active_cells = active_from_xyz(
                 mesh.entity,
-                self.locations,
+                locations,
                 grid_reference="bottom" if forced_to_surface else "center",
-                triangulation=cells,
+                triangulation=cells[mask, :] or None,
             )
 
         active_cells = (mesh.permutation @ active_cells).astype(bool)
