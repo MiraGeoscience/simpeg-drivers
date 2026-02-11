@@ -85,7 +85,11 @@ class SourcesFactory(SimPEGFactory):
 
             return tem_sources.MagDipole
 
-        elif self.factory_type in ["magnetotellurics", "tipper"]:
+        elif self.factory_type in [
+            "apparent conductivity",
+            "magnetotellurics",
+            "tipper",
+        ]:
             return ns_sources.PlanewaveXYPrimary
 
     def assemble_arguments(
@@ -112,7 +116,13 @@ class SourcesFactory(SimPEGFactory):
                 locations=locations,
             )
 
-        elif self.factory_type in ["fdem", "fdem 1d", "magnetotellurics", "tipper"]:
+        elif self.factory_type in [
+            "apparent conductivity",
+            "fdem",
+            "fdem 1d",
+            "magnetotellurics",
+            "tipper",
+        ]:
             args.append(receivers)
             args.append(frequency)
 
@@ -136,7 +146,7 @@ class SourcesFactory(SimPEGFactory):
                 "inclination": self.params.inducing_field_inclination,
                 "declination": self.params.inducing_field_declination,
             }
-        if self.factory_type in ["magnetotellurics", "tipper"]:
+        if self.factory_type in ["apparent conductivity", "magnetotellurics", "tipper"]:
             background = deepcopy(self.params.models.conductivity_model)
 
             if (
