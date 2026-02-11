@@ -391,13 +391,15 @@ def prepare_data(data: np.ndarray) -> tuple[np.ndarray, bool]:
     """
     data_array = normalized_data(data)
 
-    # Guess what the down-dip direction is based on migration of peaks
-    max_ind = np.argmax(data_array, axis=1)
+    # Guess what the down-dip direction is based on integral
+    centered = data_array - np.min(data_array, axis=1)[:, None]
+    mid = centered.shape[1] // 2
+    left = np.sum(centered[:, :mid], axis=1)
+    right = np.sum(centered[:, mid:], axis=1)
 
-    # Check if peaks migrate in a consistent direction across channels
-    diffs = np.diff(max_ind)
-    if np.median(diffs) < 0:
-        return data_array[:, ::-1], True  # Reverse channels if peaks migrate up-dip
+    # Mostly on the left suggests the peaks are migrating up-dip and should be reversed
+    if np.mean(left > right) > 0.5:
+        return data_array[:, ::-1], True
 
     return data_array, False
 

@@ -18,6 +18,7 @@ from geoh5py import Workspace
 from geoh5py.groups import PropertyGroup, SimPEGGroup
 from geoh5py.objects import Points
 from geoh5py.ui_json import InputFile
+from scipy import signal
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.electromagnetics.time_domain.driver import TDEMForwardDriver
@@ -159,13 +160,11 @@ def test_matching_driver(tmp_path: Path):
             prop_group = survey.get_entity("Iteration_0_z")[0]
 
             # Alter the signal to simulate different plate models
-            scale = np.cos(
-                np.linspace(-2 * np.pi / ii, 2 * np.pi / ii, survey.n_vertices)
-            )
+            scale = signal.windows.gaussian(survey.n_vertices, 2**ii)
 
-            for uid in prop_group.properties:
+            for ii, uid in enumerate(prop_group.properties):
                 child = survey.get_entity(uid)[0]
-                child.values = child.values * scale
+                child.values = child.values * np.roll(scale, ii)
 
             # Downsample stations
             mask = np.ones_like(child.values, dtype=bool)
