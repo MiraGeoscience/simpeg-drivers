@@ -40,6 +40,7 @@ class SimulationFactory(SimPEGFactory):
 
         self.solver = None
         if self.factory_type in [
+            "apparent conductivity",
             "direct current pseudo 3d",
             "direct current 3d",
             "direct current 2d",
@@ -91,7 +92,7 @@ class SimulationFactory(SimPEGFactory):
 
             return Simulation2DNodal
 
-        if self.factory_type in ["magnetotellurics", "tipper"]:
+        if self.factory_type in ["apparent conductivity", "magnetotellurics", "tipper"]:
             from simpeg.electromagnetics.natural_source import simulation
 
             return simulation.Simulation3DPrimarySecondary
@@ -167,6 +168,7 @@ class SimulationFactory(SimPEGFactory):
             )
 
         if self.factory_type in [
+            "apparent conductivity",
             "direct current 3d",
             "direct current 2d",
             "magnetotellurics",

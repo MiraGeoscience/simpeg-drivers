@@ -50,6 +50,10 @@ def assets_path() -> Path:
 
 
 DRIVER_MAP = {
+    "apparent conductivity": (
+        "simpeg_drivers.natural_sources.apparent_conductivity.driver",
+        {"forward": "AppConForwardDriver", "inversion": "AppConInversionDriver"},
+    ),
     "direct current 3d": (
         "simpeg_drivers.electricals.direct_current.three_dimensions.driver",
         {

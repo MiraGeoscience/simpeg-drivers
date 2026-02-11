@@ -91,6 +91,7 @@ class InversionTopography(InversionLocations):
             "direct current 2d",
             "induced polarization 3d",
             "induced polarization 2d",
+            "apparent conductivity",
         ] or isinstance(data.entity, LargeLoopGroundEMSurvey)
 
         if isinstance(self.params, Base1DOptions):

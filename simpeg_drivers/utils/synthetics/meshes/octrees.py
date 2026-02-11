@@ -45,7 +45,7 @@ def get_base_octree(
         mesh_type="TREE",
         tree_diagonal_balance=False,
     )
-    mesh = OctreeDriver.refine_tree_from_surface(
+    mesh = OctreeDriver.refine_tree_from_triangulation(
         mesh, topography, levels=refinement, finalize=False
     )
 
@@ -75,7 +75,7 @@ def get_octree_mesh(
     :return mesh: The discretize TreeMesh object for computations.
     """
 
-    mesh = get_base_octree(survey, topography, cell_size, (0, 1), padding_distance)
+    mesh = get_base_octree(survey, topography, cell_size, (0, 0, 1), padding_distance)
 
     mesh = OctreeDriver.refine_tree_from_points(
         mesh, survey.vertices, levels=refinement, finalize=False

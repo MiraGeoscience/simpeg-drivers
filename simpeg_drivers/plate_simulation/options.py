@@ -29,6 +29,9 @@ from simpeg_drivers.electromagnetics.frequency_domain.options import (
 from simpeg_drivers.electromagnetics.time_domain.options import (
     TDEMForwardOptions,
 )
+from simpeg_drivers.natural_sources.apparent_conductivity.options import (
+    AppConForwardOptions,
+)
 from simpeg_drivers.natural_sources.magnetotellurics.options import (
     MTForwardOptions,
 )
@@ -43,6 +46,7 @@ from .models.options import ModelOptions
 
 
 PARAM_MAP = {
+    "apparent conductivty": AppConForwardOptions,
     "gravity": GravityForwardOptions,
     "tdem": TDEMForwardOptions,
     "fem": FDEMForwardOptions,

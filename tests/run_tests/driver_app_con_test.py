@@ -13,16 +13,17 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+from geoapps_utils.modelling.plates import PlateModel
 from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.natural_sources.tipper import (
-    TipperForwardOptions,
-    TipperInversionOptions,
+from simpeg_drivers.natural_sources.apparent_conductivity.driver import (
+    AppConForwardDriver,
+    AppConInversionDriver,
 )
-from simpeg_drivers.natural_sources.tipper.driver import (
-    TipperForwardDriver,
-    TipperInversionDriver,
+from simpeg_drivers.natural_sources.apparent_conductivity.options import (
+    AppConForwardOptions,
+    AppConInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (
     SyntheticsComponents,
@@ -39,10 +40,10 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.01925412835834313, "phi_d": 0.333, "phi_m": 3.18e-05}
+target_run = {"data_norm": 0.018661818427023937, "phi_d": 502, "phi_m": 10900}
 
 
-def test_tipper_fwr_run(
+def test_app_con_fwr_run(
     tmp_path: Path,
     n_grid_points=2,
     refinement=(2,),
@@ -50,17 +51,32 @@ def test_tipper_fwr_run(
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(
-        method="tipper",
+        method="apparent conductivity",
         survey=SurveyOptions(
-            n_stations=n_grid_points, n_lines=n_grid_points, drape=15.0
+            n_stations=n_grid_points,
+            n_lines=n_grid_points,
+            drape=15.0,
+            topography=lambda x, y: np.zeros(x.shape),
         ),
-        mesh=MeshOptions(cell_size=cell_size, refinement=refinement),
-        model=ModelOptions(background=100.0),
+        mesh=MeshOptions(
+            cell_size=cell_size, refinement=refinement, padding_distance=2000
+        ),
+        model=ModelOptions(
+            background=100.0,
+            anomaly=1.0,
+            plate=PlateModel(
+                strike_length=60.0,
+                dip_length=60.0,
+                width=60.0,
+                dip=90,
+                origin=(0.0, 0.0, -90.0),
+            ),
+        ),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
 
-        params = TipperForwardOptions.build(
+        params = AppConForwardOptions.build(
             geoh5=geoh5,
             mesh=components.mesh,
             topography_object=components.topography,
@@ -68,23 +84,19 @@ def test_tipper_fwr_run(
             starting_model=components.model,
             model_type="Resistivity (Ohm-m)",
             background_conductivity=1e2,
-            txz_real_channel_bool=True,
-            txz_imag_channel_bool=True,
-            tyz_real_channel_bool=True,
-            tyz_imag_channel_bool=True,
         )
 
-    fwr_driver = TipperForwardDriver(params)
+    fwr_driver = AppConForwardDriver(params)
 
     # Should always be returning conductivity for simpeg simulations
     assert not np.any(np.exp(fwr_driver.models.starting_model) > 1.01)
     fwr_driver.run()
 
 
-def test_tipper_run(tmp_path: Path, max_iterations=1, pytest=True):
+def test_app_con_run(tmp_path: Path, max_iterations=1, pytest=True):
     workpath = tmp_path / "inversion_test.ui.geoh5"
     if pytest:
-        workpath = tmp_path.parent / "test_tipper_fwr_run0" / "inversion_test.ui.geoh5"
+        workpath = tmp_path.parent / "test_app_con_fwr_run0" / "inversion_test.ui.geoh5"
 
     with Workspace(workpath) as geoh5:
         components = SyntheticsComponents(geoh5=geoh5)
@@ -92,73 +104,55 @@ def test_tipper_run(tmp_path: Path, max_iterations=1, pytest=True):
         mesh = components.mesh
         topography = components.topography
 
-        data = {}
-        uncertainties = {}
-        components = {
-            "txz_real": "Txz (real)",
-            "txz_imag": "Txz (imag)",
-            "tyz_real": "Tyz (real)",
-            "tyz_imag": "Tyz (imag)",
-        }
+        data = []
+        uncertainties = []
+        for ind in range(len(survey.channels)):
+            data_entity = geoh5.get_entity(f"Iteration_0_app_con_[{ind}]")[0].copy(
+                parent=survey
+            )
+            data.append(data_entity)
 
-        for comp, cname in components.items():
-            data[cname] = []
-            uncertainties[f"{cname} uncertainties"] = []
-            for ind in range(len(survey.channels)):
-                data_entity = geoh5.get_entity(f"Iteration_0_{comp}_[{ind}]")[0].copy(
-                    parent=survey
-                )
-                data[cname].append(data_entity)
-
-                uncert = survey.add_data(
-                    {
-                        f"uncertainty_{comp}_[{ind}]": {
-                            "values": np.ones_like(data_entity.values)
-                            * np.percentile(np.abs(data_entity.values), 1)
-                        }
+            # Assign uncertainties based on deviation from apparent conductivity of 0.01 S/m
+            uncert = survey.add_data(
+                {
+                    f"uncertainty_[{ind}]": {
+                        "values": np.full(
+                            data_entity.values.shape[0],
+                            (data_entity.values.max() - data_entity.values.min()) / 4,
+                        )
                     }
-                )
-                uncertainties[f"{cname} uncertainties"].append(uncert)
+                }
+            )
+            uncertainties.append(uncert)
 
-        data_groups = survey.add_components_data(data)
-        uncert_groups = survey.add_components_data(uncertainties)
+        data_groups = survey.add_components_data({"Observed": data})[0]
+        uncert_groups = survey.add_components_data({"Uncertainties": uncertainties})[0]
 
-        data_kwargs = {}
-        for comp, data_group, uncert_group in zip(
-            components, data_groups, uncert_groups, strict=True
-        ):
-            data_kwargs[f"{comp}_channel"] = data_group
-            data_kwargs[f"{comp}_uncertainty"] = uncert_group
-
-        orig_tyz_real_1 = geoh5.get_entity("Iteration_0_tyz_real_[0]")[0].values
+        orig_tyz_real_1 = geoh5.get_entity("Iteration_0_app_con_[0]")[0].values
 
         # Run the inverse
-        params = TipperInversionOptions.build(
+        params = AppConInversionOptions.build(
             geoh5=geoh5,
             mesh=mesh,
             topography_object=topography,
             data_object=survey,
             starting_model=1e2,
-            reference_model=1e2,
+            reference_model=None,
             background_conductivity=1e2,
-            s_norm=1.0,
-            x_norm=1.0,
-            y_norm=1.0,
-            z_norm=1.0,
             alpha_s=1.0,
             model_type="Resistivity (Ohm-m)",
-            lower_bound=0.75,
             max_global_iterations=max_iterations,
-            initial_beta_ratio=1e3,
-            starting_chi_factor=1.0,
+            initial_beta_ratio=1e1,
             cooling_rate=1,
             percentile=100,
-            chi_factor=1.0,
+            chi_factor=0.1,
+            starting_chi_factor=0.1,
             max_line_search_iterations=5,
-            **data_kwargs,
+            app_con_channel=data_groups,
+            app_con_uncertainty=uncert_groups,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
-        driver = TipperInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
+        driver = AppConInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
     with geoh5.open() as run_ws:
         output = get_inversion_output(
@@ -174,10 +168,10 @@ def test_tipper_run(tmp_path: Path, max_iterations=1, pytest=True):
 
 if __name__ == "__main__":
     # Full run
-    test_tipper_fwr_run(
-        Path("./"), n_grid_points=8, cell_size=(5.0, 5.0, 5.0), refinement=(4, 4)
+    test_app_con_fwr_run(
+        Path("./"), n_grid_points=8, cell_size=(10.0, 10.0, 10.0), refinement=(4, 4)
     )
-    test_tipper_run(
+    test_app_con_run(
         Path("./"),
         max_iterations=15,
         pytest=False,

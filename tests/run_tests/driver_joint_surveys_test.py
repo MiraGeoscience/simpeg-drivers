@@ -192,7 +192,7 @@ def test_joint_surveys_inv_run(
     # The rescaling is done evenly on the two tiles for both surveys
     np.testing.assert_allclose(
         driver.data_misfit.multipliers,
-        [1.0, 1.0, 0.92959756, 0.92959756],
+        [1.0, 1.0, 0.92685279, 0.92685279],
         atol=1e-3,
     )
 
