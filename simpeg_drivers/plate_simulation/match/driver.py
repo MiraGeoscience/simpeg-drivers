@@ -279,7 +279,7 @@ class PlateMatchDriver(BaseDriver):
                 query, strike_angle[ii]
             )
             data, flip = prepare_data(observed[:, indices])
-
+            print("Flipping line", flip)
             # Loop through files and compute scores and find the best match
             scores, centers = self.run_scores(spatial_projection, data)
             ranked = np.argsort(scores)
