@@ -88,6 +88,11 @@ class ReceiversFactory(SimPEGFactory):
 
             return receivers.Tipper
 
+        elif self.factory_type == "apparent conductivity":
+            from simpeg.electromagnetics.natural_source import receivers
+
+            return receivers.ApparentConductivity
+
     def assemble_arguments(
         self, locations=None, data=None, local_index=None, component=None
     ):
@@ -103,18 +108,18 @@ class ReceiversFactory(SimPEGFactory):
                 locations=locations,
                 local_index=local_index,
             )
-
-        elif self.factory_type in ["magnetotellurics"]:
-            args += self._magnetotellurics_arguments(
+        elif self.factory_type in [
+            "apparent conductivity",
+            "magnetotellurics",
+            "tipper",
+        ]:
+            args += self._base_station_arguments(
                 locations=locations,
-                local_index=local_index,
             )
-
         elif "tdem" in self.factory_type:
             args += self._tdem_arguments(
                 data=data,
                 locations=locations,
-                local_index=local_index,
             )
 
         else:
@@ -146,27 +151,6 @@ class ReceiversFactory(SimPEGFactory):
 
         return kwargs
 
-    def build(self, locations=None, data=None, local_index=None, component=None):
-        receivers = super().build(
-            locations=locations,
-            data=data,
-            local_index=local_index,
-            component=component,
-        )
-
-        if (
-            self.factory_type in ["tipper"]
-            and getattr(self.params.data_object, "base_stations", None) is not None
-        ):
-            stations = self.params.data_object.base_stations.vertices
-            if stations is not None:
-                if stations.shape[0] == 1:
-                    stations = np.tile(stations.T, self.params.data_object.n_vertices).T
-
-                receivers.reference_locations = stations[local_index, :]
-
-        return receivers
-
     def _dcip_arguments(self, locations=None, local_index=None):
         args = []
         local_index = np.vstack(local_index)
@@ -186,11 +170,29 @@ class ReceiversFactory(SimPEGFactory):
 
         return args
 
-    def _tdem_arguments(self, data=None, locations=None, local_index=None):
+    def _tdem_arguments(self, data=None, locations=None):
         return [
             locations,
             np.asarray(data.entity.channels) * self.params.unit_conversion,
         ]
 
-    def _magnetotellurics_arguments(self, locations=None, local_index=None):
-        return [locations]
+    def _base_station_arguments(self, locations=None):
+        if getattr(self.params.data_object, "base_stations", None) is None:
+            return [locations]
+
+        stations = self.params.data_object.base_stations.vertices
+        if (
+            stations is not None
+            and stations.shape[0] != self.params.data_object.n_vertices
+        ):
+            station_ids = (
+                self.params.data_object.tx_id_property.values - 1
+            )  # Reference ids start at 1
+            stations = stations[station_ids, :]
+
+        # E-field on base stations and H-field locations
+        if self.factory_type == "apparent conductivity":
+            return stations, locations
+
+        # H-field on locations with base stations
+        return locations, stations

@@ -208,6 +208,7 @@ class InversionData(InversionLocations):
     def save_data(self):
         """Write out the data to geoh5"""
         has_channels = self.params.inversion_type in [
+            "apparent conductivity",
             "magnetotellurics",
             "tipper",
             "tdem",
