@@ -157,13 +157,17 @@ def test_matching_driver(tmp_path: Path):
         with Workspace(new_file) as sim_geoh5:
             survey = fetch_survey(sim_geoh5)
             prop_group = survey.get_entity("Iteration_0_z")[0]
-            scale = np.cos(np.linspace(-np.pi / ii, np.pi / ii, survey.n_vertices))
+
+            # Alter the signal to simulate different plate models
+            scale = np.cos(
+                np.linspace(-2 * np.pi / ii, 2 * np.pi / ii, survey.n_vertices)
+            )
 
             for uid in prop_group.properties:
                 child = survey.get_entity(uid)[0]
                 child.values = child.values * scale
 
-            # Downsample data
+            # Downsample stations
             mask = np.ones_like(child.values, dtype=bool)
             mask[1::2] = False
             survey.remove_vertices(mask)
