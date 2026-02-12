@@ -143,6 +143,7 @@ def test_matching_driver(tmp_path: Path):
         plate_options.model.overburden_model.thickness = 40.0
         plate_options.model.plate_model.dip_length = 300.0
         driver = PlateSimulationDriver(plate_options)
+        print(np.where(driver.simulation_driver.models.active_cells)[0].mean())
         driver.run()
 
     # Make copies of the generated simulation file to emulate a sweep
@@ -185,7 +186,7 @@ def test_matching_driver(tmp_path: Path):
         for uid in prop_group.properties:
             child = survey.get_entity(uid)[0]
             child.values = child.values[::-1]
-            print(child.values.min(), child.values.max())
+
         # Change the strike angle to simulate a different orientation
         strikes = components.queries.add_data(
             {
