@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from copy import deepcopy
 from typing import TYPE_CHECKING
 
@@ -41,6 +42,62 @@ from simpeg_drivers.utils.surveys import (
 if TYPE_CHECKING:
     from simpeg_drivers.components.data import InversionData
     from simpeg_drivers.driver import InversionDriver
+
+
+def octree_extents(octree: Octree) -> np.ndarray:
+    """
+    Get the true extents of an octree (min/max of the perimeter).
+
+    The octree.extents property returns min/max of the centroids
+
+    :param octree: Octree mesh object.
+
+    :returns: Array of [xmin, xmax, ymin, ymax].
+    """
+
+    def half_cell(axis):
+        return (
+            getattr(octree, f"{axis}_cell_size") * octree.octree_cells["NCells"]
+        ) / 2
+
+    xmin = (octree.centroids[:, 0] - half_cell("u")).min()
+    xmax = (octree.centroids[:, 0] + half_cell("u")).max()
+    ymin = (octree.centroids[:, 1] - half_cell("v")).min()
+    ymax = (octree.centroids[:, 1] + half_cell("v")).max()
+
+    return np.array([xmin, xmax, ymin, ymax])
+
+
+def mask_vertices_and_cells(
+    extent: Sequence, vertices: np.ndarray, cells: np.ndarray | None
+) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Mask vertices and remove cells whose vertices are all outside the extent.
+
+    :param extent: Array-like object of [xmin, xmax, ymin, ymax].
+    :param vertices: Array of shape (n_vertices, 3) containing the x, y, z coordinates.
+    :param cells: Array of shape (n_cells, 3) containing the indices of the vertices
+        that make up each cell.
+    """
+
+    vertex_mask = (
+        (vertices[:, 0] >= extent[0])
+        & (vertices[:, 0] <= extent[1])
+        & (vertices[:, 1] >= extent[2])
+        & (vertices[:, 1] <= extent[3])
+    )
+    if cells is None:
+        return vertices[vertex_mask], None
+
+    cell_mask = np.any(vertex_mask[cells], axis=1)
+    vertex_mask = np.zeros_like(vertex_mask, dtype=bool)
+    vertex_mask[cells[cell_mask].flatten()] = True
+
+    new_cells = cells.copy()[cell_mask]
+    cell_map = np.arange(len(vertices))[vertex_mask]
+    new_cells = np.searchsorted(cell_map, new_cells)
+
+    return vertices[vertex_mask], new_cells
 
 
 def calculate_2D_trend(
@@ -495,7 +552,7 @@ def active_from_xyz(
         raise ValueError("'grid_reference' must be one of 'center', 'top', or 'bottom'")
 
     # Return the active cell array
-    return mask_under_horizon(locations, topo, triangulation=triangulation)
+    return mask_under_horizon(locations, horizon=topo, triangulation=triangulation)
 
 
 def truncate_locs_depths(locs: np.ndarray, depth_core: float) -> np.ndarray:
