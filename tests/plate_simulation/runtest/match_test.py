@@ -143,7 +143,6 @@ def test_matching_driver(tmp_path: Path):
         plate_options.model.overburden_model.thickness = 40.0
         plate_options.model.plate_model.dip_length = 300.0
         driver = PlateSimulationDriver(plate_options)
-        print(np.where(driver.simulation_driver.models.active_cells)[0].mean())
         driver.run()
 
     # Make copies of the generated simulation file to emulate a sweep
@@ -166,7 +165,7 @@ def test_matching_driver(tmp_path: Path):
             for ii, uid in enumerate(prop_group.properties):
                 child = survey.get_entity(uid)[0]
                 child.values = child.values * np.roll(scale, ii)
-
+                print(child.values.max(), child.values.min())
             # Downsample stations
             mask = np.ones_like(child.values, dtype=bool)
             mask[1::2] = False
