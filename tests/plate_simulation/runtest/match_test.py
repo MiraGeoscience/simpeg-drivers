@@ -165,7 +165,7 @@ def test_matching_driver(tmp_path: Path):
             for ii, uid in enumerate(prop_group.properties):
                 child = survey.get_entity(uid)[0]
                 child.values = child.values * np.roll(scale, ii)
-                print(child.values.max(), child.values.min())
+
             # Downsample stations
             mask = np.ones_like(child.values, dtype=bool)
             mask[1::2] = False
