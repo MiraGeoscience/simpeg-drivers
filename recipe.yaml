@@ -3,7 +3,7 @@ schema_version: 1
 context:
   name: "simpeg-drivers"
   version: "0.0.0.dev0"  # This will be replaced by the actual version in the build process
-  python_min: "3.10"
+  python_min: "3.12"
   module_name: ${{ name|lower|replace("-", "_") }}
 
 package:
