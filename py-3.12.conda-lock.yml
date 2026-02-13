@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: e9abbdcce100afdd8e3b6d906732aa97fd2e7f2ac2d33af987b1c70639f35383
-    linux-64: cb8dc97c57f6e80f9d7a889d8e8ac9e26205d4fa90fcdc6b69c8ba96cd5f6f8d
+    win-64: 10d8ace21865f29d537b611e38f88febdd43f8b7c93f838dc55ca62e1821ef72
+    linux-64: 5bd1997f80c6e23a223778e0b084eda8978a936df1ad468eae12139bf07cac3a
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -4482,6 +4482,39 @@ package:
     sha256: b2b4c84b95210760e4d12319416c60ab66e03674ccdcbd14aeb59f82ebb1318d
   category: main
   optional: false
+- name: mkl-service
+  version: 2.6.1
+  manager: conda
+  platform: linux-64
+  dependencies:
+    __glibc: '>=2.17,<3.0.a0'
+    libgcc: '>=14'
+    mkl: '>=2025.3.0,<2026.0a0'
+    python: '>=3.12,<3.13.0a0'
+    python_abi: 3.12.*
+  url: https://repo.prefix.dev/conda-forge/linux-64/mkl-service-2.6.1-py312h4307cf8_0.conda
+  hash:
+    md5: 3585643974b5e2c5e8f191c6ef9c01a7
+    sha256: 38d4196ebeb3e61d1603592b2640c70f2b92e01807faab25f8814a3b88b50e57
+  category: main
+  optional: false
+- name: mkl-service
+  version: 2.6.1
+  manager: conda
+  platform: win-64
+  dependencies:
+    mkl: '>=2025.3.0,<2026.0a0'
+    python: '>=3.12,<3.13.0a0'
+    python_abi: 3.12.*
+    ucrt: '>=10.0.20348.0'
+    vc: '>=14.3,<15'
+    vc14_runtime: '>=14.44.35208'
+  url: https://repo.prefix.dev/conda-forge/win-64/mkl-service-2.6.1-py312hde5ce01_0.conda
+  hash:
+    md5: db2f74a9a2dbf815afbf3991409e388d
+    sha256: 8e79a374cf0dd55b67ea12ee377ba6803acb7f1f887af401ee716f6ec0699837
+  category: main
+  optional: false
 - name: msgpack-python
   version: 1.1.2
   manager: conda
@@ -5305,27 +5338,27 @@ package:
   category: main
   optional: false
 - name: platformdirs
-  version: 4.5.1
+  version: 4.7.0
   manager: conda
   platform: linux-64
   dependencies:
     python: ''
-  url: https://repo.prefix.dev/conda-forge/noarch/platformdirs-4.5.1-pyhcf101f3_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/platformdirs-4.7.0-pyhcf101f3_0.conda
   hash:
-    md5: 1bd2e65c8c7ef24f4639ae6e850dacc2
-    sha256: 04c64fb78c520e5c396b6e07bc9082735a5cc28175dbe23138201d0a9441800b
+    md5: 2157d0900a4bc2e9a0ba3cccb8497e8c
+    sha256: 5b14e300187919e783b24507dbeaeee891d97a3e9a9c80b5dcd3073753bac69c
   category: dev
   optional: true
 - name: platformdirs
-  version: 4.5.1
+  version: 4.7.0
   manager: conda
   platform: win-64
   dependencies:
     python: '>=3.10'
-  url: https://repo.prefix.dev/conda-forge/noarch/platformdirs-4.5.1-pyhcf101f3_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/platformdirs-4.7.0-pyhcf101f3_0.conda
   hash:
-    md5: 1bd2e65c8c7ef24f4639ae6e850dacc2
-    sha256: 04c64fb78c520e5c396b6e07bc9082735a5cc28175dbe23138201d0a9441800b
+    md5: 2157d0900a4bc2e9a0ba3cccb8497e8c
+    sha256: 5b14e300187919e783b24507dbeaeee891d97a3e9a9c80b5dcd3073753bac69c
   category: dev
   optional: true
 - name: pluggy
