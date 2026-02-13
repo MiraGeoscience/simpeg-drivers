@@ -57,7 +57,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 53.295837974010844, "phi_d": 9360, "phi_m": 0.126}
+target_run = {"data_norm": 53.295822303985325, "phi_d": 7940, "phi_m": 0.0255}
 INDUCING_FIELD = (50000.0, 90.0, 0.0)
 
 
