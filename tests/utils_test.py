@@ -35,7 +35,7 @@ def test_octree_extents(tmp_path):
         octree = OctreeDriver.octree_from_params(options)
 
     extents = octree_extents(octree)
-    assert np.allclose(extents, [-1112.5, 2087.5, -1112.5, 2087.5])
+    assert np.allclose(extents, [-1112.5, 2087.5, -1112.5, 2087.5, -1062.5, 537.5])
 
 
 def test_mask_vertices_and_cells():
