@@ -34,7 +34,7 @@ def generate_tdem_survey(
     vertices = np.column_stack([X.flatten(), Y.flatten(), Z.flatten()])
     center = np.mean(vertices, axis=0)
     if flatten:
-        center[2] -= np.unique(Z)
+        center[2] -= np.mean(Z)
     n_lines = X.shape[0]
     arrays = [
         np.c_[
