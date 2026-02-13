@@ -110,7 +110,7 @@ class InversionTopography(InversionLocations):
                     self.params.active_cells.topography_object, "cells", None
                 )
             else:
-                extent = octree_extents(mesh.entity)
+                extent = octree_extents(mesh.entity)[:4]
                 vertices, cells = mask_vertices_and_cells(
                     extent.ravel(order="F"),
                     self.locations,

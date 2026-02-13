@@ -55,17 +55,15 @@ def octree_extents(octree: Octree) -> np.ndarray:
     :returns: Array of [xmin, xmax, ymin, ymax].
     """
 
-    def half_cell(axis):
-        return (
-            getattr(octree, f"{axis}_cell_size") * octree.octree_cells["NCells"]
-        ) / 2
+    origin = np.array(list(octree.origin.tolist()))
+    span = np.array(
+        [
+            getattr(octree, f"{axis}_cell_size") * getattr(octree, f"{axis}_count")
+            for axis in "uvw"
+        ]
+    )
 
-    xmin = (octree.centroids[:, 0] - half_cell("u")).min()
-    xmax = (octree.centroids[:, 0] + half_cell("u")).max()
-    ymin = (octree.centroids[:, 1] - half_cell("v")).min()
-    ymax = (octree.centroids[:, 1] + half_cell("v")).max()
-
-    return np.array([xmin, xmax, ymin, ymax])
+    return np.stack([origin, origin + span]).flatten(order="F")
 
 
 def mask_vertices_and_cells(
