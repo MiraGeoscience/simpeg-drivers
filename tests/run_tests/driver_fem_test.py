@@ -43,7 +43,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 90.98397054326658, "phi_d": 4290, "phi_m": 916}
+target_run = {"data_norm": 91.18814842528005, "phi_d": 4250, "phi_m": 968}
 
 
 def test_fem_name_change(tmp_path, caplog):

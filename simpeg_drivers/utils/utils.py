@@ -25,6 +25,9 @@ from geoh5py.data import NumericData
 from geoh5py.groups import Group, SimPEGGroup
 from geoh5py.objects import DrapeModel, Octree
 from geoh5py.objects.surveys.direct_current import PotentialElectrode
+from geoh5py.objects.surveys.electromagnetics.airborne_app_con import (
+    AirborneAppConReceivers,
+)
 from geoh5py.objects.surveys.electromagnetics.base import LargeLoopGroundEMSurvey
 from geoh5py.shared import INTEGER_NDV
 from geoh5py.ui_json import InputFile
@@ -475,6 +478,8 @@ def get_containing_cells(
             potentials = data.entity.vertices
             currents = data.entity.current_electrodes.vertices
             locations = np.unique(np.r_[potentials, currents], axis=0)
+        elif isinstance(data.entity, AirborneAppConReceivers):
+            locations = data.entity.base_stations.vertices
         else:
             locations = data.locations
 
@@ -490,7 +495,7 @@ def get_containing_cells(
                         transmitters.vertices[cell[1], :],
                     )
                 )
-            inds = np.unique(np.r_[inds, np.hstack(line_ind)])
+            inds = np.r_[inds, np.hstack(line_ind)]
 
     elif isinstance(mesh, TensorMesh):
         locations = data.drape_locations(np.unique(data.locations, axis=0))
@@ -501,7 +506,7 @@ def get_containing_cells(
     else:
         raise TypeError("Mesh must be 'TreeMesh' or 'TensorMesh'")
 
-    return inds
+    return np.unique(inds)
 
 
 def cell_size_z(drape_model: DrapeModel) -> np.ndarray:

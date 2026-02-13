@@ -40,8 +40,8 @@ def get_topography_surface(
             options.survey.center[1] - height / 2,
             options.survey.center[1] + height / 2,
         ],
-        n_stations=int(2 * width / (options.survey.width / options.survey.n_stations)),
-        n_lines=int(2 * height / (options.survey.height / options.survey.n_lines)),
+        n_stations=64,
+        n_lines=64,
         topography=options.survey.topography,
     )
 

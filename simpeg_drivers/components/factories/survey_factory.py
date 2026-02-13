@@ -70,7 +70,11 @@ class SurveyFactory(SimPEGFactory):
         elif "tdem" in self.factory_type:
             from simpeg.electromagnetics.time_domain import survey
 
-        elif self.factory_type in ["magnetotellurics", "tipper"]:
+        elif self.factory_type in [
+            "apparent conductivity",
+            "magnetotellurics",
+            "tipper",
+        ]:
             from simpeg.electromagnetics.natural_source import survey
 
         else:
@@ -84,7 +88,11 @@ class SurveyFactory(SimPEGFactory):
             return self._dcip_arguments(data=data)
         elif "tdem" in self.factory_type:
             return self._tdem_arguments(data=data)
-        elif self.factory_type in ["magnetotellurics", "tipper"]:
+        elif self.factory_type in [
+            "apparent conductivity",
+            "magnetotellurics",
+            "tipper",
+        ]:
             return self._naturalsource_arguments(data=data)
         elif "fdem" in self.factory_type:
             return self._fem_arguments(data=data)
@@ -386,6 +394,7 @@ class SurveyFactory(SimPEGFactory):
         tx_factory = SourcesFactory(self.params)
         block_ordering = []
         self.sorting = np.arange(data.locations.shape[0], dtype=int)
+
         for comp_id, comp in enumerate(data.components):
             receivers.append(
                 rx_factory.build(

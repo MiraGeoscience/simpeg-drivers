@@ -835,7 +835,12 @@ class InversionDriver(BaseDriver):
             tiles = self.split_list(tiles)
 
         # Base slice over frequencies
-        if self.params.inversion_type in ["magnetotellurics", "tipper", "fdem"]:
+        if self.params.inversion_type in [
+            "apparent conductivity",
+            "magnetotellurics",
+            "tipper",
+            "fdem",
+        ]:
             channels = self.simulation.survey.frequencies
         else:
             channels = [None]
