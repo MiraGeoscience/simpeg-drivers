@@ -279,10 +279,8 @@ class PlateMatchDriver(BaseDriver):
                 query, strike_angle[ii]
             )
             data, flip = prepare_data(observed[:, indices])
-            print(data.min(), data.max())
             # Loop through files and compute scores and find the best match
             scores, centers = self.run_scores(spatial_projection, data)
-            print(scores)
             ranked = np.argsort(scores)
             best = ranked[0]
             logger.info(
@@ -297,7 +295,7 @@ class PlateMatchDriver(BaseDriver):
                 ifile = InputFile(ui_json=ui_json)
                 options = PlateSimulationOptions.build(ifile)
 
-                dir_correction = strike_angle + 180 if flip else strike_angle
+                dir_correction = strike_angle[ii] + 180 if flip else strike_angle[ii]
 
                 plate = self._create_plate_from_parameters(
                     int(indices[int(centers[best])]), options.model, dir_correction
