@@ -123,6 +123,7 @@ readthedocs-sphinx-ext = "*"
 sphinx = "^5.0"
 nbconvert = "~7.16.4"
 
+
 [tool.conda-lock]
 platforms = ['win-64', 'linux-64']
 channels = ['conda-forge']
@@ -137,12 +138,13 @@ fsspec = ">=2022.0"  # from simpeg[dask]
 geoana = "0.7.*"  # from simpeg
 h5py = ">=3.15.1, <4.0.dev"  # from geoh5py
 matplotlib-base = ">=3.10.0, <3.11.dev"  # from geoapps-utils
+openpyxl = ">=3.1.2"
 Pillow = ">=12.1.0, <13.0.dev"  # from geoh5py
-pydiso = "~0.2.0"
+pydiso = ">=0.2.0"
 pymatsolver = "0.3.*"  # from simpeg
 python_abi = ">=3.*"
-python-mumps = "~0.0.6.0"
-rtree = "~1.4.0"
+python-mumps = ">=0.0.6.0"
+rtree = ">=1.4.0"
 zarr = ">=2.14.2, 2.14.*"  # from simpeg[dask]
 
 [tool.poetry.requires-plugins]

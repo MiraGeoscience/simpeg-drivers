@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: be6d3ca6e70781760474b5bf4b3c7d39e46d78f3eb9203327a9d6f7653abeaa8
-    linux-64: 8e323951c273b57b2e693c63cd5efff6356e54fb0a7ba21701cafc8d99fe3026
+    win-64: 746a78954fe6d0b93421f9e15c59d92cb0e59e8ab44fa917a0f5509ae36e0081
+    linux-64: 9b21254b00a5b307853ff80e84541f3d396cccab218930a231b89f3c09c61fd8
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -1381,6 +1381,30 @@ package:
     sha256: 517fe814fbfe570978369bc6dd9f951739293cf90905213204f30b2c29df7946
   category: dev
   optional: true
+- name: et_xmlfile
+  version: 2.0.0
+  manager: conda
+  platform: linux-64
+  dependencies:
+    python: '>=3.9'
+  url: https://repo.prefix.dev/conda-forge/noarch/et_xmlfile-2.0.0-pyhd8ed1ab_1.conda
+  hash:
+    md5: 71bf9646cbfabf3022c8da4b6b4da737
+    sha256: 2209534fbf2f70c20661ff31f57ab6a97b82ee98812e8a2dcb2b36a0d345727c
+  category: main
+  optional: false
+- name: et_xmlfile
+  version: 2.0.0
+  manager: conda
+  platform: win-64
+  dependencies:
+    python: '>=3.9'
+  url: https://repo.prefix.dev/conda-forge/noarch/et_xmlfile-2.0.0-pyhd8ed1ab_1.conda
+  hash:
+    md5: 71bf9646cbfabf3022c8da4b6b4da737
+    sha256: 2209534fbf2f70c20661ff31f57ab6a97b82ee98812e8a2dcb2b36a0d345727c
+  category: main
+  optional: false
 - name: exceptiongroup
   version: 1.3.1
   manager: conda
@@ -4981,6 +5005,38 @@ package:
     sha256: 226c270a7e3644448954c47959c00a9bf7845f6d600c2a643db187118d028eee
   category: main
   optional: false
+- name: openpyxl
+  version: 3.1.5
+  manager: conda
+  platform: linux-64
+  dependencies:
+    et_xmlfile: ''
+    libgcc: '>=14'
+    python: '>=3.12,<3.13.0a0'
+    python_abi: 3.12.*
+  url: https://repo.prefix.dev/conda-forge/linux-64/openpyxl-3.1.5-py312h7f6eeab_3.conda
+  hash:
+    md5: 04ab345ef65b88bcbb8ac3d083427bfc
+    sha256: 04839d313708a6b8c185bc9fcc56ccef985ed91520420c665b5e67b55fd8b5fb
+  category: main
+  optional: false
+- name: openpyxl
+  version: 3.1.5
+  manager: conda
+  platform: win-64
+  dependencies:
+    et_xmlfile: ''
+    python: '>=3.12,<3.13.0a0'
+    python_abi: 3.12.*
+    ucrt: '>=10.0.20348.0'
+    vc: '>=14.3,<15'
+    vc14_runtime: '>=14.44.35208'
+  url: https://repo.prefix.dev/conda-forge/win-64/openpyxl-3.1.5-py312h83acffa_3.conda
+  hash:
+    md5: ff342a314798173eaaf2753a22f044fa
+    sha256: 824eeb546a08c990eb461706280d3064c0437f67eb320018986fa439f468e43a
+  category: main
+  optional: false
 - name: openssl
   version: 3.6.1
   manager: conda
@@ -5288,27 +5344,27 @@ package:
   category: main
   optional: false
 - name: platformdirs
-  version: 4.8.0
+  version: 4.9.1
   manager: conda
   platform: linux-64
   dependencies:
     python: ''
-  url: https://repo.prefix.dev/conda-forge/noarch/platformdirs-4.8.0-pyhcf101f3_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/platformdirs-4.9.1-pyhcf101f3_0.conda
   hash:
-    md5: 8afb83f9f16ace9092cb025ed30711ce
-    sha256: b07015c9105be63f48762986978d88e10a65847a3d3dd2a996918178297a79d9
+    md5: 9402ece5651f956de34cf0dc20dfc3a5
+    sha256: 40326e409d73630a7c4122e618885dfe5f53d22693884b59af31b9ebd9d1d41c
   category: dev
   optional: true
 - name: platformdirs
-  version: 4.8.0
+  version: 4.9.1
   manager: conda
   platform: win-64
   dependencies:
     python: '>=3.10'
-  url: https://repo.prefix.dev/conda-forge/noarch/platformdirs-4.8.0-pyhcf101f3_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/platformdirs-4.9.1-pyhcf101f3_0.conda
   hash:
-    md5: 8afb83f9f16ace9092cb025ed30711ce
-    sha256: b07015c9105be63f48762986978d88e10a65847a3d3dd2a996918178297a79d9
+    md5: 9402ece5651f956de34cf0dc20dfc3a5
+    sha256: 40326e409d73630a7c4122e618885dfe5f53d22693884b59af31b9ebd9d1d41c
   category: dev
   optional: true
 - name: pluggy
