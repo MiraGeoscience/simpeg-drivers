@@ -63,8 +63,9 @@ class SweepOptions(Options):
     forward_only: bool = True
     inversion_type: str = "plate sweep"
     template: SimPEGGroup | UIJsonGroup
+    generate_summary: bool = True
     sweeps: list[ParamSweep]
-    workdir: str = "./simulations"
+    workdir: Path = Path("./simulations")
 
     @field_serializer("sweeps")
     def sweeps_to_params(self, sweeps):
