@@ -85,7 +85,7 @@ class PlateSweepDriver(BaseDriver):
 
         use_futures = self.client
 
-        if use_futures:
+        if use_futures and trials:
             blocks = np.array_split(trials, len(self.workers))
         else:
             blocks = trials

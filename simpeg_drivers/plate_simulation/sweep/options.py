@@ -113,6 +113,9 @@ class SweepOptions(Options):
     @property
     def trials(self) -> list[dict]:
         """Returns a list of parameter combinations to run for each trial."""
+        if not self.sweeps:
+            return []
+
         names = [s.name for s in self.sweeps]
         iterations = itertools.product(*[np.linspace(*s()) for s in self.sweeps])
         options_dict = self.template_options.copy()
