@@ -12,14 +12,9 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import ClassVar, TypeAlias
+from typing import ClassVar
 
 from geoh5py.groups import PropertyGroup
-from geoh5py.objects import (
-    AirborneTEMReceivers,
-    LargeLoopGroundTEMReceivers,
-    MovingLoopGroundTEMReceivers,
-)
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.electromagnetics.base_1d_options import Base1DOptions
@@ -29,11 +24,6 @@ from simpeg_drivers.electromagnetics.time_domain.options import (
 )
 from simpeg_drivers.options import (
     DirectiveOptions,
-)
-
-
-Receivers: TypeAlias = (
-    MovingLoopGroundTEMReceivers | LargeLoopGroundTEMReceivers | AirborneTEMReceivers
 )
 
 
