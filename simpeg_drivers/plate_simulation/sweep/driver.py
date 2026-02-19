@@ -13,6 +13,7 @@ from __future__ import annotations
 import shutil
 import sys
 from pathlib import Path
+from typing import Self
 
 import numpy as np
 from geoapps_utils.utils.importing import GeoAppsError
@@ -25,7 +26,6 @@ from geoh5py.shared.utils import (
     uuid_from_values,
 )
 from geoh5py.ui_json.utils import flatten
-from typing_extensions import Self
 
 from simpeg_drivers.driver import BaseDriver
 from simpeg_drivers.plate_simulation.driver import PlateSimulationDriver

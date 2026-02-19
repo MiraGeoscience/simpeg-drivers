@@ -13,6 +13,7 @@ from __future__ import annotations
 import multiprocessing
 import sys
 from pathlib import Path
+from typing import Self
 
 import numpy as np
 from dask.distributed import Future, progress
@@ -30,7 +31,6 @@ from geoh5py.ui_json import InputFile
 from scipy import signal
 from scipy.sparse import csr_matrix
 from scipy.spatial import cKDTree
-from typing_extensions import Self
 
 from simpeg_drivers.driver import BaseDriver
 from simpeg_drivers.plate_simulation.match.options import PlateMatchOptions
