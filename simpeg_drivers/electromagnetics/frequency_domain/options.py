@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from logging import getLogger
 from pathlib import Path
-from typing import ClassVar, TypeAlias
+from typing import ClassVar
 
 from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.groups import PropertyGroup
@@ -22,7 +22,7 @@ from geoh5py.objects import (
     LargeLoopGroundFEMReceivers,
     MovingLoopGroundFEMReceivers,
 )
-from pydantic import AliasChoices, BaseModel, ConfigDict, Field, field_validator
+from pydantic import field_validator
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.options import (
@@ -33,10 +33,6 @@ from simpeg_drivers.options import (
     EMDataMixin,
 )
 
-
-Receivers: TypeAlias = (
-    MovingLoopGroundFEMReceivers | LargeLoopGroundFEMReceivers | AirborneFEMReceivers
-)
 
 logger = getLogger(__name__)
 
@@ -98,7 +94,11 @@ class FDEMForwardOptions(BaseForwardOptions, BaseFDEMOptions):
     physical_property: str = "conductivity"
     inversion_type: str = "fdem"
 
-    data_object: Receivers
+    data_object: (
+        MovingLoopGroundFEMReceivers
+        | LargeLoopGroundFEMReceivers
+        | AirborneFEMReceivers
+    )
     z_real_channel_bool: bool
     z_imag_channel_bool: bool
     models: ConductivityModelOptions
@@ -121,7 +121,11 @@ class FDEMInversionOptions(BaseFDEMOptions, BaseInversionOptions):
     physical_property: str = "conductivity"
     inversion_type: str = "fdem"
 
-    data_object: Receivers
+    data_object: (
+        MovingLoopGroundFEMReceivers
+        | LargeLoopGroundFEMReceivers
+        | AirborneFEMReceivers
+    )
     z_real_channel: PropertyGroup | None = None
     z_real_uncertainty: PropertyGroup | None = None
     z_imag_channel: PropertyGroup | None = None

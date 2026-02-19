@@ -12,7 +12,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import ClassVar, TypeAlias
+from typing import ClassVar
 
 import numpy as np
 from geoh5py.groups import PropertyGroup
@@ -28,11 +28,6 @@ from simpeg_drivers.options import (
     BaseInversionOptions,
     ConductivityModelOptions,
     EMDataMixin,
-)
-
-
-Receivers: TypeAlias = (
-    MovingLoopGroundTEMReceivers | LargeLoopGroundTEMReceivers | AirborneTEMReceivers
 )
 
 
@@ -90,7 +85,11 @@ class TDEMForwardOptions(BaseTDEMOptions, BaseForwardOptions):
     physical_property: str = "conductivity"
     inversion_type: str = "tdem"
 
-    data_object: Receivers
+    data_object: (
+        MovingLoopGroundTEMReceivers
+        | LargeLoopGroundTEMReceivers
+        | AirborneTEMReceivers
+    )
     z_channel_bool: bool | None = None
     x_channel_bool: bool | None = None
     y_channel_bool: bool | None = None
@@ -115,7 +114,11 @@ class TDEMInversionOptions(BaseTDEMOptions, BaseInversionOptions):
     physical_property: str = "conductivity"
     inversion_type: str = "tdem"
 
-    data_object: Receivers
+    data_object: (
+        MovingLoopGroundTEMReceivers
+        | LargeLoopGroundTEMReceivers
+        | AirborneTEMReceivers
+    )
     z_channel: PropertyGroup | None = None
     z_uncertainty: PropertyGroup | None = None
     x_channel: PropertyGroup | None = None
