@@ -74,11 +74,11 @@ include = [
 version = "0.0.0.dev0"
 
 [tool.poetry.dependencies]
-# note: py-deps-clock defines custom mapping from dask to dask-core
+# note: py-deps-lock defines custom mapping from dask to dask-core
 dask = "~2025.3.0"  # also in simpeg[dask]
 discretize = "~0.12.0"  # also in simpeg, grid-apps
 distributed = "~2025.3.0"  # for dask[distributed]
-matplotlib-base = ">=3.10.0, <3.11.dev"  # from geoapps-utils
+matplotlib-base = "~3.10.0"  # from geoapps-utils
 numpy = "~2.4.2"
 openpyxl = ">=3.1.2"
 pandas = ">=3.0.*"
@@ -93,16 +93,16 @@ trimesh = "~4.1.3"
 
 ## Pip dependencies from Git repositories
 #----------------------------------------
-#geoh5py = {version = ">=0.13.0a, 0.13.*", source = "pypi", allow-prereleases = true}
+#geoh5py = {version = ">=0.13.0a2, 0.13.*", source = "pypi", allow-prereleases = true}
 geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "develop"}
 
-#grid-apps = {version = ">=0.2.0a, 0.2.*", source = "pypi", allow-prereleases = true}
+#grid-apps = {version = ">=0.2.0a2, 0.2.*", source = "pypi", allow-prereleases = true}
 grid-apps = {git = "https://github.com/MiraGeoscience/grid-apps.git", rev = "develop"}
 
-#geoapps-utils = {version = ">=0.7.0a, 0.7.*", source = "pypi", allow-prereleases = true}
+#geoapps-utils = {version = ">=0.7.0a2, 0.7.*", source = "pypi", allow-prereleases = true}
 geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "develop"}
 
-#mira-simpeg = {version = ">=0.23.0.3a, 0.23.0.*", source="pypi", allow-prereleases = true, extras = ["dask"]}
+#mira-simpeg = {version = ">=0.23.0.2, 0.23.0.* || >=0.25.0.1a, 0.25.0.*", source="pypi", allow-prereleases = true, extras = ["dask"]}
 mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", rev = "develop", extras = ["dask"]}
 
 ## about pip dependencies
@@ -141,8 +141,8 @@ libblas = "*=*mkl"  # because simpeg already brings in the MKL
 bokeh = "3.6.*"   # optional, for dask reporting
 fsspec = ">=2022.0"  # from simpeg[dask]
 geoana = "0.8.*"  # from simpeg
-h5py = ">=3.15.1, <4.0.dev"  # from geoh5py
-pillow = ">=12.1.0, <13.0.dev"  # from geoh5py
+h5py = ">=3.15.1, 3.*"  # from geoh5py
+pillow = ">=12.1.0, 12.*"  # from geoh5py
 pymatsolver = "0.3.*"  # from simpeg
 zarr = ">=2.14.2, 2.14.*"  # from simpeg[dask]
 
