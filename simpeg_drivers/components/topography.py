@@ -38,6 +38,8 @@ from simpeg_drivers.utils.utils import (
     floating_active,
     get_containing_cells,
     get_neighbouring_cells,
+    mask_vertices_and_cells,
+    octree_extents,
 )
 
 
@@ -101,14 +103,26 @@ class InversionTopography(InversionLocations):
             active_cells = InversionModel.obj_2_mesh(
                 self.params.active_cells.active_model, mesh.entity
             )
+
         else:
+            if any(k in self.params.inversion_type for k in ["2d", "p3d"]):
+                vertices = self.locations
+                cells = getattr(
+                    self.params.active_cells.topography_object, "cells", None
+                )
+            else:
+                extent = octree_extents(mesh.entity)[:4]
+                vertices, cells = mask_vertices_and_cells(
+                    extent.ravel(order="F"),
+                    self.locations,
+                    getattr(self.params.active_cells.topography_object, "cells", None),
+                )
+
             active_cells = active_from_xyz(
                 mesh.entity,
-                self.locations,
+                vertices,
                 grid_reference="bottom" if forced_to_surface else "center",
-                triangulation=getattr(
-                    self.params.active_cells.topography_object, "cells", None
-                ),
+                triangulation=cells,
             )
 
         active_cells = (mesh.permutation @ active_cells).astype(bool)
