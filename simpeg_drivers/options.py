@@ -11,7 +11,7 @@
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 from logging import getLogger
 from pathlib import Path
 from typing import Annotated, Any, ClassVar, Literal
@@ -321,7 +321,7 @@ class ModelOptions(BaseModel):
         return self._gradient_orientations
 
 
-class ModelTypeEnum(str, Enum):
+class ModelTypeEnum(StrEnum):
     conductivity = "Conductivity (S/m)"
     resistivity = "Resistivity (Ohm-m)"
 
