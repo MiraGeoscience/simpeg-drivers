@@ -16,7 +16,7 @@ Documentation
 
 Installation
 ^^^^^^^^^^^^
-**simpeg-drivers** is currently written for Python 3.10 or higher.
+**simpeg-drivers** is currently written for Python 3.12 or higher.
 
 Install within a conda environment
 ----------------------------------

@@ -14,6 +14,7 @@ import shutil
 import sys
 from numbers import Number
 from pathlib import Path
+from typing import Self
 
 import numpy as np
 from geoapps_utils.utils.importing import GeoAppsError
@@ -28,7 +29,6 @@ from geoh5py.shared.utils import (
 from geoh5py.ui_json.utils import flatten
 from h5py import File
 from pandas import DataFrame
-from typing_extensions import Self
 
 from simpeg_drivers.driver import BaseDriver
 from simpeg_drivers.plate_simulation.driver import PlateSimulationDriver
