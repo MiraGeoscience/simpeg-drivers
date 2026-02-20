@@ -20,7 +20,7 @@ build:
 
 requirements:
   host:
-    - python 3.12.*
+    - python ${{ python_min }}.*
     - poetry-core >=1.8.0
     - poetry-dynamic-versioning >=1.9, 1.*
     - setuptools
@@ -28,17 +28,17 @@ requirements:
   run:
     - python >=${{ python_min }}
     # Mira packages
-    - geoapps-utils >=0.7.0a, 0.7.*
-    - geoh5py >=0.13.0a, 0.13.*
-    - grid-apps >=0.2.0a, 0.2.*
-    - mira-simpeg >=0.23.0.3a, 0.23.0.*
+    - geoapps-utils >=0.7.0a2, 0.7.*
+    - geoh5py >=0.13.0a2, 0.13.*
+    - grid-apps >=0.2.0a2, 0.2.*
+    - mira-simpeg >=0.23.0.2, 0.23.0.* | >=0.25.0.1a, 0.25.0.*
 
     # direct dependencies
     - dask-core 2025.3.*
     - discretize 0.12.*
     - distributed 2025.3.*
     - numpy >=2.4.2, 2.4.*
-    - pydantic >=2.12.0, 2.12.*
+    - pydantic 2.12.*
     - pydiso 0.2.*
     - python-mumps >=0.0.6, 0.0.6.*
     - rtree 1.4.*
