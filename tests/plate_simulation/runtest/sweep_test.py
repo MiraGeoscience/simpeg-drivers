@@ -7,11 +7,12 @@
 #  (see LICENSE file at the root of this source code package).                      '
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
+from io import BytesIO
 
 from geoh5py import Workspace
 from geoh5py.groups import SimPEGGroup
 from geoh5py.ui_json import InputFile
+from pandas import read_excel
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
@@ -103,3 +104,11 @@ def test_sweep(tmp_path):
 
     n = len(list(workdir.glob("*.geoh5")))
     assert n == 6
+
+    # Check that the summary file was created and has the expected number of rows
+    with Workspace(tmp_path / "test.geoh5") as ws:
+        file_data = ws.get_entity("summary.xlsx")[0]
+        blob = BytesIO(file_data.file_bytes)
+        xls = read_excel(blob)
+
+    assert len(xls) == 6
