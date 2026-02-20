@@ -11,7 +11,7 @@
 
 from __future__ import annotations
 
-from enum import Enum, StrEnum
+from enum import StrEnum
 from logging import getLogger
 from pathlib import Path
 from typing import Annotated, Any, ClassVar, Literal
