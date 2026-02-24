@@ -1,13 +1,27 @@
-.. _plate_simulation_usage:
+.. _plate_simulation_index:
 
-Basic Usage
------------
+Plate Simulation
+================
+
+The plate-simulation application is a tool for simulating geophysical data over
+a simple two-layer earth model with plate(s).  It relies on the
+`discretize <https://discretize.simpeg.xyz/en/main/>`_
+and `SimPEG <https://simpeg.xyz/>`_ projects to create a refined octree mesh and
+simulate data over the parameterized model.  The mesh, model and simulation
+details are parameterized in a ui.json file that can be rendered in
+`Geoscience ANALYST Pro <https://www.mirageoscience.com/mining-industry-software/geoscience-analyst-pro/>`_.
+
+.. figure:: /plate-simulation/images/index.png
+   :align: center
+   :width: 50%
+
+
+Interface
+=========
 
 Simulating geophysical data from a physical property model requires three things:
 a computational mesh, a discretization of the model within that mesh, and a means
-to simulate the data. Plate simulation relies on `discretize <https://discretize.simpeg.xyz/en/main/>`_
-for octree mesh creation and `SimPEG <https://simpeg.xyz/>`_ for finite volume
-based forward modeling. Plate simulation includes a module for generating a simple
+to simulate the data. Plate simulation includes a module for generating a simple
 two-layer model with embedded plate anomalies within octree meshes. This section
 discusses all three of these components, their interface exposed by the ui.json file,
 and the storage of results.
@@ -18,35 +32,6 @@ and the storage of results.
 
     *Merged images of both tabs of the ui.json rendered interface.*
 
-.. contents::
-
-.. toctree::
-   :maxdepth: 3
-
-
-Octree Mesh
------------
-
-To accurately simulate the earth model, the mesh must be refined in key areas
-while remaining coarse enough elsewhere to efficiently simulate data. Plate
-simulation includes refinements at the earth-air interface, the transmitter and
-receiver sites, and on the surface of plates.
-
-.. figure:: /plate-simulation/images/methodology/mesh/refinement.png
-    :align: center
-    :width: 100%
-
-    *Octree mesh refinement for earth-air interface, receiver sites,
-    and within the mesh.*
-
-The meshing is controlled by options exposed in the ui.json. These options are
-significantly reduced compared with octree creation from `grid-app <https://mirageoscience-grid-apps.readthedocs-hosted.com/>`_,
-as many parameters have been tailored to suit the needs of plate simulation.
-
-.. figure:: /plate-simulation/images/methodology/mesh/mesh_options.png
-    :align: center
-
-    *Octree mesh parameters exposed in the ui.json.*
 
 Geological Model
 ----------------
@@ -55,12 +40,12 @@ Plate simulation includes a module for generating plates embedded in a two-layer
 Earth model within octree meshes. Many permutations of this simple geological
 scenario result in a complex interface. To simplify this, the discussion is
 organized into two sub-sections: background (basement and overburden) and plates.
+All model values within plate-simulation must be provided in SI units that varies depending on the chosen forward simulation (g/cc, SI or Ohm.m)
 
 Background
 ~~~~~~~~~~
 
-All model values within plate-simulation must be provided in ohm-metres. The
-basement resistivity is actually closer to a halfspace in the sense that it
+The basement resistivity is actually closer to a halfspace in the sense that it
 fills the model anywhere outside of the overburden and plate. Therefore, the
 basement resistivity should be chosen as an effective resistivity for the whole
 geological section. This approach is quite reasonable for most applications
@@ -115,7 +100,7 @@ and share the same resistivity, size, and orientation.
 
     *Model created by choosing three plates spaced at 200m.*
 
-The plate resistivity must be entered in ohm-metres.
+The plate resistivity must be entered in SI units (g/cc, SI or Ohm.m).
 
 .. figure:: /plate-simulation/images/methodology/model/plate_resistivity_option.png
     :align: center
@@ -228,6 +213,30 @@ and at least one component must be selected to run the simulation.
 
     *Simulation options with annotations for required and not required components.*
 
+Octree Mesh
+-----------
+
+To accurately simulate the earth model, the mesh must be refined in key areas
+while remaining coarse enough elsewhere to efficiently simulate data. Plate
+simulation includes refinements at the earth-air interface, the transmitter and
+receiver sites, and on the surface of plates.
+
+.. figure:: /plate-simulation/images/methodology/mesh/refinement.png
+    :align: center
+    :width: 100%
+
+    *Octree mesh refinement for earth-air interface, receiver sites,
+    and within the mesh.*
+
+The meshing is controlled by options exposed in the ui.json. These options are
+significantly reduced compared with octree creation from `grid-app <https://mirageoscience-grid-apps.readthedocs-hosted.com/>`_,
+as many parameters have been tailored to suit the needs of plate simulation.
+
+.. figure:: /plate-simulation/images/methodology/mesh/mesh_options.png
+    :align: center
+
+    *Octree mesh parameters exposed in the ui.json.*
+
 Results
 -------
 
@@ -248,39 +257,16 @@ To iterate on the design of experiment, copy the options, edit them, and run aga
 
     *Copying the options to run a new simulation.*
 
-To sweep one or more input parameters and run multiple simulations, use the
-``generate sweep file`` option to create a file for the `param-sweeps <https://github.com/MiraGeoscience/param-sweeps>`_
-package. See the param-sweeps README for further details on using that package.
 
-.. figure:: /plate-simulation/images/methodology/sweep_option.png
-    :align: center
+Advanced Applications
+---------------------
 
-    *Generating a sweep file to run multiple simulations.*
+Two other applications are available to assist users in finding the best plate parameters to match observed data.
+The sweep application allows users to run a batch of simulations over a range of plate parameters, while the matching application uses an optimization algorithm to find the best fit between simulated and observed data.
 
 
-Running the application
------------------------
+.. toctree::
+   :maxdepth: 1
 
-The main entry point to the various modules is the `plate_simulation.ui.json <https://github.com/MiraGeoscience/plate-simulation/blob/develop/plate_simulation-assets/uijson/plate_simulation.ui.json>`_
-file. The ``ui.json`` serves a dual purpose: (1) rendering a user-interface in
-Geoscience ANALYST and (2) storing the input parameters chosen by the user for the
-program to run. See the `UIJson documentation <https://mirageoscience-geoh5py.readthedocs-hosted.com/en/latest/content/uijson_format/usage.html>`_
-for more information about the ui.json interface.
-
-Access the user-interface from the Geoscience ANALYST Pro Geophysics menu.
-
-.. figure:: /plate-simulation/images/methodology/analyst_geophysics_menu.png
-        :align: center
-        :width: 800
-
-The application can also be run from the command line if all required fields in
-the ui.json are provided. This approach is useful for advanced users who want to
-automate the mesh creation process or re-run an existing mesh with different parameters.
-
-To run the application from the command line, use the following command in a Conda Prompt:
-
-``conda activate plate-simulation``
-
-``python -m plate-simulation.driver input_file.json``
-
-where ``input_file.json`` is the path to the input file on disk.
+   sweep
+   match
