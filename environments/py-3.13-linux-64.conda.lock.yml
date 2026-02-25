@@ -126,7 +126,7 @@ dependencies:
   - readline=8.3=h853b02a_0
   - rtree=1.4.1=pyh11ca60a_0
   - scikit-learn=1.8.0=np2py313h16d504d_1
-  - scipy=1.17.0=py313h4b8bb8b_1
+  - scipy=1.17.1=py313h4b8bb8b_0
   - setuptools=82.0.0=pyh332efcf_0
   - six=1.17.0=pyhe01879c_1
   - sortedcontainers=2.4.0=pyhd8ed1ab_1
@@ -155,9 +155,9 @@ dependencies:
   - zstd=1.5.7=hb78ec9c_6
   - pip:
     - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@fb86adf72fb82ea23c8904a39585982ca8793c52
-    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@9e0a86e5afadfe9c55e9811317827a4f6c2c70c4
+    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@e83842e8acc2dd8e4c4353587b5314bb03714d9d
     - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@cdbbb07e623a260f0834df7261e06daa254e6b79
-    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@5944609b7decc673b510b7052eff0e6ecc46d1ff
+    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@7297f79aacb30d6149ac535da0ecd148efdb60d0
 
 variables:
   KMP_WARNINGS: 0
