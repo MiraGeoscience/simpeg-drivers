@@ -1,4 +1,4 @@
-.. _plate_simulation_index:
+.. _plate_simulation:
 
 Plate Simulation
 ================

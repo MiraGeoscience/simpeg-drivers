@@ -16,6 +16,7 @@ chapters:
   - file: fundamentals/joint_inversion
   - file: fundamentals/depth_of_investigation
   - file: fundamentals/optimization
+  - file: fundamentals/parallelization
 - file: tutorials/introduction
   sections:
   - file: tutorials/background
