@@ -14,7 +14,6 @@ chapters:
     - file: fundamentals/regularization/rotated_gradients
   - file: fundamentals/mesh_design
   - file: fundamentals/joint_inversion
-  - file: fundamentals/depth_of_investigation
   - file: fundamentals/optimization
   - file: fundamentals/parallelization
 - file: tutorials/introduction
@@ -35,8 +34,10 @@ chapters:
         - file: case_studies/Forrestania/python_code/unconstrained_gravity_inv_training
         - file: case_studies/Forrestania/python_code/unconstrained_magnetics_inv_training
         - file: case_studies/Forrestania/python_code/joint_grav_mag
+- file: fundamentals/depth_of_investigation
 - file: plate-simulation/simulation
   sections:
+  - file: plate-simulation/standalone
   - file: plate-simulation/sweep
   - file: plate-simulation/match
 - file: THIRD_PARTY_SOFTWARE
