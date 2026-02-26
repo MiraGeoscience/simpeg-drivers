@@ -5,11 +5,9 @@ Batch Simulations
 
 The Plate Sweep module provides a user interface for generating and running a batch of simulations by sweeping one or more of the input parameters.  The user can select which parameters to sweep and the range of values for each parameter.
 
-.. figure:: /plate-simulation/images/sweep/landing.png
+.. figure:: /plate-simulation/images/sweep_landing.png
     :align: center
     :width: 80%
-
-The results of each simulation are stored in a ``*.geoh5`` file named with a unique identifier. A ``summary.xls`` file can be generated to track the parameters used in previous sweeps.
 
 The following sections describe the user interface, inputs, and methodology of the Plate Sweep module.
 
@@ -17,7 +15,7 @@ The following sections describe the user interface, inputs, and methodology of t
 Interface
 ---------
 
-.. figure:: /plate-simulation/images/sweep/sweep_uijson.png
+.. figure:: /plate-simulation/images/sweep_uijson.png
     :align: center
     :width: 80%
 
@@ -35,10 +33,10 @@ Inputs
 Methodology
 -----------
 
-This section provides a brief overview of the methodology used in the Plate Sweep module. For more details on the underlying algorithms and implementation, please refer to the source code.
+After loading the input parameters from the Plate Simulation group, the application generates a list of parameter combinations based on the specified sweep ranges. For each combination of parameters, a unique identifier is generated using a hash system. If this unique identifier already exists in the ``Output director``, the simulation is skipped. Otherwise a copy of the original input ``geoh5`` is created.
 
-After loading the input parameters from the Plate Simulation group, the application generates a list of parameter combinations based on the specified sweep ranges. For each combination of parameters, a unique identifier is generated using a hash system. If this unique identifier already exists in the ``Output director``, the simulation is skipped. Otherwise a copy of the original input ``geoh5`` is created. The target file is then opened and the Plate Simulation group is modified with the corresponding parameters before running the simulation. The results are saved in the target file, and the process is repeated for the next combination of parameters until all combinations have been processed.
+The target file is then opened and the Plate Simulation group is modified with the corresponding parameters before running the simulation. The results are saved in the target ``geoh5`` file, and the process is repeated for the next combination of parameters until all combinations have been processed.
 
-If the dask.distributed library is enabled, the simulations are run in parallel using a local cluster. Otherwise, the simulations are run sequentially.
+If the `dask.distributed <parallelization_distributed>`_ library is enabled, the simulations are run in parallel using a local cluster. Otherwise, the simulations are run sequentially.
 
 Finally, if the option to generate a summary file is enabled, a routine extracts parameters from all ``*.geoh5`` files present in the ``Output director`` and tabulates them in a ``summary.xls`` file for easy reference and analysis.
