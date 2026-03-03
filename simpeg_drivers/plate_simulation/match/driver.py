@@ -34,6 +34,7 @@ from scipy.sparse import csr_matrix
 from scipy.spatial import cKDTree
 
 from simpeg_drivers.driver import BaseDriver
+from simpeg_drivers.electromagnetics.time_domain.options import CONVERSION
 from simpeg_drivers.plate_simulation.match.options import PlateMatchOptions
 from simpeg_drivers.plate_simulation.options import ModelOptions, PlateSimulationOptions
 
@@ -53,7 +54,11 @@ class PlateMatchDriver(BaseDriver):
 
         self._drape_heights = self._get_drape_heights()
         self._template = self.get_template()
-        self._time_mask, self._time_projection = self.time_mask_and_projection()
+        self._time_mask, self._time_projection = self.time_mask_and_projection(
+            np.asarray(self._template.channels) * CONVERSION[self._template.unit],
+            np.asarray(self.params.survey.channels)
+            * CONVERSION[self.params.survey.unit],
+        )
         self._spatial_tree = cKDTree(self.params.survey.vertices[:, :2])
 
     @property
@@ -79,7 +84,10 @@ class PlateMatchDriver(BaseDriver):
 
         return survey
 
-    def time_mask_and_projection(self) -> tuple[np.ndarray, csr_matrix]:
+    @staticmethod
+    def time_mask_and_projection(
+        simulated_times, query_times
+    ) -> tuple[np.ndarray, csr_matrix]:
         """
         Create a time mask and interpolation matrix from simulation to observation times.
 
@@ -87,8 +95,6 @@ class PlateMatchDriver(BaseDriver):
 
         :return: Time mask and time interpolation matrix.
         """
-        simulated_times = np.asarray(self._template.channels)
-        query_times = np.asarray(self.params.survey.channels)
         # Only interpolate for times within the simulated range
         time_mask = (query_times >= simulated_times.min()) & (
             query_times <= simulated_times.max()
@@ -249,14 +255,14 @@ class PlateMatchDriver(BaseDriver):
 
         # Get the 8 nearest neighbors in the simulation to each observation point
         sim_tree = cKDTree(query_polar)
-        rad, inds = sim_tree.query(local_polar, k=8)
+        rad, inds = sim_tree.query(local_polar, k=16)
         inds = np.minimum(query_polar.shape[0] - 1, inds)
         return inverse_weighted_operator(
             rad.flatten(),
             inds.flatten(),
             (local_polar.shape[0], self._template.vertices.shape[0]),
             2.0,
-            1e-1,
+            1e-0,
         )
 
     def run(self):
@@ -278,9 +284,9 @@ class PlateMatchDriver(BaseDriver):
             indices, spatial_projection = self.spatial_mask_and_projection(
                 query, strike_angle[ii]
             )
-            data, flip = prepare_data(observed[:, indices])
+            flip = is_up_dip(observed[:, indices])
             # Loop through files and compute scores and find the best match
-            scores, centers = self.run_scores(spatial_projection, data)
+            scores, centers = self.run_scores(spatial_projection, observed[:, indices])
             ranked = np.argsort(scores)
             best = ranked[0]
             logger.info(
@@ -380,7 +386,7 @@ class PlateMatchDriver(BaseDriver):
         return scores, centers
 
 
-def prepare_data(data: np.ndarray) -> tuple[np.ndarray, bool]:
+def is_up_dip(data: np.ndarray) -> bool:
     """
     Prepare data for scoring by checking for multiple channels and normalizing.
 
@@ -398,9 +404,9 @@ def prepare_data(data: np.ndarray) -> tuple[np.ndarray, bool]:
 
     # Mostly on the left suggests the peaks are migrating up-dip and should be reversed
     if np.mean(left > right) > 0.5:
-        return data_array[:, ::-1], True
+        return True
 
-    return data_array, False
+    return False
 
 
 def get_data_array(property_group: PropertyGroup) -> np.ndarray:
@@ -415,7 +421,9 @@ def get_data_array(property_group: PropertyGroup) -> np.ndarray:
     return np.vstack(table.tolist()).T
 
 
-def normalized_data(data: np.ndarray, threshold=5) -> np.ndarray:
+def normalized_data(
+    data: np.ndarray, scale: float = 1, threshold: float | None = None
+) -> np.ndarray:
     """
     Return data from a property group with symlog, zero median and unit max normalization.
 
@@ -424,10 +432,14 @@ def normalized_data(data: np.ndarray, threshold=5) -> np.ndarray:
 
     :return: Normalized data array.
     """
-    thresh = np.percentile(np.abs(data), threshold)
-    log_data = symlog(data, thresh)
-    centered_log = log_data - np.median(log_data)
-    return centered_log / np.abs(centered_log).max()
+    scales_data = data * scale
+
+    if threshold is None:
+        threshold = np.percentile(scales_data, 5)
+
+    log_data = symlog(scales_data, threshold)
+
+    return log_data
 
 
 def fetch_survey(workspace: Workspace) -> AirborneTEMReceivers | None:
@@ -453,7 +465,7 @@ def batch_files_score(
     :param files: Simulation file or list of simulation files to process.
     :param spatial_projection: Spatial interpolation matrix.
     :param time_projection: Time interpolation matrix.
-    :param observed: Observed data array.
+    :param observed: Normalized (symlog) observed data array.
 
     :return: List of scores for each simulation file.
     """
@@ -461,6 +473,9 @@ def batch_files_score(
 
     if isinstance(files, Path):
         files = [files]
+
+    max_late_val = np.max(np.abs(observed[-1, :]))
+    data = normalized_data(observed, threshold=max_late_val)
 
     for sim_file in files:
         with Workspace(sim_file, mode="r") as ws:
@@ -472,24 +487,24 @@ def batch_files_score(
 
             simulated = get_data_array(survey.get_entity("Iteration_0_z")[0])
             pred = time_projection @ (spatial_projection @ simulated.T).T
-            pred = normalized_data(pred)
+            scale = max_late_val / np.max(np.abs(pred[-1, :]))
+            pred = normalized_data(pred, scale=scale, threshold=max_late_val)
+
             score = 0.0
             indices = []
             # Metric: normalized cross-correlation
-            for obs, pre in zip(observed, pred, strict=True):
+            for obs, pre in zip(data, pred, strict=True):
                 # Scale pre on obs
-                vals = pre / np.abs(pre).max() * np.abs(obs).max()
-
                 # Full cross-correlation
-                corr = signal.correlate(obs, vals, mode="same")
+                corr = signal.correlate(obs, pre, mode="same")
                 # Normalize by energy to get correlation coefficient in [-1, 1]
-                denom = np.linalg.norm(vals) * np.linalg.norm(obs)
+                denom = np.linalg.norm(pre) * np.linalg.norm(obs)
                 if denom == 0:
                     corr_norm = np.zeros_like(corr)
                 else:
                     corr_norm = corr / denom
 
-                score += np.linalg.norm(obs - vals)
+                score += np.linalg.norm(obs - pre)
                 indices.append(np.argmax(corr_norm))
 
             scores.append((score, np.median(indices)))
