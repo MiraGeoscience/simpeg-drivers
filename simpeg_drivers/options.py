@@ -60,7 +60,7 @@ def deprecate_warning(value, info):
 
 Deprecated = Annotated[
     Any,
-    Field(default=None),
+    Field(None, exclude=True),
     BeforeValidator(deprecate_warning),
 ]
 
