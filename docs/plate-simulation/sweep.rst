@@ -33,7 +33,7 @@ Inputs
 Methodology
 -----------
 
-After loading the input parameters from the Plate Simulation group, the application generates a list of parameter combinations based on the specified sweep ranges. For each combination of parameters, a unique identifier is generated using a hash system. If this unique identifier already exists in the ``Output director``, the simulation is skipped. Otherwise a copy of the original input ``geoh5`` is created.
+After loading the input parameters from the Plate Simulation group, the application generates a list of parameter combinations based on the specified sweep ranges. For each combination of parameters, a unique identifier is generated using a hash system. If this unique identifier already exists in the ``Output directory``, the simulation is skipped. Otherwise a copy of the original input ``geoh5`` is created.
 
 The target file is then opened and the Plate Simulation group is modified with the corresponding parameters before running the simulation. The results are saved in the target ``geoh5`` file, and the process is repeated for the next combination of parameters until all combinations have been processed.
 
