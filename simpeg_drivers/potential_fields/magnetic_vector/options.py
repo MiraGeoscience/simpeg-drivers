@@ -31,7 +31,7 @@ class VectorModelOptions(ModelOptions):
     Magnetic Vector Model options.
     """
 
-    lower_bound: Deprecated | None = None
+    lower_bound: Deprecated = None
     starting_inclination: float | FloatData | None = None
     starting_declination: float | FloatData | None = None
     reference_inclination: float | FloatData | None = None
