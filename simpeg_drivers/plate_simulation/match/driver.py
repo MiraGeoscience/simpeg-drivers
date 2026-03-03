@@ -255,14 +255,14 @@ class PlateMatchDriver(BaseDriver):
 
         # Get the 8 nearest neighbors in the simulation to each observation point
         sim_tree = cKDTree(query_polar)
-        rad, inds = sim_tree.query(local_polar, k=8)
+        rad, inds = sim_tree.query(local_polar, k=16)
         inds = np.minimum(query_polar.shape[0] - 1, inds)
         return inverse_weighted_operator(
             rad.flatten(),
             inds.flatten(),
             (local_polar.shape[0], self._template.vertices.shape[0]),
             2.0,
-            1e-1,
+            1e-0,
         )
 
     def run(self):
@@ -474,9 +474,8 @@ def batch_files_score(
     if isinstance(files, Path):
         files = [files]
 
-    threshold = np.percentile(np.abs(observed), 5)
-    max_val = np.max(np.abs(observed))
-    data = normalized_data(observed, threshold=threshold)
+    max_late_val = np.max(np.abs(observed[-1, :]))
+    data = normalized_data(observed, threshold=max_late_val)
 
     for sim_file in files:
         with Workspace(sim_file, mode="r") as ws:
@@ -487,12 +486,9 @@ def batch_files_score(
                 continue
 
             simulated = get_data_array(survey.get_entity("Iteration_0_z")[0])
-
             pred = time_projection @ (spatial_projection @ simulated.T).T
-
-            scale = max_val / np.abs(pred).max()
-
-            pred = normalized_data(pred, scale=scale, threshold=threshold)
+            scale = max_late_val / np.max(np.abs(pred[-1, :]))
+            pred = normalized_data(pred, scale=scale, threshold=max_late_val)
 
             score = 0.0
             indices = []
@@ -517,8 +513,7 @@ def batch_files_score(
 
 
 if __name__ == "__main__":
-    # file = Path(sys.argv[1]).resolve()
-    file = r"C:\Users\dominiquef\Documents\Workspace\Teck\RnD\plate_match_Vale_MaxwellPlates.ui.json"
+    file = Path(sys.argv[1]).resolve()
     input_file = load_ui_json_as_dict(file)
     PlateMatchDriver.start_dask_run(
         file,
