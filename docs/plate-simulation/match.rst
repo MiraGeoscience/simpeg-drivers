@@ -56,7 +56,7 @@ Spatial Interpolation
 
 The application performs spatial interpolation to align simulation data with observation points:
 
-1. **Local coordinate transformation**: The application identifies the survey line segment nearest to each query location using a k-d tree spatial search. It transforms both the observed and simulated receiver locations into a local polar coordinate system (distance, azimuth, height) centered on the line segment.
+1. **Local coordinate transformation**: The application identifies the survey line segment nearest to each query location. It transforms both the observed and simulated receiver locations into a local polar coordinate system (distance, azimuth, height) centered on the line segment.
 
 2. **Strike angle correction**: If strike angles are provided, the application rotates the coordinate system to align the plate orientation with the survey geometry. This accounts for variations in conductor strike relative to the flight line direction.
 
