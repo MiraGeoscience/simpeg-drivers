@@ -13,7 +13,7 @@ from geoh5py import Workspace
 from geoh5py.data import BooleanData, FloatData
 from geoh5py.objects import DrapeModel, ObjectBase, Octree, Surface
 
-from simpeg_drivers.utils.synthetics.meshes.factory import get_mesh
+from simpeg_drivers.utils.synthetics.meshes import get_mesh
 from simpeg_drivers.utils.synthetics.models import get_model
 from simpeg_drivers.utils.synthetics.options import SyntheticsComponentsOptions
 from simpeg_drivers.utils.synthetics.surveys.factory import get_survey
@@ -71,7 +71,7 @@ class SyntheticsComponents:
 
     @property
     def mesh(self):
-        entity = self.geoh5.get_entity(self.options.mesh.name)[0]
+        entity = self.geoh5.get_entity("mesh")[0]
         assert isinstance(entity, Octree | DrapeModel | type(None))
         if entity is None:
             assert self.options is not None

@@ -17,13 +17,13 @@ from pathlib import Path
 from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.electricals.direct_current.pseudo_three_dimensions.driver import (
-    DCBatch2DForwardDriver,
-    DCBatch2DInversionDriver,
+from simpeg_drivers.electricals.direct_current.two_dimensions.driver import (
+    DC2DForwardDriver,
+    DC2DInversionDriver,
 )
-from simpeg_drivers.electricals.direct_current.pseudo_three_dimensions.options import (
-    DCBatch2DForwardOptions,
-    DCBatch2DInversionOptions,
+from simpeg_drivers.electricals.direct_current.two_dimensions.options import (
+    DC2DForwardOptions,
+    DC2DInversionOptions,
 )
 from simpeg_drivers.electricals.options import (
     FileControlOptions,
@@ -54,28 +54,25 @@ def test_dc_p3d_fwr_run(
     tmp_path: Path,
     n_electrodes=10,
     n_lines=3,
-    refinement=(4, 6),
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(
-        method="direct current pseudo 3d",
+        method="direct current 2d",
         survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
-        mesh=MeshOptions(refinement=refinement),
+        mesh=DrapeModelOptions(
+            u_cell_size=5.0,
+            v_cell_size=5.0,
+            depth_core=50.0,
+            expansion_factor=1.1,
+            vertical_padding=100.0,
+        ),
         model=ModelOptions(background=0.01, anomaly=10.0),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5=geoh5, options=opts)
-        params = DCBatch2DForwardOptions.build(
+        params = DC2DForwardOptions.build(
             geoh5=geoh5,
             mesh=components.mesh,
-            drape_model=DrapeModelOptions(
-                u_cell_size=5.0,
-                v_cell_size=5.0,
-                depth_core=100.0,
-                expansion_factor=1.1,
-                horizontal_padding=1000.0,
-                vertical_padding=1000.0,
-            ),
             topography_object=components.topography,
             data_object=components.survey,
             starting_model=components.model,
@@ -83,7 +80,7 @@ def test_dc_p3d_fwr_run(
                 line_object=components.survey.get_data("line_ids")[0]
             ),
         )
-    fwr_driver = DCBatch2DForwardDriver(params)
+    fwr_driver = DC2DForwardDriver(params)
     fwr_driver.run()
 
 
@@ -103,7 +100,7 @@ def test_dc_p3d_run(
         potential = survey.get_data("Iteration_0_potential")[0]
 
         # Run the inverse
-        params = DCBatch2DInversionOptions.build(
+        params = DC2DInversionOptions.build(
             geoh5=geoh5,
             mesh=components.mesh,
             drape_model=DrapeModelOptions(
@@ -136,7 +133,7 @@ def test_dc_p3d_run(
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    DCBatch2DInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
+    DC2DInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
     basepath = workpath.parent
     with open(basepath / "lookup.json", encoding="utf8") as f:
@@ -163,7 +160,6 @@ if __name__ == "__main__":
         Path("./"),
         n_electrodes=20,
         n_lines=3,
-        refinement=(4, 4),
     )
     test_dc_p3d_run(
         Path("./"),

@@ -76,7 +76,7 @@ def compute_alongline_distance(points: np.ndarray, ordered: bool = True):
     distances = np.cumsum(
         np.r_[0, np.linalg.norm(np.diff(points[:, :2], axis=0), axis=1)]
     )
-    if points.shape[1] == 3:
+    if points.shape[1] > 2:
         distances = np.c_[distances, points[:, 2:]]
 
     return distances

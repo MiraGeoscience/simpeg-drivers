@@ -823,7 +823,18 @@ class InversionDriver(BaseDriver):
             tiles = [[tile] for tile in np.array_split(indices, n_chunks)]
 
         elif "2d" in self.params.inversion_type:
-            tiles = [[indices]]
+            tiles = [
+                [
+                    [
+                        np.where(
+                            self.params.line_selection.line_object.values == line_id
+                        )[0]
+                    ]
+                    for line_id in np.unique(
+                        self.params.line_selection.line_object.values
+                    )
+                ]
+            ]
 
         else:
             tiles = tile_locations(

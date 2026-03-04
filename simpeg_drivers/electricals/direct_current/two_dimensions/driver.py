@@ -11,7 +11,7 @@
 
 from __future__ import annotations
 
-from simpeg_drivers.electricals.driver import Base2DDriver
+from simpeg_drivers.electricals.base_2d import Base2DDriver
 
 from .options import DC2DForwardOptions, DC2DInversionOptions
 

@@ -345,33 +345,28 @@ def floating_active(mesh: TensorMesh | TreeMesh, active: np.ndarray):
 
 def get_drape_model(
     workspace: Workspace,
-    name: str,
     locations: np.ndarray,
     h: list,
     depth_core: float,
     pads: list,
     expansion_factor: float,
-    parent: Group | None = None,
     return_colocated_mesh: bool = False,
-    return_sorting: bool = False,
-) -> tuple:
+    **object_kwargs,
+) -> DrapeModel | tuple[DrapeModel, TensorMesh]:
     """
     Create a BlockModel object from parameters.
 
     :param workspace: Workspace.
-    :param parent: Group to contain the result.
-    :param name: Block model name.
     :param locations: Location points.
     :param h: Cell size(s) for the core mesh.
     :param depth_core: Depth of core mesh below locs.
     :param pads: len(4) Padding distances [W, E, Down, Up]
     :param expansion_factor: Expansion factor for padding cells.
     :param return_colocated_mesh: If true return TensorMesh.
-    :param return_sorting: If true, return the indices required to map
-        values stored in the TensorMesh to the drape model.
+    :param object_kwargs: Extra arguments to pass to the DrapeModel.create() method.
+
     :return object_out: Output block model.
     """
-    locations = truncate_locs_depths(locations, depth_core)
     order = traveling_salesman(locations)
 
     # Smooth the locations
@@ -387,10 +382,8 @@ def get_drape_model(
         ]
     )
     distances = compute_alongline_distance(xy_smooth)
-    distances[:, -1] += locations[:, 2].max() - distances[:, -1].max() + h[1]
     x_interp = interp1d(distances[:, 0], xy_smooth[:, 0], fill_value="extrapolate")
     y_interp = interp1d(distances[:, 0], xy_smooth[:, 1], fill_value="extrapolate")
-
     mesh = mesh_utils.mesh_builder_xyz(
         distances,
         h,
@@ -407,29 +400,21 @@ def get_drape_model(
     locations_top = np.c_[
         x_interp(mesh.cell_centers_x), y_interp(mesh.cell_centers_x), top
     ]
-    model = xyz_2_drape_model(workspace, locations_top, hz, name, parent)
-    val = [model]
+    drape_model = xyz_2_drape_model(workspace, locations_top, hz, **object_kwargs)
+
     if return_colocated_mesh:
-        val.append(mesh)
-    if return_sorting:
-        sorting = np.arange(mesh.n_cells)
-        sorting = sorting.reshape(mesh.shape_cells[1], mesh.shape_cells[0], order="C")
-        sorting = sorting[::-1].T.flatten()
-        val.append(sorting)
-    return val
+        return drape_model, mesh
+    return drape_model
 
 
-def xyz_2_drape_model(
-    workspace, locations, depths, name=None, parent=None
-) -> DrapeModel:
+def xyz_2_drape_model(workspace, locations, depths, **object_kwargs) -> DrapeModel:
     """
     Convert a list of cell tops and layer depths to a DrapeModel object.
 
     :param workspace: Workspace object
     :param locations: n x 3 array of cell centers [x, y, z_top]
     :param depths: n x 1 array of layer depths
-    :param name: Name of the new DrapeModel object
-    :param parent: Parent group for the new DrapeModel object
+    :param object_kwargs: Additional keyword arguments to pass to DrapeModel.create()
 
     :returns: DrapeModel object
     """
@@ -450,9 +435,7 @@ def xyz_2_drape_model(
 
     prisms = np.vstack(prisms)
     layers = np.vstack(layers)
-    model = DrapeModel.create(
-        workspace, layers=layers, name=name, prisms=prisms, parent=parent
-    )
+    model = DrapeModel.create(workspace, layers=layers, prisms=prisms, **object_kwargs)
     model.add_data(
         {
             "indices": {
@@ -556,24 +539,6 @@ def active_from_xyz(
 
     # Return the active cell array
     return mask_under_horizon(locations, horizon=topo, triangulation=triangulation)
-
-
-def truncate_locs_depths(locs: np.ndarray, depth_core: float) -> np.ndarray:
-    """
-    Sets locations below core to core bottom.
-
-    :param locs: Location points.
-    :param depth_core: Depth of core mesh below locs.
-
-    :return locs: locs with depths truncated.
-    """
-    zmax = locs[:, -1].max()  # top of locs
-    below_core_ind = (zmax - locs[:, -1]) > depth_core
-    core_bottom_elev = zmax - depth_core
-    locs[below_core_ind, -1] = (
-        core_bottom_elev  # sets locations below core to core bottom
-    )
-    return locs
 
 
 def get_neighbouring_cells(mesh: TreeMesh, indices: list | np.ndarray) -> tuple:
