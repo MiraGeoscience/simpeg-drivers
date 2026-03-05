@@ -7,7 +7,7 @@ The Plate Sweep module provides a user interface for generating and running a ba
 
 .. figure:: /plate-simulation/images/sweep_landing.png
     :align: center
-    :width: 80%
+    :width: 500pt
 
 The following sections describe the user interface, inputs, and methodology of the Plate Sweep module.
 
@@ -17,7 +17,7 @@ Interface
 
 .. figure:: /plate-simulation/images/sweep_uijson.png
     :align: center
-    :width: 80%
+    :width: 300pt
 
     *Rendered user-interface in Geoscience ANALYST.*
 
@@ -43,4 +43,4 @@ Finally, if the option to generate a summary file is enabled, a routine extracts
 
 .. figure:: /plate-simulation/images/summary.png
     :align: center
-    :width: 60%
+    :width: 300pt

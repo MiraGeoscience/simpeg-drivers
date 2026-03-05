@@ -7,16 +7,18 @@ The plate matching algorithm searches through a library of pre-computed plate si
 
 .. figure:: /plate-simulation/images/match_landing.png
     :align: center
-    :width: 80%
+    :width: 500pt
 
 
 
 Interface
 ---------
 
+This section describes the parameters controlling the application.
+
 .. figure:: /plate-simulation/images/match_uijson.png
     :align: center
-    :width: 80%
+    :width: 300pt
 
     *Rendered user-interface in Geoscience ANALYST.*
 
@@ -43,7 +45,7 @@ For each query location, the application identifies the closest survey line segm
 
 .. figure:: /plate-simulation/images/match_template.png
     :align: center
-    :width: 80%
+    :width: 500pt
 
     Template for the simulated data (black) and observed data (red) used in the matching process. The radial pattern centered on the plate allows to tighten sampling around the peak response, which is critical for accurate matching.
 

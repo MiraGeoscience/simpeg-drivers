@@ -12,7 +12,7 @@ and the storage of results.
 
 .. figure:: /plate-simulation/images/methodology/uijson.png
     :align: center
-    :width: 80%
+    :width: 300pt
 
     *Merged images of both tabs of the ui.json rendered interface.*
 
@@ -52,7 +52,7 @@ earth by the amount specified in the thickness parameter.
 
 .. figure:: /plate-simulation/images/methodology/model/overburden_and_basement.png
     :align: center
-    :width: 100%
+    :width: 500pt
 
     *Model section highlighting the overburden and basement boundary.*
 
@@ -80,7 +80,7 @@ and share the same resistivity, size, and orientation.
 
 .. figure:: /plate-simulation/images/methodology/model/three_plates.png
     :align: center
-    :width: 100%
+    :width: 500pt
 
     *Model created by choosing three plates spaced at 200m.*
 
@@ -104,7 +104,7 @@ parameters for that particular plate.
 
 .. figure:: /plate-simulation/images/methodology/model/plate_size.png
     :align: center
-    :width: 100%
+    :width: 500pt
 
     *A dipping plate striking northeast with annotations for its thickness,
     strike length and dip length.*
@@ -117,7 +117,7 @@ below provides a visual representation of these angles.
 
 .. figure:: /plate-simulation/images/methodology/model/plate_orientation.png
     :align: center
-    :width: 100%
+    :width: 500pt
 
     *Plate orientation options.  Plate orientation is given as a dip and dip direction.
     The dip (b) is defined as the angle between the horizontal the projection of the
@@ -146,7 +146,7 @@ location of the plate.
 
 .. figure:: /plate-simulation/images/methodology/model/plate_location.png
     :align: center
-    :width: 100%
+    :width: 500pt
 
     *Example of a relative elevation referenced 100m below the minimum of the
     overburden layer.*
@@ -175,7 +175,7 @@ Create the required SimPEG group within Geoscience ANALYST through the
 
 .. figure:: /plate-simulation/images/methodology/data/simpeg_group_creation.png
     :align: center
-    :width: 100%
+    :width: 300pt
 
     *Creating a SimPEG group to be selected within the plate simulation interface.*
 
@@ -183,6 +183,7 @@ Edit the options by right-clicking the group and selecting 'Edit Options'.
 
 .. figure:: /plate-simulation/images/methodology/data/simpeg_group_edit_options.png
     :align: center
+    :witdht: 300pt
 
     *Editing the SimPEG group options.*
 
@@ -193,7 +194,7 @@ and at least one component must be selected to run the simulation.
 
 .. figure:: /plate-simulation/images/methodology/data/simulation_options.png
     :align: center
-    :width: 80%
+    :width: 300pt
 
     *Simulation options with annotations for required and not required components.*
 
@@ -207,7 +208,7 @@ receiver sites, and on the surface of plates.
 
 .. figure:: /plate-simulation/images/methodology/mesh/refinement.png
     :align: center
-    :width: 100%
+    :width: 500pt
 
     *Octree mesh refinement for earth-air interface, receiver sites,
     and within the mesh.*
@@ -218,6 +219,7 @@ as many parameters have been tailored to suit the needs of plate simulation.
 
 .. figure:: /plate-simulation/images/methodology/mesh/mesh_options.png
     :align: center
+    :width: 300pt
 
     *Octree mesh parameters exposed in the ui.json.*
 
@@ -229,6 +231,7 @@ The results of the simulation are stored in the SimPEG group named in the
 
 .. figure:: /plate-simulation/images/methodology/results.png
     :align: center
+    :width: 300pt
 
     *Results group containing a survey object with all the simulated data channels
     stored in property groups, and an octree mesh containing the model parameterized
