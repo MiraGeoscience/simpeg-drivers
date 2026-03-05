@@ -36,7 +36,7 @@
         "group": "Base",
         "label": "Generate summary file (.xlsx)",
         "enabled": true,
-        "tootip": "Create and xlsx file summarizing the parameters of all simulation found in the 'Output directory'.",
+        "tootip": "Create an xlsx file summarizing the parameters of all simulations found in the 'Output directory'.",
         "value": true
     },
     "background_start": {
