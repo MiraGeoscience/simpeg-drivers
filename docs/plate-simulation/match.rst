@@ -45,7 +45,7 @@ For each query location, the application identifies the closest survey line segm
     :align: center
     :width: 80%
 
-    Template for the simulated data (black) and observed data (red) used in the matching process. The radial pattern centered on the plate allows to tighter sampling around the peak response, which is critical for accurate matching.
+    Template for the simulated data (black) and observed data (red) used in the matching process. The radial pattern centered on the plate allows to tighten sampling around the peak response, which is critical for accurate matching.
 
 
 The following sections describe the key steps of the matching algorithm.
