@@ -15,6 +15,8 @@ The following sections describe the user interface, inputs, and methodology of t
 Interface
 ---------
 
+This section describes the parameters controlling the application.
+
 .. figure:: /plate-simulation/images/sweep_uijson.png
     :align: center
     :width: 300pt
@@ -27,7 +29,7 @@ Inputs
 - **Plate simulation**: A Plate Simulation group that contains the input parameters for a single plate simulation, as well as the connection to a SimPEG Forward group. Parameters that are not included in the sweep will be taken from this group and used for all simulations.
 - **Output directory**: A directory where the results of each simulation will be stored. Each simulation will be saved in a separate ``*.geoh5`` file named with a unique identifier. The directory is created if it does not exist, otherwise simulations are appended to it.
 - **Generate summary file**: A boolean option to generate a summary file in the output directory. The summary file is a ``*.xls`` file that contains the input parameters and results of each simulation, allowing users to easily sort over the range of simulation parameters.
-- **[Optional] Parameter blocks**: For every parameter of `Plate Simulation <plate_simulation_standalone>`_, users can choose a **starting**, **ending** and **step** value to sweep over a range of values. The application will generate a simulation for each value in the range, while keeping all other parameters constant. If a parameter is not included in the sweep, the value set in the input Plate Simulation group will be used for all simulations.
+- **[Optional] Parameter blocks**: For every parameter of `Plate Simulation <plate_simulation_standalone>`_, users can choose a **starting**, **ending** and **number of samples** values to sweep over. The application will generate a simulation for each value in the range, while keeping all other parameters constant. If a parameter is not included in the sweep, the value set in the input Plate Simulation group will be used for all simulations.
 
 
 Methodology
@@ -43,4 +45,4 @@ Finally, if the option to generate a summary file is enabled, a routine extracts
 
 .. figure:: /plate-simulation/images/summary.png
     :align: center
-    :width: 300pt
+    :width: 500pt

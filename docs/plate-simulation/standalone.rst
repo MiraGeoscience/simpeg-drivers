@@ -241,5 +241,6 @@ To iterate on the design of experiment, copy the options, edit them, and run aga
 
 .. figure:: /plate-simulation/images/methodology/copy_options.png
     :align: center
+    :width: 300pt
 
     *Copying the options to run a new simulation.*

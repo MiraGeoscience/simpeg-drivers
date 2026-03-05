@@ -13,7 +13,7 @@ details are parameterized in a ui.json file that can be rendered in
 
 .. figure:: /plate-simulation/images/index.png
    :align: center
-   :width: 50%
+   :width: 500pt
 
 
 .. toctree::
