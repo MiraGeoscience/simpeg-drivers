@@ -50,8 +50,8 @@ class Base2DDriver(InversionDriver):
         """Inversion mesh"""
         if getattr(self, "_inversion_mesh", None) is None:
             with fetch_active_workspace(self.workspace, mode="r+"):
-                entity = self.params.mesh
-                if entity is None:
+                entity = None
+                if self.params.mesh is None:
                     entity = create_mesh_by_line_id(
                         self.workspace,
                         self.params.line_selection.line_object,

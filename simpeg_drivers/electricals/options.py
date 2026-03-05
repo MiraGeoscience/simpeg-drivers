@@ -23,15 +23,3 @@ class IPModelOptions(ConductivityModelOptions):
     """
 
     lower_bound: float | FloatData | None = 0
-
-
-class FileControlOptions(BaseModel):
-    """
-    File control parameters for pseudo 3D simulations.
-
-    :param files_only: Boolean to only write files.
-    :param cleanup: Boolean to cleanup files.
-    """
-
-    files_only: bool = False
-    cleanup: bool = True

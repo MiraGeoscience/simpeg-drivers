@@ -11,10 +11,8 @@
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
-from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.electricals.direct_current.two_dimensions.driver import (
@@ -25,9 +23,6 @@ from simpeg_drivers.electricals.direct_current.two_dimensions.options import (
     DC2DForwardOptions,
     DC2DInversionOptions,
 )
-from simpeg_drivers.electricals.options import (
-    FileControlOptions,
-)
 from simpeg_drivers.options import (
     DrapeModelOptions,
     LineSelectionOptions,
@@ -36,7 +31,6 @@ from simpeg_drivers.utils.synthetics.driver import (
     SyntheticsComponents,
 )
 from simpeg_drivers.utils.synthetics.options import (
-    MeshOptions,
     ModelOptions,
     SurveyOptions,
     SyntheticsComponentsOptions,
@@ -47,7 +41,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 1.0878862593748388, "phi_d": 2050, "phi_m": 37.8}
+target_run = {"data_norm": 1.101767837151429, "phi_d": 2210, "phi_m": 21.4}
 
 
 def test_dc_p3d_fwr_run(
@@ -95,7 +89,7 @@ def test_dc_p3d_run(
 
     with Workspace(workpath) as geoh5:
         components = SyntheticsComponents(geoh5)
-        fwr_group = geoh5.get_entity("Direct Current (DC) 2D Batch Forward")[0]
+        fwr_group = geoh5.get_entity("Direct Current 2D Forward")[0]
         survey = fwr_group.get_entity("survey")[0]
         potential = survey.get_data("Iteration_0_potential")[0]
 
@@ -103,14 +97,6 @@ def test_dc_p3d_run(
         params = DC2DInversionOptions.build(
             geoh5=geoh5,
             mesh=components.mesh,
-            drape_model=DrapeModelOptions(
-                u_cell_size=5.0,
-                v_cell_size=5.0,
-                depth_core=100.0,
-                expansion_factor=1.1,
-                horizontal_padding=1000.0,
-                vertical_padding=1000.0,
-            ),
             topography_object=components.topography,
             data_object=potential.parent,
             potential_channel=potential,
@@ -129,24 +115,13 @@ def test_dc_p3d_run(
             percentile=100,
             upper_bound=10,
             cooling_rate=1,
-            file_control=FileControlOptions(cleanup=False),
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    DC2DInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
-
-    basepath = workpath.parent
-    with open(basepath / "lookup.json", encoding="utf8") as f:
-        lookup = json.load(f)
-        middle_line_id = next(k for k, v in lookup.items() if v["line_id"] == 101)
-
-    with Workspace(basepath / f"{middle_line_id}.ui.geoh5", mode="r") as workspace:
-        middle_inversion_group = next(
-            k for k in workspace.groups if isinstance(k, SimPEGGroup)
-        )
+    driver = DC2DInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
     output = get_inversion_output(
-        basepath / f"{middle_line_id}.ui.geoh5", middle_inversion_group.uid
+        driver.params.geoh5.h5file, driver.params.out_group.uid
     )
     if geoh5.open():
         output["data"] = potential.values
