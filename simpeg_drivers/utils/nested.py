@@ -52,13 +52,49 @@ from simpeg_drivers.utils.surveys import (
 )
 
 
-def create_mesh(
+def create_nested_mesh(
+    survey: BaseSurvey, base_mesh: TreeMesh | TensorMesh, **mesh_kwargs
+) -> TreeMesh | TensorMesh:
+    """
+    Create a nested mesh with the same extent as the input global mesh.
+    """
+    if isinstance(base_mesh, TreeMesh):
+        return create_nested_treemesh(survey, base_mesh, **mesh_kwargs)
+
+    if base_mesh.dim == 1:
+        return base_mesh
+
+    return create_nested_2dmesh(survey, base_mesh)
+
+
+def create_nested_2dmesh(
     survey: BaseSurvey,
-    base_mesh: TreeMesh | TensorMesh,
+    base_mesh: TensorMesh,
+) -> TensorMesh:
+    """
+    Create a nested 2D mesh using the survey line id as reference.
+    """
+    in_cell = np.searchsorted(base_mesh.cell_centers_x, survey.locations_a[:, 0])
+    unique_parts = np.unique(base_mesh.parts[in_cell])
+    cells_in_part = np.hstack(
+        [np.where(base_mesh.parts == part)[0] for part in unique_parts]
+    )
+
+    h_x = np.diff(base_mesh.nodes_x[cells_in_part.min() : cells_in_part.max() + 2])
+    h_z = base_mesh.h[1]
+
+    return TensorMesh(
+        [h_x, h_z], x0=[base_mesh.nodes_x[cells_in_part.min()], base_mesh.x0[1]]
+    )
+
+
+def create_nested_treemesh(
+    survey: BaseSurvey,
+    base_mesh: TreeMesh,
     padding_cells: int = 8,
     minimum_level: int = 4,
     finalize: bool = True,
-) -> TreeMesh | TensorMesh:
+) -> TreeMesh:
     """
     Create a nested mesh with the same extent as the input global mesh.
     Refinement levels are preserved only around the input locations (local survey).
@@ -189,7 +225,7 @@ def _misfit_from_indices(
         local_survey = create_survey(
             simulation.survey, indices=shared_indices, channel=channel
         )
-        local_mesh = create_mesh(
+        local_mesh = create_nested_mesh(
             local_survey,
             simulation.mesh,
             minimum_level=3,
@@ -248,7 +284,7 @@ def create_simulation(
         args = ()
     else:
         if local_mesh is None:
-            local_mesh = create_mesh(
+            local_mesh = create_nested_mesh(
                 local_survey,
                 simulation.mesh,
                 minimum_level=3,
@@ -270,8 +306,21 @@ def create_simulation(
             actives = mapping.local_active
         # For DCIP-2D
         else:
-            actives = simulation.active_cells
-            mapping = maps.IdentityMap(nP=int(actives.sum()))
+            actives_2d = simulation.active_cells.reshape(
+                simulation.mesh.shape_cells, order="F"
+            )
+            local_active = actives_2d[simulation.mesh.parts == tile_id, :]
+            actives = local_active.flatten(order="F")
+
+            # Create a projection from the global active cells to the local active cells
+            n_actives = simulation.active_cells.sum()
+            activate_ind = np.zeros(simulation.mesh.n_cells, dtype=int)
+            activate_ind[np.where(simulation.active_cells)[0]] = np.arange(n_actives)
+            activate_ind = activate_ind.reshape(simulation.mesh.shape_cells, order="F")
+            local_active_ind = activate_ind[
+                simulation.mesh.parts == tile_id, :
+            ].flatten(order="F")[actives]
+            mapping = maps.Projection(n_actives, local_active_ind)
 
     n_actives = int(actives.sum())
     if getattr(simulation, "_chiMap", None) is not None:

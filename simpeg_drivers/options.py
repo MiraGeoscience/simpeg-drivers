@@ -511,7 +511,7 @@ class LineSelectionOptions(BaseModel):
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
     )
-    line_id: int = 1
+    line_id: int | None = None
     line_object: ReferencedData
 
     @field_validator("line_object", mode="before")
@@ -523,7 +523,7 @@ class LineSelectionOptions(BaseModel):
 
     @model_validator(mode="after")
     def line_id_referenced(self):
-        if self.line_id not in self.line_object.values:
+        if self.line_id is not None and self.line_id not in self.line_object.values:
             raise ValueError("Line id isn't referenced in the line object.")
         return self
 

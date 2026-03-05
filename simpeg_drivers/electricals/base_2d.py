@@ -16,7 +16,7 @@ from geoapps_utils.utils.locations import get_locations
 from geoapps_utils.utils.numerical import weighted_average
 from geoh5py.data import Data, IntegerData
 from geoh5py.groups import PropertyGroup
-from geoh5py.objects import DrapeModel
+from geoh5py.objects import DrapeModel, PotentialElectrode
 from geoh5py.shared.merging.drape_model import DrapeModelMerger
 from geoh5py.ui_json.ui_json import fetch_active_workspace
 from geoh5py.workspace import Workspace
@@ -86,6 +86,9 @@ def create_mesh_by_line_id(
     temp_work = Workspace()
     for line_id in np.unique(line_ids.values):
         poles = get_poles_by_line_id(line_ids, line_id)
+        poles = np.unique(poles, axis=0)
+        poles = normalize_vertically(poles, line_ids.parent, drape_options.v_cell_size)
+
         drape_model = get_drape_model(
             temp_work,
             poles,
@@ -94,7 +97,8 @@ def create_mesh_by_line_id(
                 drape_options.v_cell_size,
             ],
             drape_options.depth_core,
-            [0.0] * 2 + [drape_options.vertical_padding, 1],
+            [drape_options.horizontal_padding] * 2
+            + [drape_options.vertical_padding, 1],
             drape_options.expansion_factor,
         )
         drape_models.append(drape_model)
@@ -102,6 +106,35 @@ def create_mesh_by_line_id(
     entity = DrapeModelMerger.create_object(workspace, drape_models, **object_kwargs)
 
     return entity
+
+
+def normalize_vertically(
+    poles: np.ndarray, survey: PotentialElectrode, z_cell_size
+) -> np.ndarray:
+    """
+    Given a set of pole locations, normalize the vertical component to the minimum
+    and maximum elevations of the survey electrodes, rounded to the nearest cell thickness.
+
+    This ensures that the drape mesh has uniform vertical discretization across all survey lines.
+
+    :param poles: Array of pole locations to normalize.
+    :param survey: PotentialElectrode object containing the survey electrode locations.
+    :param z_cell_size: Cell size in the vertical direction for rounding the minimum and maximum
+
+    :return: Array of pole locations with normalized vertical component.
+    """
+    min_elev = np.min(np.r_[survey.vertices[:, 2], survey.complement.vertices[:, 2]])
+    max_elev = np.max(np.r_[survey.vertices[:, 2], survey.complement.vertices[:, 2]])
+
+    delta = ((max_elev - min_elev) // z_cell_size + 2) * z_cell_size
+    min_poles_z = poles[:, 2].min()
+    poles[:, 2] -= min_poles_z
+    poles[:, 2] *= delta / poles[:, 2].max()
+
+    # Shift back vertically and round to the nearest cell size to align
+    poles[:, 2] += (min_poles_z // z_cell_size - 1) * z_cell_size
+
+    return poles
 
 
 def get_poles_by_line_id(line_ids: IntegerData, uid: int) -> np.ndarray:

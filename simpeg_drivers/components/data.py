@@ -94,7 +94,10 @@ class InversionData(InversionLocations):
         self.has_tensor = InversionData.check_tensor(self.params.components)
         self.locations = super().get_locations(self.params.data_object)
 
-        if "2d" in self.params.inversion_type:
+        if (
+            "2d" in self.params.inversion_type
+            and self.params.line_selection.line_id is not None
+        ):
             self.mask = (
                 self.params.line_selection.line_object.values
                 == self.params.line_selection.line_id
@@ -166,7 +169,9 @@ class InversionData(InversionLocations):
         local_tensor = drape_2_tensor(self.params.mesh)
 
         # Interpolate distance assuming always inside the mesh trace
-        tree = cKDTree(self.params.mesh.prisms[:, :2])
+        actives = self.params.mesh.prisms[:, -1] != 1
+        prisms = self.params.mesh.prisms[actives, :]
+        tree = cKDTree(prisms[:, :2])
         rad, ind = tree.query(locations[:, :2], k=2)
         distance_interp = 0.0
         for ii in range(2):
@@ -176,7 +181,9 @@ class InversionData(InversionLocations):
 
         distance_interp /= ((rad + 1e-8) ** -1.0).sum(axis=1)
 
-        return np.c_[distance_interp, locations[:, 2:]]
+        # Adjust elevation relative to the origin
+        delta = prisms[0, 2] - prisms[ind[:, 0], 2]
+        return np.c_[distance_interp, locations[:, 2] + delta]
 
     def get_data(self) -> tuple[list, dict, dict]:
         """
@@ -351,6 +358,11 @@ class InversionData(InversionLocations):
 
         if "induced polarization" in self.params.inversion_type:
             survey.cells = self.entity.cells
+
+        if "2d" in self.params.inversion_type:
+            survey.line_ids = self.entity.get_data("line_ids")[0].values[
+                survey_factory.sorting
+            ]
 
         return survey
 

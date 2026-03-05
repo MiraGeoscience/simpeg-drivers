@@ -273,6 +273,10 @@ def drape_2_tensor(drape_model: DrapeModel, return_sorting: bool = False) -> tup
     """
     Convert a geoh5 drape model to discretize.TensorMesh.
 
+    If ghost prisms are present in the drape model, they will be skipped and the resulting
+    TensorMesh will have fewer cells than the DrapeModel, assuming a continuous
+    TensorMesh with no ghost cells.
+
     :param: drape_model: geoh5py.DrapeModel object.
     :param: return_sorting: If True then return an index array that would
         re-sort a model in TensorMesh order to DrapeModel order.
@@ -281,48 +285,74 @@ def drape_2_tensor(drape_model: DrapeModel, return_sorting: bool = False) -> tup
     layers = drape_model.layers
 
     # Deal with ghost points
-    ghosts = prisms[:, -1] == 1
-    prisms = prisms[~ghosts, :]
+    actives = prisms[:, -1] != 1
 
-    nu_layers = np.unique(prisms[:, -1])
+    nu_layers = np.unique(prisms[actives, -1])
     if len(nu_layers) > 1:
         raise ValueError(
             "Drape model conversion to TensorMesh must have uniform number of layers."
         )
 
     n_layers = nu_layers[0].astype(int)
-    filt_layers = ghosts[layers[:, 0].astype(int)]
-    layers = layers[~filt_layers, :]
+    n_columns = actives.sum()
 
+    # Sorting array from DrapeModel to TensorMesh order row-wise, skipping ghost points
+    sorting = np.arange(n_columns * n_layers)
+    sorting = sorting.reshape(n_layers, n_columns, order="C")
+    sorting = np.argsort(sorting[::-1].T.flatten())
+
+    filt_layers = actives[layers[:, 0].astype(int)]
+    layers = layers[filt_layers, :]
     hz = np.r_[
         prisms[0, 2] - layers[0, 2],
         -np.diff(layers[:n_layers, 2]),
     ][::-1]
 
-    x = compute_alongline_distance(prisms[:, :2], ordered=False)
-    dx = np.diff(x)
-    cell_width = np.r_[dx[0], (dx[:-1] + dx[1:]) / 2.0, dx[-1]]
-    h = [cell_width, hz]
-    origin = [0, layers[:, 2].min()]
+    # Skip indices for ghost points
+    count = -1
+    part = 0
+    parts = []
+    cell_widths = []
+    section = []
+    for ii, active in enumerate(actives):
+        if not active:
+            sorting[sorting > count] += 1
+            count += 1
+
+            if section:
+                cell_widths.append(cell_width_from_centers(np.vstack(section)))
+                parts.append(np.full(len(section), part))
+                section = []
+                part += 1
+        else:
+            section.append(np.c_[prisms[ii, 0], 0])
+            count += n_layers
+
+    cell_widths.append(cell_width_from_centers(np.vstack(section)))
+    parts.append(np.full(len(section), part))
+
+    h = [np.hstack(cell_widths), hz]
+    origin = [0, prisms[0, 2] - hz.sum()]
     mesh = TensorMesh(h, origin=origin)
+    mesh.parts = np.hstack(parts)  # Assign part numbers to cells
 
     if return_sorting:
-        sorting = np.arange(mesh.n_cells)
-        sorting = sorting.reshape(mesh.shape_cells[1], mesh.shape_cells[0], order="C")
-        sorting = np.argsort(sorting[::-1].T.flatten())
-
-        # Skip indices for ghost points
-        count = -1
-        for ghost in ghosts:
-            if ghost:
-                sorting[sorting > count] += 1
-                count += 1
-            else:
-                count += n_layers
-
         return (mesh, sorting)
-    else:
-        return mesh
+
+    return mesh
+
+
+def cell_width_from_centers(centers: np.ndarray) -> np.ndarray:
+    """
+    Compute cell widths from cell center locations.
+
+    :param centers: n x 3 array of cell center locations
+
+    :returns: n-1 array of cell widths
+    """
+    x = compute_alongline_distance(centers[:, :2])
+    half_dx = np.diff(x) / 2.0
+    return np.r_[half_dx[0] * 2, (half_dx[:-1] + half_dx[1:]), half_dx[-1] * 2]
 
 
 def floating_active(mesh: TensorMesh | TreeMesh, active: np.ndarray):
@@ -381,6 +411,7 @@ def get_drape_model(
             np.c_[locations[order[-1], :]].T,
         ]
     )
+
     distances = compute_alongline_distance(xy_smooth)
     x_interp = interp1d(distances[:, 0], xy_smooth[:, 0], fill_value="extrapolate")
     y_interp = interp1d(distances[:, 0], xy_smooth[:, 1], fill_value="extrapolate")
