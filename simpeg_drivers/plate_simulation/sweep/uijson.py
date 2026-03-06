@@ -8,7 +8,13 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-from geoh5py.ui_json.forms import FloatForm, GroupForm, IntegerForm, StringForm
+from geoh5py.ui_json.forms import (
+    BoolForm,
+    FloatForm,
+    GroupForm,
+    IntegerForm,
+    StringForm,
+)
 from geoh5py.ui_json.ui_json import BaseUIJson
 from pydantic import ConfigDict
 
@@ -46,3 +52,4 @@ class PlateSweepUIJson(BaseUIJson):
     dip_direction_count: IntegerForm
     out_group: GroupForm | None
     workdir: StringForm | None
+    generate_summary: BoolForm

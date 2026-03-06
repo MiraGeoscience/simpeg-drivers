@@ -149,7 +149,7 @@ def test_magnetic_vector_run(
             )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
         if caplog:
-            assert "Skipping deprecated field: lower_bound" in caplog.text
+            assert "Deprecated field 'lower_bound' will be ignored." in caplog.text
 
     driver = MVIInversionDriver(params)
     assert np.all(driver.models.lower_bound == -upper_bound)
