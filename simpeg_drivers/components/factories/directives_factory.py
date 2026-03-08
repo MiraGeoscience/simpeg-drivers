@@ -436,7 +436,7 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
             if self.params.models.model_type == ModelTypeEnum.resistivity:
                 kwargs["transforms"].append(lambda x: 1 / x)
 
-        if "1d" in self.factory_type:
+        if "1d" in self.factory_type or "2d" in self.factory_type:
             ghosts = (
                 np.squeeze(np.asarray(inversion_object.permutation.sum(axis=0))) == 0
             )

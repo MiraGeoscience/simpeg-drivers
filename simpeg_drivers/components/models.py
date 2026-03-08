@@ -643,6 +643,8 @@ class InversionModel:
         elif isinstance(model, int | float):
             nc = self.driver.inversion_mesh.mesh.n_cells
             model *= np.ones(nc)
+        elif isinstance(model, np.ndarray):
+            model = (self.driver.inversion_mesh.permutation @ model).astype(model.dtype)
 
         return model
 

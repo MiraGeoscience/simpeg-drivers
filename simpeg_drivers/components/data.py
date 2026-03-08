@@ -344,6 +344,16 @@ class InversionData(InversionLocations):
             )
             survey.cells = self.entity.cells
 
+            observed = self.entity.get_data("Observed_potential")
+            if observed:
+                self.entity.add_data(
+                    {
+                        "Observed_apparent_resistivity": {
+                            "values": survey.apparent_resistivity * observed[0].values
+                        }
+                    }
+                )
+
         if "induced polarization" in self.params.inversion_type:
             survey.cells = self.entity.cells
 
