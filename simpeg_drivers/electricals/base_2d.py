@@ -12,28 +12,17 @@
 from __future__ import annotations
 
 import numpy as np
-from geoapps_utils.utils.locations import get_locations
-from geoapps_utils.utils.numerical import weighted_average
-from geoh5py.data import Data, IntegerData
-from geoh5py.groups import PropertyGroup
-from geoh5py.objects import DrapeModel, PotentialElectrode
+from geoh5py.data import IntegerData
+from geoh5py.objects import DrapeModel
 from geoh5py.shared.merging.drape_model import DrapeModelMerger
 from geoh5py.ui_json.ui_json import fetch_active_workspace
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.components.data import InversionData
 from simpeg_drivers.components.meshes import InversionMesh
-from simpeg_drivers.components.topography import InversionTopography
-from simpeg_drivers.components.windows import InversionWindow
 from simpeg_drivers.driver import InversionDriver
-from simpeg_drivers.line_sweep.driver import LineSweepDriver
 from simpeg_drivers.options import (
-    BaseForwardOptions,
-    BaseInversionOptions,
     DrapeModelOptions,
-    LineSelectionOptions,
 )
-from simpeg_drivers.utils.surveys import extract_dcip_survey
 from simpeg_drivers.utils.utils import get_drape_model
 
 

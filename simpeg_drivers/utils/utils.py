@@ -310,7 +310,7 @@ def drape_2_tensor(drape_model: DrapeModel, return_sorting: bool = False) -> tup
 
     # Skip indices for ghost points
     count = -1
-    part = 0
+    part = 1
     parts = []
     cell_widths = []
     section = []

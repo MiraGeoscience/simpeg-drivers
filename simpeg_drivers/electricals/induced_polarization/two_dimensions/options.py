@@ -48,7 +48,7 @@ class IP2DForwardOptions(BaseForwardOptions):
 
     data_object: PotentialElectrode
     chargeability_channel_bool: bool = True
-    line_selection: LineSelectionOptions
+    line_selection: LineSelectionOptions = LineSelectionOptions()
     mesh: DrapeModel | None = None
     drape_model: DrapeModelOptions = DrapeModelOptions()
     models: IPModelOptions
@@ -76,7 +76,7 @@ class IP2DInversionOptions(BaseInversionOptions):
     data_object: PotentialElectrode
     chargeability_channel: FloatData
     chargeability_uncertainty: float | FloatData | None = None
-    line_selection: LineSelectionOptions
+    line_selection: LineSelectionOptions = LineSelectionOptions()
     mesh: DrapeModel | None = None
     drape_model: DrapeModelOptions = DrapeModelOptions()
     models: IPModelOptions

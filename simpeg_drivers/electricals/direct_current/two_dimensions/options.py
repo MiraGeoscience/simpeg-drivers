@@ -47,7 +47,7 @@ class DC2DForwardOptions(BaseForwardOptions):
 
     data_object: PotentialElectrode
     potential_channel_bool: bool = True
-    line_selection: LineSelectionOptions
+    line_selection: LineSelectionOptions = LineSelectionOptions()
     mesh: DrapeModel | None = None
     drape_model: DrapeModelOptions = DrapeModelOptions()
     models: ConductivityModelOptions
@@ -75,7 +75,7 @@ class DC2DInversionOptions(BaseInversionOptions):
     data_object: PotentialElectrode
     potential_channel: FloatData
     potential_uncertainty: float | FloatData | None = None
-    line_selection: LineSelectionOptions
+    line_selection: LineSelectionOptions = LineSelectionOptions()
     mesh: DrapeModel | None = None
     drape_model: DrapeModelOptions = DrapeModelOptions()
     models: ConductivityModelOptions

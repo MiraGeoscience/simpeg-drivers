@@ -13,7 +13,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import numpy as np
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.electricals.direct_current.two_dimensions.driver import (
@@ -32,7 +31,6 @@ from simpeg_drivers.utils.synthetics.driver import (
     SyntheticsComponents,
 )
 from simpeg_drivers.utils.synthetics.options import (
-    MeshOptions,
     ModelOptions,
     SurveyOptions,
     SyntheticsComponentsOptions,
@@ -43,87 +41,77 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.6072705410748107, "phi_d": 681, "phi_m": 95.6}
+target_run = {"data_norm": 1.101767837151429, "phi_d": 2210, "phi_m": 21.4}
 
 
-def test_dc_2d_fwr_run(
+def test_dc_p3d_fwr_run(
     tmp_path: Path,
     n_electrodes=10,
     n_lines=3,
-    refinement=(4, 6),
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="direct current 2d",
         survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
-        mesh=MeshOptions(refinement=refinement),
-        model=ModelOptions(background=0.01, anomaly=10),
+        mesh=DrapeModelOptions(
+            u_cell_size=5.0,
+            v_cell_size=5.0,
+            depth_core=50.0,
+            expansion_factor=1.1,
+            vertical_padding=100.0,
+        ),
+        model=ModelOptions(background=0.01, anomaly=10.0),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
-        components = SyntheticsComponents(geoh5, options=opts)
-
-        line_selection = LineSelectionOptions(
-            line_object=components.survey.get_data("line_ids")[0],
-            line_id=101,
-        )
+        components = SyntheticsComponents(geoh5=geoh5, options=opts)
         params = DC2DForwardOptions.build(
             geoh5=geoh5,
-            data_object=components.survey,
-            line_selection=line_selection,
-            drape_model=DrapeModelOptions(
-                u_cell_size=5.0,
-                v_cell_size=5.0,
-                depth_core=100.0,
-                horizontal_padding=100.0,
-                vertical_padding=100.0,
-                expansion_factor=1.1,
-            ),
-            starting_model=components.model,
+            mesh=components.mesh,
             topography_object=components.topography,
+            data_object=components.survey,
+            starting_model=components.model,
+            line_selection=LineSelectionOptions(),
         )
     fwr_driver = DC2DForwardDriver(params)
     fwr_driver.run()
 
 
-def test_dc_2d_run(tmp_path: Path, max_iterations=1, pytest=True):
+def test_dc_p3d_run(
+    tmp_path: Path,
+    max_iterations=1,
+    pytest=True,
+):
     workpath = tmp_path / "inversion_test.ui.geoh5"
     if pytest:
-        workpath = tmp_path.parent / "test_dc_2d_fwr_run0" / "inversion_test.ui.geoh5"
+        workpath = tmp_path.parent / "test_dc_p3d_fwr_run0" / "inversion_test.ui.geoh5"
 
     with Workspace(workpath) as geoh5:
-        potential = geoh5.get_entity("Iteration_0_potential")[0]
         components = SyntheticsComponents(geoh5)
+        fwr_group = geoh5.get_entity("Direct Current 2D Forward")[0]
+        survey = fwr_group.get_entity("survey")[0]
+        potential = survey.get_data("Iteration_0_potential")[0]
 
         # Run the inverse
         params = DC2DInversionOptions.build(
             geoh5=geoh5,
-            drape_model=DrapeModelOptions(
-                u_cell_size=5.0,
-                v_cell_size=5.0,
-                depth_core=100.0,
-                horizontal_padding=100.0,
-                vertical_padding=100.0,
-                expansion_factor=1.1,
-            ),
+            mesh=components.mesh,
             topography_object=components.topography,
-            line_selection=LineSelectionOptions(
-                line_object=geoh5.get_entity("line_ids")[0],
-                line_id=101,
-            ),
             data_object=potential.parent,
             potential_channel=potential,
             potential_uncertainty=1e-3,
-            model_type="Resistivity (Ohm-m)",
-            starting_model=100.0,
-            reference_model=100.0,
+            line_selection=LineSelectionOptions(
+                line_object=potential.parent.get_entity("Line IDs")[0]
+            ),
+            starting_model=1e-2,
+            reference_model=1e-2,
             s_norm=0.0,
             x_norm=1.0,
             z_norm=1.0,
             max_global_iterations=max_iterations,
             initial_beta=None,
-            initial_beta_ratio=1e0,
+            initial_beta_ratio=10.0,
             percentile=100,
-            lower_bound=0.1,
+            upper_bound=10,
             cooling_rate=1,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
@@ -134,20 +122,71 @@ def test_dc_2d_run(tmp_path: Path, max_iterations=1, pytest=True):
         driver.params.geoh5.h5file, driver.params.out_group.uid
     )
     if geoh5.open():
-        output["data"] = potential.values[np.isfinite(potential.values)]
+        output["data"] = potential.values
+    if pytest:
+        check_target(output, target_run)
+
+
+def test_dc_single_run(
+    tmp_path: Path,
+    max_iterations=1,
+    pytest=True,
+):
+    workpath = tmp_path / "inversion_test.ui.geoh5"
+    if pytest:
+        workpath = tmp_path.parent / "test_dc_p3d_fwr_run0" / "inversion_test.ui.geoh5"
+
+    with Workspace(workpath) as geoh5:
+        components = SyntheticsComponents(geoh5)
+        fwr_group = geoh5.get_entity("Direct Current 2D Forward")[0]
+        survey = fwr_group.get_entity("survey")[0]
+        potential = survey.get_data("Iteration_0_potential")[0]
+
+        # Run the inverse
+        params = DC2DInversionOptions.build(
+            geoh5=geoh5,
+            title="Direct Current Single 2D Inversion",
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=potential.parent,
+            potential_channel=potential,
+            potential_uncertainty=1e-3,
+            line_selection=LineSelectionOptions(
+                line_object=potential.parent.get_entity("Line IDs")[0], line_id=2
+            ),
+            starting_model=1e-2,
+            reference_model=1e-2,
+            s_norm=0.0,
+            x_norm=1.0,
+            z_norm=1.0,
+            max_global_iterations=max_iterations,
+            initial_beta=None,
+            initial_beta_ratio=10.0,
+            percentile=100,
+            upper_bound=10,
+            cooling_rate=1,
+        )
+        params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
+
+    driver = DC2DInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
+
+    output = get_inversion_output(
+        driver.params.geoh5.h5file, driver.params.out_group.uid
+    )
+    if geoh5.open():
+        output["data"] = potential.values
     if pytest:
         check_target(output, target_run)
 
 
 if __name__ == "__main__":
     # Full run
-    test_dc_2d_fwr_run(
+    test_dc_p3d_fwr_run(
         Path("./"),
         n_electrodes=20,
         n_lines=3,
-        refinement=(4, 4),
     )
-    test_dc_2d_run(
+    test_dc_p3d_run(
         Path("./"),
         max_iterations=20,
         pytest=False,

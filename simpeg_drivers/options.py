@@ -512,12 +512,12 @@ class LineSelectionOptions(BaseModel):
         arbitrary_types_allowed=True,
     )
     line_id: int | None = None
-    line_object: ReferencedData
+    line_object: IntegerData | ReferencedData | None = None
 
     @field_validator("line_object", mode="before")
     @classmethod
     def validate_cell_association(cls, value):
-        if value.association is not DataAssociationEnum.CELL:
+        if value and value.association is not DataAssociationEnum.CELL:
             raise ValueError("Line identifier must be associated with cells.")
         return value
 

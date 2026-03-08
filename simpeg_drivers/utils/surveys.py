@@ -16,6 +16,7 @@ from discretize import TreeMesh
 from geoapps_utils.utils.numerical import traveling_salesman
 from geoh5py import Workspace
 from geoh5py.objects import PotentialElectrode
+from scipy.sparse import csgraph, csr_matrix
 from scipy.spatial import cKDTree
 from simpeg.survey import BaseSurvey
 
@@ -82,7 +83,7 @@ def compute_alongline_distance(points: np.ndarray, ordered: bool = True):
     return distances
 
 
-def extract_dcip_survey(
+def copy_potentials_from_mask(
     workspace: Workspace, survey: PotentialElectrode, cell_mask: np.ndarray
 ):
     """
@@ -143,6 +144,29 @@ def get_unique_locations(survey: BaseSurvey) -> np.ndarray:
         locations = survey.receiver_locations
 
     return np.unique(locations, axis=0)
+
+
+def get_parts_from_electrodes(survey: PotentialElectrode) -> np.ndarray:
+    """
+    Get part numbers from a survey containing PotentialElectrode objects.
+
+    :param survey: PotentialElectrode survey object.
+
+    :return: Array of part numbers corresponding to each cell in the survey.
+    """
+    edge_array = csr_matrix(
+        (
+            np.ones(survey.n_cells * 2),
+            (
+                np.kron(survey.cells[:, 0], [1, 1]),
+                survey.cells.flatten(),
+            ),
+        ),
+        shape=(survey.n_vertices, survey.n_vertices),
+    )
+
+    connections = csgraph.connected_components(edge_array)[1]
+    return connections[survey.cells[:, 0]]
 
 
 def compute_em_projections(locations, simulation):

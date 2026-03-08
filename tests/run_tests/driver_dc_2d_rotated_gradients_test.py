@@ -8,35 +8,32 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
+
 from __future__ import annotations
 
 import json
 from pathlib import Path
 
-from geoh5py.groups import SimPEGGroup
+import numpy as np
+from geoapps_utils.modelling.plates import PlateModel
+from geoh5py.groups import PropertyGroup, SimPEGGroup
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.electricals.induced_polarization.pseudo_three_dimensions.driver import (
-    IPBatch2DForwardDriver,
-    IPBatch2DInversionDriver,
+from simpeg_drivers.electricals.direct_current.two_dimensions.driver import (
+    DC2DForwardDriver,
+    DC2DInversionDriver,
 )
-from simpeg_drivers.electricals.induced_polarization.pseudo_three_dimensions.options import (
-    IPBatch2DForwardOptions,
-    IPBatch2DInversionOptions,
-)
-from simpeg_drivers.electricals.options import (
-    FileControlOptions,
+from simpeg_drivers.electricals.direct_current.two_dimensions.options import (
+    DC2DForwardOptions,
+    DC2DInversionOptions,
 )
 from simpeg_drivers.options import (
-    ActiveCellsOptions,
     DrapeModelOptions,
-    LineSelectionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (
     SyntheticsComponents,
 )
 from simpeg_drivers.utils.synthetics.options import (
-    MeshOptions,
     ModelOptions,
     SurveyOptions,
     SyntheticsComponentsOptions,
@@ -47,68 +44,81 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.09310413606088193, "phi_d": 217000, "phi_m": 5.09e-08}
+target_run = {"data_norm": 1.1067294238524659, "phi_d": 55.6, "phi_m": 7.08}
 
 
-def test_ip_p3d_fwr_run(
-    tmp_path: Path,
-    n_electrodes=10,
-    n_lines=3,
-    refinement=(4, 6),
-):
-    # Run the forward
+def test_dc_rotated_2d_fwr_run(tmp_path: Path, n_electrodes=10, n_lines=3):
     opts = SyntheticsComponentsOptions(
-        method="induced polarization pseudo 3d",
+        method="direct current 2d",
         survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
-        mesh=MeshOptions(refinement=refinement),
-        model=ModelOptions(background=1e-6, anomaly=1e-1),
+        mesh=DrapeModelOptions(
+            u_cell_size=5.0,
+            v_cell_size=5.0,
+            depth_core=50.0,
+            expansion_factor=1.1,
+            vertical_padding=100.0,
+        ),
+        model=ModelOptions(
+            background=0.01,
+            anomaly=10.0,
+            plate=PlateModel(
+                strike_length=1000.0,
+                dip_length=150.0,
+                width=20.0,
+                origin=(0.0, 0.0, -50),
+                direction=90,
+                dip=45,
+            ),
+        ),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
-
-        params = IPBatch2DForwardOptions.build(
+        params = DC2DForwardOptions.build(
             geoh5=geoh5,
             mesh=components.mesh,
-            drape_model=DrapeModelOptions(
-                u_cell_size=5.0,
-                v_cell_size=5.0,
-                depth_core=100.0,
-                expansion_factor=1.1,
-                horizontal_padding=100.0,
-                vertical_padding=100.0,
-            ),
-            active_cells=ActiveCellsOptions(
-                topography_object=components.topography,
-            ),
+            topography_object=components.topography,
             data_object=components.survey,
-            conductivity_model=1e-2,
             starting_model=components.model,
-            line_selection=LineSelectionOptions(
-                line_object=geoh5.get_entity("line_ids")[0]
-            ),
         )
-
-    fwr_driver = IPBatch2DForwardDriver(params)
+    fwr_driver = DC2DForwardDriver(params)
     fwr_driver.run()
 
 
-def test_ip_p3d_run(
-    tmp_path,
+def test_dc_rotated_gradient_2d_run(
+    tmp_path: Path,
     max_iterations=1,
     pytest=True,
 ):
     workpath = tmp_path / "inversion_test.ui.geoh5"
     if pytest:
-        workpath = tmp_path.parent / "test_ip_p3d_fwr_run0" / "inversion_test.ui.geoh5"
+        workpath = (
+            tmp_path.parent / "test_dc_rotated_2d_fwr_run0" / "inversion_test.ui.geoh5"
+        )
 
     with Workspace(workpath) as geoh5:
         components = SyntheticsComponents(geoh5)
-        fwr_group = geoh5.get_entity("Induced Polarization (IP) 2D Batch Forward")[0]
+
+        fwr_group = geoh5.get_entity("Direct Current 2D Forward")[0]
         survey = fwr_group.get_entity("survey")[0]
-        chargeability = survey.get_data("Iteration_0_chargeability")[0]
+        potential = survey.get_data("Iteration_0_potential")[0]
+        # Create property group with orientation
+        dip = np.ones(components.mesh.n_cells) * 45
+        azimuth = np.ones(components.mesh.n_cells) * 90
+
+        data_list = components.mesh.add_data(
+            {
+                "azimuth": {"values": azimuth},
+                "dip": {"values": dip},
+            }
+        )
+        pg = PropertyGroup(
+            components.mesh,
+            properties=data_list,
+            property_group_type="Dip direction & dip",
+        )
 
         # Run the inverse
-        params = IPBatch2DInversionOptions.build(
+        params = DC2DInversionOptions.build(
             geoh5=geoh5,
             mesh=components.mesh,
             drape_model=DrapeModelOptions(
@@ -120,31 +130,25 @@ def test_ip_p3d_run(
                 vertical_padding=1000.0,
             ),
             topography_object=components.topography,
-            data_object=chargeability.parent,
-            chargeability_channel=chargeability,
-            chargeability_uncertainty=2e-4,
-            line_selection=LineSelectionOptions(
-                line_object=chargeability.parent.get_entity("line_ids")[0],
-            ),
-            conductivity_model=1e-2,
-            starting_model=1e-6,
-            reference_model=1e-6,
+            data_object=potential.parent,
+            gradient_rotation=pg,
+            potential_channel=potential,
+            potential_uncertainty=1e-3,
+            starting_model=1e-2,
+            reference_model=1e-2,
             s_norm=0.0,
             x_norm=0.0,
             z_norm=0.0,
-            length_scale_x=1.0,
-            length_scale_z=1.0,
             max_global_iterations=max_iterations,
             initial_beta=None,
-            initial_beta_ratio=1e0,
+            initial_beta_ratio=10.0,
             percentile=100,
-            upper_bound=0.1,
+            upper_bound=10,
             cooling_rate=1,
-            file_control=FileControlOptions(cleanup=False),
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    IPBatch2DInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
+    DC2DInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
     basepath = workpath.parent
     with open(basepath / "lookup.json", encoding="utf8") as f:
@@ -160,20 +164,15 @@ def test_ip_p3d_run(
         basepath / f"{middle_line_id}.ui.geoh5", middle_inversion_group.uid
     )
     if geoh5.open():
-        output["data"] = chargeability.values
+        output["data"] = potential.values
     if pytest:
         check_target(output, target_run)
 
 
 if __name__ == "__main__":
     # Full run
-    test_ip_p3d_fwr_run(
-        Path("./"),
-        n_electrodes=20,
-        n_lines=3,
-        refinement=(4, 4),
-    )
-    test_ip_p3d_run(
+    test_dc_rotated_2d_fwr_run(Path("./"), n_electrodes=20, n_lines=3)
+    test_dc_rotated_gradient_2d_run(
         Path("./"),
         max_iterations=20,
         pytest=False,

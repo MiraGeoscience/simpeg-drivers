@@ -19,22 +19,29 @@
     },
     "line_object": {
         "association": "Cell",
-        "dataType": "Referenced",
-        "group": "Data",
+        "dataType": [
+            "Integer",
+            "Referenced"
+        ],
+        "group": "Survey",
         "main": true,
         "label": "Line ID",
         "parent": "data_object",
         "value": "",
+        "optional": true,
+        "enabled": false,
         "tooltip": "Selects the data representing the different lines in the survey."
     },
     "line_id": {
-        "group": "Data",
+        "group": "Survey",
         "main": true,
         "min": 1,
         "label": "Line number",
         "value": 1,
         "optional": true,
         "enabled": false,
+        "dependency": "line_object",
+        "dependencyType": "enabled",
         "tooltip": "Selects the line of data to be processed."
     },
     "chargeability_channel": {

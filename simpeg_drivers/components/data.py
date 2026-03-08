@@ -17,10 +17,10 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from geoh5py.objects import LargeLoopGroundTEMReceivers, PotentialElectrode
-from scipy.sparse import csgraph, csr_matrix
 from scipy.spatial import cKDTree
 from simpeg.electromagnetics.static.utils.static_utils import geometric_factor
 
+from simpeg_drivers.utils.surveys import get_parts_from_electrodes
 from simpeg_drivers.utils.utils import drape_2_tensor
 
 from .factories import (
@@ -140,19 +140,7 @@ class InversionData(InversionLocations):
         Return parts indices from the entity.
         """
         if isinstance(self.entity, PotentialElectrode):
-            edge_array = csr_matrix(
-                (
-                    np.ones(self.entity.n_cells * 2),
-                    (
-                        np.kron(self.entity.cells[:, 0], [1, 1]),
-                        self.entity.cells.flatten(),
-                    ),
-                ),
-                shape=(self.entity.n_vertices, self.entity.n_vertices),
-            )
-
-            connections = csgraph.connected_components(edge_array)[1]
-            return connections[self.entity.cells[:, 0]]
+            return get_parts_from_electrodes(self.entity)
 
         if isinstance(self.entity, LargeLoopGroundTEMReceivers):
             return self.entity.tx_id_property.values
@@ -360,7 +348,7 @@ class InversionData(InversionLocations):
             survey.cells = self.entity.cells
 
         if "2d" in self.params.inversion_type:
-            survey.line_ids = self.entity.get_data("line_ids")[0].values[
+            survey.line_ids = self.params.line_selection.line_object.values[
                 survey_factory.sorting
             ]
 
@@ -398,11 +386,17 @@ class InversionData(InversionLocations):
             setattr(self.params, f"{comp}_uncertainty", uncert_dict[comp])
 
         if getattr(self.params, "line_selection", None) is not None:
-            new_line = self.params.line_selection.line_object.copy(
-                parent=self.entity,
-                values=self.params.line_selection.line_object.values[self.mask],
-            )
-            self.params.line_selection.line_object = new_line
+            if self.params.line_selection.line_object is None:
+                parts = get_parts_from_electrodes(self.entity)
+                _, u_part = np.unique(parts, return_inverse=True)
+                line_ids = self.entity.add_data({"Line IDs": {"values": u_part + 1}})
+            else:
+                line_ids = self.params.line_selection.line_object.copy(
+                    parent=self.entity,
+                    values=self.params.line_selection.line_object.values[self.mask],
+                )
+
+            self.params.line_selection.line_object = line_ids
 
     @property
     def survey(self):
