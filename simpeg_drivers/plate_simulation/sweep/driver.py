@@ -12,7 +12,9 @@ from __future__ import annotations
 
 import shutil
 import sys
+from numbers import Number
 from pathlib import Path
+from typing import Self
 
 import numpy as np
 from geoapps_utils.utils.importing import GeoAppsError
@@ -21,11 +23,12 @@ from geoh5py import Workspace
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
 from geoh5py.shared.utils import (
     dict_to_json_str,
-    fetch_active_workspace,
+    str_json_to_dict,
     uuid_from_values,
 )
 from geoh5py.ui_json.utils import flatten
-from typing_extensions import Self
+from h5py import File
+from pandas import DataFrame
 
 from simpeg_drivers.driver import BaseDriver
 from simpeg_drivers.plate_simulation.driver import PlateSimulationDriver
@@ -55,18 +58,18 @@ class PlateSweepDriver(BaseDriver):
         filepath = Path(filepath).resolve()
         uijson = PlateSweepUIJson.read(filepath)
 
-        with Workspace(uijson.geoh5, mode=mode) as workspace:
-            try:
+        try:
+            with Workspace(uijson.geoh5, mode=mode) as workspace:
                 options = SweepOptions.build(uijson.to_params(workspace=workspace))
                 logger.info("Initializing application . . .")
                 driver = cls(options)
                 logger.info("Running application . . .")
-                driver.run()
-                logger.info("Results saved to %s", options.geoh5.h5file)
+            driver.run()
+            logger.info("Results saved to %s", options.geoh5.h5file)
 
-            except GeoAppsError as error:
-                logger.warning("\n\nApplicationError: %s\n\n", error)
-                sys.exit(1)
+        except GeoAppsError as error:
+            logger.warning("\n\nApplicationError: %s\n\n", error)
+            sys.exit(1)
 
         return driver
 
@@ -82,7 +85,7 @@ class PlateSweepDriver(BaseDriver):
 
         use_futures = self.client
 
-        if use_futures:
+        if use_futures and trials:
             blocks = np.array_split(trials, len(self.workers))
         else:
             blocks = trials
@@ -110,6 +113,13 @@ class PlateSweepDriver(BaseDriver):
 
         if use_futures:
             self.client.gather(futures)
+
+        if self.params.generate_summary:
+            summary = generate_summary(self.params.workdir.iterdir())
+            out_file = self.params.geoh5.h5file.parent / "summary.xlsx"
+            summary.to_excel(out_file, index=False)
+            with self.params.geoh5.open(mode="r+"):
+                self.out_group.add_file(out_file)
 
     @staticmethod
     def run_trial(
@@ -161,6 +171,53 @@ class PlateSweepDriver(BaseDriver):
 
         del plate_sim
         return None
+
+
+def forms_to_values(data: dict) -> dict:
+    """
+    Convert a dictionary of forms to a dictionary of values, where the value is a number.
+
+    :param data: Dictionary of forms.
+
+    :return: Dictionary of key and numeric values
+    """
+    fields = {}
+    for name, form in data.items():
+        if isinstance(form, dict) and isinstance(form.get("value"), Number):
+            fields[name] = form.get("value")
+
+    return fields
+
+
+def generate_summary(directory: list[Path]) -> DataFrame:
+    """
+    Generate a summary of the trials and save it to the geoh5 file.
+
+    :param directory: List of paths to geoh5 files to summarize.
+
+    :return: Dataframe of trial names and options.
+    """
+    summary = []
+    for simulation in directory:
+        if Path(simulation).resolve().suffix != ".geoh5":
+            continue
+
+        with File(simulation, mode="r") as geoh5:
+            for group in geoh5["GEOSCIENCE"]["Groups"].values():
+                if group.get("options", None):
+                    options = str_json_to_dict(np.r_[group["options"]][0])
+
+                    if (
+                        options["title"] == "Plate Simulation"
+                        and len(group["Objects"]) > 0
+                    ):
+                        options = forms_to_values(options)
+                        output = {"file": simulation.stem}
+                        output.update(options)
+                        summary.append(output)
+                        break
+
+    return DataFrame(summary)
 
 
 def run_block(

@@ -13,6 +13,7 @@ from __future__ import annotations
 import multiprocessing
 import sys
 from pathlib import Path
+from typing import Self
 
 import numpy as np
 from dask.distributed import Future, progress
@@ -22,19 +23,20 @@ from geoapps_utils.utils.locations import topo_drape_elevation
 from geoapps_utils.utils.logger import get_logger
 from geoapps_utils.utils.numerical import inverse_weighted_operator
 from geoapps_utils.utils.plotting import symlog
-from geoapps_utils.utils.transformations import cartesian_to_polar
+from geoapps_utils.utils.transformations import cartesian_to_polar, rotate_xyz
 from geoh5py import Workspace
 from geoh5py.groups import PropertyGroup, SimPEGGroup
-from geoh5py.objects import AirborneTEMReceivers, Surface
+from geoh5py.objects import AirborneTEMReceivers, MaxwellPlate, Surface
+from geoh5py.objects.maxwell_plate import PlateGeometry
 from geoh5py.ui_json import InputFile
 from scipy import signal
 from scipy.sparse import csr_matrix
 from scipy.spatial import cKDTree
-from typing_extensions import Self
 
 from simpeg_drivers.driver import BaseDriver
+from simpeg_drivers.electromagnetics.time_domain.options import CONVERSION
 from simpeg_drivers.plate_simulation.match.options import PlateMatchOptions
-from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
+from simpeg_drivers.plate_simulation.options import ModelOptions, PlateSimulationOptions
 
 
 logger = get_logger(name=__name__, level_name=False, propagate=False, add_name=False)
@@ -52,7 +54,17 @@ class PlateMatchDriver(BaseDriver):
 
         self._drape_heights = self._get_drape_heights()
         self._template = self.get_template()
-        self._time_mask, self._time_projection = self.time_mask_and_projection()
+        self._time_mask, self._time_projection = self.time_mask_and_projection(
+            np.asarray(self._template.channels) * CONVERSION[self._template.unit],
+            np.asarray(self.params.survey.channels)
+            * CONVERSION[self.params.survey.unit],
+        )
+        self._spatial_tree = cKDTree(self.params.survey.vertices[:, :2])
+
+    @property
+    def spatial_tree(self):
+        """KDTree for spatial locations of the survey."""
+        return self._spatial_tree
 
     def get_template(self) -> AirborneTEMReceivers:
         """
@@ -72,7 +84,10 @@ class PlateMatchDriver(BaseDriver):
 
         return survey
 
-    def time_mask_and_projection(self) -> tuple[np.ndarray, csr_matrix]:
+    @staticmethod
+    def time_mask_and_projection(
+        simulated_times, query_times
+    ) -> tuple[np.ndarray, csr_matrix]:
         """
         Create a time mask and interpolation matrix from simulation to observation times.
 
@@ -80,8 +95,6 @@ class PlateMatchDriver(BaseDriver):
 
         :return: Time mask and time interpolation matrix.
         """
-        simulated_times = np.asarray(self._template.channels)
-        query_times = np.asarray(self.params.survey.channels)
         # Only interpolate for times within the simulated range
         time_mask = (query_times >= simulated_times.min()) & (
             query_times <= simulated_times.max()
@@ -97,6 +110,27 @@ class PlateMatchDriver(BaseDriver):
             time_diff, inds, (len(query_times), len(simulated_times)), 1.0, 1e-12
         )
         return time_mask, time_projection
+
+    def spatial_mask_and_projection(
+        self, location: np.ndarray, strike_angle: float
+    ) -> tuple[np.ndarray, csr_matrix]:
+        """
+        Create a spatial mask and interpolation matrix from simulation to observation locations.
+
+        :param location: Query location (x, y, z).
+        :param strike_angle: Strike angle with respect to the plate orientation.
+
+        :return: Spatial mask and spatial interpolation matrix.
+        """
+        nearest = self.spatial_tree.query(location[:2], k=1)[1]
+        indices = self.params.survey.get_segment_indices(
+            nearest, self.params.max_distance
+        )
+        spatial_projection = self.spatial_interpolation(
+            indices,
+            np.abs(strike_angle),
+        )
+        return indices, spatial_projection
 
     @classmethod
     def start(cls, filepath: str | Path, mode="r+", **_) -> Self:
@@ -122,6 +156,51 @@ class PlateMatchDriver(BaseDriver):
                 sys.exit(1)
 
         return driver
+
+    def _create_plate_from_parameters(
+        self, index_center: int, model_options: ModelOptions, strike_angle: float
+    ) -> MaxwellPlate:
+        """
+        Create a MaxwellPlate object from the parameters of the survey and model options
+        at the location of the query point.
+
+        :param index_center: Index of the center point in the survey vertices.
+        :param model_options: Model options containing plate geometry parameters.
+        :param strike_angle: Strike angle to correct the plate orientation.
+
+        :return: MaxwellPlate object created from the parameters.
+        """
+        center = self.params.survey.vertices[index_center]
+        center[2] = (
+            self._drape_heights[index_center] - model_options.overburden_model.thickness
+        )
+        indices = self.params.survey.get_segment_indices(
+            index_center, self.params.max_distance
+        )
+        segment = self.params.survey.vertices[indices]
+        delta = np.median(np.diff(segment, axis=0), axis=0)
+        azimuth = 90 - np.rad2deg(np.arctan2(delta[1], delta[0]))
+
+        plate_geometry = PlateGeometry.model_validate(
+            {
+                "position": {
+                    "x": center[0],
+                    "y": center[1],
+                    "z": center[2],
+                },
+                "width": model_options.plate_model.dip_length,
+                "thickness": model_options.plate_model.width,
+                "length": model_options.plate_model.strike_length,
+                "dip": model_options.plate_model.dip,
+                "dip_direction": (azimuth + strike_angle) % 360,
+            }
+        )
+        plate = MaxwellPlate.create(
+            self.params.geoh5, geometry=plate_geometry, parent=self.params.out_group
+        )
+        plate.metadata = model_options.model_dump()
+
+        return plate
 
     def _get_drape_heights(self) -> np.ndarray:
         """Set drape heights based on topography object and optional topography data."""
@@ -159,6 +238,12 @@ class PlateMatchDriver(BaseDriver):
             origin=np.r_[self.params.survey.vertices[indices, :2].mean(axis=0), 0],
         )
         local_polar[local_polar[:, 1] >= 180, 0] *= -1  # Wrap azimuths
+
+        # Flip the line segment if the azimuth angle suggests the opposite direction
+        start_line = len(indices) // 2
+        if np.median(local_polar[:start_line, 1]) < 180:
+            local_polar = local_polar[::-1, :]
+
         local_polar[:, 1] = (
             0.0 if strike_angle is None else strike_angle
         )  # Align azimuths to zero
@@ -170,14 +255,14 @@ class PlateMatchDriver(BaseDriver):
 
         # Get the 8 nearest neighbors in the simulation to each observation point
         sim_tree = cKDTree(query_polar)
-        rad, inds = sim_tree.query(local_polar, k=8)
+        rad, inds = sim_tree.query(local_polar, k=16)
         inds = np.minimum(query_polar.shape[0] - 1, inds)
         return inverse_weighted_operator(
             rad.flatten(),
             inds.flatten(),
             (local_polar.shape[0], self._template.vertices.shape[0]),
             2.0,
-            1e-1,
+            1e-0,
         )
 
     def run(self):
@@ -186,75 +271,60 @@ class PlateMatchDriver(BaseDriver):
             "Running %s . . .",
             self.params.title,
         )
-        observed = normalized_data(self.params.data)[self._time_mask, :]
-        tree = cKDTree(self.params.survey.vertices[:, :2])
+        observed = get_data_array(self.params.data)[self._time_mask, :]
+        strike_angle = (
+            np.zeros(self.params.queries.n_vertices)
+            if self.params.strike_angles is None
+            else self.params.strike_angles.values
+        )
+        names = []
         results = []
         for ii, query in enumerate(self.params.queries.vertices):
             # Find the nearest survey location to the query point
-            nearest = tree.query(query[:2], k=1)[1]
-            indices = self.params.survey.get_segment_indices(
-                nearest, self.params.max_distance
+            indices, spatial_projection = self.spatial_mask_and_projection(
+                query, strike_angle[ii]
             )
-            spatial_projection = self.spatial_interpolation(
-                indices,
-                0
-                if self.params.strike_angles is None
-                else self.params.strike_angles.values[ii],
-            )
-            file_split = np.array_split(
-                self.params.simulation_files, np.maximum(1, len(self.workers) * 10)
-            )
-
-            tasks = []
-            for file_batch in file_split:
-                args = (
-                    file_batch,
-                    spatial_projection,
-                    self._time_projection,
-                    observed[:, indices],
-                )
-
-                tasks.append(
-                    self.client.submit(batch_files_score, *args)
-                    if self.client
-                    else batch_files_score(*args)
-                )
-
-            # Display progress bar
-            if isinstance(tasks[0], Future):
-                progress(tasks)
-                tasks = self.client.gather(tasks)
-
-            scores = np.hstack(tasks)
-            ranked = np.argsort(scores)[::-1]
-
-            # TODO: Return top N matches
-            # for rank in ranked[-1:][::-1]:
+            flip = is_up_dip(observed[:, indices])
+            # Loop through files and compute scores and find the best match
+            scores, centers = self.run_scores(spatial_projection, observed[:, indices])
+            ranked = np.argsort(scores)
+            best = ranked[0]
             logger.info(
                 "File: %s \nScore: %.4f",
-                self.params.simulation_files[ranked[0]].name,
-                scores[ranked[0]],
+                self.params.simulation_files[best].name,
+                scores[best],
             )
-            with Workspace(self.params.simulation_files[ranked[0]], mode="r") as ws:
+            with Workspace(self.params.simulation_files[best], mode="r") as ws:
                 survey = fetch_survey(ws)
                 ui_json = survey.parent.parent.options
                 ui_json["geoh5"] = ws
                 ifile = InputFile(ui_json=ui_json)
                 options = PlateSimulationOptions.build(ifile)
 
-                plate = survey.parent.parent.get_entity("plate")[0].copy(
-                    parent=self.params.out_group
+                dir_correction = strike_angle[ii] + 180 if flip else strike_angle[ii]
+
+                plate = self._create_plate_from_parameters(
+                    int(indices[int(centers[best])]), options.model, dir_correction
                 )
+                plate.name = f"Query [{ii}]"
 
-                # Set position of plate to query location
-                center = self.params.survey.vertices[nearest]
-                center[2] = self._drape_heights[nearest]
-                plate.vertices = plate.vertices + center
-                plate.metadata = options.model.model_dump()
+            names.append(self.params.simulation_files[best].name)
+            results.append(scores[best])
 
-            results.append(self.params.simulation_files[ranked[0]].name)
+        out = self.params.queries.copy(parent=self.params.out_group)
+        out.add_data(
+            {
+                "file": {
+                    "values": np.array(names, dtype="U"),
+                    "primitive_type": "TEXT",
+                },
+                "score": {
+                    "values": np.array(results),
+                },
+            }
+        )
 
-        return results
+        return out
 
     @classmethod
     def start_dask_run(
@@ -265,7 +335,6 @@ class PlateMatchDriver(BaseDriver):
         save_report: bool = True,
     ):
         """Overload configurations of BaseDriver Dask config settings."""
-        # Force distributed on 1D problems
         if n_workers is None:
             cpu_count = multiprocessing.cpu_count()
 
@@ -280,21 +349,97 @@ class PlateMatchDriver(BaseDriver):
             json_path, n_workers=n_workers, n_threads=n_threads, save_report=save_report
         )
 
+    def run_scores(self, spatial_projection, data) -> tuple[np.ndarray, np.ndarray]:
+        """
+        Run the scoring function for all simulation files in parallel using Dask.
 
-def normalized_data(property_group: PropertyGroup, threshold=5) -> np.ndarray:
+        :param spatial_projection: Spatial interpolation matrix for the current query.
+        :param data: Prepared observed data for the current query.
+
+        :return: Tuple of scores and corresponding center indices for each simulation file.
+        """
+        file_split = np.array_split(
+            self.params.simulation_files, np.maximum(1, len(self.workers) * 10)
+        )
+        tasks = []
+        for file_batch in file_split:
+            args = (
+                file_batch,
+                spatial_projection,
+                self._time_projection,
+                data,
+            )
+
+            tasks.append(
+                self.client.submit(batch_files_score, *args)
+                if self.client
+                else batch_files_score(*args)
+            )
+
+        # Display progress bar
+        if isinstance(tasks[0], Future):
+            progress(tasks)
+            tasks = self.client.gather(tasks)
+
+        scores, centers = np.vstack(tasks).T
+
+        return scores, centers
+
+
+def is_up_dip(data: np.ndarray) -> bool:
     """
-    Return data from a property group with symlog scaling and zero mean.
+    Prepare data for scoring by checking for multiple channels and normalizing.
 
-    :param property_group: Property group containing data channels.
+    param data: Array of data channels per location.
+
+    :return: Tuple of prepared data array, whether locations were reversed.
+    """
+    data_array = normalized_data(data)
+
+    # Guess what the down-dip direction is based on integral
+    centered = data_array - np.min(data_array, axis=1)[:, None]
+    mid = centered.shape[1] // 2
+    left = np.sum(centered[:, :mid], axis=1)
+    right = np.sum(centered[:, mid:], axis=1)
+
+    # Mostly on the left suggests the peaks are migrating up-dip and should be reversed
+    if np.mean(left > right) > 0.5:
+        return True
+
+    return False
+
+
+def get_data_array(property_group: PropertyGroup) -> np.ndarray:
+    """
+    Extract data array from a property group.
+
+    :param property_group: Property group containing data values.
+
+    :return: Data array with shape (n_times, n_locations).
+    """
+    table = property_group.table()
+    return np.vstack(table.tolist()).T
+
+
+def normalized_data(
+    data: np.ndarray, scale: float = 1, threshold: float | None = None
+) -> np.ndarray:
+    """
+    Return data from a property group with symlog, zero median and unit max normalization.
+
+    :param data: Array of data channels per location.
     :param threshold: Percentile threshold for symlog normalization.
 
     :return: Normalized data array.
     """
-    table = property_group.table()
-    data_array = np.vstack([table[name] for name in table.dtype.names])
-    thresh = np.percentile(np.abs(data_array), threshold)
-    log_data = symlog(data_array, thresh)
-    return log_data - np.mean(log_data, axis=1)[:, None]
+    scales_data = data * scale
+
+    if threshold is None:
+        threshold = np.percentile(scales_data, 5)
+
+    log_data = symlog(scales_data, threshold)
+
+    return log_data
 
 
 def fetch_survey(workspace: Workspace) -> AirborneTEMReceivers | None:
@@ -310,14 +455,17 @@ def fetch_survey(workspace: Workspace) -> AirborneTEMReceivers | None:
 
 def batch_files_score(
     files: Path | list[Path], spatial_projection, time_projection, observed
-) -> list[float]:
+) -> list[tuple[float, int]]:
     """
     Process a batch of simulation files and compute scores against observed data.
+
+    Attempt to find the best collocation of the simulated and observed data by
+    finding the median index of the maximum correlation across channels.
 
     :param files: Simulation file or list of simulation files to process.
     :param spatial_projection: Spatial interpolation matrix.
     :param time_projection: Time interpolation matrix.
-    :param observed: Observed data array.
+    :param observed: Normalized (symlog) observed data array.
 
     :return: List of scores for each simulation file.
     """
@@ -325,6 +473,9 @@ def batch_files_score(
 
     if isinstance(files, Path):
         files = [files]
+
+    max_late_val = np.max(np.abs(observed[-1, :]))
+    data = normalized_data(observed, threshold=max_late_val)
 
     for sim_file in files:
         with Workspace(sim_file, mode="r") as ws:
@@ -334,14 +485,18 @@ def batch_files_score(
                 logger.warning("No survey found in %s, skipping.", sim_file)
                 continue
 
-            simulated = normalized_data(survey.get_entity("Iteration_0_z")[0])
+            simulated = get_data_array(survey.get_entity("Iteration_0_z")[0])
             pred = time_projection @ (spatial_projection @ simulated.T).T
-            score = 0.0
+            scale = max_late_val / np.max(np.abs(pred[-1, :]))
+            pred = normalized_data(pred, scale=scale, threshold=max_late_val)
 
+            score = 0.0
+            indices = []
             # Metric: normalized cross-correlation
-            for obs, pre in zip(observed, pred, strict=True):
+            for obs, pre in zip(data, pred, strict=True):
+                # Scale pre on obs
                 # Full cross-correlation
-                corr = signal.correlate(obs, pre, mode="full")
+                corr = signal.correlate(obs, pre, mode="same")
                 # Normalize by energy to get correlation coefficient in [-1, 1]
                 denom = np.linalg.norm(pre) * np.linalg.norm(obs)
                 if denom == 0:
@@ -349,9 +504,10 @@ def batch_files_score(
                 else:
                     corr_norm = corr / denom
 
-                score += np.max(corr_norm)
+                score += np.linalg.norm(obs - pre)
+                indices.append(np.argmax(corr_norm))
 
-            scores.append(score)
+            scores.append((score, np.median(indices)))
 
     return scores
 

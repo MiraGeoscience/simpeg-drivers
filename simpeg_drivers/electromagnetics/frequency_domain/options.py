@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from logging import getLogger
 from pathlib import Path
-from typing import ClassVar, TypeAlias
+from typing import ClassVar
 
 from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.groups import PropertyGroup
@@ -22,7 +22,7 @@ from geoh5py.objects import (
     LargeLoopGroundFEMReceivers,
     MovingLoopGroundFEMReceivers,
 )
-from pydantic import AliasChoices, BaseModel, ConfigDict, Field, field_validator
+from pydantic import field_validator
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.options import (
@@ -34,11 +34,14 @@ from simpeg_drivers.options import (
 )
 
 
-Receivers: TypeAlias = (
-    MovingLoopGroundFEMReceivers | LargeLoopGroundFEMReceivers | AirborneFEMReceivers
-)
-
 logger = getLogger(__name__)
+
+CONVERSION = {
+    "Hertz (Hz)": 1e-0,
+    "KiloHertz (kHz)": 1e-3,
+    "MegaHertz (MHz)": 1e-6,
+    "Gigahertz (GHz)": 1e-9,
+}
 
 
 class BaseFDEMOptions(EMDataMixin):
@@ -65,12 +68,7 @@ class BaseFDEMOptions(EMDataMixin):
     @property
     def unit_conversion(self):
         """Return time unit conversion factor."""
-        conversion = {
-            "Seconds (s)": 1.0,
-            "Milliseconds (ms)": 1e-3,
-            "Microseconds (us)": 1e-6,
-        }
-        return conversion[self.data_object.unit]
+        return CONVERSION[self.data_object.unit]
 
     @field_validator("inversion_type", mode="before")
     @classmethod
@@ -98,7 +96,11 @@ class FDEMForwardOptions(BaseForwardOptions, BaseFDEMOptions):
     physical_property: str = "conductivity"
     inversion_type: str = "fdem"
 
-    data_object: Receivers
+    data_object: (
+        MovingLoopGroundFEMReceivers
+        | LargeLoopGroundFEMReceivers
+        | AirborneFEMReceivers
+    )
     z_real_channel_bool: bool
     z_imag_channel_bool: bool
     models: ConductivityModelOptions
@@ -121,7 +123,11 @@ class FDEMInversionOptions(BaseFDEMOptions, BaseInversionOptions):
     physical_property: str = "conductivity"
     inversion_type: str = "fdem"
 
-    data_object: Receivers
+    data_object: (
+        MovingLoopGroundFEMReceivers
+        | LargeLoopGroundFEMReceivers
+        | AirborneFEMReceivers
+    )
     z_real_channel: PropertyGroup | None = None
     z_real_uncertainty: PropertyGroup | None = None
     z_imag_channel: PropertyGroup | None = None

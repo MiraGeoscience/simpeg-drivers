@@ -22,7 +22,7 @@ repos:
     -   id: pycln
         args: [--config=pyproject.toml]
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.4
+    rev: v0.15.2
     hooks:
     -   id: ruff-check
         args:
@@ -35,7 +35,7 @@ repos:
 #    hooks:
 #    -   id: mypy
 #        additional_dependencies: [
-#            numpy==1.26.*,
+#            numpy==2.4.*,
 #            types-toml,
 #            types-PyYAML,
 #            tomli  # to read config from pyproject.toml

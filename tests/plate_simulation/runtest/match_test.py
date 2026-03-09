@@ -13,10 +13,12 @@ from pathlib import Path
 import numpy as np
 import pytest
 from geoapps_utils.utils.importing import GeoAppsError
+from geoapps_utils.utils.transformations import rotate_xyz
 from geoh5py import Workspace
 from geoh5py.groups import PropertyGroup, SimPEGGroup
 from geoh5py.objects import Points
 from geoh5py.ui_json import InputFile
+from scipy import signal
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.electromagnetics.time_domain.driver import TDEMForwardDriver
@@ -40,8 +42,14 @@ from tests.utils.targets import get_workspace
 def generate_example(geoh5: Workspace, n_grid_points: int, refinement: tuple[int]):
     opts = SyntheticsComponentsOptions(
         method="airborne tdem",
-        survey=SurveyOptions(n_stations=n_grid_points, n_lines=1, drape=10.0),
-        mesh=MeshOptions(refinement=refinement, padding_distance=400.0),
+        survey=SurveyOptions(
+            n_stations=n_grid_points,
+            n_lines=1,
+            width=1000,
+            drape=40.0,
+            topography=lambda x, y: np.zeros(x.shape),
+        ),
+        mesh=MeshOptions(refinement=refinement),
         model=ModelOptions(background=0.001),
     )
     components = SyntheticsComponents(geoh5, options=opts)
@@ -110,7 +118,7 @@ def test_matching_driver(tmp_path: Path):
 
     # Generate simulation files
     with get_workspace(tmp_path / f"{__name__}.geoh5") as geoh5:
-        components = generate_example(geoh5, n_grid_points=5, refinement=(2,))
+        components = generate_example(geoh5, n_grid_points=32, refinement=(2,))
 
         params = TDEMForwardOptions.build(
             geoh5=geoh5,
@@ -132,6 +140,8 @@ def test_matching_driver(tmp_path: Path):
         ifile.data["simulation"] = fwr_driver.out_group
 
         plate_options = PlateSimulationOptions.build(ifile.data)
+        plate_options.model.overburden_model.thickness = 40.0
+        plate_options.model.plate_model.dip_length = 300.0
         driver = PlateSimulationDriver(plate_options)
         driver.run()
 
@@ -148,24 +158,58 @@ def test_matching_driver(tmp_path: Path):
         with Workspace(new_file) as sim_geoh5:
             survey = fetch_survey(sim_geoh5)
             prop_group = survey.get_entity("Iteration_0_z")[0]
-            scale = np.cos(np.linspace(-np.pi / ii, np.pi / ii, survey.n_vertices))
 
-            for uid in prop_group.properties:
+            # Alter the signal to simulate different plate models
+            scale = signal.windows.gaussian(survey.n_vertices, 2**ii)
+
+            for ii, uid in enumerate(prop_group.properties):
                 child = survey.get_entity(uid)[0]
-                child.values = child.values * scale
+                child.values = child.values * np.roll(scale, ii)
 
-    # Random choice of file
+            # Downsample stations
+            mask = np.ones_like(child.values, dtype=bool)
+            mask[1::2] = False
+            survey.remove_vertices(mask)
+            indices = np.arange(survey.n_vertices)
+            survey.cells = np.c_[indices[:-1], indices[1:]]
+
+    # Run the matching driver
     with geoh5.open():
         survey = fetch_survey(geoh5)
+
+        # Rotate the survey to test matching
+        survey.vertices = rotate_xyz(survey.vertices, [0, 0, 0], 215.0)
+
+        # Flip the data to simulate up-dip measurements
+        prop_group = survey.get_entity("Iteration_0_z")[0]
+        for uid in prop_group.properties:
+            child = survey.get_entity(uid)[0]
+            child.values = child.values[::-1]
+
+        # Change the strike angle to simulate a different orientation
+        strikes = components.queries.add_data(
+            {
+                "strike": {
+                    "values": np.full(components.queries.n_vertices, -10.0),
+                }
+            }
+        )
+
         options = PlateMatchOptions(
             geoh5=geoh5,
             survey=survey,
-            data=survey.get_entity("Iteration_0_z")[0],
+            data=prop_group,
             queries=components.queries,
+            strike_angles=strikes,
             topography_object=components.topography,
             simulations=new_dir,
         )
         match_driver = PlateMatchDriver(options)
         results = match_driver.run()
 
-        assert results[0] == file.stem + f"_[{4}].geoh5"
+        assert isinstance(results, Points)
+
+        names = results.get_data("file")[0]
+        assert names.values[0] == file.stem + f"_[{4}].geoh5"
+
+        assert geoh5.get_entity("Query [0]")[0].geometry.dip_direction == 45.0

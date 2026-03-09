@@ -12,7 +12,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import ClassVar, TypeAlias
+from typing import ClassVar
 
 import numpy as np
 from geoh5py.groups import PropertyGroup
@@ -31,9 +31,11 @@ from simpeg_drivers.options import (
 )
 
 
-Receivers: TypeAlias = (
-    MovingLoopGroundTEMReceivers | LargeLoopGroundTEMReceivers | AirborneTEMReceivers
-)
+CONVERSION = {
+    "Seconds (s)": 1.0,
+    "Milliseconds (ms)": 1e-3,
+    "Microseconds (us)": 1e-6,
+}
 
 
 class BaseTDEMOptions(EMDataMixin):
@@ -50,12 +52,7 @@ class BaseTDEMOptions(EMDataMixin):
     @property
     def unit_conversion(self):
         """Return time unit conversion factor."""
-        conversion = {
-            "Seconds (s)": 1.0,
-            "Milliseconds (ms)": 1e-3,
-            "Microseconds (us)": 1e-6,
-        }
-        return conversion[self.data_object.unit]
+        return CONVERSION[self.data_object.unit]
 
     @property
     def timing_mark(self):
@@ -90,7 +87,11 @@ class TDEMForwardOptions(BaseTDEMOptions, BaseForwardOptions):
     physical_property: str = "conductivity"
     inversion_type: str = "tdem"
 
-    data_object: Receivers
+    data_object: (
+        MovingLoopGroundTEMReceivers
+        | LargeLoopGroundTEMReceivers
+        | AirborneTEMReceivers
+    )
     z_channel_bool: bool | None = None
     x_channel_bool: bool | None = None
     y_channel_bool: bool | None = None
@@ -115,7 +116,11 @@ class TDEMInversionOptions(BaseTDEMOptions, BaseInversionOptions):
     physical_property: str = "conductivity"
     inversion_type: str = "tdem"
 
-    data_object: Receivers
+    data_object: (
+        MovingLoopGroundTEMReceivers
+        | LargeLoopGroundTEMReceivers
+        | AirborneTEMReceivers
+    )
     z_channel: PropertyGroup | None = None
     z_uncertainty: PropertyGroup | None = None
     x_channel: PropertyGroup | None = None

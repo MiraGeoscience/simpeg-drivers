@@ -1,11 +1,7 @@
-.. _plate_simulation_index:
+.. _plate_simulation:
 
 Plate Simulation
 ================
-
-.. figure:: /images/plate-simulation/index.png
-   :align: center
-   :width: 100%
 
 The plate-simulation application is a tool for simulating geophysical data over
 a simple two-layer earth model with plate(s).  It relies on the
@@ -15,7 +11,14 @@ simulate data over the parameterized model.  The mesh, model and simulation
 details are parameterized in a ui.json file that can be rendered in
 `Geoscience ANALYST Pro <https://www.mirageoscience.com/mining-industry-software/geoscience-analyst-pro/>`_.
 
-See:
+.. figure:: /plate-simulation/images/index.png
+   :align: center
+   :width: 500pt
 
-- :ref:`Basic Usage <plate_simulation_usage>`
-- :ref:`Methodology <plate_simulation_methodology>`
+
+.. toctree::
+   :maxdepth: 1
+
+   standalone
+   sweep
+   match

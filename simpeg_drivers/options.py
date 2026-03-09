@@ -11,10 +11,10 @@
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 from logging import getLogger
 from pathlib import Path
-from typing import Annotated, Any, ClassVar, Literal, TypeAlias
+from typing import Annotated, Any, ClassVar, Literal
 
 import numpy as np
 from geoapps_utils.base import Options
@@ -48,10 +48,6 @@ from .utils.regularization import direction_and_dip
 
 logger = getLogger(__name__)
 
-InversionDataDict: TypeAlias = (
-    dict[str, np.ndarray | None] | dict[str, dict[float, np.ndarray | None]]
-)
-
 
 def deprecate_warning(value, info):
     """Issue deprecation warning."""
@@ -64,7 +60,7 @@ def deprecate_warning(value, info):
 
 Deprecated = Annotated[
     Any,
-    Field(default=None),
+    Field(None),
     BeforeValidator(deprecate_warning),
 ]
 
@@ -325,7 +321,7 @@ class ModelOptions(BaseModel):
         return self._gradient_orientations
 
 
-class ModelTypeEnum(str, Enum):
+class ModelTypeEnum(StrEnum):
     conductivity = "Conductivity (S/m)"
     resistivity = "Resistivity (Ohm-m)"
 
@@ -362,7 +358,7 @@ class BaseForwardOptions(CoreOptions):
         return [k for k in self.components if getattr(self, f"{k}_channel_bool")]
 
     @property
-    def data(self) -> InversionDataDict:
+    def data(self) -> dict[str, dict[float, np.ndarray | None]]:
         """Return dictionary of data components and associated values."""
         return dict.fromkeys(self.active_components)
 
@@ -607,7 +603,7 @@ class BaseInversionOptions(CoreOptions):
         ]
 
     @property
-    def data(self) -> InversionDataDict:
+    def data(self) -> dict[str, dict[float, np.ndarray | None]]:
         """Return dictionary of data components and associated values."""
         out = {}
         for k in self.active_components:
@@ -615,7 +611,7 @@ class BaseInversionOptions(CoreOptions):
         return out
 
     @property
-    def uncertainties(self) -> InversionDataDict:
+    def uncertainties(self) -> dict[str, dict[float, np.ndarray | None]]:
         """Return dictionary of unceratinty components and associated values."""
         out = {}
         for k in self.active_components:
