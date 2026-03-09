@@ -11,12 +11,11 @@
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 import numpy as np
 from geoapps_utils.modelling.plates import PlateModel
-from geoh5py.groups import PropertyGroup, SimPEGGroup
+from geoh5py.groups import PropertyGroup
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.electricals.direct_current.two_dimensions.driver import (
@@ -44,7 +43,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 1.1067294238524659, "phi_d": 55.6, "phi_m": 7.08}
+target_run = {"data_norm": 10.305373769233688, "phi_d": 187000, "phi_m": 410}
 
 
 def test_dc_rotated_2d_fwr_run(tmp_path: Path, n_electrodes=10, n_lines=3):
@@ -56,16 +55,17 @@ def test_dc_rotated_2d_fwr_run(tmp_path: Path, n_electrodes=10, n_lines=3):
             v_cell_size=5.0,
             depth_core=50.0,
             expansion_factor=1.1,
-            vertical_padding=100.0,
+            vertical_padding=200.0,
+            horizontal_padding=200.0,
         ),
         model=ModelOptions(
-            background=0.01,
-            anomaly=10.0,
+            background=0.001,
+            anomaly=1.0,
             plate=PlateModel(
                 strike_length=1000.0,
-                dip_length=150.0,
+                dip_length=50.0,
                 width=20.0,
-                origin=(0.0, 0.0, -50),
+                origin=(0.0, 0.0, 0.0),
                 direction=90,
                 dip=45,
             ),
@@ -101,6 +101,13 @@ def test_dc_rotated_gradient_2d_run(
         fwr_group = geoh5.get_entity("Direct Current 2D Forward")[0]
         survey = fwr_group.get_entity("survey")[0]
         potential = survey.get_data("Iteration_0_potential")[0]
+        uncertainties = survey.add_data(
+            {
+                "Uncertainties": {
+                    "values": np.abs(potential.values) * 0.05 + 1e-4,
+                }
+            }
+        )
         # Create property group with orientation
         dip = np.ones(components.mesh.n_cells) * 45
         azimuth = np.ones(components.mesh.n_cells) * 90
@@ -121,47 +128,31 @@ def test_dc_rotated_gradient_2d_run(
         params = DC2DInversionOptions.build(
             geoh5=geoh5,
             mesh=components.mesh,
-            drape_model=DrapeModelOptions(
-                u_cell_size=5.0,
-                v_cell_size=5.0,
-                depth_core=100.0,
-                expansion_factor=1.1,
-                horizontal_padding=1000.0,
-                vertical_padding=1000.0,
-            ),
             topography_object=components.topography,
             data_object=potential.parent,
             gradient_rotation=pg,
             potential_channel=potential,
-            potential_uncertainty=1e-3,
-            starting_model=1e-2,
-            reference_model=1e-2,
+            potential_uncertainty=uncertainties,
+            starting_model=1e-3,
+            reference_model=1e-3,
             s_norm=0.0,
             x_norm=0.0,
             z_norm=0.0,
+            length_scale_z=0.1,
             max_global_iterations=max_iterations,
             initial_beta=None,
             initial_beta_ratio=10.0,
             percentile=100,
             upper_bound=10,
             cooling_rate=1,
+            sens_wts_threshold=1.0,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    DC2DInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
-
-    basepath = workpath.parent
-    with open(basepath / "lookup.json", encoding="utf8") as f:
-        lookup = json.load(f)
-        middle_line_id = next(k for k, v in lookup.items() if v["line_id"] == 101)
-
-    with Workspace(basepath / f"{middle_line_id}.ui.geoh5", mode="r") as workspace:
-        middle_inversion_group = next(
-            k for k in workspace.groups if isinstance(k, SimPEGGroup)
-        )
+    driver = DC2DInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
     output = get_inversion_output(
-        basepath / f"{middle_line_id}.ui.geoh5", middle_inversion_group.uid
+        driver.params.geoh5.h5file, driver.params.out_group.uid
     )
     if geoh5.open():
         output["data"] = potential.values
