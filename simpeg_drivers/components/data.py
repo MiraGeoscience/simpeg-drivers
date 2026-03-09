@@ -398,8 +398,7 @@ class InversionData(InversionLocations):
         if getattr(self.params, "line_selection", None) is not None:
             if self.params.line_selection.line_object is None:
                 parts = get_parts_from_electrodes(self.entity)
-                _, u_part = np.unique(parts, return_inverse=True)
-                line_ids = self.entity.add_data({"Line IDs": {"values": u_part + 1}})
+                line_ids = self.entity.add_data({"Line IDs": {"values": parts + 1}})
             else:
                 line_ids = self.params.line_selection.line_object.copy(
                     parent=self.entity,

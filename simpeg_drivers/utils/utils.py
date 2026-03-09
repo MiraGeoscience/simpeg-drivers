@@ -22,7 +22,7 @@ from geoapps_utils.utils.locations import mask_under_horizon
 from geoapps_utils.utils.numerical import running_mean, traveling_salesman
 from geoh5py import Workspace
 from geoh5py.data import NumericData
-from geoh5py.groups import Group, SimPEGGroup
+from geoh5py.groups import SimPEGGroup
 from geoh5py.objects import DrapeModel, Octree
 from geoh5py.objects.surveys.direct_current import PotentialElectrode
 from geoh5py.objects.surveys.electromagnetics.airborne_app_con import (
@@ -32,14 +32,10 @@ from geoh5py.objects.surveys.electromagnetics.base import LargeLoopGroundEMSurve
 from geoh5py.shared import INTEGER_NDV
 from geoh5py.ui_json import InputFile
 from grid_apps.utils import octree_2_treemesh
-from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator, interp1d
-from scipy.sparse import csr_matrix, diags
-from scipy.spatial import ConvexHull, Delaunay, cKDTree
+from scipy.interpolate import interp1d
+from scipy.spatial import ConvexHull, cKDTree
 
 from simpeg_drivers import DRIVER_MAP
-from simpeg_drivers.utils.surveys import (
-    compute_alongline_distance,
-)
 
 
 if TYPE_CHECKING:
@@ -629,3 +625,23 @@ def simpeg_group_to_driver(group: SimPEGGroup, workspace: Workspace) -> Inversio
     params = inversion_driver._params_class.build(ifile)  # pylint: disable=protected-access
 
     return inversion_driver(params)
+
+
+def compute_alongline_distance(points: np.ndarray, ordered: bool = True):
+    """
+    Convert from cartesian (x, y, values) points to (distance, values) locations.
+
+    :param: points: Cartesian coordinates of points lying either roughly within a
+        plane or a line.
+    """
+    if not ordered:
+        order = traveling_salesman(points)
+        points = points[order, :]
+
+    distances = np.cumsum(
+        np.r_[0, np.linalg.norm(np.diff(points[:, :2], axis=0), axis=1)]
+    )
+    if points.shape[1] > 2:
+        distances = np.c_[distances, points[:, 2:]]
+
+    return distances
