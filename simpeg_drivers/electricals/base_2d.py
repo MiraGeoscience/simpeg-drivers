@@ -128,7 +128,7 @@ def normalize_vertically(poles: np.ndarray, relief: float) -> np.ndarray:
     """
     min_poles_z = poles[:, 2].min()
     poles[:, 2] -= min_poles_z
-    poles[:, 2] *= relief / poles[:, 2].max()
+    poles[:, 2] *= relief / np.maximum(poles[:, 2].max(), 1e-3)
 
     # Shift back vertically
     poles[:, 2] += min_poles_z
