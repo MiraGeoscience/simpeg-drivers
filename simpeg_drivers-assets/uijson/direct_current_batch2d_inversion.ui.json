@@ -122,7 +122,7 @@
         "main": true,
         "isValue": true,
         "parent": "mesh",
-        "label": "Initial Conductivity (S/m)",
+        "label": "Initial conductivity (S/m)",
         "property": "",
         "value": 0.001
     },
@@ -135,7 +135,7 @@
         "optional": true,
         "enabled": false,
         "parent": "mesh",
-        "label": "Reference Conductivity (S/m)",
+        "label": "Reference conductivity (S/m)",
         "property": "",
         "value": 0.001
     },
@@ -327,7 +327,7 @@
         "min": 0,
         "group": "Sparse/blocky model",
         "label": "Maximum IRLS iterations",
-        "tooltip": "Incomplete Re-weighted Least Squares iterations for non-L2 problems",
+        "tooltip": "Iterative Re-Weighted Least-squares (IRLS) iterations for non-L2 problems",
         "value": 25,
         "enabled": true,
         "verbose": 2
@@ -374,7 +374,7 @@
         "value": false,
         "verbose": 3,
         "visible": true,
-        "tooltip": "Whether to auto-scale the misfit function of tiles based on chi-factor."
+        "tooltip": "Whether to auto-scale the misfit function of tiles based on chi-factor"
     },
     "initial_beta_ratio": {
         "min": 0.0,

@@ -21,9 +21,9 @@
         "min": 0.0,
         "main": true,
         "group": "Joint",
-        "label": "Misfit A Scale",
+        "label": "Misfit A scale",
         "value": 1.0,
-        "tooltip": "Constant multiplier for the data misfit function for Group A"
+        "tooltip": "Constant multiplier for the data misfit function for group A"
     },
     "group_b": {
         "main": true,
@@ -36,18 +36,18 @@
         "min": 0.0,
         "main": true,
         "group": "Joint",
-        "label": "Misfit B Scale",
+        "label": "Misfit B scale",
         "value": 1.0,
-        "tooltip": "Constant multiplier for the data misfit function for Group B"
+        "tooltip": "Constant multiplier for the data misfit function for group B"
     },
     "cross_gradient_weight_a_b": {
         "min": 0.0,
         "group": "Joint",
-        "label": "A x B Coupling Scale",
+        "label": "A x B coupling scale",
         "value": 1.0,
         "main": true,
         "lineEdit": false,
-        "tooltip": "Weight applied to the cross gradient regularizations (1: equal weight with the standard Smallness and Smoothness terms.)"
+        "tooltip": "Weight applied to the cross gradient regularizations (1: equal weight with the standard smallness and smoothness terms)"
     },
     "group_c": {
         "main": true,
@@ -62,33 +62,33 @@
         "min": 0.0,
         "main": true,
         "group": "Joint",
-        "label": "Misfit C Scale",
+        "label": "Misfit C scale",
         "value": 1.0,
         "dependency": "group_c",
         "dependencyType": "enabled",
-        "tooltip": "Constant multiplier for the data misfit function for Group C"
+        "tooltip": "Constant multiplier for the data misfit function for group C"
     },
     "cross_gradient_weight_c_a": {
         "min": 0.0,
         "group": "Joint",
-        "label": "A x C Coupling Scale",
+        "label": "A x B coupling scale",
         "value": 1.0,
         "main": true,
         "lineEdit": false,
         "dependency": "group_c",
         "dependencyType": "enabled",
-        "tooltip": "Weight applied to the cross gradient regularizations (1: equal weight with the standard Smallness and Smoothness terms.)"
+        "tooltip": "Weight applied to the cross gradient regularizations (1: equal weight with the standard smallness and smoothness terms)"
     },
     "cross_gradient_weight_c_b": {
         "min": 0.0,
         "group": "Joint",
-        "label": "B x C Coupling Scale",
+        "label": "B x C coupling scale",
         "value": 1.0,
         "main": true,
         "lineEdit": false,
         "dependency": "group_c",
         "dependencyType": "enabled",
-        "tooltip": "Weight applied to the cross gradient regularizations (1: equal weight with the standard Smallness and Smoothness terms.)"
+        "tooltip": "Weight applied to the cross gradient regularizations (1: equal weight with the standard smallness and smoothness terms)"
     },
     "mesh": {
         "group": "Mesh and models",
@@ -274,7 +274,7 @@
         "min": 0,
         "group": "Sparse/blocky model",
         "label": "Maximum IRLS iterations",
-        "tooltip": "Incomplete Re-weighted Least Squares iterations for non-L2 problems",
+        "tooltip": "Iterative Re-Weighted Least-squares (IRLS) iterations for non-L2 problems",
         "value": 25,
         "enabled": true,
         "verbose": 2

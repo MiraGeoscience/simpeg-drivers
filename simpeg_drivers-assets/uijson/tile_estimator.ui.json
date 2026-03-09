@@ -8,7 +8,7 @@
     "monitoring_directory": "",
     "simulation": {
         "main": true,
-        "label": "SimPEG Group",
+        "label": "SimPEG group",
         "groupType": "{55ed3daf-c192-4d4b-a439-60fa987fe2b8}",
         "value": ""
     },

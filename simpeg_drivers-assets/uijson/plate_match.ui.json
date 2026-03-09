@@ -16,7 +16,7 @@
             "{6a057fdc-b355-11e3-95be-fd84a7ffcb88}",
             "{19730589-fd28-4649-9de0-ad47249d9aba}"
         ],
-        "tooltip": "Airborne TEM survey containing transmitter and receiver locations.",
+        "tooltip": "Airborne TEM survey containing transmitter and receiver locations",
         "value": ""
     },
     "data": {
@@ -29,7 +29,7 @@
         "main": true,
         "label": "EM Data",
         "parent": "survey",
-        "tooltip": "Observed EM data to fit during plate matching.",
+        "tooltip": "Observed EM data to fit during plate matching",
         "value": ""
     },
     "queries": {
@@ -39,14 +39,14 @@
             "{6a057fdc-b355-11e3-95be-fd84a7ffcb88}",
             "{202C5DB1-A56D-4004-9CAD-BAAFD8899406}"
         ],
-        "tooltip": "Locations of EM anomalies on the survey to evaluate the match.",
+        "tooltip": "Locations of EM anomalies on the survey to evaluate the match",
         "value": ""
     },
     "max_distance": {
         "main": true,
         "label": "Query Max Distance (m)",
         "value": 1000.0,
-        "tooltip": "Length on either side of the query points to evaluate the match."
+        "tooltip": "Length on either side of the query points to evaluate the match"
     },
     "strike_angles": {
         "association": [
@@ -59,7 +59,7 @@
         "parent": "queries",
         "optional": true,
         "enabled": false,
-        "tooltip": "Data containing the estimated angles between the flight path and dipping body.",
+        "tooltip": "Data containing the estimated angles between the flight path and dipping body",
         "value": ""
     },
     "topography_object": {
@@ -74,7 +74,7 @@
             "{b020a277-90e2-4cd7-84d6-612ee3f25051}"
         ],
         "value": "",
-        "tooltip": "Select a topography object to define the drape height for the survey."
+        "tooltip": "Select a topography object to define the drape height for the survey"
     },
     "topography": {
         "association": [

@@ -11,7 +11,7 @@
     "forward_only": true,
     "simulation": {
         "main": true,
-        "label": "SimPEG Group",
+        "label": "SimPEG group",
         "groupType": [
             "{55ed3daf-c192-4d4b-a439-60fa987fe2b8}",
             "{BB50AC61-A657-4926-9C82-067658E246A0}"
@@ -117,7 +117,7 @@
         "enabled": true,
         "min": 0.0,
         "max": 360.0,
-        "tooltip": "Direction of the dip vector in degrees from North"
+        "tooltip": "Direction of the dip vector in degrees from north"
     },
     "relative_locations": {
         "label": "Relative locations",
@@ -133,7 +133,7 @@
         "main": true,
         "value": 0.0,
         "enabled": true,
-        "tooltip": "If relative locations, Easting is relative to the centre of the survey"
+        "tooltip": "If relative locations, easting is relative to the centre of the survey"
     },
     "northing": {
         "label": "Northing (m)",
@@ -141,7 +141,7 @@
         "group": "Plate",
         "value": 0.0,
         "enabled": true,
-        "tooltip": "If relative locations, Northing is relative to the centre of the survey"
+        "tooltip": "If relative locations, northing is relative to the centre of the survey"
     },
     "elevation": {
         "label": "Elevation (m)",
@@ -149,7 +149,7 @@
         "group": "Plate",
         "value": 0.0,
         "enabled": true,
-        "tooltip": "If relative location, Elevation is relative to the topography or overburden according to 'Depth reference' selection"
+        "tooltip": "If relative location, elevation is relative to the topography or overburden according to 'Depth reference' selection"
     },
     "reference_surface": {
         "label": "Depth reference",
