@@ -30,7 +30,7 @@
         "value": "",
         "optional": true,
         "enabled": false,
-        "tooltip": "Selects the data representing the different lines in the survey."
+        "tooltip": "Selects the data representing the different lines in the survey"
     },
     "line_id": {
         "group": "Survey",
@@ -42,7 +42,7 @@
         "enabled": false,
         "dependency": "line_object",
         "dependencyType": "enabled",
-        "tooltip": "Selects the line of data to be processed."
+        "tooltip": "Selects the line of data to be processed"
     },
     "potential_channel_bool": true,
     "mesh": {
@@ -119,7 +119,7 @@
         "main": true,
         "group": "Mesh and models",
         "label": "Model units",
-        "tooltip": "Select the units of the model.",
+        "tooltip": "Select the units of the model",
         "value": "Conductivity (S/m)"
     },
     "starting_model": {
@@ -147,7 +147,7 @@
         "value": "",
         "optional": true,
         "enabled": true,
-        "tooltip": "Select a topography object to define the active cells for inversion."
+        "tooltip": "Select a topography object to define the active cells for inversion"
     },
     "topography": {
         "association": [
@@ -160,7 +160,7 @@
         "optional": true,
         "enabled": false,
         "label": "Elevation channel",
-        "tooltip": "Set elevation from channel.  If not set the topography will be set from the geometry of the selected 'topography' object.",
+        "tooltip": "Set elevation from channel. If not set the topography will be set from the geometry of the selected 'topography' object",
         "parent": "topography_object",
         "dependency": "topography_object",
         "dependencyType": "enabled",
@@ -180,7 +180,7 @@
         "dependency": "topography_object",
         "dependencyType": "disabled",
         "label": "Active model",
-        "tooltip": "Provide the active cell boolean model directly if topography not set.",
+        "tooltip": "Provide the active cell boolean model directly if topography not set",
         "parent": "mesh",
         "value": ""
     },
@@ -212,7 +212,7 @@
         "value": 128,
         "verbose": 3,
         "visible": false,
-        "tooltip": "Limit the chunk size used by Dask for distributed computation."
+        "tooltip": "Limit the chunk size used by Dask for distributed computation"
     },
     "out_group": {
         "label": "SimPEG group",
@@ -222,7 +222,7 @@
         "visible": true,
         "optional": true,
         "enabled": false,
-        "tooltip": "Optionally set the SimPEG group to which results will be saved."
+        "tooltip": "Optionally set the SimPEG group to which results will be saved"
     },
     "generate_sweep": {
         "label": "Generate sweep file",
@@ -230,7 +230,7 @@
         "main": true,
         "value": false,
         "visible": false,
-        "tooltip": "Generates a file for sweeping parameters instead of running the application."
+        "tooltip": "Generates a file for sweeping parameters instead of running the application"
     },
     "n_workers": null,
     "n_threads": null,

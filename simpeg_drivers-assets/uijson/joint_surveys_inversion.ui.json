@@ -21,9 +21,9 @@
         "min": 0.0,
         "main": true,
         "group": "Joint",
-        "label": "Misfit A Scale",
+        "label": "Misfit A scale",
         "value": 1.0,
-        "tooltip": "Constant multiplier for the data misfit function for Group A"
+        "tooltip": "Constant multiplier for the data misfit function for group A"
     },
     "group_b": {
         "main": true,
@@ -36,9 +36,9 @@
         "min": 0.0,
         "main": true,
         "group": "Joint",
-        "label": "Misfit B Scale",
+        "label": "Misfit B scale",
         "value": 1.0,
-        "tooltip": "Constant multiplier for the data misfit function for Group B"
+        "tooltip": "Constant multiplier for the data misfit function for group B"
     },
     "group_c": {
         "main": true,
@@ -53,11 +53,11 @@
         "min": 0.0,
         "main": true,
         "group": "Joint",
-        "label": "Misfit C Scale",
+        "label": "Misfit C scale",
         "value": 1.0,
         "dependency": "group_c",
         "dependencyType": "enabled",
-        "tooltip": "Constant multiplier for the data misfit function for Group C"
+        "tooltip": "Constant multiplier for the data misfit function for group C"
     },
     "mesh": {
         "group": "Mesh and models",
@@ -76,7 +76,7 @@
         "main": true,
         "group": "Mesh and models",
         "label": "Model units",
-        "tooltip": "Change the model units between S/m or Ohm.m, for electromagnetic and direct-current surveys.",
+        "tooltip": "Change the model units between S/m or Ohm.m, for electromagnetic and direct-current surveys",
         "optional": true,
         "enabled": false,
         "value": "Conductivity (S/m)"
@@ -323,7 +323,7 @@
         "min": 0,
         "group": "Sparse/blocky model",
         "label": "Maximum IRLS iterations",
-        "tooltip": "Incomplete Re-weighted Least Squares iterations for non-L2 problems",
+        "tooltip": "Iterative Re-Weighted Least-squares (IRLS) iterations for non-L2 problems",
         "value": 25,
         "enabled": true,
         "verbose": 2

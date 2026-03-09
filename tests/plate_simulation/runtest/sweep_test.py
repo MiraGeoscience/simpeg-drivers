@@ -8,10 +8,10 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-
 from geoh5py import Workspace
 from geoh5py.groups import SimPEGGroup
 from geoh5py.ui_json import InputFile
+from pandas import read_excel
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
@@ -103,3 +103,7 @@ def test_sweep(tmp_path):
 
     n = len(list(workdir.glob("*.geoh5")))
     assert n == 6
+
+    xls = read_excel(tmp_path / "summary.xlsx")
+
+    assert len(xls) == 6
