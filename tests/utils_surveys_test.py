@@ -12,9 +12,15 @@ from __future__ import annotations
 
 import numpy as np
 from geoh5py import Workspace
-from geoh5py.objects import Points
+from geoh5py.objects import CurrentElectrode, Points, PotentialElectrode
 
-from simpeg_drivers.utils.surveys import counter_clockwise_sort, station_spacing
+from simpeg_drivers.options import DrapeModelOptions
+from simpeg_drivers.utils.surveys import (
+    counter_clockwise_sort,
+    create_mesh_by_line_id,
+    get_parts_from_electrodes,
+    station_spacing,
+)
 
 
 def create_test_survey(
@@ -83,3 +89,46 @@ def test_counterclockwise_sort():
     ccw_sorted = counter_clockwise_sort(segments, vertices)
 
     np.testing.assert_equal(ccw_sorted[0, :], [0, 5])
+
+
+def get_dc_survey(workspace):
+    """
+    Create a DC survey with 4 current electrodes and 10 potential electrodes.
+    """
+    vertices = np.random.randn(4, 3)
+    currents = CurrentElectrode.create(workspace, vertices=vertices, parts=[0, 0, 1, 1])
+    currents.ab_cell_id = np.repeat([1, 2], 2)
+
+    rx_vertices = np.random.randn(12, 3)
+    mn_pairs = np.c_[np.arange(11), np.arange(1, 12)]  # Remove connection
+    mn_pairs = np.delete(mn_pairs, 5, axis=0)
+    potentials = PotentialElectrode.create(
+        workspace,
+        vertices=rx_vertices,
+        cells=mn_pairs,
+    )
+    potentials.ab_cell_id = np.repeat([1, 2], 5)
+
+    potentials.current_electrodes = currents
+    return potentials
+
+
+def test_parts_from_electrodes():
+    workspace = Workspace()
+    survey = get_dc_survey(workspace)
+
+    line_ids = get_parts_from_electrodes(survey)
+    assert len(np.unique(line_ids)) == 2
+    assert np.all(line_ids[:5] == 0)
+    assert np.all(line_ids[5:] == 1)
+
+
+def test_drape_from_line_id(tmp_path):
+
+    with Workspace.create(tmp_path / f"{__name__}.geoh5") as ws:
+        survey = get_dc_survey(ws)
+        drape = create_mesh_by_line_id(
+            ws, survey.ab_cell_id, DrapeModelOptions(), name="test_drape"
+        )
+
+    assert drape.name == "test_drape"
