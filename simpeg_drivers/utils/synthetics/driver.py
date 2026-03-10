@@ -43,67 +43,53 @@ class SyntheticsComponents:
         self._model: FloatData | None = None
 
     @property
-    def topography(self):
-        entity = self.geoh5.get_entity("topography")[0]
-        assert isinstance(entity, Surface | type(None))
-        if entity is None:
-            assert self.options is not None
+    def topography(self) -> Surface:
+        if self._topography is None:
             entity = get_topography_surface(
                 geoh5=self.geoh5,
                 options=self.options,
             )
-        self._topography = entity
+            self._topography = entity
         return self._topography
 
     @property
-    def survey(self):
-        entity = self.geoh5.get_entity(self.options.survey.name)[0]
-        assert isinstance(entity, ObjectBase | type(None))
-        if entity is None:
-            assert self.options is not None
+    def survey(self) -> ObjectBase:
+        if self._survey is None:
             entity = get_survey(
                 geoh5=self.geoh5,
                 method=self.options.method,
                 options=self.options.survey,
             )
-        self._survey = entity
+            self._survey = entity
         return self._survey
 
     @property
-    def mesh(self):
-        entity = self.geoh5.get_entity("mesh")[0]
-        assert isinstance(entity, Octree | DrapeModel | type(None))
-        if entity is None:
-            assert self.options is not None
+    def mesh(self) -> Octree | DrapeModel:
+        if self._mesh is None:
             entity = get_mesh(
                 self.options.method,
                 survey=self.survey,
                 topography=self.topography,
                 options=self.options.mesh,
             )
-        self._mesh = entity
+            self._mesh = entity
         return self._mesh
 
     @property
-    def active(self):
-        entity = self.mesh.get_entity(self.options.active.name)[0]
-        assert isinstance(entity, BooleanData | type(None))
-        if entity is None:
+    def active(self) -> FloatData:
+        if self._active is None:
             entity = get_active(self.mesh, self.topography)
-        self._active = entity
+            self._active = entity
         return self._active
 
     @property
-    def model(self):
-        entity = self.mesh.get_entity(self.options.model.name)[0]
-        assert isinstance(entity, FloatData | type(None))
-        if entity is None:
-            assert self.options is not None
+    def model(self) -> FloatData:
+        if self._model is None:
             entity = get_model(
                 method=self.options.method,
                 mesh=self.mesh,
                 active=self.active.values,
                 options=self.options.model,
             )
-        self._model = entity
+            self._model = entity
         return self._model

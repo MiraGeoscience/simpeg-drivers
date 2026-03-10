@@ -13,9 +13,8 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-from geoh5py.data import FloatData
 from geoh5py.groups.property_group import GroupTypeEnum, PropertyGroup
-from geoh5py.groups.simpeg import SimPEGGroup
+from geoh5py.objects import Octree, Points
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.joint.joint_petrophysics.driver import JointPetrophysicsDriver
@@ -144,21 +143,14 @@ def test_homogeneous_run(
         petrophysics = None
         gradient_rotation = None
 
-        for suffix in "AB":
-            components = SyntheticsComponents(
-                geoh5=geoh5,
-                options=SyntheticsComponentsOptions(
-                    method="joint",
-                    survey=SurveyOptions(name=f"survey {suffix}"),
-                    mesh=MeshOptions(name=f"mesh {suffix}"),
-                    model=ModelOptions(name=f"model {suffix}"),
-                    active=SyntheticsActiveCellsOptions(name=f"active {suffix}"),
-                ),
+        for name in ["Gravity Forward", "Magnetic Vector Forward"]:
+            group = geoh5.get_entity(name)[0]
+            mesh = next(child for child in group.children if isinstance(child, Octree))
+            survey = next(
+                child for child in group.children if isinstance(child, Points)
             )
-            mesh = components.mesh
-            survey = components.survey
 
-            if suffix == "A":
+            if name == "Gravity Forward":
                 global_mesh = mesh.copy(parent=geoh5)
                 model = global_mesh.get_entity("starting_model")[0]
 
@@ -197,7 +189,7 @@ def test_homogeneous_run(
             ref_model = mesh.get_entity("starting_model")[0].copy(name="ref_model")
             ref_model.values = ref_model.values / 2.0
 
-            if suffix == "A":
+            if name == "Gravity Forward":
                 params = GravityInversionOptions.build(
                     geoh5=geoh5,
                     mesh=mesh,

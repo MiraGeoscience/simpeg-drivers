@@ -11,8 +11,7 @@
 from pathlib import Path
 
 import numpy as np
-from geoh5py.data import FloatData
-from geoh5py.groups import SimPEGGroup
+from geoh5py.objects import CurrentElectrode, Octree, Points
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.electricals.direct_current.three_dimensions import (
@@ -170,25 +169,29 @@ def test_joint_cross_gradient_inv_run(
         topography = geoh5.get_entity("topography")[0]
         drivers = []
         orig_data = []
-
-        for suffix in "ABC":
-            components = SyntheticsComponents(
-                geoh5=geoh5,
-                options=SyntheticsComponentsOptions(
-                    method="joint",
-                    survey=SurveyOptions(name=f"survey {suffix}"),
-                    mesh=MeshOptions(name=f"mesh {suffix}"),
-                    model=ModelOptions(name=f"model {suffix}"),
-                    active=SyntheticsActiveCellsOptions(name=f"active {suffix}"),
-                ),
+        origin = None
+        for name in [
+            "Gravity Forward",
+            "Magnetic Vector Forward",
+            "Direct Current 3D Forward",
+        ]:
+            group = geoh5.get_entity(name)[0]
+            mesh = next(child for child in group.children if isinstance(child, Octree))
+            survey = next(
+                child
+                for child in group.children
+                if isinstance(child, Points) and not isinstance(child, CurrentElectrode)
             )
 
-            mesh = components.mesh
-            survey = components.survey
+            if origin is None:
+                origin = mesh.origin
+            else:
+                mesh.origin = origin
+
             data = next(k for k in survey.children if "Iteration_0" in k.name)
             orig_data.append(data.values)
 
-            if suffix == "A":
+            if name == "Gravity Forward":
                 params = GravityInversionOptions.build(
                     geoh5=geoh5,
                     mesh=mesh,
@@ -205,7 +208,7 @@ def test_joint_cross_gradient_inv_run(
                     chi_factor=0.8,
                 )
                 drivers.append(GravityInversionDriver(params))
-            elif suffix == "C":
+            elif name == "Direct Current 3D Forward":
                 params = DC3DInversionOptions.build(
                     geoh5=geoh5,
                     mesh=mesh,
