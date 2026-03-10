@@ -51,24 +51,13 @@ class Base2DDriver(InversionDriver):
                         self.params.drape_model,
                         parent=self.out_group,
                     )
+                    self.params.mesh = entity
 
                 self._inversion_mesh = InversionMesh(
                     self.workspace, self.params, entity=entity
                 )
 
         return self._inversion_mesh
-
-
-class DeprecatedBatch2DDriver(Base2DDriver):
-    """Direct Current 2D forward driver."""
-
-    def __init__(self, *args, **kwargs):
-        logger.warning(
-            "The Batch2D classes will be deprecated in version 0.5.0. "
-            "Please use the non-batch classes instead. Results may be affected.",
-        )
-
-        super().__init__(*args, **kwargs)
 
 
 class Base2DOptions(CoreOptions):
@@ -97,4 +86,15 @@ class Base2DOptions(CoreOptions):
                 "Results may be affected."
             )
             return None
+        return value
+
+    @field_validator("inversion_type", mode="before")
+    @classmethod
+    def deprecated_pseudo(cls, value: str):
+        if "pseudo 3d" in value:
+            logger.warning(
+                "The Batch2D classes will be deprecated in version 0.5.0. "
+                "Please use the non-batch classes instead. Results may be affected.",
+            )
+            value = value.replace("pseudo 3d", "2d")
         return value

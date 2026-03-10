@@ -11,24 +11,12 @@
 
 from __future__ import annotations
 
-from simpeg_drivers.electricals.base_2d import Base2DDriver, DeprecatedBatch2DDriver
+from simpeg_drivers.electricals.base_2d import Base2DDriver
 
 from .options import (
     IP2DForwardOptions,
     IP2DInversionOptions,
 )
-
-
-class IPBatch2DForwardDriver(DeprecatedBatch2DDriver):
-    """Deprecated - Direct Current Batch Direct Current 2D forward driver."""
-
-    _params_class = IP2DForwardOptions
-
-
-class IPBatch2DInversionDriver(DeprecatedBatch2DDriver):
-    """Deprecated - Direct Current Batch 2D inversion driver."""
-
-    _params_class = IP2DInversionOptions
 
 
 class IP2DForwardDriver(Base2DDriver):
