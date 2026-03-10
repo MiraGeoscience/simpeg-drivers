@@ -88,13 +88,15 @@ class Base2DOptions(CoreOptions):
             return None
         return value
 
-    @field_validator("inversion_type", mode="before")
+    @model_validator(mode="before")
     @classmethod
-    def deprecated_pseudo(cls, value: str):
-        if "pseudo 3d" in value:
+    def deprecated_pseudo(cls, data: dict):
+        if "pseudo 3d" in data.get("inversion_type", ""):
             logger.warning(
                 "The Batch2D classes will be deprecated in version 0.5.0. "
                 "Please use the non-batch classes instead. Results may be affected.",
             )
-            value = value.replace("pseudo 3d", "2d")
-        return value
+            data["inversion_type"] = data["inversion_type"].replace("pseudo 3d", "2d")
+            data["line_selection"]["line_id"] = None
+
+        return data

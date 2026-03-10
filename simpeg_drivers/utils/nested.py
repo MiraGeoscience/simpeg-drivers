@@ -304,12 +304,21 @@ def create_simulation(
                 ),
             )
             local_actives = mapping.local_active
-        # For DCIP-2D
+        # For DCIP-2D, create a projection from the global active cells to
+        # the local active cells
         else:
-            # Create a projection from the global active cells to the local active cells
-            active_mesh_part = np.isin(
-                simulation.mesh.parts, np.unique(local_survey.line_ids)
+            # Map the line_ids to the mesh parts (assumes sequential numbering)
+            line_number = (
+                np.where(
+                    np.isin(
+                        np.unique(simulation.survey.line_ids),
+                        np.unique(local_survey.line_ids),
+                    )
+                )[0]
+                + 1
             )
+
+            active_mesh_part = np.isin(simulation.mesh.parts, line_number)
             n_actives = simulation.active_cells.sum()
             activate_ind = np.zeros(simulation.mesh.n_cells, dtype=int)
             activate_ind[np.where(simulation.active_cells)[0]] = np.arange(n_actives)
