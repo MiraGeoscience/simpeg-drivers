@@ -458,14 +458,14 @@ class InversionModelCollection:
         if self._gradient_dip.model is None:
             return None
 
-        return self._gradient_dip.model.copy()
+        return np.deg2rad(self._gradient_dip.model)
 
     @property
     def gradient_direction(self) -> np.ndarray | None:
         if self._gradient_direction.model is None:
             return None
 
-        return self._gradient_direction.model.copy()
+        return np.deg2rad(self._gradient_direction.model)
 
     def remove_air(self, active_cells: np.ndarray):
         """Use active cells vector to remove air cells from model"""
@@ -643,8 +643,6 @@ class InversionModel:
         elif isinstance(model, int | float):
             nc = self.driver.inversion_mesh.mesh.n_cells
             model *= np.ones(nc)
-        elif isinstance(model, np.ndarray):
-            model = (self.driver.inversion_mesh.permutation @ model).astype(model.dtype)
 
         return model
 

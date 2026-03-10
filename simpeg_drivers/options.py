@@ -18,7 +18,7 @@ from typing import Annotated, Any, ClassVar, Literal
 
 import numpy as np
 from geoapps_utils.base import Options
-from geoapps_utils.utils.numerical import weighted_average
+from geoh5py import Workspace
 from geoh5py.data import (
     BooleanData,
     DataAssociationEnum,
@@ -282,19 +282,19 @@ class ModelOptions(BaseModel):
     y_norm: float | FloatData | None = 2.0
     z_norm: float | FloatData = 2.0
 
-    _gradient_orientations: np.ndarray | None = None
+    _gradient_orientations: list[FloatData] | None = None
 
     @property
-    def gradient_direction(self) -> np.ndarray:
+    def gradient_direction(self) -> FloatData | None:
         if self.gradient_orientations is None:
             return None
-        return self.gradient_orientations[:, 0]
+        return self.gradient_orientations[0]
 
     @property
-    def gradient_dip(self) -> np.ndarray:
+    def gradient_dip(self) -> FloatData | None:
         if self.gradient_orientations is None:
             return None
-        return self.gradient_orientations[:, 1]
+        return self.gradient_orientations[1]
 
     @property
     def gradient_orientations(self) -> tuple(float, float):
@@ -307,16 +307,7 @@ class ModelOptions(BaseModel):
 
         if self._gradient_orientations is None and self.gradient_rotation is not None:
             orientations = direction_and_dip(self.gradient_rotation)
-
-            angles = np.deg2rad(orientations)
-            # Deal with aircells here
-            orientations = weighted_average(
-                self.gradient_rotation.parent.centroids,
-                self.gradient_rotation.parent.centroids,
-                [angles[:, 0], angles[:, 1]],
-            )
-
-            self._gradient_orientations = np.vstack(orientations).T
+            self._gradient_orientations = orientations
 
         return self._gradient_orientations
 
