@@ -21,6 +21,7 @@ from geoh5py.ui_json import InputFile
 from geoh5py.ui_json.annotations import Deprecated
 from packaging.version import Version
 from pydantic import AliasChoices, Field
+from simpeg_drivers.line_sweep.driver import LineSweepDriver
 
 import simpeg_drivers
 from simpeg_drivers.driver import InversionDriver
