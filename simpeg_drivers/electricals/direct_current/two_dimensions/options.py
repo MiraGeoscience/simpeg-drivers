@@ -15,25 +15,21 @@ from pathlib import Path
 from typing import ClassVar
 
 from geoh5py.data import FloatData
-from geoh5py.objects import DrapeModel, PotentialElectrode
 
 from simpeg_drivers import assets_path
+from simpeg_drivers.electricals.base_2d import Base2DOptions
 from simpeg_drivers.options import (
     BaseForwardOptions,
     BaseInversionOptions,
     ConductivityModelOptions,
-    DrapeModelOptions,
-    LineSelectionOptions,
 )
 
 
-class DC2DForwardOptions(BaseForwardOptions):
+class DC2DForwardOptions(BaseForwardOptions, Base2DOptions):
     """
     Direct Current 2D forward options.
 
     :param potential_channel_bool: Potential channel boolean.
-    :param line_selection: Line selection parameters.
-    :param drape_model: Drape model parameters.
     """
 
     name: ClassVar[str] = "Direct Current 2D Forward"
@@ -45,15 +41,11 @@ class DC2DForwardOptions(BaseForwardOptions):
     physical_property: str = "conductivity"
     inversion_type: str = "direct current 2d"
 
-    data_object: PotentialElectrode
     potential_channel_bool: bool = True
-    line_selection: LineSelectionOptions = LineSelectionOptions()
-    mesh: DrapeModel | None = None
-    drape_model: DrapeModelOptions = DrapeModelOptions()
     models: ConductivityModelOptions
 
 
-class DC2DInversionOptions(BaseInversionOptions):
+class DC2DInversionOptions(BaseInversionOptions, Base2DOptions):
     """
     Direct Current 2D inversion options.
 
@@ -72,10 +64,6 @@ class DC2DInversionOptions(BaseInversionOptions):
     physical_property: str = "conductivity"
     inversion_type: str = "direct current 2d"
 
-    data_object: PotentialElectrode
     potential_channel: FloatData
     potential_uncertainty: float | FloatData | None = None
-    line_selection: LineSelectionOptions = LineSelectionOptions()
-    mesh: DrapeModel | None = None
-    drape_model: DrapeModelOptions = DrapeModelOptions()
     models: ConductivityModelOptions

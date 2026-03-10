@@ -15,26 +15,19 @@ from pathlib import Path
 from typing import ClassVar
 
 from geoh5py.data import FloatData
-from geoh5py.objects import DrapeModel, PotentialElectrode
 
 from simpeg_drivers import assets_path
+from simpeg_drivers.electricals.base_2d import Base2DOptions
 from simpeg_drivers.electricals.options import IPModelOptions
-from simpeg_drivers.options import (
-    BaseForwardOptions,
-    BaseInversionOptions,
-    DrapeModelOptions,
-    LineSelectionOptions,
-)
+from simpeg_drivers.options import BaseForwardOptions, BaseInversionOptions
 
 
-class IP2DForwardOptions(BaseForwardOptions):
+class IP2DForwardOptions(BaseForwardOptions, Base2DOptions):
     """
     Induced Polarization 2D forward options.
 
     :param chargeability_channel_bool: Chargeability channel boolean.
-    :param mesh: Optional mesh object if providing a heterogeneous model.
-    :param drape_model: Drape model parameters.
-    :param line_selection: Line selection parameters.
+    :param models: Set of models options for IP
     """
 
     name: ClassVar[str] = "Induced Polarization 2D Forward"
@@ -46,22 +39,17 @@ class IP2DForwardOptions(BaseForwardOptions):
     physical_property: str = "chargeability"
     inversion_type: str = "induced polarization 2d"
 
-    data_object: PotentialElectrode
     chargeability_channel_bool: bool = True
-    line_selection: LineSelectionOptions = LineSelectionOptions()
-    mesh: DrapeModel | None = None
-    drape_model: DrapeModelOptions = DrapeModelOptions()
     models: IPModelOptions
 
 
-class IP2DInversionOptions(BaseInversionOptions):
+class IP2DInversionOptions(BaseInversionOptions, Base2DOptions):
     """
     Induced Polarization 2D inversion options.
 
     :param chargeability_channel: Chargeability data channel.
     :param chargeability_uncertainty: Chargeability data uncertainty channel.
-    :param line_selection: Line selection parameters.
-    :param drape_model: Drape model parameters.
+    :param models: Set of models options for IP
     """
 
     name: ClassVar[str] = "Induced Polarization 2D Inversion"
@@ -73,10 +61,6 @@ class IP2DInversionOptions(BaseInversionOptions):
     physical_property: str = "chargeability"
     inversion_type: str = "induced polarization 2d"
 
-    data_object: PotentialElectrode
     chargeability_channel: FloatData
     chargeability_uncertainty: float | FloatData | None = None
-    line_selection: LineSelectionOptions = LineSelectionOptions()
-    mesh: DrapeModel | None = None
-    drape_model: DrapeModelOptions = DrapeModelOptions()
     models: IPModelOptions

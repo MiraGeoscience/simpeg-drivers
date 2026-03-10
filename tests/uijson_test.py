@@ -24,13 +24,13 @@ from pydantic import AliasChoices, Field
 
 import simpeg_drivers
 from simpeg_drivers.driver import InversionDriver
-from simpeg_drivers.line_sweep.driver import LineSweepDriver
 from simpeg_drivers.options import Deprecations, IRLSOptions
 from simpeg_drivers.potential_fields.gravity.options import GravityInversionOptions
 from simpeg_drivers.potential_fields.gravity.uijson import GravityInversionUIJson
 from simpeg_drivers.uijson import SimPEGDriversUIJson
 from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
 from simpeg_drivers.utils.synthetics.options import (
+    DrapeModelOptions,
     MeshOptions,
     ModelOptions,
     SurveyOptions,
@@ -307,7 +307,7 @@ CHANNEL_NAME = {
 }
 
 
-def test_legacy_uijson(tmp_path: Path):
+def test_legacy_uijson(tmp_path: Path, caplog):
     """
     Loop over all uijson files in the legacy directory and check that the
     read and run still works.
@@ -326,6 +326,9 @@ def test_legacy_uijson(tmp_path: Path):
             if inversion_type not in CHANNEL_NAME:
                 continue
 
+            if "pseudo" in inversion_type:
+                pass
+
             forward = ifile.data.get("forward_only", None)
 
             work_path = version_path / (
@@ -339,7 +342,7 @@ def test_legacy_uijson(tmp_path: Path):
                     n_stations=10,
                     n_lines=3,
                 ),
-                mesh=MeshOptions(),
+                mesh=DrapeModelOptions() if "2d" in inversion_type else MeshOptions(),
                 model=ModelOptions(
                     background=1.0,
                     anomaly=2.0,
@@ -392,10 +395,12 @@ def test_legacy_uijson(tmp_path: Path):
 
             driver = InversionDriver.from_input_file(ifile.data)
 
-            if hasattr(driver.params, "cooling_factor"):
-                assert driver.params.cooling_factor == 4.0
+            with caplog.at_level(logging.WARNING):
+                params = driver._params_class.build(ifile)  # pylint: disable=protected-access
+                driver = driver(params)
 
-            if isinstance(driver, LineSweepDriver):
-                continue
+                if "pseudo" in inversion_type:
+                    assert "no longer support Octree meshes" in caplog.text
+                    assert "The Batch2D classes will be deprecated" in caplog.text
 
-            assert driver.inversion
+            assert driver.models

@@ -506,19 +506,18 @@ class InversionDriver(BaseDriver):
     @params.setter
     def params(
         self,
-        val: BaseForwardOptions | BaseInversionOptions | SweepParams,
+        val: BaseForwardOptions | BaseInversionOptions,
     ):
         if not isinstance(
             val,
             (
                 BaseForwardOptions,
                 BaseInversionOptions,
-                SweepParams,
                 BaseJointOptions,
             ),
         ):
             raise TypeError(
-                "Parameters must be of type 'BaseInversionOptions', 'BaseForwardOptions' or 'SweepParams'."
+                "Parameters must be of type 'BaseInversionOptions', 'BaseForwardOptions' or 'BaseJointOptions'."
             )
         self._params = val
 
