@@ -56,7 +56,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 53.295822303985325, "phi_d": 7940, "phi_m": 0.0255}
+target_run = {"data_norm": 53.295822303985325, "phi_d": 646, "phi_m": 1.84}
 INDUCING_FIELD = (50000.0, 90.0, 0.0)
 
 
@@ -199,7 +199,7 @@ def test_joint_cross_gradient_inv_run(
                     topography_object=topography,
                     data_object=survey,
                     gz_channel=data,
-                    gz_uncertainty=1e-2,
+                    gz_uncertainty=5e-3,
                     starting_model=0.0,
                     reference_model=0.0,
                     upper_bound=1.0,
@@ -209,6 +209,13 @@ def test_joint_cross_gradient_inv_run(
                 )
                 drivers.append(GravityInversionDriver(params))
             elif name == "Direct Current 3D Forward":
+                uncertainties = survey.add_data(
+                    {
+                        "Uncertainties": {
+                            "values": np.abs(data.values) * 0.05 + 1e-4,
+                        }
+                    }
+                )
                 params = DC3DInversionOptions.build(
                     geoh5=geoh5,
                     mesh=mesh,
@@ -217,7 +224,7 @@ def test_joint_cross_gradient_inv_run(
                     data_object=survey,
                     potential_channel=data,
                     model_type="Resistivity (Ohm-m)",
-                    potential_uncertainty=5e-4,
+                    potential_uncertainty=uncertainties,
                     tile_spatial=1,
                     starting_model=100.0,
                     reference_model=100.0,
@@ -255,7 +262,7 @@ def test_joint_cross_gradient_inv_run(
             group_c=drivers[2].out_group,
             group_c_multiplier=1.0,
             max_global_iterations=max_iterations,
-            initial_beta_ratio=1e1,
+            initial_beta_ratio=1e-1,
             cross_gradient_weight_a_b=1e0,
             cross_gradient_weight_c_a=1e0,
             cross_gradient_weight_c_b=1e0,
@@ -280,13 +287,13 @@ def test_joint_cross_gradient_inv_run(
     # the scaling from its total misfit.
     np.testing.assert_allclose(
         driver.directives.scale_misfits.scalings,
-        [0.5011, 0.5, 0.5, 0.5, 1.0],
+        [0.52747, 0.5, 0.5, 0.5, 1.0],
         atol=1e-3,
     )
     # Check that scaling * chi factor is reflected in data misfit multipliers
     np.testing.assert_allclose(
         driver.data_misfit.multipliers,
-        [0.4009, 0.4, 0.5, 0.5, 1.0],
+        [0.421978, 0.4, 0.5, 0.5, 1.0],
         atol=1e-3,
     )
 
