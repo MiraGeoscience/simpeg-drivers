@@ -103,6 +103,10 @@ class FDEMForwardOptions(BaseForwardOptions, BaseFDEMOptions):
     )
     z_real_channel_bool: bool
     z_imag_channel_bool: bool
+    inline_real_channel_bool: bool
+    inline_imag_channel_bool: bool
+    crossline_real_channel_bool: bool
+    crossline_imag_channel_bool: bool
     models: ConductivityModelOptions
 
 
@@ -132,6 +136,14 @@ class FDEMInversionOptions(BaseFDEMOptions, BaseInversionOptions):
     z_real_uncertainty: PropertyGroup | None = None
     z_imag_channel: PropertyGroup | None = None
     z_imag_uncertainty: PropertyGroup | None = None
+    inline_real_channel: PropertyGroup | None = None
+    inline_real_uncertainty: PropertyGroup | None = None
+    inline_imag_channel: PropertyGroup | None = None
+    inline_imag_uncertainty: PropertyGroup | None = None
+    crossline_real_channel: PropertyGroup | None = None
+    crossline_real_uncertainty: PropertyGroup | None = None
+    crossline_imag_channel: PropertyGroup | None = None
+    crossline_imag_uncertainty: PropertyGroup | None = None
 
     models: ConductivityModelOptions
 

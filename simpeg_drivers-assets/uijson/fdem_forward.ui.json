@@ -22,13 +22,40 @@
     "z_imag_channel_bool": {
         "group": "Survey",
         "main": true,
-        "label": "Z imag component",
+        "label": "Vertical imag component",
+        "tooltip": "Vertical (positive up) imaginary component of the magnetic data",
         "value": true
     },
     "z_real_channel_bool": {
         "group": "Survey",
         "main": true,
-        "label": "Z real component",
+        "label": "Vertical real component",
+        "tooltip": "Vertical (positive up) real component of the magnetic data",
+        "value": true
+    },
+    "inline_imag_channel_bool": {
+        "group": "Survey",
+        "main": true,
+        "label": "In-line imag component",
+        "tooltip": "Horizontal imaginary component of the magnetic data, parallel to the survey direction",
+        "value": true
+    },
+    "inline_real_channel_bool": {
+        "group": "Survey",
+        "main": true,
+        "label": "Horizontal real component of the magnetic data, parallel to the survey direction",
+        "value": true
+    },
+    "crossline_imag_channel_bool": {
+        "group": "Survey",
+        "main": true,
+        "label": "Horizontal imaginary component of the magnetic data, perpendicular to the survey direction",
+        "value": true
+    },
+    "crossline_real_channel_bool": {
+        "group": "Survey",
+        "main": true,
+        "label": "Horizontal real component of the magnetic data, perpendicular to the survey direction",
         "value": true
     },
     "mesh": {

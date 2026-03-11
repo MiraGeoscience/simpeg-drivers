@@ -19,6 +19,20 @@
         ],
         "value": ""
     },
+    "receivers_orientation": {
+        "group": "Data",
+        "association": "Vertex",
+        "dataType": "Float",
+        "dataGroupType": [
+            "Dip direction & dip",
+            "3D vector"
+        ],
+        "label": "Receivers orientation provided as either Dip & dip direction or 3D vector components",
+        "optional": true,
+        "enabled": false,
+        "parent": "data_object",
+        "value": ""
+    },
     "z_imag_channel": {
         "association": [
             "Cell",
@@ -76,6 +90,127 @@
         "label": "Uncertainty",
         "parent": "data_object",
         "dependency": "z_real_channel",
+        "dependencyType": "enabled",
+        "value": ""
+    },
+    "inline_imag_channel": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data",
+        "dataGroupType": "Multi-element",
+        "main": true,
+        "label": "In-line imag component",
+        "parent": "data_object",
+        "optional": true,
+        "enabled": true,
+        "value": ""
+    },
+    "inline_imag_uncertainty": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data",
+        "dataGroupType": "Multi-element",
+        "main": true,
+        "label": "Uncertainty",
+        "parent": "data_object",
+        "dependency": "inline_imag_channel",
+        "dependencyType": "enabled",
+        "value": ""
+    },
+    "inline_real_channel": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data",
+        "dataGroupType": "Multi-element",
+        "main": true,
+        "label": "In-line real component",
+        "parent": "data_object",
+        "optional": true,
+        "enabled": true,
+        "value": ""
+    },
+    "inline_real_uncertainty": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data",
+        "dataGroupType": "Multi-element",
+        "main": true,
+        "label": "Uncertainty",
+        "parent": "data_object",
+        "dependency": "inline_real_channel",
+        "dependencyType": "enabled",
+        "value": ""
+    },
+    "crossline_imag_channel": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data",
+        "dataGroupType": "Multi-element",
+        "main": true,
+        "label": "Cross-line imag component",
+        "tooltip": "Horizontal imaginary component of the magnetic data, perpendicular to the survey direction",
+        "parent": "data_object",
+        "optional": true,
+        "enabled": true,
+        "value": ""
+    },
+    "crossline_imag_uncertainty": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data",
+        "dataGroupType": "Multi-element",
+        "main": true,
+        "label": "Uncertainty",
+        "parent": "data_object",
+        "dependency": "crossline_imag_channel",
+        "dependencyType": "enabled",
+        "value": ""
+    },
+    "crossline_real_channel": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data",
+        "dataGroupType": "Multi-element",
+        "main": true,
+        "label": "Horizontal real component of the magnetic data, parallel to the survey direction",
+        "parent": "data_object",
+        "optional": true,
+        "enabled": true,
+        "value": ""
+    },
+    "crossline_real_uncertainty": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data",
+        "dataGroupType": "Multi-element",
+        "main": true,
+        "label": "Uncertainty",
+        "parent": "data_object",
+        "dependency": "crossline_real_channel",
         "dependencyType": "enabled",
         "value": ""
     },
