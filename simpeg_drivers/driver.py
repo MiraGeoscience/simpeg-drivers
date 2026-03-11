@@ -917,7 +917,7 @@ class InversionLogger:
         )
 
     def end(self):
-        elapsed_time = timedelta(seconds=time() - self.initial_time)
+        elapsed_time = timedelta(seconds=int(time() - self.initial_time))
         self.write(f"Total runtime: {elapsed_time}\n")
 
     def write(self, message):
