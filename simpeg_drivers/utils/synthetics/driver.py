@@ -92,7 +92,7 @@ class SyntheticsComponents:
             if entity is None:
                 entity = get_active(self.mesh, self.topography)
             self._active = entity
-            
+
         return self._active
 
     @property
