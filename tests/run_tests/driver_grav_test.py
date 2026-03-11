@@ -164,7 +164,9 @@ def test_gravity_run(
     assert driver.directives.directive_list[0].chifact_start == 0.75
     assert driver.directives.directive_list[0].chifact_target == 0.75
 
-    with open(workpath.parent / "SimPEG.log", encoding="utf8") as file:
+    with open(
+        workpath.parent / f"SimPEG_{driver.logger.start_date_time}.log", encoding="utf8"
+    ) as file:
         content = file.read()
         assert "Target Misfit: 3.00e+00 (3 data with chifact = 1.0)" in content
         assert "IRLS Start Misfit: 3.00e+00 (3 data with chifact = 1.0)" in content
@@ -190,7 +192,12 @@ def test_gravity_run(
         )
         output["data"] = orig_gz
 
-        assert len(run_ws.get_entity("SimPEG.log")) == 2
+        assert (
+            len(run_ws.get_entity(f"SimPEG_{driver.logger.start_date_time}.log")) == 1
+        )
+        assert (
+            len(run_ws.get_entity(f"SimPEG_{driver.logger.start_date_time}.out")) == 1
+        )
 
         if pytest:
             check_target(output, target_run)
