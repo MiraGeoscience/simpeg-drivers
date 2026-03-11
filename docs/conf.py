@@ -42,6 +42,7 @@ templates_path = ["_templates"]
 exclude_patterns = []
 todo_include_todos = True
 
+
 # -- Options for auto-doc ----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#module-sphinx.ext.autodoc
 

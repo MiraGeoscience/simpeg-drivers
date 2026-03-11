@@ -36,6 +36,13 @@ from simpeg_drivers.options import (
 
 logger = getLogger(__name__)
 
+CONVERSION = {
+    "Hertz (Hz)": 1e-0,
+    "KiloHertz (kHz)": 1e-3,
+    "MegaHertz (MHz)": 1e-6,
+    "Gigahertz (GHz)": 1e-9,
+}
+
 
 class BaseFDEMOptions(EMDataMixin):
     """
@@ -61,12 +68,7 @@ class BaseFDEMOptions(EMDataMixin):
     @property
     def unit_conversion(self):
         """Return time unit conversion factor."""
-        conversion = {
-            "Seconds (s)": 1.0,
-            "Milliseconds (ms)": 1e-3,
-            "Microseconds (us)": 1e-6,
-        }
-        return conversion[self.data_object.unit]
+        return CONVERSION[self.data_object.unit]
 
     @field_validator("inversion_type", mode="before")
     @classmethod

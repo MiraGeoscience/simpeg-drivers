@@ -15,12 +15,12 @@ from pathlib import Path
 from typing import ClassVar
 
 from geoh5py.data import FloatData
-from geoh5py.ui_json.annotations import Deprecated
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.options import (
     BaseForwardOptions,
     BaseInversionOptions,
+    Deprecated,
     DirectiveOptions,
     ModelOptions,
 )
@@ -31,7 +31,7 @@ class VectorModelOptions(ModelOptions):
     Magnetic Vector Model options.
     """
 
-    lower_bound: Deprecated | None = None
+    lower_bound: Deprecated
     starting_inclination: float | FloatData | None = None
     starting_declination: float | FloatData | None = None
     reference_inclination: float | FloatData | None = None
