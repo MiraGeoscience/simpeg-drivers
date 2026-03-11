@@ -92,6 +92,7 @@ class TDEMForwardOptions(BaseTDEMOptions, BaseForwardOptions):
         | LargeLoopGroundTEMReceivers
         | AirborneTEMReceivers
     )
+    receivers_orientation: PropertyGroup | None = None
     z_channel_bool: bool | None = None
     x_channel_bool: bool | None = None
     y_channel_bool: bool | None = None
@@ -121,6 +122,7 @@ class TDEMInversionOptions(BaseTDEMOptions, BaseInversionOptions):
         | LargeLoopGroundTEMReceivers
         | AirborneTEMReceivers
     )
+    receivers_orientation: PropertyGroup | None = None
     z_channel: PropertyGroup | None = None
     z_uncertainty: PropertyGroup | None = None
     x_channel: PropertyGroup | None = None

@@ -438,7 +438,6 @@ class EMDataMixin:
     """
 
     data_object: BaseEMSurvey
-    receiver_orientation: PropertyGroup | None = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

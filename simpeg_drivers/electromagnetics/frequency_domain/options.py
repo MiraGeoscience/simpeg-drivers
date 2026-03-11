@@ -101,6 +101,7 @@ class FDEMForwardOptions(BaseForwardOptions, BaseFDEMOptions):
         | LargeLoopGroundFEMReceivers
         | AirborneFEMReceivers
     )
+    receivers_orientation: PropertyGroup | None = None
     z_real_channel_bool: bool
     z_imag_channel_bool: bool
     inline_real_channel_bool: bool
@@ -132,6 +133,7 @@ class FDEMInversionOptions(BaseFDEMOptions, BaseInversionOptions):
         | LargeLoopGroundFEMReceivers
         | AirborneFEMReceivers
     )
+    receivers_orientation: PropertyGroup | None = None
     z_real_channel: PropertyGroup | None = None
     z_real_uncertainty: PropertyGroup | None = None
     z_imag_channel: PropertyGroup | None = None
