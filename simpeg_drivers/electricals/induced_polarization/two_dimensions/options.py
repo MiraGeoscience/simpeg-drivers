@@ -18,8 +18,11 @@ from geoh5py.data import FloatData
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.electricals.base_2d import Base2DOptions
-from simpeg_drivers.electricals.options import IPModelOptions
-from simpeg_drivers.options import BaseForwardOptions, BaseInversionOptions
+from simpeg_drivers.options import (
+    BaseForwardOptions,
+    BaseInversionOptions,
+    IPModelOptions,
+)
 
 
 class IP2DForwardOptions(BaseForwardOptions, Base2DOptions):
