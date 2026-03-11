@@ -627,7 +627,7 @@ def simpeg_group_to_driver(group: SimPEGGroup, workspace: Workspace) -> Inversio
     return inversion_driver(params)
 
 
-def compute_alongline_distance(points: np.ndarray, ordered: bool = True):
+def compute_alongline_distance(points: np.ndarray, ordered: bool = True) -> np.ndarray:
     """
     Convert from cartesian (x, y, values) points to (distance, values) locations.
 
