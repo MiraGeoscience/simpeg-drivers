@@ -351,7 +351,7 @@ def cell_width_from_centers(centers: np.ndarray) -> np.ndarray:
     return np.r_[half_dx[0] * 2, (half_dx[:-1] + half_dx[1:]), half_dx[-1] * 2]
 
 
-def floating_active(mesh: TensorMesh | TreeMesh, active: np.ndarray):
+def floating_active(mesh: TensorMesh | TreeMesh, active: np.ndarray) -> bool:
     """
     True if there are any active cells in the air
 
@@ -482,6 +482,8 @@ def get_containing_cells(
 
     :param mesh: Computational mesh object
     :param data: Inversion data object
+
+    :returns: Array of unique cell indices that contain data locations
     """
     if isinstance(mesh, TreeMesh):
         if isinstance(data.entity, PotentialElectrode):
@@ -537,13 +539,15 @@ def active_from_xyz(
     topo: np.ndarray,
     grid_reference="center",
     triangulation: np.ndarray | None = None,
-):
+) -> np.ndarray:
     """Returns an active cell index array below a surface
 
     :param mesh: Mesh object
     :param topo: Array of xyz locations
     :param grid_reference: Cell reference. Must be "center", "top", or "bottom"
     :param method: Interpolation method. Must be "linear", or "nearest"
+
+    :return: Array of active cell indices below the surface defined by 'topo'.
     """
 
     mesh_dim = 2 if isinstance(mesh, DrapeModel) else 3
@@ -606,6 +610,8 @@ def simpeg_group_to_driver(group: SimPEGGroup, workspace: Workspace) -> Inversio
 
     :param group: SimPEGGroup object.
     :param workspace: Workspace object.
+
+    :returns: InversionDriver object.
     """
 
     ui_json = deepcopy(group.options)
@@ -631,8 +637,15 @@ def compute_alongline_distance(points: np.ndarray, ordered: bool = True):
     """
     Convert from cartesian (x, y, values) points to (distance, values) locations.
 
-    :param: points: Cartesian coordinates of points lying either roughly within a
+    :param points: Cartesian coordinates of points lying either roughly within a
         plane or a line.
+    :param ordered: Flag to indicate whether points are already ordered along a line.
+        If False, then the points will be ordered using a traveling salesman algorithm
+        before computing distances.
+
+    :returns: Array of shape (n_points, n_features) where the first column contains
+        distances along the line and the remaining columns contain the corresponding
+        values from the input 'points' array.
     """
     if not ordered:
         order = traveling_salesman(points)
