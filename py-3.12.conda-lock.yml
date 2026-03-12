@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: 7c835bb6e56ab68b196a043e31bfcc6fd1603ce03d28c435e4988d458cfbb819
-    linux-64: e7355df1cae1dcb524b2e9870234232f95bbb81180e054a430dfec8bb2885163
+    win-64: 242cc486eeea4891712e6b25f7d1c4461e1caa4743b40d8b5da026391c01085c
+    linux-64: aafe1c8abf5f2416d4f10fa06cf2d0c04c47baf7648a31102aaf49033caf8d1a
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -4814,39 +4814,39 @@ package:
   category: dev
   optional: true
 - name: notebook
-  version: 7.5.4
+  version: 7.5.5
   manager: conda
   platform: linux-64
   dependencies:
     importlib_resources: '>=5.0'
     jupyter_server: '>=2.4.0,<3'
-    jupyterlab: '>=4.5.5,<4.6'
+    jupyterlab: '>=4.5.6,<4.6'
     jupyterlab_server: '>=2.28.0,<3'
     notebook-shim: '>=0.2,<0.3'
     python: ''
     tornado: '>=6.2.0'
-  url: https://repo.prefix.dev/conda-forge/noarch/notebook-7.5.4-pyhcf101f3_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/notebook-7.5.5-pyhcf101f3_0.conda
   hash:
-    md5: ad642622e20bd5dbe4157d35ddf1db47
-    sha256: c25d4c77747af7598c843b626c051e93ea3d8d0a7782bae1c48ba8f4dd1961d4
+    md5: 471096452091ae8c460928ad5ff143cc
+    sha256: 11cfeabc41ed73bb088315d96cfdfeaaa10470c06ce6332bae368590e3047ef6
   category: dev
   optional: true
 - name: notebook
-  version: 7.5.4
+  version: 7.5.5
   manager: conda
   platform: win-64
   dependencies:
     importlib_resources: '>=5.0'
     jupyter_server: '>=2.4.0,<3'
-    jupyterlab: '>=4.5.5,<4.6'
+    jupyterlab: '>=4.5.6,<4.6'
     jupyterlab_server: '>=2.28.0,<3'
     notebook-shim: '>=0.2,<0.3'
     python: '>=3.10'
     tornado: '>=6.2.0'
-  url: https://repo.prefix.dev/conda-forge/noarch/notebook-7.5.4-pyhcf101f3_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/notebook-7.5.5-pyhcf101f3_0.conda
   hash:
-    md5: ad642622e20bd5dbe4157d35ddf1db47
-    sha256: c25d4c77747af7598c843b626c051e93ea3d8d0a7782bae1c48ba8f4dd1961d4
+    md5: 471096452091ae8c460928ad5ff143cc
+    sha256: 11cfeabc41ed73bb088315d96cfdfeaaa10470c06ce6332bae368590e3047ef6
   category: dev
   optional: true
 - name: notebook-shim
@@ -8157,7 +8157,7 @@ package:
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.25.0.1a2.dev7+gda9525fed
+  version: 0.25.0.1a2.dev8+g8a9cf4523
   manager: pip
   platform: linux-64
   dependencies:
@@ -8170,16 +8170,16 @@ package:
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
     typing-extensions: '*'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@da9525fedea764d7939475988632bd4ef74a3aca
+  url: git+https://github.com/MiraGeoscience/simpeg.git@8a9cf452335379363e15ac7a3cd9bf689d8e2841
   hash:
-    sha256: da9525fedea764d7939475988632bd4ef74a3aca
+    sha256: 8a9cf452335379363e15ac7a3cd9bf689d8e2841
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@da9525fedea764d7939475988632bd4ef74a3aca
+    url: git+https://github.com/MiraGeoscience/simpeg.git@8a9cf452335379363e15ac7a3cd9bf689d8e2841
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.25.0.1a2.dev7+gda9525fed
+  version: 0.25.0.1a2.dev8+g8a9cf4523
   manager: pip
   platform: win-64
   dependencies:
@@ -8192,11 +8192,11 @@ package:
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
     typing-extensions: '*'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@da9525fedea764d7939475988632bd4ef74a3aca
+  url: git+https://github.com/MiraGeoscience/simpeg.git@8a9cf452335379363e15ac7a3cd9bf689d8e2841
   hash:
-    sha256: da9525fedea764d7939475988632bd4ef74a3aca
+    sha256: 8a9cf452335379363e15ac7a3cd9bf689d8e2841
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@da9525fedea764d7939475988632bd4ef74a3aca
+    url: git+https://github.com/MiraGeoscience/simpeg.git@8a9cf452335379363e15ac7a3cd9bf689d8e2841
   category: main
   optional: false
