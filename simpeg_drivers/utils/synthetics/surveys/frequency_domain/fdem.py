@@ -34,8 +34,11 @@ def generate_fdem_survey(
     tx_locs_list = []
     frequency_list = []
     for config in frequency_config:
-        tx_vertices = vertices.copy()
-        tx_vertices[:, 0] -= config["Offset"]
+        delta = np.diff(vertices, axis=0)
+        delta /= np.linalg.norm(delta, axis=1)[:, None]
+        delta = np.vstack([delta, delta[-1, :]])  # Repeat last offset
+
+        tx_vertices = vertices - delta * config["Offset"]
         tx_locs_list.append(tx_vertices)
         frequency_list.append([[config["Frequency"]] * len(vertices)])
     tx_locs = np.vstack(tx_locs_list)

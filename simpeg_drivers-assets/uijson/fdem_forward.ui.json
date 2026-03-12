@@ -47,28 +47,28 @@
         "tooltip": "Vertical (w) real component of the magnetic data.\\Positive up along the z-axis if no receiver orientation provided",
         "value": true
     },
-    "x_imag_channel_bool": {
+    "y_imag_channel_bool": {
         "group": "Survey",
         "main": true,
         "label": "In-line (imaginary)",
         "tooltip": "In-line (u) imaginary component of the magnetic data.\\Positive towards North if no receiver orientation provided",
         "value": true
     },
-    "x_real_channel_bool": {
+    "y_real_channel_bool": {
         "group": "Survey",
         "main": true,
         "label": "In-line (real)",
         "tooltip": "In-line (u) real component of the magnetic data.\\Positive towards North if no receiver orientation provided",
         "value": true
     },
-    "y_imag_channel_bool": {
+    "x_imag_channel_bool": {
         "group": "Survey",
         "main": true,
         "label": "Cross-line (imaginary)",
         "tooltip": "Cross-line (v) imaginary component of the magnetic data.\\Positive towards East if no receiver orientation provided",
         "value": true
     },
-    "y_real_channel_bool": {
+    "x_real_channel_bool": {
         "group": "Survey",
         "main": true,
         "label": "Cross-line (real)",

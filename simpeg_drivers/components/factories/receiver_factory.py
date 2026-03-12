@@ -23,7 +23,6 @@ if TYPE_CHECKING:
     from simpeg_drivers.options import BaseOptions
 
 import numpy as np
-from geoapps_utils.utils.transformations import rotate_xyz
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 
@@ -94,7 +93,12 @@ class ReceiversFactory(SimPEGFactory):
             return receivers.ApparentConductivity
 
     def assemble_arguments(
-        self, locations=None, data=None, local_index=None, component=None
+        self,
+        locations=None,
+        data=None,
+        local_index=None,
+        component=None,
+        orientation=None,
     ):
         """Provides implementations to assemble arguments for receivers object."""
 
@@ -128,7 +132,12 @@ class ReceiversFactory(SimPEGFactory):
         return args
 
     def assemble_keyword_arguments(
-        self, locations=None, data=None, local_index=None, component=None
+        self,
+        locations=None,
+        data=None,
+        local_index=None,
+        component=None,
+        orientation=None,
     ):
         """Provides implementations to assemble keyword arguments for receivers object."""
         kwargs = {}
@@ -141,13 +150,19 @@ class ReceiversFactory(SimPEGFactory):
             comp = component.split("_")[0]
             kwargs["orientation"] = comp[0] if "fdem" in self.factory_type else comp[1:]
             kwargs["component"] = component.split("_")[1]
+
         if self.factory_type in ["tipper"]:
             kwargs["orientation"] = kwargs["orientation"][::-1]
+
         if "tdem" in self.factory_type:
             kwargs["orientation"] = component
 
         if self.factory_type == "fdem 1d":
             kwargs["data_type"] = "ppm"
+
+        # Overload orientation if provided
+        if self.factory_type in ["tdem", "fdem"] and orientation is not None:
+            kwargs["orientation"] = orientation
 
         return kwargs
 

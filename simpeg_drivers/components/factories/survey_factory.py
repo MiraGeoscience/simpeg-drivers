@@ -13,7 +13,6 @@
 
 from __future__ import annotations
 
-from gc import is_finalized
 from typing import TYPE_CHECKING
 
 
@@ -25,6 +24,7 @@ if TYPE_CHECKING:
 import numpy as np
 import simpeg.electromagnetics.time_domain as tdem
 from geoapps_utils.utils.importing import GeoAppsError
+from geoapps_utils.utils.transformations import x_rotation_matrix, z_rotation_matrix
 from geoh5py.objects.surveys.electromagnetics.ground_tem import (
     LargeLoopGroundTEMTransmitters,
 )
@@ -33,6 +33,14 @@ from scipy.interpolate import interp1d
 from simpeg_drivers.components.factories.receiver_factory import ReceiversFactory
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 from simpeg_drivers.components.factories.source_factory import SourcesFactory
+from simpeg_drivers.utils.regularization import direction_and_dip
+
+
+DEFAULT_ORIENTATIONS = {
+    "y": np.array([1.0, 0.0, 0.0]),
+    "x": np.array([0.0, 1.0, 0.0]),
+    "z": np.array([0.0, 0.0, 1.0]),
+}
 
 
 class SurveyFactory(SimPEGFactory):
@@ -50,6 +58,8 @@ class SurveyFactory(SimPEGFactory):
         self.survey = None
         self.ordering = None
         self.sorting = None
+
+        self.orientation = self.validate_orientation()
 
     def concrete_object(self):
         if self.factory_type in ["magnetic vector", "magnetic scalar"]:
@@ -330,13 +340,16 @@ class SurveyFactory(SimPEGFactory):
         tx_factory = SourcesFactory(self.params)
         receiver_groups = []
         block_ordering = []
-        for rx_id, locs in enumerate(rx_locs):
+        for rx_id, (locs, orientation) in enumerate(
+            zip(rx_locs, self.orientation, strict=True)
+        ):
             receivers = []
             for comp_id, component in enumerate(data.components):
                 receiver = rx_factory.build(
                     locations=locs,
                     data=data,
                     component=component,
+                    orientation=orientation,
                 )
                 block_ordering.append([comp_id, rx_id])
                 receivers.append(receiver)
@@ -427,3 +440,13 @@ class SurveyFactory(SimPEGFactory):
         self.ordering = np.vstack(ordering).astype(int)
 
         return [sources]
+
+    def validate_orientation(self):
+        """
+        Validate the various options for the orientation parameter and
+        return an orientation array of shape (n_receivers, 3) for use in SimPEG receivers.
+        """
+        if self.params.receivers_orientation is not None:
+            return direction_and_dip(self.params.receivers_orientation)
+
+        return np.zeros((self.params.data_object.n_vertices, 3))
