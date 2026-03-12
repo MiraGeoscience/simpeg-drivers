@@ -42,7 +42,8 @@
         "group": "Data",
         "dataGroupType": "Multi-element",
         "main": true,
-        "label": "z-imag component",
+        "label": "Vertical (imaginary)",
+        "tooltip": "Vertical (w) imaginary component of the magnetic data.\\Positive up along the z-axis if no receiver orientation provided",
         "parent": "data_object",
         "optional": true,
         "enabled": true,
@@ -60,7 +61,7 @@
         "label": "Uncertainty",
         "parent": "data_object",
         "dependency": "z_imag_channel",
-        "dependencyType": "enabled",
+        "dependencyType": "show",
         "value": ""
     },
     "z_real_channel": {
@@ -72,7 +73,8 @@
         "group": "Data",
         "dataGroupType": "Multi-element",
         "main": true,
-        "label": "z-real component",
+        "label": "Vertical (real)",
+        "tooltip": "Vertical (w) real component of the magnetic data.\\Positive up along the z-axis if no receiver orientation provided",
         "parent": "data_object",
         "optional": true,
         "enabled": true,
@@ -90,10 +92,10 @@
         "label": "Uncertainty",
         "parent": "data_object",
         "dependency": "z_real_channel",
-        "dependencyType": "enabled",
+        "dependencyType": "show",
         "value": ""
     },
-    "inline_imag_channel": {
+    "x_imag_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -102,13 +104,14 @@
         "group": "Data",
         "dataGroupType": "Multi-element",
         "main": true,
-        "label": "In-line imag component",
+        "label": "In-line (imaginary)",
+        "tooltip": "In-line (u) imaginary component of the magnetic data.\\Positive towards North if no receiver orientation provided",
         "parent": "data_object",
         "optional": true,
-        "enabled": true,
+        "enabled": false,
         "value": ""
     },
-    "inline_imag_uncertainty": {
+    "x_imag_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -119,11 +122,11 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "inline_imag_channel",
-        "dependencyType": "enabled",
+        "dependency": "x_imag_channel",
+        "dependencyType": "show",
         "value": ""
     },
-    "inline_real_channel": {
+    "x_real_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -132,13 +135,14 @@
         "group": "Data",
         "dataGroupType": "Multi-element",
         "main": true,
-        "label": "In-line real component",
+        "label": "In-line (real)",
+        "tooltip": "In-line (u) real component of the magnetic data.\\Positive towards North if no receiver orientation provided",
         "parent": "data_object",
         "optional": true,
-        "enabled": true,
+        "enabled": false,
         "value": ""
     },
-    "inline_real_uncertainty": {
+    "x_real_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -149,11 +153,11 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "inline_real_channel",
-        "dependencyType": "enabled",
+        "dependency": "x_real_channel",
+        "dependencyType": "show",
         "value": ""
     },
-    "crossline_imag_channel": {
+    "y_imag_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -162,14 +166,14 @@
         "group": "Data",
         "dataGroupType": "Multi-element",
         "main": true,
-        "label": "Cross-line imag component",
-        "tooltip": "Horizontal imaginary component of the magnetic data, perpendicular to the survey direction",
+        "label": "Cross-line (imaginary)",
+        "tooltip": "Cross-line (v) imaginary component of the magnetic data.\\Positive towards East if no receiver orientation provided",
         "parent": "data_object",
         "optional": true,
-        "enabled": true,
+        "enabled": false,
         "value": ""
     },
-    "crossline_imag_uncertainty": {
+    "y_imag_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -180,11 +184,11 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "crossline_imag_channel",
-        "dependencyType": "enabled",
+        "dependency": "y_imag_channel",
+        "dependencyType": "show",
         "value": ""
     },
-    "crossline_real_channel": {
+    "y_real_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -193,13 +197,14 @@
         "group": "Data",
         "dataGroupType": "Multi-element",
         "main": true,
-        "label": "Horizontal real component of the magnetic data, parallel to the survey direction",
+        "label": "Cross-line (real)",
+        "tooltip": "Cross-line (v) real component of the magnetic data.\\Positive towards East if no receiver orientation provided",
         "parent": "data_object",
         "optional": true,
-        "enabled": true,
+        "enabled": false,
         "value": ""
     },
-    "crossline_real_uncertainty": {
+    "y_real_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -210,8 +215,8 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "crossline_real_channel",
-        "dependencyType": "enabled",
+        "dependency": "y_real_channel",
+        "dependencyType": "show",
         "value": ""
     },
     "mesh": {
