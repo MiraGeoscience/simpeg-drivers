@@ -396,23 +396,6 @@
         "property": "",
         "value": 0.0
     },
-    "lower_bound": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "main": true,
-        "dataType": "Float",
-        "group": "Mesh and models",
-        "isValue": true,
-        "parent": "mesh",
-        "label": "Lower bound (SI)",
-        "property": "",
-        "optional": true,
-        "value": 0.0,
-        "visible": false,
-        "enabled": false
-    },
     "upper_bound": {
         "association": [
             "Cell",
