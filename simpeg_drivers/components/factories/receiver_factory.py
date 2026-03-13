@@ -23,8 +23,10 @@ if TYPE_CHECKING:
     from simpeg_drivers.options import BaseOptions
 
 import numpy as np
+from geoapps_utils.utils.transformations import x_rotation_matrix, z_rotation_matrix
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
+from simpeg_drivers.utils.regularization import direction_and_dip, get_cell_normals
 
 
 class ReceiversFactory(SimPEGFactory):
@@ -37,6 +39,7 @@ class ReceiversFactory(SimPEGFactory):
         """
         super().__init__(params)
         self.simpeg_object = self.concrete_object()
+        self.orientations = self.validate_orientations()
 
     def concrete_object(self):
         if self.factory_type in ["magnetic vector", "magnetic scalar"]:
@@ -96,9 +99,8 @@ class ReceiversFactory(SimPEGFactory):
         self,
         locations=None,
         data=None,
-        local_index=None,
+        local_indices=None,
         component=None,
-        orientation=None,
     ):
         """Provides implementations to assemble arguments for receivers object."""
 
@@ -110,7 +112,7 @@ class ReceiversFactory(SimPEGFactory):
         ):
             args += self._dcip_arguments(
                 locations=locations,
-                local_index=local_index,
+                local_indices=local_indices,
             )
         elif self.factory_type in [
             "apparent conductivity",
@@ -135,9 +137,8 @@ class ReceiversFactory(SimPEGFactory):
         self,
         locations=None,
         data=None,
-        local_index=None,
+        local_indices=None,
         component=None,
-        orientation=None,
     ):
         """Provides implementations to assemble keyword arguments for receivers object."""
         kwargs = {}
@@ -161,18 +162,20 @@ class ReceiversFactory(SimPEGFactory):
             kwargs["data_type"] = "ppm"
 
         # Overload orientation if provided
-        if self.factory_type in ["tdem", "fdem"] and orientation is not None:
-            kwargs["orientation"] = orientation
+        if self.factory_type in ["tdem", "fdem"] and local_indices is not None:
+            kwargs["orientation"] = self.orientations[kwargs["orientation"]][
+                local_indices, :
+            ]
 
         return kwargs
 
-    def _dcip_arguments(self, locations=None, local_index=None):
+    def _dcip_arguments(self, locations=None, local_indices=None):
         args = []
-        local_index = np.vstack(local_index)
+        local_indices = np.vstack(local_indices)
 
-        args.append(locations[local_index[:, 0], :])
+        args.append(locations[local_indices[:, 0], :])
 
-        if np.all(local_index[:, 0] == local_index[:, 1]):
+        if np.all(local_indices[:, 0] == local_indices[:, 1]):
             if "direct current" in self.factory_type:
                 from simpeg.electromagnetics.static.resistivity import receivers
             else:
@@ -181,7 +184,7 @@ class ReceiversFactory(SimPEGFactory):
                 )
             self.simpeg_object = receivers.Pole
         else:
-            args.append(locations[local_index[:, 1], :])
+            args.append(locations[local_indices[:, 1], :])
 
         return args
 
@@ -211,3 +214,27 @@ class ReceiversFactory(SimPEGFactory):
 
         # H-field on locations with base stations
         return locations, stations
+
+    def validate_orientations(self):
+        """
+        Validate the various options for the orientation parameter and
+        return an orientation array of shape (n_receivers, 3) for use in SimPEG receivers.
+        """
+        n_recs = self.params.data_object.n_vertices
+        normals = {
+            comp: get_cell_normals(n_recs, comp, True, 3).reshape((-1, 3))
+            for comp in "xyz"
+        }
+
+        if getattr(self.params, "receivers_orientation", None):
+            azi_dip = np.deg2rad(direction_and_dip(self.params.receivers_orientation))
+            orientations = {}
+            for axis in "xyz":
+                orientations[axis] = (
+                    z_rotation_matrix(azi_dip[:, 0])
+                    * (x_rotation_matrix(-azi_dip[:, 1]) * normals[axis].flatten())
+                ).reshape((-1, 3))
+
+            return orientations
+
+        return normals
