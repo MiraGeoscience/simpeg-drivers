@@ -63,6 +63,7 @@ class SyntheticsComponentsOptions(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     method: str = "gravity"
+    refine_plate: bool = False
     survey: SurveyOptions = SurveyOptions()
     mesh: MeshOptions = MeshOptions()
     model: ModelOptions = ModelOptions()

@@ -231,7 +231,7 @@ class ReceiversFactory(SimPEGFactory):
             orientations = {}
             for axis in "xyz":
                 orientations[axis] = (
-                    z_rotation_matrix(azi_dip[:, 0])
+                    z_rotation_matrix(-azi_dip[:, 0])
                     * (x_rotation_matrix(-azi_dip[:, 1]) * normals[axis].flatten())
                 ).reshape((-1, 3))
 

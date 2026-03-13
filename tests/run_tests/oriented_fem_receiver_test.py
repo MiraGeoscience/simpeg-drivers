@@ -15,8 +15,12 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+import pytest
 from geoapps_utils.modelling.plates import PlateModel
-from geoh5py.groups import PropertyGroup
+from geoh5py import Workspace
+from geoh5py.groups import PropertyGroup, UIJsonGroup
+from geoh5py.objects import AirborneFEMReceivers
+from geoh5py.shared.utils import fetch_active_workspace
 
 from simpeg_drivers.electromagnetics.frequency_domain.driver import (
     FDEMForwardDriver,
@@ -42,22 +46,41 @@ from tests.utils.targets import get_workspace
 target_run = {"data_norm": 91.18814842528005, "phi_d": 4250, "phi_m": 968}
 
 
-def test_fem_fwr_run(
-    tmp_path: Path,
-    refinement=(4,),
-    cell_size=(10.0, 10.0, 10.0),
-):
+def collect_real_components(geoh5):
+    # Load results and validate
+    data_list = {}
+    with fetch_active_workspace(geoh5) as ws:
+        group = next(group for group in ws.groups if isinstance(group, UIJsonGroup))
+        survey = next(
+            child for child in group.children if isinstance(child, AirborneFEMReceivers)
+        )
+        for comp in "xyz":
+            data_group = survey.get_entity(f"Iteration_0_{comp}_real")[0]
+            data_list[comp] = np.vstack(
+                [survey.get_data(uid)[0].values for uid in data_group.properties]
+            )
+    return data_list
+
+
+@pytest.mark.parametrize("azimuth, dip", [(90, 0), (45, 0), (90, 90)])
+def test_fem_fwr_run(tmp_path: Path, azimuth, dip):
+    """
+    Forward simulations with variable receiver orientations.
+    The results are not expected to be the same, but should be similar.
+    """
+    refinement = (2, 4)
+    cell_size = (5.0, 5.0, 5.0)
     # Run the forward east-west
     opts = SyntheticsComponentsOptions(
         method="fdem",
+        refine_plate=True,
         survey=SurveyOptions(
             height=0.0,
             n_stations=16,
             n_lines=1,
             drape=15.0,
-            rotation=0,
+            rotation=90 - azimuth,
             topography=lambda x, y: np.zeros(x.shape),
-            name="survey - EW",
         ),
         mesh=MeshOptions(
             cell_size=cell_size, refinement=refinement, padding_distance=400.0
@@ -65,88 +88,40 @@ def test_fem_fwr_run(
         model=ModelOptions(
             background=1e-3,
             plate=PlateModel(
-                strike_length=100.0,
+                strike_length=70.0,
                 dip_length=100.0,
-                width=20.0,
-                origin=(0.0, 0.0, -40.0),
-                direction=90.0,
+                width=10.0,
+                origin=(0.0, 0.0, -60.0),
+                direction=azimuth,
                 dip=45.0,
             ),
         ),
     )
+
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
-        params = FDEMForwardOptions.build(
-            geoh5=geoh5,
-            mesh=components.mesh,
-            topography_object=components.topography,
-            data_object=components.survey,
-            starting_model=components.model,
-            z_real_channel_bool=True,
-            z_imag_channel_bool=True,
-            x_real_channel_bool=True,
-            x_imag_channel_bool=True,
-            y_real_channel_bool=True,
-            y_imag_channel_bool=True,
-        )
+        survey = components.survey
 
-    fwr_driver = FDEMForwardDriver(params)
-    fwr_driver.run()
-
-    # Repeat at 45 azimuth
-    opts = SyntheticsComponentsOptions(
-        method="fdem",
-        survey=SurveyOptions(
-            height=0.0,
-            n_stations=16,
-            n_lines=1,
-            drape=15.0,
-            rotation=45,
-            topography=lambda x, y: np.zeros(x.shape),
-            name="survey - ROT 45",
-        ),
-        mesh=MeshOptions(
-            cell_size=cell_size,
-            refinement=refinement,
-            padding_distance=400.0,
-            name="mesh - ROT 45",
-        ),
-        model=ModelOptions(
-            background=1e-3,
-            plate=PlateModel(
-                strike_length=100.0,
-                dip_length=100.0,
-                width=20.0,
-                origin=(0.0, 0.0, -40.0),
-                direction=45.0,
-                dip=45.0,
-            ),
-            name="model - ROT 45",
-        ),
-    )
-    with geoh5.open():
-        components = SyntheticsComponents(geoh5, options=opts)
-        mesh = components.mesh
         # Create property group with orientation
-        dip = np.ones(mesh.n_cells) * 0
-        azimuth = np.ones(mesh.n_cells) * 45
-        data_list = mesh.add_data(
+        dip = np.ones(survey.n_vertices) * dip
+        azimuth = np.ones(survey.n_vertices) * azimuth
+        data_list = survey.add_data(
             {
                 "azimuth": {"values": azimuth},
                 "dip": {"values": dip},
             }
         )
         pg = PropertyGroup(
-            mesh, properties=data_list, property_group_type="Dip direction & dip"
+            survey, properties=data_list, property_group_type="Dip direction & dip"
         )
 
         params = FDEMForwardOptions.build(
             geoh5=geoh5,
+            title="Forward: Azimuth {azimuth}, Dip {dip}",
             mesh=components.mesh,
             topography_object=components.topography,
             data_object=components.survey,
             starting_model=components.model,
-            title="FDEM Forward Run 45",
             z_real_channel_bool=True,
             z_imag_channel_bool=True,
             x_real_channel_bool=True,
@@ -158,3 +133,28 @@ def test_fem_fwr_run(
 
     fwr_driver = FDEMForwardDriver(params)
     fwr_driver.run()
+
+
+def test_validate_orientations(tmp_path: Path):
+
+    with Workspace(
+        tmp_path / "../test_fem_fwr_run_90_0_0/inversion_test.ui.geoh5"
+    ) as geoh5:
+        sim_90_0 = collect_real_components(geoh5)
+
+    with Workspace(
+        tmp_path / "../test_fem_fwr_run_45_0_0/inversion_test.ui.geoh5"
+    ) as geoh5:
+        sim_45_0 = collect_real_components(geoh5)
+
+    # Components almost the same at 45
+    assert np.mean((sim_90_0["y"] - sim_45_0["y"]) / sim_90_0["y"]) < 0.2
+
+    with Workspace(
+        tmp_path / "../test_fem_fwr_run_90_90_0/inversion_test.ui.geoh5"
+    ) as geoh5:
+        sim_90_90 = collect_real_components(geoh5)
+
+    # 90 dip makes Y point down and Z east, so Y should be -Z, and Z should be Y
+    assert np.mean((sim_90_0["y"] - sim_90_90["z"]) / sim_90_0["y"]) < 0.2
+    assert np.mean((sim_90_0["z"] + sim_90_90["y"]) / sim_90_0["z"]) < 0.2
