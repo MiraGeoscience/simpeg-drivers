@@ -20,14 +20,22 @@
         "value": ""
     },
     "receivers_orientation": {
-        "group": "Data",
+        "group": "Survey",
+        "main": true,
         "association": "Vertex",
         "dataType": "Float",
         "dataGroupType": [
             "Dip direction & dip",
             "3D vector"
         ],
-        "label": "Receivers orientation provided as either Dip & dip direction or 3D vector components",
+        "label": "Receivers orientation",
+        "tooltip": [
+            "Receivers orientation provided as 'Dip direction & dip' data group. If not provided, it is assumes: <dl>",
+            "<dt>In-line component</dt><dd>Positive towards North (Y).</dd>",
+            "<dt>Cross-line component</dt><dd>Positive towards East (X).</dd>",
+            "<dt>Vertical component</dt><dd>Positive up (Z).</dd>",
+            "</dl>"
+        ],
         "optional": true,
         "enabled": false,
         "parent": "data_object",
