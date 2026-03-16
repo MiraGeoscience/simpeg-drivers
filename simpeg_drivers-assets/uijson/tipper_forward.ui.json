@@ -17,20 +17,6 @@
         "meshType": "{0b639533-f35b-44d8-92a8-f70ecff3fd26}",
         "value": ""
     },
-    "receivers_orientation": {
-        "group": "Data",
-        "association": "Vertex",
-        "dataType": "Float",
-        "dataGroupType": [
-            "Dip direction & dip",
-            "3D vector"
-        ],
-        "label": "Receivers orientation provided as either Dip & dip direction or 3D vector components",
-        "optional": true,
-        "enabled": false,
-        "parent": "data_object",
-        "value": ""
-    },
     "txz_imag_channel_bool": {
         "group": "Survey",
         "main": true,

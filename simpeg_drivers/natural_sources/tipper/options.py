@@ -46,7 +46,7 @@ class TipperForwardOptions(EMDataMixin, BaseForwardOptions):
     inversion_type: str = "tipper"
 
     data_object: TipperReceivers
-    receivers_orientation: PropertyGroup | None = None
+
     txz_real_channel_bool: bool | None = None
     txz_imag_channel_bool: bool | None = None
     tyz_real_channel_bool: bool | None = None
@@ -76,7 +76,7 @@ class TipperInversionOptions(EMDataMixin, BaseInversionOptions):
     inversion_type: str = "tipper"
 
     data_object: TipperReceivers
-    receivers_orientation: PropertyGroup | None = None
+
     txz_real_channel: PropertyGroup | None = None
     txz_real_uncertainty: PropertyGroup | None = None
     txz_imag_channel: PropertyGroup | None = None
