@@ -326,9 +326,6 @@ def test_legacy_uijson(tmp_path: Path, caplog):
             if inversion_type not in CHANNEL_NAME:
                 continue
 
-            if "pseudo" in inversion_type:
-                pass
-
             forward = ifile.data.get("forward_only", None)
 
             work_path = version_path / (
