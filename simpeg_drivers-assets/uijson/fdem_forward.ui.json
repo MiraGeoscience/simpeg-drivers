@@ -30,7 +30,7 @@
         ],
         "label": "Receivers orientation",
         "tooltip": [
-            "Receivers orientation provided as 'Dip direction & dip' data group. If not provided, it assumes: <dl>",
+            "Receivers orientation provided as 'Dip direction & dip' or '3D vector' data group. If not provided, it assumes: <dl>",
             "<dt>In-line component</dt><dd>Positive towards North (Y).</dd>",
             "<dt>Cross-line component</dt><dd>Positive towards East (X).</dd>",
             "<dt>Vertical component</dt><dd>Positive up (Z).</dd>",

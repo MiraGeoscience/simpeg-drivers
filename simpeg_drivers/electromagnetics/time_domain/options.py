@@ -76,9 +76,9 @@ class TDEMForwardOptions(BaseTDEMOptions, BaseForwardOptions):
     """
     Time Domain Electromagnetic forward options.
 
-    :param z_channel_bool: Z-component data channel boolean.
-    :param x_channel_bool: X-component data channel boolean.
-    :param y_channel_bool: Y-component data channel boolean.
+    :param z_channel_bool: Vertical data channel boolean.
+    :param y_channel_bool: In-line data channel boolean.
+    :param x_channel_bool: Cross-line data channel boolean.
     """
 
     name: ClassVar[str] = "Time Domain Electromagnetics Forward"
@@ -105,10 +105,10 @@ class TDEMInversionOptions(BaseTDEMOptions, BaseInversionOptions):
 
     :param z_channel: Z-component data channel.
     :param z_uncertainty: Z-component data channel uncertainty.
-    :param x_channel: X-component data channel.
-    :param x_uncertainty: X-component data channel uncertainty.
-    :param y_channel: Y-component data channel.
-    :param y_uncertainty: Y-component data channel uncertainty.
+    :param y_channel: In-line data channel.
+    :param y_uncertainty: In-line data channel uncertainty.
+    :param x_channel: Cross-line data channel.
+    :param x_uncertainty: Cross-line data channel uncertainty.
     """
 
     name: ClassVar[str] = "Time Domain Electromagnetics Inversion"
@@ -125,8 +125,9 @@ class TDEMInversionOptions(BaseTDEMOptions, BaseInversionOptions):
     receivers_orientation: PropertyGroup | None = None
     z_channel: PropertyGroup | None = None
     z_uncertainty: PropertyGroup | None = None
-    x_channel: PropertyGroup | None = None
-    x_uncertainty: PropertyGroup | None = None
     y_channel: PropertyGroup | None = None
     y_uncertainty: PropertyGroup | None = None
+    x_channel: PropertyGroup | None = None
+    x_uncertainty: PropertyGroup | None = None
+
     models: ConductivityModelOptions
