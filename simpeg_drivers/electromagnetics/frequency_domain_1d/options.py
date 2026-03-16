@@ -49,7 +49,7 @@ class FDEM1DForwardOptions(BaseForwardOptions, BaseFDEMOptions, Base1DOptions):
     models: ConductivityModelOptions
 
 
-class FDEM1DInversionOptions(BaseInversionOptions, BaseFDEMOptions, Base1DOptions):
+class FDEM1DInversionOptions(BaseFDEMOptions, BaseInversionOptions, Base1DOptions):
     """
     Frequency Domain Electromagnetic Inversion options.
 
