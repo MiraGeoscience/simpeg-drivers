@@ -22,7 +22,7 @@ from geoh5py.objects import (
     LargeLoopGroundFEMReceivers,
     MovingLoopGroundFEMReceivers,
 )
-from pydantic import AliasChoices, Field, field_validator
+from pydantic import field_validator
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.options import (
