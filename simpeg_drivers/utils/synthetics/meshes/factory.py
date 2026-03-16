@@ -23,7 +23,7 @@ def get_mesh(
     survey: Points,
     topography: Surface,
     options: MeshOptions,
-    plate: PlateModel,
+    plate: PlateModel | None,
 ) -> DrapeModel | Octree:
     """Factory for mesh creation with behaviour modified by the provided method."""
 
