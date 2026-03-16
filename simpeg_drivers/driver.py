@@ -440,7 +440,7 @@ class InversionDriver(BaseDriver):
     @logger.setter
     def logger(self, value: InversionLogger | None | bool):
         if value is True or value is None:
-            self._logger = InversionLogger("SimPEG.log", self)
+            self._logger = InversionLogger(self)
         elif value is False:
             self._logger = None
         elif isinstance(value, logging.Logger):
@@ -895,44 +895,36 @@ class InversionDriver(BaseDriver):
 class InversionLogger:
     """
     Logger for the inversion process.
+
+    Writes messages to both the terminal and a log file in the same directory as the workspace.
+
+    :param driver: The inversion driver to log for.
     """
 
-    def __init__(self, logfile, driver):
+    def __init__(self, driver):
         self.driver = driver
         self.terminal = sys.stdout
-        self.logfile = self.get_path(logfile)
+
         self.initial_time = time()
+        self.start_date_time = datetime.now().strftime("%Y%m%d_%Hh%Mm%Ss")
+        self.logfile = self.get_path(f"SimPEG_{self.start_date_time}.log")
 
     def start(self):
-        date_time = datetime.now().strftime("%b-%d-%Y:%H:%M:%S")
         self.write(
             f"Running simpeg-drivers {__version__}\n"
-            f"Started {date_time}\n"
+            f"Started {self.start_date_time}\n"
             f"{self.driver.params.title}\n"
         )
 
     def end(self):
-        elapsed_time = timedelta(seconds=time() - self.initial_time).seconds
-        days, hours, minutes, seconds = self.format_seconds(elapsed_time)
-        self.write(
-            f"Total runtime: {days} days, {hours} hours, {minutes} minutes, and {seconds} seconds.\n"
-        )
+        elapsed_time = timedelta(seconds=int(time() - self.initial_time))
+        self.write(f"Total runtime: {elapsed_time}\n")
 
     def write(self, message):
         self.terminal.write(message)
         with open(self.logfile, "a", encoding="utf8") as logfile:
             logfile.write(message)
             logfile.flush()
-
-    @staticmethod
-    def format_seconds(seconds):
-        days = seconds // (24 * 3600)
-        seconds = seconds % (24 * 3600)
-        hours = seconds // 3600
-        seconds = seconds % 3600
-        minutes = seconds // 60
-        seconds = seconds % 60
-        return days, hours, minutes, seconds
 
     def close(self):
         self.terminal.close()
