@@ -22,7 +22,11 @@ frequency_config = [
 
 
 def generate_fdem_survey(
-    geoh5: Workspace, x_grid: np.ndarray, y_grid: np.ndarray, z_grid: np.ndarray, name: str = "survey"
+    geoh5: Workspace,
+    x_grid: np.ndarray,
+    y_grid: np.ndarray,
+    z_grid: np.ndarray,
+    name: str = "survey",
 ) -> AirborneFEMReceivers:
     """Create an FDEM survey object from survey grid locations."""
 
@@ -73,7 +77,6 @@ def generate_fdem_survey(
             }
         }
     )
-
 
     transmitters.remove_cells(mask_large_connections(transmitters, 200.0))
 
