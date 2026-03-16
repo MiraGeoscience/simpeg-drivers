@@ -22,13 +22,15 @@
     "z_imag_channel_bool": {
         "group": "Survey",
         "main": true,
-        "label": "Z imag component",
+        "label": "Vertical (imaginary)",
+        "tooltip": "Vertical (w) imaginary component of the magnetic data.\nPositive up along the z-axis if no receiver orientation provided",
         "value": true
     },
     "z_real_channel_bool": {
         "group": "Survey",
         "main": true,
-        "label": "Z real component",
+        "label": "Vertical (real)",
+        "tooltip": "Vertical (w) real component of the magnetic data.\nPositive up along the z-axis if no receiver orientation provided",
         "value": true
     },
     "u_cell_size": {

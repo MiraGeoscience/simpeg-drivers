@@ -97,12 +97,12 @@ def test_tem_fwr_run(tmp_path: Path, azimuth, dip):
         survey = components.survey
 
         # Create property group with orientation
-        dip = np.ones(survey.n_vertices) * dip
-        azimuth = np.ones(survey.n_vertices) * azimuth
+        dip_values = np.ones(survey.n_vertices) * dip
+        azimuth_values = np.ones(survey.n_vertices) * azimuth
         data_list = survey.add_data(
             {
-                "azimuth": {"values": azimuth},
-                "dip": {"values": dip},
+                "azimuth": {"values": azimuth_values},
+                "dip": {"values": dip_values},
             }
         )
         pg = PropertyGroup(

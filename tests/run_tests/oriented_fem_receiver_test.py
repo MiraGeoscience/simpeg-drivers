@@ -117,7 +117,7 @@ def test_fem_fwr_run(tmp_path: Path, azimuth, dip):
 
         params = FDEMForwardOptions.build(
             geoh5=geoh5,
-            title="Forward: Azimuth {azimuth}, Dip {dip}",
+            title=f"Forward: Azimuth {azimuth}, Dip {dip}",
             mesh=components.mesh,
             topography_object=components.topography,
             data_object=components.survey,
