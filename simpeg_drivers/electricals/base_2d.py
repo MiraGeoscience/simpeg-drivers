@@ -97,6 +97,11 @@ class Base2DOptions(CoreOptions):
                 "Please use the non-batch classes instead. Results may be affected.",
             )
             data["inversion_type"] = data["inversion_type"].replace("pseudo 3d", "2d")
-            data["line_selection"]["line_id"] = None
+            line_selection = data.get("line_selection", None)
+            if line_selection is None:
+                line_selection = LineSelectionOptions().model_dump()
+
+            line_selection["line_id"] = None
+            data["line_selection"] = line_selection
 
         return data

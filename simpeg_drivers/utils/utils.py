@@ -344,7 +344,7 @@ def cell_width_from_centers(centers: np.ndarray) -> np.ndarray:
 
     :param centers: n x 3 array of cell center locations
 
-    :returns: n-1 array of cell widths
+    :returns: Array of cell widths
     """
     x = compute_alongline_distance(centers[:, :2])
     half_dx = np.diff(x) / 2.0
