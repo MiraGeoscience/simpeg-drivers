@@ -504,8 +504,10 @@ class LineSelectionOptions(BaseModel):
     )
     line_id: int | None = None
     line_object: IntegerData | ReferencedData | None = None
+    property: ReferencedData | None = None
+    value: list[int] | None = None
 
-    @field_validator("line_object", mode="before")
+    @field_validator("property", mode="before")
     @classmethod
     def validate_cell_association(cls, value):
         if value and value.association is not DataAssociationEnum.CELL:
@@ -514,8 +516,17 @@ class LineSelectionOptions(BaseModel):
 
     @model_validator(mode="after")
     def line_id_referenced(self):
-        if self.line_id is not None and self.line_id not in self.line_object.values:
-            raise ValueError("Line id isn't referenced in the line object.")
+        if self.line_object is not None:
+            logger.warning(
+                "Running with an older version of DC inversion 2D.\n"
+                "Please update to version 0.5.0 or later to ensure line selection is properly applied.\n"
+                "Results may be affected.",
+            )
+            self.property = self.line_object
+
+            if isinstance(self.line_id, int):
+                self.value = [self.line_id]
+
         return self
 
 

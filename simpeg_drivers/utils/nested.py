@@ -308,16 +308,7 @@ def create_simulation(
         # the local active cells
         else:
             # Map the line_ids to the mesh parts (assumes sequential numbering)
-            line_number = (
-                np.where(
-                    np.isin(
-                        np.unique(simulation.survey.line_ids),
-                        np.unique(local_survey.line_ids),
-                    )
-                )[0]
-                + 1
-            )
-
+            line_number = np.unique(local_survey.line_ids)
             active_mesh_part = np.isin(simulation.mesh.parts, line_number)
             n_actives = simulation.active_cells.sum()
             activate_ind = np.zeros(simulation.mesh.n_cells, dtype=int)

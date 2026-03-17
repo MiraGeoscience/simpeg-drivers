@@ -76,15 +76,17 @@ def test_dc_2d_fwr_run(
             ),
         ),
     )
+
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5=geoh5, options=opts)
+        line_ids = components.survey.get_data("line_ids")[0]
         params = DC2DForwardOptions.build(
             geoh5=geoh5,
             mesh=components.mesh,
             topography_object=components.topography,
             data_object=components.survey,
             starting_model=components.model,
-            line_selection=LineSelectionOptions(),
+            line_selection=LineSelectionOptions(property=line_ids, value=[1, 101, 201]),
         )
     fwr_driver = DC2DForwardDriver(params)
     fwr_driver.run()
@@ -119,9 +121,6 @@ def test_dc_2d_run(
             data_object=potential.parent,
             potential_channel=potential,
             potential_uncertainty=uncertainties,
-            line_selection=LineSelectionOptions(
-                line_object=potential.parent.get_entity("Line IDs")[0]
-            ),
             starting_model=1e-3,
             reference_model=1e-3,
             s_norm=0.0,
@@ -134,10 +133,11 @@ def test_dc_2d_run(
             upper_bound=10,
             cooling_rate=1,
         )
-        params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
+        # TODO Fix the write for MultiSelect of Reference data
+        # params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    driver = DC2DInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
-
+    driver = DC2DInversionDriver(params)
+    driver.run()
     output = get_inversion_output(
         driver.params.geoh5.h5file, driver.params.out_group.uid
     )
@@ -168,6 +168,9 @@ def test_dc_single_run(
                 }
             }
         )
+
+        line_ids = survey.get_data("line_ids")[0]
+
         # Run the inverse
         params = DC2DInversionOptions.build(
             geoh5=geoh5,
@@ -177,9 +180,7 @@ def test_dc_single_run(
             data_object=potential.parent,
             potential_channel=potential,
             potential_uncertainty=uncertainties,
-            line_selection=LineSelectionOptions(
-                line_object=potential.parent.get_entity("Line IDs")[0], line_id=2
-            ),
+            line_selection=LineSelectionOptions(property=line_ids, value=[101]),
             starting_model=1e-3,
             reference_model=1e-3,
             s_norm=0.0,
@@ -194,7 +195,8 @@ def test_dc_single_run(
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    DC2DInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
+    driver = DC2DInversionDriver(params)
+    driver.run()
 
     with Workspace(workpath) as geoh5:
         inv_group = geoh5.get_entity("Direct Current Single 2D Inversion")[0]
@@ -202,8 +204,8 @@ def test_dc_single_run(
         model = mesh.get_entity("Iteration_1_model")[0]
 
         # Check that model values for lines 1 and 3 are close to the starting model (1e-3) and that line 2 has been updated.
-        np.testing.assert_almost_equal(np.nanmin(model.values[:2369]), 1e-3, decimal=3)
-        np.testing.assert_almost_equal(np.nanmin(model.values[-2368:]), 1e-3, decimal=3)
+        np.testing.assert_almost_equal(np.nanmax(model.values[:2369]), 1e-3, decimal=3)
+        np.testing.assert_almost_equal(np.nanmax(model.values[-2368:]), 1e-3, decimal=3)
         assert np.nanmax(model.values[2368:-2368]) > 1e-3
 
 

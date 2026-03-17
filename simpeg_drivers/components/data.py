@@ -90,23 +90,10 @@ class InversionData(InversionLocations):
     def _initialize(self) -> None:
         """Extract data from the workspace using params data."""
         self.components = self.params.active_components
-
         self.has_tensor = InversionData.check_tensor(self.params.components)
         self.locations = super().get_locations(self.params.data_object)
-
-        if (
-            "2d" in self.params.inversion_type
-            and self.params.line_selection.line_id is not None
-        ):
-            self.mask = (
-                self.params.line_selection.line_object.values
-                == self.params.line_selection.line_id
-            )
-        else:
-            self.mask = np.ones(len(self.locations), dtype=bool)
-
+        self.mask = np.ones(len(self.locations), dtype=bool)
         self.normalizations: dict[str, Any] = self.get_normalizations()
-
         self.entity = self.write_entity()
 
         self.save_data()
@@ -256,6 +243,15 @@ class InversionData(InversionLocations):
         self._observed_data_types = data_types
         self.update_params(data_dict, uncert_dict)
 
+        if (
+            getattr(self.params, "line_selection", None) is not None
+            and self.params.line_selection.property is not None
+        ):
+            self.params.line_selection.property.copy(
+                parent=self.entity,
+                values=self.params.line_selection.property.values[self.mask],
+            )
+
     def normalize(
         self, data: dict[str, np.ndarray], absolute=False
     ) -> dict[str, np.ndarray]:
@@ -358,9 +354,8 @@ class InversionData(InversionLocations):
             survey.cells = self.entity.cells
 
         if "2d" in self.params.inversion_type:
-            survey.line_ids = self.params.line_selection.line_object.values[
-                survey_factory.sorting
-            ]
+            # Assign line id with sequential numbering to mirror the drape mesh parts
+            survey.line_ids = self.params.line_parts[survey_factory.sorting]
 
         return survey
 
@@ -394,18 +389,6 @@ class InversionData(InversionLocations):
 
             setattr(self.params, f"{comp}_channel", data_dict[comp])
             setattr(self.params, f"{comp}_uncertainty", uncert_dict[comp])
-
-        if getattr(self.params, "line_selection", None) is not None:
-            if self.params.line_selection.line_object is None:
-                parts = get_parts_from_electrodes(self.entity)
-                line_ids = self.entity.add_data({"Line IDs": {"values": parts + 1}})
-            else:
-                line_ids = self.params.line_selection.line_object.copy(
-                    parent=self.entity,
-                    values=self.params.line_selection.line_object.values[self.mask],
-                )
-
-            self.params.line_selection.line_object = line_ids
 
     @property
     def survey(self):

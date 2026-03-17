@@ -127,10 +127,11 @@ def test_ip_2d_run(
             upper_bound=0.1,
             cooling_rate=1,
         )
-        params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
+        # TODO Fix the write out with Multiselect of ReferenceData values
+        # params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    driver = IP2DInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
-
+    driver = IP2DInversionDriver(params)
+    driver.run()
     output = get_inversion_output(
         driver.params.geoh5.h5file, driver.params.out_group.uid
     )

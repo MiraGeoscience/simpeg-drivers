@@ -306,7 +306,7 @@ def drape_2_tensor(drape_model: DrapeModel, return_sorting: bool = False) -> tup
 
     # Skip indices for ghost points
     count = -1
-    part = 1
+    part = 0
     parts = []
     cell_widths = []
     section = []
@@ -406,7 +406,9 @@ def get_drape_model(
     min_locs = locations.min(axis=0)
     max_locs = locations.max(axis=0)
     xyz_smooth -= xyz_smooth.min(axis=0)[None, :]
-    xyz_smooth *= ((max_locs - min_locs) / xyz_smooth.max(axis=0))[None, :]
+    xyz_smooth *= ((max_locs - min_locs) / np.maximum(xyz_smooth.max(axis=0), 1e-3))[
+        None, :
+    ]
     xyz_smooth += min_locs[None, :]
 
     distances = compute_alongline_distance(xyz_smooth)
