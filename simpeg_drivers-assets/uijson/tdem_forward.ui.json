@@ -20,6 +20,28 @@
         ],
         "value": ""
     },
+    "receivers_orientation": {
+        "group": "Survey",
+        "main": true,
+        "association": "Vertex",
+        "dataType": "Float",
+        "dataGroupType": [
+            "Dip direction & dip",
+            "3D vector"
+        ],
+        "label": "Receivers orientation",
+        "tooltip": [
+            "Receivers orientation provided as 'Dip direction & dip' or '3D vector' data group. If not provided, it assumes: <dl>",
+            "<dt>In-line component</dt><dd>Positive towards North (Y).</dd>",
+            "<dt>Cross-line component</dt><dd>Positive towards East (X).</dd>",
+            "<dt>Vertical component</dt><dd>Positive up (Z).</dd>",
+            "</dl>"
+        ],
+        "optional": true,
+        "enabled": false,
+        "parent": "data_object",
+        "value": ""
+    },
     "data_units": {
         "choiceList": [
             "Airborne dB/dt (V/Am^4)",

@@ -9,6 +9,7 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 from discretize import TensorMesh, TreeMesh
+from geoapps_utils.modelling.plates import PlateModel
 from geoh5py.objects import CellObject, DrapeModel, Octree, Points, Surface
 
 from simpeg_drivers.utils.synthetics.options import MeshOptions
@@ -22,6 +23,7 @@ def get_mesh(
     survey: Points,
     topography: Surface,
     options: MeshOptions,
+    plate: PlateModel | None,
 ) -> DrapeModel | Octree:
     """Factory for mesh creation with behaviour modified by the provided method."""
 
@@ -40,5 +42,6 @@ def get_mesh(
         cell_size=options.cell_size,
         refinement=options.refinement,
         padding_distance=options.padding_distance,
+        plate=plate,
         name=options.name,
     )
