@@ -396,21 +396,22 @@ def get_drape_model(
     order = traveling_salesman(locations)
 
     # Smooth the locations
-    xy_smooth = np.vstack(
-        [
-            np.c_[locations[order[0], :]].T,
-            np.c_[
-                running_mean(locations[order, 0], 2),
-                running_mean(locations[order, 1], 2),
-                running_mean(locations[order, 2], 2),
-            ],
-            np.c_[locations[order[-1], :]].T,
-        ]
-    )
+    xyz_smooth = np.c_[
+        running_mean(locations[order, 0], 2),
+        running_mean(locations[order, 1], 2),
+        running_mean(locations[order, 2], 2),
+    ]
 
-    distances = compute_alongline_distance(xy_smooth)
-    x_interp = interp1d(distances[:, 0], xy_smooth[:, 0], fill_value="extrapolate")
-    y_interp = interp1d(distances[:, 0], xy_smooth[:, 1], fill_value="extrapolate")
+    # Rescale extent
+    min_locs = locations.min(axis=0)
+    max_locs = locations.max(axis=0)
+    xyz_smooth -= xyz_smooth.min(axis=0)[None, :]
+    xyz_smooth *= ((max_locs - min_locs) / xyz_smooth.max(axis=0))[None, :]
+    xyz_smooth += min_locs[None, :]
+
+    distances = compute_alongline_distance(xyz_smooth)
+    x_interp = interp1d(distances[:, 0], xyz_smooth[:, 0], fill_value="extrapolate")
+    y_interp = interp1d(distances[:, 0], xyz_smooth[:, 1], fill_value="extrapolate")
     mesh = mesh_utils.mesh_builder_xyz(
         distances,
         h,
