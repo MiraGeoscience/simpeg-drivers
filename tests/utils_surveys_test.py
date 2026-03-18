@@ -128,7 +128,7 @@ def test_drape_from_line_id(tmp_path):
     with Workspace.create(tmp_path / f"{__name__}.geoh5") as ws:
         survey = get_dc_survey(ws)
         drape = create_mesh_by_line_id(
-            ws, survey.ab_cell_id, DrapeModelOptions(), name="test_drape"
+            ws, survey, survey.ab_cell_id.values, DrapeModelOptions(), name="test_drape"
         )
 
     assert drape.name == "test_drape"
