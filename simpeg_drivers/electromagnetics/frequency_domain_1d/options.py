@@ -15,17 +15,20 @@ from pathlib import Path
 from typing import ClassVar
 
 from geoh5py.groups import PropertyGroup
+from geoh5py.objects import AirborneFEMReceivers
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.electromagnetics.base_1d_options import Base1DOptions
-from simpeg_drivers.electromagnetics.frequency_domain.options import (
-    FDEMForwardOptions,
-    FDEMInversionOptions,
+from simpeg_drivers.electromagnetics.frequency_domain.options import BaseFDEMOptions
+from simpeg_drivers.options import (
+    BaseForwardOptions,
+    BaseInversionOptions,
+    ConductivityModelOptions,
+    DirectiveOptions,
 )
-from simpeg_drivers.options import DirectiveOptions
 
 
-class FDEM1DForwardOptions(FDEMForwardOptions, Base1DOptions):
+class FDEM1DForwardOptions(BaseForwardOptions, BaseFDEMOptions, Base1DOptions):
     """
     Frequency Domain Electromagnetic forward options.
 
@@ -38,13 +41,15 @@ class FDEM1DForwardOptions(FDEMForwardOptions, Base1DOptions):
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/fdem1d_forward.ui.json"
 
     title: str = "Frequency-domain EM-1D (FEM-1D) Forward"
+    physical_property: str = "conductivity"
     inversion_type: str = "fdem 1d"
-
+    data_object: AirborneFEMReceivers
     z_real_channel_bool: bool
     z_imag_channel_bool: bool
+    models: ConductivityModelOptions
 
 
-class FDEM1DInversionOptions(FDEMInversionOptions, Base1DOptions):
+class FDEM1DInversionOptions(BaseFDEMOptions, BaseInversionOptions, Base1DOptions):
     """
     Frequency Domain Electromagnetic Inversion options.
 
@@ -58,8 +63,10 @@ class FDEM1DInversionOptions(FDEMInversionOptions, Base1DOptions):
     name: ClassVar[str] = "Frequency Domain 1D Electromagnetics Inversion"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/fdem1d_inversion.ui.json"
     title: str = "Frequency-domain EM-1D (FEM-1D) Inversion"
+    physical_property: str = "conductivity"
     inversion_type: str = "fdem 1d"
 
+    data_object: AirborneFEMReceivers
     directives: DirectiveOptions = DirectiveOptions(
         sens_wts_threshold=100.0,
     )
@@ -67,3 +74,5 @@ class FDEM1DInversionOptions(FDEMInversionOptions, Base1DOptions):
     z_real_uncertainty: PropertyGroup | None = None
     z_imag_channel: PropertyGroup | None = None
     z_imag_uncertainty: PropertyGroup | None = None
+    models: ConductivityModelOptions
+    directives: DirectiveOptions = DirectiveOptions()

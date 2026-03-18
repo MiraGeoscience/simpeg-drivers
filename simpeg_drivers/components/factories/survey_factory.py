@@ -13,7 +13,6 @@
 
 from __future__ import annotations
 
-from gc import is_finalized
 from typing import TYPE_CHECKING
 
 
@@ -46,8 +45,6 @@ class SurveyFactory(SimPEGFactory):
         """
         super().__init__(params)
         self.simpeg_object = self.concrete_object()
-        self.local_index = None
-        self.survey = None
         self.ordering = None
         self.sorting = None
 
@@ -187,7 +184,7 @@ class SurveyFactory(SimPEGFactory):
             sorting.append(receiver_indices)
             receivers = ReceiversFactory(self.params).build(
                 locations=receiver_locations,
-                local_index=receiver_entity.cells[receiver_indices],
+                local_indices=receiver_entity.cells[receiver_indices],
             )
 
             if receivers.nD == 0:
@@ -292,9 +289,7 @@ class SurveyFactory(SimPEGFactory):
 
             for comp_id, component in enumerate(data.components):
                 rx_obj = rx_factory.build(
-                    locations=locs,
-                    data=data,
-                    component=component,
+                    locations=locs, data=data, component=component, local_indices=rx_ids
                 )
                 rx_list.append(rx_obj)
                 n_times = len(receivers.channels)
@@ -334,9 +329,7 @@ class SurveyFactory(SimPEGFactory):
             receivers = []
             for comp_id, component in enumerate(data.components):
                 receiver = rx_factory.build(
-                    locations=locs,
-                    data=data,
-                    component=component,
+                    locations=locs, data=data, component=component, local_indices=rx_id
                 )
                 block_ordering.append([comp_id, rx_id])
                 receivers.append(receiver)

@@ -85,9 +85,14 @@ class FDEMForwardOptions(BaseForwardOptions, BaseFDEMOptions):
     """
     Frequency Domain Electromagnetic Forward options.
 
-    :param z_real_channel_bool: Real impedance channel boolean.
-    :param z_imag_channel_bool: Imaginary impedance channel boolean.
-    :param model_type: Specify whether the models are provided in resistivity or conductivity.
+    :param receivers_orientation: Orientation of the receivers provided as a group.
+    :param z_real_channel_bool: Vertical (real) component of impedance channel boolean.
+    :param z_imag_channel_bool: Vertical (imaginary) component of impedance channel boolean.
+    :param y_real_channel_bool: In-line (real) component of impedance channel boolean.
+    :param y_imag_channel_bool: In-line (imaginary) component of impedance channel boolean.
+    :param x_real_channel_bool: Cross-line (real) component of impedance channel boolean.
+    :param x_imag_channel_bool: Cross-line (imaginary) component of impedance channel
+    :param models: Specify whether the models are provided in resistivity or conductivity.
     """
 
     name: ClassVar[str] = "Frequency Domain Electromagnetics Forward"
@@ -101,8 +106,13 @@ class FDEMForwardOptions(BaseForwardOptions, BaseFDEMOptions):
         | LargeLoopGroundFEMReceivers
         | AirborneFEMReceivers
     )
-    z_real_channel_bool: bool
-    z_imag_channel_bool: bool
+    receivers_orientation: PropertyGroup | None = None
+    z_real_channel_bool: bool = False
+    z_imag_channel_bool: bool = False
+    y_real_channel_bool: bool = False
+    y_imag_channel_bool: bool = False
+    x_real_channel_bool: bool = False
+    x_imag_channel_bool: bool = False
     models: ConductivityModelOptions
 
 
@@ -110,11 +120,19 @@ class FDEMInversionOptions(BaseFDEMOptions, BaseInversionOptions):
     """
     Frequency Domain Electromagnetic Inversion options.
 
-    :param z_real_channel: Real impedance channel.
-    :param z_real_uncertainty: Real impedance uncertainty channel.
-    :param z_imag_channel: Imaginary impedance channel.
-    :param z_imag_uncertainty: Imaginary impedance uncertainty channel.
-    :param model_type: Specify whether the models are provided in resistivity or conductivity.
+    :param z_real_channel: Vertical (real) impedance channel.
+    :param z_real_uncertainty: Vertical (real) impedance uncertainty channel.
+    :param z_imag_channel: Vertical (imaginary) impedance channel.
+    :param z_imag_uncertainty: Vertical (imaginary) impedance uncertainty channel.
+    :param y_real_channel: In-line (real) impedance channel.
+    :param y_real_uncertainty: In-line (real) impedance uncertainty channel.
+    :param y_imag_channel: In-line (imaginary) impedance channel.
+    :param y_imag_uncertainty: In-line (imaginary) impedance uncertainty channel
+    :param x_real_channel: Cross-line (real) impedance channel.
+    :param x_real_uncertainty: Cross-line (real) impedance uncertainty channel.
+    :param x_imag_channel: Cross-line (imaginary) impedance channel.
+    :param x_imag_uncertainty: Cross-line (imaginary) impedance uncertainty channel
+    :param models: Specify whether the models are provided in resistivity or conductivity.
     """
 
     name: ClassVar[str] = "Frequency Domain Electromagnetics Inversion"
@@ -128,10 +146,19 @@ class FDEMInversionOptions(BaseFDEMOptions, BaseInversionOptions):
         | LargeLoopGroundFEMReceivers
         | AirborneFEMReceivers
     )
+    receivers_orientation: PropertyGroup | None = None
     z_real_channel: PropertyGroup | None = None
     z_real_uncertainty: PropertyGroup | None = None
     z_imag_channel: PropertyGroup | None = None
     z_imag_uncertainty: PropertyGroup | None = None
+    y_real_channel: PropertyGroup | None = None
+    y_real_uncertainty: PropertyGroup | None = None
+    y_imag_channel: PropertyGroup | None = None
+    y_imag_uncertainty: PropertyGroup | None = None
+    x_real_channel: PropertyGroup | None = None
+    x_real_uncertainty: PropertyGroup | None = None
+    x_imag_channel: PropertyGroup | None = None
+    x_imag_uncertainty: PropertyGroup | None = None
 
     models: ConductivityModelOptions
 

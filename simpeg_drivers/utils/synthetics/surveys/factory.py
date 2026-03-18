@@ -11,6 +11,7 @@
 from collections.abc import Callable
 
 import numpy as np
+from geoapps_utils.utils.transformations import rotate_xyz
 from geoh5py import Workspace
 from geoh5py.objects import ObjectBase, Points
 
@@ -30,22 +31,28 @@ def grid_layout(
     n_stations: int,
     n_lines: int,
     topography: Callable,
-):
+    center: tuple[float, float] = (0.0, 0.0),
+    rotation: float = 0.0,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Generates grid locations based on limits and spacing.
-
-    :param limits: Tuple of (xmin, xmax, ymin, ymax).
-    :param n_stations: Number of stations along each line.
-    :param n_lines: Number of lines in the grid.
-    :param topography: Callable that generates the topography (z values).
     """
 
     x = np.linspace(limits[0], limits[1], n_stations)
     y = np.linspace(limits[2], limits[3], n_lines)
-    X, Y = np.meshgrid(x, y)
-    Z = topography(X, Y)
+    grid_x, grid_y = np.meshgrid(x, y)
 
-    return X, Y, Z
+    xy_locs = rotate_xyz(
+        np.c_[grid_x.flatten(), grid_y.flatten()], list(center), rotation
+    )
+
+    z = topography(xy_locs[:, 0], xy_locs[:, 1])
+
+    return (
+        xy_locs[:, 0].reshape(grid_x.shape),
+        xy_locs[:, 1].reshape(grid_y.shape),
+        z.reshape(grid_x.shape),
+    )
 
 
 def get_survey(
@@ -61,37 +68,49 @@ def get_survey(
     :param options: Survey options.
     """
 
-    X, Y, Z = grid_layout(
+    grid_x, grid_y, grid_z = grid_layout(
         limits=options.limits,
         n_stations=options.n_stations,
         n_lines=options.n_lines,
         topography=options.topography,
+        center=options.center,
+        rotation=options.rotation,
     )
-    Z += options.drape
+    grid_z += options.drape
 
     if "current" in method or "polarization" in method:
-        return generate_dc_survey(geoh5, X, Y, Z, name=options.name)
+        return generate_dc_survey(geoh5, grid_x, grid_y, grid_z, name=options.name)
 
     if "magnetotellurics" in method:
-        return generate_magnetotellurics_survey(geoh5, X, Y, Z, name=options.name)
+        return generate_magnetotellurics_survey(
+            geoh5, grid_x, grid_y, grid_z, name=options.name
+        )
 
     if "tipper" in method:
-        return generate_tipper_survey(geoh5, X, Y, Z, name=options.name)
+        return generate_tipper_survey(geoh5, grid_x, grid_y, grid_z, name=options.name)
 
     if "apparent conductivity" in method:
-        return generate_apparent_conductivity_survey(geoh5, X, Y, Z, name=options.name)
+        return generate_apparent_conductivity_survey(
+            geoh5, grid_x, grid_y, grid_z, name=options.name
+        )
 
     if method in ["fdem", "fem", "fdem 1d"]:
-        return generate_fdem_survey(geoh5, X, Y, Z, name=options.name)
+        return generate_fdem_survey(geoh5, grid_x, grid_y, grid_z, name=options.name)
 
     if "tdem" in method:
         if "airborne" in method:
-            return generate_airborne_tdem_survey(geoh5, X, Y, Z, name=options.name)
+            return generate_airborne_tdem_survey(
+                geoh5, grid_x, grid_y, grid_z, name=options.name
+            )
         else:
-            return generate_tdem_survey(geoh5, X, Y, Z, name=options.name)
+            return generate_tdem_survey(
+                geoh5, grid_x, grid_y, grid_z, name=options.name
+            )
 
     return Points.create(
         geoh5,
-        vertices=np.column_stack([X.flatten(), Y.flatten(), Z.flatten()]),
+        vertices=np.column_stack(
+            [grid_x.flatten(), grid_y.flatten(), grid_z.flatten()]
+        ),
         name=options.name,
     )
