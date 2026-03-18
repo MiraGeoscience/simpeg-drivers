@@ -107,11 +107,18 @@ def test_ip_2d_run(
                 }
             }
         )
-        # Run the inverse
+        # Run the inverse without a mesh
         params = IP2DInversionOptions.build(
             geoh5=geoh5,
-            mesh=components.mesh,
             topography_object=components.topography,
+            drape_model=DrapeModelOptions(
+                u_cell_size=5.0,
+                v_cell_size=5.0,
+                depth_core=50.0,
+                expansion_factor=1.1,
+                vertical_padding=200.0,
+                horizontal_padding=200.0,
+            ),
             data_object=chargeability.parent,
             chargeability_channel=chargeability,
             chargeability_uncertainty=uncertainties,

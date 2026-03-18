@@ -177,7 +177,8 @@ def compute_dc_projections(locations, cells, simulation):
 
 def create_mesh_by_line_id(
     workspace: Workspace,
-    line_ids: IntegerData,
+    survey: PotentialElectrode,
+    line_ids: np.ndarray,
     drape_options: DrapeModelOptions,
     **object_kwargs,
 ) -> DrapeModel:
@@ -185,7 +186,8 @@ def create_mesh_by_line_id(
     Create a drape mesh for the dc resistivity survey lines.
 
     :param workspace: Workspace to create the drape mesh in.
-    :param line_ids: IntegerData object containing the line IDs for each vertex.
+    :param survey: PotentialElectrode survey object.
+    :param line_ids: Array containing the line IDs for each vertex.
     :param drape_options: DrapeModelOptions containing the parameters for the drape mesh
     :param object_kwargs: Additional keyword arguments to pass to the DrapeModelMerger.create_object method.
 
@@ -194,10 +196,10 @@ def create_mesh_by_line_id(
     drape_models = []
     temp_work = Workspace()
 
-    relief = get_max_line_relief(line_ids, drape_options.v_cell_size)
+    relief = get_max_line_relief(survey, line_ids, drape_options.v_cell_size)
 
-    for line_id in np.unique(line_ids.values):
-        poles = get_poles_by_line_id(line_ids, line_id)
+    for line_id in np.unique(line_ids):
+        poles = get_poles_by_line_id(survey, line_ids, line_id)
         poles = np.unique(poles, axis=0)
         poles = normalize_vertically(poles, relief)
 
@@ -220,34 +222,47 @@ def create_mesh_by_line_id(
     return entity
 
 
-def get_max_line_relief(line_ids: IntegerData, z_cell_size: float) -> float:
+def get_max_line_relief(
+    survey: PotentialElectrode, line_ids: np.ndarray, z_cell_size: float
+) -> float:
     """
     Get the maximum relief across all survey lines, rounded to the nearest cell thickness.
 
-    :param line_ids: IntegerData object containing the line IDs for each vertex.
+    :param survey: PotentialElectrode survey object.
+    :param line_ids: Array containing the line IDs for each vertex.
     :param z_cell_size: Cell size in the vertical direction for the drape mesh.
     """
     max_relief = 0
-    for line_id in np.unique(line_ids.values):
-        poles = get_poles_by_line_id(line_ids, line_id)
+    for line_id in np.unique(line_ids):
+        poles = get_poles_by_line_id(survey, line_ids, line_id)
         max_relief = np.maximum(poles[:, 2].max() - poles[:, 2].min(), max_relief)
 
     return (max_relief // z_cell_size + 2) * z_cell_size
 
 
-def get_poles_by_line_id(line_ids: IntegerData, uid: int) -> np.ndarray:
-    """Get the vertices associated with a given line ID."""
-    mn_mask = line_ids.values == uid
+def get_poles_by_line_id(
+    survey: PotentialElectrode, line_ids: np.ndarray, uid: int
+) -> np.ndarray:
+    """
+    Get the vertices associated with a given line ID.
 
-    unique_tx = np.unique(line_ids.parent.ab_cell_id.values[mn_mask])
+    :param survey: PotentialElectrode survey object.
+    :param line_ids: Array containing the line IDs for each vertex.
+    :param uid: Unique ID for the survey line.
 
-    ab_mask = np.isin(line_ids.parent.complement.ab_cell_id.values, unique_tx)
+    :return: Array containing the receiver and transmitter pole locations associated with a given line ID.
+    """
+    mn_mask = line_ids == uid
+
+    unique_tx = np.unique(survey.ab_cell_id.values[mn_mask])
+
+    ab_mask = np.isin(survey.complement.ab_cell_id.values, unique_tx)
 
     return np.vstack(
         [
-            line_ids.parent.vertices[line_ids.parent.cells[mn_mask].flatten()],
-            line_ids.parent.current_electrodes.vertices[
-                line_ids.parent.current_electrodes.cells[ab_mask].flatten()
+            survey.vertices[survey.cells[mn_mask].flatten()],
+            survey.current_electrodes.vertices[
+                survey.current_electrodes.cells[ab_mask].flatten()
             ],
         ]
     )

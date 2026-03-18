@@ -33,7 +33,8 @@ def get_mesh(
 
         return create_mesh_by_line_id(
             survey.workspace,
-            line_data,
+            survey,
+            line_data.values,
             options,
             name="mesh",
         )

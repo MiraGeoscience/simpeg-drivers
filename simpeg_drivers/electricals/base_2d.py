@@ -142,7 +142,8 @@ class Base2DDriver(InversionDriver):
                 if self.params.mesh is None:
                     entity = create_mesh_by_line_id(
                         self.workspace,
-                        self.params.line_ids,
+                        self.params.data_object,
+                        self.params.line_parts,
                         self.params.drape_model,
                         parent=self.out_group,
                     )
