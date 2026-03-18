@@ -80,8 +80,12 @@ class SyntheticsComponents:
                     survey=self.survey,
                     topography=self.topography,
                     options=self.options.mesh,
+                    plate=self.options.model.plate
+                    if self.options.refine_plate
+                    else None,
                 )
             self._mesh = entity
+
         return self._mesh
 
     @property

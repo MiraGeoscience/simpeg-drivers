@@ -24,6 +24,7 @@ class SurveyOptions(BaseModel):
     drape: float = 0.0
     n_stations: int = 20
     n_lines: int = 5
+    rotation: float = 0.0
     topography: Callable = lambda x, y: gaussian(x, y, amplitude=50.0, width=100.0)
     name: str = "survey"
 
@@ -68,6 +69,7 @@ class SyntheticsComponentsOptions(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     method: str = "gravity"
+    refine_plate: bool = False
     survey: SurveyOptions = SurveyOptions()
     mesh: MeshOptions | DrapeModelOptions = MeshOptions()
     model: ModelOptions = ModelOptions()
