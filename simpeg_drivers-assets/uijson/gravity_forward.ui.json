@@ -8,7 +8,6 @@
     "geoh5": "",
     "monitoring_directory": "",
     "inversion_type": "gravity",
-    "forward_only": true,
     "physical_property": "density",
     "data_object": {
         "main": true,

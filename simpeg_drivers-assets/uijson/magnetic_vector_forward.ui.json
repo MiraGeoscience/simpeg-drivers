@@ -9,7 +9,6 @@
     "monitoring_directory": "",
     "inversion_type": "magnetic vector",
     "physical_property": "susceptibility",
-    "forward_only": true,
     "inducing_field_declination": {
         "min": -180.0,
         "max": 180.0,

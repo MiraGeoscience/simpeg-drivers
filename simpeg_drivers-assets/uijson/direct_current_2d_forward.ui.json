@@ -8,7 +8,6 @@
     "geoh5": "",
     "monitoring_directory": "",
     "inversion_type": "direct current 2d",
-    "forward_only": true,
     "physical_property": "conductivity",
     "data_object": {
         "main": true,

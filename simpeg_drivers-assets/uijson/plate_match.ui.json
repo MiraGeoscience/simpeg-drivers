@@ -8,7 +8,6 @@
     "geoh5": "",
     "monitoring_directory": "",
     "inversion_type": "plate match",
-    "forward_only": true,
     "survey": {
         "main": true,
         "label": "Survey",

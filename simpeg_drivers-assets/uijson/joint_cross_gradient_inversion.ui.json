@@ -9,7 +9,6 @@
     "monitoring_directory": "",
     "inversion_type": "joint cross gradient",
     "physical_property": "",
-    "forward_only": false,
     "group_a": {
         "main": true,
         "group": "Joint",

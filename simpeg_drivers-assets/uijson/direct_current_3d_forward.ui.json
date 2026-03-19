@@ -9,7 +9,6 @@
     "monitoring_directory": "",
     "inversion_type": "direct current 3d",
     "physical_property": "conductivity",
-    "forward_only": true,
     "data_object": {
         "main": true,
         "group": "Survey",

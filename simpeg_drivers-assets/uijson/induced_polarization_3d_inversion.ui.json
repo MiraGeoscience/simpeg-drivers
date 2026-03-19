@@ -9,7 +9,6 @@
     "monitoring_directory": "",
     "inversion_type": "induced polarization 3d",
     "physical_property": "chargeability",
-    "forward_only": false,
     "data_object": {
         "main": true,
         "group": "Data",

@@ -9,7 +9,6 @@
     "monitoring_directory": "",
     "inversion_type": "tipper",
     "physical_property": "conductivity",
-    "forward_only": false,
     "data_object": {
         "main": true,
         "group": "Data",
