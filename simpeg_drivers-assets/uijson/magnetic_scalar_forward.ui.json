@@ -7,8 +7,6 @@
     "run_command": "simpeg_drivers.driver",
     "geoh5": "",
     "monitoring_directory": "",
-    "inversion_type": "magnetic scalar",
-    "physical_property": "susceptibility",
     "inducing_field_declination": {
         "min": -180.0,
         "max": 180.0,

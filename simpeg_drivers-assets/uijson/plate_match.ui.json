@@ -7,7 +7,6 @@
     "run_command": "simpeg_drivers.plate_simulation.match.driver",
     "geoh5": "",
     "monitoring_directory": "",
-    "inversion_type": "plate match",
     "survey": {
         "main": true,
         "label": "Survey",

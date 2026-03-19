@@ -7,7 +7,6 @@
     "run_command": "simpeg_drivers.driver",
     "geoh5": "",
     "monitoring_directory": "",
-    "inversion_type": "plate sweep",
     "template": {
         "main": true,
         "group": "Base",
