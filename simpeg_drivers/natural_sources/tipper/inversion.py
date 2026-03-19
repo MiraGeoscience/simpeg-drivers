@@ -11,18 +11,20 @@
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
 from simpeg_drivers.driver import InversionDriver
 
-from .options import TipperForwardOptions, TipperInversionOptions
-
-
-class TipperForwardDriver(InversionDriver):
-    """Tipper forward driver."""
-
-    _params_class = TipperForwardOptions
+from .options import TipperInversionOptions
 
 
 class TipperInversionDriver(InversionDriver):
     """Tipper inversion driver."""
 
     _params_class = TipperInversionOptions
+
+
+if __name__ == "__main__":
+    file = Path(sys.argv[1]).resolve()
+    TipperInversionDriver.start_dask_run(file)

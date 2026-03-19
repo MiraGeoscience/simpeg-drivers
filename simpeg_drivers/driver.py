@@ -490,16 +490,20 @@ class BaseDriver(Driver, ABC):
                     directive.write(1)
 
     @classmethod
-    def start_dask_run(cls, json_path: Path):
+    def start_dask_run(
+        cls, json_path: Path, n_workers: int | None = None, n_threads: int | None = None
+    ):
         """
         Sets Dask config settings.
 
         :param json_path: Path to input file (.ui.json) for the application.
+        :param n_workers: Number of workers to use.
+        :param n_threads: Number of threads to use.
         """
         ui_json = load_ui_json_as_dict(json_path)
 
-        n_workers = (ui_json.get("n_workers", None),)
-        n_threads = (ui_json.get("n_threads", None),)
+        n_workers = (ui_json.get("n_workers", n_workers),)
+        n_threads = (ui_json.get("n_threads", n_threads),)
         save_report = (ui_json.get("performance_report", False),)
 
         distributed_process = (
@@ -927,7 +931,7 @@ def validate_workers(client, workers: list[tuple[str]] | None) -> list[tuple[str
 if __name__ == "__main__":
     file = Path(sys.argv[1]).resolve()
 
-    # TODO - Deprecate in favour of run_command to direct module
+    # TODO - Deprecate in favor of run_command to direct module
     # Need to know the driver class before starting dask
     input_file = load_ui_json_as_dict(file)
     driver_class = from_input_file(input_file)

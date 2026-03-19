@@ -332,9 +332,13 @@ class PlateMatchDriver(BaseDriver):
         json_path: Path,
         n_workers: int | None = None,
         n_threads: int | None = None,
-        save_report: bool = True,
     ):
         """Overload configurations of BaseDriver Dask config settings."""
+        ui_json = load_ui_json_as_dict(json_path)
+
+        n_workers = (ui_json.get("n_workers", None),)
+        n_threads = (ui_json.get("n_threads", None),)
+
         if n_workers is None:
             cpu_count = multiprocessing.cpu_count()
 
@@ -345,9 +349,7 @@ class PlateMatchDriver(BaseDriver):
 
             n_workers = cpu_count // n_threads
 
-        super().start_dask_run(
-            json_path, n_workers=n_workers, n_threads=n_threads, save_report=save_report
-        )
+        super().start_dask_run(json_path, n_workers=n_workers, n_threads=n_threads)
 
     def run_scores(self, spatial_projection, data) -> tuple[np.ndarray, np.ndarray]:
         """
@@ -514,10 +516,4 @@ def batch_files_score(
 
 if __name__ == "__main__":
     file = Path(sys.argv[1]).resolve()
-    input_file = load_ui_json_as_dict(file)
-    PlateMatchDriver.start_dask_run(
-        file,
-        n_workers=input_file.get("n_workers", None),
-        n_threads=input_file.get("n_threads", None),
-        save_report=input_file.get("performance_report", False),
-    )
+    PlateMatchDriver.start_dask_run(file)

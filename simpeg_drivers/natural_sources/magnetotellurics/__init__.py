@@ -8,8 +8,11 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-
-from .options import MTForwardOptions, MTInversionOptions
+from .forward import MTForwardDriver
+from .inversion import MTInversionDriver
+from .options import (
+    MTForwardOptions,
+    MTInversionOptions,
+)
 
 # pylint: disable=unused-import
-# flake8: noqa

@@ -9,12 +9,25 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from .forward import TipperForwardDriver
-from .inversion import TipperInversionDriver
-from .options import (
-    TipperForwardOptions,
-    TipperInversionOptions,
-)
+from __future__ import annotations
 
-# pylint: disable=unused-import
-# flake8: noqa
+import sys
+from pathlib import Path
+
+from simpeg_drivers.driver import ForwardDriver
+
+from .options import FDEMForwardOptions
+
+
+class FDEMForwardDriver(ForwardDriver):
+    """Frequency Domain Electromagnetic forward driver."""
+
+    _params_class = FDEMForwardOptions
+
+    def __init__(self, params: FDEMForwardOptions):
+        super().__init__(params)
+
+
+if __name__ == "__main__":
+    file = Path(sys.argv[1]).resolve()
+    FDEMForwardDriver.start_dask_run(file)

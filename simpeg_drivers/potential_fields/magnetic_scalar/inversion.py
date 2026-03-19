@@ -11,21 +11,20 @@
 
 from __future__ import annotations
 
-from simpeg_drivers.electricals.base_2d import Base2DDriver
+import sys
+from pathlib import Path
 
-from .options import (
-    IP2DForwardOptions,
-    IP2DInversionOptions,
-)
+from simpeg_drivers.driver import InversionDriver
 
-
-class IP2DForwardDriver(Base2DDriver):
-    """Induced Polarization 2D forward driver."""
-
-    _params_class = IP2DForwardOptions
+from .options import MagneticInversionOptions
 
 
-class IP2DInversionDriver(Base2DDriver):
-    """Induced Polarization 2D inversion driver."""
+class MagneticInversionDriver(InversionDriver):
+    """Magnetic susceptibility inversion driver."""
 
-    _params_class = IP2DInversionOptions
+    _params_class = MagneticInversionOptions
+
+
+if __name__ == "__main__":
+    file = Path(sys.argv[1]).resolve()
+    MagneticInversionDriver.start_dask_run(file)

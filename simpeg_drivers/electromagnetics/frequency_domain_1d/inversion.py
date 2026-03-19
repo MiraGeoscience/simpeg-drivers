@@ -11,18 +11,21 @@
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
 from simpeg_drivers.driver import InversionDriver
+from simpeg_drivers.electromagnetics.base_1d_driver import Base1DDriver
 
-from .options import MTForwardOptions, MTInversionOptions
-
-
-class MTForwardDriver(InversionDriver):
-    """Magnetotellurics forward driver."""
-
-    _params_class = MTForwardOptions
+from .options import FDEM1DInversionOptions
 
 
-class MTInversionDriver(InversionDriver):
-    """Magnetotellurics inversion driver."""
+class FDEM1DInversionDriver(InversionDriver, Base1DDriver):
+    """Frequency Domain 1D Electromagnetic inversion driver."""
 
-    _params_class = MTInversionOptions
+    _params_class = FDEM1DInversionOptions
+
+
+if __name__ == "__main__":
+    file = Path(sys.argv[1]).resolve()
+    FDEM1DInversionDriver.start_dask_run(file)

@@ -38,7 +38,7 @@ class VectorModelOptions(ModelOptions):
     reference_declination: float | FloatData | None = None
 
 
-class MVIForwardOptions(BaseForwardOptions):
+class MagneticVectorForwardOptions(BaseForwardOptions):
     """
     Magnetic Vector forward options.
 
@@ -79,7 +79,7 @@ class MVIForwardOptions(BaseForwardOptions):
     models: VectorModelOptions
 
 
-class MVIInversionOptions(BaseInversionOptions):
+class MagneticVectorInversionOptions(BaseInversionOptions):
     """
     Magnetic Vector Inversion options.
 

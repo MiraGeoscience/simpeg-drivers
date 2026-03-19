@@ -11,24 +11,20 @@
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
 from simpeg_drivers.driver import InversionDriver
 
-from .options import (
-    FDEMForwardOptions,
-    FDEMInversionOptions,
-)
+from .options import GravityInversionOptions
 
 
-class FDEMForwardDriver(InversionDriver):
-    """Frequency Domain Electromagnetic forward driver."""
+class GravityInversionDriver(InversionDriver):
+    """Gravity inversion driver."""
 
-    _params_class = FDEMForwardOptions
-
-    def __init__(self, params: FDEMForwardOptions):
-        super().__init__(params)
+    _params_class = GravityInversionOptions
 
 
-class FDEMInversionDriver(InversionDriver):
-    """Frequency Domain Electromagnetic inversion driver."""
-
-    _params_class = FDEMInversionOptions
+if __name__ == "__main__":
+    file = Path(sys.argv[1]).resolve()
+    GravityInversionDriver.start_dask_run(file)

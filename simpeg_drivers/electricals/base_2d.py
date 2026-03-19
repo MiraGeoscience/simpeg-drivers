@@ -19,7 +19,7 @@ from geoh5py.ui_json.ui_json import fetch_active_workspace
 from pydantic import field_validator, model_validator
 
 from simpeg_drivers.components.meshes import InversionMesh
-from simpeg_drivers.driver import InversionDriver
+from simpeg_drivers.driver import BaseDriver
 from simpeg_drivers.options import (
     CoreOptions,
     DrapeModelOptions,
@@ -125,7 +125,7 @@ class Base2DOptions(CoreOptions):
         return self._selected_parts
 
 
-class Base2DDriver(InversionDriver):
+class Base2DDriver(BaseDriver):
     """
     Base class for 2D DC and IP forward and inversion drivers.
 

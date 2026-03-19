@@ -9,12 +9,22 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from .forward import TipperForwardDriver
-from .inversion import TipperInversionDriver
-from .options import (
-    TipperForwardOptions,
-    TipperInversionOptions,
-)
+from __future__ import annotations
 
-# pylint: disable=unused-import
-# flake8: noqa
+import sys
+from pathlib import Path
+
+from simpeg_drivers.driver import InversionDriver
+
+from .options import AppConInversionOptions
+
+
+class AppConInversionDriver(InversionDriver):
+    """Apparent Conductivity inversion driver."""
+
+    _params_class = AppConInversionOptions
+
+
+if __name__ == "__main__":
+    file = Path(sys.argv[1]).resolve()
+    AppConInversionDriver.start_dask_run(file)

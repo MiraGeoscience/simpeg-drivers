@@ -11,26 +11,21 @@
 
 from __future__ import annotations
 
-import numpy as np
-from geoh5py.objects.surveys.electromagnetics.ground_tem import (
-    LargeLoopGroundTEMReceivers,
-)
+import sys
+from pathlib import Path
 
-from simpeg_drivers.driver import InversionDriver
+from simpeg_drivers.driver import ForwardDriver
+from simpeg_drivers.electromagnetics.base_1d_driver import Base1DDriver
 
-from .options import (
-    TDEMForwardOptions,
-    TDEMInversionOptions,
-)
+from .options import FDEM1DForwardOptions
 
 
-class TDEMForwardDriver(InversionDriver):
-    """Time Domain Electromagnetic forward driver."""
+class FDEM1DForwardDriver(ForwardDriver, Base1DDriver):
+    """Frequency Domain 1D Electromagnetic forward driver."""
 
-    _params_class = TDEMForwardOptions
+    _params_class = FDEM1DForwardOptions
 
 
-class TDEMInversionDriver(InversionDriver):
-    """Time Domain Electromagnetic inversion driver."""
-
-    _params_class = TDEMInversionOptions
+if __name__ == "__main__":
+    file = Path(sys.argv[1]).resolve()
+    FDEM1DForwardDriver.start_dask_run(file)

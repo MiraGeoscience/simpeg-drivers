@@ -11,21 +11,20 @@
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
 from simpeg_drivers.driver import InversionDriver
 
-from .options import (
-    IP3DForwardOptions,
-    IP3DInversionOptions,
-)
+from .options import TDEMInversionOptions
 
 
-class IP3DForwardDriver(InversionDriver):
-    """Induced Polarization 3D forward driver."""
+class TDEMInversionDriver(InversionDriver):
+    """Time Domain Electromagnetic inversion driver."""
 
-    _params_class = IP3DForwardOptions
+    _params_class = TDEMInversionOptions
 
 
-class IP3DInversionDriver(InversionDriver):
-    """Induced Polarization 3D inversion driver."""
-
-    _params_class = IP3DInversionOptions
+if __name__ == "__main__":
+    file = Path(sys.argv[1]).resolve()
+    TDEMInversionDriver.start_dask_run(file)

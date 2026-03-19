@@ -9,12 +9,22 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from .forward import TipperForwardDriver
-from .inversion import TipperInversionDriver
-from .options import (
-    TipperForwardOptions,
-    TipperInversionOptions,
-)
+from __future__ import annotations
 
-# pylint: disable=unused-import
-# flake8: noqa
+import sys
+from pathlib import Path
+
+from simpeg_drivers.driver import InversionDriver
+
+from .options import IP3DInversionOptions
+
+
+class IP3DInversionDriver(InversionDriver):
+    """Direct Current 2D inversion driver."""
+
+    _params_class = IP3DInversionOptions
+
+
+if __name__ == "__main__":
+    file = Path(sys.argv[1]).resolve()
+    IP3DInversionDriver.start_dask_run(file)

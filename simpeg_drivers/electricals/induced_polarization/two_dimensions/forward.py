@@ -9,12 +9,23 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from .forward import TipperForwardDriver
-from .inversion import TipperInversionDriver
-from .options import (
-    TipperForwardOptions,
-    TipperInversionOptions,
-)
+from __future__ import annotations
 
-# pylint: disable=unused-import
-# flake8: noqa
+import sys
+from pathlib import Path
+
+from simpeg_drivers.driver import ForwardDriver
+from simpeg_drivers.electricals.base_2d import Base2DDriver
+
+from .options import IP2DForwardOptions
+
+
+class IP2DForwardDriver(ForwardDriver, Base2DDriver):
+    """Induced Polarization 2D forward driver."""
+
+    _params_class = IP2DForwardOptions
+
+
+if __name__ == "__main__":
+    file = Path(sys.argv[1]).resolve()
+    IP2DForwardDriver.start_dask_run(file)

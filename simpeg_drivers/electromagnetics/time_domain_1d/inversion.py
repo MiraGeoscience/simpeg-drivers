@@ -9,12 +9,23 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from .forward import TipperForwardDriver
-from .inversion import TipperInversionDriver
-from .options import (
-    TipperForwardOptions,
-    TipperInversionOptions,
-)
+from __future__ import annotations
 
-# pylint: disable=unused-import
-# flake8: noqa
+import sys
+from pathlib import Path
+
+from simpeg_drivers.driver import InversionDriver
+from simpeg_drivers.electromagnetics.base_1d_driver import Base1DDriver
+
+from .options import TDEM1DInversionOptions
+
+
+class TDEM1DInversionDriver(InversionDriver, Base1DDriver):
+    """Frequency Domain 1D Electromagnetic inversion driver."""
+
+    _params_class = TDEM1DInversionOptions
+
+
+if __name__ == "__main__":
+    file = Path(sys.argv[1]).resolve()
+    TDEM1DInversionDriver.start_dask_run(file)

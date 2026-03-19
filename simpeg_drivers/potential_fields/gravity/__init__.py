@@ -9,7 +9,12 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from .options import GravityForwardOptions, GravityInversionOptions
+from .forward import GravityForwardDriver
+from .inversion import GravityInversionDriver
+from .options import (
+    GravityForwardOptions,
+    GravityInversionOptions,
+)
 
 # pylint: disable=unused-import
 # flake8: noqa

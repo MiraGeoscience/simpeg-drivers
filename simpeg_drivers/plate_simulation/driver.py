@@ -23,7 +23,7 @@ from geoh5py.objects import Octree, Points, Surface
 from geoh5py.shared.utils import fetch_active_workspace, stringify
 from grid_apps.octree_creation.driver import OctreeDriver
 
-from simpeg_drivers.driver import BaseDriver, InversionDriver
+from simpeg_drivers.driver import BaseDriver, InversionDriver, driver_class_from_name
 from simpeg_drivers.options import BaseForwardOptions, ModelTypeEnum
 from simpeg_drivers.plate_simulation.models.events import Anomaly, Erosion, Overburden
 from simpeg_drivers.plate_simulation.models.parametric import Plate
@@ -61,10 +61,16 @@ class PlateSimulationDriver(BaseDriver):
         self._simulation_parameters: BaseForwardOptions | None = None
         self._simulation_driver: InversionDriver | None = None
 
+    def simpeg_run(self):
+        """"""
+
+    def start_message(self):
+        """"""
+        logger.info("running the simulation...")
+
     def run(self) -> InversionDriver:
         """Create octree mesh, fill model, and simulate."""
 
-        logger.info("running the simulation...")
         with fetch_active_workspace(self.params.geoh5, mode="r+"):
             self.simulation_driver.run()
             self.update_monitoring_directory(self.out_group)
@@ -111,7 +117,7 @@ class PlateSimulationDriver(BaseDriver):
                     )
 
                 self.simulation_parameters.out_group = None
-                driver_class = InversionDriver.driver_class_from_name(
+                driver_class = driver_class_from_name(
                     self.simulation_parameters.inversion_type, forward_only=True
                 )
                 self._simulation_driver = driver_class(

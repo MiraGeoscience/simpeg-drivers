@@ -11,21 +11,20 @@
 
 from __future__ import annotations
 
-from simpeg_drivers.electromagnetics.base_1d_driver import Base1DDriver
+import sys
+from pathlib import Path
 
-from .options import (
-    FDEM1DForwardOptions,
-    FDEM1DInversionOptions,
-)
+from simpeg_drivers.driver import ForwardDriver
 
-
-class FDEM1DForwardDriver(Base1DDriver):
-    """Frequency Domain 1D Electromagnetic forward driver."""
-
-    _params_class = FDEM1DForwardOptions
+from .options import TipperForwardOptions
 
 
-class FDEM1DInversionDriver(Base1DDriver):
-    """Frequency Domain 1D Electromagnetic inversion driver."""
+class TipperForwardDriver(ForwardDriver):
+    """Tipper forward driver."""
 
-    _params_class = FDEM1DInversionOptions
+    _params_class = TipperForwardOptions
+
+
+if __name__ == "__main__":
+    file = Path(sys.argv[1]).resolve()
+    TipperForwardDriver.start_dask_run(file)
