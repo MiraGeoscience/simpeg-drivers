@@ -18,4 +18,3 @@ from .data import InversionData
 from .meshes import InversionMesh
 from .models import InversionModel, InversionModelCollection
 from .topography import InversionTopography
-from .windows import InversionWindow

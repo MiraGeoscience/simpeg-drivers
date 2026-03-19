@@ -15,7 +15,7 @@ from geoh5py.objects import Octree
 from geoh5py.workspace import Workspace
 from simpeg.directives import SaveModelGeoH5, SavePropertyGroup
 
-from simpeg_drivers.electricals.direct_current.three_dimensions.driver import (
+from simpeg_drivers.electricals.direct_current.three_dimensions.inversion import (
     DC3DInversionDriver,
 )
 from simpeg_drivers.electricals.direct_current.three_dimensions.options import (

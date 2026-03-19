@@ -15,12 +15,10 @@ from geoh5py.objects import CurrentElectrode, Octree, Points
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.electricals.direct_current.three_dimensions import (
-    DC3DForwardOptions,
-    DC3DInversionOptions,
-)
-from simpeg_drivers.electricals.direct_current.three_dimensions.driver import (
     DC3DForwardDriver,
+    DC3DForwardOptions,
     DC3DInversionDriver,
+    DC3DInversionOptions,
 )
 from simpeg_drivers.joint.joint_cross_gradient import JointCrossGradientOptions
 from simpeg_drivers.joint.joint_cross_gradient.driver import JointCrossGradientDriver

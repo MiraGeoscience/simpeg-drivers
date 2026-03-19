@@ -22,7 +22,7 @@ from simpeg_drivers.components import (
     InversionModel,
     InversionModelCollection,
 )
-from simpeg_drivers.electricals.direct_current.three_dimensions.driver import (
+from simpeg_drivers.electricals.direct_current.three_dimensions import (
     DC3DForwardDriver,
 )
 from simpeg_drivers.electricals.direct_current.three_dimensions.options import (

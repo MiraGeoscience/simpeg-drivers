@@ -8,8 +8,8 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-
-from .options import DC3DForwardOptions, DC3DInversionOptions
-
 # pylint: disable=unused-import
-# flake8: noqa
+
+from .forward import DC3DForwardDriver
+from .inversion import DC3DInversionDriver
+from .options import DC3DForwardOptions, DC3DInversionOptions
