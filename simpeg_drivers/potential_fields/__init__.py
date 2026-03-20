@@ -7,17 +7,3 @@
 #  (see LICENSE file at the root of this source code package).                      '
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-
-from .gravity.options import GravityForwardOptions, GravityInversionOptions
-from .magnetic_scalar.options import (
-    MagneticForwardOptions,
-    MagneticInversionOptions,
-)
-from .magnetic_vector.options import (
-    MVIForwardOptions,
-    MVIInversionOptions,
-)
-
-# pylint: disable=unused-import
-# flake8: noqa

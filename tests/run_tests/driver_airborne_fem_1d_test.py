@@ -16,14 +16,11 @@ from pathlib import Path
 
 import numpy as np
 from geoh5py import Workspace
-from geoh5py.groups import SimPEGGroup
 
-from simpeg_drivers.electromagnetics.frequency_domain_1d.driver import (
+from simpeg_drivers.electromagnetics.frequency_domain_1d import (
     FDEM1DForwardDriver,
-    FDEM1DInversionDriver,
-)
-from simpeg_drivers.electromagnetics.frequency_domain_1d.options import (
     FDEM1DForwardOptions,
+    FDEM1DInversionDriver,
     FDEM1DInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (

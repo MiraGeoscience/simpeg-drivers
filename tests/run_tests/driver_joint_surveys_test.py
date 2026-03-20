@@ -21,18 +21,20 @@ from simpeg_drivers.electricals.direct_current.three_dimensions.inversion import
 from simpeg_drivers.electricals.direct_current.three_dimensions.options import (
     DC3DInversionOptions,
 )
-from simpeg_drivers.electromagnetics.time_domain.driver import TDEMInversionDriver
+from simpeg_drivers.electromagnetics.time_domain import TDEMInversionDriver
 from simpeg_drivers.electromagnetics.time_domain.options import TDEMInversionOptions
 from simpeg_drivers.joint.joint_surveys import JointSurveysOptions
 from simpeg_drivers.joint.joint_surveys.driver import JointSurveyDriver
 from simpeg_drivers.options import ActiveCellsOptions
-from simpeg_drivers.potential_fields import (
+from simpeg_drivers.potential_fields.gravity import (
     GravityForwardOptions,
+    GravityInversionDriver,
     GravityInversionOptions,
 )
-from simpeg_drivers.potential_fields.gravity.driver import GravityInversionDriver
-from simpeg_drivers.potential_fields.magnetic_vector.driver import MVIInversionDriver
-from simpeg_drivers.potential_fields.magnetic_vector.options import MVIInversionOptions
+from simpeg_drivers.potential_fields.magnetic_vector import (
+    MagneticVectorInversionDriver,
+    MagneticVectorInversionOptions,
+)
 from simpeg_drivers.utils.synthetics.driver import (
     SyntheticsComponents,
 )
@@ -243,7 +245,7 @@ def test_joint_surveys_mvi_run(tmp_path, anomaly=0.05):
             else:
                 inc_mod = None
 
-            params = MVIInversionOptions.build(
+            params = MagneticVectorInversionOptions.build(
                 geoh5=geoh5,
                 mesh=components.mesh,
                 topography_object=components.topography,
@@ -257,7 +259,7 @@ def test_joint_surveys_mvi_run(tmp_path, anomaly=0.05):
                 starting_inclination=inc_mod,
                 reference_model=0.0,
             )
-            drivers.append(MVIInversionDriver(params))
+            drivers.append(MagneticVectorInversionDriver(params))
 
         # Run the inverse
         joint_params = JointSurveysOptions.build(

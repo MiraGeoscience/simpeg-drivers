@@ -15,17 +15,14 @@ from unittest.mock import patch
 
 import numpy as np
 from geoapps_utils.utils.importing import GeoAppsError
-from geoapps_utils.utils.locations import gaussian
 from geoh5py.workspace import Workspace
 from pytest import raises
 
-from simpeg_drivers.potential_fields import (
-    GravityForwardOptions,
-    GravityInversionOptions,
-)
-from simpeg_drivers.potential_fields.gravity.driver import (
+from simpeg_drivers.potential_fields.gravity import (
     GravityForwardDriver,
+    GravityForwardOptions,
     GravityInversionDriver,
+    GravityInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
 from simpeg_drivers.utils.synthetics.options import (

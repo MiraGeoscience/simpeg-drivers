@@ -13,11 +13,10 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-from geoh5py import Workspace
 
-from simpeg_drivers.potential_fields import MagneticInversionOptions
-from simpeg_drivers.potential_fields.magnetic_scalar.driver import (
+from simpeg_drivers.potential_fields.magnetic_scalar import (
     MagneticInversionDriver,
+    MagneticInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
 from simpeg_drivers.utils.synthetics.options import (

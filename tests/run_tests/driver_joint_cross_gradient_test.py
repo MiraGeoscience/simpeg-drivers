@@ -22,19 +22,17 @@ from simpeg_drivers.electricals.direct_current.three_dimensions import (
 )
 from simpeg_drivers.joint.joint_cross_gradient import JointCrossGradientOptions
 from simpeg_drivers.joint.joint_cross_gradient.driver import JointCrossGradientDriver
-from simpeg_drivers.potential_fields import (
-    GravityForwardOptions,
-    GravityInversionOptions,
-    MVIForwardOptions,
-    MVIInversionOptions,
-)
-from simpeg_drivers.potential_fields.gravity.driver import (
+from simpeg_drivers.potential_fields.gravity import (
     GravityForwardDriver,
+    GravityForwardOptions,
     GravityInversionDriver,
+    GravityInversionOptions,
 )
-from simpeg_drivers.potential_fields.magnetic_vector.driver import (
-    MVIForwardDriver,
-    MVIInversionDriver,
+from simpeg_drivers.potential_fields.magnetic_vector import (
+    MagneticVectorForwardDriver,
+    MagneticVectorForwardOptions,
+    MagneticVectorInversionDriver,
+    MagneticVectorInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (
     SyntheticsComponents,
@@ -99,7 +97,7 @@ def test_joint_cross_gradient_fwr_run(
             active=SyntheticsActiveCellsOptions(name="active B"),
         )
         components = SyntheticsComponents(geoh5, options=opts)
-        params = MVIForwardOptions.build(
+        params = MagneticVectorForwardOptions.build(
             geoh5=geoh5,
             mesh=components.mesh,
             topography_object=components.topography,
@@ -109,7 +107,7 @@ def test_joint_cross_gradient_fwr_run(
             data_object=components.survey,
             starting_model=components.model,
         )
-    fwr_driver_b = MVIForwardDriver(params)
+    fwr_driver_b = MagneticVectorForwardDriver(params)
 
     with geoh5.open():
         opts = SyntheticsComponentsOptions(
@@ -231,7 +229,7 @@ def test_joint_cross_gradient_inv_run(
                 )
                 drivers.append(DC3DInversionDriver(params))
             else:
-                params = MVIInversionOptions.build(
+                params = MagneticVectorInversionOptions.build(
                     geoh5=geoh5,
                     mesh=mesh,
                     alpha_s=1.0,
@@ -247,7 +245,7 @@ def test_joint_cross_gradient_inv_run(
                     tile_spatial=2,
                     auto_scale_tiles=False,
                 )
-                drivers.append(MVIInversionDriver(params))
+                drivers.append(MagneticVectorInversionDriver(params))
 
         # Run the inverse
         joint_params = JointCrossGradientOptions.build(
@@ -281,7 +279,7 @@ def test_joint_cross_gradient_inv_run(
     driver.run()
 
     # Mix of scaling on misfits and tiles.
-    # Expecting that gravity tiles are independently scaled, but MVI tiles take
+    # Expecting that gravity tiles are independently scaled, but MagneticVector tiles take
     # the scaling from its total misfit.
     np.testing.assert_allclose(
         driver.directives.scale_misfits.scalings,
