@@ -125,8 +125,8 @@ class PlateSimulationOptions(Options):
 
     name: ClassVar[str] = "plate_simulation"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/plate_simulation.ui.json"
-    title: ClassVar[str] = "Plate Simulation"
-    run_command: ClassVar[str] = "simpeg_drivers.plate_simulation.driver"
+    title: str = "Plate Simulation"
+    run_command: str = "simpeg_drivers.plate_simulation.driver"
     out_group: SimPEGGroup | UIJsonGroup | None = None
     forward_only: bool = True
     inversion_type: str = "plate simulation"
