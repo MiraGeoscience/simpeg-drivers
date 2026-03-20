@@ -23,8 +23,7 @@ from geoapps_utils.utils.locations import topo_drape_elevation
 from geoh5py import Workspace
 from geoh5py.shared.merging.drape_model import DrapeModelMerger
 from geoh5py.ui_json.ui_json import fetch_active_workspace
-from numpy import dtype, ndarray
-from numpy.lib._shape_base_impl import _ScalarT
+from numpy import ndarray
 
 from simpeg_drivers.components.factories import SimulationFactory
 from simpeg_drivers.components.meshes import InversionMesh
