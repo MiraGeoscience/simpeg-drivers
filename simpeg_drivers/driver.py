@@ -502,9 +502,9 @@ class BaseDriver(Driver, ABC):
         """
         ui_json = load_ui_json_as_dict(json_path)
 
-        n_workers = (ui_json.get("n_workers", n_workers),)
-        n_threads = (ui_json.get("n_threads", n_threads),)
-        save_report = (ui_json.get("performance_report", False),)
+        n_workers = ui_json.get("n_workers", n_workers)
+        n_threads = ui_json.get("n_threads", n_threads)
+        save_report = ui_json.get("performance_report", False)
 
         if (n_workers is not None and n_workers > 1) or n_threads is not None:
             cluster = LocalCluster(

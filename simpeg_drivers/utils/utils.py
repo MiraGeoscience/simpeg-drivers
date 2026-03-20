@@ -679,8 +679,8 @@ def get_default_parallelization_params(json_path: Path) -> tuple[int, int]:
     """
     ui_json = load_ui_json_as_dict(json_path)
 
-    n_workers = (ui_json.get("n_workers", None),)
-    n_threads = (ui_json.get("n_threads", None),)
+    n_workers = ui_json.get("n_workers", None)
+    n_threads = ui_json.get("n_threads", None)
 
     if n_workers is None:
         cpu_count = multiprocessing.cpu_count()

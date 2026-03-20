@@ -76,4 +76,3 @@ class FDEM1DInversionOptions(BaseFDEMOptions, BaseInversionOptions, Base1DOption
     z_imag_channel: PropertyGroup | None = None
     z_imag_uncertainty: PropertyGroup | None = None
     models: ConductivityModelOptions
-    directives: DirectiveOptions = DirectiveOptions()
