@@ -10,12 +10,14 @@
 
 import numpy as np
 from discretize import TreeMesh
+from geoh5py import Workspace
+from geoh5py.objects import Points
 
 from simpeg_drivers.utils.regularization import (
     cell_neighbors,
     cell_neighbors_along_axis,
     cell_neighbors_lists,
-    ensure_dip_direction_convention,
+    direction_and_dip,
 )
 
 
@@ -91,7 +93,8 @@ def test_collect_all_neighbors():
     assert [15, 15, 15] not in neighbor_centers
 
 
-def test_ensure_dip_direction_convention():
+def test_ensure_dip_direction_convention(tmp_path):
+
     # Rotate the vertical unit vector 37 degrees to the west and then 16
     # degrees counter-clockwise about the z-axis.  Should result in a dip
     # direction of 270 - 16 = 254 and a dip of 37.
@@ -128,6 +131,17 @@ def test_ensure_dip_direction_convention():
             arbitrary_vector.tolist(),
         ]
     )
-    dir_dip = ensure_dip_direction_convention(orientations, group_type="3D vector")
-    assert np.allclose(dir_dip[:, 0], [90, 0, 270, 180] * 2 + [254])
-    assert np.allclose(dir_dip[:, 1], [45] * 4 + [30] * 4 + [37])
+    with Workspace.create(tmp_path / f"{__name__}.geoh5") as ws:
+        pts = Points.create(ws, vertices=np.random.randn(orientations.shape[0], 3))
+        data_list = pts.add_data(
+            {
+                f"{ax}_vec": {"values": ori}
+                for ax, ori in zip("xyz", orientations.T, strict=True)
+            }
+        )
+        prop_group = pts.create_property_group(
+            name="vector", property_group_type="3D vector", properties=data_list
+        )
+        dir_dip = direction_and_dip(prop_group)
+    assert np.allclose(dir_dip[0].values, [90, 0, 270, 180] * 2 + [254])
+    assert np.allclose(dir_dip[1].values, [45] * 4 + [30] * 4 + [37])

@@ -14,6 +14,7 @@ from __future__ import annotations
 import multiprocessing
 from logging import getLogger
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 from discretize import TensorMesh
@@ -22,6 +23,7 @@ from geoapps_utils.utils.locations import topo_drape_elevation
 from geoh5py import Workspace
 from geoh5py.shared.merging.drape_model import DrapeModelMerger
 from geoh5py.ui_json.ui_json import fetch_active_workspace
+from numpy import ndarray
 
 from simpeg_drivers.components.factories import SimulationFactory
 from simpeg_drivers.components.meshes import InversionMesh
@@ -85,6 +87,20 @@ class Base1DDriver(InversionDriver):
             mesh_type="tensor",
         )
         return layers_mesh
+
+    def get_tiles(self) -> dict[None, list[list[ndarray[tuple[Any, ...]]]]]:
+        n_data = self.inversion_data.mask.sum()
+        indices = np.arange(n_data)
+
+        # Heuristic to avoid too many chunks
+        n_chunks = n_data // self.params.compute.max_chunk_size
+
+        if self.workers:
+            n_chunks /= len(self.workers)
+            n_chunks = int(n_chunks) * len(self.workers)
+
+        n_chunks = np.max([n_chunks, 1, len(self.workers)])
+        return {None: [[tile] for tile in np.array_split(indices, n_chunks)]}
 
     @property
     def simulation(self):

@@ -18,10 +18,10 @@ from geoh5py.data import FloatData
 from geoh5py.objects.surveys.direct_current import PotentialElectrode
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.electricals.options import IPModelOptions
 from simpeg_drivers.options import (
     BaseForwardOptions,
     BaseInversionOptions,
+    IPModelOptions,
 )
 
 

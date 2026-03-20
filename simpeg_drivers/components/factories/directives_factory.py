@@ -20,6 +20,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from geoh5py.groups.property_group import GroupTypeEnum
+from geoh5py.objects import PotentialElectrode
 from numpy import sqrt
 from simpeg import directives, maps
 from simpeg.utils.mat_utils import cartesian2amplitude_dip_azimuth
@@ -437,7 +438,7 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
             if self.params.models.model_type == ModelTypeEnum.resistivity:
                 kwargs["transforms"].append(lambda x: 1 / x)
 
-        if "1d" in self.factory_type:
+        if "1d" in self.factory_type or "2d" in self.factory_type:
             ghosts = (
                 np.squeeze(np.asarray(inversion_object.permutation.sum(axis=0))) == 0
             )
@@ -513,10 +514,14 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
         ]
         components = list(inversion_object.observed)
         ordering = inversion_object.survey.ordering
-        n_locations = len(np.unique(ordering[:, 2]))
+
+        if isinstance(receivers, PotentialElectrode):
+            n_locations = receivers.n_cells
+        else:
+            n_locations = receivers.n_vertices
 
         def reshape(values):
-            data = np.zeros((len(channels), len(components), n_locations))
+            data = np.full((len(channels), len(components), n_locations), np.nan)
             data[ordering[:, 0], ordering[:, 1], ordering[:, 2]] = values
             return data
 

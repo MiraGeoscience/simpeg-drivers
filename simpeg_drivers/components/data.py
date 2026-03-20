@@ -17,10 +17,10 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from geoh5py.objects import LargeLoopGroundTEMReceivers, PotentialElectrode
-from scipy.sparse import csgraph, csr_matrix
 from scipy.spatial import cKDTree
 from simpeg.electromagnetics.static.utils.static_utils import geometric_factor
 
+from simpeg_drivers.utils.surveys import get_parts_from_electrodes
 from simpeg_drivers.utils.utils import drape_2_tensor
 
 from .factories import (
@@ -90,20 +90,10 @@ class InversionData(InversionLocations):
     def _initialize(self) -> None:
         """Extract data from the workspace using params data."""
         self.components = self.params.active_components
-
         self.has_tensor = InversionData.check_tensor(self.params.components)
         self.locations = super().get_locations(self.params.data_object)
-
-        if "2d" in self.params.inversion_type:
-            self.mask = (
-                self.params.line_selection.line_object.values
-                == self.params.line_selection.line_id
-            )
-        else:
-            self.mask = np.ones(len(self.locations), dtype=bool)
-
+        self.mask = np.ones(len(self.locations), dtype=bool)
         self.normalizations: dict[str, Any] = self.get_normalizations()
-
         self.entity = self.write_entity()
 
         self.save_data()
@@ -137,19 +127,7 @@ class InversionData(InversionLocations):
         Return parts indices from the entity.
         """
         if isinstance(self.entity, PotentialElectrode):
-            edge_array = csr_matrix(
-                (
-                    np.ones(self.entity.n_cells * 2),
-                    (
-                        np.kron(self.entity.cells[:, 0], [1, 1]),
-                        self.entity.cells.flatten(),
-                    ),
-                ),
-                shape=(self.entity.n_vertices, self.entity.n_vertices),
-            )
-
-            connections = csgraph.connected_components(edge_array)[1]
-            return connections[self.entity.cells[:, 0]]
+            return get_parts_from_electrodes(self.entity)
 
         if isinstance(self.entity, LargeLoopGroundTEMReceivers):
             return self.entity.tx_id_property.values
@@ -166,7 +144,9 @@ class InversionData(InversionLocations):
         local_tensor = drape_2_tensor(self.params.mesh)
 
         # Interpolate distance assuming always inside the mesh trace
-        tree = cKDTree(self.params.mesh.prisms[:, :2])
+        actives = self.params.mesh.prisms[:, -1] != 1
+        prisms = self.params.mesh.prisms[actives, :]
+        tree = cKDTree(prisms[:, :2])
         rad, ind = tree.query(locations[:, :2], k=2)
         distance_interp = 0.0
         for ii in range(2):
@@ -176,7 +156,9 @@ class InversionData(InversionLocations):
 
         distance_interp /= ((rad + 1e-8) ** -1.0).sum(axis=1)
 
-        return np.c_[distance_interp, locations[:, 2:]]
+        # Adjust elevation relative to the origin
+        delta = prisms[0, 2] - prisms[ind[:, 0], 2]
+        return np.c_[distance_interp, locations[:, 2] + delta]
 
     def get_data(self) -> tuple[list, dict, dict]:
         """
@@ -260,6 +242,15 @@ class InversionData(InversionLocations):
 
         self._observed_data_types = data_types
         self.update_params(data_dict, uncert_dict)
+
+        if (
+            getattr(self.params, "line_selection", None) is not None
+            and self.params.line_selection.property is not None
+        ):
+            self.params.line_selection.property.copy(
+                parent=self.entity,
+                values=self.params.line_selection.property.values[self.mask],
+            )
 
     def normalize(
         self, data: dict[str, np.ndarray], absolute=False
@@ -349,8 +340,22 @@ class InversionData(InversionLocations):
             )
             survey.cells = self.entity.cells
 
+            observed = self.entity.get_data("Observed_potential")
+            if observed:
+                self.entity.add_data(
+                    {
+                        "Observed_apparent_resistivity": {
+                            "values": survey.apparent_resistivity * observed[0].values
+                        }
+                    }
+                )
+
         if "induced polarization" in self.params.inversion_type:
             survey.cells = self.entity.cells
+
+        if "2d" in self.params.inversion_type:
+            # Assign line id with sequential numbering to mirror the drape mesh parts
+            survey.line_ids = self.params.line_parts[survey_factory.sorting]
 
         return survey
 
@@ -384,13 +389,6 @@ class InversionData(InversionLocations):
 
             setattr(self.params, f"{comp}_channel", data_dict[comp])
             setattr(self.params, f"{comp}_uncertainty", uncert_dict[comp])
-
-        if getattr(self.params, "line_selection", None) is not None:
-            new_line = self.params.line_selection.line_object.copy(
-                parent=self.entity,
-                values=self.params.line_selection.line_object.values[self.mask],
-            )
-            self.params.line_selection.line_object = new_line
 
     @property
     def survey(self):

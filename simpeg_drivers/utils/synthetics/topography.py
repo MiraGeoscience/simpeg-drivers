@@ -13,6 +13,7 @@ from geoh5py import Workspace
 from geoh5py.objects import DrapeModel, Octree, Surface
 from scipy.spatial import Delaunay
 
+from simpeg_drivers.options import DrapeModelOptions
 from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
     SurveyOptions,
@@ -58,7 +59,7 @@ def get_topography_surface(
 
 
 def compute_mesh_extents(
-    survey_options: SurveyOptions, mesh_options: MeshOptions
+    survey_options: SurveyOptions, mesh_options: MeshOptions | DrapeModelOptions
 ) -> tuple[float, float]:
     """
     Estimates the extent of the mesh from survey and mesh options.
@@ -71,8 +72,13 @@ def compute_mesh_extents(
     """
     width = survey_options.width
     height = survey_options.height
-    cell_size = mesh_options.cell_size
-    padding = mesh_options.padding_distance
+
+    if isinstance(mesh_options, DrapeModelOptions):
+        cell_size = (mesh_options.u_cell_size, mesh_options.u_cell_size)
+        padding = mesh_options.horizontal_padding
+    else:
+        cell_size = mesh_options.cell_size
+        padding = mesh_options.padding_distance
 
     def next_pow2_cells(span, cell_size, padding):
         return 2 ** np.ceil(np.log2((span + 2 * padding) / cell_size))

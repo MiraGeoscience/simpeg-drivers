@@ -506,19 +506,18 @@ class InversionDriver(BaseDriver):
     @params.setter
     def params(
         self,
-        val: BaseForwardOptions | BaseInversionOptions | SweepParams,
+        val: BaseForwardOptions | BaseInversionOptions,
     ):
         if not isinstance(
             val,
             (
                 BaseForwardOptions,
                 BaseInversionOptions,
-                SweepParams,
                 BaseJointOptions,
             ),
         ):
             raise TypeError(
-                "Parameters must be of type 'BaseInversionOptions', 'BaseForwardOptions' or 'SweepParams'."
+                "Parameters must be of type 'BaseInversionOptions', 'BaseForwardOptions' or 'BaseJointOptions'."
             )
         self._params = val
 
@@ -807,32 +806,13 @@ class InversionDriver(BaseDriver):
 
         :return: Dictionary with channels as keys and list of tiles as values.
         """
-        n_data = self.inversion_data.mask.sum()
-        indices = np.arange(n_data)
-
-        # Split tiles based on inversion type
-        if "1d" in self.params.inversion_type:
-            # Heuristic to avoid too many chunks
-            n_chunks = n_data // self.params.compute.max_chunk_size
-
-            if self.workers:
-                n_chunks /= len(self.workers)
-                n_chunks = int(n_chunks) * len(self.workers)
-
-            n_chunks = np.max([n_chunks, 1, len(self.workers)])
-            tiles = [[tile] for tile in np.array_split(indices, n_chunks)]
-
-        elif "2d" in self.params.inversion_type:
-            tiles = [[indices]]
-
-        else:
-            tiles = tile_locations(
-                self.inversion_data.locations,
-                self.params.compute.tile_spatial,
-                labels=self.inversion_data.parts,
-                sorting=self.simulation.survey.sorting,
-            )
-            tiles = self.split_list(tiles)
+        tiles = tile_locations(
+            self.inversion_data.locations,
+            self.params.compute.tile_spatial,
+            labels=self.inversion_data.parts,
+            sorting=self.simulation.survey.sorting,
+        )
+        tiles = self.split_list(tiles)
 
         # Base slice over frequencies
         if self.params.inversion_type in [

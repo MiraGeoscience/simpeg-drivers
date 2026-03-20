@@ -12,12 +12,46 @@ import numpy as np
 from discretize import TreeMesh
 from discretize.utils import mesh_builder_xyz
 from geoapps_utils.modelling.plates import PlateModel
-from geoh5py.objects import Octree, Points, Surface
+from geoh5py.objects import DrapeModel, Octree, Points, Surface
 from grid_apps.octree_creation.driver import OctreeDriver
 from grid_apps.utils import treemesh_2_octree
 
+from simpeg_drivers.electricals.base_2d import create_mesh_by_line_id
+from simpeg_drivers.options import DrapeModelOptions
 from simpeg_drivers.plate_simulation.models.options import PlateOptions
 from simpeg_drivers.plate_simulation.models.parametric import Plate
+from simpeg_drivers.utils.synthetics.options import MeshOptions
+
+
+def get_mesh(
+    method: str,
+    survey: Points,
+    topography: Surface,
+    options: MeshOptions | DrapeModelOptions,
+    plate: PlateModel | None = None,
+) -> DrapeModel | Octree:
+    """Factory for mesh creation with behaviour modified by the provided method."""
+
+    if "2d" in method:
+        line_data = survey.get_entity("line_ids")[0]
+
+        return create_mesh_by_line_id(
+            survey.workspace,
+            survey,
+            line_data.values,
+            options,
+            name="mesh",
+        )
+
+    return get_octree_mesh(
+        survey=survey,
+        topography=topography,
+        cell_size=options.cell_size,
+        refinement=options.refinement,
+        padding_distance=options.padding_distance,
+        plate=plate,
+        name=options.name,
+    )
 
 
 def get_base_octree(
@@ -99,9 +133,9 @@ def get_octree_mesh(
             elevation=0,
         )
         center = list(plate.origin)
-        center[2] += plate.width  # Unclear why offsetted vertically
+
         plate = Plate(plate_options, center=center, workspace=survey.workspace)
-        mesh = OctreeDriver.refine_tree_from_surface(
+        mesh = OctreeDriver.refine_tree_from_triangulation(
             mesh, plate.surface, levels=(4,), finalize=False
         )
 

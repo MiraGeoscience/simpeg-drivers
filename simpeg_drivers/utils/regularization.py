@@ -16,6 +16,7 @@ from geoapps_utils.utils.transformations import (
     x_rotation_matrix,
     z_rotation_matrix,
 )
+from geoh5py.data import Data
 from geoh5py.groups import PropertyGroup
 from geoh5py.groups.property_group_type import GroupTypeEnum
 from simpeg.regularization import SparseSmoothness
@@ -436,35 +437,15 @@ def rotated_gradient(
     return unit_grad
 
 
-def ensure_dip_direction_convention(
-    orientations: np.ndarray, group_type: str
-) -> np.ndarray:
-    """
-    Ensure orientations array has dip and direction convention.
-
-    :param orientations: Array of orientations.  Either n * 2 if Strike & dip
-        or Dip direction & dip group_type, or n * 3 if 3D Vector group_type defining the normal of the dipping plane.
-    :param group_type as specified in geoh5py.GroupTypeEnum.
-    """
-
-    if group_type == GroupTypeEnum.VECTOR:
-        orientations = np.rad2deg(cartesian_normal_to_direction_and_dip(orientations))
-
-    if group_type in [GroupTypeEnum.STRIKEDIP]:
-        orientations[:, 0] = 90.0 + orientations[:, 0]
-
-    return orientations
-
-
-def direction_and_dip(property_group: PropertyGroup) -> list[np.ndarray]:
+def direction_and_dip(property_group: PropertyGroup) -> list[Data]:
     """Conversion of orientation group to direction and dip."""
 
     group_type = property_group.property_group_type
-    if group_type not in [
-        GroupTypeEnum.VECTOR,
-        GroupTypeEnum.STRIKEDIP,
-        GroupTypeEnum.DIPDIR,
-    ]:
+
+    if group_type == GroupTypeEnum.DIPDIR:
+        return [property_group.parent.get_data(k)[0] for k in property_group.properties]
+
+    if group_type not in [GroupTypeEnum.VECTOR, GroupTypeEnum.STRIKEDIP]:
         raise ValueError(
             "Property group does not contain orientation data. "
             "Type must be one of '3D vector', 'Strike & dip', or "
@@ -475,7 +456,20 @@ def direction_and_dip(property_group: PropertyGroup) -> list[np.ndarray]:
         [property_group.parent.get_data(k)[0].values for k in property_group.properties]
     ).T
 
-    return ensure_dip_direction_convention(orientations, group_type)
+    if group_type == GroupTypeEnum.VECTOR:
+        orientations = np.rad2deg(cartesian_normal_to_direction_and_dip(orientations))
+
+    if group_type in [GroupTypeEnum.STRIKEDIP]:
+        orientations[:, 0] = 90.0 + orientations[:, 0]
+
+    dir_dip = property_group.parent.add_data(
+        {
+            "azimuth": {"values": orientations[:, 0]},
+            "dip": {"values": orientations[:, 1]},
+        }
+    )
+
+    return dir_dip
 
 
 def set_rotated_operators(
