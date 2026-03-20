@@ -20,8 +20,8 @@ from simpeg_drivers.electricals.direct_current.three_dimensions import (
     DC3DInversionDriver,
     DC3DInversionOptions,
 )
-from simpeg_drivers.joint.joint_cross_gradient import JointCrossGradientOptions
 from simpeg_drivers.joint.joint_cross_gradient.driver import JointCrossGradientDriver
+from simpeg_drivers.joint.joint_cross_gradient.options import JointCrossGradientOptions
 from simpeg_drivers.potential_fields.gravity import (
     GravityForwardDriver,
     GravityForwardOptions,

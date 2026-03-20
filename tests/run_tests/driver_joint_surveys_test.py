@@ -23,8 +23,8 @@ from simpeg_drivers.electricals.direct_current.three_dimensions.options import (
 )
 from simpeg_drivers.electromagnetics.time_domain import TDEMInversionDriver
 from simpeg_drivers.electromagnetics.time_domain.options import TDEMInversionOptions
-from simpeg_drivers.joint.joint_surveys import JointSurveysOptions
 from simpeg_drivers.joint.joint_surveys.driver import JointSurveysDriver
+from simpeg_drivers.joint.joint_surveys.options import JointSurveysOptions
 from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields.gravity import (
     GravityForwardDriver,
