@@ -119,7 +119,7 @@ class Base2DOptions(CoreOptions):
                     if val in self.line_selection.value:
                         parts.append(count)
             else:
-                parts = np.arange(len(np.unique(self.line_parts)))
+                parts = np.arange(len(np.unique(self.line_parts))).tolist()
 
             self._selected_parts = parts
 

@@ -86,7 +86,7 @@ def test_fem_fwr_run(tmp_path: Path, azimuth, dip):
         model=ModelOptions(
             background=1e-3,
             plate=PlateModel(
-                strike_length=70.0,
+                strike_length=150.0,
                 dip_length=100.0,
                 width=10.0,
                 origin=(0.0, 0.0, -60.0),

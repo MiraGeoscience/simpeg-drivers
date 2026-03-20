@@ -13,6 +13,7 @@ from __future__ import annotations
 
 from logging import getLogger
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 from discretize import TensorMesh
@@ -21,6 +22,7 @@ from geoapps_utils.utils.locations import topo_drape_elevation
 from geoh5py import Workspace
 from geoh5py.shared.merging.drape_model import DrapeModelMerger
 from geoh5py.ui_json.ui_json import fetch_active_workspace
+from numpy import ndarray
 
 from simpeg_drivers.components.factories import SimulationFactory
 from simpeg_drivers.components.meshes import InversionMesh
@@ -88,7 +90,7 @@ class Base1DDriver(BaseDriver):
         )
         return layers_mesh
 
-    def get_tiles(self) -> dict[str, list[np.ndarray]]:
+    def get_tiles(self) -> dict[None, list[list[ndarray[tuple[Any, ...]]]]]:
         n_data = self.inversion_data.mask.sum()
         indices = np.arange(n_data)
 

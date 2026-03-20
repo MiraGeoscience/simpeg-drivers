@@ -133,9 +133,9 @@ def get_octree_mesh(
             elevation=0,
         )
         center = list(plate.origin)
-        center[2] += plate.width  # Unclear why offsetted vertically
+
         plate = Plate(plate_options, center=center, workspace=survey.workspace)
-        mesh = OctreeDriver.refine_tree_from_surface(
+        mesh = OctreeDriver.refine_tree_from_triangulation(
             mesh, plate.surface, levels=(4,), finalize=False
         )
 
