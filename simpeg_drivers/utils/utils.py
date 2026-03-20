@@ -11,13 +11,17 @@
 
 from __future__ import annotations
 
+import multiprocessing
 from collections.abc import Sequence
 from copy import deepcopy
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
 from discretize import TensorMesh, TreeMesh
 from discretize.utils import mesh_utils
+from geoapps_utils.base import Options
+from geoapps_utils.run import load_ui_json_as_dict
 from geoapps_utils.utils.locations import mask_under_horizon
 from geoapps_utils.utils.numerical import running_mean, traveling_salesman
 from geoh5py import Workspace
@@ -30,6 +34,7 @@ from geoh5py.objects.surveys.electromagnetics.airborne_app_con import (
 )
 from geoh5py.objects.surveys.electromagnetics.base import LargeLoopGroundEMSurvey
 from geoh5py.shared import INTEGER_NDV
+from geoh5py.shared.utils import fetch_active_workspace, stringify
 from geoh5py.ui_json import InputFile
 from grid_apps.utils import octree_2_treemesh
 from scipy.interpolate import interp1d
@@ -661,3 +666,52 @@ def compute_alongline_distance(points: np.ndarray, ordered: bool = True) -> np.n
         distances = np.c_[distances, points[:, 2:]]
 
     return distances
+
+
+def get_default_parallelization_params(json_path: Path) -> tuple[int, int]:
+    """
+    Get parallelization parameters from a ui_json file.
+
+    If the number of workers is unset, it is estimated from the number of CPU cores.
+
+    :param json_path: Path to ui_json file.
+    :returns: Tuple of parallelization parameters.
+    """
+    ui_json = load_ui_json_as_dict(json_path)
+
+    n_workers = (ui_json.get("n_workers", None),)
+    n_threads = (ui_json.get("n_threads", None),)
+
+    if n_workers is None:
+        cpu_count = multiprocessing.cpu_count()
+
+        if cpu_count < 16:
+            n_threads = n_threads or 2
+        else:
+            n_threads = n_threads or 4
+
+        n_workers = cpu_count // n_threads
+
+    return n_workers, n_threads
+
+
+def validate_out_group(options: Options) -> SimPEGGroup:
+    """
+    Validate or create a SimPEGGroup to store results.
+
+    :param out_group: Output group from selection.
+    """
+    if isinstance(options.out_group, SimPEGGroup):
+        return options.out_group
+
+    with fetch_active_workspace(options.geoh5, mode="r+"):
+        out_group = SimPEGGroup.create(
+            options.geoh5,
+            name=options.title,
+        )
+        out_group.entity_type.name = options.title
+        options = options.model_copy(update={"out_group": out_group})
+        out_group.options = stringify(options.input_file.ui_json)
+        out_group.metadata = None
+
+    return out_group

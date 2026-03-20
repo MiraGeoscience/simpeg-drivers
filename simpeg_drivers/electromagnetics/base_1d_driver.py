@@ -11,14 +11,12 @@
 
 from __future__ import annotations
 
-import multiprocessing
 from logging import getLogger
 from pathlib import Path
 
 import numpy as np
 from discretize import TensorMesh
 from discretize.utils import mesh_utils
-from geoapps_utils.run import load_ui_json_as_dict
 from geoapps_utils.utils.locations import topo_drape_elevation
 from geoh5py import Workspace
 from geoh5py.shared.merging.drape_model import DrapeModelMerger
@@ -27,7 +25,10 @@ from geoh5py.ui_json.ui_json import fetch_active_workspace
 from simpeg_drivers.components.factories import SimulationFactory
 from simpeg_drivers.components.meshes import InversionMesh
 from simpeg_drivers.driver import BaseDriver
-from simpeg_drivers.utils.utils import xyz_2_drape_model
+from simpeg_drivers.utils.utils import (
+    get_default_parallelization_params,
+    xyz_2_drape_model,
+)
 
 
 logger = getLogger(__name__)
@@ -128,38 +129,11 @@ class Base1DDriver(BaseDriver):
 
         return self._simulation
 
-    @property
-    def workers(self):
-        """List of workers"""
-        if self._workers is None:
-            if self.client:
-                self._workers = [
-                    (worker.worker_address,)
-                    for worker in self.client.cluster.workers.values()
-                ]
-            else:
-                self._workers = np.arange(multiprocessing.cpu_count()).tolist()
-        return self._workers
-
     @classmethod
     def start_dask_run(
         cls, json_path: Path, n_workers: int | None = None, n_threads: int | None = None
     ):
         """Overload configurations of BaseDriver Dask config settings."""
-        # Force distributed on 1D problems
-        ui_json = load_ui_json_as_dict(json_path)
-
-        n_workers = (ui_json.get("n_workers", None),)
-        n_threads = (ui_json.get("n_threads", None),)
-
-        if n_workers is None:
-            cpu_count = multiprocessing.cpu_count()
-
-            if cpu_count < 16:
-                n_threads = n_threads or 2
-            else:
-                n_threads = n_threads or 4
-
-            n_workers = cpu_count // n_threads
+        n_workers, n_threads = get_default_parallelization_params(json_path)
 
         super().start_dask_run(json_path, n_workers=n_workers, n_threads=n_threads)

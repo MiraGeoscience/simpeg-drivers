@@ -4,7 +4,7 @@
     "icon": "maxwellplate",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/plate-simulation/",
     "conda_environment": "simpeg_drivers",
-    "run_command": "simpeg_drivers.driver",
+    "run_command": "simpeg_drivers.plate_simulation.driver",
     "geoh5": "",
     "monitoring_directory": "",
     "simulation": {

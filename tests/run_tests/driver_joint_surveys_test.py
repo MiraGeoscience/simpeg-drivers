@@ -27,6 +27,7 @@ from simpeg_drivers.joint.joint_surveys import JointSurveysOptions
 from simpeg_drivers.joint.joint_surveys.driver import JointSurveyDriver
 from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields.gravity import (
+    GravityForwardDriver,
     GravityForwardOptions,
     GravityInversionDriver,
     GravityInversionOptions,
@@ -80,7 +81,7 @@ def test_joint_surveys_fwr_run(
             data_object=components.survey,
             starting_model=components.model,
         )
-    fwr_driver_a = GravityInversionDriver(params)
+    fwr_driver_a = GravityForwardDriver(params)
 
     with fwr_driver_a.out_group.workspace.open():
         fwr_driver_a.out_group.name = "Gravity Forward [0]"
@@ -107,7 +108,7 @@ def test_joint_surveys_fwr_run(
             data_object=components.survey,
             starting_model=components.model,
         )
-    fwr_driver_b = GravityInversionDriver(params)
+    fwr_driver_b = GravityForwardDriver(params)
 
     with fwr_driver_b.out_group.workspace.open():
         # Force co-location of meshes

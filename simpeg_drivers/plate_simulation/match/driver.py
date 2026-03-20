@@ -10,20 +10,19 @@
 
 from __future__ import annotations
 
-import multiprocessing
 import sys
 from pathlib import Path
 from typing import Self
 
 import numpy as np
-from dask.distributed import Future, progress
-from geoapps_utils.run import load_ui_json_as_dict
+from dask.distributed import Client, Future, progress
+from geoapps_utils.base import Driver
 from geoapps_utils.utils.importing import GeoAppsError
 from geoapps_utils.utils.locations import topo_drape_elevation
 from geoapps_utils.utils.logger import get_logger
 from geoapps_utils.utils.numerical import inverse_weighted_operator
 from geoapps_utils.utils.plotting import symlog
-from geoapps_utils.utils.transformations import cartesian_to_polar, rotate_xyz
+from geoapps_utils.utils.transformations import cartesian_to_polar
 from geoh5py import Workspace
 from geoh5py.groups import PropertyGroup, SimPEGGroup
 from geoh5py.objects import AirborneTEMReceivers, MaxwellPlate, Surface
@@ -33,24 +32,35 @@ from scipy import signal
 from scipy.sparse import csr_matrix
 from scipy.spatial import cKDTree
 
-from simpeg_drivers.driver import BaseDriver
+from simpeg_drivers.driver import BaseDriver, validate_client, validate_workers
 from simpeg_drivers.electromagnetics.time_domain.options import CONVERSION
 from simpeg_drivers.plate_simulation.match.options import PlateMatchOptions
 from simpeg_drivers.plate_simulation.options import ModelOptions, PlateSimulationOptions
+from simpeg_drivers.utils.utils import (
+    get_default_parallelization_params,
+    validate_out_group,
+)
 
 
 logger = get_logger(name=__name__, level_name=False, propagate=False, add_name=False)
 
 
-class PlateMatchDriver(BaseDriver):
+class PlateMatchDriver(Driver):
     """Sets up and manages workers to run all combinations of swept parameters."""
 
     _params_class = PlateMatchOptions
 
     def __init__(
-        self, params: PlateMatchOptions, workers: list[tuple[str]] | None = None
+        self,
+        params: PlateMatchOptions,
+        client: Client | bool | None = None,
+        workers: list[tuple[str]] | None = None,
     ):
-        super().__init__(params, workers=workers)
+        super().__init__(params)
+
+        self._out_group = validate_out_group(self.params)
+        self._client: Client | bool = validate_client(client)
+        self._workers: list[tuple[str]] = validate_workers(self._client, workers)
 
         self._drape_heights = self._get_drape_heights()
         self._template = self.get_template()
@@ -131,6 +141,16 @@ class PlateMatchDriver(BaseDriver):
             np.abs(strike_angle),
         )
         return indices, spatial_projection
+
+    def simpeg_run(self):
+        """
+        Run call to simpeg.
+        """
+
+    def start_message(self):
+        """
+        Starting message displayed by the logger.
+        """
 
     @classmethod
     def start(cls, filepath: str | Path, mode="r+", **_) -> Self:
@@ -326,31 +346,6 @@ class PlateMatchDriver(BaseDriver):
 
         return out
 
-    @classmethod
-    def start_dask_run(
-        cls,
-        json_path: Path,
-        n_workers: int | None = None,
-        n_threads: int | None = None,
-    ):
-        """Overload configurations of BaseDriver Dask config settings."""
-        ui_json = load_ui_json_as_dict(json_path)
-
-        n_workers = (ui_json.get("n_workers", None),)
-        n_threads = (ui_json.get("n_threads", None),)
-
-        if n_workers is None:
-            cpu_count = multiprocessing.cpu_count()
-
-            if cpu_count < 16:
-                n_threads = n_threads or 2
-            else:
-                n_threads = n_threads or 4
-
-            n_workers = cpu_count // n_threads
-
-        super().start_dask_run(json_path, n_workers=n_workers, n_threads=n_threads)
-
     def run_scores(self, spatial_projection, data) -> tuple[np.ndarray, np.ndarray]:
         """
         Run the scoring function for all simulation files in parallel using Dask.
@@ -361,7 +356,7 @@ class PlateMatchDriver(BaseDriver):
         :return: Tuple of scores and corresponding center indices for each simulation file.
         """
         file_split = np.array_split(
-            self.params.simulation_files, np.maximum(1, len(self.workers) * 10)
+            self.params.simulation_files, np.maximum(1, len(self._workers) * 10)
         )
         tasks = []
         for file_batch in file_split:
@@ -373,19 +368,22 @@ class PlateMatchDriver(BaseDriver):
             )
 
             tasks.append(
-                self.client.submit(batch_files_score, *args)
-                if self.client
+                self._client.submit(batch_files_score, *args)
+                if self._client
                 else batch_files_score(*args)
             )
 
         # Display progress bar
         if isinstance(tasks[0], Future):
             progress(tasks)
-            tasks = self.client.gather(tasks)
+            tasks = self._client.gather(tasks)
 
         scores, centers = np.vstack(tasks).T
 
         return scores, centers
+
+
+PlateMatchDriver.start_dask_run = BaseDriver.start_dask_run
 
 
 def is_up_dip(data: np.ndarray) -> bool:
@@ -516,4 +514,7 @@ def batch_files_score(
 
 if __name__ == "__main__":
     file = Path(sys.argv[1]).resolve()
-    PlateMatchDriver.start_dask_run(file)
+
+    n_workers, n_threads = get_default_parallelization_params(file)
+
+    PlateMatchDriver.start_dask_run(file, n_workers=n_workers, n_threads=n_threads)

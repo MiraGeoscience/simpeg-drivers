@@ -21,8 +21,10 @@ from geoh5py.ui_json import InputFile
 from scipy import signal
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.electromagnetics.time_domain.driver import TDEMForwardDriver
-from simpeg_drivers.electromagnetics.time_domain.options import TDEMForwardOptions
+from simpeg_drivers.electromagnetics.time_domain import (
+    TDEMForwardDriver,
+    TDEMForwardOptions,
+)
 from simpeg_drivers.plate_simulation.driver import PlateSimulationDriver
 from simpeg_drivers.plate_simulation.match.driver import PlateMatchDriver, fetch_survey
 from simpeg_drivers.plate_simulation.match.options import PlateMatchOptions

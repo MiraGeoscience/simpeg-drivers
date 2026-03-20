@@ -25,11 +25,9 @@ from simpeg_drivers.electricals.direct_current.three_dimensions.options import (
     DC3DForwardOptions,
 )
 from simpeg_drivers.options import ActiveCellsOptions
-from simpeg_drivers.potential_fields.magnetic_vector.driver import (
-    MVIInversionDriver,
-)
-from simpeg_drivers.potential_fields.magnetic_vector.options import (
-    MVIInversionOptions,
+from simpeg_drivers.potential_fields.magnetic_vector import (
+    MagneticVectorInversionDriver,
+    MagneticVectorInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
 from simpeg_drivers.utils.synthetics.options import (
@@ -41,7 +39,7 @@ from simpeg_drivers.utils.synthetics.options import (
 from tests.utils.targets import get_workspace
 
 
-def get_mvi_params(tmp_path: Path, **kwargs) -> MVIInversionOptions:
+def get_mvi_params(tmp_path: Path, **kwargs) -> MagneticVectorInversionOptions:
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         opts = SyntheticsComponentsOptions(
             method="magnetic_vector",
@@ -55,7 +53,7 @@ def get_mvi_params(tmp_path: Path, **kwargs) -> MVIInversionOptions:
         tmi_channel = components.survey.add_data(
             {"tmi": {"values": np.random.rand(components.survey.n_vertices)}}
         )
-        params = MVIInversionOptions.build(
+        params = MagneticVectorInversionOptions.build(
             geoh5=geoh5,
             data_object=components.survey,
             tmi_channel=tmi_channel,
@@ -128,7 +126,7 @@ def test_survey_data(tmp_path: Path):
         active_cells = ActiveCellsOptions(
             topography_object=test_topo_object, topography=topo
         )
-        params = MVIInversionOptions.build(
+        params = MagneticVectorInversionOptions.build(
             geoh5=workspace,
             data_object=test_data_object,
             active_cells=active_cells,
@@ -146,7 +144,7 @@ def test_survey_data(tmp_path: Path):
             inducing_field_declination=30.0,
         )
 
-        driver = MVIInversionDriver(params)
+        driver = MagneticVectorInversionDriver(params)
 
     assert driver.inversion is not None
 

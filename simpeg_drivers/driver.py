@@ -25,20 +25,16 @@ import logging
 from pathlib import Path
 from time import time
 
-from typing_extensions import Self
-
 import numpy as np
 from dask.distributed import get_client, Client, LocalCluster, performance_report
 
 from geoapps_utils.base import Driver, Options
 from geoapps_utils.run import load_ui_json_as_dict
 from geoapps_utils.utils.importing import GeoAppsError
-from geoapps_utils.param_sweeps.driver import SweepParams
 
 from geoh5py.groups import SimPEGGroup
 from geoh5py.objects import FEMSurvey
 from geoh5py.shared.utils import fetch_active_workspace
-from geoh5py.ui_json import InputFile
 
 from simpeg import (
     dask,
@@ -78,6 +74,7 @@ from simpeg_drivers.options import (
 from simpeg_drivers.joint.options import BaseJointOptions
 from simpeg_drivers.utils.nested import tile_locations
 from simpeg_drivers.utils.regularization import cell_neighbors, set_rotated_operators
+from simpeg_drivers.utils.utils import validate_out_group
 
 mlogger = logging.getLogger("distributed")
 mlogger.setLevel(logging.WARNING)
@@ -113,7 +110,7 @@ class BaseDriver(Driver, ABC):
         self._mappings: list[maps.IdentityMap] | None = None
         self.tiles: dict[str, list[np.ndarray]]
 
-        self.out_group = self.validate_out_group(self.params.out_group)
+        self.out_group = validate_out_group(self.params)
         self._client: Client | bool = validate_client(client)
 
         if getattr(self.params, "store_sensitivities", None) == "disk" and self.client:
@@ -464,8 +461,11 @@ class BaseDriver(Driver, ABC):
 
     def run(self):
         """Run inversion from params"""
-        sys.stdout = self.logger
-        self.logger.start()
+
+        if self.logger:
+            sys.stdout = self.logger
+            self.logger.start()
+
         with fetch_active_workspace(self.workspace, mode="r+"):
             if Path(self.params.input_file.path_name).is_file():
                 self.out_group.add_file(self.params.input_file.path_name)
@@ -481,13 +481,13 @@ class BaseDriver(Driver, ABC):
                     "or increase the number of tiles."
                 ) from error
 
-        self.logger.end()
-        sys.stdout = self.logger.terminal
+        if self.logger:
+            self.logger.end()
+            sys.stdout = self.logger.terminal
 
-        with fetch_active_workspace(self.workspace, mode="r+"):
-            for directive in self.directives.save_directives:
-                if isinstance(directive, directives.SaveLogFilesGeoH5):
-                    directive.write(1)
+        if self.directives.save_iteration_log_files:
+            with fetch_active_workspace(self.workspace, mode="r+"):
+                self.directives.save_iteration_log_files.write(1)
 
     @classmethod
     def start_dask_run(
@@ -506,19 +506,15 @@ class BaseDriver(Driver, ABC):
         n_threads = (ui_json.get("n_threads", n_threads),)
         save_report = (ui_json.get("performance_report", False),)
 
-        distributed_process = (
-            n_workers is not None and n_workers > 1
-        ) or n_threads is not None
-
-        cluster = (
-            LocalCluster(
+        if (n_workers is not None and n_workers > 1) or n_threads is not None:
+            cluster = LocalCluster(
                 processes=True,
                 n_workers=n_workers,
                 threads_per_worker=n_threads,
             )
-            if distributed_process
-            else None
-        )
+        else:
+            cluster = None
+
         profiler = cProfile.Profile()
         profiler.enable()
 
@@ -545,24 +541,6 @@ class BaseDriver(Driver, ABC):
                 ps = pstats.Stats(profiler, stream=s)
                 ps.sort_stats("cumulative")
                 ps.print_stats()
-
-    def validate_out_group(self, out_group: SimPEGGroup | None) -> SimPEGGroup:
-        """
-        Validate or create a SimPEGGroup to store results.
-
-        :param out_group: Output group from selection.
-        """
-        if isinstance(out_group, SimPEGGroup):
-            return out_group
-
-        with fetch_active_workspace(self.params.geoh5, mode="r+"):
-            out_group = SimPEGGroup.create(
-                self.params.geoh5,
-                name=self.params.title,
-            )
-            out_group.entity_type.name = self.params.title
-
-        return out_group
 
     @property
     def workers(self) -> list[tuple[str]]:
@@ -599,7 +577,8 @@ class ForwardDriver(BaseDriver):
             ).write(0)
 
     def start_message(self):
-        self.logger.write("Running the forward simulation ...\n")
+        if self.logger:
+            self.logger.write("Running the forward simulation ...\n")
 
 
 class InversionDriver(BaseDriver):

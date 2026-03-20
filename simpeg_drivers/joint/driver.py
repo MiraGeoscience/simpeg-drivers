@@ -13,9 +13,7 @@
 
 from __future__ import annotations
 
-import sys
 from logging import getLogger
-from pathlib import Path
 
 import numpy as np
 import simpeg.dask.objective_function as dask_objective_function
@@ -230,35 +228,6 @@ class BaseJointDriver(InversionDriver):
             self._n_values = count
 
         return self._n_values
-
-    def run(self):
-        """Run inversion from params"""
-        if self.logger:
-            sys.stdout = self.logger
-            self.logger.start()
-
-        if Path(self.params.input_file.path_name).is_file():
-            with fetch_active_workspace(self.workspace, mode="r+"):
-                self.out_group.add_file(self.params.input_file.path_name)
-
-        if self.params.forward_only:
-            print("Running the forward simulation ...")
-            predicted = self.inverse_problem.get_dpred(
-                self.models.starting_model, compute_J=False
-            )
-
-            for sub, driver in zip(predicted, self.drivers, strict=True):
-                SaveDataGeoh5Factory(driver.params).build(
-                    inversion_object=driver.inversion_data,
-                ).write(0, sub)
-        else:
-            # Run the inversion
-            self.start_inversion_message()
-            self.inversion.run(self.models.starting_model)
-        if self.logger:
-            self.logger.end()
-            sys.stdout = self.logger.terminal
-            self._update_log()
 
     def validate_create_mesh(self):
         """Function to validate and create the inversion mesh."""

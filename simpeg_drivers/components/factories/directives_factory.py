@@ -383,7 +383,7 @@ class SaveGeoh5Factory(SimPEGFactory, ABC):
         global_misfit=None,
         name=None,
     ):
-        return [inversion_object.entity]
+        return [inversion_object.entity] if inversion_object else []
 
 
 class SaveModelGeoh5Factory(SaveGeoh5Factory):
@@ -506,7 +506,10 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
         self,
         inversion_object=None,
         name=None,
-    ):
+    ) -> dict:
+        if not inversion_object:
+            return {}
+
         receivers = inversion_object.entity
         channels = [
             float(val) if val else None

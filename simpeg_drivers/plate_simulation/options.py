@@ -38,8 +38,8 @@ from simpeg_drivers.natural_sources.magnetotellurics.options import (
 from simpeg_drivers.natural_sources.tipper.options import TipperForwardOptions
 from simpeg_drivers.options import BaseForwardOptions
 from simpeg_drivers.potential_fields.gravity.options import GravityForwardOptions
-from simpeg_drivers.potential_fields.magnetic_vector.options import (
-    MVIForwardOptions,
+from simpeg_drivers.potential_fields.magnetic_vector import (
+    MagneticVectorForwardOptions,
 )
 
 from .models.options import ModelOptions
@@ -52,7 +52,7 @@ PARAM_MAP = {
     "fem": FDEMForwardOptions,
     "magnetotellurics": MTForwardOptions,
     "direct current 3d": DC3DForwardOptions,
-    "magnetic vector": MVIForwardOptions,
+    "magnetic vector": MagneticVectorForwardOptions,
     "tipper": TipperForwardOptions,
 }
 
