@@ -74,7 +74,7 @@ class PlateSimulationDriver(Driver):
 
         with fetch_active_workspace(self.params.geoh5, mode="r+"):
             self.simulation_driver.run()
-            self.update_monitoring_directory(self.out_group)
+            self.update_monitoring_directory(self._out_group)
 
         logger.info("done.")
         logger.handlers.clear()
@@ -105,7 +105,7 @@ class PlateSimulationDriver(Driver):
                     client=self._client,
                     workers=self._workers,
                 )
-                self._simulation_driver.out_group.parent = self.out_group
+                self._simulation_driver.out_group.parent = self._out_group
 
         return self._simulation_driver
 
@@ -183,11 +183,11 @@ class PlateSimulationDriver(Driver):
         octree_params = self.params.mesh.octree_params(
             self.survey,
             self.simulation_parameters.active_cells.topography_object,
-            [p.surface.copy(parent=self.out_group) for p in self.plates],
+            [p.surface.copy(parent=self._out_group) for p in self.plates],
         )
         octree_driver = OctreeDriver(octree_params)
         mesh = octree_driver.run()
-        mesh.parent = self.out_group
+        mesh.parent = self._out_group
 
         return mesh
 
