@@ -4,7 +4,7 @@
     "icon": "surveyairborneem",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
     "conda_environment": "simpeg_drivers",
-    "run_command": "simpeg_drivers.driver",
+    "run_command": "simpeg_drivers.electromagnetics.frequency_domain_1d.inversion",
     "geoh5": "",
     "monitoring_directory": "",
     "data_object": {

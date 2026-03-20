@@ -4,7 +4,7 @@
     "icon": "surveyairbornemagnetics",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
     "conda_environment": "simpeg_drivers",
-    "run_command": "simpeg_drivers.driver",
+    "run_command": "simpeg_drivers.potential_fields.magnetic_vector.inversion",
     "geoh5": "",
     "monitoring_directory": "",
     "inducing_field_declination": {
