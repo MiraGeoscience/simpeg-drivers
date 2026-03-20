@@ -47,7 +47,7 @@ class MTForwardOptions(EMDataMixin, BaseForwardOptions):
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/magnetotellurics_forward.ui.json"
     )
-
+    run_command = "simpeg_drivers.natural_sources.magnetotellurics.forward"
     title: str = "Magnetotellurics Forward"
     physical_property: str = "conductivity"
     inversion_type: str = "magnetotellurics"
@@ -94,7 +94,7 @@ class MTInversionOptions(EMDataMixin, BaseInversionOptions):
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/magnetotellurics_inversion.ui.json"
     )
-
+    run_command = "simpeg_drivers.natural_sources.magnetotellurics.inversion"
     title: str = "Magnetotellurics Inversion"
     physical_property: str = "conductivity"
     inversion_type: str = "magnetotellurics"
