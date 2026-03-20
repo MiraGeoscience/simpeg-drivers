@@ -24,7 +24,7 @@ from simpeg_drivers.electricals.direct_current.three_dimensions.options import (
 from simpeg_drivers.electromagnetics.time_domain import TDEMInversionDriver
 from simpeg_drivers.electromagnetics.time_domain.options import TDEMInversionOptions
 from simpeg_drivers.joint.joint_surveys import JointSurveysOptions
-from simpeg_drivers.joint.joint_surveys.driver import JointSurveyDriver
+from simpeg_drivers.joint.joint_surveys.driver import JointSurveysDriver
 from simpeg_drivers.options import ActiveCellsOptions
 from simpeg_drivers.potential_fields.gravity import (
     GravityForwardDriver,
@@ -189,7 +189,7 @@ def test_joint_surveys_inv_run(
             auto_scale_misfits=True,
         )
 
-    driver = JointSurveyDriver(joint_params)
+    driver = JointSurveysDriver(joint_params)
     driver.run()
 
     # The rescaling is done evenly on the two tiles for both surveys
@@ -272,7 +272,7 @@ def test_joint_surveys_mvi_run(tmp_path, anomaly=0.05):
             # Default to Conductivity (S/m)
         )
 
-        driver = JointSurveyDriver(joint_params)
+        driver = JointSurveysDriver(joint_params)
         assert np.isclose(driver.models.reference_model[0], 0)  # Took it from driver_A
         assert driver.models.starting_model.shape == (driver.models.n_active * 3,)
         assert np.isclose(
@@ -338,7 +338,7 @@ def test_joint_surveys_conductivity_run(
             # Default to Conductivity (S/m)
         )
 
-        driver = JointSurveyDriver(joint_params)
+        driver = JointSurveysDriver(joint_params)
         assert np.isclose(
             driver.models.reference_model[0], np.log(1 / 5.0)
         )  # Took it from driver_A
@@ -419,7 +419,7 @@ def test_joint_surveys_tem_run(
             starting_model=1e-3,
         )
 
-        driver = JointSurveyDriver(joint_params)
+        driver = JointSurveysDriver(joint_params)
         assert (
             len(
                 [

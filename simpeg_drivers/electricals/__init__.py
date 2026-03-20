@@ -7,18 +7,3 @@
 #  (see LICENSE file at the root of this source code package).                      '
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-
-from __future__ import annotations
-
-from .direct_current.three_dimensions import (
-    DC3DForwardOptions,
-    DC3DInversionOptions,
-)
-from .induced_polarization.three_dimensions.options import (
-    IP3DForwardOptions,
-    IP3DInversionOptions,
-)
-
-# pylint: disable=unused-import
-# flake8: noqa

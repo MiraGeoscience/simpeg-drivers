@@ -15,6 +15,3 @@ from .options import (
     MagneticVectorForwardOptions,
     MagneticVectorInversionOptions,
 )
-
-# pylint: disable=unused-import
-# flake8: noqa
