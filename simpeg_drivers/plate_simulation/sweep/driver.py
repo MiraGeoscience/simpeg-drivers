@@ -139,7 +139,7 @@ class PlateSweepDriver(Driver):
             out_file = self.params.geoh5.h5file.parent / "summary.xlsx"
             summary.to_excel(out_file, index=False)
             with self.params.geoh5.open(mode="r+"):
-                self.out_group.add_file(out_file)
+                self._out_group.add_file(out_file)
 
     @staticmethod
     def run_trial(

@@ -14,7 +14,6 @@ from __future__ import annotations
 import numpy as np
 from discretize import TreeMesh
 from geoh5py import Workspace
-from geoh5py.data import IntegerData
 from geoh5py.objects import DrapeModel, PotentialElectrode
 from geoh5py.shared.merging.drape_model import DrapeModelMerger
 from scipy.sparse import csgraph, csr_matrix
@@ -187,7 +186,7 @@ def create_mesh_by_line_id(
 
     :param workspace: Workspace to create the drape mesh in.
     :param survey: PotentialElectrode survey object.
-    :param line_ids: Array containing the line IDs for each vertex.
+    :param line_ids: Array containing the line IDs for each cell.
     :param drape_options: DrapeModelOptions containing the parameters for the drape mesh
     :param object_kwargs: Additional keyword arguments to pass to the DrapeModelMerger.create_object method.
 

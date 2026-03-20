@@ -111,6 +111,7 @@ class Base2DOptions(CoreOptions):
             if (
                 self.line_selection is not None
                 and self.line_selection.property is not None
+                and self.line_selection.value is not None
             ):
                 for count, val in enumerate(
                     np.unique(self.line_selection.property.values)
