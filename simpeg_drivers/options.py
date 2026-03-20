@@ -297,7 +297,7 @@ class ModelOptions(BaseModel):
         return self.gradient_orientations[1]
 
     @property
-    def gradient_orientations(self) -> tuple(float, float):
+    def gradient_orientations(self) -> list[FloatData] | None:
         """
         Direction and dip angles for rotated gradient regularization.
 
