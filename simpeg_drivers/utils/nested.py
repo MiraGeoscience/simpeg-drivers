@@ -535,21 +535,21 @@ def tile_locations(
         from sklearn.cluster import KMeans
 
         kmeans = KMeans(n_clusters=n_tiles, random_state=0, n_init="auto")
-        cluster_size = int(np.ceil(grid_locs.shape[0] / n_tiles))
+        # cluster_size = int(np.ceil(grid_locs.shape[0] / n_tiles))
         kmeans.fit(grid_locs)
 
-    if labels is not None:
-        cluster_id = kmeans.labels_
-    else:
-        # Redistribute cluster centers to even out the number of points
-        centers = kmeans.cluster_centers_
-        centers = (
-            centers.reshape(-1, 1, grid_locs.shape[1])
-            .repeat(cluster_size, 1)
-            .reshape(-1, grid_locs.shape[1])
-        )
-        distance_matrix = cdist(grid_locs, centers)
-        cluster_id = linear_sum_assignment(distance_matrix)[1] // cluster_size
+    # if labels is not None:
+    cluster_id = kmeans.labels_
+    # else:
+    #     # Redistribute cluster centers to even out the number of points
+    #     centers = kmeans.cluster_centers_
+    #     centers = (
+    #         centers.reshape(-1, 1, grid_locs.shape[1])
+    #         .repeat(cluster_size, 1)
+    #         .reshape(-1, grid_locs.shape[1])
+    #     )
+    #     distance_matrix = cdist(grid_locs, centers)
+    #     cluster_id = linear_sum_assignment(distance_matrix)[1] // cluster_size
 
     tiles = []
     for tid in set(cluster_id):
