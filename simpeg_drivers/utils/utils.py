@@ -414,8 +414,17 @@ def get_drape_model(
     distances = compute_alongline_distance(xyz_smooth)
     x_interp = interp1d(distances[:, 0], xyz_smooth[:, 0], fill_value="extrapolate")
     y_interp = interp1d(distances[:, 0], xyz_smooth[:, 1], fill_value="extrapolate")
+
+    # Round the values for mesh creation to avoid issue with floor (int) rounding
+    limits = np.vstack(
+        [
+            np.floor(distances.min(axis=0)),
+            np.ceil(distances.max(axis=0)),
+        ]
+    )
+
     mesh = mesh_utils.mesh_builder_xyz(
-        distances,
+        limits,
         h,
         padding_distance=[
             [pads[0], pads[1]],
