@@ -307,7 +307,7 @@ def create_simulation(
         # For DCIP-2D, create a projection from the global active cells to
         # the local active cells
         else:
-            # Map the line_ids to the mesh parts
+            # Map the survey locations (distances) to the mesh parts
             in_cell = np.searchsorted(
                 simulation.mesh.cell_centers_x, local_survey.locations_a[:, 0]
             )
