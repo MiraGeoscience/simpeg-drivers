@@ -33,7 +33,7 @@
         "tooltip": "Value of the basement resisitivity (ohm-m), density (g/cc) or susceptibility (SI)",
         "enabled": true
     },
-    "overburden": {
+    "overburden_property": {
         "main": true,
         "group": "Overburden",
         "label": "Physical property (SI)",
@@ -65,7 +65,7 @@
         "enabled": true,
         "tooltip": "Spacing between plates"
     },
-    "plate": {
+    "plate_property": {
         "main": true,
         "group": "Plate",
         "label": "Physical property (SI)",

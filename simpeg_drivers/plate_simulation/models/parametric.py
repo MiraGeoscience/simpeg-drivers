@@ -128,12 +128,12 @@ class Plate(Parametric):
     def vertices(self) -> np.ndarray:
         """Vertices for triangulation of a rectangular prism in 3D space."""
 
-        u_1 = self.center[0] - (self.params.strike_length / 2.0)
-        u_2 = self.center[0] + (self.params.strike_length / 2.0)
-        v_1 = self.center[1] - (self.params.dip_length / 2.0)
-        v_2 = self.center[1] + (self.params.dip_length / 2.0)
-        w_1 = self.center[2] - (self.params.width / 2.0)
-        w_2 = self.center[2] + (self.params.width / 2.0)
+        u_1 = self.center[0] - (self.params.geometry.strike_length / 2.0)
+        u_2 = self.center[0] + (self.params.geometry.strike_length / 2.0)
+        v_1 = self.center[1] - (self.params.geometry.dip_length / 2.0)
+        v_2 = self.center[1] + (self.params.geometry.dip_length / 2.0)
+        w_1 = self.center[2] - (self.params.geometry.width / 2.0)
+        w_2 = self.center[2] + (self.params.geometry.width / 2.0)
 
         vertices = np.array(
             [
@@ -159,29 +159,21 @@ class Plate(Parametric):
 
     def _rotate(self, vertices: np.ndarray) -> np.ndarray:
         """Rotate vertices and adjust for reference point."""
-        theta = -1 * self.params.dip_direction
-        phi = -1 * self.params.dip
+        theta = -1 * self.params.geometry.direction
+        phi = -1 * self.params.geometry.dip
         rotated_vertices = rotate_xyz(vertices, self.center, theta, phi)
 
         return rotated_vertices
 
     def mask(self, mesh: Octree) -> np.ndarray:
-        plate = PlateModel(
-            strike_length=self.params.strike_length,
-            dip_length=self.params.dip_length,
-            width=self.params.width,
-            direction=self.params.dip_direction,
-            dip=self.params.dip,
-            origin=self.center,
-        )
         rotations = [
-            z_rotation_matrix(np.deg2rad(self.params.dip_direction)),
-            x_rotation_matrix(np.deg2rad(self.params.dip)),
+            z_rotation_matrix(np.deg2rad(self.params.geometry.direction)),
+            x_rotation_matrix(np.deg2rad(self.params.geometry.dip)),
         ]
         rotated_centers = rotate_points(
-            mesh.centroids, origin=plate.origin, rotations=rotations
+            mesh.centroids, origin=self.params.geometry.origin, rotations=rotations
         )
-        return inside_plate(rotated_centers, plate)
+        return inside_plate(rotated_centers, self.params.geometry)
 
 
 class Body(Parametric):

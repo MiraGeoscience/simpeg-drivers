@@ -9,6 +9,7 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 import numpy as np
+from geoapps_utils.modelling.plates import PlateModel
 from geoh5py import Workspace
 from geoh5py.objects import Surface
 
@@ -87,11 +88,17 @@ def test_anomaly(tmp_path):
         _, octree = get_topo_mesh(workspace)
         params = PlateOptions(
             name="my plate",
-            plate=10.0,
-            elevation=-1.5,
-            width=10.0,
-            strike_length=10.0,
-            dip_length=1.0,
+            plate_property=10.0,
+            geometry=PlateModel(
+                easting=0.0,
+                northing=0.0,
+                elevation=-1.5,
+                width=10.0,
+                strike_length=10.0,
+                dip_length=1.0,
+                dip_direction=90,
+                dip=90,
+            ),
         )
         plate = Plate(params, center=(5.0, 5.0, -1.5))
 

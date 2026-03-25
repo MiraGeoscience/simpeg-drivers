@@ -131,24 +131,24 @@ class PlateSimulationDriver(Driver):
         """Generate sequence of plates."""
         if self._plates is None:
             offset = (
-                self.params.model.overburden_model.thickness
-                if self.params.model.plate_model.reference_surface == "overburden"
+                self.params.model.overburden.thickness
+                if self.params.model.plate.reference_surface == "overburden"
                 else 0.0
             )
-            center = self.params.model.plate_model.center(
+            center = self.params.model.plate.center(
                 self.survey,
                 self.topography,
                 depth_offset=-1 * offset,
             )
             plate = Plate(
-                self.params.model.plate_model,
+                self.params.model.plate,
                 center,
             )
             self._plates = self.replicate(
                 plate,
-                self.params.model.plate_model.number,
-                self.params.model.plate_model.spacing,
-                self.params.model.plate_model.dip_direction,
+                self.params.model.plate.number,
+                self.params.model.plate.spacing,
+                self.params.model.plate.geometry.direction,
             )
         return self._plates
 
@@ -198,12 +198,12 @@ class PlateSimulationDriver(Driver):
 
         overburden = Overburden(
             topography=self.simulation_parameters.active_cells.topography_object,
-            thickness=self.params.model.overburden_model.thickness,
-            value=self.params.model.overburden_model.overburden,
+            thickness=self.params.model.overburden.thickness,
+            value=self.params.model.overburden.overburden_property,
         )
 
         dikes = DikeSwarm(
-            [Anomaly(plate, plate.params.plate) for plate in self.plates],
+            [Anomaly(plate, plate.params.plate_property) for plate in self.plates],
             name="plates",
         )
 

@@ -75,9 +75,9 @@ def test_plate_simulation_params_from_input_file(tmp_path):
 
         # Add model parameters
         ifile.data["background"] = 1000.0
-        ifile.data["overburden"] = 5.0
+        ifile.data["overburden_property"] = 5.0
         ifile.data["thickness"] = 50.0
-        ifile.data["plate"] = 2.0
+        ifile.data["plate_property"] = 2.0
         ifile.data["width"] = 100.0
         ifile.data["strike_length"] = 100.0
         ifile.data["dip_length"] = 100.0
@@ -117,20 +117,20 @@ def test_plate_simulation_params_from_input_file(tmp_path):
     assert not params.mesh.diagonal_balance
 
     assert isinstance(params.model, ModelOptions)
-    assert params.model.plate_model.name == "test_gravity_plate_simulation"
+    assert params.model.plate.name == "test_gravity_plate_simulation"
     assert params.model.background == 1000.0
-    assert params.model.overburden_model.thickness == 50.0
-    assert params.model.overburden_model.overburden == 5.0
-    assert params.model.plate_model.plate == 2.0
-    assert params.model.plate_model.width == 100.0
-    assert params.model.plate_model.strike_length == 100.0
-    assert params.model.plate_model.dip_length == 100.0
-    assert params.model.plate_model.dip == 0.0
-    assert params.model.plate_model.dip_direction == 0.0
+    assert params.model.overburden.thickness == 50.0
+    assert params.model.overburden.overburden_property == 5.0
+    assert params.model.plate.plate_property == 2.0
+    assert params.model.plate.geometry.width == 100.0
+    assert params.model.plate.geometry.strike_length == 100.0
+    assert params.model.plate.geometry.dip_length == 100.0
+    assert params.model.plate.geometry.dip == 0.0
+    assert params.model.plate.geometry.direction == 0.0
 
-    assert params.model.plate_model.number == 9
-    assert params.model.plate_model.spacing == 10.0
-    assert params.model.plate_model.relative_locations
-    assert params.model.plate_model.easting == 10.0
-    assert params.model.plate_model.northing == 10.0
-    assert params.model.plate_model.elevation == -250.0
+    assert params.model.plate.number == 9
+    assert params.model.plate.spacing == 10.0
+    assert params.model.plate.relative_locations
+    assert params.model.plate.geometry.easting == 10.0
+    assert params.model.plate.geometry.northing == 10.0
+    assert params.model.plate.geometry.elevation == -250.0
