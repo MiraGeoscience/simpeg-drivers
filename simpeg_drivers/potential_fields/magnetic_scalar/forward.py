@@ -11,18 +11,20 @@
 
 from __future__ import annotations
 
-from simpeg_drivers.driver import InversionDriver
+import sys
+from pathlib import Path
 
-from .options import MTForwardOptions, MTInversionOptions
+from simpeg_drivers.driver import ForwardDriver
 
-
-class MTForwardDriver(InversionDriver):
-    """Magnetotellurics forward driver."""
-
-    _params_class = MTForwardOptions
+from .options import MagneticForwardOptions
 
 
-class MTInversionDriver(InversionDriver):
-    """Magnetotellurics inversion driver."""
+class MagneticForwardDriver(ForwardDriver):
+    """Magnetic susceptibility forward driver."""
 
-    _params_class = MTInversionOptions
+    _params_class = MagneticForwardOptions
+
+
+if __name__ == "__main__":
+    file = Path(sys.argv[1]).resolve()
+    MagneticForwardDriver.start_dask_run(file)

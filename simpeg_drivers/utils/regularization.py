@@ -16,7 +16,7 @@ from geoapps_utils.utils.transformations import (
     x_rotation_matrix,
     z_rotation_matrix,
 )
-from geoh5py.data import Data
+from geoh5py.data import FloatData
 from geoh5py.groups import PropertyGroup
 from geoh5py.groups.property_group_type import GroupTypeEnum
 from simpeg.regularization import SparseSmoothness
@@ -437,7 +437,7 @@ def rotated_gradient(
     return unit_grad
 
 
-def direction_and_dip(property_group: PropertyGroup) -> list[Data]:
+def direction_and_dip(property_group: PropertyGroup) -> list[FloatData]:
     """Conversion of orientation group to direction and dip."""
 
     group_type = property_group.property_group_type

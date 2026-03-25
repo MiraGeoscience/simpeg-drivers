@@ -11,26 +11,20 @@
 
 from __future__ import annotations
 
-import numpy as np
-from geoh5py.objects.surveys.electromagnetics.ground_tem import (
-    LargeLoopGroundTEMReceivers,
-)
+import sys
+from pathlib import Path
 
-from simpeg_drivers.driver import InversionDriver
+from simpeg_drivers.driver import ForwardDriver
 
-from .options import (
-    TDEMForwardOptions,
-    TDEMInversionOptions,
-)
+from .options import TipperForwardOptions
 
 
-class TDEMForwardDriver(InversionDriver):
-    """Time Domain Electromagnetic forward driver."""
+class TipperForwardDriver(ForwardDriver):
+    """Tipper forward driver."""
 
-    _params_class = TDEMForwardOptions
+    _params_class = TipperForwardOptions
 
 
-class TDEMInversionDriver(InversionDriver):
-    """Time Domain Electromagnetic inversion driver."""
-
-    _params_class = TDEMInversionOptions
+if __name__ == "__main__":
+    file = Path(sys.argv[1]).resolve()
+    TipperForwardDriver.start_dask_run(file)

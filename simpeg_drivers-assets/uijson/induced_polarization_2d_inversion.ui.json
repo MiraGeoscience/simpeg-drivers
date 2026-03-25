@@ -4,12 +4,9 @@
     "icon": "PotentialElectrode",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
     "conda_environment": "simpeg_drivers",
-    "run_command": "simpeg_drivers.driver",
+    "run_command": "simpeg_drivers.electricals.induced_polarization.two_dimensions.inversion",
     "geoh5": "",
     "monitoring_directory": "",
-    "inversion_type": "induced polarization 2d",
-    "physical_property": "chargeability",
-    "forward_only": false,
     "data_object": {
         "main": true,
         "group": "Data",

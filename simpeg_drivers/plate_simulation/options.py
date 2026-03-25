@@ -38,8 +38,8 @@ from simpeg_drivers.natural_sources.magnetotellurics.options import (
 from simpeg_drivers.natural_sources.tipper.options import TipperForwardOptions
 from simpeg_drivers.options import BaseForwardOptions
 from simpeg_drivers.potential_fields.gravity.options import GravityForwardOptions
-from simpeg_drivers.potential_fields.magnetic_vector.options import (
-    MVIForwardOptions,
+from simpeg_drivers.potential_fields.magnetic_vector import (
+    MagneticVectorForwardOptions,
 )
 
 from .models.options import ModelOptions
@@ -52,7 +52,7 @@ PARAM_MAP = {
     "fem": FDEMForwardOptions,
     "magnetotellurics": MTForwardOptions,
     "direct current 3d": DC3DForwardOptions,
-    "magnetic vector": MVIForwardOptions,
+    "magnetic vector": MagneticVectorForwardOptions,
     "tipper": TipperForwardOptions,
 }
 
@@ -125,8 +125,8 @@ class PlateSimulationOptions(Options):
 
     name: ClassVar[str] = "plate_simulation"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/plate_simulation.ui.json"
-    title: ClassVar[str] = "Plate Simulation"
-    run_command: ClassVar[str] = "simpeg_drivers.plate_simulation.driver"
+    title: str = "Plate Simulation"
+    run_command: str = "simpeg_drivers.plate_simulation.driver"
     out_group: SimPEGGroup | UIJsonGroup | None = None
     forward_only: bool = True
     inversion_type: str = "plate simulation"
@@ -144,9 +144,6 @@ class PlateSimulationOptions(Options):
         """
         simulation_options = deepcopy(self.simulation.options)
         simulation_options["geoh5"] = self.geoh5
-        simulation_options["forward_only"] = (
-            True  # TODO remove this when mechanics use ForwardOptions
-        )
 
         input_file = InputFile(ui_json=simulation_options, validate=False)
         if input_file.ui_json is None:

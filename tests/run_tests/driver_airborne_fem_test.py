@@ -18,14 +18,11 @@ from pathlib import Path
 import numpy as np
 from geoapps_utils.modelling.plates import PlateModel
 from geoh5py import Workspace
-from geoh5py.groups import SimPEGGroup
 
-from simpeg_drivers.electromagnetics.frequency_domain.driver import (
+from simpeg_drivers.electromagnetics.frequency_domain import (
     FDEMForwardDriver,
-    FDEMInversionDriver,
-)
-from simpeg_drivers.electromagnetics.frequency_domain.options import (
     FDEMForwardOptions,
+    FDEMInversionDriver,
     FDEMInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (

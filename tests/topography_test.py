@@ -17,7 +17,9 @@ from geoh5py import Workspace
 
 from simpeg_drivers.components import InversionData, InversionMesh, InversionTopography
 from simpeg_drivers.options import ActiveCellsOptions
-from simpeg_drivers.potential_fields import MVIInversionOptions
+from simpeg_drivers.potential_fields.magnetic_vector import (
+    MagneticVectorInversionOptions,
+)
 from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
 from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
@@ -46,7 +48,7 @@ def test_get_locations(tmp_path: Path):
         elevation = components.topography.add_data(
             {"elevation": {"values": components.topography.vertices[:, 2]}}
         )
-        params = MVIInversionOptions.build(
+        params = MagneticVectorInversionOptions.build(
             geoh5=geoh5,
             mesh=components.mesh,
             data_object=components.survey,

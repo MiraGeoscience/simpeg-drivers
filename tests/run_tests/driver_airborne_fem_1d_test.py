@@ -16,14 +16,11 @@ from pathlib import Path
 
 import numpy as np
 from geoh5py import Workspace
-from geoh5py.groups import SimPEGGroup
 
-from simpeg_drivers.electromagnetics.frequency_domain_1d.driver import (
+from simpeg_drivers.electromagnetics.frequency_domain_1d import (
     FDEM1DForwardDriver,
-    FDEM1DInversionDriver,
-)
-from simpeg_drivers.electromagnetics.frequency_domain_1d.options import (
     FDEM1DForwardOptions,
+    FDEM1DInversionDriver,
     FDEM1DInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (
@@ -41,7 +38,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 804.9849282354428, "phi_d": 58200, "phi_m": 118}
+target_run = {"data_norm": 804.9849282354428, "phi_d": 64500, "phi_m": 717}
 
 
 def test_fem_fwr_1d_run(

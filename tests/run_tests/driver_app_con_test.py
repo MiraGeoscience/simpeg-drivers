@@ -14,15 +14,12 @@ from pathlib import Path
 
 import numpy as np
 from geoapps_utils.modelling.plates import PlateModel
-from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.natural_sources.apparent_conductivity.driver import (
+from simpeg_drivers.natural_sources.apparent_conductivity import (
     AppConForwardDriver,
-    AppConInversionDriver,
-)
-from simpeg_drivers.natural_sources.apparent_conductivity.options import (
     AppConForwardOptions,
+    AppConInversionDriver,
     AppConInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (

@@ -1,0 +1,31 @@
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+from simpeg_drivers.driver import InversionDriver
+from simpeg_drivers.electricals.base_2d import Base2DDriver
+
+from .options import DC2DInversionOptions
+
+
+class DC2DInversionDriver(InversionDriver, Base2DDriver):
+    """Direct Current 2D inversion driver."""
+
+    _params_class = DC2DInversionOptions
+
+
+if __name__ == "__main__":
+    file = Path(sys.argv[1]).resolve()
+    DC2DInversionDriver.start_dask_run(file)

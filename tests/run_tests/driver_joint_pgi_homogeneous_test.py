@@ -19,21 +19,19 @@ from geoh5py.workspace import Workspace
 
 from simpeg_drivers.joint.joint_petrophysics.driver import JointPetrophysicsDriver
 from simpeg_drivers.joint.joint_petrophysics.options import JointPetrophysicsOptions
-from simpeg_drivers.potential_fields import (
-    GravityForwardOptions,
-    GravityInversionOptions,
-    MagneticInversionOptions,
-    MVIForwardOptions,
-)
-from simpeg_drivers.potential_fields.gravity.driver import (
+from simpeg_drivers.potential_fields.gravity import (
     GravityForwardDriver,
+    GravityForwardOptions,
     GravityInversionDriver,
+    GravityInversionOptions,
 )
-from simpeg_drivers.potential_fields.magnetic_scalar.driver import (
+from simpeg_drivers.potential_fields.magnetic_scalar import (
     MagneticInversionDriver,
+    MagneticInversionOptions,
 )
-from simpeg_drivers.potential_fields.magnetic_vector.driver import (
-    MVIForwardDriver,
+from simpeg_drivers.potential_fields.magnetic_vector import (
+    MagneticVectorForwardDriver,
+    MagneticVectorForwardOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (
     SyntheticsComponents,
@@ -109,7 +107,7 @@ def test_homogeneous_fwr_run(
         ind = components.mesh.centroids[:, 0] > -2
         components.model.values[ind] = 0.01
 
-        params = MVIForwardOptions.build(
+        params = MagneticVectorForwardOptions.build(
             geoh5=geoh5,
             mesh=components.mesh,
             topography_object=components.topography,
@@ -119,7 +117,7 @@ def test_homogeneous_fwr_run(
             data_object=components.survey,
             starting_model=components.model,
         )
-    fwr_driver_b = MVIForwardDriver(params)
+    fwr_driver_b = MagneticVectorForwardDriver(params)
 
     fwr_driver_a.run()
     fwr_driver_b.run()
