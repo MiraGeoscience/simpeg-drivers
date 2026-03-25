@@ -11,20 +11,20 @@
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
 from simpeg_drivers.driver import InversionDriver
-from simpeg_drivers.potential_fields.gravity.options import (
-    GravityForwardOptions,
-    GravityInversionOptions,
-)
+
+from .options import TDEMInversionOptions
 
 
-class GravityForwardDriver(InversionDriver):
-    """Gravity forward driver."""
+class TDEMInversionDriver(InversionDriver):
+    """Time Domain Electromagnetic inversion driver."""
 
-    _params_class = GravityForwardOptions
+    _params_class = TDEMInversionOptions
 
 
-class GravityInversionDriver(InversionDriver):
-    """Gravity inversion driver."""
-
-    _params_class = GravityInversionOptions
+if __name__ == "__main__":
+    file = Path(sys.argv[1]).resolve()
+    TDEMInversionDriver.start_dask_run(file)

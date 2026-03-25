@@ -18,12 +18,10 @@ from geoapps_utils.modelling.plates import PlateModel
 from geoh5py.groups import PropertyGroup
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.electricals.direct_current.two_dimensions.driver import (
+from simpeg_drivers.electricals.direct_current.two_dimensions import (
     DC2DForwardDriver,
-    DC2DInversionDriver,
-)
-from simpeg_drivers.electricals.direct_current.two_dimensions.options import (
     DC2DForwardOptions,
+    DC2DInversionDriver,
     DC2DInversionOptions,
 )
 from simpeg_drivers.options import (

@@ -36,7 +36,7 @@ class AppConForwardOptions(EMDataMixin, BaseForwardOptions):
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/apparent_conductivity_forward.ui.json"
     )
-
+    run_command: str = "simpeg_drivers.natural_sources.apparent_conductivity.forward"
     title: str = "Apparent Conductivity Forward"
     physical_property: str = "conductivity"
     inversion_type: str = "apparent conductivity"
@@ -57,7 +57,7 @@ class AppConInversionOptions(EMDataMixin, BaseInversionOptions):
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/apparent_conductivity_inversion.ui.json"
     )
-
+    run_command: str = "simpeg_drivers.natural_sources.apparent_conductivity.inversion"
     title: str = "Apparent Conductivity Inversion"
     physical_property: str = "conductivity"
     inversion_type: str = "apparent conductivity"

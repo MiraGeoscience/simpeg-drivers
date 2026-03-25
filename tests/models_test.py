@@ -22,16 +22,16 @@ from simpeg_drivers.components import (
     InversionModel,
     InversionModelCollection,
 )
-from simpeg_drivers.electricals.direct_current.three_dimensions.driver import (
+from simpeg_drivers.electricals.direct_current.three_dimensions import (
     DC3DForwardDriver,
 )
 from simpeg_drivers.electricals.direct_current.three_dimensions.options import (
     DC3DForwardOptions,
 )
 from simpeg_drivers.options import ActiveCellsOptions
-from simpeg_drivers.potential_fields import MVIInversionOptions
-from simpeg_drivers.potential_fields.magnetic_vector.driver import (
-    MVIInversionDriver,
+from simpeg_drivers.potential_fields.magnetic_vector import (
+    MagneticVectorInversionDriver,
+    MagneticVectorInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
 from simpeg_drivers.utils.synthetics.options import (
@@ -43,7 +43,7 @@ from simpeg_drivers.utils.synthetics.options import (
 from tests.utils.targets import get_workspace
 
 
-def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
+def get_mvi_params(tmp_path: Path) -> MagneticVectorInversionOptions:
     opts = SyntheticsComponentsOptions(
         method="magnetic_vector",
         survey=SurveyOptions(n_stations=2, n_lines=2),
@@ -67,7 +67,7 @@ def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
         elevation = components.topography.add_data(
             {"elevation": {"values": components.topography.vertices[:, 2]}}
         )
-        params = MVIInversionOptions.build(
+        params = MagneticVectorInversionOptions.build(
             geoh5=geoh5,
             data_object=components.survey,
             tmi_channel=tmi_channel,
@@ -88,7 +88,7 @@ def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
     return params
 
 
-def get_dc_params(tmp_path: Path) -> MVIInversionOptions:
+def get_dc_params(tmp_path: Path) -> MagneticVectorInversionOptions:
     opts = SyntheticsComponentsOptions(
         method="direct_current",
         survey=SurveyOptions(n_stations=4, n_lines=2),
@@ -124,7 +124,7 @@ def test_zero_reference_model(tmp_path: Path):
     params = get_mvi_params(tmp_path)
     geoh5 = params.geoh5
     with geoh5.open():
-        driver = MVIInversionDriver(params)
+        driver = MagneticVectorInversionDriver(params)
         _ = InversionModel(driver, "reference_model")
         incl = np.unique(geoh5.get_entity("reference_inclination")[0].values)
         decl = np.unique(geoh5.get_entity("reference_declination")[0].values)
@@ -137,7 +137,7 @@ def test_zero_reference_model(tmp_path: Path):
 def test_collection(tmp_path: Path):
     params = get_mvi_params(tmp_path)
     with params.geoh5.open():
-        driver = MVIInversionDriver(params)
+        driver = MagneticVectorInversionDriver(params)
         models = InversionModelCollection(driver)
         models.remove_air(driver.models.active_cells)
         starting = InversionModel(driver, "starting_model")
@@ -153,7 +153,7 @@ def test_collection(tmp_path: Path):
 def test_initialize(tmp_path: Path):
     params = get_mvi_params(tmp_path)
     with params.geoh5.open():
-        driver = MVIInversionDriver(params)
+        driver = MagneticVectorInversionDriver(params)
         starting_model = InversionModel(driver, "starting_model")
         assert len(starting_model.model) == driver.inversion_mesh.n_cells
         assert len(np.unique(starting_model.model)) == 1
@@ -164,7 +164,7 @@ def test_model_from_object(tmp_path: Path):
     params = get_mvi_params(tmp_path)
     geoh5 = params.geoh5
     with geoh5.open():
-        driver = MVIInversionDriver(params)
+        driver = MagneticVectorInversionDriver(params)
 
         inversion_mesh = InversionMesh(geoh5, params)
         cc = inversion_mesh.mesh.cell_centers

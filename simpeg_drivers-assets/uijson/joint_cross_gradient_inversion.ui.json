@@ -4,12 +4,9 @@
     "icon": "function",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
     "conda_environment": "simpeg_drivers",
-    "run_command": "simpeg_drivers.driver",
+    "run_command": "simpeg_drivers.joint.joint_cross_gradient.driver",
     "geoh5": "",
     "monitoring_directory": "",
-    "inversion_type": "joint cross gradient",
-    "physical_property": "",
-    "forward_only": false,
     "group_a": {
         "main": true,
         "group": "Joint",

@@ -11,18 +11,21 @@
 
 from __future__ import annotations
 
-from simpeg_drivers.driver import InversionDriver
+import sys
+from pathlib import Path
 
-from .options import AppConForwardOptions, AppConInversionOptions
+from simpeg_drivers.driver import ForwardDriver
+from simpeg_drivers.electromagnetics.base_1d_driver import Base1DDriver
 
-
-class AppConForwardDriver(InversionDriver):
-    """AppCon forward driver."""
-
-    _params_class = AppConForwardOptions
+from .options import TDEM1DForwardOptions
 
 
-class AppConInversionDriver(InversionDriver):
-    """AppCon inversion driver."""
+class TDEM1DForwardDriver(ForwardDriver, Base1DDriver):
+    """Frequency Domain 1D Electromagnetic forward driver."""
 
-    _params_class = AppConInversionOptions
+    _params_class = TDEM1DForwardOptions
+
+
+if __name__ == "__main__":
+    file = Path(sys.argv[1]).resolve()
+    TDEM1DForwardDriver.start_dask_run(file)

@@ -15,24 +15,27 @@ from geoh5py.objects import Octree
 from geoh5py.workspace import Workspace
 from simpeg.directives import SaveModelGeoH5, SavePropertyGroup
 
-from simpeg_drivers.electricals.direct_current.three_dimensions.driver import (
+from simpeg_drivers.electricals.direct_current.three_dimensions.inversion import (
     DC3DInversionDriver,
 )
 from simpeg_drivers.electricals.direct_current.three_dimensions.options import (
     DC3DInversionOptions,
 )
-from simpeg_drivers.electromagnetics.time_domain.driver import TDEMInversionDriver
+from simpeg_drivers.electromagnetics.time_domain import TDEMInversionDriver
 from simpeg_drivers.electromagnetics.time_domain.options import TDEMInversionOptions
-from simpeg_drivers.joint.joint_surveys import JointSurveysOptions
-from simpeg_drivers.joint.joint_surveys.driver import JointSurveyDriver
+from simpeg_drivers.joint.joint_surveys.driver import JointSurveysDriver
+from simpeg_drivers.joint.joint_surveys.options import JointSurveysOptions
 from simpeg_drivers.options import ActiveCellsOptions
-from simpeg_drivers.potential_fields import (
+from simpeg_drivers.potential_fields.gravity import (
+    GravityForwardDriver,
     GravityForwardOptions,
+    GravityInversionDriver,
     GravityInversionOptions,
 )
-from simpeg_drivers.potential_fields.gravity.driver import GravityInversionDriver
-from simpeg_drivers.potential_fields.magnetic_vector.driver import MVIInversionDriver
-from simpeg_drivers.potential_fields.magnetic_vector.options import MVIInversionOptions
+from simpeg_drivers.potential_fields.magnetic_vector import (
+    MagneticVectorInversionDriver,
+    MagneticVectorInversionOptions,
+)
 from simpeg_drivers.utils.synthetics.driver import (
     SyntheticsComponents,
 )
@@ -78,7 +81,7 @@ def test_joint_surveys_fwr_run(
             data_object=components.survey,
             starting_model=components.model,
         )
-    fwr_driver_a = GravityInversionDriver(params)
+    fwr_driver_a = GravityForwardDriver(params)
 
     with fwr_driver_a.out_group.workspace.open():
         fwr_driver_a.out_group.name = "Gravity Forward [0]"
@@ -105,7 +108,7 @@ def test_joint_surveys_fwr_run(
             data_object=components.survey,
             starting_model=components.model,
         )
-    fwr_driver_b = GravityInversionDriver(params)
+    fwr_driver_b = GravityForwardDriver(params)
 
     with fwr_driver_b.out_group.workspace.open():
         # Force co-location of meshes
@@ -186,7 +189,7 @@ def test_joint_surveys_inv_run(
             auto_scale_misfits=True,
         )
 
-    driver = JointSurveyDriver(joint_params)
+    driver = JointSurveysDriver(joint_params)
     driver.run()
 
     # The rescaling is done evenly on the two tiles for both surveys
@@ -243,7 +246,7 @@ def test_joint_surveys_mvi_run(tmp_path, anomaly=0.05):
             else:
                 inc_mod = None
 
-            params = MVIInversionOptions.build(
+            params = MagneticVectorInversionOptions.build(
                 geoh5=geoh5,
                 mesh=components.mesh,
                 topography_object=components.topography,
@@ -257,7 +260,7 @@ def test_joint_surveys_mvi_run(tmp_path, anomaly=0.05):
                 starting_inclination=inc_mod,
                 reference_model=0.0,
             )
-            drivers.append(MVIInversionDriver(params))
+            drivers.append(MagneticVectorInversionDriver(params))
 
         # Run the inverse
         joint_params = JointSurveysOptions.build(
@@ -269,7 +272,7 @@ def test_joint_surveys_mvi_run(tmp_path, anomaly=0.05):
             # Default to Conductivity (S/m)
         )
 
-        driver = JointSurveyDriver(joint_params)
+        driver = JointSurveysDriver(joint_params)
         assert np.isclose(driver.models.reference_model[0], 0)  # Took it from driver_A
         assert driver.models.starting_model.shape == (driver.models.n_active * 3,)
         assert np.isclose(
@@ -335,7 +338,7 @@ def test_joint_surveys_conductivity_run(
             # Default to Conductivity (S/m)
         )
 
-        driver = JointSurveyDriver(joint_params)
+        driver = JointSurveysDriver(joint_params)
         assert np.isclose(
             driver.models.reference_model[0], np.log(1 / 5.0)
         )  # Took it from driver_A
@@ -416,7 +419,7 @@ def test_joint_surveys_tem_run(
             starting_model=1e-3,
         )
 
-        driver = JointSurveyDriver(joint_params)
+        driver = JointSurveysDriver(joint_params)
         assert (
             len(
                 [

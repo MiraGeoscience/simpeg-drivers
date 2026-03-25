@@ -17,12 +17,10 @@ from geoapps_utils.modelling.plates import PlateModel
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.electricals.induced_polarization.two_dimensions import (
-    IP2DForwardOptions,
-    IP2DInversionOptions,
-)
-from simpeg_drivers.electricals.induced_polarization.two_dimensions.driver import (
     IP2DForwardDriver,
+    IP2DForwardOptions,
     IP2DInversionDriver,
+    IP2DInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (
     SyntheticsComponents,

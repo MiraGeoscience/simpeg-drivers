@@ -13,16 +13,13 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.natural_sources.tipper import (
-    TipperForwardOptions,
-    TipperInversionOptions,
-)
-from simpeg_drivers.natural_sources.tipper.driver import (
     TipperForwardDriver,
+    TipperForwardOptions,
     TipperInversionDriver,
+    TipperInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (
     SyntheticsComponents,

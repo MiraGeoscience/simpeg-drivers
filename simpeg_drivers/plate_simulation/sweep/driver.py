@@ -17,6 +17,8 @@ from pathlib import Path
 from typing import Self
 
 import numpy as np
+from dask.distributed import Client
+from geoapps_utils.base import Driver
 from geoapps_utils.utils.importing import GeoAppsError
 from geoapps_utils.utils.logger import get_logger
 from geoh5py import Workspace
@@ -30,26 +32,44 @@ from geoh5py.ui_json.utils import flatten
 from h5py import File
 from pandas import DataFrame
 
-from simpeg_drivers.driver import BaseDriver
+from simpeg_drivers.driver import BaseDriver, validate_client, validate_workers
 from simpeg_drivers.plate_simulation.driver import PlateSimulationDriver
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
 from simpeg_drivers.plate_simulation.sweep.options import SweepOptions
 from simpeg_drivers.plate_simulation.sweep.uijson import PlateSweepUIJson
+from simpeg_drivers.utils.utils import validate_out_group
 
 
 logger = get_logger(name=__name__, level_name=False, propagate=False, add_name=False)
 
 
 # TODO: Can we make this generic (PlateSweepDriver -> SweepDriver)?
-class PlateSweepDriver(BaseDriver):
+class PlateSweepDriver(Driver):
     """Sets up and manages workers to run all combinations of swepts parameters."""
 
     _params_class = SweepOptions
 
-    def __init__(self, params: SweepOptions, workers: list[tuple[str]] | None = None):
-        super().__init__(params, workers=workers)
+    def __init__(
+        self,
+        params: SweepOptions,
+        client: Client | bool | None = None,
+        workers: list[tuple[str]] | None = None,
+    ):
+        super().__init__(params)
 
-        self.out_group = self.validate_out_group(self.params.out_group)
+        self._out_group = validate_out_group(self.params)
+        self._client: Client | bool = validate_client(client)
+        self._workers: list[tuple[str]] = validate_workers(self._client, workers)
+
+    def simpeg_run(self):
+        """
+        Run call to simpeg.
+        """
+
+    def start_message(self):
+        """
+        Starting message displayed by the logger.
+        """
 
     @classmethod
     def start(cls, filepath: str | Path, mode="r", **_) -> Self:
@@ -83,10 +103,10 @@ class PlateSweepDriver(BaseDriver):
             self.params.template.options["title"],
         )
 
-        use_futures = self.client
+        use_futures = self._client
 
         if use_futures and trials:
-            blocks = np.array_split(trials, len(self.workers))
+            blocks = np.array_split(trials, len(self._workers))
         else:
             blocks = trials
 
@@ -94,13 +114,13 @@ class PlateSweepDriver(BaseDriver):
         for ind, block in enumerate(blocks):
             if use_futures:
                 futures.append(
-                    self.client.submit(
+                    self._client.submit(
                         run_block,
                         block,
                         self.params.geoh5.h5file,
                         self.params.workdir,
-                        self.workers[ind],
-                        workers=self.workers[ind],
+                        self._workers[ind],
+                        workers=self._workers[ind],
                     )
                 )
 
@@ -112,14 +132,14 @@ class PlateSweepDriver(BaseDriver):
                 )
 
         if use_futures:
-            self.client.gather(futures)
+            self._client.gather(futures)
 
         if self.params.generate_summary:
             summary = generate_summary(self.params.workdir.iterdir())
             out_file = self.params.geoh5.h5file.parent / "summary.xlsx"
             summary.to_excel(out_file, index=False)
             with self.params.geoh5.open(mode="r+"):
-                self.out_group.add_file(out_file)
+                self._out_group.add_file(out_file)
 
     @staticmethod
     def run_trial(
@@ -152,7 +172,7 @@ class PlateSweepDriver(BaseDriver):
                 group
                 for group in workspace.groups
                 if isinstance(group, SimPEGGroup | UIJsonGroup)
-                and "plate simulation" == group.options.get("inversion_type")
+                and "plate_simulation.driver" in group.options.get("run_command")
             )
 
             opt_dict = workspace.promote(flatten(plate_simulation.options))
@@ -171,6 +191,9 @@ class PlateSweepDriver(BaseDriver):
 
         del plate_sim
         return None
+
+
+PlateSweepDriver.start_dask_run = BaseDriver.start_dask_run
 
 
 def forms_to_values(data: dict) -> dict:
@@ -235,4 +258,4 @@ def run_block(
 
 if __name__ == "__main__":
     file = Path(sys.argv[1])
-    PlateSweepDriver.start(file)
+    PlateSweepDriver.start_dask_run(file)

@@ -4,12 +4,9 @@
     "icon": "surveyairborneem",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
     "conda_environment": "simpeg_drivers",
-    "run_command": "simpeg_drivers.driver",
+    "run_command": "simpeg_drivers.electromagnetics.time_domain_1d.forward",
     "geoh5": "",
     "monitoring_directory": "",
-    "inversion_type": "tdem 1d",
-    "physical_property": "conductivity",
-    "forward_only": true,
     "data_object": {
         "main": true,
         "group": "Survey",

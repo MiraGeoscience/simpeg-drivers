@@ -11,20 +11,20 @@
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
 from simpeg_drivers.driver import InversionDriver
 
-from .options import DC3DForwardOptions, DC3DInversionOptions
-
-
-class DC3DForwardDriver(InversionDriver):
-    """Direct Current 3D forward driver."""
-
-    _params_class = DC3DForwardOptions
-    _validation = None
+from .options import DC3DInversionOptions
 
 
 class DC3DInversionDriver(InversionDriver):
     """Direct Current 3D inversion driver."""
 
     _params_class = DC3DInversionOptions
-    _validation = None
+
+
+if __name__ == "__main__":
+    file = Path(sys.argv[1]).resolve()
+    DC3DInversionDriver.start_dask_run(file)

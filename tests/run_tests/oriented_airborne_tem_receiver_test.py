@@ -22,10 +22,8 @@ from geoh5py.groups import PropertyGroup, UIJsonGroup
 from geoh5py.objects import AirborneTEMReceivers
 from geoh5py.shared.utils import fetch_active_workspace
 
-from simpeg_drivers.electromagnetics.time_domain.driver import (
+from simpeg_drivers.electromagnetics.time_domain import (
     TDEMForwardDriver,
-)
-from simpeg_drivers.electromagnetics.time_domain.options import (
     TDEMForwardOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (

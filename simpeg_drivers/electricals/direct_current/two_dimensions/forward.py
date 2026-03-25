@@ -11,20 +11,21 @@
 
 from __future__ import annotations
 
-from simpeg_drivers.driver import InversionDriver
-from simpeg_drivers.potential_fields.magnetic_scalar.options import (
-    MagneticForwardOptions,
-    MagneticInversionOptions,
-)
+import sys
+from pathlib import Path
+
+from simpeg_drivers.driver import ForwardDriver
+from simpeg_drivers.electricals.base_2d import Base2DDriver
+
+from .options import DC2DForwardOptions
 
 
-class MagneticForwardDriver(InversionDriver):
-    """Magnetic forward driver."""
+class DC2DForwardDriver(ForwardDriver, Base2DDriver):
+    """Direct Current 2D forward driver."""
 
-    _params_class = MagneticForwardOptions
+    _params_class = DC2DForwardOptions
 
 
-class MagneticInversionDriver(InversionDriver):
-    """Magnetic inversion driver."""
-
-    _params_class = MagneticInversionOptions
+if __name__ == "__main__":
+    file = Path(sys.argv[1]).resolve()
+    DC2DForwardDriver.start_dask_run(file)

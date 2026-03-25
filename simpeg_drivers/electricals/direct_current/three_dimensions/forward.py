@@ -11,24 +11,20 @@
 
 from __future__ import annotations
 
-from simpeg_drivers.driver import InversionDriver
+import sys
+from pathlib import Path
 
-from .options import (
-    FDEMForwardOptions,
-    FDEMInversionOptions,
-)
+from simpeg_drivers.driver import ForwardDriver
 
-
-class FDEMForwardDriver(InversionDriver):
-    """Frequency Domain Electromagnetic forward driver."""
-
-    _params_class = FDEMForwardOptions
-
-    def __init__(self, params: FDEMForwardOptions):
-        super().__init__(params)
+from .options import DC3DForwardOptions
 
 
-class FDEMInversionDriver(InversionDriver):
-    """Frequency Domain Electromagnetic inversion driver."""
+class DC3DForwardDriver(ForwardDriver):
+    """Direct Current 3D forward driver."""
 
-    _params_class = FDEMInversionOptions
+    _params_class = DC3DForwardOptions
+
+
+if __name__ == "__main__":
+    file = Path(sys.argv[1]).resolve()
+    DC3DForwardDriver.start_dask_run(file)
