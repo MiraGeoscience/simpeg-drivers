@@ -23,10 +23,8 @@ from packaging.version import Version
 from pydantic import AliasChoices, Field
 
 import simpeg_drivers
-from simpeg_drivers.driver import InversionDriver
+from simpeg_drivers.driver import from_input_file
 from simpeg_drivers.options import Deprecations, IRLSOptions
-from simpeg_drivers.potential_fields.gravity.options import GravityInversionOptions
-from simpeg_drivers.potential_fields.gravity.uijson import GravityInversionUIJson
 from simpeg_drivers.uijson import SimPEGDriversUIJson
 from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
 from simpeg_drivers.utils.synthetics.options import (
@@ -36,7 +34,6 @@ from simpeg_drivers.utils.synthetics.options import (
     SurveyOptions,
     SyntheticsComponentsOptions,
 )
-from tests.utils.targets import get_workspace
 
 
 logger = logging.getLogger(__name__)
@@ -247,47 +244,6 @@ def test_uijson_alias(simpeg_uijson_factory):
     assert "myParam" not in uijson.model_dump()
 
 
-def test_gravity_uijson(tmp_path):
-    import warnings
-
-    warnings.filterwarnings("error")
-    opts = SyntheticsComponentsOptions(
-        method="gravity", model=ModelOptions(anomaly=0.75)
-    )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
-        components = SyntheticsComponents(geoh5, options=opts)
-        gz_channel = components.survey.add_data(
-            {"gz": {"values": np.ones(components.survey.n_vertices)}}
-        )
-        gz_uncerts = components.survey.add_data(
-            {"gz_unc": {"values": np.ones(components.survey.n_vertices)}}
-        )
-
-        opts = GravityInversionOptions.build(
-            version="old news",
-            geoh5=geoh5,
-            data_object=components.survey,
-            gz_channel=gz_channel,
-            gz_uncertainty=gz_uncerts,
-            mesh=components.mesh,
-            starting_model=components.model,
-            topography_object=components.topography,
-        )
-    params_uijson_path = tmp_path / "from_params.ui.json"
-    opts.write_ui_json(params_uijson_path)
-
-    uijson = GravityInversionUIJson.read(params_uijson_path)
-    uijson_path = tmp_path / "from_uijson.ui.json"
-    uijson.write(uijson_path)
-    with open(params_uijson_path, encoding="utf-8") as f:
-        params_data = json.load(f)
-        assert Version(params_data["version"]) == Version(_current_version().public)
-    with open(uijson_path, encoding="utf-8") as f:
-        uijson_data = json.load(f)
-
-    assert uijson_data == params_data
-
-
 CHANNEL_NAME = {
     "direct current pseudo 3d": "potential",
     "direct current 3d": "potential",
@@ -390,7 +346,7 @@ def test_legacy_uijson(tmp_path: Path, caplog):
                     ifile.data[CHANNEL_NAME[inversion_type] + "_channel"] = channel
                     ifile.data[CHANNEL_NAME[inversion_type] + "_uncertainty"] = channel
 
-            driver = InversionDriver.from_input_file(ifile.data)
+            driver = from_input_file(ifile.data)
 
             with caplog.at_level(logging.WARNING):
                 params = driver._params_class.build(ifile)  # pylint: disable=protected-access

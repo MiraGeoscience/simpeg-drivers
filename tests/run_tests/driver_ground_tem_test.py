@@ -18,12 +18,10 @@ from geoapps_utils.modelling.plates import PlateModel
 from geoh5py.workspace import Workspace
 from pymatsolver.direct import Mumps
 
-from simpeg_drivers.electromagnetics.time_domain.driver import (
+from simpeg_drivers.electromagnetics.time_domain import (
     TDEMForwardDriver,
-    TDEMInversionDriver,
-)
-from simpeg_drivers.electromagnetics.time_domain.options import (
     TDEMForwardOptions,
+    TDEMInversionDriver,
     TDEMInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (

@@ -46,7 +46,7 @@ class JointPetrophysicsOptions(BaseJointOptions):
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/joint_petrophysics_inversion.ui.json"
     )
-
+    run_command: str = "simpeg_drivers.joint.joint_petrophysics.driver"
     title: str = "Joint Petrophysically Guided Inversion (PGI)"
     inversion_type: str = "joint petrophysics"
 

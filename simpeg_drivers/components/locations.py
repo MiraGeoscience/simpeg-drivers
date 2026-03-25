@@ -22,8 +22,6 @@ if TYPE_CHECKING:
 import numpy as np
 from geoh5py.objects import ObjectBase, Points
 from geoh5py.objects.surveys.direct_current import BaseElectrode
-from geoh5py.shared import Entity
-from scipy.interpolate import LinearNDInterpolator
 from scipy.spatial import cKDTree
 
 

@@ -15,12 +15,10 @@ from pathlib import Path
 import numpy as np
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.electricals.direct_current.three_dimensions.driver import (
+from simpeg_drivers.electricals.direct_current.three_dimensions import (
     DC3DForwardDriver,
-    DC3DInversionDriver,
-)
-from simpeg_drivers.electricals.direct_current.three_dimensions.options import (
     DC3DForwardOptions,
+    DC3DInversionDriver,
     DC3DInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (
@@ -167,7 +165,7 @@ def test_dc_single_line_fwr_run(
         )
 
     fwr_driver = DC3DForwardDriver(params)
-    assert np.all(fwr_driver.window.window["size"] > 0)
+    assert fwr_driver.inversion_mesh.mesh.n_cells == 13855
 
 
 if __name__ == "__main__":

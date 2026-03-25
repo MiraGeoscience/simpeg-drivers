@@ -9,7 +9,9 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from .options import MVIForwardOptions, MVIInversionOptions
-
-# pylint: disable=unused-import
-# flake8: noqa
+from .forward import MagneticVectorForwardDriver
+from .inversion import MagneticVectorInversionDriver
+from .options import (
+    MagneticVectorForwardOptions,
+    MagneticVectorInversionOptions,
+)

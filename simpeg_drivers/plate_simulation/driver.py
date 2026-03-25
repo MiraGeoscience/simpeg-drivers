@@ -15,26 +15,31 @@ from pathlib import Path
 
 import numpy as np
 from dask.distributed import Client
-from geoapps_utils.base import get_logger
+from geoapps_utils.base import Driver, get_logger
 from geoapps_utils.utils.transformations import azimuth_to_unit_vector
 from geoh5py.data import FloatData, ReferencedData
-from geoh5py.groups import SimPEGGroup
 from geoh5py.objects import Octree, Points, Surface
-from geoh5py.shared.utils import fetch_active_workspace, stringify
+from geoh5py.shared.utils import fetch_active_workspace
 from grid_apps.octree_creation.driver import OctreeDriver
 
-from simpeg_drivers.driver import BaseDriver, InversionDriver
+from simpeg_drivers.driver import (
+    InversionDriver,
+    driver_class_from_name,
+    validate_client,
+    validate_workers,
+)
 from simpeg_drivers.options import BaseForwardOptions, ModelTypeEnum
 from simpeg_drivers.plate_simulation.models.events import Anomaly, Erosion, Overburden
 from simpeg_drivers.plate_simulation.models.parametric import Plate
 from simpeg_drivers.plate_simulation.models.series import DikeSwarm, Geology
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
+from simpeg_drivers.utils.utils import validate_out_group
 
 
 logger = get_logger(__name__, propagate=False)
 
 
-class PlateSimulationDriver(BaseDriver):
+class PlateSimulationDriver(Driver):
     """
     Driver for simulating background + plate + overburden model.
 
@@ -52,48 +57,29 @@ class PlateSimulationDriver(BaseDriver):
         client: Client | bool | None = None,
         workers: list[tuple[str]] | None = None,
     ):
-        super().__init__(params, client=client, workers=workers)
+        super().__init__(params)
 
+        self._out_group = validate_out_group(self.params)
         self._plates: list[Plate] | None = None
         self._survey: Points | None = None
         self._mesh: Octree | None = None
         self._model: FloatData | None = None
         self._simulation_parameters: BaseForwardOptions | None = None
         self._simulation_driver: InversionDriver | None = None
+        self._client: Client | bool = validate_client(client)
+        self._workers: list[tuple[str]] = validate_workers(self._client, workers)
 
     def run(self) -> InversionDriver:
         """Create octree mesh, fill model, and simulate."""
 
-        logger.info("running the simulation...")
         with fetch_active_workspace(self.params.geoh5, mode="r+"):
             self.simulation_driver.run()
-            self.update_monitoring_directory(self.out_group)
+            self.update_monitoring_directory(self._out_group)
 
         logger.info("done.")
         logger.handlers.clear()
 
         return self.simulation_driver
-
-    def validate_out_group(self, out_group: SimPEGGroup | None) -> SimPEGGroup:
-        """
-        Validate or create a SimPEGGroup to store results.
-
-        :param out_group: Output group from selection.
-        """
-        if isinstance(out_group, SimPEGGroup):
-            return out_group
-
-        with fetch_active_workspace(self.params.geoh5, mode="r+"):
-            out_group = SimPEGGroup.create(
-                self.params.geoh5,
-                name="Plate Simulation",
-            )
-            out_group.entity_type.name = "Plate Simulation"
-            self.params = self.params.model_copy(update={"out_group": out_group})
-            out_group.options = stringify(self.params.input_file.ui_json)
-            out_group.metadata = None
-
-        return out_group
 
     @property
     def simulation_driver(self) -> InversionDriver:
@@ -111,13 +97,15 @@ class PlateSimulationDriver(BaseDriver):
                     )
 
                 self.simulation_parameters.out_group = None
-                driver_class = InversionDriver.driver_class_from_name(
+                driver_class = driver_class_from_name(
                     self.simulation_parameters.inversion_type, forward_only=True
                 )
                 self._simulation_driver = driver_class(
-                    self.simulation_parameters, client=self.client, workers=self.workers
+                    self.simulation_parameters,
+                    client=self._client,
+                    workers=self._workers,
                 )
-                self._simulation_driver.out_group.parent = self.out_group
+                self._simulation_driver.out_group.parent = self._out_group
 
         return self._simulation_driver
 
@@ -195,11 +183,11 @@ class PlateSimulationDriver(BaseDriver):
         octree_params = self.params.mesh.octree_params(
             self.survey,
             self.simulation_parameters.active_cells.topography_object,
-            [p.surface.copy(parent=self.out_group) for p in self.plates],
+            [p.surface.copy(parent=self._out_group) for p in self.plates],
         )
         octree_driver = OctreeDriver(octree_params)
         mesh = octree_driver.run()
-        mesh.parent = self.out_group
+        mesh.parent = self._out_group
 
         return mesh
 
@@ -291,6 +279,8 @@ class PlateSimulationDriver(BaseDriver):
         return plates
 
 
+PlateSimulationDriver.start_dask_run = InversionDriver.start_dask_run
+
 if __name__ == "__main__":
     file = Path(sys.argv[1])
-    PlateSimulationDriver.start(file)
+    PlateSimulationDriver.start_dask_run(file)

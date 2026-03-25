@@ -13,15 +13,12 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.electromagnetics.time_domain_1d.driver import (
+from simpeg_drivers.electromagnetics.time_domain_1d import (
     TDEM1DForwardDriver,
-    TDEM1DInversionDriver,
-)
-from simpeg_drivers.electromagnetics.time_domain_1d.options import (
     TDEM1DForwardOptions,
+    TDEM1DInversionDriver,
     TDEM1DInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (

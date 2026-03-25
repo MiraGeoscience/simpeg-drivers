@@ -11,10 +11,11 @@
 from pathlib import Path
 
 import numpy as np
-from geoh5py import Workspace
 
-from simpeg_drivers.potential_fields import GravityInversionOptions
-from simpeg_drivers.potential_fields.gravity.driver import GravityInversionDriver
+from simpeg_drivers.potential_fields.gravity import (
+    GravityInversionDriver,
+    GravityInversionOptions,
+)
 from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
 from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,

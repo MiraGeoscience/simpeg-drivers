@@ -41,6 +41,7 @@ class GravityForwardOptions(BaseForwardOptions):
 
     name: ClassVar[str] = "Gravity Forward"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/gravity_forward.ui.json"
+    run_command: str = "simpeg_drivers.potential_fields.gravity.forward"
 
     title: str = "Gravity Forward"
     physical_property: str = "density"
@@ -84,6 +85,7 @@ class GravityInversionOptions(BaseInversionOptions):
 
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/gravity_inversion.ui.json"
     name: ClassVar[str] = "Gravity Inversion"
+    run_command: str = "simpeg_drivers.potential_fields.gravity.inversion"
 
     title: str = "Gravity Inversion"
     physical_property: str = "density"
