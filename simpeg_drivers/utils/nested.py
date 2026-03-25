@@ -13,19 +13,13 @@ import pickle
 import warnings
 from collections.abc import Iterable
 from copy import copy
-from itertools import chain
 from pathlib import Path
 
 import numpy as np
-from dask import compute, delayed
-from dask.distributed import get_client
 from discretize import TensorMesh, TreeMesh
 from geoh5py.shared.utils import uuid_from_values
-from scipy.optimize import linear_sum_assignment
 from scipy.spatial import cKDTree
-from scipy.spatial.distance import cdist
 from simpeg import data, data_misfit, maps, meta, objective_function
-from simpeg.dask.objective_function import DistributedComboMisfits
 from simpeg.data_misfit import L2DataMisfit
 from simpeg.electromagnetics.base_1d import BaseEM1DSimulation
 from simpeg.electromagnetics.frequency_domain.simulation import BaseFDEMSimulation
