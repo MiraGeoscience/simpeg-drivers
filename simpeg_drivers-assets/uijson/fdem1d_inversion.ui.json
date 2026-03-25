@@ -47,7 +47,8 @@
         "label": "Uncertainty",
         "parent": "data_object",
         "dependency": "z_imag_channel",
-        "dependencyType": "show",
+        "dependencyType": "enabled",
+        "enabled": false,
         "value": ""
     },
     "z_real_channel": {
@@ -78,7 +79,8 @@
         "label": "Uncertainty",
         "parent": "data_object",
         "dependency": "z_real_channel",
-        "dependencyType": "show",
+        "dependencyType": "enabled",
+        "enabled": false,
         "value": ""
     },
     "u_cell_size": {
