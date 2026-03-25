@@ -27,7 +27,7 @@ from .options import JointSurveysOptions
 logger = getLogger(__name__)
 
 
-class JointSurveyDriver(BaseJointDriver):
+class JointSurveysDriver(BaseJointDriver):
     """Joint surveys inversion driver"""
 
     _params_class = JointSurveysOptions
@@ -142,5 +142,5 @@ class JointSurveyDriver(BaseJointDriver):
         return self._directives
 
 
-JointSurveyDriver.n_values = InversionDriver.n_values
-JointSurveyDriver.mapping = InversionDriver.mapping
+JointSurveysDriver.n_values = InversionDriver.n_values
+JointSurveysDriver.mapping = InversionDriver.mapping

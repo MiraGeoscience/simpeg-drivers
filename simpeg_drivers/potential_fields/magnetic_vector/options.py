@@ -38,7 +38,7 @@ class VectorModelOptions(ModelOptions):
     reference_declination: float | FloatData | None = None
 
 
-class MVIForwardOptions(BaseForwardOptions):
+class MagneticVectorForwardOptions(BaseForwardOptions):
     """
     Magnetic Vector forward options.
 
@@ -58,7 +58,7 @@ class MVIForwardOptions(BaseForwardOptions):
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/magnetic_vector_forward.ui.json"
     )
-
+    run_command: str = "simpeg_drivers.potential_fields.magnetic_vector.forward"
     title: str = "Magnetic Vector Forward"
     physical_property: str = "susceptibility"
     inversion_type: str = "magnetic vector"
@@ -79,7 +79,7 @@ class MVIForwardOptions(BaseForwardOptions):
     models: VectorModelOptions
 
 
-class MVIInversionOptions(BaseInversionOptions):
+class MagneticVectorInversionOptions(BaseInversionOptions):
     """
     Magnetic Vector Inversion options.
 
@@ -112,7 +112,7 @@ class MVIInversionOptions(BaseInversionOptions):
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/magnetic_vector_inversion.ui.json"
     )
-
+    run_command: str = "simpeg_drivers.potential_fields.magnetic_vector.inversion"
     title: str = "Magnetic Vector Inversion"
     physical_property: str = "susceptibility"
     inversion_type: str = "magnetic vector"

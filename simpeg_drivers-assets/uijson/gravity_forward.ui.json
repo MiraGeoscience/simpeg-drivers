@@ -4,12 +4,9 @@
     "icon": "surveyairbornegravity",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
     "conda_environment": "simpeg_drivers",
-    "run_command": "simpeg_drivers.driver",
+    "run_command": "simpeg_drivers.potential_fields.gravity.forward",
     "geoh5": "",
     "monitoring_directory": "",
-    "inversion_type": "gravity",
-    "forward_only": true,
-    "physical_property": "density",
     "data_object": {
         "main": true,
         "group": "Survey",

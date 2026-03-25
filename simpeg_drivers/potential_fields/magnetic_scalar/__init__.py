@@ -9,7 +9,9 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
-from .options import MagneticForwardOptions, MagneticInversionOptions
-
-# pylint: disable=unused-import
-# flake8: noqa
+from .forward import MagneticForwardDriver
+from .inversion import MagneticInversionDriver
+from .options import (
+    MagneticForwardOptions,
+    MagneticInversionOptions,
+)

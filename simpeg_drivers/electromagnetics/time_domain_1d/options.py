@@ -37,7 +37,7 @@ class TDEM1DForwardOptions(TDEMForwardOptions, Base1DOptions):
 
     name: ClassVar[str] = "Time Domain Electromagnetics Forward"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/tdem1d_forward.ui.json"
-
+    run_command: str = "simpeg_drivers.electromagnetics.time_domain_1d.forward"
     title: str = "Time-domain EM-1D (TEM-1D) Forward"
     inversion_type: str = "tdem 1d"
 
@@ -55,7 +55,7 @@ class TDEM1DInversionOptions(TDEMInversionOptions, Base1DOptions):
 
     name: ClassVar[str] = "Time Domain Electromagnetics Inversion"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/tdem1d_inversion.ui.json"
-
+    run_command: str = "simpeg_drivers.electromagnetics.time_domain_1d.inversion"
     title: str = "Time-domain EM-1D (TEM-1D) Inversion"
     inversion_type: str = "tdem 1d"
 

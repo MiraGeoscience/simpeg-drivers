@@ -297,7 +297,7 @@ class ModelOptions(BaseModel):
         return self.gradient_orientations[1]
 
     @property
-    def gradient_orientations(self) -> tuple(float, float):
+    def gradient_orientations(self) -> list[FloatData] | None:
         """
         Direction and dip angles for rotated gradient regularization.
 
@@ -385,7 +385,6 @@ class DirectiveOptions(BaseModel):
 
     :param auto_scale_tiles: Automatically scale tiles.
     :param auto_scale_channels: Automatically scale channels.
-    :param beta_search: Beta search.
     :param every_iteration_bool: Update the sensitivity weights every iteration.
     :param save_sensitivities: Save sensitivities to file.
     :param sens_wts_threshold: Threshold for sensitivity weights.

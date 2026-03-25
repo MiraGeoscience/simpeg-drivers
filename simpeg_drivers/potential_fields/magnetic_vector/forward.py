@@ -11,18 +11,20 @@
 
 from __future__ import annotations
 
-from simpeg_drivers.driver import InversionDriver
+import sys
+from pathlib import Path
 
-from .options import TipperForwardOptions, TipperInversionOptions
+from simpeg_drivers.driver import ForwardDriver
 
-
-class TipperForwardDriver(InversionDriver):
-    """Tipper forward driver."""
-
-    _params_class = TipperForwardOptions
+from .options import MagneticVectorForwardOptions
 
 
-class TipperInversionDriver(InversionDriver):
-    """Tipper inversion driver."""
+class MagneticVectorForwardDriver(ForwardDriver):
+    """Magnetic Vector forward driver."""
 
-    _params_class = TipperInversionOptions
+    _params_class = MagneticVectorForwardOptions
+
+
+if __name__ == "__main__":
+    file = Path(sys.argv[1]).resolve()
+    MagneticVectorForwardDriver.start_dask_run(file)

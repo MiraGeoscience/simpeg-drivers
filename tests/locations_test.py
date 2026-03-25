@@ -18,7 +18,9 @@ from geoh5py import Workspace
 from geoh5py.objects import Curve, Grid2D, Points
 
 from simpeg_drivers.components.locations import InversionLocations
-from simpeg_drivers.potential_fields import MVIInversionOptions
+from simpeg_drivers.potential_fields.magnetic_vector import (
+    MagneticVectorInversionOptions,
+)
 from simpeg_drivers.utils.nested import tile_locations
 from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
 from simpeg_drivers.utils.synthetics.options import (
@@ -30,7 +32,7 @@ from simpeg_drivers.utils.synthetics.options import (
 from tests.utils.targets import get_workspace
 
 
-def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
+def get_mvi_params(tmp_path: Path) -> MagneticVectorInversionOptions:
     opts = SyntheticsComponentsOptions(
         method="magnetic_vector",
         survey=SurveyOptions(n_lines=2, n_stations=2),
@@ -42,7 +44,7 @@ def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
         tmi_channel = components.survey.add_data(
             {"tmi": {"values": np.random.rand(components.survey.n_vertices)}}
         )
-        params = MVIInversionOptions.build(
+        params = MagneticVectorInversionOptions.build(
             geoh5=geoh5,
             data_object=components.survey,
             tmi_channel=tmi_channel,

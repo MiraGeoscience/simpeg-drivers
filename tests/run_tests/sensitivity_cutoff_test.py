@@ -22,8 +22,10 @@ from simpeg_drivers.depth_of_investigation.sensitivity_cutoff.driver import (
 from simpeg_drivers.depth_of_investigation.sensitivity_cutoff.options import (
     SensitivityCutoffOptions,
 )
-from simpeg_drivers.potential_fields import GravityInversionOptions
-from simpeg_drivers.potential_fields.gravity.driver import GravityInversionDriver
+from simpeg_drivers.potential_fields.gravity import (
+    GravityInversionDriver,
+    GravityInversionOptions,
+)
 from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
 from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,

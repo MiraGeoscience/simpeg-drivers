@@ -57,8 +57,8 @@ class SweepOptions(Options):
 
     name: ClassVar[str] = "plate_sweep"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/plate_sweep.ui.json"
-    title: ClassVar[str] = "Plate Sweep"
-    run_command: ClassVar[str] = "simpeg_drivers.plate_simulation.sweep.driver"
+    title: str = "Plate Sweep"
+    run_command: str = "simpeg_drivers.plate_simulation.sweep.driver"
     out_group: SimPEGGroup | None = None
     forward_only: bool = True
     inversion_type: str = "plate sweep"

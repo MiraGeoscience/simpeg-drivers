@@ -23,13 +23,11 @@ from geoh5py.workspace import Workspace
 from simpeg.utils.mat_utils import cartesian2amplitude_dip_azimuth
 
 from simpeg_drivers.components.factories import DirectivesFactory
-from simpeg_drivers.potential_fields import (
-    MVIForwardOptions,
-    MVIInversionOptions,
-)
-from simpeg_drivers.potential_fields.magnetic_vector.driver import (
-    MVIForwardDriver,
-    MVIInversionDriver,
+from simpeg_drivers.potential_fields.magnetic_vector import (
+    MagneticVectorForwardDriver,
+    MagneticVectorForwardOptions,
+    MagneticVectorInversionDriver,
+    MagneticVectorInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (
     SyntheticsComponents,
@@ -72,7 +70,7 @@ def test_magnetic_vector_fwr_run(
         )
         geoh5.remove_entity(components.survey)
         inducing_field = (50000.0, 90.0, 0.0)
-        params = MVIForwardOptions.build(
+        params = MagneticVectorForwardOptions.build(
             forward_only=True,
             geoh5=geoh5,
             mesh=components.mesh,
@@ -85,7 +83,7 @@ def test_magnetic_vector_fwr_run(
             starting_inclination=45,
             starting_declination=270,
         )
-    fwr_driver = MVIForwardDriver(params)
+    fwr_driver = MagneticVectorForwardDriver(params)
     fwr_driver.run()
 
 
@@ -125,7 +123,7 @@ def test_magnetic_vector_run(
         )
         # Run the inverse
         with caplog.at_level(logging.WARNING) if caplog else contextlib.nullcontext():
-            params = MVIInversionOptions.build(
+            params = MagneticVectorInversionOptions.build(
                 geoh5=geoh5,
                 mesh=mesh,
                 topography_object=topography,
@@ -151,7 +149,7 @@ def test_magnetic_vector_run(
         if caplog:
             assert "Deprecated field 'lower_bound' will be ignored." in caplog.text
 
-    driver = MVIInversionDriver(params)
+    driver = MagneticVectorInversionDriver(params)
     assert np.all(driver.models.lower_bound == -upper_bound)
     driver.run()
 
@@ -203,7 +201,7 @@ def test_magnetic_vector_reference(
             {"tmi": {"values": np.random.randn(components.survey.n_vertices)}}
         )
         inducing_field = (50000.0, 90.0, 0.0)
-        params = MVIInversionOptions.build(
+        params = MagneticVectorInversionOptions.build(
             geoh5=geoh5,
             mesh=components.mesh,
             topography_object=components.topography,
@@ -218,7 +216,7 @@ def test_magnetic_vector_reference(
             reference_inclination=30,
             reference_declination=0,
         )
-    driver = MVIInversionDriver(params)
+    driver = MagneticVectorInversionDriver(params)
 
     directives = DirectivesFactory(driver)
     assert np.all(directives.vector_inversion_directive.reference_angles)

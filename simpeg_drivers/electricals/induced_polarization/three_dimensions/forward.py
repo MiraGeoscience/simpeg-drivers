@@ -11,20 +11,20 @@
 
 from __future__ import annotations
 
-from simpeg import maps
+import sys
+from pathlib import Path
 
-from simpeg_drivers.driver import InversionDriver
+from simpeg_drivers.driver import ForwardDriver
 
-from .options import MVIForwardOptions, MVIInversionOptions
-
-
-class MVIForwardDriver(InversionDriver):
-    """Magnetic Vector forward driver."""
-
-    _params_class = MVIForwardOptions
+from .options import IP3DForwardOptions
 
 
-class MVIInversionDriver(InversionDriver):
-    """Magnetic Vector inversion driver."""
+class IP3DForwardDriver(ForwardDriver):
+    """Direct Current 2D forward driver."""
 
-    _params_class = MVIInversionOptions
+    _params_class = IP3DForwardOptions
+
+
+if __name__ == "__main__":
+    file = Path(sys.argv[1]).resolve()
+    IP3DForwardDriver.start_dask_run(file)

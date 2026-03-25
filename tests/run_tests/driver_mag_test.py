@@ -16,13 +16,11 @@ import numpy as np
 from dask.distributed import LocalCluster, performance_report
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.potential_fields import (
-    MagneticForwardOptions,
-    MagneticInversionOptions,
-)
-from simpeg_drivers.potential_fields.magnetic_scalar.driver import (
+from simpeg_drivers.potential_fields.magnetic_scalar import (
     MagneticForwardDriver,
+    MagneticForwardOptions,
     MagneticInversionDriver,
+    MagneticInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (
     SyntheticsComponents,

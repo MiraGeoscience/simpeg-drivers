@@ -36,7 +36,9 @@ class DC3DForwardOptions(BaseForwardOptions):
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/direct_current_3d_forward.ui.json"
     )
-
+    run_command: str = (
+        "simpeg_drivers.electricals.direct_current.three_dimensions.forward"
+    )
     title: str = "Direct Current 3D Forward"
     physical_property: str = "conductivity"
     inversion_type: str = "direct current 3d"
@@ -58,7 +60,9 @@ class DC3DInversionOptions(BaseInversionOptions):
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/direct_current_3d_inversion.ui.json"
     )
-
+    run_command: str = (
+        "simpeg_drivers.electricals.direct_current.three_dimensions.inversion"
+    )
     title: str = "Direct Current 3D Inversion"
     physical_property: str = "conductivity"
     inversion_type: str = "direct current 3d"
