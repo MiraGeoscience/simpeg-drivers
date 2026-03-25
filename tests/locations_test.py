@@ -127,6 +127,7 @@ def test_filter(tmp_path: Path):
 #             name="test-points",
 #             vertices=choices[inds],
 
+
 def test_tile_locations():
     n_points = 1000
     rng = np.random.default_rng(0)
@@ -142,6 +143,8 @@ def test_tile_locations():
     pop = np.array([len(tile) for tile in tiles])
     assert pop.min() > 0
     assert np.std(pop) / np.mean(pop) < 0.5
+
+
 def test_tile_locations_labels(tmp_path: Path):
     stn = np.arange(0, 10000, 1000)
     x_locs = np.kron(stn, np.ones(100)) + np.random.randn(1000) * 10
