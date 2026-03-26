@@ -50,11 +50,11 @@ dependencies:
   - ld_impl_linux-64=2.45.1=default_hbd61a6d_102
   - lerc=4.1.0=hdb68285_0
   - libaec=1.1.5=h088129d_0
-  - libblas=3.11.0=5_h5875eb1_mkl
+  - libblas=3.11.0=6_h5875eb1_mkl
   - libbrotlicommon=1.2.0=hb03c661_1
   - libbrotlidec=1.2.0=hb03c661_1
   - libbrotlienc=1.2.0=hb03c661_1
-  - libcblas=3.11.0=5_hfef963f_mkl
+  - libcblas=3.11.0=6_hfef963f_mkl
   - libcurl=8.19.0=hcf29cc6_0
   - libdeflate=1.25=h17f619e_0
   - libdlf=0.3.0=pyhd8ed1ab_1
@@ -71,11 +71,11 @@ dependencies:
   - libhwloc=2.12.2=default_hafda6a7_1000
   - libiconv=1.18=h3b78370_2
   - libjpeg-turbo=3.1.2=hb03c661_0
-  - liblapack=3.11.0=5_h5e43f62_mkl
+  - liblapack=3.11.0=6_h5e43f62_mkl
   - liblzma=5.8.2=hb03c661_0
   - libmpdec=4.0.0=hb03c661_1
   - libnghttp2=1.68.1=h877daf1_0
-  - libpng=1.6.55=h421ea60_0
+  - libpng=1.6.56=h421ea60_0
   - libscotch=7.0.11=int64_hfcc3fd4_2
   - libspatialindex=2.1.0=he57a185_0
   - libsqlite=3.52.0=h0c1763c_0
@@ -159,7 +159,7 @@ dependencies:
     - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@eb0474175000819e93d8dc701ed0fd6101c44451
     - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@61d64e08fbf7147f159926cbec9ce440f843bea0
     - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@0e66e6b7a44ede34563da6a77ccd87a4cc7b5185
-    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@8a9cf452335379363e15ac7a3cd9bf689d8e2841
+    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@f7dd0d37aac285dd9ece26396ee39ae72bd6d18d
 
 variables:
   KMP_WARNINGS: 0
