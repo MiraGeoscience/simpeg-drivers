@@ -13,19 +13,13 @@ import pickle
 import warnings
 from collections.abc import Iterable
 from copy import copy
-from itertools import chain
 from pathlib import Path
 
 import numpy as np
-from dask import compute, delayed
-from dask.distributed import get_client
 from discretize import TensorMesh, TreeMesh
 from geoh5py.shared.utils import uuid_from_values
-from scipy.optimize import linear_sum_assignment
 from scipy.spatial import cKDTree
-from scipy.spatial.distance import cdist
 from simpeg import data, data_misfit, maps, meta, objective_function
-from simpeg.dask.objective_function import DistributedComboMisfits
 from simpeg.data_misfit import L2DataMisfit
 from simpeg.electromagnetics.base_1d import BaseEM1DSimulation
 from simpeg.electromagnetics.frequency_domain.simulation import BaseFDEMSimulation
@@ -539,21 +533,9 @@ def tile_locations(
         from sklearn.cluster import KMeans
 
         kmeans = KMeans(n_clusters=n_tiles, random_state=0, n_init="auto")
-        cluster_size = int(np.ceil(grid_locs.shape[0] / n_tiles))
         kmeans.fit(grid_locs)
 
-    if labels is not None:
-        cluster_id = kmeans.labels_
-    else:
-        # Redistribute cluster centers to even out the number of points
-        centers = kmeans.cluster_centers_
-        centers = (
-            centers.reshape(-1, 1, grid_locs.shape[1])
-            .repeat(cluster_size, 1)
-            .reshape(-1, grid_locs.shape[1])
-        )
-        distance_matrix = cdist(grid_locs, centers)
-        cluster_id = linear_sum_assignment(distance_matrix)[1] // cluster_size
+    cluster_id = kmeans.labels_
 
     tiles = []
     for tid in set(cluster_id):
