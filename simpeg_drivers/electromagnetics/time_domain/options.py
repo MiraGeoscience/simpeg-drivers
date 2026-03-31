@@ -21,6 +21,7 @@ from geoh5py.objects import (
     LargeLoopGroundTEMReceivers,
     MovingLoopGroundTEMReceivers,
 )
+from pydantic import AliasChoices, Field
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.options import (
@@ -76,9 +77,9 @@ class TDEMForwardOptions(BaseTDEMOptions, BaseForwardOptions):
     """
     Time Domain Electromagnetic forward options.
 
-    :param z_channel_bool: Vertical data channel boolean.
-    :param y_channel_bool: In-line data channel boolean.
-    :param x_channel_bool: Cross-line data channel boolean.
+    :param vertical_channel_bool: Vertical data channel boolean.
+    :param inline_channel_bool: In-line data channel boolean.
+    :param crossline_channel_bool: Cross-line data channel boolean.
     """
 
     name: ClassVar[str] = "Time Domain Electromagnetics Forward"
@@ -95,9 +96,15 @@ class TDEMForwardOptions(BaseTDEMOptions, BaseForwardOptions):
         | AirborneTEMReceivers
     )
     receivers_orientation: PropertyGroup | None = None
-    z_channel_bool: bool | None = None
-    x_channel_bool: bool | None = None
-    y_channel_bool: bool | None = None
+    vertical_channel_bool: bool = Field(
+        False, validation_alias=AliasChoices("z_channel_bool", "vertical_channel_bool")
+    )
+    inline_channel_bool: bool = Field(
+        False, validation_alias=AliasChoices("y_channel_bool", "inline_channel_bool")
+    )
+    crossline_channel_bool: bool = Field(
+        False, validation_alias=AliasChoices("x_channel_bool", "crossline_channel_bool")
+    )
     models: ConductivityModelOptions
 
 
@@ -105,12 +112,12 @@ class TDEMInversionOptions(BaseTDEMOptions, BaseInversionOptions):
     """
     Time Domain Electromagnetic Inversion options.
 
-    :param z_channel: Z-component data channel.
-    :param z_uncertainty: Z-component data channel uncertainty.
-    :param y_channel: In-line data channel.
-    :param y_uncertainty: In-line data channel uncertainty.
-    :param x_channel: Cross-line data channel.
-    :param x_uncertainty: Cross-line data channel uncertainty.
+    :param vertical_channel: Vertical component data channel.
+    :param vertical_uncertainty: Vertical component data channel uncertainty.
+    :param inline_channel: In-line data channel.
+    :param inline_uncertainty: In-line data channel uncertainty.
+    :param crossline_channel: Cross-line data channel.
+    :param crossline_uncertainty: Cross-line data channel uncertainty.
     """
 
     name: ClassVar[str] = "Time Domain Electromagnetics Inversion"
@@ -126,11 +133,23 @@ class TDEMInversionOptions(BaseTDEMOptions, BaseInversionOptions):
         | AirborneTEMReceivers
     )
     receivers_orientation: PropertyGroup | None = None
-    z_channel: PropertyGroup | None = None
-    z_uncertainty: PropertyGroup | None = None
-    y_channel: PropertyGroup | None = None
-    y_uncertainty: PropertyGroup | None = None
-    x_channel: PropertyGroup | None = None
-    x_uncertainty: PropertyGroup | None = None
+    vertical_channel: PropertyGroup | None = Field(
+        None, validation_alias=AliasChoices("z_channel", "vertical_channel")
+    )
+    vertical_uncertainty: PropertyGroup | None = Field(
+        None, validation_alias=AliasChoices("z_uncertainty", "vertical_uncertainty")
+    )
+    inline_channel: PropertyGroup | None = Field(
+        None, validation_alias=AliasChoices("y_channel", "crossline_channel")
+    )
+    inline_uncertainty: PropertyGroup | None = Field(
+        None, validation_alias=AliasChoices("y_uncertainty", "crossline_uncertainty")
+    )
+    crossline_channel: PropertyGroup | None = Field(
+        None, validation_alias=AliasChoices("x_channel", "inline_channel")
+    )
+    crossline_uncertainty: PropertyGroup | None = Field(
+        None, validation_alias=AliasChoices("x_uncertainty", "inline_uncertainty")
+    )
 
     models: ConductivityModelOptions
