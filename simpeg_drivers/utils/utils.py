@@ -12,7 +12,6 @@
 from __future__ import annotations
 
 import multiprocessing
-from collections.abc import Sequence
 from copy import deepcopy
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -34,7 +33,7 @@ from geoh5py.objects.surveys.electromagnetics.airborne_app_con import (
 )
 from geoh5py.objects.surveys.electromagnetics.base import LargeLoopGroundEMSurvey
 from geoh5py.shared import INTEGER_NDV
-from geoh5py.shared.utils import fetch_active_workspace, stringify
+from geoh5py.shared.utils import fetch_active_workspace, mask_by_extent, stringify
 from geoh5py.ui_json import InputFile
 from grid_apps.utils import octree_2_treemesh
 from scipy.interpolate import interp1d
@@ -48,46 +47,20 @@ if TYPE_CHECKING:
     from simpeg_drivers.driver import InversionDriver
 
 
-def octree_extents(octree: Octree) -> np.ndarray:
-    """
-    Get the true extents of an octree (min/max of the perimeter).
-
-    The octree.extents property returns min/max of the centroids
-
-    :param octree: Octree mesh object.
-
-    :returns: Array of [xmin, xmax, ymin, ymax].
-    """
-
-    origin = np.array(list(octree.origin.tolist()))
-    span = np.array(
-        [
-            getattr(octree, f"{axis}_cell_size") * getattr(octree, f"{axis}_count")
-            for axis in "uvw"
-        ]
-    )
-
-    return np.stack([origin, origin + span]).flatten(order="F")
-
-
 def mask_vertices_and_cells(
-    extent: Sequence, vertices: np.ndarray, cells: np.ndarray | None
+    extent: np.ndarray, vertices: np.ndarray, cells: np.ndarray | None
 ) -> tuple[np.ndarray, np.ndarray]:
     """
     Mask vertices and remove cells whose vertices are all outside the extent.
 
-    :param extent: Array-like object of [xmin, xmax, ymin, ymax].
+    :param extent: Array-like object of [[xmin, ymin], [xmax, ymax]].
     :param vertices: Array of shape (n_vertices, 3) containing the x, y, z coordinates.
     :param cells: Array of shape (n_cells, 3) containing the indices of the vertices
         that make up each cell.
     """
 
-    vertex_mask = (
-        (vertices[:, 0] >= extent[0])
-        & (vertices[:, 0] <= extent[1])
-        & (vertices[:, 1] >= extent[2])
-        & (vertices[:, 1] <= extent[3])
-    )
+    vertex_mask = mask_by_extent(vertices, extent=extent)
+
     if cells is None:
         return vertices[vertex_mask], None
 
