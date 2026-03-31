@@ -141,8 +141,13 @@ class PlateSimulationDriver(Driver):
                 depth_offset=-1 * offset,
             )
             plate = Plate(
-                self.params.model.plate,
-                center,
+                self.params.model.plate.model_copy(
+                    update={
+                        "easting": center[0],
+                        "northing": center[1],
+                        "elevation": center[2],
+                    }
+                ),
             )
             self._plates = self.replicate(
                 plate,
@@ -272,10 +277,24 @@ class PlateSimulationDriver(Driver):
 
         plates = []
         for i in range(number):
-            center = np.r_[plate.center] + azimuth_to_unit_vector(azimuth) * offsets[i]
-            new = Plate(plate.params.model_copy(), center)
-            new.params.name = f"{plate.params.name} offset {i + 1}"
-            plates.append(new)
+            center = (
+                np.r_[plate.params.geometry.origin]
+                + azimuth_to_unit_vector(azimuth) * offsets[i]
+            )
+            new_geometry = plate.params.geometry.model_copy(
+                update={
+                    "easting": center[0],
+                    "northing": center[1],
+                    "elevation": center[2],
+                }
+            )
+            new_plate = Plate(
+                plate.params.model_copy(update={"geometry": new_geometry})
+            )
+
+            new_plate.params.name = f"{plate.params.name} offset {i + 1}"
+            plates.append(new_plate)
+
         return plates
 
 

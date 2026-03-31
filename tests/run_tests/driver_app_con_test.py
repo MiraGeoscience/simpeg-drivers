@@ -66,7 +66,9 @@ def test_app_con_fwr_run(
                 dip_length=60.0,
                 width=60.0,
                 dip=90,
-                origin=(0.0, 0.0, -90.0),
+                easting=0.0,
+                northing=0.0,
+                elevation=-90.0,
             ),
         ),
     )

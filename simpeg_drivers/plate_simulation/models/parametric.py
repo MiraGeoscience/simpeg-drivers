@@ -68,15 +68,9 @@ class Plate(Parametric):
     def __init__(
         self,
         params: PlateOptions,
-        center: tuple[float, float, float] = (
-            0.0,
-            0.0,
-            0.0,
-        ),
         workspace: Workspace | None = None,
     ):
         self.params = params
-        self.center = center
         self._workspace = workspace
         super().__init__(self._create_surface())
 
@@ -128,12 +122,16 @@ class Plate(Parametric):
     def vertices(self) -> np.ndarray:
         """Vertices for triangulation of a rectangular prism in 3D space."""
 
-        u_1 = self.center[0] - (self.params.geometry.strike_length / 2.0)
-        u_2 = self.center[0] + (self.params.geometry.strike_length / 2.0)
-        v_1 = self.center[1] - (self.params.geometry.dip_length / 2.0)
-        v_2 = self.center[1] + (self.params.geometry.dip_length / 2.0)
-        w_1 = self.center[2] - (self.params.geometry.width / 2.0)
-        w_2 = self.center[2] + (self.params.geometry.width / 2.0)
+        u_1 = self.params.geometry.origin[0] - (
+            self.params.geometry.strike_length / 2.0
+        )
+        u_2 = self.params.geometry.origin[0] + (
+            self.params.geometry.strike_length / 2.0
+        )
+        v_1 = self.params.geometry.origin[1] - (self.params.geometry.dip_length / 2.0)
+        v_2 = self.params.geometry.origin[1] + (self.params.geometry.dip_length / 2.0)
+        w_1 = self.params.geometry.origin[2] - (self.params.geometry.width / 2.0)
+        w_2 = self.params.geometry.origin[2] + (self.params.geometry.width / 2.0)
 
         vertices = np.array(
             [
@@ -161,7 +159,7 @@ class Plate(Parametric):
         """Rotate vertices and adjust for reference point."""
         theta = -1 * self.params.geometry.direction
         phi = -1 * self.params.geometry.dip
-        rotated_vertices = rotate_xyz(vertices, self.center, theta, phi)
+        rotated_vertices = rotate_xyz(vertices, self.params.geometry.origin, theta, phi)
 
         return rotated_vertices
 

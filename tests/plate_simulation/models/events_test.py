@@ -90,8 +90,8 @@ def test_anomaly(tmp_path):
             name="my plate",
             plate_property=10.0,
             geometry=PlateModel(
-                easting=0.0,
-                northing=0.0,
+                easting=5.0,
+                northing=5.0,
                 elevation=-1.5,
                 width=10.0,
                 strike_length=10.0,
@@ -100,7 +100,7 @@ def test_anomaly(tmp_path):
                 dip=90,
             ),
         )
-        plate = Plate(params, center=(5.0, 5.0, -1.5))
+        plate = Plate(params)
 
         anomaly = Anomaly(body=plate, value=10.0)
         event_map = {1: ("Background", 1.0)}

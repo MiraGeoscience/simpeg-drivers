@@ -122,19 +122,20 @@ def get_octree_mesh(
     )
 
     if plate is not None:
-        # TODO Consolidate PlateOptions and PlateModel into a single class to avoid this redundancy
         plate_options = PlateOptions(
-            plate=1.0,  # thickness
-            width=plate.width,
-            strike_length=plate.strike_length,
-            dip_length=plate.dip_length,
-            dip=plate.dip,
-            dip_direction=plate.direction,
-            elevation=0,
+            plate_property=1.0,  # thickness
+            geometry=PlateModel(
+                strike_length=plate.strike_length,
+                dip_length=plate.dip_length,
+                width=plate.width,
+                direction=plate.direction,
+                dip=plate.dip,
+                easting=plate.origin[0],
+                northing=plate.origin[1],
+                elevation=0.0,
+            ),
         )
-        center = list(plate.origin)
-
-        plate = Plate(plate_options, center=center, workspace=survey.workspace)
+        plate = Plate(plate_options, workspace=survey.workspace)
         mesh = OctreeDriver.refine_tree_from_triangulation(
             mesh, plate.surface, levels=(4,), finalize=False
         )

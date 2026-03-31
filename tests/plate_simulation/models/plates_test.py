@@ -9,6 +9,7 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 import numpy as np
+from geoapps_utils.modelling.plates import PlateModel
 from geoapps_utils.utils.transformations import rotate_xyz
 from geoh5py import Workspace
 
@@ -28,13 +29,17 @@ def are_collocated(pts1, pts2):
 def vertical_east_striking_plate():
     params = PlateOptions(
         name="my plate",
-        plate=1.0,
-        elevation=0.0,
-        width=10.0,
-        strike_length=1000.0,
-        dip_length=500.0,
-        dip=90.0,
-        dip_direction=0.0,
+        plate_property=1.0,
+        geometry=PlateModel(
+            strike_length=1000.0,
+            dip_length=500.0,
+            width=10.0,
+            direction=0.0,
+            dip=90.0,
+            easting=0.0,
+            northing=0.0,
+            elevation=0.0,
+        ),
     )
     plate = Plate(params)
 
@@ -75,13 +80,17 @@ def test_dipping_plates_all_quadrants():
         for dip in [20.0, 70.0]:
             params = PlateOptions(
                 name=f"plate dipping {dip} at {dip_direction}",
-                plate=1.0,
-                elevation=0.0,
-                width=10.0,
-                strike_length=1000.0,
-                dip_length=500.0,
-                dip=dip,
-                dip_direction=dip_direction,
+                plate_property=1.0,
+                geometry=PlateModel(
+                    strike_length=1000.0,
+                    dip_length=500.0,
+                    width=10.0,
+                    direction=dip_direction,
+                    dip=dip,
+                    easting=0.0,
+                    northing=0.0,
+                    elevation=0.0,
+                ),
                 reference="center",
             )
 
@@ -96,13 +105,19 @@ def test_replicate_even(tmp_path):
     workspace = Workspace.create(tmp_path / f"{__name__}.geoh5")
     options = PlateOptions(
         name="test",
-        plate=1.0,
-        width=1.0,
-        strike_length=1.0,
-        dip_length=1.0,
-        elevation=1.0,
+        plate_property=1.0,
+        geometry=PlateModel(
+            strike_length=1.0,
+            dip_length=1.0,
+            width=1.0,
+            direction=0.0,
+            dip=0.0,
+            easting=0.0,
+            northing=0.0,
+            elevation=0.0,
+        ),
     )
-    plate = Plate(options, (0, 0, 0), workspace=workspace)
+    plate = Plate(options, workspace=workspace)
     plates = PlateSimulationDriver.replicate(plate, 2, 10.0, 90.0)
     assert plates[0].surface.vertices is not None
     assert plates[1].surface.vertices is not None
@@ -120,13 +135,19 @@ def test_replicate_odd(tmp_path):
     workspace = Workspace.create(tmp_path / f"{__name__}.geoh5")
     options = PlateOptions(
         name="test",
-        plate=1.0,
-        width=1.0,
-        strike_length=1.0,
-        dip_length=1.0,
-        elevation=1.0,
+        plate_property=1.0,
+        geometry=PlateModel(
+            strike_length=1.0,
+            dip_length=1.0,
+            width=1.0,
+            direction=0.0,
+            dip=0.0,
+            easting=0.0,
+            northing=0.0,
+            elevation=0.0,
+        ),
     )
-    plate = Plate(options, (0, 0, 0), workspace=workspace)
+    plate = Plate(options, workspace=workspace)
     plates = PlateSimulationDriver.replicate(plate, 3, 5.0, 0.0)
     assert plates[0].surface.vertices is not None
     assert plates[1].surface.vertices is not None

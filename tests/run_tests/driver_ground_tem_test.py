@@ -69,7 +69,9 @@ def test_tiling_ground_tem(
                 strike_length=40.0,
                 dip_length=40.0,
                 width=40.0,
-                origin=(0.0, 0.0, -50.0),
+                easting=0.0,
+                northing=0.0,
+                elevation=-50.0,
             ),
         ),
     )
@@ -128,7 +130,9 @@ def test_ground_tem_fwr_run(
                 strike_length=40.0,
                 dip_length=40.0,
                 width=40.0,
-                origin=(0.0, 0.0, -50.0),
+                easting=0.0,
+                northing=0.0,
+                elevation=-50.0,
             ),
         ),
     )
