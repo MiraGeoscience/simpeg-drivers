@@ -485,7 +485,13 @@ def batch_files_score(
                 logger.warning("No survey found in %s, skipping.", sim_file)
                 continue
 
-            simulated = get_data_array(survey.get_entity("Iteration_0_z")[0])
+            data_entity = survey.get_entity("Iteration_0_vertical")[0]
+
+            if data_entity is None:
+                data_entity = survey.get_entity("Iteration_0_z")[0]
+
+            simulated = get_data_array(data_entity)
+
             pred = time_projection @ (spatial_projection @ simulated.T).T
             scale = max_late_val / np.max(np.abs(pred[-1, :]))
             pred = normalized_data(pred, scale=scale, threshold=max_late_val)

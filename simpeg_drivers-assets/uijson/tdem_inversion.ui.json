@@ -58,7 +58,7 @@
         ],
         "value": "dB/dt (T/s)"
     },
-    "z_channel": {
+    "vertical_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -74,7 +74,7 @@
         "enabled": true,
         "value": ""
     },
-    "z_uncertainty": {
+    "vertical_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -85,11 +85,11 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "z_channel",
+        "dependency": "vertical_channel",
         "dependencyType": "enabled",
         "value": ""
     },
-    "y_channel": {
+    "inline_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -105,7 +105,7 @@
         "enabled": false,
         "value": ""
     },
-    "y_uncertainty": {
+    "inline_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -116,11 +116,11 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "y_channel",
+        "dependency": "inline_channel",
         "dependencyType": "enabled",
         "value": ""
     },
-    "x_channel": {
+    "crossline_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -136,7 +136,7 @@
         "enabled": false,
         "value": ""
     },
-    "x_uncertainty": {
+    "crossline_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -147,7 +147,7 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "x_channel",
+        "dependency": "crossline_channel",
         "dependencyType": "enabled",
         "value": ""
     },
