@@ -51,137 +51,137 @@ def assets_path() -> Path:
 
 DRIVER_MAP = {
     "apparent conductivity": (
-        "simpeg_drivers.natural_sources.apparent_conductivity.driver",
+        "simpeg_drivers.natural_sources.apparent_conductivity",
         {"forward": "AppConForwardDriver", "inversion": "AppConInversionDriver"},
     ),
     "direct current 3d": (
-        "simpeg_drivers.electricals.direct_current.three_dimensions.driver",
+        "simpeg_drivers.electricals.direct_current.three_dimensions",
         {
             "forward": "DC3DForwardDriver",
             "inversion": "DC3DInversionDriver",
         },
     ),
     "direct current 2d": (
-        "simpeg_drivers.electricals.direct_current.two_dimensions.driver",
+        "simpeg_drivers.electricals.direct_current.two_dimensions",
         {
             "forward": "DC2DForwardDriver",
             "inversion": "DC2DInversionDriver",
         },
     ),
     "direct current pseudo 3d": (
-        "simpeg_drivers.electricals.direct_current.pseudo_three_dimensions.driver",
+        "simpeg_drivers.electricals.direct_current.two_dimensions",
         {
-            "forward": "DCBatch2DForwardDriver",
-            "inversion": "DCBatch2DInversionDriver",
+            "forward": "DC2DForwardDriver",
+            "inversion": "DC2DInversionDriver",
         },
     ),
     "fdem": (
-        "simpeg_drivers.electromagnetics.frequency_domain.driver",
+        "simpeg_drivers.electromagnetics.frequency_domain",
         {
             "forward": "FDEMForwardDriver",
             "inversion": "FDEMInversionDriver",
         },
     ),
     "fem": (
-        "simpeg_drivers.electromagnetics.frequency_domain.driver",
+        "simpeg_drivers.electromagnetics.frequency_domain",
         {
             "forward": "FDEMForwardDriver",
             "inversion": "FDEMInversionDriver",
         },
     ),
     "fdem 1d": (
-        "simpeg_drivers.electromagnetics.frequency_domain_1d.driver",
+        "simpeg_drivers.electromagnetics.frequency_domain_1d",
         {
             "forward": "FDEM1DForwardDriver",
             "inversion": "FDEM1DInversionDriver",
         },
     ),
     "gravity": (
-        "simpeg_drivers.potential_fields.gravity.driver",
+        "simpeg_drivers.potential_fields.gravity",
         {"forward": "GravityForwardDriver", "inversion": "GravityInversionDriver"},
     ),
     "induced polarization 3d": (
-        "simpeg_drivers.electricals.induced_polarization.three_dimensions.driver",
+        "simpeg_drivers.electricals.induced_polarization.three_dimensions",
         {
             "forward": "IP3DForwardDriver",
             "inversion": "IP3DInversionDriver",
         },
     ),
     "induced polarization 2d": (
-        "simpeg_drivers.electricals.induced_polarization.two_dimensions.driver",
+        "simpeg_drivers.electricals.induced_polarization.two_dimensions",
         {
             "forward": "IP2DForwardDriver",
             "inversion": "IP2DInversionDriver",
         },
     ),
     "induced polarization pseudo 3d": (
-        "simpeg_drivers.electricals.induced_polarization.pseudo_three_dimensions.driver",
+        "simpeg_drivers.electricals.induced_polarization.two_dimensions",
         {
-            "forward": "IPBatch2DForwardDriver",
-            "inversion": "IPBatch2DInversionDriver",
+            "forward": "IP2DForwardDriver",
+            "inversion": "IP2DInversionDriver",
         },
     ),
     "joint cross gradient": (
-        "simpeg_drivers.joint.joint_cross_gradient.driver",
+        "simpeg_drivers.joint.joint_cross_gradient",
         {"inversion": "JointCrossGradientDriver"},
     ),
     "joint petrophysics": (
-        "simpeg_drivers.joint.joint_petrophysics.driver",
+        "simpeg_drivers.joint.joint_petrophysics",
         {"inversion": "JointPetrophysicsDriver"},
     ),
     "joint surveys": (
-        "simpeg_drivers.joint.joint_surveys.driver",
+        "simpeg_drivers.joint.joint_surveys",
         {"inversion": "JointSurveyDriver"},
     ),
     "magnetic scalar": (
-        "simpeg_drivers.potential_fields.magnetic_scalar.driver",
+        "simpeg_drivers.potential_fields.magnetic_scalar",
         {
             "forward": "MagneticForwardDriver",
             "inversion": "MagneticInversionDriver",
         },
     ),
     "magnetic vector": (
-        "simpeg_drivers.potential_fields.magnetic_vector.driver",
+        "simpeg_drivers.potential_fields.magnetic_vector",
         {
-            "forward": "MVIForwardDriver",
-            "inversion": "MVIInversionDriver",
+            "forward": "MagneticVectorForwardDriver",
+            "inversion": "MagneticVectorInversionDriver",
         },
     ),
     "magnetotellurics": (
-        "simpeg_drivers.natural_sources.magnetotellurics.driver",
+        "simpeg_drivers.natural_sources.magnetotellurics",
         {
             "forward": "MTForwardDriver",
             "inversion": "MTInversionDriver",
         },
     ),
     "tdem": (
-        "simpeg_drivers.electromagnetics.time_domain.driver",
+        "simpeg_drivers.electromagnetics.time_domain",
         {
             "forward": "TDEMForwardDriver",
             "inversion": "TDEMInversionDriver",
         },
     ),
     "tdem 1d": (
-        "simpeg_drivers.electromagnetics.time_domain_1d.driver",
+        "simpeg_drivers.electromagnetics.time_domain_1d",
         {
             "forward": "TDEM1DForwardDriver",
             "inversion": "TDEM1DInversionDriver",
         },
     ),
     "tipper": (
-        "simpeg_drivers.natural_sources.tipper.driver",
+        "simpeg_drivers.natural_sources.tipper",
         {"forward": "TipperForwardDriver", "inversion": "TipperInversionDriver"},
     ),
     "plate simulation": (
-        "simpeg_drivers.plate_simulation.driver",
+        "simpeg_drivers.plate_simulation",
         {"forward": "PlateSimulationDriver"},
     ),
     "plate sweep": (
-        "simpeg_drivers.plate_simulation.sweep.driver",
+        "simpeg_drivers.plate_simulation.sweep",
         {"forward": "PlateSweepDriver"},
     ),
     "plate match": (
-        "simpeg_drivers.plate_simulation.match.driver",
+        "simpeg_drivers.plate_simulation.match",
         {"forward": "PlateMatchDriver"},
     ),
 }

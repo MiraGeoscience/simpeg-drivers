@@ -231,7 +231,8 @@ class ReceiversFactory(SimPEGFactory):
         }
 
         if getattr(self.params, "receivers_orientation", None):
-            azi_dip = np.deg2rad(direction_and_dip(self.params.receivers_orientation))
+            azm, dip = direction_and_dip(self.params.receivers_orientation)
+            azi_dip = np.deg2rad(np.c_[azm.values, dip.values])
             orientations = {}
             for axis in "xyz":
                 orientations[axis] = (

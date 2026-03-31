@@ -22,10 +22,8 @@ from geoh5py.groups import PropertyGroup, UIJsonGroup
 from geoh5py.objects import AirborneTEMReceivers
 from geoh5py.shared.utils import fetch_active_workspace
 
-from simpeg_drivers.electromagnetics.time_domain.driver import (
+from simpeg_drivers.electromagnetics.time_domain import (
     TDEMForwardDriver,
-)
-from simpeg_drivers.electromagnetics.time_domain.options import (
     TDEMForwardOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (
@@ -82,7 +80,7 @@ def test_tem_fwr_run(tmp_path: Path, azimuth, dip):
         model=ModelOptions(
             background=1e-3,
             plate=PlateModel(
-                strike_length=70.0,
+                strike_length=150.0,
                 dip_length=100.0,
                 width=10.0,
                 origin=(0.0, 0.0, -60.0),

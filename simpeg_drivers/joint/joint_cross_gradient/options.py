@@ -36,7 +36,7 @@ class JointCrossGradientOptions(BaseJointOptions):
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/joint_cross_gradient_inversion.ui.json"
     )
-
+    run_command: str = "simpeg_drivers.joint.joint_cross_gradient.driver"
     title: str = "Joint Cross Gradient Inversion"
     inversion_type: str = "joint cross gradient"
 

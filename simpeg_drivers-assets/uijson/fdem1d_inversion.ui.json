@@ -4,12 +4,9 @@
     "icon": "surveyairborneem",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
     "conda_environment": "simpeg_drivers",
-    "run_command": "simpeg_drivers.driver",
+    "run_command": "simpeg_drivers.electromagnetics.frequency_domain_1d.inversion",
     "geoh5": "",
     "monitoring_directory": "",
-    "inversion_type": "fdem 1d",
-    "physical_property": "conductivity",
-    "forward_only": false,
     "data_object": {
         "main": true,
         "group": "Data",
@@ -47,7 +44,8 @@
         "label": "Uncertainty",
         "parent": "data_object",
         "dependency": "z_imag_channel",
-        "dependencyType": "show",
+        "dependencyType": "enabled",
+        "enabled": false,
         "value": ""
     },
     "z_real_channel": {
@@ -78,7 +76,8 @@
         "label": "Uncertainty",
         "parent": "data_object",
         "dependency": "z_real_channel",
-        "dependencyType": "show",
+        "dependencyType": "enabled",
+        "enabled": false,
         "value": ""
     },
     "u_cell_size": {

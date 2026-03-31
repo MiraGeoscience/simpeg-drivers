@@ -8,11 +8,9 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-
+from .forward import IP3DForwardDriver
+from .inversion import IP3DInversionDriver
 from .options import (
     IP3DForwardOptions,
     IP3DInversionOptions,
 )
-
-# pylint: disable=unused-import
-# flake8: noqa

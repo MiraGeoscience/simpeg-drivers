@@ -17,12 +17,10 @@ from pathlib import Path
 import numpy as np
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.natural_sources.magnetotellurics.driver import (
+from simpeg_drivers.natural_sources.magnetotellurics import (
     MTForwardDriver,
-    MTInversionDriver,
-)
-from simpeg_drivers.natural_sources.magnetotellurics.options import (
     MTForwardOptions,
+    MTInversionDriver,
     MTInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (

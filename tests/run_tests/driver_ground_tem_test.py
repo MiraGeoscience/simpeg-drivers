@@ -18,12 +18,10 @@ from geoapps_utils.modelling.plates import PlateModel
 from geoh5py.workspace import Workspace
 from pymatsolver.direct import Mumps
 
-from simpeg_drivers.electromagnetics.time_domain.driver import (
+from simpeg_drivers.electromagnetics.time_domain import (
     TDEMForwardDriver,
-    TDEMInversionDriver,
-)
-from simpeg_drivers.electromagnetics.time_domain.options import (
     TDEMForwardOptions,
+    TDEMInversionDriver,
     TDEMInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (
@@ -252,7 +250,7 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         output = get_inversion_output(
             driver.params.geoh5.h5file, driver.params.out_group.uid
         )
-        assert driver.inversion_data.entity.tx_id_property.name == "Transmitter ID"
+        assert driver.inversion_data.entity.tx_id_property.name == "tx_id"
         output["data"] = orig_dBzdt
         if pytest:
             check_target(output, target_run)

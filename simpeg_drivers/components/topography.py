@@ -91,8 +91,10 @@ class InversionTopography(InversionLocations):
             "magnetotellurics",
             "direct current 3d",
             "direct current 2d",
+            "direct current pseudo 3d",
             "induced polarization 3d",
             "induced polarization 2d",
+            "induced polarization pseudo 3d",
             "apparent conductivity",
         ] or isinstance(data.entity, LargeLoopGroundEMSurvey)
 
@@ -105,7 +107,7 @@ class InversionTopography(InversionLocations):
             )
 
         else:
-            if any(k in self.params.inversion_type for k in ["2d", "p3d"]):
+            if any(k in self.params.inversion_type for k in ["2d", "pseudo"]):
                 vertices = self.locations
                 cells = getattr(
                     self.params.active_cells.topography_object, "cells", None

@@ -4,12 +4,9 @@
     "icon": "surveyairborneem",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
     "conda_environment": "simpeg_drivers",
-    "run_command": "simpeg_drivers.driver",
+    "run_command": "simpeg_drivers.electromagnetics.frequency_domain.inversion",
     "geoh5": "",
     "monitoring_directory": "",
-    "inversion_type": "fdem",
-    "physical_property": "conductivity",
-    "forward_only": false,
     "data_object": {
         "main": true,
         "group": "Data",
@@ -69,7 +66,8 @@
         "label": "Uncertainty",
         "parent": "data_object",
         "dependency": "z_imag_channel",
-        "dependencyType": "show",
+        "dependencyType": "enabled",
+        "enabled": false,
         "value": ""
     },
     "z_real_channel": {
@@ -100,7 +98,8 @@
         "label": "Uncertainty",
         "parent": "data_object",
         "dependency": "z_real_channel",
-        "dependencyType": "show",
+        "dependencyType": "enabled",
+        "enabled": false,
         "value": ""
     },
     "y_imag_channel": {
@@ -131,7 +130,8 @@
         "label": "Uncertainty",
         "parent": "data_object",
         "dependency": "y_imag_channel",
-        "dependencyType": "show",
+        "dependencyType": "enabled",
+        "enabled": false,
         "value": ""
     },
     "y_real_channel": {
@@ -162,7 +162,8 @@
         "label": "Uncertainty",
         "parent": "data_object",
         "dependency": "y_real_channel",
-        "dependencyType": "show",
+        "dependencyType": "enabled",
+        "enabled": false,
         "value": ""
     },
     "x_imag_channel": {
@@ -193,7 +194,8 @@
         "label": "Uncertainty",
         "parent": "data_object",
         "dependency": "x_imag_channel",
-        "dependencyType": "show",
+        "dependencyType": "enabled",
+        "enabled": false,
         "value": ""
     },
     "x_real_channel": {
@@ -224,7 +226,8 @@
         "label": "Uncertainty",
         "parent": "data_object",
         "dependency": "x_real_channel",
-        "dependencyType": "show",
+        "dependencyType": "enabled",
+        "enabled": false,
         "value": ""
     },
     "mesh": {

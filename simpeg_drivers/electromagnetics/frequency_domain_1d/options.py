@@ -33,13 +33,13 @@ class FDEM1DForwardOptions(BaseForwardOptions, BaseFDEMOptions, Base1DOptions):
     Frequency Domain Electromagnetic forward options.
 
     :param z_real_channel_bool: Z-component data channel boolean.
-    :param z_imag_channel_bool: X-component data channel boolean.
+    :param z_imag_channel_bool: Imaginary Z-component data channel boolean.
     :param drape_model: Drape model options.
     """
 
     name: ClassVar[str] = "Frequency Domain 1D Electromagnetics Forward"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/fdem1d_forward.ui.json"
-
+    run_command: str = "simpeg_drivers.electromagnetics.frequency_domain_1d.forward"
     title: str = "Frequency-domain EM-1D (FEM-1D) Forward"
     physical_property: str = "conductivity"
     inversion_type: str = "fdem 1d"
@@ -62,6 +62,7 @@ class FDEM1DInversionOptions(BaseFDEMOptions, BaseInversionOptions, Base1DOption
 
     name: ClassVar[str] = "Frequency Domain 1D Electromagnetics Inversion"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/fdem1d_inversion.ui.json"
+    run_command: str = "simpeg_drivers.electromagnetics.frequency_domain_1d.inversion"
     title: str = "Frequency-domain EM-1D (FEM-1D) Inversion"
     physical_property: str = "conductivity"
     inversion_type: str = "fdem 1d"
@@ -75,4 +76,3 @@ class FDEM1DInversionOptions(BaseFDEMOptions, BaseInversionOptions, Base1DOption
     z_imag_channel: PropertyGroup | None = None
     z_imag_uncertainty: PropertyGroup | None = None
     models: ConductivityModelOptions
-    directives: DirectiveOptions = DirectiveOptions()

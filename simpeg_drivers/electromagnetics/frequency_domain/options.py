@@ -92,11 +92,12 @@ class FDEMForwardOptions(BaseForwardOptions, BaseFDEMOptions):
     :param y_imag_channel_bool: In-line (imaginary) component of impedance channel boolean.
     :param x_real_channel_bool: Cross-line (real) component of impedance channel boolean.
     :param x_imag_channel_bool: Cross-line (imaginary) component of impedance channel
-    :param models: Specify whether the models are provided in resistivity or conductivity.
+    :param models: ConductivityModelOptions parameter.
     """
 
     name: ClassVar[str] = "Frequency Domain Electromagnetics Forward"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/fdem_forward.ui.json"
+    run_command: str = "simpeg_drivers.electromagnetics.frequency_domain.forward"
     title: str = "Frequency-domain EM (FEM) Forward"
     physical_property: str = "conductivity"
     inversion_type: str = "fdem"
@@ -132,11 +133,12 @@ class FDEMInversionOptions(BaseFDEMOptions, BaseInversionOptions):
     :param x_real_uncertainty: Cross-line (real) impedance uncertainty channel.
     :param x_imag_channel: Cross-line (imaginary) impedance channel.
     :param x_imag_uncertainty: Cross-line (imaginary) impedance uncertainty channel
-    :param models: Specify whether the models are provided in resistivity or conductivity.
+    :param models: ConductivityModelOptions parameter.
     """
 
     name: ClassVar[str] = "Frequency Domain Electromagnetics Inversion"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/fdem_inversion.ui.json"
+    run_command: str = "simpeg_drivers.electromagnetics.frequency_domain.inversion"
     title: str = "Frequency-domain EM (FEM) Inversion"
     physical_property: str = "conductivity"
     inversion_type: str = "fdem"

@@ -14,6 +14,8 @@ from geoapps_utils.modelling.plates import PlateModel
 from geoapps_utils.utils.locations import gaussian
 from pydantic import BaseModel, ConfigDict
 
+from simpeg_drivers.options import DrapeModelOptions
+
 
 class SurveyOptions(BaseModel):
     center: tuple[float, float] = (0.0, 0.0)
@@ -41,6 +43,10 @@ class MeshOptions(BaseModel):
     refinement: tuple = (4, 6)
     padding_distance: float = 100.0
     name: str = "mesh"
+    depth_core: float = 100.0
+    expansion_factor: float = 1.1
+    horizontal_padding: float = 1000.0
+    vertical_padding: float = 1000.0
 
 
 class ModelOptions(BaseModel):
@@ -65,6 +71,6 @@ class SyntheticsComponentsOptions(BaseModel):
     method: str = "gravity"
     refine_plate: bool = False
     survey: SurveyOptions = SurveyOptions()
-    mesh: MeshOptions = MeshOptions()
+    mesh: MeshOptions | DrapeModelOptions = MeshOptions()
     model: ModelOptions = ModelOptions()
     active: ActiveCellsOptions = ActiveCellsOptions()

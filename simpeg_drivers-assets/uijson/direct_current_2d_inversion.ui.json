@@ -4,12 +4,9 @@
     "icon": "PotentialElectrode",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
     "conda_environment": "simpeg_drivers",
-    "run_command": "simpeg_drivers.driver",
+    "run_command": "simpeg_drivers.electricals.direct_current.two_dimensions.inversion",
     "geoh5": "",
     "monitoring_directory": "",
-    "inversion_type": "direct current 2d",
-    "physical_property": "conductivity",
-    "forward_only": false,
     "data_object": {
         "main": true,
         "group": "Data",
@@ -17,23 +14,23 @@
         "meshType": "{275ecee9-9c24-4378-bf94-65f3c5fbe163}",
         "value": ""
     },
-    "line_object": {
+    "line_selection": {
         "association": "Cell",
-        "dataType": "Referenced",
+        "dataType": [
+            "Referenced"
+        ],
         "group": "Data",
         "main": true,
-        "label": "Line ID",
+        "allowComplement": false,
+        "isComplement": false,
+        "label": "Line IDs",
         "parent": "data_object",
         "value": "",
-        "tooltip": "Selects the data representing the different lines in the survey"
-    },
-    "line_id": {
-        "group": "Data",
-        "main": true,
-        "min": 1,
-        "label": "Line number",
-        "value": 1,
-        "tooltip": "Selects the line of data to be processed"
+        "rangeLabel": "Selection",
+        "property": "",
+        "optional": true,
+        "enabled": false,
+        "tooltip": "Select a subset of lines in the survey for inversion"
     },
     "potential_channel": {
         "association": "Cell",

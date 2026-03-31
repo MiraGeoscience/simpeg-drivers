@@ -17,7 +17,7 @@ import numpy as np
 from geoapps_utils.utils.importing import GeoAppsError
 from geoapps_utils.utils.numerical import weighted_average
 from geoh5py.data import Data, FloatData, NumericData
-from geoh5py.data.data_type import GeometricDataValueMapType
+from geoh5py.data.data_type import GeometricDataValueMapType, ReferencedValueMapType
 from geoh5py.objects import ObjectBase
 from simpeg.utils.mat_utils import (
     dip_azimuth2cartesian,
@@ -458,14 +458,14 @@ class InversionModelCollection:
         if self._gradient_dip.model is None:
             return None
 
-        return self._gradient_dip.model.copy()
+        return np.deg2rad(self._gradient_dip.model)
 
     @property
     def gradient_direction(self) -> np.ndarray | None:
         if self._gradient_direction.model is None:
             return None
 
-        return self._gradient_direction.model.copy()
+        return np.deg2rad(self._gradient_direction.model)
 
     def remove_air(self, active_cells: np.ndarray):
         """Use active cells vector to remove air cells from model"""
@@ -662,7 +662,9 @@ class InversionModel:
 
         values = data.values.astype(float)
 
-        if isinstance(data.entity_type, GeometricDataValueMapType):
+        if isinstance(
+            data.entity_type, GeometricDataValueMapType | ReferencedValueMapType
+        ):
             values[values == 0] = np.nan
 
         full_vector = weighted_average(xyz_in, xyz_out, [values], n=1)[0]

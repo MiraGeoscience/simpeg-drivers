@@ -11,18 +11,22 @@
 
 from __future__ import annotations
 
+import multiprocessing
 from collections.abc import Sequence
 from copy import deepcopy
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
 from discretize import TensorMesh, TreeMesh
 from discretize.utils import mesh_utils
+from geoapps_utils.base import Options
+from geoapps_utils.run import load_ui_json_as_dict
 from geoapps_utils.utils.locations import mask_under_horizon
 from geoapps_utils.utils.numerical import running_mean, traveling_salesman
 from geoh5py import Workspace
 from geoh5py.data import NumericData
-from geoh5py.groups import Group, SimPEGGroup
+from geoh5py.groups import SimPEGGroup
 from geoh5py.objects import DrapeModel, Octree
 from geoh5py.objects.surveys.direct_current import PotentialElectrode
 from geoh5py.objects.surveys.electromagnetics.airborne_app_con import (
@@ -30,16 +34,13 @@ from geoh5py.objects.surveys.electromagnetics.airborne_app_con import (
 )
 from geoh5py.objects.surveys.electromagnetics.base import LargeLoopGroundEMSurvey
 from geoh5py.shared import INTEGER_NDV
+from geoh5py.shared.utils import fetch_active_workspace, stringify
 from geoh5py.ui_json import InputFile
 from grid_apps.utils import octree_2_treemesh
-from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator, interp1d
-from scipy.sparse import csr_matrix, diags
-from scipy.spatial import ConvexHull, Delaunay, cKDTree
+from scipy.interpolate import interp1d
+from scipy.spatial import ConvexHull, cKDTree
 
 from simpeg_drivers import DRIVER_MAP
-from simpeg_drivers.utils.surveys import (
-    compute_alongline_distance,
-)
 
 
 if TYPE_CHECKING:
@@ -273,6 +274,10 @@ def drape_2_tensor(drape_model: DrapeModel, return_sorting: bool = False) -> tup
     """
     Convert a geoh5 drape model to discretize.TensorMesh.
 
+    If ghost prisms are present in the drape model, they will be skipped and the resulting
+    TensorMesh will have fewer cells than the DrapeModel, assuming a continuous
+    TensorMesh with no ghost cells.
+
     :param: drape_model: geoh5py.DrapeModel object.
     :param: return_sorting: If True then return an index array that would
         re-sort a model in TensorMesh order to DrapeModel order.
@@ -281,51 +286,77 @@ def drape_2_tensor(drape_model: DrapeModel, return_sorting: bool = False) -> tup
     layers = drape_model.layers
 
     # Deal with ghost points
-    ghosts = prisms[:, -1] == 1
-    prisms = prisms[~ghosts, :]
+    actives = prisms[:, -1] != 1
 
-    nu_layers = np.unique(prisms[:, -1])
+    nu_layers = np.unique(prisms[actives, -1])
     if len(nu_layers) > 1:
         raise ValueError(
             "Drape model conversion to TensorMesh must have uniform number of layers."
         )
 
     n_layers = nu_layers[0].astype(int)
-    filt_layers = ghosts[layers[:, 0].astype(int)]
-    layers = layers[~filt_layers, :]
+    n_columns = actives.sum()
 
+    # Sorting array from DrapeModel to TensorMesh order row-wise, skipping ghost points
+    sorting = np.arange(n_columns * n_layers)
+    sorting = sorting.reshape(n_layers, n_columns, order="C")
+    sorting = np.argsort(sorting[::-1].T.flatten())
+
+    filt_layers = actives[layers[:, 0].astype(int)]
+    layers = layers[filt_layers, :]
     hz = np.r_[
         prisms[0, 2] - layers[0, 2],
         -np.diff(layers[:n_layers, 2]),
     ][::-1]
 
-    x = compute_alongline_distance(prisms[:, :2], ordered=False)
-    dx = np.diff(x)
-    cell_width = np.r_[dx[0], (dx[:-1] + dx[1:]) / 2.0, dx[-1]]
-    h = [cell_width, hz]
-    origin = [0, layers[:, 2].min()]
+    # Skip indices for ghost points
+    count = -1
+    part = 0
+    parts = []
+    cell_widths = []
+    section = []
+    for ii, active in enumerate(actives):
+        if not active:
+            sorting[sorting > count] += 1
+            count += 1
+
+            if section:
+                cell_widths.append(cell_width_from_centers(np.vstack(section)))
+                parts.append(np.full(len(section), part))
+                section = []
+                part += 1
+        else:
+            section.append(np.c_[prisms[ii, 0], 0])
+            count += n_layers
+
+    cell_widths.append(cell_width_from_centers(np.vstack(section)))
+    parts.append(np.full(len(section), part))
+
+    h = [np.hstack(cell_widths), hz]
+    origin = [0, prisms[0, 2] - hz.sum()]
     mesh = TensorMesh(h, origin=origin)
+    mesh.parts = np.hstack(parts)  # Assign part numbers to cells
 
     if return_sorting:
-        sorting = np.arange(mesh.n_cells)
-        sorting = sorting.reshape(mesh.shape_cells[1], mesh.shape_cells[0], order="C")
-        sorting = np.argsort(sorting[::-1].T.flatten())
-
-        # Skip indices for ghost points
-        count = -1
-        for ghost in ghosts:
-            if ghost:
-                sorting[sorting > count] += 1
-                count += 1
-            else:
-                count += n_layers
-
         return (mesh, sorting)
-    else:
-        return mesh
+
+    return mesh
 
 
-def floating_active(mesh: TensorMesh | TreeMesh, active: np.ndarray):
+def cell_width_from_centers(centers: np.ndarray) -> np.ndarray:
+    """
+    Compute cell widths from cell center locations.
+
+    :param centers: n x 3 array of cell center locations
+
+    :returns: Array of cell widths
+    """
+    x = compute_alongline_distance(centers[:, :2])
+    half_dx = np.diff(x) / 2.0
+    return np.r_[half_dx[0] * 2, (half_dx[:-1] + half_dx[1:]), half_dx[-1] * 2]
+
+
+def floating_active(mesh: TensorMesh | TreeMesh, active: np.ndarray) -> bool:
     """
     True if there are any active cells in the air
 
@@ -345,54 +376,60 @@ def floating_active(mesh: TensorMesh | TreeMesh, active: np.ndarray):
 
 def get_drape_model(
     workspace: Workspace,
-    name: str,
     locations: np.ndarray,
     h: list,
     depth_core: float,
     pads: list,
     expansion_factor: float,
-    parent: Group | None = None,
     return_colocated_mesh: bool = False,
-    return_sorting: bool = False,
-) -> tuple:
+    **object_kwargs,
+) -> DrapeModel | tuple[DrapeModel, TensorMesh]:
     """
     Create a BlockModel object from parameters.
 
     :param workspace: Workspace.
-    :param parent: Group to contain the result.
-    :param name: Block model name.
     :param locations: Location points.
     :param h: Cell size(s) for the core mesh.
     :param depth_core: Depth of core mesh below locs.
     :param pads: len(4) Padding distances [W, E, Down, Up]
     :param expansion_factor: Expansion factor for padding cells.
     :param return_colocated_mesh: If true return TensorMesh.
-    :param return_sorting: If true, return the indices required to map
-        values stored in the TensorMesh to the drape model.
+    :param object_kwargs: Extra arguments to pass to the DrapeModel.create() method.
+
     :return object_out: Output block model.
     """
-    locations = truncate_locs_depths(locations, depth_core)
     order = traveling_salesman(locations)
 
     # Smooth the locations
-    xy_smooth = np.vstack(
+    xyz_smooth = np.c_[
+        running_mean(locations[order, 0], 2),
+        running_mean(locations[order, 1], 2),
+        running_mean(locations[order, 2], 2),
+    ]
+
+    # Rescale extent
+    min_locs = locations.min(axis=0)
+    max_locs = locations.max(axis=0)
+    xyz_smooth -= xyz_smooth.min(axis=0)[None, :]
+    xyz_smooth *= ((max_locs - min_locs) / np.maximum(xyz_smooth.max(axis=0), 1e-3))[
+        None, :
+    ]
+    xyz_smooth += min_locs[None, :]
+
+    distances = compute_alongline_distance(xyz_smooth)
+    x_interp = interp1d(distances[:, 0], xyz_smooth[:, 0], fill_value="extrapolate")
+    y_interp = interp1d(distances[:, 0], xyz_smooth[:, 1], fill_value="extrapolate")
+
+    # Round the values for mesh creation to avoid issue with floor (int) rounding
+    limits = np.vstack(
         [
-            np.c_[locations[order[0], :]].T,
-            np.c_[
-                running_mean(locations[order, 0], 2),
-                running_mean(locations[order, 1], 2),
-                running_mean(locations[order, 2], 2),
-            ],
-            np.c_[locations[order[-1], :]].T,
+            np.floor(distances.min(axis=0)),
+            np.ceil(distances.max(axis=0)),
         ]
     )
-    distances = compute_alongline_distance(xy_smooth)
-    distances[:, -1] += locations[:, 2].max() - distances[:, -1].max() + h[1]
-    x_interp = interp1d(distances[:, 0], xy_smooth[:, 0], fill_value="extrapolate")
-    y_interp = interp1d(distances[:, 0], xy_smooth[:, 1], fill_value="extrapolate")
 
     mesh = mesh_utils.mesh_builder_xyz(
-        distances,
+        limits,
         h,
         padding_distance=[
             [pads[0], pads[1]],
@@ -407,29 +444,21 @@ def get_drape_model(
     locations_top = np.c_[
         x_interp(mesh.cell_centers_x), y_interp(mesh.cell_centers_x), top
     ]
-    model = xyz_2_drape_model(workspace, locations_top, hz, name, parent)
-    val = [model]
+    drape_model = xyz_2_drape_model(workspace, locations_top, hz, **object_kwargs)
+
     if return_colocated_mesh:
-        val.append(mesh)
-    if return_sorting:
-        sorting = np.arange(mesh.n_cells)
-        sorting = sorting.reshape(mesh.shape_cells[1], mesh.shape_cells[0], order="C")
-        sorting = sorting[::-1].T.flatten()
-        val.append(sorting)
-    return val
+        return drape_model, mesh
+    return drape_model
 
 
-def xyz_2_drape_model(
-    workspace, locations, depths, name=None, parent=None
-) -> DrapeModel:
+def xyz_2_drape_model(workspace, locations, depths, **object_kwargs) -> DrapeModel:
     """
     Convert a list of cell tops and layer depths to a DrapeModel object.
 
     :param workspace: Workspace object
     :param locations: n x 3 array of cell centers [x, y, z_top]
     :param depths: n x 1 array of layer depths
-    :param name: Name of the new DrapeModel object
-    :param parent: Parent group for the new DrapeModel object
+    :param object_kwargs: Additional keyword arguments to pass to DrapeModel.create()
 
     :returns: DrapeModel object
     """
@@ -450,9 +479,7 @@ def xyz_2_drape_model(
 
     prisms = np.vstack(prisms)
     layers = np.vstack(layers)
-    model = DrapeModel.create(
-        workspace, layers=layers, name=name, prisms=prisms, parent=parent
-    )
+    model = DrapeModel.create(workspace, layers=layers, prisms=prisms, **object_kwargs)
     model.add_data(
         {
             "indices": {
@@ -472,6 +499,8 @@ def get_containing_cells(
 
     :param mesh: Computational mesh object
     :param data: Inversion data object
+
+    :returns: Array of unique cell indices that contain data locations
     """
     if isinstance(mesh, TreeMesh):
         if isinstance(data.entity, PotentialElectrode):
@@ -527,13 +556,15 @@ def active_from_xyz(
     topo: np.ndarray,
     grid_reference="center",
     triangulation: np.ndarray | None = None,
-):
+) -> np.ndarray:
     """Returns an active cell index array below a surface
 
     :param mesh: Mesh object
     :param topo: Array of xyz locations
     :param grid_reference: Cell reference. Must be "center", "top", or "bottom"
     :param method: Interpolation method. Must be "linear", or "nearest"
+
+    :return: Array of active cell indices below the surface defined by 'topo'.
     """
 
     mesh_dim = 2 if isinstance(mesh, DrapeModel) else 3
@@ -556,24 +587,6 @@ def active_from_xyz(
 
     # Return the active cell array
     return mask_under_horizon(locations, horizon=topo, triangulation=triangulation)
-
-
-def truncate_locs_depths(locs: np.ndarray, depth_core: float) -> np.ndarray:
-    """
-    Sets locations below core to core bottom.
-
-    :param locs: Location points.
-    :param depth_core: Depth of core mesh below locs.
-
-    :return locs: locs with depths truncated.
-    """
-    zmax = locs[:, -1].max()  # top of locs
-    below_core_ind = (zmax - locs[:, -1]) > depth_core
-    core_bottom_elev = zmax - depth_core
-    locs[below_core_ind, -1] = (
-        core_bottom_elev  # sets locations below core to core bottom
-    )
-    return locs
 
 
 def get_neighbouring_cells(mesh: TreeMesh, indices: list | np.ndarray) -> tuple:
@@ -614,6 +627,8 @@ def simpeg_group_to_driver(group: SimPEGGroup, workspace: Workspace) -> Inversio
 
     :param group: SimPEGGroup object.
     :param workspace: Workspace object.
+
+    :returns: InversionDriver object.
     """
 
     ui_json = deepcopy(group.options)
@@ -633,3 +648,79 @@ def simpeg_group_to_driver(group: SimPEGGroup, workspace: Workspace) -> Inversio
     params = inversion_driver._params_class.build(ifile)  # pylint: disable=protected-access
 
     return inversion_driver(params)
+
+
+def compute_alongline_distance(points: np.ndarray, ordered: bool = True) -> np.ndarray:
+    """
+    Convert from cartesian (x, y, values) points to (distance, values) locations.
+
+    :param points: Cartesian coordinates of points lying either roughly within a
+        plane or a line.
+    :param ordered: Flag to indicate whether points are already ordered along a line.
+        If False, then the points will be ordered using a traveling salesman algorithm
+        before computing distances.
+
+    :returns: Array of shape (n_points, n_features) where the first column contains
+        distances along the line and the remaining columns contain the corresponding
+        values from the input 'points' array.
+    """
+    if not ordered:
+        order = traveling_salesman(points)
+        points = points[order, :]
+
+    distances = np.cumsum(
+        np.r_[0, np.linalg.norm(np.diff(points[:, :2], axis=0), axis=1)]
+    )
+    if points.shape[1] > 2:
+        distances = np.c_[distances, points[:, 2:]]
+
+    return distances
+
+
+def get_default_parallelization_params(json_path: Path) -> tuple[int, int]:
+    """
+    Get parallelization parameters from a ui_json file.
+
+    If the number of workers is unset, it is estimated from the number of CPU cores.
+
+    :param json_path: Path to ui_json file.
+    :returns: Tuple of parallelization parameters.
+    """
+    ui_json = load_ui_json_as_dict(json_path)
+
+    n_workers = ui_json.get("n_workers", None)
+    n_threads = ui_json.get("n_threads", None)
+
+    if n_workers is None:
+        cpu_count = multiprocessing.cpu_count()
+
+        if cpu_count < 16:
+            n_threads = n_threads or 2
+        else:
+            n_threads = n_threads or 4
+
+        n_workers = cpu_count // n_threads
+
+    return n_workers, n_threads
+
+
+def validate_out_group(options: Options) -> SimPEGGroup:
+    """
+    Validate or create a SimPEGGroup to store results.
+
+    :param out_group: Output group from selection.
+    """
+    if isinstance(options.out_group, SimPEGGroup):
+        return options.out_group
+
+    with fetch_active_workspace(options.geoh5, mode="r+"):
+        out_group = SimPEGGroup.create(
+            options.geoh5,
+            name=options.title,
+        )
+        out_group.entity_type.name = options.title
+        options = options.model_copy(update={"out_group": out_group})
+        out_group.options = stringify(options.input_file.ui_json)
+        out_group.metadata = None
+
+    return out_group

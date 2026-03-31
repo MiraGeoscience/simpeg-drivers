@@ -15,12 +15,10 @@ from pathlib import Path
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.electricals.induced_polarization.three_dimensions import (
-    IP3DForwardOptions,
-    IP3DInversionOptions,
-)
-from simpeg_drivers.electricals.induced_polarization.three_dimensions.driver import (
     IP3DForwardDriver,
+    IP3DForwardOptions,
     IP3DInversionDriver,
+    IP3DInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (
     SyntheticsComponents,
