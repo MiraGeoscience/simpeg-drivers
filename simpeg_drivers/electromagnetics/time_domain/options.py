@@ -140,16 +140,16 @@ class TDEMInversionOptions(BaseTDEMOptions, BaseInversionOptions):
         None, validation_alias=AliasChoices("z_uncertainty", "vertical_uncertainty")
     )
     inline_channel: PropertyGroup | None = Field(
-        None, validation_alias=AliasChoices("y_channel", "crossline_channel")
+        None, validation_alias=AliasChoices("y_channel", "inline_channel")
     )
     inline_uncertainty: PropertyGroup | None = Field(
-        None, validation_alias=AliasChoices("y_uncertainty", "crossline_uncertainty")
+        None, validation_alias=AliasChoices("y_uncertainty", "inline_uncertainty")
     )
     crossline_channel: PropertyGroup | None = Field(
-        None, validation_alias=AliasChoices("x_channel", "inline_channel")
+        None, validation_alias=AliasChoices("x_channel", "crossline_channel")
     )
     crossline_uncertainty: PropertyGroup | None = Field(
-        None, validation_alias=AliasChoices("x_uncertainty", "inline_uncertainty")
+        None, validation_alias=AliasChoices("x_uncertainty", "crossline_uncertainty")
     )
 
     models: ConductivityModelOptions
