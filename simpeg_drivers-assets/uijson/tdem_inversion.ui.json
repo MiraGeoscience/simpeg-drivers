@@ -67,8 +67,9 @@
         "group": "Data",
         "dataGroupType": "Multi-element",
         "main": true,
-        "label": "z-component",
+        "label": "Vertical",
         "parent": "data_object",
+        "tooltip": "Vertical (w) component of the magnetic data.\nPositive up along the z-axis if no receiver orientation provided",
         "optional": true,
         "enabled": true,
         "value": ""
@@ -88,6 +89,37 @@
         "dependencyType": "enabled",
         "value": ""
     },
+    "y_channel": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data",
+        "dataGroupType": "Multi-element",
+        "main": true,
+        "label": "In-line",
+        "parent": "data_object",
+        "tooltip": "In-line (u) component of the magnetic data.\nPositive towards North if no receiver orientation provided",
+        "optional": true,
+        "enabled": false,
+        "value": ""
+    },
+    "y_uncertainty": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data",
+        "dataGroupType": "Multi-element",
+        "main": true,
+        "label": "Uncertainty",
+        "parent": "data_object",
+        "dependency": "y_channel",
+        "dependencyType": "enabled",
+        "value": ""
+    },
     "x_channel": {
         "association": [
             "Cell",
@@ -97,7 +129,8 @@
         "group": "Data",
         "dataGroupType": "Multi-element",
         "main": true,
-        "label": "x-component",
+        "label": "Cross-line",
+        "tooltip": "Cross-line (v) component of the magnetic data.\nPositive towards East if no receiver orientation provided",
         "parent": "data_object",
         "optional": true,
         "enabled": false,
@@ -115,36 +148,6 @@
         "label": "Uncertainty",
         "parent": "data_object",
         "dependency": "x_channel",
-        "dependencyType": "enabled",
-        "value": ""
-    },
-    "y_channel": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
-        "main": true,
-        "label": "y-component",
-        "parent": "data_object",
-        "optional": true,
-        "enabled": false,
-        "value": ""
-    },
-    "y_uncertainty": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
-        "main": true,
-        "label": "Uncertainty",
-        "parent": "data_object",
-        "dependency": "y_channel",
         "dependencyType": "enabled",
         "value": ""
     },
