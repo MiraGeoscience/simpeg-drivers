@@ -29,9 +29,9 @@ class PlateOptions(BaseModel):
     """
     Parameters describing an anomalous plate.
 
-    :param plate: Value given to the plate(s).
+    :param name: Name given to the plate.
+    :param plate_property: Value given to the plate(s).
     :param geometry: Parameters describing the plate geometry.
-    :param reference: Point of rotation to be 'center' or 'top'.
     :param number: Number of offset plates to be created.
     :param spacing: Spacing between plates.
     :param relative_locations: If True locations are relative to survey in xy and
@@ -120,7 +120,7 @@ class OverburdenOptions(BaseModel):
     Parameters for the overburden layer.
 
     :param thickness: Thickness of the overburden layer.
-    :param overburden: Value given to the overburden layer.
+    :param overburden_property: Value given to the overburden layer.
     """
 
     thickness: float

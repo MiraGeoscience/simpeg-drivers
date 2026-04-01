@@ -92,7 +92,7 @@ def test_anomaly(tmp_path):
             width=10.0,
             strike_length=10.0,
             dip_length=1.0,
-            dip_direction=90,
+            direction=90,
             dip=90,
         )
         plate = Plate(params)

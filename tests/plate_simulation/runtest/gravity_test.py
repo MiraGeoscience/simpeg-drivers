@@ -67,7 +67,7 @@ def test_gravity_plate_simulation(tmp_path):
                 strike_length=100.0,
                 dip_length=100.0,
                 dip=0.0,
-                dip_direction=0.0,
+                direction=0.0,
             ),
             plate_property=0.5,
             reference="center",
