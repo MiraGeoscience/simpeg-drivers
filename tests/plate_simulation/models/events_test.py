@@ -9,7 +9,7 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 import numpy as np
-from geoapps_utils.modelling.plates import PlateModel
+from geoapps_utils.modelling.plates import Plate, PlateModel
 from geoh5py import Workspace
 from geoh5py.objects import Surface
 
@@ -20,7 +20,6 @@ from simpeg_drivers.plate_simulation.models.events import (
     Overburden,
 )
 from simpeg_drivers.plate_simulation.models.options import PlateOptions
-from simpeg_drivers.plate_simulation.models.parametric import Plate
 
 from . import get_topo_mesh
 
@@ -86,19 +85,15 @@ def test_overburden(tmp_path):
 def test_anomaly(tmp_path):
     with Workspace(tmp_path / "test.geoh5") as workspace:
         _, octree = get_topo_mesh(workspace)
-        params = PlateOptions(
-            name="my plate",
-            plate_property=10.0,
-            geometry=PlateModel(
-                easting=5.0,
-                northing=5.0,
-                elevation=-1.5,
-                width=10.0,
-                strike_length=10.0,
-                dip_length=1.0,
-                dip_direction=90,
-                dip=90,
-            ),
+        params = PlateModel(
+            easting=5.0,
+            northing=5.0,
+            elevation=-1.5,
+            width=10.0,
+            strike_length=10.0,
+            dip_length=1.0,
+            dip_direction=90,
+            dip=90,
         )
         plate = Plate(params)
 

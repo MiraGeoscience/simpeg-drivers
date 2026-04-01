@@ -12,6 +12,8 @@ from collections.abc import Callable
 
 from geoapps_utils.modelling.plates import PlateModel
 from geoapps_utils.utils.locations import gaussian
+from geoh5py.objects import ObjectBase, Points, Surface
+from grid_apps.octree_creation.options import OctreeOptions
 from pydantic import BaseModel, ConfigDict
 
 from simpeg_drivers.options import DrapeModelOptions
@@ -39,14 +41,67 @@ class SurveyOptions(BaseModel):
 
 
 class MeshOptions(BaseModel):
-    cell_size: tuple[float, float, float] = (5.0, 5.0, 5.0)
-    refinement: tuple = (4, 6)
+    """Core parameters for octree mesh creation."""
+
+    u_cell_size: float = 5.0
+    v_cell_size: float = 5.0
+    w_cell_size: float = 5.0
     padding_distance: float = 100.0
-    name: str = "mesh"
     depth_core: float = 100.0
-    expansion_factor: float = 1.1
-    horizontal_padding: float = 1000.0
-    vertical_padding: float = 1000.0
+    max_distance: float = 100.0
+    minimum_level: int = 8
+    diagonal_balance: bool = False
+    survey_refinement: list[int] = [4, 6]
+    topography_refinement: list[int] = [0, 0, 1]
+    plate_refinement: list[int] = [4]
+    name: str = "mesh"
+
+    @property
+    def cell_size(self) -> tuple[float, float, float]:
+        return (self.u_cell_size, self.v_cell_size, self.w_cell_size)
+
+    def octree_params(
+        self, survey: ObjectBase, topography: Points, plates: list[Surface] | None
+    ):
+        refinements = [
+            {
+                "refinement_object": survey,
+                "levels": self.survey_refinement,
+                "horizon": False,
+            },
+            {
+                "refinement_object": topography,
+                "levels": self.topography_refinement,
+                "horizon": True,
+                "distance": 1000.0,
+            },
+        ]
+
+        if plates is not None:
+            for plate in plates:
+                refinements.append(
+                    {
+                        "refinement_object": plate,
+                        "levels": self.plate_refinement,
+                        "horizon": False,
+                    }
+                )
+
+        octree_params = OctreeOptions(
+            geoh5=survey.workspace,
+            objects=survey,
+            u_cell_size=self.u_cell_size,
+            v_cell_size=self.v_cell_size,
+            w_cell_size=self.w_cell_size,
+            horizontal_padding=self.padding_distance,
+            vertical_padding=self.padding_distance,
+            depth_core=self.depth_core,
+            max_distance=self.max_distance,
+            minimum_level=self.minimum_level,
+            diagonal_balance=self.diagonal_balance,
+            refinements=refinements,
+        )
+        return octree_params
 
 
 class ModelOptions(BaseModel):

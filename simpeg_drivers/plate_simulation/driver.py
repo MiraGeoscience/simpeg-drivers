@@ -16,11 +16,11 @@ from pathlib import Path
 import numpy as np
 from dask.distributed import Client
 from geoapps_utils.base import Driver, get_logger
+from geoapps_utils.modelling.plates import Plate
 from geoapps_utils.utils.transformations import azimuth_to_unit_vector
 from geoh5py.data import FloatData, ReferencedData
 from geoh5py.objects import Octree, Points, Surface
 from geoh5py.shared.utils import fetch_active_workspace
-from grid_apps.octree_creation.driver import OctreeDriver
 
 from simpeg_drivers.driver import (
     InversionDriver,
@@ -30,9 +30,9 @@ from simpeg_drivers.driver import (
 )
 from simpeg_drivers.options import BaseForwardOptions, ModelTypeEnum
 from simpeg_drivers.plate_simulation.models.events import Anomaly, Erosion, Overburden
-from simpeg_drivers.plate_simulation.models.parametric import Plate
 from simpeg_drivers.plate_simulation.models.series import DikeSwarm, Geology
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
+from simpeg_drivers.utils.synthetics.meshes import get_octree_mesh
 from simpeg_drivers.utils.utils import validate_out_group
 
 
@@ -141,7 +141,7 @@ class PlateSimulationDriver(Driver):
                 depth_offset=-1 * offset,
             )
             plate = Plate(
-                self.params.model.plate.model_copy(
+                self.params.model.plate.geometry.model_copy(
                     update={
                         "easting": center[0],
                         "northing": center[1],
@@ -185,13 +185,21 @@ class PlateSimulationDriver(Driver):
         """
 
         logger.info("making the mesh...")
-        octree_params = self.params.mesh.octree_params(
-            self.survey,
-            self.simulation_parameters.active_cells.topography_object,
-            [p.surface.copy(parent=self._out_group) for p in self.plates],
-        )
-        octree_driver = OctreeDriver(octree_params)
-        mesh = octree_driver.run()
+        with fetch_active_workspace(self.params.geoh5, mode="r+") as geoh5:
+            surfaces = [p.surface(geoh5) for p in self.plates]
+            mesh = get_octree_mesh(
+                opts=self.params.mesh,
+                survey=self.survey,
+                topography=self.simulation_parameters.active_cells.topography_object,
+                plates=surfaces,
+            )
+        # octree_params = self.params.mesh.octree_params(
+        #     self.survey,
+        #     self.simulation_parameters.active_cells.topography_object,
+        #     [p.surface.copy(parent=self._out_group) for p in self.plates],
+        # )
+        # octree_driver = OctreeDriver(octree_params)
+        # mesh = octree_driver.run()
         mesh.parent = self._out_group
 
         return mesh
@@ -208,7 +216,10 @@ class PlateSimulationDriver(Driver):
         )
 
         dikes = DikeSwarm(
-            [Anomaly(plate, plate.params.plate_property) for plate in self.plates],
+            [
+                Anomaly(plate, self.params.model.plate.plate_property)
+                for plate in self.plates
+            ],
             name="plates",
         )
 
@@ -278,21 +289,19 @@ class PlateSimulationDriver(Driver):
         plates = []
         for i in range(number):
             center = (
-                np.r_[plate.params.geometry.origin]
+                np.r_[plate.params.origin]
                 + azimuth_to_unit_vector(azimuth) * offsets[i]
             )
-            new_geometry = plate.params.geometry.model_copy(
-                update={
-                    "easting": center[0],
-                    "northing": center[1],
-                    "elevation": center[2],
-                }
-            )
             new_plate = Plate(
-                plate.params.model_copy(update={"geometry": new_geometry})
+                plate.params.model_copy(
+                    update={
+                        "easting": center[0],
+                        "northing": center[1],
+                        "elevation": center[2],
+                    }
+                )
             )
 
-            new_plate.params.name = f"{plate.params.name} offset {i + 1}"
             plates.append(new_plate)
 
         return plates

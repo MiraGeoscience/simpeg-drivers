@@ -44,7 +44,11 @@ def get_mvi_params(tmp_path: Path, **kwargs) -> MagneticVectorInversionOptions:
         opts = SyntheticsComponentsOptions(
             method="magnetic_vector",
             survey=SurveyOptions(n_stations=2, n_lines=2),
-            mesh=MeshOptions(refinement=(2,)),
+            mesh=MeshOptions(
+                survey_refinement=[
+                    2,
+                ]
+            ),
             model=ModelOptions(anomaly=0.05),
         )
     components = SyntheticsComponents(geoh5=geoh5, options=opts)

@@ -11,15 +11,12 @@
 import numpy as np
 from discretize import TreeMesh
 from discretize.utils import mesh_builder_xyz
-from geoapps_utils.modelling.plates import PlateModel
+from geoapps_utils.modelling.plates import Plate, PlateModel
 from geoh5py.objects import DrapeModel, Octree, Points, Surface
 from grid_apps.octree_creation.driver import OctreeDriver
-from grid_apps.utils import treemesh_2_octree
 
 from simpeg_drivers.electricals.base_2d import create_mesh_by_line_id
 from simpeg_drivers.options import DrapeModelOptions
-from simpeg_drivers.plate_simulation.models.options import PlateOptions
-from simpeg_drivers.plate_simulation.models.parametric import Plate
 from simpeg_drivers.utils.synthetics.options import MeshOptions
 
 
@@ -28,7 +25,7 @@ def get_mesh(
     survey: Points,
     topography: Surface,
     options: MeshOptions | DrapeModelOptions,
-    plate: PlateModel | None = None,
+    plates: list[Surface] | None = None,
 ) -> DrapeModel | Octree:
     """Factory for mesh creation with behaviour modified by the provided method."""
 
@@ -44,12 +41,10 @@ def get_mesh(
         )
 
     return get_octree_mesh(
+        options,
         survey=survey,
         topography=topography,
-        cell_size=options.cell_size,
-        refinement=options.refinement,
-        padding_distance=options.padding_distance,
-        plate=plate,
+        plates=plates,
         name=options.name,
     )
 
@@ -91,13 +86,11 @@ def get_base_octree(
 
 
 def get_octree_mesh(
+    opts: MeshOptions,
     survey: Points,
     topography: Surface,
-    cell_size: tuple[float, float, float],
-    refinement: tuple | list,
-    padding_distance: float,
-    plate: PlateModel | None = None,
-    name: str = "mesh",
+    plates: list[Surface] | None = None,
+    name: str = "octree",
 ) -> Octree:
     """Generate a survey centered mesh with topography and survey refinement.
 
@@ -114,33 +107,8 @@ def get_octree_mesh(
     :return entity: The geoh5py Octree object to store the results of
         computation in the shared cells of the computational mesh.
     """
-
-    mesh = get_base_octree(survey, topography, cell_size, (0, 0, 1), padding_distance)
-
-    mesh = OctreeDriver.refine_tree_from_points(
-        mesh, survey.vertices, levels=refinement, finalize=False
-    )
-
-    if plate is not None:
-        plate_options = PlateOptions(
-            plate_property=1.0,  # thickness
-            geometry=PlateModel(
-                strike_length=plate.strike_length,
-                dip_length=plate.dip_length,
-                width=plate.width,
-                direction=plate.direction,
-                dip=plate.dip,
-                easting=plate.origin[0],
-                northing=plate.origin[1],
-                elevation=0.0,
-            ),
-        )
-        plate = Plate(plate_options, workspace=survey.workspace)
-        mesh = OctreeDriver.refine_tree_from_triangulation(
-            mesh, plate.surface, levels=(4,), finalize=False
-        )
-
-    mesh.finalize()
-    entity = treemesh_2_octree(survey.workspace, mesh, name=name)
-
-    return entity
+    octree_params = opts.octree_params(survey, topography, plates)
+    octree_driver = OctreeDriver(octree_params)
+    mesh = octree_driver.run()
+    mesh.name = name
+    return mesh

@@ -50,6 +50,9 @@ def test_gravity_plate_simulation(tmp_path):
             padding_distance=1500.0,
             depth_core=600.0,
             max_distance=200.0,
+            survey_refinement=[4, 6],
+            topography_refinement=[0, 1],
+            plate_refinement=[4, 2],
         )
 
         overburden_params = OverburdenOptions(thickness=50.0, overburden_property=0.2)

@@ -48,7 +48,16 @@ def test_fem_name_change(tmp_path, caplog):
     opts = SyntheticsComponentsOptions(
         method="fdem",
         survey=SurveyOptions(n_stations=2, n_lines=2, drape=15.0),
-        mesh=MeshOptions(refinement=(2,), padding_distance=400.0),
+        mesh=MeshOptions(
+            survey_refinement=[
+                2,
+            ],
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[
+                4,
+            ],
+            padding_distance=400.0,
+        ),
         model=ModelOptions(background=1e-3),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
@@ -83,7 +92,12 @@ def test_fem_fwr_run(
             topography=lambda x, y: np.zeros(x.shape),
         ),
         mesh=MeshOptions(
-            cell_size=cell_size, refinement=refinement, padding_distance=400.0
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            padding_distance=400.0,
         ),
         model=ModelOptions(
             background=1e-3,
@@ -219,7 +233,7 @@ if __name__ == "__main__":
         Path("./"),
         n_grid_points=5,
         cell_size=(5.0, 5.0, 5.0),
-        refinement=(4, 4, 4),
+        refinement=[4, 4, 4],
     )
     test_fem_run(
         Path("./"),
