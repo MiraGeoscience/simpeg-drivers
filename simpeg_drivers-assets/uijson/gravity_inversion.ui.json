@@ -758,14 +758,6 @@
     "tile_spatial": {
         "group": "Compute",
         "label": "Number of tiles",
-        "parent": "data_object",
-        "isValue": true,
-        "property": "",
-        "dataType": "Float",
-        "association": [
-            "Vertex",
-            "Cell"
-        ],
         "value": 1,
         "min": 1,
         "max": 1000,
