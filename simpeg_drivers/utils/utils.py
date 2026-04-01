@@ -49,11 +49,11 @@ if TYPE_CHECKING:
 
 def mask_vertices_and_cells(
     extent: np.ndarray, vertices: np.ndarray, cells: np.ndarray | None
-) -> tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray] | tuple[np.ndarray, None]:
     """
     Mask vertices and remove cells whose vertices are all outside the extent.
 
-    :param extent: Array-like object of [[xmin, ymin], [xmax, ymax]].
+    :param extent: Array of shape (2, 3) containing the lower SW and upper NE coordinates.
     :param vertices: Array of shape (n_vertices, 3) containing the x, y, z coordinates.
     :param cells: Array of shape (n_cells, 3) containing the indices of the vertices
         that make up each cell.
