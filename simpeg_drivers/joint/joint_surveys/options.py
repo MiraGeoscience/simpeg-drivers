@@ -45,6 +45,7 @@ class JointSurveysOptions(BaseJointOptions):
     )
     run_command: str = "simpeg_drivers.joint.joint_surveys.driver"
     title: str = "Joint Surveys Inversion"
+    icon: str = "model"
     inversion_type: str = "joint surveys"
 
     models: JointSurveysModelOptions

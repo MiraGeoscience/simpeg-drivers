@@ -41,6 +41,7 @@ class FDEM1DForwardOptions(BaseForwardOptions, BaseFDEMOptions, Base1DOptions):
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/fdem1d_forward.ui.json"
     run_command: str = "simpeg_drivers.electromagnetics.frequency_domain_1d.forward"
     title: str = "Frequency-domain EM-1D (FEM-1D) Forward"
+    icon: str = "surveyairborneem"
     physical_property: str = "conductivity"
     inversion_type: str = "fdem 1d"
     data_object: AirborneFEMReceivers
@@ -64,6 +65,7 @@ class FDEM1DInversionOptions(BaseFDEMOptions, BaseInversionOptions, Base1DOption
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/fdem1d_inversion.ui.json"
     run_command: str = "simpeg_drivers.electromagnetics.frequency_domain_1d.inversion"
     title: str = "Frequency-domain EM-1D (FEM-1D) Inversion"
+    icon: str = "surveyairborneem"
     physical_property: str = "conductivity"
     inversion_type: str = "fdem 1d"
 

@@ -38,6 +38,7 @@ class DC2DForwardOptions(BaseForwardOptions, Base2DOptions):
     )
 
     title: str = "Direct Current 2D Forward"
+    icon: str = "PotentialElectrode"
     physical_property: str = "conductivity"
     inversion_type: str = "direct current 2d"
 
@@ -59,7 +60,7 @@ class DC2DInversionOptions(BaseInversionOptions, Base2DOptions):
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/direct_current_2d_inversion.ui.json"
     )
-
+    icon: str = "PotentialElectrode"
     title: str = "Direct Current 2D Inversion"
     physical_property: str = "conductivity"
     inversion_type: str = "direct current 2d"

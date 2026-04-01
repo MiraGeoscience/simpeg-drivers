@@ -56,6 +56,7 @@ class MagneticForwardOptions(BaseForwardOptions):
     run_command: str = "simpeg_drivers.potential_fields.magnetic_scalar.forward"
 
     title: str = "Magnetic Scalar Forward"
+    icon: str = "surveyairbornemagnetics"
     physical_property: str = "susceptibility"
     inversion_type: str = "magnetic scalar"
 
@@ -112,6 +113,7 @@ class MagneticInversionOptions(BaseInversionOptions):
     run_command: str = "simpeg_drivers.potential_fields.magnetic_scalar.inversion"
 
     title: str = "Magnetic Scalar Inversion"
+    icon: str = "surveyairbornemagnetics"
     physical_property: str = "susceptibility"
     inversion_type: str = "magnetic scalar"
 

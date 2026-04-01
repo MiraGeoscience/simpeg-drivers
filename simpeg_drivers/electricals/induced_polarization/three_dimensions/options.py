@@ -36,8 +36,8 @@ class IP3DForwardOptions(BaseForwardOptions):
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/induced_polarization_3d_forward.ui.json"
     )
-
     title: str = "Induced Polarization 3D Forward"
+    icon: str = "PotentialElectrode"
     physical_property: str = "chargeability"
     inversion_type: str = "induced polarization 3d"
 
@@ -58,8 +58,8 @@ class IP3DInversionOptions(BaseInversionOptions):
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/induced_polarization_3d_inversion.ui.json"
     )
-
     title: str = "Induced Polarization 3D Inversion"
+    icon: str = "PotentialElectrode"
     physical_property: str = "chargeability"
     inversion_type: str = "induced polarization 3d"
 

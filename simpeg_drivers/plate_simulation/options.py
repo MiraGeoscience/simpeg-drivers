@@ -126,6 +126,7 @@ class PlateSimulationOptions(Options):
     name: ClassVar[str] = "plate_simulation"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/plate_simulation.ui.json"
     title: str = "Plate Simulation"
+    icon: str = "maxwellplate"
     run_command: str = "simpeg_drivers.plate_simulation.driver"
     out_group: SimPEGGroup | UIJsonGroup | None = None
     forward_only: bool = True

@@ -39,6 +39,7 @@ class IP2DForwardOptions(BaseForwardOptions, Base2DOptions):
     )
 
     title: str = "Induced Polarization 2D Forward"
+    icon: str = "PotentialElectrode"
     physical_property: str = "chargeability"
     inversion_type: str = "induced polarization 2d"
 
@@ -61,6 +62,7 @@ class IP2DInversionOptions(BaseInversionOptions, Base2DOptions):
     )
 
     title: str = "Induced Polarization 2D Inversion"
+    icon: str = "PotentialElectrode"
     physical_property: str = "chargeability"
     inversion_type: str = "induced polarization 2d"
 
