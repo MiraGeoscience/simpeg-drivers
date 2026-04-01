@@ -113,7 +113,7 @@ class InversionTopography(InversionLocations):
                 )
             else:
                 vertices, cells = mask_vertices_and_cells(
-                    mesh.entity.extent,
+                    mesh.entity.extent[:, :2],
                     self.locations,
                     getattr(self.params.active_cells.topography_object, "cells", None),
                 )
