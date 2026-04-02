@@ -193,13 +193,7 @@ class PlateSimulationDriver(Driver):
                 topography=self.simulation_parameters.active_cells.topography_object,
                 plates=surfaces,
             )
-        # octree_params = self.params.mesh.octree_params(
-        #     self.survey,
-        #     self.simulation_parameters.active_cells.topography_object,
-        #     [p.surface.copy(parent=self._out_group) for p in self.plates],
-        # )
-        # octree_driver = OctreeDriver(octree_params)
-        # mesh = octree_driver.run()
+
         mesh.parent = self._out_group
 
         return mesh
