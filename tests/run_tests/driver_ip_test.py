@@ -49,7 +49,14 @@ def test_ip_3d_fwr_run(
         method="induced polarization 3d",
         refine_plate=True,
         survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
-        mesh=MeshOptions(refinement=refinement),
+        mesh=MeshOptions(
+            u_cell_size=20.0,
+            v_cell_size=20.0,
+            w_cell_size=20.0,
+            survey_refinement=refinement,
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+        ),
         model=ModelOptions(background=1e-6, anomaly=1e-1),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:

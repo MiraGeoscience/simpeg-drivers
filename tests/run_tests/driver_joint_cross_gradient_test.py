@@ -70,6 +70,9 @@ def test_joint_cross_gradient_fwr_run(
             n_stations=n_grid_points, n_lines=n_grid_points, drape=15.0, name="survey A"
         ),
         mesh=MeshOptions(
+            u_cell_size=20.0,
+            v_cell_size=20.0,
+            w_cell_size=20.0,
             survey_refinement=list(refinement),
             topography_refinement=[0, 0, 1],
             plate_refinement=[1],
@@ -92,6 +95,7 @@ def test_joint_cross_gradient_fwr_run(
     with geoh5.open():
         opts = SyntheticsComponentsOptions(
             method="magnetic_vector",
+            refine_plate=True,
             survey=SurveyOptions(
                 n_stations=n_grid_points,
                 n_lines=n_grid_points,
@@ -99,6 +103,9 @@ def test_joint_cross_gradient_fwr_run(
                 name="survey B",
             ),
             mesh=MeshOptions(
+                u_cell_size=20.0,
+                v_cell_size=20.0,
+                w_cell_size=20.0,
                 survey_refinement=list(refinement),
                 topography_refinement=[0, 0, 1],
                 plate_refinement=[1],
@@ -123,10 +130,14 @@ def test_joint_cross_gradient_fwr_run(
     with geoh5.open():
         opts = SyntheticsComponentsOptions(
             method="direct current 3d",
+            refine_plate=True,
             survey=SurveyOptions(
                 n_stations=n_grid_points, n_lines=n_lines, name="survey C"
             ),
             mesh=MeshOptions(
+                u_cell_size=20.0,
+                v_cell_size=20.0,
+                w_cell_size=20.0,
                 survey_refinement=list(refinement),
                 topography_refinement=[0, 0, 1],
                 plate_refinement=[1],

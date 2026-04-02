@@ -61,6 +61,9 @@ def test_gravity_rotated_grad_fwr_run(
             topography=lambda x, y: gaussian(x, y, amplitude=50.0, width=100.0) + 15,
         ),
         mesh=MeshOptions(
+            u_cell_size=20.0,
+            v_cell_size=20.0,
+            w_cell_size=20.0,
             survey_refinement=list(refinement),
             topography_refinement=[0, 0, 1],
             plate_refinement=[1],

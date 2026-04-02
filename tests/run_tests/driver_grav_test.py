@@ -53,10 +53,14 @@ def test_gravity_fwr_run(
             geoh5=geoh5,
             options=SyntheticsComponentsOptions(
                 method="gravity",
+                refine_plate=True,
                 survey=SurveyOptions(
                     n_stations=n_grid_points, n_lines=n_grid_points, drape=5.0
                 ),
                 mesh=MeshOptions(
+                    u_cell_size=20.0,
+                    v_cell_size=20.0,
+                    w_cell_size=20.0,
                     survey_refinement=list(refinement),
                     topography_refinement=[0, 0, 1],
                     plate_refinement=[1],

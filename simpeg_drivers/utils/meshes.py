@@ -107,7 +107,7 @@ def auto_mesh_parameters(
                 {
                     "refinement_object": topography,
                     "levels": topography_refinement,
-                    "horizon": True,
+                    "horizon": False,
                 },
                 None,
             ],

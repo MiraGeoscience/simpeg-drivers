@@ -50,7 +50,14 @@ def test_dc_3d_fwr_run(
         method="direct current 3d",
         refine_plate=True,
         survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
-        mesh=MeshOptions(refinement=refinement),
+        mesh=MeshOptions(
+            u_cell_size=20.0,
+            v_cell_size=20.0,
+            w_cell_size=20.0,
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+        ),
         model=ModelOptions(background=0.01, anomaly=10.0),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
@@ -153,7 +160,14 @@ def test_dc_single_line_fwr_run(
         method="direct current 3d",
         refine_plate=True,
         survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
-        mesh=MeshOptions(refinement=refinement),
+        mesh=MeshOptions(
+            u_cell_size=20.0,
+            v_cell_size=20.0,
+            w_cell_size=20.0,
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+        ),
         model=ModelOptions(background=0.01, anomaly=10.0),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:

@@ -63,7 +63,15 @@ def test_tiling_ground_tem(
             topography=lambda x, y: np.zeros(x.shape),
             name="ground_tdem_survey",
         ),
-        mesh=MeshOptions(refinement=refinement, padding_distance=1000.0),
+        mesh=MeshOptions(
+            u_cell_size=20.0,
+            v_cell_size=20.0,
+            w_cell_size=20.0,
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+            padding_distance=1000.0,
+        ),
         model=ModelOptions(
             background=0.001,
             plate=PlateModel(

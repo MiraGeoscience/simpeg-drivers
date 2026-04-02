@@ -192,6 +192,7 @@ class PlateSimulationDriver(Driver):
                 survey=self.survey,
                 topography=self.simulation_parameters.active_cells.topography_object,
                 plates=surfaces,
+                name=self.params.mesh.name,
             )
 
         mesh.parent = self._out_group
@@ -270,8 +271,6 @@ class PlateSimulationDriver(Driver):
     ) -> list[Plate]:
         """
         Replicate a plate n times along an azimuth centered at origin.
-
-        Plate names will be indexed.
 
         :param plate: models.parametric.Plate to be replicated.
         :param number: Number of plates returned.

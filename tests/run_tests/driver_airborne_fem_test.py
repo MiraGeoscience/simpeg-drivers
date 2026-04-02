@@ -50,13 +50,9 @@ def test_fem_name_change(tmp_path, caplog):
         refine_plate=True,
         survey=SurveyOptions(n_stations=2, n_lines=2, drape=15.0),
         mesh=MeshOptions(
-            survey_refinement=[
-                2,
-            ],
+            survey_refinement=[2],
             topography_refinement=[0, 0, 1],
-            plate_refinement=[
-                4,
-            ],
+            plate_refinement=[1],
             padding_distance=400.0,
         ),
         model=ModelOptions(background=1e-3),

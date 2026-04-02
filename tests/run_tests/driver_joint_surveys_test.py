@@ -70,6 +70,9 @@ def test_joint_surveys_fwr_run(
             n_stations=n_grid_points, n_lines=n_grid_points, drape=5.0, name="survey A"
         ),
         mesh=MeshOptions(
+            u_cell_size=20.0,
+            v_cell_size=20.0,
+            w_cell_size=20.0,
             survey_refinement=list(refinement),
             topography_refinement=[0, 0, 1],
             plate_refinement=[1],
@@ -96,6 +99,7 @@ def test_joint_surveys_fwr_run(
     with geoh5.open():
         opts = SyntheticsComponentsOptions(
             method="gravity",
+            refine_plate=True,
             survey=SurveyOptions(
                 n_stations=int(n_grid_points / 2),
                 n_lines=int(n_grid_points / 2),
@@ -103,6 +107,9 @@ def test_joint_surveys_fwr_run(
                 name="survey B",
             ),
             mesh=MeshOptions(
+                u_cell_size=20.0,
+                v_cell_size=20.0,
+                w_cell_size=20.0,
                 survey_refinement=[0, 2],
                 topography_refinement=[0, 0, 1],
                 plate_refinement=[1],
@@ -227,13 +234,22 @@ def test_joint_surveys_mvi_run(tmp_path, anomaly=0.05):
         for ii in range(1, 3):
             opts = SyntheticsComponentsOptions(
                 method="magnetic_vector",
+                refine_plate=True,
                 survey=SurveyOptions(
                     n_stations=3**ii,
                     n_lines=3**ii,
                     drape=5.0,
                     name=f"Survey Driver[{ii}]",
                 ),
-                mesh=MeshOptions(refinement=(2**ii, 2, 2), name=f"Mesh Driver[{ii}]"),
+                mesh=MeshOptions(
+                    u_cell_size=20.0,
+                    v_cell_size=20.0,
+                    w_cell_size=20.0,
+                    survey_refinement=[2**ii, 2, 2],
+                    topography_refinement=[0, 0, 1],
+                    plate_refinement=[1],
+                    name=f"Mesh Driver[{ii}]",
+                ),
                 model=ModelOptions(anomaly=anomaly),
             )
             components = SyntheticsComponents(geoh5, options=opts)
@@ -310,7 +326,15 @@ def test_joint_surveys_conductivity_run(
         method="direct-current",
         refine_plate=True,
         survey=SurveyOptions(n_stations=4, n_lines=4, name="survey A"),
-        mesh=MeshOptions(refinement=(2, 2, 2), name="mesh A"),
+        mesh=MeshOptions(
+            u_cell_size=20.0,
+            v_cell_size=20.0,
+            w_cell_size=20.0,
+            survey_refinement=[2, 2, 2],
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+            name="mesh A",
+        ),
         model=ModelOptions(anomaly=0.1, background=0.01, name="model A"),
         active=SyntheticsActiveCellsOptions(name="active A"),
     )
@@ -366,7 +390,15 @@ def test_joint_surveys_tem_run(
         method="airborne tdem",
         refine_plate=True,
         survey=SurveyOptions(n_stations=4, n_lines=4, name="survey A"),
-        mesh=MeshOptions(refinement=(2, 2, 2), name="mesh A"),
+        mesh=MeshOptions(
+            u_cell_size=20.0,
+            v_cell_size=20.0,
+            w_cell_size=20.0,
+            survey_refinement=[2, 2, 2],
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+            name="mesh A",
+        ),
         model=ModelOptions(anomaly=0.1, background=0.01, name="model A"),
         active=SyntheticsActiveCellsOptions(name="active A"),
     )
