@@ -97,7 +97,7 @@ def test_fem_fwr_run(
             w_cell_size=cell_size[2],
             survey_refinement=list(refinement),
             topography_refinement=[0, 0, 1],
-            padding_distance=1000.0,
+            padding_distance=400.0,
         ),
         model=ModelOptions(
             background=1e-3,
