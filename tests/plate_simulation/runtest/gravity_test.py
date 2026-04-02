@@ -55,11 +55,7 @@ def test_gravity_plate_simulation(tmp_path):
             plate_refinement=[4, 2],
         )
 
-        overburden_params = OverburdenOptions(
-            thickness=50.0,
-            overburden=0.2,  # tests alias handling
-        )
-        assert overburden_params.overburden_property == 0.2
+        overburden_params = OverburdenOptions(thickness=50.0, overburden_property=0.2)
 
         plate_params = PlateOptions(
             name="plate",

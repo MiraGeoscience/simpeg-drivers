@@ -13,7 +13,8 @@ from collections.abc import Callable
 import numpy as np
 from geoapps_utils.modelling.plates import PlateModel
 from geoapps_utils.utils.locations import gaussian
-from geoh5py.objects import ObjectBase, Surface
+from geoh5py.objects import ObjectBase, Points, Surface
+from geoh5py.shared.utils import fetch_active_workspace
 from grid_apps.octree_creation.options import OctreeOptions
 from pydantic import BaseModel, ConfigDict
 
@@ -77,8 +78,12 @@ class MeshOptions(BaseModel):
 
         :return: OctreeOptions instance ready to be passed to an OctreeDriver.
         """
-        shifted_survey = survey.copy()
-        shifted_survey.vertices = shifted_survey.vertices - np.r_[self.cell_size] / 2.0
+
+        locs = survey.vertices.copy()
+        locs = np.vstack([locs, locs - np.r_[self.cell_size] / 2])
+        with fetch_active_workspace(survey.workspace) as geoh5:
+            survey = Points.create(geoh5, vertices=locs)
+
         refinements = [
             {
                 "refinement_object": survey,
@@ -86,7 +91,7 @@ class MeshOptions(BaseModel):
                 "horizon": False,
             },
             {
-                "refinement_object": shifted_survey,
+                "refinement_object": survey,
                 "levels": self.survey_refinement,
                 "horizon": False,
             },

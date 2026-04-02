@@ -80,7 +80,7 @@ class SyntheticsComponents:
     @property
     def mesh(self) -> Octree | DrapeModel:
         if self._mesh is None:
-            entity = self.geoh5.get_entity("mesh")[0]
+            entity = self.geoh5.get_entity(self.options.mesh.name)[0]
             if entity is None:
                 entity = get_mesh(
                     self.options.method,
