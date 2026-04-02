@@ -8,6 +8,8 @@ requires = [
   "jinja2 ==3.*",
   "packaging >=24.0",
   "tomlkit >=0.13",
+  "setuptools>=80",
+  "setuptools-scm[simple]>=9.2.*"
 ]
 build-backend = "poetry_dynamic_versioning.backend"
 
@@ -220,7 +222,7 @@ show_column_numbers = true
 check_untyped_defs = true
 
 plugins = [
-    "numpy.typing.mypy_plugin",
+    "pydantic.mypy"
 ]
 
 [tool.coverage.run]
