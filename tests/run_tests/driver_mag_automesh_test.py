@@ -39,10 +39,15 @@ def test_automesh(
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="magnetic_scalar",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points, n_lines=n_grid_points, drape=5.0
         ),
-        mesh=MeshOptions(refinement=refinement),
+        mesh=MeshOptions(
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+        ),
         model=ModelOptions(anomaly=0.05),
     )
     with Workspace.create(tmp_path / "forward_test.ui.geoh5") as geoh5:

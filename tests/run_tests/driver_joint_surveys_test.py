@@ -65,10 +65,16 @@ def test_joint_surveys_fwr_run(
     # Create local problem A
     opts = SyntheticsComponentsOptions(
         method="gravity",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points, n_lines=n_grid_points, drape=5.0, name="survey A"
         ),
-        mesh=MeshOptions(refinement=refinement, name="mesh A"),
+        mesh=MeshOptions(
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+            name="mesh A",
+        ),
         model=ModelOptions(anomaly=0.75, name="model A"),
         active=SyntheticsActiveCellsOptions(name="active A"),
     )
@@ -96,7 +102,12 @@ def test_joint_surveys_fwr_run(
                 drape=10.0,
                 name="survey B",
             ),
-            mesh=MeshOptions(refinement=(0, 2), name="mesh B"),
+            mesh=MeshOptions(
+                survey_refinement=[0, 2],
+                topography_refinement=[0, 0, 1],
+                plate_refinement=[1],
+                name="mesh B",
+            ),
             model=ModelOptions(anomaly=0.75, name="model B"),
             active=SyntheticsActiveCellsOptions(name="active B"),
         )
@@ -297,6 +308,7 @@ def test_joint_surveys_conductivity_run(
 ):
     opts = SyntheticsComponentsOptions(
         method="direct-current",
+        refine_plate=True,
         survey=SurveyOptions(n_stations=4, n_lines=4, name="survey A"),
         mesh=MeshOptions(refinement=(2, 2, 2), name="mesh A"),
         model=ModelOptions(anomaly=0.1, background=0.01, name="model A"),
@@ -352,6 +364,7 @@ def test_joint_surveys_tem_run(
 ):
     opts = SyntheticsComponentsOptions(
         method="airborne tdem",
+        refine_plate=True,
         survey=SurveyOptions(n_stations=4, n_lines=4, name="survey A"),
         mesh=MeshOptions(refinement=(2, 2, 2), name="mesh A"),
         model=ModelOptions(anomaly=0.1, background=0.01, name="model A"),

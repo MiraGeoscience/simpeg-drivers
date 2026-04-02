@@ -48,6 +48,7 @@ def test_dc_3d_fwr_run(
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="direct current 3d",
+        refine_plate=True,
         survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
         mesh=MeshOptions(refinement=refinement),
         model=ModelOptions(background=0.01, anomaly=10.0),
@@ -150,6 +151,7 @@ def test_dc_single_line_fwr_run(
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="direct current 3d",
+        refine_plate=True,
         survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
         mesh=MeshOptions(refinement=refinement),
         model=ModelOptions(background=0.01, anomaly=10.0),

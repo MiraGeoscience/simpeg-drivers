@@ -48,6 +48,7 @@ def test_ip_2d_fwr_run(
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="induced polarization 2d",
+        refine_plate=True,
         survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
         mesh=DrapeModelOptions(
             u_cell_size=5.0,

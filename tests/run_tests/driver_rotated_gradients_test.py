@@ -52,6 +52,7 @@ def test_gravity_rotated_grad_fwr_run(
 
     opts = SyntheticsComponentsOptions(
         method="gravity",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points,
             n_lines=n_grid_points,
@@ -59,7 +60,11 @@ def test_gravity_rotated_grad_fwr_run(
             drape=5.0,
             topography=lambda x, y: gaussian(x, y, amplitude=50.0, width=100.0) + 15,
         ),
-        mesh=MeshOptions(refinement=refinement),
+        mesh=MeshOptions(
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+        ),
         model=ModelOptions(
             anomaly=0.75,
             plate=PlateModel(

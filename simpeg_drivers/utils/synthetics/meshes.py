@@ -14,6 +14,7 @@ from discretize.utils import mesh_builder_xyz
 from geoapps_utils.modelling.plates import Plate, PlateModel
 from geoh5py.objects import DrapeModel, Octree, Points, Surface
 from grid_apps.octree_creation.driver import OctreeDriver
+from grid_apps.utils import treemesh_2_octree
 
 from simpeg_drivers.electricals.base_2d import create_mesh_by_line_id
 from simpeg_drivers.options import DrapeModelOptions
@@ -94,17 +95,14 @@ def get_octree_mesh(
 ) -> Octree:
     """Generate a survey centered mesh with topography and survey refinement.
 
+    :param opts: Octree mesh creation options.
     :param survey: Survey object with vertices that define the core of the
         tensor mesh and the source refinement for EM methods.
     :param topography: Surface used to refine the topography.
-    :param cell_size: Tuple defining the cell size in all directions.
-    :param refinement: Tuple containing the number of cells to refine at each
-        level around the topography.
-    :param padding_distance: Distance to pad the mesh in all directions.
-    :param plate: Optional PlateModel object to refine the mesh around the plate.
+    :param plates: Optional plate surfaces to refine.
     :param name: Name of the Octree object to create in geoh5. Default is "mesh".
 
-    :return entity: The geoh5py Octree object to store the results of
+    :return mesh: The geoh5py Octree object to store the results of
         computation in the shared cells of the computational mesh.
     """
     octree_params = opts.octree_params(survey, topography, plates)

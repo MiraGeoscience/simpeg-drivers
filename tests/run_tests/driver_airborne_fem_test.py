@@ -47,6 +47,7 @@ def test_fem_name_change(tmp_path, caplog):
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="fdem",
+        refine_plate=True,
         survey=SurveyOptions(n_stations=2, n_lines=2, drape=15.0),
         mesh=MeshOptions(
             survey_refinement=[
@@ -85,6 +86,7 @@ def test_fem_fwr_run(
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="fdem",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points,
             n_lines=n_grid_points,
@@ -97,6 +99,7 @@ def test_fem_fwr_run(
             w_cell_size=cell_size[2],
             survey_refinement=list(refinement),
             topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
             padding_distance=400.0,
         ),
         model=ModelOptions(

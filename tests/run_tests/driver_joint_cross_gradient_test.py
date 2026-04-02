@@ -65,10 +65,16 @@ def test_joint_cross_gradient_fwr_run(
     # Create local problem A
     opts = SyntheticsComponentsOptions(
         method="gravity",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points, n_lines=n_grid_points, drape=15.0, name="survey A"
         ),
-        mesh=MeshOptions(refinement=refinement, name="mesh A"),
+        mesh=MeshOptions(
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+            name="mesh A",
+        ),
         model=ModelOptions(anomaly=0.75, name="model A"),
         active=SyntheticsActiveCellsOptions(name="active A"),
     )
@@ -92,7 +98,12 @@ def test_joint_cross_gradient_fwr_run(
                 drape=15.0,
                 name="survey B",
             ),
-            mesh=MeshOptions(refinement=refinement, name="mesh B"),
+            mesh=MeshOptions(
+                survey_refinement=list(refinement),
+                topography_refinement=[0, 0, 1],
+                plate_refinement=[1],
+                name="mesh B",
+            ),
             model=ModelOptions(anomaly=0.05, name="model B"),
             active=SyntheticsActiveCellsOptions(name="active B"),
         )
@@ -115,7 +126,12 @@ def test_joint_cross_gradient_fwr_run(
             survey=SurveyOptions(
                 n_stations=n_grid_points, n_lines=n_lines, name="survey C"
             ),
-            mesh=MeshOptions(refinement=refinement, name="mesh C"),
+            mesh=MeshOptions(
+                survey_refinement=list(refinement),
+                topography_refinement=[0, 0, 1],
+                plate_refinement=[1],
+                name="mesh C",
+            ),
             model=ModelOptions(background=0.01, anomaly=10, name="model C"),
             active=SyntheticsActiveCellsOptions(name="active C"),
         )

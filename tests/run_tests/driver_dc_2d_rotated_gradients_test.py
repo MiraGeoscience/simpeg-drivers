@@ -47,6 +47,7 @@ target_run = {"data_norm": 10.305373769233688, "phi_d": 187000, "phi_m": 410}
 def test_dc_rotated_2d_fwr_run(tmp_path: Path, n_electrodes=10, n_lines=3):
     opts = SyntheticsComponentsOptions(
         method="direct current 2d",
+        refine_plate=True,
         survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
         mesh=DrapeModelOptions(
             u_cell_size=5.0,

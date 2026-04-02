@@ -55,6 +55,7 @@ def test_tiling_ground_tem(
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="ground tdem",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points,
             n_lines=n_grid_points,
@@ -115,6 +116,7 @@ def test_ground_tem_fwr_run(
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="ground tdem",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points,
             n_lines=n_grid_points,
@@ -122,7 +124,13 @@ def test_ground_tem_fwr_run(
             topography=lambda x, y: np.zeros(x.shape),
         ),
         mesh=MeshOptions(
-            cell_size=cell_size, refinement=refinement, padding_distance=1000.0
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+            padding_distance=1000.0,
         ),
         model=ModelOptions(
             background=0.001,

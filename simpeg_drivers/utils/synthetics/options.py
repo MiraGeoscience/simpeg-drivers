@@ -10,6 +10,7 @@
 
 from collections.abc import Callable
 
+import numpy as np
 from geoapps_utils.modelling.plates import PlateModel
 from geoapps_utils.utils.locations import gaussian
 from geoh5py.objects import ObjectBase, Points, Surface
@@ -50,7 +51,7 @@ class MeshOptions(BaseModel):
     depth_core: float = 100.0
     max_distance: float = 100.0
     minimum_level: int = 8
-    diagonal_balance: bool = False
+    diagonal_balance: bool = True
     survey_refinement: list[int] = [4, 6]
     topography_refinement: list[int] = [0, 0, 1]
     plate_refinement: list[int] = [4]
@@ -63,6 +64,8 @@ class MeshOptions(BaseModel):
     def octree_params(
         self, survey: ObjectBase, topography: Points, plates: list[Surface] | None
     ):
+        shifted_survey = survey.copy()
+        shifted_survey.vertices = shifted_survey.vertices - np.r_[self.cell_size] / 2.0
         refinements = [
             {
                 "refinement_object": survey,
@@ -70,9 +73,14 @@ class MeshOptions(BaseModel):
                 "horizon": False,
             },
             {
+                "refinement_object": shifted_survey,
+                "levels": self.survey_refinement,
+                "horizon": False,
+            },
+            {
                 "refinement_object": topography,
                 "levels": self.topography_refinement,
-                "horizon": True,
+                "horizon": False,
                 "distance": 1000.0,
             },
         ]

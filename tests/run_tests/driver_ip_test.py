@@ -47,6 +47,7 @@ def test_ip_3d_fwr_run(
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="induced polarization 3d",
+        refine_plate=True,
         survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
         mesh=MeshOptions(refinement=refinement),
         model=ModelOptions(background=1e-6, anomaly=1e-1),

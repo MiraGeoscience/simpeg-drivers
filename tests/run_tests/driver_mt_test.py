@@ -97,8 +97,16 @@ def test_magnetotellurics_fwr_run(
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="magnetotellurics",
+        refine_plate=True,
         survey=SurveyOptions(n_stations=n_grid_points, n_lines=n_grid_points),
-        mesh=MeshOptions(cell_size=cell_size, refinement=refinement),
+        mesh=MeshOptions(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+        ),
         model=ModelOptions(background=0.01),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
@@ -199,8 +207,16 @@ def test_magnetotellurics_tiles(
     workpath = tmp_path / f"{__name__}.geoh5"
     opts = SyntheticsComponentsOptions(
         method="magnetotellurics",
+        refine_plate=True,
         survey=SurveyOptions(n_stations=n_grid_points, n_lines=n_grid_points),
-        mesh=MeshOptions(cell_size=cell_size, refinement=refinement),
+        mesh=MeshOptions(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+        ),
         model=ModelOptions(background=0.01),
     )
     with Workspace.create(workpath) as geoh5:
