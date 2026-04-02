@@ -64,6 +64,7 @@ class MeshOptions(BaseModel):
     def octree_params(
         self, survey: ObjectBase, topography: Points, plates: list[Surface] | None
     ):
+        """Collect parameters for an OctreeDriver run for a synthetic experiment."""
         shifted_survey = survey.copy()
         shifted_survey.vertices = shifted_survey.vertices - np.r_[self.cell_size] / 2.0
         refinements = [

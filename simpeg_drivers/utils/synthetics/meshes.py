@@ -28,7 +28,18 @@ def get_mesh(
     options: MeshOptions | DrapeModelOptions,
     plates: list[Surface] | None = None,
 ) -> DrapeModel | Octree:
-    """Factory for mesh creation with behaviour modified by the provided method."""
+    """
+    Factory for mesh creation with behaviour modified by the provided method.
+
+    :param method: Geophysical method dictating if Octree (3d) or DrapeModel
+        (2d) mesh is returned.
+    :param survey: Survey object for point refinement.
+    :param topography: Topography object for surface refinement.
+    :param options: Mesh creation options specifying core and refinement options.
+    :param plates: Optional plate surfaces to refine.
+
+    :return: A DrapeModel for 2D methods, or an Octree for all other methods.
+    """
 
     if "2d" in method:
         line_data = survey.get_entity("line_ids")[0]
@@ -100,7 +111,7 @@ def get_octree_mesh(
         tensor mesh and the source refinement for EM methods.
     :param topography: Surface used to refine the topography.
     :param plates: Optional plate surfaces to refine.
-    :param name: Name of the Octree object to create in geoh5. Default is "mesh".
+    :param name: Name of the Octree object to create in geoh5.
 
     :return mesh: The geoh5py Octree object to store the results of
         computation in the shared cells of the computational mesh.
