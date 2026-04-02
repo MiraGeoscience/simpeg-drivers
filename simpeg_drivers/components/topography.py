@@ -39,7 +39,6 @@ from simpeg_drivers.utils.utils import (
     get_containing_cells,
     get_neighbouring_cells,
     mask_vertices_and_cells,
-    octree_extents,
 )
 
 
@@ -113,9 +112,8 @@ class InversionTopography(InversionLocations):
                     self.params.active_cells.topography_object, "cells", None
                 )
             else:
-                extent = octree_extents(mesh.entity)[:4]
                 vertices, cells = mask_vertices_and_cells(
-                    extent.ravel(order="F"),
+                    mesh.entity.extent[:, :2],
                     self.locations,
                     getattr(self.params.active_cells.topography_object, "cells", None),
                 )
