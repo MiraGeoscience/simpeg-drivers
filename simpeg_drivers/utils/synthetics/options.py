@@ -13,7 +13,7 @@ from collections.abc import Callable
 import numpy as np
 from geoapps_utils.modelling.plates import PlateModel
 from geoapps_utils.utils.locations import gaussian
-from geoh5py.objects import ObjectBase, Points, Surface
+from geoh5py.objects import ObjectBase, Surface
 from grid_apps.octree_creation.options import OctreeOptions
 from pydantic import BaseModel, ConfigDict
 
@@ -21,6 +21,8 @@ from simpeg_drivers.options import DrapeModelOptions
 
 
 class SurveyOptions(BaseModel):
+    """Parameters for configuring a synthetic survey grid."""
+
     center: tuple[float, float] = (0.0, 0.0)
     width: float = 200.0
     height: float = 200.0
@@ -33,6 +35,7 @@ class SurveyOptions(BaseModel):
 
     @property
     def limits(self) -> list[float]:
+        """East-West bounding box of the survey as [xmin, xmax, ymin, ymax]."""
         return [
             self.center[0] - self.width / 2,
             self.center[0] + self.width / 2,
@@ -59,12 +62,21 @@ class MeshOptions(BaseModel):
 
     @property
     def cell_size(self) -> tuple[float, float, float]:
+        """Cell size in the u, v, and w directions."""
         return (self.u_cell_size, self.v_cell_size, self.w_cell_size)
 
     def octree_params(
-        self, survey: ObjectBase, topography: Points, plates: list[Surface] | None
-    ):
-        """Collect parameters for an OctreeDriver run for a synthetic experiment."""
+        self, survey: ObjectBase, topography: Surface, plates: list[Surface] | None
+    ) -> OctreeOptions:
+        """
+        Collect parameters for an OctreeDriver run for a synthetic experiment.
+
+        :param survey: Survey object used as the primary refinement source.
+        :param topography: Surface used for topographic mesh refinement.
+        :param plates: Optional list of plate surfaces for additional refinement.
+
+        :return: OctreeOptions instance ready to be passed to an OctreeDriver.
+        """
         shifted_survey = survey.copy()
         shifted_survey.vertices = shifted_survey.vertices - np.r_[self.cell_size] / 2.0
         refinements = [
@@ -114,6 +126,8 @@ class MeshOptions(BaseModel):
 
 
 class ModelOptions(BaseModel):
+    """Parameters controlling physical properties and plate geometry."""
+
     background: float = 0.0
     anomaly: float = 1.0
     plate: PlateModel = PlateModel(
@@ -128,10 +142,14 @@ class ModelOptions(BaseModel):
 
 
 class ActiveCellsOptions(BaseModel):
+    """Options for naming the active cells model."""
+
     name: str = "active_cells"
 
 
 class SyntheticsComponentsOptions(BaseModel):
+    """Top-level options for configuring a synthetic inversion experiment."""
+
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     method: str = "gravity"
