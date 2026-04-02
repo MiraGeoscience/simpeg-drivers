@@ -11,10 +11,8 @@
 import numpy as np
 from discretize import TreeMesh
 from discretize.utils import mesh_builder_xyz
-from geoapps_utils.modelling.plates import Plate, PlateModel
 from geoh5py.objects import DrapeModel, Octree, Points, Surface
 from grid_apps.octree_creation.driver import OctreeDriver
-from grid_apps.utils import treemesh_2_octree
 
 from simpeg_drivers.electricals.base_2d import create_mesh_by_line_id
 from simpeg_drivers.options import DrapeModelOptions
