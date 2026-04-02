@@ -16,6 +16,7 @@ from geoh5py.objects import Points
 from pydantic import (
     BaseModel,
     ConfigDict,
+    Field,
     ValidationInfo,
     field_validator,
     model_validator,
@@ -46,7 +47,7 @@ class PlateOptions(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     name: str = "Plate"
-    plate_property: float
+    plate_property: float = Field(validation_alias="plate")
     geometry: PlateModel
     number: int = 1
     spacing: float = 0.0
@@ -124,7 +125,7 @@ class OverburdenOptions(BaseModel):
     """
 
     thickness: float
-    overburden_property: float
+    overburden_property: float = Field(validation_alias="overburden")
 
 
 class ModelOptions(BaseModel):
