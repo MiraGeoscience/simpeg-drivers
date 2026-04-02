@@ -39,6 +39,7 @@ class SyntheticsComponents:
         self._topography: Surface | None = None
         self._survey: ObjectBase | None = None
         self._mesh: Octree | DrapeModel | None = None
+        self._plate: Surface | None = None
         self._active: FloatData | None = None
         self._model: FloatData | None = None
 
@@ -71,8 +72,10 @@ class SyntheticsComponents:
 
     @property
     def plate(self) -> Surface | None:
-        plate = Plate(self.options.model.plate)
-        return plate.surface(self.geoh5)
+        if self._plate is None:
+            plate = Plate(self.options.model.plate)
+            self._plate = plate.surface(self.geoh5)
+        return self._plate
 
     @property
     def mesh(self) -> Octree | DrapeModel:
