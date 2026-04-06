@@ -11,13 +11,18 @@
 
 from __future__ import annotations
 
+import contextlib
+import cProfile
 import multiprocessing
+import pstats
+import sys
 from collections.abc import Sequence
 from copy import deepcopy
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
+from dask.distributed import Client, LocalCluster, performance_report
 from discretize import TensorMesh, TreeMesh
 from discretize.utils import mesh_utils
 from geoapps_utils.base import Options
@@ -724,3 +729,59 @@ def validate_out_group(options: Options) -> SimPEGGroup:
         out_group.metadata = None
 
     return out_group
+
+
+def start_dask_run(
+    class_type,
+    json_path: Path,
+    n_workers: int | None = None,
+    n_threads: int | None = None,
+):
+    """
+    Sets Dask config settings.
+
+    :param json_path: Path to input file (.ui.json) for the application.
+    :param n_workers: Number of workers to use.
+    :param n_threads: Number of threads to use.
+    """
+    ui_json = load_ui_json_as_dict(json_path)
+
+    n_workers = ui_json.get("n_workers", n_workers)
+    n_threads = ui_json.get("n_threads", n_threads)
+    save_report = ui_json.get("performance_report", False)
+
+    if (n_workers is not None and n_workers > 1) or n_threads is not None:
+        cluster = LocalCluster(
+            processes=True,
+            n_workers=n_workers,
+            threads_per_worker=n_threads,
+        )
+    else:
+        cluster = None
+
+    profiler = cProfile.Profile()
+    profiler.enable()
+
+    with (
+        cluster.get_client()
+        if cluster is not None
+        else contextlib.nullcontext() as context_client
+    ):
+        # Full run
+        with (
+            performance_report(filename=json_path.parent / "dask_profile.html")
+            if (save_report and isinstance(context_client, Client))
+            else contextlib.nullcontext()
+        ):
+            class_type.start(json_path)
+            sys.stdout.close()
+
+    profiler.disable()
+
+    if save_report:
+        with open(
+            json_path.parent / "runtime_profile.txt", encoding="utf-8", mode="w"
+        ) as s:
+            ps = pstats.Stats(profiler, stream=s)
+            ps.sort_stats("cumulative")
+            ps.print_stats()

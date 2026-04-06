@@ -38,6 +38,7 @@ from simpeg_drivers.plate_simulation.match.options import PlateMatchOptions
 from simpeg_drivers.plate_simulation.options import ModelOptions, PlateSimulationOptions
 from simpeg_drivers.utils.utils import (
     get_default_parallelization_params,
+    start_dask_run,
     validate_out_group,
 )
 
@@ -382,8 +383,18 @@ class PlateMatchDriver(Driver):
 
         return scores, centers
 
+    @classmethod
+    def start_dask_run(
+        cls, json_path: Path, n_workers: int | None = None, n_threads: int | None = None
+    ):
+        """
+        Sets Dask config settings.
 
-PlateMatchDriver.start_dask_run = BaseDriver.start_dask_run
+        :param json_path: Path to input file (.ui.json) for the application.
+        :param n_workers: Number of workers to use.
+        :param n_threads: Number of threads to use.
+        """
+        start_dask_run(cls, json_path, n_workers=n_workers, n_threads=n_threads)
 
 
 def is_up_dip(data: np.ndarray) -> bool:
@@ -514,7 +525,6 @@ def batch_files_score(
 
 if __name__ == "__main__":
     file = Path(sys.argv[1]).resolve()
+    n_w, n_t = get_default_parallelization_params(file)
 
-    n_workers, n_threads = get_default_parallelization_params(file)
-
-    PlateMatchDriver.start_dask_run(file, n_workers=n_workers, n_threads=n_threads)
+    PlateMatchDriver.start_dask_run(file, n_workers=n_w, n_threads=n_t)
