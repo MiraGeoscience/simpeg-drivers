@@ -10,6 +10,7 @@
 
 from __future__ import annotations
 
+import re
 from logging import INFO, getLogger
 from pathlib import Path
 
@@ -175,12 +176,17 @@ def test_ground_tem_fwr_run(
         assert fwr_driver.inversion_data.survey.source_list[0].n_segments == 16
 
     if pytest and caplog:
-        assert len(caplog.records) == 2
-        for record in caplog.records:
+        loop_warnings = [
+            k
+            for k in caplog.records
+            if re.match(r"Loop \d+ modified", k.message) is not None
+        ]
+        assert len(loop_warnings) == 2
+        for record in loop_warnings:
             assert record.levelname == "INFO"
             assert "counter-clockwise" in record.message
 
-        assert "closed" in caplog.records[0].message
+        assert "closed" in loop_warnings[0].message
 
         assert (
             fwr_driver.data_misfit.objfcts[0].simulation.simulations[0].solver == Mumps
