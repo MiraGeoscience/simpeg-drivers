@@ -58,22 +58,25 @@
         ],
         "value": "dB/dt (T/s)"
     },
-    "z_channel_bool": {
+    "vertical_channel_bool": {
         "group": "Survey",
         "main": true,
-        "label": "Z component",
+        "label": "Vertical",
+        "tooltip": "Vertical (w) component of the magnetic data.\nPositive up along the z-axis if no receiver orientation provided",
         "value": true
     },
-    "x_channel_bool": {
+    "inline_channel_bool": {
         "group": "Survey",
         "main": true,
-        "label": "X component",
+        "label": "In-line",
+        "tooltip": "In-line (u) component of the magnetic data.\nPositive towards North if no receiver orientation provided",
         "value": true
     },
-    "y_channel_bool": {
+    "crossline_channel_bool": {
         "group": "Survey",
         "main": true,
-        "label": "Y component",
+        "label": "Cross-line",
+        "tooltip": "Cross-line (v) component of the magnetic data.\nPositive towards East if no receiver orientation provided",
         "value": true
     },
     "mesh": {

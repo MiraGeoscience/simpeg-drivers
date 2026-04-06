@@ -84,8 +84,8 @@ def test_fem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
         data = {}
         uncertainties = {}
         channels = {
-            "z_real": "z_real",
-            "z_imag": "z_imag",
+            "vertical_real": "vertical_real",
+            "vertical_imag": "vertical_imag",
         }
 
         for chan, cname in channels.items():
@@ -120,7 +120,7 @@ def test_fem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
             data_kwargs[f"{chan}_channel"] = data_group
             data_kwargs[f"{chan}_uncertainty"] = uncert_group
 
-        orig_z_real_1 = geoh5.get_entity("Iteration_0_z_real_[0]")[0].values
+        orig_z_real_1 = geoh5.get_entity("Iteration_0_vertical_real_[0]")[0].values
 
         # Run the inverse
         params = FDEM1DInversionOptions.build(
@@ -153,8 +153,8 @@ def test_fem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
         output["data"] = orig_z_real_1
 
         assert (
-            run_ws.get_entity("Iteration_1_z_imag_[1]")[0].entity_type.uid
-            == run_ws.get_entity("Observed_z_imag_[1]")[0].entity_type.uid
+            run_ws.get_entity("Iteration_1_vertical_imag_[1]")[0].entity_type.uid
+            == run_ws.get_entity("Observed_vertical_imag_[1]")[0].entity_type.uid
         )
 
         if pytest:
