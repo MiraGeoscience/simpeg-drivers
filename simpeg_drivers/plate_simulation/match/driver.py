@@ -192,7 +192,8 @@ class PlateMatchDriver(Driver):
         """
         center = self.params.survey.vertices[index_center]
         center[2] = (
-            self._drape_heights[index_center] - model_options.overburden.thickness
+            self._drape_heights[index_center]
+            - model_options.overburden_options.thickness
         )
         indices = self.params.survey.get_segment_indices(
             index_center, self.params.max_distance
@@ -208,10 +209,10 @@ class PlateMatchDriver(Driver):
                     "y": center[1],
                     "z": center[2],
                 },
-                "width": model_options.plate.geometry.dip_length,
-                "thickness": model_options.plate.geometry.width,
-                "length": model_options.plate.geometry.strike_length,
-                "dip": model_options.plate.geometry.dip,
+                "width": model_options.plate_options.geometry.dip_length,
+                "thickness": model_options.plate_options.geometry.width,
+                "length": model_options.plate_options.geometry.strike_length,
+                "dip": model_options.plate_options.geometry.dip,
                 "dip_direction": (azimuth + strike_angle) % 360,
             }
         )

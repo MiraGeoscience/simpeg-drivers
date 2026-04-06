@@ -131,17 +131,17 @@ class PlateSimulationDriver(Driver):
         """Generate sequence of plates."""
         if self._plates is None:
             offset = (
-                self.params.model.overburden.thickness
-                if self.params.model.plate.reference_surface == "overburden"
+                self.params.model.overburden_options.thickness
+                if self.params.model.plate_options.reference_surface == "overburden"
                 else 0.0
             )
-            center = self.params.model.plate.center(
+            center = self.params.model.plate_options.center(
                 self.survey,
                 self.topography,
                 depth_offset=-1 * offset,
             )
             plate = Plate(
-                self.params.model.plate.geometry.model_copy(
+                self.params.model.plate_options.geometry.model_copy(
                     update={
                         "easting": center[0],
                         "northing": center[1],
@@ -151,9 +151,9 @@ class PlateSimulationDriver(Driver):
             )
             self._plates = self.replicate(
                 plate,
-                self.params.model.plate.number,
-                self.params.model.plate.spacing,
-                self.params.model.plate.geometry.direction,
+                self.params.model.plate_options.number,
+                self.params.model.plate_options.spacing,
+                self.params.model.plate_options.geometry.direction,
             )
         return self._plates
 
@@ -206,13 +206,13 @@ class PlateSimulationDriver(Driver):
 
         overburden = Overburden(
             topography=self.simulation_parameters.active_cells.topography_object,
-            thickness=self.params.model.overburden.thickness,
-            value=self.params.model.overburden.overburden_property,
+            thickness=self.params.model.overburden_options.thickness,
+            value=self.params.model.overburden_options.overburden_property,
         )
 
         dikes = DikeSwarm(
             [
-                Anomaly(plate, self.params.model.plate.plate_property)
+                Anomaly(plate, self.params.model.plate_options.plate_property)
                 for plate in self.plates
             ],
             name="plates",

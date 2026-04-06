@@ -142,8 +142,8 @@ def test_matching_driver(tmp_path: Path):
         ifile.data["simulation"] = fwr_driver.out_group
 
         plate_options = PlateSimulationOptions.build(ifile.data)
-        plate_options.model.overburden.thickness = 40.0
-        plate_options.model.plate.geometry.dip_length = 300.0
+        plate_options.model.overburden_options.thickness = 40.0
+        plate_options.model.plate_options.geometry.dip_length = 300.0
         driver = PlateSimulationDriver(plate_options)
         driver.run()
 

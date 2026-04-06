@@ -14,6 +14,7 @@ import numpy as np
 from geoapps_utils.modelling.plates import PlateModel
 from geoh5py.objects import Points
 from pydantic import (
+    AliasChoices,
     BaseModel,
     ConfigDict,
     Field,
@@ -47,7 +48,9 @@ class PlateOptions(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     name: str = "Plate"
-    plate_property: float
+    plate_property: float = Field(
+        validation_alias=AliasChoices("plate_property", "plate")
+    )
     geometry: PlateModel
     number: int = 1
     spacing: float = 0.0
@@ -125,7 +128,9 @@ class OverburdenOptions(BaseModel):
     """
 
     thickness: float
-    overburden_property: float
+    overburden_property: float = Field(
+        validation_alias=AliasChoices("overburden_property", "overburden")
+    )
 
 
 class ModelOptions(BaseModel):
@@ -140,5 +145,5 @@ class ModelOptions(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     background: float
-    overburden: OverburdenOptions
-    plate: PlateOptions
+    overburden_options: OverburdenOptions
+    plate_options: PlateOptions

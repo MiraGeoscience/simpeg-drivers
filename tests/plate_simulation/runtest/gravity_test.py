@@ -76,8 +76,8 @@ def test_gravity_plate_simulation(tmp_path):
         model_params = ModelOptions(
             name="density",
             background=0.0,
-            overburden=overburden_params,
-            plate=plate_params,
+            overburden_options=overburden_params,
+            plate_options=plate_params,
         )
 
         options = GravityForwardOptions.build(
