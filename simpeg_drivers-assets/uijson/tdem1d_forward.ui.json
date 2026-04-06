@@ -39,7 +39,8 @@
     "z_channel_bool": {
         "group": "Survey",
         "main": true,
-        "label": "Z component",
+        "label": "Vertical",
+        "tooltip": "Vertical (w) component of the magnetic data",
         "value": true
     },
     "u_cell_size": {

@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import ClassVar
 
 from geoh5py.groups import PropertyGroup
+from pydantic import AliasChoices, Field
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.electromagnetics.base_1d_options import Base1DOptions
@@ -31,7 +32,7 @@ class TDEM1DForwardOptions(TDEMForwardOptions, Base1DOptions):
     """
     Time Domain Electromagnetic forward options.
 
-    :param z_channel_bool: Z-component data channel boolean.
+    :param vertical_channel_bool: Z-component data channel boolean.
     :param drape_model: Options for drape mesh.
     """
 
@@ -41,15 +42,17 @@ class TDEM1DForwardOptions(TDEMForwardOptions, Base1DOptions):
     title: str = "Time-domain EM-1D (TEM-1D) Forward"
     inversion_type: str = "tdem 1d"
 
-    z_channel_bool: bool = True
+    vertical_channel_bool: bool = Field(
+        True, validation_alias=AliasChoices("z_channel_bool", "vertical_channel_bool")
+    )
 
 
 class TDEM1DInversionOptions(TDEMInversionOptions, Base1DOptions):
     """
     Time Domain Electromagnetic Inversion options.
 
-    :param z_channel: Z-component data channel.
-    :param z_uncertainty: Z-component data channel uncertainty.
+    :param vertical_channel: Z-component data channel.
+    :param vertical_uncertainty: Z-component data channel uncertainty.
     :param drape_model: Options for drape mesh.
     """
 
@@ -59,8 +62,12 @@ class TDEM1DInversionOptions(TDEMInversionOptions, Base1DOptions):
     title: str = "Time-domain EM-1D (TEM-1D) Inversion"
     inversion_type: str = "tdem 1d"
 
-    z_channel: PropertyGroup | None = None
-    z_uncertainty: PropertyGroup | None = None
+    vertical_channel: PropertyGroup | None = Field(
+        None, validation_alias=AliasChoices("z_channel", "vertical_channel")
+    )
+    vertical_uncertainty: PropertyGroup | None = Field(
+        None, validation_alias=AliasChoices("z_uncertainty", "vertical_uncertainty")
+    )
 
     directives: DirectiveOptions = DirectiveOptions(
         sens_wts_threshold=100.0,

@@ -52,7 +52,7 @@ def collect_real_components(geoh5):
         survey = next(
             child for child in group.children if isinstance(child, AirborneFEMReceivers)
         )
-        for comp in "xyz":
+        for comp in ["vertical", "inline", "crossline"]:
             data_group = survey.get_entity(f"Iteration_0_{comp}_real")[0]
             data_list[comp] = np.vstack(
                 [survey.get_data(uid)[0].values for uid in data_group.properties]
@@ -146,7 +146,7 @@ def test_validate_orientations(tmp_path: Path):
         sim_45_0 = collect_real_components(geoh5)
 
     # Components almost the same at 45
-    assert np.mean((sim_90_0["y"] - sim_45_0["y"]) / sim_90_0["y"]) < 0.2
+    assert np.mean((sim_90_0["inline"] - sim_45_0["inline"]) / sim_90_0["inline"]) < 0.2
 
     with Workspace(
         tmp_path / "../test_fem_fwr_run_90_90_0/inversion_test.ui.geoh5"
@@ -154,5 +154,10 @@ def test_validate_orientations(tmp_path: Path):
         sim_90_90 = collect_real_components(geoh5)
 
     # 90 dip makes Y point down and Z east, so Y should be -Z, and Z should be Y
-    assert np.mean((sim_90_0["y"] - sim_90_90["z"]) / sim_90_0["y"]) < 0.2
-    assert np.mean((sim_90_0["z"] + sim_90_90["y"]) / sim_90_0["z"]) < 0.2
+    assert (
+        np.mean((sim_90_0["inline"] - sim_90_90["vertical"]) / sim_90_0["inline"]) < 0.2
+    )
+    assert (
+        np.mean((sim_90_0["vertical"] + sim_90_90["inline"]) / sim_90_0["vertical"])
+        < 0.2
+    )
