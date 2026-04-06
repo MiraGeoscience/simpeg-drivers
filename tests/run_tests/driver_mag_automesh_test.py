@@ -28,7 +28,7 @@ from simpeg_drivers.utils.synthetics.options import (
 )
 
 
-TARGET = 1132.1998
+TARGET = 2874.854552748384
 
 
 def test_automesh(

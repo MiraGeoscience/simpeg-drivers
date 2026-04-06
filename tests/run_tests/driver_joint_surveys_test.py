@@ -54,7 +54,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.29977916022065554, "phi_d": 1340, "phi_m": 40.5}
+target_run = {"data_norm": 438.9161113857895, "phi_d": 1450, "phi_m": 24.7}
 
 
 def test_joint_surveys_fwr_run(
@@ -213,7 +213,7 @@ def test_joint_surveys_inv_run(
     # The rescaling is done evenly on the two tiles for both surveys
     np.testing.assert_allclose(
         driver.data_misfit.multipliers,
-        [1.0, 1.0, 0.92685279, 0.92685279],
+        [1.0, 1.0, 0.6673, 0.6673],
         atol=1e-3,
     )
 

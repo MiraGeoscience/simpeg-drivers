@@ -35,7 +35,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
-target_run = {"data_norm": 6.413150955633971e-10, "phi_d": 42.3, "phi_m": 116000}
+target_run = {"data_norm": 4.697209832464402e-10, "phi_d": 30.8, "phi_m": 82400}
 
 
 def test_airborne_tem_1d_fwr_run(

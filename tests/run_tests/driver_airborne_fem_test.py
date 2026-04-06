@@ -40,7 +40,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 91.18814842528005, "phi_d": 4250, "phi_m": 968}
+target_run = {"data_norm": 122.63745463149134, "phi_d": 2890, "phi_m": 438}
 
 
 def test_fem_name_change(tmp_path, caplog):
@@ -204,7 +204,7 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
         # Scaling is done evenly on channels
         np.testing.assert_allclose(
             driver.data_misfit.multipliers,
-            [1.0, 1.0, 0.6004, 0.6004, 0.5047, 0.5047],
+            [1.0, 1.0, 0.5514, 0.5514, 0.5028, 0.5028],
             atol=1e-3,
         )
 

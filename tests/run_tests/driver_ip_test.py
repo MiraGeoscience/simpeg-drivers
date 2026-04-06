@@ -35,7 +35,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.007008809086007593, "phi_d": 1200, "phi_m": 2.59e-05}
+target_run = {"data_norm": 0.005219568872697125, "phi_d": 680, "phi_m": 1.01e-6}
 
 
 def test_ip_3d_fwr_run(

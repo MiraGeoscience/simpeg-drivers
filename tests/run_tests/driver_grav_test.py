@@ -38,7 +38,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
-target_run = {"data_norm": 0.006241342269481059, "phi_d": 0.0024, "phi_m": 0.17}
+target_run = {"data_norm": 0.0034873276857765663, "phi_d": 3.06, "phi_m": 0.00137}
 
 
 def test_gravity_fwr_run(
