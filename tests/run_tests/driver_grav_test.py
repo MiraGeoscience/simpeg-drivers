@@ -44,6 +44,7 @@ target_run = {"data_norm": 0.0034873276857765663, "phi_d": 3.06, "phi_m": 0.0013
 def test_gravity_fwr_run(
     tmp_path: Path,
     n_grid_points=2,
+    cell_size=(20.0, 20.0, 20.0),
     refinement=(2,),
 ):
     filepath = Path(tmp_path) / "inversion_test.ui.geoh5"
@@ -58,9 +59,9 @@ def test_gravity_fwr_run(
                     n_stations=n_grid_points, n_lines=n_grid_points, drape=5.0
                 ),
                 mesh=MeshOptions(
-                    u_cell_size=20.0,
-                    v_cell_size=20.0,
-                    w_cell_size=20.0,
+                    u_cell_size=cell_size[0],
+                    v_cell_size=cell_size[1],
+                    w_cell_size=cell_size[2],
                     survey_refinement=list(refinement),
                     topography_refinement=[0, 0, 1],
                     plate_refinement=[1],
@@ -217,6 +218,7 @@ if __name__ == "__main__":
         Path("./"),
         n_grid_points=20,
         refinement=(4, 4),
+        cell_size=(5.0, 5.0, 5.0),
     )
 
     test_gravity_run(

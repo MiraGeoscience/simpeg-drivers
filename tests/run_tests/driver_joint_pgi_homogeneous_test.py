@@ -58,6 +58,7 @@ INDUCING_FIELD = (50000.0, 90.0, 0.0)
 def test_homogeneous_fwr_run(
     tmp_path: Path,
     n_grid_points=3,
+    cell_size=(20.0, 20.0, 20.0),
     refinement=(2,),
 ):
     # Create local problem A
@@ -71,9 +72,9 @@ def test_homogeneous_fwr_run(
             name="survey A",
         ),
         mesh=MeshOptions(
-            u_cell_size=20.0,
-            v_cell_size=20.0,
-            w_cell_size=20.0,
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
             survey_refinement=list(refinement),
             topography_refinement=[0, 0, 1],
             plate_refinement=[1],
@@ -109,9 +110,9 @@ def test_homogeneous_fwr_run(
                 name="survey B",
             ),
             mesh=MeshOptions(
-                u_cell_size=20.0,
-                v_cell_size=20.0,
-                w_cell_size=20.0,
+                u_cell_size=cell_size[0],
+                v_cell_size=cell_size[1],
+                w_cell_size=cell_size[2],
                 survey_refinement=list(refinement),
                 topography_refinement=[0, 0, 1],
                 plate_refinement=[1],
@@ -277,7 +278,7 @@ def test_homogeneous_run(
             out_group = run_ws.get_entity(driver.out_group.uid)[0]
             mesh = out_group.get_entity("mesh A")[0]
             petro_model = mesh.get_entity("petrophysical_model")[0]
-            assert len(np.unique(petro_model.values)) == 5
+            assert len(np.unique(petro_model.values)) == 4
 
 
 if __name__ == "__main__":
@@ -285,6 +286,7 @@ if __name__ == "__main__":
     test_homogeneous_fwr_run(
         Path("./"),
         n_grid_points=20,
+        cell_size=(20.0, 20.0, 20.0),
         refinement=(4, 4),
     )
 

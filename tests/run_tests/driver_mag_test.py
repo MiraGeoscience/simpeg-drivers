@@ -43,6 +43,7 @@ target_run = {"data_norm": 42.21641479029038, "phi_d": 1350, "phi_m": 0.00205}
 def test_susceptibility_fwr_run(
     tmp_path: Path,
     n_grid_points=2,
+    cell_size=(20.0, 20.0, 20.0),
     refinement=(2,),
 ):
     # Run the forward
@@ -53,9 +54,9 @@ def test_susceptibility_fwr_run(
             n_stations=n_grid_points, n_lines=n_grid_points, drape=5.0
         ),
         mesh=MeshOptions(
-            u_cell_size=20.0,
-            v_cell_size=20.0,
-            w_cell_size=20.0,
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
             survey_refinement=list(refinement),
             topography_refinement=[0, 0, 1],
             plate_refinement=[1],
@@ -155,6 +156,9 @@ if __name__ == "__main__":
             # Full run
             with performance_report(filename="diagnostics.html"):
                 test_susceptibility_fwr_run(
-                    Path("./"), n_grid_points=20, refinement=(4, 4)
+                    Path("./"),
+                    n_grid_points=20,
+                    cell_size=(20.0, 20.0, 20.0),
+                    refinement=(4, 4),
                 )
                 test_susceptibility_run(Path("./"), max_iterations=30, pytest=False)

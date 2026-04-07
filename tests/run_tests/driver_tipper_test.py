@@ -42,8 +42,8 @@ target_run = {"data_norm": 0.011751135402491555, "phi_d": 14.2, "phi_m": 3.4e-5}
 def test_tipper_fwr_run(
     tmp_path: Path,
     n_grid_points=2,
-    refinement=(2,),
     cell_size=(20.0, 20.0, 20.0),
+    refinement=(2,),
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(

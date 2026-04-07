@@ -50,6 +50,7 @@ def test_tiling_ground_tem(
     tmp_path: Path,
     *,
     n_grid_points=4,
+    cell_size=(20.0, 20.0, 20.0),
     refinement=(2,),
     **_,
 ):
@@ -65,9 +66,9 @@ def test_tiling_ground_tem(
             name="ground_tdem_survey",
         ),
         mesh=MeshOptions(
-            u_cell_size=20.0,
-            v_cell_size=20.0,
-            w_cell_size=20.0,
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
             survey_refinement=list(refinement),
             topography_refinement=[0, 0, 1],
             plate_refinement=[1],

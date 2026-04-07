@@ -42,6 +42,7 @@ def test_ip_3d_fwr_run(
     tmp_path: Path,
     n_electrodes=4,
     n_lines=3,
+    cell_size=(20.0, 20.0, 20.0),
     refinement=(4, 6),
 ):
     # Run the forward
@@ -50,9 +51,9 @@ def test_ip_3d_fwr_run(
         refine_plate=True,
         survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
         mesh=MeshOptions(
-            u_cell_size=20.0,
-            v_cell_size=20.0,
-            w_cell_size=20.0,
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
             survey_refinement=refinement,
             topography_refinement=[0, 0, 1],
             plate_refinement=[1],
@@ -132,6 +133,7 @@ if __name__ == "__main__":
         Path("./"),
         n_electrodes=20,
         n_lines=5,
+        cell_size=(20.0, 20.0, 20.0),
         refinement=(4, 4),
     )
     test_ip_3d_run(

@@ -33,6 +33,7 @@ from tests.utils.targets import get_workspace
 def test_tile_estimator_run(
     tmp_path: Path,
     n_grid_points=16,
+    cell_size=(20.0, 20.0, 20.0),
     refinement=(2,),
 ):
     inducing_field = (49999.8, 90.0, 0.0)
@@ -43,9 +44,9 @@ def test_tile_estimator_run(
         refine_plate=True,
         survey=SurveyOptions(n_stations=n_grid_points, n_lines=n_grid_points),
         mesh=MeshOptions(
-            u_cell_size=20.0,
-            v_cell_size=20.0,
-            w_cell_size=20.0,
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
             survey_refinement=list(refinement),
             topography_refinement=[0, 0, 1],
             plate_refinement=[1],

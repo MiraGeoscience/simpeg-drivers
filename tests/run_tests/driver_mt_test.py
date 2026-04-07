@@ -91,8 +91,8 @@ def setup_data(workspace, survey):
 def test_magnetotellurics_fwr_run(
     tmp_path: Path,
     n_grid_points=2,
-    refinement=(2,),
     cell_size=(20.0, 20.0, 20.0),
+    refinement=(2,),
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(

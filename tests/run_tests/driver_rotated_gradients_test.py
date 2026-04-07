@@ -46,6 +46,7 @@ target_run = {"data_norm": 0.3337151941623077, "phi_d": 23600, "phi_m": 7.54}
 def test_gravity_rotated_grad_fwr_run(
     tmp_path: Path,
     n_grid_points=2,
+    cell_size=(20.0, 20.0, 20.0),
     refinement=(2,),
 ):
     # Run the forward
@@ -61,9 +62,9 @@ def test_gravity_rotated_grad_fwr_run(
             topography=lambda x, y: gaussian(x, y, amplitude=50.0, width=100.0) + 15,
         ),
         mesh=MeshOptions(
-            u_cell_size=20.0,
-            v_cell_size=20.0,
-            w_cell_size=20.0,
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
             survey_refinement=list(refinement),
             topography_refinement=[0, 0, 1],
             plate_refinement=[1],
@@ -181,6 +182,7 @@ if __name__ == "__main__":
     test_gravity_rotated_grad_fwr_run(
         Path("./"),
         n_grid_points=10,
+        cell_size=(20.0, 20.0, 20.0),
         refinement=(6, 8),
     )
 

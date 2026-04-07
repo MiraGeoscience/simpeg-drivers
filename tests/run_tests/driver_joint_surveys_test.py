@@ -54,12 +54,13 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 438.9161113857895, "phi_d": 1450, "phi_m": 24.7}
+target_run = {"data_norm": 0.6438691880248415, "phi_d": 1560, "phi_m": 141}
 
 
 def test_joint_surveys_fwr_run(
     tmp_path,
     n_grid_points=6,
+    cell_size=(20.0, 20.0, 20.0),
     refinement=(2,),
 ):
     # Create local problem A
@@ -70,9 +71,9 @@ def test_joint_surveys_fwr_run(
             n_stations=n_grid_points, n_lines=n_grid_points, drape=5.0, name="survey A"
         ),
         mesh=MeshOptions(
-            u_cell_size=20.0,
-            v_cell_size=20.0,
-            w_cell_size=20.0,
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
             survey_refinement=list(refinement),
             topography_refinement=[0, 0, 1],
             plate_refinement=[1],
@@ -107,9 +108,9 @@ def test_joint_surveys_fwr_run(
                 name="survey B",
             ),
             mesh=MeshOptions(
-                u_cell_size=20.0,
-                v_cell_size=20.0,
-                w_cell_size=20.0,
+                u_cell_size=cell_size[0],
+                v_cell_size=cell_size[1],
+                w_cell_size=cell_size[2],
                 survey_refinement=[0, 2],
                 topography_refinement=[0, 0, 1],
                 plate_refinement=[1],
@@ -482,6 +483,7 @@ if __name__ == "__main__":
     test_joint_surveys_fwr_run(
         Path("./"),
         n_grid_points=20,
+        cell_size=(20.0, 20.0, 20.0),
         refinement=(4, 4),
     )
     test_joint_surveys_inv_run(

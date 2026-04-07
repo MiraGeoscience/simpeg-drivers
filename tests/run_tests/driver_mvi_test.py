@@ -50,6 +50,7 @@ target_mvi_run = {"data_norm": 149.1011743401604, "phi_d": 11.2, "phi_m": 0.0351
 def test_magnetic_vector_fwr_run(
     tmp_path: Path,
     n_grid_points=3,
+    cell_size=(20.0, 20.0, 20.0),
     refinement=(2,),
 ):
     # Run the forward
@@ -60,9 +61,9 @@ def test_magnetic_vector_fwr_run(
             n_stations=n_grid_points, n_lines=n_grid_points, drape=5.0
         ),
         mesh=MeshOptions(
-            u_cell_size=20.0,
-            v_cell_size=20.0,
-            w_cell_size=20.0,
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
             survey_refinement=list(refinement),
             topography_refinement=[0, 0, 1],
             plate_refinement=[1],
@@ -191,6 +192,7 @@ def test_magnetic_vector_run(
 def test_magnetic_vector_reference(
     tmp_path: Path,
     n_grid_points=3,
+    cell_size=(20.0, 20.0, 20.0),
     refinement=(2,),
 ):
     # Run the forward
@@ -201,9 +203,9 @@ def test_magnetic_vector_reference(
             n_stations=n_grid_points, n_lines=n_grid_points, drape=5.0
         ),
         mesh=MeshOptions(
-            u_cell_size=20.0,
-            v_cell_size=20.0,
-            w_cell_size=20.0,
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
             survey_refinement=refinement,
             topography_refinement=[0, 0, 1],
             plate_refinement=[1],
@@ -252,7 +254,10 @@ if __name__ == "__main__":
             # Full run
             with performance_report(filename="diagnostics.html"):
                 test_magnetic_vector_fwr_run(
-                    Path("./"), n_grid_points=20, refinement=(4, 4)
+                    Path("./"),
+                    n_grid_points=20,
+                    cell_size=(20.0, 20.0, 20.0),
+                    refinement=(4, 4),
                 )
                 test_magnetic_vector_run(
                     Path("./"), None, max_iterations=30, upper_bound=5e-3, pytest=False
