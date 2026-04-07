@@ -50,7 +50,7 @@ target_mvi_run = {"data_norm": 149.1011743401604, "phi_d": 11.2, "phi_m": 0.0351
 def test_magnetic_vector_fwr_run(
     tmp_path: Path,
     n_grid_points=3,
-    cell_size=(20.0, 20.0, 20.0),
+    cell_size=(5.0, 5.0, 5.0),
     refinement=(2,),
 ):
     # Run the forward
