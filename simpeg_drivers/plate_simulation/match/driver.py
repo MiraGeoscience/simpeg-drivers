@@ -388,7 +388,7 @@ class PlateMatchDriver(Driver):
         cls, json_path: Path, n_workers: int | None = None, n_threads: int | None = None
     ):
         """
-        Sets Dask config settings.
+        Runs plate matching application with Dask optimization.
 
         :param json_path: Path to input file (.ui.json) for the application.
         :param n_workers: Number of workers to use.
