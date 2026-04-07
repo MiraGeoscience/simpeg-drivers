@@ -33,7 +33,7 @@ from simpeg_drivers.plate_simulation.models.events import Anomaly, Erosion, Over
 from simpeg_drivers.plate_simulation.models.parametric import Plate
 from simpeg_drivers.plate_simulation.models.series import DikeSwarm, Geology
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
-from simpeg_drivers.utils.utils import validate_out_group
+from simpeg_drivers.utils.utils import start_dask_run, validate_out_group
 
 
 logger = get_logger(__name__, propagate=False)
@@ -278,8 +278,19 @@ class PlateSimulationDriver(Driver):
             plates.append(new)
         return plates
 
+    @classmethod
+    def start_dask_run(
+        cls, json_path: Path, n_workers: int | None = None, n_threads: int | None = None
+    ):
+        """
+        Runs the plate simulation application with Dask optimization.
 
-PlateSimulationDriver.start_dask_run = InversionDriver.start_dask_run
+        :param json_path: Path to input file (.ui.json) for the application.
+        :param n_workers: Number of workers to use.
+        :param n_threads: Number of threads to use.
+        """
+        start_dask_run(cls, json_path, n_workers=n_workers, n_threads=n_threads)
+
 
 if __name__ == "__main__":
     file = Path(sys.argv[1])

@@ -14,10 +14,7 @@
 from __future__ import annotations
 
 from abc import abstractmethod, ABC
-import cProfile
-import pstats
 
-import contextlib
 from copy import deepcopy
 import sys
 from datetime import datetime, timedelta
@@ -26,7 +23,7 @@ from pathlib import Path
 from time import time
 
 import numpy as np
-from dask.distributed import get_client, Client, LocalCluster, performance_report
+from dask.distributed import get_client, Client
 
 from geoapps_utils.base import Driver, Options
 from geoapps_utils.run import load_ui_json_as_dict
@@ -74,7 +71,7 @@ from simpeg_drivers.options import (
 from simpeg_drivers.joint.options import BaseJointOptions
 from simpeg_drivers.utils.nested import tile_locations
 from simpeg_drivers.utils.regularization import cell_neighbors, set_rotated_operators
-from simpeg_drivers.utils.utils import validate_out_group
+from simpeg_drivers.utils.utils import validate_out_group, start_dask_run
 
 mlogger = logging.getLogger("distributed")
 mlogger.setLevel(logging.WARNING)
@@ -500,47 +497,7 @@ class BaseDriver(Driver, ABC):
         :param n_workers: Number of workers to use.
         :param n_threads: Number of threads to use.
         """
-        ui_json = load_ui_json_as_dict(json_path)
-
-        n_workers = ui_json.get("n_workers", n_workers)
-        n_threads = ui_json.get("n_threads", n_threads)
-        save_report = ui_json.get("performance_report", False)
-
-        if (n_workers is not None and n_workers > 1) or n_threads is not None:
-            cluster = LocalCluster(
-                processes=True,
-                n_workers=n_workers,
-                threads_per_worker=n_threads,
-            )
-        else:
-            cluster = None
-
-        profiler = cProfile.Profile()
-        profiler.enable()
-
-        with (
-            cluster.get_client()
-            if cluster is not None
-            else contextlib.nullcontext() as context_client
-        ):
-            # Full run
-            with (
-                performance_report(filename=json_path.parent / "dask_profile.html")
-                if (save_report and isinstance(context_client, Client))
-                else contextlib.nullcontext()
-            ):
-                cls.start(json_path)
-                sys.stdout.close()
-
-        profiler.disable()
-
-        if save_report:
-            with open(
-                json_path.parent / "runtime_profile.txt", encoding="utf-8", mode="w"
-            ) as s:
-                ps = pstats.Stats(profiler, stream=s)
-                ps.sort_stats("cumulative")
-                ps.print_stats()
+        start_dask_run(cls, json_path, n_workers=n_workers, n_threads=n_threads)
 
     @property
     def workers(self) -> list[tuple[str]]:
