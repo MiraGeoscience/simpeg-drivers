@@ -38,6 +38,7 @@ from simpeg_drivers.plate_simulation.match.options import PlateMatchOptions
 from simpeg_drivers.plate_simulation.options import ModelOptions, PlateSimulationOptions
 from simpeg_drivers.utils.utils import (
     get_default_parallelization_params,
+    start_dask_run,
     validate_out_group,
 )
 
@@ -383,8 +384,18 @@ class PlateMatchDriver(Driver):
 
         return scores, centers
 
+    @classmethod
+    def start_dask_run(
+        cls, json_path: Path, n_workers: int | None = None, n_threads: int | None = None
+    ):
+        """
+        Runs plate matching application with Dask optimization.
 
-PlateMatchDriver.start_dask_run = BaseDriver.start_dask_run
+        :param json_path: Path to input file (.ui.json) for the application.
+        :param n_workers: Number of workers to use.
+        :param n_threads: Number of threads to use.
+        """
+        start_dask_run(cls, json_path, n_workers=n_workers, n_threads=n_threads)
 
 
 def is_up_dip(data: np.ndarray) -> bool:
@@ -486,7 +497,13 @@ def batch_files_score(
                 logger.warning("No survey found in %s, skipping.", sim_file)
                 continue
 
-            simulated = get_data_array(survey.get_entity("Iteration_0_z")[0])
+            data_entity = survey.get_entity("Iteration_0_vertical")[0]
+
+            if data_entity is None:
+                data_entity = survey.get_entity("Iteration_0_z")[0]
+
+            simulated = get_data_array(data_entity)
+
             pred = time_projection @ (spatial_projection @ simulated.T).T
             scale = max_late_val / np.max(np.abs(pred[-1, :]))
             pred = normalized_data(pred, scale=scale, threshold=max_late_val)
@@ -515,7 +532,6 @@ def batch_files_score(
 
 if __name__ == "__main__":
     file = Path(sys.argv[1]).resolve()
+    n_w, n_t = get_default_parallelization_params(file)
 
-    n_workers, n_threads = get_default_parallelization_params(file)
-
-    PlateMatchDriver.start_dask_run(file, n_workers=n_workers, n_threads=n_threads)
+    PlateMatchDriver.start_dask_run(file, n_workers=n_w, n_threads=n_t)

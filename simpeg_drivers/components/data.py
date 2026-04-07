@@ -309,9 +309,7 @@ class InversionData(InversionLocations):
                     "tdem" in self.params.inversion_type
                     and "dB/dt" in self.params.data_units
                 ):
-                    if comp in ["x", "y", "z"]:
-                        normalizations[chan][comp] = -1
-                    normalizations[chan][comp] *= np.ones(self.mask.sum())
+                    normalizations[chan][comp] = np.full(self.mask.sum(), -1)
 
         return normalizations
 

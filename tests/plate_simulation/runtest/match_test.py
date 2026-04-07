@@ -159,7 +159,7 @@ def test_matching_driver(tmp_path: Path):
         # Modify the data slightly
         with Workspace(new_file) as sim_geoh5:
             survey = fetch_survey(sim_geoh5)
-            prop_group = survey.get_entity("Iteration_0_z")[0]
+            prop_group = survey.get_entity("Iteration_0_vertical")[0]
 
             # Alter the signal to simulate different plate models
             scale = signal.windows.gaussian(survey.n_vertices, 2**ii)
@@ -183,7 +183,7 @@ def test_matching_driver(tmp_path: Path):
         survey.vertices = rotate_xyz(survey.vertices, [0, 0, 0], 215.0)
 
         # Flip the data to simulate up-dip measurements
-        prop_group = survey.get_entity("Iteration_0_z")[0]
+        prop_group = survey.get_entity("Iteration_0_vertical")[0]
         for uid in prop_group.properties:
             child = survey.get_entity(uid)[0]
             child.values = child.values[::-1]

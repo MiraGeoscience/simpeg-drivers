@@ -410,7 +410,7 @@ def test_joint_surveys_tem_run(
         data = {}
         uncertainties = {}
         channels = {
-            "z": "dBzdt",
+            "vertical": "vertical",
         }
         survey = components.survey
         for cname in channels.values():
@@ -436,10 +436,10 @@ def test_joint_surveys_tem_run(
         data_kwargs = {}
         for chan in channels:
             data_kwargs[f"{chan}_channel"] = components.survey.fetch_property_group(
-                name=f"dB{chan}dt"
+                name="vertical"
             )
             data_kwargs[f"{chan}_uncertainty"] = components.survey.fetch_property_group(
-                name=f"dB{chan}dt uncertainties"
+                name="vertical uncertainties"
             )
 
         # Run the inverse

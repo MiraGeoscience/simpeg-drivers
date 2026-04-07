@@ -144,7 +144,7 @@ def test_airborne_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         data = {}
         uncertainties = {}
         channels = {
-            "z": "dBzdt",
+            "vertical": "vertical",
         }
 
         for chan, cname in channels.items():
@@ -172,13 +172,13 @@ def test_airborne_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         data_kwargs = {}
         for chan in channels:
             data_kwargs[f"{chan}_channel"] = components.survey.fetch_property_group(
-                name=f"dB{chan}dt"
+                name="vertical"
             )
             data_kwargs[f"{chan}_uncertainty"] = components.survey.fetch_property_group(
-                name=f"dB{chan}dt uncertainties"
+                name="vertical uncertainties"
             )
 
-        orig_dBzdt = geoh5.get_entity("Iteration_0_z_[0]")[0].values
+        orig_dBzdt = geoh5.get_entity("Iteration_0_vertical_[0]")[0].values
 
         # Run the inverse
         params = TDEMInversionOptions.build(
