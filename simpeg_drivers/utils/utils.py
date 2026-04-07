@@ -711,7 +711,7 @@ def start_dask_run(
     n_threads: int | None = None,
 ):
     """
-    Sets Dask config settings.
+    Runs an application with Dask optimization.
 
     :param json_path: Path to input file (.ui.json) for the application.
     :param n_workers: Number of workers to use.
