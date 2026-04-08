@@ -117,64 +117,13 @@
         "max": 360.0,
         "tooltip": "Direction of the dip vector in degrees from north"
     },
-    "relative_locations": {
-        "label": "Relative locations",
-        "main": true,
-        "group": "Plate",
-        "value": true,
-        "enabled": true,
-        "tooltip": "If checked locations are relative to the survey centre and either topography or overburden in z according to 'Depth reference' selection"
-    },
-    "easting": {
-        "label": "Easting (m)",
-        "group": "Plate",
-        "main": true,
-        "value": 0.0,
-        "enabled": true,
-        "tooltip": "If relative locations, easting is relative to the centre of the survey"
-    },
-    "northing": {
-        "label": "Northing (m)",
-        "main": true,
-        "group": "Plate",
-        "value": 0.0,
-        "enabled": true,
-        "tooltip": "If relative locations, northing is relative to the centre of the survey"
-    },
     "elevation": {
-        "label": "Elevation (m)",
+        "label": "Depth (m)",
         "main": true,
         "group": "Plate",
         "value": 0.0,
         "enabled": true,
-        "tooltip": "If relative location, elevation is relative to the topography or overburden according to 'Depth reference' selection"
-    },
-    "reference_surface": {
-        "label": "Depth reference",
-        "main": true,
-        "group": "Plate",
-        "dependency": "relative_locations",
-        "dependencyType": "enabled",
-        "choiceList": [
-            "topography",
-            "overburden"
-        ],
-        "tooltop": "If relative locations, the depth will be below the min/mean/max (according to 'Reference type') of the reference surface chosen.",
-        "value": "overburden"
-    },
-    "reference_type": {
-        "label": "Reference type",
-        "main": true,
-        "group": "Plate",
-        "dependency": "relative_locations",
-        "dependencyType": "enabled",
-        "choiceList": [
-            "min",
-            "mean",
-            "max"
-        ],
-        "tooltip": "If relative locations, the depth will be below the min/mean/max of the 'Depth reference' chosen",
-        "value": "min"
+        "tooltip": "Depth below topography above the plate."
     },
     "generate_sweep": {
         "label": "Generate sweep file",
