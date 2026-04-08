@@ -11,5 +11,7 @@
 import subprocess
 
 
-def test_leroi_executable():
-    subprocess.run("LeroiAir550_JR", check=False)
+def test_leroi_executable(tmp_path):
+    control_file = tmp_path / "test.cfl"
+    control_file.touch()
+    subprocess.run("F2.bat test output", cwd=tmp_path, shell=True, check=False)
