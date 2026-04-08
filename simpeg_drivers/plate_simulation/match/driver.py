@@ -11,9 +11,11 @@
 from __future__ import annotations
 
 import sys
+from io import BytesIO
 from pathlib import Path
 from typing import Self
 
+import matplotlib.pyplot as plt
 import numpy as np
 from dask.distributed import Client, Future, progress
 from geoapps_utils.base import Driver
@@ -241,6 +243,28 @@ class PlateMatchDriver(Driver):
         )
         return topo_drape_z[:, 2]
 
+    def plot_figure(self, survey, observed, spatial_projection) -> BytesIO:
+
+        max_late_val = np.max(np.abs(observed[-1, :]))
+        data = normalized_data(observed, threshold=max_late_val)
+        preds = get_normalized_prediced(
+            survey, spatial_projection, self._time_projection, max_late_val
+        )
+
+        fig, ax = plt.figure(), plt.subplot()
+        for obs, pred in zip(data, preds, strict=True):
+            ax.plot(obs, c="r")
+            ax.plot(pred, c="k")
+
+        ax.set_xlabel("Station #")
+        ax.set_ylabel("Normalized Amplitude")
+        ax.legend(["Observed", "Simulated"])
+
+        buf = BytesIO()
+        fig.savefig(buf, format="png")
+
+        return buf
+
     def spatial_interpolation(
         self,
         indices: np.ndarray,
@@ -318,7 +342,9 @@ class PlateMatchDriver(Driver):
             )
             with Workspace(self.params.simulation_files[best], mode="r") as ws:
                 survey = fetch_survey(ws)
+
                 ui_json = survey.parent.parent.options
+
                 ui_json["geoh5"] = ws
                 ifile = InputFile(ui_json=ui_json)
                 options = PlateSimulationOptions.build(ifile)
@@ -329,6 +355,11 @@ class PlateMatchDriver(Driver):
                     int(indices[int(centers[best])]), options.model, dir_correction
                 )
                 plate.name = f"Query [{ii}]"
+
+                figure = self.plot_figure(
+                    survey, observed[:, indices], spatial_projection
+                )
+                plate.add_file(figure.getvalue(), name=f"profile_{plate.name}.png")
 
             names.append(self.params.simulation_files[best].name)
             results.append(scores[best])
@@ -465,6 +496,23 @@ def fetch_survey(workspace: Workspace) -> AirborneTEMReceivers | None:
     return None
 
 
+def get_normalized_prediced(
+    survey: AirborneTEMReceivers, spatial_projection, time_projection, threshold
+) -> np.ndarray:
+    data_entity = survey.get_entity("Iteration_0_vertical")[0]
+
+    if data_entity is None:
+        data_entity = survey.get_entity("Iteration_0_z")[0]
+
+    simulated = get_data_array(data_entity)
+
+    pred = time_projection @ (spatial_projection @ simulated.T).T
+    scale = threshold / np.max(np.abs(pred[-1, :]))
+    pred = normalized_data(pred, scale=scale, threshold=threshold)
+
+    return pred
+
+
 def batch_files_score(
     files: Path | list[Path], spatial_projection, time_projection, observed
 ) -> list[tuple[float, int]]:
@@ -497,16 +545,9 @@ def batch_files_score(
                 logger.warning("No survey found in %s, skipping.", sim_file)
                 continue
 
-            data_entity = survey.get_entity("Iteration_0_vertical")[0]
-
-            if data_entity is None:
-                data_entity = survey.get_entity("Iteration_0_z")[0]
-
-            simulated = get_data_array(data_entity)
-
-            pred = time_projection @ (spatial_projection @ simulated.T).T
-            scale = max_late_val / np.max(np.abs(pred[-1, :]))
-            pred = normalized_data(pred, scale=scale, threshold=max_late_val)
+            pred = get_normalized_prediced(
+                survey, spatial_projection, time_projection, max_late_val
+            )
 
             score = 0.0
             indices = []
