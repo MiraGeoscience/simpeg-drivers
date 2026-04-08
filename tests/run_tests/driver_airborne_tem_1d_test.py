@@ -35,7 +35,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
-target_run = {"data_norm": 6.413150955633971e-10, "phi_d": 42.3, "phi_m": 116000}
+target_run = {"data_norm": 4.697209832464402e-10, "phi_d": 30.8, "phi_m": 82400}
 
 
 def test_airborne_tem_1d_fwr_run(
@@ -47,11 +47,18 @@ def test_airborne_tem_1d_fwr_run(
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="airborne tdem 1d",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points, n_lines=n_grid_points, drape=10.0
         ),
         mesh=MeshOptions(
-            cell_size=cell_size, refinement=refinement, padding_distance=400.0
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+            padding_distance=400.0,
         ),
         model=ModelOptions(background=0.1),
     )

@@ -52,7 +52,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 53.295822303985325, "phi_d": 646, "phi_m": 1.84}
+target_run = {"data_norm": 53.31483800448377, "phi_d": 558, "phi_m": 0.0574}
 INDUCING_FIELD = (50000.0, 90.0, 0.0)
 
 
@@ -60,15 +60,25 @@ def test_joint_cross_gradient_fwr_run(
     tmp_path,
     n_grid_points=4,
     n_lines=3,
+    cell_size=(20.0, 20.0, 20.0),
     refinement=(2,),
 ):
     # Create local problem A
     opts = SyntheticsComponentsOptions(
         method="gravity",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points, n_lines=n_grid_points, drape=15.0, name="survey A"
         ),
-        mesh=MeshOptions(refinement=refinement, name="mesh A"),
+        mesh=MeshOptions(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+            name="mesh A",
+        ),
         model=ModelOptions(anomaly=0.75, name="model A"),
         active=SyntheticsActiveCellsOptions(name="active A"),
     )
@@ -86,13 +96,22 @@ def test_joint_cross_gradient_fwr_run(
     with geoh5.open():
         opts = SyntheticsComponentsOptions(
             method="magnetic_vector",
+            refine_plate=True,
             survey=SurveyOptions(
                 n_stations=n_grid_points,
                 n_lines=n_grid_points,
                 drape=15.0,
                 name="survey B",
             ),
-            mesh=MeshOptions(refinement=refinement, name="mesh B"),
+            mesh=MeshOptions(
+                u_cell_size=cell_size[0],
+                v_cell_size=cell_size[1],
+                w_cell_size=cell_size[2],
+                survey_refinement=list(refinement),
+                topography_refinement=[0, 0, 1],
+                plate_refinement=[1],
+                name="mesh B",
+            ),
             model=ModelOptions(anomaly=0.05, name="model B"),
             active=SyntheticsActiveCellsOptions(name="active B"),
         )
@@ -112,10 +131,19 @@ def test_joint_cross_gradient_fwr_run(
     with geoh5.open():
         opts = SyntheticsComponentsOptions(
             method="direct current 3d",
+            refine_plate=True,
             survey=SurveyOptions(
                 n_stations=n_grid_points, n_lines=n_lines, name="survey C"
             ),
-            mesh=MeshOptions(refinement=refinement, name="mesh C"),
+            mesh=MeshOptions(
+                u_cell_size=cell_size[0],
+                v_cell_size=cell_size[1],
+                w_cell_size=cell_size[2],
+                survey_refinement=list(refinement),
+                topography_refinement=[0, 0, 1],
+                plate_refinement=[1],
+                name="mesh C",
+            ),
             model=ModelOptions(background=0.01, anomaly=10, name="model C"),
             active=SyntheticsActiveCellsOptions(name="active C"),
         )
@@ -283,13 +311,13 @@ def test_joint_cross_gradient_inv_run(
     # the scaling from its total misfit.
     np.testing.assert_allclose(
         driver.directives.scale_misfits.scalings,
-        [0.52747, 0.5, 0.5, 0.5, 1.0],
+        [1, 0.7558, 0.5, 0.5, 0.6710],
         atol=1e-3,
     )
     # Check that scaling * chi factor is reflected in data misfit multipliers
     np.testing.assert_allclose(
         driver.data_misfit.multipliers,
-        [0.421978, 0.4, 0.5, 0.5, 1.0],
+        [0.8, 0.6046, 0.5, 0.5, 0.6710],
         atol=1e-3,
     )
 
@@ -309,6 +337,7 @@ if __name__ == "__main__":
         Path("./"),
         n_grid_points=16,
         n_lines=5,
+        cell_size=(20.0, 20.0, 20.0),
         refinement=(4, 4),
     )
     test_joint_cross_gradient_inv_run(

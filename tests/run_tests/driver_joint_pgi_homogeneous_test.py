@@ -51,25 +51,35 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 429.8877292855237, "phi_d": 1020, "phi_m": 42100}
+target_run = {"data_norm": 438.9161113857895, "phi_d": 1450, "phi_m": 24.7}
 INDUCING_FIELD = (50000.0, 90.0, 0.0)
 
 
 def test_homogeneous_fwr_run(
     tmp_path: Path,
     n_grid_points=3,
+    cell_size=(20.0, 20.0, 20.0),
     refinement=(2,),
 ):
     # Create local problem A
     opts = SyntheticsComponentsOptions(
         method="gravity",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points,
             n_lines=n_grid_points,
             drape=15.0,
             name="survey A",
         ),
-        mesh=MeshOptions(refinement=refinement, name="mesh A"),
+        mesh=MeshOptions(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+            name="mesh A",
+        ),
         model=ModelOptions(anomaly=0.75, name="model A"),
         active=SyntheticsActiveCellsOptions(name="active A"),
     )
@@ -92,13 +102,22 @@ def test_homogeneous_fwr_run(
     with geoh5.open():
         opts = SyntheticsComponentsOptions(
             method="magnetic_vector",
+            refine_plate=True,
             survey=SurveyOptions(
                 n_stations=n_grid_points,
                 n_lines=n_grid_points,
                 drape=15.0,
                 name="survey B",
             ),
-            mesh=MeshOptions(refinement=refinement, name="mesh B"),
+            mesh=MeshOptions(
+                u_cell_size=cell_size[0],
+                v_cell_size=cell_size[1],
+                w_cell_size=cell_size[2],
+                survey_refinement=list(refinement),
+                topography_refinement=[0, 0, 1],
+                plate_refinement=[1],
+                name="mesh B",
+            ),
             model=ModelOptions(anomaly=0.05, name="model B"),
             active=SyntheticsActiveCellsOptions(name="active B"),
         )
@@ -259,7 +278,7 @@ def test_homogeneous_run(
             out_group = run_ws.get_entity(driver.out_group.uid)[0]
             mesh = out_group.get_entity("mesh A")[0]
             petro_model = mesh.get_entity("petrophysical_model")[0]
-            assert len(np.unique(petro_model.values)) == 5
+            assert len(np.unique(petro_model.values)) == 4
 
 
 if __name__ == "__main__":
@@ -267,6 +286,7 @@ if __name__ == "__main__":
     test_homogeneous_fwr_run(
         Path("./"),
         n_grid_points=20,
+        cell_size=(20.0, 20.0, 20.0),
         refinement=(4, 4),
     )
 

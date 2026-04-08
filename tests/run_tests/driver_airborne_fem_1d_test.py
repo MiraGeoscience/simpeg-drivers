@@ -38,7 +38,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 804.9849282354428, "phi_d": 64500, "phi_m": 717}
+target_run = {"data_norm": 380.3510229653626, "phi_d": 33100, "phi_m": 209}
 
 
 def test_fem_fwr_1d_run(
@@ -50,11 +50,18 @@ def test_fem_fwr_1d_run(
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="fdem 1d",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points, n_lines=n_grid_points, drape=10.0
         ),
         mesh=MeshOptions(
-            cell_size=cell_size, refinement=refinement, padding_distance=400.0
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=refinement,
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+            padding_distance=400.0,
         ),
         model=ModelOptions(background=1e-4, anomaly=0.1),
     )

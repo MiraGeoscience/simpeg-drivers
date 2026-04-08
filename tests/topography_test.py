@@ -34,7 +34,9 @@ def test_get_locations(tmp_path: Path):
     opts = SyntheticsComponentsOptions(
         method="magnetic_vector",
         survey=SurveyOptions(n_stations=2, n_lines=2),
-        mesh=MeshOptions(refinement=(2,)),
+        mesh=MeshOptions(
+            survey_refinement=[2], topography_refinement=[2], padding_distance=100.0
+        ),
         model=ModelOptions(anomaly=0.05),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:

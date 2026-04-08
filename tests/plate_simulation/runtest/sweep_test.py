@@ -44,7 +44,7 @@ def setup_plate_sweep(workspace) -> SimPEGGroup:
     plate_ifile = InputFile.read_ui_json(options.default_ui_json)
     options_dict = plate_ifile.ui_json
     options_dict["simulation"]["value"] = str(gravity.uid)
-    options_dict["overburden"]["value"] = 100.0
+    options_dict["overburden_property"]["value"] = 100.0
     options_dict["thickness"]["value"] = 20.0
     options_dict["u_cell_size"]["value"] = 10.0
     options_dict["v_cell_size"]["value"] = 10.0
