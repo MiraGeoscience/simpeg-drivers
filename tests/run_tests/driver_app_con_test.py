@@ -37,14 +37,14 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.017182160750439688, "phi_d": 2.69, "phi_m": 1900}
+target_run = {"data_norm": 0.019805285484847845, "phi_d": 64.3, "phi_m": 1310}
 
 
 def test_app_con_fwr_run(
     tmp_path: Path,
     n_grid_points=2,
     refinement=(2,),
-    cell_size=(20.0, 20.0, 20.0),
+    cell_size=(10.0, 10.0, 10.0),
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(
