@@ -642,7 +642,7 @@ class InversionDriver(BaseDriver):
                 setattr(backward_fun, "_regularization_mesh", backward_mesh)
 
                 # Only do it once for MVI
-                if not backward_mesh:
+                if not forward_mesh:
                     backward_fun = set_rotated_operators(
                         backward_fun,
                         neighbors,
