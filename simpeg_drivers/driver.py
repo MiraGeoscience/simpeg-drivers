@@ -288,6 +288,22 @@ class BaseDriver(Driver, ABC):
 
         return self._mapping
 
+    @mapping.setter
+    def mapping(self, value: maps.IdentityMap | list[maps.IdentityMap]):
+        if not isinstance(value, list):
+            value = [value]
+
+        if not all(
+            isinstance(val, maps.IdentityMap) and val.shape[0] == self.n_values
+            for val in value
+        ):
+            raise TypeError(
+                "'mapping' must be an instance of maps.IdentityMap with shape (n_values, *). "
+                f"Provided {value}"
+            )
+
+        self._mapping = value
+
     @property
     def models(self):
         """Inversion models"""
@@ -311,22 +327,6 @@ class BaseDriver(Driver, ABC):
             self._n_values = self.models.n_active
 
         return self._n_values
-
-    @mapping.setter
-    def mapping(self, value: maps.IdentityMap | list[maps.IdentityMap]):
-        if not isinstance(value, list):
-            value = [value]
-
-        if not all(
-            isinstance(val, maps.IdentityMap) and val.shape[0] == self.n_values
-            for val in value
-        ):
-            raise TypeError(
-                "'mapping' must be an instance of maps.IdentityMap with shape (n_values, *). "
-                f"Provided {value}"
-            )
-
-        self._mapping = value
 
     def split_list(self, tiles: list[np.ndarray]) -> list[list[np.ndarray]]:
         """
