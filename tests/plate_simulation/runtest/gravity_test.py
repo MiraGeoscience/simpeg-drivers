@@ -60,9 +60,7 @@ def test_gravity_plate_simulation(tmp_path):
         plate_params = PlateOptions(
             name="plate",
             geometry=PlateModel(
-                easting=0.0,
-                northing=0.0,
-                elevation=-250.0,
+                elevation=100.0,
                 width=100.0,
                 strike_length=100.0,
                 dip_length=100.0,
@@ -70,7 +68,6 @@ def test_gravity_plate_simulation(tmp_path):
                 direction=0.0,
             ),
             plate_property=0.5,
-            reference="center",
         )
 
         model_params = ModelOptions(

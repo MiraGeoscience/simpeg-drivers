@@ -12,6 +12,7 @@ from typing import TypeVar
 
 import numpy as np
 from geoapps_utils.modelling.plates import PlateModel
+from geoapps_utils.utils.locations import topo_drape_elevation
 from geoh5py.objects import Points
 from pydantic import (
     AliasChoices,
@@ -22,6 +23,7 @@ from pydantic import (
     field_validator,
     model_validator,
 )
+from scipy.spatial import cKDTree
 
 
 T = TypeVar("T")
@@ -64,16 +66,20 @@ class PlateOptions(BaseModel):
 
         :param survey: geoh5py survey object for plate simulation.
         :param surface: Points-like object to reference plate depth from.
-        :param depth_offset: Additional offset to be added to the depth of the plate.
         """
 
-        xy = (
-            survey.vertices[:, 0].mean() + self.geometry.origin[0],
-            survey.vertices[:, 1].mean() + self.geometry.origin[1],
+        xyz = np.atleast_2d(
+            [
+                survey.vertices[:, 0].mean(),
+                survey.vertices[:, 1].mean(),
+                0,
+            ]
         )
-        z_topo = topography_above_point(topography=surface, point=xy)  # TODO
+        topo_at_center = topo_drape_elevation(
+            xyz, surface.vertices, method="linear", triangulation=surface.cells
+        )
 
-        return xy + (z_topo - self.geometry.elevation,)
+        return xyz[0, 0], xyz[0, 1], topo_at_center[0, 2] - self.geometry.elevation
 
 
 class OverburdenOptions(BaseModel):
