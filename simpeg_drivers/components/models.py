@@ -74,7 +74,10 @@ class InversionModelCollection:
         self._active_cells: np.ndarray | None = None
         self._driver = driver
         self.is_sigma = self.driver.params.physical_property == "conductivity"
-        self.is_vector = self.driver.params.inversion_type == "magnetic vector"
+        self.is_vector = self.driver.params.inversion_type in [
+            "magnetic vector",
+            "magnetic vector pde",
+        ]
 
         self._starting_model = InversionModel(
             driver, "starting_model", is_sigma=self.is_sigma
@@ -272,7 +275,10 @@ class InversionModelCollection:
         else:
             bound_model = self._lower_bound.model
 
-        if self.driver.params.inversion_type == "magnetic vector":
+        if self.driver.params.inversion_type in [
+            "magnetic vector",
+            "magnetic vectorp pde",
+        ]:
             bound_model = None
 
             if self._upper_bound.model is not None:

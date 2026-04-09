@@ -50,7 +50,11 @@ class ReceiversFactory(SimPEGFactory):
         self.orientations = self.validate_orientations()
 
     def concrete_object(self):
-        if self.factory_type in ["magnetic vector", "magnetic scalar"]:
+        if self.factory_type in [
+            "magnetic vector",
+            "magnetic scalar",
+            "magnetic vector pde",
+        ]:
             from simpeg.potential_fields.magnetics import receivers
 
             return receivers.Point
@@ -150,7 +154,12 @@ class ReceiversFactory(SimPEGFactory):
     ):
         """Provides implementations to assemble keyword arguments for receivers object."""
         kwargs = {}
-        if self.factory_type in ["gravity", "magnetic scalar", "magnetic vector"]:
+        if self.factory_type in [
+            "gravity",
+            "magnetic scalar",
+            "magnetic vector",
+            "magnetic vector pde",
+        ]:
             kwargs["components"] = list(data)
         else:
             kwargs["storeProjections"] = True
