@@ -11,7 +11,9 @@
 
 from __future__ import annotations
 
+import sys
 from logging import getLogger
+from pathlib import Path
 
 import numpy as np
 from geoh5py.shared.utils import fetch_active_workspace
@@ -144,3 +146,7 @@ class JointSurveysDriver(BaseJointDriver):
 
 JointSurveysDriver.n_values = InversionDriver.n_values
 JointSurveysDriver.mapping = InversionDriver.mapping
+
+if __name__ == "__main__":
+    file = Path(sys.argv[1]).resolve()
+    JointSurveysDriver.start_dask_run(file)
