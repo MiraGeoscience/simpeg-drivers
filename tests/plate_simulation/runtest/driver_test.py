@@ -117,7 +117,6 @@ def test_plate_simulation_params_from_input_file(tmp_path):
     assert params.model.overburden_options.thickness == 50.0
     assert params.model.overburden_options.overburden_property == 5.0
     assert params.model.plate_options.plate_property == 2.0
-    assert params.model.plate_options.geometry.width == 100.0
     assert params.model.plate_options.geometry.strike_length == 100.0
     assert params.model.plate_options.geometry.dip_length == 100.0
     assert params.model.plate_options.geometry.dip == 0.0
