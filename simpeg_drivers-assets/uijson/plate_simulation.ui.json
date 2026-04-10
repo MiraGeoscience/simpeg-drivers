@@ -123,7 +123,8 @@
         "group": "Plate",
         "value": 0.0,
         "enabled": true,
-        "tooltip": "Depth below topography above the plate."
+        "min": 0.0,
+        "tooltip": "Depth below topography to the plate centre (positive down)."
     },
     "generate_sweep": {
         "label": "Generate sweep file",

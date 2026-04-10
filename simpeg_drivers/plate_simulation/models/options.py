@@ -8,7 +8,6 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-from typing import TypeVar
 
 import numpy as np
 from geoapps_utils.modelling.plates import PlateModel
@@ -19,14 +18,8 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
-    ValidationInfo,
-    field_validator,
     model_validator,
 )
-from scipy.spatial import cKDTree
-
-
-T = TypeVar("T")
 
 
 class PlateOptions(BaseModel):
@@ -76,7 +69,10 @@ class PlateOptions(BaseModel):
             ]
         )
         topo_at_center = topo_drape_elevation(
-            xyz, surface.vertices, method="linear", triangulation=surface.cells
+            xyz,
+            surface.vertices,
+            method="linear",
+            triangulation=getattr(surface, "cells", None),
         )
 
         return xyz[0, 0], xyz[0, 1], topo_at_center[0, 2] - self.geometry.elevation

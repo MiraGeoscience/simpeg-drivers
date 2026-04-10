@@ -85,7 +85,7 @@ def test_plate_simulation_params_from_input_file(tmp_path):
         ifile.data["dip_direction"] = 0.0
         ifile.data["number"] = 9
         ifile.data["spacing"] = 10.0
-        ifile.data["elevation"] = -250
+        ifile.data["elevation"] = 20
 
     params = PlateSimulationOptions.build(ifile)
     assert isinstance(params.simulation, SimPEGGroup)
@@ -125,4 +125,4 @@ def test_plate_simulation_params_from_input_file(tmp_path):
 
     assert params.model.plate_options.number == 9
     assert params.model.plate_options.spacing == 10.0
-    assert params.model.plate_options.geometry.elevation == -250.0
+    assert params.model.plate_options.geometry.elevation == 20.0
