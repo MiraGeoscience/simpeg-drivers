@@ -145,7 +145,7 @@ def test_magnetic_vector_pde_run(
             tmi_uncertainty=5.0,
             upper_bound=upper_bound,
             max_global_iterations=max_iterations,
-            initial_beta_ratio=5e-2,
+            initial_beta_ratio=1e-0,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
@@ -175,5 +175,5 @@ if __name__ == "__main__":
                     refinement=(4, 4),
                 )
                 test_magnetic_vector_pde_run(
-                    Path("./"), max_iterations=30, upper_bound=5e-3, pytest=False
+                    Path("./"), max_iterations=30, pytest=False
                 )
