@@ -602,6 +602,7 @@ class InversionModel:
         if (
             getattr(self.driver.params.models, "model_type", None)
             == ModelTypeEnum.resistivity
+            and model_type == "conductivity_model"
         ):
             model_type = "resistivity_model"
 
