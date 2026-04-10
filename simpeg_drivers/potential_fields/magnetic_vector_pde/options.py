@@ -32,6 +32,8 @@ class VectorModelPDEOptions(ModelOptions):
     """
 
     lower_bound: Deprecated
+    starting_inclination: float | FloatData | None = None
+    starting_declination: float | FloatData | None = None
 
 
 class MagneticVectorPDEForwardOptions(BaseForwardOptions):
