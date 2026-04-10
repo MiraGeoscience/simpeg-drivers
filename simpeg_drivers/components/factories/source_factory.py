@@ -45,19 +45,23 @@ class SourcesFactory(SimPEGFactory):
         self.simpeg_object = self.concrete_object()
 
     def concrete_object(self):
-        if self.factory_type in ["magnetic vector", "magnetic scalar"]:
+        if self.factory_type in [
+            "magnetic vector",
+            "magnetic scalar",
+            "magnetic vector pde",
+        ]:
             return mag_sources.UniformBackgroundField
 
-        elif self.factory_type == "gravity":
+        if self.factory_type == "gravity":
             return grav_sources.SourceField
 
-        elif "direct current" in self.factory_type:
+        if "direct current" in self.factory_type:
             return dc_sources.Dipole
 
-        elif "induced polarization" in self.factory_type:
+        if "induced polarization" in self.factory_type:
             return dc_sources.Dipole
 
-        elif "fdem" in self.factory_type:
+        if "fdem" in self.factory_type:
             if "fdem 1d" == self.factory_type and np.all(
                 np.linalg.norm(
                     np.kron(
@@ -73,7 +77,7 @@ class SourcesFactory(SimPEGFactory):
 
             return fem_sources.MagDipole
 
-        elif "tdem" in self.factory_type:
+        if "tdem" in self.factory_type:
             if isinstance(self.params.data_object, LargeLoopGroundTEMReceivers):
                 return tem_sources.LineCurrent
 
@@ -85,12 +89,14 @@ class SourcesFactory(SimPEGFactory):
 
             return tem_sources.MagDipole
 
-        elif self.factory_type in [
+        if self.factory_type in [
             "apparent conductivity",
             "magnetotellurics",
             "tipper",
         ]:
             return ns_sources.PlanewaveXYPrimary
+
+        return None
 
     def assemble_arguments(
         self,
@@ -140,7 +146,11 @@ class SourcesFactory(SimPEGFactory):
         """Provides implementations to assemble keyword arguments for receivers object."""
         _ = (receivers, frequency)
         kwargs = {}
-        if self.factory_type in ["magnetic scalar", "magnetic vector"]:
+        if self.factory_type in [
+            "magnetic scalar",
+            "magnetic vector",
+            "magnetic vector pde",
+        ]:
             kwargs = {
                 "amplitude": self.params.inducing_field_strength,
                 "inclination": self.params.inducing_field_inclination,

@@ -518,8 +518,8 @@ class InversionModel:
         """
         :param driver: InversionDriver object.
         :param model_type: Type of inversion model, can be any of MODEL_TYPES.
-        :param is_vector: If True, model is a vector.
         :param trim_active_cells: If True, remove air cells from model.
+        :param is_sigma: If True, model values must be strictly positive.
         """
         self.driver = driver
         self.model_type = model_type

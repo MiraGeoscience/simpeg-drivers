@@ -294,7 +294,12 @@ def create_simulation(
                 local_mesh,
                 enforce_active=True,
                 components=(
-                    3 if getattr(simulation, "model_type", None) == "vector" else 1
+                    3
+                    if (
+                        getattr(simulation, "model_type", None) == "vector"
+                        or getattr(simulation, "remMap", None)
+                    )
+                    else 1
                 ),
             )
             local_actives = mapping.local_active
@@ -331,6 +336,19 @@ def create_simulation(
             kwargs["chiMap"] = maps.IdentityMap(nP=n_actives)
 
         kwargs["active_cells"] = local_actives
+
+    if getattr(simulation, "_remMap", None) is not None:
+        inject = maps.InjectActiveCells(
+            local_mesh,
+            active_cells=np.repeat(local_actives, 3),
+            value_inactive=0,
+            nC=local_mesh.n_cells * 3,
+        )
+        kwargs["remMap"] = inject * maps.EffectiveSusceptibilityMap(
+            nP=local_actives.sum() * 3,
+            ambient_field_magnitude=simulation.survey.source_field.amplitude,
+        )
+        kwargs["solver_dtype"] = np.float32
 
     if getattr(simulation, "_rhoMap", None) is not None:
         kwargs["rhoMap"] = maps.IdentityMap(nP=n_actives)
