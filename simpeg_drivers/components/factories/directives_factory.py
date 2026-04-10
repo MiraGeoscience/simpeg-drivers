@@ -362,6 +362,7 @@ class DirectivesFactory:
             self._vector_inversion_directive = directives.VectorInversion(
                 self.driver.data_misfit.objfcts,
                 self.driver.regularization,
+                inversion_type=self.factory_type,
                 chifact_target=self.driver.params.cooling_schedule.chi_factor * 2,
                 reference_angles=reference_angles,
             )
@@ -486,7 +487,7 @@ class SaveSensitivitiesGeoh5Factory(SaveGeoh5Factory):
             ],
         }
 
-        if self.factory_type == "magnetic vector":
+        if "magnetic vector" in self.factory_type:
             kwargs["channels"] = [None]
             kwargs["transforms"] = [
                 lambda x: x.reshape((-1, 3), order="F"),
