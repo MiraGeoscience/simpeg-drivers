@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 
 import numpy as np
-from geoapps_utils import GeoAppsError
+from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.shared.utils import fetch_active_workspace
 from simpeg import directives, maps, utils
 from simpeg.objective_function import ComboObjectiveFunction
