@@ -340,7 +340,7 @@ def create_simulation(
     if getattr(simulation, "_remMap", None) is not None:
         inject = maps.InjectActiveCells(
             local_mesh,
-            active_cells=np.repeat(local_actives, 3),
+            active_cells=np.tile(local_actives, 3),
             value_inactive=0,
             nC=local_mesh.n_cells * 3,
         )

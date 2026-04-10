@@ -51,6 +51,7 @@ class SimulationFactory(SimPEGFactory):
             "tipper",
             "fdem",
             "tdem",
+            "magnetic vector pde",
         ]:
             import pymatsolver.direct as solver_module
 
@@ -156,7 +157,7 @@ class SimulationFactory(SimPEGFactory):
         if self.factory_type == "magnetic vector pde":
             inject = maps.InjectActiveCells(
                 mesh,
-                active_cells=np.repeat(active_cells, 3),
+                active_cells=np.tile(active_cells, 3),
                 value_inactive=0,
                 nC=mesh.n_cells * 3,
             )
