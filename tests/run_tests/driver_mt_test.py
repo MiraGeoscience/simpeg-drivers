@@ -38,7 +38,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.003974399172372707, "phi_d": 1230, "phi_m": 12.9}
+target_run = {"data_norm": 0.025087759238073448, "phi_d": 0.385, "phi_m": 3}
 
 
 def setup_data(workspace, survey):
@@ -91,7 +91,7 @@ def setup_data(workspace, survey):
 def test_magnetotellurics_fwr_run(
     tmp_path: Path,
     n_grid_points=2,
-    cell_size=(10.0, 10.0, 10.0),
+    cell_size=(5.0, 5.0, 5.0),
     refinement=(2,),
 ):
     # Run the forward
