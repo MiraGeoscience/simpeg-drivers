@@ -318,7 +318,7 @@ class BaseDriver(Driver, ABC):
         """
         Number of model components in the inversion.
         """
-        return 3 if self.params.inversion_type == "magnetic vector" else 1
+        return 3 if "magnetic vector" in self.params.inversion_type else 1
 
     @property
     def n_values(self):

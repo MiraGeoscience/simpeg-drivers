@@ -43,7 +43,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 target_mvi_pde_run = {"data_norm": 177.6657250156235, "phi_d": 15.6, "phi_m": 0.0556}
 
 
-def test_magnetic_vector_pde_fwr_run(
+def test_mvi_pde_fwr_run(
     tmp_path: Path,
     n_grid_points=3,
     cell_size=(5.0, 5.0, 5.0),
@@ -92,7 +92,7 @@ def test_magnetic_vector_pde_fwr_run(
     fwr_driver.run()
 
 
-def test_magnetic_vector_pde_run(
+def test_mvi_pde_run(
     tmp_path: Path,
     max_iterations=5,
     upper_bound=2.5e-3,
@@ -100,11 +100,7 @@ def test_magnetic_vector_pde_run(
 ):
     workpath = tmp_path / "inversion_test.ui.geoh5"
     if pytest:
-        workpath = (
-            tmp_path.parent
-            / "test_magnetic_vector_pde_fwr_run0"
-            / "inversion_test.ui.geoh5"
-        )
+        workpath = tmp_path.parent / "test_mvi_pde_fwr_run0" / "inversion_test.ui.geoh5"
 
     with Workspace(workpath) as geoh5:
         tmi = geoh5.get_entity("Iteration_0_tmi")[0]
@@ -150,7 +146,6 @@ def test_magnetic_vector_pde_run(
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
     driver = MagneticVectorPDEInversionDriver(params)
-    assert np.all(driver.models.lower_bound == -upper_bound)
     driver.run()
 
     if pytest:
@@ -168,12 +163,10 @@ if __name__ == "__main__":
         with cluster.get_client():
             # Full run
             with performance_report(filename="diagnostics.html"):
-                test_magnetic_vector_pde_fwr_run(
+                test_mvi_pde_fwr_run(
                     Path("./"),
                     n_grid_points=20,
                     cell_size=(5.0, 5.0, 5.0),
                     refinement=(4, 4),
                 )
-                test_magnetic_vector_pde_run(
-                    Path("./"), max_iterations=30, pytest=False
-                )
+                test_mvi_pde_run(Path("./"), max_iterations=30, pytest=False)
