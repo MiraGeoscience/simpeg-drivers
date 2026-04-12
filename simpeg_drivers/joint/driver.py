@@ -31,7 +31,6 @@ from simpeg.objective_function import ComboObjectiveFunction
 
 from simpeg_drivers.components.factories import (
     DirectivesFactory,
-    SaveDataGeoh5Factory,
     SaveModelGeoh5Factory,
 )
 from simpeg_drivers.driver import InversionDriver
@@ -144,6 +143,16 @@ class BaseJointDriver(InversionDriver):
             global_actives |= local_actives
 
         self.models.active_cells = global_actives
+
+        # Set the model as input to the sub-drivers to force interpolation
+        # onto their respective mesh
+        for name, val in self.params.models.model_dump().items():
+            if not val:
+                continue
+
+            for child_driver in self.drivers:
+                setattr(child_driver.params.models, name, val)
+
         for driver, wire in zip(self.drivers, self.wires, strict=True):
             logger.info("Initializing driver %s", driver.params.name)
             # Create a projection from global mesh to driver specific mesh
@@ -169,6 +178,7 @@ class BaseJointDriver(InversionDriver):
                 multipliers.append(mult * (mapping[0].shape[0] / projection.shape[1]))
 
             driver.data_misfit.multipliers = multipliers
+
         self.validate_create_models()
 
     @property

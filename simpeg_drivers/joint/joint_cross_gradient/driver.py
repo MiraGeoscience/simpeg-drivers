@@ -42,8 +42,13 @@ class JointCrossGradientDriver(BaseJointDriver):
         Create a flat ComboObjectiveFunction from all drivers provided and
         add cross-gradient regularization for all combinations of model parameters.
         """
-        regularizations = super().get_regularization()
-        reg_list, multipliers = self._overload_regularization(regularizations)
+        multipliers, reg_list = [], []
+        for driver in self.drivers:
+            for multiplier, objfct in driver.regularization:
+                objfct.mapping = objfct.mapping * driver.data_misfit.model_map
+                objfct.reference_model = self.models.reference_model
+                multipliers.append(multiplier)
+                reg_list.append(objfct)
 
         for label, driver_pairs in zip(
             ["a_b", "c_a", "c_b"], combinations(self.drivers, 2), strict=False
