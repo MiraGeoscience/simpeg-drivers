@@ -37,18 +37,19 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.018661818427023937, "phi_d": 502, "phi_m": 10900}
+target_run = {"data_norm": 0.019805285484847845, "phi_d": 64.3, "phi_m": 1310}
 
 
 def test_app_con_fwr_run(
     tmp_path: Path,
     n_grid_points=2,
     refinement=(2,),
-    cell_size=(20.0, 20.0, 20.0),
+    cell_size=(10.0, 10.0, 10.0),
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="apparent conductivity",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points,
             n_lines=n_grid_points,
@@ -56,7 +57,13 @@ def test_app_con_fwr_run(
             topography=lambda x, y: np.zeros(x.shape),
         ),
         mesh=MeshOptions(
-            cell_size=cell_size, refinement=refinement, padding_distance=2000
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+            padding_distance=2000,
         ),
         model=ModelOptions(
             background=100.0,
@@ -66,7 +73,9 @@ def test_app_con_fwr_run(
                 dip_length=60.0,
                 width=60.0,
                 dip=90,
-                origin=(0.0, 0.0, -90.0),
+                easting=0.0,
+                northing=0.0,
+                elevation=-90.0,
             ),
         ),
     )

@@ -9,6 +9,7 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 import numpy as np
+from geoapps_utils.modelling.plates import PlateModel
 from geoh5py.groups import SimPEGGroup
 
 from simpeg_drivers.plate_simulation.driver import PlateSimulationDriver
@@ -49,27 +50,34 @@ def test_gravity_plate_simulation(tmp_path):
             padding_distance=1500.0,
             depth_core=600.0,
             max_distance=200.0,
+            survey_refinement=[4, 6],
+            topography_refinement=[0, 1],
+            plate_refinement=[4, 2],
         )
 
-        overburden_params = OverburdenOptions(thickness=50.0, overburden=0.2)
+        overburden_params = OverburdenOptions(thickness=50.0, overburden_property=0.2)
 
         plate_params = PlateOptions(
             name="plate",
-            plate=0.5,
-            elevation=-250.0,
-            width=100.0,
-            strike_length=100.0,
-            dip_length=100.0,
-            dip=0.0,
-            dip_direction=0.0,
+            geometry=PlateModel(
+                easting=0.0,
+                northing=0.0,
+                elevation=-250.0,
+                width=100.0,
+                strike_length=100.0,
+                dip_length=100.0,
+                dip=0.0,
+                direction=0.0,
+            ),
+            plate_property=0.5,
             reference="center",
         )
 
         model_params = ModelOptions(
             name="density",
             background=0.0,
-            overburden_model=overburden_params,
-            plate_model=plate_params,
+            overburden_options=overburden_params,
+            plate_options=plate_params,
         )
 
         options = GravityForwardOptions.build(

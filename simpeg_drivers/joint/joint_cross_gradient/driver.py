@@ -13,7 +13,9 @@
 
 from __future__ import annotations
 
+import sys
 from itertools import combinations
+from pathlib import Path
 
 from geoh5py.shared.utils import fetch_active_workspace
 from simpeg import maps
@@ -71,3 +73,8 @@ class JointCrossGradientDriver(BaseJointDriver):
                     )
 
         return ComboObjectiveFunction(objfcts=reg_list, multipliers=multipliers)
+
+
+if __name__ == "__main__":
+    file = Path(sys.argv[1]).resolve()
+    JointCrossGradientDriver.start_dask_run(file)

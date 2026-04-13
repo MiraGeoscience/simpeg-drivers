@@ -14,10 +14,7 @@ from typing import ClassVar
 
 from geoapps_utils.base import Options
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
-from geoh5py.objects import ObjectBase, Points, Surface
 from geoh5py.ui_json import InputFile
-from grid_apps.octree_creation.options import OctreeOptions
-from pydantic import BaseModel
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.electricals.direct_current.three_dimensions.options import (
@@ -41,6 +38,7 @@ from simpeg_drivers.potential_fields.gravity.options import GravityForwardOption
 from simpeg_drivers.potential_fields.magnetic_vector import (
     MagneticVectorForwardOptions,
 )
+from simpeg_drivers.utils.synthetics.meshes import MeshOptions
 
 from .models.options import ModelOptions
 
@@ -55,60 +53,6 @@ PARAM_MAP = {
     "magnetic vector": MagneticVectorForwardOptions,
     "tipper": TipperForwardOptions,
 }
-
-
-class MeshOptions(BaseModel):
-    """Core parameters for octree mesh creation."""
-
-    u_cell_size: float
-    v_cell_size: float
-    w_cell_size: float
-    padding_distance: float
-    depth_core: float
-    max_distance: float
-    minimum_level: int = 8
-    diagonal_balance: bool = False
-
-    def octree_params(
-        self, survey: ObjectBase, topography: Surface | Points, plates: list[Surface]
-    ):
-        refinements = [
-            {
-                "refinement_object": survey,
-                "levels": [4, 4, 4],
-                "horizon": False,
-            },
-            {
-                "refinement_object": topography,
-                "levels": [0, 2],
-                "horizon": True,
-                "distance": 1000.0,
-            },
-        ]
-        for plate in plates:
-            refinements.append(
-                {
-                    "refinement_object": plate,
-                    "levels": [2, 1],
-                    "horizon": False,
-                }
-            )
-
-        octree_params = OctreeOptions(
-            geoh5=survey.workspace,
-            objects=survey,
-            u_cell_size=self.u_cell_size,
-            v_cell_size=self.v_cell_size,
-            w_cell_size=self.w_cell_size,
-            horizontal_padding=self.padding_distance,
-            vertical_padding=self.padding_distance,
-            depth_core=self.depth_core,
-            max_distance=self.max_distance,
-            minimum_level=self.minimum_level,
-            diagonal_balance=self.diagonal_balance,
-            refinements=refinements,
-        )
-        return octree_params
 
 
 class PlateSimulationOptions(Options):

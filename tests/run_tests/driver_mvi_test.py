@@ -44,21 +44,30 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_mvi_run = {"data_norm": 149.1011743401604, "phi_d": 11.2, "phi_m": 0.0351}
+target_mvi_run = {"data_norm": 177.6657250156235, "phi_d": 15.6, "phi_m": 0.0556}
 
 
 def test_magnetic_vector_fwr_run(
     tmp_path: Path,
     n_grid_points=3,
+    cell_size=(5.0, 5.0, 5.0),
     refinement=(2,),
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="magnetic_vector",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points, n_lines=n_grid_points, drape=5.0
         ),
-        mesh=MeshOptions(refinement=refinement),
+        mesh=MeshOptions(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+        ),
         model=ModelOptions(anomaly=0.05),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
@@ -90,7 +99,7 @@ def test_magnetic_vector_fwr_run(
 def test_magnetic_vector_run(
     tmp_path: Path,
     caplog,
-    max_iterations=3,
+    max_iterations=5,
     upper_bound=2.5e-3,
     pytest=True,
 ):
@@ -143,7 +152,7 @@ def test_magnetic_vector_run(
                 lower_bound=1e-6,
                 upper_bound=upper_bound,
                 max_global_iterations=max_iterations,
-                initial_beta_ratio=2e-2,
+                initial_beta_ratio=5e-2,
             )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
         if caplog:
@@ -165,12 +174,12 @@ def test_magnetic_vector_run(
             inactive_ind = run_ws.get_entity("active_cells")[0].values == 0
             assert np.all(nan_ind == inactive_ind)
 
-            assert np.nanmin(model.values) <= 1e-5
+            assert np.nanmin(model.values) <= 2e-5
             assert np.isclose(driver.inversion.opt.upper[0], upper_bound)
 
             out_group = run_ws.get_entity("Magnetic Vector Inversion")[0]
             mesh = out_group.get_entity("mesh")[0]
-            assert len(mesh.property_groups) == 6
+            assert len(mesh.property_groups) == 8
             assert len(mesh.fetch_property_group("Iteration_0").properties) == 2
             assert len(mesh.fetch_property_group("LP models").properties) == 6
             assert (
@@ -183,15 +192,24 @@ def test_magnetic_vector_run(
 def test_magnetic_vector_reference(
     tmp_path: Path,
     n_grid_points=3,
+    cell_size=(20.0, 20.0, 20.0),
     refinement=(2,),
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="magnetic_vector",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points, n_lines=n_grid_points, drape=5.0
         ),
-        mesh=MeshOptions(refinement=refinement),
+        mesh=MeshOptions(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=refinement,
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+        ),
         model=ModelOptions(anomaly=0.05),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
@@ -236,7 +254,10 @@ if __name__ == "__main__":
             # Full run
             with performance_report(filename="diagnostics.html"):
                 test_magnetic_vector_fwr_run(
-                    Path("./"), n_grid_points=20, refinement=(4, 4)
+                    Path("./"),
+                    n_grid_points=20,
+                    cell_size=(5.0, 5.0, 5.0),
+                    refinement=(4, 4),
                 )
                 test_magnetic_vector_run(
                     Path("./"), None, max_iterations=30, upper_bound=5e-3, pytest=False

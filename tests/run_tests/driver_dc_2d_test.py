@@ -45,17 +45,16 @@ target_run = {"data_norm": 11.136935742296085, "phi_d": 5570, "phi_m": 314}
 
 
 def test_dc_2d_fwr_run(
-    tmp_path: Path,
-    n_electrodes=10,
-    n_lines=3,
+    tmp_path: Path, n_electrodes=10, n_lines=3, cell_size=(5.0, 5.0)
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="direct current 2d",
+        refine_plate=True,
         survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
         mesh=DrapeModelOptions(
-            u_cell_size=5.0,
-            v_cell_size=5.0,
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
             depth_core=50.0,
             expansion_factor=1.1,
             vertical_padding=200.0,
@@ -68,7 +67,9 @@ def test_dc_2d_fwr_run(
                 strike_length=1000.0,
                 dip_length=20.0,
                 width=20.0,
-                origin=(0.0, 0.0, 0.0),
+                easting=0.0,
+                northing=0.0,
+                elevation=0.0,
                 direction=90,
                 dip=90,
             ),
@@ -209,11 +210,7 @@ def test_dc_single_run(
 
 if __name__ == "__main__":
     # Full run
-    test_dc_2d_fwr_run(
-        Path("./"),
-        n_electrodes=20,
-        n_lines=3,
-    )
+    test_dc_2d_fwr_run(Path("./"), n_electrodes=20, n_lines=3, cell_size=(5.0, 5.0))
     test_dc_2d_run(
         Path("./"),
         max_iterations=20,

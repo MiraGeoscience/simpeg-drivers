@@ -37,19 +37,29 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
-target_run = {"data_norm": 7.055418125633924e-08, "phi_d": 185000000, "phi_m": 7270}
+target_run = {"data_norm": 7.416844275458644e-10, "phi_d": 98100, "phi_m": 11300}
 
 
 def test_bad_waveform(tmp_path: Path):
     n_grid_points = 3
+    cell_size = (20.0, 20.0, 20.0)
     refinement = (2,)
 
     opts = SyntheticsComponentsOptions(
         method="airborne tdem",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points, n_lines=n_grid_points, drape=10.0
         ),
-        mesh=MeshOptions(refinement=refinement, padding_distance=400.0),
+        mesh=MeshOptions(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+            padding_distance=400.0,
+        ),
         model=ModelOptions(background=0.001),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
@@ -88,11 +98,18 @@ def test_airborne_tem_fwr_run(
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="airborne tdem",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points, n_lines=n_grid_points, drape=10.0
         ),
         mesh=MeshOptions(
-            cell_size=cell_size, refinement=refinement, padding_distance=400.0
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+            padding_distance=400.0,
         ),
         model=ModelOptions(background=0.001),
     )

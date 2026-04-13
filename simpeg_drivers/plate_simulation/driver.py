@@ -16,11 +16,11 @@ from pathlib import Path
 import numpy as np
 from dask.distributed import Client
 from geoapps_utils.base import Driver, get_logger
+from geoapps_utils.modelling.plates import Plate
 from geoapps_utils.utils.transformations import azimuth_to_unit_vector
 from geoh5py.data import FloatData, ReferencedData
 from geoh5py.objects import Octree, Points, Surface
 from geoh5py.shared.utils import fetch_active_workspace
-from grid_apps.octree_creation.driver import OctreeDriver
 
 from simpeg_drivers.driver import (
     InversionDriver,
@@ -30,9 +30,9 @@ from simpeg_drivers.driver import (
 )
 from simpeg_drivers.options import BaseForwardOptions, ModelTypeEnum
 from simpeg_drivers.plate_simulation.models.events import Anomaly, Erosion, Overburden
-from simpeg_drivers.plate_simulation.models.parametric import Plate
 from simpeg_drivers.plate_simulation.models.series import DikeSwarm, Geology
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
+from simpeg_drivers.utils.synthetics.meshes import get_octree_mesh
 from simpeg_drivers.utils.utils import start_dask_run, validate_out_group
 
 
@@ -131,24 +131,29 @@ class PlateSimulationDriver(Driver):
         """Generate sequence of plates."""
         if self._plates is None:
             offset = (
-                self.params.model.overburden_model.thickness
-                if self.params.model.plate_model.reference_surface == "overburden"
+                self.params.model.overburden_options.thickness
+                if self.params.model.plate_options.reference_surface == "overburden"
                 else 0.0
             )
-            center = self.params.model.plate_model.center(
+            center = self.params.model.plate_options.center(
                 self.survey,
                 self.topography,
                 depth_offset=-1 * offset,
             )
             plate = Plate(
-                self.params.model.plate_model,
-                center,
+                self.params.model.plate_options.geometry.model_copy(
+                    update={
+                        "easting": center[0],
+                        "northing": center[1],
+                        "elevation": center[2],
+                    }
+                ),
             )
             self._plates = self.replicate(
                 plate,
-                self.params.model.plate_model.number,
-                self.params.model.plate_model.spacing,
-                self.params.model.plate_model.dip_direction,
+                self.params.model.plate_options.number,
+                self.params.model.plate_options.spacing,
+                self.params.model.plate_options.geometry.direction,
             )
         return self._plates
 
@@ -180,13 +185,16 @@ class PlateSimulationDriver(Driver):
         """
 
         logger.info("making the mesh...")
-        octree_params = self.params.mesh.octree_params(
-            self.survey,
-            self.simulation_parameters.active_cells.topography_object,
-            [p.surface.copy(parent=self._out_group) for p in self.plates],
-        )
-        octree_driver = OctreeDriver(octree_params)
-        mesh = octree_driver.run()
+        with fetch_active_workspace(self.params.geoh5, mode="r+") as geoh5:
+            surfaces = [p.surface(geoh5) for p in self.plates]
+            mesh = get_octree_mesh(
+                opts=self.params.mesh,
+                survey=self.survey,
+                topography=self.simulation_parameters.active_cells.topography_object,
+                plates=surfaces,
+                name=self.params.mesh.name,
+            )
+
         mesh.parent = self._out_group
 
         return mesh
@@ -198,12 +206,15 @@ class PlateSimulationDriver(Driver):
 
         overburden = Overburden(
             topography=self.simulation_parameters.active_cells.topography_object,
-            thickness=self.params.model.overburden_model.thickness,
-            value=self.params.model.overburden_model.overburden,
+            thickness=self.params.model.overburden_options.thickness,
+            value=self.params.model.overburden_options.overburden_property,
         )
 
         dikes = DikeSwarm(
-            [Anomaly(plate, plate.params.plate) for plate in self.plates],
+            [
+                Anomaly(plate, self.params.model.plate_options.plate_property)
+                for plate in self.plates
+            ],
             name="plates",
         )
 
@@ -261,8 +272,6 @@ class PlateSimulationDriver(Driver):
         """
         Replicate a plate n times along an azimuth centered at origin.
 
-        Plate names will be indexed.
-
         :param plate: models.parametric.Plate to be replicated.
         :param number: Number of plates returned.
         :param spacing: Spacing between plates.
@@ -272,10 +281,22 @@ class PlateSimulationDriver(Driver):
 
         plates = []
         for i in range(number):
-            center = np.r_[plate.center] + azimuth_to_unit_vector(azimuth) * offsets[i]
-            new = Plate(plate.params.model_copy(), center)
-            new.params.name = f"{plate.params.name} offset {i + 1}"
-            plates.append(new)
+            center = (
+                np.r_[plate.params.origin]
+                + azimuth_to_unit_vector(azimuth) * offsets[i]
+            )
+            new_plate = Plate(
+                plate.params.model_copy(
+                    update={
+                        "easting": center[0],
+                        "northing": center[1],
+                        "elevation": center[2],
+                    }
+                )
+            )
+
+            plates.append(new_plate)
+
         return plates
 
     @classmethod

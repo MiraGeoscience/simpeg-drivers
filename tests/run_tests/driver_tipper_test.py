@@ -36,22 +36,30 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.01925412835834313, "phi_d": 0.333, "phi_m": 3.18e-05}
+target_run = {"data_norm": 0.011751135402491555, "phi_d": 14.2, "phi_m": 3.4e-5}
 
 
 def test_tipper_fwr_run(
     tmp_path: Path,
     n_grid_points=2,
-    refinement=(2,),
     cell_size=(20.0, 20.0, 20.0),
+    refinement=(2,),
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="tipper",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points, n_lines=n_grid_points, drape=15.0
         ),
-        mesh=MeshOptions(cell_size=cell_size, refinement=refinement),
+        mesh=MeshOptions(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+        ),
         model=ModelOptions(background=100.0),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:

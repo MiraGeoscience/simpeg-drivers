@@ -81,7 +81,13 @@ def test_fem_fwr_run(tmp_path: Path, azimuth, dip):
             topography=lambda x, y: np.zeros(x.shape),
         ),
         mesh=MeshOptions(
-            cell_size=cell_size, refinement=refinement, padding_distance=400.0
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+            padding_distance=400.0,
         ),
         model=ModelOptions(
             background=1e-3,
@@ -89,7 +95,9 @@ def test_fem_fwr_run(tmp_path: Path, azimuth, dip):
                 strike_length=150.0,
                 dip_length=100.0,
                 width=10.0,
-                origin=(0.0, 0.0, -60.0),
+                easting=0.0,
+                northing=0.0,
+                elevation=-60.0,
                 direction=azimuth,
                 dip=45.0,
             ),

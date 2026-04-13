@@ -420,6 +420,7 @@ class DrapeModelOptions(BaseModel):
     horizontal_padding: float | None = 100.0
     vertical_padding: float | None = 100.0
     expansion_factor: float | None = 1.1
+    name: str = "mesh"
 
 
 class EMDataMixin:

@@ -10,6 +10,7 @@
 
 from __future__ import annotations
 
+import re
 from logging import INFO, getLogger
 from pathlib import Path
 
@@ -42,19 +43,21 @@ logger = getLogger(__name__)
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 9.184569809436836e-07, "phi_d": 311, "phi_m": 4710}
+target_run = {"data_norm": 7.547547820042408e-07, "phi_d": 23, "phi_m": 6310}
 
 
 def test_tiling_ground_tem(
     tmp_path: Path,
     *,
     n_grid_points=4,
+    cell_size=(20.0, 20.0, 20.0),
     refinement=(2,),
     **_,
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="ground tdem",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points,
             n_lines=n_grid_points,
@@ -62,14 +65,24 @@ def test_tiling_ground_tem(
             topography=lambda x, y: np.zeros(x.shape),
             name="ground_tdem_survey",
         ),
-        mesh=MeshOptions(refinement=refinement, padding_distance=1000.0),
+        mesh=MeshOptions(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+            padding_distance=1000.0,
+        ),
         model=ModelOptions(
             background=0.001,
             plate=PlateModel(
                 strike_length=40.0,
                 dip_length=40.0,
                 width=40.0,
-                origin=(0.0, 0.0, -50.0),
+                easting=0.0,
+                northing=0.0,
+                elevation=-50.0,
             ),
         ),
     )
@@ -113,6 +126,7 @@ def test_ground_tem_fwr_run(
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="ground tdem",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points,
             n_lines=n_grid_points,
@@ -120,7 +134,13 @@ def test_ground_tem_fwr_run(
             topography=lambda x, y: np.zeros(x.shape),
         ),
         mesh=MeshOptions(
-            cell_size=cell_size, refinement=refinement, padding_distance=1000.0
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+            padding_distance=1000.0,
         ),
         model=ModelOptions(
             background=0.001,
@@ -128,7 +148,9 @@ def test_ground_tem_fwr_run(
                 strike_length=40.0,
                 dip_length=40.0,
                 width=40.0,
-                origin=(0.0, 0.0, -50.0),
+                easting=0.0,
+                northing=0.0,
+                elevation=-50.0,
             ),
         ),
     )
@@ -155,12 +177,17 @@ def test_ground_tem_fwr_run(
         assert fwr_driver.inversion_data.survey.source_list[0].n_segments == 16
 
     if pytest and caplog:
-        assert len(caplog.records) == 2
-        for record in caplog.records:
+        loop_warnings = [
+            k
+            for k in caplog.records
+            if re.match(r"Loop \d+ modified", k.message) is not None
+        ]
+        assert len(loop_warnings) == 2
+        for record in loop_warnings:
             assert record.levelname == "INFO"
             assert "counter-clockwise" in record.message
 
-        assert "closed" in caplog.records[0].message
+        assert "closed" in loop_warnings[0].message
 
         assert (
             fwr_driver.data_misfit.objfcts[0].simulation.simulations[0].solver == Mumps

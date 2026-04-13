@@ -9,6 +9,7 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 import numpy as np
+from geoapps_utils.modelling.plates import PlateModel
 from geoh5py import Workspace
 from geoh5py.objects import Points, Surface
 
@@ -19,19 +20,21 @@ def test_plate_params(tmp_path):
     workspace = Workspace(tmp_path / "test.geoh5")
     params = PlateOptions(
         name="my plate",
-        plate=1.0,
-        width=20.0,
-        strike_length=1500.0,
-        dip_length=400.0,
-        dip=90.0,
-        dip_direction=0.0,
+        plate_property=1.0,
+        geometry=PlateModel(
+            strike_length=1500.0,
+            dip_length=400.0,
+            width=20.0,
+            easting=10.0,
+            northing=10.0,
+            elevation=-100.0,
+            direction=0.0,
+            dip=90.0,
+        ),
         reference="center",
         number=1,
         spacing=10.0,
         relative_locations=True,
-        easting=10.0,
-        northing=10.0,
-        elevation=-100.0,
         reference_surface="topography",
         reference_type="mean",
     )
@@ -60,19 +63,21 @@ def test_plate_params(tmp_path):
 def test_plate_params_empty_reference():
     params = PlateOptions(
         name="my plate",
-        plate=1.0,
-        width=20.0,
-        strike_length=1500.0,
-        dip_length=400.0,
-        dip=90.0,
-        dip_direction=0.0,
+        plate_property=1.0,
+        geometry=PlateModel(
+            strike_length=1500.0,
+            dip_length=400.0,
+            width=20.0,
+            easting=10.0,
+            northing=10.0,
+            elevation=-100.0,
+            direction=0.0,
+            dip=90.0,
+        ),
         reference="center",
         number=1,
         spacing=10.0,
         relative_locations=True,
-        easting=10.0,
-        northing=10.0,
-        elevation=-100.0,
         reference_surface=None,
         reference_type=None,
     )
