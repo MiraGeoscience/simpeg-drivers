@@ -13,6 +13,8 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+import pytest
+from geoapps_utils import GeoAppsError
 from geoh5py.groups.property_group import GroupTypeEnum, PropertyGroup
 from geoh5py.objects import Octree, Points
 from geoh5py.workspace import Workspace
@@ -145,10 +147,10 @@ def test_homogeneous_fwr_run(
 def test_homogeneous_run(
     tmp_path: Path,
     max_iterations=1,
-    pytest=True,
+    use_pytest=True,
 ):
     workpath = tmp_path / "inversion_test.ui.geoh5"
-    if pytest:
+    if use_pytest:
         workpath = (
             tmp_path.parent / "test_homogeneous_fwr_run0" / "inversion_test.ui.geoh5"
         )
@@ -228,27 +230,28 @@ def test_homogeneous_run(
                     inducing_field_declination=INDUCING_FIELD[2],
                     data_object=survey,
                     starting_model=ref_model,
-                    reference_model=ref_model,
+                    reference_model=None,
                     tile_spatial=1,
                     tmi_channel=data,
                     tmi_uncertainty=5e0,
                 )
                 drivers.append(MagneticInversionDriver(params))
 
-        # Test if single group is valid
-        params = JointPetrophysicsOptions.build(
-            topography_object=topography,
-            geoh5=geoh5,
-            group_a=drivers[0].out_group,
-            mesh=global_mesh,
-            petrophysical_model=petrophysics,
-        )
-        driver = JointPetrophysicsDriver(params)
-        assert len(driver.data_misfit.objfcts) == 1
-        assert driver.data_misfit.multipliers == [1.0]
+            if len(drivers) == 1:
+                # Test if single group is valid
+                params = JointPetrophysicsOptions.build(
+                    topography_object=topography,
+                    geoh5=geoh5,
+                    group_a=drivers[0].out_group,
+                    mesh=global_mesh,
+                    petrophysical_model=petrophysics,
+                )
+                driver = JointPetrophysicsDriver(params)
+                assert len(driver.data_misfit.objfcts) == 1
+                assert driver.data_misfit.multipliers == [1.0]
 
         # Re-build full
-        params = JointPetrophysicsOptions.build(
+        joint_params = JointPetrophysicsOptions.build(
             topography_object=topography,
             geoh5=geoh5,
             group_a=drivers[0].out_group,
@@ -264,10 +267,22 @@ def test_homogeneous_run(
             initial_beta_ratio=1e2,
             max_global_iterations=max_iterations,
         )
-        driver = JointPetrophysicsDriver(params)
+        driver = JointPetrophysicsDriver(joint_params)
+
+        with pytest.raises(
+            GeoAppsError, match="A reference model must be set and active on each"
+        ):
+            _ = driver.means
+
+        # Re-instate
+        params.models.reference_model = ref_model
+        params.out_group = None
+        new_driver = MagneticInversionDriver(params)
+        joint_params.group_b = new_driver.out_group
+        driver = JointPetrophysicsDriver(joint_params)
         driver.run()
 
-    if pytest:
+    if use_pytest:
         with Workspace(driver.params.geoh5.h5file) as run_ws:
             output = get_inversion_output(
                 driver.params.geoh5.h5file, driver.out_group.uid
@@ -293,5 +308,5 @@ if __name__ == "__main__":
     test_homogeneous_run(
         Path("./"),
         max_iterations=20,
-        pytest=False,
+        use_pytest=False,
     )
