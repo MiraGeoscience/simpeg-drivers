@@ -42,6 +42,8 @@ class JointCrossGradientDriver(BaseJointDriver):
         Create a flat ComboObjectiveFunction from all drivers provided and
         add cross-gradient regularization for all combinations of model parameters.
         """
+        # regularizations = super().get_regularization()
+        # reg_list, multipliers = self._overload_regularization(regularizations)
         multipliers, reg_list = [], []
         for driver in self.drivers:
             for multiplier, objfct in driver.regularization:
@@ -54,8 +56,8 @@ class JointCrossGradientDriver(BaseJointDriver):
             ["a_b", "c_a", "c_b"], combinations(self.drivers, 2), strict=False
         ):
             # Deal with MVI components
-            for mapping_a in driver_pairs[0].mapping:
-                for mapping_b in driver_pairs[1].mapping:
+            for count_a, mapping_a in enumerate(driver_pairs[0].mapping):
+                for count_b, mapping_b in enumerate(driver_pairs[1].mapping):
                     wires = maps.Wires(
                         ("a", self._mapping[driver_pairs[0], mapping_a]),
                         ("b", self._mapping[driver_pairs[1], mapping_b]),
@@ -65,6 +67,10 @@ class JointCrossGradientDriver(BaseJointDriver):
                             self.inversion_mesh.mesh,
                             wires,
                             active_cells=self.models.active_cells,
+                            units=[
+                                "metric" if not count_a else "component",
+                                "metric" if not count_b else "component",
+                            ],
                         )
                     )
                     base_multipier = (
