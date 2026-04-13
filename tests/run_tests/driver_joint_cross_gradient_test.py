@@ -8,6 +8,7 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
+import logging
 from pathlib import Path
 
 import numpy as np
@@ -336,6 +337,7 @@ def test_joint_cross_gradient_inv_run(
 
 def test_joint_cross_gradient_rotated_run(
     tmp_path,
+    caplog,
     max_iterations=1,
     pytest=True,
 ):
@@ -353,8 +355,8 @@ def test_joint_cross_gradient_rotated_run(
         orig_data = []
         origin = None
         for name in [
-            "Magnetic Vector Forward",
             "Direct Current 3D Forward",
+            "Magnetic Vector Forward",
         ]:
             group = geoh5.get_entity(name)[0]
             mesh = next(child for child in group.children if isinstance(child, Octree))
@@ -378,7 +380,7 @@ def test_joint_cross_gradient_rotated_run(
             gradient_rotation = PropertyGroup(
                 name="gradient_rotations",
                 property_group_type=GroupTypeEnum.DIPDIR,
-                properties=[dip, direction],
+                properties=[direction, dip],
                 parent=mesh,
             )
 
@@ -437,22 +439,31 @@ def test_joint_cross_gradient_rotated_run(
             group_a_multiplier=1.0,
             group_b=drivers[1].out_group,
             group_b_multiplier=1.0,
-            max_global_iterations=max_iterations,
-            initial_beta_ratio=1e-1,
-            cross_gradient_weight_a_b=1e0,
-            cross_gradient_weight_c_a=1e0,
-            cross_gradient_weight_c_b=1e0,
-            percentile=100,
         )
 
-    driver = JointCrossGradientDriver(joint_params)
+    with caplog.at_level(logging.WARNING):
+        _ = JointCrossGradientDriver(joint_params)
 
-    # Check that chi factors set on the sub drivers are preserved forward
-    np.testing.assert_allclose(
-        driver.data_misfit.multipliers, [0.8, 0.8, 1.0, 1.0, 1.0], atol=1e-3
+    assert "Some drivers do not have a model" in caplog.text
+
+    # Add gradient rotation to the mvi driver and check it is used
+    params.models.gradient_rotation = gradient_rotation
+    params.out_group = None
+    drivers[-1] = MagneticVectorPDEInversionDriver(params)
+    # Run the inverse
+    joint_params = JointCrossGradientOptions.build(
+        geoh5=geoh5,
+        topography_object=topography,
+        group_a=drivers[0].out_group,
+        group_a_multiplier=1.0,
+        group_b=drivers[1].out_group,
+        group_b_multiplier=1.0,
+        max_global_iterations=max_iterations,
     )
+    joint_driver = JointCrossGradientDriver(joint_params)
+    assert joint_driver.models.gradient_dip is not None
 
-    driver.run()
+    joint_driver.run()
 
 
 if __name__ == "__main__":

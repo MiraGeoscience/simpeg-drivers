@@ -265,10 +265,6 @@ class BaseJointDriver(InversionDriver):
         for model_type in self.models.model_types:
             if model_type in [
                 "petrophysical_model",
-                "starting_inclination",
-                "starting_declination",
-                "reference_inclination",
-                "reference_declination",
             ]:
                 continue
 
