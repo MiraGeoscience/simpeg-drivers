@@ -8,6 +8,8 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
+import logging
+
 import numpy as np
 from geoapps_utils.modelling.plates import PlateModel
 from geoh5py import Workspace
@@ -54,24 +56,27 @@ def test_plate_options_center(tmp_path):
         assert np.allclose(center, [0.0, 0.0, 20], atol=7e-1)
 
 
-def test_plate_params(tmp_path):
+def test_plate_params(tmp_path, caplog):
     workspace = Workspace(tmp_path / "test.geoh5")
-    params = PlateOptions(
-        name="my plate",
-        plate_property=1.0,
-        geometry=PlateModel(
-            strike_length=1500.0,
-            dip_length=400.0,
-            width=20.0,
-            easting=10.0,
-            northing=10.0,
-            elevation=100.0,
-            direction=0.0,
-            dip=90.0,
-        ),
-        number=1,
-        spacing=10.0,
-    )
+    with caplog.at_level(logging.WARNING):
+        params = PlateOptions(
+            name="my plate",
+            plate_property=1.0,
+            geometry=PlateModel(
+                strike_length=1500.0,
+                dip_length=400.0,
+                width=20.0,
+                easting=10.0,
+                northing=10.0,
+                elevation=100.0,
+                direction=0.0,
+                dip=90.0,
+            ),
+            number=1,
+            spacing=10.0,
+            relative_locations=False,
+        )
+    assert "'relative_locations' will be ignored" in caplog.text
     assert params.spacing == 0.0
 
     survey = Points.create(

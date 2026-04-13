@@ -18,8 +18,11 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
+    field_validator,
     model_validator,
 )
+
+from simpeg_drivers.options import Deprecated
 
 
 class PlateOptions(BaseModel):
@@ -42,6 +45,9 @@ class PlateOptions(BaseModel):
     geometry: PlateModel
     number: int = 1
     spacing: float = 0.0
+    relative_locations: Deprecated
+    reference_surface: Deprecated
+    reference_type: Deprecated
 
     @model_validator(mode="after")
     def single_plate(self):
