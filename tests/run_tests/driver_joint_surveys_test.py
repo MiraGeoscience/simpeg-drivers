@@ -11,6 +11,7 @@
 from pathlib import Path
 
 import numpy as np
+import pytest
 from geoh5py.objects import Octree
 from geoh5py.workspace import Workspace
 from simpeg.directives import SaveModelGeoH5, SavePropertyGroup
@@ -35,6 +36,10 @@ from simpeg_drivers.potential_fields.gravity import (
 from simpeg_drivers.potential_fields.magnetic_vector import (
     MagneticVectorInversionDriver,
     MagneticVectorInversionOptions,
+)
+from simpeg_drivers.potential_fields.magnetic_vector_pde import (
+    MagneticVectorPDEInversionDriver,
+    MagneticVectorPDEInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (
     SyntheticsComponents,
@@ -228,7 +233,14 @@ def test_joint_surveys_inv_run(
             check_target(output, target_run)
 
 
-def test_joint_surveys_mvi_run(tmp_path, anomaly=0.05):
+@pytest.mark.parametrize(
+    "option_class, driver_class",
+    [
+        (MagneticVectorInversionOptions, MagneticVectorInversionDriver),
+        (MagneticVectorPDEInversionOptions, MagneticVectorPDEInversionDriver),
+    ],
+)
+def test_joint_surveys_mvi_run(tmp_path, option_class, driver_class, anomaly=0.05):
     drivers = []
 
     with Workspace.create(tmp_path / f"{__name__}.geoh5") as geoh5:
@@ -274,7 +286,7 @@ def test_joint_surveys_mvi_run(tmp_path, anomaly=0.05):
             else:
                 inc_mod = None
 
-            params = MagneticVectorInversionOptions.build(
+            params = option_class.build(
                 geoh5=geoh5,
                 mesh=components.mesh,
                 topography_object=components.topography,
@@ -288,7 +300,7 @@ def test_joint_surveys_mvi_run(tmp_path, anomaly=0.05):
                 starting_inclination=inc_mod,
                 reference_model=0.0,
             )
-            drivers.append(MagneticVectorInversionDriver(params))
+            drivers.append(driver_class(params))
 
         # Run the inverse
         joint_params = JointSurveysOptions.build(
@@ -317,6 +329,10 @@ def test_joint_surveys_mvi_run(tmp_path, anomaly=0.05):
                 ]
             )
             == 3
+        )
+
+        assert isinstance(
+            driver.regularization.objfcts[0], type(drivers[0].regularization.objfcts[0])
         )
 
 
