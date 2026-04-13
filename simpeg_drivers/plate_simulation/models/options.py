@@ -71,9 +71,6 @@ class PlateOptions(BaseModel):
         :param surface: Points-like object to reference plate depth from.
         """
 
-        xyz = np.atleast_2d(
-            [
-                survey.vertices[:, 0].mean(),
         center_x = survey.vertices[:, 0].mean() + self.geometry.easting
         center_y = survey.vertices[:, 1].mean() + self.geometry.northing
         xyz = np.atleast_2d([center_x, center_y, 0])

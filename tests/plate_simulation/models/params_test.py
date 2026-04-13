@@ -53,7 +53,7 @@ def test_plate_options_center(tmp_path):
             spacing=10.0,
         )
         center = params.center(components.survey, components.topography)
-        assert np.allclose(center, [0.0, 0.0, 20], atol=7e-1)
+        assert np.allclose(center, [10.0, -10.0, 20], atol=7e-1)
 
 
 def test_plate_params(tmp_path, caplog):
@@ -66,8 +66,6 @@ def test_plate_params(tmp_path, caplog):
                 strike_length=1500.0,
                 dip_length=400.0,
                 width=20.0,
-                easting=10.0,
-                northing=10.0,
                 elevation=100.0,
                 direction=0.0,
                 dip=90.0,
