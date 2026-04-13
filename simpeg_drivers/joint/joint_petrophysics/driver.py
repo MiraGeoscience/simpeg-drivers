@@ -10,7 +10,11 @@
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
 import numpy as np
+from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.shared.utils import fetch_active_workspace
 from simpeg import directives, maps, utils
 from simpeg.objective_function import ComboObjectiveFunction
@@ -158,6 +162,12 @@ class JointPetrophysicsDriver(BaseJointDriver):
         """
         means = []
         for mapping in self.mapping:
+            if self.models.reference_model is None:
+                raise GeoAppsError(
+                    "A reference model must be set and active on each inversion driver "
+                    "to determine the means of the Gaussian mixture model.\n"
+                    "Please revise the input options of individual drivers."
+                )
             model_vec = mapping @ self.models.reference_model
             unit_mean = []
             for uid in self.geo_units:
@@ -220,3 +230,8 @@ class JointPetrophysicsDriver(BaseJointDriver):
             reg.alpha_s = 0.0
 
         return reg_list, multipliers
+
+
+if __name__ == "__main__":
+    file = Path(sys.argv[1]).resolve()
+    JointPetrophysicsDriver.start_dask_run(file)
