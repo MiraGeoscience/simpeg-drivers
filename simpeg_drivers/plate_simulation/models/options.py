@@ -9,6 +9,8 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 
+from logging import getLogger
+
 import numpy as np
 from geoapps_utils.modelling.plates import PlateModel
 from geoapps_utils.utils.locations import topo_drape_elevation
@@ -18,11 +20,13 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
-    field_validator,
     model_validator,
 )
 
 from simpeg_drivers.options import Deprecated
+
+
+logger = getLogger(__name__)
 
 
 class PlateOptions(BaseModel):
@@ -112,3 +116,14 @@ class ModelOptions(BaseModel):
     background: float
     overburden_options: OverburdenOptions
     plate_options: PlateOptions
+
+    @model_validator(mode="after")
+    def plate_top_below_overburden(self):
+        if self.plate_options.geometry.elevation < self.overburden_options.thickness:
+            logger.warning(
+                "Overburden thickness exceeds the plate depth.  Adjusting"
+                "plate to bottom of overburden to preserve plate's geometry."
+            )
+            self.plate_options.geometry.elevation = self.overburden_options.thickness
+
+        return self

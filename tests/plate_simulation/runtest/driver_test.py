@@ -8,6 +8,8 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
+import logging
+
 from geoh5py.groups import SimPEGGroup
 from geoh5py.ui_json import InputFile
 
@@ -33,7 +35,7 @@ from tests.utils.targets import get_workspace
 
 
 # pylint: disable=too-many-statements
-def test_plate_simulation_params_from_input_file(tmp_path):
+def test_plate_simulation_params_from_input_file(tmp_path, caplog):
     opts = SyntheticsComponentsOptions(
         method="gravity",
         survey=SurveyOptions(n_stations=8, n_lines=8),
@@ -87,7 +89,9 @@ def test_plate_simulation_params_from_input_file(tmp_path):
         ifile.data["spacing"] = 10.0
         ifile.data["elevation"] = 20
 
-    params = PlateSimulationOptions.build(ifile)
+    with caplog.at_level(logging.WARNING):
+        params = PlateSimulationOptions.build(ifile)
+    assert "Overburden thickness exceeds the plate depth" in caplog.text
     assert isinstance(params.simulation, SimPEGGroup)
 
     simulation_parameters = params.simulation_parameters()
@@ -124,4 +128,5 @@ def test_plate_simulation_params_from_input_file(tmp_path):
 
     assert params.model.plate_options.number == 9
     assert params.model.plate_options.spacing == 10.0
-    assert params.model.plate_options.geometry.elevation == 20.0
+    # reset by validator
+    assert params.model.plate_options.geometry.elevation == 50.0
