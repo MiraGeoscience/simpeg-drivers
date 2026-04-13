@@ -42,8 +42,6 @@ class JointCrossGradientDriver(BaseJointDriver):
         Create a flat ComboObjectiveFunction from all drivers provided and
         add cross-gradient regularization for all combinations of model parameters.
         """
-        # regularizations = super().get_regularization()
-        # reg_list, multipliers = self._overload_regularization(regularizations)
         # Trick the drivers by swapping the inversion_mesh and models
         # such that the regularization uses the global mesh
         multipliers, reg_list = [], []
