@@ -74,18 +74,14 @@ class PlateOptions(BaseModel):
         xyz = np.atleast_2d(
             [
                 survey.vertices[:, 0].mean(),
-                survey.vertices[:, 1].mean(),
-                0,
-            ]
-        )
+        center_x = survey.vertices[:, 0].mean() + self.geometry.easting
+        center_y = survey.vertices[:, 1].mean() + self.geometry.northing
+        xyz = np.atleast_2d([center_x, center_y, 0])
         topo_at_center = topo_drape_elevation(
-            xyz,
-            surface.vertices,
-            method="linear",
-            triangulation=getattr(surface, "cells", None),
+            xyz, surface.vertices, method="linear", triangulation=surface.cells
         )
 
-        return xyz[0, 0], xyz[0, 1], topo_at_center[0, 2] - self.geometry.elevation
+        return center_x, center_y, topo_at_center[0, 2] - self.geometry.elevation
 
 
 class OverburdenOptions(BaseModel):
