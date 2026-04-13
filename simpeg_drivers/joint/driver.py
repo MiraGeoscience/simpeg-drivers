@@ -14,6 +14,7 @@
 from __future__ import annotations
 
 from logging import getLogger
+from typing import Any
 
 import numpy as np
 import simpeg.dask.objective_function as dask_objective_function
@@ -150,6 +151,9 @@ class BaseJointDriver(InversionDriver):
             if not val:
                 continue
 
+            if not hasattr(self.drivers[0].params.models, name):
+                continue
+
             for child_driver in self.drivers:
                 setattr(child_driver.params.models, name, val)
 
@@ -261,8 +265,6 @@ class BaseJointDriver(InversionDriver):
         for model_type in self.models.model_types:
             if model_type in [
                 "petrophysical_model",
-                "gradient_dip",
-                "gradient_direction",
                 "starting_inclination",
                 "starting_declination",
                 "reference_inclination",
@@ -270,11 +272,11 @@ class BaseJointDriver(InversionDriver):
             ]:
                 continue
 
-            model = getattr(self.models, f"_{model_type}").model
+            model_collection = getattr(self.models, f"_{model_type}")
 
             # If set on joint driver, repeat for all drivers
-            if model is not None:
-                model = np.kron(np.ones(len(self.mapping)), model)
+            if model_collection.model is not None:
+                model = np.kron(np.ones(len(self.mapping)), model_collection.model)
 
             # Concatenate models from individual drivers projected onto the global mesh
             else:
@@ -287,33 +289,48 @@ class BaseJointDriver(InversionDriver):
                         model.append(None)
                         continue
 
-                    projection = child_driver.data_misfit.model_map.deriv(vec).T
+                    if model_collection.trim_active_cells:
+                        projection = child_driver.data_misfit.model_map.deriv(vec).T
 
-                    if isinstance(model_local_values, float):
-                        model_local_values = (
-                            np.ones(projection.shape[1]) * model_local_values
+                        if isinstance(model_local_values, float):
+                            model_local_values = (
+                                np.ones(projection.shape[1]) * model_local_values
+                            )
+
+                        norm = np.array(np.sum(projection, axis=1)).flatten()
+                        model.append((projection * model_local_values) / (norm + 1e-8))
+                    else:
+                        ind = child_driver.inversion_mesh.mesh.get_containing_cells(
+                            self.inversion_mesh.mesh.cell_centers
                         )
+                        model.append(model_local_values[ind] / len(self.drivers))
 
-                    norm = np.array(np.sum(projection, axis=1)).flatten()
-                    model.append((projection * model_local_values) / (norm + 1e-8))
-
-                # Mostly for rotated gradient mode
-                is_none = [val is None for val in model]
-                if any(is_none):
-                    if not all(is_none):
-                        logger.warning(
-                            "Some drivers do not have a model of type "
-                            "'%s' set. Please assign a value to individual drivers"
-                            " or use the joint driver options to set it globally.\n"
-                            "Parameter ignored for the inversion.",
-                            model_type,
-                        )
-                    model = None
-                else:
+                model = self._validate_model_consistency(model, model_type)
+                if model:
                     model = np.sum(model, axis=0)
 
             if model is not None:
                 getattr(self.models, f"_{model_type}").model = model
+
+    @staticmethod
+    def _validate_model_consistency(model: list[None | Any], model_type: str):
+        """
+        Check consistency of model values across drivers for a given model type.
+        If some drivers have None and others have values, log a warning and ignore the model for the inversion.
+        """
+        is_none = [val is None for val in model]
+        if any(is_none):
+            if not all(is_none):
+                logger.warning(
+                    "Some drivers do not have a model of type "
+                    "'%s' set. Please assign a value to individual drivers"
+                    " or use the joint driver options to set it globally.\n"
+                    "Parameter ignored for the inversion.",
+                    model_type,
+                )
+            model = None
+
+        return model
 
     @property
     def wires(self):
@@ -359,7 +376,7 @@ class BaseJointDriver(InversionDriver):
             misfits = self.data_misfit.objfcts
 
         for driver in self.drivers:
-            driver_directives = DirectivesFactory(driver)
+            driver_directives = driver.directives
 
             if hasattr(driver.params.models, "model_type") and hasattr(
                 self.params.models, "model_type"
@@ -375,7 +392,7 @@ class BaseJointDriver(InversionDriver):
             directives_list.append(save_model)
             directives_list.append(
                 SaveLPModelGroup(
-                    driver.inversion_mesh.entity,
+                    self.workspace.get_entity(save_model.h5_object)[0],
                     self._directives.update_irls_directive,
                 )
             )

@@ -44,11 +44,25 @@ class JointCrossGradientDriver(BaseJointDriver):
         """
         # regularizations = super().get_regularization()
         # reg_list, multipliers = self._overload_regularization(regularizations)
+        # Trick the drivers by swapping the inversion_mesh and models
+        # such that the regularization uses the global mesh
         multipliers, reg_list = [], []
         for driver in self.drivers:
+            # Pre-store the saving directives before the swap
+            _ = driver.directives.save_directives
+
+            driver._models = self.models  # pylint: disable=protected-access
+            driver._inversion_mesh = self.inversion_mesh  # pylint: disable=protected-access
+            driver._n_values = self.models.n_active  # pylint: disable=protected-access
+            driver.mapping = [
+                self._mapping[driver, mapping] for mapping in driver.mapping
+            ]
+
+            # Swap in stored map
+            for mapping in driver.mapping:
+                self._mapping[driver, mapping] = mapping
+
             for multiplier, objfct in driver.regularization:
-                objfct.mapping = objfct.mapping * driver.data_misfit.model_map
-                objfct.reference_model = self.models.reference_model
                 multipliers.append(multiplier)
                 reg_list.append(objfct)
 
