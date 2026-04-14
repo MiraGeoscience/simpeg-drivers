@@ -107,7 +107,7 @@ def test_magnetotellurics_fwr_run(
             topography_refinement=[0, 0, 1],
             plate_refinement=[1],
         ),
-        model=ModelOptions(background=0.01),
+        model=ModelOptions(background=100.0),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
@@ -121,7 +121,8 @@ def test_magnetotellurics_fwr_run(
             topography_object=components.topography,
             data_object=components.survey,
             starting_model=components.model,
-            background_conductivity=1e-2,
+            model_type="Resistivity (Ohm-m)",
+            background_conductivity=1e2,
             zxx_real_channel_bool=True,
             zxx_imag_channel_bool=True,
             zxy_real_channel_bool=True,

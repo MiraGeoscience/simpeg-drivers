@@ -18,7 +18,6 @@ from typing import Annotated, Any, ClassVar, Literal
 
 import numpy as np
 from geoapps_utils.base import Options
-from geoh5py import Workspace
 from geoh5py.data import (
     BooleanData,
     DataAssociationEnum,

@@ -69,7 +69,7 @@ def test_dc_2d_fwr_run(
                 width=20.0,
                 easting=0.0,
                 northing=0.0,
-                elevation=0.0,
+                elevation=10.0,
                 direction=90,
                 dip=90,
             ),

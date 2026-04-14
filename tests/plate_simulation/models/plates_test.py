@@ -58,14 +58,17 @@ def test_vertical_east_striking_plate(tmp_path):
             vertical_east_striking.extent[1, 2] - vertical_east_striking.extent[0, 2],
             500.0,
         )
-        assert (
-            vertical_east_striking.vertices[:, 0].mean() == 0.0  # pylint: disable=no-member
+        assert np.isclose(
+            vertical_east_striking.vertices[:, 0].mean(),
+            0.0,  # pylint: disable=no-member
         )
-        assert (
-            vertical_east_striking.vertices[:, 1].mean() == 0.0  # pylint: disable=no-member
+        assert np.isclose(
+            vertical_east_striking.vertices[:, 1].mean(),
+            0.0,  # pylint: disable=no-member
         )
-        assert (
-            vertical_east_striking.vertices[:, 2].mean() == 0.0  # pylint: disable=no-member
+        assert np.isclose(
+            vertical_east_striking.vertices[:, 2].mean(),
+            -250.0,  # pylint: disable=no-member
         )
 
 
@@ -88,7 +91,9 @@ def test_dipping_plates_all_quadrants(tmp_path):
                 )
 
                 plate = Plate(params)
-                surface = plate.surface(workspace)
+                surface = plate.surface(
+                    workspace, name=f"Plate (dip: {dip}, dir: {dip_direction})"
+                )
                 locs = rotate_xyz(surface.vertices, [0.0, 0.0, 0.0], dip_direction, 0.0)
                 locs = rotate_xyz(locs, [0.0, 0.0, 0.0], 0.0, dip - 90.0)
                 assert np.allclose(locs, reference.vertices)
@@ -97,13 +102,13 @@ def test_dipping_plates_all_quadrants(tmp_path):
 def test_replicate_even(tmp_path):
     with Workspace(tmp_path / "test.geoh5") as workspace:
         options = PlateModel(
-            strike_length=1.0,
-            dip_length=1.0,
-            width=1.0,
+            strike_length=2.0,
+            dip_length=2.0,
+            width=2.0,
             direction=0.0,
             dip=0.0,
             easting=0.0,
-            northing=0.0,
+            northing=-1.0,
             elevation=0.0,
         )
         plate = Plate(options)
@@ -123,13 +128,13 @@ def test_replicate_even(tmp_path):
 def test_replicate_odd(tmp_path):
     with Workspace(tmp_path / "test.geoh5") as workspace:
         options = PlateModel(
-            strike_length=1.0,
-            dip_length=1.0,
-            width=1.0,
+            strike_length=2.0,
+            dip_length=2.0,
+            width=2.0,
             direction=0.0,
             dip=0.0,
             easting=0.0,
-            northing=0.0,
+            northing=-1.0,
             elevation=0.0,
         )
         plate = Plate(options)
