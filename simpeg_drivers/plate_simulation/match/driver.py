@@ -245,16 +245,16 @@ class PlateMatchDriver(Driver):
 
     def plot_figure(self, survey, observed, spatial_projection) -> BytesIO:
 
-        max_late_val = np.max(np.abs(observed[-1, :]))
+        max_late_val = np.min(np.abs(observed[0, :]))
         data = normalized_data(observed, threshold=max_late_val)
         preds = get_normalized_prediced(
             survey, spatial_projection, self._time_projection, max_late_val
         )
 
-        fig, ax = plt.figure(), plt.subplot()
+        fig, ax = plt.figure(figsize=(12, 10)), plt.subplot()
         for obs, pred in zip(data, preds, strict=True):
-            ax.plot(obs, c="r")
-            ax.plot(pred, c="k")
+            ax.plot(obs, c="k", lw=2)
+            ax.plot(pred, c="r", ls="--")
 
         ax.set_xlabel("Station #")
         ax.set_ylabel("Normalized Amplitude")
@@ -507,7 +507,7 @@ def get_normalized_prediced(
     simulated = get_data_array(data_entity)
 
     pred = time_projection @ (spatial_projection @ simulated.T).T
-    scale = threshold / np.max(np.abs(pred[-1, :]))
+    scale = threshold / np.min(np.abs(pred[0, :]))
     pred = normalized_data(pred, scale=scale, threshold=threshold)
 
     return pred
@@ -534,7 +534,7 @@ def batch_files_score(
     if isinstance(files, Path):
         files = [files]
 
-    max_late_val = np.max(np.abs(observed[-1, :]))
+    max_late_val = np.min(np.abs(observed[0, :]))
     data = normalized_data(observed, threshold=max_late_val)
 
     for sim_file in files:
