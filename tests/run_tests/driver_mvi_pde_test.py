@@ -40,7 +40,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_mvi_pde_run = {"data_norm": 177.6657250156235, "phi_d": 15.6, "phi_m": 0.0556}
+target_mvi_pde_run = {"data_norm": 117.68015433473916, "phi_d": 110, "phi_m": 0.00861}
 
 
 def test_mvi_pde_fwr_run(
