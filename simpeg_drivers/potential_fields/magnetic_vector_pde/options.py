@@ -48,9 +48,9 @@ class MagneticVectorPDEForwardOptions(BaseForwardOptions):
 
     name: ClassVar[str] = "Magnetic Vector Forward"
     default_ui_json: ClassVar[Path] = (
-        assets_path() / "uijson/magnetic_vector_forward.ui.json"
+        assets_path() / "uijson/magnetic_vector_pde_forward.ui.json"
     )
-    run_command: str = "simpeg_drivers.potential_fields.magnetic_vector.forward"
+    run_command: str = "simpeg_drivers.potential_fields.magnetic_vector_pde.forward"
     title: str = "Magnetic Vector Forward"
     physical_property: str = "susceptibility"
     inversion_type: str = "magnetic vector pde"
@@ -85,9 +85,9 @@ class MagneticVectorPDEInversionOptions(BaseInversionOptions):
 
     name: ClassVar[str] = "Magnetic Vector Inversion"
     default_ui_json: ClassVar[Path] = (
-        assets_path() / "uijson/magnetic_vector_inversion.ui.json"
+        assets_path() / "uijson/magnetic_vector_pde_inversion.ui.json"
     )
-    run_command: str = "simpeg_drivers.potential_fields.magnetic_vector.inversion"
+    run_command: str = "simpeg_drivers.potential_fields.magnetic_vector_pde.inversion"
     title: str = "Magnetic Vector Inversion"
     physical_property: str = "susceptibility"
     inversion_type: str = "magnetic vector pde"

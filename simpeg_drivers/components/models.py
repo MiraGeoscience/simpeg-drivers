@@ -277,7 +277,7 @@ class InversionModelCollection:
 
         if self.driver.params.inversion_type in [
             "magnetic vector",
-            "magnetic vectorp pde",
+            "magnetic vector pde",
         ]:
             bound_model = None
 

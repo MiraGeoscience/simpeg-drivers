@@ -68,12 +68,6 @@ def test_mvi_pde_fwr_run(
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
-
-        # Unitest dealing with Curve
-        _ = Curve.create(
-            geoh5, name=components.survey.name, vertices=components.survey.vertices
-        )
-        geoh5.remove_entity(components.survey)
         inducing_field = (50000.0, 90.0, 0.0)
         params = MagneticVectorPDEForwardOptions.build(
             forward_only=True,
