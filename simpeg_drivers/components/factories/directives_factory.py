@@ -349,7 +349,7 @@ class DirectivesFactory:
         """Directive to update vector model."""
         if (
             self._vector_inversion_directive is None
-            and "magnetic vector" in self.factory_type
+            and self.factory_type == "magnetic vector"
         ):
             reference_angles = (
                 getattr(self.driver.params.models, "reference_model", None) is not None,

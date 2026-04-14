@@ -40,7 +40,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_mvi_pde_run = {"data_norm": 117.68015433473916, "phi_d": 110, "phi_m": 0.00861}
+target_mvi_pde_run = {"data_norm": 181.99122096291276, "phi_d": 408, "phi_m": 0.013}
 
 
 def test_mvi_pde_fwr_run(
@@ -89,7 +89,7 @@ def test_mvi_pde_fwr_run(
 def test_mvi_pde_run(
     tmp_path: Path,
     max_iterations=5,
-    upper_bound=2.5e-3,
+    upper_bound=1e-2,
     pytest=True,
 ):
     workpath = tmp_path / "inversion_test.ui.geoh5"
