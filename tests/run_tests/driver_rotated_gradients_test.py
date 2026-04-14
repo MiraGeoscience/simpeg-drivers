@@ -40,7 +40,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # Move this file out of the test directory and run.
 # pylint: disable=no-member
 
-target_run = {"data_norm": 0.3337151941623077, "phi_d": 23600, "phi_m": 7.54}
+target_run = {"data_norm": 0.37623107854757576, "phi_d": 31300, "phi_m": 5.13}
 
 
 def test_gravity_rotated_grad_fwr_run(
@@ -75,9 +75,9 @@ def test_gravity_rotated_grad_fwr_run(
                 strike_length=500.0,
                 dip_length=150.0,
                 width=20.0,
-                easting=0.0,
+                easting=-15.0,
                 northing=0.0,
-                elevation=-10.0,
+                elevation=20.0,
                 direction=60.0,
                 dip=70.0,
             ),

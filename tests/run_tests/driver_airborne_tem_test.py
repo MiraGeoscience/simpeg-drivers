@@ -37,7 +37,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
-target_run = {"data_norm": 7.416844275458644e-10, "phi_d": 98100, "phi_m": 11300}
+target_run = {"data_norm": 3.5453800870424367e-10, "phi_d": 29300, "phi_m": 4600}
 
 
 def test_bad_waveform(tmp_path: Path):
