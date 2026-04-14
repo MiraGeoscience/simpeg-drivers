@@ -11,6 +11,7 @@
 from abc import ABC, abstractmethod
 
 import numpy as np
+from geoapps_utils.modelling.plates import Plate
 from geoh5py.objects import Octree, Surface
 from geoh5py.shared.utils import find_unique_name
 
@@ -163,7 +164,7 @@ class Anomaly(Event):
     :param name: Name of the event.
     """
 
-    def __init__(self, body: Parametric, value: float, name: str = "Anomaly"):
+    def __init__(self, body: Parametric | Plate, value: float, name: str = "Anomaly"):
         self.body = body
         super().__init__(value, name)
 

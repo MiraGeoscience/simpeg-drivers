@@ -131,7 +131,7 @@ DRIVER_MAP = {
     ),
     "joint surveys": (
         "simpeg_drivers.joint.joint_surveys",
-        {"inversion": "JointSurveyDriver"},
+        {"inversion": "JointSurveysDriver"},
     ),
     "magnetic scalar": (
         "simpeg_drivers.potential_fields.magnetic_scalar",
