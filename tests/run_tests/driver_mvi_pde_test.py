@@ -104,7 +104,7 @@ def test_mvi_pde_run(
 
     with Workspace(workpath) as geoh5:
         tmi = geoh5.get_entity("Iteration_0_tmi")[0]
-
+        orig_tmi = tmi.values.copy()
         components = SyntheticsComponents(geoh5=geoh5)
         mesh = components.mesh
         topography = components.topography
@@ -154,6 +154,7 @@ def test_mvi_pde_run(
             output = get_inversion_output(
                 driver.params.geoh5.h5file, driver.params.out_group.uid
             )
+            output["data"] = orig_tmi
             check_target(output, target_mvi_pde_run)
 
 
