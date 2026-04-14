@@ -275,7 +275,10 @@ class BaseJointDriver(InversionDriver):
             model_collection = getattr(self.models, f"_{model_type}")
 
             # If set on joint driver, repeat for all drivers
-            if model_collection.model is not None:
+            if (
+                model_collection.model is not None
+                and model_collection.trim_active_cells
+            ):
                 model = np.kron(np.ones(len(self.mapping)), model_collection.model)
 
             # Concatenate models from individual drivers projected onto the global mesh
