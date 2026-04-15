@@ -30,21 +30,21 @@ class LeroiAirDriver:
                 basement_resistivity=1000,
             ),
             modelling=ModellingOptions(offtime=3.1, cell_size=10),
-            output=OutputOptions(channel="all")
+            output=OutputOptions(channel="all"),
         )
 
         with Workspace("dom_waveform_600Ohmm_bkgr_and_plate.geoh5", mode="r") as geoh5:
             survey = geoh5.get_entity("survey")[1]
             plate = PlateOptions(
                 reference=[0.0, 0.0, -20.0],
-                strike_length=80.,
-                dip_length=100.,
-                thickness=5.,
-                dip_direction=90.,
-                dip=90.,
-                resistivity=1.,
+                strike_length=80.0,
+                dip_length=100.0,
+                thickness=5.0,
+                dip_direction=90.0,
+                dip=90.0,
+                resistivity=1.0,
             )
             interface = LeroiAirInterface(geoh5, survey, plate, opts)
 
         interface.format_cfl_file()
-        interface.write_cfl_file(Path('LeroiAir.cfl'))
+        interface.write_cfl_file(Path("LeroiAir.cfl"))

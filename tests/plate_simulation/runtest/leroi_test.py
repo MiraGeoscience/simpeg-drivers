@@ -18,4 +18,3 @@ def test_leroi_executable(tmp_path):
 
 
 def test_leroi_run(tmp_path):
-

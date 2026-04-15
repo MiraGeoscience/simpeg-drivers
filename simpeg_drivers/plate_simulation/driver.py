@@ -303,8 +303,8 @@ class PlateSimulationDriver(Driver):
             self.simulation_parameters.models.starting_model = self.model
 
             if not isinstance(
-                    self.simulation_parameters.active_cells.topography_object,
-                    Surface | Points,
+                self.simulation_parameters.active_cells.topography_object,
+                Surface | Points,
             ):
                 raise ValueError(
                     "The topography object of the forward simulation must be a 'Surface'."
@@ -320,7 +320,6 @@ class PlateSimulationDriver(Driver):
                 workers=self._workers,
             )
             self._simulation_driver.out_group.parent = self._out_group
-
 
     def _get_leroi_driver(self):
         leroi_opts = LeroiAirOptions.from_plate_simulation(self.params)
