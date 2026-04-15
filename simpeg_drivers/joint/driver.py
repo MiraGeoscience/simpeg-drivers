@@ -279,7 +279,7 @@ class BaseJointDriver(InversionDriver):
                 model_collection.model is not None
                 and model_collection.trim_active_cells
             ):
-                model = np.kron(np.ones(len(self.mapping)), model_collection.model)
+                model = np.tile(model_collection.model, len(self.mapping))
 
             # Concatenate models from individual drivers projected onto the global mesh
             else:
