@@ -313,7 +313,7 @@ class PlateMatchDriver(Driver):
         local_xyz[:, 2] = (
             self.params.survey.vertices[indices, 2] - self._drape_heights[indices]
         )
-        local_xyz = rotate_xyz(local_xyz, [0, 0, 0], -azimuths)
+        local_xyz = rotate_xyz(local_xyz, [0, 0, 0], azimuths)
 
         # Get the 8 nearest neighbors in the simulation to each observation point
         sim_tree = cKDTree(self._template.vertices)
