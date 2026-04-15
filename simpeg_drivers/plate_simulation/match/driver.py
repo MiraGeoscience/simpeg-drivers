@@ -10,7 +10,9 @@
 
 from __future__ import annotations
 
+import logging
 import sys
+from contextlib import contextmanager
 from io import BytesIO
 from pathlib import Path
 from typing import Self
@@ -24,7 +26,7 @@ from geoapps_utils.utils.locations import topo_drape_elevation
 from geoapps_utils.utils.logger import get_logger
 from geoapps_utils.utils.numerical import inverse_weighted_operator
 from geoapps_utils.utils.plotting import symlog
-from geoapps_utils.utils.transformations import cartesian_to_polar
+from geoapps_utils.utils.transformations import rotate_xyz
 from geoh5py import Workspace
 from geoh5py.groups import PropertyGroup, SimPEGGroup
 from geoh5py.objects import AirborneTEMReceivers, MaxwellPlate, Surface
@@ -34,7 +36,7 @@ from scipy import signal
 from scipy.sparse import csr_matrix
 from scipy.spatial import cKDTree
 
-from simpeg_drivers.driver import BaseDriver, validate_client, validate_workers
+from simpeg_drivers.driver import validate_client, validate_workers
 from simpeg_drivers.electromagnetics.time_domain.options import CONVERSION
 from simpeg_drivers.plate_simulation.match.options import PlateMatchOptions
 from simpeg_drivers.plate_simulation.options import ModelOptions, PlateSimulationOptions
@@ -46,6 +48,18 @@ from simpeg_drivers.utils.utils import (
 
 
 logger = get_logger(name=__name__, level_name=False, propagate=False, add_name=False)
+
+
+@contextmanager
+def suppress_logging(level=logging.WARNING):
+    """Context manager to temporarily disable all logging."""
+    # logging.disable(level) stops all loggers from processing messages <= level
+    logging.disable(level)
+    try:
+        yield
+    finally:
+        # Re-enable by setting to NOTSET
+        logging.disable(logging.NOTSET)
 
 
 class PlateMatchDriver(Driver):
@@ -243,18 +257,21 @@ class PlateMatchDriver(Driver):
         )
         return topo_drape_z[:, 2]
 
-    def plot_figure(self, survey, observed, spatial_projection) -> BytesIO:
+    @staticmethod
+    def plot_figure(survey, observed, time_projection, spatial_projection) -> BytesIO:
 
         max_late_val = np.min(np.abs(observed[0, :]))
         data = normalized_data(observed, threshold=max_late_val)
         preds = get_normalized_prediced(
-            survey, spatial_projection, self._time_projection, max_late_val
+            survey, spatial_projection, time_projection, max_late_val
         )
+
+        preds *= data.max() / preds.max()
 
         fig, ax = plt.figure(figsize=(12, 10)), plt.subplot()
         for obs, pred in zip(data, preds, strict=True):
-            ax.plot(obs, c="k", lw=2)
-            ax.plot(pred, c="r", ls="--")
+            ax.plot(obs, c="0.75", lw=2)
+            ax.plot(pred, c="k", ls="--", lw=2)
 
         ax.set_xlabel("Station #")
         ax.set_ylabel("Normalized Amplitude")
@@ -279,34 +296,34 @@ class PlateMatchDriver(Driver):
         :return: Spatial interpolation matrix.
         """
         # Compute local coordinates for the current line segment
-        local_polar = cartesian_to_polar(
-            self.params.survey.vertices[indices],
-            origin=np.r_[self.params.survey.vertices[indices, :2].mean(axis=0), 0],
+        local_xyz = (
+            self.params.survey.vertices[indices]
+            - self.params.survey.vertices[indices[0], :]
         )
-        local_polar[local_polar[:, 1] >= 180, 0] *= -1  # Wrap azimuths
+        azimuths = np.mean(np.rad2deg(np.arctan2(local_xyz[:, 1], local_xyz[:, 0]))[1:])
 
-        # Flip the line segment if the azimuth angle suggests the opposite direction
-        start_line = len(indices) // 2
-        if np.median(local_polar[:start_line, 1]) < 180:
-            local_polar = local_polar[::-1, :]
-
-        local_polar[:, 1] = (
+        azimuths += (
             0.0 if strike_angle is None else strike_angle
         )  # Align azimuths to zero
 
-        # Convert to polar coordinates (distance, azimuth, height)
-        query_polar = cartesian_to_polar(self._template.vertices)
-        query_polar[query_polar[:, 1] >= 180, 0] *= -1
-        query_polar[:, 1] = query_polar[:, 1] % 180  # Wrap azimuths
+        # Assume simulations are West to East
+        local_xyz = self.params.survey.vertices[indices] - self.params.survey.vertices[
+            indices, :
+        ].mean(axis=0)
+        local_xyz[:, 2] = (
+            self.params.survey.vertices[indices, 2] - self._drape_heights[indices]
+        )
+        local_xyz = rotate_xyz(local_xyz, [0, 0, 0], -azimuths)
 
         # Get the 8 nearest neighbors in the simulation to each observation point
-        sim_tree = cKDTree(query_polar)
-        rad, inds = sim_tree.query(local_polar, k=16)
-        inds = np.minimum(query_polar.shape[0] - 1, inds)
+        sim_tree = cKDTree(self._template.vertices)
+        rad, inds = sim_tree.query(local_xyz, k=16)
+        inds = np.minimum(self._template.vertices.shape[0] - 1, inds)
+
         return inverse_weighted_operator(
             rad.flatten(),
             inds.flatten(),
-            (local_polar.shape[0], self._template.vertices.shape[0]),
+            (local_xyz.shape[0], self._template.vertices.shape[0]),
             2.0,
             1e-0,
         )
@@ -347,7 +364,9 @@ class PlateMatchDriver(Driver):
 
                 ui_json["geoh5"] = ws
                 ifile = InputFile(ui_json=ui_json)
-                options = PlateSimulationOptions.build(ifile)
+
+                with suppress_logging():
+                    options = PlateSimulationOptions.build(ifile)
 
                 dir_correction = strike_angle[ii] + 180 if flip else strike_angle[ii]
 
@@ -357,7 +376,10 @@ class PlateMatchDriver(Driver):
                 plate.name = f"Query [{ii}]"
 
                 figure = self.plot_figure(
-                    survey, observed[:, indices], spatial_projection
+                    survey,
+                    observed[:, indices],
+                    self._time_projection,
+                    spatial_projection,
                 )
                 plate.add_file(figure.getvalue(), name=f"profile_{plate.name}.png")
 
@@ -548,7 +570,6 @@ def batch_files_score(
             pred = get_normalized_prediced(
                 survey, spatial_projection, time_projection, max_late_val
             )
-
             score = 0.0
             indices = []
             # Metric: normalized cross-correlation
@@ -572,7 +593,9 @@ def batch_files_score(
 
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
+    file = Path(
+        r"C:\Users\dominiquef\Documents\tests\plate_match_Vale_test.ui.json"
+    ).resolve()
     n_w, n_t = get_default_parallelization_params(file)
 
     PlateMatchDriver.start_dask_run(file, n_workers=n_w, n_threads=n_t)
