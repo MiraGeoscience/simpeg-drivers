@@ -78,6 +78,7 @@ class PlateSimulationOptions(Options):
     mesh: MeshOptions
     model: ModelOptions
     simulation: SimPEGGroup | UIJsonGroup
+    use_leroi: bool = False
 
     def simulation_parameters(self) -> BaseForwardOptions:
         """

@@ -84,28 +84,12 @@ class PlateSimulationDriver(Driver):
     @property
     def simulation_driver(self) -> InversionDriver:
         if self._simulation_driver is None:
-            with fetch_active_workspace(self.params.geoh5, mode="r+"):
-                self.simulation_parameters.mesh = self.mesh
-                self.simulation_parameters.models.starting_model = self.model
-
-                if not isinstance(
-                    self.simulation_parameters.active_cells.topography_object,
-                    Surface | Points,
-                ):
-                    raise ValueError(
-                        "The topography object of the forward simulation must be a 'Surface'."
-                    )
-
-                self.simulation_parameters.out_group = None
-                driver_class = driver_class_from_name(
-                    self.simulation_parameters.inversion_type, forward_only=True
-                )
-                self._simulation_driver = driver_class(
-                    self.simulation_parameters,
-                    client=self._client,
-                    workers=self._workers,
-                )
-                self._simulation_driver.out_group.parent = self._out_group
+            run_command = self.simulation_parameters.run_command
+            is_tem = "time_domain.forward" in run_command
+            if self.params.use_leroi & is_tem:
+                self._simulation_driver = self._get_leroi_driver()
+            else:
+                self._simulation_driver = self._get_simpeg_driver()
 
         return self._simulation_driver
 
@@ -311,6 +295,37 @@ class PlateSimulationDriver(Driver):
         :param n_threads: Number of threads to use.
         """
         start_dask_run(cls, json_path, n_workers=n_workers, n_threads=n_threads)
+
+    def _get_simpeg_driver(self):
+
+        with fetch_active_workspace(self.params.geoh5, mode="r+"):
+            self.simulation_parameters.mesh = self.mesh
+            self.simulation_parameters.models.starting_model = self.model
+
+            if not isinstance(
+                    self.simulation_parameters.active_cells.topography_object,
+                    Surface | Points,
+            ):
+                raise ValueError(
+                    "The topography object of the forward simulation must be a 'Surface'."
+                )
+
+            self.simulation_parameters.out_group = None
+            driver_class = driver_class_from_name(
+                self.simulation_parameters.inversion_type, forward_only=True
+            )
+            self._simulation_driver = driver_class(
+                self.simulation_parameters,
+                client=self._client,
+                workers=self._workers,
+            )
+            self._simulation_driver.out_group.parent = self._out_group
+
+
+    def _get_leroi_driver(self):
+        leroi_opts = LeroiAirOptions.from_plate_simulation(self.params)
+        driver = LeroiAirDriver(leroi_opts)
+        return driver
 
 
 if __name__ == "__main__":
