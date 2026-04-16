@@ -258,7 +258,14 @@ class PlateMatchDriver(Driver):
         return topo_drape_z[:, 2]
 
     @staticmethod
-    def plot_figure(survey, observed, time_projection, spatial_projection) -> BytesIO:
+    def plot_figure(
+        locations, survey, observed, time_projection, spatial_projection, center: int
+    ) -> BytesIO:
+        """
+        Generate a figure showing the observed and simulated plate locations.
+        """
+        distances = np.linalg.norm(locations[0, :] - locations, axis=1)
+        horizontal_shift = (distances - np.mean(distances))[center]
 
         max_late_val = np.min(np.abs(observed[0, :]))
         data = normalized_data(observed, threshold=max_late_val)
@@ -270,11 +277,11 @@ class PlateMatchDriver(Driver):
 
         fig, ax = plt.figure(figsize=(12, 10)), plt.subplot()
         for obs, pred in zip(data, preds, strict=True):
-            ax.plot(obs, c="0.75", lw=2)
-            ax.plot(pred, c="k", ls="--", lw=2)
+            ax.plot(distances, obs, c="0.75", lw=2)
+            ax.plot(distances + horizontal_shift, pred, c="k", ls="--", lw=2)
 
-        ax.set_xlabel("Station #")
-        ax.set_ylabel("Normalized Amplitude")
+        ax.set_xlabel("Distance (m)")
+        ax.set_ylabel("Log Normalized Amplitude")
         ax.legend(["Observed", "Simulated"])
 
         buf = BytesIO()
@@ -369,17 +376,18 @@ class PlateMatchDriver(Driver):
                     options = PlateSimulationOptions.build(ifile)
 
                 dir_correction = strike_angle[ii] + 180 if flip else strike_angle[ii]
-
+                ind_center = int(centers[best])
                 plate = self._create_plate_from_parameters(
-                    int(indices[int(centers[best])]), options.model, dir_correction
+                    int(indices[ind_center]), options.model, dir_correction
                 )
                 plate.name = f"Query [{ii}]"
-
                 figure = self.plot_figure(
+                    self.params.survey.vertices[indices, :2],
                     survey,
                     observed[:, indices],
                     self._time_projection,
                     spatial_projection,
+                    ind_center,
                 )
                 plate.add_file(figure.getvalue(), name=f"profile_{plate.name}.png")
 
