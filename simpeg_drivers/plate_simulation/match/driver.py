@@ -26,13 +26,13 @@ from geoapps_utils.utils.locations import topo_drape_elevation
 from geoapps_utils.utils.logger import get_logger
 from geoapps_utils.utils.numerical import inverse_weighted_operator
 from geoapps_utils.utils.plotting import symlog
-from geoapps_utils.utils.transformations import rotate_xyz
+from geoapps_utils.utils.transformations import cartesian_to_polar, rotate_xyz
 from geoh5py import Workspace
 from geoh5py.groups import PropertyGroup, SimPEGGroup
 from geoh5py.objects import AirborneTEMReceivers, MaxwellPlate, Surface
 from geoh5py.objects.maxwell_plate import PlateGeometry
 from geoh5py.ui_json import InputFile
-from scipy import signal
+from scipy import ndimage, signal
 from scipy.sparse import csr_matrix
 from scipy.spatial import cKDTree
 
@@ -303,36 +303,49 @@ class PlateMatchDriver(Driver):
         :return: Spatial interpolation matrix.
         """
         # Compute local coordinates for the current line segment
-        local_xyz = (
+        delta = (
             self.params.survey.vertices[indices]
             - self.params.survey.vertices[indices[0], :]
         )
-        azimuths = np.mean(np.rad2deg(np.arctan2(local_xyz[:, 1], local_xyz[:, 0]))[1:])
-
-        azimuths += (
-            0.0 if strike_angle is None else strike_angle
-        )  # Align azimuths to zero
+        azimuths = np.mean(np.rad2deg(np.arctan2(delta[:, 1], delta[:, 0]))[1:])
+        azimuths -= np.abs(strike_angle) if strike_angle else 0.0
 
         # Assume simulations are West to East
-        local_xyz = self.params.survey.vertices[indices] - self.params.survey.vertices[
-            indices, :
-        ].mean(axis=0)
+        arg_center = int(np.median(indices))
+        local_xyz = (
+            self.params.survey.vertices[indices]
+            - self.params.survey.vertices[arg_center, :]
+        )
         local_xyz[:, 2] = (
             self.params.survey.vertices[indices, 2] - self._drape_heights[indices]
         )
-        local_xyz = rotate_xyz(local_xyz, [0, 0, 0], azimuths)
+        local_xyz = rotate_xyz(local_xyz, [0, 0, 0], -azimuths)
 
-        # Get the 8 nearest neighbors in the simulation to each observation point
-        sim_tree = cKDTree(self._template.vertices)
-        rad, inds = sim_tree.query(local_xyz, k=16)
+        # Get polar coordinates
+        local_polar = cartesian_to_polar(local_xyz)
+        local_polar[local_polar[:, 1] > 180, 0] *= -1
+        local_polar[local_polar[:, 1] > 180, 1] -= 180
+        # Transform azimuth to arc-lengths
+        local_polar[:, 1] = np.abs(
+            local_polar[:, 0] * np.deg2rad(90 - local_polar[:, 1])
+        )
+
+        # Get template polar coordinates
+        sim_polar = cartesian_to_polar(self._template.vertices)
+        sim_polar[sim_polar[:, 1] > 180, 0] *= -1
+        sim_polar[sim_polar[:, 1] > 180, 1] -= 180
+        sim_polar[:, 1] = np.abs(sim_polar[:, 0] * np.deg2rad(90 - sim_polar[:, 1]))
+
+        sim_tree = cKDTree(sim_polar)
+        rad, inds = sim_tree.query(local_polar, k=14)
         inds = np.minimum(self._template.vertices.shape[0] - 1, inds)
 
         return inverse_weighted_operator(
             rad.flatten(),
             inds.flatten(),
             (local_xyz.shape[0], self._template.vertices.shape[0]),
-            2.0,
-            1e-0,
+            1.0,
+            1e-1,
         )
 
     def run(self):
@@ -540,6 +553,9 @@ def get_normalized_prediced(
     scale = threshold / np.min(np.abs(pred[0, :]))
     pred = normalized_data(pred, scale=scale, threshold=threshold)
 
+    # Smooth out the spatial interpolation
+    pred = ndimage.convolve1d(pred, np.ones(4) / 4, axis=1)
+
     return pred
 
 
@@ -582,7 +598,6 @@ def batch_files_score(
             indices = []
             # Metric: normalized cross-correlation
             for obs, pre in zip(data, pred, strict=True):
-                # Scale pre on obs
                 # Full cross-correlation
                 corr = signal.correlate(obs, pre, mode="same")
                 # Normalize by energy to get correlation coefficient in [-1, 1]
@@ -592,7 +607,7 @@ def batch_files_score(
                 else:
                     corr_norm = corr / denom
 
-                score += np.linalg.norm(obs - pre)
+                score += np.linalg.norm(obs - pre) / np.linalg.norm(obs)
                 indices.append(np.argmax(corr_norm))
 
             scores.append((score, np.median(indices)))
@@ -601,9 +616,7 @@ def batch_files_score(
 
 
 if __name__ == "__main__":
-    file = Path(
-        r"C:\Users\dominiquef\Documents\tests\plate_match_Vale_test.ui.json"
-    ).resolve()
+    file = Path(sys.argv[1]).resolve()
     n_w, n_t = get_default_parallelization_params(file)
 
     PlateMatchDriver.start_dask_run(file, n_workers=n_w, n_threads=n_t)
