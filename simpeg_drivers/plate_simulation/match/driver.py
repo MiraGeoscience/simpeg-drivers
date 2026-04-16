@@ -52,14 +52,13 @@ logger = get_logger(name=__name__, level_name=False, propagate=False, add_name=F
 
 @contextmanager
 def suppress_logging(level=logging.WARNING):
-    """Context manager to temporarily disable all logging."""
-    # logging.disable(level) stops all loggers from processing messages <= level
+    """Temporarily disable logging records at or below the given level."""
+    previous_disable_level = logging.root.manager.disable
     logging.disable(level)
     try:
         yield
     finally:
-        # Re-enable by setting to NOTSET
-        logging.disable(logging.NOTSET)
+        logging.disable(previous_disable_level)
 
 
 class PlateMatchDriver(Driver):

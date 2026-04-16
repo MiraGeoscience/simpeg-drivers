@@ -8,6 +8,7 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 import shutil
+import logging
 from pathlib import Path
 
 import numpy as np
@@ -26,7 +27,11 @@ from simpeg_drivers.electromagnetics.time_domain import (
     TDEMForwardOptions,
 )
 from simpeg_drivers.plate_simulation.driver import PlateSimulationDriver
-from simpeg_drivers.plate_simulation.match.driver import PlateMatchDriver, fetch_survey
+from simpeg_drivers.plate_simulation.match.driver import (
+    PlateMatchDriver,
+    fetch_survey,
+    suppress_logging,
+)
 from simpeg_drivers.plate_simulation.match.options import PlateMatchOptions
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
 from simpeg_drivers.utils.synthetics.driver import (
@@ -215,3 +220,15 @@ def test_matching_driver(tmp_path: Path):
         assert names.values[0] == file.stem + f"_[{4}].geoh5"
 
         assert geoh5.get_entity("Query [0]")[0].geometry.dip_direction == 45.0
+
+
+def test_suppress_logging_restores_disable_level():
+    original_disable_level = logging.root.manager.disable
+    logging.disable(logging.ERROR)
+    try:
+        with suppress_logging(level=logging.WARNING):
+            assert logging.root.manager.disable == logging.WARNING
+
+        assert logging.root.manager.disable == logging.ERROR
+    finally:
+        logging.disable(original_disable_level)
