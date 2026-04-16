@@ -76,7 +76,7 @@ dependencies:
   - liblapack=3.11.0=6_hf9ab0e9_mkl
   - liblzma=5.8.3=hfd05255_0
   - libmpdec=4.0.0=hfd05255_1
-  - libpng=1.6.57=h7351971_0
+  - libpng=1.6.58=h7351971_0
   - libspatialindex=2.1.0=h518811d_0
   - libsqlite=3.53.0=hf5d6505_0
   - libssh2=1.11.1=h9aa295b_0

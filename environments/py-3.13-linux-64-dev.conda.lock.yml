@@ -146,7 +146,7 @@ dependencies:
   - liblzma=5.8.3=hb03c661_0
   - libmpdec=4.0.0=hb03c661_1
   - libnghttp2=1.68.1=h877daf1_0
-  - libpng=1.6.57=h421ea60_0
+  - libpng=1.6.58=h421ea60_0
   - libscotch=7.0.11=int64_hfcc3fd4_2
   - libsodium=1.0.21=h280c20c_3
   - libspatialindex=2.1.0=he57a185_0

@@ -136,7 +136,7 @@ dependencies:
   - libjpeg-turbo=3.1.4.1=hfd05255_0
   - liblapack=3.11.0=6_hf9ab0e9_mkl
   - liblzma=5.8.3=hfd05255_0
-  - libpng=1.6.57=h7351971_0
+  - libpng=1.6.58=h7351971_0
   - libsodium=1.0.21=h6a83c73_3
   - libspatialindex=2.1.0=h518811d_0
   - libsqlite=3.53.0=hf5d6505_0
@@ -286,11 +286,10 @@ dependencies:
   - zlib-ng=2.3.3=h0261ad2_1
   - zstd=1.5.7=h534d264_6
   - pip:
-    - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@develop
-    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@develop
-    - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@develop
-    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@develop
-    - simpeg-drivers @ git+https://github.com/MiraGeoscience/simpeg-drivers.git@GEOPY-2800
+    - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@6b26f39967277d6384c6fc28d8868c1104dfddeb
+    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@5304d94ba76f57f82e7519cdcca18b6f6b89a557
+    - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@57806e78469cb881a8d5dceae645336e77310bf4
+    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@3430f930a84f83a577e200677a77824e14f198de
 
 variables:
   KMP_WARNINGS: 0
