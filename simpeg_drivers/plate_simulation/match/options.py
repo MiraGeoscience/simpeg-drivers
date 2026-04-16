@@ -8,13 +8,11 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-import itertools
 from pathlib import Path
 from typing import ClassVar
 
-import numpy as np
-from geoapps_utils import GeoAppsError
 from geoapps_utils.base import Options
+from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.data import FloatData
 from geoh5py.groups import PropertyGroup, SimPEGGroup
 from geoh5py.objects import Grid2D, Points

@@ -276,10 +276,10 @@ class PlateMatchDriver(Driver):
         distances = np.linalg.norm(locations[0, :] - locations, axis=1)
         horizontal_shift = (distances - np.mean(distances))[center]
 
-        max_late_val = np.min(np.abs(observed[0, :]))
-        data = normalized_data(observed, threshold=max_late_val)
-        preds = get_normalized_prediced(
-            survey, spatial_projection, time_projection, max_late_val
+        in_early_val = np.min(np.abs(observed[0, :]))
+        data = normalized_data(observed, threshold=in_early_val)
+        preds = get_normalized_predicted(
+            survey, spatial_projection, time_projection, in_early_val
         )
 
         preds *= data.max() / preds.max()
@@ -295,7 +295,8 @@ class PlateMatchDriver(Driver):
 
         buf = BytesIO()
         fig.savefig(buf, format="png")
-
+        plt.close(fig)
+        buf.seek(0)
         return buf
 
     def spatial_interpolation(
@@ -548,7 +549,7 @@ def fetch_survey(workspace: Workspace) -> AirborneTEMReceivers | None:
     return None
 
 
-def get_normalized_prediced(
+def get_normalized_predicted(
     survey: AirborneTEMReceivers, spatial_projection, time_projection, threshold
 ) -> np.ndarray:
     """
@@ -600,8 +601,8 @@ def batch_files_score(
     if isinstance(files, Path):
         files = [files]
 
-    max_late_val = np.min(np.abs(observed[0, :]))
-    data = normalized_data(observed, threshold=max_late_val)
+    in_early_val = np.minimum(np.abs(observed[0, :]), 1e-20)
+    data = normalized_data(observed, threshold=in_early_val)
 
     for sim_file in files:
         with Workspace(sim_file, mode="r") as ws:
@@ -611,8 +612,8 @@ def batch_files_score(
                 logger.warning("No survey found in %s, skipping.", sim_file)
                 continue
 
-            pred = get_normalized_prediced(
-                survey, spatial_projection, time_projection, max_late_val
+            pred = get_normalized_predicted(
+                survey, spatial_projection, time_projection, in_early_val
             )
             score = 0.0
             indices = []
