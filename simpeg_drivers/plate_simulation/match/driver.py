@@ -263,6 +263,15 @@ class PlateMatchDriver(Driver):
     ) -> BytesIO:
         """
         Generate a figure showing the observed and simulated plate locations.
+
+        :param locations: Array of locations.
+        :param survey: Survey object.
+        :param observed: Array of observed data.
+        :param time_projection: Array performing the time interpolation.
+        :param spatial_projection: Array performing the spatial interpolation.
+        :param center: Index of the center point in the survey vertices.
+
+        :return: BytesIO object containing the figure.
         """
         distances = np.linalg.norm(locations[0, :] - locations, axis=1)
         horizontal_shift = (distances - np.mean(distances))[center]
@@ -542,6 +551,17 @@ def fetch_survey(workspace: Workspace) -> AirborneTEMReceivers | None:
 def get_normalized_prediced(
     survey: AirborneTEMReceivers, spatial_projection, time_projection, threshold
 ) -> np.ndarray:
+    """
+    From a survey entity, retrieve the predicted data group,
+    interpolate and normalize the data
+
+    :param survey: AirborneTEMReceivers entity
+    :param spatial_projection: Spatial interpolation matrix for the current query.
+    :param time_projection: Time interpolation matrix for the current query.
+    :param threshold: Percentile threshold for symlog normalization.
+
+    :return: Normalized predicted data
+    """
     data_entity = survey.get_entity("Iteration_0_vertical")[0]
 
     if data_entity is None:
