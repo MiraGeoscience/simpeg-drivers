@@ -7,8 +7,8 @@
 #  (see LICENSE file at the root of this source code package).                      '
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-import shutil
 import logging
+import shutil
 from pathlib import Path
 
 import numpy as np
