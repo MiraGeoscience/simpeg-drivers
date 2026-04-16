@@ -10,14 +10,14 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import numpy as np
-from geoh5py import Workspace
-from geoh5py.objects import AirborneFEMReceivers, AirborneTEMReceivers
+from geoh5py.groups import UIJsonGroup
+from geoh5py.objects import MaxwellPlate
+from geoh5py.objects.maxwell_plate import PlateGeometry, PlatePosition
+from geoh5py.shared.utils import fetch_active_workspace
 from numpy import array_split
-
-from simpeg_drivers.plate_simulation.models.options import PlateOptions
 
 from .options import LeroiAirOptions
 
@@ -27,9 +27,9 @@ class LeroiAirInterface:
 
     version: str = "8.0"
 
-    def __init__(self, geoh5: Workspace, opts: LeroiAirOptions):
-        self.geoh5 = geoh5
+    def __init__(self, opts: LeroiAirOptions):
         self.opts = opts
+        self.float_precision: int = 4
 
     @property
     def aliased_values(self) -> dict[str, Any]:
@@ -41,7 +41,7 @@ class LeroiAirInterface:
             "ISTOP": 0,
             "ISW": 1,
             "NSX": len(self.opts.ontime_waveform),
-            "STEP": 0 if self.opts.modelling.magnetic_field == "dBdt" else 1,
+            "STEP": 0 if self.opts.magnetic_field == "dBdt" else 1,
             "UNITS": 1,
             "NCHNL": len(self.opts.channels),
             "KRXW": 2,
@@ -49,10 +49,8 @@ class LeroiAirInterface:
             "OFFTIME": self.opts.offtime,
             "TXON": self.opts.ontime_waveform[:, 0],
             "TXAMP": self.opts.ontime_waveform[:, 1],
-            "TOPN": self.opts.timing_mark + np.array([0.0] + self.opts.channels[:-1]),
-            "TCLS": self.opts.timing_mark + np.array(self.opts.channels),
             "TMS": self.opts.timing_mark + np.array(self.opts.channels),
-            "WIDTH": np.array([0.3, 0.3, 0.9]),
+            "WIDTH": self.opts.channel_widths,
             "TXCLN": 0.0,
             "CMP": 3,
             "KPPM": 0,
@@ -62,16 +60,16 @@ class LeroiAirInterface:
             "ZRX0": 0.0,
             "XRX0": 0.0,
             "YRX0": 0.0,
-            "NSTAT": len(self.opts.locations),
+            "NSTAT": self.opts.n_stations,
             "SURVEY": 2,
             "BAROMTRC": 1,
             "LINE_TAG": 0,
             "EAST": self.opts.locations[:, 0],
             "NORTH": self.opts.locations[:, 1],
-            "ALT": 13 * np.ones(len(self.opts.locations)),
-            "NLAYER": 2,
-            "NPLATE": 1,
-            "NLITH": 3,
+            "ALT": 13 * np.ones(self.opts.n_stations),  # TODO - take from survey
+            "NLAYER": self.opts.n_layers,
+            "NPLATE": self.opts.n_plates,
+            "NLITH": self.opts.n_layers + self.opts.n_plates,
             "GND_LVL": 0.0,
             "RES": self.opts.resistivities,
             "SIG_T": self.opts.conductivity_thicknesses,
@@ -80,115 +78,137 @@ class LeroiAirInterface:
             "CHRG": np.zeros_like(self.opts.resistivities),
             "CTAU": np.zeros_like(self.opts.resistivities),
             "CFREQ": np.ones_like(self.opts.resistivities),
-            "LITH": np.array([1, 2]),
-            "LITHP": 3,
+            "LITH": 1 + np.arange(self.opts.n_layers, dtype=int),
+            "LITHP": 1 + np.arange(self.opts.n_plates, dtype=int) + self.opts.n_layers,
             "THICK": self.opts.layer_thicknesses,
             "CELLW": self.opts.cell_size,
             "IPLATE": 1,
-            "CNTR_East": self.opts.plate.reference[0],
-            "CNTR_North": self.opts.plate.reference[1],
-            "PLTOP": self.opts.plate.reference[2],
-            "PLNGTH": self.opts.plate.strike_length,
-            "DPWDTH": self.opts.plate.dip_length,
-            "DZM": self.opts.plate.dip_direction,
-            "DIP": self.opts.plate.dip,
+            "CNTR_East": [g.easting for g in self.opts.plate_geometries],
+            "CNTR_North": [g.northing for g in self.opts.plate_geometries],
+            "PLTOP": [g.elevation for g in self.opts.plate_geometries],
+            "PLNGTH": [g.strike_length for g in self.opts.plate_geometries],
+            "DPWDTH": [g.dip_length for g in self.opts.plate_geometries],
+            "DZM": [g.direction for g in self.opts.plate_geometries],
+            "DIP": [g.dip for g in self.opts.plate_geometries],
         }
+
+    def _format_value(self, value: int | float) -> str:
+        """Format a scalar value, preserving integer formatting and applying float precision only when needed."""
+        match value:
+            case int() | np.integer():
+                return str(int(value))
+            case float() | np.floating():
+                return self._format_float(value)
+            case _:
+                return str(value)
+
+    def _format_float(self, value: float) -> str:
+        """Format a float, truncating to float_precision only when needed."""
+        _, _, decimals = str(value).partition(".")
+        if len(decimals) > self.float_precision:
+            return f"{value:.{self.float_precision}f}"
+        return str(value)
 
     def format_line(self, params: list[str]) -> str:
         """format a string from a list of params and the retrieved values."""
-        values = [str(self.aliased_values[k]) for k in params]
+        values = [self._format_value(self.aliased_values[k]) for k in params]
         return f"{' '.join(values)} \t ! {', '.join(params)}"
 
     def format_line_from_array(self, param: str):
-        values = [str(k) for k in self.aliased_values[param]]
+        """Format a line string from an array."""
+        values = [self._format_value(k) for k in self.aliased_values[param]]
         return f"{' '.join(values)} \t ! {param}"
 
     def format_multi_line(self, params: str | list[str]) -> str:
-        """Format a multi-line string a column, or row oriented array."""
+        """Format a multi-line string from a column, or row oriented array."""
         if isinstance(params, str):
-            values = array_split(self.aliased_values[param], 10)
+            rows = [
+                [v]
+                for chunk in array_split(self.aliased_values[params], 10)
+                for v in chunk
+            ]
         else:
-            values = np.column_stack([self.aliased_values[k] for k in params])
-        return self._format_multi_line(values) + "\t ! " + ", ".join(params)
+            columns = [self.aliased_values[k] for k in params]
+            rows = [list(row) for row in zip(*columns, strict=True)]
+        return self._format_rows(rows) + "\t ! " + ", ".join(params)
 
     @property
-    def record_2(self):
+    def record_2(self) -> str:
         return self.format_line(["TDFD", "DO3D", "PRFL", "ISTOP"])
 
     @property
-    def record_3(self):
+    def record_3(self) -> str:
         return self.format_line(
             ["ISW", "NSX", "STEP", "UNITS", "NCHNL", "KRXW", "OFFTIME"]
         )
 
     @property
-    def record_4(self):
+    def record_4(self) -> str:
         return self.format_multi_line(["TXON", "TXAMP"])
 
     @property
-    def record_5(self):
+    def record_5(self) -> str:
         return self.format_line_from_array("TMS")
-        # return self.format_multi_line(["TOPN", "TCLS"])
 
     @property
-    def record_6(self):
+    def record_6(self) -> str:
         return self.format_line_from_array("WIDTH")
 
     @property
-    def record_7(self):
+    def record_7(self) -> str:
         return self.format_line(["TXCLN", "CMP", "KPPM"])
 
     @property
-    def record_7p1(self):
+    def record_7p1(self) -> str:
         return self.format_line(["NPPF"])
 
     @property
-    def record_7p2(self):
+    def record_7p2(self) -> str:
         return self.format_line(["TXAREA", "NTRN"])
 
     @property
-    def record_8(self):
+    def record_8(self) -> str:
         return self.format_line(["ZRX0", "XRX0", "YRX0"])
 
     @property
-    def record_9(self):
+    def record_9(self) -> str:
         return self.format_line(["NSTAT", "SURVEY", "BAROMTRC", "LINE_TAG"])
 
     @property
-    def record_9p1(self):
+    def record_9p1(self) -> str:
         return self.format_multi_line(["EAST", "NORTH", "ALT"])
 
     @property
-    def record_10(self):
+    def record_10(self) -> str:
         return self.format_line(["NLAYER", "NPLATE", "NLITH", "GND_LVL"])
 
     @property
-    def record_11(self):
+    def record_11(self) -> str:
         return self.format_multi_line(
             ["RES", "SIG_T", "RMU", "REPS", "CHRG", "CTAU", "CFREQ"]
         )
 
     @property
-    def record_12(self):
+    def record_12(self) -> str:
         return self.format_multi_line(["LITH", "THICK"])
 
     @property
-    def record_13(self):
+    def record_13(self) -> str:
         return self.format_line(["CELLW"])
 
     @property
-    def record_14(self):
-        return self.format_line(["LITHP", "CNTR_East", "CNTR_North", "PLTOP"])
+    def record_14(self) -> str:
+        return self.format_multi_line(["LITHP", "CNTR_East", "CNTR_North", "PLTOP"])
 
     @property
-    def record_15(self):
-        return self.format_line(["PLNGTH", "DPWDTH", "DZM", "DIP"])
+    def record_15(self) -> str:
+        return self.format_multi_line(["PLNGTH", "DPWDTH", "DZM", "DIP"])
 
-    def format_cfl_file(self):
+    def format_cfl_file(self) -> str:
         """
         Generates lines of text for an .cfl input file to run LeroiAir.
 
-        Collects approriate 'Records' and adds lines to the input file one by one.
+        Collects appropriate 'Records' and adds lines to the input file one by one.
         """
         lines = []
         lines.append(self.opts.title)
@@ -213,13 +233,79 @@ class LeroiAirInterface:
 
         return "\n".join(lines) + "\n"
 
-    def _format_multi_line(self, values: np.ndarray) -> str:
-        """Format a multi-line string from array."""
-        lines = []
-        for row in values:
-            lines.append(f"{' '.join([str(k) for k in row])}")
-        return "\n".join(lines)
+    def _format_rows(self, rows: list[list]) -> str:
+        """Format a multi-line string from a list of rows."""
+        return "\n".join(" ".join(self._format_value(v) for v in row) for row in rows)
 
-    def write_cfl_file(self, filepath: Path):
+    def write_cfl_file(self, filepath: Path) -> None:
+        """Write the formatted .cfl input file to disk."""
         with open(filepath, mode="w", encoding="utf-8") as f:
-            return f.write(self.format_cfl_file())
+            f.write(self.format_cfl_file())
+
+    _COMPONENT_ANCHORS: dict[str, str] = {
+        "x": "TRANSVERSE COMPONENT",
+        "y": "IN-LINE COMPONENT",
+        "z": "VERTICAL COMPONENT",
+    }
+
+    def _slice_data_lines(self, lines: list[str], anchor: str) -> list[str]:
+        """Slice the station data rows that follow the given section header."""
+        anchor_idx = next(i for i, line in enumerate(lines) if anchor in line)
+        chunk = lines[anchor_idx:]
+        data_start = (
+            next(
+                i
+                for i, line in enumerate(chunk)
+                if all(k in line for k in ["EAST", "NORTH", "ALT"])
+            )
+            + 2
+        )
+        return chunk[data_start : data_start + self.opts.n_stations]
+
+    def _extract_data(
+        self, outfile: str | Path, component: Literal["x", "y", "z"]
+    ) -> np.ndarray:
+        """Extract channel data for a single component from a LeroiAir .out file."""
+        lines = Path(outfile).read_text(encoding="utf-8", errors="replace").splitlines()
+        data_lines = self._slice_data_lines(lines, self._COMPONENT_ANCHORS[component])
+        return np.array([line.split() for line in data_lines], dtype=float)[:, 4:]
+
+    def save_to_geoh5(self, outfile: str | Path, out_group: UIJsonGroup):
+        """Save LeroiAir simulated data on the provided survey to geoh5."""
+
+        crossline_data = self._extract_data(outfile=outfile, component="x")
+        inline_data = self._extract_data(outfile=outfile, component="y")
+        vertical_data = self._extract_data(outfile=outfile, component="z")
+
+        with fetch_active_workspace(self.opts.survey.workspace, mode="r+") as geoh5:
+            survey = self.opts.survey.copy(parent=out_group, copy_children=False)
+            data = survey.add_data(
+                {
+                    "fwd inline [0]": {"values": inline_data[:, 0]},
+                    "fwd inline [1]": {"values": inline_data[:, 1]},
+                    "fwd inline [2]": {"values": inline_data[:, 2]},
+                    "fwd crossline [0]": {"values": crossline_data[:, 0]},
+                    "fwd crossline [1]": {"values": crossline_data[:, 1]},
+                    "fwd crossline [2]": {"values": crossline_data[:, 2]},
+                    "fwd vertical [0]": {"values": vertical_data[:, 0]},
+                    "fwd vertical [1]": {"values": vertical_data[:, 1]},
+                    "fwd vertical [2]": {"values": vertical_data[:, 2]},
+                }
+            )
+            survey.create_property_group(name="inline", properties=data[:3])
+            survey.create_property_group(name="crossline", properties=data[3:6])
+            survey.create_property_group(name="vertical", properties=data[6:])
+
+            for plate in self.opts.plate_geometries:
+                position = PlatePosition(
+                    x=plate.easting, y=plate.northing, z=plate.elevation
+                )
+                geometry = PlateGeometry(
+                    position=position,
+                    length=plate.strike_length,
+                    width=plate.dip_length,
+                    thickness=plate.width,
+                    dip_direction=plate.direction,
+                    dip=plate.dip,
+                )
+                MaxwellPlate.create(geoh5, geometry=geometry)

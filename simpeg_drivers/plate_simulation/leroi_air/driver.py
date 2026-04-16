@@ -8,43 +8,51 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
+import subprocess
 from pathlib import Path
 
-from geoh5py import Workspace
-
-from simpeg_drivers.plate_simulation.models.options import PlateOptions
+from geoh5py.groups import UIJsonGroup
 
 from .interface import LeroiAirInterface
-from .options import BackgroundOptions, LeroiAirOptions, ModellingOptions, OutputOptions
+from .options import LeroiAirOptions
 
 
 class LeroiAirDriver:
     def __init__(self, options: LeroiAirOptions):
         self.options = options
+        self._interface: LeroiAirInterface | None = None
+        self.out_group: UIJsonGroup | None = None
+
+    @property
+    def interface(self) -> LeroiAirInterface:
+        if self._interface is None:
+            self._interface = LeroiAirInterface(self.options)
+        return self._interface
+
+    @property
+    def project_path(self) -> Path:
+        return self.options.survey.workspace.h5file.parent
 
     def run(self):
-        opts = LeroiAirOptions(
-            title="test",
-            background=BackgroundOptions(
-                basement_thickness=5000,
-                basement_resistivity=1000,
-            ),
-            modelling=ModellingOptions(offtime=3.1, cell_size=10),
-            output=OutputOptions(channel="all")
+        self.interface.write_cfl_file(self.project_path / "LeroiAir.cfl")
+
+        result = subprocess.run(
+            ["LeroiAir550_JR", "LeroiAir"],
+            cwd=self.project_path,
+            capture_output=True,
+            text=True,
+            check=False,
         )
 
-        with Workspace("dom_waveform_600Ohmm_bkgr_and_plate.geoh5", mode="r") as geoh5:
-            survey = geoh5.get_entity("survey")[1]
-            plate = PlateOptions(
-                reference=[0.0, 0.0, -20.0],
-                strike_length=80.,
-                dip_length=100.,
-                thickness=5.,
-                dip_direction=90.,
-                dip=90.,
-                resistivity=1.,
+        if result.returncode != 0:
+            raise RuntimeError(
+                f"LeroiAir failed with return code {result.returncode}.\n"
+                f"stderr:\n{result.stderr}\n"
+                f"stdout:\n{result.stdout}"
             )
-            interface = LeroiAirInterface(geoh5, survey, plate, opts)
 
-        interface.format_cfl_file()
-        interface.write_cfl_file(Path('LeroiAir.cfl'))
+        outfile = self.project_path / "LeroiAir.out"
+        self.interface.save_to_geoh5(
+            outfile=outfile,
+            out_group=self.out_group,
+        )

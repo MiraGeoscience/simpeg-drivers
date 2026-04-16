@@ -34,23 +34,43 @@ class LeroiAirOptions:
 
     @classmethod
     def from_plate_simulation_options(cls, options: PlateSimulationOptions) -> Self:
-
+        simulation_options = options.simulation_parameters()
         return cls(
-            survey=options.simulations_parameters().survey,
+            survey=simulation_options.data_object,
             layer_resistivities=[
                 options.model.overburden_options.overburden_property,
-                options.background,
+                options.model.background,
             ],
             layer_thicknesses=[options.model.overburden_options.thickness, 9999],
-            plate_resistivities=[options.model.plate.plate_property],
-            plate_geometries=[options.model.plate.geometry],
-            magnetic_field="dBdt" if "dBdt" in options.data_units else "B",
+            plate_resistivities=[options.model.plate_options.plate_property],
+            plate_geometries=[options.model.plate_options.geometry],
+            magnetic_field="dBdt" if "dBdt" in simulation_options.data_units else "B",
         )
+
+    @property
+    def title(self) -> str:
+        """Provides a generic title for all LeroiAir simulations."""
+        return "LeroiAir modelling for plate-simulation package."
 
     @property
     def locations(self) -> np.ndarray:
         """Survey receiver locations."""
         return self.survey.vertices
+
+    @property
+    def n_stations(self) -> int:
+        """Number of survey stations at which time channel data will be simulated"""
+        return len(self.locations)
+
+    @property
+    def n_layers(self) -> int:
+        """Number of background layers."""
+        return len(self.layer_resistivities)
+
+    @property
+    def n_plates(self) -> int:
+        """Number of plates."""
+        return len(self.plate_geometries)
 
     @property
     def waveform(self) -> np.ndarray:
@@ -96,7 +116,7 @@ class LeroiAirOptions:
     @property
     def units(self):
         """Units of the time channels."""
-        return self.survey.units
+        return self.survey.unit
 
     @property
     def offtime(self) -> float:

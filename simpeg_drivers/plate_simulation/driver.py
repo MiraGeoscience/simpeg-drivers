@@ -29,6 +29,8 @@ from simpeg_drivers.driver import (
     validate_workers,
 )
 from simpeg_drivers.options import BaseForwardOptions, ModelTypeEnum
+from simpeg_drivers.plate_simulation.leroi_air.driver import LeroiAirDriver
+from simpeg_drivers.plate_simulation.leroi_air.options import LeroiAirOptions
 from simpeg_drivers.plate_simulation.models.events import Anomaly, Erosion, Overburden
 from simpeg_drivers.plate_simulation.models.series import DikeSwarm, Geology
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
@@ -303,8 +305,8 @@ class PlateSimulationDriver(Driver):
             self.simulation_parameters.models.starting_model = self.model
 
             if not isinstance(
-                    self.simulation_parameters.active_cells.topography_object,
-                    Surface | Points,
+                self.simulation_parameters.active_cells.topography_object,
+                Surface | Points,
             ):
                 raise ValueError(
                     "The topography object of the forward simulation must be a 'Surface'."
@@ -321,10 +323,12 @@ class PlateSimulationDriver(Driver):
             )
             self._simulation_driver.out_group.parent = self._out_group
 
+        return self.simulation_driver
 
     def _get_leroi_driver(self):
-        leroi_opts = LeroiAirOptions.from_plate_simulation(self.params)
+        leroi_opts = LeroiAirOptions.from_plate_simulation_options(self.params)
         driver = LeroiAirDriver(leroi_opts)
+        driver.out_group = self._out_group
         return driver
 
 
