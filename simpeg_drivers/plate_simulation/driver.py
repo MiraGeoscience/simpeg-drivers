@@ -75,7 +75,11 @@ class PlateSimulationDriver(Driver):
         """Create octree mesh, fill model, and simulate."""
 
         with fetch_active_workspace(self.params.geoh5, mode="r+"):
+            self._organize_out_group()
+            self.simulation_parameters.mesh = self.mesh
+            self.simulation_parameters.models.starting_model = self.model
             self.simulation_driver.run()
+            self._update_simulation_options()
             self.update_monitoring_directory(self._out_group)
 
         logger.info("done.")
@@ -181,7 +185,7 @@ class PlateSimulationDriver(Driver):
                 name=self.params.mesh.name,
             )
 
-        mesh.parent = self._out_group
+        mesh.parent = self.params.simulation
 
         return mesh
 
@@ -298,30 +302,48 @@ class PlateSimulationDriver(Driver):
         """
         start_dask_run(cls, json_path, n_workers=n_workers, n_threads=n_threads)
 
+    def _organize_out_group(self) -> None:
+        """
+        Place the simulation group inside out_group and copy topography there.
+
+        Also updates the active-cells topography reference to the new copy so
+        that subsequent option serialization points to the object inside the
+        plate-simulation output group.
+        """
+        self.params.simulation.parent = self._out_group
+        topo_copy = self.topography.copy(parent=self._out_group, copy_children=True)
+        self.simulation_parameters.active_cells.topography_object = topo_copy
+
+    def _update_simulation_options(self) -> None:
+        """
+        Serialize current mesh, model, and topography into the simulation group.
+
+        This keeps the TDEMForward group runnable as a standalone SimPEG
+        forward simulation for comparison with the LeroiAir result.
+        """
+        self.simulation_parameters.out_group = self.params.simulation
+        self.simulation_parameters.update_out_group_options()
+
     def _get_simpeg_driver(self):
 
-        with fetch_active_workspace(self.params.geoh5, mode="r+"):
-            self.simulation_parameters.mesh = self.mesh
-            self.simulation_parameters.models.starting_model = self.model
-
-            if not isinstance(
-                self.simulation_parameters.active_cells.topography_object,
-                Surface | Points,
-            ):
-                raise ValueError(
-                    "The topography object of the forward simulation must be a 'Surface'."
-                )
-
-            self.simulation_parameters.out_group = None
-            driver_class = driver_class_from_name(
-                self.simulation_parameters.inversion_type, forward_only=True
+        if not isinstance(
+            self.simulation_parameters.active_cells.topography_object,
+            Surface | Points,
+        ):
+            raise ValueError(
+                "The topography object of the forward simulation must be a 'Surface'."
             )
-            self._simulation_driver = driver_class(
-                self.simulation_parameters,
-                client=self._client,
-                workers=self._workers,
-            )
-            self._simulation_driver.out_group.parent = self._out_group
+
+        self.simulation_parameters.out_group = None
+        driver_class = driver_class_from_name(
+            self.simulation_parameters.inversion_type, forward_only=True
+        )
+        self._simulation_driver = driver_class(
+            self.simulation_parameters,
+            client=self._client,
+            workers=self._workers,
+        )
+        self._simulation_driver.out_group.parent = self.params.simulation
 
         return self.simulation_driver
 

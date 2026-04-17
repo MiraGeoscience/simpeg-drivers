@@ -307,4 +307,4 @@ class LeroiAirInterface:
                     dip_direction=plate.direction,
                     dip=plate.dip,
                 )
-                MaxwellPlate.create(geoh5, geometry=geometry)
+                MaxwellPlate.create(geoh5, geometry=geometry, parent=out_group)
