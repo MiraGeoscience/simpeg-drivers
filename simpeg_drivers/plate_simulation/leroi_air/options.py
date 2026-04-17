@@ -16,7 +16,9 @@ import numpy as np
 from geoapps_utils.modelling.plates import PlateModel
 from geoh5py.objects.surveys.electromagnetics.airborne_tem import AirborneTEMReceivers
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from scipy.interpolate import LinearNDInterpolator
 
+from simpeg_drivers.components.topography import InversionTopography
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
 
 
@@ -26,6 +28,7 @@ class LeroiAirOptions(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     survey: AirborneTEMReceivers
+    topo: np.ndarray
     layer_resistivities: list[float]
     layer_thicknesses: list[float]
     plate_resistivities: list[float]
@@ -57,9 +60,22 @@ class LeroiAirOptions(BaseModel):
     @classmethod
     def from_plate_simulation_options(cls, options: PlateSimulationOptions) -> Self:
         """Construct from a :class:`PlateSimulationOptions` instance."""
+
         simulation_options = options.simulation_parameters()
+        survey = simulation_options.data_object.copy()
+
+        if simulation_options.active_cells.topography_object is None:
+            raise NotImplementedError(
+                "Passing active cells directly does not currently work for simulating "
+                "plates using the LeroiAir option.  Simulation options must contain a "
+                "topography object."
+            )
+
+        topo_xyz = InversionTopography(survey.workspace, simulation_options).locations
+
         return cls(
             survey=simulation_options.data_object,
+            topo=topo_xyz,
             layer_resistivities=[
                 options.model.overburden_options.overburden_property,
                 options.model.background,
@@ -78,7 +94,17 @@ class LeroiAirOptions(BaseModel):
     @property
     def locations(self) -> np.ndarray:
         """Survey receiver locations."""
-        return self.survey.vertices
+        return self.survey.locations
+
+    @property
+    def drape_height(self) -> np.ndarray:
+        """Survey height over topography."""
+
+        survey_locs = self.locations.copy()
+        topo_interp = LinearNDInterpolator(self.topo[:, :2], self.topo[:, 2])
+        topo_at_survey_locations = topo_interp(survey_locs[:, 0], survey_locs[:, 1])
+
+        return survey_locs[:, 2] - topo_at_survey_locations
 
     @property
     def n_stations(self) -> int:
@@ -155,7 +181,10 @@ class LeroiAirOptions(BaseModel):
         are not accounted for by the waveform.
         """
         half_cycle = 1 / (2 * self.frequency)
-        ontime = self.waveform[np.where(self.waveform[:, 1] == 0)[0][1], 0]
+        zero_current_ind = np.where(self.waveform[:, 1] == 0)[0]
+        first_zero = 1 if self.waveform[0, 1] == 0.0 else 0
+        ontime = self.waveform[zero_current_ind][first_zero, 1]
+
         return half_cycle - ontime
 
     @property

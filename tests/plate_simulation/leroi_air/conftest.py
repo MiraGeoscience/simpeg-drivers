@@ -68,6 +68,14 @@ def real_interface(tmp_path):
     return LeroiAirInterface(opts=opts)
 
 
+@pytest.fixture(scope="module")
+def plate_options(tmp_path_factory):
+    tmp_path = tmp_path_factory.mktemp("leroi_air_options")
+    with Workspace(tmp_path / "test.geoh5") as geoh5:
+        opts = generate_plate_options(workspace=geoh5)
+    return opts
+
+
 @pytest.fixture
 def fake_outfile(tmp_path):
     path = tmp_path / "leroi.out"

@@ -65,7 +65,7 @@ class LeroiAirInterface:
             "LINE_TAG": 0,
             "EAST": self.opts.locations[:, 0],
             "NORTH": self.opts.locations[:, 1],
-            "ALT": 13 * np.ones(self.opts.n_stations),  # TODO - take from survey
+            "ALT": self.opts.drape_height,
             "NLAYER": self.opts.n_layers,
             "NPLATE": self.opts.n_plates,
             "NLITH": self.opts.n_layers + self.opts.n_plates,

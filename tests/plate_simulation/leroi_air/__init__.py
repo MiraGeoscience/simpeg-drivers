@@ -22,7 +22,7 @@ def generate_plate_options(workspace):
     x = np.linspace(-1000, 1000, 81)
     y = np.linspace(-1000, 1000, 81)
     X, Y = np.meshgrid(x, y)
-    Z = np.zeros_like(X)
+    Z = np.full_like(X, 20.0)
 
     with fetch_active_workspace(workspace) as geoh5:
         survey = generate_airborne_tdem_survey(geoh5, X=X, Y=Y, Z=Z)
@@ -38,8 +38,10 @@ def generate_plate_options(workspace):
                 dip=45,
             )
         ]
+        topo = np.column_stack([X.flatten(), Y.flatten(), np.zeros(X.size)])
         opts = LeroiAirOptions(
             survey=survey,
+            topo=topo,
             layer_resistivities=layer_resistivities,
             layer_thicknesses=layer_thicknesses,
             plate_resistivities=plate_resistivities,
