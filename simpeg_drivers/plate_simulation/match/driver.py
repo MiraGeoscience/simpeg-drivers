@@ -265,7 +265,7 @@ class PlateMatchDriver(Driver):
         locations, survey, observed, time_projection, spatial_projection, center: int
     ) -> BytesIO:
         """
-        Generate a figure showing the observed and simulated plate locations.
+        Generate a figure showing the observed data and best matching simulated plate responses.
 
         :param locations: Array of locations.
         :param survey: Survey object.
