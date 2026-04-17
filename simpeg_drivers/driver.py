@@ -782,6 +782,7 @@ class InversionLogger:
 
     def start(self):
         if self.logfile.is_file():
+            self.write("SimPEG.log file already exists and will be overwritten.")
             self.logfile.unlink()
 
         self.write(
