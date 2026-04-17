@@ -248,7 +248,7 @@ class PlateMatchDriver(Driver):
         locations, survey, observed, time_projection, spatial_projection, center: int
     ) -> BytesIO:
         """
-        Generate a figure showing the observed and simulated plate locations.
+        Generate a figure showing the observed data and best matching simulated plate responses.
 
         :param locations: Array of locations.
         :param survey: Survey object.
@@ -540,7 +540,7 @@ def get_normalized_predicted(
     survey: AirborneTEMReceivers, spatial_projection, time_projection, threshold
 ) -> np.ndarray:
     """
-    From a survey entity, retrieve the predicted data group,
+    Retrieve, interpolate and normalize predicted data stored on survey.
     interpolate and normalize the data
 
     :param survey: AirborneTEMReceivers entity
