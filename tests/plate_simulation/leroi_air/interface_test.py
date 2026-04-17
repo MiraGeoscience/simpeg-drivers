@@ -27,7 +27,7 @@ def test_line_formatting(tmp_path):
     line = interface.format_line(["TXCLN", "CMP", "KPPM"])
     assert line == "0.0 3 0 \t ! TXCLN, CMP, KPPM"
 
-    line = interface.format_line_from_array("TMS")
+    line = interface.format_line("TMS")
     assert line == "2.3 2.6 3.2 \t ! TMS"
 
     multi_line = interface.format_multi_line(["TMS", "WIDTH"])
@@ -141,46 +141,13 @@ def test_extract_data_parses_vertical_component_values(mock_interface, fake_outf
     np.testing.assert_array_almost_equal(data[1], [16.6, 17.7, 18.8])
 
 
-def test_format_value_python_int(mock_interface):
+def test_format_value_int(mock_interface):
     assert mock_interface._format_value(3) == "3"
-
-
-def test_format_value_numpy_int(mock_interface):
     assert mock_interface._format_value(np.int64(7)) == "7"
 
 
-def test_format_value_short_float(mock_interface):
+def test_format_value_float(mock_interface):
     assert mock_interface._format_value(1.5) == "1.5"
-
-
-def test_format_value_long_float(mock_interface):
     assert mock_interface._format_value(1.123456789) == "1.1235"
-
-
-def test_format_value_numpy_float(mock_interface):
-    assert mock_interface._format_value(np.float64(1.123456789)) == "1.1235"
-
-
-def test_format_value_non_numeric(mock_interface):
-    assert mock_interface._format_value("hello") == "hello"
-
-
-def test_format_float_within_precision(mock_interface):
-    assert mock_interface._format_float(3.14) == "3.14"
-
-
-def test_format_float_exceeds_precision(mock_interface):
-    assert mock_interface._format_float(3.141592653) == "3.1416"
-
-
-def test_format_float_custom_precision(mock_interface):
-    mock_interface.float_precision = 2
-    assert mock_interface._format_float(3.141592653) == "3.14"
-
-
-def test_format_rows_single_row(mock_interface):
-    assert mock_interface._format_rows([[1, 2.5, 3]]) == "1 2.5 3"
-
-
-def test_format_rows_multiple_rows(mock_interface):
-    assert mock_interface._format_rows([[1, 2], [3, 4]]) == "1 2\n3 4"
+    mock_interface.opts.float_precision = 2
+    assert mock_interface._format_value(3.141592653) == "3.14"

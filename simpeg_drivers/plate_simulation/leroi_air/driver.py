@@ -18,24 +18,28 @@ from .options import LeroiAirOptions
 
 
 class LeroiAirDriver:
+    """Orchestrates a LeroiAir forward simulation from input preparation to geoh5 output."""
+
     def __init__(self, options: LeroiAirOptions):
+        """Initialize with simulation options."""
         self.options = options
         self._interface: LeroiAirInterface | None = None
         self.out_group: UIJsonGroup | None = None
 
     @property
     def interface(self) -> LeroiAirInterface:
+        """Lazy-initialized interface for formatting and parsing LeroiAir files."""
         if self._interface is None:
             self._interface = LeroiAirInterface(self.options)
         return self._interface
 
     @property
     def project_path(self) -> Path:
+        """Directory containing the geoh5 workspace file."""
         return self.options.survey.workspace.h5file.parent
 
-    def run(self):
-        self.interface.write_cfl_file(self.project_path / "LeroiAir.cfl")
-
+    def run_leroi(self) -> subprocess.CompletedProcess:
+        """Run the LeroiAir executable and raise on non-zero exit."""
         result = subprocess.run(
             ["LeroiAir550_JR", "LeroiAir"],
             cwd=self.project_path,
@@ -43,16 +47,19 @@ class LeroiAirDriver:
             text=True,
             check=False,
         )
-
         if result.returncode != 0:
             raise RuntimeError(
                 f"LeroiAir failed with return code {result.returncode}.\n"
                 f"stderr:\n{result.stderr}\n"
                 f"stdout:\n{result.stdout}"
             )
+        return result
 
-        outfile = self.project_path / "LeroiAir.out"
+    def run(self) -> None:
+        """Write input, run LeroiAir, and save simulated data to geoh5."""
+        self.interface.write_cfl_file(self.project_path / "LeroiAir.cfl")
+        self.run_leroi()
         self.interface.save_to_geoh5(
-            outfile=outfile,
+            outfile=self.project_path / "LeroiAir.out",
             out_group=self.out_group,
         )

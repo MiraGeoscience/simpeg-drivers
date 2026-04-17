@@ -10,18 +10,21 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import Literal, Self
 
 import numpy as np
 from geoapps_utils.modelling.plates import PlateModel
 from geoh5py.objects.surveys.electromagnetics.airborne_tem import AirborneTEMReceivers
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
 
 
-@dataclass
-class LeroiAirOptions:
+class LeroiAirOptions(BaseModel):
+    """Configuration for a LeroiAir airborne TEM forward simulation."""
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     survey: AirborneTEMReceivers
     layer_resistivities: list[float]
     layer_thicknesses: list[float]
@@ -31,9 +34,29 @@ class LeroiAirOptions:
     magnetic_field: Literal["dBdt", "B"] = "dBdt"
     domain: Literal["time", "frequency"] = "time"
     layered_earth_only: bool = False
+    float_precision: int = 4
+
+    @model_validator(mode="after")
+    def validate_layer_lengths_match(self) -> Self:
+        """Ensure layer resistivities and thicknesses have equal length."""
+        if len(self.layer_resistivities) != len(self.layer_thicknesses):
+            raise ValueError(
+                "layer_resistivities and layer_thicknesses must have the same length."
+            )
+        return self
+
+    @model_validator(mode="after")
+    def validate_plate_lengths_match(self) -> Self:
+        """Ensure plate resistivities and geometries have equal length."""
+        if len(self.plate_resistivities) != len(self.plate_geometries):
+            raise ValueError(
+                "plate_resistivities and plate_geometries must have the same length."
+            )
+        return self
 
     @classmethod
     def from_plate_simulation_options(cls, options: PlateSimulationOptions) -> Self:
+        """Construct from a :class:`PlateSimulationOptions` instance."""
         simulation_options = options.simulation_parameters()
         return cls(
             survey=simulation_options.data_object,
@@ -59,7 +82,7 @@ class LeroiAirOptions:
 
     @property
     def n_stations(self) -> int:
-        """Number of survey stations at which time channel data will be simulated"""
+        """Number of survey stations at which time channel data will be simulated."""
         return len(self.locations)
 
     @property
@@ -114,12 +137,23 @@ class LeroiAirOptions:
         return self.survey.timing_mark
 
     @property
-    def units(self):
+    def units(self) -> str:
         """Units of the time channels."""
         return self.survey.unit
 
     @property
+    def _ontime(self) -> float:
+        """Time at which the transmitter current turns off."""
+        return float(self.waveform[self._offtime_mask(), 0][0])
+
+    @property
     def offtime(self) -> float:
+        """
+        Time at which the transmitter current is zero.
+
+        This offtime is based on system frequency and may include times that
+        are not accounted for by the waveform.
+        """
         half_cycle = 1 / (2 * self.frequency)
         ontime = self.waveform[np.where(self.waveform[:, 1] == 0)[0][1], 0]
         return half_cycle - ontime
@@ -139,14 +173,16 @@ class LeroiAirOptions:
     @property
     def conductivity_thicknesses(self) -> np.ndarray:
         """All conductivity thicknesses."""
-        layer_sigma = self.layer_thicknesses * (1 / np.array(self.layer_resistivities))
-        plate_sigma = [g.width for g in self.plate_geometries] * (
-            1 / np.array(self.plate_resistivities)
-        )
-        return np.hstack([layer_sigma, plate_sigma])
+        sigma = []
+        layer_conductivities = 1 / np.array(self.layer_resistivities)
+        sigma.append(self.layer_thicknesses * layer_conductivities)
+        plate_conductivities = 1 / np.array(self.plate_resistivities)
+        sigma.append([g.width for g in self.plate_geometries] * plate_conductivities)
 
-    def _offtime_mask(self):
-        """Returns a mask to slice the offtimes from the waveform array."""
-        ind = [bool(np.isclose(k, 0)) for k in self.waveform[:, 1]]
-        ind[0] = False
-        return np.array(ind)
+        return np.hstack(sigma)
+
+    def _offtime_mask(self) -> np.ndarray:
+        """Mask selecting off-time rows from the waveform array."""
+        mask = np.isclose(self.waveform[:, 1], 0)
+        mask[0] = False
+        return mask

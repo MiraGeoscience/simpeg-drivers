@@ -17,7 +17,6 @@ from geoh5py.groups import UIJsonGroup
 from geoh5py.objects import MaxwellPlate
 from geoh5py.objects.maxwell_plate import PlateGeometry, PlatePosition
 from geoh5py.shared.utils import fetch_active_workspace
-from numpy import array_split
 
 from .options import LeroiAirOptions
 
@@ -28,8 +27,8 @@ class LeroiAirInterface:
     version: str = "8.0"
 
     def __init__(self, opts: LeroiAirOptions):
+        """Initialize with simulation options."""
         self.opts = opts
-        self.float_precision: int = 4
 
     @property
     def aliased_values(self) -> dict[str, Any]:
@@ -105,32 +104,34 @@ class LeroiAirInterface:
     def _format_float(self, value: float) -> str:
         """Format a float, truncating to float_precision only when needed."""
         _, _, decimals = str(value).partition(".")
-        if len(decimals) > self.float_precision:
-            return f"{value:.{self.float_precision}f}"
+        if len(decimals) > self.opts.float_precision:
+            return f"{value:.{self.opts.float_precision}f}"
         return str(value)
 
-    def format_line(self, params: list[str]) -> str:
-        """format a string from a list of params and the retrieved values."""
+    def _format_scalar_params(self, params: list[str]) -> str:
+        """Format one scalar value per param onto a single line."""
         values = [self._format_value(self.aliased_values[k]) for k in params]
         return f"{' '.join(values)} \t ! {', '.join(params)}"
 
-    def format_line_from_array(self, param: str):
-        """Format a line string from an array."""
-        values = [self._format_value(k) for k in self.aliased_values[param]]
+    def _format_vector_param(self, param: str) -> str:
+        """Format all elements of a single vector param onto a single line."""
+        values = [self._format_value(v) for v in self.aliased_values[param]]
         return f"{' '.join(values)} \t ! {param}"
 
-    def format_multi_line(self, params: str | list[str]) -> str:
-        """Format a multi-line string from a column, or row oriented array."""
+    def format_line(self, params: str | list[str]) -> str:
+        """Format one or more param values on a single line."""
         if isinstance(params, str):
-            rows = [
-                [v]
-                for chunk in array_split(self.aliased_values[params], 10)
-                for v in chunk
-            ]
-        else:
-            columns = [self.aliased_values[k] for k in params]
-            rows = [list(row) for row in zip(*columns, strict=True)]
-        return self._format_rows(rows) + "\t ! " + ", ".join(params)
+            return self._format_vector_param(params)
+        return self._format_scalar_params(params)
+
+    def format_multi_line(self, params: list[str]) -> str:
+        """Format one or more vector param values as a row-per-entry table."""
+        columns = [self.aliased_values[k] for k in params]
+        rows = [
+            " ".join(self._format_value(v) for v in row)
+            for row in zip(*columns, strict=True)
+        ]
+        return "\n".join(rows) + "\t ! " + ", ".join(params)
 
     @property
     def record_2(self) -> str:
@@ -148,11 +149,11 @@ class LeroiAirInterface:
 
     @property
     def record_5(self) -> str:
-        return self.format_line_from_array("TMS")
+        return self.format_line("TMS")
 
     @property
     def record_6(self) -> str:
-        return self.format_line_from_array("WIDTH")
+        return self.format_line("WIDTH")
 
     @property
     def record_7(self) -> str:
@@ -233,10 +234,6 @@ class LeroiAirInterface:
 
         return "\n".join(lines) + "\n"
 
-    def _format_rows(self, rows: list[list]) -> str:
-        """Format a multi-line string from a list of rows."""
-        return "\n".join(" ".join(self._format_value(v) for v in row) for row in rows)
-
     def write_cfl_file(self, filepath: Path) -> None:
         """Write the formatted .cfl input file to disk."""
         with open(filepath, mode="w", encoding="utf-8") as f:
@@ -248,18 +245,20 @@ class LeroiAirInterface:
         "z": "VERTICAL COMPONENT",
     }
 
+    def _find_data_start(self, chunk: list[str]) -> int:
+        """Return the index of the first station data row within a section chunk."""
+        header_idx = next(
+            i
+            for i, line in enumerate(chunk)
+            if all(k in line for k in ["EAST", "NORTH", "ALT"])
+        )
+        return header_idx + 2
+
     def _slice_data_lines(self, lines: list[str], anchor: str) -> list[str]:
         """Slice the station data rows that follow the given section header."""
         anchor_idx = next(i for i, line in enumerate(lines) if anchor in line)
         chunk = lines[anchor_idx:]
-        data_start = (
-            next(
-                i
-                for i, line in enumerate(chunk)
-                if all(k in line for k in ["EAST", "NORTH", "ALT"])
-            )
-            + 2
-        )
+        data_start = self._find_data_start(chunk)
         return chunk[data_start : data_start + self.opts.n_stations]
 
     def _extract_data(

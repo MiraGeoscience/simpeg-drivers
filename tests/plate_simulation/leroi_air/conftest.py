@@ -57,6 +57,7 @@ FAKE_OUT = """\
 def mock_interface():
     opts = MagicMock()
     opts.n_stations = N_STATIONS
+    opts.float_precision = 4
     return LeroiAirInterface(opts=opts)
 
 
