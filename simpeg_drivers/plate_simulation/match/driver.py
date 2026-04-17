@@ -556,7 +556,7 @@ def get_normalized_predicted(
     survey: AirborneTEMReceivers, spatial_projection, time_projection, threshold
 ) -> np.ndarray:
     """
-    From a survey entity, retrieve the predicted data group,
+    Retrieve, interpolate and normalize predicted data stored on survey.
     interpolate and normalize the data
 
     :param survey: AirborneTEMReceivers entity
