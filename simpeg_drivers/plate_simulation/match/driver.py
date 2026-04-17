@@ -10,9 +10,7 @@
 
 from __future__ import annotations
 
-import logging
 import sys
-from contextlib import contextmanager
 from io import BytesIO
 from pathlib import Path
 from typing import Self
@@ -23,7 +21,7 @@ from dask.distributed import Client, Future, progress
 from geoapps_utils.base import Driver
 from geoapps_utils.utils.importing import GeoAppsError
 from geoapps_utils.utils.locations import topo_drape_elevation
-from geoapps_utils.utils.logger import get_logger
+from geoapps_utils.utils.logger import get_logger, suppress_logging
 from geoapps_utils.utils.numerical import inverse_weighted_operator
 from geoapps_utils.utils.plotting import symlog
 from geoapps_utils.utils.transformations import cartesian_to_polar, rotate_xyz
@@ -48,21 +46,6 @@ from simpeg_drivers.utils.utils import (
 
 
 logger = get_logger(name=__name__, level_name=False, propagate=False, add_name=False)
-
-
-@contextmanager
-def suppress_logging(level=logging.WARNING):
-    """
-    Temporarily disable logging records at or below the given level.
-
-    :param level: Logging level to suppress (default: logging.WARNING).
-    """
-    previous_disable_level = logging.root.manager.disable
-    logging.disable(level)
-    try:
-        yield
-    finally:
-        logging.disable(previous_disable_level)
 
 
 class PlateMatchDriver(Driver):
@@ -398,6 +381,7 @@ class PlateMatchDriver(Driver):
                 ui_json["geoh5"] = ws
                 ifile = InputFile(ui_json=ui_json)
 
+                # Avoid getting pydantic deprecation warnings from old PlateSimulations stored
                 with suppress_logging():
                     options = PlateSimulationOptions.build(ifile)
 
