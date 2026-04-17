@@ -7,8 +7,8 @@
 #  (see LICENSE file at the root of this source code package).                      '
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-import shutil
 import logging
+import shutil
 from pathlib import Path
 
 import numpy as np
@@ -16,6 +16,7 @@ import pytest
 from geoapps_utils.utils.importing import GeoAppsError
 from geoapps_utils.utils.transformations import rotate_xyz
 from geoh5py import Workspace
+from geoh5py.data import FilenameData
 from geoh5py.groups import PropertyGroup, SimPEGGroup
 from geoh5py.objects import Points
 from geoh5py.ui_json import InputFile
@@ -57,7 +58,7 @@ def generate_example(geoh5: Workspace, n_grid_points: int, refinement: tuple[int
             topography=lambda x, y: np.zeros(x.shape),
         ),
         mesh=MeshOptions(refinement=refinement),
-        model=ModelOptions(background=0.001),
+        model=ModelOptions(background=0.0001, anomaly=10),
     )
     components = SyntheticsComponents(geoh5, options=opts)
     vals = components.survey.add_data(
@@ -88,15 +89,20 @@ def test_file_parsing(tmp_path: Path):
 
     with get_workspace(tmp_path / f"{__name__}.geoh5") as geoh5:
         components = generate_example(geoh5, n_grid_points=3, refinement=(2,))
+
         options = PlateMatchOptions(
             geoh5=geoh5,
             survey=components.survey,
             data=components.property_group,
             queries=components.queries,
             topography_object=components.topography,
-            simulations=tmp_path,
+            simulations=tmp_path / "non_existing",
         )
 
+    with pytest.raises(GeoAppsError, match="Simulation directory not found"):
+        _ = options.simulation_files
+
+    options.simulations = tmp_path
     sim_files = options.simulation_files
     assert len(sim_files) == 1
     assert sim_files[0].name == f"{__name__}.geoh5"
@@ -147,8 +153,13 @@ def test_matching_driver(tmp_path: Path):
         ifile.data["simulation"] = fwr_driver.out_group
 
         plate_options = PlateSimulationOptions.build(ifile.data)
-        plate_options.model.overburden_options.thickness = 40.0
+        plate_options.model.overburden_options.thickness = 25.0
+        plate_options.model.overburden_options.overburden_property = 10000
         plate_options.model.plate_options.geometry.dip_length = 300.0
+        plate_options.model.plate_options.geometry.width = 50.0
+        plate_options.model.plate_options.geometry.elevation = 50
+        plate_options.model.plate_options.plate_property = 10
+        plate_options.model.background = 10000
         driver = PlateSimulationDriver(plate_options)
         driver.run()
 
@@ -217,9 +228,11 @@ def test_matching_driver(tmp_path: Path):
         assert isinstance(results, Points)
 
         names = results.get_data("file")[0]
-        assert names.values[0] == file.stem + f"_[{4}].geoh5"
+        assert names.values[0] == file.stem + f"_[{1}].geoh5"
 
-        assert geoh5.get_entity("Query [0]")[0].geometry.dip_direction == 45.0
+        plate = geoh5.get_entity("Query [0]")[0]
+        assert plate.geometry.dip_direction == 45.0
+        assert isinstance(plate.get_entity("profile_Query [0].png")[0], FilenameData)
 
 
 def test_suppress_logging_restores_disable_level():

@@ -233,7 +233,7 @@ class PlateMatchDriver(Driver):
             }
         )
         plate = MaxwellPlate.create(
-            self.params.geoh5, geometry=plate_geometry, parent=self.params.out_group
+            self.params.geoh5, geometry=plate_geometry, parent=self.out_group
         )
         plate.metadata = model_options.model_dump()
 
@@ -416,7 +416,7 @@ class PlateMatchDriver(Driver):
             names.append(self.params.simulation_files[best].name)
             results.append(scores[best])
 
-        out = self.params.queries.copy(parent=self.params.out_group)
+        out = self.params.queries.copy(parent=self.out_group)
         out.add_data(
             {
                 "file": {
