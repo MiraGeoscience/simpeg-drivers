@@ -147,6 +147,13 @@ DRIVER_MAP = {
             "inversion": "MagneticVectorInversionDriver",
         },
     ),
+    "magnetic vector pde": (
+        "simpeg_drivers.potential_fields.magnetic_vector_pde",
+        {
+            "forward": "MagneticVectorPDEForwardDriver",
+            "inversion": "MagneticVectorPDEInversionDriver",
+        },
+    ),
     "magnetotellurics": (
         "simpeg_drivers.natural_sources.magnetotellurics",
         {

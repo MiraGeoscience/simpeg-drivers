@@ -51,6 +51,7 @@ class SimulationFactory(SimPEGFactory):
             "tipper",
             "fdem",
             "tdem",
+            "magnetic vector pde",
         ]:
             import pymatsolver.direct as solver_module
 
@@ -61,6 +62,11 @@ class SimulationFactory(SimPEGFactory):
             from simpeg.potential_fields.magnetics import simulation
 
             return simulation.Simulation3DIntegral
+
+        if self.factory_type == "magnetic vector pde":
+            from simpeg.potential_fields.magnetics import simulation
+
+            return simulation.Simulation3DDifferential
 
         if self.factory_type == "gravity":
             from simpeg.potential_fields.gravity import simulation
@@ -147,6 +153,19 @@ class SimulationFactory(SimPEGFactory):
         if self.factory_type == "magnetic scalar":
             kwargs["active_cells"] = active_cells
             kwargs["chiMap"] = maps.IdentityMap(nP=int(active_cells.sum()))
+
+        if self.factory_type == "magnetic vector pde":
+            inject = maps.InjectActiveCells(
+                mesh,
+                active_cells=np.tile(active_cells, 3),
+                value_inactive=0,
+                nC=mesh.n_cells * 3,
+            )
+            kwargs["remMap"] = inject * maps.EffectiveSusceptibilityMap(
+                nP=active_cells.sum() * 3,
+                ambient_field_magnitude=survey.source_field.amplitude,
+            )
+            kwargs["solver_dtype"] = np.float32
 
         if self.factory_type == "gravity":
             kwargs["active_cells"] = active_cells

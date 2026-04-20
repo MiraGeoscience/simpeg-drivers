@@ -288,30 +288,6 @@ class BaseDriver(Driver, ABC):
 
         return self._mapping
 
-    @property
-    def models(self):
-        """Inversion models"""
-        if getattr(self, "_models", None) is None:
-            with fetch_active_workspace(self.workspace, mode="r+"):
-                self._models = InversionModelCollection(self)
-
-        return self._models
-
-    @property
-    def n_blocks(self):
-        """
-        Number of model components in the inversion.
-        """
-        return 3 if self.params.inversion_type == "magnetic vector" else 1
-
-    @property
-    def n_values(self):
-        """Number of values in the model"""
-        if self._n_values is None:
-            self._n_values = self.models.n_active
-
-        return self._n_values
-
     @mapping.setter
     def mapping(self, value: maps.IdentityMap | list[maps.IdentityMap]):
         if not isinstance(value, list):
@@ -327,6 +303,30 @@ class BaseDriver(Driver, ABC):
             )
 
         self._mapping = value
+
+    @property
+    def models(self):
+        """Inversion models"""
+        if getattr(self, "_models", None) is None:
+            with fetch_active_workspace(self.workspace, mode="r+"):
+                self._models = InversionModelCollection(self)
+
+        return self._models
+
+    @property
+    def n_blocks(self):
+        """
+        Number of model components in the inversion.
+        """
+        return 3 if "magnetic vector" in self.params.inversion_type else 1
+
+    @property
+    def n_values(self):
+        """Number of values in the model"""
+        if self._n_values is None:
+            self._n_values = self.models.n_active
+
+        return self._n_values
 
     def split_list(self, tiles: list[np.ndarray]) -> list[list[np.ndarray]]:
         """
@@ -570,13 +570,103 @@ class InversionDriver(BaseDriver):
 
         return finite_data_count, total_data_count
 
+    def get_modified_regularization(
+        self,
+        reg_func,
+        mapping,
+        is_rotated: bool,
+        forward_mesh: RegularizationMesh | None,
+        backward_mesh: RegularizationMesh | None,
+    ):
+        """
+        Modify the regularization function with rotated operators.
+
+        :param reg_func: Regularization function.
+        :param mapping: Mapping.
+        :param is_rotated: Whether the regularization function is rotated or not.
+        :param forward_mesh: Forward mesh object.
+        :param backward_mesh: Backward mesh object.
+        """
+        neighbors = None
+        if is_rotated and not (backward_mesh or forward_mesh):
+            backward_mesh = RegularizationMesh(
+                self.inversion_mesh.mesh, active_cells=self.models.active_cells
+            )
+            neighbors = cell_neighbors(reg_func.regularization_mesh.mesh)
+
+        # Adjustment for 2D versus 3D problems
+        components = (
+            "sxz"
+            if (
+                "2d" in self.params.inversion_type or "1d" in self.params.inversion_type
+            )
+            else "sxyz"
+        )
+        weight_names = ["alpha_s"] + [f"length_scale_{k}" for k in components[1:]]
+        functions = []
+        for comp, weight_name, fun in zip(components, weight_names, reg_func.objfcts):
+            if getattr(self.models, weight_name) is None:
+                setattr(reg_func, weight_name, 0.0)
+                functions.append(fun)
+                continue
+
+            weight = mapping * getattr(self.models, weight_name)
+            norm = mapping * getattr(self.models, f"{comp}_norm")
+
+            if not isinstance(fun, SparseSmoothness):
+                fun.set_weights(**{comp: weight})
+                fun.norm = norm
+                functions.append(fun)
+                continue
+
+            if is_rotated and not forward_mesh:
+                fun = set_rotated_operators(
+                    fun,
+                    neighbors,
+                    comp,
+                    self.models.gradient_dip,
+                    self.models.gradient_direction,
+                )
+
+            average_op = getattr(
+                reg_func.regularization_mesh,
+                f"aveCC2F{fun.orientation}",
+            )
+            fun.set_weights(**{comp: average_op @ weight})
+            fun.norm = np.round(average_op @ norm, decimals=3)
+            functions.append(fun)
+
+            if is_rotated:
+                fun.gradient_type = "components"
+                backward_fun = deepcopy(fun)
+                setattr(backward_fun, "_regularization_mesh", backward_mesh)
+
+                # Only do it once for MVI
+                if not forward_mesh:
+                    backward_fun = set_rotated_operators(
+                        backward_fun,
+                        neighbors,
+                        comp,
+                        self.models.gradient_dip,
+                        self.models.gradient_direction,
+                        forward=False,
+                    )
+                average_op = getattr(
+                    backward_fun.regularization_mesh,
+                    f"aveCC2F{fun.orientation}",
+                )
+                backward_fun.set_weights(**{comp: average_op @ weight})
+                backward_fun.norm = np.round(average_op @ norm, decimals=3)
+                functions.append(backward_fun)
+
+        return functions
+
     def get_regularization(self):
         if self.params.forward_only:
             return BaseRegularization(mesh=self.inversion_mesh.mesh)
 
         reg_funcs = []
         is_rotated = self.params.models.gradient_rotation is not None
-        neighbors = None
         backward_mesh = None
         forward_mesh = None
         for mapping in self.mapping:
@@ -587,83 +677,13 @@ class InversionDriver(BaseDriver):
                 reference_model=self.models.reference_model,
             )
 
-            if is_rotated and neighbors is None:
-                backward_mesh = RegularizationMesh(
-                    self.inversion_mesh.mesh, active_cells=self.models.active_cells
-                )
-                neighbors = cell_neighbors(reg_func.regularization_mesh.mesh)
-
-            # Adjustment for 2D versus 3D problems
-            components = (
-                "sxz"
-                if (
-                    "2d" in self.params.inversion_type
-                    or "1d" in self.params.inversion_type
-                )
-                else "sxyz"
+            functions = self.get_modified_regularization(
+                reg_func, mapping, is_rotated, forward_mesh, backward_mesh
             )
-            weight_names = ["alpha_s"] + [f"length_scale_{k}" for k in components[1:]]
-            functions = []
-            for comp, weight_name, fun in zip(
-                components, weight_names, reg_func.objfcts
-            ):
-                if getattr(self.models, weight_name) is None:
-                    setattr(reg_func, weight_name, 0.0)
-                    functions.append(fun)
-                    continue
-
-                weight = mapping * getattr(self.models, weight_name)
-                norm = mapping * getattr(self.models, f"{comp}_norm")
-
-                if not isinstance(fun, SparseSmoothness):
-                    fun.set_weights(**{comp: weight})
-                    fun.norm = norm
-                    functions.append(fun)
-                    continue
-
-                if is_rotated:
-                    if forward_mesh is None:
-                        fun = set_rotated_operators(
-                            fun,
-                            neighbors,
-                            comp,
-                            self.models.gradient_dip,
-                            self.models.gradient_direction,
-                        )
-
-                average_op = getattr(
-                    reg_func.regularization_mesh,
-                    f"aveCC2F{fun.orientation}",
-                )
-                fun.set_weights(**{comp: average_op @ weight})
-                fun.norm = np.round(average_op @ norm, decimals=3)
-                functions.append(fun)
-
-                if is_rotated:
-                    fun.gradient_type = "components"
-                    backward_fun = deepcopy(fun)
-                    setattr(backward_fun, "_regularization_mesh", backward_mesh)
-
-                    # Only do it once for MVI
-                    if not forward_mesh:
-                        backward_fun = set_rotated_operators(
-                            backward_fun,
-                            neighbors,
-                            comp,
-                            self.models.gradient_dip,
-                            self.models.gradient_direction,
-                            forward=False,
-                        )
-                    average_op = getattr(
-                        backward_fun.regularization_mesh,
-                        f"aveCC2F{fun.orientation}",
-                    )
-                    backward_fun.set_weights(**{comp: average_op @ weight})
-                    backward_fun.norm = np.round(average_op @ norm, decimals=3)
-                    functions.append(backward_fun)
 
             # Will avoid recomputing operators if the regularization mesh is the same
-            forward_mesh = reg_func.regularization_mesh
+            forward_mesh = functions[0].regularization_mesh
+            backward_mesh = functions[-1].regularization_mesh
             reg_func.objfcts = functions
             reg_func.norms = [fun.norm for fun in functions]
             reg_funcs.append(reg_func)
@@ -758,9 +778,13 @@ class InversionLogger:
 
         self.initial_time = time()
         self.start_date_time = datetime.now().strftime("%Y%m%d_%Hh%Mm%Ss")
-        self.logfile = self.get_path(f"SimPEG_{self.start_date_time}.log")
+        self.logfile = self.get_path("SimPEG.log")
 
     def start(self):
+        if self.logfile.is_file():
+            self.write("SimPEG.log file already exists and will be overwritten.")
+            self.logfile.unlink()
+
         self.write(
             f"Running simpeg-drivers {__version__}\n"
             f"Started {self.start_date_time}\n"
@@ -783,9 +807,9 @@ class InversionLogger:
     def flush(self):
         pass
 
-    def get_path(self, filepath: str | Path) -> str:
+    def get_path(self, filepath: str | Path) -> Path:
         root_directory = Path(self.driver.workspace.h5file).parent
-        return str(root_directory / filepath)
+        return root_directory / filepath
 
 
 def driver_class_from_name(

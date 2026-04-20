@@ -486,8 +486,8 @@ def set_rotated_operators(
     :param function: Smoothness regularization to change operator for.
     :param neighbors: Cell neighbors array.
     :param axis: Regularization axis.
-    :param dip: Angle in radians for rotation from the horizon.
-    :param direction: Angle in radians for rotation about the z-axis.
+    :param dip: Angle in degrees for rotation from the horizon.
+    :param direction: Angle in degrees for rotation about the z-axis.
     :param forward: Whether to use forward or backward difference for
         derivative approximations.
     """
@@ -496,7 +496,9 @@ def set_rotated_operators(
 
     h_cell = mesh.mesh.h_gridded[:, axes.find(axis)]
 
-    unit_grad_op = rotated_gradient(mesh.mesh, neighbors, axis, dip, direction, forward)
+    unit_grad_op = rotated_gradient(
+        mesh.mesh, neighbors, axis, np.deg2rad(dip), np.deg2rad(direction), forward
+    )
 
     vol_avg_op = abs(unit_grad_op)
     vol_avg_op.data = (

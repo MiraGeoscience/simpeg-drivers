@@ -61,6 +61,7 @@ class SimPEGFactory(ABC):
         "gravity",
         "magnetic scalar",
         "magnetic vector",
+        "magnetic vector pde",
         "magnetotellurics",
         "tdem",
         "tdem 1d",
