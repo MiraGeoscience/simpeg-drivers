@@ -246,7 +246,7 @@ class DirectivesFactory:
         """"""
         if self._save_iteration_log_files is None and self.driver.logger:
             self._save_iteration_log_files = directives.SaveLogFilesGeoH5(
-                self.driver.out_group, self.driver.logger.start_date_time
+                self.driver.out_group
             )
         return self._save_iteration_log_files
 
@@ -286,8 +286,7 @@ class DirectivesFactory:
         ):
             nested_tiles = self.driver.get_nested_tiles()
             self._scale_misfits = directives.ScaleMisfitMultipliers(
-                self.params.geoh5.h5file.parent
-                / f"ChiFactors_{self.driver.logger.start_date_time}.log",
+                self.params.geoh5.h5file.parent / "ChiFactors.log",
                 nested_tiles,
                 target_chi=self.params.cooling_schedule.chi_factor,
             )
