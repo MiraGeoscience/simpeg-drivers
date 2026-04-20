@@ -299,10 +299,10 @@ dependencies:
   - zlib-ng=2.3.3=hceb46e0_1
   - zstd=1.5.7=hb78ec9c_6
   - pip:
-    - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@6b26f39967277d6384c6fc28d8868c1104dfddeb
+    - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@9baaece0133496c23519ff2708f89e679e900fd0
     - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@6ad559b09341b80c22aac363cbd0087089bd1a8a
     - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@57806e78469cb881a8d5dceae645336e77310bf4
-    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@831c9c7f28afd8e9dc95a6886a4146fdb9f3398a
+    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@fa25746b50102620bd8bcaf91aff8a3f745d8c4b
 
 variables:
   KMP_WARNINGS: 0

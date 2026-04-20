@@ -8329,7 +8329,7 @@ package:
   category: main
   optional: false
 - name: geoapps-utils
-  version: 0.7.0a4.dev14+6b26f39
+  version: 0.7.0a4.dev21+9baaece
   manager: pip
   platform: linux-64
   dependencies:
@@ -8338,16 +8338,16 @@ package:
     numpy: '>=2.4.2,<2.5.0'
     pydantic: '>=2.12.0,<2.13.0'
     scipy: '>=1.17.0,<1.18.0'
-  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@6b26f39967277d6384c6fc28d8868c1104dfddeb
+  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@9baaece0133496c23519ff2708f89e679e900fd0
   hash:
-    sha256: 6b26f39967277d6384c6fc28d8868c1104dfddeb
+    sha256: 9baaece0133496c23519ff2708f89e679e900fd0
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@6b26f39967277d6384c6fc28d8868c1104dfddeb
+    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@9baaece0133496c23519ff2708f89e679e900fd0
   category: main
   optional: false
 - name: geoapps-utils
-  version: 0.7.0a4.dev14+6b26f39
+  version: 0.7.0a4.dev21+9baaece
   manager: pip
   platform: win-64
   dependencies:
@@ -8356,12 +8356,12 @@ package:
     numpy: '>=2.4.2,<2.5.0'
     pydantic: '>=2.12.0,<2.13.0'
     scipy: '>=1.17.0,<1.18.0'
-  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@6b26f39967277d6384c6fc28d8868c1104dfddeb
+  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@9baaece0133496c23519ff2708f89e679e900fd0
   hash:
-    sha256: 6b26f39967277d6384c6fc28d8868c1104dfddeb
+    sha256: 9baaece0133496c23519ff2708f89e679e900fd0
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@6b26f39967277d6384c6fc28d8868c1104dfddeb
+    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@9baaece0133496c23519ff2708f89e679e900fd0
   category: main
   optional: false
 - name: geoh5py
@@ -8404,7 +8404,7 @@ package:
   platform: linux-64
   dependencies:
     discretize: '>=0.12.0,<0.13.0'
-    geoapps-utils: 0.7.0a4.dev14+6b26f39
+    geoapps-utils: 0.7.0a4.dev21+9baaece
     geoh5py: 0.13.0a4.dev7+6ad559b0
     numpy: '>=2.4.2,<2.5.0'
     pydantic: '>=2.12.0,<2.13.0'
@@ -8423,7 +8423,7 @@ package:
   platform: win-64
   dependencies:
     discretize: '>=0.12.0,<0.13.0'
-    geoapps-utils: 0.7.0a4.dev14+6b26f39
+    geoapps-utils: 0.7.0a4.dev21+9baaece
     geoh5py: 0.13.0a4.dev7+6ad559b0
     numpy: '>=2.4.2,<2.5.0'
     pydantic: '>=2.12.0,<2.13.0'
@@ -8437,7 +8437,7 @@ package:
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.25.0.1a3.dev11+g831c9c7f2
+  version: 0.25.0.1a3.dev16+gfa25746b5
   manager: pip
   platform: linux-64
   dependencies:
@@ -8449,16 +8449,16 @@ package:
     numpy: '>=1.22'
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@831c9c7f28afd8e9dc95a6886a4146fdb9f3398a
+  url: git+https://github.com/MiraGeoscience/simpeg.git@fa25746b50102620bd8bcaf91aff8a3f745d8c4b
   hash:
-    sha256: 831c9c7f28afd8e9dc95a6886a4146fdb9f3398a
+    sha256: fa25746b50102620bd8bcaf91aff8a3f745d8c4b
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@831c9c7f28afd8e9dc95a6886a4146fdb9f3398a
+    url: git+https://github.com/MiraGeoscience/simpeg.git@fa25746b50102620bd8bcaf91aff8a3f745d8c4b
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.25.0.1a3.dev11+g831c9c7f2
+  version: 0.25.0.1a3.dev16+gfa25746b5
   manager: pip
   platform: win-64
   dependencies:
@@ -8470,11 +8470,11 @@ package:
     numpy: '>=1.22'
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@831c9c7f28afd8e9dc95a6886a4146fdb9f3398a
+  url: git+https://github.com/MiraGeoscience/simpeg.git@fa25746b50102620bd8bcaf91aff8a3f745d8c4b
   hash:
-    sha256: 831c9c7f28afd8e9dc95a6886a4146fdb9f3398a
+    sha256: fa25746b50102620bd8bcaf91aff8a3f745d8c4b
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@831c9c7f28afd8e9dc95a6886a4146fdb9f3398a
+    url: git+https://github.com/MiraGeoscience/simpeg.git@fa25746b50102620bd8bcaf91aff8a3f745d8c4b
   category: main
   optional: false
