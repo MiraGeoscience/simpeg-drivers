@@ -611,7 +611,9 @@ class InversionDriver(BaseDriver):
                 continue
 
             weight = mapping * getattr(self.models, weight_name)
-            norm = mapping * getattr(self.models, f"{comp}_norm")
+            norm = getattr(self.models, f"{comp}_norm")
+            if norm is not None:
+                norm = mapping * norm
 
             if not isinstance(fun, SparseSmoothness):
                 fun.set_weights(**{comp: weight})
@@ -633,7 +635,9 @@ class InversionDriver(BaseDriver):
                 f"aveCC2F{fun.orientation}",
             )
             fun.set_weights(**{comp: average_op @ weight})
-            fun.norm = np.round(average_op @ norm, decimals=3)
+
+            if norm is not None:
+                fun.norm = np.round(average_op @ norm, decimals=3)
             functions.append(fun)
 
             if is_rotated:
@@ -656,7 +660,9 @@ class InversionDriver(BaseDriver):
                     f"aveCC2F{fun.orientation}",
                 )
                 backward_fun.set_weights(**{comp: average_op @ weight})
-                backward_fun.norm = np.round(average_op @ norm, decimals=3)
+
+                if norm is not None:
+                    backward_fun.norm = np.round(average_op @ norm, decimals=3)
                 functions.append(backward_fun)
 
         return functions
