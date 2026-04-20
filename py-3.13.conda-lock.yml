@@ -8302,7 +8302,7 @@ package:
   category: main
   optional: false
 - name: geoapps-utils
-  version: 0.7.0a4.dev14+6b26f39
+  version: 0.7.0a4.dev21+9baaece
   manager: pip
   platform: linux-64
   dependencies:
@@ -8311,16 +8311,16 @@ package:
     numpy: '>=2.4.2,<2.5.0'
     pydantic: '>=2.12.0,<2.13.0'
     scipy: '>=1.17.0,<1.18.0'
-  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@6b26f39967277d6384c6fc28d8868c1104dfddeb
+  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@9baaece0133496c23519ff2708f89e679e900fd0
   hash:
-    sha256: 6b26f39967277d6384c6fc28d8868c1104dfddeb
+    sha256: 9baaece0133496c23519ff2708f89e679e900fd0
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@6b26f39967277d6384c6fc28d8868c1104dfddeb
+    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@9baaece0133496c23519ff2708f89e679e900fd0
   category: main
   optional: false
 - name: geoapps-utils
-  version: 0.7.0a4.dev14+6b26f39
+  version: 0.7.0a4.dev21+9baaece
   manager: pip
   platform: win-64
   dependencies:
@@ -8329,12 +8329,12 @@ package:
     numpy: '>=2.4.2,<2.5.0'
     pydantic: '>=2.12.0,<2.13.0'
     scipy: '>=1.17.0,<1.18.0'
-  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@6b26f39967277d6384c6fc28d8868c1104dfddeb
+  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@9baaece0133496c23519ff2708f89e679e900fd0
   hash:
-    sha256: 6b26f39967277d6384c6fc28d8868c1104dfddeb
+    sha256: 9baaece0133496c23519ff2708f89e679e900fd0
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@6b26f39967277d6384c6fc28d8868c1104dfddeb
+    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@9baaece0133496c23519ff2708f89e679e900fd0
   category: main
   optional: false
 - name: geoh5py
@@ -8377,7 +8377,7 @@ package:
   platform: linux-64
   dependencies:
     discretize: '>=0.12.0,<0.13.0'
-    geoapps-utils: 0.7.0a4.dev14+6b26f39
+    geoapps-utils: 0.7.0a4.dev21+9baaece
     geoh5py: 0.13.0a4.dev7+6ad559b0
     numpy: '>=2.4.2,<2.5.0'
     pydantic: '>=2.12.0,<2.13.0'
@@ -8396,7 +8396,7 @@ package:
   platform: win-64
   dependencies:
     discretize: '>=0.12.0,<0.13.0'
-    geoapps-utils: 0.7.0a4.dev14+6b26f39
+    geoapps-utils: 0.7.0a4.dev21+9baaece
     geoh5py: 0.13.0a4.dev7+6ad559b0
     numpy: '>=2.4.2,<2.5.0'
     pydantic: '>=2.12.0,<2.13.0'
