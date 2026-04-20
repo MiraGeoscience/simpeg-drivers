@@ -302,9 +302,14 @@ class InversionData(InversionLocations):
                     offsets = {
                         k: v * np.ones(len(self.locations)) for k, v in offsets.items()
                     }
+                    # Normalization for coplanar
                     normalizations[chan][comp] = (
-                        mu0 * (-1 / offsets[chan] ** 3 / (4 * np.pi)) / 1e6
+                        mu0 * (2 / offsets[chan] ** 3 / (4 * np.pi)) / 1e6
                     )
+
+                    if "vertical" in comp:
+                        normalizations[chan][comp] *= -0.5
+
                 elif (
                     "tdem" in self.params.inversion_type
                     and "dB/dt" in self.params.data_units
