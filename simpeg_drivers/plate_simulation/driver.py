@@ -119,18 +119,16 @@ class PlateSimulationDriver(Driver):
         return self._survey
 
     @property
+    def topography(self) -> Surface | Points:
+        return self.simulation_parameters.active_cells.topography_object
+
+    @property
     def plates(self) -> list[Plate]:
         """Generate sequence of plates."""
         if self._plates is None:
-            offset = (
-                self.params.model.overburden_options.thickness
-                if self.params.model.plate_options.reference_surface == "overburden"
-                else 0.0
-            )
             center = self.params.model.plate_options.center(
                 self.survey,
                 self.topography,
-                depth_offset=-1 * offset,
             )
             plate = Plate(
                 self.params.model.plate_options.geometry.model_copy(
@@ -148,10 +146,6 @@ class PlateSimulationDriver(Driver):
                 self.params.model.plate_options.geometry.direction,
             )
         return self._plates
-
-    @property
-    def topography(self) -> Surface | Points:
-        return self.simulation_parameters.active_cells.topography_object
 
     @property
     def mesh(self) -> Octree:

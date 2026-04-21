@@ -106,7 +106,9 @@ def test_fem_fwr_run(
                 width=40.0,
                 easting=0.0,
                 northing=0.0,
-                elevation=-50.0,
+                elevation=-30.0,
+                dip=90.0,
+                direction=0.0,
             ),
         ),
     )

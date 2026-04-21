@@ -56,12 +56,7 @@ def setup_plate_sweep(workspace) -> SimPEGGroup:
     options_dict["padding_distance"]["value"] = 1500.0
     options_dict["dip_direction"]["value"] = 0.0
     options_dict["number"]["value"] = 1
-    options_dict["relative_locations"]["value"] = True
-    options_dict["easting"]["value"] = 10.0
-    options_dict["northing"]["value"] = 10.0
-    options_dict["elevation"]["value"] = -250.0
-    options_dict["reference_surface"]["value"] = "topography"
-    options_dict["reference_type"]["value"] = "mean"
+    options_dict["elevation"]["value"] = 100.0
     options_dict["out_group"]["value"] = str(simulation.uid)
     simulation.options = options_dict
 

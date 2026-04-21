@@ -75,7 +75,7 @@ def test_app_con_fwr_run(
                 dip=90,
                 easting=0.0,
                 northing=0.0,
-                elevation=-90.0,
+                elevation=-60.0,
             ),
         ),
     )

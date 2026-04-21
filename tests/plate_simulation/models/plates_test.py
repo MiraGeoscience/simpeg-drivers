@@ -82,7 +82,9 @@ def test_dipping_plates_all_quadrants(tmp_path):
                 )
 
                 plate = Plate(params)
-                surface = plate.surface(workspace)
+                surface = plate.surface(
+                    workspace, name=f"Plate (dip: {dip}, dir: {dip_direction})"
+                )
                 locs = rotate_xyz(surface.vertices, [0.0, 0.0, 0.0], dip_direction, 0.0)
                 locs = rotate_xyz(locs, [0.0, 0.0, 0.0], 0.0, dip - 90.0)
                 assert np.allclose(locs, reference.vertices)

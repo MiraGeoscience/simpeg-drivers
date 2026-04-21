@@ -8,23 +8,25 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-from typing import TypeVar
+
+from logging import getLogger
 
 import numpy as np
 from geoapps_utils.modelling.plates import PlateModel
+from geoapps_utils.utils.locations import topo_drape_elevation
 from geoh5py.objects import Points
 from pydantic import (
     AliasChoices,
     BaseModel,
     ConfigDict,
     Field,
-    ValidationInfo,
-    field_validator,
     model_validator,
 )
 
+from simpeg_drivers.options import Deprecated
 
-T = TypeVar("T")
+
+logger = getLogger(__name__)
 
 
 class PlateOptions(BaseModel):
@@ -36,13 +38,6 @@ class PlateOptions(BaseModel):
     :param geometry: Parameters describing the plate geometry.
     :param number: Number of offset plates to be created.
     :param spacing: Spacing between plates.
-    :param relative_locations: If True locations are relative to survey in xy and
-        mean topography in z.
-    :param reference_surface: Switches between using topography and overburden as
-        elevation reference of the plate.
-    :param reference_type: Type of reference for plate elevation.  Can be 'mean'
-        'min', or 'max'.  Resulting elevation will be relative to the mean,
-        minimum, or maximum of the reference surface.
     """
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -54,14 +49,9 @@ class PlateOptions(BaseModel):
     geometry: PlateModel
     number: int = 1
     spacing: float = 0.0
-    relative_locations: bool = False
-    reference_surface: str = "topography"
-    reference_type: str = "mean"
-
-    @field_validator("reference_surface", "reference_type", mode="before")
-    @classmethod
-    def none_to_default(cls, value: T | None, info: ValidationInfo) -> T:
-        return value or cls.model_fields[info.field_name].default  # pylint: disable=unsubscriptable-object
+    relative_locations: Deprecated
+    reference_surface: Deprecated
+    reference_type: Deprecated
 
     @model_validator(mode="after")
     def single_plate(self):
@@ -69,54 +59,26 @@ class PlateOptions(BaseModel):
             self.spacing = 0.0
         return self
 
-    @property
-    def halfplate(self):
-        """Compute half the z-projection length of the plate."""
-        return 0.5 * self.geometry.dip_length * np.sin(np.deg2rad(self.geometry.dip))
-
     def center(
         self,
         survey: Points,
         surface: Points,
-        depth_offset: float = 0.0,
     ) -> tuple[float, float, float]:
         """
         Find the plate center relative to a survey and topography.
 
         :param survey: geoh5py survey object for plate simulation.
         :param surface: Points-like object to reference plate depth from.
-        :param depth_offset: Additional offset to be added to the depth of the plate.
         """
-        return *self._get_xy(survey), self._get_z(surface, depth_offset)
 
-    def _get_xy(self, survey: Points) -> tuple[float, float]:
-        """Return true or relative locations in x and y."""
+        center_x = survey.vertices[:, 0].mean() + self.geometry.easting
+        center_y = survey.vertices[:, 1].mean() + self.geometry.northing
+        xyz = np.atleast_2d([center_x, center_y, 0])
+        topo_at_center = topo_drape_elevation(
+            xyz, surface.vertices, method="linear", triangulation=surface.cells
+        )
 
-        if self.relative_locations:
-            return (
-                survey.vertices[:, 0].mean() + self.geometry.origin[0],
-                survey.vertices[:, 1].mean() + self.geometry.origin[1],
-            )
-
-        return self.geometry.origin[0], self.geometry.origin[1]
-
-    def _get_z(self, surface: Points, offset: float = 0.0) -> float:
-        """
-        Return true or relative locations in z.
-
-        :param surface: Points-like object to reference plate depth from.
-        :offset: Additional offset to be added to the depth.
-
-        """
-        if surface.vertices is None:
-            raise ValueError("Topography object has no vertices.")
-        if self.relative_locations:
-            z = getattr(surface.vertices[:, 2], self.reference_type)()
-            z += offset + self.geometry.elevation - self.halfplate
-        else:
-            z = self.geometry.elevation
-
-        return z
+        return center_x, center_y, topo_at_center[0, 2] - self.geometry.elevation
 
 
 class OverburdenOptions(BaseModel):
@@ -147,3 +109,14 @@ class ModelOptions(BaseModel):
     background: float
     overburden_options: OverburdenOptions
     plate_options: PlateOptions
+
+    @model_validator(mode="after")
+    def plate_top_below_overburden(self):
+        if self.plate_options.geometry.elevation < self.overburden_options.thickness:
+            logger.warning(
+                "Overburden thickness exceeds the plate depth.  Adjusting"
+                "plate to bottom of overburden to preserve plate's geometry."
+            )
+            self.plate_options.geometry.elevation = self.overburden_options.thickness
+
+        return self
