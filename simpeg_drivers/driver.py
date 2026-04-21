@@ -611,7 +611,9 @@ class InversionDriver(BaseDriver):
                 continue
 
             weight = mapping * getattr(self.models, weight_name)
-            norm = mapping * getattr(self.models, f"{comp}_norm")
+            norm = getattr(self.models, f"{comp}_norm")
+            if norm is not None:
+                norm = mapping * norm
 
             if not isinstance(fun, SparseSmoothness):
                 fun.set_weights(**{comp: weight})
@@ -633,7 +635,9 @@ class InversionDriver(BaseDriver):
                 f"aveCC2F{fun.orientation}",
             )
             fun.set_weights(**{comp: average_op @ weight})
-            fun.norm = np.round(average_op @ norm, decimals=3)
+
+            if norm is not None:
+                fun.norm = np.round(average_op @ norm, decimals=3)
             functions.append(fun)
 
             if is_rotated:
@@ -656,7 +660,9 @@ class InversionDriver(BaseDriver):
                     f"aveCC2F{fun.orientation}",
                 )
                 backward_fun.set_weights(**{comp: average_op @ weight})
-                backward_fun.norm = np.round(average_op @ norm, decimals=3)
+
+                if norm is not None:
+                    backward_fun.norm = np.round(average_op @ norm, decimals=3)
                 functions.append(backward_fun)
 
         return functions
@@ -778,9 +784,13 @@ class InversionLogger:
 
         self.initial_time = time()
         self.start_date_time = datetime.now().strftime("%Y%m%d_%Hh%Mm%Ss")
-        self.logfile = self.get_path(f"SimPEG_{self.start_date_time}.log")
+        self.logfile = self.get_path("SimPEG.log")
 
     def start(self):
+        if self.logfile.is_file():
+            self.write("SimPEG.log file already exists and will be overwritten.")
+            self.logfile.unlink()
+
         self.write(
             f"Running simpeg-drivers {__version__}\n"
             f"Started {self.start_date_time}\n"
@@ -803,9 +813,9 @@ class InversionLogger:
     def flush(self):
         pass
 
-    def get_path(self, filepath: str | Path) -> str:
+    def get_path(self, filepath: str | Path) -> Path:
         root_directory = Path(self.driver.workspace.h5file).parent
-        return str(root_directory / filepath)
+        return root_directory / filepath
 
 
 def driver_class_from_name(
