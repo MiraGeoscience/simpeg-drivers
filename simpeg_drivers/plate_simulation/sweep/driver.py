@@ -14,6 +14,7 @@ import shutil
 import sys
 from numbers import Number
 from pathlib import Path
+from typing import Self
 
 import numpy as np
 from dask.distributed import Client
@@ -68,6 +69,15 @@ class PlateSweepDriver(Driver):
         """
         Starting message displayed by the logger.
         """
+
+    @classmethod
+    def start(cls, filepath: str | Path, mode="r", **_) -> Self:
+        """
+        Start the parameter sweep from a ui.json file.
+
+        Force the mode to be read-only for safe copy.
+        """
+        super().start(filepath, mode=mode)
 
     def run(self):
         """Loop over all trials and run a worker for each unique parameter set."""
@@ -148,7 +158,10 @@ class PlateSweepDriver(Driver):
                 group
                 for group in workspace.groups
                 if isinstance(group, SimPEGGroup | UIJsonGroup)
-                and "plate_simulation.driver" in group.options.get("run_command")
+                and (
+                    "plate_simulation.driver" in group.options.get("run_command")
+                    or "plate simulation" == group.options.get("inversion_type")
+                )
             )
 
             opt_dict = workspace.promote(flatten(plate_simulation.options))
