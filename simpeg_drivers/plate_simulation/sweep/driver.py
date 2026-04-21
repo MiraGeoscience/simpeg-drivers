@@ -14,7 +14,6 @@ import shutil
 import sys
 from numbers import Number
 from pathlib import Path
-from typing import Self
 
 import numpy as np
 from dask.distributed import Client
@@ -36,7 +35,6 @@ from simpeg_drivers.driver import BaseDriver, validate_client, validate_workers
 from simpeg_drivers.plate_simulation.driver import PlateSimulationDriver
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
 from simpeg_drivers.plate_simulation.sweep.options import SweepOptions
-from simpeg_drivers.plate_simulation.sweep.uijson import PlateSweepUIJson
 from simpeg_drivers.utils.utils import start_dask_run, validate_out_group
 
 
@@ -70,28 +68,6 @@ class PlateSweepDriver(Driver):
         """
         Starting message displayed by the logger.
         """
-
-    @classmethod
-    def start(cls, filepath: str | Path, mode="r", **_) -> Self:
-        """Start the parameter sweep from a ui.json file."""
-        logger.info("Loading input file . . .")
-        filepath = Path(filepath).resolve()
-        uijson = PlateSweepUIJson.read(filepath)
-
-        try:
-            with Workspace(uijson.geoh5, mode=mode) as workspace:
-                options = SweepOptions.build(uijson.to_params(workspace=workspace))
-                logger.info("Initializing application . . .")
-                driver = cls(options)
-                logger.info("Running application . . .")
-            driver.run()
-            logger.info("Results saved to %s", options.geoh5.h5file)
-
-        except GeoAppsError as error:
-            logger.warning("\n\nApplicationError: %s\n\n", error)
-            sys.exit(1)
-
-        return driver
 
     def run(self):
         """Loop over all trials and run a worker for each unique parameter set."""
