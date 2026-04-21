@@ -145,6 +145,10 @@ class PlateSimulationDriver(Driver):
                 self.params.model.plate_options.spacing,
                 self.params.model.plate_options.geometry.direction,
             )
+            with fetch_active_workspace(self.params.geoh5, mode="r+") as geoh5:
+                for plate in self._plates:
+                    plate.to_maxwell_plate(geoh5, parent=self._out_group)
+
         return self._plates
 
     @property

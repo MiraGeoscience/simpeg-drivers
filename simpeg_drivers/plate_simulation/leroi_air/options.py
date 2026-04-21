@@ -61,7 +61,7 @@ class LeroiAirOptions(BaseModel):
     def from_plate_simulation_options(cls, options: PlateSimulationOptions) -> Self:
         """Construct from a :class:`PlateSimulationOptions` instance."""
 
-        simulation_options = options.simulation_parameters()
+        simulation_options = options.simulation_parameters
         survey = simulation_options.data_object.copy()
 
         if simulation_options.active_cells.topography_object is None:

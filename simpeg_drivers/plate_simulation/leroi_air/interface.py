@@ -84,7 +84,7 @@ class LeroiAirInterface:
             "IPLATE": 1,
             "CNTR_East": [g.easting for g in self.opts.plate_geometries],
             "CNTR_North": [g.northing for g in self.opts.plate_geometries],
-            "PLTOP": [g.elevation for g in self.opts.plate_geometries],
+            "PLTOP": [-1 * g.elevation for g in self.opts.plate_geometries],
             "PLNGTH": [g.strike_length for g in self.opts.plate_geometries],
             "DPWDTH": [g.dip_length for g in self.opts.plate_geometries],
             "DZM": [g.direction for g in self.opts.plate_geometries],
@@ -276,7 +276,7 @@ class LeroiAirInterface:
         inline_data = self._extract_data(outfile=outfile, component="y")
         vertical_data = self._extract_data(outfile=outfile, component="z")
 
-        with fetch_active_workspace(self.opts.survey.workspace, mode="r+") as geoh5:
+        with fetch_active_workspace(self.opts.survey.workspace, mode="r+"):
             survey = self.opts.survey.copy(parent=out_group, copy_children=False)
             data = survey.add_data(
                 {
@@ -294,17 +294,3 @@ class LeroiAirInterface:
             survey.create_property_group(name="inline", properties=data[:3])
             survey.create_property_group(name="crossline", properties=data[3:6])
             survey.create_property_group(name="vertical", properties=data[6:])
-
-            for plate in self.opts.plate_geometries:
-                position = PlatePosition(
-                    x=plate.easting, y=plate.northing, z=plate.elevation
-                )
-                geometry = PlateGeometry(
-                    position=position,
-                    length=plate.strike_length,
-                    width=plate.dip_length,
-                    thickness=plate.width,
-                    dip_direction=plate.direction,
-                    dip=plate.dip,
-                )
-                MaxwellPlate.create(geoh5, geometry=geometry, parent=out_group)

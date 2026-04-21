@@ -44,7 +44,7 @@ def test_leroi_run(tmp_path):
         geometry = PlateModel(
             easting=0.0,
             northing=0.0,
-            elevation=-50.0,
+            elevation=100.0,
             width=10.0,
             strike_length=200.0,
             dip_length=100.0,
