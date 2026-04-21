@@ -102,6 +102,7 @@ class PlateSimulationOptions(Options):
         if self._simulation_parameters is None:
             simulation_options = deepcopy(self.simulation.options)
             simulation_options["geoh5"] = self.geoh5
+            simulation_options["out_group"] = self.simulation
 
             # TODO replace InputFile.data with UIJson.to_params
             input_file = InputFile(ui_json=simulation_options, validate=False)

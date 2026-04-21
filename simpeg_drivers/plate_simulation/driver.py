@@ -75,9 +75,9 @@ class PlateSimulationDriver(Driver):
         """Create octree mesh, fill model, and simulate."""
 
         with fetch_active_workspace(self.params.geoh5, mode="r+"):
-            self.params.simulation.parent = self._out_group
             self.simulation_driver.run()
-            self._update_simulation_options()
+            self.simulation_parameters.update_out_group_options()
+            self.params.simulation.parent = self._out_group
             self.update_monitoring_directory(self._out_group)
 
         logger.info("done.")
@@ -89,6 +89,7 @@ class PlateSimulationDriver(Driver):
     def simulation_driver(self) -> InversionDriver:
         if self._simulation_driver is None:
             if self.params.use_leroi:
+                _ = self.plates  # Saves MaxwellPlate(s) when no octree/model
                 self._simulation_driver = self._get_leroi_driver()
             else:
                 self._simulation_driver = self._get_simpeg_driver()
@@ -302,16 +303,6 @@ class PlateSimulationDriver(Driver):
         """
         start_dask_run(cls, json_path, n_workers=n_workers, n_threads=n_threads)
 
-    def _update_simulation_options(self) -> None:
-        """
-        Serialize current mesh, model, and topography into the simulation group.
-
-        This keeps the TDEMForward group runnable as a standalone SimPEG
-        forward simulation for comparison with the LeroiAir result.
-        """
-        self.simulation_parameters.out_group = self.params.simulation
-        self.simulation_parameters.update_out_group_options()
-
     def _get_simpeg_driver(self):
 
         if not isinstance(
@@ -322,7 +313,6 @@ class PlateSimulationDriver(Driver):
                 "The topography object of the forward simulation must be a 'Surface'."
             )
 
-        self.simulation_parameters.out_group = None
         driver_class = driver_class_from_name(
             self.simulation_parameters.inversion_type, forward_only=True
         )
@@ -331,14 +321,14 @@ class PlateSimulationDriver(Driver):
             client=self._client,
             workers=self._workers,
         )
-        self._simulation_driver.out_group.parent = self.params.simulation
 
         return self.simulation_driver
 
     def _get_leroi_driver(self):
+        # assert self.params.geoh5.get_entity("TEM forward")[0].parent.name == "Plate Simulation"
         leroi_opts = LeroiAirOptions.from_plate_simulation_options(self.params)
         driver = LeroiAirDriver(leroi_opts)
-        driver.out_group = self._out_group
+        driver.out_group = self.params.simulation
         return driver
 
 

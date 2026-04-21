@@ -84,16 +84,14 @@ def test_gravity_plate_simulation(tmp_path):
             starting_model=0.1,
         )
 
-        gravity_inversion = SimPEGGroup.create(geoh5)
-        gravity_inversion.options = options.serialize()
+        gravity_forward = SimPEGGroup.create(geoh5, name="gravity forward")
+        gravity_forward.options = options.serialize()
 
         params = PlateSimulationOptions(
-            title="test",
-            run_command="run",
             geoh5=geoh5,
             mesh=mesh_params,
             model=model_params,
-            simulation=gravity_inversion,
+            simulation=gravity_forward,
         )
         driver = PlateSimulationDriver(params)
         driver.run()
