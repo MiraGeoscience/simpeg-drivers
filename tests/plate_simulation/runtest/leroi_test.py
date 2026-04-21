@@ -35,7 +35,6 @@ from simpeg_drivers.utils.synthetics.options import (
     SyntheticsComponentsOptions,
 )
 from tests.utils.runtests import run_driver_from_ui_json
-from tests.utils.targets import get_workspace
 
 
 def test_leroi_run(tmp_path):
