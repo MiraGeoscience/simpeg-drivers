@@ -103,7 +103,7 @@ def test_format_cfl_file(tmp_path):
     assert "10.0 \t ! CELLW" in cfl_str
 
     # record_14: LITHP, CNTR_East, CNTR_North, PLTOP
-    assert "4 0.0 0.0 0.0\t ! LITHP, CNTR_East, CNTR_North, PLTOP" in cfl_str
+    assert "4 0.0 0.0 -0.0\t ! LITHP, CNTR_East, CNTR_North, PLTOP" in cfl_str
 
     # record_15: PLNGTH, DPWDTH, DZM, DIP
     assert "200.0 100.0 90.0 45.0\t ! PLNGTH, DPWDTH, DZM, DIP" in cfl_str

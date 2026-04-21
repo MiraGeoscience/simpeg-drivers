@@ -183,7 +183,7 @@ class LeroiAirOptions(BaseModel):
         half_cycle = 1 / (2 * self.frequency)
         zero_current_ind = np.where(self.waveform[:, 1] == 0)[0]
         first_zero = 1 if self.waveform[0, 1] == 0.0 else 0
-        ontime = self.waveform[zero_current_ind][first_zero, 1]
+        ontime = self.waveform[zero_current_ind][first_zero, 0]
 
         return half_cycle - ontime
 

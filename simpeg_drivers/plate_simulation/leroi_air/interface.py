@@ -240,9 +240,9 @@ class LeroiAirInterface:
             f.write(self.format_cfl_file())
 
     _COMPONENT_ANCHORS: dict[str, str] = {
-        "x": "TRANSVERSE COMPONENT",
-        "y": "IN-LINE COMPONENT",
-        "z": "VERTICAL COMPONENT",
+        "crossline": "TRANSVERSE COMPONENT",
+        "inline": "IN-LINE COMPONENT",
+        "vertical": "VERTICAL COMPONENT",
     }
 
     def _find_data_start(self, chunk: list[str]) -> int:
@@ -262,35 +262,26 @@ class LeroiAirInterface:
         return chunk[data_start : data_start + self.opts.n_stations]
 
     def _extract_data(
-        self, outfile: str | Path, component: Literal["x", "y", "z"]
+        self, outfile: str | Path, component: Literal["inline", "crossline", "vertical"]
     ) -> np.ndarray:
         """Extract channel data for a single component from a LeroiAir .out file."""
         lines = Path(outfile).read_text(encoding="utf-8", errors="replace").splitlines()
         data_lines = self._slice_data_lines(lines, self._COMPONENT_ANCHORS[component])
         return np.array([line.split() for line in data_lines], dtype=float)[:, 4:]
 
-    def save_to_geoh5(self, outfile: str | Path, out_group: UIJsonGroup):
+    def save_to_geoh5(self, outfile: str | Path, out_group):
         """Save LeroiAir simulated data on the provided survey to geoh5."""
 
-        crossline_data = self._extract_data(outfile=outfile, component="x")
-        inline_data = self._extract_data(outfile=outfile, component="y")
-        vertical_data = self._extract_data(outfile=outfile, component="z")
+        survey = self.opts.survey.copy(parent=out_group, copy_children=False)
+        for component in "inline", "crossline", "vertical":
+            data = self._extract_data(outfile=outfile, component=component)
 
-        with fetch_active_workspace(self.opts.survey.workspace, mode="r+"):
-            survey = self.opts.survey.copy(parent=out_group, copy_children=False)
-            data = survey.add_data(
-                {
-                    "fwd inline [0]": {"values": inline_data[:, 0]},
-                    "fwd inline [1]": {"values": inline_data[:, 1]},
-                    "fwd inline [2]": {"values": inline_data[:, 2]},
-                    "fwd crossline [0]": {"values": crossline_data[:, 0]},
-                    "fwd crossline [1]": {"values": crossline_data[:, 1]},
-                    "fwd crossline [2]": {"values": crossline_data[:, 2]},
-                    "fwd vertical [0]": {"values": vertical_data[:, 0]},
-                    "fwd vertical [1]": {"values": vertical_data[:, 1]},
-                    "fwd vertical [2]": {"values": vertical_data[:, 2]},
-                }
-            )
-            survey.create_property_group(name="inline", properties=data[:3])
-            survey.create_property_group(name="crossline", properties=data[3:6])
-            survey.create_property_group(name="vertical", properties=data[6:])
+            with fetch_active_workspace(self.opts.survey.workspace, mode="r+"):
+                entities = survey.add_data(
+                    {
+                        f"fwd {component} [{i}]": {"values": data[:, i]}
+                        for i in range(len(self.opts.channels))
+                    }
+                )
+
+            survey.create_property_group(name=component, properties=entities)

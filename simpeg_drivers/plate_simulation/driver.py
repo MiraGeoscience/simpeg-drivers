@@ -322,10 +322,9 @@ class PlateSimulationDriver(Driver):
             workers=self._workers,
         )
 
-        return self.simulation_driver
+        return self._simulation_driver
 
     def _get_leroi_driver(self):
-        # assert self.params.geoh5.get_entity("TEM forward")[0].parent.name == "Plate Simulation"
         leroi_opts = LeroiAirOptions.from_plate_simulation_options(self.params)
         driver = LeroiAirDriver(leroi_opts)
         driver.out_group = self.params.simulation

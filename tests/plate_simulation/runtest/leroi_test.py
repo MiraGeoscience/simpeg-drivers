@@ -106,13 +106,14 @@ def test_leroi_run(tmp_path):
     run_driver_from_ui_json(params)
 
     with Workspace(tmp_path / "leroi_test.geoh5") as geoh5:
-        out_group = geoh5.get_entity("TEM forward")[0]
-        assert out_group is not None
+        plate_simulation_group = geoh5.get_entity("Plate Simulation")[0]
+        forward_group = geoh5.get_entity("TEM forward")[0]
+        assert forward_group.parent == plate_simulation_group
 
-        survey = out_group.get_entity("survey")[0]
+        survey = forward_group.get_entity("survey")[0]
         assert isinstance(survey, AirborneTEMReceivers)
 
-        maxwell_plate = out_group.get_entity("Maxwell Plate")[0]
+        maxwell_plate = plate_simulation_group.get_entity("Maxwell Plate")[0]
         assert isinstance(maxwell_plate, MaxwellPlate)
 
         expected_channels = [

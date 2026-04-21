@@ -94,7 +94,7 @@ def test_plate_simulation_params_from_input_file(tmp_path, caplog):
     assert "Overburden thickness exceeds the plate depth" in caplog.text
     assert isinstance(params.simulation, SimPEGGroup)
 
-    simulation_parameters = params.simulation_parameters()
+    simulation_parameters = params.simulation_parameters
 
     assert simulation_parameters.inversion_type == "gravity"
     assert simulation_parameters.forward_only
