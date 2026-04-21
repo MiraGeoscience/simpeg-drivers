@@ -76,7 +76,7 @@ class PlateSimulationOptions(Options):
             driver = fetch_driver_class_from_string(input_file.data["run_command"])
 
         if driver:
-            return driver.params_class.build(input_file.data)
+            return driver._params_class.build(input_file.data)  # pylint: disable=protected-access
 
         raise NotImplementedError(
             f"Unknown inversion type: {input_file.data['inversion_type']}"
