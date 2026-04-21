@@ -75,7 +75,7 @@ class PlateSimulationDriver(Driver):
         """Create octree mesh, fill model, and simulate."""
 
         with fetch_active_workspace(self.params.geoh5, mode="r+"):
-            self._organize_out_group()
+            self.params.simulation.parent = self._out_group
             self.simulation_driver.run()
             self._update_simulation_options()
             self.update_monitoring_directory(self._out_group)
@@ -297,18 +297,6 @@ class PlateSimulationDriver(Driver):
         :param n_threads: Number of threads to use.
         """
         start_dask_run(cls, json_path, n_workers=n_workers, n_threads=n_threads)
-
-    def _organize_out_group(self) -> None:
-        """
-        Place the simulation group inside out_group and copy topography there.
-
-        Also updates the active-cells topography reference to the new copy so
-        that subsequent option serialization points to the object inside the
-        plate-simulation output group.
-        """
-        self.params.simulation.parent = self._out_group
-        topo_copy = self.topography.copy(parent=self._out_group, copy_children=True)
-        self.simulation_parameters.active_cells.topography_object = topo_copy
 
     def _update_simulation_options(self) -> None:
         """
