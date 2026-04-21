@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: b56575358cf9c86097af766e84815a217fa1f2932b34252343b018b28a5ce092
-    linux-64: 6b8cd4100493c90834719717e9dba0c8025d7cf52a516970a8ba54b345ad21d1
+    win-64: c5ac581ac072676e59d734851c83b81a2dfbc8c2e71809525b6873163ee24ad2
+    linux-64: f09f5f5170fd998e92740415baffc0737406988d3c2294db566572f1177ff4e2
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -1757,7 +1757,7 @@ package:
   category: main
   optional: false
 - name: fonttools
-  version: 4.62.0
+  version: 4.62.1
   manager: conda
   platform: linux-64
   dependencies:
@@ -1765,14 +1765,14 @@ package:
     munkres: ''
     python: '>=3.10'
     unicodedata2: '>=15.1.0'
-  url: https://repo.prefix.dev/conda-forge/noarch/fonttools-4.62.0-pyh7db6752_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/fonttools-4.62.1-pyh7db6752_0.conda
   hash:
-    md5: 049f68f9c90f00069c748cd6fb7bfb55
-    sha256: ed4462f6e49b8dea4e45f7294cca576a38cf4fc41e04bbcd95f9cf55be7776b9
+    md5: 14cf1ac7a1e29553c6918f7860aab6d8
+    sha256: fa77109df37580ce0933d4e6c5a44b2f0c192af2f8e503bfdbfb3b49a8b8e538
   category: main
   optional: false
 - name: fonttools
-  version: 4.62.0
+  version: 4.62.1
   manager: conda
   platform: win-64
   dependencies:
@@ -1780,10 +1780,10 @@ package:
     munkres: ''
     python: '>=3.10'
     unicodedata2: '>=15.1.0'
-  url: https://repo.prefix.dev/conda-forge/noarch/fonttools-4.62.0-pyh7db6752_0.conda
+  url: https://repo.prefix.dev/conda-forge/noarch/fonttools-4.62.1-pyh7db6752_0.conda
   hash:
-    md5: 049f68f9c90f00069c748cd6fb7bfb55
-    sha256: ed4462f6e49b8dea4e45f7294cca576a38cf4fc41e04bbcd95f9cf55be7776b9
+    md5: 14cf1ac7a1e29553c6918f7860aab6d8
+    sha256: fa77109df37580ce0933d4e6c5a44b2f0c192af2f8e503bfdbfb3b49a8b8e538
   category: main
   optional: false
 - name: fqdn
@@ -8391,7 +8391,7 @@ package:
   category: main
   optional: false
 - name: grid-apps
-  version: 0.2.0a3
+  version: 0.2.0a4.dev1+e2dc749
   manager: pip
   platform: linux-64
   dependencies:
@@ -8401,16 +8401,16 @@ package:
     numpy: '>=2.4.2,<2.5.0'
     pydantic: '>=2.12.0,<2.13.0'
     scipy: '>=1.17.0,<1.18.0'
-  url: git+https://github.com/MiraGeoscience/grid-apps.git@57806e78469cb881a8d5dceae645336e77310bf4
+  url: git+https://github.com/MiraGeoscience/grid-apps.git@e2dc749f851024de3d6d425803229943b674c4e4
   hash:
-    sha256: 57806e78469cb881a8d5dceae645336e77310bf4
+    sha256: e2dc749f851024de3d6d425803229943b674c4e4
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/grid-apps.git@57806e78469cb881a8d5dceae645336e77310bf4
+    url: git+https://github.com/MiraGeoscience/grid-apps.git@e2dc749f851024de3d6d425803229943b674c4e4
   category: main
   optional: false
 - name: grid-apps
-  version: 0.2.0a3
+  version: 0.2.0a4.dev1+e2dc749
   manager: pip
   platform: win-64
   dependencies:
@@ -8420,12 +8420,12 @@ package:
     numpy: '>=2.4.2,<2.5.0'
     pydantic: '>=2.12.0,<2.13.0'
     scipy: '>=1.17.0,<1.18.0'
-  url: git+https://github.com/MiraGeoscience/grid-apps.git@57806e78469cb881a8d5dceae645336e77310bf4
+  url: git+https://github.com/MiraGeoscience/grid-apps.git@e2dc749f851024de3d6d425803229943b674c4e4
   hash:
-    sha256: 57806e78469cb881a8d5dceae645336e77310bf4
+    sha256: e2dc749f851024de3d6d425803229943b674c4e4
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/grid-apps.git@57806e78469cb881a8d5dceae645336e77310bf4
+    url: git+https://github.com/MiraGeoscience/grid-apps.git@e2dc749f851024de3d6d425803229943b674c4e4
   category: main
   optional: false
 - name: mira-simpeg
