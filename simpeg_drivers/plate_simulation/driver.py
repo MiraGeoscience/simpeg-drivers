@@ -76,8 +76,6 @@ class PlateSimulationDriver(Driver):
 
         with fetch_active_workspace(self.params.geoh5, mode="r+"):
             self._organize_out_group()
-            self.simulation_parameters.mesh = self.mesh
-            self.simulation_parameters.models.starting_model = self.model
             self.simulation_driver.run()
             self._update_simulation_options()
             self.update_monitoring_directory(self._out_group)
@@ -90,9 +88,7 @@ class PlateSimulationDriver(Driver):
     @property
     def simulation_driver(self) -> InversionDriver:
         if self._simulation_driver is None:
-            run_command = self.simulation_parameters.run_command
-            is_tem = "time_domain.forward" in run_command
-            if self.params.use_leroi & is_tem:
+            if self.params.use_leroi:
                 self._simulation_driver = self._get_leroi_driver()
             else:
                 self._simulation_driver = self._get_simpeg_driver()
@@ -102,11 +98,17 @@ class PlateSimulationDriver(Driver):
     @property
     def simulation_parameters(self) -> BaseForwardOptions:
         if self._simulation_parameters is None:
-            self._simulation_parameters = self.params.simulation_parameters()
+            self._simulation_parameters = self.params.simulation_parameters.copy()
+
             if self._simulation_parameters.physical_property == "conductivity":
                 self._simulation_parameters.models.model_type = (
                     ModelTypeEnum.resistivity
                 )
+
+            if not self.params.use_leroi:
+                self._simulation_parameters.mesh = self.mesh
+                self._simulation_parameters.models.starting_model = self.model
+
         return self._simulation_parameters
 
     @property

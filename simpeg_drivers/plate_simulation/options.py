@@ -15,6 +15,7 @@ from typing import ClassVar
 from geoapps_utils.base import Options
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
 from geoh5py.ui_json import InputFile
+from pydantic import model_validator
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.electricals.direct_current.three_dimensions.options import (
@@ -79,7 +80,18 @@ class PlateSimulationOptions(Options):
     model: ModelOptions
     simulation: SimPEGGroup | UIJsonGroup
     use_leroi: bool = False
+    _simulation_parameters: BaseForwardOptions | None = None
 
+    @model_validator(mode="before")
+    @classmethod
+    def use_leroi_em_only(cls, data) -> bool:
+        run_command = data["simulation"].options["run_command"]
+        is_tem = "time_domain.forward" in run_command
+        use_leroi = data.get("use_leroi", False) & is_tem
+        data["use_leroi"] = use_leroi
+        return data
+
+    @property
     def simulation_parameters(self) -> BaseForwardOptions:
         """
         Create SimPEG parameters from the simulation options.
@@ -87,21 +99,27 @@ class PlateSimulationOptions(Options):
         A new SimPEGGroup is created inside the out_group to store the
         result of the forward simulation.
         """
-        simulation_options = deepcopy(self.simulation.options)
-        simulation_options["geoh5"] = self.geoh5
+        if self._simulation_parameters is None:
+            simulation_options = deepcopy(self.simulation.options)
+            simulation_options["geoh5"] = self.geoh5
 
-        input_file = InputFile(ui_json=simulation_options, validate=False)
-        if input_file.ui_json is None:
-            raise ValueError("Input file must have ui_json set.")
+            # TODO replace InputFile.data with UIJson.to_params
+            input_file = InputFile(ui_json=simulation_options, validate=False)
+            if input_file.ui_json is None:
+                raise ValueError("Input file must have ui_json set.")
 
-        input_file.ui_json["mesh"]["value"] = None
+            input_file.ui_json["mesh"]["value"] = None
 
-        if input_file.data is None:
-            raise ValueError("Input file data must be set.")
+            if input_file.data is None:
+                raise ValueError("Input file data must be set.")
 
-        if input_file.data["inversion_type"] in PARAM_MAP:
-            return PARAM_MAP[input_file.data["inversion_type"]].build(input_file.data)
+            inversion_type = input_file.data["inversion_type"]
 
-        raise NotImplementedError(
-            f"Unknown inversion type: {input_file.data['inversion_type']}"
-        )
+            if inversion_type in PARAM_MAP:
+                self._simulation_parameters = PARAM_MAP[inversion_type].build(
+                    input_file.data
+                )
+            else:
+                raise NotImplementedError(f"Unknown inversion type: {inversion_type}")
+
+        return self._simulation_parameters
