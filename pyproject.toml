@@ -9,7 +9,7 @@ requires = [
   "packaging >=24.0",
   "tomlkit >=0.13",
   "setuptools>=80",
-  "setuptools-scm[simple]>=9.2.*"
+  "setuptools-scm>=9.2.*"
 ]
 build-backend = "poetry_dynamic_versioning.backend"
 
