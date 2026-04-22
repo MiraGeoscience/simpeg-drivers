@@ -781,7 +781,18 @@ def driver_class_from_name(
 
 
 def driver_class_from_dict(data: dict) -> type[InversionDriver | Driver]:
+    """
+    Get a driver class from a dictionary containing either an
+    'inversion_type' with 'forward_only', or a 'run_command' parameter.
 
+    This function is meant to adapt to the new UI JSON structure where the 'run_command' is
+    the primary way to specify the driver, while still maintaining backward
+    compatibility with the 'inversion_type' parameter.
+
+    :param data: Dictionary of inversion parameters.
+
+    :return: InversionDriver or Driver class.
+    """
     inversion_type = data.get("inversion_type", None)
 
     if inversion_type:
