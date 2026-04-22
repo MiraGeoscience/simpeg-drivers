@@ -15,6 +15,10 @@ from io import BytesIO
 from pathlib import Path
 from typing import Self
 
+import matplotlib
+
+
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 from dask.distributed import Client, Future, progress
