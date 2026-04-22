@@ -13,46 +13,16 @@ from pathlib import Path
 from typing import ClassVar
 
 from geoapps_utils.base import Options
+from geoapps_utils.run import fetch_driver_class_from_string
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
 from geoh5py.ui_json import InputFile
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.electricals.direct_current.three_dimensions.options import (
-    DC3DForwardOptions,
-)
-from simpeg_drivers.electromagnetics.frequency_domain.options import (
-    FDEMForwardOptions,
-)
-from simpeg_drivers.electromagnetics.time_domain.options import (
-    TDEMForwardOptions,
-)
-from simpeg_drivers.natural_sources.apparent_conductivity.options import (
-    AppConForwardOptions,
-)
-from simpeg_drivers.natural_sources.magnetotellurics.options import (
-    MTForwardOptions,
-)
-from simpeg_drivers.natural_sources.tipper.options import TipperForwardOptions
+from simpeg_drivers.driver import from_input_file
 from simpeg_drivers.options import BaseForwardOptions
-from simpeg_drivers.potential_fields.gravity.options import GravityForwardOptions
-from simpeg_drivers.potential_fields.magnetic_vector import (
-    MagneticVectorForwardOptions,
-)
 from simpeg_drivers.utils.synthetics.meshes import MeshOptions
 
 from .models.options import ModelOptions
-
-
-PARAM_MAP = {
-    "apparent conductivty": AppConForwardOptions,
-    "gravity": GravityForwardOptions,
-    "tdem": TDEMForwardOptions,
-    "fem": FDEMForwardOptions,
-    "magnetotellurics": MTForwardOptions,
-    "direct current 3d": DC3DForwardOptions,
-    "magnetic vector": MagneticVectorForwardOptions,
-    "tipper": TipperForwardOptions,
-}
 
 
 class PlateSimulationOptions(Options):
@@ -98,8 +68,15 @@ class PlateSimulationOptions(Options):
         if input_file.data is None:
             raise ValueError("Input file data must be set.")
 
-        if input_file.data["inversion_type"] in PARAM_MAP:
-            return PARAM_MAP[input_file.data["inversion_type"]].build(input_file.data)
+        driver = None
+        if input_file.data.get("inversion_type", None):
+            driver = from_input_file(input_file.data)
+
+        if input_file.data.get("run_command", None):
+            driver = fetch_driver_class_from_string(input_file.data["run_command"])
+
+        if driver:
+            return driver._params_class.build(input_file.data)  # pylint: disable=protected-access
 
         raise NotImplementedError(
             f"Unknown inversion type: {input_file.data['inversion_type']}"

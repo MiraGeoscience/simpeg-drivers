@@ -17,7 +17,7 @@ from geoapps_utils.base import Options
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
 from geoh5py.shared.utils import stringify
 from geoh5py.ui_json import InputFile
-from pydantic import BaseModel, ConfigDict, field_serializer
+from pydantic import BaseModel, ConfigDict, field_serializer, field_validator
 
 from simpeg_drivers import assets_path
 
@@ -34,11 +34,11 @@ class ParamSweep(BaseModel):
 
     name: str
     start: float
-    stop: float | None
-    count: int | None
+    stop: float
+    count: int
 
     def __call__(self) -> tuple[float, float, int]:
-        return (self.start, self.stop, self.count)
+        return self.start, self.stop, self.count
 
 
 class SweepOptions(Options):
@@ -66,6 +66,16 @@ class SweepOptions(Options):
     generate_summary: bool = True
     sweeps: list[ParamSweep]
     workdir: Path = Path("./simulations")
+
+    @field_validator("workdir", mode="before")
+    @classmethod
+    def workdir_optional(cls, value):
+        """
+        Deal with legacy optional workdir.
+        """
+        if value is None:
+            value = Path("./simulations")
+        return value
 
     @field_serializer("sweeps")
     def sweeps_to_params(self, sweeps):
@@ -105,7 +115,11 @@ class SweepOptions(Options):
                 "count": options.pop(f"{param}_count"),
             }
 
-        sweep_params = [k.removesuffix("_start") for k in options if "_start" in k]
+        sweep_params = [
+            key.removesuffix("_start")
+            for key, val in options.items()
+            if ("_start" in key and val is not None)
+        ]
         options["sweeps"] = [collect_sweep(param) for param in sweep_params]
 
         return options
