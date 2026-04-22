@@ -186,7 +186,7 @@ class PlateMatchDriver(Driver):
         return driver
 
     def _create_plate_from_parameters(
-        self, index_center: int, model_options: ModelOptions, strike_angle: float
+        self, query: np.ndarray, model_options: ModelOptions, strike_angle: float
     ) -> MaxwellPlate:
         """
         Create a MaxwellPlate object from the parameters of the survey and model options
@@ -198,13 +198,13 @@ class PlateMatchDriver(Driver):
 
         :return: MaxwellPlate object created from the parameters.
         """
-        center = self.params.survey.vertices[index_center]
+        nearest = self.spatial_tree.query(query[:2], k=1)[1]
+        center = self.params.survey.vertices[nearest]
         center[2] = (
-            self._drape_heights[index_center]
-            - model_options.overburden_options.thickness
+            self._drape_heights[nearest] - model_options.overburden_options.thickness
         )
         indices = self.params.survey.get_segment_indices(
-            index_center, self.params.max_distance
+            nearest, self.params.max_distance
         )
         segment = self.params.survey.vertices[indices]
         delta = np.median(np.diff(segment, axis=0), axis=0)
@@ -397,7 +397,7 @@ class PlateMatchDriver(Driver):
                 dir_correction = strike_angle[ii] + 180 if flip else strike_angle[ii]
                 ind_center = int(centers[best])
                 plate = self._create_plate_from_parameters(
-                    int(indices[ind_center]), options.model, dir_correction
+                    query, options.model, dir_correction
                 )
                 plate.name = f"Query [{ii}]"
                 figure = self.plot_figure(
