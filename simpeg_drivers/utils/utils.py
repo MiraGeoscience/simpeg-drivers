@@ -50,7 +50,6 @@ from simpeg_drivers import DRIVER_MAP
 
 if TYPE_CHECKING:
     from simpeg_drivers.components.data import InversionData
-    from simpeg_drivers.driver import InversionDriver
 
 
 def mask_vertices_and_cells(
@@ -600,7 +599,7 @@ def get_neighbouring_cells(mesh: TreeMesh, indices: list | np.ndarray) -> tuple:
     )
 
 
-def simpeg_group_to_driver(group: SimPEGGroup, workspace: Workspace) -> InversionDriver:
+def simpeg_group_to_driver(group: SimPEGGroup, workspace: Workspace) -> Driver:
     """
     Utility to generate an inversion driver from a SimPEG group options.
 
@@ -753,9 +752,7 @@ def start_dask_run(
             ps.print_stats()
 
 
-def driver_class_from_name(
-    name: str, forward_only: bool = False
-) -> type[InversionDriver]:
+def driver_class_from_name(name: str, forward_only: bool = False) -> type[Driver]:
     """
     Get the driver class from the inversion type name.
 
@@ -780,7 +777,7 @@ def driver_class_from_name(
     return getattr(module, class_name)
 
 
-def driver_class_from_dict(data: dict) -> type[InversionDriver | Driver]:
+def driver_class_from_dict(data: dict) -> type[Driver]:
     """
     Get a driver class from a dictionary containing either an
     'inversion_type' with 'forward_only', or a 'run_command' parameter.
