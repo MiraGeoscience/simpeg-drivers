@@ -37,7 +37,7 @@ from simpeg_drivers.plate_simulation.driver import PlateSimulationDriver
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
 from simpeg_drivers.plate_simulation.sweep.options import SweepOptions
 from simpeg_drivers.plate_simulation.sweep.uijson import PlateSweepUIJson
-from simpeg_drivers.utils.utils import validate_out_group
+from simpeg_drivers.utils.utils import start_dask_run, validate_out_group
 
 
 logger = get_logger(name=__name__, level_name=False, propagate=False, add_name=False)
@@ -192,8 +192,18 @@ class PlateSweepDriver(Driver):
         del plate_sim
         return None
 
+    @classmethod
+    def start_dask_run(
+        cls, json_path: Path, n_workers: int | None = None, n_threads: int | None = None
+    ):
+        """
+        Runs plate sweep application with Dask optimization
 
-PlateSweepDriver.start_dask_run = BaseDriver.start_dask_run
+        :param json_path: Path to input file (.ui.json) for the application.
+        :param n_workers: Number of workers to use.
+        :param n_threads: Number of threads to use.
+        """
+        start_dask_run(cls, json_path, n_workers=n_workers, n_threads=n_threads)
 
 
 def forms_to_values(data: dict) -> dict:

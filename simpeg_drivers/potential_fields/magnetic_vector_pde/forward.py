@@ -8,5 +8,23 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-from .driver import JointPetrophysicsDriver
-from .options import JointPetrophysicsOptions
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+from simpeg_drivers.driver import ForwardDriver
+
+from .options import MagneticVectorPDEForwardOptions
+
+
+class MagneticVectorPDEForwardDriver(ForwardDriver):
+    """Magnetic Vector forward driver."""
+
+    _params_class = MagneticVectorPDEForwardOptions
+
+
+if __name__ == "__main__":
+    file = Path(sys.argv[1]).resolve()
+    MagneticVectorPDEForwardDriver.start_dask_run(file)

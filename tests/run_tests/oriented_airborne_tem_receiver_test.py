@@ -46,7 +46,7 @@ def collect_components(geoh5):
         survey = next(
             child for child in group.children if isinstance(child, AirborneTEMReceivers)
         )
-        for comp in "xyz":
+        for comp in ["vertical", "inline", "crossline"]:
             data_group = survey.get_entity(f"Iteration_0_{comp}")[0]
             data_list[comp] = np.vstack(
                 [survey.get_data(uid)[0].values for uid in data_group.properties]
@@ -75,7 +75,13 @@ def test_tem_fwr_run(tmp_path: Path, azimuth, dip):
             topography=lambda x, y: np.zeros(x.shape),
         ),
         mesh=MeshOptions(
-            cell_size=cell_size, refinement=refinement, padding_distance=400.0
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+            padding_distance=400.0,
         ),
         model=ModelOptions(
             background=1e-3,
@@ -83,7 +89,9 @@ def test_tem_fwr_run(tmp_path: Path, azimuth, dip):
                 strike_length=150.0,
                 dip_length=100.0,
                 width=10.0,
-                origin=(0.0, 0.0, -60.0),
+                easting=0.0,
+                northing=0.0,
+                elevation=-60.0,
                 direction=azimuth,
                 dip=45.0,
             ),
@@ -137,7 +145,7 @@ def test_validate_orientations(tmp_path: Path):
         sim_45_0 = collect_components(geoh5)
 
     # Components almost the same at 45
-    assert np.mean((sim_90_0["y"] - sim_45_0["y"]) / sim_90_0["y"]) < 0.3
+    assert np.mean((sim_90_0["inline"] - sim_45_0["inline"]) / sim_90_0["inline"]) < 0.3
 
     with Workspace(
         tmp_path / "../test_tem_fwr_run_90_90_0/inversion_test.ui.geoh5"
@@ -145,5 +153,10 @@ def test_validate_orientations(tmp_path: Path):
         sim_90_90 = collect_components(geoh5)
 
     # 90 dip makes Y point down and Z east, so Y should be -Z, and Z should be Y
-    assert np.mean((sim_90_0["y"] - sim_90_90["z"]) / sim_90_0["y"]) < 0.1
-    assert np.mean((sim_90_0["z"] + sim_90_90["y"]) / sim_90_0["z"]) < 0.1
+    assert (
+        np.mean((sim_90_0["inline"] - sim_90_90["vertical"]) / sim_90_0["inline"]) < 0.1
+    )
+    assert (
+        np.mean((sim_90_0["vertical"] + sim_90_90["inline"]) / sim_90_0["vertical"])
+        < 0.1
+    )

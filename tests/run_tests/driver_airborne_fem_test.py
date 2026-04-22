@@ -40,15 +40,21 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 91.18814842528005, "phi_d": 4250, "phi_m": 968}
+target_run = {"data_norm": 122.63745463149134, "phi_d": 2890, "phi_m": 438}
 
 
 def test_fem_name_change(tmp_path, caplog):
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="fdem",
+        refine_plate=True,
         survey=SurveyOptions(n_stations=2, n_lines=2, drape=15.0),
-        mesh=MeshOptions(refinement=(2,), padding_distance=400.0),
+        mesh=MeshOptions(
+            survey_refinement=[2],
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+            padding_distance=400.0,
+        ),
         model=ModelOptions(background=1e-3),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
@@ -76,6 +82,7 @@ def test_fem_fwr_run(
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="fdem",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points,
             n_lines=n_grid_points,
@@ -83,7 +90,13 @@ def test_fem_fwr_run(
             topography=lambda x, y: np.zeros(x.shape),
         ),
         mesh=MeshOptions(
-            cell_size=cell_size, refinement=refinement, padding_distance=400.0
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+            padding_distance=400.0,
         ),
         model=ModelOptions(
             background=1e-3,
@@ -91,7 +104,11 @@ def test_fem_fwr_run(
                 strike_length=40.0,
                 dip_length=40.0,
                 width=40.0,
-                origin=(0.0, 0.0, -50.0),
+                easting=0.0,
+                northing=0.0,
+                elevation=-30.0,
+                dip=90.0,
+                direction=0.0,
             ),
         ),
     )
@@ -121,8 +138,8 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
         data = {}
         uncertainties = {}
         channels = {
-            "z_real": "z_real",
-            "z_imag": "z_imag",
+            "vertical_real": "vertical_real",
+            "vertical_imag": "vertical_imag",
         }
 
         for chan, cname in channels.items():
@@ -157,7 +174,7 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
             data_kwargs[f"{chan}_channel"] = data_group
             data_kwargs[f"{chan}_uncertainty"] = uncert_group
 
-        orig_z_real_1 = geoh5.get_entity("Iteration_0_z_real_[0]")[0].values
+        orig_z_real_1 = geoh5.get_entity("Iteration_0_vertical_real_[0]")[0].values
 
         # Run the inverse
         params = FDEMInversionOptions.build(
@@ -189,7 +206,7 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
         # Scaling is done evenly on channels
         np.testing.assert_allclose(
             driver.data_misfit.multipliers,
-            [1.0, 1.0, 0.6004, 0.6004, 0.5047, 0.5047],
+            [1.0, 1.0, 0.5514, 0.5514, 0.5028, 0.5028],
             atol=1e-3,
         )
 
@@ -200,8 +217,8 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
         output["data"] = orig_z_real_1
 
         assert (
-            run_ws.get_entity("Iteration_1_z_imag_[1]")[0].entity_type.uid
-            == run_ws.get_entity("Observed_z_imag_[1]")[0].entity_type.uid
+            run_ws.get_entity("Iteration_1_vertical_imag_[1]")[0].entity_type.uid
+            == run_ws.get_entity("Observed_vertical_imag_[1]")[0].entity_type.uid
         )
 
         if pytest:
@@ -217,7 +234,7 @@ if __name__ == "__main__":
         Path("./"),
         n_grid_points=5,
         cell_size=(5.0, 5.0, 5.0),
-        refinement=(4, 4, 4),
+        refinement=[4, 4, 4],
     )
     test_fem_run(
         Path("./"),

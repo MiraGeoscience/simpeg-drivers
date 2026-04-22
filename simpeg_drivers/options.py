@@ -18,7 +18,6 @@ from typing import Annotated, Any, ClassVar, Literal
 
 import numpy as np
 from geoapps_utils.base import Options
-from geoh5py import Workspace
 from geoh5py.data import (
     BooleanData,
     DataAssociationEnum,
@@ -420,6 +419,7 @@ class DrapeModelOptions(BaseModel):
     horizontal_padding: float | None = 100.0
     vertical_padding: float | None = 100.0
     expansion_factor: float | None = 1.1
+    name: str = "mesh"
 
 
 class EMDataMixin:

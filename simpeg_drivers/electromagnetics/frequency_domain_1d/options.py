@@ -16,6 +16,7 @@ from typing import ClassVar
 
 from geoh5py.groups import PropertyGroup
 from geoh5py.objects import AirborneFEMReceivers
+from pydantic import AliasChoices, Field
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.electromagnetics.base_1d_options import Base1DOptions
@@ -32,8 +33,8 @@ class FDEM1DForwardOptions(BaseForwardOptions, BaseFDEMOptions, Base1DOptions):
     """
     Frequency Domain Electromagnetic forward options.
 
-    :param z_real_channel_bool: Z-component data channel boolean.
-    :param z_imag_channel_bool: Imaginary Z-component data channel boolean.
+    :param vertical_real_channel_bool: Z-component data channel boolean.
+    :param vertical_imag_channel_bool: Imaginary Z-component data channel boolean.
     :param drape_model: Drape model options.
     """
 
@@ -44,8 +45,18 @@ class FDEM1DForwardOptions(BaseForwardOptions, BaseFDEMOptions, Base1DOptions):
     physical_property: str = "conductivity"
     inversion_type: str = "fdem 1d"
     data_object: AirborneFEMReceivers
-    z_real_channel_bool: bool
-    z_imag_channel_bool: bool
+    vertical_real_channel_bool: bool = Field(
+        False,
+        validation_alias=AliasChoices(
+            "z_real_channel_bool", "vertical_real_channel_bool"
+        ),
+    )
+    vertical_imag_channel_bool: bool = Field(
+        False,
+        validation_alias=AliasChoices(
+            "z_imag_channel_bool", "vertical_imag_channel_bool"
+        ),
+    )
     models: ConductivityModelOptions
 
 
@@ -53,10 +64,10 @@ class FDEM1DInversionOptions(BaseFDEMOptions, BaseInversionOptions, Base1DOption
     """
     Frequency Domain Electromagnetic Inversion options.
 
-    :param z_real_channel: Real Z-component data channel.
-    :param z_real_uncertainty: Real Z-component data channel uncertainty.
-    :param z_imag_channel: Imaginary Z-component data channel.
-    :param z_imag_uncertainty: Imaginary Z-component data channel uncertainty.
+    :param vertical_real_channel: Real Z-component data channel.
+    :param vertical_real_uncertainty: Real Z-component data channel uncertainty.
+    :param vertical_imag_channel: Imaginary Z-component data channel.
+    :param vertical_imag_uncertainty: Imaginary Z-component data channel uncertainty.
     :param drape_model: Drape model options.
     """
 
@@ -71,8 +82,22 @@ class FDEM1DInversionOptions(BaseFDEMOptions, BaseInversionOptions, Base1DOption
     directives: DirectiveOptions = DirectiveOptions(
         sens_wts_threshold=100.0,
     )
-    z_real_channel: PropertyGroup | None = None
-    z_real_uncertainty: PropertyGroup | None = None
-    z_imag_channel: PropertyGroup | None = None
-    z_imag_uncertainty: PropertyGroup | None = None
+    vertical_real_channel: PropertyGroup | None = Field(
+        None, validation_alias=AliasChoices("z_real_channel", "vertical_real_channel")
+    )
+    vertical_real_uncertainty: PropertyGroup | None = Field(
+        None,
+        validation_alias=AliasChoices(
+            "z_real_uncertainty", "vertical_real_uncertainty"
+        ),
+    )
+    vertical_imag_channel: PropertyGroup | None = Field(
+        None, validation_alias=AliasChoices("z_imag_channel", "vertical_imag_channel")
+    )
+    vertical_imag_uncertainty: PropertyGroup | None = Field(
+        None,
+        validation_alias=AliasChoices(
+            "z_imag_uncertainty", "vertical_imag_uncertainty"
+        ),
+    )
     models: ConductivityModelOptions

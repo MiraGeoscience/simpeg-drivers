@@ -1,183 +1,264 @@
 {
-    "version": "0.3.0-alpha.6",
-    "title": "Direct Current (DC) 2D Inversion",
-    "icon": "PotentialElectrode",
+    "version": "0.4.0",
+    "title": "Magnetic Vector (MVI) PDE Inversion",
+    "icon": "surveyairbornemagnetics",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
     "conda_environment": "simpeg_drivers",
-    "run_command": "simpeg_drivers.electricals.direct_current.two_dimensions.inversion",
+    "run_command": "simpeg_drivers.potential_fields.magnetic_vector_pde.inversion",
     "geoh5": "",
     "monitoring_directory": "",
+    "inducing_field_declination": {
+        "min": -180.0,
+        "max": 180.0,
+        "precision": 2,
+        "lineEdit": false,
+        "main": true,
+        "group": "Inducing field",
+        "label": "Declination (deg)",
+        "value": 0.0
+    },
+    "inducing_field_inclination": {
+        "min": -90.0,
+        "max": 90.0,
+        "precision": 2,
+        "lineEdit": false,
+        "main": true,
+        "group": "Inducing field",
+        "label": "Inclination (deg)",
+        "value": 90.0
+    },
+    "inducing_field_strength": {
+        "min": 0.0,
+        "max": 100000.0,
+        "precision": 2,
+        "lineEdit": false,
+        "main": true,
+        "group": "Inducing field",
+        "label": "Strength (nT)",
+        "value": 50000.0
+    },
     "data_object": {
         "main": true,
         "group": "Data",
         "label": "Object",
-        "meshType": "{275ecee9-9c24-4378-bf94-65f3c5fbe163}",
+        "meshType": [
+            "{202c5db1-a56d-4004-9cad-baafd8899406}",
+            "{6a057fdc-b355-11e3-95be-fd84a7ffcb88}",
+            "{f26feba3-aded-494b-b9e9-b2bbcbe298e1}",
+            "{48f5054a-1c5c-4ca4-9048-80f36dc60a06}",
+            "{b020a277-90e2-4cd7-84d6-612ee3f25051}",
+            "{4b99204c-d133-4579-a916-a9c8b98cfccb}",
+            "{028e4905-cc97-4dab-b1bf-d76f58b501b5}"
+        ],
         "value": ""
     },
-    "line_selection": {
-        "association": "Cell",
-        "dataType": [
-            "Referenced"
+    "tmi_channel": {
+        "association": [
+            "Cell",
+            "Vertex"
         ],
-        "group": "Data",
-        "main": true,
-        "allowComplement": false,
-        "isComplement": false,
-        "label": "Line IDs",
-        "parent": "data_object",
-        "value": "",
-        "rangeLabel": "Selection",
-        "property": "",
-        "optional": true,
-        "enabled": false,
-        "tooltip": "Select a subset of lines in the survey for inversion"
-    },
-    "potential_channel": {
-        "association": "Cell",
         "dataType": "Float",
         "group": "Data",
         "main": true,
-        "label": "Potential (V/I)",
-        "tooltip": "Potential: voltage normalized by current",
+        "label": "TMI (nT)",
+        "toolTip": "IGRF-corrected anomalous magnetic data",
         "parent": "data_object",
+        "optional": true,
+        "enabled": true,
         "value": ""
     },
-    "potential_uncertainty": {
-        "association": "Cell",
+    "tmi_uncertainty": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
         "dataType": "Float",
         "group": "Data",
         "main": true,
         "isValue": true,
         "label": "Uncertainty",
         "parent": "data_object",
+        "dependency": "tmi_channel",
+        "dependencyType": "enabled",
+        "property": "",
+        "value": 1.0
+    },
+    "bx_channel": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data",
+        "main": true,
+        "label": "Bx (nT)",
+        "parent": "data_object",
+        "optional": true,
+        "enabled": false,
+        "value": ""
+    },
+    "bx_uncertainty": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data",
+        "main": true,
+        "isValue": true,
+        "label": "Uncertainty",
+        "parent": "data_object",
+        "dependency": "bx_channel",
+        "dependencyType": "enabled",
+        "property": "",
+        "value": 1.0
+    },
+    "by_channel": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data",
+        "main": true,
+        "label": "By (nT)",
+        "parent": "data_object",
+        "optional": true,
+        "enabled": false,
+        "value": ""
+    },
+    "by_uncertainty": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data",
+        "main": true,
+        "isValue": true,
+        "label": "Uncertainty",
+        "parent": "data_object",
+        "dependency": "by_channel",
+        "dependencyType": "enabled",
+        "property": "",
+        "value": 1.0
+    },
+    "bz_channel": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data",
+        "main": true,
+        "label": "Bz (nT)",
+        "parent": "data_object",
+        "optional": true,
+        "enabled": false,
+        "value": ""
+    },
+    "bz_uncertainty": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data",
+        "main": true,
+        "isValue": true,
+        "label": "Uncertainty",
+        "parent": "data_object",
+        "dependency": "bz_channel",
+        "dependencyType": "enabled",
         "property": "",
         "value": 1.0
     },
     "mesh": {
         "group": "Mesh and models",
         "main": true,
+        "label": "Mesh",
+        "meshType": "{4ea87376-3ece-438b-bf12-3479733ded46}",
+        "value": "",
         "optional": true,
         "enabled": false,
-        "label": "Mesh",
-        "meshType": "{c94968ea-cf7d-11eb-b8bc-0242ac130003}",
-        "value": ""
-    },
-    "u_cell_size": {
-        "min": 0.0,
-        "group": "Mesh and models",
-        "dependency": "mesh",
-        "dependencyType": "disabled",
-        "main": true,
-        "enabled": true,
-        "label": "Easting core cell size (m)",
-        "value": 25.0
-    },
-    "v_cell_size": {
-        "min": 0.0,
-        "group": "Mesh and models",
-        "dependency": "mesh",
-        "dependencyType": "disabled",
-        "main": true,
-        "enabled": true,
-        "label": "Northing core cell size (m)",
-        "value": 25.0
-    },
-    "depth_core": {
-        "min": 0.0,
-        "group": "Mesh and models",
-        "dependency": "mesh",
-        "dependencyType": "disabled",
-        "main": true,
-        "enabled": true,
-        "label": "Depth of core (m)",
-        "value": 500.0
-    },
-    "horizontal_padding": {
-        "min": 0.0,
-        "group": "Mesh and models",
-        "dependency": "mesh",
-        "dependencyType": "disabled",
-        "main": true,
-        "enabled": true,
-        "label": "Horizontal padding (m)",
-        "value": 1000.0
-    },
-    "vertical_padding": {
-        "min": 0.0,
-        "group": "Mesh and models",
-        "dependency": "mesh",
-        "dependencyType": "disabled",
-        "main": true,
-        "label": "Vertical padding (m)",
-        "value": 1000.0
-    },
-    "expansion_factor": {
-        "main": true,
-        "group": "Mesh and models",
-        "dependency": "mesh",
-        "dependencyType": "disabled",
-        "label": "Expansion factor",
-        "value": 1.1
-    },
-    "model_type": {
-        "choiceList": [
-            "Conductivity (S/m)",
-            "Resistivity (Ohm-m)"
-        ],
-        "main": true,
-        "group": "Mesh and models",
-        "label": "Model units",
-        "tooltip": "Select the units of the model",
-        "value": "Conductivity (S/m)"
+        "tooltip": "Select a mesh for the inversion"
     },
     "starting_model": {
-        "association": "Cell",
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
         "dataType": "Float",
         "group": "Mesh and models",
         "main": true,
         "isValue": true,
         "parent": "mesh",
-        "label": "Initial",
+        "label": "Initial magnetization (SI)",
         "property": "",
-        "value": 0.001
+        "value": 0.0001
     },
-    "reference_model": {
-        "association": "Cell",
+    "starting_inclination": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
         "dataType": "Float",
-        "main": true,
         "group": "Mesh and models",
+        "main": true,
         "isValue": true,
-        "parent": "mesh",
-        "label": "Reference",
-        "property": "",
         "optional": true,
         "enabled": false,
-        "value": 0.001
+        "parent": "mesh",
+        "label": "Initial inclination (deg)",
+        "property": "",
+        "value": 0.0
     },
-    "lower_bound": {
-        "association": "Cell",
+    "starting_declination": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Mesh and models",
+        "main": true,
+        "isValue": true,
+        "optional": true,
+        "enabled": false,
+        "parent": "mesh",
+        "label": "Initial declination (deg)",
+        "property": "",
+        "value": 0.0
+    },
+    "reference_model": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
         "main": true,
         "dataType": "Float",
         "group": "Mesh and models",
         "isValue": true,
-        "parent": "mesh",
-        "label": "Lower bound",
-        "property": "",
         "optional": true,
-        "value": 1e-08,
-        "enabled": false
+        "enabled": false,
+        "parent": "mesh",
+        "label": "Reference magnetization(SI)",
+        "property": "",
+        "value": 0.0
     },
     "upper_bound": {
-        "association": "Cell",
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
         "main": true,
         "dataType": "Float",
         "group": "Mesh and models",
         "isValue": true,
         "parent": "mesh",
-        "label": "Upper bound",
+        "label": "Upper bound (SI)",
         "property": "",
         "optional": true,
-        "value": 100.0,
+        "value": 1.0,
         "enabled": false
     },
     "topography_object": {
@@ -227,7 +308,7 @@
         "dependency": "topography_object",
         "dependencyType": "disabled",
         "label": "Active model",
-        "tooltip": "Provide the active cell boolean model directly if topography not set",
+        "tooltip": "Provide the active cell Boolean model directly if topography not set",
         "parent": "mesh",
         "value": ""
     },
@@ -259,7 +340,19 @@
         "property": "",
         "enabled": true
     },
-    "length_scale_y": "",
+    "length_scale_y": {
+        "min": 0.0,
+        "group": "Regularization",
+        "label": "Y-smoothness weight",
+        "tooltip": "Larger values relative to other smoothness weights will result in y biased smoothness",
+        "value": 1.0,
+        "isValue": true,
+        "parent": "mesh",
+        "association": "Cell",
+        "dataType": "Float",
+        "property": "",
+        "enabled": true
+    },
     "length_scale_z": {
         "min": 0.0,
         "group": "Regularization",
@@ -322,7 +415,22 @@
         "enabled": true,
         "tooltip": "Lp-norm used in the x-smoothness term of the objective function"
     },
-    "y_norm": "",
+    "y_norm": {
+        "association": "Cell",
+        "dataType": "Float",
+        "group": "Sparse/blocky model",
+        "label": "Y-smoothness norm",
+        "isValue": true,
+        "parent": "mesh",
+        "property": "",
+        "value": 2.0,
+        "min": 0.0,
+        "max": 2.0,
+        "precision": 2,
+        "lineEdit": false,
+        "enabled": true,
+        "tooltip": "Lp-norm used in the y-smoothness term of the objective function"
+    },
     "z_norm": {
         "association": "Cell",
         "dataType": "Float",
@@ -435,8 +543,7 @@
         "max": 10,
         "precision": 1,
         "verbose": 2,
-        "enabled": true,
-        "tooltip": "Set the number of iterations per beta value. Use higher values for more non-linear optimization problems"
+        "enabled": true
     },
     "epsilon_cooling_factor": 1.2,
     "max_global_iterations": {
@@ -455,7 +562,7 @@
         "min": 1,
         "enabled": true,
         "verbose": 3,
-        "tooltip": "Perform an Armijo backtracking linesearch for the provided number of iterations"
+        "tooltip": "Perform an Armijo backtracking line search for the provided number of iterations"
     },
     "max_cg_iterations": {
         "min": 0,
@@ -486,7 +593,7 @@
         "group": "Update sensitivity weights directive",
         "tooltip": "Update sensitivity weight threshold",
         "label": "Threshold (%)",
-        "value": 1.0,
+        "value": 0.001,
         "max": 100.0,
         "min": 0.0,
         "precision": 3,
@@ -497,7 +604,7 @@
         "group": "Update sensitivity weights directive",
         "tooltip": "Update weights at every iteration",
         "label": "Every iteration",
-        "value": true,
+        "value": false,
         "verbose": 2,
         "enabled": true
     },
@@ -516,36 +623,18 @@
         "value": 1,
         "visible": false
     },
-    "solver_type": {
-        "choiceList": [
-            "Pardiso",
-            "Mumps"
-        ],
+    "solver_type": "Pardiso",
+    "tile_spatial": {
         "group": "Compute",
-        "label": "Direct solver",
-        "tooltip": "Direct solver to use for the forward calculations",
-        "value": "Pardiso"
-    },
-    "store_sensitivities": {
-        "choiceList": [
-            "disk",
-            "ram"
-        ],
-        "group": "Compute",
-        "label": "Storage device",
-        "tooltip": "Use disk on a fast local SSD, and RAM elsewhere",
-        "value": "ram"
-    },
-    "max_chunk_size": {
-        "min": 0,
-        "group": "Compute",
-        "optional": true,
-        "enabled": true,
-        "label": "Maximum chunk size (Mb)",
-        "value": 128,
-        "verbose": 3,
-        "visible": false,
-        "tooltip": "Limit the chunk size used by Dask for distributed computation"
+        "label": "Number of tiles",
+        "parent": "data_object",
+        "isValue": true,
+        "property": "",
+        "value": 1,
+        "min": 1,
+        "max": 1000,
+        "verbose": 2,
+        "tooltip": "Splits the objective function into spatial tiles for distributed computation using the Dask library"
     },
     "out_group": {
         "label": "SimPEG group",
@@ -556,14 +645,6 @@
         "optional": true,
         "enabled": false,
         "tooltip": "Optionally set the SimPEG group to which results will be saved"
-    },
-    "generate_sweep": {
-        "label": "Generate sweep file",
-        "group": "Python run preferences",
-        "main": true,
-        "value": false,
-        "visible": false,
-        "tooltip": "Generates a file for sweeping parameters instead of running the application"
     },
     "n_workers": null,
     "n_threads": null,

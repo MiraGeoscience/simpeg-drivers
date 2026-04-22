@@ -74,7 +74,10 @@ class InversionModelCollection:
         self._active_cells: np.ndarray | None = None
         self._driver = driver
         self.is_sigma = self.driver.params.physical_property == "conductivity"
-        self.is_vector = self.driver.params.inversion_type == "magnetic vector"
+        self.is_vector = self.driver.params.inversion_type in [
+            "magnetic vector",
+            "magnetic vector pde",
+        ]
 
         self._starting_model = InversionModel(
             driver, "starting_model", is_sigma=self.is_sigma
@@ -272,7 +275,10 @@ class InversionModelCollection:
         else:
             bound_model = self._lower_bound.model
 
-        if self.driver.params.inversion_type == "magnetic vector":
+        if self.driver.params.inversion_type in [
+            "magnetic vector",
+            "magnetic vector pde",
+        ]:
             bound_model = None
 
             if self._upper_bound.model is not None:
@@ -458,14 +464,14 @@ class InversionModelCollection:
         if self._gradient_dip.model is None:
             return None
 
-        return np.deg2rad(self._gradient_dip.model)
+        return self._gradient_dip.model.copy()
 
     @property
     def gradient_direction(self) -> np.ndarray | None:
         if self._gradient_direction.model is None:
             return None
 
-        return np.deg2rad(self._gradient_direction.model)
+        return self._gradient_direction.model.copy()
 
     def remove_air(self, active_cells: np.ndarray):
         """Use active cells vector to remove air cells from model"""
@@ -512,8 +518,8 @@ class InversionModel:
         """
         :param driver: InversionDriver object.
         :param model_type: Type of inversion model, can be any of MODEL_TYPES.
-        :param is_vector: If True, model is a vector.
         :param trim_active_cells: If True, remove air cells from model.
+        :param is_sigma: If True, model values must be strictly positive.
         """
         self.driver = driver
         self.model_type = model_type
@@ -596,6 +602,7 @@ class InversionModel:
         if (
             getattr(self.driver.params.models, "model_type", None)
             == ModelTypeEnum.resistivity
+            and model_type == "conductivity_model"
         ):
             model_type = "resistivity_model"
 

@@ -42,7 +42,7 @@ jobs:
       pull-requests: read
     with:
       package-manager: 'conda'
-      python-versions: '["3.12", "3.13", "3.14"]'
+      python-versions: '["3.12", "3.13"]'
       os: '["ubuntu-latest", "windows-latest"]'
       cache-number: 1
       codecov-reference-python-version: '3.12'

@@ -38,7 +38,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.020080671392974116, "phi_d": 1.7, "phi_m": 23.4}
+target_run = {"data_norm": 0.025087759238073448, "phi_d": 0.385, "phi_m": 3}
 
 
 def setup_data(workspace, survey):
@@ -91,15 +91,23 @@ def setup_data(workspace, survey):
 def test_magnetotellurics_fwr_run(
     tmp_path: Path,
     n_grid_points=2,
+    cell_size=(5.0, 5.0, 5.0),
     refinement=(2,),
-    cell_size=(20.0, 20.0, 20.0),
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="magnetotellurics",
+        refine_plate=True,
         survey=SurveyOptions(n_stations=n_grid_points, n_lines=n_grid_points),
-        mesh=MeshOptions(cell_size=cell_size, refinement=refinement),
-        model=ModelOptions(background=0.01),
+        mesh=MeshOptions(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+        ),
+        model=ModelOptions(background=100.0),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
@@ -113,7 +121,8 @@ def test_magnetotellurics_fwr_run(
             topography_object=components.topography,
             data_object=components.survey,
             starting_model=components.model,
-            background_conductivity=1e-2,
+            model_type="Resistivity (Ohm-m)",
+            background_conductivity=1e2,
             zxx_real_channel_bool=True,
             zxx_imag_channel_bool=True,
             zxy_real_channel_bool=True,
@@ -194,13 +203,21 @@ def test_magnetotellurics_tiles(
     tmp_path: Path,
     n_grid_points=32,
     refinement=(2,),
-    cell_size=(20.0, 20.0, 20.0),
+    cell_size=(10.0, 10.0, 10.0),
 ):
     workpath = tmp_path / f"{__name__}.geoh5"
     opts = SyntheticsComponentsOptions(
         method="magnetotellurics",
+        refine_plate=True,
         survey=SurveyOptions(n_stations=n_grid_points, n_lines=n_grid_points),
-        mesh=MeshOptions(cell_size=cell_size, refinement=refinement),
+        mesh=MeshOptions(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+        ),
         model=ModelOptions(background=0.01),
     )
     with Workspace.create(workpath) as geoh5:

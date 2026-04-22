@@ -8,9 +8,9 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-import numpy as np
+from geoapps_utils.modelling.plates import Plate
 from geoh5py import Workspace
-from geoh5py.data import BooleanData, FloatData
+from geoh5py.data import FloatData
 from geoh5py.objects import DrapeModel, ObjectBase, Octree, Surface
 
 from simpeg_drivers.utils.synthetics.meshes import get_mesh
@@ -39,6 +39,7 @@ class SyntheticsComponents:
         self._topography: Surface | None = None
         self._survey: ObjectBase | None = None
         self._mesh: Octree | DrapeModel | None = None
+        self._plate: Surface | None = None
         self._active: FloatData | None = None
         self._model: FloatData | None = None
 
@@ -70,19 +71,23 @@ class SyntheticsComponents:
         return self._survey
 
     @property
+    def plate(self) -> Surface | None:
+        if self._plate is None:
+            plate = Plate(self.options.model.plate)
+            self._plate = plate.surface(self.geoh5)
+        return self._plate
+
+    @property
     def mesh(self) -> Octree | DrapeModel:
         if self._mesh is None:
-            entity = self.geoh5.get_entity("mesh")[0]
-
+            entity = self.geoh5.get_entity(self.options.mesh.name)[0]
             if entity is None:
                 entity = get_mesh(
                     self.options.method,
                     survey=self.survey,
                     topography=self.topography,
                     options=self.options.mesh,
-                    plate=self.options.model.plate
-                    if self.options.refine_plate
-                    else None,
+                    plates=[self.plate] if self.options.refine_plate else None,
                 )
             self._mesh = entity
 

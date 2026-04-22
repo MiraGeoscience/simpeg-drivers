@@ -30,6 +30,13 @@ from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 from simpeg_drivers.utils.regularization import direction_and_dip, get_cell_normals
 
 
+ORIENTATION_MAP = {
+    "vertical": "z",
+    "inline": "y",
+    "crossline": "x",
+}
+
+
 class ReceiversFactory(SimPEGFactory):
     """Build SimPEG receivers objects based on factory type."""
 
@@ -43,7 +50,11 @@ class ReceiversFactory(SimPEGFactory):
         self.orientations = self.validate_orientations()
 
     def concrete_object(self):
-        if self.factory_type in ["magnetic vector", "magnetic scalar"]:
+        if self.factory_type in [
+            "magnetic vector",
+            "magnetic scalar",
+            "magnetic vector pde",
+        ]:
             from simpeg.potential_fields.magnetics import receivers
 
             return receivers.Point
@@ -143,21 +154,28 @@ class ReceiversFactory(SimPEGFactory):
     ):
         """Provides implementations to assemble keyword arguments for receivers object."""
         kwargs = {}
-        if self.factory_type in ["gravity", "magnetic scalar", "magnetic vector"]:
+        if self.factory_type in [
+            "gravity",
+            "magnetic scalar",
+            "magnetic vector",
+            "magnetic vector pde",
+        ]:
             kwargs["components"] = list(data)
         else:
             kwargs["storeProjections"] = True
 
         if self.factory_type in ["fdem", "fdem 1d", "magnetotellurics", "tipper"]:
             comp = component.split("_")[0]
-            kwargs["orientation"] = comp[0] if "fdem" in self.factory_type else comp[1:]
+            kwargs["orientation"] = (
+                ORIENTATION_MAP[comp] if "fdem" in self.factory_type else comp[1:]
+            )
             kwargs["component"] = component.split("_")[1]
 
         if self.factory_type in ["tipper"]:
             kwargs["orientation"] = kwargs["orientation"][::-1]
 
         if "tdem" in self.factory_type:
-            kwargs["orientation"] = component
+            kwargs["orientation"] = ORIENTATION_MAP[component]
 
         if self.factory_type == "fdem 1d":
             kwargs["data_type"] = "ppm"

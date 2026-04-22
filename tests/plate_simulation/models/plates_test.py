@@ -9,12 +9,12 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 import numpy as np
+from geoapps_utils.modelling.plates import Plate, PlateModel
 from geoapps_utils.utils.transformations import rotate_xyz
 from geoh5py import Workspace
 
 from simpeg_drivers.plate_simulation.driver import PlateSimulationDriver
 from simpeg_drivers.plate_simulation.models.options import PlateOptions
-from simpeg_drivers.plate_simulation.models.parametric import Plate
 
 
 def are_collocated(pts1, pts2):
@@ -25,118 +25,132 @@ def are_collocated(pts1, pts2):
     return np.all(truth)
 
 
-def vertical_east_striking_plate():
-    params = PlateOptions(
-        name="my plate",
-        plate=1.0,
-        elevation=0.0,
-        width=10.0,
+def vertical_east_striking_plate(workspace):
+    params = PlateModel(
         strike_length=1000.0,
         dip_length=500.0,
+        width=10.0,
+        direction=0.0,
         dip=90.0,
-        dip_direction=0.0,
+        easting=0.0,
+        northing=0.0,
+        elevation=0.0,
     )
     plate = Plate(params)
 
-    return plate.surface
+    return plate.surface(workspace)
 
 
-def test_vertical_east_striking_plate():
-    vertical_east_striking = vertical_east_striking_plate()
-    assert vertical_east_striking.vertices is not None
-    assert vertical_east_striking.extent is not None
-    assert np.isclose(
-        vertical_east_striking.extent[1, 0] - vertical_east_striking.extent[0, 0],
-        1000.0,
-    )
-    assert np.isclose(
-        vertical_east_striking.extent[1, 1] - vertical_east_striking.extent[0, 1],
-        10.0,
-    )
-    assert np.isclose(
-        vertical_east_striking.extent[1, 2] - vertical_east_striking.extent[0, 2],
-        500.0,
-    )
-    assert (
-        vertical_east_striking.vertices[:, 0].mean() == 0.0  # pylint: disable=no-member
-    )
-    assert (
-        vertical_east_striking.vertices[:, 1].mean() == 0.0  # pylint: disable=no-member
-    )
-    assert (
-        vertical_east_striking.vertices[:, 2].mean() == 0.0  # pylint: disable=no-member
-    )
+def test_vertical_east_striking_plate(tmp_path):
+    with Workspace(tmp_path / "test.geoh5") as workspace:
+        vertical_east_striking = vertical_east_striking_plate(workspace)
+        assert vertical_east_striking.vertices is not None
+        assert vertical_east_striking.extent is not None
+        assert np.isclose(
+            vertical_east_striking.extent[1, 0] - vertical_east_striking.extent[0, 0],
+            1000.0,
+        )
+        assert np.isclose(
+            vertical_east_striking.extent[1, 1] - vertical_east_striking.extent[0, 1],
+            10.0,
+        )
+        assert np.isclose(
+            vertical_east_striking.extent[1, 2] - vertical_east_striking.extent[0, 2],
+            500.0,
+        )
+        assert np.isclose(
+            vertical_east_striking.vertices[:, 0].mean(),
+            0.0,  # pylint: disable=no-member
+        )
+        assert np.isclose(
+            vertical_east_striking.vertices[:, 1].mean(),
+            0.0,  # pylint: disable=no-member
+        )
+        assert np.isclose(
+            vertical_east_striking.vertices[:, 2].mean(),
+            -250.0,  # pylint: disable=no-member
+        )
 
 
-def test_dipping_plates_all_quadrants():
-    reference = vertical_east_striking_plate()
+def test_dipping_plates_all_quadrants(tmp_path):
 
-    for dip_direction in np.arange(0.0, 361.0, 45.0):
-        for dip in [20.0, 70.0]:
-            params = PlateOptions(
-                name=f"plate dipping {dip} at {dip_direction}",
-                plate=1.0,
-                elevation=0.0,
-                width=10.0,
-                strike_length=1000.0,
-                dip_length=500.0,
-                dip=dip,
-                dip_direction=dip_direction,
-                reference="center",
-            )
+    with Workspace(tmp_path / "test.geoh5") as workspace:
+        reference = vertical_east_striking_plate(workspace)
 
-            plate = Plate(params)
-            surface = plate.surface
-            locs = rotate_xyz(surface.vertices, [0.0, 0.0, 0.0], dip_direction, 0.0)
-            locs = rotate_xyz(locs, [0.0, 0.0, 0.0], 0.0, dip - 90.0)
-            assert np.allclose(locs, reference.vertices)
+        for dip_direction in np.arange(0.0, 361.0, 45.0):
+            for dip in [20.0, 70.0]:
+                params = PlateModel(
+                    strike_length=1000.0,
+                    dip_length=500.0,
+                    width=10.0,
+                    direction=dip_direction,
+                    dip=dip,
+                    easting=0.0,
+                    northing=0.0,
+                    elevation=0.0,
+                )
+
+                plate = Plate(params)
+                surface = plate.surface(
+                    workspace, name=f"Plate (dip: {dip}, dir: {dip_direction})"
+                )
+                locs = rotate_xyz(surface.vertices, [0.0, 0.0, 0.0], dip_direction, 0.0)
+                locs = rotate_xyz(locs, [0.0, 0.0, 0.0], 0.0, dip - 90.0)
+                assert np.allclose(locs, reference.vertices)
 
 
 def test_replicate_even(tmp_path):
-    workspace = Workspace.create(tmp_path / f"{__name__}.geoh5")
-    options = PlateOptions(
-        name="test",
-        plate=1.0,
-        width=1.0,
-        strike_length=1.0,
-        dip_length=1.0,
-        elevation=1.0,
-    )
-    plate = Plate(options, (0, 0, 0), workspace=workspace)
-    plates = PlateSimulationDriver.replicate(plate, 2, 10.0, 90.0)
-    assert plates[0].surface.vertices is not None
-    assert plates[1].surface.vertices is not None
-    assert plates[0].params.name == "test offset 1"
-    assert np.allclose(
-        plates[0].surface.vertices.mean(axis=0), np.array([-5.0, 0.0, 0.0])
-    )
-    assert plates[1].params.name == "test offset 2"
-    assert np.allclose(
-        plates[1].surface.vertices.mean(axis=0), np.array([5.0, 0.0, 0.0])
-    )
+    with Workspace(tmp_path / "test.geoh5") as workspace:
+        options = PlateModel(
+            strike_length=2.0,
+            dip_length=2.0,
+            width=2.0,
+            direction=0.0,
+            dip=0.0,
+            easting=0.0,
+            northing=-1.0,
+            elevation=0.0,
+        )
+        plate = Plate(options)
+        plates = PlateSimulationDriver.replicate(plate, 2, 10.0, 90.0)
+        assert plates[0].surface(workspace).vertices is not None
+        assert plates[1].surface(workspace).vertices is not None
+        assert np.allclose(
+            plates[0].surface(workspace).vertices.mean(axis=0),
+            np.array([-5.0, 0.0, 0.0]),
+        )
+        assert np.allclose(
+            plates[1].surface(workspace).vertices.mean(axis=0),
+            np.array([5.0, 0.0, 0.0]),
+        )
 
 
 def test_replicate_odd(tmp_path):
-    workspace = Workspace.create(tmp_path / f"{__name__}.geoh5")
-    options = PlateOptions(
-        name="test",
-        plate=1.0,
-        width=1.0,
-        strike_length=1.0,
-        dip_length=1.0,
-        elevation=1.0,
-    )
-    plate = Plate(options, (0, 0, 0), workspace=workspace)
-    plates = PlateSimulationDriver.replicate(plate, 3, 5.0, 0.0)
-    assert plates[0].surface.vertices is not None
-    assert plates[1].surface.vertices is not None
-    assert plates[2].surface.vertices is not None
-    assert np.allclose(
-        plates[0].surface.vertices.mean(axis=0), np.array([0.0, -5.0, 0.0])
-    )
-    assert np.allclose(
-        plates[1].surface.vertices.mean(axis=0), np.array([0.0, 0.0, 0.0])
-    )
-    assert np.allclose(
-        plates[2].surface.vertices.mean(axis=0), np.array([0.0, 5.0, 0.0])
-    )
+    with Workspace(tmp_path / "test.geoh5") as workspace:
+        options = PlateModel(
+            strike_length=2.0,
+            dip_length=2.0,
+            width=2.0,
+            direction=0.0,
+            dip=0.0,
+            easting=0.0,
+            northing=-1.0,
+            elevation=0.0,
+        )
+        plate = Plate(options)
+        plates = PlateSimulationDriver.replicate(plate, 3, 5.0, 0.0)
+        assert plates[0].surface(workspace).vertices is not None
+        assert plates[1].surface(workspace).vertices is not None
+        assert plates[2].surface(workspace).vertices is not None
+        assert np.allclose(
+            plates[0].surface(workspace).vertices.mean(axis=0),
+            np.array([0.0, -5.0, 0.0]),
+        )
+        assert np.allclose(
+            plates[1].surface(workspace).vertices.mean(axis=0),
+            np.array([0.0, 0.0, 0.0]),
+        )
+        assert np.allclose(
+            plates[2].surface(workspace).vertices.mean(axis=0),
+            np.array([0.0, 5.0, 0.0]),
+        )

@@ -40,18 +40,20 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # Move this file out of the test directory and run.
 # pylint: disable=no-member
 
-target_run = {"data_norm": 0.4213146000982348, "phi_d": 37000, "phi_m": 3.58}
+target_run = {"data_norm": 0.37623107854757576, "phi_d": 31300, "phi_m": 5.13}
 
 
 def test_gravity_rotated_grad_fwr_run(
     tmp_path: Path,
     n_grid_points=2,
+    cell_size=(20.0, 20.0, 20.0),
     refinement=(2,),
 ):
     # Run the forward
 
     opts = SyntheticsComponentsOptions(
         method="gravity",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points,
             n_lines=n_grid_points,
@@ -59,14 +61,23 @@ def test_gravity_rotated_grad_fwr_run(
             drape=5.0,
             topography=lambda x, y: gaussian(x, y, amplitude=50.0, width=100.0) + 15,
         ),
-        mesh=MeshOptions(refinement=refinement),
+        mesh=MeshOptions(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+        ),
         model=ModelOptions(
             anomaly=0.75,
             plate=PlateModel(
                 strike_length=500.0,
                 dip_length=150.0,
                 width=20.0,
-                origin=(0.0, 0.0, -10.0),
+                easting=-15.0,
+                northing=0.0,
+                elevation=20.0,
                 direction=60.0,
                 dip=70.0,
             ),
@@ -171,6 +182,7 @@ if __name__ == "__main__":
     test_gravity_rotated_grad_fwr_run(
         Path("./"),
         n_grid_points=10,
+        cell_size=(20.0, 20.0, 20.0),
         refinement=(6, 8),
     )
 

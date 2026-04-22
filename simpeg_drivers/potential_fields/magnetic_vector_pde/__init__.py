@@ -8,5 +8,10 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-from .driver import JointPetrophysicsDriver
-from .options import JointPetrophysicsOptions
+
+from .forward import MagneticVectorPDEForwardDriver
+from .inversion import MagneticVectorPDEInversionDriver
+from .options import (
+    MagneticVectorPDEForwardOptions,
+    MagneticVectorPDEInversionOptions,
+)

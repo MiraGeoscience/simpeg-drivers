@@ -36,20 +36,29 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.14144509477553324, "phi_d": 4.22, "phi_m": 211}
+target_run = {"data_norm": 0.15320935486917722, "phi_d": 25.7, "phi_m": 3580}
 
 
 def test_dc_3d_fwr_run(
     tmp_path: Path,
     n_electrodes=4,
     n_lines=3,
+    cell_size=(20.0, 20.0, 20.0),
     refinement=(4, 6),
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="direct current 3d",
+        refine_plate=True,
         survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
-        mesh=MeshOptions(refinement=refinement),
+        mesh=MeshOptions(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+        ),
         model=ModelOptions(background=0.01, anomaly=10.0),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
@@ -145,13 +154,22 @@ def test_dc_single_line_fwr_run(
     tmp_path: Path,
     n_electrodes=4,
     n_lines=1,
+    cell_size=(20.0, 20.0, 20.0),
     refinement=(4, 6),
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="direct current 3d",
+        refine_plate=True,
         survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
-        mesh=MeshOptions(refinement=refinement),
+        mesh=MeshOptions(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+        ),
         model=ModelOptions(background=0.01, anomaly=10.0),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
@@ -165,7 +183,7 @@ def test_dc_single_line_fwr_run(
         )
 
     fwr_driver = DC3DForwardDriver(params)
-    assert fwr_driver.inversion_mesh.mesh.n_cells == 13855
+    assert fwr_driver.inversion_mesh.mesh.n_cells == 3560
 
 
 if __name__ == "__main__":
@@ -175,6 +193,7 @@ if __name__ == "__main__":
         Path("./"),
         n_electrodes=20,
         n_lines=5,
+        cell_size=(20.0, 20.0, 20.0),
         refinement=(4, 4),
     )
 

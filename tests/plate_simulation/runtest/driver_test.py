@@ -8,6 +8,8 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
+import logging
+
 from geoh5py.groups import SimPEGGroup
 from geoh5py.ui_json import InputFile
 
@@ -33,7 +35,7 @@ from tests.utils.targets import get_workspace
 
 
 # pylint: disable=too-many-statements
-def test_plate_simulation_params_from_input_file(tmp_path):
+def test_plate_simulation_params_from_input_file(tmp_path, caplog):
     opts = SyntheticsComponentsOptions(
         method="gravity",
         survey=SurveyOptions(n_stations=8, n_lines=8),
@@ -75,9 +77,9 @@ def test_plate_simulation_params_from_input_file(tmp_path):
 
         # Add model parameters
         ifile.data["background"] = 1000.0
-        ifile.data["overburden"] = 5.0
+        ifile.data["overburden_property"] = 5.0
         ifile.data["thickness"] = 50.0
-        ifile.data["plate"] = 2.0
+        ifile.data["plate_property"] = 2.0
         ifile.data["width"] = 100.0
         ifile.data["strike_length"] = 100.0
         ifile.data["dip_length"] = 100.0
@@ -85,14 +87,11 @@ def test_plate_simulation_params_from_input_file(tmp_path):
         ifile.data["dip_direction"] = 0.0
         ifile.data["number"] = 9
         ifile.data["spacing"] = 10.0
-        ifile.data["relative_locations"] = True
-        ifile.data["easting"] = 10.0
-        ifile.data["northing"] = 10.0
-        ifile.data["elevation"] = -250
-        ifile.data["reference_surface"] = "topography"
-        ifile.data["reference_type"] = "mean"
+        ifile.data["elevation"] = 20
 
-    params = PlateSimulationOptions.build(ifile)
+    with caplog.at_level(logging.WARNING):
+        params = PlateSimulationOptions.build(ifile)
+    assert "Overburden thickness exceeds the plate depth" in caplog.text
     assert isinstance(params.simulation, SimPEGGroup)
 
     simulation_parameters = params.simulation_parameters()
@@ -117,20 +116,17 @@ def test_plate_simulation_params_from_input_file(tmp_path):
     assert not params.mesh.diagonal_balance
 
     assert isinstance(params.model, ModelOptions)
-    assert params.model.plate_model.name == "test_gravity_plate_simulation"
+    assert params.model.plate_options.name == "test_gravity_plate_simulation"
     assert params.model.background == 1000.0
-    assert params.model.overburden_model.thickness == 50.0
-    assert params.model.overburden_model.overburden == 5.0
-    assert params.model.plate_model.plate == 2.0
-    assert params.model.plate_model.width == 100.0
-    assert params.model.plate_model.strike_length == 100.0
-    assert params.model.plate_model.dip_length == 100.0
-    assert params.model.plate_model.dip == 0.0
-    assert params.model.plate_model.dip_direction == 0.0
+    assert params.model.overburden_options.thickness == 50.0
+    assert params.model.overburden_options.overburden_property == 5.0
+    assert params.model.plate_options.plate_property == 2.0
+    assert params.model.plate_options.geometry.strike_length == 100.0
+    assert params.model.plate_options.geometry.dip_length == 100.0
+    assert params.model.plate_options.geometry.dip == 0.0
+    assert params.model.plate_options.geometry.direction == 0.0
 
-    assert params.model.plate_model.number == 9
-    assert params.model.plate_model.spacing == 10.0
-    assert params.model.plate_model.relative_locations
-    assert params.model.plate_model.easting == 10.0
-    assert params.model.plate_model.northing == 10.0
-    assert params.model.plate_model.elevation == -250.0
+    assert params.model.plate_options.number == 9
+    assert params.model.plate_options.spacing == 10.0
+    # reset by validator
+    assert params.model.plate_options.geometry.elevation == 50.0

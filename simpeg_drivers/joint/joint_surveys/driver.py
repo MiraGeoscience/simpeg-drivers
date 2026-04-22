@@ -11,7 +11,9 @@
 
 from __future__ import annotations
 
+import sys
 from logging import getLogger
+from pathlib import Path
 
 import numpy as np
 from geoh5py.shared.utils import fetch_active_workspace
@@ -37,6 +39,20 @@ class JointSurveysDriver(BaseJointDriver):
 
         with fetch_active_workspace(self.workspace, mode="r+"):
             self.initialize()
+
+    def get_regularization(self):
+        """
+        Overload the regularization using the method of the first driver.
+        """
+        driver = self.drivers[0]
+        # Pre-store the saving directives before the swap
+        _ = driver.directives.save_directives
+
+        driver._models = self.models  # pylint: disable=protected-access
+        driver._inversion_mesh = self.inversion_mesh  # pylint: disable=protected-access
+        driver._n_values = self.models.n_active  # pylint: disable=protected-access
+        driver.mapping = self.mapping
+        return driver.get_regularization()
 
     def validate_create_models(self):
         """Check if all models were provided, otherwise use the first driver models."""
@@ -144,3 +160,7 @@ class JointSurveysDriver(BaseJointDriver):
 
 JointSurveysDriver.n_values = InversionDriver.n_values
 JointSurveysDriver.mapping = InversionDriver.mapping
+
+if __name__ == "__main__":
+    file = Path(sys.argv[1]).resolve()
+    JointSurveysDriver.start_dask_run(file)
