@@ -19,7 +19,6 @@ import matplotlib
 
 
 matplotlib.use("Agg")
-
 import matplotlib.pyplot as plt
 import numpy as np
 from dask.distributed import Client, Future, progress
@@ -495,7 +494,7 @@ def is_up_dip(data: np.ndarray) -> bool:
     right = np.sum(centered[:, mid:], axis=1)
 
     # Mostly on the right suggests the peaks are migrating up-dip and should be reversed
-    if np.mean(left < right) > 0.5:
+    if np.mean(left > right) > 0.5:
         return True
 
     return False
