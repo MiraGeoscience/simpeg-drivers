@@ -784,13 +784,9 @@ class InversionLogger:
 
         self.initial_time = time()
         self.start_date_time = datetime.now().strftime("%Y%m%d_%Hh%Mm%Ss")
-        self.logfile = self.get_path("SimPEG.log")
+        self.logfile = self.get_path(".log")
 
     def start(self):
-        if self.logfile.is_file():
-            self.write("SimPEG.log file already exists and will be overwritten.")
-            self.logfile.unlink()
-
         self.write(
             f"Running simpeg-drivers {__version__}\n"
             f"Started {self.start_date_time}\n"
@@ -815,7 +811,7 @@ class InversionLogger:
 
     def get_path(self, filepath: str | Path) -> Path:
         root_directory = Path(self.driver.workspace.h5file).parent
-        return root_directory / filepath
+        return root_directory / f"{self.driver.workspace.h5file.stem}{filepath}"
 
 
 def driver_class_from_name(
