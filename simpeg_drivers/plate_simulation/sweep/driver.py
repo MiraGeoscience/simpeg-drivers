@@ -77,7 +77,7 @@ class PlateSweepDriver(Driver):
 
         Force the mode to be read-only for safe copy.
         """
-        super().start(filepath, mode=mode)
+        return super().start(filepath, mode="r")
 
     def run(self):
         """Loop over all trials and run a worker for each unique parameter set."""
