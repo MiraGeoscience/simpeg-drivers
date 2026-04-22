@@ -19,6 +19,7 @@ import matplotlib
 
 
 matplotlib.use("Agg")
+
 import matplotlib.pyplot as plt
 import numpy as np
 from dask.distributed import Client, Future, progress
@@ -368,6 +369,10 @@ class PlateMatchDriver(Driver):
                 query, strike_angle[ii]
             )
             flip = is_up_dip(observed[:, indices])
+
+            if flip:
+                indices = np.flip(indices, axis=0)
+
             # Loop through files and compute scores and find the best match
             scores, centers = self.run_scores(spatial_projection, observed[:, indices])
             ranked = np.argsort(scores)
@@ -489,8 +494,8 @@ def is_up_dip(data: np.ndarray) -> bool:
     left = np.sum(centered[:, :mid], axis=1)
     right = np.sum(centered[:, mid:], axis=1)
 
-    # Mostly on the left suggests the peaks are migrating up-dip and should be reversed
-    if np.mean(left > right) > 0.5:
+    # Mostly on the right suggests the peaks are migrating up-dip and should be reversed
+    if np.mean(left < right) > 0.5:
         return True
 
     return False
