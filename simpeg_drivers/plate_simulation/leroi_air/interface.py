@@ -14,8 +14,6 @@ from typing import Any, Literal
 
 import numpy as np
 from geoh5py.groups import UIJsonGroup
-from geoh5py.objects import MaxwellPlate
-from geoh5py.objects.maxwell_plate import PlateGeometry, PlatePosition
 from geoh5py.shared.utils import fetch_active_workspace
 
 from .options import LeroiAirOptions

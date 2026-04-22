@@ -82,10 +82,10 @@ class PlateSimulationOptions(Options):
 
     @model_validator(mode="before")
     @classmethod
-    def use_leroi_em_only(cls, data) -> bool:
+    def use_leroi_em_only(cls, data) -> dict:
         run_command = data["simulation"].options["run_command"]
         is_tem = "time_domain.forward" in run_command
-        use_leroi = data.get("use_leroi", False) & is_tem
+        use_leroi = data.get("use_leroi", False) and is_tem
         data["use_leroi"] = use_leroi
         return data
 
