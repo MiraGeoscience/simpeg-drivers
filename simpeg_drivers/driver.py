@@ -34,7 +34,6 @@ from geoh5py.objects import FEMSurvey
 from geoh5py.shared.utils import fetch_active_workspace
 
 from simpeg import (
-    dask,
     directives,
     inverse_problem,
     inversion,
@@ -52,7 +51,7 @@ from simpeg.regularization import (
     SparseSmoothness,
 )
 
-from simpeg_drivers import DRIVER_MAP, __version__
+from simpeg_drivers import __version__
 from simpeg_drivers.components import (
     InversionData,
     InversionMesh,
@@ -71,7 +70,11 @@ from simpeg_drivers.options import (
 from simpeg_drivers.joint.options import BaseJointOptions
 from simpeg_drivers.utils.nested import tile_locations
 from simpeg_drivers.utils.regularization import cell_neighbors, set_rotated_operators
-from simpeg_drivers.utils.utils import validate_out_group, start_dask_run
+from simpeg_drivers.utils.utils import (
+    validate_out_group,
+    start_dask_run,
+    driver_class_from_dict,
+)
 
 mlogger = logging.getLogger("distributed")
 mlogger.setLevel(logging.WARNING)
@@ -818,45 +821,6 @@ class InversionLogger:
         return root_directory / filepath
 
 
-def driver_class_from_name(
-    name: str, forward_only: bool = False
-) -> type[InversionDriver]:
-    """
-    Get the driver class from the inversion type name.
-
-    TODO: Only for backward compatibility. To be deprecated in future versions.
-
-    :param name: The inversion type name.
-    :param forward_only: Whether to forward only the forward operators.
-
-    :return: InversionDriver or ForwardDriver class.
-    """
-    if name not in DRIVER_MAP:
-        msg = f"Inversion type '{name}' is not supported."
-        msg += f" Valid inversions are: {(*list(DRIVER_MAP),)}."
-        raise NotImplementedError(msg)
-
-    mod_name, classes = DRIVER_MAP.get(name)
-    class_name = classes.get("inversion")
-    if forward_only:
-        class_name = classes.get("forward", class_name)
-
-    module = __import__(mod_name, fromlist=[class_name])
-    return getattr(module, class_name)
-
-
-def from_input_file(data: dict) -> type[InversionDriver]:
-    forward_only = data.get("forward_only", False)
-    inversion_type = data.get("inversion_type", "")
-    if inversion_type is None:
-        raise GeoAppsError(
-            "Key/value 'inversion_type' not found in the input file. "
-            "Please specify the inversion type in the UI JSON."
-        )
-
-    return driver_class_from_name(inversion_type, forward_only=forward_only)
-
-
 def validate_client(client: Client | bool | None) -> Client | bool:
     """
     Validate or create a Dask client.
@@ -900,6 +864,6 @@ if __name__ == "__main__":
     # TODO - Deprecate in favor of run_command to direct module
     # Need to know the driver class before starting dask
     input_file = load_ui_json_as_dict(file)
-    driver_class = from_input_file(input_file)
+    driver_class = driver_class_from_dict(input_file)
 
     driver_class.start_dask_run(file)

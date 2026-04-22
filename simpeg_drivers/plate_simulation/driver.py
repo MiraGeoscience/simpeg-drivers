@@ -24,7 +24,6 @@ from geoh5py.shared.utils import fetch_active_workspace
 
 from simpeg_drivers.driver import (
     InversionDriver,
-    driver_class_from_name,
     validate_client,
     validate_workers,
 )
@@ -33,7 +32,11 @@ from simpeg_drivers.plate_simulation.models.events import Anomaly, Erosion, Over
 from simpeg_drivers.plate_simulation.models.series import DikeSwarm, Geology
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
 from simpeg_drivers.utils.synthetics.meshes import get_octree_mesh
-from simpeg_drivers.utils.utils import start_dask_run, validate_out_group
+from simpeg_drivers.utils.utils import (
+    driver_class_from_name,
+    start_dask_run,
+    validate_out_group,
+)
 
 
 logger = get_logger(__name__, propagate=False)
