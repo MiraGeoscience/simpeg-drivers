@@ -8,7 +8,6 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-import numpy as np
 from geoapps_utils.modelling.plates import PlateModel
 from geoh5py import Workspace
 from geoh5py.groups import SimPEGGroup
@@ -35,11 +34,12 @@ from simpeg_drivers.utils.synthetics.options import (
     SyntheticsComponentsOptions,
 )
 from tests.utils.runtests import run_driver_from_ui_json
+from tests.utils.targets import get_workspace
 
 
 def test_leroi_run(tmp_path):
 
-    with Workspace(tmp_path / "leroi_test.geoh5") as geoh5:
+    with get_workspace(tmp_path / "leroi_test.geoh5") as geoh5:
         geometry = PlateModel(
             easting=0.0,
             northing=0.0,
@@ -106,8 +106,7 @@ def test_leroi_run(tmp_path):
 
     with Workspace(tmp_path / "leroi_test.geoh5") as geoh5:
         plate_simulation_group = geoh5.get_entity("Plate Simulation")[0]
-        forward_group = geoh5.get_entity("TEM forward")[0]
-        assert forward_group.parent == plate_simulation_group
+        forward_group = plate_simulation_group.get_entity("TEM forward")[0]
 
         survey = forward_group.get_entity("survey")[0]
         assert isinstance(survey, AirborneTEMReceivers)

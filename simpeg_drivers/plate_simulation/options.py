@@ -8,7 +8,6 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-from copy import deepcopy
 from pathlib import Path
 from typing import ClassVar
 
@@ -34,7 +33,6 @@ from simpeg_drivers.natural_sources.magnetotellurics.options import (
     MTForwardOptions,
 )
 from simpeg_drivers.natural_sources.tipper.options import TipperForwardOptions
-from simpeg_drivers.options import BaseForwardOptions
 from simpeg_drivers.potential_fields.gravity.options import GravityForwardOptions
 from simpeg_drivers.potential_fields.magnetic_vector import (
     MagneticVectorForwardOptions,
@@ -80,7 +78,7 @@ class PlateSimulationOptions(Options):
     model: ModelOptions
     simulation: SimPEGGroup | UIJsonGroup
     use_leroi: bool = False
-    _simulation_parameters: BaseForwardOptions | None = None
+    # _simulation_parameters: BaseForwardOptions | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -91,36 +89,28 @@ class PlateSimulationOptions(Options):
         data["use_leroi"] = use_leroi
         return data
 
-    @property
-    def simulation_parameters(self) -> BaseForwardOptions:
-        """
-        Create SimPEG parameters from the simulation options.
-
-        A new SimPEGGroup is created inside the out_group to store the
-        result of the forward simulation.
-        """
-        if self._simulation_parameters is None:
-            simulation_options = deepcopy(self.simulation.options)
-            simulation_options["geoh5"] = self.geoh5
-            simulation_options["out_group"] = self.simulation
-
-            # TODO replace InputFile.data with UIJson.to_params
-            input_file = InputFile(ui_json=simulation_options, validate=False)
-            if input_file.ui_json is None:
-                raise ValueError("Input file must have ui_json set.")
-
-            input_file.ui_json["mesh"]["value"] = None
-
-            if input_file.data is None:
-                raise ValueError("Input file data must be set.")
-
-            inversion_type = input_file.data["inversion_type"]
-
-            if inversion_type in PARAM_MAP:
-                self._simulation_parameters = PARAM_MAP[inversion_type].build(
-                    input_file.data
-                )
-            else:
-                raise NotImplementedError(f"Unknown inversion type: {inversion_type}")
-
-        return self._simulation_parameters
+    # @property
+    # def simulation_parameters(self) -> BaseForwardOptions:
+    #     """
+    #     Create SimPEG parameters from the simulation options.
+    #
+    #     A new SimPEGGroup is created inside the out_group to store the
+    #     result of the forward simulation.
+    #     """
+    #     if self.simulation_parameters is None:
+    #         simulation_options = deepcopy(self.simulation.options)
+    #         simulation_options["geoh5"] = self.geoh5
+    #         simulation_options["out_group"] = self.simulation
+    #
+    #         # TODO replace InputFile.data with UIJson.to_params
+    #         input_file = InputFile(ui_json=simulation_options, validate=False)
+    #         if input_file.ui_json is None:
+    #             raise ValueError("Input file must have ui_json set.")
+    #
+    #         input_file.ui_json["mesh"]["value"] = None
+    #
+    #         if input_file.data is None:
+    #             raise ValueError("Input file data must be set.")
+    #
+    #         driver = driver_class_from_dict(input_file.data)
+    #         return driver._params_class.build(input_file.data)  # pylint: disable=protected-access

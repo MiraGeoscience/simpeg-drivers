@@ -13,6 +13,8 @@ from pathlib import Path
 
 from geoh5py.groups import UIJsonGroup
 
+from simpeg_drivers.utils.utils import validate_out_group
+
 from .interface import LeroiAirInterface
 from .options import LeroiAirOptions
 
@@ -20,11 +22,13 @@ from .options import LeroiAirOptions
 class LeroiAirDriver:
     """Orchestrates a LeroiAir forward simulation from input preparation to geoh5 output."""
 
-    def __init__(self, options: LeroiAirOptions):
+    def __init__(
+        self,
+        options: LeroiAirOptions,
+    ) -> None:
         """Initialize with simulation options."""
         self.options = options
         self._interface: LeroiAirInterface | None = None
-        self.out_group: UIJsonGroup | None = None
 
     @property
     def interface(self) -> LeroiAirInterface:
@@ -61,5 +65,5 @@ class LeroiAirDriver:
         self.run_leroi()
         self.interface.save_to_geoh5(
             outfile=self.project_path / "LeroiAir.out",
-            out_group=self.out_group,
+            out_group=self.options.out_group,
         )

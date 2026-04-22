@@ -272,16 +272,17 @@ class LeroiAirInterface:
     def save_to_geoh5(self, outfile: str | Path, out_group):
         """Save LeroiAir simulated data on the provided survey to geoh5."""
 
-        survey = self.opts.survey.copy(parent=out_group, copy_children=False)
-        for component in "inline", "crossline", "vertical":
-            data = self._extract_data(outfile=outfile, component=component)
+        with out_group.workspace.open(mode="r+"):
+            survey = self.opts.survey.copy(parent=out_group, copy_children=False)
+            for component in "inline", "crossline", "vertical":
+                data = self._extract_data(outfile=outfile, component=component)
 
-            with fetch_active_workspace(self.opts.survey.workspace, mode="r+"):
-                entities = survey.add_data(
-                    {
-                        f"fwd {component} [{i}]": {"values": data[:, i]}
-                        for i in range(len(self.opts.channels))
-                    }
-                )
+                with fetch_active_workspace(self.opts.survey.workspace, mode="r+"):
+                    entities = survey.add_data(
+                        {
+                            f"fwd {component} [{i}]": {"values": data[:, i]}
+                            for i in range(len(self.opts.channels))
+                        }
+                    )
 
-            survey.create_property_group(name=component, properties=entities)
+                survey.create_property_group(name=component, properties=entities)

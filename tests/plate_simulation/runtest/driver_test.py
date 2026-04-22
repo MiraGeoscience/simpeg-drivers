@@ -94,17 +94,6 @@ def test_plate_simulation_params_from_input_file(tmp_path, caplog):
     assert "Overburden thickness exceeds the plate depth" in caplog.text
     assert isinstance(params.simulation, SimPEGGroup)
 
-    simulation_parameters = params.simulation_parameters
-
-    assert simulation_parameters.inversion_type == "gravity"
-    assert simulation_parameters.forward_only
-    assert simulation_parameters.geoh5.h5file == geoh5.h5file
-    assert (
-        simulation_parameters.active_cells.topography_object.uid
-        == components.topography.uid
-    )
-    assert simulation_parameters.data_object.uid == components.survey.uid
-
     assert isinstance(params.mesh, MeshOptions)
     assert params.mesh.u_cell_size == 10.0
     assert params.mesh.v_cell_size == 10.0

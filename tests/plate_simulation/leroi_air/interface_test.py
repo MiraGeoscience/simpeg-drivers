@@ -111,7 +111,7 @@ def test_format_cfl_file(tmp_path):
 
 def test_slice_data_lines_returns_correct_station_rows(mock_interface):
     lines = FAKE_OUT.splitlines()
-    anchor = LeroiAirInterface._COMPONENT_ANCHORS["x"]
+    anchor = LeroiAirInterface._COMPONENT_ANCHORS["crossline"]
     rows = mock_interface._slice_data_lines(lines, anchor)
     assert len(rows) == N_STATIONS
     assert rows[0].split()[4] == "1.1"
@@ -119,24 +119,24 @@ def test_slice_data_lines_returns_correct_station_rows(mock_interface):
 
 
 def test_extract_data_returns_channel_columns_only(mock_interface, fake_outfile):
-    data = mock_interface._extract_data(fake_outfile, component="x")
+    data = mock_interface._extract_data(fake_outfile, component="crossline")
     assert data.shape == (N_STATIONS, N_CHANNELS)
 
 
 def test_extract_data_parses_transverse_component_values(mock_interface, fake_outfile):
-    data = mock_interface._extract_data(fake_outfile, component="x")
+    data = mock_interface._extract_data(fake_outfile, component="crossline")
     np.testing.assert_array_almost_equal(data[0], [1.1, 2.2, 3.3])
     np.testing.assert_array_almost_equal(data[1], [4.4, 5.5, 6.6])
 
 
 def test_extract_data_parses_inline_component_values(mock_interface, fake_outfile):
-    data = mock_interface._extract_data(fake_outfile, component="y")
+    data = mock_interface._extract_data(fake_outfile, component="inline")
     np.testing.assert_array_almost_equal(data[0], [7.7, 8.8, 9.9])
     np.testing.assert_array_almost_equal(data[1], [10.0, 11.1, 12.2])
 
 
 def test_extract_data_parses_vertical_component_values(mock_interface, fake_outfile):
-    data = mock_interface._extract_data(fake_outfile, component="z")
+    data = mock_interface._extract_data(fake_outfile, component="vertical")
     np.testing.assert_array_almost_equal(data[0], [13.3, 14.4, 15.5])
     np.testing.assert_array_almost_equal(data[1], [16.6, 17.7, 18.8])
 

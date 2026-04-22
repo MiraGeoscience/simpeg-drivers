@@ -14,12 +14,13 @@ from typing import Literal, Self
 
 import numpy as np
 from geoapps_utils.modelling.plates import PlateModel
+from geoh5py.groups import SimPEGGroup
 from geoh5py.objects.surveys.electromagnetics.airborne_tem import AirborneTEMReceivers
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, model_validator
 from scipy.interpolate import LinearNDInterpolator
 
 from simpeg_drivers.components.topography import InversionTopography
-from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
+from simpeg_drivers.plate_simulation.options import ModelOptions
 
 
 class LeroiAirOptions(BaseModel):
@@ -38,6 +39,7 @@ class LeroiAirOptions(BaseModel):
     domain: Literal["time", "frequency"] = "time"
     layered_earth_only: bool = False
     float_precision: int = 4
+    out_group: SimPEGGroup | None = None
 
     @model_validator(mode="after")
     def validate_layer_lengths_match(self) -> Self:
@@ -58,32 +60,34 @@ class LeroiAirOptions(BaseModel):
         return self
 
     @classmethod
-    def from_plate_simulation_options(cls, options: PlateSimulationOptions) -> Self:
+    def from_plate_simulation_options(
+        cls, model: ModelOptions, simulation: SimPEGGroup
+    ) -> Self:
         """Construct from a :class:`PlateSimulationOptions` instance."""
 
-        simulation_options = options.simulation_parameters
-        survey = simulation_options.data_object.copy()
+        survey = simulation.data_object
 
-        if simulation_options.active_cells.topography_object is None:
+        if simulation.active_cells.topography_object is None:
             raise NotImplementedError(
                 "Passing active cells directly does not currently work for simulating "
                 "plates using the LeroiAir option.  Simulation options must contain a "
                 "topography object."
             )
 
-        topo_xyz = InversionTopography(survey.workspace, simulation_options).locations
+        topo_xyz = InversionTopography(survey.workspace, simulation).locations
 
         return cls(
-            survey=simulation_options.data_object,
+            survey=survey,
             topo=topo_xyz,
             layer_resistivities=[
-                options.model.overburden_options.overburden_property,
-                options.model.background,
+                model.overburden_options.overburden_property,
+                model.background,
             ],
-            layer_thicknesses=[options.model.overburden_options.thickness, 9999],
-            plate_resistivities=[options.model.plate_options.plate_property],
-            plate_geometries=[options.model.plate_options.geometry],
-            magnetic_field="dBdt" if "dBdt" in simulation_options.data_units else "B",
+            layer_thicknesses=[model.overburden_options.thickness, 9999],
+            plate_resistivities=[model.plate_options.plate_property],
+            plate_geometries=[model.plate_options.geometry],
+            magnetic_field="dBdt" if "dBdt" in simulation.data_units else "B",
+            out_group=simulation.out_group,
         )
 
     @property
