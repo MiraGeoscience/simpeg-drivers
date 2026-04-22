@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: 242cc486eeea4891712e6b25f7d1c4461e1caa4743b40d8b5da026391c01085c
-    linux-64: aafe1c8abf5f2416d4f10fa06cf2d0c04c47baf7648a31102aaf49033caf8d1a
+    win-64: 4ef67c8a8709138d6f5ee5d18a19f7bc8cf404736497e6124f841213161e61ad
+    linux-64: 63adace8c14942ee5e5c7b5b78f929489b8404c49a76884923f72f2e8d0d8ac2
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -5398,7 +5398,7 @@ package:
   category: main
   optional: false
 - name: pandas
-  version: 3.0.2
+  version: 2.3.3
   manager: conda
   platform: linux-64
   dependencies:
@@ -5406,32 +5406,35 @@ package:
     libgcc: '>=14'
     libstdcxx: '>=14'
     numpy: '>=1.23,<3'
-    python: ''
+    python: '>=3.12,<3.13.0a0'
     python-dateutil: '>=2.8.2'
+    python-tzdata: '>=2022.7'
     python_abi: 3.12.*
-  url: https://repo.prefix.dev/conda-forge/linux-64/pandas-3.0.2-py312h8ecdadd_0.conda
+    pytz: '>=2020.1'
+  url: https://repo.prefix.dev/conda-forge/linux-64/pandas-2.3.3-py312hf79963d_1.conda
   hash:
-    md5: 42050f82a0c0f6fa23eda3d93b251c18
-    sha256: 4aad0f99a06e799acdd46af0df8f7c8273164cabce8b5c94a44b012b7d1a30a6
+    md5: e597b3e812d9613f659b7d87ad252d18
+    sha256: f633d5f9b28e4a8f66a6ec9c89ef1b6743b880b0511330184b4ab9b7e2dda247
   category: main
   optional: false
 - name: pandas
-  version: 3.0.2
+  version: 2.3.3
   manager: conda
   platform: win-64
   dependencies:
     numpy: '>=1.23,<3'
-    python: ''
+    python: '>=3.12,<3.13.0a0'
     python-dateutil: '>=2.8.2'
-    python-tzdata: ''
+    python-tzdata: '>=2022.7'
     python_abi: 3.12.*
+    pytz: '>=2020.1'
     ucrt: '>=10.0.20348.0'
     vc: '>=14.3,<15'
     vc14_runtime: '>=14.44.35208'
-  url: https://repo.prefix.dev/conda-forge/win-64/pandas-3.0.2-py312h95189c4_0.conda
+  url: https://repo.prefix.dev/conda-forge/win-64/pandas-2.3.3-py312hc128f0a_2.conda
   hash:
-    md5: 40295a121673a91763b71603b26ba5dd
-    sha256: edb1f9a8dbe24426a23f6ffa0af9ef291c775d1c4c994a30ef60040680d61c11
+    md5: 57d80e87a8b3161bcf26472deceaa556
+    sha256: 7f37f3ccea378f491f68979c7afd7f2dbc8ee83c3461dfab3cce15d436298f44
   category: main
   optional: false
 - name: pandoc
@@ -6393,6 +6396,30 @@ package:
   hash:
     md5: c3efd25ac4d74b1584d2f7a57195ddf1
     sha256: 80677180dd3c22deb7426ca89d6203f1c7f1f256f2d5a94dc210f6e758229809
+  category: main
+  optional: false
+- name: pytz
+  version: 2026.1.post1
+  manager: conda
+  platform: linux-64
+  dependencies:
+    python: ''
+  url: https://repo.prefix.dev/conda-forge/noarch/pytz-2026.1.post1-pyhcf101f3_0.conda
+  hash:
+    md5: f8a489f43a1342219a3a4d69cecc6b25
+    sha256: d35c15c861d5635db1ba847a2e0e7de4c01994999602db1f82e41b5935a9578a
+  category: main
+  optional: false
+- name: pytz
+  version: 2026.1.post1
+  manager: conda
+  platform: win-64
+  dependencies:
+    python: ''
+  url: https://repo.prefix.dev/conda-forge/noarch/pytz-2026.1.post1-pyhcf101f3_0.conda
+  hash:
+    md5: f8a489f43a1342219a3a4d69cecc6b25
+    sha256: d35c15c861d5635db1ba847a2e0e7de4c01994999602db1f82e41b5935a9578a
   category: main
   optional: false
 - name: pywin32
