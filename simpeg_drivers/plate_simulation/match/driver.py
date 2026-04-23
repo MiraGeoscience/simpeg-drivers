@@ -15,6 +15,10 @@ from io import BytesIO
 from pathlib import Path
 from typing import Self
 
+import matplotlib
+
+
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 from dask.distributed import Client, Future, progress
@@ -194,6 +198,7 @@ class PlateMatchDriver(Driver):
         :return: MaxwellPlate object created from the parameters.
         """
         center = self.params.survey.vertices[index_center]
+
         center[2] = (
             self._drape_heights[index_center]
             - model_options.overburden_options.thickness
@@ -364,6 +369,10 @@ class PlateMatchDriver(Driver):
                 query, strike_angle[ii]
             )
             flip = is_up_dip(observed[:, indices])
+
+            if flip:
+                indices = np.flip(indices, axis=0)
+
             # Loop through files and compute scores and find the best match
             scores, centers = self.run_scores(spatial_projection, observed[:, indices])
             ranked = np.argsort(scores)
@@ -433,6 +442,9 @@ class PlateMatchDriver(Driver):
         )
         tasks = []
         for file_batch in file_split:
+            if len(file_batch) == 0:
+                continue
+
             args = (
                 file_batch,
                 spatial_projection,
