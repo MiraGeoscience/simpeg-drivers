@@ -38,7 +38,7 @@
         "parent": "data_object",
         "value": ""
     },
-    "z_imag_channel": {
+    "vertical_imag_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -54,7 +54,7 @@
         "enabled": true,
         "value": ""
     },
-    "z_imag_uncertainty": {
+    "vertical_imag_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -65,12 +65,12 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "z_imag_channel",
+        "dependency": "vertical_imag_channel",
         "dependencyType": "enabled",
         "enabled": false,
         "value": ""
     },
-    "z_real_channel": {
+    "vertical_real_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -86,7 +86,7 @@
         "enabled": true,
         "value": ""
     },
-    "z_real_uncertainty": {
+    "vertical_real_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -97,12 +97,12 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "z_real_channel",
+        "dependency": "vertical_real_channel",
         "dependencyType": "enabled",
         "enabled": false,
         "value": ""
     },
-    "y_imag_channel": {
+    "inline_imag_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -118,7 +118,7 @@
         "enabled": false,
         "value": ""
     },
-    "y_imag_uncertainty": {
+    "inline_imag_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -129,12 +129,12 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "y_imag_channel",
+        "dependency": "inline_imag_channel",
         "dependencyType": "enabled",
         "enabled": false,
         "value": ""
     },
-    "y_real_channel": {
+    "inline_real_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -150,7 +150,7 @@
         "enabled": false,
         "value": ""
     },
-    "y_real_uncertainty": {
+    "inline_real_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -161,12 +161,12 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "y_real_channel",
+        "dependency": "inline_real_channel",
         "dependencyType": "enabled",
         "enabled": false,
         "value": ""
     },
-    "x_imag_channel": {
+    "crossline_imag_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -182,7 +182,7 @@
         "enabled": false,
         "value": ""
     },
-    "x_imag_uncertainty": {
+    "crossline_imag_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -193,12 +193,12 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "x_imag_channel",
+        "dependency": "crossline_imag_channel",
         "dependencyType": "enabled",
         "enabled": false,
         "value": ""
     },
-    "x_real_channel": {
+    "crossline_real_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -214,7 +214,7 @@
         "enabled": false,
         "value": ""
     },
-    "x_real_uncertainty": {
+    "crossline_real_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -225,7 +225,7 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "x_real_channel",
+        "dependency": "crossline_real_channel",
         "dependencyType": "enabled",
         "enabled": false,
         "value": ""

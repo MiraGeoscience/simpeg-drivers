@@ -16,7 +16,7 @@
         ],
         "value": ""
     },
-    "z_imag_channel": {
+    "vertical_imag_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -32,7 +32,7 @@
         "enabled": true,
         "value": ""
     },
-    "z_imag_uncertainty": {
+    "vertical_imag_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -43,12 +43,12 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "z_imag_channel",
+        "dependency": "vertical_imag_channel",
         "dependencyType": "enabled",
         "enabled": false,
         "value": ""
     },
-    "z_real_channel": {
+    "vertical_real_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -64,7 +64,7 @@
         "enabled": true,
         "value": ""
     },
-    "z_real_uncertainty": {
+    "vertical_real_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -75,7 +75,7 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "z_real_channel",
+        "dependency": "vertical_real_channel",
         "dependencyType": "enabled",
         "enabled": false,
         "value": ""
