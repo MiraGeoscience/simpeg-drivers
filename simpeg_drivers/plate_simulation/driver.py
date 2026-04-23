@@ -83,8 +83,7 @@ class PlateSimulationDriver(Driver):
         with fetch_active_workspace(self.simulation_parameters.geoh5, mode="r+"):
             self.simulation_driver.run()
             self.simulation_parameters.update_out_group_options()
-            # self.params.simulation.parent = self._out_group
-            # self.update_monitoring_directory(self._out_group)
+            self.update_monitoring_directory(self._out_group)
 
         logger.info("done.")
         logger.handlers.clear()
