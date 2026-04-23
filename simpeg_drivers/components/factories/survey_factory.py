@@ -321,7 +321,7 @@ class SurveyFactory(SimPEGFactory):
         tx_locs = data.entity.transmitters.vertices
         frequencies = data.entity.transmitters.workspace.get_entity("Tx frequency")[0]
         frequencies = np.array(
-            [int(frequencies.value_map[f]) for f in frequencies.values]
+            [float(frequencies.value_map[f]) for f in frequencies.values]
         )
 
         sources = []
