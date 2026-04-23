@@ -15,8 +15,8 @@
 version: 1
 metadata:
   content_hash:
-    win-64: 3bd7ca9b7627b8955cf0e59fd33e751f3cc8725656bf8fed2ced5699bdeb12b4
-    linux-64: 0b4fd799840493913be849a1eaaa851ab24ae0c2bc298c9d5cfdfed75911cdcc
+    win-64: 32712d2e1d1aba2f43aa48b4905384bee4be9aaeb1e316914c9470169fd4d85b
+    linux-64: d747fea7bb90eb9ee4438c69a8ea18c4f296df1b74154f14919a77014b7b230a
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -8520,7 +8520,7 @@ package:
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.25.0.1a3.dev19+g236353ef1
+  version: 0.25.0.1a3.dev20+gea70aa21a
   manager: pip
   platform: linux-64
   dependencies:
@@ -8533,16 +8533,16 @@ package:
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
     typing-extensions: '*'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@236353ef13451e4acc965eb00c97b6a5515ee810
+  url: git+https://github.com/MiraGeoscience/simpeg.git@ea70aa21a36c6a0bcbccf8be74450c4956bd3472
   hash:
-    sha256: 236353ef13451e4acc965eb00c97b6a5515ee810
+    sha256: ea70aa21a36c6a0bcbccf8be74450c4956bd3472
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@236353ef13451e4acc965eb00c97b6a5515ee810
+    url: git+https://github.com/MiraGeoscience/simpeg.git@ea70aa21a36c6a0bcbccf8be74450c4956bd3472
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.25.0.1a3.dev19+g236353ef1
+  version: 0.25.0.1a3.dev20+gea70aa21a
   manager: pip
   platform: win-64
   dependencies:
@@ -8555,11 +8555,11 @@ package:
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
     typing-extensions: '*'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@236353ef13451e4acc965eb00c97b6a5515ee810
+  url: git+https://github.com/MiraGeoscience/simpeg.git@ea70aa21a36c6a0bcbccf8be74450c4956bd3472
   hash:
-    sha256: 236353ef13451e4acc965eb00c97b6a5515ee810
+    sha256: ea70aa21a36c6a0bcbccf8be74450c4956bd3472
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@236353ef13451e4acc965eb00c97b6a5515ee810
+    url: git+https://github.com/MiraGeoscience/simpeg.git@ea70aa21a36c6a0bcbccf8be74450c4956bd3472
   category: main
   optional: false
