@@ -442,6 +442,9 @@ class PlateMatchDriver(Driver):
         )
         tasks = []
         for file_batch in file_split:
+            if len(file_batch) == 0:
+                continue
+
             args = (
                 file_batch,
                 spatial_projection,
