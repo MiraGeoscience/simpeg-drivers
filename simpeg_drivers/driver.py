@@ -783,8 +783,11 @@ class InversionLogger:
         self.terminal = sys.stdout
 
         self.initial_time = time()
-        self.start_date_time = datetime.now().strftime("%Y%m%d_%Hh%Mm%Ss")
-        self.logfile = self.get_path(".log")
+        self.start_date_time = datetime.now().strftime("%Y/%m/%d %Hh:%Mm:%Ss")
+        self.logfile = (
+            Path(self.driver.workspace.h5file).parent
+            / f"{self.driver.workspace.h5file.stem}.log"
+        )
 
     def start(self):
         self.write(
@@ -808,10 +811,6 @@ class InversionLogger:
 
     def flush(self):
         pass
-
-    def get_path(self, filepath: str | Path) -> Path:
-        root_directory = Path(self.driver.workspace.h5file).parent
-        return root_directory / f"{self.driver.workspace.h5file.stem}{filepath}"
 
 
 def driver_class_from_name(
