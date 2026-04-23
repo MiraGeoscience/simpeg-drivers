@@ -786,14 +786,13 @@ class InversionLogger:
         self.terminal = sys.stdout
 
         self.initial_time = time()
-        self.start_date_time = datetime.now().strftime("%Y%m%d_%Hh%Mm%Ss")
-        self.logfile = self.get_path("SimPEG.log")
+        self.start_date_time = datetime.now().strftime("%Y/%m/%d %Hh:%Mm:%Ss")
+        self.logfile = (
+            Path(self.driver.workspace.h5file).parent
+            / f"{self.driver.workspace.h5file.stem}.log"
+        )
 
     def start(self):
-        if self.logfile.is_file():
-            self.write("SimPEG.log file already exists and will be overwritten.")
-            self.logfile.unlink()
-
         self.write(
             f"Running simpeg-drivers {__version__}\n"
             f"Started {self.start_date_time}\n"
@@ -815,10 +814,6 @@ class InversionLogger:
 
     def flush(self):
         pass
-
-    def get_path(self, filepath: str | Path) -> Path:
-        root_directory = Path(self.driver.workspace.h5file).parent
-        return root_directory / filepath
 
 
 def validate_client(client: Client | bool | None) -> Client | bool:
