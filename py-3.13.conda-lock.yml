@@ -2184,27 +2184,27 @@ package:
   category: main
   optional: false
 - name: idna
-  version: '3.11'
+  version: '3.13'
   manager: conda
   platform: linux-64
   dependencies:
-    python: '>=3.10'
-  url: https://repo.prefix.dev/conda-forge/noarch/idna-3.11-pyhd8ed1ab_0.conda
+    python: ''
+  url: https://repo.prefix.dev/conda-forge/noarch/idna-3.13-pyhcf101f3_0.conda
   hash:
-    md5: 53abe63df7e10a6ba605dc5f9f961d36
-    sha256: ae89d0299ada2a3162c2614a9d26557a92aa6a77120ce142f8e0109bbf0342b0
+    md5: fb7130c190f9b4ec91219840a05ba3ac
+    sha256: 9ab620e6f64bb67737bd7bc1ad6f480770124e304c6710617aba7fe60b089f48
   category: dev
   optional: true
 - name: idna
-  version: '3.11'
+  version: '3.13'
   manager: conda
   platform: win-64
   dependencies:
-    python: '>=3.10'
-  url: https://repo.prefix.dev/conda-forge/noarch/idna-3.11-pyhd8ed1ab_0.conda
+    python: ''
+  url: https://repo.prefix.dev/conda-forge/noarch/idna-3.13-pyhcf101f3_0.conda
   hash:
-    md5: 53abe63df7e10a6ba605dc5f9f961d36
-    sha256: ae89d0299ada2a3162c2614a9d26557a92aa6a77120ce142f8e0109bbf0342b0
+    md5: fb7130c190f9b4ec91219840a05ba3ac
+    sha256: 9ab620e6f64bb67737bd7bc1ad6f480770124e304c6710617aba7fe60b089f48
   category: dev
   optional: true
 - name: imagesize
@@ -4746,12 +4746,13 @@ package:
     _openmp_mutex: '>=4.5'
     libgcc: '>=14'
     libstdcxx: '>=14'
-    llvm-openmp: '>=22.1.1'
+    llvm-openmp: '>=22.1.4'
+    onemkl-license: 2025.3.1
     tbb: '>=2022.3.0'
-  url: https://repo.prefix.dev/conda-forge/linux-64/mkl-2025.3.1-h0e700b2_10.conda
+  url: https://repo.prefix.dev/conda-forge/linux-64/mkl-2025.3.1-h0e700b2_11.conda
   hash:
-    md5: f010e1db3ddc8db985cfd4e04ed24b7b
-    sha256: da9cd578883d3f71b2023777fb6afbc26b183b261bcc8743d0d6084c4cae84b4
+    md5: 1065cab1a38320768d811d740b18b213
+    sha256: e03877a111b613dff7b599fd7146def11eb3517f3813e80aedddeb00843f0bf2
   category: main
   optional: false
 - name: mkl
@@ -4759,15 +4760,16 @@ package:
   manager: conda
   platform: win-64
   dependencies:
-    llvm-openmp: '>=22.1.1'
+    llvm-openmp: '>=22.1.4'
+    onemkl-license: 2025.3.1
     tbb: '>=2022.3.0'
     ucrt: '>=10.0.20348.0'
     vc: '>=14.3,<15'
     vc14_runtime: '>=14.44.35208'
-  url: https://repo.prefix.dev/conda-forge/win-64/mkl-2025.3.1-hac47afa_11.conda
+  url: https://repo.prefix.dev/conda-forge/win-64/mkl-2025.3.1-hac47afa_12.conda
   hash:
-    md5: 3fd3009cef89c36e9898a6feeb0f5530
-    sha256: f2c2b2a3c2e7d08d78c10bef7c135a4262c80d1d48c85fb5902ca30d61d645f4
+    md5: a3b1ee571898432da7e13ecb7bfd76ae
+    sha256: d7b8343e10053c8527e2e20fd96787d368c97129ffa799e863069a36bd299457
   category: main
   optional: false
 - name: msgpack-python
@@ -5250,6 +5252,28 @@ package:
   hash:
     md5: 764b3adfdb549bbbf58a9419f237ac25
     sha256: b01143d91ac22a37595c96023616dab0509ca22ee7791747dd52cc5c651f9b11
+  category: main
+  optional: false
+- name: onemkl-license
+  version: 2025.3.1
+  manager: conda
+  platform: linux-64
+  dependencies: {}
+  url: https://repo.prefix.dev/conda-forge/linux-64/onemkl-license-2025.3.1-hf2ce2f3_11.conda
+  hash:
+    md5: 4a1793b78e4309bbdb99bd033226f0d2
+    sha256: 857bfc5bfbb3956e56a1db3f73f8850c95ef2d962d78471bfdc5de2319149fdb
+  category: main
+  optional: false
+- name: onemkl-license
+  version: 2025.3.1
+  manager: conda
+  platform: win-64
+  dependencies: {}
+  url: https://repo.prefix.dev/conda-forge/win-64/onemkl-license-2025.3.1-h57928b3_12.conda
+  hash:
+    md5: 29ad104e60faa7ed1dc549ec029764bb
+    sha256: 03eac4174077397a5bc480021e62412e73e80f34072d81053899f65dfe1045c7
   category: main
   optional: false
 - name: openjpeg
@@ -8329,43 +8353,43 @@ package:
   category: main
   optional: false
 - name: geoapps-utils
-  version: 0.7.0a4.dev21+9baaece
+  version: 0.7.0a4.dev22+ed8ce15
   manager: pip
   platform: linux-64
   dependencies:
-    geoh5py: 0.13.0a4.dev7+6ad559b0
+    geoh5py: 0.13.0a4.dev12+a3a1ab3f
     matplotlib: '>=3.10.0,<3.11.0'
     numpy: '>=2.4.2,<2.5.0'
     pydantic: '>=2.12.0,<2.13.0'
     scipy: '>=1.17.0,<1.18.0'
-  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@9baaece0133496c23519ff2708f89e679e900fd0
+  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@ed8ce15bd6288c78908cf31bf9327dbb06b02267
   hash:
-    sha256: 9baaece0133496c23519ff2708f89e679e900fd0
+    sha256: ed8ce15bd6288c78908cf31bf9327dbb06b02267
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@9baaece0133496c23519ff2708f89e679e900fd0
+    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@ed8ce15bd6288c78908cf31bf9327dbb06b02267
   category: main
   optional: false
 - name: geoapps-utils
-  version: 0.7.0a4.dev21+9baaece
+  version: 0.7.0a4.dev22+ed8ce15
   manager: pip
   platform: win-64
   dependencies:
-    geoh5py: 0.13.0a4.dev7+6ad559b0
+    geoh5py: 0.13.0a4.dev12+a3a1ab3f
     matplotlib: '>=3.10.0,<3.11.0'
     numpy: '>=2.4.2,<2.5.0'
     pydantic: '>=2.12.0,<2.13.0'
     scipy: '>=1.17.0,<1.18.0'
-  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@9baaece0133496c23519ff2708f89e679e900fd0
+  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@ed8ce15bd6288c78908cf31bf9327dbb06b02267
   hash:
-    sha256: 9baaece0133496c23519ff2708f89e679e900fd0
+    sha256: ed8ce15bd6288c78908cf31bf9327dbb06b02267
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@9baaece0133496c23519ff2708f89e679e900fd0
+    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@ed8ce15bd6288c78908cf31bf9327dbb06b02267
   category: main
   optional: false
 - name: geoh5py
-  version: 0.13.0a4.dev7+6ad559b0
+  version: 0.13.0a4.dev12+a3a1ab3f
   manager: pip
   platform: linux-64
   dependencies:
@@ -8373,16 +8397,16 @@ package:
     numpy: '>=2.4.0,<2.5.0'
     pillow: '>=12.1.0,<12.2.0'
     pydantic: '>=2.12.0,<2.13.0'
-  url: git+https://github.com/MiraGeoscience/geoh5py.git@6ad559b09341b80c22aac363cbd0087089bd1a8a
+  url: git+https://github.com/MiraGeoscience/geoh5py.git@a3a1ab3f86a87139cf46159a4a7f55804428055b
   hash:
-    sha256: 6ad559b09341b80c22aac363cbd0087089bd1a8a
+    sha256: a3a1ab3f86a87139cf46159a4a7f55804428055b
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoh5py.git@6ad559b09341b80c22aac363cbd0087089bd1a8a
+    url: git+https://github.com/MiraGeoscience/geoh5py.git@a3a1ab3f86a87139cf46159a4a7f55804428055b
   category: main
   optional: false
 - name: geoh5py
-  version: 0.13.0a4.dev7+6ad559b0
+  version: 0.13.0a4.dev12+a3a1ab3f
   manager: pip
   platform: win-64
   dependencies:
@@ -8390,12 +8414,12 @@ package:
     numpy: '>=2.4.0,<2.5.0'
     pillow: '>=12.1.0,<12.2.0'
     pydantic: '>=2.12.0,<2.13.0'
-  url: git+https://github.com/MiraGeoscience/geoh5py.git@6ad559b09341b80c22aac363cbd0087089bd1a8a
+  url: git+https://github.com/MiraGeoscience/geoh5py.git@a3a1ab3f86a87139cf46159a4a7f55804428055b
   hash:
-    sha256: 6ad559b09341b80c22aac363cbd0087089bd1a8a
+    sha256: a3a1ab3f86a87139cf46159a4a7f55804428055b
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoh5py.git@6ad559b09341b80c22aac363cbd0087089bd1a8a
+    url: git+https://github.com/MiraGeoscience/geoh5py.git@a3a1ab3f86a87139cf46159a4a7f55804428055b
   category: main
   optional: false
 - name: grid-apps
@@ -8404,8 +8428,8 @@ package:
   platform: linux-64
   dependencies:
     discretize: '>=0.12.0,<0.13.0'
-    geoapps-utils: 0.7.0a4.dev21+9baaece
-    geoh5py: 0.13.0a4.dev7+6ad559b0
+    geoapps-utils: 0.7.0a4.dev22+ed8ce15
+    geoh5py: 0.13.0a4.dev12+a3a1ab3f
     numpy: '>=2.4.2,<2.5.0'
     pydantic: '>=2.12.0,<2.13.0'
     scipy: '>=1.17.0,<1.18.0'
@@ -8423,8 +8447,8 @@ package:
   platform: win-64
   dependencies:
     discretize: '>=0.12.0,<0.13.0'
-    geoapps-utils: 0.7.0a4.dev21+9baaece
-    geoh5py: 0.13.0a4.dev7+6ad559b0
+    geoapps-utils: 0.7.0a4.dev22+ed8ce15
+    geoh5py: 0.13.0a4.dev12+a3a1ab3f
     numpy: '>=2.4.2,<2.5.0'
     pydantic: '>=2.12.0,<2.13.0'
     scipy: '>=1.17.0,<1.18.0'
@@ -8437,7 +8461,7 @@ package:
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.25.0.1a3.dev17+g707d4140b
+  version: 0.25.0.1a3.dev19+g236353ef1
   manager: pip
   platform: linux-64
   dependencies:
@@ -8449,16 +8473,16 @@ package:
     numpy: '>=1.22'
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@707d4140b3e80da56aae4f04e5f10972ee5de4a1
+  url: git+https://github.com/MiraGeoscience/simpeg.git@236353ef13451e4acc965eb00c97b6a5515ee810
   hash:
-    sha256: 707d4140b3e80da56aae4f04e5f10972ee5de4a1
+    sha256: 236353ef13451e4acc965eb00c97b6a5515ee810
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@707d4140b3e80da56aae4f04e5f10972ee5de4a1
+    url: git+https://github.com/MiraGeoscience/simpeg.git@236353ef13451e4acc965eb00c97b6a5515ee810
   category: main
   optional: false
 - name: mira-simpeg
-  version: 0.25.0.1a3.dev17+g707d4140b
+  version: 0.25.0.1a3.dev19+g236353ef1
   manager: pip
   platform: win-64
   dependencies:
@@ -8470,11 +8494,11 @@ package:
     numpy: '>=1.22'
     pymatsolver: '>=0.3'
     scipy: '>=1.8'
-  url: git+https://github.com/MiraGeoscience/simpeg.git@707d4140b3e80da56aae4f04e5f10972ee5de4a1
+  url: git+https://github.com/MiraGeoscience/simpeg.git@236353ef13451e4acc965eb00c97b6a5515ee810
   hash:
-    sha256: 707d4140b3e80da56aae4f04e5f10972ee5de4a1
+    sha256: 236353ef13451e4acc965eb00c97b6a5515ee810
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/simpeg.git@707d4140b3e80da56aae4f04e5f10972ee5de4a1
+    url: git+https://github.com/MiraGeoscience/simpeg.git@236353ef13451e4acc965eb00c97b6a5515ee810
   category: main
   optional: false
