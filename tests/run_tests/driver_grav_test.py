@@ -83,35 +83,6 @@ def test_gravity_fwr_run(
     fwr_driver.run()
 
 
-def test_array_too_large_run(
-    tmp_path: Path,
-):
-    workpath = tmp_path.parent / "test_gravity_fwr_run0" / "inversion_test.ui.geoh5"
-
-    with Workspace(workpath) as geoh5:
-        components = SyntheticsComponents(geoh5)
-        gz = geoh5.get_entity("Iteration_0_gz")[0]
-
-        # Run the inverse
-        params = GravityInversionOptions.build(
-            geoh5=geoh5,
-            mesh=components.mesh,
-            topography_object=components.topography,
-            data_object=gz.parent,
-            gz_channel=gz,
-            gz_uncertainty=1e-4,
-            starting_model=1e-4,
-        )
-
-    with patch(
-        "simpeg.inversion.BaseInversion.run",
-        side_effect=np.core._exceptions._ArrayMemoryError((0,), np.dtype("float64")),  # pylint: disable=protected-access
-    ):
-        with raises(GeoAppsError, match="Memory Error"):
-            driver = GravityInversionDriver(params)
-            driver.run()
-
-
 def test_gravity_run(
     tmp_path: Path,
     max_iterations=1,
@@ -170,9 +141,7 @@ def test_gravity_run(
     assert driver.directives.directive_list[0].chifact_start == 0.75
     assert driver.directives.directive_list[0].chifact_target == 0.75
 
-    with open(
-        workpath.parent / f"SimPEG_{driver.logger.start_date_time}.log", encoding="utf8"
-    ) as file:
+    with open(workpath.parent / "inversion_test.ui.log", encoding="utf8") as file:
         content = file.read()
         assert "Target Misfit: 3.00e+00 (3 data with chifact = 1.0)" in content
         assert "IRLS Start Misfit: 3.00e+00 (3 data with chifact = 1.0)" in content
@@ -198,18 +167,43 @@ def test_gravity_run(
         )
         output["data"] = orig_gz
 
-        assert (
-            len(run_ws.get_entity(f"SimPEG_{driver.logger.start_date_time}.log")) == 1
-        )
-        assert (
-            len(run_ws.get_entity(f"SimPEG_{driver.logger.start_date_time}.out")) == 1
-        )
+        assert len(run_ws.get_entity("inversion_test.ui.log")) == 2
+        assert len(run_ws.get_entity("inversion_test.ui.out")) == 1
 
         if pytest:
             check_target(output, target_run)
             nan_ind = np.isnan(run_ws.get_entity("Iteration_0_model")[0].values)
             inactive_ind = run_ws.get_entity("active_cells")[0].values == 0
             assert np.all(nan_ind == inactive_ind)
+
+
+def test_array_too_large_run(
+    tmp_path: Path,
+):
+    workpath = tmp_path.parent / "test_gravity_fwr_run0" / "inversion_test.ui.geoh5"
+
+    with Workspace(workpath) as geoh5:
+        components = SyntheticsComponents(geoh5)
+        gz = geoh5.get_entity("Iteration_0_gz")[0]
+
+        # Run the inverse
+        params = GravityInversionOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=gz.parent,
+            gz_channel=gz,
+            gz_uncertainty=1e-4,
+            starting_model=1e-4,
+        )
+
+    with patch(
+        "simpeg.inversion.BaseInversion.run",
+        side_effect=np.core._exceptions._ArrayMemoryError((0,), np.dtype("float64")),  # pylint: disable=protected-access
+    ):
+        with raises(GeoAppsError, match="Memory Error"):
+            driver = GravityInversionDriver(params)
+            driver.run()
 
 
 if __name__ == "__main__":

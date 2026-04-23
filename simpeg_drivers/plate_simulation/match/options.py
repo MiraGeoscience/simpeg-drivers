@@ -8,12 +8,11 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-import itertools
 from pathlib import Path
 from typing import ClassVar
 
-import numpy as np
 from geoapps_utils.base import Options
+from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.data import FloatData
 from geoh5py.groups import PropertyGroup, SimPEGGroup
 from geoh5py.objects import Grid2D, Points
@@ -57,6 +56,10 @@ class PlateMatchOptions(Options):
         """Path to simulation files directory."""
         sim_dir = self.geoh5.h5file.parent / self.simulations
         simulation_files = []
+
+        if not sim_dir.exists():
+            raise GeoAppsError("Simulation directory not found. Please revise.")
+
         for file in sim_dir.iterdir():
             if Path(file).resolve().suffix == ".geoh5":
                 simulation_files.append(Path(file))

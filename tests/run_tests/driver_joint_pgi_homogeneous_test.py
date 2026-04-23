@@ -219,7 +219,13 @@ def test_homogeneous_run(
                     starting_model=ref_model,
                     reference_model=ref_model,
                 )
-                drivers.append(GravityInversionDriver(params))
+                driver = GravityInversionDriver(params)
+
+                # Remove inversion type as per current json on file
+                options = driver.out_group.options
+                del options["inversion_type"]
+                driver.out_group.options = options
+                drivers.append(driver)
             else:
                 params = MagneticInversionOptions.build(
                     geoh5=geoh5,

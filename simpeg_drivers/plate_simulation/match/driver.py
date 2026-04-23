@@ -11,28 +11,30 @@
 from __future__ import annotations
 
 import sys
+from io import BytesIO
 from pathlib import Path
 from typing import Self
 
+import matplotlib.pyplot as plt
 import numpy as np
 from dask.distributed import Client, Future, progress
 from geoapps_utils.base import Driver
 from geoapps_utils.utils.importing import GeoAppsError
 from geoapps_utils.utils.locations import topo_drape_elevation
-from geoapps_utils.utils.logger import get_logger
+from geoapps_utils.utils.logger import get_logger, suppress_logging
 from geoapps_utils.utils.numerical import inverse_weighted_operator
 from geoapps_utils.utils.plotting import symlog
-from geoapps_utils.utils.transformations import cartesian_to_polar
+from geoapps_utils.utils.transformations import cartesian_to_polar, rotate_xyz
 from geoh5py import Workspace
 from geoh5py.groups import PropertyGroup, SimPEGGroup
 from geoh5py.objects import AirborneTEMReceivers, MaxwellPlate, Surface
 from geoh5py.objects.maxwell_plate import PlateGeometry
 from geoh5py.ui_json import InputFile
-from scipy import signal
+from scipy import ndimage, signal
 from scipy.sparse import csr_matrix
 from scipy.spatial import cKDTree
 
-from simpeg_drivers.driver import BaseDriver, validate_client, validate_workers
+from simpeg_drivers.driver import validate_client, validate_workers
 from simpeg_drivers.electromagnetics.time_domain.options import CONVERSION
 from simpeg_drivers.plate_simulation.match.options import PlateMatchOptions
 from simpeg_drivers.plate_simulation.options import ModelOptions, PlateSimulationOptions
@@ -218,7 +220,7 @@ class PlateMatchDriver(Driver):
             }
         )
         plate = MaxwellPlate.create(
-            self.params.geoh5, geometry=plate_geometry, parent=self.params.out_group
+            self.params.geoh5, geometry=plate_geometry, parent=self.out_group
         )
         plate.metadata = model_options.model_dump()
 
@@ -241,6 +243,48 @@ class PlateMatchDriver(Driver):
         )
         return topo_drape_z[:, 2]
 
+    @staticmethod
+    def plot_figure(
+        locations, survey, observed, time_projection, spatial_projection, center: int
+    ) -> BytesIO:
+        """
+        Generate a figure showing the observed data and best matching simulated plate responses.
+
+        :param locations: Array of locations.
+        :param survey: Survey object.
+        :param observed: Array of observed data.
+        :param time_projection: Array performing the time interpolation.
+        :param spatial_projection: Array performing the spatial interpolation.
+        :param center: Index of the center point in the survey vertices.
+
+        :return: BytesIO object containing the figure.
+        """
+        distances = np.linalg.norm(locations[0, :] - locations, axis=1)
+        horizontal_shift = (distances - np.mean(distances))[center]
+
+        in_early_val = np.min(np.abs(observed[0, :]))
+        data = normalized_data(observed, threshold=in_early_val)
+        preds = get_normalized_predicted(
+            survey, spatial_projection, time_projection, in_early_val
+        )
+
+        preds *= data.max() / preds.max()
+
+        fig, ax = plt.figure(figsize=(12, 10)), plt.subplot()
+        for obs, pred in zip(data, preds, strict=True):
+            ax.plot(distances, obs, c="0.75", lw=2)
+            ax.plot(distances + horizontal_shift, pred, c="k", ls="--", lw=2)
+
+        ax.set_xlabel("Distance (m)")
+        ax.set_ylabel("Log Normalized Amplitude")
+        ax.legend(["Observed", "Simulated"])
+
+        buf = BytesIO()
+        fig.savefig(buf, format="png")
+        plt.close(fig)
+        buf.seek(0)
+        return buf
+
     def spatial_interpolation(
         self,
         indices: np.ndarray,
@@ -255,36 +299,49 @@ class PlateMatchDriver(Driver):
         :return: Spatial interpolation matrix.
         """
         # Compute local coordinates for the current line segment
-        local_polar = cartesian_to_polar(
-            self.params.survey.vertices[indices],
-            origin=np.r_[self.params.survey.vertices[indices, :2].mean(axis=0), 0],
+        delta = (
+            self.params.survey.vertices[indices]
+            - self.params.survey.vertices[indices[0], :]
         )
-        local_polar[local_polar[:, 1] >= 180, 0] *= -1  # Wrap azimuths
+        azimuths = np.mean(np.rad2deg(np.arctan2(delta[:, 1], delta[:, 0]))[1:])
+        azimuths -= np.abs(strike_angle) if strike_angle else 0.0
 
-        # Flip the line segment if the azimuth angle suggests the opposite direction
-        start_line = len(indices) // 2
-        if np.median(local_polar[:start_line, 1]) < 180:
-            local_polar = local_polar[::-1, :]
+        # Assume simulations are West to East
+        arg_center = int(np.median(indices))
+        local_xyz = (
+            self.params.survey.vertices[indices]
+            - self.params.survey.vertices[arg_center, :]
+        )
+        local_xyz[:, 2] = (
+            self.params.survey.vertices[indices, 2] - self._drape_heights[indices]
+        )
+        local_xyz = rotate_xyz(local_xyz, [0, 0, 0], -azimuths)
 
-        local_polar[:, 1] = (
-            0.0 if strike_angle is None else strike_angle
-        )  # Align azimuths to zero
+        # Get polar coordinates
+        local_polar = cartesian_to_polar(local_xyz)
+        local_polar[local_polar[:, 1] > 180, 0] *= -1
+        local_polar[local_polar[:, 1] > 180, 1] -= 180
+        # Transform azimuth to arc-lengths
+        local_polar[:, 1] = np.abs(
+            local_polar[:, 0] * np.deg2rad(90 - local_polar[:, 1])
+        )
 
-        # Convert to polar coordinates (distance, azimuth, height)
-        query_polar = cartesian_to_polar(self._template.vertices)
-        query_polar[query_polar[:, 1] >= 180, 0] *= -1
-        query_polar[:, 1] = query_polar[:, 1] % 180  # Wrap azimuths
+        # Get template polar coordinates
+        sim_polar = cartesian_to_polar(self._template.vertices)
+        sim_polar[sim_polar[:, 1] > 180, 0] *= -1
+        sim_polar[sim_polar[:, 1] > 180, 1] -= 180
+        sim_polar[:, 1] = np.abs(sim_polar[:, 0] * np.deg2rad(90 - sim_polar[:, 1]))
 
-        # Get the 8 nearest neighbors in the simulation to each observation point
-        sim_tree = cKDTree(query_polar)
-        rad, inds = sim_tree.query(local_polar, k=16)
-        inds = np.minimum(query_polar.shape[0] - 1, inds)
+        sim_tree = cKDTree(sim_polar)
+        rad, inds = sim_tree.query(local_polar, k=14)
+        inds = np.minimum(self._template.vertices.shape[0] - 1, inds)
+
         return inverse_weighted_operator(
             rad.flatten(),
             inds.flatten(),
-            (local_polar.shape[0], self._template.vertices.shape[0]),
-            2.0,
-            1e-0,
+            (local_xyz.shape[0], self._template.vertices.shape[0]),
+            1.0,
+            1e-1,
         )
 
     def run(self):
@@ -318,22 +375,36 @@ class PlateMatchDriver(Driver):
             )
             with Workspace(self.params.simulation_files[best], mode="r") as ws:
                 survey = fetch_survey(ws)
+
                 ui_json = survey.parent.parent.options
+
                 ui_json["geoh5"] = ws
                 ifile = InputFile(ui_json=ui_json)
-                options = PlateSimulationOptions.build(ifile)
+
+                # Avoid getting pydantic deprecation warnings from old PlateSimulations stored
+                with suppress_logging():
+                    options = PlateSimulationOptions.build(ifile)
 
                 dir_correction = strike_angle[ii] + 180 if flip else strike_angle[ii]
-
+                ind_center = int(centers[best])
                 plate = self._create_plate_from_parameters(
-                    int(indices[int(centers[best])]), options.model, dir_correction
+                    int(indices[ind_center]), options.model, dir_correction
                 )
                 plate.name = f"Query [{ii}]"
+                figure = self.plot_figure(
+                    self.params.survey.vertices[indices, :2],
+                    survey,
+                    observed[:, indices],
+                    self._time_projection,
+                    spatial_projection,
+                    ind_center,
+                )
+                plate.add_file(figure.getvalue(), name=f"profile_{plate.name}.png")
 
             names.append(self.params.simulation_files[best].name)
             results.append(scores[best])
 
-        out = self.params.queries.copy(parent=self.params.out_group)
+        out = self.params.queries.copy(parent=self.out_group)
         out.add_data(
             {
                 "file": {
@@ -465,6 +536,37 @@ def fetch_survey(workspace: Workspace) -> AirborneTEMReceivers | None:
     return None
 
 
+def get_normalized_predicted(
+    survey: AirborneTEMReceivers, spatial_projection, time_projection, threshold
+) -> np.ndarray:
+    """
+    Retrieve, interpolate and normalize predicted data stored on survey.
+    interpolate and normalize the data
+
+    :param survey: AirborneTEMReceivers entity
+    :param spatial_projection: Spatial interpolation matrix for the current query.
+    :param time_projection: Time interpolation matrix for the current query.
+    :param threshold: Percentile threshold for symlog normalization.
+
+    :return: Normalized predicted data
+    """
+    data_entity = survey.get_entity("Iteration_0_vertical")[0]
+
+    if data_entity is None:
+        data_entity = survey.get_entity("Iteration_0_z")[0]
+
+    simulated = get_data_array(data_entity)
+
+    pred = time_projection @ (spatial_projection @ simulated.T).T
+    scale = threshold / np.min(np.abs(pred[0, :]))
+    pred = normalized_data(pred, scale=scale, threshold=threshold)
+
+    # Smooth out the spatial interpolation
+    pred = ndimage.convolve1d(pred, np.ones(4) / 4, axis=1)
+
+    return pred
+
+
 def batch_files_score(
     files: Path | list[Path], spatial_projection, time_projection, observed
 ) -> list[tuple[float, int]]:
@@ -486,8 +588,8 @@ def batch_files_score(
     if isinstance(files, Path):
         files = [files]
 
-    max_late_val = np.max(np.abs(observed[-1, :]))
-    data = normalized_data(observed, threshold=max_late_val)
+    in_early_val = np.minimum(np.abs(observed[0, :]), 1e-20)
+    data = normalized_data(observed, threshold=in_early_val)
 
     for sim_file in files:
         with Workspace(sim_file, mode="r") as ws:
@@ -497,22 +599,13 @@ def batch_files_score(
                 logger.warning("No survey found in %s, skipping.", sim_file)
                 continue
 
-            data_entity = survey.get_entity("Iteration_0_vertical")[0]
-
-            if data_entity is None:
-                data_entity = survey.get_entity("Iteration_0_z")[0]
-
-            simulated = get_data_array(data_entity)
-
-            pred = time_projection @ (spatial_projection @ simulated.T).T
-            scale = max_late_val / np.max(np.abs(pred[-1, :]))
-            pred = normalized_data(pred, scale=scale, threshold=max_late_val)
-
+            pred = get_normalized_predicted(
+                survey, spatial_projection, time_projection, in_early_val
+            )
             score = 0.0
             indices = []
             # Metric: normalized cross-correlation
             for obs, pre in zip(data, pred, strict=True):
-                # Scale pre on obs
                 # Full cross-correlation
                 corr = signal.correlate(obs, pre, mode="same")
                 # Normalize by energy to get correlation coefficient in [-1, 1]
@@ -522,7 +615,7 @@ def batch_files_score(
                 else:
                     corr_norm = corr / denom
 
-                score += np.linalg.norm(obs - pre)
+                score += np.linalg.norm(obs - pre) / np.linalg.norm(obs)
                 indices.append(np.argmax(corr_norm))
 
             scores.append((score, np.median(indices)))
