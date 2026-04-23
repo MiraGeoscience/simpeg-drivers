@@ -158,7 +158,7 @@ class LeroiAirOptions(BaseModel):
         """Time channel widths."""
         channel_widths = self.survey.metadata.get("channel_widths", None)
         if channel_widths is None:
-            channel_widths = np.diff([0] + self.channels)
+            channel_widths = np.diff(np.r_[0, self.channels])
         return channel_widths
 
     @property
