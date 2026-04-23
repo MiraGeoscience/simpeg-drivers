@@ -13,14 +13,13 @@ from pathlib import Path
 from typing import ClassVar
 
 from geoapps_utils.base import Options
-from geoapps_utils.run import fetch_driver_class_from_string
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
 from geoh5py.ui_json import InputFile
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.driver import from_input_file
 from simpeg_drivers.options import BaseForwardOptions
 from simpeg_drivers.utils.synthetics.meshes import MeshOptions
+from simpeg_drivers.utils.utils import driver_class_from_dict
 
 from .models.options import ModelOptions
 
@@ -68,16 +67,6 @@ class PlateSimulationOptions(Options):
         if input_file.data is None:
             raise ValueError("Input file data must be set.")
 
-        driver = None
-        if input_file.data.get("inversion_type", None):
-            driver = from_input_file(input_file.data)
+        driver = driver_class_from_dict(input_file.data)
 
-        if input_file.data.get("run_command", None):
-            driver = fetch_driver_class_from_string(input_file.data["run_command"])
-
-        if driver:
-            return driver._params_class.build(input_file.data)  # pylint: disable=protected-access
-
-        raise NotImplementedError(
-            f"Unknown inversion type: {input_file.data['inversion_type']}"
-        )
+        return driver._params_class.build(input_file.data)  # pylint: disable=protected-access
