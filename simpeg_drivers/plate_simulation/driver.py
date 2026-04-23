@@ -332,7 +332,8 @@ class PlateSimulationDriver(Driver):
         update["models"] = opts.models.model_copy(update=models_update)
 
         with fetch_active_workspace(self.params.geoh5, mode="r+"):
-            out_group = opts.out_group.copy(
+            out_group = validate_out_group(opts)
+            out_group = out_group.copy(
                 parent=self.out_group,
                 copy_children=False,
                 copy_relatives=False,
