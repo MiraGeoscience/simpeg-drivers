@@ -26,7 +26,6 @@ from geoh5py.ui_json.input_file import InputFile
 
 from simpeg_drivers.driver import (
     InversionDriver,
-    driver_class_from_name,
     validate_client,
     validate_workers,
 )
@@ -284,9 +283,7 @@ class PlateSimulationDriver(Driver):
                 "The topography object of the forward simulation must be a 'Surface'."
             )
 
-        driver_class = driver_class_from_name(
-            self.simulation_parameters.inversion_type, forward_only=True
-        )
+        driver_class = driver_class_from_dict(self.simulation_parameters.__dict__)
         self.simulation_parameters.mesh = self.make_mesh()
         self.simulation_parameters.models.starting_model = self.make_model()
         self._simulation_driver = driver_class(

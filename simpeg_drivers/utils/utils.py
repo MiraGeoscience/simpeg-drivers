@@ -600,7 +600,7 @@ def get_neighbouring_cells(mesh: TreeMesh, indices: list | np.ndarray) -> tuple:
     )
 
 
-def simpeg_group_to_driver(group: SimPEGGroup, workspace: Workspace) -> InversionDriver:
+def simpeg_group_to_driver(group: SimPEGGroup, workspace: Workspace) -> Driver:
     """
     Utility to generate an inversion driver from a SimPEG group options.
 
@@ -615,7 +615,6 @@ def simpeg_group_to_driver(group: SimPEGGroup, workspace: Workspace) -> Inversio
 
     ifile = InputFile(ui_json=ui_json)
     inversion_driver = driver_class_from_dict(ifile.ui_json)
-
     ifile.set_data_value("out_group", group)
     params = inversion_driver._params_class.build(ifile)  # pylint: disable=protected-access
 
@@ -754,9 +753,7 @@ def start_dask_run(
             ps.print_stats()
 
 
-def driver_class_from_name(
-    name: str, forward_only: bool = False
-) -> type[InversionDriver]:
+def driver_class_from_name(name: str, forward_only: bool = False) -> type[Driver]:
     """
     Get the driver class from the inversion type name.
 
@@ -781,8 +778,19 @@ def driver_class_from_name(
     return getattr(module, class_name)
 
 
-def driver_class_from_dict(data: dict) -> type[InversionDriver | Driver]:
+def driver_class_from_dict(data: dict) -> type[Driver]:
+    """
+    Get a driver class from a dictionary containing either an
+    'inversion_type' with 'forward_only', or a 'run_command' parameter.
 
+    This function is meant to adapt to the new UI JSON structure where the 'run_command' is
+    the primary way to specify the driver, while still maintaining backward
+    compatibility with the 'inversion_type' parameter.
+
+    :param data: Dictionary of inversion parameters.
+
+    :return: InversionDriver or Driver class.
+    """
     inversion_type = data.get("inversion_type", None)
 
     if inversion_type:

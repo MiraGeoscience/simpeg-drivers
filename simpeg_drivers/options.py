@@ -183,7 +183,9 @@ class CoreOptions(Options):
     version: str = public_version()
     icon: str | None = None
     inversion_type: str
-    documentation: str | None = None
+    documentation: str | None = (
+        "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html"
+    )
     conda_environment: str = "simpeg_drivers"
     run_command: str = "simpeg_drivers.driver"
     mesh: Octree | Grid2D | DrapeModel | None = None

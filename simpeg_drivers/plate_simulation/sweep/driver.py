@@ -36,7 +36,6 @@ from simpeg_drivers.driver import BaseDriver, validate_client, validate_workers
 from simpeg_drivers.plate_simulation.driver import PlateSimulationDriver
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
 from simpeg_drivers.plate_simulation.sweep.options import SweepOptions
-from simpeg_drivers.plate_simulation.sweep.uijson import PlateSweepUIJson
 from simpeg_drivers.utils.utils import start_dask_run, validate_out_group
 
 
@@ -73,25 +72,12 @@ class PlateSweepDriver(Driver):
 
     @classmethod
     def start(cls, filepath: str | Path, mode="r", **_) -> Self:
-        """Start the parameter sweep from a ui.json file."""
-        logger.info("Loading input file . . .")
-        filepath = Path(filepath).resolve()
-        uijson = PlateSweepUIJson.read(filepath)
+        """
+        Start the parameter sweep from a ui.json file.
 
-        try:
-            with Workspace(uijson.geoh5, mode=mode) as workspace:
-                options = SweepOptions.build(uijson.to_params(workspace=workspace))
-                logger.info("Initializing application . . .")
-                driver = cls(options)
-                logger.info("Running application . . .")
-            driver.run()
-            logger.info("Results saved to %s", options.geoh5.h5file)
-
-        except GeoAppsError as error:
-            logger.warning("\n\nApplicationError: %s\n\n", error)
-            sys.exit(1)
-
-        return driver
+        Force the mode to be read-only for safe copy.
+        """
+        return super().start(filepath, mode="r")
 
     def run(self):
         """Loop over all trials and run a worker for each unique parameter set."""
@@ -172,7 +158,10 @@ class PlateSweepDriver(Driver):
                 group
                 for group in workspace.groups
                 if isinstance(group, SimPEGGroup | UIJsonGroup)
-                and "plate_simulation.driver" in group.options.get("run_command")
+                and (
+                    "plate_simulation.driver" in group.options.get("run_command")
+                    or "plate simulation" == group.options.get("inversion_type")
+                )
             )
 
             opt_dict = workspace.promote(flatten(plate_simulation.options))
