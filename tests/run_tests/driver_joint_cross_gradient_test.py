@@ -234,6 +234,7 @@ def test_joint_cross_gradient_inv_run(
                     reference_model=0.0,
                     upper_bound=1.0,
                     tile_spatial=2,
+                    x_norm=1.1,
                     auto_scale_tiles=True,
                     chi_factor=0.8,
                 )
@@ -298,8 +299,8 @@ def test_joint_cross_gradient_inv_run(
             cross_gradient_weight_c_b=1e0,
             percentile=100,
         )
-
-    driver = JointCrossGradientDriver(joint_params)
+    file = joint_params.write_ui_json(tmp_path / "Joint_Inv_run.ui.json")
+    driver = JointCrossGradientDriver.start(file)
 
     # Check that chi factors set on the sub drivers are preserved forward
     np.testing.assert_allclose(
