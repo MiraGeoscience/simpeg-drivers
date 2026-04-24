@@ -12,7 +12,10 @@ import numpy as np
 from geoapps_utils.modelling.plates import PlateModel
 from geoh5py.shared.utils import fetch_active_workspace
 
-from simpeg_drivers.plate_simulation.leroi_air.options import LeroiAirOptions
+from simpeg_drivers.plate_simulation.leroi_air.options import (
+    LeroiAirOptions,
+    SurveyOptions,
+)
 from simpeg_drivers.utils.synthetics.surveys.time_domain.airborne_tdem import (
     generate_airborne_tdem_survey,
 )
@@ -40,7 +43,7 @@ def generate_plate_options(workspace):
         ]
         topo = np.column_stack([X.flatten(), Y.flatten(), np.zeros(X.size)])
         opts = LeroiAirOptions(
-            survey=survey,
+            survey=SurveyOptions(entity=survey),
             topo=topo,
             layer_resistivities=layer_resistivities,
             layer_thicknesses=layer_thicknesses,

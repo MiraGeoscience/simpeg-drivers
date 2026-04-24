@@ -18,40 +18,42 @@ from . import generate_plate_options
 
 
 def test_options_channel_widths(plate_options):
-    assert np.allclose(plate_options.channel_widths, [0.3, 0.3, 0.6])
+    assert np.allclose(plate_options.survey.channel_widths, [0.3, 0.3, 0.6])
 
 
 def test_options_channel_widths_from_metadata(tmp_path):
     explicit_widths = [0.1, 0.2, 0.3]
     with Workspace(tmp_path / "test.geoh5") as geoh5:
         opts = generate_plate_options(workspace=geoh5)
-        meta = opts.survey.metadata
+        meta = opts.survey.entity.metadata
         meta["channel_widths"] = explicit_widths
-        opts.survey.metadata = meta
+        opts.survey.entity.metadata = meta
 
-    assert np.allclose(opts.channel_widths, explicit_widths)
+    assert np.allclose(opts.survey.channel_widths, explicit_widths)
 
 
 def test_options_frequency(plate_options):
-    assert np.isclose(plate_options.frequency, 0.142857143)
+    assert np.isclose(plate_options.survey.frequency, 0.142857143)
 
 
 def test_options_frequency_from_metadata(tmp_path):
     with Workspace(tmp_path / "test.geoh5") as geoh5:
         opts = generate_plate_options(workspace=geoh5)
-        meta = opts.survey.metadata
+        meta = opts.survey.entity.metadata
         meta["frequency"] = 0.15
-        opts.survey.metadata = meta
+        opts.survey.entity.metadata = meta
 
-    assert np.isclose(opts.frequency, 0.15)
+    assert np.isclose(opts.survey.frequency, 0.15)
 
 
 def test_options_offtime(plate_options):
-    assert np.isclose(plate_options.offtime, 1.6)
+    assert np.isclose(plate_options.survey.offtime, 1.6)
 
 
 def test_options_ontime_waveform(plate_options):
-    assert np.allclose(plate_options.ontime_waveform, plate_options.waveform[0:8, :])
+    assert np.allclose(
+        plate_options.survey.ontime_waveform, plate_options.survey.waveform[0:8, :]
+    )
 
 
 def test_options_conductivity_thicknesses(plate_options):
@@ -65,7 +67,7 @@ def test_options_resistivities(plate_options):
 
 
 def test_options_drape_height(plate_options):
-    assert np.allclose(plate_options.drape_height, 20.0)
+    assert np.allclose(plate_options.survey.drape_height(plate_options.topo), 20.0)
 
 
 def test_options_validate_layer_lengths_mismatch(plate_options):

@@ -11,7 +11,7 @@
 import subprocess
 from pathlib import Path
 
-from .interface import LeroiAirInput, LeroiAirOutput
+from .interface import LeroiAirInterface
 from .options import LeroiAirOptions
 
 
@@ -24,13 +24,12 @@ class LeroiAirDriver:
     ) -> None:
         """Initialize with simulation options."""
         self.options = options
-        self.input: LeroiAirInput = LeroiAirInput(options)
-        self.output: LeroiAirOutput = LeroiAirOutput(options)
+        self.interface = LeroiAirInterface(options)
 
     @property
     def project_path(self) -> Path:
         """Directory containing the geoh5 workspace file."""
-        return self.options.survey.workspace.h5file.parent
+        return self.options.survey.entity.workspace.h5file.parent
 
     def run_leroi(self) -> subprocess.CompletedProcess:
         """Run the LeroiAir executable and raise on non-zero exit."""
@@ -51,9 +50,9 @@ class LeroiAirDriver:
 
     def run(self) -> None:
         """Write input, run LeroiAir, and save simulated data to geoh5."""
-        self.input.write_cfl_file(self.project_path / "LeroiAir.cfl")
+        self.interface.input.write_cfl_file(self.project_path / "LeroiAir.cfl")
         self.run_leroi()
-        self.output.save_to_geoh5(
+        self.interface.output.save_to_geoh5(
             outfile=self.project_path / "LeroiAir.out",
             out_group=self.options.out_group,
         )

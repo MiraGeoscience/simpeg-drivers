@@ -9,14 +9,20 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 from __future__ import annotations
 
+from functools import cached_property
 from pathlib import Path
 from typing import Any, Literal
 
 import numpy as np
-from geoh5py.groups import UIJsonGroup
 from geoh5py.shared.utils import fetch_active_workspace
 
-from .options import LeroiAirOptions
+from .options import LeroiAirOptions, SurveyOptions
+
+
+class LeroiAirInterface:
+    def __init__(self, opts: LeroiAirOptions):
+        self.input = LeroiAirInput(opts)
+        self.output = LeroiAirOutput(opts.survey)
 
 
 class LeroiAirInput:
@@ -27,7 +33,7 @@ class LeroiAirInput:
     def __init__(self, opts: LeroiAirOptions):
         self.opts = opts
 
-    @property
+    @cached_property
     def aliased_values(self) -> dict[str, Any]:
         """Serves .cfl input file aliases and corresponding data to line formatter."""
         return {
@@ -36,17 +42,17 @@ class LeroiAirInput:
             "PRFL": 1,
             "ISTOP": 0,
             "ISW": 1,
-            "NSX": len(self.opts.ontime_waveform),
+            "NSX": len(self.opts.survey.ontime_waveform),
             "STEP": 0 if self.opts.magnetic_field == "dBdt" else 1,
             "UNITS": 1,
-            "NCHNL": len(self.opts.channels),
+            "NCHNL": len(self.opts.survey.channels),
             "KRXW": 2,
-            "REFTYM": self.opts.timing_mark,
-            "OFFTIME": self.opts.offtime,
-            "TXON": self.opts.ontime_waveform[:, 0],
-            "TXAMP": self.opts.ontime_waveform[:, 1],
-            "TMS": self.opts.timing_mark + np.array(self.opts.channels),
-            "WIDTH": self.opts.channel_widths,
+            "REFTYM": self.opts.survey.timing_mark,
+            "OFFTIME": self.opts.survey.offtime,
+            "TXON": self.opts.survey.ontime_waveform[:, 0],
+            "TXAMP": self.opts.survey.ontime_waveform[:, 1],
+            "TMS": self.opts.survey.timing_mark + np.array(self.opts.survey.channels),
+            "WIDTH": self.opts.survey.channel_widths,
             "TXCLN": 0.0,
             "CMP": 3,
             "KPPM": 0,
@@ -56,13 +62,13 @@ class LeroiAirInput:
             "ZRX0": 0.0,
             "XRX0": 0.0,
             "YRX0": 0.0,
-            "NSTAT": self.opts.n_stations,
+            "NSTAT": self.opts.survey.n_stations,
             "SURVEY": 2,
             "BAROMTRC": 1,
             "LINE_TAG": 0,
-            "EAST": self.opts.locations[:, 0],
-            "NORTH": self.opts.locations[:, 1],
-            "ALT": self.opts.drape_height,
+            "EAST": self.opts.survey.locations[:, 0],
+            "NORTH": self.opts.survey.locations[:, 1],
+            "ALT": self.opts.survey.drape_height(self.opts.topo),
             "NLAYER": self.opts.n_layers,
             "NPLATE": self.opts.n_plates,
             "NLITH": self.opts.n_layers + self.opts.n_plates,
@@ -246,7 +252,7 @@ class LeroiAirOutput:
         "vertical": "VERTICAL COMPONENT",
     }
 
-    def __init__(self, opts: LeroiAirOptions):
+    def __init__(self, opts: SurveyOptions):
         self.opts = opts
 
     def _find_data_start(self, chunk: list[str]) -> int:
@@ -277,11 +283,11 @@ class LeroiAirOutput:
         """Save LeroiAir simulated data on the provided survey to geoh5."""
 
         with out_group.workspace.open(mode="r+"):
-            survey = self.opts.survey.copy(parent=out_group, copy_children=False)
+            survey = self.opts.entity.copy(parent=out_group, copy_children=False)
             for component in "inline", "crossline", "vertical":
                 data = self._extract_data(outfile=outfile, component=component)
 
-                with fetch_active_workspace(self.opts.survey.workspace, mode="r+"):
+                with fetch_active_workspace(self.opts.entity.workspace, mode="r+"):
                     entities = survey.add_data(
                         {
                             f"fwd {component} [{i}]": {"values": data[:, i]}
