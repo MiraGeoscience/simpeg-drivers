@@ -103,8 +103,8 @@ class InversionMesh:
                 "No mesh provided. Creating optimized mesh from data and topography."
             )
             mesh_entity = self._auto_mesh()
-        elif self.params.mesh.parent == self.params.out_group:  # plate-simulation
-            mesh_entity = self.params.mesh
+        # elif self.params.mesh.parent == self.params.out_group:  # plate-simulation
+        #     mesh_entity = self.params.mesh
         else:
             mesh_entity = self.params.mesh.copy(
                 parent=self.params.out_group, copy_children=False

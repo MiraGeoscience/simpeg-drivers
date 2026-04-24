@@ -157,7 +157,7 @@ class PlateSimulationDriver(Driver):
             )
         self._mesh.parent = self._out_group
 
-        return self._mesh.copy(parent=self.simulation_parameters.out_group)
+        return self._mesh
 
     def make_model(self) -> FloatData:
         """Create background + plate and overburden model from parameters."""
