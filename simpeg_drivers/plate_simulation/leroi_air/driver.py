@@ -11,11 +11,7 @@
 import subprocess
 from pathlib import Path
 
-from geoh5py.groups import UIJsonGroup
-
-from simpeg_drivers.utils.utils import validate_out_group
-
-from .interface import LeroiAirInterface
+from .interface import LeroiAirInput, LeroiAirOutput
 from .options import LeroiAirOptions
 
 
@@ -28,14 +24,8 @@ class LeroiAirDriver:
     ) -> None:
         """Initialize with simulation options."""
         self.options = options
-        self._interface: LeroiAirInterface | None = None
-
-    @property
-    def interface(self) -> LeroiAirInterface:
-        """Lazy-initialized interface for formatting and parsing LeroiAir files."""
-        if self._interface is None:
-            self._interface = LeroiAirInterface(self.options)
-        return self._interface
+        self.input: LeroiAirInput = LeroiAirInput(options)
+        self.output: LeroiAirOutput = LeroiAirOutput(options)
 
     @property
     def project_path(self) -> Path:
@@ -61,9 +51,9 @@ class LeroiAirDriver:
 
     def run(self) -> None:
         """Write input, run LeroiAir, and save simulated data to geoh5."""
-        self.interface.write_cfl_file(self.project_path / "LeroiAir.cfl")
+        self.input.write_cfl_file(self.project_path / "LeroiAir.cfl")
         self.run_leroi()
-        self.interface.save_to_geoh5(
+        self.output.save_to_geoh5(
             outfile=self.project_path / "LeroiAir.out",
             out_group=self.options.out_group,
         )

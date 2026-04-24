@@ -19,13 +19,12 @@ from geoh5py.shared.utils import fetch_active_workspace
 from .options import LeroiAirOptions
 
 
-class LeroiAirInterface:
-    """Interface for running LeroiAir from geoh5py objects."""
+class LeroiAirInput:
+    """LeroiAir control file formatting from geoh5py objects and options."""
 
     version: str = "8.0"
 
     def __init__(self, opts: LeroiAirOptions):
-        """Initialize with simulation options."""
         self.opts = opts
 
     @property
@@ -237,11 +236,18 @@ class LeroiAirInterface:
         with open(filepath, mode="w", encoding="utf-8") as f:
             f.write(self.format_cfl_file())
 
+
+class LeroiAirOutput:
+    """LeroiAir output file parsing and saving to geoh5py objects/data."""
+
     _COMPONENT_ANCHORS: dict[str, str] = {
         "crossline": "TRANSVERSE COMPONENT",
         "inline": "IN-LINE COMPONENT",
         "vertical": "VERTICAL COMPONENT",
     }
+
+    def __init__(self, opts: LeroiAirOptions):
+        self.opts = opts
 
     def _find_data_start(self, chunk: list[str]) -> int:
         """Return the index of the first station data row within a section chunk."""

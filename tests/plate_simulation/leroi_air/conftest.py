@@ -13,7 +13,10 @@ from unittest.mock import MagicMock
 import pytest
 from geoh5py import Workspace
 
-from simpeg_drivers.plate_simulation.leroi_air.interface import LeroiAirInterface
+from simpeg_drivers.plate_simulation.leroi_air.interface import (
+    LeroiAirInput,
+    LeroiAirOutput,
+)
 
 from . import generate_plate_options
 
@@ -54,18 +57,18 @@ FAKE_OUT = """\
 
 
 @pytest.fixture
-def mock_interface():
+def mock_input():
     opts = MagicMock()
-    opts.n_stations = N_STATIONS
     opts.float_precision = 4
-    return LeroiAirInterface(opts=opts)
+    return LeroiAirInput(opts)
 
 
 @pytest.fixture
-def real_interface(tmp_path):
-    with Workspace(tmp_path / "test.geoh5") as geoh5:
-        opts = generate_plate_options(geoh5)
-    return LeroiAirInterface(opts=opts)
+def mock_output():
+    opts = MagicMock()
+    opts.n_stations = N_STATIONS
+    opts.float_precision = 4
+    return LeroiAirOutput(opts=opts)
 
 
 @pytest.fixture(scope="module")
