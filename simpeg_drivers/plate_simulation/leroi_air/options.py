@@ -136,6 +136,7 @@ class LeroiAirOptions(BaseModel):
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
+    title: str = "LeroiAir modelling for plate-simulation package."
     survey: SurveyOptions
     topo: np.ndarray
     layer_resistivities: list[float]
@@ -197,11 +198,6 @@ class LeroiAirOptions(BaseModel):
             magnetic_field="dBdt" if "dBdt" in simulation.data_units else "B",
             out_group=simulation.out_group,
         )
-
-    @property
-    def title(self) -> str:
-        """Provides a generic title for all LeroiAir simulations."""
-        return "LeroiAir modelling for plate-simulation package."
 
     @property
     def n_layers(self) -> int:
