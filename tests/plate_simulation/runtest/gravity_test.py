@@ -76,6 +76,7 @@ def test_gravity_plate_simulation(tmp_path):
                 survey_refinement=[4, 6],
                 topography_refinement=[0, 1],
                 plate_refinement=[4, 2],
+                name="mesh",
             ),
             model=ModelOptions(
                 name="density",

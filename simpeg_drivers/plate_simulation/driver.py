@@ -148,17 +148,16 @@ class PlateSimulationDriver(Driver):
         logger.info("making the mesh...")
         with fetch_active_workspace(self.params.geoh5, mode="r+") as geoh5:
             surfaces = [p.surface(geoh5) for p in self.plates]
-            mesh = get_octree_mesh(
+            self._mesh = get_octree_mesh(
                 opts=self.params.mesh,
                 survey=self.survey,
                 topography=self.simulation_parameters.active_cells.topography_object,
                 plates=surfaces,
-                name=self.params.mesh.name,
+                name="Octree",
             )
+        self._mesh.parent = self._out_group
 
-        mesh.parent = self.simulation_parameters.out_group
-
-        return mesh
+        return self._mesh.copy(parent=self.simulation_parameters.out_group)
 
     def make_model(self) -> FloatData:
         """Create background + plate and overburden model from parameters."""
@@ -198,7 +197,7 @@ class PlateSimulationDriver(Driver):
         if physical_property == "conductivity":
             physical_property = "resistivity"
 
-        model = self.simulation_parameters.mesh.add_data(
+        model = self._mesh.add_data(
             {
                 "geology": {
                     "type": "referenced",
