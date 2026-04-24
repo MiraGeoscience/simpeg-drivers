@@ -79,11 +79,9 @@ class PlateSimulationDriver(Driver):
     def run(self) -> InversionDriver:
         """Create octree mesh, fill model, and simulate."""
 
-        with fetch_active_workspace(self.simulation_parameters.geoh5, mode="r+"):
-            self.simulation_driver.run()
-            self.simulation_parameters.update_out_group_options()
-            with fetch_active_workspace(self.params.geoh5, mode="r+"):
-                self.update_monitoring_directory(self._out_group)
+        self.simulation_driver.run()
+        self.simulation_parameters.update_out_group_options()
+        self.update_monitoring_directory(self._out_group)
 
         logger.info("done.")
         logger.handlers.clear()
@@ -132,9 +130,8 @@ class PlateSimulationDriver(Driver):
                 self.params.model.plate_options.spacing,
                 self.params.model.plate_options.geometry.direction,
             )
-            with fetch_active_workspace(self.params.geoh5, mode="r+") as geoh5:
-                for plate in self._plates:
-                    plate.to_maxwell_plate(geoh5, parent=self._out_group)
+            for plate in self._plates:
+                plate.to_maxwell_plate(self.params.geoh5, parent=self._out_group)
 
         return self._plates
 
@@ -146,15 +143,14 @@ class PlateSimulationDriver(Driver):
         """
 
         logger.info("making the mesh...")
-        with fetch_active_workspace(self.params.geoh5, mode="r+") as geoh5:
-            surfaces = [p.surface(geoh5) for p in self.plates]
-            self._mesh = get_octree_mesh(
-                opts=self.params.mesh,
-                survey=self.survey,
-                topography=self.simulation_parameters.active_cells.topography_object,
-                plates=surfaces,
-                name="Octree",
-            )
+        surfaces = [p.surface(self.params.geoh5) for p in self.plates]
+        self._mesh = get_octree_mesh(
+            opts=self.params.mesh,
+            survey=self.survey,
+            topography=self.simulation_parameters.active_cells.topography_object,
+            plates=surfaces,
+            name="Octree",
+        )
         self._mesh.parent = self._out_group
 
         return self._mesh
@@ -327,13 +323,12 @@ class PlateSimulationDriver(Driver):
             models_update["starting_model"] = None
         update["models"] = opts.models.model_copy(update=models_update)
 
-        with fetch_active_workspace(self.params.geoh5, mode="r+"):
-            out_group = validate_out_group(opts)
-            out_group = out_group.copy(
-                parent=self.out_group,
-                copy_children=False,
-                copy_relatives=False,
-            )
+        out_group = validate_out_group(opts)
+        out_group = out_group.copy(
+            parent=self.out_group,
+            copy_children=False,
+            copy_relatives=False,
+        )
         update["out_group"] = out_group
         forward_opts = opts.model_copy(update=update)
         forward_opts.update_out_group_options()
