@@ -38,12 +38,13 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
-target_run = {"data_norm": 0.006241342269481059, "phi_d": 0.0024, "phi_m": 0.17}
+target_run = {"data_norm": 0.0034873276857765663, "phi_d": 3.06, "phi_m": 0.00137}
 
 
 def test_gravity_fwr_run(
     tmp_path: Path,
     n_grid_points=2,
+    cell_size=(20.0, 20.0, 20.0),
     refinement=(2,),
 ):
     filepath = Path(tmp_path) / "inversion_test.ui.geoh5"
@@ -53,10 +54,18 @@ def test_gravity_fwr_run(
             geoh5=geoh5,
             options=SyntheticsComponentsOptions(
                 method="gravity",
+                refine_plate=True,
                 survey=SurveyOptions(
                     n_stations=n_grid_points, n_lines=n_grid_points, drape=5.0
                 ),
-                mesh=MeshOptions(refinement=refinement),
+                mesh=MeshOptions(
+                    u_cell_size=cell_size[0],
+                    v_cell_size=cell_size[1],
+                    w_cell_size=cell_size[2],
+                    survey_refinement=list(refinement),
+                    topography_refinement=[0, 0, 1],
+                    plate_refinement=[1],
+                ),
                 model=ModelOptions(anomaly=0.75),
             ),
         )
@@ -72,35 +81,6 @@ def test_gravity_fwr_run(
 
     fwr_driver = GravityForwardDriver(params)
     fwr_driver.run()
-
-
-def test_array_too_large_run(
-    tmp_path: Path,
-):
-    workpath = tmp_path.parent / "test_gravity_fwr_run0" / "inversion_test.ui.geoh5"
-
-    with Workspace(workpath) as geoh5:
-        components = SyntheticsComponents(geoh5)
-        gz = geoh5.get_entity("Iteration_0_gz")[0]
-
-        # Run the inverse
-        params = GravityInversionOptions.build(
-            geoh5=geoh5,
-            mesh=components.mesh,
-            topography_object=components.topography,
-            data_object=gz.parent,
-            gz_channel=gz,
-            gz_uncertainty=1e-4,
-            starting_model=1e-4,
-        )
-
-    with patch(
-        "simpeg.inversion.BaseInversion.run",
-        side_effect=np.core._exceptions._ArrayMemoryError((0,), np.dtype("float64")),  # pylint: disable=protected-access
-    ):
-        with raises(GeoAppsError, match="Memory Error"):
-            driver = GravityInversionDriver(params)
-            driver.run()
 
 
 def test_gravity_run(
@@ -161,9 +141,7 @@ def test_gravity_run(
     assert driver.directives.directive_list[0].chifact_start == 0.75
     assert driver.directives.directive_list[0].chifact_target == 0.75
 
-    with open(
-        workpath.parent / f"SimPEG_{driver.logger.start_date_time}.log", encoding="utf8"
-    ) as file:
+    with open(workpath.parent / "inversion_test.ui.log", encoding="utf8") as file:
         content = file.read()
         assert "Target Misfit: 3.00e+00 (3 data with chifact = 1.0)" in content
         assert "IRLS Start Misfit: 3.00e+00 (3 data with chifact = 1.0)" in content
@@ -189,12 +167,8 @@ def test_gravity_run(
         )
         output["data"] = orig_gz
 
-        assert (
-            len(run_ws.get_entity(f"SimPEG_{driver.logger.start_date_time}.log")) == 1
-        )
-        assert (
-            len(run_ws.get_entity(f"SimPEG_{driver.logger.start_date_time}.out")) == 1
-        )
+        assert len(run_ws.get_entity("inversion_test.ui.log")) == 2
+        assert len(run_ws.get_entity("inversion_test.ui.out")) == 1
 
         if pytest:
             check_target(output, target_run)
@@ -203,12 +177,42 @@ def test_gravity_run(
             assert np.all(nan_ind == inactive_ind)
 
 
+def test_array_too_large_run(
+    tmp_path: Path,
+):
+    workpath = tmp_path.parent / "test_gravity_fwr_run0" / "inversion_test.ui.geoh5"
+
+    with Workspace(workpath) as geoh5:
+        components = SyntheticsComponents(geoh5)
+        gz = geoh5.get_entity("Iteration_0_gz")[0]
+
+        # Run the inverse
+        params = GravityInversionOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=gz.parent,
+            gz_channel=gz,
+            gz_uncertainty=1e-4,
+            starting_model=1e-4,
+        )
+
+    with patch(
+        "simpeg.inversion.BaseInversion.run",
+        side_effect=np.core._exceptions._ArrayMemoryError((0,), np.dtype("float64")),  # pylint: disable=protected-access
+    ):
+        with raises(GeoAppsError, match="Memory Error"):
+            driver = GravityInversionDriver(params)
+            driver.run()
+
+
 if __name__ == "__main__":
     # Full run
     test_gravity_fwr_run(
         Path("./"),
         n_grid_points=20,
         refinement=(4, 4),
+        cell_size=(5.0, 5.0, 5.0),
     )
 
     test_gravity_run(

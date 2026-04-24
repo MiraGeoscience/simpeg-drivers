@@ -11,17 +11,22 @@
 
 from __future__ import annotations
 
+import contextlib
+import cProfile
 import multiprocessing
-from collections.abc import Sequence
+import pstats
+import sys
 from copy import deepcopy
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
+from dask.distributed import Client, LocalCluster, performance_report
 from discretize import TensorMesh, TreeMesh
 from discretize.utils import mesh_utils
-from geoapps_utils.base import Options
-from geoapps_utils.run import load_ui_json_as_dict
+from geoapps_utils import GeoAppsError
+from geoapps_utils.base import Driver, Options
+from geoapps_utils.run import fetch_driver_class_from_string, load_ui_json_as_dict
 from geoapps_utils.utils.locations import mask_under_horizon
 from geoapps_utils.utils.numerical import running_mean, traveling_salesman
 from geoh5py import Workspace
@@ -34,7 +39,7 @@ from geoh5py.objects.surveys.electromagnetics.airborne_app_con import (
 )
 from geoh5py.objects.surveys.electromagnetics.base import LargeLoopGroundEMSurvey
 from geoh5py.shared import INTEGER_NDV
-from geoh5py.shared.utils import fetch_active_workspace, stringify
+from geoh5py.shared.utils import fetch_active_workspace, mask_by_extent, stringify
 from geoh5py.ui_json import InputFile
 from grid_apps.utils import octree_2_treemesh
 from scipy.interpolate import interp1d
@@ -45,49 +50,22 @@ from simpeg_drivers import DRIVER_MAP
 
 if TYPE_CHECKING:
     from simpeg_drivers.components.data import InversionData
-    from simpeg_drivers.driver import InversionDriver
-
-
-def octree_extents(octree: Octree) -> np.ndarray:
-    """
-    Get the true extents of an octree (min/max of the perimeter).
-
-    The octree.extents property returns min/max of the centroids
-
-    :param octree: Octree mesh object.
-
-    :returns: Array of [xmin, xmax, ymin, ymax].
-    """
-
-    origin = np.array(list(octree.origin.tolist()))
-    span = np.array(
-        [
-            getattr(octree, f"{axis}_cell_size") * getattr(octree, f"{axis}_count")
-            for axis in "uvw"
-        ]
-    )
-
-    return np.stack([origin, origin + span]).flatten(order="F")
 
 
 def mask_vertices_and_cells(
-    extent: Sequence, vertices: np.ndarray, cells: np.ndarray | None
-) -> tuple[np.ndarray, np.ndarray]:
+    extent: np.ndarray, vertices: np.ndarray, cells: np.ndarray | None
+) -> tuple[np.ndarray, np.ndarray] | tuple[np.ndarray, None]:
     """
     Mask vertices and remove cells whose vertices are all outside the extent.
 
-    :param extent: Array-like object of [xmin, xmax, ymin, ymax].
+    :param extent: Array of shape (2, 3) containing the lower SW and upper NE coordinates.
     :param vertices: Array of shape (n_vertices, 3) containing the x, y, z coordinates.
     :param cells: Array of shape (n_cells, 3) containing the indices of the vertices
         that make up each cell.
     """
 
-    vertex_mask = (
-        (vertices[:, 0] >= extent[0])
-        & (vertices[:, 0] <= extent[1])
-        & (vertices[:, 1] >= extent[2])
-        & (vertices[:, 1] <= extent[3])
-    )
+    vertex_mask = mask_by_extent(vertices, extent=extent)
+
     if cells is None:
         return vertices[vertex_mask], None
 
@@ -621,7 +599,7 @@ def get_neighbouring_cells(mesh: TreeMesh, indices: list | np.ndarray) -> tuple:
     )
 
 
-def simpeg_group_to_driver(group: SimPEGGroup, workspace: Workspace) -> InversionDriver:
+def simpeg_group_to_driver(group: SimPEGGroup, workspace: Workspace) -> Driver:
     """
     Utility to generate an inversion driver from a SimPEG group options.
 
@@ -635,15 +613,7 @@ def simpeg_group_to_driver(group: SimPEGGroup, workspace: Workspace) -> Inversio
     ui_json["geoh5"] = workspace
 
     ifile = InputFile(ui_json=ui_json)
-    forward_only = ui_json.get("forward_only", False)
-    mod_name, classes = DRIVER_MAP.get(ui_json["inversion_type"])
-    if forward_only:
-        class_name = classes.get("forward", classes["inversion"])
-    else:
-        class_name = classes.get("inversion")
-    module = __import__(mod_name, fromlist=[class_name])
-    inversion_driver = getattr(module, class_name)
-
+    inversion_driver = driver_class_from_dict(ifile.ui_json)
     ifile.set_data_value("out_group", group)
     params = inversion_driver._params_class.build(ifile)  # pylint: disable=protected-access
 
@@ -724,3 +694,112 @@ def validate_out_group(options: Options) -> SimPEGGroup:
         out_group.metadata = None
 
     return out_group
+
+
+def start_dask_run(
+    class_type,
+    json_path: Path,
+    n_workers: int | None = None,
+    n_threads: int | None = None,
+):
+    """
+    Runs an application with Dask optimization.
+
+    :param json_path: Path to input file (.ui.json) for the application.
+    :param n_workers: Number of workers to use.
+    :param n_threads: Number of threads to use.
+    """
+    ui_json = load_ui_json_as_dict(json_path)
+
+    n_workers = ui_json.get("n_workers", n_workers)
+    n_threads = ui_json.get("n_threads", n_threads)
+    save_report = ui_json.get("performance_report", False)
+
+    if (n_workers is not None and n_workers > 1) or n_threads is not None:
+        cluster = LocalCluster(
+            processes=True,
+            n_workers=n_workers,
+            threads_per_worker=n_threads,
+        )
+    else:
+        cluster = None
+
+    profiler = cProfile.Profile()
+    profiler.enable()
+
+    with (
+        cluster.get_client()
+        if cluster is not None
+        else contextlib.nullcontext() as context_client
+    ):
+        # Full run
+        with (
+            performance_report(filename=json_path.parent / "dask_profile.html")
+            if (save_report and isinstance(context_client, Client))
+            else contextlib.nullcontext()
+        ):
+            class_type.start(json_path)
+            sys.stdout.close()
+
+    profiler.disable()
+
+    if save_report:
+        with open(
+            json_path.parent / "runtime_profile.txt", encoding="utf-8", mode="w"
+        ) as s:
+            ps = pstats.Stats(profiler, stream=s)
+            ps.sort_stats("cumulative")
+            ps.print_stats()
+
+
+def driver_class_from_name(name: str, forward_only: bool = False) -> type[Driver]:
+    """
+    Get the driver class from the inversion type name.
+
+    TODO: Only for backward compatibility. To be deprecated in future versions.
+
+    :param name: The inversion type name.
+    :param forward_only: Whether to forward only the forward operators.
+
+    :return: InversionDriver or ForwardDriver class.
+    """
+    if name not in DRIVER_MAP:
+        msg = f"Inversion type '{name}' is not supported."
+        msg += f" Valid inversions are: {(*list(DRIVER_MAP),)}."
+        raise NotImplementedError(msg)
+
+    mod_name, classes = DRIVER_MAP.get(name)
+    class_name = classes.get("inversion")
+    if forward_only:
+        class_name = classes.get("forward", class_name)
+
+    module = __import__(mod_name, fromlist=[class_name])
+    return getattr(module, class_name)
+
+
+def driver_class_from_dict(data: dict) -> type[Driver]:
+    """
+    Get a driver class from a dictionary containing either an
+    'inversion_type' with 'forward_only', or a 'run_command' parameter.
+
+    This function is meant to adapt to the new UI JSON structure where the 'run_command' is
+    the primary way to specify the driver, while still maintaining backward
+    compatibility with the 'inversion_type' parameter.
+
+    :param data: Dictionary of inversion parameters.
+
+    :return: InversionDriver or Driver class.
+    """
+    inversion_type = data.get("inversion_type", None)
+
+    if inversion_type:
+        forward_only = data.get("forward_only", False)
+        return driver_class_from_name(inversion_type, forward_only=forward_only)
+
+    if data.get("run_command", None):
+        return fetch_driver_class_from_string(data["run_command"])
+
+    raise GeoAppsError(
+        "Could not find a driver for the given 'inversion_type' or 'run_command' parameter. "
+        "Please review the 'run_command' in the UI JSON."
+    )

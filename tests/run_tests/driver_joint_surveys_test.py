@@ -11,6 +11,7 @@
 from pathlib import Path
 
 import numpy as np
+import pytest
 from geoh5py.objects import Octree
 from geoh5py.workspace import Workspace
 from simpeg.directives import SaveModelGeoH5, SavePropertyGroup
@@ -36,6 +37,10 @@ from simpeg_drivers.potential_fields.magnetic_vector import (
     MagneticVectorInversionDriver,
     MagneticVectorInversionOptions,
 )
+from simpeg_drivers.potential_fields.magnetic_vector_pde import (
+    MagneticVectorPDEInversionDriver,
+    MagneticVectorPDEInversionOptions,
+)
 from simpeg_drivers.utils.synthetics.driver import (
     SyntheticsComponents,
 )
@@ -54,21 +59,31 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.29977916022065554, "phi_d": 1340, "phi_m": 40.5}
+target_run = {"data_norm": 0.5406566758729657, "phi_d": 1740, "phi_m": 137}
 
 
 def test_joint_surveys_fwr_run(
     tmp_path,
     n_grid_points=6,
+    cell_size=(20.0, 20.0, 20.0),
     refinement=(2,),
 ):
     # Create local problem A
     opts = SyntheticsComponentsOptions(
         method="gravity",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points, n_lines=n_grid_points, drape=5.0, name="survey A"
         ),
-        mesh=MeshOptions(refinement=refinement, name="mesh A"),
+        mesh=MeshOptions(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+            name="mesh A",
+        ),
         model=ModelOptions(anomaly=0.75, name="model A"),
         active=SyntheticsActiveCellsOptions(name="active A"),
     )
@@ -90,13 +105,22 @@ def test_joint_surveys_fwr_run(
     with geoh5.open():
         opts = SyntheticsComponentsOptions(
             method="gravity",
+            refine_plate=True,
             survey=SurveyOptions(
                 n_stations=int(n_grid_points / 2),
                 n_lines=int(n_grid_points / 2),
                 drape=10.0,
                 name="survey B",
             ),
-            mesh=MeshOptions(refinement=(0, 2), name="mesh B"),
+            mesh=MeshOptions(
+                u_cell_size=cell_size[0],
+                v_cell_size=cell_size[1],
+                w_cell_size=cell_size[2],
+                survey_refinement=[0, 2],
+                topography_refinement=[0, 0, 1],
+                plate_refinement=[1],
+                name="mesh B",
+            ),
             model=ModelOptions(anomaly=0.75, name="model B"),
             active=SyntheticsActiveCellsOptions(name="active B"),
         )
@@ -195,7 +219,7 @@ def test_joint_surveys_inv_run(
     # The rescaling is done evenly on the two tiles for both surveys
     np.testing.assert_allclose(
         driver.data_misfit.multipliers,
-        [1.0, 1.0, 0.92685279, 0.92685279],
+        [1.0, 1.0, 0.9440, 0.9440],
         atol=1e-3,
     )
 
@@ -209,20 +233,36 @@ def test_joint_surveys_inv_run(
             check_target(output, target_run)
 
 
-def test_joint_surveys_mvi_run(tmp_path, anomaly=0.05):
+@pytest.mark.parametrize(
+    "option_class, driver_class",
+    [
+        (MagneticVectorInversionOptions, MagneticVectorInversionDriver),
+        (MagneticVectorPDEInversionOptions, MagneticVectorPDEInversionDriver),
+    ],
+)
+def test_joint_surveys_mvi_run(tmp_path, option_class, driver_class, anomaly=0.05):
     drivers = []
 
     with Workspace.create(tmp_path / f"{__name__}.geoh5") as geoh5:
         for ii in range(1, 3):
             opts = SyntheticsComponentsOptions(
                 method="magnetic_vector",
+                refine_plate=True,
                 survey=SurveyOptions(
                     n_stations=3**ii,
                     n_lines=3**ii,
                     drape=5.0,
                     name=f"Survey Driver[{ii}]",
                 ),
-                mesh=MeshOptions(refinement=(2**ii, 2, 2), name=f"Mesh Driver[{ii}]"),
+                mesh=MeshOptions(
+                    u_cell_size=20.0,
+                    v_cell_size=20.0,
+                    w_cell_size=20.0,
+                    survey_refinement=[2**ii, 2, 2],
+                    topography_refinement=[0, 0, 1],
+                    plate_refinement=[1],
+                    name=f"Mesh Driver[{ii}]",
+                ),
                 model=ModelOptions(anomaly=anomaly),
             )
             components = SyntheticsComponents(geoh5, options=opts)
@@ -246,7 +286,7 @@ def test_joint_surveys_mvi_run(tmp_path, anomaly=0.05):
             else:
                 inc_mod = None
 
-            params = MagneticVectorInversionOptions.build(
+            params = option_class.build(
                 geoh5=geoh5,
                 mesh=components.mesh,
                 topography_object=components.topography,
@@ -260,7 +300,7 @@ def test_joint_surveys_mvi_run(tmp_path, anomaly=0.05):
                 starting_inclination=inc_mod,
                 reference_model=0.0,
             )
-            drivers.append(MagneticVectorInversionDriver(params))
+            drivers.append(driver_class(params))
 
         # Run the inverse
         joint_params = JointSurveysOptions.build(
@@ -291,14 +331,27 @@ def test_joint_surveys_mvi_run(tmp_path, anomaly=0.05):
             == 3
         )
 
+        assert isinstance(
+            driver.regularization.objfcts[0], type(drivers[0].regularization.objfcts[0])
+        )
+
 
 def test_joint_surveys_conductivity_run(
     tmp_path,
 ):
     opts = SyntheticsComponentsOptions(
         method="direct-current",
+        refine_plate=True,
         survey=SurveyOptions(n_stations=4, n_lines=4, name="survey A"),
-        mesh=MeshOptions(refinement=(2, 2, 2), name="mesh A"),
+        mesh=MeshOptions(
+            u_cell_size=20.0,
+            v_cell_size=20.0,
+            w_cell_size=20.0,
+            survey_refinement=[2, 2, 2],
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+            name="mesh A",
+        ),
         model=ModelOptions(anomaly=0.1, background=0.01, name="model A"),
         active=SyntheticsActiveCellsOptions(name="active A"),
     )
@@ -352,8 +405,17 @@ def test_joint_surveys_tem_run(
 ):
     opts = SyntheticsComponentsOptions(
         method="airborne tdem",
+        refine_plate=True,
         survey=SurveyOptions(n_stations=4, n_lines=4, name="survey A"),
-        mesh=MeshOptions(refinement=(2, 2, 2), name="mesh A"),
+        mesh=MeshOptions(
+            u_cell_size=20.0,
+            v_cell_size=20.0,
+            w_cell_size=20.0,
+            survey_refinement=[2, 2, 2],
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+            name="mesh A",
+        ),
         model=ModelOptions(anomaly=0.1, background=0.01, name="model A"),
         active=SyntheticsActiveCellsOptions(name="active A"),
     )
@@ -364,7 +426,7 @@ def test_joint_surveys_tem_run(
         data = {}
         uncertainties = {}
         channels = {
-            "z": "dBzdt",
+            "vertical": "vertical",
         }
         survey = components.survey
         for cname in channels.values():
@@ -390,10 +452,10 @@ def test_joint_surveys_tem_run(
         data_kwargs = {}
         for chan in channels:
             data_kwargs[f"{chan}_channel"] = components.survey.fetch_property_group(
-                name=f"dB{chan}dt"
+                name="vertical"
             )
             data_kwargs[f"{chan}_uncertainty"] = components.survey.fetch_property_group(
-                name=f"dB{chan}dt uncertainties"
+                name="vertical uncertainties"
             )
 
         # Run the inverse
@@ -437,6 +499,7 @@ if __name__ == "__main__":
     test_joint_surveys_fwr_run(
         Path("./"),
         n_grid_points=20,
+        cell_size=(20.0, 20.0, 20.0),
         refinement=(4, 4),
     )
     test_joint_surveys_inv_run(

@@ -14,101 +14,14 @@ from typing import ClassVar
 
 from geoapps_utils.base import Options
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
-from geoh5py.objects import ObjectBase, Points, Surface
 from geoh5py.ui_json import InputFile
-from grid_apps.octree_creation.options import OctreeOptions
-from pydantic import BaseModel
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.electricals.direct_current.three_dimensions.options import (
-    DC3DForwardOptions,
-)
-from simpeg_drivers.electromagnetics.frequency_domain.options import (
-    FDEMForwardOptions,
-)
-from simpeg_drivers.electromagnetics.time_domain.options import (
-    TDEMForwardOptions,
-)
-from simpeg_drivers.natural_sources.apparent_conductivity.options import (
-    AppConForwardOptions,
-)
-from simpeg_drivers.natural_sources.magnetotellurics.options import (
-    MTForwardOptions,
-)
-from simpeg_drivers.natural_sources.tipper.options import TipperForwardOptions
 from simpeg_drivers.options import BaseForwardOptions
-from simpeg_drivers.potential_fields.gravity.options import GravityForwardOptions
-from simpeg_drivers.potential_fields.magnetic_vector import (
-    MagneticVectorForwardOptions,
-)
+from simpeg_drivers.utils.synthetics.meshes import MeshOptions
+from simpeg_drivers.utils.utils import driver_class_from_dict
 
 from .models.options import ModelOptions
-
-
-PARAM_MAP = {
-    "apparent conductivty": AppConForwardOptions,
-    "gravity": GravityForwardOptions,
-    "tdem": TDEMForwardOptions,
-    "fem": FDEMForwardOptions,
-    "magnetotellurics": MTForwardOptions,
-    "direct current 3d": DC3DForwardOptions,
-    "magnetic vector": MagneticVectorForwardOptions,
-    "tipper": TipperForwardOptions,
-}
-
-
-class MeshOptions(BaseModel):
-    """Core parameters for octree mesh creation."""
-
-    u_cell_size: float
-    v_cell_size: float
-    w_cell_size: float
-    padding_distance: float
-    depth_core: float
-    max_distance: float
-    minimum_level: int = 8
-    diagonal_balance: bool = False
-
-    def octree_params(
-        self, survey: ObjectBase, topography: Surface | Points, plates: list[Surface]
-    ):
-        refinements = [
-            {
-                "refinement_object": survey,
-                "levels": [4, 4, 4],
-                "horizon": False,
-            },
-            {
-                "refinement_object": topography,
-                "levels": [0, 2],
-                "horizon": True,
-                "distance": 1000.0,
-            },
-        ]
-        for plate in plates:
-            refinements.append(
-                {
-                    "refinement_object": plate,
-                    "levels": [2, 1],
-                    "horizon": False,
-                }
-            )
-
-        octree_params = OctreeOptions(
-            geoh5=survey.workspace,
-            objects=survey,
-            u_cell_size=self.u_cell_size,
-            v_cell_size=self.v_cell_size,
-            w_cell_size=self.w_cell_size,
-            horizontal_padding=self.padding_distance,
-            vertical_padding=self.padding_distance,
-            depth_core=self.depth_core,
-            max_distance=self.max_distance,
-            minimum_level=self.minimum_level,
-            diagonal_balance=self.diagonal_balance,
-            refinements=refinements,
-        )
-        return octree_params
 
 
 class PlateSimulationOptions(Options):
@@ -155,9 +68,6 @@ class PlateSimulationOptions(Options):
         if input_file.data is None:
             raise ValueError("Input file data must be set.")
 
-        if input_file.data["inversion_type"] in PARAM_MAP:
-            return PARAM_MAP[input_file.data["inversion_type"]].build(input_file.data)
+        driver = driver_class_from_dict(input_file.data)
 
-        raise NotImplementedError(
-            f"Unknown inversion type: {input_file.data['inversion_type']}"
-        )
+        return driver._params_class.build(input_file.data)  # pylint: disable=protected-access

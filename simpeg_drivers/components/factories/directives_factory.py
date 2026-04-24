@@ -189,7 +189,7 @@ class DirectivesFactory:
     def save_property_group(self):
         if (
             self._save_property_group is None
-            and self.params.inversion_type == "magnetic vector"
+            and "magnetic vector" in self.params.inversion_type
         ):
             self._save_property_group = directives.SavePropertyGroup(
                 self.driver.inversion_mesh.entity,
@@ -246,7 +246,8 @@ class DirectivesFactory:
         """"""
         if self._save_iteration_log_files is None and self.driver.logger:
             self._save_iteration_log_files = directives.SaveLogFilesGeoH5(
-                self.driver.out_group, self.driver.logger.start_date_time
+                self.driver.out_group,
+                f"{self.params.geoh5.h5file.stem}",
             )
         return self._save_iteration_log_files
 
@@ -287,7 +288,7 @@ class DirectivesFactory:
             nested_tiles = self.driver.get_nested_tiles()
             self._scale_misfits = directives.ScaleMisfitMultipliers(
                 self.params.geoh5.h5file.parent
-                / f"ChiFactors_{self.driver.logger.start_date_time}.log",
+                / f"{self.params.geoh5.h5file.stem}.chi",
                 nested_tiles,
                 target_chi=self.params.cooling_schedule.chi_factor,
             )
@@ -347,7 +348,10 @@ class DirectivesFactory:
     @property
     def vector_inversion_directive(self):
         """Directive to update vector model."""
-        if self._vector_inversion_directive is None and "vector" in self.factory_type:
+        if (
+            self._vector_inversion_directive is None
+            and self.factory_type == "magnetic vector"
+        ):
             reference_angles = (
                 getattr(self.driver.params.models, "reference_model", None) is not None,
                 getattr(self.driver.params.models, "reference_inclination", None)
@@ -359,6 +363,7 @@ class DirectivesFactory:
             self._vector_inversion_directive = directives.VectorInversion(
                 self.driver.data_misfit.objfcts,
                 self.driver.regularization,
+                inversion_type=self.factory_type,
                 chifact_target=self.driver.params.cooling_schedule.chi_factor * 2,
                 reference_angles=reference_angles,
             )
@@ -410,7 +415,7 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
             "transforms": [active_cells_map, inversion_object.permutation.T],
         }
 
-        if self.factory_type == "magnetic vector":
+        if "magnetic vector" in self.factory_type:
             kwargs["channels"] = ["amplitude", "inclination", "declination"]
             kwargs["transforms"] = [
                 cartesian2amplitude_dip_azimuth,
@@ -483,7 +488,7 @@ class SaveSensitivitiesGeoh5Factory(SaveGeoh5Factory):
             ],
         }
 
-        if self.factory_type == "magnetic vector":
+        if "magnetic vector" in self.factory_type:
             kwargs["channels"] = [None]
             kwargs["transforms"] = [
                 lambda x: x.reshape((-1, 3), order="F"),
@@ -555,7 +560,12 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
                 inversion_object=inversion_object, name=name, **kwargs
             )
 
-        elif self.factory_type in ["gravity", "magnetic scalar", "magnetic vector"]:
+        elif self.factory_type in [
+            "gravity",
+            "magnetic scalar",
+            "magnetic vector",
+            "magnetic vector pde",
+        ]:
             kwargs = self.assemble_data_keywords_potential_fields(
                 inversion_object=inversion_object,
                 name=name,

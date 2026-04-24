@@ -35,20 +35,29 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.007008809086007593, "phi_d": 1200, "phi_m": 2.59e-05}
+target_run = {"data_norm": 0.005219568872697125, "phi_d": 680, "phi_m": 1.01e-6}
 
 
 def test_ip_3d_fwr_run(
     tmp_path: Path,
     n_electrodes=4,
     n_lines=3,
+    cell_size=(20.0, 20.0, 20.0),
     refinement=(4, 6),
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="induced polarization 3d",
+        refine_plate=True,
         survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
-        mesh=MeshOptions(refinement=refinement),
+        mesh=MeshOptions(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=refinement,
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+        ),
         model=ModelOptions(background=1e-6, anomaly=1e-1),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
@@ -124,6 +133,7 @@ if __name__ == "__main__":
         Path("./"),
         n_electrodes=20,
         n_lines=5,
+        cell_size=(20.0, 20.0, 20.0),
         refinement=(4, 4),
     )
     test_ip_3d_run(

@@ -8,19 +8,23 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-from geoh5py.ui_json.forms import DataForm, FloatForm, ObjectForm, StringForm
-from geoh5py.ui_json.ui_json import BaseUIJson
-from pydantic import ConfigDict
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+from simpeg_drivers.driver import ForwardDriver
+
+from .options import MagneticVectorPDEForwardOptions
 
 
-class PlateMatchUIJson(BaseUIJson):
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+class MagneticVectorPDEForwardDriver(ForwardDriver):
+    """Magnetic Vector forward driver."""
 
-    survey: ObjectForm
-    data: DataForm
-    queries: ObjectForm
-    strike_angles: DataForm
-    max_distance: FloatForm
-    topography_object: ObjectForm
-    topography: DataForm
-    simulations: StringForm
+    _params_class = MagneticVectorPDEForwardOptions
+
+
+if __name__ == "__main__":
+    file = Path(sys.argv[1]).resolve()
+    MagneticVectorPDEForwardDriver.start_dask_run(file)

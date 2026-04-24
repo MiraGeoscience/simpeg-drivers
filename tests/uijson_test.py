@@ -16,6 +16,7 @@ from typing import ClassVar
 import numpy as np
 import pytest
 from geoapps_utils.driver.data import BaseData
+from geoapps_utils.run import load_ui_json_as_dict
 from geoh5py import Workspace
 from geoh5py.ui_json import InputFile
 from geoh5py.ui_json.annotations import Deprecated
@@ -23,7 +24,6 @@ from packaging.version import Version
 from pydantic import AliasChoices, Field
 
 import simpeg_drivers
-from simpeg_drivers.driver import from_input_file
 from simpeg_drivers.options import Deprecations, IRLSOptions
 from simpeg_drivers.uijson import SimPEGDriversUIJson
 from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
@@ -34,6 +34,7 @@ from simpeg_drivers.utils.synthetics.options import (
     SurveyOptions,
     SyntheticsComponentsOptions,
 )
+from simpeg_drivers.utils.utils import driver_class_from_dict
 
 
 logger = logging.getLogger(__name__)
@@ -346,7 +347,7 @@ def test_legacy_uijson(tmp_path: Path, caplog):
                     ifile.data[CHANNEL_NAME[inversion_type] + "_channel"] = channel
                     ifile.data[CHANNEL_NAME[inversion_type] + "_uncertainty"] = channel
 
-            driver = from_input_file(ifile.data)
+            driver = driver_class_from_dict(ifile.data)
 
             with caplog.at_level(logging.WARNING):
                 params = driver._params_class.build(ifile)  # pylint: disable=protected-access
@@ -357,3 +358,11 @@ def test_legacy_uijson(tmp_path: Path, caplog):
                     assert "The Batch2D classes will be deprecated" in caplog.text
 
             assert driver.models
+
+
+def test_driver_from_uijson():
+    path = Path(__file__).resolve().parent / "legacy/v0.2.1"
+
+    for file in path.glob("*.ui.json"):
+        input_file = load_ui_json_as_dict(file)
+        assert driver_class_from_dict(input_file)

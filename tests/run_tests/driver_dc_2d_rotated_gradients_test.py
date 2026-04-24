@@ -41,16 +41,19 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 10.37631617283848, "phi_d": 199000, "phi_m": 421}
+target_run = {"data_norm": 10.376299815232803, "phi_d": 198000, "phi_m": 421}
 
 
-def test_dc_rotated_2d_fwr_run(tmp_path: Path, n_electrodes=10, n_lines=3):
+def test_dc_rotated_2d_fwr_run(
+    tmp_path: Path, n_electrodes=10, n_lines=3, cell_size=(5.0, 5.0)
+):
     opts = SyntheticsComponentsOptions(
         method="direct current 2d",
+        refine_plate=True,
         survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
         mesh=DrapeModelOptions(
-            u_cell_size=5.0,
-            v_cell_size=5.0,
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
             depth_core=50.0,
             expansion_factor=1.1,
             vertical_padding=200.0,
@@ -63,7 +66,9 @@ def test_dc_rotated_2d_fwr_run(tmp_path: Path, n_electrodes=10, n_lines=3):
                 strike_length=1000.0,
                 dip_length=50.0,
                 width=20.0,
-                origin=(0.0, 0.0, 0.0),
+                easting=-17.678,
+                northing=0.0,
+                elevation=17.678,
                 direction=90,
                 dip=45,
             ),
@@ -160,7 +165,9 @@ def test_dc_rotated_gradient_2d_run(
 
 if __name__ == "__main__":
     # Full run
-    test_dc_rotated_2d_fwr_run(Path("./"), n_electrodes=20, n_lines=3)
+    test_dc_rotated_2d_fwr_run(
+        Path("./"), n_electrodes=20, n_lines=3, cell_size=(5.0, 5.0)
+    )
     test_dc_rotated_gradient_2d_run(
         Path("./"),
         max_iterations=20,

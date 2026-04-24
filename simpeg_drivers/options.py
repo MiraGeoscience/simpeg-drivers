@@ -18,7 +18,6 @@ from typing import Annotated, Any, ClassVar, Literal
 
 import numpy as np
 from geoapps_utils.base import Options
-from geoh5py import Workspace
 from geoh5py.data import (
     BooleanData,
     DataAssociationEnum,
@@ -184,7 +183,9 @@ class CoreOptions(Options):
     version: str = public_version()
     icon: str | None = None
     inversion_type: str
-    documentation: str | None = None
+    documentation: str | None = (
+        "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html"
+    )
     conda_environment: str = "simpeg_drivers"
     run_command: str = "simpeg_drivers.driver"
     mesh: Octree | Grid2D | DrapeModel | None = None
@@ -420,6 +421,7 @@ class DrapeModelOptions(BaseModel):
     horizontal_padding: float | None = 100.0
     vertical_padding: float | None = 100.0
     expansion_factor: float | None = 1.1
+    name: str = "mesh"
 
 
 class EMDataMixin:

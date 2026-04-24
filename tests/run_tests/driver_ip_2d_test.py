@@ -44,14 +44,16 @@ def test_ip_2d_fwr_run(
     tmp_path: Path,
     n_electrodes=10,
     n_lines=3,
+    cell_size=(5.0, 5.0),
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="induced polarization 2d",
+        refine_plate=True,
         survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
         mesh=DrapeModelOptions(
-            u_cell_size=5.0,
-            v_cell_size=5.0,
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
             depth_core=50.0,
             expansion_factor=1.1,
             vertical_padding=200.0,
@@ -64,7 +66,9 @@ def test_ip_2d_fwr_run(
                 strike_length=1000.0,
                 dip_length=50.0,
                 width=20.0,
-                origin=(0.0, 0.0, 0.0),
+                easting=-17.678,
+                northing=0.0,
+                elevation=17.678,
                 direction=90,
                 dip=45,
             ),
@@ -148,11 +152,7 @@ def test_ip_2d_run(
 
 if __name__ == "__main__":
     # Full run
-    test_ip_2d_fwr_run(
-        Path("./"),
-        n_electrodes=20,
-        n_lines=3,
-    )
+    test_ip_2d_fwr_run(Path("./"), n_electrodes=20, n_lines=3, cell_size=(5.0, 5.0))
     test_ip_2d_run(
         Path("./"),
         max_iterations=20,

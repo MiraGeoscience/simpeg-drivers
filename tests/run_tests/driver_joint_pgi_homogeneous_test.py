@@ -13,6 +13,8 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+import pytest
+from geoapps_utils import GeoAppsError
 from geoh5py.groups.property_group import GroupTypeEnum, PropertyGroup
 from geoh5py.objects import Octree, Points
 from geoh5py.workspace import Workspace
@@ -51,25 +53,35 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 429.8877292855237, "phi_d": 1020, "phi_m": 42100}
+target_run = {"data_norm": 438.9161113857895, "phi_d": 1450, "phi_m": 24.7}
 INDUCING_FIELD = (50000.0, 90.0, 0.0)
 
 
 def test_homogeneous_fwr_run(
     tmp_path: Path,
     n_grid_points=3,
+    cell_size=(20.0, 20.0, 20.0),
     refinement=(2,),
 ):
     # Create local problem A
     opts = SyntheticsComponentsOptions(
         method="gravity",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points,
             n_lines=n_grid_points,
             drape=15.0,
             name="survey A",
         ),
-        mesh=MeshOptions(refinement=refinement, name="mesh A"),
+        mesh=MeshOptions(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+            name="mesh A",
+        ),
         model=ModelOptions(anomaly=0.75, name="model A"),
         active=SyntheticsActiveCellsOptions(name="active A"),
     )
@@ -92,13 +104,22 @@ def test_homogeneous_fwr_run(
     with geoh5.open():
         opts = SyntheticsComponentsOptions(
             method="magnetic_vector",
+            refine_plate=True,
             survey=SurveyOptions(
                 n_stations=n_grid_points,
                 n_lines=n_grid_points,
                 drape=15.0,
                 name="survey B",
             ),
-            mesh=MeshOptions(refinement=refinement, name="mesh B"),
+            mesh=MeshOptions(
+                u_cell_size=cell_size[0],
+                v_cell_size=cell_size[1],
+                w_cell_size=cell_size[2],
+                survey_refinement=list(refinement),
+                topography_refinement=[0, 0, 1],
+                plate_refinement=[1],
+                name="mesh B",
+            ),
             model=ModelOptions(anomaly=0.05, name="model B"),
             active=SyntheticsActiveCellsOptions(name="active B"),
         )
@@ -126,10 +147,10 @@ def test_homogeneous_fwr_run(
 def test_homogeneous_run(
     tmp_path: Path,
     max_iterations=1,
-    pytest=True,
+    use_pytest=True,
 ):
     workpath = tmp_path / "inversion_test.ui.geoh5"
-    if pytest:
+    if use_pytest:
         workpath = (
             tmp_path.parent / "test_homogeneous_fwr_run0" / "inversion_test.ui.geoh5"
         )
@@ -198,7 +219,13 @@ def test_homogeneous_run(
                     starting_model=ref_model,
                     reference_model=ref_model,
                 )
-                drivers.append(GravityInversionDriver(params))
+                driver = GravityInversionDriver(params)
+
+                # Remove inversion type as per current json on file
+                options = driver.out_group.options
+                options.pop("inversion_type", None)
+                driver.out_group.options = options
+                drivers.append(driver)
             else:
                 params = MagneticInversionOptions.build(
                     geoh5=geoh5,
@@ -209,27 +236,28 @@ def test_homogeneous_run(
                     inducing_field_declination=INDUCING_FIELD[2],
                     data_object=survey,
                     starting_model=ref_model,
-                    reference_model=ref_model,
+                    reference_model=None,
                     tile_spatial=1,
                     tmi_channel=data,
                     tmi_uncertainty=5e0,
                 )
                 drivers.append(MagneticInversionDriver(params))
 
-        # Test if single group is valid
-        params = JointPetrophysicsOptions.build(
-            topography_object=topography,
-            geoh5=geoh5,
-            group_a=drivers[0].out_group,
-            mesh=global_mesh,
-            petrophysical_model=petrophysics,
-        )
-        driver = JointPetrophysicsDriver(params)
-        assert len(driver.data_misfit.objfcts) == 1
-        assert driver.data_misfit.multipliers == [1.0]
+            if len(drivers) == 1:
+                # Test if single group is valid
+                params = JointPetrophysicsOptions.build(
+                    topography_object=topography,
+                    geoh5=geoh5,
+                    group_a=drivers[0].out_group,
+                    mesh=global_mesh,
+                    petrophysical_model=petrophysics,
+                )
+                driver = JointPetrophysicsDriver(params)
+                assert len(driver.data_misfit.objfcts) == 1
+                assert driver.data_misfit.multipliers == [1.0]
 
         # Re-build full
-        params = JointPetrophysicsOptions.build(
+        joint_params = JointPetrophysicsOptions.build(
             topography_object=topography,
             geoh5=geoh5,
             group_a=drivers[0].out_group,
@@ -245,10 +273,22 @@ def test_homogeneous_run(
             initial_beta_ratio=1e2,
             max_global_iterations=max_iterations,
         )
-        driver = JointPetrophysicsDriver(params)
+        driver = JointPetrophysicsDriver(joint_params)
+
+        with pytest.raises(
+            GeoAppsError, match="A reference model must be set and active on each"
+        ):
+            _ = driver.means
+
+        # Re-instate
+        params.models.reference_model = ref_model
+        params.out_group = None
+        new_driver = MagneticInversionDriver(params)
+        joint_params.group_b = new_driver.out_group
+        driver = JointPetrophysicsDriver(joint_params)
         driver.run()
 
-    if pytest:
+    if use_pytest:
         with Workspace(driver.params.geoh5.h5file) as run_ws:
             output = get_inversion_output(
                 driver.params.geoh5.h5file, driver.out_group.uid
@@ -259,7 +299,7 @@ def test_homogeneous_run(
             out_group = run_ws.get_entity(driver.out_group.uid)[0]
             mesh = out_group.get_entity("mesh A")[0]
             petro_model = mesh.get_entity("petrophysical_model")[0]
-            assert len(np.unique(petro_model.values)) == 5
+            assert len(np.unique(petro_model.values)) == 4
 
 
 if __name__ == "__main__":
@@ -267,11 +307,12 @@ if __name__ == "__main__":
     test_homogeneous_fwr_run(
         Path("./"),
         n_grid_points=20,
+        cell_size=(20.0, 20.0, 20.0),
         refinement=(4, 4),
     )
 
     test_homogeneous_run(
         Path("./"),
         max_iterations=20,
-        pytest=False,
+        use_pytest=False,
     )

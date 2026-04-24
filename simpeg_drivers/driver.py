@@ -14,10 +14,7 @@
 from __future__ import annotations
 
 from abc import abstractmethod, ABC
-import cProfile
-import pstats
 
-import contextlib
 from copy import deepcopy
 import sys
 from datetime import datetime, timedelta
@@ -26,7 +23,7 @@ from pathlib import Path
 from time import time
 
 import numpy as np
-from dask.distributed import get_client, Client, LocalCluster, performance_report
+from dask.distributed import get_client, Client
 
 from geoapps_utils.base import Driver, Options
 from geoapps_utils.run import load_ui_json_as_dict
@@ -37,7 +34,6 @@ from geoh5py.objects import FEMSurvey
 from geoh5py.shared.utils import fetch_active_workspace
 
 from simpeg import (
-    dask,
     directives,
     inverse_problem,
     inversion,
@@ -55,7 +51,7 @@ from simpeg.regularization import (
     SparseSmoothness,
 )
 
-from simpeg_drivers import DRIVER_MAP, __version__
+from simpeg_drivers import __version__
 from simpeg_drivers.components import (
     InversionData,
     InversionMesh,
@@ -74,7 +70,11 @@ from simpeg_drivers.options import (
 from simpeg_drivers.joint.options import BaseJointOptions
 from simpeg_drivers.utils.nested import tile_locations
 from simpeg_drivers.utils.regularization import cell_neighbors, set_rotated_operators
-from simpeg_drivers.utils.utils import validate_out_group
+from simpeg_drivers.utils.utils import (
+    validate_out_group,
+    start_dask_run,
+    driver_class_from_dict,
+)
 
 mlogger = logging.getLogger("distributed")
 mlogger.setLevel(logging.WARNING)
@@ -291,30 +291,6 @@ class BaseDriver(Driver, ABC):
 
         return self._mapping
 
-    @property
-    def models(self):
-        """Inversion models"""
-        if getattr(self, "_models", None) is None:
-            with fetch_active_workspace(self.workspace, mode="r+"):
-                self._models = InversionModelCollection(self)
-
-        return self._models
-
-    @property
-    def n_blocks(self):
-        """
-        Number of model components in the inversion.
-        """
-        return 3 if self.params.inversion_type == "magnetic vector" else 1
-
-    @property
-    def n_values(self):
-        """Number of values in the model"""
-        if self._n_values is None:
-            self._n_values = self.models.n_active
-
-        return self._n_values
-
     @mapping.setter
     def mapping(self, value: maps.IdentityMap | list[maps.IdentityMap]):
         if not isinstance(value, list):
@@ -330,6 +306,30 @@ class BaseDriver(Driver, ABC):
             )
 
         self._mapping = value
+
+    @property
+    def models(self):
+        """Inversion models"""
+        if getattr(self, "_models", None) is None:
+            with fetch_active_workspace(self.workspace, mode="r+"):
+                self._models = InversionModelCollection(self)
+
+        return self._models
+
+    @property
+    def n_blocks(self):
+        """
+        Number of model components in the inversion.
+        """
+        return 3 if "magnetic vector" in self.params.inversion_type else 1
+
+    @property
+    def n_values(self):
+        """Number of values in the model"""
+        if self._n_values is None:
+            self._n_values = self.models.n_active
+
+        return self._n_values
 
     def split_list(self, tiles: list[np.ndarray]) -> list[list[np.ndarray]]:
         """
@@ -500,47 +500,7 @@ class BaseDriver(Driver, ABC):
         :param n_workers: Number of workers to use.
         :param n_threads: Number of threads to use.
         """
-        ui_json = load_ui_json_as_dict(json_path)
-
-        n_workers = ui_json.get("n_workers", n_workers)
-        n_threads = ui_json.get("n_threads", n_threads)
-        save_report = ui_json.get("performance_report", False)
-
-        if (n_workers is not None and n_workers > 1) or n_threads is not None:
-            cluster = LocalCluster(
-                processes=True,
-                n_workers=n_workers,
-                threads_per_worker=n_threads,
-            )
-        else:
-            cluster = None
-
-        profiler = cProfile.Profile()
-        profiler.enable()
-
-        with (
-            cluster.get_client()
-            if cluster is not None
-            else contextlib.nullcontext() as context_client
-        ):
-            # Full run
-            with (
-                performance_report(filename=json_path.parent / "dask_profile.html")
-                if (save_report and isinstance(context_client, Client))
-                else contextlib.nullcontext()
-            ):
-                cls.start(json_path)
-                sys.stdout.close()
-
-        profiler.disable()
-
-        if save_report:
-            with open(
-                json_path.parent / "runtime_profile.txt", encoding="utf-8", mode="w"
-            ) as s:
-                ps = pstats.Stats(profiler, stream=s)
-                ps.sort_stats("cumulative")
-                ps.print_stats()
+        start_dask_run(cls, json_path, n_workers=n_workers, n_threads=n_threads)
 
     @property
     def workers(self) -> list[tuple[str]]:
@@ -613,13 +573,109 @@ class InversionDriver(BaseDriver):
 
         return finite_data_count, total_data_count
 
+    def get_modified_regularization(
+        self,
+        reg_func,
+        mapping,
+        is_rotated: bool,
+        forward_mesh: RegularizationMesh | None,
+        backward_mesh: RegularizationMesh | None,
+    ):
+        """
+        Modify the regularization function with rotated operators.
+
+        :param reg_func: Regularization function.
+        :param mapping: Mapping.
+        :param is_rotated: Whether the regularization function is rotated or not.
+        :param forward_mesh: Forward mesh object.
+        :param backward_mesh: Backward mesh object.
+        """
+        neighbors = None
+        if is_rotated and not (backward_mesh or forward_mesh):
+            backward_mesh = RegularizationMesh(
+                self.inversion_mesh.mesh, active_cells=self.models.active_cells
+            )
+            neighbors = cell_neighbors(reg_func.regularization_mesh.mesh)
+
+        # Adjustment for 2D versus 3D problems
+        components = (
+            "sxz"
+            if (
+                "2d" in self.params.inversion_type or "1d" in self.params.inversion_type
+            )
+            else "sxyz"
+        )
+        weight_names = ["alpha_s"] + [f"length_scale_{k}" for k in components[1:]]
+        functions = []
+        for comp, weight_name, fun in zip(components, weight_names, reg_func.objfcts):
+            if getattr(self.models, weight_name) is None:
+                setattr(reg_func, weight_name, 0.0)
+                functions.append(fun)
+                continue
+
+            weight = mapping * getattr(self.models, weight_name)
+            norm = getattr(self.models, f"{comp}_norm")
+            if norm is not None:
+                norm = mapping * norm
+
+            if not isinstance(fun, SparseSmoothness):
+                fun.set_weights(**{comp: weight})
+                fun.norm = norm
+                functions.append(fun)
+                continue
+
+            if is_rotated and not forward_mesh:
+                fun = set_rotated_operators(
+                    fun,
+                    neighbors,
+                    comp,
+                    self.models.gradient_dip,
+                    self.models.gradient_direction,
+                )
+
+            average_op = getattr(
+                reg_func.regularization_mesh,
+                f"aveCC2F{fun.orientation}",
+            )
+            fun.set_weights(**{comp: average_op @ weight})
+
+            if norm is not None:
+                fun.norm = np.round(average_op @ norm, decimals=3)
+            functions.append(fun)
+
+            if is_rotated:
+                fun.gradient_type = "components"
+                backward_fun = deepcopy(fun)
+                setattr(backward_fun, "_regularization_mesh", backward_mesh)
+
+                # Only do it once for MVI
+                if not forward_mesh:
+                    backward_fun = set_rotated_operators(
+                        backward_fun,
+                        neighbors,
+                        comp,
+                        self.models.gradient_dip,
+                        self.models.gradient_direction,
+                        forward=False,
+                    )
+                average_op = getattr(
+                    backward_fun.regularization_mesh,
+                    f"aveCC2F{fun.orientation}",
+                )
+                backward_fun.set_weights(**{comp: average_op @ weight})
+
+                if norm is not None:
+                    backward_fun.norm = np.round(average_op @ norm, decimals=3)
+                functions.append(backward_fun)
+
+        return functions
+
     def get_regularization(self):
         if self.params.forward_only:
             return BaseRegularization(mesh=self.inversion_mesh.mesh)
 
         reg_funcs = []
         is_rotated = self.params.models.gradient_rotation is not None
-        neighbors = None
         backward_mesh = None
         forward_mesh = None
         for mapping in self.mapping:
@@ -630,83 +686,13 @@ class InversionDriver(BaseDriver):
                 reference_model=self.models.reference_model,
             )
 
-            if is_rotated and neighbors is None:
-                backward_mesh = RegularizationMesh(
-                    self.inversion_mesh.mesh, active_cells=self.models.active_cells
-                )
-                neighbors = cell_neighbors(reg_func.regularization_mesh.mesh)
-
-            # Adjustment for 2D versus 3D problems
-            components = (
-                "sxz"
-                if (
-                    "2d" in self.params.inversion_type
-                    or "1d" in self.params.inversion_type
-                )
-                else "sxyz"
+            functions = self.get_modified_regularization(
+                reg_func, mapping, is_rotated, forward_mesh, backward_mesh
             )
-            weight_names = ["alpha_s"] + [f"length_scale_{k}" for k in components[1:]]
-            functions = []
-            for comp, weight_name, fun in zip(
-                components, weight_names, reg_func.objfcts
-            ):
-                if getattr(self.models, weight_name) is None:
-                    setattr(reg_func, weight_name, 0.0)
-                    functions.append(fun)
-                    continue
-
-                weight = mapping * getattr(self.models, weight_name)
-                norm = mapping * getattr(self.models, f"{comp}_norm")
-
-                if not isinstance(fun, SparseSmoothness):
-                    fun.set_weights(**{comp: weight})
-                    fun.norm = norm
-                    functions.append(fun)
-                    continue
-
-                if is_rotated:
-                    if forward_mesh is None:
-                        fun = set_rotated_operators(
-                            fun,
-                            neighbors,
-                            comp,
-                            self.models.gradient_dip,
-                            self.models.gradient_direction,
-                        )
-
-                average_op = getattr(
-                    reg_func.regularization_mesh,
-                    f"aveCC2F{fun.orientation}",
-                )
-                fun.set_weights(**{comp: average_op @ weight})
-                fun.norm = np.round(average_op @ norm, decimals=3)
-                functions.append(fun)
-
-                if is_rotated:
-                    fun.gradient_type = "components"
-                    backward_fun = deepcopy(fun)
-                    setattr(backward_fun, "_regularization_mesh", backward_mesh)
-
-                    # Only do it once for MVI
-                    if not forward_mesh:
-                        backward_fun = set_rotated_operators(
-                            backward_fun,
-                            neighbors,
-                            comp,
-                            self.models.gradient_dip,
-                            self.models.gradient_direction,
-                            forward=False,
-                        )
-                    average_op = getattr(
-                        backward_fun.regularization_mesh,
-                        f"aveCC2F{fun.orientation}",
-                    )
-                    backward_fun.set_weights(**{comp: average_op @ weight})
-                    backward_fun.norm = np.round(average_op @ norm, decimals=3)
-                    functions.append(backward_fun)
 
             # Will avoid recomputing operators if the regularization mesh is the same
-            forward_mesh = reg_func.regularization_mesh
+            forward_mesh = functions[0].regularization_mesh
+            backward_mesh = functions[-1].regularization_mesh
             reg_func.objfcts = functions
             reg_func.norms = [fun.norm for fun in functions]
             reg_funcs.append(reg_func)
@@ -800,8 +786,11 @@ class InversionLogger:
         self.terminal = sys.stdout
 
         self.initial_time = time()
-        self.start_date_time = datetime.now().strftime("%Y%m%d_%Hh%Mm%Ss")
-        self.logfile = self.get_path(f"SimPEG_{self.start_date_time}.log")
+        self.start_date_time = datetime.now().strftime("%Y/%m/%d %Hh:%Mm:%Ss")
+        self.logfile = (
+            Path(self.driver.workspace.h5file).parent
+            / f"{self.driver.workspace.h5file.stem}.log"
+        )
 
     def start(self):
         self.write(
@@ -825,49 +814,6 @@ class InversionLogger:
 
     def flush(self):
         pass
-
-    def get_path(self, filepath: str | Path) -> str:
-        root_directory = Path(self.driver.workspace.h5file).parent
-        return str(root_directory / filepath)
-
-
-def driver_class_from_name(
-    name: str, forward_only: bool = False
-) -> type[InversionDriver]:
-    """
-    Get the driver class from the inversion type name.
-
-    TODO: Only for backward compatibility. To be deprecated in future versions.
-
-    :param name: The inversion type name.
-    :param forward_only: Whether to forward only the forward operators.
-
-    :return: InversionDriver or ForwardDriver class.
-    """
-    if name not in DRIVER_MAP:
-        msg = f"Inversion type '{name}' is not supported."
-        msg += f" Valid inversions are: {(*list(DRIVER_MAP),)}."
-        raise NotImplementedError(msg)
-
-    mod_name, classes = DRIVER_MAP.get(name)
-    class_name = classes.get("inversion")
-    if forward_only:
-        class_name = classes.get("forward", class_name)
-
-    module = __import__(mod_name, fromlist=[class_name])
-    return getattr(module, class_name)
-
-
-def from_input_file(data: dict) -> type[InversionDriver]:
-    forward_only = data.get("forward_only", False)
-    inversion_type = data.get("inversion_type", "")
-    if inversion_type is None:
-        raise GeoAppsError(
-            "Key/value 'inversion_type' not found in the input file. "
-            "Please specify the inversion type in the UI JSON."
-        )
-
-    return driver_class_from_name(inversion_type, forward_only=forward_only)
 
 
 def validate_client(client: Client | bool | None) -> Client | bool:
@@ -913,6 +859,6 @@ if __name__ == "__main__":
     # TODO - Deprecate in favor of run_command to direct module
     # Need to know the driver class before starting dask
     input_file = load_ui_json_as_dict(file)
-    driver_class = from_input_file(input_file)
+    driver_class = driver_class_from_dict(input_file)
 
     driver_class.start_dask_run(file)

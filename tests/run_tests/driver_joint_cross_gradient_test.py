@@ -8,9 +8,11 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
+import logging
 from pathlib import Path
 
 import numpy as np
+from geoh5py.groups import GroupTypeEnum, PropertyGroup
 from geoh5py.objects import CurrentElectrode, Octree, Points
 from geoh5py.workspace import Workspace
 
@@ -34,6 +36,10 @@ from simpeg_drivers.potential_fields.magnetic_vector import (
     MagneticVectorInversionDriver,
     MagneticVectorInversionOptions,
 )
+from simpeg_drivers.potential_fields.magnetic_vector_pde import (
+    MagneticVectorPDEInversionDriver,
+    MagneticVectorPDEInversionOptions,
+)
 from simpeg_drivers.utils.synthetics.driver import (
     SyntheticsComponents,
 )
@@ -52,7 +58,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 53.295822303985325, "phi_d": 646, "phi_m": 1.84}
+target_run = {"data_norm": 53.31483800448377, "phi_d": 558, "phi_m": 0.0574}
 INDUCING_FIELD = (50000.0, 90.0, 0.0)
 
 
@@ -60,15 +66,25 @@ def test_joint_cross_gradient_fwr_run(
     tmp_path,
     n_grid_points=4,
     n_lines=3,
+    cell_size=(20.0, 20.0, 20.0),
     refinement=(2,),
 ):
     # Create local problem A
     opts = SyntheticsComponentsOptions(
         method="gravity",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points, n_lines=n_grid_points, drape=15.0, name="survey A"
         ),
-        mesh=MeshOptions(refinement=refinement, name="mesh A"),
+        mesh=MeshOptions(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+            name="mesh A",
+        ),
         model=ModelOptions(anomaly=0.75, name="model A"),
         active=SyntheticsActiveCellsOptions(name="active A"),
     )
@@ -86,13 +102,22 @@ def test_joint_cross_gradient_fwr_run(
     with geoh5.open():
         opts = SyntheticsComponentsOptions(
             method="magnetic_vector",
+            refine_plate=True,
             survey=SurveyOptions(
                 n_stations=n_grid_points,
                 n_lines=n_grid_points,
                 drape=15.0,
                 name="survey B",
             ),
-            mesh=MeshOptions(refinement=refinement, name="mesh B"),
+            mesh=MeshOptions(
+                u_cell_size=cell_size[0],
+                v_cell_size=cell_size[1],
+                w_cell_size=cell_size[2],
+                survey_refinement=list(refinement),
+                topography_refinement=[0, 0, 1],
+                plate_refinement=[1],
+                name="mesh B",
+            ),
             model=ModelOptions(anomaly=0.05, name="model B"),
             active=SyntheticsActiveCellsOptions(name="active B"),
         )
@@ -112,10 +137,19 @@ def test_joint_cross_gradient_fwr_run(
     with geoh5.open():
         opts = SyntheticsComponentsOptions(
             method="direct current 3d",
+            refine_plate=True,
             survey=SurveyOptions(
                 n_stations=n_grid_points, n_lines=n_lines, name="survey C"
             ),
-            mesh=MeshOptions(refinement=refinement, name="mesh C"),
+            mesh=MeshOptions(
+                u_cell_size=cell_size[0],
+                v_cell_size=cell_size[1],
+                w_cell_size=cell_size[2],
+                survey_refinement=list(refinement),
+                topography_refinement=[0, 0, 1],
+                plate_refinement=[1],
+                name="mesh C",
+            ),
             model=ModelOptions(background=0.01, anomaly=10, name="model C"),
             active=SyntheticsActiveCellsOptions(name="active C"),
         )
@@ -262,10 +296,6 @@ def test_joint_cross_gradient_inv_run(
             cross_gradient_weight_a_b=1e0,
             cross_gradient_weight_c_a=1e0,
             cross_gradient_weight_c_b=1e0,
-            s_norm=0.0,
-            x_norm=0.0,
-            y_norm=0.0,
-            z_norm=0.0,
             percentile=100,
         )
 
@@ -278,18 +308,20 @@ def test_joint_cross_gradient_inv_run(
 
     driver.run()
 
+    if not pytest:
+        return
     # Mix of scaling on misfits and tiles.
     # Expecting that gravity tiles are independently scaled, but MagneticVector tiles take
     # the scaling from its total misfit.
     np.testing.assert_allclose(
         driver.directives.scale_misfits.scalings,
-        [0.52747, 0.5, 0.5, 0.5, 1.0],
+        [1, 0.7558, 0.5, 0.5, 0.6710],
         atol=1e-3,
     )
     # Check that scaling * chi factor is reflected in data misfit multipliers
     np.testing.assert_allclose(
         driver.data_misfit.multipliers,
-        [0.421978, 0.4, 0.5, 0.5, 1.0],
+        [0.8, 0.6046, 0.5, 0.5, 0.6710],
         atol=1e-3,
     )
 
@@ -303,12 +335,144 @@ def test_joint_cross_gradient_inv_run(
             check_target(output, target_run)
 
 
+def test_joint_cross_gradient_rotated_run(
+    tmp_path,
+    caplog,
+    max_iterations=1,
+    pytest=True,
+):
+    workpath = tmp_path / "inversion_test.ui.geoh5"
+    if pytest:
+        workpath = (
+            tmp_path.parent
+            / "test_joint_cross_gradient_fwr_0"
+            / "inversion_test.ui.geoh5"
+        )
+
+    with Workspace(workpath) as geoh5:
+        topography = geoh5.get_entity("topography")[0]
+        drivers = []
+        orig_data = []
+        origin = None
+        for name in [
+            "Direct Current 3D Forward",
+            "Magnetic Vector Forward",
+        ]:
+            group = geoh5.get_entity(name)[0]
+            mesh = next(child for child in group.children if isinstance(child, Octree))
+            survey = next(
+                child
+                for child in group.children
+                if isinstance(child, Points) and not isinstance(child, CurrentElectrode)
+            )
+
+            if origin is None:
+                origin = mesh.origin
+            else:
+                mesh.origin = origin
+
+            dip, direction = mesh.add_data(
+                {
+                    "dip": {"values": np.full(mesh.n_cells, 45.0)},
+                    "direction": {"values": np.full(mesh.n_cells, 90.0)},
+                }
+            )
+            gradient_rotation = PropertyGroup(
+                name="gradient_rotations",
+                property_group_type=GroupTypeEnum.DIPDIR,
+                properties=[direction, dip],
+                parent=mesh,
+            )
+
+            data = next(k for k in survey.children if "Iteration_0" in k.name)
+            orig_data.append(data.values)
+
+            if name == "Direct Current 3D Forward":
+                uncertainties = survey.add_data(
+                    {
+                        "Uncertainties": {
+                            "values": np.abs(data.values) * 0.05 + 1e-4,
+                        }
+                    }
+                )
+                params = DC3DInversionOptions.build(
+                    geoh5=geoh5,
+                    mesh=mesh,
+                    alpha_s=1.0,
+                    topography_object=topography,
+                    data_object=survey,
+                    potential_channel=data,
+                    model_type="Resistivity (Ohm-m)",
+                    potential_uncertainty=uncertainties,
+                    tile_spatial=1,
+                    starting_model=100.0,
+                    reference_model=100.0,
+                    gradient_rotation=gradient_rotation,
+                    save_sensitivities=True,
+                    solver_type="Mumps",
+                )
+                drivers.append(DC3DInversionDriver(params))
+            else:
+                params = MagneticVectorPDEInversionOptions.build(
+                    geoh5=geoh5,
+                    mesh=mesh,
+                    alpha_s=1.0,
+                    topography_object=topography,
+                    inducing_field_strength=INDUCING_FIELD[0],
+                    inducing_field_inclination=INDUCING_FIELD[1],
+                    inducing_field_declination=INDUCING_FIELD[2],
+                    data_object=survey,
+                    starting_model=1e-4,
+                    reference_model=0.0,
+                    tmi_channel=data,
+                    tmi_uncertainty=1e1,
+                    tile_spatial=2,
+                    auto_scale_tiles=False,
+                )
+                drivers.append(MagneticVectorPDEInversionDriver(params))
+
+        # Run the inverse
+        joint_params = JointCrossGradientOptions.build(
+            geoh5=geoh5,
+            topography_object=topography,
+            group_a=drivers[0].out_group,
+            group_a_multiplier=1.0,
+            group_b=drivers[1].out_group,
+            group_b_multiplier=1.0,
+        )
+
+    with caplog.at_level(logging.WARNING):
+        _ = JointCrossGradientDriver(joint_params)
+
+    assert "Some drivers do not have a model" in caplog.text
+
+    # Add gradient rotation to the mvi driver and check it is used
+    params.models.gradient_rotation = gradient_rotation
+    params.out_group = None
+    drivers[-1] = MagneticVectorPDEInversionDriver(params)
+    # Run the inverse
+    joint_params = JointCrossGradientOptions.build(
+        geoh5=geoh5,
+        topography_object=topography,
+        group_a=drivers[0].out_group,
+        group_a_multiplier=1.0,
+        group_b=drivers[1].out_group,
+        group_b_multiplier=1.0,
+        max_global_iterations=max_iterations,
+    )
+    joint_driver = JointCrossGradientDriver(joint_params)
+    assert joint_driver.models.gradient_dip is not None
+
+    joint_driver.run()
+
+
 if __name__ == "__main__":
     # Full run
     test_joint_cross_gradient_fwr_run(
         Path("./"),
         n_grid_points=16,
         n_lines=5,
+        cell_size=(10.0, 10.0, 10.0),
         refinement=(4, 4),
     )
     test_joint_cross_gradient_inv_run(
