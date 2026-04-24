@@ -15,6 +15,7 @@ import numpy as np
 from geoh5py.groups import GroupTypeEnum, PropertyGroup
 from geoh5py.objects import CurrentElectrode, Octree, Points
 from geoh5py.workspace import Workspace
+from simpeg.directives import UpdateIRLS
 
 from simpeg_drivers.electricals.direct_current.three_dimensions import (
     DC3DForwardDriver,
@@ -301,13 +302,15 @@ def test_joint_cross_gradient_inv_run(
         )
     file = joint_params.write_ui_json(tmp_path / "Joint_Inv_run.ui.json")
     driver = JointCrossGradientDriver.start(file)
-
-    # Check that chi factors set on the sub drivers are preserved forward
-    np.testing.assert_allclose(
-        driver.data_misfit.multipliers, [0.8, 0.8, 1.0, 1.0, 1.0], atol=1e-3
-    )
-
     driver.run()
+
+    # Check that the norm applied to the sub-driver is maintained
+    irls_directive = next(
+        directive
+        for directive in driver.directives
+        if isinstance(directive, UpdateIRLS)
+    )
+    np.testing.assert_almost_equal(irls_directive.metrics.input_norms[0][1], 1.1)
 
     if not pytest:
         return
