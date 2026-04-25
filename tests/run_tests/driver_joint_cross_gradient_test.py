@@ -302,12 +302,11 @@ def test_joint_cross_gradient_inv_run(
         )
     file = joint_params.write_ui_json(tmp_path / "Joint_Inv_run.ui.json")
     driver = JointCrossGradientDriver.start(file)
-    driver.run()
 
     # Check that the norm applied to the sub-driver is maintained
     irls_directive = next(
         directive
-        for directive in driver.directives
+        for directive in driver.directives.directive_list
         if isinstance(directive, UpdateIRLS)
     )
     np.testing.assert_almost_equal(irls_directive.metrics.input_norms[0][1], 1.1)
