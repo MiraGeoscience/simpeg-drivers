@@ -298,6 +298,7 @@ def test_joint_cross_gradient_inv_run(
             cross_gradient_weight_a_b=1e0,
             cross_gradient_weight_c_a=1e0,
             cross_gradient_weight_c_b=1e0,
+            sens_wts_threshold=1.0,
             percentile=100,
         )
     file = joint_params.write_ui_json(tmp_path / "Joint_Inv_run.ui.json")
