@@ -17,12 +17,8 @@ from typing import ClassVar
 from geoh5py.data import FloatData
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.electricals.base_2d import Base2DOptions
-from simpeg_drivers.options import (
-    BaseForwardOptions,
-    BaseInversionOptions,
-    ConductivityModelOptions,
-)
+from simpeg_drivers.electricals.base_2d import Base2DOptions, Conductivity2DModelOptions
+from simpeg_drivers.options import BaseForwardOptions, BaseInversionOptions
 
 
 class DC2DForwardOptions(BaseForwardOptions, Base2DOptions):
@@ -43,7 +39,7 @@ class DC2DForwardOptions(BaseForwardOptions, Base2DOptions):
     inversion_type: str = "direct current 2d"
 
     potential_channel_bool: bool = True
-    models: ConductivityModelOptions
+    models: Conductivity2DModelOptions
 
 
 class DC2DInversionOptions(BaseInversionOptions, Base2DOptions):
@@ -67,4 +63,4 @@ class DC2DInversionOptions(BaseInversionOptions, Base2DOptions):
 
     potential_channel: FloatData
     potential_uncertainty: float | FloatData | None = None
-    models: ConductivityModelOptions
+    models: Conductivity2DModelOptions
