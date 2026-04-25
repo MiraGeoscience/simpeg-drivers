@@ -34,7 +34,7 @@
             "<dt>Wire</dt><dd>Current * number of turns (NI).</dd>",
             "</dl>"
         ],
-        "value": "dB/dt (T/s)"
+        "value": "Airborne dB/dt (V/Am^4)"
     },
     "z_channel_bool": {
         "group": "Survey",
