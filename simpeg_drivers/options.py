@@ -30,7 +30,7 @@ from geoh5py.data import (
 from geoh5py.groups import PropertyGroup, SimPEGGroup, UIJsonGroup
 from geoh5py.objects import DrapeModel, Grid2D, Octree, Points
 from geoh5py.objects.surveys.electromagnetics.base import BaseEMSurvey
-from geoh5py.ui_json import BaseUIJson, InputFile
+from geoh5py.ui_json import BaseUIJson
 from pydantic import (
     AliasChoices,
     BaseModel,
@@ -235,11 +235,6 @@ class CoreOptions(Options):
             return 100
 
         return 4 if self.inversion_type in ["fdem", "tdem"] else 6
-
-    def _create_input_file_from_attributes(self) -> InputFile:
-        ifile = super()._create_input_file_from_attributes()
-        ifile.set_data_value("version", public_version())
-        return ifile
 
     def write_ui_json(self, path: Path) -> Path:
         """

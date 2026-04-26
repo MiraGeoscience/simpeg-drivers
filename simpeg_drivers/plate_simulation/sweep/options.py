@@ -14,9 +14,10 @@ from typing import ClassVar
 
 import numpy as np
 from geoapps_utils.base import Options
+from geoh5py import Workspace
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
-from geoh5py.shared.utils import stringify
-from geoh5py.ui_json import InputFile
+from geoh5py.shared.utils import fetch_active_workspace, stringify
+from geoh5py.ui_json import BaseUIJson
 from pydantic import BaseModel, ConfigDict, field_serializer, field_validator
 
 from simpeg_drivers import assets_path
@@ -143,26 +144,34 @@ class SweepOptions(Options):
         return trials
 
     @staticmethod
-    def all_hashable_options(options: dict) -> dict:
-        """Recurses through UIJson options to return flat dictionary of all key/values."""
+    def all_hashable_options(options: dict, workspace: Workspace) -> dict:
+        """
+        Recurses through UIJson options to return flat dictionary of all key/values.
 
-        # TODO: Use the base UIJson to read options and flatten instead of
-        #  InputFile.  Requires GEOPY-1875.
+        :param options: Options dictionary
+        :param workspace: Workspace to fetch objects from.
+        """
+        ifile = BaseUIJson.from_dict(options)
 
-        ifile = InputFile(ui_json=options, validate=False)
-        exceptions = list(Options.model_fields) + ["version", "icon", "documentation"]
-        # TODO: add these to the Options fields with empty string defaults.
-        out = {}
-        for k, v in ifile.data.items():
-            if k in exceptions:
-                continue
+        with fetch_active_workspace(workspace, mode="r") as ws:
+            data = ifile.to_params(workspace=ws, validate=False)
+            exceptions = list(Options.model_fields) + [
+                "version",
+                "icon",
+                "documentation",
+            ]
+            # TODO: add these to the Options fields with empty string defaults.
+            out = {}
+            for k, v in data.items():
+                if k in exceptions:
+                    continue
 
-            if isinstance(v, SimPEGGroup | UIJsonGroup):
-                opts = v.options
-                opts["geoh5"] = options["geoh5"]
-                out.update(SweepOptions.all_hashable_options(opts))
-            else:
-                out[k] = v
+                if isinstance(v, SimPEGGroup | UIJsonGroup):
+                    opts = v.options
+                    opts["geoh5"] = ws
+                    out.update(SweepOptions.all_hashable_options(opts, ws))
+                else:
+                    out[k] = v
 
         return out
 
@@ -171,4 +180,7 @@ class SweepOptions(Options):
         """Return a flat version of the template.options dictionary."""
         options = self.template.options
         options["geoh5"] = self.geoh5
-        return stringify(SweepOptions.all_hashable_options(options))
+
+        with fetch_active_workspace(self.geoh5, mode="r") as workspace:
+            template = SweepOptions.all_hashable_options(options, workspace)
+        return stringify(template)

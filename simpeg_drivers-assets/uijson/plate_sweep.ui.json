@@ -23,7 +23,6 @@
         "main": true,
         "group": "Base",
         "label": "Output directory",
-        "directoryOnly": true,
         "enabled": false,
         "optional": true,
         "tootip": "Directory to store simulation results, relative to the working geoh5.",
