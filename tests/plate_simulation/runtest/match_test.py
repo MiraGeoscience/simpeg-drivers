@@ -19,7 +19,7 @@ from geoh5py import Workspace
 from geoh5py.data import FilenameData
 from geoh5py.groups import PropertyGroup, SimPEGGroup
 from geoh5py.objects import Points
-from geoh5py.ui_json import InputFile
+from geoh5py.ui_json import BaseUIJson
 from scipy import signal
 
 from simpeg_drivers import assets_path
@@ -146,13 +146,10 @@ def test_matching_driver(tmp_path: Path):
 
         fwr_driver = TDEMForwardDriver(params)
 
-        ifile = InputFile.read_ui_json(
-            assets_path() / "uijson" / "plate_simulation.ui.json", validate=False
-        )
-        ifile.data["geoh5"] = geoh5
-        ifile.data["simulation"] = fwr_driver.out_group
+        ifile = BaseUIJson.read(assets_path() / "uijson" / "plate_simulation.ui.json")
+        ifile.set_values(simulation=fwr_driver.out_group)
 
-        plate_options = PlateSimulationOptions.build(ifile.data)
+        plate_options = PlateSimulationOptions.build(ifile.to_params(workspace=geoh5))
         plate_options.model.overburden_options.thickness = 25.0
         plate_options.model.overburden_options.overburden_property = 10000
         plate_options.model.plate_options.geometry.dip_length = 300.0
