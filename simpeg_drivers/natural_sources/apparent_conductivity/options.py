@@ -38,6 +38,7 @@ class AppConForwardOptions(EMDataMixin, BaseForwardOptions):
     )
     run_command: str = "simpeg_drivers.natural_sources.apparent_conductivity.forward"
     title: str = "Apparent Conductivity Forward"
+    icon: str = "surveyztem"
     physical_property: str = "conductivity"
     inversion_type: str = "apparent conductivity"
     app_con_channel_bool: bool = True
@@ -59,6 +60,7 @@ class AppConInversionOptions(EMDataMixin, BaseInversionOptions):
     )
     run_command: str = "simpeg_drivers.natural_sources.apparent_conductivity.inversion"
     title: str = "Apparent Conductivity Inversion"
+    icon: str = "surveyztem"
     physical_property: str = "conductivity"
     inversion_type: str = "apparent conductivity"
 

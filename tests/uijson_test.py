@@ -18,7 +18,7 @@ import pytest
 from geoapps_utils.driver.data import BaseData
 from geoapps_utils.run import load_ui_json_as_dict
 from geoh5py import Workspace
-from geoh5py.ui_json import InputFile
+from geoh5py.ui_json import BaseUIJson
 from geoh5py.ui_json.annotations import Deprecated
 from packaging.version import Version
 from pydantic import AliasChoices, Field
@@ -277,13 +277,13 @@ def test_legacy_uijson(tmp_path: Path, caplog):
 
         version_path = tmp_path / directory.name
         for file in directory.glob("*.ui.json"):
-            ifile = InputFile.read_ui_json(file, validate=False)
-            inversion_type = ifile.data.get("inversion_type", None)
+            ifile = BaseUIJson.read(file)
+            inversion_type = ifile.inversion_type
 
             if inversion_type not in CHANNEL_NAME:
                 continue
 
-            forward = ifile.data.get("forward_only", None)
+            forward = ifile.forward_only
 
             work_path = version_path / (
                 inversion_type + (" fwr" if forward else " inv")
@@ -304,18 +304,19 @@ def test_legacy_uijson(tmp_path: Path, caplog):
             )
             with Workspace.create(work_path / "inversion_test.ui.geoh5") as geoh5:
                 components = SyntheticsComponents(geoh5, options=opts)
-                ifile.data["geoh5"] = geoh5
-                ifile.data["mesh"] = components.mesh
-                ifile.data["starting_model"] = components.model
-                ifile.data["data_object"] = components.survey
-                ifile.data["topography_object"] = components.topography
+                data = ifile.to_params(workspace=geoh5, validate=False)
+                data["geoh5"] = geoh5
+                data["mesh"] = components.mesh
+                data["starting_model"] = components.model
+                data["data_object"] = components.survey
+                data["topography_object"] = components.topography
 
                 # Test deprecated name
-                ifile.data["coolingFactor"] = 4.0
+                data["coolingFactor"] = 4.0
 
                 if "2d" in inversion_type or "pseudo 3d" in inversion_type:
                     line_id = geoh5.get_entity("line_ids")[0]
-                    ifile.data["line_object"] = line_id
+                    data["line_object"] = line_id
 
                 if not forward:
                     n_vals = components.survey.n_vertices
@@ -344,13 +345,13 @@ def test_legacy_uijson(tmp_path: Path, caplog):
                     else:
                         channel = data[0]
 
-                    ifile.data[CHANNEL_NAME[inversion_type] + "_channel"] = channel
-                    ifile.data[CHANNEL_NAME[inversion_type] + "_uncertainty"] = channel
+                    data[CHANNEL_NAME[inversion_type] + "_channel"] = channel
+                    data[CHANNEL_NAME[inversion_type] + "_uncertainty"] = channel
 
-            driver = driver_class_from_dict(ifile.data)
+            driver = driver_class_from_dict(data)
 
             with caplog.at_level(logging.WARNING):
-                params = driver._params_class.build(ifile)  # pylint: disable=protected-access
+                params = driver._params_class.build(data)  # pylint: disable=protected-access
                 driver = driver(params)
 
                 if "pseudo" in inversion_type:

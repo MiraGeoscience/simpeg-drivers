@@ -18,6 +18,7 @@ from typing import Annotated, Any, ClassVar, Literal
 
 import numpy as np
 from geoapps_utils.base import Options
+from geoapps_utils.utils.formatters import recursive_flatten
 from geoh5py.data import (
     BooleanData,
     DataAssociationEnum,
@@ -29,7 +30,7 @@ from geoh5py.data import (
 from geoh5py.groups import PropertyGroup, SimPEGGroup, UIJsonGroup
 from geoh5py.objects import DrapeModel, Grid2D, Octree, Points
 from geoh5py.objects.surveys.electromagnetics.base import BaseEMSurvey
-from geoh5py.ui_json import InputFile
+from geoh5py.ui_json import BaseUIJson
 from pydantic import (
     AliasChoices,
     BaseModel,
@@ -235,10 +236,18 @@ class CoreOptions(Options):
 
         return 4 if self.inversion_type in ["fdem", "tdem"] else 6
 
-    def _create_input_file_from_attributes(self) -> InputFile:
-        ifile = super()._create_input_file_from_attributes()
-        ifile.set_data_value("version", public_version())
-        return ifile
+    def write_ui_json(self, path: Path) -> Path:
+        """
+        Write UI JSON file.
+
+        TODO: Replace in favor of base Options implementation
+            after geoapps_utils@feature/uijson is merged
+        """
+        ui_json = BaseUIJson.read(self.default_ui_json)
+        flatten = recursive_flatten(self.model_dump(exclude_unset=True))
+        ui_json.set_values(**flatten)
+
+        return ui_json.write(path)
 
 
 class ModelOptions(BaseModel):

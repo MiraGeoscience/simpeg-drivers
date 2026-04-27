@@ -60,6 +60,7 @@ class MagneticVectorForwardOptions(BaseForwardOptions):
     )
     run_command: str = "simpeg_drivers.potential_fields.magnetic_vector.forward"
     title: str = "Magnetic Vector Forward"
+    icon: str = "surveyairbornemagnetics"
     physical_property: str = "susceptibility"
     inversion_type: str = "magnetic vector"
 
@@ -114,6 +115,7 @@ class MagneticVectorInversionOptions(BaseInversionOptions):
     )
     run_command: str = "simpeg_drivers.potential_fields.magnetic_vector.inversion"
     title: str = "Magnetic Vector Inversion"
+    icon: str = "surveyairbornemagnetics"
     physical_property: str = "susceptibility"
     inversion_type: str = "magnetic vector"
 

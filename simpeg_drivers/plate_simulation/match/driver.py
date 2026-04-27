@@ -33,7 +33,7 @@ from geoh5py import Workspace
 from geoh5py.groups import PropertyGroup, SimPEGGroup
 from geoh5py.objects import AirborneTEMReceivers, MaxwellPlate, Surface
 from geoh5py.objects.maxwell_plate import PlateGeometry
-from geoh5py.ui_json import InputFile
+from geoh5py.ui_json import BaseUIJson
 from scipy import ndimage, signal
 from scipy.sparse import csr_matrix
 from scipy.spatial import cKDTree
@@ -166,17 +166,16 @@ class PlateMatchDriver(Driver):
         filepath = Path(filepath).resolve()
 
         # TODO: Replace with UIJson when fully implemented
-        # uijson = PlateMatchUIJson.read(filepath)
-        uijson = InputFile.read_ui_json(filepath)
+        uijson = BaseUIJson.read(filepath)
 
         with uijson.geoh5.open(mode=mode):
             try:
-                options = PlateMatchOptions.build(uijson)
+                data = uijson.to_params(uijson.geoh5)
                 logger.info("Initializing application . . .")
-                driver = cls(options)
+                driver = cls(**data)
                 logger.info("Running application . . .")
                 driver.run()
-                logger.info("Results saved to %s", options.geoh5.h5file)
+                logger.info("Results saved to %s", uijson.geoh5.h5file)
 
             except GeoAppsError as error:
                 logger.warning("\n\nApplicationError: %s\n\n", error)
@@ -385,14 +384,13 @@ class PlateMatchDriver(Driver):
             with Workspace(self.params.simulation_files[best], mode="r") as ws:
                 survey = fetch_survey(ws)
 
-                ui_json = survey.parent.parent.options
-
-                ui_json["geoh5"] = ws
-                ifile = InputFile(ui_json=ui_json)
+                ui_json_dict = survey.parent.parent.options
+                ui_json_dict["geoh5"] = ws
+                uijson = BaseUIJson.from_dict(ui_json_dict)
 
                 # Avoid getting pydantic deprecation warnings from old PlateSimulations stored
                 with suppress_logging():
-                    options = PlateSimulationOptions.build(ifile)
+                    options = PlateSimulationOptions.build(**uijson.to_params(ws))
 
                 dir_correction = strike_angle[ii] + 180 if flip else strike_angle[ii]
                 ind_center = int(centers[best])

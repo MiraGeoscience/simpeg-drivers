@@ -34,7 +34,7 @@
             "<dt>Wire</dt><dd>Current * number of turns (NI).</dd>",
             "</dl>"
         ],
-        "value": "dB/dt (T/s)"
+        "value": "Airborne dB/dt (V/Am^4)"
     },
     "z_channel_bool": {
         "group": "Survey",
@@ -192,9 +192,6 @@
     "tile_spatial": {
         "group": "Compute",
         "label": "Number of tiles",
-        "parent": "data_object",
-        "isValue": true,
-        "property": "",
         "value": 1,
         "min": 1,
         "max": 1000,

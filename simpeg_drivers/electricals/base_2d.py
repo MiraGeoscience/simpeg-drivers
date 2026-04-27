@@ -14,9 +14,10 @@ from __future__ import annotations
 from logging import getLogger
 
 import numpy as np
+from geoh5py.data import FloatData
 from geoh5py.objects import DrapeModel, Octree, PotentialElectrode
 from geoh5py.ui_json.ui_json import fetch_active_workspace
-from pydantic import field_validator, model_validator
+from pydantic import AliasChoices, Field, field_validator, model_validator
 
 from simpeg_drivers.components.meshes import InversionMesh
 from simpeg_drivers.driver import BaseDriver
@@ -24,6 +25,8 @@ from simpeg_drivers.options import (
     CoreOptions,
     DrapeModelOptions,
     LineSelectionOptions,
+    ModelOptions,
+    ModelTypeEnum,
 )
 from simpeg_drivers.utils.surveys import (
     create_mesh_by_line_id,
@@ -32,6 +35,21 @@ from simpeg_drivers.utils.surveys import (
 
 
 logger = getLogger(__name__)
+
+
+class Conductivity2DModelOptions(ModelOptions):
+    """
+    Options for the conductivity model used in all of EM methods.
+    """
+
+    model_type: ModelTypeEnum = ModelTypeEnum.conductivity
+    conductivity_model: float | FloatData | None = Field(
+        None,
+        validation_alias=AliasChoices("background_conductivity", "conductivity_model"),
+    )
+
+    length_scale_y: None = None
+    y_norm: None = None
 
 
 class Base2DOptions(CoreOptions):

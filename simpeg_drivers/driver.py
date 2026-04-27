@@ -14,7 +14,7 @@
 from __future__ import annotations
 
 from abc import abstractmethod, ABC
-
+from typing import Self
 from copy import deepcopy
 import sys
 from datetime import datetime, timedelta
@@ -29,9 +29,11 @@ from geoapps_utils.base import Driver, Options
 from geoapps_utils.run import load_ui_json_as_dict
 from geoapps_utils.utils.importing import GeoAppsError
 
+from geoh5py import Workspace
 from geoh5py.groups import SimPEGGroup
 from geoh5py.objects import FEMSurvey
 from geoh5py.shared.utils import fetch_active_workspace
+from geoh5py.ui_json import BaseUIJson
 
 from simpeg import (
     directives,
@@ -488,6 +490,41 @@ class BaseDriver(Driver, ABC):
         if self.directives.save_iteration_log_files:
             with fetch_active_workspace(self.workspace, mode="r+"):
                 self.directives.save_iteration_log_files.write(1)
+
+    @classmethod
+    def start(cls, filepath: str | Path | BaseUIJson, mode="r+", **kwargs) -> Self:
+        """
+        Run application specified by 'filepath' ui.json file.
+
+        TODO: To be replaced by the base Driver class implementation on geoapps_utils
+        :param filepath: Path to valid ui.json file for the application driver.
+        :param mode: Mode to open the geoh5 file with.
+        :param kwargs: Additional keyword arguments for Options class.
+
+        :return: Self object.
+        """
+
+        uijson = (
+            BaseUIJson.read(filepath) if isinstance(filepath, str | Path) else filepath
+        )
+
+        if not isinstance(uijson, BaseUIJson):
+            raise TypeError("Input file must be a string path or an BaseUIJson object.")
+
+        if uijson.geoh5 is None:
+            raise GeoAppsError("The application needs a valid 'geoh5' file.")
+
+        with Workspace(uijson.geoh5, mode=mode) as workspace:
+            try:
+                data = uijson.to_params(workspace)
+                kwargs.update(data)
+                params = cls._params_class.build(workspace=workspace, **kwargs)
+                driver = cls(params)
+                driver.run()
+            except GeoAppsError as error:
+                sys.exit(1)
+
+        return driver
 
     @classmethod
     def start_dask_run(

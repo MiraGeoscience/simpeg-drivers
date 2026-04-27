@@ -98,8 +98,7 @@
             "{f26feba3-aded-494b-b9e9-b2bbcbe298e1}",
             "{48f5054a-1c5c-4ca4-9048-80f36dc60a06}",
             "{b020a277-90e2-4cd7-84d6-612ee3f25051}",
-            "{4b99204c-d133-4579-a916-a9c8b98cfccb}",
-            "{028e4905-cc97-4dab-b1bf-d76f58b501b5}"
+            "{4b99204c-d133-4579-a916-a9c8b98cfccb}"
         ],
         "value": ""
     },
@@ -196,13 +195,11 @@
     "tile_spatial": {
         "group": "Compute",
         "label": "Number of tiles",
-        "parent": "data_object",
-        "isValue": true,
-        "property": "",
         "value": 1,
         "min": 1,
         "max": 1000,
         "verbose": 2,
+        "visible": false,
         "tooltip": "Splits the objective function into spatial tiles for distributed computation using the Dask library"
     },
     "max_chunk_size": {
