@@ -70,6 +70,7 @@ from simpeg_drivers.options import (
     BaseInversionOptions,
 )
 from simpeg_drivers.joint.options import BaseJointOptions
+from simpeg_drivers.uijson import SimPEGDriversUIJson
 from simpeg_drivers.utils.nested import tile_locations
 from simpeg_drivers.utils.regularization import cell_neighbors, set_rotated_operators
 from simpeg_drivers.utils.utils import (
@@ -505,7 +506,9 @@ class BaseDriver(Driver, ABC):
         """
 
         uijson = (
-            BaseUIJson.read(filepath) if isinstance(filepath, str | Path) else filepath
+            SimPEGDriversUIJson.read(filepath)
+            if isinstance(filepath, str | Path)
+            else filepath
         )
 
         if not isinstance(uijson, BaseUIJson):

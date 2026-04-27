@@ -84,3 +84,26 @@ class SimPEGDriversUIJson(BaseUIJson):
         data = uijson.model_dump_json(indent=4, exclude_unset=False)
         with open(cls.default_ui_json, "w", encoding="utf-8") as file:
             file.write(data)
+
+    @classmethod
+    def from_dict(cls, data: dict) -> BaseUIJson:
+        """
+        Create a UIJson instance from a dictionary.
+
+        Deal with known issues in legacy files
+
+        :param data: Dictionary representing the ui json object.
+
+        :returns: UIJson object.
+        """
+        kwargs = {}
+        for key, item in data.items():
+            if isinstance(item, dict) and key == "tile_spatial":
+                item.pop("isValue", None)
+                item.pop("property", None)
+
+            kwargs[key] = item if item != "" else None
+
+        ui_json_class = cls.infer(**kwargs)
+
+        return ui_json_class(**kwargs)

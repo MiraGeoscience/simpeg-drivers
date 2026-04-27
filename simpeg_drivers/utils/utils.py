@@ -40,12 +40,12 @@ from geoh5py.objects.surveys.electromagnetics.airborne_app_con import (
 from geoh5py.objects.surveys.electromagnetics.base import LargeLoopGroundEMSurvey
 from geoh5py.shared import INTEGER_NDV
 from geoh5py.shared.utils import fetch_active_workspace, mask_by_extent, stringify
-from geoh5py.ui_json import BaseUIJson
 from grid_apps.utils import octree_2_treemesh
 from scipy.interpolate import interp1d
 from scipy.spatial import ConvexHull, cKDTree
 
 from simpeg_drivers import DRIVER_MAP
+from simpeg_drivers.uijson import SimPEGDriversUIJson
 
 
 if TYPE_CHECKING:
@@ -610,7 +610,7 @@ def simpeg_group_to_driver(group: SimPEGGroup, workspace: Workspace) -> Driver:
     """
     ui_json_dict = deepcopy(group.options)
     ui_json_dict["geoh5"] = workspace
-    uijson = BaseUIJson.from_dict(ui_json_dict)
+    uijson = SimPEGDriversUIJson.from_dict(ui_json_dict)
     data = uijson.to_params(workspace)
     data["out_group"] = group
 

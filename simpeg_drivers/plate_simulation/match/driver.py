@@ -33,7 +33,6 @@ from geoh5py import Workspace
 from geoh5py.groups import PropertyGroup, SimPEGGroup
 from geoh5py.objects import AirborneTEMReceivers, MaxwellPlate, Surface
 from geoh5py.objects.maxwell_plate import PlateGeometry
-from geoh5py.ui_json import BaseUIJson
 from scipy import ndimage, signal
 from scipy.sparse import csr_matrix
 from scipy.spatial import cKDTree
@@ -42,6 +41,7 @@ from simpeg_drivers.driver import validate_client, validate_workers
 from simpeg_drivers.electromagnetics.time_domain.options import CONVERSION
 from simpeg_drivers.plate_simulation.match.options import PlateMatchOptions
 from simpeg_drivers.plate_simulation.options import ModelOptions, PlateSimulationOptions
+from simpeg_drivers.uijson import SimPEGDriversUIJson
 from simpeg_drivers.utils.utils import (
     get_default_parallelization_params,
     start_dask_run,
@@ -166,7 +166,7 @@ class PlateMatchDriver(Driver):
         filepath = Path(filepath).resolve()
 
         # TODO: Replace with UIJson when fully implemented
-        uijson = BaseUIJson.read(filepath)
+        uijson = SimPEGDriversUIJson.read(filepath)
 
         with uijson.geoh5.open(mode=mode):
             try:
@@ -386,7 +386,7 @@ class PlateMatchDriver(Driver):
 
                 ui_json_dict = survey.parent.parent.options
                 ui_json_dict["geoh5"] = ws
-                uijson = BaseUIJson.from_dict(ui_json_dict)
+                uijson = SimPEGDriversUIJson.from_dict(ui_json_dict)
 
                 # Avoid getting pydantic deprecation warnings from old PlateSimulations stored
                 with suppress_logging():

@@ -17,10 +17,10 @@ from geoapps_utils.base import Options
 from geoh5py import Workspace
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
 from geoh5py.shared.utils import fetch_active_workspace, stringify
-from geoh5py.ui_json import BaseUIJson
 from pydantic import BaseModel, ConfigDict, field_serializer, field_validator
 
 from simpeg_drivers import assets_path
+from simpeg_drivers.uijson import SimPEGDriversUIJson
 
 
 class ParamSweep(BaseModel):
@@ -151,7 +151,7 @@ class SweepOptions(Options):
         :param options: Options dictionary
         :param workspace: Workspace to fetch objects from.
         """
-        ifile = BaseUIJson.from_dict(options)
+        ifile = SimPEGDriversUIJson.from_dict(options)
 
         with fetch_active_workspace(workspace, mode="r") as ws:
             data = ifile.to_params(workspace=ws, validate=False)

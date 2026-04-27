@@ -15,10 +15,10 @@ from typing import ClassVar
 from geoapps_utils.base import Options
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
 from geoh5py.shared.utils import fetch_active_workspace
-from geoh5py.ui_json import BaseUIJson
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.options import BaseForwardOptions
+from simpeg_drivers.uijson import SimPEGDriversUIJson
 from simpeg_drivers.utils.synthetics.meshes import MeshOptions
 from simpeg_drivers.utils.utils import driver_class_from_dict
 
@@ -60,7 +60,7 @@ class PlateSimulationOptions(Options):
         simulation_options = deepcopy(self.simulation.options)
         simulation_options["geoh5"] = self.geoh5
 
-        ui_json = BaseUIJson.from_dict(simulation_options)
+        ui_json = SimPEGDriversUIJson.from_dict(simulation_options)
 
         with fetch_active_workspace(self.geoh5) as workspace:
             data = ui_json.to_params(workspace=workspace, validate=False)

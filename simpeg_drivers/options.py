@@ -42,8 +42,10 @@ from pydantic import (
     model_validator,
 )
 
+from simpeg_drivers.uijson import SimPEGDriversUIJson
+from simpeg_drivers.utils.regularization import direction_and_dip
+
 from . import public_version
-from .utils.regularization import direction_and_dip
 
 
 logger = getLogger(__name__)
@@ -243,7 +245,7 @@ class CoreOptions(Options):
         TODO: Replace in favor of base Options implementation
             after geoapps_utils@feature/uijson is merged
         """
-        ui_json = BaseUIJson.read(self.default_ui_json)
+        ui_json = SimPEGDriversUIJson.read(self.default_ui_json)
         flatten = recursive_flatten(self.model_dump(exclude_unset=True))
         ui_json.set_values(**flatten)
 
