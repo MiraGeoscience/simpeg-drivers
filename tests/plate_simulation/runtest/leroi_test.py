@@ -8,6 +8,9 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
+import os
+
+import pytest
 from geoapps_utils.modelling.plates import PlateModel
 from geoh5py import Workspace
 from geoh5py.groups import SimPEGGroup
@@ -37,6 +40,13 @@ from tests.utils.runtests import run_driver_from_ui_json
 from tests.utils.targets import get_workspace
 
 
+IN_GITHUB_ACTIONS = os.getenv("GITHUB_ACTIONS") == "true"
+
+
+@pytest.mark.skipif(
+    IN_GITHUB_ACTIONS,
+    reason="Test requires a LeroiAir550_JR.exe in the environments Scripts directory that is not stored in GitHub.",
+)
 def test_leroi_run(tmp_path):
 
     with get_workspace(tmp_path / "leroi_test.geoh5") as geoh5:
