@@ -150,6 +150,8 @@ class SweepOptions(Options):
 
         :param options: Options dictionary
         :param workspace: Workspace to fetch objects from.
+
+        :return: Flat dictionary of all key/values.
         """
         ifile = SimPEGDriversUIJson.from_dict(options)
 

@@ -40,6 +40,11 @@ logger = getLogger(__name__)
 class Conductivity2DModelOptions(ModelOptions):
     """
     Options for the conductivity model used in all of EM methods.
+
+    :param conductivity_model: Conductivity model or background conductivity value.
+    :param model_type: Either a 'conductivity' or 'resistivity' model. The default is 'conductivity'.
+    :param length_scale_y: Overloads length scales in y direction since not used in 2D inversions.
+    :param y_norm: Overloads norm in the y direction since not used in 2D inversions.
     """
 
     model_type: ModelTypeEnum = ModelTypeEnum.conductivity
