@@ -357,7 +357,7 @@ class SurveyFactory(SimPEGFactory):
                 tx.rx_ids = np.r_[rx_id]
                 sources.append(tx)
 
-                source_ids = np.arange(len(receivers)).astype(int) + tx_count
+                source_ids = np.full(len(block_ordering), tx_count)
                 ordering.append(
                     np.column_stack(
                         [
@@ -368,7 +368,7 @@ class SurveyFactory(SimPEGFactory):
                     )
                 )
 
-                tx_count = source_ids.max() + 1
+                tx_count += 1
 
         self.ordering = np.vstack(ordering).astype(int)
         self.sorting = np.arange(rx_locs.shape[0], dtype=int)
