@@ -45,13 +45,14 @@ class LeroiAirInput:
             "NSX": len(self.opts.survey.ontime_waveform),
             "STEP": 0 if self.opts.magnetic_field == "dBdt" else 1,
             "UNITS": 1,
-            "NCHNL": len(self.opts.survey.channels),
+            "NCHNL": len(self.opts.survey.entity.channels),
             "KRXW": 2,
-            "REFTYM": self.opts.survey.timing_mark,
+            "REFTYM": self.opts.survey.entity.timing_mark,
             "OFFTIME": self.opts.survey.offtime,
             "TXON": self.opts.survey.ontime_waveform[:, 0],
             "TXAMP": self.opts.survey.ontime_waveform[:, 1],
-            "TMS": self.opts.survey.timing_mark + np.array(self.opts.survey.channels),
+            "TMS": self.opts.survey.entity.timing_mark
+            + np.array(self.opts.survey.entity.channels),
             "WIDTH": self.opts.survey.channel_widths,
             "TXCLN": 0.0,
             "CMP": 3,
@@ -66,8 +67,8 @@ class LeroiAirInput:
             "SURVEY": 2,
             "BAROMTRC": 1,
             "LINE_TAG": 0,
-            "EAST": self.opts.survey.locations[:, 0],
-            "NORTH": self.opts.survey.locations[:, 1],
+            "EAST": self.opts.survey.entity.locations[:, 0],
+            "NORTH": self.opts.survey.entity.locations[:, 1],
             "ALT": self.opts.survey.drape_height(self.opts.topo),
             "NLAYER": self.opts.n_layers,
             "NPLATE": self.opts.n_plates,
@@ -288,7 +289,7 @@ class LeroiAirOutput:
             entities = survey.add_data(
                 {
                     f"fwd {component} [{i}]": {"values": data[:, i]}
-                    for i in range(len(self.opts.channels))
+                    for i in range(len(self.opts.entity.channels))
                 }
             )
 

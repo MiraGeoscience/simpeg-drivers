@@ -29,11 +29,6 @@ class SurveyOptions(BaseModel):
     entity: AirborneTEMReceivers
 
     @property
-    def waveform(self) -> np.ndarray:
-        """Survey transmitter waveform."""
-        return self.entity.waveform
-
-    @property
     def frequency(self) -> float:
         """
         Transmitter frequency.
@@ -44,38 +39,23 @@ class SurveyOptions(BaseModel):
         """
         frequency = self.entity.metadata.get("frequency", None)
         if frequency is None:
-            half_cycle_time = self.waveform[-1, 0] - self.waveform[0, 0]
+            half_cycle_time = self.entity.waveform[-1, 0] - self.entity.waveform[0, 0]
             frequency = 1 / (2 * half_cycle_time)
 
         return frequency
-
-    @property
-    def channels(self) -> np.ndarray:
-        """Time channel midpoints referenced from the timing_mark."""
-        return self.entity.channels
 
     @property
     def channel_widths(self) -> np.ndarray:
         """Time channel widths."""
         channel_widths = self.entity.metadata.get("channel_widths", None)
         if channel_widths is None:
-            channel_widths = np.diff(np.r_[0, self.channels])
+            channel_widths = np.diff(np.r_[0, self.entity.channels])
         return channel_widths
-
-    @property
-    def timing_mark(self) -> float:
-        """Reference point for timing of the channels."""
-        return self.entity.timing_mark
-
-    @property
-    def units(self) -> str:
-        """Units of the time channels."""
-        return self.entity.unit
 
     @property
     def _ontime(self) -> float:
         """Time at which the transmitter current turns off."""
-        return float(self.waveform[self._offtime_mask(), 0][0])
+        return float(self.entity.waveform[self._offtime_mask(), 0][0])
 
     @property
     def offtime(self) -> float:
@@ -86,28 +66,23 @@ class SurveyOptions(BaseModel):
         are not accounted for by the waveform.
         """
         half_cycle = 1 / (2 * self.frequency)
-        zero_current_ind = np.where(self.waveform[:, 1] == 0)[0]
-        first_zero = 1 if self.waveform[0, 1] == 0.0 else 0
-        ontime = self.waveform[zero_current_ind][first_zero, 0]
+        zero_current_ind = np.where(self.entity.waveform[:, 1] == 0)[0]
+        first_zero = 1 if self.entity.waveform[0, 1] == 0.0 else 0
+        ontime = self.entity.waveform[zero_current_ind][first_zero, 0]
 
         return half_cycle - ontime
 
     @property
     def ontime_waveform(self) -> np.ndarray:
         """On-time waveform including leading and trailing 0 current times."""
-        ontime_waveform = self.waveform[~self._offtime_mask(), :]
-        endpoint = self.waveform[self._offtime_mask()][0, :]
+        ontime_waveform = self.entity.waveform[~self._offtime_mask(), :]
+        endpoint = self.entity.waveform[self._offtime_mask()][0, :]
         return np.vstack([ontime_waveform, endpoint])
-
-    @property
-    def locations(self) -> np.ndarray:
-        """Survey receiver locations."""
-        return self.entity.locations
 
     @property
     def n_stations(self) -> int:
         """Number of survey stations at which time channel data will be simulated."""
-        return len(self.locations)
+        return len(self.entity.locations)
 
     def drape_height(self, topo: np.ndarray) -> np.ndarray:
         """
@@ -126,7 +101,7 @@ class SurveyOptions(BaseModel):
 
     def _offtime_mask(self) -> np.ndarray:
         """Mask selecting off-time rows from the waveform array."""
-        mask = np.isclose(self.waveform[:, 1], 0)
+        mask = np.isclose(self.entity.waveform[:, 1], 0)
         mask[0] = False
         return mask
 

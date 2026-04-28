@@ -52,7 +52,8 @@ def test_options_offtime(plate_options):
 
 def test_options_ontime_waveform(plate_options):
     assert np.allclose(
-        plate_options.survey.ontime_waveform, plate_options.survey.waveform[0:8, :]
+        plate_options.survey.ontime_waveform,
+        plate_options.survey.entity.waveform[0:8, :],
     )
 
 
