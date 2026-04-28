@@ -307,7 +307,7 @@ class InversionData(InversionLocations):
                         mu0 * (2 / offsets[chan] ** 3 / (4 * np.pi)) / 1e6
                     )
 
-                    if "vertical" in comp:
+                    if not self.params.coaxial[chan]:
                         normalizations[chan][comp] *= -0.5
 
                 elif (
