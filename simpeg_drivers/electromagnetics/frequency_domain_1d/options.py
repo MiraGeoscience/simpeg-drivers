@@ -33,8 +33,8 @@ class FDEM1DForwardOptions(BaseForwardOptions, BaseFDEMOptions, Base1DOptions):
     """
     Frequency Domain Electromagnetic forward options.
 
-    :param real_channel_bool: Z-component data channel boolean.
-    :param imag_channel_bool: Imaginary Z-component data channel boolean.
+    :param real_channel_bool: Real component data channel boolean.
+    :param imag_channel_bool: Imaginary component data channel boolean.
     :param drape_model: Drape model options.
     """
 
@@ -60,10 +60,10 @@ class FDEM1DInversionOptions(BaseFDEMOptions, BaseInversionOptions, Base1DOption
     """
     Frequency Domain Electromagnetic Inversion options.
 
-    :param real_channel: Real Z-component data channel.
-    :param real_uncertainty: Real Z-component data channel uncertainty.
-    :param imag_channel: Imaginary Z-component data channel.
-    :param imag_uncertainty: Imaginary Z-component data channel uncertainty.
+    :param real_channel: Real component data channel.
+    :param real_uncertainty: Real component data channel uncertainty.
+    :param imag_channel: Imaginary component data channel.
+    :param imag_uncertainty: Imaginary component data channel uncertainty.
     :param drape_model: Drape model options.
     """
 

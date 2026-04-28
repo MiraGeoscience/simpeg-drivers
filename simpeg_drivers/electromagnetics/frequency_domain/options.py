@@ -103,12 +103,8 @@ class FDEMForwardOptions(BaseForwardOptions, BaseFDEMOptions):
     Frequency Domain Electromagnetic Forward options.
 
     :param receivers_orientation: Orientation of the receivers provided as a group.
-    :param vertical_real_channel_bool: Vertical (real) component of impedance channel boolean.
-    :param vertical_imag_channel_bool: Vertical (imaginary) component of impedance channel boolean.
-    :param inline_real_channel_bool: In-line (real) component of impedance channel boolean.
-    :param inline_imag_channel_bool: In-line (imaginary) component of impedance channel boolean.
-    :param crossline_real_channel_bool: Cross-line (real) component of impedance channel boolean.
-    :param crossline_imag_channel_bool: Cross-line (imaginary) component of impedance channel
+    :param real_channel_bool: Real component of impedance channel boolean.
+    :param imag_channel_bool: Imaginary component of impedance channel boolean.
     :param models: ConductivityModelOptions parameter.
     """
 
