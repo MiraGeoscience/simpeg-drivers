@@ -38,7 +38,7 @@
         "parent": "data_object",
         "value": ""
     },
-    "vertical_imag_channel": {
+    "imag_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -47,14 +47,19 @@
         "group": "Data",
         "dataGroupType": "Multi-element",
         "main": true,
-        "label": "Vertical (imaginary)",
-        "tooltip": "Vertical (w) imaginary component of the magnetic data.\nPositive up along the z-axis if no receiver orientation provided",
+        "label": "Imaginary",
+        "tooltip": [
+            "Imaginary component of the magnetic data. If no receiver orientation provided:<dl>",
+            "<dt>Co-planar data are positive up along the z-axis .</dd>",
+            "<dt>Co-axial data are positive along North.</dd>",
+            "</dl>"
+        ],
         "parent": "data_object",
         "optional": true,
         "enabled": true,
         "value": ""
     },
-    "vertical_imag_uncertainty": {
+    "imag_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -65,12 +70,12 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "vertical_imag_channel",
+        "dependency": "imag_channel",
         "dependencyType": "enabled",
         "enabled": false,
         "value": ""
     },
-    "vertical_real_channel": {
+    "real_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -79,14 +84,19 @@
         "group": "Data",
         "dataGroupType": "Multi-element",
         "main": true,
-        "label": "Vertical (real)",
-        "tooltip": "Vertical (w) real component of the magnetic data.\nPositive up along the z-axis if no receiver orientation provided",
+        "label": "Real",
+        "tooltip": [
+            "Real component of the magnetic data. If no receiver orientation provided:<dl>",
+            "<dt>Co-planar data are positive up along the z-axis .</dd>",
+            "<dt>Co-axial data are positive along North.</dd>",
+            "</dl>"
+        ],
         "parent": "data_object",
         "optional": true,
         "enabled": true,
         "value": ""
     },
-    "vertical_real_uncertainty": {
+    "real_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -97,135 +107,7 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "vertical_real_channel",
-        "dependencyType": "enabled",
-        "enabled": false,
-        "value": ""
-    },
-    "inline_imag_channel": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
-        "main": true,
-        "label": "In-line (imaginary)",
-        "tooltip": "In-line (u) imaginary component of the magnetic data.\nPositive towards North if no receiver orientation provided",
-        "parent": "data_object",
-        "optional": true,
-        "enabled": false,
-        "value": ""
-    },
-    "inline_imag_uncertainty": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
-        "main": true,
-        "label": "Uncertainty",
-        "parent": "data_object",
-        "dependency": "inline_imag_channel",
-        "dependencyType": "enabled",
-        "enabled": false,
-        "value": ""
-    },
-    "inline_real_channel": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
-        "main": true,
-        "label": "In-line (real)",
-        "tooltip": "In-line (u) real component of the magnetic data.\nPositive towards North if no receiver orientation provided",
-        "parent": "data_object",
-        "optional": true,
-        "enabled": false,
-        "value": ""
-    },
-    "inline_real_uncertainty": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
-        "main": true,
-        "label": "Uncertainty",
-        "parent": "data_object",
-        "dependency": "inline_real_channel",
-        "dependencyType": "enabled",
-        "enabled": false,
-        "value": ""
-    },
-    "crossline_imag_channel": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
-        "main": true,
-        "label": "Cross-line (imaginary)",
-        "tooltip": "Cross-line (v) imaginary component of the magnetic data.\nPositive towards East if no receiver orientation provided",
-        "parent": "data_object",
-        "optional": true,
-        "enabled": false,
-        "value": ""
-    },
-    "crossline_imag_uncertainty": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
-        "main": true,
-        "label": "Uncertainty",
-        "parent": "data_object",
-        "dependency": "crossline_imag_channel",
-        "dependencyType": "enabled",
-        "enabled": false,
-        "value": ""
-    },
-    "crossline_real_channel": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
-        "main": true,
-        "label": "Cross-line (real)",
-        "tooltip": "Cross-line (v) real component of the magnetic data.\nPositive towards East if no receiver orientation provided",
-        "parent": "data_object",
-        "optional": true,
-        "enabled": false,
-        "value": ""
-    },
-    "crossline_real_uncertainty": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
-        "main": true,
-        "label": "Uncertainty",
-        "parent": "data_object",
-        "dependency": "crossline_real_channel",
+        "dependency": "real_channel",
         "dependencyType": "enabled",
         "enabled": false,
         "value": ""

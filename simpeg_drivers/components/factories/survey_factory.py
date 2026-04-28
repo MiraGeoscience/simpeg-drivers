@@ -327,24 +327,27 @@ class SurveyFactory(SimPEGFactory):
         sources = []
         rx_factory = ReceiversFactory(self.params)
         tx_factory = SourcesFactory(self.params)
-        receiver_groups = []
-        block_ordering = []
-        for rx_id, locs in enumerate(rx_locs):
-            receivers = []
-            for comp_id, component in enumerate(data.components):
-                receiver = rx_factory.build(
-                    locations=locs, data=data, component=component, local_indices=rx_id
-                )
-                block_ordering.append([comp_id, rx_id])
-                receivers.append(receiver)
-
-            receiver_groups.append(receivers)
-
-        block_ordering = np.vstack(block_ordering)
         ordering = []
         tx_count = 0
         for freq_id, frequency in enumerate(channels):
-            for rx_id, receivers in enumerate(receiver_groups):
+            for rx_id, locs in enumerate(rx_locs):
+                receivers = []
+                block_ordering = []
+                for comp_id, component in enumerate(data.components):
+                    receiver = rx_factory.build(
+                        locations=locs,
+                        data=data,
+                        component=component
+                        + (
+                            "_coaxial"
+                            if self.params.coaxial[frequency]
+                            else "_coplanar"
+                        ),
+                        local_indices=rx_id,
+                    )
+                    block_ordering.append([comp_id, rx_id])
+                    receivers.append(receiver)
+
                 locs = tx_locs[frequency == frequencies, :][rx_id, :]
                 tx = tx_factory.build(
                     receivers,
@@ -354,21 +357,18 @@ class SurveyFactory(SimPEGFactory):
                 tx.rx_ids = np.r_[rx_id]
                 sources.append(tx)
 
-            source_ids = (
-                np.repeat(np.arange(len(receiver_groups)), len(receivers)).astype(int)
-                + tx_count
-            )
-            ordering.append(
-                np.column_stack(
-                    [
-                        np.ones(block_ordering.shape[0]) * freq_id,
-                        block_ordering,
-                        source_ids,  # Source IDs
-                    ]
+                source_ids = np.arange(len(receivers)).astype(int) + tx_count
+                ordering.append(
+                    np.column_stack(
+                        [
+                            np.full(len(block_ordering), freq_id),
+                            np.vstack(block_ordering),
+                            source_ids,  # Source IDs
+                        ]
+                    )
                 )
-            )
 
-            tx_count = source_ids.max() + 1
+                tx_count = source_ids.max() + 1
 
         self.ordering = np.vstack(ordering).astype(int)
         self.sorting = np.arange(rx_locs.shape[0], dtype=int)
