@@ -101,6 +101,7 @@ class SimPEGDriversUIJson(BaseUIJson):
             if isinstance(item, dict) and key == "tile_spatial":
                 item.pop("isValue", None)
                 item.pop("property", None)
+                item.pop("parent", None)
 
             kwargs[key] = item if item != "" else None
 
