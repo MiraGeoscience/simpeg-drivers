@@ -223,7 +223,7 @@ def test_homogeneous_run(
 
                 # Remove inversion type as per current json on file
                 options = driver.out_group.options
-                del options["inversion_type"]
+                options.pop("inversion_type", None)
                 driver.out_group.options = options
                 drivers.append(driver)
             else:
