@@ -16,18 +16,28 @@
         ],
         "value": ""
     },
-    "vertical_imag_channel_bool": {
+    "imag_channel_bool": {
         "group": "Survey",
         "main": true,
         "label": "Vertical (imaginary)",
-        "tooltip": "Vertical (w) imaginary component of the magnetic data.\nPositive up along the z-axis if no receiver orientation provided",
+        "tooltip": [
+            "Imaginary component of the magnetic data. If no receiver orientation provided:<dl>",
+            "<dt>Co-planar data are positive up along the z-axis .</dd>",
+            "<dt>Co-axial data are positive along North.</dd>",
+            "</dl>"
+        ],
         "value": true
     },
-    "vertical_real_channel_bool": {
+    "real_channel_bool": {
         "group": "Survey",
         "main": true,
         "label": "Vertical (real)",
-        "tooltip": "Vertical (w) real component of the magnetic data.\nPositive up along the z-axis if no receiver orientation provided",
+        "tooltip": [
+            "Real component of the magnetic data. If no receiver orientation provided:<dl>",
+            "<dt>Co-planar data are positive up along the z-axis .</dd>",
+            "<dt>Co-axial data are positive along North.</dd>",
+            "</dl>"
+        ],
         "value": true
     },
     "u_cell_size": {

@@ -16,7 +16,7 @@
         ],
         "value": ""
     },
-    "vertical_imag_channel": {
+    "imag_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -26,13 +26,18 @@
         "dataGroupType": "Multi-element",
         "main": true,
         "label": "Vertical (imaginary)",
-        "tooltip": "Vertical (w) imaginary component of the magnetic data.\nPositive up along the z-axis if no receiver orientation provided",
+        "tooltip": [
+            "Imaginary component of the magnetic data. If no receiver orientation provided:<dl>",
+            "<dt>Co-planar data are positive up along the z-axis .</dd>",
+            "<dt>Co-axial data are positive along North.</dd>",
+            "</dl>"
+        ],
         "parent": "data_object",
         "optional": true,
         "enabled": true,
         "value": ""
     },
-    "vertical_imag_uncertainty": {
+    "imag_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -43,12 +48,12 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "vertical_imag_channel",
+        "dependency": "imag_channel",
         "dependencyType": "enabled",
         "enabled": false,
         "value": ""
     },
-    "vertical_real_channel": {
+    "real_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -58,13 +63,18 @@
         "dataGroupType": "Multi-element",
         "main": true,
         "label": "Vertical (real)",
-        "tooltip": "Vertical (w) real component of the magnetic data.\nPositive up along the z-axis if no receiver orientation provided",
+        "tooltip": [
+            "Real component of the magnetic data. If no receiver orientation provided:<dl>",
+            "<dt>Co-planar data are positive up along the z-axis .</dd>",
+            "<dt>Co-axial data are positive along North.</dd>",
+            "</dl>"
+        ],
         "parent": "data_object",
         "optional": true,
         "enabled": true,
         "value": ""
     },
-    "vertical_real_uncertainty": {
+    "real_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -75,7 +85,7 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "vertical_real_channel",
+        "dependency": "real_channel",
         "dependencyType": "enabled",
         "enabled": false,
         "value": ""
