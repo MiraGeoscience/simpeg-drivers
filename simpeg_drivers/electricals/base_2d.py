@@ -39,7 +39,7 @@ logger = getLogger(__name__)
 
 class Conductivity2DModelOptions(ModelOptions):
     """
-    Options for the conductivity model used in all of EM methods.
+    Options for the conductivity model of 2D inverse problems.
 
     :param conductivity_model: Conductivity model or background conductivity value.
     :param model_type: Either a 'conductivity' or 'resistivity' model. The default is 'conductivity'.
