@@ -512,7 +512,7 @@ class BaseDriver(Driver, ABC):
         )
 
         if not isinstance(uijson, BaseUIJson):
-            raise TypeError("Input file must be a string path or an BaseUIJson object.")
+            raise TypeError("Input file must be a string path or a BaseUIJson object.")
 
         if uijson.geoh5 is None:
             raise GeoAppsError("The application needs a valid 'geoh5' file.")
@@ -525,6 +525,9 @@ class BaseDriver(Driver, ABC):
                 driver = cls(params)
                 driver.run()
             except GeoAppsError as error:
+                logging.getLogger(__name__).warning(
+                    "\n\nApplicationError: %s\n\n", error
+                )
                 sys.exit(1)
 
         return driver
