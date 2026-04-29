@@ -65,15 +65,7 @@ repos:
         language: system
         require_serial: true  # pylint does its own parallelism
         types: [python]
-        exclude: ^(devtools|docs|tests)/
-    -   id: pylint-tests
-        name: pylint (tests)
-        entry: .\\devtools\\conda_env_pylint.bat
-        language: system
-        require_serial: true
-        args: [--rcfile=pylintrc, --disable=protected-access]
-        types: [python]
-        files: ^tests/
+        exclude: ^(devtools|docs)/
 -   repo: https://github.com/codespell-project/codespell
     rev: v2.4.2
     hooks:
