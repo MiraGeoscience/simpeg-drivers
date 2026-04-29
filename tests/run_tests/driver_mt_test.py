@@ -15,7 +15,9 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.workspace import Workspace
+from pytest import raises
 
 from simpeg_drivers.natural_sources.magnetotellurics import (
     MTForwardDriver,
@@ -73,7 +75,7 @@ def setup_data(workspace, survey):
                     }
                 }
             )
-            uncertainties[f"{cname} uncertainties"].append(uncert.copy(parent=survey))
+            uncertainties[f"{cname} uncertainties"].append(uncert)
 
     data_groups = survey.add_components_data(data)
     uncert_groups = survey.add_components_data(uncertainties)
@@ -139,6 +141,44 @@ def test_magnetotellurics_fwr_run(
 
     with Workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         assert geoh5.get_entity("Iteration_0_zyy_real_[0]")[0] is not None
+
+
+def test_bad_uncertainties(
+    tmp_path: Path,
+):
+    workpath = (
+        tmp_path.parent / "test_magnetotellurics_fwr_run0" / "inversion_test.ui.geoh5"
+    )
+
+    with Workspace(workpath) as geoh5:
+        components = SyntheticsComponents(geoh5)
+        survey = components.survey.copy(copy_children=False, name="bad_uncertainties")
+        mesh = components.mesh
+        topography = components.topography
+        data_kwargs = setup_data(geoh5, survey)
+
+        for elem in ["uncertainty_zxx_imag_[0]", "uncertainty_zyx_real_[0]"]:
+            data = survey.get_entity(elem)[0]
+            vals = data.values
+            vals[0] = np.nan
+            data.values = vals
+
+        # Run the inverse
+        params = MTInversionOptions.build(
+            geoh5=geoh5,
+            mesh=mesh,
+            topography_object=topography,
+            data_object=survey,
+            starting_model=100.0,
+            background_conductivity=100.0,
+            **data_kwargs,
+        )
+
+    with raises(GeoAppsError) as error:
+        _ = params.uncertainties
+
+    assert "zxx_imag component has NDV values" in str(error.value)
+    assert "zyx_real component has NDV values" in str(error.value)
 
 
 def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):

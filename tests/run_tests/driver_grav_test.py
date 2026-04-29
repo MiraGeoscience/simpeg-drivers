@@ -206,6 +206,32 @@ def test_array_too_large_run(
             driver.run()
 
 
+def test_bad_uncertainties(
+    tmp_path: Path,
+):
+    workpath = tmp_path / f"{__name__}.ui.geoh5"
+
+    with Workspace(workpath) as geoh5:
+        components = SyntheticsComponents(geoh5)
+        gz = components.survey.add_data(
+            {"data": {"values": np.random.randn(components.survey.n_vertices)}}
+        )
+
+        # Run the inverse
+        params = GravityInversionOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=gz.parent,
+            gz_channel=gz,
+            gz_uncertainty=-1e-4,
+            starting_model=1e-4,
+        )
+
+    with raises(GeoAppsError, match="Issues encountered with uncertainties"):
+        _ = params.uncertainties
+
+
 if __name__ == "__main__":
     # Full run
     test_gravity_fwr_run(
