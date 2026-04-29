@@ -20,6 +20,9 @@ from . import generate_plate_options
 from .conftest import FAKE_OUT, N_CHANNELS, N_STATIONS
 
 
+#  pylint: disable=protected-access
+
+
 def test_line_formatting(tmp_path):
     with Workspace(tmp_path / "test.geoh5") as geoh5:
         opts = generate_plate_options(geoh5)
