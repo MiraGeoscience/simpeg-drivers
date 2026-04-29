@@ -168,14 +168,15 @@ class PlateMatchDriver(Driver):
         # TODO: Replace with UIJson when fully implemented
         uijson = SimPEGDriversUIJson.read(filepath)
 
-        with uijson.geoh5.open(mode=mode):
+        with Workspace(uijson.geoh5, mode=mode) as workspace:
             try:
-                data = uijson.to_params(uijson.geoh5)
+                data = uijson.to_params(workspace)
+                options = PlateMatchOptions.build(**data)
                 logger.info("Initializing application . . .")
-                driver = cls(**data)
+                driver = cls(options)
                 logger.info("Running application . . .")
                 driver.run()
-                logger.info("Results saved to %s", uijson.geoh5.h5file)
+                logger.info("Results saved to %s", uijson.geoh5)
 
             except GeoAppsError as error:
                 logger.warning("\n\nApplicationError: %s\n\n", error)

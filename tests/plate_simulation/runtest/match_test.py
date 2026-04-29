@@ -219,13 +219,17 @@ def test_matching_driver(tmp_path: Path):
             topography_object=components.topography,
             simulations=new_dir,
         )
-        match_driver = PlateMatchDriver(options)
-        results = match_driver.run()
+        json_file = options.write_ui_json(tmp_path / "match_options.ui.json")
 
+    PlateMatchDriver.start(json_file)
+
+    with geoh5.open():
+        out_group = geoh5.get_entity("Plate Match")[0]
+        results = out_group.get_entity("Points")[0]
         assert isinstance(results, Points)
 
         names = results.get_data("file")[0]
-        assert names.values[0] == file.stem + f"_[{1}].geoh5"
+        assert names.values == file.stem + f"_[{1}].geoh5"
 
         plate = geoh5.get_entity("Query [0]")[0]
         assert plate.geometry.dip_direction == 45.0
