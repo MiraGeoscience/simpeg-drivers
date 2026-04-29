@@ -19,6 +19,9 @@ from simpeg_drivers.plate_simulation.leroi_air.driver import LeroiAirDriver
 from . import generate_plate_options
 
 
+# pylint: disable=protected-access
+
+
 def test_leroi_air_driver_run_raises_on_subprocess_failure(tmp_path):
     with Workspace(tmp_path / "test.geoh5") as geoh5:
         opts = generate_plate_options(workspace=geoh5)
