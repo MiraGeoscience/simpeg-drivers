@@ -96,7 +96,11 @@ class LeroiAirInput:
         }
 
     def _format_value(self, value: int | float) -> str:
-        """Format a scalar value, preserving integer formatting and applying float precision only when needed."""
+        """
+        Format a scalar value as an integer of bounded precision float.
+
+        :param value: Value to format.
+        """
         match value:
             case int() | np.integer():
                 return str(int(value))
@@ -106,30 +110,50 @@ class LeroiAirInput:
                 return str(value)
 
     def _format_float(self, value: float) -> str:
-        """Format a float, truncating to float_precision only when needed."""
+        """
+        Format a float, truncating to float_precision only when needed.
+
+        :param value: Value to format as a bounded precision float.
+        """
         _, _, decimals = str(value).partition(".")
         if len(decimals) > self.opts.float_precision:
             return f"{value:.{self.opts.float_precision}f}"
         return str(value)
 
     def _format_scalar_params(self, params: list[str]) -> str:
-        """Format one scalar value per param onto a single line."""
+        """
+        Format one scalar value per param onto a single line.
+
+        :param params: Parameter names to format a single line of scalar data.
+        """
         values = [self._format_value(self.aliased_values[k]) for k in params]
         return f"{' '.join(values)} \t ! {', '.join(params)}"
 
     def _format_vector_param(self, param: str) -> str:
-        """Format all elements of a single vector param onto a single line."""
+        """
+        Format all elements of a single vector param onto a single line.
+
+        :param param: Parameter name to format as a single line of vector data.
+        """
         values = [self._format_value(v) for v in self.aliased_values[param]]
         return f"{' '.join(values)} \t ! {param}"
 
     def format_line(self, params: str | list[str]) -> str:
-        """Format one or more param values on a single line."""
+        """
+        Format one or more param values on a single line.
+
+        :param params: Parameter names to format as a single line.
+        """
         if isinstance(params, str):
             return self._format_vector_param(params)
         return self._format_scalar_params(params)
 
     def format_multi_line(self, params: list[str]) -> str:
-        """Format one or more vector param values as a row-per-entry table."""
+        """
+        Format one or more vector param values as a row-per-entry table.
+
+        :param params: Parameter names to format as a multi-line.
+        """
         columns = [self.aliased_values[k] for k in params]
         rows = [
             " ".join(self._format_value(v) for v in row)
@@ -239,7 +263,11 @@ class LeroiAirInput:
         return "\n".join(lines) + "\n"
 
     def write_cfl_file(self, filepath: Path) -> None:
-        """Write the formatted .cfl input file to disk."""
+        """
+        Write the formatted .cfl input file to disk.
+
+        :param filepath: Path where the .cfl file will be written.
+        """
         with open(filepath, mode="w", encoding="utf-8") as f:
             f.write(self.format_cfl_file())
 
@@ -257,7 +285,11 @@ class LeroiAirOutput:
         self.opts = opts
 
     def _find_data_start(self, chunk: list[str]) -> int:
-        """Return the index of the first station data row within a section chunk."""
+        """
+        Return the index of the first station data row within a section chunk.
+
+        :param chunk: Chunk of data containing a header to index lines from.
+        """
         header_idx = next(
             i
             for i, line in enumerate(chunk)
@@ -266,7 +298,12 @@ class LeroiAirOutput:
         return header_idx + 2
 
     def _slice_data_lines(self, lines: list[str], anchor: str) -> list[str]:
-        """Slice the station data rows that follow the given section header."""
+        """
+        Slice the station data rows that follow the given section header.
+
+        :param lines: Lines to slice.
+        :param anchor: String marking the start of a chunk of output data.
+        """
         anchor_idx = next(i for i, line in enumerate(lines) if anchor in line)
         chunk = lines[anchor_idx:]
         data_start = self._find_data_start(chunk)
@@ -275,13 +312,24 @@ class LeroiAirOutput:
     def _extract_data(
         self, outfile: str | Path, component: Literal["inline", "crossline", "vertical"]
     ) -> np.ndarray:
-        """Extract channel data for a single component from a LeroiAir .out file."""
+        """
+        Extract channel data for a single component from a LeroiAir .out file.
+
+        :param outfile: Path to the output file from a LeroiAir run.
+        :param component: Component to extract.
+        """
         lines = Path(outfile).read_text(encoding="utf-8", errors="replace").splitlines()
         data_lines = self._slice_data_lines(lines, self._COMPONENT_ANCHORS[component])
         return np.array([line.split() for line in data_lines], dtype=float)[:, 4:]
 
     def save_to_geoh5(self, outfile: str | Path, out_group):
-        """Save LeroiAir simulated data on the provided survey to geoh5."""
+        """
+        Save LeroiAir simulated data on the provided survey to geoh5.
+
+        :param outfile: Path to output file from a LeroiAir run.
+        :param out_group: Group where a copy of the survey will be saved
+            along with all the data computed by LeroiAir.
+        """
 
         survey = self.opts.entity.copy(parent=out_group, copy_children=False)
         for component in "inline", "crossline", "vertical":
