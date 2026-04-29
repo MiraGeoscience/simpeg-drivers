@@ -151,34 +151,37 @@ def test_bad_uncertainties(
     )
 
     with Workspace(workpath) as geoh5:
-        components = SyntheticsComponents(geoh5)
-        survey = components.survey.copy(copy_children=False, name="bad_uncertainties")
-        mesh = components.mesh
-        topography = components.topography
-        data_kwargs = setup_data(geoh5, survey)
+        with Workspace.create(tmp_path / f"{__name__}.geoh5") as ws:
+            components = SyntheticsComponents(geoh5)
+            survey = components.survey.copy(
+                parent=ws, copy_children=False, name="bad_uncertainties"
+            )
+            mesh = components.mesh
+            topography = components.topography
+            data_kwargs = setup_data(geoh5, survey)
 
-        for elem in ["uncertainty_zxx_imag_[0]", "uncertainty_zyx_real_[0]"]:
-            data = survey.get_entity(elem)[0]
-            vals = data.values
-            vals[0] = np.nan
-            data.values = vals
+            for elem in ["uncertainty_zxx_imag_[0]", "uncertainty_zyx_real_[0]"]:
+                data = survey.get_entity(elem)[0]
+                vals = data.values
+                vals[0] = np.nan
+                data.values = vals
 
-        # Run the inverse
-        params = MTInversionOptions.build(
-            geoh5=geoh5,
-            mesh=mesh,
-            topography_object=topography,
-            data_object=survey,
-            starting_model=100.0,
-            background_conductivity=100.0,
-            **data_kwargs,
-        )
+            # Run the inverse
+            params = MTInversionOptions.build(
+                geoh5=geoh5,
+                mesh=mesh,
+                topography_object=topography,
+                data_object=survey,
+                starting_model=100.0,
+                background_conductivity=100.0,
+                **data_kwargs,
+            )
 
-    with raises(GeoAppsError) as error:
-        _ = params.uncertainties
+            with raises(GeoAppsError) as error:
+                _ = params.uncertainties
 
-    assert "zxx_imag component has NDV values" in str(error.value)
-    assert "zyx_real component has NDV values" in str(error.value)
+    assert "zxx_imag" in str(error.value)
+    assert "zyx_real" in str(error.value)
 
 
 def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):

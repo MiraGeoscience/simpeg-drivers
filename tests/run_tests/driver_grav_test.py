@@ -228,8 +228,8 @@ def test_bad_uncertainties(
             starting_model=1e-4,
         )
 
-    with raises(GeoAppsError, match="Issues encountered with uncertainties"):
-        _ = params.uncertainties
+        with raises(GeoAppsError, match="Issues encountered with uncertainties"):
+            _ = params.uncertainties
 
 
 if __name__ == "__main__":
