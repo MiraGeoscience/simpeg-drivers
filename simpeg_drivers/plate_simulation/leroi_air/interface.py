@@ -45,14 +45,13 @@ class LeroiAirInput:
             "NSX": len(self.opts.survey.ontime_waveform),
             "STEP": 0 if self.opts.magnetic_field == "dBdt" else 1,
             "UNITS": 1,
-            "NCHNL": len(self.opts.survey.entity.channels),
+            "NCHNL": len(self.opts.survey.channels),
             "KRXW": 2,
-            "REFTYM": self.opts.survey.entity.timing_mark,
+            "REFTYM": self.opts.survey.timing_mark,
             "OFFTIME": self.opts.survey.offtime,
             "TXON": self.opts.survey.ontime_waveform[:, 0],
             "TXAMP": self.opts.survey.ontime_waveform[:, 1],
-            "TMS": self.opts.survey.entity.timing_mark
-            + np.array(self.opts.survey.entity.channels),
+            "TMS": self.opts.survey.timing_mark + np.array(self.opts.survey.channels),
             "WIDTH": self.opts.survey.channel_widths,
             "TXCLN": 0.0,
             "CMP": 3,
@@ -337,7 +336,7 @@ class LeroiAirOutput:
             entities = survey.add_data(
                 {
                     f"fwd {component} [{i}]": {"values": data[:, i]}
-                    for i in range(len(self.opts.entity.channels))
+                    for i in range(len(self.opts.channels))
                 }
             )
 

@@ -33,7 +33,7 @@ def test_options_channel_widths_from_metadata(tmp_path):
 
 
 def test_options_frequency(plate_options):
-    assert np.isclose(plate_options.survey.frequency, 0.142857143)
+    assert np.isclose(plate_options.survey.frequency, 142.857143)
 
 
 def test_options_frequency_from_metadata(tmp_path):

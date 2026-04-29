@@ -20,13 +20,43 @@ from pydantic import BaseModel, ConfigDict, model_validator
 from scipy.interpolate import LinearNDInterpolator
 
 from simpeg_drivers.components.topography import InversionTopography
+from simpeg_drivers.electromagnetics.time_domain.options import TDEMForwardOptions
 from simpeg_drivers.plate_simulation.options import ModelOptions
+
+
+TIME_UNIT_CONVERSION = {
+    "Seconds (s)": 1e3,
+    "Milliseconds (ms)": 1,
+    "Microseconds (us)": 1e-3,
+    "Nanoseconds (ns)": 1e-6,
+}
 
 
 class SurveyOptions(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     entity: AirborneTEMReceivers
+
+    @property
+    def waveform(self) -> np.ndarray:
+        """Waveform in expected units of milliseconds."""
+        waveform = self.entity.waveform.copy()
+        waveform[:, 0] *= TIME_UNIT_CONVERSION[self.entity.unit]
+        return waveform
+
+    @property
+    def timing_mark(self) -> float:
+        """Timing mark in expected units of milliseconds."""
+        timing_mark = self.entity.timing_mark
+        timing_mark *= TIME_UNIT_CONVERSION[self.entity.unit]
+        return timing_mark
+
+    @property
+    def channels(self) -> np.ndarray:
+        """Channels in expected units of milliseconds."""
+        channels = self.entity.channels.copy()
+        channels *= TIME_UNIT_CONVERSION[self.entity.unit]
+        return channels
 
     @property
     def frequency(self) -> float:
@@ -39,8 +69,8 @@ class SurveyOptions(BaseModel):
         """
         frequency = self.entity.metadata.get("frequency", None)
         if frequency is None:
-            half_cycle_time = self.entity.waveform[-1, 0] - self.entity.waveform[0, 0]
-            frequency = 1 / (2 * half_cycle_time)
+            half_cycle_seconds = (self.waveform[-1, 0] - self.waveform[0, 0]) / 1e3
+            frequency = 1 / (2 * half_cycle_seconds)
 
         return frequency
 
@@ -49,13 +79,15 @@ class SurveyOptions(BaseModel):
         """Time channel widths."""
         channel_widths = self.entity.metadata.get("channel_widths", None)
         if channel_widths is None:
-            channel_widths = np.diff(np.r_[0, self.entity.channels])
+            channel_widths = np.diff(np.r_[0, self.channels])
+        else:
+            channel_widths *= TIME_UNIT_CONVERSION[self.entity.unit]
         return channel_widths
 
     @property
     def _ontime(self) -> float:
         """Time at which the transmitter current turns off."""
-        return float(self.entity.waveform[self._offtime_mask(), 0][0])
+        return float(self.waveform[self._offtime_mask(), 0][0])
 
     @property
     def offtime(self) -> float:
@@ -65,18 +97,18 @@ class SurveyOptions(BaseModel):
         This offtime is based on system frequency and may include times that
         are not accounted for by the waveform.
         """
-        half_cycle = 1 / (2 * self.frequency)
-        zero_current_ind = np.where(self.entity.waveform[:, 1] == 0)[0]
-        first_zero = 1 if self.entity.waveform[0, 1] == 0.0 else 0
-        ontime = self.entity.waveform[zero_current_ind][first_zero, 0]
+        half_cycle = 1000 / (2 * self.frequency)
+        zero_current_ind = np.where(self.waveform[:, 1] == 0)[0]
+        first_zero = 1 if self.waveform[0, 1] == 0.0 else 0
+        ontime = self.waveform[zero_current_ind][first_zero, 0]
 
         return half_cycle - ontime
 
     @property
     def ontime_waveform(self) -> np.ndarray:
         """On-time waveform including leading and trailing 0 current times."""
-        ontime_waveform = self.entity.waveform[~self._offtime_mask(), :]
-        endpoint = self.entity.waveform[self._offtime_mask()][0, :]
+        ontime_waveform = self.waveform[~self._offtime_mask(), :]
+        endpoint = self.waveform[self._offtime_mask()][0, :]
         return np.vstack([ontime_waveform, endpoint])
 
     @property
@@ -101,7 +133,7 @@ class SurveyOptions(BaseModel):
 
     def _offtime_mask(self) -> np.ndarray:
         """Mask selecting off-time rows from the waveform array."""
-        mask = np.isclose(self.entity.waveform[:, 1], 0)
+        mask = np.isclose(self.waveform[:, 1], 0)
         mask[0] = False
         return mask
 
@@ -145,7 +177,7 @@ class LeroiAirOptions(BaseModel):
 
     @classmethod
     def from_plate_simulation_options(
-        cls, model: ModelOptions, simulation: SimPEGGroup
+        cls, model: ModelOptions, simulation: TDEMForwardOptions
     ) -> Self:
         """Construct from a :class:`PlateSimulationOptions` instance."""
 
