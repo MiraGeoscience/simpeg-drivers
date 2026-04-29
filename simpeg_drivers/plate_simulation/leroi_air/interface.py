@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 import numpy as np
+from geoh5py.groups import UIJsonGroup
 from geoh5py.shared.utils import fetch_active_workspace
 
 from .options import LeroiAirOptions, SurveyOptions
@@ -43,7 +44,7 @@ class LeroiAirInput:
             "ISTOP": 0,
             "ISW": 1,
             "NSX": len(self.opts.survey.ontime_waveform),
-            "STEP": 0 if self.opts.magnetic_field == "dBdt" else 1,
+            "STEP": int(self.opts.step),
             "UNITS": 1,
             "NCHNL": len(self.opts.survey.channels),
             "KRXW": 2,
@@ -321,13 +322,17 @@ class LeroiAirOutput:
         data_lines = self._slice_data_lines(lines, self._COMPONENT_ANCHORS[component])
         return np.array([line.split() for line in data_lines], dtype=float)[:, 4:]
 
-    def save_to_geoh5(self, outfile: str | Path, out_group):
+    def save_to_geoh5(
+        self, outfile: str | Path, out_group: UIJsonGroup, normalization: float = 1
+    ):
         """
         Save LeroiAir simulated data on the provided survey to geoh5.
 
         :param outfile: Path to output file from a LeroiAir run.
         :param out_group: Group where a copy of the survey will be saved
             along with all the data computed by LeroiAir.
+        :param normalization: Normalization multiplied against the data
+            before saving.
         """
 
         survey = self.opts.entity.copy(parent=out_group, copy_children=False)
@@ -335,7 +340,7 @@ class LeroiAirOutput:
             data = self._extract_data(outfile=outfile, component=component)
             entities = survey.add_data(
                 {
-                    f"fwd {component} [{i}]": {"values": data[:, i]}
+                    f"fwd {component} [{i}]": {"values": data[:, i] * normalization}
                     for i in range(len(self.opts.channels))
                 }
             )

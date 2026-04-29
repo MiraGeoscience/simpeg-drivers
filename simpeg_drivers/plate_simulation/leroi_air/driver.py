@@ -55,4 +55,5 @@ class LeroiAirDriver:
         self.interface.output.save_to_geoh5(
             outfile=self.project_path / "LeroiAir.out",
             out_group=self.options.out_group,
+            normalization=1e-9,
         )

@@ -151,7 +151,7 @@ class LeroiAirOptions(BaseModel):
     plate_resistivities: list[float]
     plate_geometries: list[PlateModel]
     cell_size: float = 10.0
-    magnetic_field: Literal["dBdt", "B"] = "dBdt"
+    step: bool = True
     domain: Literal["time", "frequency"] = "time"
     layered_earth_only: bool = False
     float_precision: int = 4
@@ -202,7 +202,7 @@ class LeroiAirOptions(BaseModel):
             layer_thicknesses=[model.overburden_options.thickness, 9999],
             plate_resistivities=[model.plate_options.plate_property],
             plate_geometries=[model.plate_options.geometry],
-            magnetic_field="dBdt" if "dBdt" in simulation.data_units else "B",
+            step="dBdt" in simulation.data_units,
             out_group=simulation.out_group,
         )
 
