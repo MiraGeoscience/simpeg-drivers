@@ -216,8 +216,6 @@ class LeroiAirOptions(BaseModel):
         """Number of plates."""
         return len(self.plate_geometries)
 
-    # TODO use units to convert time to milliseconds used by leroi.
-
     @property
     def resistivities(self) -> np.ndarray:
         """All resistivities."""
