@@ -296,7 +296,9 @@ class InversionData(InversionLocations):
                 elif self.params.inversion_type in ["tipper"]:
                     if "imag" in comp:
                         normalizations[chan][comp] = -1 * np.ones(self.mask.sum())
-                elif "fdem" == self.params.inversion_type:  # Assume always ppm data
+
+                # Assume always ppm data, so convert to SI units using a dipole source
+                elif "fdem" == self.params.inversion_type:
                     mu0 = 4 * np.pi * 1e-7
                     offsets = self.params.tx_offsets
                     offsets = {
@@ -306,7 +308,7 @@ class InversionData(InversionLocations):
                         mu0 * (2 / offsets[chan] ** 3 / (4 * np.pi)) / 1e6
                     )
 
-                    # Normalization for coplanar
+                    # Normalization for primary coplanar, half the strength of the coaxial component
                     if not self.params.coaxial[chan]:
                         normalizations[chan][comp] *= 0.5
 
