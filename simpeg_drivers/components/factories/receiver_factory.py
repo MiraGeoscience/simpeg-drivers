@@ -32,7 +32,7 @@ from simpeg_drivers.utils.regularization import direction_and_dip, get_cell_norm
 
 ORIENTATION_MAP = {
     "coplanar": "z",
-    "coaxial": "x",
+    "coaxial": "y",
     "vertical": "z",
     "inline": "y",
     "crossline": "x",
