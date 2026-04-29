@@ -17,8 +17,8 @@ from pathlib import Path
 from typing import Annotated, Any, ClassVar, Literal
 
 import numpy as np
-from geoapps_utils import GeoAppsError
 from geoapps_utils.base import Options
+from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.data import (
     BooleanData,
     DataAssociationEnum,
@@ -622,16 +622,15 @@ class BaseInversionOptions(CoreOptions):
         for k in self.active_components:
             out[k] = self.component_uncertainty(k)
 
-            for value in out[k].values():
-                if value is not None and np.any(np.isnan(value)):
-                    flags.append(f"{k} component has NDV values.")
-
-                if value is not None and np.any(value < 0):
-                    flags.append(f"{k} component has negative values.")
+            for data in out[k].values():
+                if np.any(np.isnan(data)) or np.any(data < 0):
+                    flags.append(f"{k} component")
+                    break
 
         if flags:
-            summary = "Issues encountered with uncertainties:\n\n - " + "\n - ".join(
-                flags
+            summary = (
+                "Issues encountered with uncertainties having NDV or negative values:\n\n - "
+                + "\n - ".join(flags)
             )
             summary += "\n\nPlease review the input values."
             raise GeoAppsError(summary)
