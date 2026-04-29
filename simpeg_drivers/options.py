@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Annotated, Any, ClassVar, Literal
 
 import numpy as np
+from geoapps_utils import GeoAppsError
 from geoapps_utils.base import Options
 from geoh5py.data import (
     BooleanData,
@@ -458,7 +459,7 @@ class EMDataMixin:
             k for k in self.data_object.property_groups if k.uid == property_group.uid
         )
         data = {
-            freq: self.geoh5.get_entity(p)[0].values
+            freq: self.data_object.get_entity(p)[0].values
             for freq, p in zip(frequencies, group.properties, strict=False)
         }
         return data
@@ -615,20 +616,36 @@ class BaseInversionOptions(CoreOptions):
 
     @property
     def uncertainties(self) -> dict[str, dict[float, np.ndarray | None]]:
-        """Return dictionary of unceratinty components and associated values."""
+        """Return dictionary of uncertainty components and associated values."""
         out = {}
+        flags = []
         for k in self.active_components:
             out[k] = self.component_uncertainty(k)
+
+            for value in out[k].values():
+                if value is not None and np.any(np.isnan(value)):
+                    flags.append(f"{k} component has NDV values.")
+
+                if value is not None and np.any(value < 0):
+                    flags.append(f"{k} component has negative values.")
+
+        if flags:
+            summary = "Issues encountered with uncertainties:\n\n - " + "\n - ".join(
+                flags
+            )
+            summary += "\n\nPlease review the input values."
+            raise GeoAppsError(summary)
+
         return out
 
-    def component_data(self, component: str) -> np.ndarray | None:
+    def component_data(self, component: str) -> dict:
         """Return data values associated with the component."""
         data = getattr(self, "_".join([component, "channel"]), None)
         if isinstance(data, NumericData):
             data = data.values
         return {None: data}
 
-    def component_uncertainty(self, component: str) -> np.ndarray | None:
+    def component_uncertainty(self, component: str) -> dict:
         """
         Return uncertainty values associated with the component.
 
