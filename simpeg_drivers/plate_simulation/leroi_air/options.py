@@ -144,6 +144,7 @@ class LeroiAirOptions(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     title: str = "LeroiAir modelling for plate-simulation package."
+    out_group: SimPEGGroup
     survey: SurveyOptions
     topo: np.ndarray
     layer_resistivities: list[float]
@@ -155,7 +156,6 @@ class LeroiAirOptions(BaseModel):
     domain: Literal["time", "frequency"] = "time"
     layered_earth_only: bool = False
     float_precision: int = 4
-    out_group: SimPEGGroup | None = None
 
     @model_validator(mode="after")
     def validate_layer_lengths_match(self) -> Self:
