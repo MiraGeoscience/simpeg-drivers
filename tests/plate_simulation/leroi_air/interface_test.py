@@ -53,7 +53,7 @@ def test_format_cfl_file(tmp_path):
     assert "1 1 1 0 \t ! TDFD, DO3D, PRFL, ISTOP" in cfl_str
 
     # record_3: ISW, NSX, STEP, UNITS, NCHNL, KRXW, OFFTIME
-    assert "1 8 0 1 3 2 1.6 \t ! ISW, NSX, STEP, UNITS, NCHNL, KRXW, OFFTIME" in cfl_str
+    assert "1 8 1 1 3 2 1.6 \t ! ISW, NSX, STEP, UNITS, NCHNL, KRXW, OFFTIME" in cfl_str
 
     # record_4: TXON, TXAMP (multi-line waveform table)
     assert (
