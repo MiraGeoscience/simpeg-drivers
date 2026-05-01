@@ -10,6 +10,7 @@
 import numpy as np
 import pytest
 from geoh5py import Workspace
+from geoh5py.groups import SimPEGGroup
 from pydantic import ValidationError
 
 from simpeg_drivers.plate_simulation.leroi_air.options import LeroiAirOptions
@@ -72,6 +73,8 @@ def test_options_drape_height(plate_options):
 
 
 def test_options_validate_layer_lengths_mismatch(plate_options):
+    ws = Workspace()
+    out_group = SimPEGGroup.create(ws)
     with pytest.raises(ValidationError, match="layer_resistivities"):
         LeroiAirOptions(
             survey=plate_options.survey,
@@ -80,10 +83,13 @@ def test_options_validate_layer_lengths_mismatch(plate_options):
             layer_thicknesses=[50.0, 1000.0],
             plate_resistivities=plate_options.plate_resistivities,
             plate_geometries=plate_options.plate_geometries,
+            out_group=out_group,
         )
 
 
 def test_options_validate_plate_lengths_mismatch(plate_options):
+    ws = Workspace()
+    out_group = SimPEGGroup.create(ws)
     with pytest.raises(ValidationError, match="plate_resistivities"):
         LeroiAirOptions(
             survey=plate_options.survey,
@@ -92,4 +98,5 @@ def test_options_validate_plate_lengths_mismatch(plate_options):
             layer_thicknesses=plate_options.layer_thicknesses,
             plate_resistivities=[100.0, 200.0],
             plate_geometries=plate_options.plate_geometries,
+            out_group=out_group,
         )

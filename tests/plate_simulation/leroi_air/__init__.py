@@ -10,6 +10,7 @@
 
 import numpy as np
 from geoapps_utils.modelling.plates import PlateModel
+from geoh5py.groups import SimPEGGroup
 from geoh5py.shared.utils import fetch_active_workspace
 
 from simpeg_drivers.plate_simulation.leroi_air.options import (
@@ -28,6 +29,7 @@ def generate_plate_options(workspace):
     Z = np.full_like(X, 20.0)
 
     with fetch_active_workspace(workspace) as geoh5:
+        out_group = SimPEGGroup.create(geoh5)
         survey = generate_airborne_tdem_survey(geoh5, X=X, Y=Y, Z=Z)
         layer_resistivities = [1500.0, 2000.0, 5000.0]
         layer_thicknesses = [50.0, 1000.0, 2000.0]
@@ -49,5 +51,6 @@ def generate_plate_options(workspace):
             layer_thicknesses=layer_thicknesses,
             plate_resistivities=plate_resistivities,
             plate_geometries=plate_geometries,
+            out_group=out_group,
         )
         return opts

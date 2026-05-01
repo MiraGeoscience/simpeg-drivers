@@ -202,7 +202,7 @@ class LeroiAirOptions(BaseModel):
             layer_thicknesses=[model.overburden_options.thickness, 9999],
             plate_resistivities=[model.plate_options.plate_property],
             plate_geometries=[model.plate_options.geometry],
-            step="dBdt" in simulation.get("data_units", "dBdt"),
+            step="dBdt" in getattr(simulation, "data_units", "dBdt"),
             out_group=simulation.out_group,
         )
 

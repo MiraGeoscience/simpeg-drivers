@@ -55,7 +55,7 @@ def test_format_cfl_file(tmp_path):
     # record_3: ISW, NSX, STEP, UNITS, NCHNL, KRXW, OFFTIME
     assert "1 8 1 1 3 2 1.6 \t ! ISW, NSX, STEP, UNITS, NCHNL, KRXW, OFFTIME" in cfl_str
 
-    # record_4: TXON, TXAMP (multi-line waveform table)
+    # record_4: TXON, WAVEFORM (multi-line waveform table)
     assert (
         "0.0 0.0\n"
         "0.5 0.3333\n"
@@ -64,7 +64,7 @@ def test_format_cfl_file(tmp_path):
         "1.6 0.9\n"
         "1.7 0.6000\n"
         "1.8 0.3000\n"
-        "1.9 0.0\t ! TXON, TXAMP"
+        "1.9 0.0\t ! TXON, WAVEFORM"
     ) in cfl_str
 
     # record_5: TMS (time channel midpoints)
