@@ -169,6 +169,10 @@ class SourcesFactory(SimPEGFactory):
 
         if "fdem" in self.factory_type:
             kwargs["location"] = locations
+            kwargs["orientation"] = receivers[
+                0
+            ].orientation  # For airborne FEM, coaxial or coplanar
+
         if "tdem" in self.factory_type:
             kwargs["location"] = locations
             kwargs["waveform"] = waveform

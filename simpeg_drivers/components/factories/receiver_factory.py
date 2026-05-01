@@ -31,6 +31,8 @@ from simpeg_drivers.utils.regularization import direction_and_dip, get_cell_norm
 
 
 ORIENTATION_MAP = {
+    "coplanar": "z",
+    "coaxial": "y",
     "vertical": "z",
     "inline": "y",
     "crossline": "x",
@@ -164,12 +166,17 @@ class ReceiversFactory(SimPEGFactory):
         else:
             kwargs["storeProjections"] = True
 
-        if self.factory_type in ["fdem", "fdem 1d", "magnetotellurics", "tipper"]:
-            comp = component.split("_")[0]
-            kwargs["orientation"] = (
-                ORIENTATION_MAP[comp] if "fdem" in self.factory_type else comp[1:]
-            )
-            kwargs["component"] = component.split("_")[1]
+        # Channels such as txz_real or zxy_imag
+        if self.factory_type in ["magnetotellurics", "tipper"]:
+            ori, comp = component.split("_")
+            kwargs["orientation"] = ori[1:]
+            kwargs["component"] = comp
+
+        # Channels such as real
+        if self.factory_type in ["fdem", "fdem 1d"]:
+            comp, ori = component.split("_")
+            kwargs["orientation"] = ORIENTATION_MAP[ori]
+            kwargs["component"] = comp
 
         if self.factory_type in ["tipper"]:
             kwargs["orientation"] = kwargs["orientation"][::-1]
