@@ -58,18 +58,9 @@ def test_vertical_east_striking_plate(tmp_path):
             vertical_east_striking.extent[1, 2] - vertical_east_striking.extent[0, 2],
             500.0,
         )
-        assert np.isclose(
-            vertical_east_striking.vertices[:, 0].mean(),
-            0.0,  # pylint: disable=no-member
-        )
-        assert np.isclose(
-            vertical_east_striking.vertices[:, 1].mean(),
-            0.0,  # pylint: disable=no-member
-        )
-        assert np.isclose(
-            vertical_east_striking.vertices[:, 2].mean(),
-            -250.0,  # pylint: disable=no-member
-        )
+        assert np.isclose(vertical_east_striking.vertices[:, 0].mean(), 0.0)
+        assert np.isclose(vertical_east_striking.vertices[:, 1].mean(), 0.0)
+        assert np.isclose(vertical_east_striking.vertices[:, 2].mean(), -250.0)
 
 
 def test_dipping_plates_all_quadrants(tmp_path):
@@ -102,13 +93,13 @@ def test_dipping_plates_all_quadrants(tmp_path):
 def test_replicate_even(tmp_path):
     with Workspace(tmp_path / "test.geoh5") as workspace:
         options = PlateModel(
-            strike_length=2.0,
-            dip_length=2.0,
-            width=2.0,
+            strike_length=1.0,
+            dip_length=1.0,
+            width=1.0,
             direction=0.0,
             dip=0.0,
             easting=0.0,
-            northing=-1.0,
+            northing=0.0,
             elevation=0.0,
         )
         plate = Plate(options)
@@ -117,24 +108,24 @@ def test_replicate_even(tmp_path):
         assert plates[1].surface(workspace).vertices is not None
         assert np.allclose(
             plates[0].surface(workspace).vertices.mean(axis=0),
-            np.array([-5.0, 0.0, 0.0]),
+            np.array([-5.0, 0.5, 0.0]),
         )
         assert np.allclose(
             plates[1].surface(workspace).vertices.mean(axis=0),
-            np.array([5.0, 0.0, 0.0]),
+            np.array([5.0, 0.5, 0.0]),
         )
 
 
 def test_replicate_odd(tmp_path):
     with Workspace(tmp_path / "test.geoh5") as workspace:
         options = PlateModel(
-            strike_length=2.0,
-            dip_length=2.0,
-            width=2.0,
+            strike_length=1.0,
+            dip_length=1.0,
+            width=1.0,
             direction=0.0,
             dip=0.0,
             easting=0.0,
-            northing=-1.0,
+            northing=0.0,
             elevation=0.0,
         )
         plate = Plate(options)
@@ -144,13 +135,13 @@ def test_replicate_odd(tmp_path):
         assert plates[2].surface(workspace).vertices is not None
         assert np.allclose(
             plates[0].surface(workspace).vertices.mean(axis=0),
-            np.array([0.0, -5.0, 0.0]),
+            np.array([0.0, -4.5, 0.0]),
         )
         assert np.allclose(
             plates[1].surface(workspace).vertices.mean(axis=0),
-            np.array([0.0, 0.0, 0.0]),
+            np.array([0.0, 0.5, 0.0]),
         )
         assert np.allclose(
             plates[2].surface(workspace).vertices.mean(axis=0),
-            np.array([0.0, 5.0, 0.0]),
+            np.array([0.0, 5.5, 0.0]),
         )

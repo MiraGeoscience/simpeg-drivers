@@ -50,6 +50,7 @@ from simpeg_drivers import DRIVER_MAP
 
 if TYPE_CHECKING:
     from simpeg_drivers.components.data import InversionData
+    from simpeg_drivers.driver import InversionDriver
 
 
 def mask_vertices_and_cells(

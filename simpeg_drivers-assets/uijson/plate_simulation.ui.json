@@ -18,6 +18,12 @@
         "enabled": true,
         "tooltip": "Forward modelling SimPEG Group with at least the topography and survey set"
     },
+    "use_leroi": {
+        "main": true,
+        "label": "Use LeroiAir",
+        "value": false,
+        "tooltip": "If checked, plate simulation will use LeroiAir to simulate the plate response."
+    },
     "name": {
         "main": true,
         "label": "Label",

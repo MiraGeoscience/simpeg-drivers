@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 import sys
+from copy import deepcopy
 from pathlib import Path
 
 import numpy as np
@@ -21,6 +22,7 @@ from geoapps_utils.utils.transformations import azimuth_to_unit_vector
 from geoh5py.data import FloatData, ReferencedData
 from geoh5py.objects import Octree, Points, Surface
 from geoh5py.shared.utils import fetch_active_workspace
+from geoh5py.ui_json.input_file import InputFile
 
 from simpeg_drivers.driver import (
     InversionDriver,
@@ -28,12 +30,14 @@ from simpeg_drivers.driver import (
     validate_workers,
 )
 from simpeg_drivers.options import BaseForwardOptions, ModelTypeEnum
+from simpeg_drivers.plate_simulation.leroi_air.driver import LeroiAirDriver
+from simpeg_drivers.plate_simulation.leroi_air.options import LeroiAirOptions
 from simpeg_drivers.plate_simulation.models.events import Anomaly, Erosion, Overburden
 from simpeg_drivers.plate_simulation.models.series import DikeSwarm, Geology
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
 from simpeg_drivers.utils.synthetics.meshes import get_octree_mesh
 from simpeg_drivers.utils.utils import (
-    driver_class_from_name,
+    driver_class_from_dict,
     start_dask_run,
     validate_out_group,
 )
@@ -67,17 +71,17 @@ class PlateSimulationDriver(Driver):
         self._survey: Points | None = None
         self._mesh: Octree | None = None
         self._model: FloatData | None = None
-        self._simulation_parameters: BaseForwardOptions | None = None
-        self._simulation_driver: InversionDriver | None = None
         self._client: Client | bool = validate_client(client)
         self._workers: list[tuple[str]] = validate_workers(self._client, workers)
+        self._simulation_driver: InversionDriver | None = None
+        self.simulation_parameters: BaseForwardOptions = self._initialize_forward_opts()
 
     def run(self) -> InversionDriver:
         """Create octree mesh, fill model, and simulate."""
 
-        with fetch_active_workspace(self.params.geoh5, mode="r+"):
-            self.simulation_driver.run()
-            self.update_monitoring_directory(self._out_group)
+        self.simulation_driver.run()
+        self.simulation_parameters.update_out_group_options()
+        self.update_monitoring_directory(self._out_group)
 
         logger.info("done.")
         logger.handlers.clear()
@@ -87,47 +91,17 @@ class PlateSimulationDriver(Driver):
     @property
     def simulation_driver(self) -> InversionDriver:
         if self._simulation_driver is None:
-            with fetch_active_workspace(self.params.geoh5, mode="r+"):
-                self.simulation_parameters.mesh = self.mesh
-                self.simulation_parameters.models.starting_model = self.model
-
-                if not isinstance(
-                    self.simulation_parameters.active_cells.topography_object,
-                    Surface | Points,
-                ):
-                    raise ValueError(
-                        "The topography object of the forward simulation must be a 'Surface'."
-                    )
-
-                self.simulation_parameters.out_group = None
-                driver_class = driver_class_from_name(
-                    self.simulation_parameters.inversion_type, forward_only=True
-                )
-                self._simulation_driver = driver_class(
-                    self.simulation_parameters,
-                    client=self._client,
-                    workers=self._workers,
-                )
-                self._simulation_driver.out_group.parent = self._out_group
+            if self.params.use_leroi:
+                _ = self.plates  # Saves MaxwellPlate(s) when no octree/model
+                self._simulation_driver = self._get_leroi_driver()
+            else:
+                self._simulation_driver = self._get_simpeg_driver()
 
         return self._simulation_driver
 
     @property
-    def simulation_parameters(self) -> BaseForwardOptions:
-        if self._simulation_parameters is None:
-            self._simulation_parameters = self.params.simulation_parameters()
-            if self._simulation_parameters.physical_property == "conductivity":
-                self._simulation_parameters.models.model_type = (
-                    ModelTypeEnum.resistivity
-                )
-        return self._simulation_parameters
-
-    @property
     def survey(self):
-        if self._survey is None:
-            self._survey = self.simulation_parameters.data_object
-
-        return self._survey
+        return self.simulation_parameters.data_object
 
     @property
     def topography(self) -> Surface | Points:
@@ -156,23 +130,10 @@ class PlateSimulationDriver(Driver):
                 self.params.model.plate_options.spacing,
                 self.params.model.plate_options.geometry.direction,
             )
+            for plate in self._plates:
+                plate.to_maxwell_plate(self.params.geoh5, parent=self._out_group)
+
         return self._plates
-
-    @property
-    def mesh(self) -> Octree:
-        """Returns an octree mesh built from mesh parameters."""
-        if self._mesh is None:
-            self._mesh = self.make_mesh()
-
-        return self._mesh
-
-    @property
-    def model(self) -> FloatData:
-        """Returns the model built from model parameters."""
-        if self._model is None:
-            self._model = self.make_model()
-
-        return self._model
 
     def make_mesh(self) -> Octree:
         """
@@ -182,19 +143,17 @@ class PlateSimulationDriver(Driver):
         """
 
         logger.info("making the mesh...")
-        with fetch_active_workspace(self.params.geoh5, mode="r+") as geoh5:
-            surfaces = [p.surface(geoh5) for p in self.plates]
-            mesh = get_octree_mesh(
-                opts=self.params.mesh,
-                survey=self.survey,
-                topography=self.simulation_parameters.active_cells.topography_object,
-                plates=surfaces,
-                name=self.params.mesh.name,
-            )
+        surfaces = [p.surface(self.params.geoh5) for p in self.plates]
+        self._mesh = get_octree_mesh(
+            opts=self.params.mesh,
+            survey=self.survey,
+            topography=self.simulation_parameters.active_cells.topography_object,
+            plates=surfaces,
+            name="Octree",
+        )
+        self._mesh.parent = self._out_group
 
-        mesh.parent = self._out_group
-
-        return mesh
+        return self._mesh
 
     def make_model(self) -> FloatData:
         """Create background + plate and overburden model from parameters."""
@@ -221,7 +180,7 @@ class PlateSimulationDriver(Driver):
 
         scenario = Geology(
             workspace=self.params.geoh5,
-            mesh=self.mesh,
+            mesh=self.simulation_parameters.mesh,
             background=self.params.model.background,
             history=[dikes, overburden, erosion],
         )
@@ -234,7 +193,7 @@ class PlateSimulationDriver(Driver):
         if physical_property == "conductivity":
             physical_property = "resistivity"
 
-        model = self.mesh.add_data(
+        model = self._mesh.add_data(
             {
                 "geology": {
                     "type": "referenced",
@@ -250,7 +209,7 @@ class PlateSimulationDriver(Driver):
         for k, v in physical_property_map.items():
             starting_model_values[geology == k] = v
 
-        starting_model = self.mesh.add_data(
+        starting_model = self.simulation_parameters.mesh.add_data(
             {"starting_model": {"values": starting_model_values}}
         )
 
@@ -308,6 +267,73 @@ class PlateSimulationDriver(Driver):
         :param n_threads: Number of threads to use.
         """
         start_dask_run(cls, json_path, n_workers=n_workers, n_threads=n_threads)
+
+    def _get_simpeg_driver(self):
+
+        if not isinstance(
+            self.simulation_parameters.active_cells.topography_object,
+            Surface | Points,
+        ):
+            raise ValueError(
+                "The topography object of the forward simulation must be a 'Surface'."
+            )
+
+        driver_class = driver_class_from_dict(self.simulation_parameters.__dict__)
+        self.simulation_parameters.mesh = self.make_mesh()
+        self.simulation_parameters.models.starting_model = self.make_model()
+        self._simulation_driver = driver_class(
+            self.simulation_parameters,
+            client=self._client,
+            workers=self._workers,
+        )
+
+        return self._simulation_driver
+
+    def _get_leroi_driver(self):
+        leroi_opts = LeroiAirOptions.from_plate_simulation_options(
+            self.params.model, self.simulation_parameters
+        )
+        driver = LeroiAirDriver(leroi_opts)
+        return driver
+
+    def _collect_simulation_opts(self) -> BaseForwardOptions:
+        """Collect template simulation options."""
+
+        simulation_options = deepcopy(self.params.simulation.options)
+        simulation_options["geoh5"] = self.params.geoh5
+
+        # TODO replace InputFile.data with UIJson.to_params
+        input_file = InputFile(ui_json=simulation_options, validate=False)
+        driver = driver_class_from_dict(input_file.data)
+
+        return driver._params_class.build(input_file.data)  # pylint: disable=protected-access
+
+    def _initialize_forward_opts(self) -> BaseForwardOptions:
+        """Initialize the forward simulation options with mesh and model."""
+
+        opts = self._collect_simulation_opts()
+
+        update = {}
+        models_update = {}
+        if opts.physical_property == "conductivity":
+            # TODO: validate this logic
+            models_update["model_type"] = ModelTypeEnum.resistivity
+        if not self.params.use_leroi:
+            update["mesh"] = None
+            models_update["starting_model"] = None
+        update["models"] = opts.models.model_copy(update=models_update)
+
+        out_group = validate_out_group(opts)
+        out_group = out_group.copy(
+            parent=self.out_group,
+            copy_children=False,
+            copy_relatives=False,
+        )
+        update["out_group"] = out_group
+        forward_opts = opts.model_copy(update=update)
+        forward_opts.update_out_group_options()
+
+        return forward_opts
 
 
 if __name__ == "__main__":
