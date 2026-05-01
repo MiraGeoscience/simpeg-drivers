@@ -19,6 +19,7 @@ from typing import Annotated, Any, ClassVar, Literal
 import numpy as np
 from geoapps_utils.base import Options
 from geoapps_utils.utils.formatters import recursive_flatten
+from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.data import (
     BooleanData,
     DataAssociationEnum,
@@ -30,7 +31,6 @@ from geoh5py.data import (
 from geoh5py.groups import PropertyGroup, SimPEGGroup, UIJsonGroup
 from geoh5py.objects import DrapeModel, Grid2D, Octree, Points
 from geoh5py.objects.surveys.electromagnetics.base import BaseEMSurvey
-from geoh5py.ui_json import BaseUIJson
 from pydantic import (
     AliasChoices,
     BaseModel,
@@ -469,7 +469,7 @@ class EMDataMixin:
             k for k in self.data_object.property_groups if k.uid == property_group.uid
         )
         data = {
-            freq: self.geoh5.get_entity(p)[0].values
+            freq: self.data_object.get_entity(p)[0].values
             for freq, p in zip(frequencies, group.properties, strict=False)
         }
         return data
@@ -626,20 +626,35 @@ class BaseInversionOptions(CoreOptions):
 
     @property
     def uncertainties(self) -> dict[str, dict[float, np.ndarray | None]]:
-        """Return dictionary of unceratinty components and associated values."""
+        """Return dictionary of uncertainty components and associated values."""
         out = {}
+        flags = []
         for k in self.active_components:
             out[k] = self.component_uncertainty(k)
+
+            for data in out[k].values():
+                if np.any(np.isnan(data)) or np.any(data < 0):
+                    flags.append(f"{k} component")
+                    break
+
+        if flags:
+            summary = (
+                "Issues encountered with uncertainties having NDV or negative values:\n\n - "
+                + "\n - ".join(flags)
+            )
+            summary += "\n\nPlease review the input values."
+            raise GeoAppsError(summary)
+
         return out
 
-    def component_data(self, component: str) -> np.ndarray | None:
+    def component_data(self, component: str) -> dict:
         """Return data values associated with the component."""
         data = getattr(self, "_".join([component, "channel"]), None)
         if isinstance(data, NumericData):
             data = data.values
         return {None: data}
 
-    def component_uncertainty(self, component: str) -> np.ndarray | None:
+    def component_uncertainty(self, component: str) -> dict:
         """
         Return uncertainty values associated with the component.
 

@@ -38,7 +38,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 380.3510229653626, "phi_d": 33100, "phi_m": 209}
+target_run = {"data_norm": 381.0495293422212, "phi_d": 33400, "phi_m": 198}
 
 
 def test_fem_fwr_1d_run(
@@ -91,8 +91,8 @@ def test_fem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
         data = {}
         uncertainties = {}
         channels = {
-            "vertical_real": "vertical_real",
-            "vertical_imag": "vertical_imag",
+            "real": "real",
+            "imag": "imag",
         }
 
         for chan, cname in channels.items():
@@ -127,7 +127,7 @@ def test_fem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
             data_kwargs[f"{chan}_channel"] = data_group
             data_kwargs[f"{chan}_uncertainty"] = uncert_group
 
-        orig_z_real_1 = geoh5.get_entity("Iteration_0_vertical_real_[0]")[0].values
+        orig_z_real_1 = geoh5.get_entity("Iteration_0_real_[0]")[0].values
 
         # Run the inverse
         params = FDEM1DInversionOptions.build(
@@ -160,8 +160,8 @@ def test_fem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
         output["data"] = orig_z_real_1
 
         assert (
-            run_ws.get_entity("Iteration_1_vertical_imag_[1]")[0].entity_type.uid
-            == run_ws.get_entity("Observed_vertical_imag_[1]")[0].entity_type.uid
+            run_ws.get_entity("Iteration_1_imag_[1]")[0].entity_type.uid
+            == run_ws.get_entity("Observed_imag_[1]")[0].entity_type.uid
         )
 
         if pytest:

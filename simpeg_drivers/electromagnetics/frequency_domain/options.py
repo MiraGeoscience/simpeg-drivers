@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+from functools import cached_property
 from logging import getLogger
 from pathlib import Path
 from typing import ClassVar
@@ -49,21 +50,37 @@ class BaseFDEMOptions(EMDataMixin):
     Base Frequency Domain Electromagnetic options.
     """
 
-    @property
+    @cached_property
     def tx_offsets(self):
         """Return transmitter offsets from frequency metadata"""
 
         try:
-            offset_data = self.data_object.metadata["EM Dataset"][
+            configs = self.data_object.metadata["EM Dataset"][
                 "Frequency configurations"
             ]
-            tx_offsets = {k["Frequency"]: k["Offset"] for k in offset_data}
+            tx_offsets = {k["Frequency"]: k["Offset"] for k in configs}
 
         except KeyError as exception:
-            msg = "Metadata must contain 'Frequency configurations' dictionary with 'Offset' data."
+            msg = "Metadata must contain 'Frequency configurations' dictionary with 'Offset' key."
             raise GeoAppsError(msg) from exception
 
         return tx_offsets
+
+    @cached_property
+    def coaxial(self):
+        """Return transmitter offsets from frequency metadata"""
+
+        try:
+            configs = self.data_object.metadata["EM Dataset"][
+                "Frequency configurations"
+            ]
+            coaxial = {k["Frequency"]: k["Coaxial data"] for k in configs}
+
+        except KeyError as exception:
+            msg = "Metadata must contain 'Frequency configurations' dictionary with 'Coaxial data' key."
+            raise GeoAppsError(msg) from exception
+
+        return coaxial
 
     @property
     def unit_conversion(self):
@@ -86,12 +103,8 @@ class FDEMForwardOptions(BaseForwardOptions, BaseFDEMOptions):
     Frequency Domain Electromagnetic Forward options.
 
     :param receivers_orientation: Orientation of the receivers provided as a group.
-    :param vertical_real_channel_bool: Vertical (real) component of impedance channel boolean.
-    :param vertical_imag_channel_bool: Vertical (imaginary) component of impedance channel boolean.
-    :param inline_real_channel_bool: In-line (real) component of impedance channel boolean.
-    :param inline_imag_channel_bool: In-line (imaginary) component of impedance channel boolean.
-    :param crossline_real_channel_bool: Cross-line (real) component of impedance channel boolean.
-    :param crossline_imag_channel_bool: Cross-line (imaginary) component of impedance channel
+    :param real_channel_bool: Real component of impedance channel boolean.
+    :param imag_channel_bool: Imaginary component of impedance channel boolean.
     :param models: ConductivityModelOptions parameter.
     """
 
@@ -109,41 +122,13 @@ class FDEMForwardOptions(BaseForwardOptions, BaseFDEMOptions):
         | AirborneFEMReceivers
     )
     receivers_orientation: PropertyGroup | None = None
-    vertical_real_channel_bool: bool = Field(
+    real_channel_bool: bool = Field(
         False,
-        validation_alias=AliasChoices(
-            "z_real_channel_bool", "vertical_real_channel_bool"
-        ),
+        validation_alias=AliasChoices("z_real_channel_bool", "real_channel_bool"),
     )
-    vertical_imag_channel_bool: bool = Field(
+    imag_channel_bool: bool = Field(
         False,
-        validation_alias=AliasChoices(
-            "z_imag_channel_bool", "vertical_imag_channel_bool"
-        ),
-    )
-    inline_real_channel_bool: bool = Field(
-        False,
-        validation_alias=AliasChoices(
-            "y_real_channel_bool", "inline_real_channel_bool"
-        ),
-    )
-    inline_imag_channel_bool: bool = Field(
-        False,
-        validation_alias=AliasChoices(
-            "y_imag_channel_bool", "inline_imag_channel_bool"
-        ),
-    )
-    crossline_real_channel_bool: bool = Field(
-        False,
-        validation_alias=AliasChoices(
-            "x_real_channel_bool", "crossline_real_channel_bool"
-        ),
-    )
-    crossline_imag_channel_bool: bool = Field(
-        False,
-        validation_alias=AliasChoices(
-            "x_imag_channel_bool", "crossline_imag_channel_bool"
-        ),
+        validation_alias=AliasChoices("z_imag_channel_bool", "imag_channel_bool"),
     )
     models: ConductivityModelOptions
 
@@ -152,18 +137,10 @@ class FDEMInversionOptions(BaseFDEMOptions, BaseInversionOptions):
     """
     Frequency Domain Electromagnetic Inversion options.
 
-    :param vertical_real_channel: Vertical (real) impedance channel.
-    :param vertical_real_uncertainty: Vertical (real) impedance uncertainty channel.
-    :param vertical_imag_channel: Vertical (imaginary) impedance channel.
-    :param vertical_imag_uncertainty: Vertical (imaginary) impedance uncertainty channel.
-    :param inline_real_channel: In-line (real) impedance channel.
-    :param inline_real_uncertainty: In-line (real) impedance uncertainty channel.
-    :param inline_imag_channel: In-line (imaginary) impedance channel.
-    :param inline_imag_uncertainty: In-line (imaginary) impedance uncertainty channel
-    :param crossline_real_channel: Cross-line (real) impedance channel.
-    :param crossline_real_uncertainty: Cross-line (real) impedance uncertainty channel.
-    :param crossline_imag_channel: Cross-line (imaginary) impedance channel.
-    :param crossline_imag_uncertainty: Cross-line (imaginary) impedance uncertainty channel
+    :param real_channel: Vertical (real) impedance channel.
+    :param real_uncertainty: Vertical (real) impedance uncertainty channel.
+    :param imag_channel: Vertical (imaginary) impedance channel.
+    :param imag_uncertainty: Vertical (imaginary) impedance uncertainty channel.
     :param models: ConductivityModelOptions parameter.
     """
 
@@ -181,57 +158,20 @@ class FDEMInversionOptions(BaseFDEMOptions, BaseInversionOptions):
         | AirborneFEMReceivers
     )
     receivers_orientation: PropertyGroup | None = None
-    vertical_real_channel: PropertyGroup | None = Field(
-        None, validation_alias=AliasChoices("z_real_channel", "vertical_real_channel")
+    real_channel: PropertyGroup | None = Field(
+        None, validation_alias=AliasChoices("z_real_channel", "real_channel")
     )
-    vertical_real_uncertainty: PropertyGroup | None = Field(
+    real_uncertainty: PropertyGroup | None = Field(
         None,
-        validation_alias=AliasChoices(
-            "z_real_uncertainty", "vertical_real_uncertainty"
-        ),
+        validation_alias=AliasChoices("z_real_uncertainty", "real_uncertainty"),
     )
-    vertical_imag_channel: PropertyGroup | None = Field(
-        None, validation_alias=AliasChoices("z_imag_channel", "vertical_imag_channel")
+    imag_channel: PropertyGroup | None = Field(
+        None, validation_alias=AliasChoices("z_imag_channel", "imag_channel")
     )
-    vertical_imag_uncertainty: PropertyGroup | None = Field(
+    imag_uncertainty: PropertyGroup | None = Field(
         None,
-        validation_alias=AliasChoices(
-            "z_imag_uncertainty", "vertical_imag_uncertainty"
-        ),
-    )
-    inline_real_channel: PropertyGroup | None = Field(
-        None, validation_alias=AliasChoices("y_real_channel", "inline_real_channel")
-    )
-    inline_real_uncertainty: PropertyGroup | None = Field(
-        None,
-        validation_alias=AliasChoices("y_real_uncertainty", "inline_real_uncertainty"),
-    )
-    inline_imag_channel: PropertyGroup | None = Field(
-        None, validation_alias=AliasChoices("y_imag_channel", "inline_imag_channel")
-    )
-    inline_imag_uncertainty: PropertyGroup | None = Field(
-        None,
-        validation_alias=AliasChoices("y_imag_uncertainty", "inline_imag_uncertainty"),
-    )
-    crossline_real_channel: PropertyGroup | None = Field(
-        None, validation_alias=AliasChoices("x_real_channel", "crossline_real_channel")
-    )
-    crossline_real_uncertainty: PropertyGroup | None = Field(
-        None,
-        validation_alias=AliasChoices(
-            "x_real_uncertainty", "crossline_real_uncertainty"
-        ),
-    )
-    crossline_imag_channel: PropertyGroup | None = Field(
-        None, validation_alias=AliasChoices("x_imag_channel", "crossline_imag_channel")
-    )
-    crossline_imag_uncertainty: PropertyGroup | None = Field(
-        None,
-        validation_alias=AliasChoices(
-            "x_imag_uncertainty", "crossline_imag_uncertainty"
-        ),
+        validation_alias=AliasChoices("z_imag_uncertainty", "imag_uncertainty"),
     )
 
     models: ConductivityModelOptions
-
     directives: DirectiveOptions = DirectiveOptions()
