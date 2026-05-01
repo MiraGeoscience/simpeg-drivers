@@ -20,6 +20,7 @@ from discretize import TensorMesh
 from discretize.utils import mesh_utils
 from geoapps_utils.utils.locations import topo_drape_elevation
 from geoh5py import Workspace
+from geoh5py.objects import Surface
 from geoh5py.shared.merging.drape_model import DrapeModelMerger
 from geoh5py.ui_json.ui_json import fetch_active_workspace
 from numpy import ndarray
@@ -48,6 +49,9 @@ class Base1DDriver(BaseDriver):
         self.topo_z_drape = topo_drape_elevation(
             self.params.data_object.vertices,
             self.inversion_topography.locations,
+            triangulation=self.params.active_cells.topography_object.cells
+            if isinstance(self.params.active_cells.topography_object, Surface)
+            else None,
         )
 
     @property
