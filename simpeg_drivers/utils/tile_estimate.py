@@ -50,10 +50,10 @@ class TileParameters(Options):
     @field_validator("simulation", mode="before")
     @classmethod
     def forward_and_inverse_drivers_only(cls, value):
-        run_command = value.options["run_command"]
+        run_command = value.options.get("run_command", "nope")
         invalid = ["plate_simulation", "depth_of_investigation"]
         if any(k in run_command for k in invalid):
-            title = value.options["title"]
+            title = value.options.get("title", "Requested application")
             raise ValueError(f"{title} is not a valid target for tile estimation.")
         return value
 
