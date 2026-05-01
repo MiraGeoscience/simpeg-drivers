@@ -137,19 +137,16 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
         components = SyntheticsComponents(geoh5)
         data = {}
         uncertainties = {}
-        channels = {
-            "vertical_real": "vertical_real",
-            "vertical_imag": "vertical_imag",
-        }
+        channels = ["real", "imag"]
 
-        for chan, cname in channels.items():
-            data[cname] = []
-            uncertainties[f"{cname} uncertainties"] = []
+        for chan in channels:
+            data[chan] = []
+            uncertainties[f"{chan} uncertainties"] = []
             for ind, freq in enumerate(components.survey.channels):
                 data_entity = geoh5.get_entity(f"Iteration_0_{chan}_[{ind}]")[0].copy(
                     parent=components.survey
                 )
-                data[cname].append(data_entity)
+                data[chan].append(data_entity)
                 abs_val = np.abs(data_entity.values)
                 uncert = components.survey.add_data(
                     {
@@ -160,7 +157,7 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
                         }
                     }
                 )
-                uncertainties[f"{cname} uncertainties"].append(
+                uncertainties[f"{chan} uncertainties"].append(
                     uncert.copy(parent=components.survey)
                 )
 
@@ -174,7 +171,7 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
             data_kwargs[f"{chan}_channel"] = data_group
             data_kwargs[f"{chan}_uncertainty"] = uncert_group
 
-        orig_z_real_1 = geoh5.get_entity("Iteration_0_vertical_real_[0]")[0].values
+        orig_z_real_1 = geoh5.get_entity("Iteration_0_real_[0]")[0].values
 
         # Run the inverse
         params = FDEMInversionOptions.build(
@@ -217,8 +214,8 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
         output["data"] = orig_z_real_1
 
         assert (
-            run_ws.get_entity("Iteration_1_vertical_imag_[1]")[0].entity_type.uid
-            == run_ws.get_entity("Observed_vertical_imag_[1]")[0].entity_type.uid
+            run_ws.get_entity("Iteration_1_imag_[1]")[0].entity_type.uid
+            == run_ws.get_entity("Observed_imag_[1]")[0].entity_type.uid
         )
 
         if pytest:
