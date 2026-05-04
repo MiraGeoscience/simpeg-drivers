@@ -37,6 +37,7 @@ class SensitivityCutoffOptions(Options):
     )
 
     title: str = "Depth of Investigation: Sensitivity Cutoff"
+    icon: str = "grd"
     run_command: str = "simpeg_drivers.depth_of_investigation.sensitivity_cutoff.driver"
 
     conda_environment: str = "simpeg_drivers"

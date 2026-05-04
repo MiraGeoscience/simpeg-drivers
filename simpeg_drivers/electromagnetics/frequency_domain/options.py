@@ -112,6 +112,7 @@ class FDEMForwardOptions(BaseForwardOptions, BaseFDEMOptions):
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/fdem_forward.ui.json"
     run_command: str = "simpeg_drivers.electromagnetics.frequency_domain.forward"
     title: str = "Frequency-domain EM (FEM) Forward"
+    icon: str = "surveyairborneem"
     physical_property: str = "conductivity"
     inversion_type: str = "fdem"
 
@@ -147,6 +148,7 @@ class FDEMInversionOptions(BaseFDEMOptions, BaseInversionOptions):
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/fdem_inversion.ui.json"
     run_command: str = "simpeg_drivers.electromagnetics.frequency_domain.inversion"
     title: str = "Frequency-domain EM (FEM) Inversion"
+    icon: str = "surveyairborneem"
     physical_property: str = "conductivity"
     inversion_type: str = "fdem"
 

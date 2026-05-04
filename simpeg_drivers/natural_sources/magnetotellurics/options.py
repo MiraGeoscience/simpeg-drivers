@@ -49,6 +49,7 @@ class MTForwardOptions(EMDataMixin, BaseForwardOptions):
     )
     run_command: str = "simpeg_drivers.natural_sources.magnetotellurics.forward"
     title: str = "Magnetotellurics Forward"
+    icon: str = "surveymagnetotellurics"
     physical_property: str = "conductivity"
     inversion_type: str = "magnetotellurics"
 
@@ -96,6 +97,7 @@ class MTInversionOptions(EMDataMixin, BaseInversionOptions):
     )
     run_command: str = "simpeg_drivers.natural_sources.magnetotellurics.inversion"
     title: str = "Magnetotellurics Inversion"
+    icon: str = "surveymagnetotellurics"
     physical_property: str = "conductivity"
     inversion_type: str = "magnetotellurics"
 

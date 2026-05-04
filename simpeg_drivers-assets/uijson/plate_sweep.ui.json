@@ -23,10 +23,9 @@
         "main": true,
         "group": "Base",
         "label": "Output directory",
-        "directoryOnly": true,
         "enabled": false,
         "optional": true,
-        "tootip": "Directory to store simulation results, relative to the working geoh5.",
+        "tooltip": "Directory to store simulation results, relative to the working geoh5.",
         "value": "./simulations"
     },
     "generate_summary": {
@@ -34,7 +33,7 @@
         "group": "Base",
         "label": "Generate summary file (.xlsx)",
         "enabled": true,
-        "tootip": "Create an xlsx file summarizing the parameters of all simulations found in the 'Output directory'.",
+        "tooltip": "Create an xlsx file summarizing the parameters of all simulations found in the 'Output directory'.",
         "value": true
     },
     "background_start": {
