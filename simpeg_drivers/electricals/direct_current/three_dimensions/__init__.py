@@ -7,7 +7,3 @@
 #  (see LICENSE file at the root of this source code package).                      '
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-from .forward import DC3DForwardDriver
-from .inversion import DC3DInversionDriver
-from .options import DC3DForwardOptions, DC3DInversionOptions

@@ -16,8 +16,9 @@ from pathlib import Path
 
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.electricals.base_2d import Base2DDriver
-
-from .options import IP2DInversionOptions
+from simpeg_drivers.electricals.induced_polarization.two_dimensions.options import (
+    IP2DInversionOptions,
+)
 
 
 class IP2DInversionDriver(InversionDriver, Base2DDriver):

@@ -16,8 +16,9 @@ from pathlib import Path
 
 from simpeg_drivers.driver import ForwardDriver
 from simpeg_drivers.electricals.base_2d import Base2DDriver
-
-from .options import IP2DForwardOptions
+from simpeg_drivers.electricals.induced_polarization.two_dimensions.options import (
+    IP2DForwardOptions,
+)
 
 
 class IP2DForwardDriver(ForwardDriver, Base2DDriver):

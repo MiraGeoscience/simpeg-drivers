@@ -15,8 +15,9 @@ import sys
 from pathlib import Path
 
 from simpeg_drivers.driver import InversionDriver
-
-from .options import IP3DInversionOptions
+from simpeg_drivers.electricals.induced_polarization.three_dimensions.options import (
+    IP3DInversionOptions,
+)
 
 
 class IP3DInversionDriver(InversionDriver):
