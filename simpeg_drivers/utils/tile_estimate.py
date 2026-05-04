@@ -19,6 +19,7 @@ from discretize import TreeMesh
 from geoapps_utils.base import Driver, Options
 from geoapps_utils.utils.numerical import fibonacci_series, fit_circle
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
+from pydantic import field_validator
 from scipy.interpolate import interp1d
 from tqdm import tqdm
 
@@ -45,6 +46,17 @@ class TileParameters(Options):
     simulation: SimPEGGroup
     render_plot: bool = True
     out_group: UIJsonGroup | None = None
+
+    @field_validator("simulation", mode="before")
+    @classmethod
+    def forward_and_inverse_drivers_only(cls, value):
+        """Prevents users from running with incompatible apps."""
+        run_command = value.options.get("run_command", "nope")
+        invalid = ["plate_simulation", "depth_of_investigation"]
+        if any(k in run_command for k in invalid):
+            title = value.options.get("title", "Requested application")
+            raise ValueError(f"{title} is not a valid target for tile estimation.")
+        return value
 
 
 class TileEstimator(Driver):
