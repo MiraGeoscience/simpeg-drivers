@@ -152,24 +152,6 @@
         "value": "",
         "verbose": 2
     },
-    "active_model": {
-        "association": "Cell",
-        "dataType": [
-            "Referenced",
-            "Boolean",
-            "Integer"
-        ],
-        "group": "Topography",
-        "main": true,
-        "enabled": false,
-        "visible": false,
-        "dependency": "topography_object",
-        "dependencyType": "disabled",
-        "label": "Active model",
-        "tooltip": "Provide the active cell Boolean model directly if topography not set",
-        "parent": "mesh",
-        "value": ""
-    },
     "n_cpu": {
         "min": 1,
         "group": "Compute",
