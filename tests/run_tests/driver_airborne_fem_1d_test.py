@@ -17,9 +17,11 @@ from pathlib import Path
 import numpy as np
 from geoh5py import Workspace
 
-from simpeg_drivers.electromagnetics.frequency_domain_1d import (
+from simpeg_drivers.electromagnetics.frequency_domain_1d.forward import (
     FDEM1DForwardDriver,
     FDEM1DForwardOptions,
+)
+from simpeg_drivers.electromagnetics.frequency_domain_1d.inversion import (
     FDEM1DInversionDriver,
     FDEM1DInversionOptions,
 )

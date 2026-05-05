@@ -16,12 +16,13 @@ import numpy as np
 from dask.distributed import LocalCluster, performance_report
 from geoh5py.groups import PropertyGroup
 from geoh5py.groups.property_group import GroupTypeEnum
-from geoh5py.objects import Curve
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.potential_fields.magnetic_vector_pde import (
+from simpeg_drivers.potential_fields.magnetic_vector_pde.forward import (
     MagneticVectorPDEForwardDriver,
     MagneticVectorPDEForwardOptions,
+)
+from simpeg_drivers.potential_fields.magnetic_vector_pde.inversion import (
     MagneticVectorPDEInversionDriver,
     MagneticVectorPDEInversionOptions,
 )
