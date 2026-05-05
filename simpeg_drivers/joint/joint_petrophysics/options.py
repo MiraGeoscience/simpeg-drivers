@@ -48,6 +48,7 @@ class JointPetrophysicsOptions(BaseJointOptions):
     )
     run_command: str = "simpeg_drivers.joint.joint_petrophysics.driver"
     title: str = "Joint Petrophysically Guided Inversion (PGI)"
+    icon: str = "referencedata"
     inversion_type: str = "joint petrophysics"
 
     group_a_multiplier: float | None = None

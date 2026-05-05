@@ -34,7 +34,7 @@
             "<dt>Wire</dt><dd>Current * number of turns (NI).</dd>",
             "</dl>"
         ],
-        "value": "dB/dt (T/s)"
+        "value": "Airborne dB/dt (V/Am^4)"
     },
     "z_channel_bool": {
         "group": "Survey",
@@ -152,24 +152,6 @@
         "value": "",
         "verbose": 2
     },
-    "active_model": {
-        "association": "Cell",
-        "dataType": [
-            "Referenced",
-            "Boolean",
-            "Integer"
-        ],
-        "group": "Topography",
-        "main": true,
-        "enabled": false,
-        "visible": false,
-        "dependency": "topography_object",
-        "dependencyType": "disabled",
-        "label": "Active model",
-        "tooltip": "Provide the active cell Boolean model directly if topography not set",
-        "parent": "mesh",
-        "value": ""
-    },
     "n_cpu": {
         "min": 1,
         "group": "Compute",
@@ -192,9 +174,6 @@
     "tile_spatial": {
         "group": "Compute",
         "label": "Number of tiles",
-        "parent": "data_object",
-        "isValue": true,
-        "property": "",
         "value": 1,
         "min": 1,
         "max": 1000,

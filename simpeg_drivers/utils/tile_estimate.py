@@ -42,6 +42,7 @@ class TileParameters(Options):
     """
 
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/tile_estimator.ui.json"
+    icon: str = "tilelist"
 
     simulation: SimPEGGroup
     render_plot: bool = True

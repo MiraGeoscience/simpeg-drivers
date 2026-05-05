@@ -537,7 +537,16 @@
         "tooltip": "Direct solver to use for the forward calculations",
         "value": "Pardiso"
     },
-    "tile_spatial": 1,
+    "tile_spatial": {
+        "group": "Compute",
+        "label": "Number of tiles",
+        "value": 1,
+        "min": 1,
+        "max": 1000,
+        "verbose": 2,
+        "visible": false,
+        "tooltip": "Splits the objective function into spatial tiles for distributed computation using the Dask library"
+    },
     "store_sensitivities": {
         "choiceList": [
             "disk",

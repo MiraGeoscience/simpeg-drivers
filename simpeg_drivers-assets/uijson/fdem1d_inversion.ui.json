@@ -247,23 +247,6 @@
         "value": "",
         "verbose": 2
     },
-    "active_model": {
-        "association": "Cell",
-        "dataType": [
-            "Referenced",
-            "Boolean",
-            "Integer"
-        ],
-        "group": "Topography",
-        "main": true,
-        "enabled": false,
-        "dependency": "topography_object",
-        "dependencyType": "disabled",
-        "label": "Active model",
-        "tooltip": "Provide the active cell Boolean model directly if topography not set",
-        "parent": "mesh",
-        "value": ""
-    },
     "alpha_s": {
         "min": 0.0,
         "group": "Regularization",
@@ -548,9 +531,6 @@
     "tile_spatial": {
         "group": "Compute",
         "label": "Number of tiles",
-        "parent": "data_object",
-        "isValue": true,
-        "property": "",
         "value": 1,
         "min": 1,
         "max": 1000,
