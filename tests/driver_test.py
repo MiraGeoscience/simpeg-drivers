@@ -12,7 +12,7 @@ from pathlib import Path
 
 import numpy as np
 
-from simpeg_drivers.potential_fields.gravity import (
+from simpeg_drivers.potential_fields.gravity.inversion import (
     GravityInversionDriver,
     GravityInversionOptions,
 )

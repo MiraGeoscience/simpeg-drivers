@@ -23,7 +23,7 @@ from geoh5py.ui_json import BaseUIJson
 from scipy import signal
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.electromagnetics.time_domain import (
+from simpeg_drivers.electromagnetics.time_domain.forward import (
     TDEMForwardDriver,
     TDEMForwardOptions,
 )
