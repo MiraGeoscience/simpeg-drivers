@@ -141,7 +141,7 @@ def test_magnetic_vector_run(
                 inducing_field_declination=inducing_field[2],
                 data_object=tmi.parent,
                 starting_model=1e-4,
-                reference_model=0.0,
+                reference_model=0.1,
                 gradient_rotation=gradient_rotation,
                 s_norm=0.0,
                 x_norm=1.0,
