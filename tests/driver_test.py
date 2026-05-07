@@ -98,3 +98,35 @@ def test_target_chi(tmp_path: Path, caplog):
             assert driver.directives.update_irls_directive.chifact_start == 2.0
 
         assert "Starting chi factor is greater" in caplog.text
+
+
+def test_mesh_visual_parameters_copy(tmp_path: Path):
+    n_grid_points = 2
+    refinement = (2,)
+
+    opts = SyntheticsComponentsOptions(
+        method="gravity",
+        survey=SurveyOptions(n_stations=n_grid_points, n_lines=n_grid_points),
+        mesh=MeshOptions(refinement=refinement),
+        model=ModelOptions(anomaly=0.75),
+    )
+    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+        components = SyntheticsComponents(geoh5, options=opts)
+
+        gz = components.survey.add_data(
+            {"gz": {"values": np.ones(components.survey.n_vertices)}}
+        )
+        mesh = components.model.parent
+        mesh.add_default_visual_parameters()
+        mesh.visual_parameters.colour = [255, 0, 0]
+        params = GravityInversionOptions.build(
+            geoh5=geoh5,
+            mesh=mesh,
+            topography_object=components.topography,
+            data_object=gz.parent,
+            starting_model=1e-4,
+            gz_channel=gz,
+            gz_uncertainty=2e-3,
+        )
+        driver = GravityInversionDriver(params)
+        assert driver.inversion_mesh.entity.visual_parameters.colour == [255, 0, 0]
