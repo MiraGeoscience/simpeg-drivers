@@ -15,8 +15,9 @@ import sys
 from pathlib import Path
 
 from simpeg_drivers.driver import ForwardDriver
-
-from .options import MagneticVectorPDEForwardOptions
+from simpeg_drivers.potential_fields.magnetic_vector_pde.options import (
+    MagneticVectorPDEForwardOptions,
+)
 
 
 class MagneticVectorPDEForwardDriver(ForwardDriver):

@@ -21,9 +21,8 @@ from simpeg import directives, maps
 
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.joint.driver import BaseJointDriver
+from simpeg_drivers.joint.joint_surveys.options import JointSurveysOptions
 from simpeg_drivers.options import ModelTypeEnum
-
-from .options import JointSurveysOptions
 
 
 logger = getLogger(__name__)

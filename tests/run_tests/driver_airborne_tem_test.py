@@ -17,9 +17,11 @@ from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.workspace import Workspace
 from pytest import raises
 
-from simpeg_drivers.electromagnetics.time_domain import (
+from simpeg_drivers.electromagnetics.time_domain.forward import (
     TDEMForwardDriver,
     TDEMForwardOptions,
+)
+from simpeg_drivers.electromagnetics.time_domain.inversion import (
     TDEMInversionDriver,
     TDEMInversionOptions,
 )

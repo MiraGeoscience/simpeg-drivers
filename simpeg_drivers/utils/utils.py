@@ -769,9 +769,17 @@ def driver_class_from_name(name: str, forward_only: bool = False) -> type[Driver
         raise NotImplementedError(msg)
 
     mod_name, classes = DRIVER_MAP.get(name)
-    class_name = classes.get("inversion")
+
     if forward_only:
-        class_name = classes.get("forward", class_name)
+        mod_name += ".forward"
+        class_name = classes.get("forward")
+    else:
+        class_name = classes.get("inversion")
+
+        if "joint" in mod_name:
+            mod_name += ".driver"
+        else:
+            mod_name += ".inversion"
 
     module = __import__(mod_name, fromlist=[class_name])
     return getattr(module, class_name)

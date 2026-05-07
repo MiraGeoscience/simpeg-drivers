@@ -16,8 +16,9 @@ from pathlib import Path
 
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.electricals.base_2d import Base2DDriver
-
-from .options import DC2DInversionOptions
+from simpeg_drivers.electricals.direct_current.two_dimensions.options import (
+    DC2DInversionOptions,
+)
 
 
 class DC2DInversionDriver(InversionDriver, Base2DDriver):

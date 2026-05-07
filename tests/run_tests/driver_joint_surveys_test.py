@@ -22,22 +22,24 @@ from simpeg_drivers.electricals.direct_current.three_dimensions.inversion import
 from simpeg_drivers.electricals.direct_current.three_dimensions.options import (
     DC3DInversionOptions,
 )
-from simpeg_drivers.electromagnetics.time_domain import TDEMInversionDriver
+from simpeg_drivers.electromagnetics.time_domain.inversion import TDEMInversionDriver
 from simpeg_drivers.electromagnetics.time_domain.options import TDEMInversionOptions
 from simpeg_drivers.joint.joint_surveys.driver import JointSurveysDriver
 from simpeg_drivers.joint.joint_surveys.options import JointSurveysOptions
 from simpeg_drivers.options import ActiveCellsOptions
-from simpeg_drivers.potential_fields.gravity import (
+from simpeg_drivers.potential_fields.gravity.forward import (
     GravityForwardDriver,
     GravityForwardOptions,
+)
+from simpeg_drivers.potential_fields.gravity.inversion import (
     GravityInversionDriver,
     GravityInversionOptions,
 )
-from simpeg_drivers.potential_fields.magnetic_vector import (
+from simpeg_drivers.potential_fields.magnetic_vector.inversion import (
     MagneticVectorInversionDriver,
     MagneticVectorInversionOptions,
 )
-from simpeg_drivers.potential_fields.magnetic_vector_pde import (
+from simpeg_drivers.potential_fields.magnetic_vector_pde.inversion import (
     MagneticVectorPDEInversionDriver,
     MagneticVectorPDEInversionOptions,
 )

@@ -7,11 +7,3 @@
 #  (see LICENSE file at the root of this source code package).                      '
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-
-from .forward import GravityForwardDriver
-from .inversion import GravityInversionDriver
-from .options import (
-    GravityForwardOptions,
-    GravityInversionOptions,
-)

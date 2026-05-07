@@ -15,8 +15,9 @@ import sys
 from pathlib import Path
 
 from simpeg_drivers.driver import ForwardDriver
-
-from .options import MagneticForwardOptions
+from simpeg_drivers.potential_fields.magnetic_scalar.options import (
+    MagneticForwardOptions,
+)
 
 
 class MagneticForwardDriver(ForwardDriver):

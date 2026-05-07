@@ -16,9 +16,11 @@ import numpy as np
 from geoapps_utils.modelling.plates import PlateModel
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.electricals.induced_polarization.two_dimensions import (
+from simpeg_drivers.electricals.induced_polarization.two_dimensions.forward import (
     IP2DForwardDriver,
     IP2DForwardOptions,
+)
+from simpeg_drivers.electricals.induced_polarization.two_dimensions.inversion import (
     IP2DInversionDriver,
     IP2DInversionOptions,
 )
