@@ -15,8 +15,7 @@ import sys
 from pathlib import Path
 
 from simpeg_drivers.driver import InversionDriver
-
-from .options import TDEMInversionOptions
+from simpeg_drivers.electromagnetics.time_domain.options import TDEMInversionOptions
 
 
 class TDEMInversionDriver(InversionDriver):

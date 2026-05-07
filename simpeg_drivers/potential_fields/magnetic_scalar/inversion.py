@@ -15,8 +15,9 @@ import sys
 from pathlib import Path
 
 from simpeg_drivers.driver import InversionDriver
-
-from .options import MagneticInversionOptions
+from simpeg_drivers.potential_fields.magnetic_scalar.options import (
+    MagneticInversionOptions,
+)
 
 
 class MagneticInversionDriver(InversionDriver):

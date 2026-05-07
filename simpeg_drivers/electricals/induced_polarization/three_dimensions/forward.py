@@ -15,8 +15,9 @@ import sys
 from pathlib import Path
 
 from simpeg_drivers.driver import ForwardDriver
-
-from .options import IP3DForwardOptions
+from simpeg_drivers.electricals.induced_polarization.three_dimensions.options import (
+    IP3DForwardOptions,
+)
 
 
 class IP3DForwardDriver(ForwardDriver):

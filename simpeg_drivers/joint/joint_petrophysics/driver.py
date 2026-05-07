@@ -20,12 +20,8 @@ from simpeg import directives, maps, utils
 from simpeg.objective_function import ComboObjectiveFunction
 from simpeg.regularization.pgi import PGIsmallness
 
-from simpeg_drivers.components.factories import (
-    DirectivesFactory,
-)
 from simpeg_drivers.joint.driver import BaseJointDriver
-
-from .options import JointPetrophysicsOptions
+from simpeg_drivers.joint.joint_petrophysics.options import JointPetrophysicsOptions
 
 
 class JointPetrophysicsDriver(BaseJointDriver):

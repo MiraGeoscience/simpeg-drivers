@@ -22,7 +22,7 @@ from geoh5py.groups import PropertyGroup, UIJsonGroup
 from geoh5py.objects import AirborneFEMReceivers
 from geoh5py.shared.utils import fetch_active_workspace
 
-from simpeg_drivers.electromagnetics.frequency_domain import (
+from simpeg_drivers.electromagnetics.frequency_domain.forward import (
     FDEMForwardDriver,
     FDEMForwardOptions,
 )

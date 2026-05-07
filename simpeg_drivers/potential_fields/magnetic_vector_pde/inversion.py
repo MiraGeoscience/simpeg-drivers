@@ -20,8 +20,9 @@ from simpeg.objective_function import ComboObjectiveFunction
 from simpeg.regularization import BaseRegularization, VectorAmplitude
 
 from simpeg_drivers.driver import InversionDriver
-
-from .options import MagneticVectorPDEInversionOptions
+from simpeg_drivers.potential_fields.magnetic_vector_pde.options import (
+    MagneticVectorPDEInversionOptions,
+)
 
 
 class MagneticVectorPDEInversionDriver(InversionDriver):

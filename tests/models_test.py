@@ -22,14 +22,14 @@ from simpeg_drivers.components import (
     InversionModel,
     InversionModelCollection,
 )
-from simpeg_drivers.electricals.direct_current.three_dimensions import (
+from simpeg_drivers.electricals.direct_current.three_dimensions.forward import (
     DC3DForwardDriver,
 )
 from simpeg_drivers.electricals.direct_current.three_dimensions.options import (
     DC3DForwardOptions,
 )
 from simpeg_drivers.options import ActiveCellsOptions
-from simpeg_drivers.potential_fields.magnetic_vector import (
+from simpeg_drivers.potential_fields.magnetic_vector.inversion import (
     MagneticVectorInversionDriver,
     MagneticVectorInversionOptions,
 )
