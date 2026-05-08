@@ -23,7 +23,7 @@ class SensitivityCutoffOptions(Options):
     """
     Sensitivity cutoff parameters for depth of investigation studies.
 
-    :param mesh: Octree mesh containing saved sensitivities.
+    :param mesh: Octree mesh or DrapeModel containing saved sensitivities.
     :param sensitivity_model: Saved row-sum-squared sensitivity data.
     :param sensitivity_cutoff: Sensitivity percentage below which the
         model's influence to the data is considered negligible.
