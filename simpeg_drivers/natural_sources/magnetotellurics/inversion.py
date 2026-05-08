@@ -15,8 +15,7 @@ import sys
 from pathlib import Path
 
 from simpeg_drivers.driver import InversionDriver
-
-from .options import MTInversionOptions
+from simpeg_drivers.natural_sources.magnetotellurics.options import MTInversionOptions
 
 
 class MTInversionDriver(InversionDriver):

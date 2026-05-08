@@ -18,9 +18,11 @@ from geoapps_utils.utils.locations import gaussian
 from geoh5py.groups.property_group import PropertyGroup
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.potential_fields.gravity import (
+from simpeg_drivers.potential_fields.gravity.forward import (
     GravityForwardDriver,
     GravityForwardOptions,
+)
+from simpeg_drivers.potential_fields.gravity.inversion import (
     GravityInversionDriver,
     GravityInversionOptions,
 )

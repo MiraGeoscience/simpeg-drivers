@@ -7,6 +7,3 @@
 #  (see LICENSE file at the root of this source code package).                      '
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-from .driver import JointPetrophysicsDriver
-from .options import JointPetrophysicsOptions

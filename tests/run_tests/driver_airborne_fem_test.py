@@ -19,9 +19,11 @@ import numpy as np
 from geoapps_utils.modelling.plates import PlateModel
 from geoh5py import Workspace
 
-from simpeg_drivers.electromagnetics.frequency_domain import (
+from simpeg_drivers.electromagnetics.frequency_domain.forward import (
     FDEMForwardDriver,
     FDEMForwardOptions,
+)
+from simpeg_drivers.electromagnetics.frequency_domain.inversion import (
     FDEMInversionDriver,
     FDEMInversionOptions,
 )

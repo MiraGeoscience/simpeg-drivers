@@ -7,10 +7,3 @@
 #  (see LICENSE file at the root of this source code package).                      '
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-from .forward import MTForwardDriver
-from .inversion import MTInversionDriver
-from .options import (
-    MTForwardOptions,
-    MTInversionOptions,
-)

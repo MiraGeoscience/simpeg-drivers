@@ -18,7 +18,7 @@ from geoh5py import Workspace
 from geoh5py.objects import Curve, Grid2D, Points
 
 from simpeg_drivers.components.locations import InversionLocations
-from simpeg_drivers.potential_fields.magnetic_vector import (
+from simpeg_drivers.potential_fields.magnetic_vector.inversion import (
     MagneticVectorInversionOptions,
 )
 from simpeg_drivers.utils.nested import tile_locations

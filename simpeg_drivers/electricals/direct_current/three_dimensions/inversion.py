@@ -15,8 +15,9 @@ import sys
 from pathlib import Path
 
 from simpeg_drivers.driver import InversionDriver
-
-from .options import DC3DInversionOptions
+from simpeg_drivers.electricals.direct_current.three_dimensions.options import (
+    DC3DInversionOptions,
+)
 
 
 class DC3DInversionDriver(InversionDriver):

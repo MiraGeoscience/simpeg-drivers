@@ -15,8 +15,9 @@ import sys
 from pathlib import Path
 
 from simpeg_drivers.driver import InversionDriver
-
-from .options import FDEMInversionOptions
+from simpeg_drivers.electromagnetics.frequency_domain.options import (
+    FDEMInversionOptions,
+)
 
 
 class FDEMInversionDriver(InversionDriver):

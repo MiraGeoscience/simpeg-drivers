@@ -16,8 +16,9 @@ from pathlib import Path
 
 from simpeg_drivers.driver import ForwardDriver
 from simpeg_drivers.electromagnetics.base_1d_driver import Base1DDriver
-
-from .options import FDEM1DForwardOptions
+from simpeg_drivers.electromagnetics.frequency_domain_1d.options import (
+    FDEM1DForwardOptions,
+)
 
 
 class FDEM1DForwardDriver(ForwardDriver, Base1DDriver):

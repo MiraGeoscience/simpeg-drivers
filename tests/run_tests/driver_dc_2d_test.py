@@ -17,9 +17,11 @@ import numpy as np
 from geoapps_utils.modelling.plates import PlateModel
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.electricals.direct_current.two_dimensions import (
+from simpeg_drivers.electricals.direct_current.two_dimensions.forward import (
     DC2DForwardDriver,
     DC2DForwardOptions,
+)
+from simpeg_drivers.electricals.direct_current.two_dimensions.inversion import (
     DC2DInversionDriver,
     DC2DInversionOptions,
 )
