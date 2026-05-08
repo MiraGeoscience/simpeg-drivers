@@ -126,11 +126,6 @@
         "min": 0.0,
         "tooltip": "Depth below topography to the plate centre (positive down)."
     },
-    "generate_sweep": {
-        "label": "Generate sweep file",
-        "main": true,
-        "value": false
-    },
     "u_cell_size": {
         "min": 0.0,
         "group": "Mesh",
