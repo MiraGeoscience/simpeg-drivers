@@ -632,7 +632,7 @@ class BaseInversionOptions(CoreOptions):
         for k in self.active_components:
             out[k] = self.component_uncertainty(k)
 
-            for data, uncert in zip(
+            for uncert, data in zip(
                 out[k].values(), self.component_data(k).values(), strict=True
             ):
                 if np.any((np.isnan(uncert) | (uncert < 0)) & ~np.isnan(data)):
