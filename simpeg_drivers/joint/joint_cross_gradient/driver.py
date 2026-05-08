@@ -23,8 +23,7 @@ from simpeg.objective_function import ComboObjectiveFunction
 from simpeg.regularization import CrossGradient
 
 from simpeg_drivers.joint.driver import BaseJointDriver
-
-from .options import JointCrossGradientOptions
+from simpeg_drivers.joint.joint_cross_gradient.options import JointCrossGradientOptions
 
 
 class JointCrossGradientDriver(BaseJointDriver):

@@ -16,9 +16,11 @@ import numpy as np
 from geoapps_utils.modelling.plates import PlateModel
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.natural_sources.apparent_conductivity import (
+from simpeg_drivers.natural_sources.apparent_conductivity.forward import (
     AppConForwardDriver,
     AppConForwardOptions,
+)
+from simpeg_drivers.natural_sources.apparent_conductivity.inversion import (
     AppConInversionDriver,
     AppConInversionOptions,
 )

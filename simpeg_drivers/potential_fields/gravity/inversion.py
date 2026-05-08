@@ -15,8 +15,7 @@ import sys
 from pathlib import Path
 
 from simpeg_drivers.driver import InversionDriver
-
-from .options import GravityInversionOptions
+from simpeg_drivers.potential_fields.gravity.options import GravityInversionOptions
 
 
 class GravityInversionDriver(InversionDriver):

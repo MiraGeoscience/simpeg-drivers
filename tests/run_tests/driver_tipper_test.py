@@ -15,9 +15,11 @@ from pathlib import Path
 import numpy as np
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.natural_sources.tipper import (
+from simpeg_drivers.natural_sources.tipper.forward import (
     TipperForwardDriver,
     TipperForwardOptions,
+)
+from simpeg_drivers.natural_sources.tipper.inversion import (
     TipperInversionDriver,
     TipperInversionOptions,
 )

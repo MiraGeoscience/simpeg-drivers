@@ -16,8 +16,9 @@ from pathlib import Path
 
 from simpeg_drivers.driver import ForwardDriver
 from simpeg_drivers.electricals.base_2d import Base2DDriver
-
-from .options import DC2DForwardOptions
+from simpeg_drivers.electricals.direct_current.two_dimensions.options import (
+    DC2DForwardOptions,
+)
 
 
 class DC2DForwardDriver(ForwardDriver, Base2DDriver):

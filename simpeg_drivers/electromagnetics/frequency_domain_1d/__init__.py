@@ -7,10 +7,3 @@
 #  (see LICENSE file at the root of this source code package).                      '
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-from .forward import FDEM1DForwardDriver
-from .inversion import FDEM1DInversionDriver
-from .options import (
-    FDEM1DForwardOptions,
-    FDEM1DInversionOptions,
-)

@@ -17,27 +17,33 @@ from geoh5py.objects import CurrentElectrode, Octree, Points
 from geoh5py.workspace import Workspace
 from simpeg.directives import UpdateIRLS
 
-from simpeg_drivers.electricals.direct_current.three_dimensions import (
+from simpeg_drivers.electricals.direct_current.three_dimensions.forward import (
     DC3DForwardDriver,
     DC3DForwardOptions,
+)
+from simpeg_drivers.electricals.direct_current.three_dimensions.inversion import (
     DC3DInversionDriver,
     DC3DInversionOptions,
 )
 from simpeg_drivers.joint.joint_cross_gradient.driver import JointCrossGradientDriver
 from simpeg_drivers.joint.joint_cross_gradient.options import JointCrossGradientOptions
-from simpeg_drivers.potential_fields.gravity import (
+from simpeg_drivers.potential_fields.gravity.forward import (
     GravityForwardDriver,
     GravityForwardOptions,
+)
+from simpeg_drivers.potential_fields.gravity.inversion import (
     GravityInversionDriver,
     GravityInversionOptions,
 )
-from simpeg_drivers.potential_fields.magnetic_vector import (
+from simpeg_drivers.potential_fields.magnetic_vector.forward import (
     MagneticVectorForwardDriver,
     MagneticVectorForwardOptions,
+)
+from simpeg_drivers.potential_fields.magnetic_vector.inversion import (
     MagneticVectorInversionDriver,
     MagneticVectorInversionOptions,
 )
-from simpeg_drivers.potential_fields.magnetic_vector_pde import (
+from simpeg_drivers.potential_fields.magnetic_vector_pde.inversion import (
     MagneticVectorPDEInversionDriver,
     MagneticVectorPDEInversionOptions,
 )

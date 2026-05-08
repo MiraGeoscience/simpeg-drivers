@@ -19,9 +19,11 @@ from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.workspace import Workspace
 from pytest import raises
 
-from simpeg_drivers.natural_sources.magnetotellurics import (
+from simpeg_drivers.natural_sources.magnetotellurics.forward import (
     MTForwardDriver,
     MTForwardOptions,
+)
+from simpeg_drivers.natural_sources.magnetotellurics.inversion import (
     MTInversionDriver,
     MTInversionOptions,
 )
