@@ -11,7 +11,8 @@
     "mesh": {
         "main": true,
         "meshType": [
-            "4ea87376-3ece-438b-bf12-3479733ded46"
+            "4ea87376-3ece-438b-bf12-3479733ded46",
+            "C94968EA-CF7D-11EB-B8BC-0242AC130003"
         ],
         "label": "Mesh",
         "value": ""

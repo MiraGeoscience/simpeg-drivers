@@ -13,7 +13,7 @@ from typing import ClassVar
 
 from geoapps_utils.base import Options
 from geoh5py.data import FloatData
-from geoh5py.objects import Octree
+from geoh5py.objects import DrapeModel, Octree
 from pydantic import field_validator
 
 from simpeg_drivers import assets_path
@@ -41,7 +41,7 @@ class SensitivityCutoffOptions(Options):
     run_command: str = "simpeg_drivers.depth_of_investigation.sensitivity_cutoff.driver"
 
     conda_environment: str = "simpeg_drivers"
-    mesh: Octree
+    mesh: Octree | DrapeModel
     sensitivity_model: FloatData
     sensitivity_cutoff: float = 0.1
     cutoff_method: str = "percentile"
