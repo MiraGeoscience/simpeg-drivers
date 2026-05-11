@@ -162,11 +162,22 @@ def test_bad_uncertainties(
             topography = components.topography
             data_kwargs = setup_data(geoh5, survey)
 
-            for elem in ["uncertainty_zxx_imag_[0]", "uncertainty_zyx_real_[0]"]:
+            # Add NDV to some uncertainties
+            for elem in [
+                "uncertainty_zxx_imag_[0]",
+                "uncertainty_zyx_real_[0]",
+                "uncertainty_zyx_imag_[0]",
+            ]:
                 data = survey.get_entity(elem)[0]
                 vals = data.values
                 vals[0] = np.nan
                 data.values = vals
+
+            # Also NDV the data for one of them
+            data = survey.get_entity("Iteration_0_zyx_imag_[0]")[0]
+            vals = data.values
+            vals[0] = np.nan
+            data.values = vals
 
             # Run the inverse
             params = MTInversionOptions.build(
@@ -184,6 +195,7 @@ def test_bad_uncertainties(
 
     assert "zxx_imag" in str(error.value)
     assert "zyx_real" in str(error.value)
+    assert "zyx_imag" not in str(error.value)
 
 
 def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
