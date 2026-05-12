@@ -129,4 +129,5 @@ def test_mesh_visual_parameters_copy(tmp_path: Path):
             gz_uncertainty=2e-3,
         )
         driver = GravityInversionDriver(params)
+        assert driver.inversion_mesh.ensure_cell_convention(mesh) is not None
         assert driver.inversion_mesh.entity.visual_parameters.colour == [255, 0, 0]
