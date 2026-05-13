@@ -186,6 +186,10 @@ class InversionTopography(InversionLocations):
             neighbours = get_neighbouring_cells(mesh.mesh, containing_cells)
             neighbours_xy = np.r_[neighbours[0] + neighbours[1]]
 
+            # Get y neighbours of x neighbours to complete the square
+            neighbours = get_neighbouring_cells(mesh.mesh, np.r_[neighbours[0]])
+            neighbours_xy = np.r_[neighbours_xy, np.r_[neighbours[1]]]
+
             neighbours_xy = neighbours_xy[neighbours_xy != -1]
             # Make sure the new actives are connected to the old actives
             new_actives = ~active_cells[neighbours_xy]
@@ -198,5 +202,11 @@ class InversionTopography(InversionLocations):
                 active_cells[neighbours_z] = True  # z-axis neighbours
 
             active_cells[neighbours_xy] = True  # xy-axis neighbours
+
+        # For 2D, add the x-forward and x-backward neighbours
+        else:
+            for side in [-1, 1]:
+                for level in [0, mesh.shape_cells[0]]:
+                    active_cells[containing_cells + side - level] = True
 
         return active_cells
