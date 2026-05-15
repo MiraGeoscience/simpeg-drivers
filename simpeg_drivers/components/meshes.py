@@ -251,7 +251,7 @@ class InversionMesh:
         indices = treemesh.get_containing_cells(mesh.centroids)
         ind = np.argsort(indices)
         for child in mesh.children:
-            if child.values is None or isinstance(child.values, np.ndarray):
+            if child.values is None or not isinstance(child.values, np.ndarray):
                 continue
             child.values = child.values[ind]
 
