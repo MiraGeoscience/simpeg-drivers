@@ -125,24 +125,14 @@ below provides a visual representation of these angles.
     direction (a) is the angle measured between the horizontal projection of the plate
     normal (n\') and due north (N).*
 
-The plate location can be specified in both relative and absolute terms. The position
-parameters are given as easting, northing, and elevation. If the relative locations
-checkbox is selected, the easting and northing are relative to the center of the
-survey and the elevation is relative to one of the available references. The elevation
-may be referenced to either the earth-air interface or the overburden via the
-``Depth reference`` dropdown. Either choice can be relative to the minimum, maximum,
-or mean of the points making up the reference surface as given by the ``Reference type``
-dropdown. In all these cases, the distance provided acts as a depth below the reference
-to the *top of plate* in the *z negative down* convention. If the relative locations
-checkbox is not selected, the easting, northing, and elevation specify the center
-location of the plate.
+The plate location is chosen to be centered on the provided survey object with the depth
+relative to the topography entered as positive down.
 
 .. figure:: /plate-simulation/images/methodology/model/plate_location_options.png
     :align: center
 
-    *Plate location options in relative mode. Notice the* ``Elevation`` *is given as
-    negative to ensure the top of the plate is below the selected min of the
-    overburden.*
+    *Plate depth option sets the top of the plate n meters below the topography and
+    centered on the survey object.*
 
 .. figure:: /plate-simulation/images/methodology/model/plate_location.png
     :align: center
