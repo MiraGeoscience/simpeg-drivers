@@ -38,7 +38,6 @@ from simpeg_drivers.utils.utils import (
     active_from_xyz,
     floating_active,
     get_containing_cells,
-    get_neighbouring_cells,
     mask_vertices_and_cells,
 )
 

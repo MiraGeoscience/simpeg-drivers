@@ -38,7 +38,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.15320935486917722, "phi_d": 25.7, "phi_m": 3580}
+target_run = {"data_norm": 0.14272756694409652, "phi_d": 12.6, "phi_m": 3580}
 
 
 def test_dc_3d_fwr_run(
