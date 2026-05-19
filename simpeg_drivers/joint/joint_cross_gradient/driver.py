@@ -18,7 +18,7 @@ from itertools import combinations
 from pathlib import Path
 
 from geoh5py.shared.utils import fetch_active_workspace
-from simpeg import maps
+from simpeg import directives, maps
 from simpeg.objective_function import ComboObjectiveFunction
 from simpeg.regularization import CrossGradient
 
@@ -86,15 +86,24 @@ class JointCrossGradientDriver(BaseJointDriver):
                             ],
                         )
                     )
-                    base_multipier = (
-                        reg_list[-1].regularization_mesh.base_length ** 4.0
-                    )  # Account for cross of length scale square
                     multipliers.append(
                         getattr(self.params, f"cross_gradient_weight_{label}")
-                        * base_multipier
                     )
 
         return ComboObjectiveFunction(objfcts=reg_list, multipliers=multipliers)
+
+    def _get_joint_directives(self) -> list[directives.Directive]:
+        """
+        Create a list of directives for the joint inversion.
+        """
+        directives_list = super()._get_joint_directives()
+        for reg in self.regularization.objfcts:
+            if isinstance(reg, CrossGradient):
+                directives_list.append(
+                    directives.ScaleMaximimumDerivatives(reg)
+                )  # Update preconditioner after each iteration to account for cross-gradient regularization
+
+        return directives_list
 
 
 if __name__ == "__main__":
