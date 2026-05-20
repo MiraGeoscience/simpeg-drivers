@@ -49,5 +49,14 @@
         "main": true,
         "label": "Output name",
         "value": "Sensitivity cutoff"
+    },
+    "out_group": {
+        "label": "SimPEG group",
+        "main": true,
+        "value": "",
+        "groupType": "{55ed3daf-c192-4d4b-a439-60fa987fe2b8}",
+        "visible": true,
+        "optional": true,
+        "enabled": false
     }
 }

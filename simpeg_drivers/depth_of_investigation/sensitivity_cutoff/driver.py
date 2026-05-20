@@ -18,6 +18,7 @@ from geoh5py.data import FloatData
 from simpeg_drivers.depth_of_investigation.sensitivity_cutoff.options import (
     SensitivityCutoffOptions,
 )
+from simpeg_drivers.utils.utils import validate_out_group
 
 
 logger = logging.getLogger(__name__)
@@ -98,6 +99,7 @@ class SensitivityCutoffDriver(Driver):
 
     def __init__(self, params: SensitivityCutoffOptions):
         super().__init__(params)
+        self._out_group = validate_out_group(self.params)
 
     def run(self):
         logger.info("Scaling sensitivities . . .")
@@ -107,11 +109,12 @@ class SensitivityCutoffDriver(Driver):
             self.params.cutoff_method,
         )
         logger.info("Creating cutoff mask '%s'", self.params.mask_name)
-        cutoff_mask = self.params.mesh.add_data(
+        out_mesh = self.params.mesh.copy(self.out_group, copy_children=False)
+        cutoff_mask = out_mesh.add_data(
             {f"{self.params.mask_name}": {"values": mask, "association": "CELL"}}
         )
 
-        self.update_monitoring_directory(self.params.mesh)
+        self.update_monitoring_directory(self.out_group)
 
         return cutoff_mask
 
