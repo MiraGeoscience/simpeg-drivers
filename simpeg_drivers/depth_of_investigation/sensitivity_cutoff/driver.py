@@ -70,6 +70,7 @@ def sensitivity_mask(
     :param method: Cutoffs methods can be lower 'percentile', 'percent', or 'log_percent'.
     """
     values = sensitivity.values.copy()
+    values[values == 0.0] = np.nan
 
     if method == "percentile":
         mask = lower_percentile_mask(values, cutoff)
