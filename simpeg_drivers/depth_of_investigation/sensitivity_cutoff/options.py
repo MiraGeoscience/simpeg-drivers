@@ -40,7 +40,7 @@ class SensitivityCutoffOptions(Options):
     title: str = "Depth of Investigation: Sensitivity Cutoff"
     icon: str = "grd"
     run_command: str = "simpeg_drivers.depth_of_investigation.sensitivity_cutoff.driver"
-    out_group: SimPEGGroup | UIJsonGroup | None = None
+    out_group: UIJsonGroup | None = None
     conda_environment: str = "simpeg_drivers"
     mesh: Octree | DrapeModel
     sensitivity_model: FloatData

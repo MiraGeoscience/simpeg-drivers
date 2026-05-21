@@ -51,10 +51,10 @@
         "value": "Sensitivity cutoff"
     },
     "out_group": {
-        "label": "SimPEG group",
+        "label": "UIJson group",
         "main": false,
         "value": "",
-        "groupType": "{55ed3daf-c192-4d4b-a439-60fa987fe2b8}",
+        "groupType": "{BB50AC61-A657-4926-9C82-067658E246A0}",
         "visible": true,
         "optional": true,
         "enabled": false
