@@ -99,7 +99,6 @@ class SensitivityCutoffDriver(Driver):
 
     def __init__(self, params: SensitivityCutoffOptions):
         super().__init__(params)
-        self._out_group = validate_out_group(self.params)
 
     def run(self):
         logger.info("Scaling sensitivities . . .")
@@ -109,12 +108,13 @@ class SensitivityCutoffDriver(Driver):
             self.params.cutoff_method,
         )
         logger.info("Creating cutoff mask '%s'", self.params.mask_name)
-        out_mesh = self.params.mesh.copy(self.out_group, copy_children=False)
+
+        out_mesh = self.params.mesh.copy(parent=self.out_group, copy_children=False)
         cutoff_mask = out_mesh.add_data(
             {f"{self.params.mask_name}": {"values": mask, "association": "CELL"}}
         )
 
-        self.update_monitoring_directory(self.out_group)
+        self.update_monitoring_directory(self.out_group or out_mesh)
 
         return cutoff_mask
 
