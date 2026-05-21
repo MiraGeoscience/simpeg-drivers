@@ -19,6 +19,7 @@ from logging import getLogger
 from typing import TYPE_CHECKING
 
 import numpy as np
+from geoh5py.data.data_type import DataType
 from geoh5py.groups.property_group import GroupTypeEnum
 from geoh5py.objects import PotentialElectrode
 from numpy import sqrt
@@ -422,6 +423,18 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
                 active_cells_map,
                 inversion_object.permutation.T,
             ]
+
+            data_type = DataType.find_or_create_type(
+                self.params.geoh5,
+                "FLOAT",
+            )
+            data_type.color_map.name = "rgb-360wheel.tbl"
+
+            kwargs["data_type"] = {
+                "": {
+                    "declination": data_type,
+                }
+            }
 
         if self.factory_type in [
             "apparent conductivity",
