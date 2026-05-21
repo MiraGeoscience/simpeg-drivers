@@ -65,11 +65,14 @@ def sensitivity_mask(
     """
     Create cutoff mask for one of 'percentile', 'percent', or 'log_percent' methods.
 
+    Zero sensitivities are excluded from cutoff statistics and will be masked.
+
     :param sensitivity: Sensitivity data object.
     :param cutoff: Cutoff value.
     :param method: Cutoffs methods can be lower 'percentile', 'percent', or 'log_percent'.
     """
     values = sensitivity.values.copy()
+    values[values == 0.0] = np.nan
 
     if method == "percentile":
         mask = lower_percentile_mask(values, cutoff)
