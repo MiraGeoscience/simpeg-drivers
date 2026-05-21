@@ -24,7 +24,10 @@ if TYPE_CHECKING:
 
 import numpy as np
 from geoapps_utils.utils.transformations import x_rotation_matrix, z_rotation_matrix
-from geoh5py.objects.surveys.electromagnetics.base import AirborneEMSurvey
+from geoh5py.objects.surveys.electromagnetics.base import (
+    AirborneEMSurvey,
+    LargeLoopGroundEMSurvey,
+)
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 from simpeg_drivers.utils.regularization import direction_and_dip, get_cell_normals
@@ -189,7 +192,9 @@ class ReceiversFactory(SimPEGFactory):
 
         # Overload orientation if provided
         if (
-            isinstance(self.params.data_object, AirborneEMSurvey)
+            isinstance(
+                self.params.data_object, AirborneEMSurvey | LargeLoopGroundEMSurvey
+            )
             and local_indices is not None
         ):
             kwargs["orientation"] = self.orientations[kwargs["orientation"]][
