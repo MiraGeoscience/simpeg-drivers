@@ -87,6 +87,14 @@
         "dependencyType": "enabled",
         "tooltip": "Weight applied to the cross gradient regularizations (1: equal weight with the standard smallness and smoothness terms)"
     },
+    "iterative_rescaling": {
+        "group": "Joint",
+        "label": "Iterative rescaling",
+        "value": true,
+        "verbose": 1,
+        "visible": true,
+        "tooltip": "Whether to rescale the cross-gradient terms iteratively based on derivatives of smoothness regularization terms"
+    },
     "mesh": {
         "group": "Mesh and models",
         "main": true,

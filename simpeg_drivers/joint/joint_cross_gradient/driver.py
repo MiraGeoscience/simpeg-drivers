@@ -86,9 +86,13 @@ class JointCrossGradientDriver(BaseJointDriver):
                             ],
                         )
                     )
-                    multipliers.append(
-                        getattr(self.params, f"cross_gradient_weight_{label}")
-                    )
+                    multiplier = getattr(self.params, f"cross_gradient_weight_{label}")
+
+                    # Fixed dimensional scaling if not iterative
+                    if not self.params.iterative_rescaling:
+                        multiplier *= self.inversion_mesh.mesh.base_length**4.0
+
+                    multipliers.append(multiplier)
 
         return ComboObjectiveFunction(objfcts=reg_list, multipliers=multipliers)
 
@@ -97,11 +101,13 @@ class JointCrossGradientDriver(BaseJointDriver):
         Create a list of directives for the joint inversion.
         """
         directives_list = super()._get_joint_directives()
-        for reg in self.regularization.objfcts:
-            if isinstance(reg, CrossGradient):
-                directives_list.append(
-                    directives.ScaleMaximimumDerivatives(reg)
-                )  # Update preconditioner after each iteration to account for cross-gradient regularization
+
+        if self.params.iterative_rescaling:
+            for reg in self.regularization.objfcts:
+                if isinstance(reg, CrossGradient):
+                    directives_list.append(
+                        directives.ScaleMaximimumDerivatives(reg)
+                    )  # Update preconditioner after each iteration to account for cross-gradient regularization
 
         return directives_list
 
