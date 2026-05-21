@@ -197,10 +197,13 @@ class ReceiversFactory(SimPEGFactory):
             )
             and local_indices is not None
         ):
-            kwargs["orientation"] = self.orientations[kwargs["orientation"]][
-                local_indices, :
-            ]
+            orientations = self.orientations[kwargs["orientation"]][local_indices, :]
 
+            # TODO: GEOPY-2880: Generalize simpeg to allow 2D array of orientations
+            if orientations.ndim == 2:
+                orientations = np.mean(orientations, axis=0)
+
+            kwargs["orientation"] = orientations
         return kwargs
 
     def _dcip_arguments(self, locations=None, local_indices=None):
