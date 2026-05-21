@@ -30,7 +30,7 @@ class JointCrossGradientOptions(BaseJointOptions):
         regularization between the first and third models.
     :param cross_gradient_weight_c_b:  Weight applied to the cross gradient
         regularization between the second and third model.
-    :param iterative_rescaling:  Whether to rescale the cross gradient iterativaly
+    :param iterative_rescaling:  Whether to rescale the cross gradient iteratively
     """
 
     name: ClassVar[str] = "Joint Cross Gradient Inversion"

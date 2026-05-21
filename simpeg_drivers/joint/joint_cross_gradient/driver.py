@@ -106,7 +106,7 @@ class JointCrossGradientDriver(BaseJointDriver):
             for reg in self.regularization.objfcts:
                 if isinstance(reg, CrossGradient):
                     directives_list.append(
-                        directives.ScaleMaximimumDerivatives(reg)
+                        directives.ScaleMaximumDerivatives(reg)
                     )  # Update preconditioner after each iteration to account for cross-gradient regularization
 
         return directives_list
