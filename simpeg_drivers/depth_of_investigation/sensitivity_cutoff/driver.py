@@ -109,7 +109,11 @@ class SensitivityCutoffDriver(Driver):
         )
         logger.info("Creating cutoff mask '%s'", self.params.mask_name)
 
-        out_mesh = self.params.mesh.copy(parent=self.out_group, copy_children=False)
+        out_mesh = (
+            self.params.mesh
+            if self.out_group is None
+            else self.params.mesh.copy(parent=self.out_group, copy_children=False)
+        )
         cutoff_mask = out_mesh.add_data(
             {f"{self.params.mask_name}": {"values": mask, "association": "CELL"}}
         )
