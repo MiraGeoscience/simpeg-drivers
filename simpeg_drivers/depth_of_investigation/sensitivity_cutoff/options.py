@@ -13,6 +13,7 @@ from typing import ClassVar
 
 from geoapps_utils.base import Options
 from geoh5py.data import FloatData
+from geoh5py.groups import SimPEGGroup, UIJsonGroup
 from geoh5py.objects import DrapeModel, Octree
 from pydantic import field_validator
 
@@ -39,7 +40,7 @@ class SensitivityCutoffOptions(Options):
     title: str = "Depth of Investigation: Sensitivity Cutoff"
     icon: str = "grd"
     run_command: str = "simpeg_drivers.depth_of_investigation.sensitivity_cutoff.driver"
-
+    out_group: UIJsonGroup | None = None
     conda_environment: str = "simpeg_drivers"
     mesh: Octree | DrapeModel
     sensitivity_model: FloatData
