@@ -17,7 +17,7 @@ from geoh5py import Workspace
 
 from simpeg_drivers.components import InversionData, InversionMesh, InversionTopography
 from simpeg_drivers.options import ActiveCellsOptions
-from simpeg_drivers.potential_fields.magnetic_vector import (
+from simpeg_drivers.potential_fields.magnetic_vector.inversion import (
     MagneticVectorInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents

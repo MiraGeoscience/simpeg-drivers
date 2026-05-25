@@ -40,6 +40,7 @@ class TDEM1DForwardOptions(TDEMForwardOptions, Base1DOptions):
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/tdem1d_forward.ui.json"
     run_command: str = "simpeg_drivers.electromagnetics.time_domain_1d.forward"
     title: str = "Time-domain EM-1D (TEM-1D) Forward"
+    icon: str = "surveyairborneem"
     inversion_type: str = "tdem 1d"
 
     vertical_channel_bool: bool = Field(
@@ -60,6 +61,7 @@ class TDEM1DInversionOptions(TDEMInversionOptions, Base1DOptions):
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/tdem1d_inversion.ui.json"
     run_command: str = "simpeg_drivers.electromagnetics.time_domain_1d.inversion"
     title: str = "Time-domain EM-1D (TEM-1D) Inversion"
+    icon: str = "surveyairborneem"
     inversion_type: str = "tdem 1d"
 
     vertical_channel: PropertyGroup | None = Field(

@@ -15,28 +15,35 @@ import numpy as np
 from geoh5py.groups import GroupTypeEnum, PropertyGroup
 from geoh5py.objects import CurrentElectrode, Octree, Points
 from geoh5py.workspace import Workspace
+from simpeg.directives import UpdateIRLS
 
-from simpeg_drivers.electricals.direct_current.three_dimensions import (
+from simpeg_drivers.electricals.direct_current.three_dimensions.forward import (
     DC3DForwardDriver,
     DC3DForwardOptions,
+)
+from simpeg_drivers.electricals.direct_current.three_dimensions.inversion import (
     DC3DInversionDriver,
     DC3DInversionOptions,
 )
 from simpeg_drivers.joint.joint_cross_gradient.driver import JointCrossGradientDriver
 from simpeg_drivers.joint.joint_cross_gradient.options import JointCrossGradientOptions
-from simpeg_drivers.potential_fields.gravity import (
+from simpeg_drivers.potential_fields.gravity.forward import (
     GravityForwardDriver,
     GravityForwardOptions,
+)
+from simpeg_drivers.potential_fields.gravity.inversion import (
     GravityInversionDriver,
     GravityInversionOptions,
 )
-from simpeg_drivers.potential_fields.magnetic_vector import (
+from simpeg_drivers.potential_fields.magnetic_vector.forward import (
     MagneticVectorForwardDriver,
     MagneticVectorForwardOptions,
+)
+from simpeg_drivers.potential_fields.magnetic_vector.inversion import (
     MagneticVectorInversionDriver,
     MagneticVectorInversionOptions,
 )
-from simpeg_drivers.potential_fields.magnetic_vector_pde import (
+from simpeg_drivers.potential_fields.magnetic_vector_pde.inversion import (
     MagneticVectorPDEInversionDriver,
     MagneticVectorPDEInversionOptions,
 )
@@ -234,6 +241,7 @@ def test_joint_cross_gradient_inv_run(
                     reference_model=0.0,
                     upper_bound=1.0,
                     tile_spatial=2,
+                    x_norm=1.1,
                     auto_scale_tiles=True,
                     chi_factor=0.8,
                 )
@@ -296,17 +304,19 @@ def test_joint_cross_gradient_inv_run(
             cross_gradient_weight_a_b=1e0,
             cross_gradient_weight_c_a=1e0,
             cross_gradient_weight_c_b=1e0,
+            sens_wts_threshold=1.0,
             percentile=100,
         )
+    file = joint_params.write_ui_json(tmp_path / "Joint_Inv_run.ui.json")
+    driver = JointCrossGradientDriver.start(file)
 
-    driver = JointCrossGradientDriver(joint_params)
-
-    # Check that chi factors set on the sub drivers are preserved forward
-    np.testing.assert_allclose(
-        driver.data_misfit.multipliers, [0.8, 0.8, 1.0, 1.0, 1.0], atol=1e-3
+    # Check that the norm applied to the sub-driver is maintained
+    irls_directive = next(
+        directive
+        for directive in driver.directives.directive_list
+        if isinstance(directive, UpdateIRLS)
     )
-
-    driver.run()
+    np.testing.assert_almost_equal(irls_directive.metrics.input_norms[0][1], 1.1)
 
     if not pytest:
         return

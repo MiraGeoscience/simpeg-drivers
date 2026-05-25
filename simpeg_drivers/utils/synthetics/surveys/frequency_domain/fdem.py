@@ -42,7 +42,7 @@ def generate_fdem_survey(
     tx_locs_list = []
     frequency_list = []
 
-    for config in frequency_config:
+    for f_count, config in enumerate(frequency_config):
         for part in np.unique(survey.parts):
             line = survey.parts == part
             delta = np.diff(vertices[line, :], axis=0)
@@ -57,7 +57,7 @@ def generate_fdem_survey(
 
             tx_vertices = vertices[line, :] - delta * config["Offset"]
             tx_locs_list.append(tx_vertices)
-            frequency_list.append([[config["Frequency"]] * sum(line)])
+            frequency_list.append([np.full(sum(line), f_count + 1)])
 
     tx_locs = np.vstack(tx_locs_list)
     freqs = np.hstack(frequency_list).flatten()
@@ -74,7 +74,9 @@ def generate_fdem_survey(
                 "values": freqs,
                 "association": "VERTEX",
                 "primitive_type": "REFERENCED",
-                "value_map": {k: str(k) for k in freqs},
+                "value_map": {
+                    k + 1: elem["Frequency"] for k, elem in enumerate(frequency_config)
+                },
             }
         }
     )

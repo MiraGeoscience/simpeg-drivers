@@ -15,8 +15,7 @@ import sys
 from pathlib import Path
 
 from simpeg_drivers.driver import ForwardDriver
-
-from .options import TDEMForwardOptions
+from simpeg_drivers.electromagnetics.time_domain.options import TDEMForwardOptions
 
 
 class TDEMForwardDriver(ForwardDriver):

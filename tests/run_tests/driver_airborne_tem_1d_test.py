@@ -15,9 +15,11 @@ from pathlib import Path
 import numpy as np
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.electromagnetics.time_domain_1d import (
+from simpeg_drivers.electromagnetics.time_domain_1d.forward import (
     TDEM1DForwardDriver,
     TDEM1DForwardOptions,
+)
+from simpeg_drivers.electromagnetics.time_domain_1d.inversion import (
     TDEM1DInversionDriver,
     TDEM1DInversionOptions,
 )

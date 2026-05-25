@@ -7,13 +7,3 @@
 #  (see LICENSE file at the root of this source code package).                      '
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-
-from .magnetotellurics import (
-    MTForwardOptions,
-    MTInversionOptions,
-)
-from .tipper import TipperForwardOptions, TipperInversionOptions
-
-# pylint: disable=unused-import
-# flake8: noqa

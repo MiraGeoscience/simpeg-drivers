@@ -15,8 +15,7 @@ import sys
 from pathlib import Path
 
 from simpeg_drivers.driver import ForwardDriver
-
-from .options import MTForwardOptions
+from simpeg_drivers.natural_sources.magnetotellurics.options import MTForwardOptions
 
 
 class MTForwardDriver(ForwardDriver):

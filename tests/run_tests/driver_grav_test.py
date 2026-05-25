@@ -18,9 +18,11 @@ from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.workspace import Workspace
 from pytest import raises
 
-from simpeg_drivers.potential_fields.gravity import (
+from simpeg_drivers.potential_fields.gravity.forward import (
     GravityForwardDriver,
     GravityForwardOptions,
+)
+from simpeg_drivers.potential_fields.gravity.inversion import (
     GravityInversionDriver,
     GravityInversionOptions,
 )
@@ -133,6 +135,7 @@ def test_gravity_run(
             starting_model=1e-4,
             topography_object=components.topography,
             reference_model=0.0,
+            sens_wts_threshold=1.0,
             save_sensitivities=True,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
@@ -204,6 +207,32 @@ def test_array_too_large_run(
         with raises(GeoAppsError, match="Memory Error"):
             driver = GravityInversionDriver(params)
             driver.run()
+
+
+def test_bad_uncertainties(
+    tmp_path: Path,
+):
+    workpath = tmp_path / f"{__name__}.ui.geoh5"
+
+    with Workspace(workpath) as geoh5:
+        components = SyntheticsComponents(geoh5)
+        gz = components.survey.add_data(
+            {"data": {"values": np.random.randn(components.survey.n_vertices)}}
+        )
+
+        # Run the inverse
+        params = GravityInversionOptions.build(
+            geoh5=geoh5,
+            mesh=components.mesh,
+            topography_object=components.topography,
+            data_object=gz.parent,
+            gz_channel=gz,
+            gz_uncertainty=-1e-4,
+            starting_model=1e-4,
+        )
+
+        with raises(GeoAppsError, match="Issues encountered with uncertainties"):
+            _ = params.uncertainties
 
 
 if __name__ == "__main__":

@@ -44,6 +44,7 @@ class GravityForwardOptions(BaseForwardOptions):
     run_command: str = "simpeg_drivers.potential_fields.gravity.forward"
 
     title: str = "Gravity Forward"
+    icon: str = "surveyairbornegravity"
     physical_property: str = "density"
     inversion_type: str = "gravity"
 
@@ -88,6 +89,7 @@ class GravityInversionOptions(BaseInversionOptions):
     run_command: str = "simpeg_drivers.potential_fields.gravity.inversion"
 
     title: str = "Gravity Inversion"
+    icon: str = "surveyairbornegravity"
     physical_property: str = "density"
     inversion_type: str = "gravity"
 

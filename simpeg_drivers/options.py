@@ -18,6 +18,8 @@ from typing import Annotated, Any, ClassVar, Literal
 
 import numpy as np
 from geoapps_utils.base import Options
+from geoapps_utils.utils.formatters import recursive_flatten
+from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.data import (
     BooleanData,
     DataAssociationEnum,
@@ -29,7 +31,6 @@ from geoh5py.data import (
 from geoh5py.groups import PropertyGroup, SimPEGGroup, UIJsonGroup
 from geoh5py.objects import DrapeModel, Grid2D, Octree, Points
 from geoh5py.objects.surveys.electromagnetics.base import BaseEMSurvey
-from geoh5py.ui_json import InputFile
 from pydantic import (
     AliasChoices,
     BaseModel,
@@ -41,8 +42,10 @@ from pydantic import (
     model_validator,
 )
 
+from simpeg_drivers.uijson import SimPEGDriversUIJson
+from simpeg_drivers.utils.regularization import direction_and_dip
+
 from . import public_version
-from .utils.regularization import direction_and_dip
 
 
 logger = getLogger(__name__)
@@ -235,10 +238,18 @@ class CoreOptions(Options):
 
         return 4 if self.inversion_type in ["fdem", "tdem"] else 6
 
-    def _create_input_file_from_attributes(self) -> InputFile:
-        ifile = super()._create_input_file_from_attributes()
-        ifile.set_data_value("version", public_version())
-        return ifile
+    def write_ui_json(self, path: Path) -> Path:
+        """
+        Write UI JSON file.
+
+        TODO: Replace in favor of base Options implementation
+            after geoapps_utils@feature/uijson is merged
+        """
+        ui_json = SimPEGDriversUIJson.read(self.default_ui_json)
+        flatten = recursive_flatten(self.model_dump(exclude_unset=True))
+        ui_json.set_values(**flatten)
+
+        return ui_json.write(path)
 
 
 class ModelOptions(BaseModel):
@@ -458,7 +469,7 @@ class EMDataMixin:
             k for k in self.data_object.property_groups if k.uid == property_group.uid
         )
         data = {
-            freq: self.geoh5.get_entity(p)[0].values
+            freq: self.data_object.get_entity(p)[0].values
             for freq, p in zip(frequencies, group.properties, strict=False)
         }
         return data
@@ -615,20 +626,37 @@ class BaseInversionOptions(CoreOptions):
 
     @property
     def uncertainties(self) -> dict[str, dict[float, np.ndarray | None]]:
-        """Return dictionary of unceratinty components and associated values."""
+        """Return dictionary of uncertainty components and associated values."""
         out = {}
+        flags = []
         for k in self.active_components:
             out[k] = self.component_uncertainty(k)
+
+            for uncert, data in zip(
+                out[k].values(), self.component_data(k).values(), strict=True
+            ):
+                if np.any((np.isnan(uncert) | (uncert < 0)) & ~np.isnan(data)):
+                    flags.append(f"{k} component")
+                    break
+
+        if flags:
+            summary = (
+                "Issues encountered with uncertainties having NDV or negative values:\n\n - "
+                + "\n - ".join(flags)
+            )
+            summary += "\n\nPlease review the input values."
+            raise GeoAppsError(summary)
+
         return out
 
-    def component_data(self, component: str) -> np.ndarray | None:
+    def component_data(self, component: str) -> dict:
         """Return data values associated with the component."""
         data = getattr(self, "_".join([component, "channel"]), None)
         if isinstance(data, NumericData):
             data = data.values
         return {None: data}
 
-    def component_uncertainty(self, component: str) -> np.ndarray | None:
+    def component_uncertainty(self, component: str) -> dict:
         """
         Return uncertainty values associated with the component.
 

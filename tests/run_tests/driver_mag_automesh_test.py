@@ -15,7 +15,7 @@ from pathlib import Path
 import numpy as np
 from geoh5py import Workspace
 
-from simpeg_drivers.potential_fields.magnetic_scalar import (
+from simpeg_drivers.potential_fields.magnetic_scalar.forward import (
     MagneticForwardDriver,
     MagneticForwardOptions,
 )

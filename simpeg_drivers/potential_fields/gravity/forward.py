@@ -15,8 +15,7 @@ import sys
 from pathlib import Path
 
 from simpeg_drivers.driver import ForwardDriver
-
-from .options import GravityForwardOptions
+from simpeg_drivers.potential_fields.gravity.options import GravityForwardOptions
 
 
 class GravityForwardDriver(ForwardDriver):

@@ -38,6 +38,7 @@ class JointCrossGradientOptions(BaseJointOptions):
     )
     run_command: str = "simpeg_drivers.joint.joint_cross_gradient.driver"
     title: str = "Joint Cross Gradient Inversion"
+    icon: str = "function"
     inversion_type: str = "joint cross gradient"
 
     mesh: Octree | None = None

@@ -13,7 +13,8 @@ from typing import ClassVar
 
 from geoapps_utils.base import Options
 from geoh5py.data import FloatData
-from geoh5py.objects import Octree
+from geoh5py.groups import SimPEGGroup, UIJsonGroup
+from geoh5py.objects import DrapeModel, Octree
 from pydantic import field_validator
 
 from simpeg_drivers import assets_path
@@ -23,7 +24,7 @@ class SensitivityCutoffOptions(Options):
     """
     Sensitivity cutoff parameters for depth of investigation studies.
 
-    :param mesh: Octree mesh containing saved sensitivities.
+    :param mesh: Octree mesh or DrapeModel containing saved sensitivities.
     :param sensitivity_model: Saved row-sum-squared sensitivity data.
     :param sensitivity_cutoff: Sensitivity percentage below which the
         model's influence to the data is considered negligible.
@@ -37,10 +38,11 @@ class SensitivityCutoffOptions(Options):
     )
 
     title: str = "Depth of Investigation: Sensitivity Cutoff"
+    icon: str = "grd"
     run_command: str = "simpeg_drivers.depth_of_investigation.sensitivity_cutoff.driver"
-
+    out_group: UIJsonGroup | None = None
     conda_environment: str = "simpeg_drivers"
-    mesh: Octree
+    mesh: Octree | DrapeModel
     sensitivity_model: FloatData
     sensitivity_cutoff: float = 0.1
     cutoff_method: str = "percentile"

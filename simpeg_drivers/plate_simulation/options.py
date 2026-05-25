@@ -8,20 +8,20 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
+from copy import deepcopy
 from pathlib import Path
 from typing import ClassVar
 
 from geoapps_utils.base import Options
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
-from geoh5py.ui_json import InputFile
+from geoh5py.shared.utils import fetch_active_workspace
 from pydantic import model_validator
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.potential_fields.gravity.options import GravityForwardOptions
-from simpeg_drivers.potential_fields.magnetic_vector import (
-    MagneticVectorForwardOptions,
-)
+from simpeg_drivers.options import BaseForwardOptions
+from simpeg_drivers.uijson import SimPEGDriversUIJson
 from simpeg_drivers.utils.synthetics.meshes import MeshOptions
+from simpeg_drivers.utils.utils import driver_class_from_dict
 
 from .models.options import ModelOptions
 
@@ -41,6 +41,7 @@ class PlateSimulationOptions(Options):
     name: ClassVar[str] = "plate_simulation"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/plate_simulation.ui.json"
     title: str = "Plate Simulation"
+    icon: str = "maxwellplate"
     run_command: str = "simpeg_drivers.plate_simulation.driver"
     out_group: SimPEGGroup | UIJsonGroup | None = None
     forward_only: bool = True
@@ -59,3 +60,21 @@ class PlateSimulationOptions(Options):
         use_leroi = data.get("use_leroi", False) and is_tem
         data["use_leroi"] = use_leroi
         return data
+
+    def simulation_parameters(self) -> BaseForwardOptions:
+        """
+        Create SimPEG parameters from the simulation options.
+
+        A new SimPEGGroup is created inside the out_group to store the
+        result of the forward simulation.
+        """
+        simulation_options = deepcopy(self.simulation.options)
+        simulation_options["geoh5"] = self.geoh5
+
+        ui_json = SimPEGDriversUIJson.from_dict(simulation_options)
+
+        with fetch_active_workspace(self.geoh5) as workspace:
+            data = ui_json.to_params(workspace=workspace, validate=False)
+            driver = driver_class_from_dict(data)
+
+            return driver._params_class.build(data)  # pylint: disable=protected-access

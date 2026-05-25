@@ -20,7 +20,7 @@ from geoh5py.objects import Grid2D, Octree
 from grid_apps.utils import treemesh_2_octree
 
 from simpeg_drivers.components import InversionMesh
-from simpeg_drivers.potential_fields.magnetic_vector import (
+from simpeg_drivers.potential_fields.magnetic_vector.inversion import (
     MagneticVectorInversionDriver,
     MagneticVectorInversionOptions,
 )

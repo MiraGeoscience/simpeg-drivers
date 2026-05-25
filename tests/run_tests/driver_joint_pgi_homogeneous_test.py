@@ -21,17 +21,19 @@ from geoh5py.workspace import Workspace
 
 from simpeg_drivers.joint.joint_petrophysics.driver import JointPetrophysicsDriver
 from simpeg_drivers.joint.joint_petrophysics.options import JointPetrophysicsOptions
-from simpeg_drivers.potential_fields.gravity import (
+from simpeg_drivers.potential_fields.gravity.forward import (
     GravityForwardDriver,
     GravityForwardOptions,
+)
+from simpeg_drivers.potential_fields.gravity.inversion import (
     GravityInversionDriver,
     GravityInversionOptions,
 )
-from simpeg_drivers.potential_fields.magnetic_scalar import (
+from simpeg_drivers.potential_fields.magnetic_scalar.inversion import (
     MagneticInversionDriver,
     MagneticInversionOptions,
 )
-from simpeg_drivers.potential_fields.magnetic_vector import (
+from simpeg_drivers.potential_fields.magnetic_vector.forward import (
     MagneticVectorForwardDriver,
     MagneticVectorForwardOptions,
 )
@@ -223,7 +225,7 @@ def test_homogeneous_run(
 
                 # Remove inversion type as per current json on file
                 options = driver.out_group.options
-                del options["inversion_type"]
+                options.pop("inversion_type", None)
                 driver.out_group.options = options
                 drivers.append(driver)
             else:

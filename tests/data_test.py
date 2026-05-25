@@ -25,7 +25,7 @@ from simpeg_drivers.electricals.direct_current.three_dimensions.options import (
     DC3DForwardOptions,
 )
 from simpeg_drivers.options import ActiveCellsOptions
-from simpeg_drivers.potential_fields.magnetic_vector import (
+from simpeg_drivers.potential_fields.magnetic_vector.inversion import (
     MagneticVectorInversionDriver,
     MagneticVectorInversionOptions,
 )

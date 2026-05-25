@@ -137,7 +137,7 @@
         "isValue": true,
         "parent": "mesh",
         "label": "Background",
-        "tooltip": "Background model in the model units (S/m or Ohm-m)",
+        "tooltip": "Provide a background conductivity model in the model units (S/m or Ohm-m).\nGenerally the result of a 2D inversion of the DC resistivity data.",
         "property": "",
         "value": 0.001
     },
@@ -297,6 +297,7 @@
         "optional": true,
         "enabled": false,
         "parent": "mesh",
+        "tooltip": "Rotate the gradient of the regularization to align with a provided structural orientation.\nThe data should be provided as a data group in the form of either strike & dip, dip direction & dip, or x/y/z components.",
         "value": ""
     },
     "s_norm": {
@@ -474,6 +475,7 @@
         "label": "Maximum CG iterations",
         "value": 30,
         "enabled": true,
+        "tooltip": "Maximum number of iterations for the conjugate gradient solver used in the optimization",
         "verbose": 2
     },
     "tol_cg": {
@@ -482,6 +484,7 @@
         "label": "Conjugate gradient tolerance",
         "value": 0.0001,
         "enabled": true,
+        "tooltip": "Tolerance for the conjugate gradient solver used in the optimization",
         "verbose": 3
     },
     "f_min_change": {
@@ -495,7 +498,7 @@
     },
     "sens_wts_threshold": {
         "group": "Update sensitivity weights directive",
-        "tooltip": "Update sensitivity weight threshold",
+        "tooltip": "Threshold below which sensitivity weights become constant.  Measured as a percentage of the maximum sensitivity weight.",
         "label": "Threshold (%)",
         "value": 1.0,
         "max": 100.0,
@@ -537,7 +540,16 @@
         "tooltip": "Direct solver to use for the forward calculations",
         "value": "Pardiso"
     },
-    "tile_spatial": 1,
+    "tile_spatial": {
+        "group": "Compute",
+        "label": "Number of tiles",
+        "value": 1,
+        "min": 1,
+        "max": 1000,
+        "verbose": 2,
+        "visible": false,
+        "tooltip": "Splits the objective function into spatial tiles for distributed computation using the Dask library"
+    },
     "store_sensitivities": {
         "choiceList": [
             "disk",

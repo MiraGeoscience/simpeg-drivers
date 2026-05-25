@@ -14,7 +14,7 @@ from pathlib import Path
 
 import numpy as np
 
-from simpeg_drivers.potential_fields.magnetic_scalar import (
+from simpeg_drivers.potential_fields.magnetic_scalar.inversion import (
     MagneticInversionDriver,
     MagneticInversionOptions,
 )

@@ -48,6 +48,7 @@
         "parent": "mesh",
         "label": "Conductivity (S/m)",
         "property": "",
+        "tooltip": "Provide a background conductivity model in the model units (S/m or Ohm-m).\nGenerally the result of a 3D inversion of the DC resistivity data.",
         "value": 0.001
     },
     "starting_model": {
@@ -139,9 +140,6 @@
     "tile_spatial": {
         "group": "Compute",
         "label": "Number of tiles",
-        "parent": "data_object",
-        "isValue": true,
-        "property": "",
         "value": 1,
         "min": 1,
         "max": 1000,

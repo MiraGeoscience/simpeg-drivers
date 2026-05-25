@@ -7,11 +7,3 @@
 #  (see LICENSE file at the root of this source code package).                      '
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-
-from .forward import MagneticForwardDriver
-from .inversion import MagneticInversionDriver
-from .options import (
-    MagneticForwardOptions,
-    MagneticInversionOptions,
-)
