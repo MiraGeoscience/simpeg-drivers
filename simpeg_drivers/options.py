@@ -455,7 +455,7 @@ class EMDataMixin:
         property_group = getattr(self, "_".join([component, "uncertainty"]), None)
         return self.property_group_data(property_group)
 
-    def property_group_data(self, property_group: PropertyGroup):
+    def property_group_data(self, property_group: PropertyGroup) -> list:
         """
         Return dictionary of channel/data.
 
@@ -463,15 +463,12 @@ class EMDataMixin:
         """
         frequencies = self.data_object.channels
         if property_group is None:
-            return dict.fromkeys(frequencies)
+            return [[] * len(frequencies)]
 
         group = next(
             k for k in self.data_object.property_groups if k.uid == property_group.uid
         )
-        data = {
-            freq: self.data_object.get_entity(p)[0].values
-            for freq, p in zip(frequencies, group.properties, strict=False)
-        }
+        data = [self.data_object.get_entity(p)[0].values for p in group.properties]
         return data
 
 
@@ -632,9 +629,7 @@ class BaseInversionOptions(CoreOptions):
         for k in self.active_components:
             out[k] = self.component_uncertainty(k)
 
-            for uncert, data in zip(
-                out[k].values(), self.component_data(k).values(), strict=True
-            ):
+            for uncert, data in zip(out[k], self.component_data(k), strict=True):
                 if np.any((np.isnan(uncert) | (uncert < 0)) & ~np.isnan(data)):
                     flags.append(f"{k} component")
                     break

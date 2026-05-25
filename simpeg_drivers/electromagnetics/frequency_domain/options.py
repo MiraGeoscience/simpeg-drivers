@@ -51,14 +51,14 @@ class BaseFDEMOptions(EMDataMixin):
     """
 
     @cached_property
-    def tx_offsets(self):
+    def tx_offsets(self) -> list:
         """Return transmitter offsets from frequency metadata"""
 
         try:
             configs = self.data_object.metadata["EM Dataset"][
                 "Frequency configurations"
             ]
-            tx_offsets = {k["Frequency"]: k["Offset"] for k in configs}
+            tx_offsets = [k["Offset"] for k in configs]
 
         except KeyError as exception:
             msg = "Metadata must contain 'Frequency configurations' dictionary with 'Offset' key."
@@ -67,14 +67,14 @@ class BaseFDEMOptions(EMDataMixin):
         return tx_offsets
 
     @cached_property
-    def coaxial(self):
+    def coaxial(self) -> list:
         """Return transmitter offsets from frequency metadata"""
 
         try:
             configs = self.data_object.metadata["EM Dataset"][
                 "Frequency configurations"
             ]
-            coaxial = {k["Frequency"]: k["Coaxial data"] for k in configs}
+            coaxial = [k["Coaxial data"] for k in configs]
 
         except KeyError as exception:
             msg = "Metadata must contain 'Frequency configurations' dictionary with 'Coaxial data' key."

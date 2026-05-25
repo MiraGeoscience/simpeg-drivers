@@ -540,7 +540,7 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
                 np.hstack(
                     [
                         1 / inversion_object.normalizations[chan][comp]
-                        for chan in channels
+                        for chan in range(len(channels))
                         for comp in components
                     ],
                 ),

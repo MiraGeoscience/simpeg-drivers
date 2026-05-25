@@ -31,8 +31,6 @@ class InversionLocations:
 
     Parameters
     ----------
-    mask :
-        Mask that stores cumulative filtering actions.
     locations :
         xyz locations.
 
@@ -56,24 +54,7 @@ class InversionLocations:
         """
         self.workspace = workspace
         self._params: BaseForwardOptions | BaseInversionOptions = params
-        self.mask: np.ndarray | None = None
         self.locations: np.ndarray | None = None
-
-    @property
-    def mask(self):
-        return self._mask
-
-    @mask.setter
-    def mask(self, v):
-        if v is None:
-            self._mask = v
-            return
-        if np.all([n in [0, 1] for n in np.unique(v)]):
-            v = np.array(v, dtype=bool)
-        else:
-            msg = f"Badly formed mask array {v}"
-            raise (ValueError(msg))
-        self._mask = v
 
     def create_entity(self, name, locs: np.ndarray, geoh5_object=Points):
         """Create Data group and Points object with observed data."""
@@ -121,49 +102,6 @@ class InversionLocations:
             raise (ValueError(msg))
 
         return locations
-
-    def _filter(self, a, mask):
-        if a is None:
-            return None
-        for k, v in a.items():
-            if not isinstance(v, np.ndarray):
-                a.update({k: self._filter(v, mask)})
-            else:
-                a.update({k: v[mask]})
-        return a
-
-    def _none_dict(self, a):
-        is_none = []
-        for v in a.values():
-            if isinstance(v, dict):
-                v = None if self._none_dict(v) else 1
-            is_none.append(v is None)
-        return all(is_none)
-
-    def filter(self, obj: dict[str, np.ndarray] | np.ndarray, mask=None):
-        """
-        Apply accumulated self.mask to array, or dict of arrays.
-
-        If argument a is a dictionary filter will be applied to all key/values.
-
-        :param obj: Object containing data to filter.
-
-        :return: Filtered data.
-
-        """
-
-        mask = self.mask if mask is None else mask
-
-        if isinstance(obj, dict):
-            if self._none_dict(obj):
-                return obj
-            else:
-                return self._filter(obj, mask)
-        else:
-            if obj is None:
-                return None
-            else:
-                return obj[mask]
 
     @property
     def params(self):
