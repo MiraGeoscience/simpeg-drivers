@@ -12,6 +12,7 @@
         "group": "Data",
         "label": "Object",
         "meshType": "{275ecee9-9c24-4378-bf94-65f3c5fbe163}",
+        "tooltip": "Select a Potential Electrode object containing potentials data.",
         "value": ""
     },
     "potential_channel": {
@@ -23,6 +24,7 @@
         "group": "Data",
         "main": true,
         "label": "Potential (V/I)",
+        "tooltip": "Select a data channel containing the potentials.",
         "parent": "data_object",
         "value": ""
     },
@@ -36,6 +38,7 @@
         "main": true,
         "isValue": true,
         "label": "Uncertainty",
+        "tooltip": "Choose a representative uncertainty level for the potential data. Can be a scalar or per datum.  For DC data a data percent + small floor approach is often used.",
         "parent": "data_object",
         "property": "",
         "value": 1.0
@@ -105,6 +108,7 @@
         "property": "",
         "optional": true,
         "value": 1e-08,
+        "tooltip": "Set an lower bound for the conductivity model, either cell-based on as a constant value",
         "enabled": false
     },
     "upper_bound": {
@@ -121,6 +125,7 @@
         "property": "",
         "optional": true,
         "value": 100.0,
+        "tooltip": "Set an upper bound for the conductivity model, either cell-based or as a constant value",
         "enabled": false
     },
     "topography_object": {
