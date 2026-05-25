@@ -610,7 +610,7 @@ class BaseInversionOptions(CoreOptions):
         ]
 
     @property
-    def data(self) -> dict[str, dict[float, np.ndarray | None]]:
+    def data(self) -> dict[str, list[np.ndarray | None]]:
         """Return dictionary of data components and associated values."""
         out = {}
         for k in self.active_components:
@@ -618,7 +618,7 @@ class BaseInversionOptions(CoreOptions):
         return out
 
     @property
-    def uncertainties(self) -> dict[str, dict[float, np.ndarray | None]]:
+    def uncertainties(self) -> dict[str, list[np.ndarray | None]]:
         """Return dictionary of uncertainty components and associated values."""
         out = {}
         flags = []

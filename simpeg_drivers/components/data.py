@@ -250,8 +250,8 @@ class InversionData(InversionLocations):
             )
 
     def normalize(
-        self, data: dict[str, np.ndarray], absolute=False
-    ) -> dict[str, np.ndarray]:
+        self, data: dict[str, list | None], absolute=False
+    ) -> dict[str, list]:
         """
         Apply data type specific normalizations to data.
 
@@ -263,17 +263,17 @@ class InversionData(InversionLocations):
 
         :return: Normalized data.
         """
-        d = deepcopy(data)
+        norm_data = deepcopy(data)
         for chan, _ in enumerate(getattr(self.params.data_object, "channels", [None])):
             for comp in self.params.active_components:
-                if d[comp] is None:
+                if norm_data[comp] is None:
                     continue
 
-                d[comp][chan] *= self.normalizations[chan][comp]
+                norm_data[comp][chan] *= self.normalizations[chan][comp]
                 if absolute:
-                    d[comp][chan] = np.abs(d[comp][chan])
+                    norm_data[comp][chan] = np.abs(norm_data[comp][chan])
 
-        return d
+        return norm_data
 
     def get_normalizations(self) -> list[dict]:
         """Create normalizations dictionary."""

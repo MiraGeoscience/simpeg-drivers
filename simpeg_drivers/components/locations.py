@@ -38,9 +38,6 @@ class InversionLocations:
     -------
     get_locations() :
         Returns locations of data object centroids or vertices.
-    filter() :
-        Apply accumulated self.mask to array, or dict of arrays.
-
     """
 
     def __init__(
@@ -75,7 +72,6 @@ class InversionLocations:
         If no location data is found on the provided entity, the method will
         attempt to call itself on its parent.
 
-        :param workspace: Geoh5py Workspace entity.
         :param entity: Object or uuid of entity containing centroid or
             vertex location data.
 
