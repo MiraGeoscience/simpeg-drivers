@@ -182,8 +182,8 @@ class InversionTopography(InversionLocations):
         active_cells[containing_cells] = True
 
         # Apply extra active cells to ensure connectivity for neighbours
-        tree = cKDTree(mesh.mesh.cell_centers[containing_cells])
-        rad, ind = tree.query(mesh.mesh.cell_centers)
+        tree = cKDTree(mesh.mesh.cell_centers[containing_cells, :-1])
+        rad, ind = tree.query(mesh.mesh.cell_centers[:, :-1])
         neighbours_xy = rad < (3 * mesh.mesh.h[0].min())
         neighbours_xy &= (
             mesh.mesh.cell_centers[containing_cells, :][ind, -1]
