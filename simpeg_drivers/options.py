@@ -447,24 +447,20 @@ class EMDataMixin:
 
     def component_data(self, component: str):
         """Return data values associated with the component."""
-        property_group = getattr(self, "_".join([component, "channel"]), None)
+        property_group = getattr(self, "_".join([component, "channel"]))
         return self.property_group_data(property_group)
 
     def component_uncertainty(self, component: str):
         """Return uncertainty values associated with the component."""
-        property_group = getattr(self, "_".join([component, "uncertainty"]), None)
+        property_group = getattr(self, "_".join([component, "uncertainty"]))
         return self.property_group_data(property_group)
 
-    def property_group_data(self, property_group: PropertyGroup) -> list:
+    def property_group_data(self, property_group: PropertyGroup | None) -> list:
         """
         Return dictionary of channel/data.
 
         :param property_group: Property group uid
         """
-        frequencies = self.data_object.channels
-        if property_group is None:
-            return [[] * len(frequencies)]
-
         group = next(
             k for k in self.data_object.property_groups if k.uid == property_group.uid
         )
