@@ -19,9 +19,10 @@ from logging import getLogger
 from typing import TYPE_CHECKING
 
 import numpy as np
-from geoh5py.data.data_type import DataType
+from geoh5py.data.data_type import ColorMap, DataType
 from geoh5py.groups.property_group import GroupTypeEnum
 from geoh5py.objects import PotentialElectrode
+from matplotlib import colormaps
 from numpy import sqrt
 from simpeg import directives, maps
 from simpeg.utils.mat_utils import cartesian2amplitude_dip_azimuth
@@ -423,16 +424,17 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
                 active_cells_map,
                 inversion_object.permutation.T,
             ]
-
             data_type = DataType.find_or_create_type(
                 self.params.geoh5,
                 "FLOAT",
             )
-            data_type.color_map.name = "rgb-360wheel.tbl"
-
+            angles = np.linspace(0, 1, 90)
+            colormap = np.c_[angles * 360, colormaps["twilight"](angles) * 255]
+            data_type.color_map = ColorMap(name="twilight.TBL", values=colormap)
             kwargs["data_type"] = {
                 "": {
                     "declination": data_type,
+                    "inclination": data_type,
                 }
             }
 
