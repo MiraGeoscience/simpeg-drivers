@@ -585,7 +585,7 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
             data = inversion_object.normalize(inversion_object.observed)
 
             def potfield_transform(x):
-                data_stack = np.vstack([k[None] for k in data.values()])
+                data_stack = np.vstack([k[0] for k in data.values()])
                 return data_stack.ravel() - x
 
             kwargs.pop("data_type")
@@ -619,7 +619,7 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
             data = inversion_object.normalize(inversion_object.observed)
 
             def dcip_transform(x):
-                data_stack = np.vstack([k[None] for k in data.values()])
+                data_stack = np.vstack([k[0] for k in data.values()])
                 return data_stack.ravel() - x
 
             kwargs["transforms"].insert(0, dcip_transform)

@@ -266,15 +266,12 @@ class InversionData(InversionLocations):
         d = deepcopy(data)
         for chan, _ in enumerate(getattr(self.params.data_object, "channels", [None])):
             for comp in self.params.active_components:
-                if isinstance(d[comp], list):
-                    if d[comp][chan] is not None:
-                        d[comp][chan] *= self.normalizations[chan][comp]
-                        if absolute:
-                            d[comp][chan] = np.abs(d[comp][chan])
-                elif d[comp] is not None:
-                    d[comp] *= self.normalizations[chan][comp]
-                    if absolute:
-                        d[comp] = np.abs(d[comp])
+                if d[comp] is None:
+                    continue
+
+                d[comp][chan] *= self.normalizations[chan][comp]
+                if absolute:
+                    d[comp][chan] = np.abs(d[comp][chan])
 
         return d
 

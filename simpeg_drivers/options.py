@@ -644,14 +644,14 @@ class BaseInversionOptions(CoreOptions):
 
         return out
 
-    def component_data(self, component: str) -> dict:
+    def component_data(self, component: str) -> list[np.ndarray]:
         """Return data values associated with the component."""
         data = getattr(self, "_".join([component, "channel"]), None)
         if isinstance(data, NumericData):
             data = data.values
-        return {None: data}
+        return [data]
 
-    def component_uncertainty(self, component: str) -> dict:
+    def component_uncertainty(self, component: str) -> list[np.ndarray]:
         """
         Return uncertainty values associated with the component.
 
@@ -664,9 +664,9 @@ class BaseInversionOptions(CoreOptions):
         if isinstance(data, NumericData):
             data = data.values
         elif isinstance(data, float):
-            data *= np.ones_like(self.component_data(component)[None])
+            data *= np.ones_like(self.component_data(component)[0])
 
-        return {None: data}
+        return [data]
 
 
 class IPModelOptions(ConductivityModelOptions):
