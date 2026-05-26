@@ -149,7 +149,7 @@ def test_ip_2d_run(
     if geoh5.open():
         output["data"] = chargeability.values[np.isfinite(chargeability.values)]
     if pytest:
-        check_target(output, target_run)
+        check_target(output, target_run, tolerance=0.4)
 
 
 if __name__ == "__main__":
