@@ -433,8 +433,8 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
             data_type.color_map = ColorMap(name="twilight.TBL", values=colormap)
             kwargs["data_type"] = {
                 "": {
-                    "declination": data_type,
-                    "inclination": data_type,
+                    1: data_type,
+                    2: data_type,
                 }
             }
 
