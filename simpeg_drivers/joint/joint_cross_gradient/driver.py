@@ -90,7 +90,9 @@ class JointCrossGradientDriver(BaseJointDriver):
 
                     # Fixed dimensional scaling if not iterative
                     if not self.params.iterative_rescaling:
-                        multiplier *= self.inversion_mesh.mesh.base_length**4.0
+                        multiplier *= (
+                            reg_list[-1].regularization_mesh.base_length ** 4.0
+                        )
 
                     multipliers.append(multiplier)
 
