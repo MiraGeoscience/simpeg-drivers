@@ -447,31 +447,24 @@ class EMDataMixin:
 
     def component_data(self, component: str):
         """Return data values associated with the component."""
-        property_group = getattr(self, "_".join([component, "channel"]), None)
+        property_group = getattr(self, "_".join([component, "channel"]))
         return self.property_group_data(property_group)
 
     def component_uncertainty(self, component: str):
         """Return uncertainty values associated with the component."""
-        property_group = getattr(self, "_".join([component, "uncertainty"]), None)
+        property_group = getattr(self, "_".join([component, "uncertainty"]))
         return self.property_group_data(property_group)
 
-    def property_group_data(self, property_group: PropertyGroup):
+    def property_group_data(self, property_group: PropertyGroup | None) -> list:
         """
         Return dictionary of channel/data.
 
         :param property_group: Property group uid
         """
-        frequencies = self.data_object.channels
-        if property_group is None:
-            return dict.fromkeys(frequencies)
-
         group = next(
             k for k in self.data_object.property_groups if k.uid == property_group.uid
         )
-        data = {
-            freq: self.data_object.get_entity(p)[0].values
-            for freq, p in zip(frequencies, group.properties, strict=False)
-        }
+        data = [self.data_object.get_entity(p)[0].values for p in group.properties]
         return data
 
 
@@ -617,7 +610,7 @@ class BaseInversionOptions(CoreOptions):
         ]
 
     @property
-    def data(self) -> dict[str, dict[float, np.ndarray | None]]:
+    def data(self) -> dict[str, list[np.ndarray | None]]:
         """Return dictionary of data components and associated values."""
         out = {}
         for k in self.active_components:
@@ -625,16 +618,14 @@ class BaseInversionOptions(CoreOptions):
         return out
 
     @property
-    def uncertainties(self) -> dict[str, dict[float, np.ndarray | None]]:
+    def uncertainties(self) -> dict[str, list[np.ndarray | None]]:
         """Return dictionary of uncertainty components and associated values."""
         out = {}
         flags = []
         for k in self.active_components:
             out[k] = self.component_uncertainty(k)
 
-            for uncert, data in zip(
-                out[k].values(), self.component_data(k).values(), strict=True
-            ):
+            for uncert, data in zip(out[k], self.component_data(k), strict=True):
                 if np.any((np.isnan(uncert) | (uncert < 0)) & ~np.isnan(data)):
                     flags.append(f"{k} component")
                     break
@@ -649,14 +640,14 @@ class BaseInversionOptions(CoreOptions):
 
         return out
 
-    def component_data(self, component: str) -> dict:
+    def component_data(self, component: str) -> list[np.ndarray]:
         """Return data values associated with the component."""
         data = getattr(self, "_".join([component, "channel"]), None)
         if isinstance(data, NumericData):
             data = data.values
-        return {None: data}
+        return [data]
 
-    def component_uncertainty(self, component: str) -> dict:
+    def component_uncertainty(self, component: str) -> list[np.ndarray]:
         """
         Return uncertainty values associated with the component.
 
@@ -669,9 +660,9 @@ class BaseInversionOptions(CoreOptions):
         if isinstance(data, NumericData):
             data = data.values
         elif isinstance(data, float):
-            data *= np.ones_like(self.component_data(component)[None])
+            data *= np.ones_like(self.component_data(component)[0])
 
-        return {None: data}
+        return [data]
 
 
 class IPModelOptions(ConductivityModelOptions):

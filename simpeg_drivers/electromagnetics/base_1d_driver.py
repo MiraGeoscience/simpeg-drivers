@@ -95,7 +95,7 @@ class Base1DDriver(BaseDriver):
         return layers_mesh
 
     def get_tiles(self) -> dict[None, list[list[ndarray[tuple[Any, ...]]]]]:
-        n_data = self.inversion_data.mask.sum()
+        n_data = len(self.inversion_data.locations)
         indices = np.arange(n_data)
 
         # Heuristic to avoid too many chunks
