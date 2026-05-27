@@ -400,8 +400,8 @@ class BaseJointDriver(InversionDriver):
                 )
             )
 
-            if driver_directives.save_property_group is not None:
-                directives_list.append(driver_directives.save_property_group)
+            if driver_directives.save_model_groups is not None:
+                directives_list.append(driver_directives.save_model_groups)
 
             n_tiles = len(driver.data_misfit.objfcts)
             for name in [
@@ -482,14 +482,14 @@ class BaseJointDriver(InversionDriver):
         model_directive.transforms = [wire, *model_directive.transforms]
 
         directives_list = [model_directive]
-        if driver.directives.save_property_group is not None:
+        if driver.directives.save_model_groups is not None:
             directives_list.append(
-                directives.SavePropertyGroup(
+                directives.SaveModelGroup(
                     self.inversion_mesh.entity,
-                    group_type=GroupTypeEnum.DIPDIR,
-                    channels=["declination", "inclination"],
+                    channels=["amplitude", "inclination", "declination"],
                 )
             )
+
         return directives_list
 
     def _overload_regularization(self, regularization: ComboObjectiveFunction):
