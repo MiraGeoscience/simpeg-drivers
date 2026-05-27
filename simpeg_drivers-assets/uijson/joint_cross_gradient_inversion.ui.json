@@ -93,6 +93,7 @@
         "value": true,
         "verbose": 1,
         "visible": true,
+        "main": true,
         "tooltip": "Whether to rescale the cross-gradient terms iteratively based on derivatives of smoothness regularization terms"
     },
     "mesh": {
