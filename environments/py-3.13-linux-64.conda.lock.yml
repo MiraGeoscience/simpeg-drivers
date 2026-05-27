@@ -49,7 +49,7 @@ dependencies:
   - hpack=4.1.0=pyhd8ed1ab_0
   - hyperframe=6.1.0=pyhd8ed1ab_0
   - icu=75.1=he02047a_0
-  - importlib-metadata=8.8.0=pyhcf101f3_0
+  - importlib-metadata=9.0.0=pyhcf101f3_0
   - jinja2=3.1.6=pyhcf101f3_1
   - joblib=1.5.3=pyhd8ed1ab_0
   - keyutils=1.6.3=hb9d3cd8_0
@@ -157,7 +157,7 @@ dependencies:
   - typing_extensions=4.15.0=pyhcf101f3_0
   - tzdata=2025c=hc9c84f9_1
   - urllib3=2.7.0=pyhd8ed1ab_0
-  - wrapt=2.2.0=py313h07c4f96_0
+  - wrapt=2.2.1=py313h07c4f96_0
   - xorg-libxau=1.0.12=hb03c661_1
   - xorg-libxdmcp=1.1.5=hb03c661_1
   - xyzservices=2026.3.0=pyhd8ed1ab_0
@@ -168,10 +168,10 @@ dependencies:
   - zlib-ng=2.3.3=hceb46e0_1
   - zstd=1.5.7=hb78ec9c_6
   - pip:
-    - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@ed8ce15bd6288c78908cf31bf9327dbb06b02267
-    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@0f3a0d9a31a8299aed5b7784c4c6de1d1ac54dbd
+    - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@65b6c71b028bd4a65184b6338e37d0453f3d2e35
+    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@ff3ab1492a59cf40d65f40f689e8060d4c52151b
     - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@be88a213ea5a5e22f8da77de9b3da9ef5f9ef156
-    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@78bced0dd923cbb1b630b4196c9ca1a56621e180
+    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@891dc269acbde6b2aad43948394067a0702dea6b
 
 variables:
   KMP_WARNINGS: 0
