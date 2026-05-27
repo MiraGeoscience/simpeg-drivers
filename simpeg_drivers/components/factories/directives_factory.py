@@ -19,8 +19,10 @@ from logging import getLogger
 from typing import TYPE_CHECKING
 
 import numpy as np
+from geoh5py.data.data_type import ColorMap, DataType
 from geoh5py.groups.property_group import GroupTypeEnum
 from geoh5py.objects import PotentialElectrode
+from matplotlib import colormaps
 from numpy import sqrt
 from simpeg import directives, maps
 from simpeg.utils.mat_utils import cartesian2amplitude_dip_azimuth
@@ -422,6 +424,19 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
                 active_cells_map,
                 inversion_object.permutation.T,
             ]
+            data_type = DataType.find_or_create_type(
+                self.params.geoh5,
+                "FLOAT",
+            )
+            angles = np.linspace(0, 1, 90)
+            colormap = np.c_[angles * 360, colormaps["twilight"](angles) * 255]
+            data_type.color_map = ColorMap(name="twilight.TBL", values=colormap)
+            kwargs["data_type"] = {
+                "": {
+                    1: data_type,
+                    2: data_type,
+                }
+            }
 
         if self.factory_type in [
             "apparent conductivity",
@@ -540,7 +555,7 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
                 np.hstack(
                     [
                         1 / inversion_object.normalizations[chan][comp]
-                        for chan in channels
+                        for chan in range(len(channels))
                         for comp in components
                     ],
                 ),
@@ -585,7 +600,7 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
             data = inversion_object.normalize(inversion_object.observed)
 
             def potfield_transform(x):
-                data_stack = np.vstack([k[None] for k in data.values()])
+                data_stack = np.vstack([k[0] for k in data.values()])
                 return data_stack.ravel() - x
 
             kwargs.pop("data_type")
@@ -619,7 +634,7 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
             data = inversion_object.normalize(inversion_object.observed)
 
             def dcip_transform(x):
-                data_stack = np.vstack([k[None] for k in data.values()])
+                data_stack = np.vstack([k[0] for k in data.values()])
                 return data_stack.ravel() - x
 
             kwargs["transforms"].insert(0, dcip_transform)
