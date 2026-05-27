@@ -8418,43 +8418,43 @@ package:
   category: main
   optional: false
 - name: geoapps-utils
-  version: 0.7.0a4.dev22+ed8ce15
+  version: 0.7.0a4.dev23+65b6c71
   manager: pip
   platform: linux-64
   dependencies:
-    geoh5py: 0.13.0a4.dev158+8c281da4
+    geoh5py: 0.13.0a4.dev159+ff3ab149
     matplotlib: '>=3.10.0,<3.11.0'
     numpy: '>=2.4.2,<2.5.0'
     pydantic: '>=2.12.0,<2.13.0'
     scipy: '>=1.17.0,<1.18.0'
-  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@ed8ce15bd6288c78908cf31bf9327dbb06b02267
+  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@65b6c71b028bd4a65184b6338e37d0453f3d2e35
   hash:
-    sha256: ed8ce15bd6288c78908cf31bf9327dbb06b02267
+    sha256: 65b6c71b028bd4a65184b6338e37d0453f3d2e35
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@ed8ce15bd6288c78908cf31bf9327dbb06b02267
+    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@65b6c71b028bd4a65184b6338e37d0453f3d2e35
   category: main
   optional: false
 - name: geoapps-utils
-  version: 0.7.0a4.dev22+ed8ce15
+  version: 0.7.0a4.dev23+65b6c71
   manager: pip
   platform: win-64
   dependencies:
-    geoh5py: 0.13.0a4.dev158+8c281da4
+    geoh5py: 0.13.0a4.dev159+ff3ab149
     matplotlib: '>=3.10.0,<3.11.0'
     numpy: '>=2.4.2,<2.5.0'
     pydantic: '>=2.12.0,<2.13.0'
     scipy: '>=1.17.0,<1.18.0'
-  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@ed8ce15bd6288c78908cf31bf9327dbb06b02267
+  url: git+https://github.com/MiraGeoscience/geoapps-utils.git@65b6c71b028bd4a65184b6338e37d0453f3d2e35
   hash:
-    sha256: ed8ce15bd6288c78908cf31bf9327dbb06b02267
+    sha256: 65b6c71b028bd4a65184b6338e37d0453f3d2e35
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@ed8ce15bd6288c78908cf31bf9327dbb06b02267
+    url: git+https://github.com/MiraGeoscience/geoapps-utils.git@65b6c71b028bd4a65184b6338e37d0453f3d2e35
   category: main
   optional: false
 - name: geoh5py
-  version: 0.13.0a4.dev158+8c281da4
+  version: 0.13.0a4.dev159+ff3ab149
   manager: pip
   platform: linux-64
   dependencies:
@@ -8463,16 +8463,16 @@ package:
     pillow: '>=12.1.0,<12.2.0'
     psutil: '>=7.2.2,<8.0.0'
     pydantic: '>=2.12.0,<2.13.0'
-  url: git+https://github.com/MiraGeoscience/geoh5py.git@8c281da4613bafdfd1751f4db719241d11b07a9f
+  url: git+https://github.com/MiraGeoscience/geoh5py.git@ff3ab1492a59cf40d65f40f689e8060d4c52151b
   hash:
-    sha256: 8c281da4613bafdfd1751f4db719241d11b07a9f
+    sha256: ff3ab1492a59cf40d65f40f689e8060d4c52151b
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoh5py.git@8c281da4613bafdfd1751f4db719241d11b07a9f
+    url: git+https://github.com/MiraGeoscience/geoh5py.git@ff3ab1492a59cf40d65f40f689e8060d4c52151b
   category: main
   optional: false
 - name: geoh5py
-  version: 0.13.0a4.dev158+8c281da4
+  version: 0.13.0a4.dev159+ff3ab149
   manager: pip
   platform: win-64
   dependencies:
@@ -8481,12 +8481,12 @@ package:
     pillow: '>=12.1.0,<12.2.0'
     psutil: '>=7.2.2,<8.0.0'
     pydantic: '>=2.12.0,<2.13.0'
-  url: git+https://github.com/MiraGeoscience/geoh5py.git@8c281da4613bafdfd1751f4db719241d11b07a9f
+  url: git+https://github.com/MiraGeoscience/geoh5py.git@ff3ab1492a59cf40d65f40f689e8060d4c52151b
   hash:
-    sha256: 8c281da4613bafdfd1751f4db719241d11b07a9f
+    sha256: ff3ab1492a59cf40d65f40f689e8060d4c52151b
   source:
     type: url
-    url: git+https://github.com/MiraGeoscience/geoh5py.git@8c281da4613bafdfd1751f4db719241d11b07a9f
+    url: git+https://github.com/MiraGeoscience/geoh5py.git@ff3ab1492a59cf40d65f40f689e8060d4c52151b
   category: main
   optional: false
 - name: grid-apps
@@ -8495,8 +8495,8 @@ package:
   platform: linux-64
   dependencies:
     discretize: '>=0.12.0,<0.13.0'
-    geoapps-utils: 0.7.0a4.dev22+ed8ce15
-    geoh5py: 0.13.0a4.dev158+8c281da4
+    geoapps-utils: 0.7.0a4.dev23+65b6c71
+    geoh5py: 0.13.0a4.dev159+ff3ab149
     numpy: '>=2.4.2,<2.5.0'
     pydantic: '>=2.12.0,<2.13.0'
     scipy: '>=1.17.0,<1.18.0'
@@ -8514,8 +8514,8 @@ package:
   platform: win-64
   dependencies:
     discretize: '>=0.12.0,<0.13.0'
-    geoapps-utils: 0.7.0a4.dev22+ed8ce15
-    geoh5py: 0.13.0a4.dev158+8c281da4
+    geoapps-utils: 0.7.0a4.dev23+65b6c71
+    geoh5py: 0.13.0a4.dev159+ff3ab149
     numpy: '>=2.4.2,<2.5.0'
     pydantic: '>=2.12.0,<2.13.0'
     scipy: '>=1.17.0,<1.18.0'
