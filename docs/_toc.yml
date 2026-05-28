@@ -15,6 +15,7 @@ chapters:
   - file: fundamentals/mesh_design
   - file: fundamentals/joint_inversion
     sections:
+    - file: fundamentals/joint_inversion/joint_surveys
     - file: fundamentals/joint_inversion/cross_gradient
     - file: fundamentals/joint_inversion/pgi
   - file: fundamentals/optimization
