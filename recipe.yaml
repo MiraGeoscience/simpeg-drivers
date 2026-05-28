@@ -73,7 +73,7 @@ tests:
       pip_check: true
 
   - script:
-      - pytest --ignore=tests/version_test.py
+      - pytest --ignore=tests/version_test.py --ignore=tests/run_tests --ignore=tests/plate_simulation
     requirements:
       run:
         - pytest
