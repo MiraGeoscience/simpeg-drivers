@@ -49,7 +49,7 @@ class DirectivesFactory:
         self._beta_estimate_by_eigenvalues_directive = None
         self._update_preconditioner_directive = None
         self._save_iteration_model_directive = None
-        self._save_property_group = None
+        self._save_model_groups = None
         self._save_sensitivities_directive = None
         self._save_iteration_data_directive = None
         self._save_iteration_residual_directive = None
@@ -141,7 +141,7 @@ class DirectivesFactory:
             "save_iteration_data_directive",
             "save_iteration_residual_directive",
             "save_sensitivities_directive",
-            "save_property_group",
+            "save_model_groups",
             "save_iteration_log_files",
             "save_iteration_apparent_resistivity_directive",
         ]:
@@ -188,17 +188,17 @@ class DirectivesFactory:
         return self._save_iteration_apparent_resistivity_directive
 
     @property
-    def save_property_group(self):
+    def save_model_groups(self):
         if (
-            self._save_property_group is None
+            self._save_model_groups is None
             and "magnetic vector" in self.params.inversion_type
         ):
-            self._save_property_group = directives.SavePropertyGroup(
+            self._save_model_groups = directives.SaveModelGroup(
                 self.driver.inversion_mesh.entity,
-                group_type=GroupTypeEnum.DIPDIR,
-                channels=["declination", "inclination"],
+                components=["amplitude", "declination", "inclination"],
             )
-        return self._save_property_group
+
+        return self._save_model_groups
 
     @property
     def save_sensitivities_directive(self):
