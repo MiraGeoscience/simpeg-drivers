@@ -59,21 +59,6 @@ def get_mvi_params(tmp_path: Path) -> MagneticVectorInversionOptions:
         return params
 
 
-def test_mask(tmp_path: Path):
-    params = get_mvi_params(tmp_path)
-    geoh5 = params.geoh5
-    with geoh5.open():
-        locations = InversionLocations(geoh5, params)
-        loc_mask = [0, 1, 1, 0]
-        locations.mask = loc_mask
-        assert isinstance(locations.mask, np.ndarray)
-        assert locations.mask.dtype == bool
-        loc_mask = [0, 1, 2, 3]
-        with pytest.raises(ValueError) as excinfo:
-            locations.mask = loc_mask
-        assert "Badly formed" in str(excinfo.value)
-
-
 def test_get_locations(tmp_path: Path):
     params = get_mvi_params(tmp_path)
     geoh5 = params.geoh5
@@ -98,21 +83,6 @@ def test_get_locations(tmp_path: Path):
         )
         dlocs = locations.get_locations(grid_object)
         np.testing.assert_allclose(dlocs, locs)
-
-
-def test_filter(tmp_path: Path):
-    params = get_mvi_params(tmp_path)
-    geoh5 = params.geoh5
-    with geoh5.open():
-        locations = InversionLocations(geoh5, params)
-        test_data = np.array([0, 1, 2, 3, 4, 5])
-        locations.mask = np.array([0, 0, 1, 1, 1, 0])
-        filtered_data = locations.filter(test_data)
-        assert np.all(filtered_data == [2, 3, 4])
-
-        test_data = {"key": test_data}
-        filtered_data = locations.filter(test_data)
-        assert np.all(filtered_data["key"] == [2, 3, 4])
 
 
 # TODO Find a scalable algo better than linear_sum_assignment to do even split

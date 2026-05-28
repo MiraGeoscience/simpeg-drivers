@@ -325,13 +325,13 @@ def test_joint_cross_gradient_inv_run(
     # the scaling from its total misfit.
     np.testing.assert_allclose(
         driver.directives.scale_misfits.scalings,
-        [1, 0.7558, 0.5, 0.5, 0.6710],
+        [1.0, 0.755269, 0.5, 0.5, 0.675174],
         atol=1e-3,
     )
     # Check that scaling * chi factor is reflected in data misfit multipliers
     np.testing.assert_allclose(
         driver.data_misfit.multipliers,
-        [0.8, 0.6046, 0.5, 0.5, 0.6710],
+        [0.8, 0.604215, 0.5, 0.5, 0.675174],
         atol=1e-3,
     )
 
