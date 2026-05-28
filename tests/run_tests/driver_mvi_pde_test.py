@@ -144,13 +144,16 @@ def test_mvi_pde_run(
     driver.run()
 
     if pytest:
-        with Workspace(driver.params.geoh5.h5file):
+        with Workspace(driver.params.geoh5.h5file) as ws:
             # Re-open the workspace and get iterations
             output = get_inversion_output(
                 driver.params.geoh5.h5file, driver.params.out_group.uid
             )
             output["data"] = orig_tmi
             check_target(output, target_mvi_pde_run)
+
+            angle_model = ws.get_entity("Iteration_5_declination_model")[0]
+            assert angle_model.entity_type.color_map.name == "twilight.TBL"
 
 
 if __name__ == "__main__":
