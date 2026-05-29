@@ -173,7 +173,7 @@ Edit the options by right-clicking the group and selecting 'Edit Options'.
 
 .. figure:: /plate-simulation/images/methodology/data/simpeg_group_edit_options.png
     :align: center
-    :witdht: 300pt
+    :width: 300pt
 
     *Editing the SimPEG group options.*
 

@@ -16,9 +16,6 @@ details are parameterized in a ui.json file that can be rendered in
    :width: 500pt
 
 
-.. toctree::
-   :maxdepth: 1
-
-   standalone
-   sweep
-   match
+- :doc:`standalone`
+- :doc:`sweep`
+- :doc:`match`
