@@ -400,8 +400,8 @@ class BaseJointDriver(InversionDriver):
                 )
             )
 
-            if driver_directives.save_property_group is not None:
-                directives_list.append(driver_directives.save_property_group)
+            if driver_directives.save_model_groups is not None:
+                directives_list.append(driver_directives.save_model_groups)
 
             n_tiles = len(driver.data_misfit.objfcts)
             for name in [
@@ -473,24 +473,25 @@ class BaseJointDriver(InversionDriver):
         )
 
         model_directive.label = driver.params.physical_property
+
         if (
             getattr(driver.params.models, "model_type", None)
             == ModelTypeEnum.resistivity
         ):
             model_directive.label = "resistivity_model"
+            group_name = ["resistivity"]
+        elif "magnetic vector" in driver.params.inversion_type:
+            group_name = ["amplitude", "inclination", "declination"]
+        else:
+            group_name = [driver.params.physical_property]
 
         model_directive.transforms = [wire, *model_directive.transforms]
+        group_directive = directives.SaveModelGroup(
+            self.inversion_mesh.entity,
+            components=group_name,
+        )
 
-        directives_list = [model_directive]
-        if driver.directives.save_property_group is not None:
-            directives_list.append(
-                directives.SavePropertyGroup(
-                    self.inversion_mesh.entity,
-                    group_type=GroupTypeEnum.DIPDIR,
-                    channels=["declination", "inclination"],
-                )
-            )
-        return directives_list
+        return [model_directive, group_directive]
 
     def _overload_regularization(self, regularization: ComboObjectiveFunction):
         """
