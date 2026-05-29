@@ -521,7 +521,7 @@ class BaseDriver(Driver, ABC):
             try:
                 data = uijson.to_params(workspace)
                 kwargs.update(data)
-                params = cls._params_class.build(workspace=workspace, **kwargs)
+                params = cls._params_class.build(**kwargs)
                 driver = cls(params)
                 driver.run()
             except GeoAppsError as error:
