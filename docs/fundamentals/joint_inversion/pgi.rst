@@ -12,7 +12,7 @@ multiple datasets at once for a single physical property model. The goal
 is to combine complementary information from various geophysical surveys
 that sense the Earth differently.
 
-.. figure:: ./images/joint_surveys.png
+.. figure:: ./images/joint_surveys.svg
    :alt: joint_surveys
 
    joint_surveys
@@ -68,7 +68,7 @@ about the position and shape of physical property contrasts.
 This kind of joint inversion requires a ``coupling`` term in order to
 tie those physical properties together.
 
-.. figure:: ./images/joint_coupling.png
+.. figure:: ./images/joint_coupling.svg
    :alt: joint_coupling
 
    joint_coupling

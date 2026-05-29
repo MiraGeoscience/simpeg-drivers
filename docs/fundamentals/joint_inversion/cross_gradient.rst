@@ -1,103 +1,22 @@
 Joint Cross Gradient Inversion
 ==============================
 
-This section introduces the methodology to invert multiple datasets
-jointly.
+The joint cross-gradient inversion strategy allows to find commonality between multiple physical property models by minimizing the cross-product of their
+spatial gradients. This method is particularly useful when inverting for different physical properties that are expected to have similar spatial structure.
 
-Joint Surveys Inversion
------------------------
+.. figure:: ../images/joint_cross_gradient.svg
+    :align: center
+    :scale: 150%
 
-As illustrated below, the ``joint surveys`` program allows to invert
-multiple datasets at once for a single physical property model. The goal
-is to combine complementary information from various geophysical surveys
-that sense the Earth differently.
-
-.. figure:: ./images/joint_surveys.png
-   :alt: joint_surveys
-
-   joint_surveys
-
-For example, a magnetotelluric survey is mostly sensitive to deep
-structures but can still be affected by local changes in resistivity
-near the sensor locations. A ground direct-current survey on the other
-hand is highly sensitive to near surface changes in resistivity.
-Inverting both surveys together would provide complementary information
-that improves our modeling capabilities overall.
-
-This joint inversion problem does not require a coupling term - simply
-the summation of multiple misfit functions. Extending the objective
-function described in the `inverse problem <inverse_problem>`__ section,
-our new misfit function becomes
-
-.. math::
+For example, a geological intrusion might be associated with a magnetic, gravity and/or electrical anomaly,
+corresponding to changes in magnetic susceptibility, density or resistivity compared to the host rocks.
+In this case, the edges of the magnetic, density or resistivity models should be aligned, even if the physical property values are different.
+By minimizing the cross-gradient of the two models, we can encourage the inversion to find a common structure in both
+models even in regions where some survey types may be less sensitive
 
 
-   \phi_d = \phi_d^A + \phi_d^B + ...
-
-or
-
-.. math::
-
-
-   \phi_d = \sum_{j=A, B, C} \phi_d^j
-
-Since each misfit tries to update the same model values, the partial
-derivatives of each function is also a summation, such that
-
-.. math::
-
-
-   \frac{\delta \phi_d}{\delta m} = \sum_{j=A, B, C} \frac{\delta \phi_d^j}{\delta m}
-
-The joint survey inversion user requires a list of standalone inversion
-groups as input.
-
-Joint Properties Inversion
---------------------------
-
-The more general joint inversion strategy tries to find commonality
-between different physical properties models. The goal is to invert for
-a ``common Earth model`` based on multiple geophysical surveys that
-might provide complementary information. For example, one could invert a
-direct-current resisitivity survey for the thickness of overburden,
-along with a gravity survey to highlight the density of targets under
-cover. Both geophysical survey are sensitive to different components of
-the sub-surface, but can greatly help each other in reducing ambiguity
-about the position and shape of physical property contrasts.
-
-This kind of joint inversion requires a ``coupling`` term in order to
-tie those physical properties together.
-
-.. figure:: ./images/joint_coupling.png
-   :alt: joint_coupling
-
-   joint_coupling
-
-In this case, the model :math:`m` is made up of N-number of sub-models,
-one per misfit function. The derivatives of the misfit function become
-
-.. math::
-
-
-   \frac{\delta \phi_d}{\delta m} = \sum_{j=a, b, c} \frac{\delta \phi_d}{\delta m_j}
-
-where the subscript :math:`j` denotes the component of the model (either
-resistivity, magnetization or density). Each misfit function incluences
-a different subset of the model.
-
-The following coupling terms are available through the SimPEG framework
-{cite:p}\ ``heagy_2017``:
-
-- `Cross-gradient <cross-gradient>`__
-
-- `Linear Correspondence <linear-correspondence>`__
-
-- `Petrophysically Guided Inversion (PGI) <pgi>`__
-
-(cross-gradient)=
-
-Cross-gradient
-~~~~~~~~~~~~~~
+Background
+----------
 
 The ``cross-gradient`` regularization was first introduced by
 {cite:p}\ ``gallardo2003`` to constrain electrical resistivity and
@@ -120,6 +39,14 @@ large if edges in the physical models are perpendicular with each other.
 Since we are attempting to minimize this function, this constraint will
 force model boundaries to occur at the same location or not at all.
 
+The full regularization function for the joint cross-gradient inversion, with conventional Tikhonov regularization for each model, becomes
+
+.. math::
+
+    \phi_m = \sum_{i=s,x,y,z} \alpha_i^A \| \mathbf{W}_i^A \mathbf{m_A} \|^2 + \sum_{i=s,x,y,z} \alpha_i^B \| \mathbf{W}_i^B \mathbf{m_B} \|^2 + \alpha_c \phi_c(\mathbf{m_A},\mathbf{m_B})
+
+made up of nine terms in total: four for each model and one cross-gradient term.
+
 It is possible to constrain more than two physical property models by
 adding multiple cross-gradient terms for every pair of models such that
 
@@ -128,42 +55,64 @@ adding multiple cross-gradient terms for every pair of models such that
 
    \phi_c(\mathbf{m_A},\mathbf{m_B}, \mathbf{m_C}) = \alpha_{AB} \phi(\mathbf{m_A},\mathbf{m_B}) + \alpha_{AC}\phi(\mathbf{m_A},\mathbf{m_C}) + \alpha_{BC} \phi(\mathbf{m_B},\mathbf{m_C})
 
-and so on. Each term has a scaling parameter (:math:`\alpha`) to control
-the importance of specific cross-gradient terms.
+and so on. Each term has a scaling parameter (:math:`\alpha`) to control the importance of specific cross-gradient terms.
+Further automated rescaling is available, as explained in the :ref:`iterative_scaling` section.
 
-(linear-correspondence)=
 
-Linear Correspondence
-~~~~~~~~~~~~~~~~~~~~~
+Interface
+---------
 
-To be continued
+The joint cross-gradient inversion user requires a list of standalone inversion groups as input
 
-(pgi)=
+.. figure:: ../images/joint_cross_grad_ui.png
+   :scale: 100%
 
-Petrophysically Guided Inversion (PGI)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   Main options in the user interface for the joint cross gradient inversion
 
-To be continued
+Input parameters
+^^^^^^^^^^^^^^^^
 
-Mesh creation
--------------
+- ``Joint groups``:
+    Standalone inversion groups to be included in the joint inversion. Up to three groups can be included in the joint inversion, but only two are required.
+    Each group should be defined as a standalone inversion problem, with its own survey and mesh.
+- ``Misfit scales``:
+    For each standalone inversion group, a scaling factor to be applied to the misfit function.
+    This allows to scale the uncertainties of individual surveys.
+- ``Coupling scales``:
+    For each pair of models, a scaling factor to be applied to the cross-gradient function. This allows to control the importance of specific cross-gradient terms.
+- ``Iterative rescaling``:
+    Optional iterative rescaling of the coupling terms relative to other components of the regularization function. More details provided in the :ref:`iterative_scaling` section.
+- ``Mesh``:
+    The mesh to be used for the joint inversion. If not supplied, a common mesh will be created by merging the meshes of the standalone inversion groups.
+    The meshes of the standalone inversion groups must be compatible with each other, meaning that they must cover the same spatial extent and have a similar base cell size.
+    The global mesh will include the finest resolution of all standalone meshes, such that the interpolation from the global mesh to the individual meshes is as accurate as possible (fine to coarse).
 
-This section provides details on how to create the forward simulation
-meshes for each survey in preparation for a joint inversion. While all
-the misfit functions try to influence a model :math:`m` defined on a
-global mesh, individual forward simulations :math:`\mathbb{F}^j(m)` can
-be defined on sub-domains adapted to their specific array
-configurations. For example, an airborne EM simulation may require small
-cells in the air for numerical accuracy, while a dc-resisitivity survey
-only requires cells below ground at the transmitter-receiver pole
-locations.
+Advanced parameters
+^^^^^^^^^^^^^^^^^^^
 
-To be continued
+By default, the regularization parameters of the standalone inversions are used, allowing for maximum flexibility in
+controlling the character of individual models. Otherwise, when the ``Regularization`` group is activate, global parameters can
+be used across all the sub-regularization functions for more consistent behaviour.
 
-.. raw:: html
+.. figure:: ../images/joint_cross_grad_ui_advanced.png
+   :scale: 50%
 
-   <p style="page-break-after:always;">
+   Advanced parameters. Optional overruling of regulatization parameters and auto-scaling of misfit functions
 
-.. raw:: html
 
-   </p>
+All other parameters related to the optimization of the standalone inversions are overridden by the joint inversion framework.
+
+
+.. _iterative_scaling:
+
+Iterative re-scaling
+````````````````````
+
+
+
+
+Auto-scaling of misfit functions
+````````````````````````````````
+
+By default, an auto-scaling of the misfit functions is applied at each iteration, such that the contribution of each survey to the model update is balanced.
+This is particularly important when the surveys have different units or sensitivities. More details about the auto-scaling strategy can be found in the :ref:`misfit_scaling` section.
