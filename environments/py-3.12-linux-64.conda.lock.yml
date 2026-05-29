@@ -28,7 +28,7 @@ dependencies:
   - ca-certificates=2026.5.20=hbd8a1cb_0
   - cached-property=1.5.2=hd8ed1ab_1
   - cached_property=1.5.2=pyha770c72_1
-  - click=8.4.0=pyhc90fa1f_0
+  - click=8.4.1=pyhc90fa1f_0
   - cloudpickle=3.1.2=pyhcf101f3_1
   - contourpy=1.3.3=py312h0a2e395_4
   - cycler=0.12.1=pyhcf101f3_2
@@ -141,7 +141,7 @@ dependencies:
   - rtree=1.4.1=pyh11ca60a_0
   - s2n=1.7.3=hc5a330e_0
   - scikit-learn=1.8.0=np2py312h3226591_1
-  - scipy=1.17.1=py312h54fa4ab_0
+  - scipy=1.17.1=py312h54fa4ab_1
   - setuptools=82.0.1=pyh332efcf_0
   - six=1.17.0=pyhe01879c_1
   - sortedcontainers=2.4.0=pyhd8ed1ab_1
@@ -150,7 +150,7 @@ dependencies:
   - threadpoolctl=3.6.0=pyhecae5ae_0
   - tk=8.6.13=noxft_h366c992_103
   - toolz=1.1.0=pyhd8ed1ab_1
-  - tornado=6.5.5=py312h4c3975b_0
+  - tornado=6.5.6=py312h4c3975b_0
   - tqdm=4.67.3=pyh8f84b5b_0
   - trimesh=4.1.8=pyhd8ed1ab_0
   - typing-extensions=4.15.0=h396c80c_0
@@ -172,9 +172,9 @@ dependencies:
   - zstd=1.5.7=hb78ec9c_6
   - pip:
     - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@65b6c71b028bd4a65184b6338e37d0453f3d2e35
-    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@ff3ab1492a59cf40d65f40f689e8060d4c52151b
+    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@69fb7b60584ebfb67c7a67b0443595b5715ccaf9
     - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@be88a213ea5a5e22f8da77de9b3da9ef5f9ef156
-    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@891dc269acbde6b2aad43948394067a0702dea6b
+    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@67d3cf8388d6f22ed540fc69b39e3e14a9c71c4c
 
 variables:
   KMP_WARNINGS: 0

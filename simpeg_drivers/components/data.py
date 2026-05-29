@@ -269,7 +269,9 @@ class InversionData(InversionLocations):
                 if norm_data[comp] is None:
                     continue
 
-                norm_data[comp][chan] *= self.normalizations[chan][comp]
+                norm_data[comp][chan] = (
+                    norm_data[comp][chan] * self.normalizations[chan][comp]
+                )
                 if absolute:
                     norm_data[comp][chan] = np.abs(norm_data[comp][chan])
 
