@@ -20,15 +20,15 @@ chapters:
     - file: fundamentals/joint_inversion/pgi
   - file: fundamentals/optimization
   - file: fundamentals/parallelization
-- file: tutorials/introduction
+- file: examples/introduction
   sections:
-  - file: tutorials/background
-  - file: tutorials/magnetic
-  - file: tutorials/gravity
-  - file: tutorials/dc_resistivity
-  - file: tutorials/tipper
-  - file: tutorials/airborne_tem
-  - file: tutorials/joint_inversion
+  - file: examples/background
+  - file: examples/magnetic
+  - file: examples/gravity
+  - file: examples/dc_resistivity
+  - file: examples/tipper
+  - file: examples/airborne_tem
+  - file: examples/joint_inversion
 - file: case_studies/index
   sections:
   - file: case_studies/Forrestania/forrestania
