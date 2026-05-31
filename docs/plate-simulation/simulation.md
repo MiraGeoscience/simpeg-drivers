@@ -11,9 +11,12 @@ simulation details are parameterized in a ui.json file that can be
 rendered in [Geoscience ANALYST
 Pro](https://www.mirageoscience.com/mining-industry-software/geoscience-analyst-pro/).
 
-<figure class="align-center">
-<img src="/plate-simulation/images/index.png" style="width:500pt" />
-</figure>
+```{figure} images/index.png
+---
+width: 300pt
+align: center
+---
+```
 
 - `standalone`{.interpreted-text role="doc"}
 - `sweep`{.interpreted-text role="doc"}

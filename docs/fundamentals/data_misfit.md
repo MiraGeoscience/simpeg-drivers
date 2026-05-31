@@ -124,6 +124,3 @@ the outcome of an inversion, both on the data residuals and on the
 recovered model. It generally takes several inversions to determine
 appropriate uncertainties and involves some level of subjectivity from
 the user.
-
-<p style="page-break-after:always;">
-</p>

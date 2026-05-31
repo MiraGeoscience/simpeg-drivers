@@ -9,10 +9,12 @@ and derivatives from the sub-problems. The application parallelizes
 these operations within each sub-problem, as well as externally so that
 sub-problems can be computed concurrently.
 
-<figure class="align-center">
-<img src="./images/distributed_parallelization.svg" style="width:80.0%"
-alt="Schematic representation of the computing elements of a tiled inversion. Each tile receives an assigned mesh and a survey (single-frequency if applicable), with array operations parallelized by dask. The dask operations always bookend the direct solver when employed. Optionally, the workload can be distributed across multiple workers to optimize performance. Each worker is responsible for a sub-set of tiles and with a limited number of threads. Only 1-dimensional arrays are passed between the main process and the workers." />
-<figcaption aria-hidden="true">Schematic representation of the computing
+```{figure} images/distributed_parallelization.svg
+---
+width: 400pt
+align: center
+---
+Schematic representation of the computing
 elements of a tiled inversion. Each tile receives an assigned mesh and a
 survey (single-frequency if applicable), with array operations
 parallelized by dask. The dask operations always bookend the direct
@@ -20,8 +22,8 @@ solver when employed. Optionally, the workload can be distributed across
 multiple workers to optimize performance. Each worker is responsible for
 a sub-set of tiles and with a limited number of threads. Only
 1-dimensional arrays are passed between the main process and the
-workers.</figcaption>
-</figure>
+workers.
+```
 
 ## Dask
 

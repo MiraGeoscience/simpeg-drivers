@@ -31,15 +31,15 @@ The mineralization is expected to be much more conductive, dense and magnetic th
 :name: phys_prop
 | Unit | Density (g/cc) | Magnetic Susceptibility (SI) | Resistivity (Ohm.m) |
 | :--- | :--- | :---- | :---- |
-| Rhyolite |  low    | low      | high     |
-| Chloritic Schist |  moderate    | low      | moderate     |
-| Mafic Volcanics |  moderate    | low      | moderate     |
-| Mafic Dykes |  moderate    | low      | moderate     |
-| Host Mafic |  moderate    | low      | moderate     |
-| Basalt |  moderate    | moderate      | low     |
-| Ore |  high    | high      | very low     |
-| Overburden |  low    | low      | moderate     |
-| Tailings |  low    | low      | low     |
+| Rhyolite | low | low | high |
+| Chloritic Schist | moderate | low | moderate |
+| Mafic Volcanics | moderate | low | moderate |
+| Mafic Dykes | moderate | low | moderate |
+| Host Mafic | moderate | low | moderate |
+| Basalt | moderate | moderate | low |
+| Ore | high | high | very low |
+| Overburden | low | low | moderate |
+| Tailings | low | low | low |
 
 ```
 

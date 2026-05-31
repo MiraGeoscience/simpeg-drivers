@@ -15,7 +15,7 @@ to help practitioners with their inversion work.
 - [Regularization (Constraints)](regularization): Adding modeling
   constraints (regularization).
 - [Mesh Design](mesh_design): Designing an inversion mesh.
-- [Joint/Coupling Strategies](joint_inversion): Inverting multiple
+- [Joint/Coupling Strategies](joint_inversion/index.md): Inverting multiple
   geophysical surveys.
 - [Depth of Investigation](depth_of_investigation): Using sensitivities
   to set depth extents

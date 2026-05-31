@@ -8,21 +8,24 @@ observed electromagnetic data at query locations. The matching process
 involves spatial and temporal interpolation, data normalization, and
 correlation-based scoring to rank candidate simulations.
 
-<figure class="align-center">
-<img src="/plate-simulation/images/match_landing.png"
-style="width:500pt" />
-</figure>
+```{figure} images/match_landing.png
+---
+width: 300pt
+align: center
+---
+```
 
 ## Interface
 
 This section describes the parameters controlling the application.
 
-<figure class="align-center">
-<img src="/plate-simulation/images/match_uijson.png" style="width:300pt"
-alt="Rendered user-interface in Geoscience ANALYST." />
-<figcaption aria-hidden="true"><em>Rendered user-interface in Geoscience
-ANALYST.</em></figcaption>
-</figure>
+```{figure} images/match_uijson.png
+---
+width: 300pt
+align: center
+---
+Rendered user-interface in Geoscience ANALYST.
+```
 
 ### Inputs
 
@@ -55,15 +58,17 @@ the simulated library contains sufficient variability in plate
 parameters and survey geometries to capture the range of possible
 responses.
 
-<figure class="align-center">
-<img src="/plate-simulation/images/match_template.png"
-style="width:500pt"
-alt="Template for the simulated data (black) and observed data (red) used in the matching process. The radial pattern centered on the plate allows to tighten sampling around the peak response, which is critical for accurate matching." />
-<figcaption aria-hidden="true">Template for the simulated data (black)
+```{figure} images/match_template.png
+---
+width: 300pt
+align: center
+---
+Template for the simulated data (black)
 and observed data (red) used in the matching process. The radial pattern
 centered on the plate allows to tighten sampling around the peak
-response, which is critical for accurate matching.</figcaption>
-</figure>
+response, which is critical for accurate matching.
+```
+
 
 The following sections describe the key steps of the matching algorithm.
 

@@ -7,11 +7,12 @@ running a batch of simulations by sweeping one or more of the input
 parameters. The user can select which parameters to sweep and the range
 of values for each parameter.
 
-<figure class="align-center">
-<img src="/plate-simulation/images/sweep_landing.png"
-style="width:500pt" />
-</figure>
-
+```{figure} images/sweep_landing.png
+---
+width: 300pt
+align: center
+---
+```
 The following sections describe the user interface, inputs, and
 methodology of the Plate Sweep module.
 
@@ -19,12 +20,14 @@ methodology of the Plate Sweep module.
 
 This section describes the parameters controlling the application.
 
-<figure class="align-center">
-<img src="/plate-simulation/images/sweep_uijson.png" style="width:300pt"
-alt="Rendered user-interface in Geoscience ANALYST." />
-<figcaption aria-hidden="true"><em>Rendered user-interface in Geoscience
-ANALYST.</em></figcaption>
-</figure>
+```{figure} images/sweep_uijson.png
+---
+width: 300pt
+align: center
+---
+Rendered user-interface in Geoscience ANALYST.
+```
+
 
 ### Inputs
 
@@ -72,6 +75,9 @@ extracts parameters from all `*.geoh5` files present in the
 `Output director` and tabulates them in a `summary.xls` file for easy
 reference and analysis.
 
-<figure class="align-center">
-<img src="/plate-simulation/images/summary.png" style="width:500pt" />
-</figure>
+```{figure} images/summary.png
+---
+width: 300pt
+align: center
+---
+```

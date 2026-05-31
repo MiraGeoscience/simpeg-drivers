@@ -13,7 +13,7 @@ chapters:
     - file: fundamentals/regularization/sparse
     - file: fundamentals/regularization/rotated_gradients
   - file: fundamentals/mesh_design
-  - file: fundamentals/joint_inversion
+  - file: fundamentals/joint_inversion/index
     sections:
     - file: fundamentals/joint_inversion/joint_surveys
     - file: fundamentals/joint_inversion/cross_gradient
