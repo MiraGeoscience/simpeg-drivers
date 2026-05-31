@@ -1,6 +1,6 @@
 # Examples
 This chapter demonstrates how to run standalone and joint inversions of geophysical data using SimPEG and the user interface created for Geoscience ANALYST. We generated several synthetic surveys over the Flin Flon model to simulate an exploration program over a VMS deposit.
-The goal is to use ground and airborne geophysics to characterize the physical property and shape of the ore body and host rocks. This case study focuses on the following three datasets and respective physical properties:
+The goal is to use ground and airborne geophysics to characterize the physical property and shape of the orebody and host rocks. This case study focuses on the following three datasets and respective physical properties:
 
 In preparation for the joint inversion, we first inverted each dataset independently. It serves as a quality control step for data uncertainty estimation and mesh design. We can solve possible convergence issues before attempting to couple the physical property models in a joint process.
 

@@ -1,3 +1,5 @@
+(mesh-design)=
+
 # Mesh design
 
 An appropriately designed computational mesh is an important component
@@ -20,6 +22,8 @@ in the following subsections.
 
 ![base_mesh](./images/mesh_core.png)
 
+(mesh-extent)=
+
 ### Mesh extent
 
 The mesh extent is provided as a `geoh5py.object` from which the
@@ -29,6 +33,8 @@ will be centered below the data. For all `geoh5py.BaseSurvey` objects
 that contain a `complement` object (transmitters, base stations, current
 electrodes), the extent will be computed from the superposition of the
 object and its complement.
+
+(base-cell-size)=
 
 ### Base cell size
 

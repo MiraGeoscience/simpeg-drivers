@@ -26,10 +26,9 @@ pipe, dyke, etc.). The example below demonstrates the outcome of an
 inversion for different combinations of norms applied to the model
 
 ![sparse_model](./images/sparse_models.png)
-
-The [figure above](sparse_model) shows vertical sections through the
+*Vertical sections through the
 true and recovered models (from left to right) with L2, L1 and L0-norm
-on the model values.
+on the model values.*
 
 Note that as $p \rightarrow 0$ the volume of the anomaly shrinks to a
 few non-zero elements while the physical property contrasts increase.
@@ -63,10 +62,9 @@ constant values within.
 
 
 ![flat_model](./images/flat_models.png)
-
-The figure above shows vertical sections through the true
+*Vertical sections through the true
 and recovered models (from left to right) with L2, L1 and L0-norm on the
-model gradients.
+model gradients.*
 
 ![smoothness_setup](./images/smoothness_norm_setup.png)
 

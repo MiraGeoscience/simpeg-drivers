@@ -177,7 +177,6 @@ layer.</em></figcaption>
 
 ## Data Simulation
 
-::: {#simpeg_group_options}
 The simulation parameters control the forward modeling of the plate
 model discretized within the octree mesh. Rather than exposing
 parameters within the plate simulation interface, the application allows
@@ -186,7 +185,7 @@ must ensure that the SimPEG group has been previously edited with
 appropriate options, includes at least a topography and survey object,
 and has selected one or more components to simulate. The user may also
 provide a name for the new SimPEG group to store the results.
-:::
+
 
 <figure class="align-center">
 <img

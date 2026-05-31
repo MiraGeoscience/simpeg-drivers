@@ -1,7 +1,4 @@
-<p style="page-break-after:always;"></p>
-
-# Introduction
-
+# Setup: Flin Flon model
 
 This tutorial on geophysical inversion is framed around a well-known copper-zinc VMS deposit - the Flin Flon mine in northern Manitoba, Canada. Our goal is to provide a step-by-step process to invert data from various geophysical methods and to test their resolving capabilities within a semi-realistic exploration context.
 

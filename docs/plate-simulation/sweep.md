@@ -41,7 +41,7 @@ ANALYST.</em></figcaption>
   contains the input parameters and results of each simulation, allowing
   users to easily sort over the range of simulation parameters.
 - **\[Optional\] Parameter blocks**: For every parameter of [Plate
-  Simulation](plate_simulation_standalone), users can choose a
+  Simulation](standalone), users can choose a
   **starting**, **ending** and **number of samples** values to sweep
   over. The application will generate a simulation for each value in the
   range, while keeping all other parameters constant. If a parameter is
