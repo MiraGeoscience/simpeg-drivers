@@ -118,6 +118,38 @@ inversions are overridden by the joint inversion framework.
 
 #### Iterative re-scaling
 
+As previously discussed in the [Dimensionality Scaling](dimensionality-scaling) section, the different components of the
+regularization function can have different units. This can lead to an unbalanced inversion process, where the model is
+updated mostly based on one component of the regularization function, while the others have little influence.
+This is particularly true for the cross-gradient term.
+
+To address this issue, an `Iterative rescaling` option allows to automatically re-scale the coupling terms relative to the other components in an automated way at each iteration.
+
+```{image} images/iterative_scaling.png
+:scale: 50%
+:align: center
+```
+
+To define a scaling strategy, we can compare the dimensions of the derivatives of the smallness (reference model) term
+
+$$\;
+dim\; \frac{\delta \phi_s}{\delta m} = [m] \;,$$
+
+to the dimensions of the derivative of the cross-gradient term
+
+$$\;
+dim\; \frac{\delta \phi_c}{\delta m} = \frac{[m]^3}{[h]^4} \;.$$
+
+The two derivatives have different dimensions by a factor of $[m]^2/[h]^4$.
+We therefore define an iterative scaling factor for the cross-gradient term as
+
+$$\;\alpha_c^{(k)} = \alpha_c \left[\frac{m^{(k)}_{max} - m^{(k)}_{min}}{h^2}\right]^{-2} $$
+
+where $m^{(k)}_{max}$ and $m^{(k)}_{min}$ are the maximum and minimum model values at iteration $k$, and $h$ is the
+smallest cell size of the mesh. This scaling factor brings the derivatives of the cross-gradient terms to be dimensionally
+equivalent to the derivatives of the other terms in the regularization function.
+
+
 #### Auto-scaling of misfit functions
 
 By default, an auto-scaling of the misfit functions is applied at each

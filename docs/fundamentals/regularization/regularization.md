@@ -103,6 +103,8 @@ model with high complexity near the surface. A small constant $\epsilon$
 is added to threshold the weights in regions of extremely low
 sensitivity.
 
+(dimensionality-scaling)=
+
 #### Dimensionality scaling ($\mathbf{w}_h$)
 
 Dimensionality scaling is applied to the gradient terms
