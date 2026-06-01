@@ -5,35 +5,33 @@ jointly. The goal of a joint inversion is to invert for a
 ``Common Earth Model`` based on multiple geophysical surveys that might
 provide complementary information.
 
+In its simplest form, a joint inversion can be performed on multiple
+surveys that are sensitive to the same physical property.
+
 ```{image} images/joint_survey.svg
 :scale: 200%
 :align: center
 ```
-
-In its simplest form, a joint inversion can be performed on multiple
-surveys that are sensitive to the same physical property. For example,
+For example,
 one could invert a magnetotelluric survey and a direct-current
-resistivity survey together for a single resistivity model. This kind of
+resistivity survey together to obtain a common resistivity model. This kind of
 joint inversion does not require a coupling term - simply the summation
-of multiple misfit functions. More details can be found in the
-[](joint_surveys) section.
+of multiple misfit functions.
 
-The more general joint inversion strategy tries to find commonality
-between multiple physical properties models.
+- [](joint_surveys)
+
+More general joint inversion strategies attempt to find commonality
+between multiple physical property models.
 
 ```{image} images/joint_coupling.svg
 :scale: 200%
 :align: center
 ```
-
-Multiple geophysical surveys may be sensitive to
-different components of the sub-surface.
+Different geophysical surveys typically respond to different subsurface features, but combining complementary
+information about physical property contrasts can significantly reduce inversion ambiguity.
 For example, one could invert a direct-current resistivity survey for the thickness of
-overburden, along with a gravity survey to highlight the density of
-targets under an overburden layer.
-Complementary information about
-the position and shape of physical property contrasts can help in
-reducing ambiguity inherent to geophysical inversion.
+conductive overburden, along with a gravity survey to highlight dense anomalies in the basement.
+
 This kind of joint inversion requires a `coupling` term in order to tie
 those physical properties together. The following strategies are currently
 available through the SimPEG framework {cite:p}`heagy_2017`:
