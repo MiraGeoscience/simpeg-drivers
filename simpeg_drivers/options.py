@@ -246,7 +246,20 @@ class CoreOptions(Options):
             after geoapps_utils@feature/uijson is merged
         """
         ui_json = SimPEGDriversUIJson.read(self.default_ui_json)
-        flatten = recursive_flatten(self.model_dump(exclude_unset=True))
+
+        value_dict = self.model_dump(exclude_unset=True)
+
+        def _recursive_flatten(data: dict[str, Any]) -> dict[str, Any]:
+            values: dict[str, Any] = {}
+            for key, val in data.items():
+                if isinstance(val, dict) and getattr(ui_json, key, None) is None:
+                    values.update(_recursive_flatten(val))
+                else:
+                    values[key] = val
+
+            return values
+
+        flatten = _recursive_flatten(value_dict)
         ui_json.set_values(**flatten)
 
         return ui_json.write(path)
