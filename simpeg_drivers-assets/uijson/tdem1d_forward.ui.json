@@ -36,7 +36,7 @@
         ],
         "value": "Airborne dB/dt (V/Am^4)"
     },
-    "z_channel_bool": {
+    "vertical_channel_bool": {
         "group": "Survey",
         "main": true,
         "label": "Vertical",

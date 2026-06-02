@@ -36,7 +36,7 @@
         ],
         "value": "Airborne dB/dt (V/Am^4)"
     },
-    "z_channel": {
+    "vertical_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -52,7 +52,7 @@
         "enabled": true,
         "value": ""
     },
-    "z_uncertainty": {
+    "vertical_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -63,7 +63,7 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "z_channel",
+        "dependency": "vertical_channel",
         "dependencyType": "enabled",
         "value": ""
     },
