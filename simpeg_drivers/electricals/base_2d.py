@@ -187,4 +187,7 @@ class Base2DDriver(BaseDriver):
             [np.where(self.params.line_parts == part)[0]]
             for part in self.params.selected_parts
         ]
+        if self.workers is not None and len(self.workers) > len(tiles):
+            self._workers = self.workers[: len(tiles)]
+
         return {None: tiles}
