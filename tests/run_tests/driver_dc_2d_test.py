@@ -196,16 +196,16 @@ def test_dc_single_run(
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    driver = DC2DInversionDriver(params)
+        driver = DC2DInversionDriver(params)
 
-    # Mock workers and check if the list shrinks to number of lines
-    driver._workers = [None] * 10  # pylint: disable=protected-access
+        # Mock workers and check if the list shrinks to number of lines
+        driver._workers = [None] * 10  # pylint: disable=protected-access
 
-    driver.get_tiles()  # Trigger reset
-    assert len(driver.workers == 1)
+        driver.get_tiles()  # Trigger reset
+        assert len(driver.workers) == 1
 
-    # Reset and run
-    driver._workers = None  # pylint: disable=protected-access
+        # Reset and run
+        driver._workers = None  # pylint: disable=protected-access
 
     driver.run()
 
