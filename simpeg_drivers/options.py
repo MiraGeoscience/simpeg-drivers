@@ -18,7 +18,6 @@ from typing import Annotated, Any, ClassVar, Literal
 
 import numpy as np
 from geoapps_utils.base import Options
-from geoapps_utils.utils.formatters import recursive_flatten
 from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.data import (
     BooleanData,
