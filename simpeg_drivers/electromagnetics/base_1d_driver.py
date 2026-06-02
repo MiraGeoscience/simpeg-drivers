@@ -102,10 +102,9 @@ class Base1DDriver(BaseDriver):
         n_chunks = n_data // self.params.compute.max_chunk_size
 
         if self.workers:
-            n_chunks /= len(self.workers)
-            n_chunks = int(n_chunks) * len(self.workers)
+            n_chunks //= len(self.workers)
 
-        n_chunks = np.max([n_chunks, 1, len(self.workers)])
+        n_chunks = np.max([n_chunks, 1])
         tiles = [[tile] for tile in np.array_split(indices, n_chunks) if np.any(tile)]
         if self.workers is not None and len(self.workers) > len(tiles):
             self._workers = self.workers[: len(tiles)]

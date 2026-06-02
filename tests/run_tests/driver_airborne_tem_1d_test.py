@@ -161,10 +161,10 @@ def test_airborne_tem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
             driver._workers = [None] * 100  # pylint: disable=protected-access
 
             driver.get_tiles()  # Trigger reset
-            assert len(driver.workers) == 8
+            assert len(driver.workers) == 1
 
             # Reset and run
-            driver._workers = None  # pylint: disable=protected-access
+            driver._workers = []  # pylint: disable=protected-access
 
     driver.run()
 

@@ -205,7 +205,7 @@ def test_dc_single_run(
         assert len(driver.workers) == 1
 
         # Reset and run
-        driver._workers = None  # pylint: disable=protected-access
+        driver._workers = []  # pylint: disable=protected-access
 
     driver.run()
 
