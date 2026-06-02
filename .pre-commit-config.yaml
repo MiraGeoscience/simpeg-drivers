@@ -1,6 +1,6 @@
 
 default_language_version:
-    python: python3
+    python: python3.12
 exclude: ^docs/(conf.py|_ext/)
 default_stages: [pre-commit,pre-push]
 fail_fast: false
@@ -22,13 +22,13 @@ repos:
     -   id: pycln
         args: [--config=pyproject.toml]
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.9
+    rev: v0.15.15
     hooks:
     -   id: ruff-check
         args:
         -   --fix
         -   --exit-non-zero-on-fix
-#        -   --unsafe-fixes
+        # -   --unsafe-fixes
     -   id: ruff-format
 # -  repo: https://github.com/pre-commit/mirrors-mypy  # TODO: fix mypy errors
 #    rev: v1.18.2
