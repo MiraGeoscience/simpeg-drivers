@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 from logging import getLogger
+from typing import Any
 
 import numpy as np
 from geoh5py.data import FloatData
@@ -179,7 +180,7 @@ class Base2DDriver(BaseDriver):
 
         return self._inversion_mesh
 
-    def get_tiles(self) -> dict[str, list[np.ndarray]]:
+    def get_tiles(self) -> dict[None, list[list[np.ndarray[tuple[Any, ...]]]]]:
         """
         Generate tiles from survey parts.
         """
@@ -187,4 +188,7 @@ class Base2DDriver(BaseDriver):
             [np.where(self.params.line_parts == part)[0]]
             for part in self.params.selected_parts
         ]
+        if self.workers is not None and len(self.workers) > len(tiles):
+            self._workers = self.workers[: len(tiles)]
+
         return {None: tiles}
