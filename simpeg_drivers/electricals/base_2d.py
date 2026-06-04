@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+from abc import ABC
 from logging import getLogger
 from typing import Any
 
@@ -19,6 +20,7 @@ from geoh5py.data import FloatData
 from geoh5py.objects import DrapeModel, Octree, PotentialElectrode
 from geoh5py.ui_json.ui_json import fetch_active_workspace
 from pydantic import AliasChoices, Field, field_validator, model_validator
+from simpeg import optimization
 
 from simpeg_drivers.components.meshes import InversionMesh
 from simpeg_drivers.driver import BaseDriver
@@ -150,13 +152,18 @@ class Base2DOptions(CoreOptions):
         return self._selected_parts
 
 
-class Base2DDriver(BaseDriver):
+class Base2DDriver(BaseDriver, ABC):
     """
     Base class for 2D DC and IP forward and inversion drivers.
 
     Survey lines are inverted independently and internally stacked as a single
     long survey. The inversion mesh is created as a drape mesh over the survey lines.
     """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self._optimization: optimization.ProjectedGNCG | None = None
 
     @property
     def inversion_mesh(self) -> InversionMesh:
@@ -180,6 +187,34 @@ class Base2DDriver(BaseDriver):
 
         return self._inversion_mesh
 
+    @property
+    def optimization(self):
+        """
+        Over-loaded optimization object with bounds and active set scaling to fix edge cells.
+        """
+        if getattr(self, "_optimization", None) is None:
+            if self.params.forward_only:
+                return optimization.ProjectedGNCG(cg_rtol=1.0)
+
+            static = self._get_static_edge_cells()
+            lower_bound = self.models.lower_bound
+            lower_bound[~static] = self.models.starting_model[~static]
+            upper_bound = self.models.upper_bound
+            upper_bound[~static] = self.models.starting_model[~static]
+
+            self._optimization = optimization.ProjectedGNCG(
+                maxIter=self.params.optimization.max_global_iterations,
+                lower=lower_bound,
+                upper=upper_bound,
+                maxIterLS=self.params.optimization.max_line_search_iterations,
+                cg_maxiter=self.params.optimization.max_cg_iterations,
+                cg_rtol=self.params.optimization.tol_cg,
+                active_set_grad_scale=static * 1e-8,
+                LSshorten=0.25,
+                require_decrease=False,
+            )
+        return self._optimization
+
     def get_tiles(self) -> dict[None, list[list[np.ndarray[tuple[Any, ...]]]]]:
         """
         Generate tiles from survey parts.
@@ -192,3 +227,32 @@ class Base2DDriver(BaseDriver):
             self._workers = self.workers[: len(tiles)]
 
         return {None: tiles}
+
+    def _get_static_edge_cells(self) -> np.ndarray:
+        """
+        Create a boolean array of active cells where the edge cells of each survey line are
+        set to be static in the inversion.
+
+        This is done to mitigate edge effects in the inversion results.
+        """
+
+        active = np.ones(self.inversion_mesh.entity.n_cells, dtype=bool)
+        count = 0
+        for ind in range(len(self.inversion_mesh.entity.prisms)):
+            n_layers = int(self.inversion_mesh.entity.prisms[ind, -1])
+
+            if (
+                ind == 0
+                or ind == len(self.inversion_mesh.entity.prisms) - 1
+                or self.inversion_mesh.entity.prisms[ind + 1, -1] == 1
+                or self.inversion_mesh.entity.prisms[ind - 1, -1] == 1
+            ):
+                active[count : count + n_layers] = False
+
+            # Make bottom row also static
+            active[count + n_layers - 1] = False
+            count += n_layers
+
+        return (self.inversion_mesh.permutation @ active)[
+            self.models.active_cells
+        ].astype(bool)
