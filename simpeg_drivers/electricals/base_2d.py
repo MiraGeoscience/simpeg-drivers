@@ -196,11 +196,11 @@ class Base2DDriver(BaseDriver, ABC):
             if self.params.forward_only:
                 return optimization.ProjectedGNCG(cg_rtol=1.0)
 
-            static = self._get_static_edge_cells()
+            active = self._get_static_edge_cells()
             lower_bound = self.models.lower_bound
-            lower_bound[~static] = self.models.starting_model[~static]
+            lower_bound[~active] = self.models.starting_model[~active]
             upper_bound = self.models.upper_bound
-            upper_bound[~static] = self.models.starting_model[~static]
+            upper_bound[~active] = self.models.starting_model[~active]
 
             self._optimization = optimization.ProjectedGNCG(
                 maxIter=self.params.optimization.max_global_iterations,
@@ -209,7 +209,7 @@ class Base2DDriver(BaseDriver, ABC):
                 maxIterLS=self.params.optimization.max_line_search_iterations,
                 cg_maxiter=self.params.optimization.max_cg_iterations,
                 cg_rtol=self.params.optimization.tol_cg,
-                active_set_grad_scale=static * 1e-8,
+                active_set_grad_scale=active * 1e-8,
                 LSshorten=0.25,
                 require_decrease=False,
             )
