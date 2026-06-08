@@ -188,20 +188,22 @@ class Base2DDriver(BaseDriver, ABC):
         return self._inversion_mesh
 
     @property
-    def optimization(self):
+    def optimization(self) -> optimization.ProjectedGNCG:
         """
-        Over-loaded optimization object with bounds and active set scaling to fix edge cells.
+        Over-loaded optimization object with bounds and active set scaling.
+
+        Edge cells of each survey line are set to be static in the inversion.
+        This is done to mitigate edge effects in the inversion results.
         """
         if getattr(self, "_optimization", None) is None:
             if self.params.forward_only:
                 return optimization.ProjectedGNCG(cg_rtol=1.0)
 
-            active = self._get_static_edge_cells()
+            edge_cells = self._get_edge_cells()
             lower_bound = self.models.lower_bound
-            lower_bound[~active] = self.models.starting_model[~active]
+            lower_bound[edge_cells] = self.models.starting_model[edge_cells]
             upper_bound = self.models.upper_bound
-            upper_bound[~active] = self.models.starting_model[~active]
-
+            upper_bound[edge_cells] = self.models.starting_model[edge_cells]
             self._optimization = optimization.ProjectedGNCG(
                 maxIter=self.params.optimization.max_global_iterations,
                 lower=lower_bound,
@@ -209,7 +211,7 @@ class Base2DDriver(BaseDriver, ABC):
                 maxIterLS=self.params.optimization.max_line_search_iterations,
                 cg_maxiter=self.params.optimization.max_cg_iterations,
                 cg_rtol=self.params.optimization.tol_cg,
-                active_set_grad_scale=active * 1e-8,
+                active_set_grad_scale=~edge_cells * 1e-8,
                 LSshorten=0.25,
                 require_decrease=False,
             )
@@ -228,15 +230,13 @@ class Base2DDriver(BaseDriver, ABC):
 
         return {None: tiles}
 
-    def _get_static_edge_cells(self) -> np.ndarray:
+    def _get_edge_cells(self) -> np.ndarray:
         """
-        Create a boolean array of active cells where the edge cells of each survey line are
-        set to be static in the inversion.
-
-        This is done to mitigate edge effects in the inversion results.
+        Create a boolean array of edge cells in the inversion mesh. Edge cells are defined as
+        the first and last column of cell of each survey line, as well as the bottom row of cells.
         """
 
-        active = np.ones(self.inversion_mesh.entity.n_cells, dtype=bool)
+        edge_cells = np.zeros(self.inversion_mesh.entity.n_cells, dtype=bool)
         count = 0
         for ind in range(len(self.inversion_mesh.entity.prisms)):
             n_layers = int(self.inversion_mesh.entity.prisms[ind, -1])
@@ -247,12 +247,12 @@ class Base2DDriver(BaseDriver, ABC):
                 or self.inversion_mesh.entity.prisms[ind + 1, -1] == 1
                 or self.inversion_mesh.entity.prisms[ind - 1, -1] == 1
             ):
-                active[count : count + n_layers] = False
+                edge_cells[count : count + n_layers] = True
 
             # Make bottom row also static
-            active[count + n_layers - 1] = False
+            edge_cells[count + n_layers - 1] = True
             count += n_layers
 
-        return (self.inversion_mesh.permutation @ active)[
+        return (self.inversion_mesh.permutation @ edge_cells)[
             self.models.active_cells
         ].astype(bool)
