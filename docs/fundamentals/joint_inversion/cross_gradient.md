@@ -6,17 +6,15 @@ cross-product of their spatial gradients. This method is particularly
 useful when inverting for different physical properties that are
 expected to have similar spatial structure.
 
+```{image} images/joint_cross_gradient.svg
+:scale: 200%
+:align: center
+```
 
-![joint_cross_gradient](images/joint_cross_gradient.svg)
-
-For example, a geological intrusion might be associated with a magnetic,
-gravity and/or electrical anomaly, corresponding to changes in magnetic
-susceptibility, density or resistivity compared to the host rocks. In
-this case, the edges of the magnetic, density or resistivity models
-should be aligned, even if the physical property values are different.
+For example, a geological features may be responsible for a magnetic,
+gravity and electrical anomaly. It would be favourable if the recovered magnetic, density and resistivity models share some resemblance, even though the three datasets may have different sensitivities to subsurface features.
 By minimizing the cross-gradient of the two models, we can encourage the
-inversion to find a common structure in both models even in regions
-where some survey types may be less sensitive
+inversion to find a common structure across all models, and therefore provide complementary information about the subsurface structure. By combining this information, we can significantly reduce inversion ambiguity and obtain a more accurate and robust model of the subsurface.
 
 ## Background
 
@@ -53,8 +51,7 @@ $$\phi_c(\mathbf{m_A},\mathbf{m_B}, \mathbf{m_C}) = \alpha_{AB} \phi(\mathbf{m_A
 
 and so on. Each term has a scaling parameter ($\alpha$) to control the
 importance of specific cross-gradient terms. Further automated rescaling
-is available, as explained in the `iterative_scaling`{.interpreted-text
-role="ref"} section.
+is available, as explained in the [](iterative_scaling) section.
 
 ## Interface
 
@@ -156,4 +153,4 @@ By default, an auto-scaling of the misfit functions is applied at each
 iteration, such that the contribution of each survey to the model update
 is balanced. This is particularly important when the surveys have
 different units or sensitivities. More details about the auto-scaling
-strategy can be found in the [](misfit_scaling)
+strategy can be found in the [](misfit_scaling) section.
