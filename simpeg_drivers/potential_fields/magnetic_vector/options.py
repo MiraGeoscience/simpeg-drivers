@@ -32,6 +32,7 @@ class VectorModelOptions(ModelOptions):
     """
 
     lower_bound: Deprecated
+    reference_model: float | FloatData | None = 0
     starting_inclination: float | FloatData | None = None
     starting_declination: float | FloatData | None = None
     reference_inclination: float | FloatData | None = None

@@ -21,7 +21,16 @@ from simpeg_drivers.options import (
     BaseForwardOptions,
     BaseInversionOptions,
     DirectiveOptions,
+    ModelOptions,
 )
+
+
+class GravityModelOptions(ModelOptions):
+    """
+    ModelOptions class with defaulted reference model.
+    """
+
+    reference_model: float | FloatData | None = 0
 
 
 class GravityForwardOptions(BaseForwardOptions):
@@ -115,3 +124,5 @@ class GravityInversionOptions(BaseInversionOptions):
     gzz_uncertainty: FloatData | float | None = None
 
     directives: DirectiveOptions = DirectiveOptions(sens_wts_threshold=1e-3)
+
+    models: GravityModelOptions
