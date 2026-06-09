@@ -96,18 +96,18 @@ the cooling factor of the trade-off parameter, such that
 
 $$\text{scale}_j = 1 - (1 - \Delta\beta) \frac{\chi_{max} - \chi_j}{\chi_{max}}$$
 
-where the chi factor $\chi_j$ for each survey is computed as the ratio
+where $\Delta \beta$ is the chosen cooling factor of the trade-off
+parameter, and $\chi_j$ are the chi factors for each survey. Chi factors are computed as the ratio
 between the data misfit and the number of data points:
 
-$$\chi_j = \frac{\phi_d^j}{N_j} \,,$$
+$$\chi_j = \frac{\phi_d^j}{N_j} \,.$$
 
-and $\Delta \beta$ is the chosen cooling factor of the trade-off
-parameter. The misfit with the highest chi factor will have a scaling
+The misfit with the highest chi factor will have a scaling
 factor of 1, while the other misfits will have a scaling factor between
 $\delta \beta$ and 1, depending on how far their chi factor is from the
 maximum. In other words, misfits with the lowest chi factors are scaled
 down by the same amount as the trade-off parameter, effectively
-canceling the cooling step as long as their chi factor is smaller. As
+canceling the cooling step as long as their chi factor remains small. As
 the inversion progresses and the chi factors of all surveys reach a
 similar value, the scaling factors will increase towards 1, allowing all
 misfits to progress towards their target.

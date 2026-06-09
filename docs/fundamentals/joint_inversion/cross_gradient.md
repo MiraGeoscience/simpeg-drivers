@@ -6,13 +6,18 @@ cross-product of their spatial gradients. This method is particularly
 useful when inverting for different physical properties that are
 expected to have similar spatial structure.
 
-```{image} images/joint_cross_gradient.svg
-:scale: 200%
-:align: center
+```{figure} images/joint_cross_gradient.svg
+------
+scale: 200%
+align: center
+------
+Recovered models from (left to right) a gravity, magnetic and resistivity survey; (top) without constraints and (bottom) with a cross-gradient constraint to encourage common structure across all models.
 ```
 
+
 For example, a geological features may be responsible for a magnetic,
-gravity and electrical anomaly. It would be favourable if the recovered magnetic, density and resistivity models share some resemblance, even though the three datasets may have different sensitivities to subsurface features.
+gravity and electrical anomaly. Even though the three datasets may have different sensitivities to subsurface features, it would be ideal if their respective magnetic, density and resistivity models shared some resemblance. Within a purely unconstrained inversion framework however, this is rarely the case.
+
 By minimizing the cross-gradient of the two models, we can encourage the
 inversion to find a common structure across all models, and therefore provide complementary information about the subsurface structure. By combining this information, we can significantly reduce inversion ambiguity and obtain a more accurate and robust model of the subsurface.
 
