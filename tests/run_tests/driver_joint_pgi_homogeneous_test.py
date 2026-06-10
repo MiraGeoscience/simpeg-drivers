@@ -290,6 +290,8 @@ def test_homogeneous_run(
         driver = JointPetrophysicsDriver(joint_params)
         driver.run()
 
+        assert driver.regularization.objfcts[-1].gmm.fixed_membership[0, 0] == 0
+
     if use_pytest:
         with Workspace(driver.params.geoh5.h5file) as run_ws:
             output = get_inversion_output(
