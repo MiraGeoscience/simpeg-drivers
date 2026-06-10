@@ -15,6 +15,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 from geoapps_utils import GeoAppsError
+from geoapps_utils.modelling.plates import PlateModel, make_plate
 from geoh5py.groups.property_group import GroupTypeEnum, PropertyGroup
 from geoh5py.objects import Octree, Points
 from geoh5py.workspace import Workspace
@@ -55,7 +56,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 438.9161113857895, "phi_d": 1450, "phi_m": 24.7}
+target_run = {"data_norm": 422.92317507375105, "phi_d": 2920, "phi_m": 417}
 INDUCING_FIELD = (50000.0, 90.0, 0.0)
 
 
@@ -84,7 +85,20 @@ def test_homogeneous_fwr_run(
             plate_refinement=[1],
             name="mesh A",
         ),
-        model=ModelOptions(anomaly=0.75, name="model A"),
+        model=ModelOptions(
+            anomaly=0.75,
+            name="model A",
+            plate=PlateModel(
+                easting=-60,
+                strike_length=30.0,
+                dip_length=30.0,
+                width=30.0,
+                northing=0.0,
+                elevation=20.0,
+                dip=90.0,
+                direction=0.0,
+            ),
+        ),
         active=SyntheticsActiveCellsOptions(name="active A"),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
@@ -93,6 +107,23 @@ def test_homogeneous_fwr_run(
         # Change half the model
         ind = components.mesh.centroids[:, 0] > -2
         components.model.values[ind] = 0.05
+
+        # Add a block
+        components.model.values = make_plate(
+            points=components.mesh.centroids,
+            plate=PlateModel(
+                strike_length=30.0,
+                dip_length=30.0,
+                width=30.0,
+                easting=40.0,
+                northing=0.0,
+                elevation=20.0,
+                dip=90.0,
+                direction=0.0,
+            ),
+            background=components.model.values,
+            anomaly=-0.5,
+        )
 
         params = GravityForwardOptions.build(
             geoh5=geoh5,
@@ -122,13 +153,43 @@ def test_homogeneous_fwr_run(
                 plate_refinement=[1],
                 name="mesh B",
             ),
-            model=ModelOptions(anomaly=0.05, name="model B"),
+            model=ModelOptions(
+                anomaly=0.025,
+                name="model B",
+                plate=PlateModel(
+                    easting=-60,
+                    strike_length=30.0,
+                    dip_length=30.0,
+                    width=30.0,
+                    northing=0.0,
+                    elevation=20.0,
+                    dip=90.0,
+                    direction=0.0,
+                ),
+            ),
             active=SyntheticsActiveCellsOptions(name="active B"),
         )
         components = SyntheticsComponents(geoh5, options=opts)
         # Change half the model
         ind = components.mesh.centroids[:, 0] > -2
         components.model.values[ind] = 0.01
+
+        # Add a block
+        components.model.values = make_plate(
+            points=components.mesh.centroids,
+            plate=PlateModel(
+                strike_length=30.0,
+                dip_length=30.0,
+                width=30.0,
+                easting=40.0,
+                northing=0.0,
+                elevation=20.0,
+                dip=90.0,
+                direction=0.0,
+            ),
+            background=components.model.values,
+            anomaly=0.05,
+        )
 
         params = MagneticVectorForwardOptions.build(
             geoh5=geoh5,
@@ -177,9 +238,10 @@ def test_homogeneous_run(
 
                 mapping = {}
                 vals = np.zeros_like(model.values, dtype=int)
-                for ind, value in enumerate(np.unique(model.values)):
+                model_values = np.round(model.values, decimals=4)
+                for ind, value in enumerate(np.unique(model_values)):
                     mapping[ind + 1] = f"Unit{ind}"
-                    vals[model.values == value] = ind + 1
+                    vals[model_values == value] = ind + 1
 
                 topography = geoh5.get_entity("topography")[0]
                 petrophysics = global_mesh.add_data(
@@ -217,7 +279,7 @@ def test_homogeneous_run(
                     topography_object=topography,
                     data_object=survey,
                     gz_channel=data,
-                    gz_uncertainty=1e-2,
+                    gz_uncertainty=5e-3,
                     starting_model=ref_model,
                     reference_model=ref_model,
                 )
@@ -268,12 +330,14 @@ def test_homogeneous_run(
             group_b_multiplier=1.0,
             mesh=global_mesh,
             gradient_rotation=gradient_rotation,
+            alpha_s=10.0,
             length_scale_x=1.0,
             length_scale_y=1.0,
             length_scale_z=1.0,
             petrophysical_model=petrophysics,
             initial_beta_ratio=1e2,
             max_global_iterations=max_iterations,
+            max_irls_iterations=1,
         )
         driver = JointPetrophysicsDriver(joint_params)
 
@@ -288,11 +352,12 @@ def test_homogeneous_run(
         new_driver = MagneticInversionDriver(params)
         joint_params.group_b = new_driver.out_group
         driver = JointPetrophysicsDriver(joint_params)
+
         driver.run()
 
-        assert driver.regularization.objfcts[-1].gmm.fixed_membership[0, 0] == 0
-
     if use_pytest:
+        assert driver.regularization.objfcts[-1].gmm.fixed_membership[0, 1] == 1
+
         with Workspace(driver.params.geoh5.h5file) as run_ws:
             output = get_inversion_output(
                 driver.params.geoh5.h5file, driver.out_group.uid
@@ -311,8 +376,8 @@ if __name__ == "__main__":
     test_homogeneous_fwr_run(
         Path("./"),
         n_grid_points=20,
-        cell_size=(20.0, 20.0, 20.0),
-        refinement=(4, 4),
+        cell_size=(10.0, 10.0, 10.0),
+        refinement=(6, 4),
     )
 
     test_homogeneous_run(
