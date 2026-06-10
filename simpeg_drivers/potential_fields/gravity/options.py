@@ -30,7 +30,7 @@ class GravityModelOptions(ModelOptions):
     ModelOptions class with defaulted reference model.
     """
 
-    reference_model: float | FloatData | None = 0
+    reference_model: float | FloatData | None = None
 
 
 class GravityForwardOptions(BaseForwardOptions):

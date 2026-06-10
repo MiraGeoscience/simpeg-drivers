@@ -30,7 +30,7 @@ class MagneticModelOptions(ModelOptions):
     ModelOptions class with defaulted lower bound.
     """
 
-    reference_model: float | FloatData | None = 0
+    reference_model: float | FloatData | None = None
     lower_bound: float | FloatData | None = 0
 
 

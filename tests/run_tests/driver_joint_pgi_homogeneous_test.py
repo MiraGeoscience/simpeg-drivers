@@ -243,7 +243,9 @@ def test_homogeneous_run(
                     tmi_channel=data,
                     tmi_uncertainty=5e0,
                 )
-                drivers.append(MagneticInversionDriver(params))
+                driver = MagneticInversionDriver(params)
+                driver.out_group.options["reference_model"]["enabled"] = False
+                drivers.append(driver)
 
             if len(drivers) == 1:
                 # Test if single group is valid

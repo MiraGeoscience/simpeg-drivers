@@ -32,7 +32,7 @@ class VectorModelPDEOptions(ModelOptions):
     """
 
     lower_bound: Deprecated
-    reference_model: float | FloatData | None = 0
+    reference_model: float | FloatData | None = None
     starting_inclination: float | FloatData | None = None
     starting_declination: float | FloatData | None = None
 
