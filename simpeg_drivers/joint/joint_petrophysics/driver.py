@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 import sys
+from functools import cached_property
 from pathlib import Path
 
 import numpy as np
@@ -31,7 +32,6 @@ class JointPetrophysicsDriver(BaseJointDriver):
         self._wires = None
         self._class_mapping: np.ndarray | None = None
         self._directives = None
-        self._membership: np.ndarray = None
         self._gaussian_model = None
         self._pgi_regularization: PGIsmallness | None = None
 
@@ -114,20 +114,17 @@ class JointPetrophysicsDriver(BaseJointDriver):
 
         return self._gaussian_model
 
-    @property
-    def class_mapping(self) -> dict:
+    @cached_property
+    def class_mapping(self) -> np.ndarray:
         """Mapping of model units to geophysical properties."""
-        if getattr(self, "_class_mapping", None) is None:
-            self._class_mapping = np.argsort(self.weights)[::-1]
+        return np.argsort(self.weights)[::-1]
 
-        return self._class_mapping
-
-    @property
+    @cached_property
     def n_units(self) -> int:
         """Number of model units."""
         return len(self.geo_units)
 
-    @property
+    @cached_property
     def geo_units(self) -> dict:
         """Model units."""
         units = np.unique(self.models.petrophysical_model)
@@ -139,15 +136,16 @@ class JointPetrophysicsDriver(BaseJointDriver):
 
         return model_map
 
-    @property
+    @cached_property
     def membership(self) -> np.ndarray[np.int]:
-        if self._membership is None:
-            self._membership = np.empty(self.models.n_active, dtype=int)
-            for ii, unit in enumerate(self.geo_units):
-                unit_ind = self.models.petrophysical_model == unit
-                self._membership[unit_ind] = self.class_mapping[ii]
 
-        return self._membership
+        membership = np.empty(self.models.n_active, dtype=int)
+        keys = list(self.geo_units)
+        for ii, unit in enumerate(self.class_mapping):
+            unit_ind = self.models.petrophysical_model == keys[unit]
+            membership[unit_ind] = ii
+
+        return membership
 
     @property
     def means(self) -> np.ndarray:
@@ -175,7 +173,7 @@ class JointPetrophysicsDriver(BaseJointDriver):
 
         return np.hstack(means)
 
-    @property
+    @cached_property
     def covariances(self) -> np.ndarray:
         """
         Covariances of the Gaussian mixture model.
@@ -184,7 +182,7 @@ class JointPetrophysicsDriver(BaseJointDriver):
         """
         return np.ones((self.n_units, len(self.mapping)))
 
-    @property
+    @cached_property
     def weights(self) -> np.ndarray:
         """
         Weights of the Gaussian mixture model.
@@ -195,6 +193,10 @@ class JointPetrophysicsDriver(BaseJointDriver):
         volumes = self.inversion_mesh.mesh.cell_volumes[self.models.active_cells]
         for uid in self.geo_units:
             weights.append(volumes[self.models.petrophysical_model == uid].sum())
+
+        # Add a small increment to assure uniqueness
+        weights = np.r_[weights] + 1e-1 * np.arange(len(weights))
+
         return np.r_[weights] / np.sum(weights)
 
     @property
