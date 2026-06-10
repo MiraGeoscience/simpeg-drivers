@@ -198,7 +198,9 @@ class JointPetrophysicsDriver(BaseJointDriver):
         weights = np.r_[weights].astype(float)
         if weights.size:
             weights = weights + (
-                np.finfo(weights.dtype).eps * max(1.0, weights.max()) * np.arange(weights.size)
+                np.finfo(weights.dtype).eps
+                * max(1.0, weights.max())
+                * np.arange(weights.size)
             )
 
         return weights / np.sum(weights)
