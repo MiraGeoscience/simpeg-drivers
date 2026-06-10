@@ -30,7 +30,6 @@ class JointPetrophysicsDriver(BaseJointDriver):
 
     def __init__(self, params: JointPetrophysicsOptions):
         self._wires = None
-        self._class_mapping: np.ndarray | None = None
         self._directives = None
         self._gaussian_model = None
         self._pgi_regularization: PGIsmallness | None = None
@@ -137,7 +136,7 @@ class JointPetrophysicsDriver(BaseJointDriver):
         return model_map
 
     @cached_property
-    def membership(self) -> np.ndarray[np.int]:
+    def membership(self) -> np.ndarray:
 
         membership = np.empty(self.models.n_active, dtype=int)
         keys = list(self.geo_units)
