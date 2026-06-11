@@ -43,7 +43,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 10.945383968572745, "phi_d": 5210, "phi_m": 340}
+target_run = {"data_norm": 10.864162198305321, "phi_d": 5370, "phi_m": 334}
 
 
 def test_dc_2d_fwr_run(
@@ -142,8 +142,15 @@ def test_dc_2d_run(
     output = get_inversion_output(
         driver.params.geoh5.h5file, driver.params.out_group.uid
     )
-    if geoh5.open():
+    with geoh5.open():
         output["data"] = potential.values
+
+        # Check that the boundary cells are still on start value
+        inv_group = geoh5.get_entity("Direct Current 2D Inversion")[0]
+        mesh = inv_group.get_entity("mesh")[0]
+        model = mesh.get_entity("Iteration_1_model")[0]
+        np.testing.assert_almost_equal(model.values[10:33], 1e-3)
+
     if pytest:
         check_target(output, target_run)
 
