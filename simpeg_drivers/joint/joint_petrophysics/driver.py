@@ -30,7 +30,6 @@ class JointPetrophysicsDriver(BaseJointDriver):
 
     def __init__(self, params: JointPetrophysicsOptions):
         self._wires = None
-        self._class_mapping: np.ndarray | None = None
         self._directives = None
         self._gaussian_model = None
         self._pgi_regularization: PGIsmallness | None = None
@@ -137,7 +136,7 @@ class JointPetrophysicsDriver(BaseJointDriver):
         return model_map
 
     @cached_property
-    def membership(self) -> np.ndarray[np.int]:
+    def membership(self) -> np.ndarray:
 
         membership = np.empty(self.models.n_active, dtype=int)
         keys = list(self.geo_units)
@@ -194,10 +193,16 @@ class JointPetrophysicsDriver(BaseJointDriver):
         for uid in self.geo_units:
             weights.append(volumes[self.models.petrophysical_model == uid].sum())
 
-        # Add a small increment to assure uniqueness
-        weights = np.r_[weights] + 1e-1 * np.arange(len(weights))
+        # Add a tiny increment to assure uniqueness without materially changing proportions
+        weights = np.r_[weights].astype(float)
+        if weights.size:
+            weights = weights + (
+                np.finfo(weights.dtype).eps
+                * max(1.0, weights.max())
+                * np.arange(weights.size)
+            )
 
-        return np.r_[weights] / np.sum(weights)
+        return weights / np.sum(weights)
 
     @property
     def pgi_regularization(self):
