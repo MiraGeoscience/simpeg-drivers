@@ -239,7 +239,7 @@
         "group": "Mesh and models",
         "isValue": true,
         "optional": true,
-        "enabled": false,
+        "enabled": true,
         "parent": "mesh",
         "label": "Reference magnetization(SI)",
         "property": "",

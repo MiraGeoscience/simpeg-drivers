@@ -356,7 +356,7 @@
         "group": "Mesh and models",
         "isValue": true,
         "optional": true,
-        "enabled": false,
+        "enabled": true,
         "parent": "mesh",
         "label": "Reference density (g/cc)",
         "property": "",
