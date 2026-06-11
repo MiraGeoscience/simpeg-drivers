@@ -21,7 +21,7 @@ from simpeg_drivers.electricals.direct_current.two_dimensions.options import (
 )
 
 
-class DC2DInversionDriver(InversionDriver, Base2DDriver):
+class DC2DInversionDriver(Base2DDriver, InversionDriver):
     """Direct Current 2D inversion driver."""
 
     _params_class = DC2DInversionOptions

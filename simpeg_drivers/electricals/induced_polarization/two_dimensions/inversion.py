@@ -21,7 +21,7 @@ from simpeg_drivers.electricals.induced_polarization.two_dimensions.options impo
 )
 
 
-class IP2DInversionDriver(InversionDriver, Base2DDriver):
+class IP2DInversionDriver(Base2DDriver, InversionDriver):
     """Induced Polarization 2D inversion driver."""
 
     _params_class = IP2DInversionOptions
