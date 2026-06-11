@@ -7,7 +7,7 @@ This section focuses on the inversion of airborne time-domain data generated fro
 ---
 scale: 25%
 ---
-[Download here](https://github.com/MiraGeoscience/simpeg-drivers/raw/develop/simpeg_drivers-assets/inversion_demo.geoh5?download=)
+[Download here](https://github.com/MiraGeoscience/simpeg-drivers/raw/refs/heads/develop/simpeg_drivers-assets/inversion_demo.geoh5?download=)
 ```
 
 ```{note}

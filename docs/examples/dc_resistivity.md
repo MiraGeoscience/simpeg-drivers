@@ -11,7 +11,7 @@ scale: 25%
 
 name: dc_model
 ---
-[Download here](https://github.com/MiraGeoscience/simpeg-drivers/raw/develop/simpeg_drivers-assets/inversion_demo.geoh5?download=)
+[Download here](https://github.com/MiraGeoscience/simpeg-drivers/raw/refs/heads/develop/simpeg_drivers-assets/inversion_demo.geoh5?download=)
 ```
 
 <p style="page-break-after:always;"></p>

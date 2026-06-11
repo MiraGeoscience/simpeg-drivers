@@ -9,7 +9,7 @@ This section focuses on the inversion of airborne tensor and ground gravity data
 scale: 25%
 name: grav_model
 ---
-[Download here](https://github.com/MiraGeoscience/simpeg-drivers/raw/develop/simpeg_drivers-assets/inversion_demo.geoh5?download=)
+[Download here](https://github.com/MiraGeoscience/simpeg-drivers/raw/refs/heads/develop/simpeg_drivers-assets/inversion_demo.geoh5?download=)
 ```
 
 

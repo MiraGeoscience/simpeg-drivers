@@ -7,7 +7,7 @@ This tutorial on geophysical inversion is framed around a well-known copper-zinc
 height: 400px
 name: setup_flinflon
 ---
-Discrete geological and physical properties for the simplified [Flin Flon model](https://github.com/MiraGeoscience/simpeg-drivers/blob/develop/simpeg_drivers-assets/inversion_demo.geoh5).
+Discrete geological and physical properties for the simplified [Flin Flon model](https://github.com/MiraGeoscience/simpeg-drivers/raw/refs/heads/develop/simpeg_drivers-assets/inversion_demo.geoh5?download=).
 
 ```
 
