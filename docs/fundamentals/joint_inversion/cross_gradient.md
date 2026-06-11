@@ -108,7 +108,7 @@ of individual models. Otherwise, when the `Regularization` group is
 activated, global parameters can be used across all the
 sub-regularization functions for more consistent behavior.
 
-```{image} images/joint_cross_grad_ui_advanced.png
+```{image} images/joint_pgi_ui_advanced.png
 :scale: 50%
 :align: center
 ```
