@@ -21,7 +21,7 @@ The `Petrophysically Guided Inversion` algorithm follows the implementation of {
 scale: 50%
 align: center
 ------
-Example of a Gaussian Mixture Model (GMM) used to classify the subsurface into different geological units (three units), based on the physical property values (density and susceptibility). Image borrowed from [SimPEG-Tutorials](https://simpeg.xyz/user-tutorials/plot-inv-1-joint-pf-pgi-full-info-tutorial/)
+Example of a Gaussian Mixture Model (GMM) used to classify the subsurface into three geological units, based on density and susceptibility values. Image borrowed from [SimPEG-Tutorials](https://simpeg.xyz/user-tutorials/plot-inv-1-joint-pf-pgi-full-info-tutorial/)
 ```
 
 Each geological unit is associated with a petrophysical model that defines the expected distribution of physical properties for that unit, in terms of mean, covariance and proportion (or weight). The GMM is used to assign a membership probability for each cell in the model, which is then used to guide the inversion process towards petrophysically plausible solutions.
@@ -34,7 +34,7 @@ where $\mathbf{m}$ is the model vector containing all physical properties, $\mat
 
 At each iteration of the inversion, the algorithm identifies the most probably unit for each cell (membership). The reference model $\mathbf{m}$ is updated by assigning the mean values from the petrophysical model, using the geological membership of each cell. Likewise, the weighting matrix $\mathbf{W}_{petro}$ is updated using the covariances and weights for the corresponding memberships. From this updated function, the inversion proceeds to find a new model that minimizes the data misfit and regularization terms.
 
->At current time, only the mean ($\mu_j$) of each petrophysical class is updated at each iteration, while the weights (standard deviations, proportion) and membership are fixed. Future work will include updating all GMM parameters at each iteration.
+>At current time, only the mean ($\mu_j$) of each petrophysical class is updated at each iteration, while the weights (standard deviations and proportions) and cell membership are fixed at the onset. Future work will include updating all GMM parameters at each iteration.
 
 
 ## Interface
@@ -96,10 +96,6 @@ sub-regularization functions for more consistent behavior.
 All other parameters related to the optimization of the standalone
 inversions are overridden by the joint inversion framework.
 
-#### Auto-scaling of misfit functions
+- `Auto-scaling of misfit functions`:
 
-By default, an auto-scaling of the misfit functions is applied at each
-iteration, such that the contribution of each survey to the model update
-is balanced. This is particularly important when the surveys have
-different units or sensitivities. More details about the auto-scaling
-strategy can be found in the [](misfit_scaling) section.
+    By default, an auto-scaling of the misfit functions is applied at each iteration, such that the contribution of each survey to the model update is balanced. This is particularly important when the surveys have different units or sensitivities. More details about the auto-scaling strategy can be found in the [](misfit_scaling) section.
