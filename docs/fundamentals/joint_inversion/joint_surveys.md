@@ -50,7 +50,7 @@ groups as input.
 
   :   Standalone inversion groups to be included in the joint inversion.
       Up to three groups can be included in the joint inversion, but
-      only two are required. Each group should be defined as a
+      only two are required. Each group should be fully defined and runnable as a
       standalone inversion problem, with its own survey and mesh. Any
       other regularization or optimization parameters will be ignored
       and overridden by the joint inversion framework.
@@ -106,7 +106,7 @@ factor of 1, while the other misfits will have a scaling factor between
 $\delta \beta$ and 1, depending on how far their chi factor is from the
 maximum. In other words, misfits with the lowest chi factors are scaled
 down by the same amount as the trade-off parameter, effectively
-canceling the cooling step as long as their chi factor remains small. As
+cancelling the cooling step as long as their chi factor remains small. As
 the inversion progresses and the chi factors of all surveys reach a
 similar value, the scaling factors will increase towards 1, allowing all
 misfits to progress towards their target.

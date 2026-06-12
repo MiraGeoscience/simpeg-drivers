@@ -20,15 +20,21 @@ chapters:
     - file: fundamentals/joint_inversion/pgi
   - file: fundamentals/optimization
   - file: fundamentals/parallelization
-- file: examples/introduction
+- file: geophysical_methods/introduction
   sections:
-  - file: examples/background
-  - file: examples/magnetic
-  - file: examples/gravity
-  - file: examples/dc_resistivity
-  - file: examples/tipper
-  - file: examples/airborne_tem
-  - file: examples/joint_inversion
+  - file: geophysical_methods/background
+  - file: geophysical_methods/magnetic
+  - file: geophysical_methods/gravity
+  - file: geophysical_methods/dc_resistivity
+  - file: geophysical_methods/tipper
+  - file: geophysical_methods/airborne_tem
+  - file: geophysical_methods/joint_inversion
+- file: fundamentals/depth_of_investigation
+- file: plate-simulation/simulation
+  sections:
+  - file: plate-simulation/standalone
+  - file: plate-simulation/sweep
+  - file: plate-simulation/match
 - file: case_studies/index
   sections:
   - file: case_studies/Forrestania/forrestania
@@ -38,10 +44,4 @@ chapters:
         - file: case_studies/Forrestania/python_code/unconstrained_gravity_inv_training
         - file: case_studies/Forrestania/python_code/unconstrained_magnetics_inv_training
         - file: case_studies/Forrestania/python_code/joint_grav_mag
-- file: fundamentals/depth_of_investigation
-- file: plate-simulation/simulation
-  sections:
-  - file: plate-simulation/standalone
-  - file: plate-simulation/sweep
-  - file: plate-simulation/match
 - file: THIRD_PARTY_SOFTWARE

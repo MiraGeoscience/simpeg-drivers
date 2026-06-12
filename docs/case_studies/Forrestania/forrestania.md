@@ -114,7 +114,7 @@ We first need to modify our object such that the data is accurately located in 3
 #### Step 1: Convert the 2D DEM into a 3D surface
 ```{figure} ./images/create_surface.png
 ---
-scale: 10%
+width: 300pt
 ---
 [Click to enlarge]
 ```
@@ -122,7 +122,7 @@ scale: 10%
 #### Step 2a: Transfer the DEM data onto the airborne survey (curve).
 ```{figure} ./images/transfer_dem.png
 ---
-scale: 10%
+width: 300pt
 ---
 [Click to enlarge]
 ```
@@ -130,7 +130,7 @@ scale: 10%
 #### Step 2b: Re-assign the Z channel to the DEM + radar height.
 ```{figure} ./images/drape_mag.png
 ---
-scale: 10%
+width: 300pt
 ---
 [Click to enlarge]
 ```
@@ -157,7 +157,7 @@ The following options are set for the inversion.
 
 ```{figure} ./images/gravity_setup.png
 ---
-scale: 10%
+width: 300pt
 ---
 [Click to enlarge]
 ```
@@ -213,7 +213,7 @@ Before computing the IGRF, we need to locate the survey in world coordinates. Th
 
 ```{figure} ./images/mag_coordinates.png
 ---
-scale: 10%
+width: 300pt
 ---
 [Click to enlarge]
 ```
@@ -222,7 +222,7 @@ scale: 10%
 
 ```{figure} ./images/mag_igrf.png
 ---
-scale: 10%
+width: 300pt
 ---
 [Click to enlarge]
 ```
@@ -240,7 +240,7 @@ The local background field appears to be slightly lower (~112 nT) than the compu
 
 ```{figure} ./images/mag_detrend.png
 ---
-scale: 10%
+width: 300pt
 ---
 [Click to enlarge]
 ```
@@ -251,7 +251,7 @@ We can downsample the data along lines to reduce the computation cost of the inv
 
 ```{figure} ./images/mag_downsample.png
 ---
-scale: 10%
+width: 300pt
 ---
 [Click to enlarge]
 ```
@@ -278,7 +278,7 @@ The following options are set for the inversion.
 
 ```{figure} ./images/mag_setup.png
 ---
-scale: 10%
+width: 300pt
 ---
 [Click to enlarge]
 ```
@@ -328,7 +328,7 @@ The following options are set for the inversion.
 
 ```{figure} ./images/joint_setup.png
 ---
-scale: 10%
+width: 300pt
 ---
 [Click to enlarge]
 ```

@@ -7,7 +7,7 @@ The Petrophysically Guided Inversion (PGI) strategy allows to find commonality b
 scale: 50%
 align: center
 ------
-Recovered models from (left to right) a gravity and magnetic; (top) without constraints and (bottom) with a petro-physical constraint to encourage clustering of physical properties.
+Recovered (left) gravity and (right) magnetic models; (top) without and (bottom) with petro-physical constraints to encourage clustering of physical properties.
 ```
 
 For example, lab measurements on rock samples may indicate that geological units can be distinguished by their density and magnetic susceptibility distributions. By incorporating this information into the geophysical inversion process, we can encourage the recovered physical property models to cluster around these petrophysically plausible values. This constraint can significantly reduce inversion ambiguity and provide a more accurate and robust model of the subsurface.
@@ -52,7 +52,7 @@ The joint PGI user interface requires the following input parameters:
 
   Standalone inversion groups to be included in the joint inversion.
       Up to three groups can be included in the joint inversion, but
-      only one is required. Each group should be defined as a
+      only one is required. Each group should be fully defined and runnable as a
       standalone inversion problem, with its own survey and mesh.
 
 - `Misfit scale A, B and C`:

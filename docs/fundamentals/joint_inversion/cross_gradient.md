@@ -73,7 +73,7 @@ The joint cross-gradient inversion user requires the following input parameters:
 
   :   Standalone inversion groups to be included in the joint inversion.
       Up to three groups can be included in the joint inversion, but
-      only two are required. Each group should be defined as a
+      only two are required. Each group should be fully defined and runnable as a
       standalone inversion problem, with its own survey and mesh.
 
 - `Misfit scale A, B and C`:
