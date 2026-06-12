@@ -113,6 +113,3 @@ name: tipper_unconstrained
 Despite our simplistic floor uncertainties, the inversion managed to converge fairly quickly to a reasonable model that fits our data well. We have recovered a clear conductor at depth that overlaps with the ore body. However, the inversion could not resolve the thin conductive overburden layer, as expected by the low frequency range of the tipper system.
 
 
-```python
-
-```

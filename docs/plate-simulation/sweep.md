@@ -72,7 +72,7 @@ Otherwise, the simulations are run sequentially.
 
 Finally, if the option to generate a summary file is enabled, a routine
 extracts parameters from all `*.geoh5` files present in the
-`Output director` and tabulates them in a `summary.xls` file for easy
+`Output directory` and tabulates them in a `summary.xls` file for easy
 reference and analysis.
 
 ```{figure} images/summary.png

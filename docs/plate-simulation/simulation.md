@@ -18,6 +18,6 @@ align: center
 ---
 ```
 
-- `standalone`{.interpreted-text role="doc"}
-- `sweep`{.interpreted-text role="doc"}
-- `match`{.interpreted-text role="doc"}
+- [](standalone)
+- [](sweep)
+- [](match)
