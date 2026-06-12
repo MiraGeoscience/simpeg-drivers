@@ -28,11 +28,11 @@ Each geological unit is associated with a petrophysical model that defines the e
 
 The method is implemented as a regularization term that can be added to the conventional [model objective function](regularization). The regularization function is defined as
 
-$$\phi_{petro}(\mathbf(m)) = \| \mathbf{W}(\Theta, \mathbf{z}^*) (\mathbf{m} - \mathbf{m}_{ref}(\Theta, \mathbf{z}^*)) \|^2_2$$
+$$\phi_{petro}(\mathbf{m}) = \| \mathbf{W}(\Theta, \mathbf{z}^*) (\mathbf{m} - \mathbf{m}_{ref}(\Theta, \mathbf{z}^*)) \|_2^2$$
 
 where $\mathbf{m}$ is the model vector containing all physical properties, $\mathbf{m}_{ref}$ is a vector of mean petrophysically values for each physical property in the memberships defined by $\mathbf{z}^*$. The variable $\Theta$ holds the GMM global variables $\{\pi_j ,\mu_j, \sigma_j\}$, defined by a weight, mean and standard deviation of each $j^{th}$ petrophysical classes. The weighting matrix $\mathbf{W}_{petro}$ is updated iteratively to reflect the local constraint of the GMM.
 
-At each iteration of the inversion, the algorithm identifies the most probably unit for each cell (membership). The reference model $\mathbf{m}$ is updated by assigning the mean values from the petrophysical model, using the geological membership of each cell. Likewise, the weighting matrix $\mathbf{W}_{petro}$ is updated using the covariances and weights for the corresponding memberships. From this updated function, the inversion proceeds to find a new model that minimizes the data misfit and regularization terms.
+At each iteration of the inversion, the algorithm identifies the most probable unit for each cell (membership). The reference model $\mathbf{m}$ is updated by assigning the mean values from the petrophysical model, using the geological membership of each cell. Likewise, the weighting matrix $\mathbf{W}_{petro}$ is updated using the covariances and weights for the corresponding memberships. From this updated function, the inversion proceeds to find a new model that minimizes the data misfit and regularization terms.
 
 >At current time, only the mean ($\mu_j$) of each petrophysical class is updated at each iteration, while the weights (standard deviations and proportions) and cell membership are fixed at the onset. Future work will include updating all GMM parameters at each iteration.
 

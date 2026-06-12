@@ -39,7 +39,7 @@ Note the large contrast in apparent resistivity near surface between the western
 scale: 50%
 name: dc_data
 ---
-Pseudo-sections of apparent resisitvity. Ore shell is shown in reference.
+Pseudo-sections of apparent resistivity. Ore shell is shown in reference.
 ```
 
 ## Mesh creation

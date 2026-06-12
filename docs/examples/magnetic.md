@@ -157,12 +157,12 @@ name: mvi_model
 (Bottom) Slices through the recovered susceptibility model: (left) at 175 m elevation and (right) at 6072150 m N.
 ```
 
-We note that the effective susceptibility values are much lower than recovered with the scalar susceptibility inversion. The anomaly is also smoother, broader and less well defined at depth. This can be explained by the increase in non-uniquess of the inverse problem, where we now have to solve for three models (vectors) at once. This result could be improved with additional constraints, but beyond the scopy of this section.
+We note that the effective susceptibility values are much lower than recovered with the scalar susceptibility inversion. The anomaly is also smoother, broader and less well defined at depth. This can be explained by the increase in non-uniqueness of the inverse problem, where we now have to solve for three models (vectors) at once. This result could be improved with additional constraints, but beyond the scope of this section.
 
 
 ### Algorithmic details
 
-Looking back at the log file, users may notive that the MVI process goes through three main stages:
+Looking back at the log file, users may notice that the MVI process goes through three main stages:
 
 1- Solve the problem in Cartesian (3-components) form for a smooth model
 
@@ -176,7 +176,7 @@ scale: 50%
 name: mvi_log
 ```
 
-Note that the last Cartesian model ends after reaching a target misfit of about 2x (hard-coded). User should preferentially use the last model from the Spherical steps, or last of IRLS, to do their interpration as both are on or near target.
+Note that the last Cartesian model ends after reaching a target misfit of about 2x (hard-coded). User should preferentially use the last model from the Spherical steps, or last of IRLS, to do their interpretation as both are on or near target.
 
 See [Fournier et al. 2020](https://owncloud.eoas.ubc.ca/s/iXrwgjXjierfoKa/download) for more details.
 

@@ -248,7 +248,7 @@ simulation.
 width: 300pt
 align: center
 ---
-Octree mesh parameters exposed in the
+Octree mesh parameters exposed in the ui.json file.
 ```
 
 ## Results

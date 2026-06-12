@@ -30,7 +30,7 @@ on the ui.json interface.
 - **Mesh**: The mesh used for inversion
 - **Sensitivity**: Model selector for the sensitivities at a given
   iteration (see [Pre-requisite](pre-requisite))
-- **Cut-off**: Percentage value to threshold the sentivities, relative
+- **Cut-off**: Percentage value to threshold the sensitivities, relative
   to the **Method** used.
 - **Method**: One of *percentile*, *percent* or *log percent*
 

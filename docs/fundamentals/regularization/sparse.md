@@ -17,7 +17,7 @@ the model function $f(\mathbf{m})$.
 
 The first option is to impose sparsity assumptions on the model values.
 
-$$\phi(m) = \| (\mathbf{m} - \mathbf{m}_{ref} \|_p \;.$$
+$$\phi(m) = \| (\mathbf{m} - \mathbf{m}_{ref}) \|_p \;.$$
 
 That is, we ask the inversion to recover anomalies that have small
 volumes but large physical property contrasts. This is desirable if we
@@ -91,7 +91,7 @@ To be continued...
 
 The standard $L_p$ norm measure is generally written as
 
-$$\phi(m) = \| f(\mathbf{m}) \|_p ] \;,$$
+$$\phi(m) = \| f(\mathbf{m}) \|_p \;,$$
 
 which can also be expressed as
 
