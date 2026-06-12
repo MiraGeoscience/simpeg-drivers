@@ -20,7 +20,7 @@ description = "Application to run SimPEG inversions with geoh5 files from Geosci
 license = "MIT"
 license-files = [
     "LICENSE",
-    "docs/THIRD_PARTY_SOFTWARE.rst",
+    "docs/THIRD_PARTY_SOFTWARE.md",
 ]
 keywords = [
     "direct current resistivity",
