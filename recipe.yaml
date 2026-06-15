@@ -2,14 +2,14 @@ schema_version: 1
 
 context:
   name: "simpeg-drivers"
+  python_min: "3.12"
   # Extract version from auto-generated _version.json
-  version: ${{ load_from_file("_version.json").version | trim }}
-  python_min: '3.12'
+  version: "${{ load_from_file('_version.json').version | trim }}"
   module_name: ${{ name|lower|replace("-", "_") }}
 
 package:
   name: ${{ name|lower }}
-  version: ${{ version }}
+  version: "${{ version }}"
 
 source:
   path: ../${{ name }}
@@ -17,22 +17,25 @@ source:
 build:
   number: 0
   noarch: python
-  script: ${{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
+  script:
+    env:
+      POETRY_DYNAMIC_VERSIONING_BYPASS: "${{ version }}"
+    content:
+      ${{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
 
 requirements:
   host:
     - python ${{ python_min }}.*
+    - pip
     - poetry-core >=1.8.0
     - poetry-dynamic-versioning >=1.9, 1.*
-    - setuptools
-    - pip
   run:
     - python >=${{ python_min }}
     # Mira packages
-    - geoapps-utils >=0.7.0a2, 0.7.*
-    - geoh5py >=0.13.0a2, 0.13.*
-    - grid-apps >=0.2.0a2, 0.2.*
-    - mira-simpeg >=0.23.0.2, 0.23.0.* | >=0.25.0.1a, 0.25.0.*
+    - geoapps-utils >=0.7.0b1, 0.7.*
+    - geoh5py >=0.13.0b1, 0.13.*
+    - grid-apps >=0.2.0b1, 0.2.*
+    - mira-simpeg >=0.25.0.1b1, 0.25.0.*
 
     # direct dependencies
     - dask-core 2025.3.*
@@ -41,7 +44,7 @@ requirements:
     - matplotlib-base >=3.10.4, 3.10.*
     - numpy >=2.4.2, 2.4.*
     - openpyxl >=3.1.2, 3.*
-    - pandas >=2.2.1, 3.*
+    - pandas >=2.2.1, 2.*
     - pydantic 2.12.*
     - pydiso 0.2.*
     - python-mumps 0.0.6.*
@@ -61,6 +64,7 @@ requirements:
 
 tests:
   - python:
+      python_version: ${{ python_min }}.*
       imports:
         - ${{ module_name }}
         - ${{ module_name }}._version
@@ -98,4 +102,5 @@ extra:
   recipe-maintainers:
     - andrewg-mira
     - domfournier
+    - RomFloreani
     - sebhmg

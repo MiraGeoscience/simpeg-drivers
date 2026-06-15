@@ -65,7 +65,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 53.31483800448377, "phi_d": 558, "phi_m": 0.0574}
+target_run = {"data_norm": 53.31485005157825, "phi_d": 562, "phi_m": 0.387}
 INDUCING_FIELD = (50000.0, 90.0, 0.0)
 
 
@@ -325,13 +325,13 @@ def test_joint_cross_gradient_inv_run(
     # the scaling from its total misfit.
     np.testing.assert_allclose(
         driver.directives.scale_misfits.scalings,
-        [1, 0.7558, 0.5, 0.5, 0.6710],
+        [1.0, 0.755269, 0.5, 0.5, 0.675174],
         atol=1e-3,
     )
     # Check that scaling * chi factor is reflected in data misfit multipliers
     np.testing.assert_allclose(
         driver.data_misfit.multipliers,
-        [0.8, 0.6046, 0.5, 0.5, 0.6710],
+        [0.8, 0.604215, 0.5, 0.5, 0.675174],
         atol=1e-3,
     )
 

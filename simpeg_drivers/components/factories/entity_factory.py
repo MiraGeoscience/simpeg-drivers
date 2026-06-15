@@ -79,21 +79,6 @@ class EntityFactory(AbstractFactory):
                 "parent": self.params.out_group,
                 "copy_children": False,
             }
-
-            if np.any(~inversion_data.mask):
-                if isinstance(self.params.data_object, PotentialElectrode):
-                    active_poles = np.zeros(
-                        self.params.data_object.n_vertices, dtype=bool
-                    )
-                    active_poles[
-                        self.params.data_object.cells[inversion_data.mask, :].ravel()
-                    ] = True
-                    kwargs.update(
-                        {"mask": active_poles, "cell_mask": inversion_data.mask}
-                    )
-                else:
-                    kwargs.update({"mask": inversion_data.mask})
-
             entity = self.params.data_object.copy(**kwargs)
 
         if isinstance(self.params.data_object, BaseEMSurvey):

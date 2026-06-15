@@ -492,7 +492,7 @@ def test_joint_surveys_tem_run(
                     if isinstance(group, SavePropertyGroup)
                 ]
             )
-            == 5
+            == 6
         )
 
 

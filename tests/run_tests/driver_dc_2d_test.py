@@ -43,7 +43,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 11.136935742296085, "phi_d": 5570, "phi_m": 314}
+target_run = {"data_norm": 10.864162198305321, "phi_d": 5370, "phi_m": 334}
 
 
 def test_dc_2d_fwr_run(
@@ -142,8 +142,15 @@ def test_dc_2d_run(
     output = get_inversion_output(
         driver.params.geoh5.h5file, driver.params.out_group.uid
     )
-    if geoh5.open():
+    with geoh5.open():
         output["data"] = potential.values
+
+        # Check that the boundary cells are still on start value
+        inv_group = geoh5.get_entity("Direct Current 2D Inversion")[0]
+        mesh = inv_group.get_entity("mesh")[0]
+        model = mesh.get_entity("Iteration_1_model")[0]
+        np.testing.assert_almost_equal(model.values[10:33], 1e-3)
+
     if pytest:
         check_target(output, target_run)
 
@@ -196,7 +203,17 @@ def test_dc_single_run(
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    driver = DC2DInversionDriver(params)
+        driver = DC2DInversionDriver(params)
+
+        # Mock workers and check if the list shrinks to number of lines
+        driver._workers = [None] * 10  # pylint: disable=protected-access
+
+        driver.get_tiles()  # Trigger reset
+        assert len(driver.workers) == 1
+
+        # Reset and run
+        driver._workers = []  # pylint: disable=protected-access
+
     driver.run()
 
     with Workspace(workpath) as geoh5:

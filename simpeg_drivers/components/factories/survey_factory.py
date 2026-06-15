@@ -142,10 +142,10 @@ class SurveyFactory(SimPEGFactory):
     def _add_data(self, survey, data):
         # Stack the data by [channel, component, receiver]
         data_stack = np.dstack(
-            [np.vstack(list(k.values())) for k in data.observed.values()]
+            [np.vstack(list(k)) for k in data.observed.values()]
         ).transpose((0, 2, 1))
         uncert_stack = np.dstack(
-            [np.vstack(list(k.values())) for k in data.uncertainties.values()]
+            [np.vstack(list(k)) for k in data.uncertainties.values()]
         ).transpose((0, 2, 1))
 
         uncert_stack[np.isnan(data_stack)] = np.inf
@@ -319,10 +319,7 @@ class SurveyFactory(SimPEGFactory):
         channels = np.array(data.entity.channels)
         rx_locs = data.entity.vertices
         tx_locs = data.entity.transmitters.vertices
-        frequencies = data.entity.transmitters.workspace.get_entity("Tx frequency")[0]
-        frequencies = np.array(
-            [float(frequencies.value_map[f]) for f in frequencies.values]
-        )
+        frequencies = np.repeat(channels, rx_locs.shape[0])
 
         sources = []
         rx_factory = ReceiversFactory(self.params)
@@ -338,11 +335,7 @@ class SurveyFactory(SimPEGFactory):
                         locations=locs,
                         data=data,
                         component=component
-                        + (
-                            "_coaxial"
-                            if self.params.coaxial[frequency]
-                            else "_coplanar"
-                        ),
+                        + ("_coaxial" if self.params.coaxial[freq_id] else "_coplanar"),
                         local_indices=rx_id,
                     )
                     block_ordering.append([comp_id, rx_id])

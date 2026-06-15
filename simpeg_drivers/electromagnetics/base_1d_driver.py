@@ -95,18 +95,21 @@ class Base1DDriver(BaseDriver):
         return layers_mesh
 
     def get_tiles(self) -> dict[None, list[list[ndarray[tuple[Any, ...]]]]]:
-        n_data = self.inversion_data.mask.sum()
+        n_data = len(self.inversion_data.locations)
         indices = np.arange(n_data)
 
         # Heuristic to avoid too many chunks
         n_chunks = n_data // self.params.compute.max_chunk_size
 
         if self.workers:
-            n_chunks /= len(self.workers)
-            n_chunks = int(n_chunks) * len(self.workers)
+            n_chunks //= len(self.workers)
 
-        n_chunks = np.max([n_chunks, 1, len(self.workers)])
-        return {None: [[tile] for tile in np.array_split(indices, n_chunks)]}
+        n_chunks = np.max([n_chunks, 1])
+        tiles = [[tile] for tile in np.array_split(indices, n_chunks) if np.any(tile)]
+        if self.workers is not None and len(self.workers) > len(tiles):
+            self._workers = self.workers[: len(tiles)]
+
+        return {None: tiles}
 
     @property
     def simulation(self):
