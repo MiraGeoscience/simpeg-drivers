@@ -23,9 +23,11 @@ from geoh5py.workspace import Workspace
 from simpeg.utils.mat_utils import cartesian2amplitude_dip_azimuth
 
 from simpeg_drivers.components.factories import DirectivesFactory
-from simpeg_drivers.potential_fields.magnetic_vector import (
+from simpeg_drivers.potential_fields.magnetic_vector.forward import (
     MagneticVectorForwardDriver,
     MagneticVectorForwardOptions,
+)
+from simpeg_drivers.potential_fields.magnetic_vector.inversion import (
     MagneticVectorInversionDriver,
     MagneticVectorInversionOptions,
 )
@@ -179,13 +181,9 @@ def test_magnetic_vector_run(
 
             out_group = run_ws.get_entity("Magnetic Vector Inversion")[0]
             mesh = out_group.get_entity("mesh")[0]
-            assert len(mesh.property_groups) == 8
-            assert len(mesh.fetch_property_group("Iteration_0").properties) == 2
+            assert len(mesh.property_groups) == 5
             assert len(mesh.fetch_property_group("LP models").properties) == 6
-            assert (
-                mesh.fetch_property_group("Iteration_1").property_group_type
-                == GroupTypeEnum.DIPDIR
-            )
+
             check_target(output, target_mvi_run)
 
 

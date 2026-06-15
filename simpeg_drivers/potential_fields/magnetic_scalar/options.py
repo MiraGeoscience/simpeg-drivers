@@ -30,6 +30,7 @@ class MagneticModelOptions(ModelOptions):
     ModelOptions class with defaulted lower bound.
     """
 
+    reference_model: float | FloatData | None = None
     lower_bound: float | FloatData | None = 0
 
 
@@ -56,6 +57,7 @@ class MagneticForwardOptions(BaseForwardOptions):
     run_command: str = "simpeg_drivers.potential_fields.magnetic_scalar.forward"
 
     title: str = "Magnetic Scalar Forward"
+    icon: str = "surveyairbornemagnetics"
     physical_property: str = "susceptibility"
     inversion_type: str = "magnetic scalar"
 
@@ -112,6 +114,7 @@ class MagneticInversionOptions(BaseInversionOptions):
     run_command: str = "simpeg_drivers.potential_fields.magnetic_scalar.inversion"
 
     title: str = "Magnetic Scalar Inversion"
+    icon: str = "surveyairbornemagnetics"
     physical_property: str = "susceptibility"
     inversion_type: str = "magnetic scalar"
 

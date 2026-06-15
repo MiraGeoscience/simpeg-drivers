@@ -16,12 +16,13 @@ import numpy as np
 from dask.distributed import LocalCluster, performance_report
 from geoh5py.groups import PropertyGroup
 from geoh5py.groups.property_group import GroupTypeEnum
-from geoh5py.objects import Curve
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.potential_fields.magnetic_vector_pde import (
+from simpeg_drivers.potential_fields.magnetic_vector_pde.forward import (
     MagneticVectorPDEForwardDriver,
     MagneticVectorPDEForwardOptions,
+)
+from simpeg_drivers.potential_fields.magnetic_vector_pde.inversion import (
     MagneticVectorPDEInversionDriver,
     MagneticVectorPDEInversionOptions,
 )
@@ -143,13 +144,16 @@ def test_mvi_pde_run(
     driver.run()
 
     if pytest:
-        with Workspace(driver.params.geoh5.h5file):
+        with Workspace(driver.params.geoh5.h5file) as ws:
             # Re-open the workspace and get iterations
             output = get_inversion_output(
                 driver.params.geoh5.h5file, driver.params.out_group.uid
             )
             output["data"] = orig_tmi
             check_target(output, target_mvi_pde_run)
+
+            angle_model = ws.get_entity("Iteration_5_declination_model")[0]
+            assert angle_model.entity_type.color_map.name == "twilight.TBL"
 
 
 if __name__ == "__main__":

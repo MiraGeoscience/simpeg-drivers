@@ -40,6 +40,7 @@ class DC3DForwardOptions(BaseForwardOptions):
         "simpeg_drivers.electricals.direct_current.three_dimensions.forward"
     )
     title: str = "Direct Current 3D Forward"
+    icon: str = "PotentialElectrode"
     physical_property: str = "conductivity"
     inversion_type: str = "direct current 3d"
 
@@ -64,6 +65,7 @@ class DC3DInversionOptions(BaseInversionOptions):
         "simpeg_drivers.electricals.direct_current.three_dimensions.inversion"
     )
     title: str = "Direct Current 3D Inversion"
+    icon: str = "PotentialElectrode"
     physical_property: str = "conductivity"
     inversion_type: str = "direct current 3d"
 

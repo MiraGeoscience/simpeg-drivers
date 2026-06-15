@@ -15,8 +15,9 @@ import sys
 from pathlib import Path
 
 from simpeg_drivers.driver import ForwardDriver
-
-from .options import AppConForwardOptions
+from simpeg_drivers.natural_sources.apparent_conductivity.options import (
+    AppConForwardOptions,
+)
 
 
 class AppConForwardDriver(ForwardDriver):

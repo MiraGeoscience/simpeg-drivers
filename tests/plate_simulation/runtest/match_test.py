@@ -19,11 +19,11 @@ from geoh5py import Workspace
 from geoh5py.data import FilenameData
 from geoh5py.groups import PropertyGroup, SimPEGGroup
 from geoh5py.objects import Points
-from geoh5py.ui_json import InputFile
+from geoh5py.ui_json import BaseUIJson
 from scipy import signal
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.electromagnetics.time_domain import (
+from simpeg_drivers.electromagnetics.time_domain.forward import (
     TDEMForwardDriver,
     TDEMForwardOptions,
 )
@@ -146,13 +146,10 @@ def test_matching_driver(tmp_path: Path):
 
         fwr_driver = TDEMForwardDriver(params)
 
-        ifile = InputFile.read_ui_json(
-            assets_path() / "uijson" / "plate_simulation.ui.json", validate=False
-        )
-        ifile.data["geoh5"] = geoh5
-        ifile.data["simulation"] = fwr_driver.out_group
+        ifile = BaseUIJson.read(assets_path() / "uijson" / "plate_simulation.ui.json")
+        ifile.set_values(simulation=fwr_driver.out_group)
 
-        plate_options = PlateSimulationOptions.build(ifile.data)
+        plate_options = PlateSimulationOptions.build(ifile.to_params(workspace=geoh5))
         plate_options.model.overburden_options.thickness = 25.0
         plate_options.model.overburden_options.overburden_property = 10000
         plate_options.model.plate_options.geometry.dip_length = 300.0
@@ -222,13 +219,17 @@ def test_matching_driver(tmp_path: Path):
             topography_object=components.topography,
             simulations=new_dir,
         )
-        match_driver = PlateMatchDriver(options)
-        results = match_driver.run()
+        json_file = options.write_ui_json(tmp_path / "match_options.ui.json")
 
+    PlateMatchDriver.start(json_file)
+
+    with geoh5.open():
+        out_group = geoh5.get_entity("Plate Match")[0]
+        results = out_group.get_entity("Points")[0]
         assert isinstance(results, Points)
 
         names = results.get_data("file")[0]
-        assert names.values[0] == file.stem + f"_[{1}].geoh5"
+        assert names.values == file.stem + f"_[{1}].geoh5"
 
         plate = geoh5.get_entity("Query [0]")[0]
         assert plate.geometry.dip_direction == 45.0

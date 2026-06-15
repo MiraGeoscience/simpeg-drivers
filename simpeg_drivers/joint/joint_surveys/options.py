@@ -14,8 +14,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import ClassVar
 
+from geoapps_utils.run import fetch_driver_class_from_string
 from geoh5py.data import FloatData
-from pydantic import field_validator, model_validator
+from pydantic import model_validator
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.joint.options import BaseJointOptions, JointModelOptions
@@ -45,13 +46,20 @@ class JointSurveysOptions(BaseJointOptions):
     )
     run_command: str = "simpeg_drivers.joint.joint_surveys.driver"
     title: str = "Joint Surveys Inversion"
+    icon: str = "model"
     inversion_type: str = "joint surveys"
 
     models: JointSurveysModelOptions
 
     @model_validator(mode="after")
     def all_groups_same_physical_property(self):
-        physical_properties = [k.options["physical_property"] for k in self.groups]
+        physical_properties = []
+        for group in self.groups:
+            driver_class = fetch_driver_class_from_string(group.options["run_command"])
+            physical_properties.append(
+                driver_class._params_class.model_construct().physical_property  # pylint: disable=protected-access
+            )
+
         if len(list(set(physical_properties))) > 1:
             raise ValueError(
                 "All physical properties must be the same. "

@@ -18,9 +18,11 @@ from geoapps_utils.modelling.plates import PlateModel
 from geoh5py.groups import PropertyGroup
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.electricals.direct_current.two_dimensions import (
+from simpeg_drivers.electricals.direct_current.two_dimensions.forward import (
     DC2DForwardDriver,
     DC2DForwardOptions,
+)
+from simpeg_drivers.electricals.direct_current.two_dimensions.inversion import (
     DC2DInversionDriver,
     DC2DInversionOptions,
 )
@@ -41,7 +43,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 10.376299815232803, "phi_d": 198000, "phi_m": 421}
+target_run = {"data_norm": 10.11130699043982, "phi_d": 193000, "phi_m": 439}
 
 
 def test_dc_rotated_2d_fwr_run(

@@ -18,9 +18,11 @@ from geoapps_utils.utils.locations import gaussian
 from geoh5py.groups.property_group import PropertyGroup
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.potential_fields.gravity import (
+from simpeg_drivers.potential_fields.gravity.forward import (
     GravityForwardDriver,
     GravityForwardOptions,
+)
+from simpeg_drivers.potential_fields.gravity.inversion import (
     GravityInversionDriver,
     GravityInversionOptions,
 )
@@ -151,6 +153,7 @@ def test_rotated_grad_run(
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e-1,
             percentile=95,
+            sens_wts_threshold=1.0,
             save_sensitivities=True,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")

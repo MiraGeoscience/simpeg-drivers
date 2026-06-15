@@ -24,13 +24,18 @@ if TYPE_CHECKING:
 
 import numpy as np
 from geoapps_utils.utils.transformations import x_rotation_matrix, z_rotation_matrix
-from geoh5py.objects.surveys.electromagnetics.base import AirborneEMSurvey
+from geoh5py.objects.surveys.electromagnetics.base import (
+    AirborneEMSurvey,
+    LargeLoopGroundEMSurvey,
+)
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 from simpeg_drivers.utils.regularization import direction_and_dip, get_cell_normals
 
 
 ORIENTATION_MAP = {
+    "coplanar": "z",
+    "coaxial": "y",
     "vertical": "z",
     "inline": "y",
     "crossline": "x",
@@ -164,12 +169,17 @@ class ReceiversFactory(SimPEGFactory):
         else:
             kwargs["storeProjections"] = True
 
-        if self.factory_type in ["fdem", "fdem 1d", "magnetotellurics", "tipper"]:
-            comp = component.split("_")[0]
-            kwargs["orientation"] = (
-                ORIENTATION_MAP[comp] if "fdem" in self.factory_type else comp[1:]
-            )
-            kwargs["component"] = component.split("_")[1]
+        # Channels such as txz_real or zxy_imag
+        if self.factory_type in ["magnetotellurics", "tipper"]:
+            ori, comp = component.split("_")
+            kwargs["orientation"] = ori[1:]
+            kwargs["component"] = comp
+
+        # Channels such as real
+        if self.factory_type in ["fdem", "fdem 1d"]:
+            comp, ori = component.split("_")
+            kwargs["orientation"] = ORIENTATION_MAP[ori]
+            kwargs["component"] = comp
 
         if self.factory_type in ["tipper"]:
             kwargs["orientation"] = kwargs["orientation"][::-1]
@@ -182,13 +192,18 @@ class ReceiversFactory(SimPEGFactory):
 
         # Overload orientation if provided
         if (
-            isinstance(self.params.data_object, AirborneEMSurvey)
+            isinstance(
+                self.params.data_object, AirborneEMSurvey | LargeLoopGroundEMSurvey
+            )
             and local_indices is not None
         ):
-            kwargs["orientation"] = self.orientations[kwargs["orientation"]][
-                local_indices, :
-            ]
+            orientations = self.orientations[kwargs["orientation"]][local_indices, :]
 
+            # TODO: GEOPY-2880: Generalize simpeg to allow 2D array of orientations
+            if orientations.ndim == 2:
+                orientations = np.mean(orientations, axis=0)
+
+            kwargs["orientation"] = orientations
         return kwargs
 
     def _dcip_arguments(self, locations=None, local_indices=None):

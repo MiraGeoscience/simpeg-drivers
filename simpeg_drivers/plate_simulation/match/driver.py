@@ -15,6 +15,10 @@ from io import BytesIO
 from pathlib import Path
 from typing import Self
 
+import matplotlib
+
+
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 from dask.distributed import Client, Future, progress
@@ -29,7 +33,6 @@ from geoh5py import Workspace
 from geoh5py.groups import PropertyGroup, SimPEGGroup
 from geoh5py.objects import AirborneTEMReceivers, MaxwellPlate, Surface
 from geoh5py.objects.maxwell_plate import PlateGeometry
-from geoh5py.ui_json import InputFile
 from scipy import ndimage, signal
 from scipy.sparse import csr_matrix
 from scipy.spatial import cKDTree
@@ -38,6 +41,7 @@ from simpeg_drivers.driver import validate_client, validate_workers
 from simpeg_drivers.electromagnetics.time_domain.options import CONVERSION
 from simpeg_drivers.plate_simulation.match.options import PlateMatchOptions
 from simpeg_drivers.plate_simulation.options import ModelOptions, PlateSimulationOptions
+from simpeg_drivers.uijson import SimPEGDriversUIJson
 from simpeg_drivers.utils.utils import (
     get_default_parallelization_params,
     start_dask_run,
@@ -162,17 +166,17 @@ class PlateMatchDriver(Driver):
         filepath = Path(filepath).resolve()
 
         # TODO: Replace with UIJson when fully implemented
-        # uijson = PlateMatchUIJson.read(filepath)
-        uijson = InputFile.read_ui_json(filepath)
+        uijson = SimPEGDriversUIJson.read(filepath)
 
-        with uijson.geoh5.open(mode=mode):
+        with Workspace(uijson.geoh5, mode=mode) as workspace:
             try:
-                options = PlateMatchOptions.build(uijson)
+                data = uijson.to_params(workspace)
+                options = PlateMatchOptions.build(**data)
                 logger.info("Initializing application . . .")
                 driver = cls(options)
                 logger.info("Running application . . .")
                 driver.run()
-                logger.info("Results saved to %s", options.geoh5.h5file)
+                logger.info("Results saved to %s", uijson.geoh5)
 
             except GeoAppsError as error:
                 logger.warning("\n\nApplicationError: %s\n\n", error)
@@ -194,6 +198,7 @@ class PlateMatchDriver(Driver):
         :return: MaxwellPlate object created from the parameters.
         """
         center = self.params.survey.vertices[index_center]
+
         center[2] = (
             self._drape_heights[index_center]
             - model_options.overburden_options.thickness
@@ -364,6 +369,10 @@ class PlateMatchDriver(Driver):
                 query, strike_angle[ii]
             )
             flip = is_up_dip(observed[:, indices])
+
+            if flip:
+                indices = np.flip(indices, axis=0)
+
             # Loop through files and compute scores and find the best match
             scores, centers = self.run_scores(spatial_projection, observed[:, indices])
             ranked = np.argsort(scores)
@@ -376,14 +385,13 @@ class PlateMatchDriver(Driver):
             with Workspace(self.params.simulation_files[best], mode="r") as ws:
                 survey = fetch_survey(ws)
 
-                ui_json = survey.parent.parent.options
-
-                ui_json["geoh5"] = ws
-                ifile = InputFile(ui_json=ui_json)
+                ui_json_dict = survey.parent.parent.options
+                ui_json_dict["geoh5"] = ws
+                uijson = SimPEGDriversUIJson.from_dict(ui_json_dict)
 
                 # Avoid getting pydantic deprecation warnings from old PlateSimulations stored
                 with suppress_logging():
-                    options = PlateSimulationOptions.build(ifile)
+                    options = PlateSimulationOptions.build(**uijson.to_params(ws))
 
                 dir_correction = strike_angle[ii] + 180 if flip else strike_angle[ii]
                 ind_center = int(centers[best])
@@ -417,6 +425,9 @@ class PlateMatchDriver(Driver):
             }
         )
 
+        if self.params.monitoring_directory:
+            self.update_monitoring_directory(self._out_group)
+
         return out
 
     def run_scores(self, spatial_projection, data) -> tuple[np.ndarray, np.ndarray]:
@@ -433,6 +444,9 @@ class PlateMatchDriver(Driver):
         )
         tasks = []
         for file_batch in file_split:
+            if len(file_batch) == 0:
+                continue
+
             args = (
                 file_batch,
                 spatial_projection,

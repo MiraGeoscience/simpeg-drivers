@@ -11,12 +11,16 @@
 
 from __future__ import annotations
 
+from abc import ABC
 from logging import getLogger
+from typing import Any
 
 import numpy as np
+from geoh5py.data import FloatData
 from geoh5py.objects import DrapeModel, Octree, PotentialElectrode
 from geoh5py.ui_json.ui_json import fetch_active_workspace
-from pydantic import field_validator, model_validator
+from pydantic import AliasChoices, Field, field_validator, model_validator
+from simpeg import optimization
 
 from simpeg_drivers.components.meshes import InversionMesh
 from simpeg_drivers.driver import BaseDriver
@@ -24,6 +28,8 @@ from simpeg_drivers.options import (
     CoreOptions,
     DrapeModelOptions,
     LineSelectionOptions,
+    ModelOptions,
+    ModelTypeEnum,
 )
 from simpeg_drivers.utils.surveys import (
     create_mesh_by_line_id,
@@ -32,6 +38,26 @@ from simpeg_drivers.utils.surveys import (
 
 
 logger = getLogger(__name__)
+
+
+class Conductivity2DModelOptions(ModelOptions):
+    """
+    Options for the conductivity model of 2D inverse problems.
+
+    :param conductivity_model: Conductivity model or background conductivity value.
+    :param model_type: Either a 'conductivity' or 'resistivity' model. The default is 'conductivity'.
+    :param length_scale_y: Overloads length scales in y direction since not used in 2D inversions.
+    :param y_norm: Overloads norm in the y direction since not used in 2D inversions.
+    """
+
+    model_type: ModelTypeEnum = ModelTypeEnum.conductivity
+    conductivity_model: float | FloatData | None = Field(
+        None,
+        validation_alias=AliasChoices("background_conductivity", "conductivity_model"),
+    )
+
+    length_scale_y: None = None
+    y_norm: None = None
 
 
 class Base2DOptions(CoreOptions):
@@ -126,13 +152,18 @@ class Base2DOptions(CoreOptions):
         return self._selected_parts
 
 
-class Base2DDriver(BaseDriver):
+class Base2DDriver(BaseDriver, ABC):
     """
     Base class for 2D DC and IP forward and inversion drivers.
 
     Survey lines are inverted independently and internally stacked as a single
     long survey. The inversion mesh is created as a drape mesh over the survey lines.
     """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self._optimization: optimization.ProjectedGNCG | None = None
 
     @property
     def inversion_mesh(self) -> InversionMesh:
@@ -156,7 +187,37 @@ class Base2DDriver(BaseDriver):
 
         return self._inversion_mesh
 
-    def get_tiles(self) -> dict[str, list[np.ndarray]]:
+    @property
+    def optimization(self) -> optimization.ProjectedGNCG:
+        """
+        Over-loaded optimization object with bounds and active set scaling.
+
+        Edge cells of each survey line are set to be static in the inversion.
+        This is done to mitigate edge effects in the inversion results.
+        """
+        if getattr(self, "_optimization", None) is None:
+            if self.params.forward_only:
+                return optimization.ProjectedGNCG(cg_rtol=1.0)
+
+            edge_cells = self._get_edge_cells()
+            lower_bound = self.models.lower_bound
+            lower_bound[edge_cells] = self.models.starting_model[edge_cells]
+            upper_bound = self.models.upper_bound
+            upper_bound[edge_cells] = self.models.starting_model[edge_cells]
+            self._optimization = optimization.ProjectedGNCG(
+                maxIter=self.params.optimization.max_global_iterations,
+                lower=lower_bound,
+                upper=upper_bound,
+                maxIterLS=self.params.optimization.max_line_search_iterations,
+                cg_maxiter=self.params.optimization.max_cg_iterations,
+                cg_rtol=self.params.optimization.tol_cg,
+                active_set_grad_scale=~edge_cells * 1e-8,
+                LSshorten=0.25,
+                require_decrease=False,
+            )
+        return self._optimization
+
+    def get_tiles(self) -> dict[None, list[list[np.ndarray[tuple[Any, ...]]]]]:
         """
         Generate tiles from survey parts.
         """
@@ -164,4 +225,34 @@ class Base2DDriver(BaseDriver):
             [np.where(self.params.line_parts == part)[0]]
             for part in self.params.selected_parts
         ]
+        if self.workers is not None and len(self.workers) > len(tiles):
+            self._workers = self.workers[: len(tiles)]
+
         return {None: tiles}
+
+    def _get_edge_cells(self) -> np.ndarray:
+        """
+        Create a boolean array of edge cells in the inversion mesh. Edge cells are defined as
+        the first and last column of cell of each survey line, as well as the bottom row of cells.
+        """
+
+        edge_cells = np.zeros(self.inversion_mesh.entity.n_cells, dtype=bool)
+        count = 0
+        for ind in range(len(self.inversion_mesh.entity.prisms)):
+            n_layers = int(self.inversion_mesh.entity.prisms[ind, -1])
+
+            if (
+                ind == 0
+                or ind == len(self.inversion_mesh.entity.prisms) - 1
+                or self.inversion_mesh.entity.prisms[ind + 1, -1] == 1
+                or self.inversion_mesh.entity.prisms[ind - 1, -1] == 1
+            ):
+                edge_cells[count : count + n_layers] = True
+
+            # Make bottom row also static
+            edge_cells[count + n_layers - 1] = True
+            count += n_layers
+
+        return (self.inversion_mesh.permutation @ edge_cells)[
+            self.models.active_cells
+        ].astype(bool)

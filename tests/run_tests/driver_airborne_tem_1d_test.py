@@ -15,9 +15,11 @@ from pathlib import Path
 import numpy as np
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.electromagnetics.time_domain_1d import (
+from simpeg_drivers.electromagnetics.time_domain_1d.forward import (
     TDEM1DForwardDriver,
     TDEM1DForwardOptions,
+)
+from simpeg_drivers.electromagnetics.time_domain_1d.inversion import (
     TDEM1DInversionDriver,
     TDEM1DInversionOptions,
 )
@@ -152,7 +154,18 @@ def test_airborne_tem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    driver = TDEM1DInversionDriver(params)
+        driver = TDEM1DInversionDriver(params)
+
+        if pytest:
+            # Mock workers and check if the list shrinks to number of stations
+            driver._workers = [None] * 100  # pylint: disable=protected-access
+
+            driver.get_tiles()  # Trigger reset
+            assert len(driver.workers) == 1
+
+            # Reset and run
+            driver._workers = []  # pylint: disable=protected-access
+
     driver.run()
 
     with geoh5.open() as run_ws:

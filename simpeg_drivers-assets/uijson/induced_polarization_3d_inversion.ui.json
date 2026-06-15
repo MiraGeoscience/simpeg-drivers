@@ -12,6 +12,7 @@
         "group": "Data",
         "label": "Object",
         "meshType": "{275ecee9-9c24-4378-bf94-65f3c5fbe163}",
+        "tooltip": "Select a Potential Electrode object containing chargeability data.",
         "value": ""
     },
     "chargeability_channel": {
@@ -23,6 +24,7 @@
         "group": "Data",
         "main": true,
         "label": "Chargeability (V/V)",
+        "tooltip": "Select a data channel containing chargeabilities.",
         "parent": "data_object",
         "value": ""
     },
@@ -36,6 +38,7 @@
         "main": true,
         "isValue": true,
         "label": "Uncertainty",
+        "tooltip": "Choose a representative uncertainty level for the chargeability data. Can be a scalar or per datum.",
         "parent": "data_object",
         "property": "",
         "value": 1.0
@@ -73,6 +76,7 @@
         "parent": "mesh",
         "label": "Conductivity (S/m)",
         "property": "",
+        "tooltip": "Provide a background conductivity model in the model units (S/m or Ohm-m).\nGenerally the result of a 3D inversion of the DC resistivity data.",
         "value": 0.001
     },
     "starting_model": {
@@ -121,6 +125,7 @@
         "property": "",
         "optional": true,
         "value": 0.0,
+        "tooltip": "Set an lower bound for the chargeability model, either cell-based on as a constant value",
         "enabled": true
     },
     "upper_bound": {
@@ -136,6 +141,7 @@
         "label": "Upper bound (V/V)",
         "property": "",
         "optional": true,
+        "tooltip": "Set an upper bound for the chargeability model, either cell-based or as a constant value",
         "value": 100.0,
         "enabled": false
     },
@@ -257,6 +263,7 @@
         "optional": true,
         "enabled": false,
         "parent": "mesh",
+        "tooltip": "Rotate the gradient of the regularization to align with a provided structural orientation.\nThe data should be provided as a data group in the form of either strike & dip, dip direction & dip, or x/y/z components.",
         "value": ""
     },
     "s_norm": {
@@ -449,6 +456,7 @@
         "label": "Maximum CG iterations",
         "value": 30,
         "enabled": true,
+        "tooltip": "Maximum number of iterations for the conjugate gradient solver used in the optimization",
         "verbose": 2
     },
     "tol_cg": {
@@ -457,6 +465,7 @@
         "label": "Conjugate gradient tolerance",
         "value": 0.0001,
         "enabled": true,
+        "tooltip": "Tolerance for the conjugate gradient solver used in the optimization",
         "verbose": 3
     },
     "f_min_change": {
@@ -470,7 +479,7 @@
     },
     "sens_wts_threshold": {
         "group": "Update sensitivity weights directive",
-        "tooltip": "Update sensitivity weight threshold",
+        "tooltip": "Threshold below which sensitivity weights become constant.  Measured as a percentage of the maximum sensitivity weight.",
         "label": "Threshold (%)",
         "value": 1.0,
         "max": 100.0,
@@ -515,9 +524,6 @@
     "tile_spatial": {
         "group": "Compute",
         "label": "Number of tiles",
-        "parent": "data_object",
-        "isValue": true,
-        "property": "",
         "value": 1,
         "min": 1,
         "max": 1000,

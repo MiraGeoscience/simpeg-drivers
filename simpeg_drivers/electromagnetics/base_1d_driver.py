@@ -20,6 +20,7 @@ from discretize import TensorMesh
 from discretize.utils import mesh_utils
 from geoapps_utils.utils.locations import topo_drape_elevation
 from geoh5py import Workspace
+from geoh5py.objects import Surface
 from geoh5py.shared.merging.drape_model import DrapeModelMerger
 from geoh5py.ui_json.ui_json import fetch_active_workspace
 from numpy import ndarray
@@ -48,6 +49,9 @@ class Base1DDriver(BaseDriver):
         self.topo_z_drape = topo_drape_elevation(
             self.params.data_object.vertices,
             self.inversion_topography.locations,
+            triangulation=self.params.active_cells.topography_object.cells
+            if isinstance(self.params.active_cells.topography_object, Surface)
+            else None,
         )
 
     @property
@@ -91,18 +95,21 @@ class Base1DDriver(BaseDriver):
         return layers_mesh
 
     def get_tiles(self) -> dict[None, list[list[ndarray[tuple[Any, ...]]]]]:
-        n_data = self.inversion_data.mask.sum()
+        n_data = len(self.inversion_data.locations)
         indices = np.arange(n_data)
 
         # Heuristic to avoid too many chunks
         n_chunks = n_data // self.params.compute.max_chunk_size
 
         if self.workers:
-            n_chunks /= len(self.workers)
-            n_chunks = int(n_chunks) * len(self.workers)
+            n_chunks //= len(self.workers)
 
-        n_chunks = np.max([n_chunks, 1, len(self.workers)])
-        return {None: [[tile] for tile in np.array_split(indices, n_chunks)]}
+        n_chunks = np.max([n_chunks, 1])
+        tiles = [[tile] for tile in np.array_split(indices, n_chunks) if np.any(tile)]
+        if self.workers is not None and len(self.workers) > len(tiles):
+            self._workers = self.workers[: len(tiles)]
+
+        return {None: tiles}
 
     @property
     def simulation(self):

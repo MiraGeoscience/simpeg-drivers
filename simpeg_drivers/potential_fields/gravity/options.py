@@ -21,7 +21,16 @@ from simpeg_drivers.options import (
     BaseForwardOptions,
     BaseInversionOptions,
     DirectiveOptions,
+    ModelOptions,
 )
+
+
+class GravityModelOptions(ModelOptions):
+    """
+    ModelOptions class with defaulted reference model.
+    """
+
+    reference_model: float | FloatData | None = None
 
 
 class GravityForwardOptions(BaseForwardOptions):
@@ -44,6 +53,7 @@ class GravityForwardOptions(BaseForwardOptions):
     run_command: str = "simpeg_drivers.potential_fields.gravity.forward"
 
     title: str = "Gravity Forward"
+    icon: str = "surveyairbornegravity"
     physical_property: str = "density"
     inversion_type: str = "gravity"
 
@@ -88,6 +98,7 @@ class GravityInversionOptions(BaseInversionOptions):
     run_command: str = "simpeg_drivers.potential_fields.gravity.inversion"
 
     title: str = "Gravity Inversion"
+    icon: str = "surveyairbornegravity"
     physical_property: str = "density"
     inversion_type: str = "gravity"
 
@@ -113,3 +124,5 @@ class GravityInversionOptions(BaseInversionOptions):
     gzz_uncertainty: FloatData | float | None = None
 
     directives: DirectiveOptions = DirectiveOptions(sens_wts_threshold=1e-3)
+
+    models: GravityModelOptions

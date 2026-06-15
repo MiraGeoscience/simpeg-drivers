@@ -16,7 +16,7 @@ from geoh5py import Workspace
 from geoh5py.groups import SimPEGGroup
 from geoh5py.objects import AirborneTEMReceivers, MaxwellPlate, Octree
 
-from simpeg_drivers.electromagnetics.time_domain import (
+from simpeg_drivers.electromagnetics.time_domain.forward import (
     TDEMForwardOptions,
 )
 from simpeg_drivers.plate_simulation.models.options import (

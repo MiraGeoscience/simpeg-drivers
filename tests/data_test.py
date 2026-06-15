@@ -25,7 +25,7 @@ from simpeg_drivers.electricals.direct_current.three_dimensions.options import (
     DC3DForwardOptions,
 )
 from simpeg_drivers.options import ActiveCellsOptions
-from simpeg_drivers.potential_fields.magnetic_vector import (
+from simpeg_drivers.potential_fields.magnetic_vector.inversion import (
     MagneticVectorInversionDriver,
     MagneticVectorInversionOptions,
 )
@@ -228,8 +228,8 @@ def test_get_uncertainty_component(tmp_path: Path):
         data = InversionData(geoh5, params)
         unc = params.uncertainties["tmi"]
         assert len(unc) == 1
-        assert np.unique(unc[None])[0] == 1
-        assert len(unc[None]) == data.entity.n_vertices
+        assert np.unique(unc[0])[0] == 1
+        assert len(unc[0]) == data.entity.n_vertices
 
 
 def test_normalize(tmp_path: Path):
@@ -239,7 +239,7 @@ def test_normalize(tmp_path: Path):
         data = InversionData(geoh5, params)
         data.normalizations = data.get_normalizations()
         test_data = data.normalize(data.observed)
-        assert all(test_data["tmi"][None] == params.data["tmi"][None])
+        assert all(test_data["tmi"][0] == params.data["tmi"][0])
         assert len(test_data) == 1
 
 

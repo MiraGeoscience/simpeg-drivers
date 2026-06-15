@@ -40,12 +40,12 @@ from geoh5py.objects.surveys.electromagnetics.airborne_app_con import (
 from geoh5py.objects.surveys.electromagnetics.base import LargeLoopGroundEMSurvey
 from geoh5py.shared import INTEGER_NDV
 from geoh5py.shared.utils import fetch_active_workspace, mask_by_extent, stringify
-from geoh5py.ui_json import InputFile
 from grid_apps.utils import octree_2_treemesh
 from scipy.interpolate import interp1d
 from scipy.spatial import ConvexHull, cKDTree
 
 from simpeg_drivers import DRIVER_MAP
+from simpeg_drivers.uijson import SimPEGDriversUIJson
 
 
 if TYPE_CHECKING:
@@ -506,7 +506,11 @@ def get_containing_cells(
             inds = np.r_[inds, np.hstack(line_ind)]
 
     elif isinstance(mesh, TensorMesh):
-        locations = data.drape_locations(np.unique(data.locations, axis=0))
+        potentials = data.entity.vertices
+        currents = data.entity.current_electrodes.vertices
+        locations = np.unique(np.r_[potentials, currents], axis=0)
+
+        locations = data.drape_locations(np.unique(locations, axis=0))
         xi = np.searchsorted(mesh.nodes_x, locations[:, 0]) - 1
         yi = np.searchsorted(mesh.nodes_y, locations[:, -1]) - 1
         inds = xi + yi * mesh.shape_cells[0]
@@ -609,14 +613,14 @@ def simpeg_group_to_driver(group: SimPEGGroup, workspace: Workspace) -> Driver:
 
     :returns: InversionDriver object.
     """
+    ui_json_dict = deepcopy(group.options)
+    ui_json_dict["geoh5"] = workspace
+    uijson = SimPEGDriversUIJson.from_dict(ui_json_dict)
+    data = uijson.to_params(workspace)
+    data["out_group"] = group
 
-    ui_json = deepcopy(group.options)
-    ui_json["geoh5"] = workspace
-
-    ifile = InputFile(ui_json=ui_json)
-    inversion_driver = driver_class_from_dict(ifile.ui_json)
-    ifile.set_data_value("out_group", group)
-    params = inversion_driver._params_class.build(ifile)  # pylint: disable=protected-access
+    inversion_driver = driver_class_from_dict(ui_json_dict)
+    params = inversion_driver._params_class.build(**data)  # pylint: disable=protected-access
 
     return inversion_driver(params)
 
@@ -770,9 +774,17 @@ def driver_class_from_name(name: str, forward_only: bool = False) -> type[Driver
         raise NotImplementedError(msg)
 
     mod_name, classes = DRIVER_MAP.get(name)
-    class_name = classes.get("inversion")
+
     if forward_only:
-        class_name = classes.get("forward", class_name)
+        mod_name += ".forward"
+        class_name = classes.get("forward")
+    else:
+        class_name = classes.get("inversion")
+
+        if "joint" in mod_name:
+            mod_name += ".driver"
+        else:
+            mod_name += ".inversion"
 
     module = __import__(mod_name, fromlist=[class_name])
     return getattr(module, class_name)

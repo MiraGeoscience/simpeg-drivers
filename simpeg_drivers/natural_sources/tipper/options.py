@@ -42,6 +42,7 @@ class TipperForwardOptions(EMDataMixin, BaseForwardOptions):
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/tipper_forward.ui.json"
     run_command: str = "simpeg_drivers.natural_sources.tipper.forward"
     title: str = "Tipper Forward"
+    icon: str = "surveyztem"
     physical_property: str = "conductivity"
     inversion_type: str = "tipper"
 
@@ -72,6 +73,7 @@ class TipperInversionOptions(EMDataMixin, BaseInversionOptions):
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/tipper_inversion.ui.json"
     run_command: str = "simpeg_drivers.natural_sources.tipper.inversion"
     title: str = "Tipper Inversion"
+    icon: str = "surveyztem"
     physical_property: str = "conductivity"
     inversion_type: str = "tipper"
 

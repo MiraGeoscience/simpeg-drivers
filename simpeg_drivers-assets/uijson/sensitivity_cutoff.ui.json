@@ -11,7 +11,8 @@
     "mesh": {
         "main": true,
         "meshType": [
-            "4ea87376-3ece-438b-bf12-3479733ded46"
+            "{4ea87376-3ece-438b-bf12-3479733ded46}",
+            "{c94968ea-cf7d-11eb-b8bc-0242ac130003}"
         ],
         "label": "Mesh",
         "value": ""
@@ -48,5 +49,14 @@
         "main": true,
         "label": "Output name",
         "value": "Sensitivity cutoff"
+    },
+    "out_group": {
+        "label": "UIJson group",
+        "main": false,
+        "value": "",
+        "groupType": "{BB50AC61-A657-4926-9C82-067658E246A0}",
+        "visible": true,
+        "optional": true,
+        "enabled": false
     }
 }

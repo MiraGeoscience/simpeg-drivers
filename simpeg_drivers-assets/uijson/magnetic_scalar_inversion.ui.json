@@ -387,7 +387,7 @@
         "group": "Mesh and models",
         "isValue": true,
         "optional": true,
-        "enabled": false,
+        "enabled": true,
         "parent": "mesh",
         "label": "Reference susceptibility (SI)",
         "property": "",
@@ -543,6 +543,7 @@
         "optional": true,
         "enabled": false,
         "parent": "mesh",
+        "tooltip": "Rotate the gradient of the regularization to align with a provided structural orientation.\nThe data should be provided as a data group in the form of either strike & dip, dip direction & dip, or x/y/z components.",
         "value": ""
     },
     "s_norm": {
@@ -734,6 +735,7 @@
         "label": "Maximum CG iterations",
         "value": 30,
         "enabled": true,
+        "tooltip": "Maximum number of iterations for the conjugate gradient solver used in the optimization",
         "verbose": 2
     },
     "tol_cg": {
@@ -742,6 +744,7 @@
         "label": "Conjugate gradient tolerance",
         "value": 0.0001,
         "enabled": true,
+        "tooltip": "Tolerance for the conjugate gradient solver used in the optimization",
         "verbose": 3
     },
     "f_min_change": {
@@ -755,7 +758,7 @@
     },
     "sens_wts_threshold": {
         "group": "Update sensitivity weights directive",
-        "tooltip": "Update sensitivity weight threshold",
+        "tooltip": "Threshold below which sensitivity weights become constant.  Measured as a percentage of the maximum sensitivity weight.",
         "label": "Threshold (%)",
         "value": 0.001,
         "max": 100.0,
@@ -791,9 +794,6 @@
     "tile_spatial": {
         "group": "Compute",
         "label": "Number of tiles",
-        "parent": "data_object",
-        "isValue": true,
-        "property": "",
         "value": 1,
         "min": 1,
         "max": 1000,

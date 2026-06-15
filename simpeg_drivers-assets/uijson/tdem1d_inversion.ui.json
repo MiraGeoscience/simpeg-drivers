@@ -34,9 +34,9 @@
             "<dt>Wire</dt><dd>Current * number of turns (NI).</dd>",
             "</dl>"
         ],
-        "value": "dB/dt (T/s)"
+        "value": "Airborne dB/dt (V/Am^4)"
     },
-    "z_channel": {
+    "vertical_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -52,7 +52,7 @@
         "enabled": true,
         "value": ""
     },
-    "z_uncertainty": {
+    "vertical_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -63,7 +63,7 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "z_channel",
+        "dependency": "vertical_channel",
         "dependencyType": "enabled",
         "value": ""
     },
@@ -217,24 +217,6 @@
         "dependencyType": "enabled",
         "value": "",
         "verbose": 2
-    },
-    "active_model": {
-        "association": "Cell",
-        "dataType": [
-            "Referenced",
-            "Boolean",
-            "Integer"
-        ],
-        "group": "Topography",
-        "main": true,
-        "enabled": false,
-        "visible": false,
-        "dependency": "topography_object",
-        "dependencyType": "disabled",
-        "label": "Active model",
-        "tooltip": "Provide the active cell Boolean model directly if topography not set",
-        "parent": "mesh",
-        "value": ""
     },
     "alpha_s": {
         "min": 0.0,
@@ -454,6 +436,7 @@
         "label": "Maximum CG iterations",
         "value": 30,
         "enabled": true,
+        "tooltip": "Maximum number of iterations for the conjugate gradient solver used in the optimization",
         "verbose": 2
     },
     "tol_cg": {
@@ -462,6 +445,7 @@
         "label": "Conjugate gradient tolerance",
         "value": 0.0001,
         "enabled": true,
+        "tooltip": "Tolerance for the conjugate gradient solver used in the optimization",
         "verbose": 3
     },
     "f_min_change": {
@@ -475,7 +459,7 @@
     },
     "sens_wts_threshold": {
         "group": "Update sensitivity weights directive",
-        "tooltip": "Update sensitivity weight threshold",
+        "tooltip": "Threshold below which sensitivity weights become constant.  Measured as a percentage of the maximum sensitivity weight.",
         "label": "Threshold (%)",
         "value": 100.0,
         "max": 100.0,
@@ -520,9 +504,6 @@
     "tile_spatial": {
         "group": "Compute",
         "label": "Number of tiles",
-        "parent": "data_object",
-        "isValue": true,
-        "property": "",
         "value": 1,
         "min": 1,
         "max": 1000,

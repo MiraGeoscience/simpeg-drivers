@@ -15,9 +15,11 @@ from pathlib import Path
 import numpy as np
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.electricals.direct_current.three_dimensions import (
+from simpeg_drivers.electricals.direct_current.three_dimensions.forward import (
     DC3DForwardDriver,
     DC3DForwardOptions,
+)
+from simpeg_drivers.electricals.direct_current.three_dimensions.inversion import (
     DC3DInversionDriver,
     DC3DInversionOptions,
 )
@@ -36,7 +38,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.15320935486917722, "phi_d": 25.7, "phi_m": 3580}
+target_run = {"data_norm": 0.14571066077648995, "phi_d": 14.4, "phi_m": 3940}
 
 
 def test_dc_3d_fwr_run(

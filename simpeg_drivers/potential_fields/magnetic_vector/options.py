@@ -32,6 +32,7 @@ class VectorModelOptions(ModelOptions):
     """
 
     lower_bound: Deprecated
+    reference_model: float | FloatData | None = None
     starting_inclination: float | FloatData | None = None
     starting_declination: float | FloatData | None = None
     reference_inclination: float | FloatData | None = None
@@ -60,6 +61,7 @@ class MagneticVectorForwardOptions(BaseForwardOptions):
     )
     run_command: str = "simpeg_drivers.potential_fields.magnetic_vector.forward"
     title: str = "Magnetic Vector Forward"
+    icon: str = "surveyairbornemagnetics"
     physical_property: str = "susceptibility"
     inversion_type: str = "magnetic vector"
 
@@ -114,6 +116,7 @@ class MagneticVectorInversionOptions(BaseInversionOptions):
     )
     run_command: str = "simpeg_drivers.potential_fields.magnetic_vector.inversion"
     title: str = "Magnetic Vector Inversion"
+    icon: str = "surveyairbornemagnetics"
     physical_property: str = "susceptibility"
     inversion_type: str = "magnetic vector"
 

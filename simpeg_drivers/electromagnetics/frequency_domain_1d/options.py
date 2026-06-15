@@ -33,8 +33,8 @@ class FDEM1DForwardOptions(BaseForwardOptions, BaseFDEMOptions, Base1DOptions):
     """
     Frequency Domain Electromagnetic forward options.
 
-    :param vertical_real_channel_bool: Z-component data channel boolean.
-    :param vertical_imag_channel_bool: Imaginary Z-component data channel boolean.
+    :param real_channel_bool: Real component data channel boolean.
+    :param imag_channel_bool: Imaginary component data channel boolean.
     :param drape_model: Drape model options.
     """
 
@@ -42,20 +42,17 @@ class FDEM1DForwardOptions(BaseForwardOptions, BaseFDEMOptions, Base1DOptions):
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/fdem1d_forward.ui.json"
     run_command: str = "simpeg_drivers.electromagnetics.frequency_domain_1d.forward"
     title: str = "Frequency-domain EM-1D (FEM-1D) Forward"
+    icon: str = "surveyairborneem"
     physical_property: str = "conductivity"
     inversion_type: str = "fdem 1d"
     data_object: AirborneFEMReceivers
-    vertical_real_channel_bool: bool = Field(
+    real_channel_bool: bool = Field(
         False,
-        validation_alias=AliasChoices(
-            "z_real_channel_bool", "vertical_real_channel_bool"
-        ),
+        validation_alias=AliasChoices("z_real_channel_bool", "real_channel_bool"),
     )
-    vertical_imag_channel_bool: bool = Field(
+    imag_channel_bool: bool = Field(
         False,
-        validation_alias=AliasChoices(
-            "z_imag_channel_bool", "vertical_imag_channel_bool"
-        ),
+        validation_alias=AliasChoices("z_imag_channel_bool", "imag_channel_bool"),
     )
     models: ConductivityModelOptions
 
@@ -64,10 +61,10 @@ class FDEM1DInversionOptions(BaseFDEMOptions, BaseInversionOptions, Base1DOption
     """
     Frequency Domain Electromagnetic Inversion options.
 
-    :param vertical_real_channel: Real Z-component data channel.
-    :param vertical_real_uncertainty: Real Z-component data channel uncertainty.
-    :param vertical_imag_channel: Imaginary Z-component data channel.
-    :param vertical_imag_uncertainty: Imaginary Z-component data channel uncertainty.
+    :param real_channel: Real component data channel.
+    :param real_uncertainty: Real component data channel uncertainty.
+    :param imag_channel: Imaginary component data channel.
+    :param imag_uncertainty: Imaginary component data channel uncertainty.
     :param drape_model: Drape model options.
     """
 
@@ -75,6 +72,7 @@ class FDEM1DInversionOptions(BaseFDEMOptions, BaseInversionOptions, Base1DOption
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/fdem1d_inversion.ui.json"
     run_command: str = "simpeg_drivers.electromagnetics.frequency_domain_1d.inversion"
     title: str = "Frequency-domain EM-1D (FEM-1D) Inversion"
+    icon: str = "surveyairborneem"
     physical_property: str = "conductivity"
     inversion_type: str = "fdem 1d"
 
@@ -82,22 +80,18 @@ class FDEM1DInversionOptions(BaseFDEMOptions, BaseInversionOptions, Base1DOption
     directives: DirectiveOptions = DirectiveOptions(
         sens_wts_threshold=100.0,
     )
-    vertical_real_channel: PropertyGroup | None = Field(
-        None, validation_alias=AliasChoices("z_real_channel", "vertical_real_channel")
+    real_channel: PropertyGroup | None = Field(
+        None, validation_alias=AliasChoices("z_real_channel", "real_channel")
     )
-    vertical_real_uncertainty: PropertyGroup | None = Field(
+    real_uncertainty: PropertyGroup | None = Field(
         None,
-        validation_alias=AliasChoices(
-            "z_real_uncertainty", "vertical_real_uncertainty"
-        ),
+        validation_alias=AliasChoices("z_real_uncertainty", "real_uncertainty"),
     )
-    vertical_imag_channel: PropertyGroup | None = Field(
-        None, validation_alias=AliasChoices("z_imag_channel", "vertical_imag_channel")
+    imag_channel: PropertyGroup | None = Field(
+        None, validation_alias=AliasChoices("z_imag_channel", "imag_channel")
     )
-    vertical_imag_uncertainty: PropertyGroup | None = Field(
+    imag_uncertainty: PropertyGroup | None = Field(
         None,
-        validation_alias=AliasChoices(
-            "z_imag_uncertainty", "vertical_imag_uncertainty"
-        ),
+        validation_alias=AliasChoices("z_imag_uncertainty", "imag_uncertainty"),
     )
     models: ConductivityModelOptions

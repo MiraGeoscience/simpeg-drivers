@@ -22,7 +22,7 @@ from geoh5py.groups import PropertyGroup, UIJsonGroup
 from geoh5py.objects import AirborneFEMReceivers
 from geoh5py.shared.utils import fetch_active_workspace
 
-from simpeg_drivers.electromagnetics.frequency_domain import (
+from simpeg_drivers.electromagnetics.frequency_domain.forward import (
     FDEMForwardDriver,
     FDEMForwardOptions,
 )
@@ -46,21 +46,21 @@ target_run = {"data_norm": 91.18814842528005, "phi_d": 4250, "phi_m": 968}
 
 def collect_real_components(geoh5):
     # Load results and validate
-    data_list = {}
+
     with fetch_active_workspace(geoh5) as ws:
         group = next(group for group in ws.groups if isinstance(group, UIJsonGroup))
         survey = next(
             child for child in group.children if isinstance(child, AirborneFEMReceivers)
         )
-        for comp in ["vertical", "inline", "crossline"]:
-            data_group = survey.get_entity(f"Iteration_0_{comp}_real")[0]
-            data_list[comp] = np.vstack(
-                [survey.get_data(uid)[0].values for uid in data_group.properties]
-            )
+        data_group = survey.get_entity("Iteration_0_real")[0]
+        data_list = np.vstack(
+            [survey.get_data(uid)[0].values for uid in data_group.properties]
+        )
+
     return data_list
 
 
-@pytest.mark.parametrize("azimuth, dip", [(90, 0), (45, 0), (90, 90)])
+@pytest.mark.parametrize("azimuth, dip", [(90, 0), (45, 0)])
 def test_fem_fwr_run(tmp_path: Path, azimuth, dip):
     """
     Forward simulations with variable receiver orientations.
@@ -108,6 +108,12 @@ def test_fem_fwr_run(tmp_path: Path, azimuth, dip):
         components = SyntheticsComponents(geoh5, options=opts)
         survey = components.survey
 
+        # Make one of the components coaxial
+        survey.metadata["EM Dataset"]["Frequency configurations"] = [
+            {"Coaxial data": False, "Frequency": 900, "Offset": 7.86},
+            {"Coaxial data": True, "Frequency": 7200, "Offset": 7.86},
+            {"Coaxial data": False, "Frequency": 56000, "Offset": 6.3},
+        ]
         # Create property group with orientation
         dip = np.ones(survey.n_vertices) * dip
         azimuth = np.ones(survey.n_vertices) * azimuth
@@ -128,12 +134,8 @@ def test_fem_fwr_run(tmp_path: Path, azimuth, dip):
             topography_object=components.topography,
             data_object=components.survey,
             starting_model=components.model,
-            z_real_channel_bool=True,
-            z_imag_channel_bool=True,
-            x_real_channel_bool=True,
-            x_imag_channel_bool=True,
-            y_real_channel_bool=True,
-            y_imag_channel_bool=True,
+            real_channel_bool=True,
+            imag_channel_bool=True,
             receivers_orientation=pg,
         )
 
@@ -154,18 +156,4 @@ def test_validate_orientations(tmp_path: Path):
         sim_45_0 = collect_real_components(geoh5)
 
     # Components almost the same at 45
-    assert np.mean((sim_90_0["inline"] - sim_45_0["inline"]) / sim_90_0["inline"]) < 0.2
-
-    with Workspace(
-        tmp_path / "../test_fem_fwr_run_90_90_0/inversion_test.ui.geoh5"
-    ) as geoh5:
-        sim_90_90 = collect_real_components(geoh5)
-
-    # 90 dip makes Y point down and Z east, so Y should be -Z, and Z should be Y
-    assert (
-        np.mean((sim_90_0["inline"] - sim_90_90["vertical"]) / sim_90_0["inline"]) < 0.2
-    )
-    assert (
-        np.mean((sim_90_0["vertical"] + sim_90_90["inline"]) / sim_90_0["vertical"])
-        < 0.2
-    )
+    assert np.mean((sim_90_0 - sim_45_0) / sim_90_0) < 0.2

@@ -39,6 +39,7 @@ class PlateMatchOptions(Options):
     name: ClassVar[str] = "plate_match"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/plate_match.ui.json"
     title: str = "Plate Match"
+    icon: str = "maxwellplate"
     run_command: str = "simpeg_drivers.plate_simulation.match.driver"
     out_group: SimPEGGroup | None = None
 
