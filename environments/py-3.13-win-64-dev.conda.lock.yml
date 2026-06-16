@@ -10,7 +10,7 @@ dependencies:
   - _python_abi3_support=1.0=hd8ed1ab_2
   - alabaster=0.7.16=pyhd8ed1ab_0
   - annotated-types=0.7.0=pyhd8ed1ab_1
-  - anyio=4.13.0=pyhcf101f3_0
+  - anyio=4.14.0=pyhcf101f3_0
   - argon2-cffi=25.1.0=pyhd8ed1ab_0
   - argon2-cffi-bindings=25.1.0=py313h5ea7bf4_2
   - arrow=1.4.0=pyhcf101f3_0
@@ -69,7 +69,7 @@ dependencies:
   - fonttools=4.63.0=py313hd650c13_0
   - fqdn=1.5.1=pyhd8ed1ab_1
   - freetype=2.14.3=h57928b3_1
-  - fsspec=2026.4.0=pyhd8ed1ab_0
+  - fsspec=2026.6.0=pyhd8ed1ab_0
   - geoana=0.8.1=np2py313hedd11bf_0
   - h11=0.16.0=pyhcf101f3_1
   - h2=4.3.0=pyhcf101f3_0

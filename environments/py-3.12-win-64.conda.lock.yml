@@ -41,7 +41,7 @@ dependencies:
   - fasteners=0.19=pyhd8ed1ab_1
   - fonttools=4.63.0=py312h05f76fc_0
   - freetype=2.14.3=h57928b3_1
-  - fsspec=2026.4.0=pyhd8ed1ab_0
+  - fsspec=2026.6.0=pyhd8ed1ab_0
   - geoana=0.8.1=np2py312h7c90ba1_0
   - h2=4.3.0=pyhcf101f3_0
   - h5py=3.16.0=nompi_py312h5ddec8c_102
