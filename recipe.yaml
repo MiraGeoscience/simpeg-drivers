@@ -52,7 +52,7 @@ requirements:
     - scikit-learn 1.8.*
     - scipy 1.17.*
     - tqdm >=4.66.1, 4.*
-    - trimesh >=4.1.3, 4.1.*
+    - trimesh >=4.1.3, 4.*
     # constrain version for some indirect dependencies from SimPEG
     - geoana 0.8.*
     - pymatsolver 0.3.*
