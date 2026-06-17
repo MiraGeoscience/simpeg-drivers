@@ -89,20 +89,20 @@ rtree = "~1.4.0"
 scikit-learn = "~1.8.0"
 scipy = "~1.17.0"
 tqdm = "^4.66.1"
-trimesh = "~4.1.3"
+trimesh = "^4.1.3"
 
 ## Pip dependencies from Git repositories
 #----------------------------------------
-geoh5py = {version = ">=0.13.0b1, 0.13.*", source = "pypi", allow-prereleases = true}
-# geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "release/GA_4.8"}
+# geoh5py = {version = ">=0.14.0a, 0.14.*", source = "pypi", allow-prereleases = true}
+geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "develop"}
 
-grid-apps = {version = ">=0.2.0b1, 0.2.*", source = "pypi", allow-prereleases = true}
-# grid-apps = {git = "https://github.com/MiraGeoscience/grid-apps.git", rev = "release/GA_4.8"}
+# grid-apps = {version = ">=0.3.0a, 0.3.*", source = "pypi", allow-prereleases = true}
+grid-apps = {git = "https://github.com/MiraGeoscience/grid-apps.git", rev = "develop"}
 
-geoapps-utils = {version = ">=0.7.0b1, 0.7.*", source = "pypi", allow-prereleases = true}
-# geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "release/GA_4.8"}
+# geoapps-utils = {version = ">=0.8.0a, 0.8.*", source = "pypi", allow-prereleases = true}
+geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "develop"}
 
-#mira-simpeg = {version = ">=0.25.0.1b1, 0.25.0.*", source="pypi", allow-prereleases = true, extras = ["dask"]}
+# mira-simpeg = {version = ">=0.25.0.2a, 0.25.0.*", source="pypi", allow-prereleases = true, extras = ["dask"]}
 mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", rev = "develop", extras = ["dask"]}
 
 ## about pip dependencies
