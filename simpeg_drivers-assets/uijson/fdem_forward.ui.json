@@ -1,5 +1,5 @@
 {
-    "version": "0.4.0",
+    "version": "0.5.0",
     "title": "Frequency-domain EM (FEM) Forward",
     "icon": "surveyairborneem",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
@@ -44,9 +44,8 @@
         "label": "Imaginary",
         "tooltip": [
             "Imaginary component of the magnetic data. If no receiver orientation provided:<dl>",
-            "<dt>Co-planar data are positive up along the z-axis .</dd>",
-            "<dt>Co-axial data are positive along North.</dd>",
-            "</dl>"
+            "<dt>Co-planar data are positive up along the z-axis.</dt>",
+            "<dt>Co-axial data are positive along North.</dt></dl>"
         ],
         "value": true
     },
@@ -56,9 +55,8 @@
         "label": "Real",
         "tooltip": [
             "Real component of the magnetic data. If no receiver orientation provided:<dl>",
-            "<dt>Co-planar data are positive up along the z-axis .</dd>",
-            "<dt>Co-axial data are positive along North.</dd>",
-            "</dl>"
+            "<dt>Co-planar data are positive up along the z-axis.</dt>",
+            "<dt>Co-axial data are positive along North.</dt></dl>"
         ],
         "value": true
     },
@@ -70,7 +68,7 @@
         "value": "",
         "optional": true,
         "enabled": false,
-        "tooltip": "Select a mesh for the inversion"
+        "tooltip": "Select a mesh for the forward modelling"
     },
     "model_type": {
         "choiceList": [
@@ -111,7 +109,7 @@
         "value": "",
         "optional": true,
         "enabled": true,
-        "tooltip": "Select a topography object to define the active cells for inversion"
+        "tooltip": "Select a topography object to define the active cells for forward modelling"
     },
     "topography": {
         "association": [

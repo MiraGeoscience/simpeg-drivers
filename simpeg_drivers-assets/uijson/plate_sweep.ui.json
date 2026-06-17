@@ -1,5 +1,5 @@
 {
-    "version": "0.2.0-alpha.1",
+    "version": "0.5.0",
     "title": "Plate Sweep",
     "icon": "maxwellplate",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/plate-simulation/",
@@ -200,7 +200,7 @@
     },
     "dip_direction_start": {
         "main": true,
-        "group": "Dip Dir",
+        "group": "Dip dir.",
         "groupOptional": true,
         "enabled": false,
         "label": "starting",
@@ -208,18 +208,18 @@
     },
     "dip_direction_stop": {
         "main": true,
-        "group": "Dip Dir",
+        "group": "Dip dir.",
         "label": "ending",
         "value": 60.0
     },
     "dip_direction_count": {
         "main": true,
-        "group": "Dip Dir",
+        "group": "Dip dir.",
         "label": "number of samples",
         "value": 1
     },
     "out_group": {
-        "label": "SimPEGGroup",
+        "label": "SimPEG group",
         "value": "",
         "groupType": "{55ed3daf-c192-4d4b-a439-60fa987fe2b8}",
         "visible": true,

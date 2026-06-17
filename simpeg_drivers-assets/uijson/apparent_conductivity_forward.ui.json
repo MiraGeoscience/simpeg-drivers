@@ -1,5 +1,5 @@
 {
-    "version": "0.4.0",
+    "version": "0.5.0",
     "title": "Apparent Conductivity Forward",
     "icon": "surveyztem",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
@@ -22,7 +22,7 @@
         "value": "",
         "optional": true,
         "enabled": false,
-        "tooltip": "Select a mesh for the inversion"
+        "tooltip": "Select a mesh for the forward modelling"
     },
     "model_type": {
         "choiceList": [
@@ -70,7 +70,7 @@
         "value": "",
         "optional": true,
         "enabled": true,
-        "tooltip": "Select a topography object to define the active cells for inversion"
+        "tooltip": "Select a topography object to define the active cells for forward modelling"
     },
     "topography": {
         "association": [

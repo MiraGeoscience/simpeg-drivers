@@ -1,5 +1,5 @@
 {
-    "version": "0.4.0",
+    "version": "0.5.0",
     "title": "Frequency-domain EM (FEM) Inversion",
     "icon": "surveyairborneem",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
@@ -50,9 +50,8 @@
         "label": "Imaginary",
         "tooltip": [
             "Imaginary component of the magnetic data. If no receiver orientation provided:<dl>",
-            "<dt>Co-planar data are positive up along the z-axis .</dd>",
-            "<dt>Co-axial data are positive along North.</dd>",
-            "</dl>"
+            "<dt>Co-planar data are positive up along the z-axis.</dt>",
+            "<dt>Co-axial data are positive along North.</dt></dl>"
         ],
         "parent": "data_object",
         "optional": true,
@@ -87,9 +86,8 @@
         "label": "Real",
         "tooltip": [
             "Real component of the magnetic data. If no receiver orientation provided:<dl>",
-            "<dt>Co-planar data are positive up along the z-axis .</dd>",
-            "<dt>Co-axial data are positive along North.</dd>",
-            "</dl>"
+            "<dt>Co-planar data are positive up along the z-axis.</dt>",
+            "<dt>Co-axial data are positive along North.</dt></dl>"
         ],
         "parent": "data_object",
         "optional": true,
@@ -537,7 +535,7 @@
     },
     "sens_wts_threshold": {
         "group": "Update sensitivity weights directive",
-        "tooltip": "Threshold below which sensitivity weights become constant.  Measured as a percentage of the maximum sensitivity weight.",
+        "tooltip": "Threshold below which sensitivity weights become constant. Measured as a percentage of the maximum sensitivity weight.",
         "label": "Threshold (%)",
         "value": 1.0,
         "max": 100.0,

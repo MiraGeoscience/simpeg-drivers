@@ -1,5 +1,5 @@
 {
-    "version": "0.4.0",
+    "version": "0.5.0",
     "title": "Direct Current (DC) 3D Inversion",
     "icon": "PotentialElectrode",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
@@ -38,7 +38,7 @@
         "main": true,
         "isValue": true,
         "label": "Uncertainty",
-        "tooltip": "Choose a representative uncertainty level for the potential data. Can be a scalar or per datum.  For DC data a data percent + small floor approach is often used.",
+        "tooltip": "Choose a representative uncertainty level for the potential data. Can be a scalar or per datum. For DC data a data percent + small floor approach is often used.",
         "parent": "data_object",
         "property": "",
         "value": 1.0
@@ -108,7 +108,7 @@
         "property": "",
         "optional": true,
         "value": 1e-08,
-        "tooltip": "Set an lower bound for the conductivity model, either cell-based on as a constant value",
+        "tooltip": "Set a lower bound for the conductivity model, either cell-based or as a constant value",
         "enabled": false
     },
     "upper_bound": {
@@ -462,7 +462,7 @@
     },
     "sens_wts_threshold": {
         "group": "Update sensitivity weights directive",
-        "tooltip": "Threshold below which sensitivity weights become constant.  Measured as a percentage of the maximum sensitivity weight.",
+        "tooltip": "Threshold below which sensitivity weights become constant. Measured as a percentage of the maximum sensitivity weight.",
         "label": "Threshold (%)",
         "value": 1.0,
         "max": 100.0,

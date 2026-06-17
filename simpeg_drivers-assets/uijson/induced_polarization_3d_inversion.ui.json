@@ -1,5 +1,5 @@
 {
-    "version": "0.4.0",
+    "version": "0.5.0",
     "title": "Induced Polarization (IP) 3D Inversion",
     "icon": "PotentialElectrode",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
@@ -125,7 +125,7 @@
         "property": "",
         "optional": true,
         "value": 0.0,
-        "tooltip": "Set an lower bound for the chargeability model, either cell-based on as a constant value",
+        "tooltip": "Set a lower bound for the chargeability model, either cell-based or as a constant value",
         "enabled": true
     },
     "upper_bound": {
@@ -479,7 +479,7 @@
     },
     "sens_wts_threshold": {
         "group": "Update sensitivity weights directive",
-        "tooltip": "Threshold below which sensitivity weights become constant.  Measured as a percentage of the maximum sensitivity weight.",
+        "tooltip": "Threshold below which sensitivity weights become constant. Measured as a percentage of the maximum sensitivity weight.",
         "label": "Threshold (%)",
         "value": 1.0,
         "max": 100.0,

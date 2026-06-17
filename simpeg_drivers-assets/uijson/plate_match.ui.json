@@ -1,5 +1,5 @@
 {
-    "version": "0.2.0-alpha.1",
+    "version": "0.5.0",
     "title": "Plate Match",
     "icon": "maxwellplate",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/plate-simulation/",
@@ -96,11 +96,11 @@
         "main": true,
         "label": "Simulations directory",
         "directoryOnly": true,
-        "tootip": "Directory where pre-computed simulations are stored.",
+        "tooltip": "Directory where pre-computed simulations are stored.",
         "value": "./simulations"
     },
     "out_group": {
-        "label": "UIJsonGroup",
+        "label": "SimPEG group",
         "value": "",
         "groupType": "{55ed3daf-c192-4d4b-a439-60fa987fe2b8}",
         "visible": true,
