@@ -24,7 +24,7 @@ dependencies:
   - aws-c-common=0.14.0=hfd05255_0
   - aws-c-compression=0.3.2=h1f21522_2
   - aws-c-http=0.11.0=h4721ae0_2
-  - aws-c-io=0.26.3=h1a62f66_4
+  - aws-c-io=0.26.3=h1a62f66_5
   - aws-c-s3=0.12.5=h425879c_1
   - aws-c-sdkutils=0.2.4=h1f21522_6
   - aws-checksums=0.2.10=h1f21522_2
@@ -38,10 +38,10 @@ dependencies:
   - brotli-bin=1.2.0=hfd05255_1
   - brotli-python=1.2.0=py312hc6d9e41_1
   - bzip2=1.0.8=h0ad9c76_9
-  - ca-certificates=2026.5.20=h4c7d964_0
+  - ca-certificates=2026.6.17=h4c7d964_0
   - cached-property=1.5.2=hd8ed1ab_1
   - cached_property=1.5.2=pyha770c72_1
-  - certifi=2026.5.20=pyhd8ed1ab_0
+  - certifi=2026.6.17=pyhd8ed1ab_0
   - cffi=2.0.0=py312he06e257_1
   - charset-normalizer=3.4.7=pyhd8ed1ab_0
   - click=8.4.1=pyh6dadd2b_0
@@ -104,9 +104,9 @@ dependencies:
   - jupyter_client=8.9.1=pyhcf101f3_0
   - jupyter_core=5.9.1=pyh6dadd2b_0
   - jupyter_events=0.12.1=pyhcf101f3_0
-  - jupyter_server=2.19.0=pyhcf101f3_0
+  - jupyter_server=2.20.0=pyhcf101f3_0
   - jupyter_server_terminals=0.5.4=pyhcf101f3_0
-  - jupyterlab=4.5.8=pyhd8ed1ab_0
+  - jupyterlab=4.5.9=pyhd8ed1ab_0
   - jupyterlab_pygments=0.3.0=pyhd8ed1ab_2
   - jupyterlab_server=2.28.0=pyhcf101f3_0
   - jupyterlab_widgets=1.1.11=pyhd8ed1ab_0
@@ -202,7 +202,7 @@ dependencies:
   - pymatsolver=0.3.1=pyh48887ae_201
   - pyparsing=3.3.2=pyhcf101f3_0
   - pysocks=1.7.1=pyh09c184e_7
-  - pytest=9.0.3=pyhc364b38_1
+  - pytest=9.1.0=pyhc364b38_1
   - pytest-cov=7.1.0=pyhcf101f3_0
   - python=3.12.13=h0159041_0_cpython
   - python-dateutil=2.9.0.post0=pyhe01879c_2
@@ -289,10 +289,10 @@ dependencies:
   - zlib-ng=2.3.3=h0261ad2_1
   - zstd=1.5.7=h534d264_6
   - pip:
-    - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@6222ed5be1a26e8db288d91b4fbccc891e3ca5d2
+    - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@324ac4f0916d631d4dddd979b79b75a9dcfeefc6
     - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@5a415837b3ef78040ce32fe3cf08181a1cc51c8c
-    - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@58f0e369847e5562af77a785d0081018550bb0c6
-    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@c243521d9448737ccb3fa1447843b25949840698
+    - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@d19e0bacd76b9449aa8f8a150cfe66b889b12fbd
+    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@ce576844e888eba54c92a929be65f61aab6de695
 
 variables:
   KMP_WARNINGS: 0
