@@ -103,7 +103,7 @@ geoapps-utils = {version = ">=0.7.0b1, 0.7.*", source = "pypi", allow-prerelease
 # geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "release/GA_4.8"}
 
 #mira-simpeg = {version = ">=0.25.0.1b1, 0.25.0.*", source="pypi", allow-prereleases = true, extras = ["dask"]}
-mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", rev = "release/GA_4.8", extras = ["dask"]}
+mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", rev = "develop", extras = ["dask"]}
 
 ## about pip dependencies
 # to be specified to work with conda-lock
