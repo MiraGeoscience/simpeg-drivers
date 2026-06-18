@@ -41,21 +41,21 @@
         "group": "Background",
         "groupOptional": true,
         "enabled": false,
-        "label": "starting",
+        "label": "Starting",
         "value": 0.0
     },
     "background_stop": {
         "main": true,
         "group": "Background",
         "groupOptional": true,
-        "label": "ending",
+        "label": "Ending",
         "value": 0.0
     },
     "background_count": {
         "main": true,
         "group": "Background",
         "groupOptional": true,
-        "label": "number of samples",
+        "label": "Number of samples",
         "value": 1
     },
     "overburden_start": {

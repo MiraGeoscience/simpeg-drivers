@@ -74,7 +74,7 @@
     },
     "v_cell_size": {
         "min": 0.0,
-        "group": "1D Mesh",
+        "group": "1D mesh",
         "main": true,
         "enabled": true,
         "label": "Vertical core cell size (m)",
@@ -82,7 +82,7 @@
     },
     "depth_core": {
         "min": 0.0,
-        "group": "1D Mesh",
+        "group": "1D mesh",
         "main": true,
         "enabled": true,
         "label": "Depth of core (m)",
@@ -95,7 +95,7 @@
     },
     "vertical_padding": {
         "min": 0.0,
-        "group": "1D Mesh",
+        "group": "1D mesh",
         "main": true,
         "dependencyType": "disabled",
         "label": "Vertical padding (m)",
@@ -103,7 +103,7 @@
     },
     "expansion_factor": {
         "main": true,
-        "group": "1D Mesh",
+        "group": "1D mesh",
         "label": "Expansion factor",
         "value": 1.1
     },

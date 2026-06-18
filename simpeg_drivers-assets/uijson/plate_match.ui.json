@@ -32,7 +32,7 @@
     },
     "queries": {
         "main": true,
-        "label": "Query Points",
+        "label": "Query points",
         "meshType": [
             "{6a057fdc-b355-11e3-95be-fd84a7ffcb88}",
             "{202C5DB1-A56D-4004-9CAD-BAAFD8899406}"
@@ -42,7 +42,7 @@
     },
     "max_distance": {
         "main": true,
-        "label": "Query Max Distance (m)",
+        "label": "Query max distance (m)",
         "value": 1000.0,
         "tooltip": "Length on either side of the query points to evaluate the match"
     },
@@ -53,7 +53,7 @@
         ],
         "dataType": "Float",
         "main": true,
-        "label": "Strike Angles (degrees)",
+        "label": "Strike angles (degrees)",
         "parent": "queries",
         "optional": true,
         "enabled": false,
