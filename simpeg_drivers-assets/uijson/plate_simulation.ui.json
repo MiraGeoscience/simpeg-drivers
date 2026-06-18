@@ -124,7 +124,7 @@
         "value": 0.0,
         "enabled": true,
         "min": 0.0,
-        "tooltip": "Depth below topography to the plate centre (positive down)."
+        "tooltip": "Depth below topography to the plate centre (positive down)"
     },
     "u_cell_size": {
         "min": 0.0,

@@ -28,9 +28,9 @@
         "label": "Receivers orientation",
         "tooltip": [
             "Receivers orientation provided as 'Dip direction & dip' or '3D vector' data group. If not provided, it assumes: <dl>",
-            "<dt>In-line component</dt><dd>Positive towards North (Y).</dd>",
-            "<dt>Cross-line component</dt><dd>Positive towards East (X).</dd>",
-            "<dt>Vertical component</dt><dd>Positive up (Z).</dd>",
+            "<dt>In-line component</dt><dd>Positive towards North (Y)</dd>",
+            "<dt>Cross-line component</dt><dd>Positive towards East (X)</dd>",
+            "<dt>Vertical component</dt><dd>Positive up (Z)</dd>",
             "</dl>"
         ],
         "optional": true,
@@ -49,9 +49,9 @@
         "main": true,
         "label": "Imaginary",
         "tooltip": [
-            "Imaginary component of the magnetic data. If no receiver orientation provided:<dl>",
-            "<dt>Co-planar data are positive up along the z-axis.</dt>",
-            "<dt>Co-axial data are positive along North.</dt></dl>"
+            "Imaginary component of the magnetic data. If no receiver orientation provided:<ul>",
+            "<li>Co-planar data are positive up along the z-axis</li>",
+            "<li>Co-axial data are positive along North</li></ul>"
         ],
         "parent": "data_object",
         "optional": true,
@@ -85,9 +85,9 @@
         "main": true,
         "label": "Real",
         "tooltip": [
-            "Real component of the magnetic data. If no receiver orientation provided:<dl>",
-            "<dt>Co-planar data are positive up along the z-axis.</dt>",
-            "<dt>Co-axial data are positive along North.</dt></dl>"
+            "Real component of the magnetic data. If no receiver orientation provided:<ul>",
+            "<li>Co-planar data are positive up along the z-axis</>",
+            "<li>Co-axial data are positive along North</></ul>"
         ],
         "parent": "data_object",
         "optional": true,

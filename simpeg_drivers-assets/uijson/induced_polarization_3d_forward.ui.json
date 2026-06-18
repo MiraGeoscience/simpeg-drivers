@@ -48,7 +48,7 @@
         "parent": "mesh",
         "label": "Conductivity (S/m)",
         "property": "",
-        "tooltip": "Provide a background conductivity model in the model units (S/m or Ohm-m).\nGenerally the result of a 3D forward modelling of the DC resistivity data.",
+        "tooltip": "Provide a background conductivity model in the model units (S/m or ohm-m).\nGenerally the result of a 3D forward modelling of the DC resistivity data.",
         "value": 0.001
     },
     "starting_model": {

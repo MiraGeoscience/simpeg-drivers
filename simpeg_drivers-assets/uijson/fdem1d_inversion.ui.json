@@ -27,9 +27,9 @@
         "main": true,
         "label": "Vertical (imaginary)",
         "tooltip": [
-            "Imaginary component of the magnetic data. If no receiver orientation provided:<dl>",
-            "<dt>Co-planar data are positive up along the z-axis.</dt>",
-            "<dt>Co-axial data are positive along North.</dt></dl>"
+            "Imaginary component of the magnetic data. If no receiver orientation provided:<ul>",
+            "<li>Co-planar data are positive up along the z-axis</li>",
+            "<li>Co-axial data are positive along North</li></ul>"
         ],
         "parent": "data_object",
         "optional": true,
@@ -63,9 +63,9 @@
         "main": true,
         "label": "Vertical (real)",
         "tooltip": [
-            "Real component of the magnetic data. If no receiver orientation provided:<dl>",
-            "<dt>Co-planar data are positive up along the z-axis.</dt>",
-            "<dt>Co-axial data are positive along North.</dt></dl>"
+            "Real component of the magnetic data. If no receiver orientation provided:<ul>",
+            "<li>Co-planar data are positive up along the z-axis</li>",
+            "<li>Co-axial data are positive along North</li></ul>"
         ],
         "parent": "data_object",
         "optional": true,

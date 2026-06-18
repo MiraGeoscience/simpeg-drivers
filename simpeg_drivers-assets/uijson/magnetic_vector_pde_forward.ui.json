@@ -14,7 +14,7 @@
         "lineEdit": false,
         "main": true,
         "group": "Inducing field",
-        "label": "Declination (deg)",
+        "label": "Declination (degrees)",
         "value": 0.0
     },
     "inducing_field_inclination": {
@@ -24,7 +24,7 @@
         "lineEdit": false,
         "main": true,
         "group": "Inducing field",
-        "label": "Inclination (deg)",
+        "label": "Inclination (degrees)",
         "value": 90.0
     },
     "inducing_field_strength": {
@@ -163,7 +163,7 @@
         "optional": true,
         "enabled": false,
         "parent": "mesh",
-        "label": "Inclination (deg)",
+        "label": "Inclination (degrees)",
         "property": "",
         "value": 0.0
     },
@@ -179,7 +179,7 @@
         "optional": true,
         "enabled": false,
         "parent": "mesh",
-        "label": "Declination (deg)",
+        "label": "Declination (degrees)",
         "property": "",
         "value": 0.0
     },

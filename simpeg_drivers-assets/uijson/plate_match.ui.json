@@ -96,7 +96,7 @@
         "main": true,
         "label": "Simulations directory",
         "directoryOnly": true,
-        "tooltip": "Directory where pre-computed simulations are stored.",
+        "tooltip": "Directory where pre-computed simulations are stored",
         "value": "./simulations"
     },
     "out_group": {

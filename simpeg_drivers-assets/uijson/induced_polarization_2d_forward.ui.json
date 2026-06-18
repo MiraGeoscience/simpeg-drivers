@@ -118,7 +118,7 @@
         "isValue": true,
         "parent": "mesh",
         "label": "Background",
-        "tooltip": "Provide a background conductivity model in the model units (S/m or Ohm-m).\nGenerally the result of a 2D forward modelling of the DC resistivity data.",
+        "tooltip": "Provide a background conductivity model in the model units (S/m or ohm-m).\nGenerally the result of a 2D forward modelling of the DC resistivity data.",
         "property": "",
         "value": 0.001
     },
@@ -180,7 +180,7 @@
         "dependency": "topography_object",
         "dependencyType": "disabled",
         "label": "Active model",
-        "tooltip": "Provide the active cell boolean model directly if topography not set",
+        "tooltip": "Provide the active cell Boolean model directly if topography not set",
         "parent": "mesh",
         "value": ""
     },
