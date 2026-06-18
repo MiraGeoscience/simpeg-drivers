@@ -3,7 +3,7 @@
     "title": "Joint Petrophysically Guided Inversion (PGI)",
     "icon": "referencedata",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
-    "conda_environment": "simpeg_drivers",
+    "conda_environment": "simpeg-drivers",
     "run_command": "simpeg_drivers.joint.joint_petrophysics.driver",
     "geoh5": "",
     "monitoring_directory": "",

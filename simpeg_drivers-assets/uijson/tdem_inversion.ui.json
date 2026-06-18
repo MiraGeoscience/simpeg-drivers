@@ -3,7 +3,7 @@
     "title": "Time-domain EM (TEM) Inversion",
     "icon": "surveyairborneem",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
-    "conda_environment": "simpeg_drivers",
+    "conda_environment": "simpeg-drivers",
     "run_command": "simpeg_drivers.electromagnetics.time_domain.inversion",
     "geoh5": "",
     "monitoring_directory": "",

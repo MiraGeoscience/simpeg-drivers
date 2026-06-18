@@ -3,7 +3,7 @@
     "title": "Tile Estimation",
     "icon": "tilelist",
     "documentation": "",
-    "conda_environment": "simpeg_drivers",
+    "conda_environment": "simpeg-drivers",
     "run_command": "simpeg_drivers.utils.tile_estimate",
     "monitoring_directory": "",
     "simulation": {

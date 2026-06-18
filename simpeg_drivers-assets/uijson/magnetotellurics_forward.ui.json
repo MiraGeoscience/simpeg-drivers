@@ -3,7 +3,7 @@
     "title": "Magnetotellurics (MT) Forward",
     "icon": "surveymagnetotellurics",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
-    "conda_environment": "simpeg_drivers",
+    "conda_environment": "simpeg-drivers",
     "run_command": "simpeg_drivers.natural_sources.magnetotellurics.forward",
     "geoh5": "",
     "monitoring_directory": "",
