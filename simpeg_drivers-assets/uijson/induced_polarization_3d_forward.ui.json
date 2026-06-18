@@ -1,9 +1,9 @@
 {
-    "version": "0.4.0",
+    "version": "0.5.0",
     "title": "Induced Polarization (IP) 3D Forward",
     "icon": "PotentialElectrode",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
-    "conda_environment": "simpeg_drivers",
+    "conda_environment": "simpeg-drivers",
     "run_command": "simpeg_drivers.electricals.induced_polarization.three_dimensions.forward",
     "geoh5": "",
     "monitoring_directory": "",
@@ -23,7 +23,7 @@
         "value": "",
         "optional": true,
         "enabled": false,
-        "tooltip": "Select a mesh for the inversion"
+        "tooltip": "Select a mesh for the forward modelling"
     },
     "model_type": {
         "choiceList": [
@@ -48,7 +48,7 @@
         "parent": "mesh",
         "label": "Conductivity (S/m)",
         "property": "",
-        "tooltip": "Provide a background conductivity model in the model units (S/m or Ohm-m).\nGenerally the result of a 3D inversion of the DC resistivity data.",
+        "tooltip": "Provide a background conductivity model in the model units (S/m or ohm-m).\nGenerally the result of a 3D forward modelling of the DC resistivity data.",
         "value": 0.001
     },
     "starting_model": {
@@ -81,7 +81,7 @@
         "value": "",
         "optional": true,
         "enabled": true,
-        "tooltip": "Select a topography object to define the active cells for inversion"
+        "tooltip": "Select a topography object to define the active cells for forward modelling"
     },
     "topography": {
         "association": [

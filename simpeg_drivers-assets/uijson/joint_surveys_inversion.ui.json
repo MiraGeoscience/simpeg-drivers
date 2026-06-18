@@ -1,9 +1,9 @@
 {
-    "version": "0.4.0",
+    "version": "0.5.0",
     "title": "Joint Surveys Inversion",
     "icon": "model",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
-    "conda_environment": "simpeg_drivers",
+    "conda_environment": "simpeg-drivers",
     "run_command": "simpeg_drivers.joint.joint_surveys.driver",
     "geoh5": "",
     "monitoring_directory": "",
@@ -73,7 +73,7 @@
         "main": true,
         "group": "Mesh and models",
         "label": "Model units",
-        "tooltip": "Change the model units between S/m or Ohm.m, for electromagnetic and direct-current surveys",
+        "tooltip": "Change the model units between S/m or ohm-m, for electromagnetic and direct-current surveys",
         "optional": true,
         "enabled": false,
         "value": "Conductivity (S/m)"
@@ -464,7 +464,7 @@
     },
     "sens_wts_threshold": {
         "group": "Update sensitivity weights directive",
-        "tooltip": "Threshold below which sensitivity weights become constant.  Measured as a percentage of the maximum sensitivity weight.",
+        "tooltip": "Threshold below which sensitivity weights become constant. Measured as a percentage of the maximum sensitivity weight.",
         "label": "Threshold (%)",
         "value": 0.001,
         "max": 100.0,
