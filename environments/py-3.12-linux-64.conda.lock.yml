@@ -14,7 +14,7 @@ dependencies:
   - aws-c-common=0.14.0=hb03c661_0
   - aws-c-compression=0.3.2=haa0cbde_2
   - aws-c-http=0.11.0=h6488f85_2
-  - aws-c-io=0.26.3=h5b668fc_4
+  - aws-c-io=0.26.3=h3bf836e_5
   - aws-c-s3=0.12.5=hb916526_1
   - aws-c-sdkutils=0.2.4=haa0cbde_6
   - aws-checksums=0.2.10=haa0cbde_2
@@ -25,7 +25,7 @@ dependencies:
   - brotli-python=1.2.0=py312hdb49522_1
   - bzip2=1.0.8=hda65f42_9
   - c-ares=1.34.6=hb03c661_0
-  - ca-certificates=2026.5.20=hbd8a1cb_0
+  - ca-certificates=2026.6.17=hbd8a1cb_0
   - cached-property=1.5.2=hd8ed1ab_1
   - cached_property=1.5.2=pyha770c72_1
   - click=8.4.1=pyhc90fa1f_0
@@ -92,20 +92,20 @@ dependencies:
   - libstdcxx=15.2.0=h934c35e_19
   - libstdcxx-ng=15.2.0=hdf11a46_19
   - libtiff=4.7.1=h9d88235_1
-  - libuuid=2.42.1=h5347b49_0
+  - libuuid=2.42.2=h5347b49_0
   - libwebp-base=1.6.0=hd42ef1d_0
   - libxcb=1.17.0=h8a09558_0
   - libxcrypt=4.4.36=hd590300_1
   - libxml2=2.15.1=h26afc86_0
   - libxml2-16=2.15.1=ha9997c6_0
   - libzlib=1.3.2=h25fd6f3_2
-  - llvm-openmp=22.1.7=h4922eb0_0
+  - llvm-openmp=22.1.8=h4922eb0_0
   - locket=1.0.0=pyhd8ed1ab_0
   - markupsafe=3.0.3=py312h8a5da7c_1
   - matplotlib-base=3.10.9=py312he3d6523_0
   - metis=5.1.0=hd0bcaf9_1007
   - mkl=2025.3.1=h0e700b2_12
-  - msgpack-python=1.1.2=py312hd9148b4_1
+  - msgpack-python=1.2.0=py312hd9148b4_0
   - mumps-include=5.8.2=h5a610fb_2
   - mumps-seq=5.8.2=hc1b3267_2
   - munkres=1.1.4=pyhd8ed1ab_1
@@ -139,7 +139,7 @@ dependencies:
   - qhull=2020.2=h434a139_5
   - readline=8.3=h853b02a_0
   - rtree=1.4.1=pyh11ca60a_0
-  - s2n=1.7.3=hc5a330e_0
+  - s2n=1.7.4=h92489ea_1
   - scikit-learn=1.8.0=np2py312h3226591_1
   - scipy=1.17.1=py312h54fa4ab_1
   - setuptools=82.0.1=pyh332efcf_0
@@ -151,7 +151,7 @@ dependencies:
   - tk=8.6.13=noxft_h366c992_103
   - toolz=1.1.0=pyhd8ed1ab_1
   - tornado=6.5.7=py312h4c3975b_0
-  - tqdm=4.68.2=pyh8f84b5b_1
+  - tqdm=4.68.3=pyh8f84b5b_0
   - trimesh=4.12.2=pyh7b2049a_0
   - typing-extensions=4.15.0=h396c80c_0
   - typing-inspection=0.4.2=pyhcf101f3_2
@@ -174,7 +174,7 @@ dependencies:
     - geoapps-utils == 0.7.0b1 --hash=sha256:ff8fe4a84ade407e608cc1b4fc6ddef2234ac1a8dc18bdb3311d1b31d3a06cea
     - geoh5py == 0.13.0b2 --hash=sha256:89359d8d71027ea4a55b978ed8c2d6145fe67c4092afa2bbe7d90e6a0ceb19b7
     - grid-apps == 0.2.0b2 --hash=sha256:5d6dab502decff08941b13e1b9e96f0eccd113045f45055dbb0f99e0c9116606
-    - mira-simpeg == 0.25.0.1b2 --hash=sha256:383b369df88abbdd606feceef0c8febae390cf726e8c5cef67dbcb78d40debf7
+    - mira-simpeg == 0.25.0.1b3 --hash=sha256:3fdb507d77bae9ca9ce0976d7b88befc999807edb388c9ce2bbe43ed6c76d803
 
 variables:
   KMP_WARNINGS: 0
