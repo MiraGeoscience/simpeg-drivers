@@ -86,8 +86,8 @@
         "label": "Real",
         "tooltip": [
             "Real component of the magnetic data. If no receiver orientation provided:<ul>",
-            "<li>Co-planar data are positive up along the z-axis</>",
-            "<li>Co-axial data are positive along North</></ul>"
+            "<li>Co-planar data are positive up along the z-axis</li>",
+            "<li>Co-axial data are positive along North</li></ul>"
         ],
         "parent": "data_object",
         "optional": true,
