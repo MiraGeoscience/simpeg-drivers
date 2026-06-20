@@ -2,7 +2,7 @@
     "version": "0.5.0",
     "title": "Plate Match",
     "icon": "maxwellplate",
-    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/plate-simulation/",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/plate-simulation/simulation.html",
     "conda_environment": "simpeg-drivers",
     "run_command": "simpeg_drivers.plate_simulation.match.driver",
     "geoh5": "",
