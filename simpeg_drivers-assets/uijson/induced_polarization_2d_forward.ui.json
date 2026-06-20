@@ -118,7 +118,7 @@
         "isValue": true,
         "parent": "mesh",
         "label": "Background",
-        "tooltip": "Provide a background conductivity model in the model units (S/m or ohm-m).\nGenerally the result of a 2D forward modelling of the DC resistivity data.",
+        "tooltip": "Provide a background conductivity model in the model units (S/m or ohm-m).\nGenerally the result of a 2D inversion of the DC resistivity data.",
         "property": "",
         "value": 0.001
     },
