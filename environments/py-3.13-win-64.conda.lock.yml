@@ -9,14 +9,14 @@ dependencies:
   - _openmp_mutex=4.5=20_gnu
   - annotated-types=0.7.0=pyhd8ed1ab_1
   - asciitree=0.3.3=py_2
-  - aws-c-auth=0.10.3=h75b6777_2
+  - aws-c-auth=0.10.3=h4ad2c79_3
   - aws-c-cal=0.9.14=h270aff2_2
   - aws-c-common=0.14.0=hfd05255_0
   - aws-c-compression=0.3.2=h1f21522_2
   - aws-c-http=0.11.0=h4721ae0_2
   - aws-c-io=0.26.3=h1a62f66_5
-  - aws-c-s3=0.12.5=h425879c_1
-  - aws-c-sdkutils=0.2.4=h1f21522_6
+  - aws-c-s3=0.12.6=h425879c_0
+  - aws-c-sdkutils=0.2.5=h1f21522_0
   - aws-checksums=0.2.10=h1f21522_2
   - backports.zstd=1.6.0=py313h2a31948_0
   - bokeh=3.6.3=pyhd8ed1ab_0
@@ -45,14 +45,14 @@ dependencies:
   - geoana=0.8.1=np2py313hedd11bf_0
   - h2=4.3.0=pyhcf101f3_0
   - h5py=3.16.0=nompi_py313hd050a09_102
-  - hdf5=2.1.0=nompi_h693361b_107
+  - hdf5=2.1.0=nompi_ha9ae7cf_108
   - hpack=4.1.0=pyhd8ed1ab_0
   - hyperframe=6.1.0=pyhd8ed1ab_0
   - importlib-metadata=9.0.0=pyhcf101f3_0
   - jinja2=3.1.6=pyhcf101f3_1
   - joblib=1.5.3=pyhd8ed1ab_0
   - kiwisolver=1.5.0=py313h1a38498_0
-  - krb5=1.22.2=h0ea6238_0
+  - krb5=1.22.2=h719d79b_1
   - lcms2=2.19.1=hf2c6c5f_1
   - lerc=4.1.0=hd936e49_0
   - libaec=1.1.5=haf901d7_0
@@ -161,7 +161,7 @@ dependencies:
     - geoapps-utils == 0.7.0b1 --hash=sha256:ff8fe4a84ade407e608cc1b4fc6ddef2234ac1a8dc18bdb3311d1b31d3a06cea
     - geoh5py == 0.13.0b2 --hash=sha256:89359d8d71027ea4a55b978ed8c2d6145fe67c4092afa2bbe7d90e6a0ceb19b7
     - grid-apps == 0.2.0b2 --hash=sha256:5d6dab502decff08941b13e1b9e96f0eccd113045f45055dbb0f99e0c9116606
-    - mira-simpeg == 0.25.0.1b3 --hash=sha256:3fdb507d77bae9ca9ce0976d7b88befc999807edb388c9ce2bbe43ed6c76d803
+    - mira-simpeg == 0.25.0.1rc1 --hash=sha256:6aee2c01549b4245235aa1d06092cc9e54e3f7e5298f61d14f6fa442890682ee
 
 variables:
   KMP_WARNINGS: 0
