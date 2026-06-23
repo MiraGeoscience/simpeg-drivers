@@ -10,14 +10,19 @@
 
 from __future__ import annotations
 
+import shutil
+from io import BytesIO, StringIO
 from pathlib import Path
 from unittest.mock import patch
 
 import numpy as np
 from geoapps_utils.utils.importing import GeoAppsError
+from geoh5py.ui_json import BaseUIJson
 from geoh5py.workspace import Workspace
+from pandas import read_csv
 from pytest import raises
 
+from simpeg_drivers.driver import validate_out_group
 from simpeg_drivers.potential_fields.gravity.forward import (
     GravityForwardDriver,
     GravityForwardOptions,
@@ -40,17 +45,17 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
-target_run = {"data_norm": 0.0034873276857765663, "phi_d": 3.06, "phi_m": 0.00137}
+target_run = {"data_norm": 0.5770853826069609, "phi_d": 74100, "phi_m": 22.3}
 
 
 def test_gravity_fwr_run(
     tmp_path: Path,
-    n_grid_points=2,
+    n_grid_points=3,
     cell_size=(20.0, 20.0, 20.0),
     refinement=(2,),
 ):
     filepath = Path(tmp_path) / "inversion_test.ui.geoh5"
-    with Workspace.create(filepath) as geoh5:
+    with get_workspace(filepath) as geoh5:
         # Run the forward
         components = SyntheticsComponents(
             geoh5=geoh5,
@@ -87,12 +92,15 @@ def test_gravity_fwr_run(
 
 def test_gravity_run(
     tmp_path: Path,
-    max_iterations=1,
+    max_iterations=2,
     pytest=True,
 ):
     workpath = tmp_path / "inversion_test.ui.geoh5"
     if pytest:
-        workpath = tmp_path.parent / "test_gravity_fwr_run0" / "inversion_test.ui.geoh5"
+        shutil.copy(
+            tmp_path.parent / "test_gravity_fwr_run0" / "inversion_test.ui.geoh5",
+            tmp_path,
+        )
 
     with Workspace(workpath) as geoh5:
         gz = geoh5.get_entity("Iteration_0_gz")[0]
@@ -130,7 +138,7 @@ def test_gravity_run(
             gz_uncertainty=2e-3,
             lower_bound=0.0,
             max_global_iterations=max_iterations,
-            initial_beta_ratio=1e-2,
+            initial_beta_ratio=1e-1,
             percentile=100,
             starting_model=1e-4,
             topography_object=components.topography,
@@ -138,16 +146,26 @@ def test_gravity_run(
             sens_wts_threshold=1.0,
             save_sensitivities=True,
         )
+        out_group = validate_out_group(params)
+        params.out_group = out_group
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
     driver = GravityInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
-    assert driver.directives.directive_list[0].chifact_start == 0.75
-    assert driver.directives.directive_list[0].chifact_target == 0.75
+
+    if not pytest:
+        return
+
+    np.testing.assert_almost_equal(
+        driver.directives.directive_list[0].chifact_start, 0.8888, decimal=3
+    )
+    np.testing.assert_almost_equal(
+        driver.directives.directive_list[0].chifact_target, 0.8888, decimal=3
+    )
 
     with open(workpath.parent / "inversion_test.ui.log", encoding="utf8") as file:
         content = file.read()
-        assert "Target Misfit: 3.00e+00 (3 data with chifact = 1.0)" in content
-        assert "IRLS Start Misfit: 3.00e+00 (3 data with chifact = 1.0)" in content
+        assert "Target Misfit: 8.00e+00 (8 data with chifact = 1.0)" in content
+        assert "IRLS Start Misfit: 8.00e+00 (8 data with chifact = 1.0)" in content
 
     assert driver.params.data_object.uid != gz.parent.uid
     assert np.all(np.isinf(driver.models.upper_bound))
@@ -173,11 +191,55 @@ def test_gravity_run(
         assert len(run_ws.get_entity("inversion_test.ui.log")) == 2
         assert len(run_ws.get_entity("inversion_test.ui.out")) == 1
 
-        if pytest:
-            check_target(output, target_run)
-            nan_ind = np.isnan(run_ws.get_entity("Iteration_0_model")[0].values)
-            inactive_ind = run_ws.get_entity("active_cells")[0].values == 0
-            assert np.all(nan_ind == inactive_ind)
+        check_target(output, target_run)
+        nan_ind = np.isnan(run_ws.get_entity("Iteration_0_model")[0].values)
+        inactive_ind = run_ws.get_entity("active_cells")[0].values == 0
+        assert np.all(nan_ind == inactive_ind)
+
+
+def test_restart_run(tmp_path):
+    shutil.copy(tmp_path.parent / "test_gravity_run0" / "Inv_run.ui.json", tmp_path)
+    shutil.copy(
+        tmp_path.parent / "test_gravity_run0" / "inversion_test.ui.geoh5", tmp_path
+    )
+    json_file = tmp_path / "Inv_run.ui.json"
+
+    # Remember the last iteration
+    out_array = read_csv(
+        tmp_path.parent / "test_gravity_run0/inversion_test.ui.out", sep=" "
+    )
+
+    last_beta = out_array["beta"].iloc[-1]
+    last_phi_d = out_array["phi_d"].iloc[-1]
+    last_phi_m = out_array["phi_m"].iloc[-1]
+
+    # Remove the last row to validate the re-start
+    out_array.drop(2, inplace=True)
+    text_buffer = StringIO()
+    out_array.to_csv(text_buffer, index=False, sep=" ")
+    text_buffer.seek(0)
+    bytes_buffer = BytesIO(text_buffer.getvalue().encode("utf-8"))
+
+    with Workspace(tmp_path / "inversion_test.ui.geoh5") as ws:
+        file_data = ws.get_entity("inversion_test.ui.out")[0]
+        file_data.file_bytes = bytes_buffer.getvalue()
+
+    uijson = BaseUIJson.read(json_file)
+    uijson.geoh5 = tmp_path / "inversion_test.ui.geoh5"
+    uijson.set_values(max_global_iterations=5)
+    GravityInversionDriver.start(uijson)
+
+    # Read the out file again and check against the previous full run
+    with Workspace(tmp_path / "inversion_test.ui.geoh5") as ws:
+        out_file = ws.get_entity("inversion_test.ui.out")[0]
+        out_array = read_csv(BytesIO(out_file.file_bytes), sep=" ")
+        np.testing.assert_almost_equal(out_array["beta"].iloc[1], last_beta, decimal=1)
+        np.testing.assert_almost_equal(
+            out_array["phi_d"].iloc[1], last_phi_d, decimal=1
+        )
+        np.testing.assert_almost_equal(
+            out_array["phi_m"].iloc[1], last_phi_m, decimal=1
+        )
 
 
 def test_array_too_large_run(
