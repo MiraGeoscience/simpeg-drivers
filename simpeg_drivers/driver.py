@@ -13,6 +13,7 @@
 
 from __future__ import annotations
 
+from io import BytesIO
 from abc import abstractmethod, ABC
 from typing import Self
 from copy import deepcopy
@@ -23,6 +24,7 @@ from pathlib import Path
 from time import time
 
 import numpy as np
+from pandas import read_csv
 from dask.distributed import get_client, Client
 
 from geoapps_utils.base import Driver, Options
@@ -31,7 +33,7 @@ from geoapps_utils.utils.importing import GeoAppsError
 
 from geoh5py import Workspace
 from geoh5py.groups import SimPEGGroup
-from geoh5py.objects import FEMSurvey
+from geoh5py.objects import DrapeModel, FEMSurvey, Octree
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import BaseUIJson
 
@@ -470,11 +472,21 @@ class BaseDriver(Driver, ABC):
             self.logger.start()
 
         with fetch_active_workspace(self.workspace, mode="r+"):
-            if Path(self.params.input_file.path_name).is_file():
-                self.out_group.add_file(self.params.input_file.path_name)
-
             try:
-                self.start_message()
+                if any(
+                    [
+                        child
+                        for child in self.out_group.children
+                        if child.name.endswith("out")
+                    ]
+                ):
+                    self.warm_start()
+                else:
+                    if Path(self.params.input_file.path_name).is_file():
+                        self.out_group.add_file(self.params.input_file.path_name)
+
+                    self.start_message()
+
                 self.simpeg_run()
 
             except np.core._exceptions._ArrayMemoryError as error:  # pylint: disable=protected-access
@@ -545,6 +557,12 @@ class BaseDriver(Driver, ABC):
         """
         start_dask_run(cls, json_path, n_workers=n_workers, n_threads=n_threads)
 
+    @abstractmethod
+    def warm_start(self):
+        """
+        Re-start the process where it left off
+        """
+
     @property
     def workers(self) -> list[tuple[str]]:
         """List of workers stored as a list of tuples."""
@@ -582,6 +600,11 @@ class ForwardDriver(BaseDriver):
     def start_message(self):
         if self.logger:
             self.logger.write("Running the forward simulation ...\n")
+
+    def warm_start(self):
+        """
+        Re-start the process where it left off
+        """
 
 
 class InversionDriver(BaseDriver):
@@ -813,6 +836,41 @@ class InversionDriver(BaseDriver):
             f"IRLS Start Misfit: {rescaled_starting_chi_factor * total_data_count:.2e} ({finite_data_count} data "
             f"with chifact = {self.params.irls.starting_chi_factor})\n"
         )
+
+    def warm_start(self):
+        """
+        Re-start the process where it left off
+        """
+        with fetch_active_workspace(self.workspace, mode="r+"):
+            out_file = next(
+                child
+                for child in self.out_group.children
+                if child.name.endswith(".out")
+            )
+            out_array = read_csv(BytesIO(out_file.file_bytes), sep=" ")
+            last_iter = out_array["iteration"].iloc[-1]
+            last_beta = out_array["beta"].iloc[-1]
+            mesh = next(
+                child
+                for child in self.out_group.children
+                if isinstance(child, DrapeModel | Octree)
+            )
+            model = next(
+                child
+                for child in mesh.children
+                if f"Iteration_{last_iter}" in child.name
+            )
+            self.params.models.starting_model = model
+            self._inversion_mesh = InversionMesh(
+                self.workspace, self.params, entity=mesh
+            )
+
+            # Hard-wire beta and remove directive
+            self.inverse_problem.beta = last_beta
+            self.directives.directive_list.remove(
+                self.directives.beta_estimate_by_eigenvalues_directive
+            )
+            self.optimization.iter = last_iter
 
 
 class InversionLogger:
