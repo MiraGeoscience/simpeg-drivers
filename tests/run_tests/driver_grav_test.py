@@ -11,7 +11,7 @@
 from __future__ import annotations
 
 import shutil
-from io import BytesIO, StringIO
+from io import BytesIO
 from pathlib import Path
 from unittest.mock import patch
 
@@ -213,32 +213,22 @@ def test_restart_run(tmp_path):
     last_phi_d = out_array["phi_d"].iloc[-1]
     last_phi_m = out_array["phi_m"].iloc[-1]
 
-    # Remove the last row to validate the re-start
-    out_array.drop(2, inplace=True)
-    text_buffer = StringIO()
-    out_array.to_csv(text_buffer, index=False, sep=" ")
-    text_buffer.seek(0)
-    bytes_buffer = BytesIO(text_buffer.getvalue().encode("utf-8"))
-
-    with Workspace(tmp_path / "inversion_test.ui.geoh5") as ws:
-        file_data = ws.get_entity("inversion_test.ui.out")[0]
-        file_data.file_bytes = bytes_buffer.getvalue()
-
     uijson = BaseUIJson.read(json_file)
     uijson.geoh5 = tmp_path / "inversion_test.ui.geoh5"
     uijson.set_values(max_global_iterations=5)
-    GravityInversionDriver.start(uijson)
+    uijson.write(json_file)
+    GravityInversionDriver.start(json_file, warm_start_iteration=-2)
 
     # Read the out file again and check against the previous full run
     with Workspace(tmp_path / "inversion_test.ui.geoh5") as ws:
         out_file = ws.get_entity("inversion_test.ui.out")[0]
         out_array = read_csv(BytesIO(out_file.file_bytes), sep=" ")
-        np.testing.assert_almost_equal(out_array["beta"].iloc[1], last_beta, decimal=1)
+        np.testing.assert_almost_equal(out_array["beta"].iloc[4], last_beta, decimal=1)
         np.testing.assert_almost_equal(
-            out_array["phi_d"].iloc[1], last_phi_d, decimal=1
+            out_array["phi_d"].iloc[4], last_phi_d, decimal=1
         )
         np.testing.assert_almost_equal(
-            out_array["phi_m"].iloc[1], last_phi_m, decimal=1
+            out_array["phi_m"].iloc[4], last_phi_m, decimal=1
         )
 
 
