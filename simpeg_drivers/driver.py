@@ -464,12 +464,15 @@ class BaseDriver(Driver, ABC):
         Starting message displayed by the logger.
         """
 
-    def run(self):
-        """Run inversion from params"""
+    def run(self, warm_start_iteration: int = -1):
+        """
+        Run inversion from params
+
+        :param warm_start_iteration: Whether to warm-start the inversion.
+        """
 
         if self.logger:
             sys.stdout = self.logger
-            self.logger.start()
 
         with fetch_active_workspace(self.workspace, mode="r+"):
             try:
@@ -480,11 +483,11 @@ class BaseDriver(Driver, ABC):
                         if child.name.endswith("out")
                     ]
                 ):
-                    self.warm_start()
+                    self.warm_start(warm_start_iteration)
                 else:
                     if Path(self.params.input_file.path_name).is_file():
                         self.out_group.add_file(self.params.input_file.path_name)
-
+                    self.logger.start()
                     self.start_message()
 
                 self.simpeg_run()
@@ -505,13 +508,19 @@ class BaseDriver(Driver, ABC):
                 self.directives.save_iteration_log_files.write(1)
 
     @classmethod
-    def start(cls, filepath: str | Path | BaseUIJson, mode="r+", **kwargs) -> Self:
+    def start(
+        cls,
+        filepath: str | Path | BaseUIJson,
+        mode="r+",
+        warm_start_iteration: int = -1,
+        **kwargs,
+    ) -> Self:
         """
         Run application specified by 'filepath' ui.json file.
 
-        TODO: To be replaced by the base Driver class implementation on geoapps_utils
         :param filepath: Path to valid ui.json file for the application driver.
         :param mode: Mode to open the geoh5 file with.
+        :param warm_start_iteration: Iteration to warm-start the inversion if possible. Defaults to last iteration (-1).
         :param kwargs: Additional keyword arguments for Options class.
 
         :return: Self object.
@@ -535,7 +544,7 @@ class BaseDriver(Driver, ABC):
                 kwargs.update(data)
                 params = cls._params_class.build(**kwargs)
                 driver = cls(params)
-                driver.run()
+                driver.run(warm_start_iteration=warm_start_iteration)
             except GeoAppsError as error:
                 logging.getLogger(__name__).warning(
                     "\n\nApplicationError: %s\n\n", error
@@ -545,20 +554,17 @@ class BaseDriver(Driver, ABC):
         return driver
 
     @classmethod
-    def start_dask_run(
-        cls, json_path: Path, n_workers: int | None = None, n_threads: int | None = None
-    ):
+    def start_dask_run(cls, json_path: Path, **kwargs):
         """
         Sets Dask config settings.
 
         :param json_path: Path to input file (.ui.json) for the application.
-        :param n_workers: Number of workers to use.
-        :param n_threads: Number of threads to use.
+        :param kwargs: Additional keyword arguments for the dask run.
         """
-        start_dask_run(cls, json_path, n_workers=n_workers, n_threads=n_threads)
+        start_dask_run(cls, json_path, **kwargs)
 
     @abstractmethod
-    def warm_start(self):
+    def warm_start(self, warm_start_iteration: int = -1):
         """
         Re-start the process where it left off
         """
@@ -601,7 +607,7 @@ class ForwardDriver(BaseDriver):
         if self.logger:
             self.logger.write("Running the forward simulation ...\n")
 
-    def warm_start(self):
+    def warm_start(self, warm_start_iteration: int = -1):
         """
         Re-start the process where it left off
         """
@@ -837,40 +843,67 @@ class InversionDriver(BaseDriver):
             f"with chifact = {self.params.irls.starting_chi_factor})\n"
         )
 
-    def warm_start(self):
+    def warm_start(self, warm_start_iteration: int = -1):
         """
         Re-start the process where it left off
+
+        :param warm_start_iteration: Iteration number to start back at.
         """
         with fetch_active_workspace(self.workspace, mode="r+"):
+            log_file = next(
+                child
+                for child in self.out_group.children
+                if child.name.endswith(".log")
+            )
+            log_file.save_file(path=self.workspace.h5file.parent, name=log_file.name)
             out_file = next(
                 child
                 for child in self.out_group.children
                 if child.name.endswith(".out")
             )
+            out_file.save_file(path=self.workspace.h5file.parent, name=out_file.name)
             out_array = read_csv(BytesIO(out_file.file_bytes), sep=" ")
-            last_iter = out_array["iteration"].iloc[-1]
-            last_beta = out_array["beta"].iloc[-1]
-            mesh = next(
-                child
-                for child in self.out_group.children
-                if isinstance(child, DrapeModel | Octree)
-            )
-            model = next(
-                child
-                for child in mesh.children
-                if f"Iteration_{last_iter}" in child.name
-            )
-            self.params.models.starting_model = model
-            self._inversion_mesh = InversionMesh(
-                self.workspace, self.params, entity=mesh
+
+            last_iter = out_array["iteration"].iloc[warm_start_iteration]
+            last_beta = out_array["beta"].iloc[warm_start_iteration]
+
+            self.logger.write(
+                "\n\t\t###################################################\n"
+                + f"\t\t\tRe-starting inversion at iteration {last_iter}\n"
+                + f"\t\t\t\t{self.logger.start_date_time}\n"
+                + "\t\t###################################################\n"
             )
 
-            # Hard-wire beta and remove directive
-            self.inverse_problem.beta = last_beta
-            self.directives.directive_list.remove(
-                self.directives.beta_estimate_by_eigenvalues_directive
-            )
-            self.optimization.iter = last_iter
+            self._reset_on_iteration(last_iter, last_beta)
+
+    def _reset_on_iteration(self, warm_start_iteration: int, beta: float):
+        """
+        Reset the inversion parameters to a given iteration and beta value.
+
+        Assumes that the workspace is already opened to access data.
+
+        :param iteration: Current iteration
+        :param beta: Current beta value
+        """
+        mesh = next(
+            child
+            for child in self.out_group.children
+            if isinstance(child, DrapeModel | Octree)
+        )
+        model = next(
+            child
+            for child in mesh.children
+            if f"Iteration_{warm_start_iteration}" in child.name
+        )
+        self.params.models.starting_model = model
+        self._inversion_mesh = InversionMesh(self.workspace, self.params, entity=mesh)
+
+        # Hard-wire beta and remove directive
+        self.inverse_problem.beta = beta
+        self.directives.directive_list.remove(
+            self.directives.beta_estimate_by_eigenvalues_directive
+        )
+        self.optimization.iter = warm_start_iteration + 1
 
 
 class InversionLogger:

@@ -11,11 +11,9 @@
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.potential_fields.gravity.options import GravityInversionOptions
+from simpeg_drivers.utils.utils import argument_parser
 
 
 class GravityInversionDriver(InversionDriver):
@@ -25,5 +23,5 @@ class GravityInversionDriver(InversionDriver):
 
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
-    GravityInversionDriver.start_dask_run(file)
+    file, args = argument_parser()
+    GravityInversionDriver.start_dask_run(file, **args)
