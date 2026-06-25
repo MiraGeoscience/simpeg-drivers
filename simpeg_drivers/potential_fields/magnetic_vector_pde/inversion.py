@@ -15,6 +15,7 @@ import sys
 from pathlib import Path
 
 import numpy as np
+from geoapps_utils.utils.importing import GeoAppsError
 from simpeg.maps import Projection
 from simpeg.objective_function import ComboObjectiveFunction
 from simpeg.regularization import BaseRegularization, VectorAmplitude
@@ -53,6 +54,34 @@ class MagneticVectorPDEInversionDriver(InversionDriver):
         reg_funcs.append(reg_func)
 
         return ComboObjectiveFunction(objfcts=reg_funcs)
+
+    def _reset_models(self, iteration, mesh):
+        """
+        Reset the inversion models based on specified iteration and mesh.
+
+        :param iteration: The iteration number to reset the models for.
+        :param mesh: The mesh to reset the models from.
+        """
+        flag = f"Iteration_{iteration}_"
+        count = 0
+        for child in mesh.children:
+            if flag not in child.name:
+                continue
+
+            if "amplitude" in child.name:
+                self.params.models.starting_model = child
+            else:
+                name = "starting_" + child.name.split("_")[2]
+                setattr(self.params.models, name, child)
+            count += 1
+
+            if count == 3:
+                return
+
+        if count != 3:
+            raise GeoAppsError(
+                f"Could not reset the inversion at iteration {iteration}, no models found."
+            )
 
 
 if __name__ == "__main__":

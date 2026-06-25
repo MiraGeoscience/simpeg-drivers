@@ -12,6 +12,8 @@ from __future__ import annotations
 
 import contextlib
 import logging
+import shutil
+from io import BytesIO
 from pathlib import Path
 
 import numpy as np
@@ -19,10 +21,13 @@ from dask.distributed import LocalCluster, performance_report
 from geoh5py.groups import PropertyGroup
 from geoh5py.groups.property_group import GroupTypeEnum
 from geoh5py.objects import Curve
+from geoh5py.ui_json import BaseUIJson
 from geoh5py.workspace import Workspace
+from pandas import read_csv
 from simpeg.utils.mat_utils import cartesian2amplitude_dip_azimuth
 
 from simpeg_drivers.components.factories import DirectivesFactory
+from simpeg_drivers.driver import validate_out_group
 from simpeg_drivers.potential_fields.magnetic_vector.forward import (
     MagneticVectorForwardDriver,
     MagneticVectorForwardOptions,
@@ -107,10 +112,11 @@ def test_magnetic_vector_run(
 ):
     workpath = tmp_path / "inversion_test.ui.geoh5"
     if pytest:
-        workpath = (
+        shutil.copy(
             tmp_path.parent
             / "test_magnetic_vector_fwr_run0"
-            / "inversion_test.ui.geoh5"
+            / "inversion_test.ui.geoh5",
+            tmp_path,
         )
 
     with Workspace(workpath) as geoh5:
@@ -156,7 +162,10 @@ def test_magnetic_vector_run(
                 max_global_iterations=max_iterations,
                 initial_beta_ratio=5e-2,
             )
-        params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
+
+            out_group = validate_out_group(params)
+            params.out_group = out_group
+            params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
         if caplog:
             assert "Deprecated field 'lower_bound' will be ignored." in caplog.text
 
@@ -185,6 +194,44 @@ def test_magnetic_vector_run(
             assert len(mesh.fetch_property_group("LP models").properties) == 6
 
             check_target(output, target_mvi_run)
+
+
+def test_restart_run(tmp_path):
+    shutil.copy(
+        tmp_path.parent / "test_magnetic_vector_run0" / "Inv_run.ui.json", tmp_path
+    )
+    shutil.copy(
+        tmp_path.parent / "test_magnetic_vector_run0" / "inversion_test.ui.geoh5",
+        tmp_path,
+    )
+    json_file = tmp_path / "Inv_run.ui.json"
+
+    # Remember the last iteration
+    out_array = read_csv(
+        tmp_path.parent / "test_magnetic_vector_run0/inversion_test.ui.out", sep=" "
+    )
+
+    last_beta = out_array["beta"].iloc[-2]
+    last_phi_d = out_array["phi_d"].iloc[-2]
+    last_phi_m = out_array["phi_m"].iloc[-2]
+
+    uijson = BaseUIJson.read(json_file)
+    uijson.geoh5 = tmp_path / "inversion_test.ui.geoh5"
+    uijson.set_values(max_global_iterations=5)
+    uijson.write(json_file)
+    MagneticVectorInversionDriver.start(json_file, warm_start_iteration=-4)
+
+    # Read the out file again and check against the previous full run
+    with Workspace(tmp_path / "inversion_test.ui.geoh5") as ws:
+        out_file = ws.get_entity("inversion_test.ui.out")[0]
+        out_array = read_csv(BytesIO(out_file.file_bytes), sep=" ")
+        np.testing.assert_almost_equal(out_array["beta"].iloc[4], last_beta, decimal=1)
+        np.testing.assert_almost_equal(
+            out_array["phi_d"].iloc[4], last_phi_d, decimal=1
+        )
+        np.testing.assert_almost_equal(
+            out_array["phi_m"].iloc[4], last_phi_m, decimal=1
+        )
 
 
 def test_magnetic_vector_reference(

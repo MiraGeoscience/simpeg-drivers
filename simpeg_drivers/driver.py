@@ -8,7 +8,7 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-
+# pylint: disable=too-many-lines
 # flake8: noqa
 
 from __future__ import annotations
@@ -849,32 +849,27 @@ class InversionDriver(BaseDriver):
 
         :param warm_start_iteration: Iteration number to start back at.
         """
-        with fetch_active_workspace(self.workspace, mode="r+"):
-            log_file = next(
-                child
-                for child in self.out_group.children
-                if child.name.endswith(".log")
-            )
-            log_file.save_file(path=self.workspace.h5file.parent, name=log_file.name)
-            out_file = next(
-                child
-                for child in self.out_group.children
-                if child.name.endswith(".out")
-            )
-            out_file.save_file(path=self.workspace.h5file.parent, name=out_file.name)
-            out_array = read_csv(BytesIO(out_file.file_bytes), sep=" ")
+        log_file = next(
+            child for child in self.out_group.children if child.name.endswith(".log")
+        )
+        log_file.save_file(path=self.workspace.h5file.parent, name=log_file.name)
+        out_file = next(
+            child for child in self.out_group.children if child.name.endswith(".out")
+        )
+        out_file.save_file(path=self.workspace.h5file.parent, name=out_file.name)
+        out_array = read_csv(BytesIO(out_file.file_bytes), sep=" ")
 
-            last_iter = out_array["iteration"].iloc[warm_start_iteration]
-            last_beta = out_array["beta"].iloc[warm_start_iteration]
+        last_iter = out_array["iteration"].iloc[warm_start_iteration]
+        last_beta = out_array["beta"].iloc[warm_start_iteration]
 
-            self.logger.write(
-                "\n\t\t###################################################\n"
-                + f"\t\t\tRe-starting inversion at iteration {last_iter}\n"
-                + f"\t\t\t\t{self.logger.start_date_time}\n"
-                + "\t\t###################################################\n"
-            )
+        self.logger.write(
+            "\n\t\t###################################################\n"
+            + f"\t\t\tRe-starting inversion at iteration {last_iter}\n"
+            + f"\t\t\t\t{self.logger.start_date_time}\n"
+            + "\t\t###################################################\n"
+        )
 
-            self._reset_on_iteration(last_iter, last_beta)
+        self._reset_on_iteration(last_iter, last_beta)
 
     def _reset_on_iteration(self, warm_start_iteration: int, beta: float):
         """
@@ -890,12 +885,7 @@ class InversionDriver(BaseDriver):
             for child in self.out_group.children
             if isinstance(child, DrapeModel | Octree)
         )
-        model = next(
-            child
-            for child in mesh.children
-            if f"Iteration_{warm_start_iteration}" in child.name
-        )
-        self.params.models.starting_model = model
+        self._reset_models(warm_start_iteration, mesh)
         self._inversion_mesh = InversionMesh(self.workspace, self.params, entity=mesh)
 
         # Hard-wire beta and remove directive
@@ -904,6 +894,23 @@ class InversionDriver(BaseDriver):
             self.directives.beta_estimate_by_eigenvalues_directive
         )
         self.optimization.iter = warm_start_iteration + 1
+
+    def _reset_models(self, iteration, mesh):
+        """
+        Reset the inversion models based on specified iteration and mesh.
+
+        :param iteration: The iteration number to reset the models for.
+        :param mesh: The mesh to reset the models from.
+        """
+        flag = f"Iteration_{iteration}_"
+        for child in mesh.children:
+            if flag in child.name:
+                self.params.models.starting_model = child
+                return
+
+        raise GeoAppsError(
+            f"Could not reset the inversion at iteration {iteration}, no model found."
+        )
 
 
 class InversionLogger:
