@@ -219,7 +219,7 @@ def test_restart_run(tmp_path):
     uijson.geoh5 = tmp_path / "inversion_test.ui.geoh5"
     uijson.set_values(max_global_iterations=5)
     uijson.write(json_file)
-    MagneticVectorInversionDriver.start(json_file, warm_start_iteration=-4)
+    MagneticVectorInversionDriver.start(json_file, start_iteration=-4)
 
     # Read the out file again and check against the previous full run
     with Workspace(tmp_path / "inversion_test.ui.geoh5") as ws:

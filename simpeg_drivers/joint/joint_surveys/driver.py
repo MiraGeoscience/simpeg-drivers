@@ -33,12 +33,6 @@ class JointSurveysDriver(BaseJointDriver):
 
     _params_class = JointSurveysOptions
 
-    def __init__(self, params: JointSurveysOptions):
-        super().__init__(params)
-
-        with fetch_active_workspace(self.workspace, mode="r+"):
-            self.initialize()
-
     def get_regularization(self):
         """
         Overload the regularization using the method of the first driver.

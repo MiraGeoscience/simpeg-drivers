@@ -708,7 +708,7 @@ def start_dask_run(
     n_workers: int | None = None,
     n_threads: int | None = None,
     generate_report: bool = False,
-    warm_start_iteration: int = -1,
+    start_iteration: int = -1,
 ):
     """
     Runs an application with Dask optimization.
@@ -718,7 +718,7 @@ def start_dask_run(
     :param n_workers: Number of workers to use.
     :param n_threads: Number of threads to use.
     :param generate_report: Flag to indicate whether to generate a performance report.
-    :param warm_start_iteration: Iteration to warm-start the inversion if possible.
+    :param start_iteration: Iteration to warm-start the inversion if possible.
     """
     ui_json = load_ui_json_as_dict(json_path)
 
@@ -749,7 +749,7 @@ def start_dask_run(
             if (save_report and isinstance(context_client, Client))
             else contextlib.nullcontext()
         ):
-            class_type.start(json_path, warm_start_iteration=warm_start_iteration)
+            class_type.start(json_path, start_iteration=start_iteration)
             sys.stdout.close()
 
     profiler.disable()
@@ -831,9 +831,7 @@ def argument_parser() -> tuple:
     )
 
     parser.add_argument("file", type=Path)
-    parser.add_argument(
-        "-i", "--warm_start_iteration", type=int, required=False, default=-1
-    )
+    parser.add_argument("-i", "--start_iteration", type=int, required=False, default=-1)
     parser.add_argument("-w", "--n_workers", type=int, required=False, default=None)
     parser.add_argument("-t", "--n_threads", type=int, required=False, default=None)
     parser.add_argument(

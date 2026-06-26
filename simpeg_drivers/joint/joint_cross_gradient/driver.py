@@ -35,9 +35,6 @@ class JointCrossGradientDriver(BaseJointDriver):
 
         super().__init__(params)
 
-        with fetch_active_workspace(self.workspace, mode="r+"):
-            self.initialize()
-
     def get_regularization(self):
         """
         Create a flat ComboObjectiveFunction from all drivers provided and

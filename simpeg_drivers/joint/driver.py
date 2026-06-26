@@ -18,7 +18,7 @@ from typing import Any
 
 import numpy as np
 import simpeg.dask.objective_function as dask_objective_function
-from geoh5py.groups.property_group_type import GroupTypeEnum
+from geoh5py.groups import SimPEGGroup
 from geoh5py.shared.utils import fetch_active_workspace
 from grid_apps.utils import (
     collocate_octrees,
@@ -48,6 +48,7 @@ class BaseJointDriver(InversionDriver):
         self._directives = None
         self._drivers = None
         self._wires = None
+        self._is_initialized = False
 
         super().__init__(params)
 
@@ -135,6 +136,9 @@ class BaseJointDriver(InversionDriver):
     def initialize(self):
         """Generate sub drivers."""
 
+        if self._is_initialized:
+            return
+
         self.validate_create_mesh()
 
         # Add re-projection to the global mesh
@@ -184,6 +188,7 @@ class BaseJointDriver(InversionDriver):
             driver.data_misfit.multipliers = multipliers
 
         self.validate_create_models()
+        self._is_initialized = True
 
     @property
     def inversion_data(self):
@@ -242,6 +247,11 @@ class BaseJointDriver(InversionDriver):
             self._n_values = count
 
         return self._n_values
+
+    def simpeg_run(self):
+        """Run inversion from params"""
+        self.initialize()
+        self.inversion.run(self.models.starting_model)
 
     def validate_create_mesh(self):
         """Function to validate and create the inversion mesh."""
@@ -314,6 +324,47 @@ class BaseJointDriver(InversionDriver):
 
             if model is not None:
                 getattr(self.models, f"_{model_type}").model = model
+
+    def _reset_models(self, iteration):
+        """
+        Reset the inversion models based on specified iteration and mesh.
+
+        :param iteration: The iteration number to reset the models for.
+        """
+        super()._reset_models(iteration)  # Only needed for joint survey
+
+        drivers = []
+        # Create sub-drivers
+        for group in self.out_group.children:
+            if not isinstance(group, SimPEGGroup):
+                continue
+
+            driver = simpeg_group_to_driver(group, self.workspace)
+            driver._reset_models(iteration)  # pylint: disable=protected-access
+            drivers.append(driver)
+
+        self._drivers = drivers
+        self.initialize()
+
+    def _reset_directives(self):
+        """
+        Reset the inversion parameters to a given iteration and beta value.
+
+        Assumes that the workspace is already opened to access data.
+        """
+        super()._reset_directives()
+
+        for child in self.out_group.children:
+            if not child.name.endswith(".chi"):
+                continue
+
+            # chi_array = read_csv(BytesIO(child.file_bytes), sep=" ")
+            #
+            # self.directives.
+
+        self.directives.directive_list.remove(
+            self.directives.beta_estimate_by_eigenvalues_directive
+        )
 
     @staticmethod
     def _validate_model_consistency(model: list[None | Any], model_type: str):

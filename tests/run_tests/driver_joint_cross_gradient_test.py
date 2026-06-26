@@ -451,10 +451,11 @@ def test_joint_cross_gradient_rotated_run(
             group_b_multiplier=1.0,
         )
 
-    with caplog.at_level(logging.WARNING):
-        _ = JointCrossGradientDriver(joint_params)
+        with caplog.at_level(logging.WARNING):
+            driver = JointCrossGradientDriver(joint_params)
+            driver.initialize()
 
-    assert "Some drivers do not have a model" in caplog.text
+        assert "Some drivers do not have a model" in caplog.text
 
     # Add gradient rotation to the mvi driver and check it is used
     params.models.gradient_rotation = gradient_rotation
@@ -471,9 +472,9 @@ def test_joint_cross_gradient_rotated_run(
         max_global_iterations=max_iterations,
     )
     joint_driver = JointCrossGradientDriver(joint_params)
-    assert joint_driver.models.gradient_dip is not None
 
     joint_driver.run()
+    assert joint_driver.models.gradient_dip is not None
 
 
 if __name__ == "__main__":

@@ -36,9 +36,6 @@ class JointPetrophysicsDriver(BaseJointDriver):
 
         super().__init__(params)
 
-        with fetch_active_workspace(self.workspace, mode="r+"):
-            self.initialize()
-
     @property
     def directives(self):
         if getattr(self, "_directives", None) is None and not self.params.forward_only:

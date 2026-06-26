@@ -464,11 +464,11 @@ class BaseDriver(Driver, ABC):
         Starting message displayed by the logger.
         """
 
-    def run(self, warm_start_iteration: int = -1):
+    def run(self, start_iteration: int = -1):
         """
         Run inversion from params
 
-        :param warm_start_iteration: Whether to warm-start the inversion.
+        :param start_iteration: Whether to warm-start the inversion.
         """
 
         if self.logger:
@@ -483,7 +483,7 @@ class BaseDriver(Driver, ABC):
                         if child.name.endswith("out")
                     ]
                 ):
-                    self.warm_start(warm_start_iteration)
+                    self.warm_start(start_iteration)
                 else:
                     if Path(self.params.input_file.path_name).is_file():
                         self.out_group.add_file(self.params.input_file.path_name)
@@ -512,7 +512,7 @@ class BaseDriver(Driver, ABC):
         cls,
         filepath: str | Path | BaseUIJson,
         mode="r+",
-        warm_start_iteration: int = -1,
+        start_iteration: int = -1,
         **kwargs,
     ) -> Self:
         """
@@ -520,7 +520,7 @@ class BaseDriver(Driver, ABC):
 
         :param filepath: Path to valid ui.json file for the application driver.
         :param mode: Mode to open the geoh5 file with.
-        :param warm_start_iteration: Iteration to warm-start the inversion if possible. Defaults to last iteration (-1).
+        :param start_iteration: Iteration to warm-start the inversion if possible. Defaults to last iteration (-1).
         :param kwargs: Additional keyword arguments for Options class.
 
         :return: Self object.
@@ -544,7 +544,7 @@ class BaseDriver(Driver, ABC):
                 kwargs.update(data)
                 params = cls._params_class.build(**kwargs)
                 driver = cls(params)
-                driver.run(warm_start_iteration=warm_start_iteration)
+                driver.run(start_iteration=start_iteration)
             except GeoAppsError as error:
                 logging.getLogger(__name__).warning(
                     "\n\nApplicationError: %s\n\n", error
@@ -564,7 +564,7 @@ class BaseDriver(Driver, ABC):
         start_dask_run(cls, json_path, **kwargs)
 
     @abstractmethod
-    def warm_start(self, warm_start_iteration: int = -1):
+    def warm_start(self, start_iteration: int = -1):
         """
         Re-start the process where it left off
         """
@@ -607,7 +607,7 @@ class ForwardDriver(BaseDriver):
         if self.logger:
             self.logger.write("Running the forward simulation ...\n")
 
-    def warm_start(self, warm_start_iteration: int = -1):
+    def warm_start(self, start_iteration: int = -1):
         """
         Re-start the process where it left off
         """
@@ -843,11 +843,11 @@ class InversionDriver(BaseDriver):
             f"with chifact = {self.params.irls.starting_chi_factor})\n"
         )
 
-    def warm_start(self, warm_start_iteration: int = -1):
+    def warm_start(self, start_iteration: int = -1):
         """
         Re-start the process where it left off
 
-        :param warm_start_iteration: Iteration number to start back at.
+        :param start_iteration: Iteration number to start back at.
         """
         log_file = next(
             child for child in self.out_group.children if child.name.endswith(".log")
@@ -859,8 +859,8 @@ class InversionDriver(BaseDriver):
         out_file.save_file(path=self.workspace.h5file.parent, name=out_file.name)
         out_array = read_csv(BytesIO(out_file.file_bytes), sep=" ")
 
-        last_iter = out_array["iteration"].iloc[warm_start_iteration]
-        last_beta = out_array["beta"].iloc[warm_start_iteration]
+        last_iter = out_array["iteration"].iloc[start_iteration]
+        last_beta = out_array["beta"].iloc[start_iteration]
 
         self.logger.write(
             "\n\t\t###################################################\n"
@@ -869,39 +869,37 @@ class InversionDriver(BaseDriver):
             + "\t\t###################################################\n"
         )
 
-        self._reset_on_iteration(last_iter, last_beta)
+        self._reset_on_iteration(last_iter)
 
-    def _reset_on_iteration(self, warm_start_iteration: int, beta: float):
+        self.inverse_problem.beta = last_beta
+
+    def _reset_on_iteration(self, start_iteration: int):
         """
         Reset the inversion parameters to a given iteration and beta value.
 
         Assumes that the workspace is already opened to access data.
 
-        :param iteration: Current iteration
-        :param beta: Current beta value
+        :param start_iteration: Iteration number to start back at.
         """
-        mesh = next(
-            child
-            for child in self.out_group.children
-            if isinstance(child, DrapeModel | Octree)
-        )
-        self._reset_models(warm_start_iteration, mesh)
+
+        self._reset_models(start_iteration)
+
+        mesh = first_child_of_type(self.out_group, (DrapeModel, Octree))
         self._inversion_mesh = InversionMesh(self.workspace, self.params, entity=mesh)
 
         # Hard-wire beta and remove directive
-        self.inverse_problem.beta = beta
         self.directives.directive_list.remove(
             self.directives.beta_estimate_by_eigenvalues_directive
         )
-        self.optimization.iter = warm_start_iteration + 1
+        self.optimization.iter = start_iteration + 1
 
-    def _reset_models(self, iteration, mesh):
+    def _reset_models(self, iteration):
         """
         Reset the inversion models based on specified iteration and mesh.
 
         :param iteration: The iteration number to reset the models for.
-        :param mesh: The mesh to reset the models from.
         """
+        mesh = first_child_of_type(self.out_group, (DrapeModel, Octree))
         flag = f"Iteration_{iteration}_"
         for child in mesh.children:
             if flag in child.name:
@@ -911,6 +909,20 @@ class InversionDriver(BaseDriver):
         raise GeoAppsError(
             f"Could not reset the inversion at iteration {iteration}, no model found."
         )
+
+
+def first_child_of_type(entity, child_type: type | tuple):
+    """
+    Get the first child of a given type from an entity.
+
+    :param entity: The parent entity to search for children.
+    :param child_type: The type of child to find.
+    :return: The first child of the specified type.
+    """
+    for child in entity.children:
+        if isinstance(child, child_type):
+            return child
+    raise GeoAppsError(f"No child of type {child_type} found in {entity.name}.")
 
 
 class InversionLogger:
