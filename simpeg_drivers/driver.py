@@ -870,7 +870,7 @@ class InversionDriver(BaseDriver):
         )
 
         self._reset_on_iteration(last_iter)
-
+        self._reset_directives(last_iter)
         self.inverse_problem.beta = last_beta
 
     def _reset_on_iteration(self, start_iteration: int):
@@ -886,12 +886,33 @@ class InversionDriver(BaseDriver):
 
         mesh = first_child_of_type(self.out_group, (DrapeModel, Octree))
         self._inversion_mesh = InversionMesh(self.workspace, self.params, entity=mesh)
+        self.optimization.iter = start_iteration + 1
 
-        # Hard-wire beta and remove directive
+    def _reset_directives(self, iteration):
+        """
+        Reset the inversion directives based on specified iteration and model.
+
+        :param iteration: The iteration number to reset directives for.
+        """
+        for child in self.out_group.children:
+            if not child.name.endswith(".chi"):
+                continue
+
+            chi_array = np.loadtxt(BytesIO(child.file_bytes), skiprows=1)
+
+            if self.directives.scale_misfits is not None:
+                self.directives.scale_misfits.scalings = chi_array[iteration, 1:]
+                self.directives.scale_misfits.multipliers = np.asarray(
+                    self.data_misfit.multipliers
+                )
+                self.data_misfit.multipliers *= self.directives.scale_misfits.scalings
+
+            break
+
+        # Hard-wire beta and remove estimator directive
         self.directives.directive_list.remove(
             self.directives.beta_estimate_by_eigenvalues_directive
         )
-        self.optimization.iter = start_iteration + 1
 
     def _reset_models(self, iteration):
         """

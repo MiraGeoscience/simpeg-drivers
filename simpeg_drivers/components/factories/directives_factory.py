@@ -123,10 +123,10 @@ class DirectivesFactory:
         for directive in [
             "vector_inversion_directive",
             "update_irls_directive",
+            "scale_misfits",
             "update_sensitivity_weights_directive",
             "beta_estimate_by_eigenvalues_directive",
             "update_preconditioner_directive",
-            "scale_misfits",
         ]:
             if getattr(self, directive) is not None:
                 directives_list.append(getattr(self, directive))
@@ -293,6 +293,7 @@ class DirectivesFactory:
                 / f"{self.params.geoh5.h5file.stem}.chi",
                 nested_tiles,
                 target_chi=self.params.cooling_schedule.chi_factor,
+                cooling_factor=self.params.cooling_schedule.cooling_factor,
             )
         return self._scale_misfits
 

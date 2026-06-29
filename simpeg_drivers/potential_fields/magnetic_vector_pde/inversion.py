@@ -16,11 +16,12 @@ from pathlib import Path
 
 import numpy as np
 from geoapps_utils.utils.importing import GeoAppsError
+from geoh5py.objects import DrapeModel, Octree
 from simpeg.maps import Projection
 from simpeg.objective_function import ComboObjectiveFunction
 from simpeg.regularization import BaseRegularization, VectorAmplitude
 
-from simpeg_drivers.driver import InversionDriver
+from simpeg_drivers.driver import InversionDriver, first_child_of_type
 from simpeg_drivers.potential_fields.magnetic_vector_pde.options import (
     MagneticVectorPDEInversionOptions,
 )
@@ -55,13 +56,14 @@ class MagneticVectorPDEInversionDriver(InversionDriver):
 
         return ComboObjectiveFunction(objfcts=reg_funcs)
 
-    def _reset_models(self, iteration, mesh):
+    def _reset_models(self, iteration):
         """
         Reset the inversion models based on specified iteration and mesh.
 
         :param iteration: The iteration number to reset the models for.
         :param mesh: The mesh to reset the models from.
         """
+        mesh = first_child_of_type(self.out_group, (DrapeModel, Octree))
         flag = f"Iteration_{iteration}_"
         count = 0
         for child in mesh.children:
