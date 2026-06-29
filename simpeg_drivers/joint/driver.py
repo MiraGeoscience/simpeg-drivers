@@ -346,26 +346,6 @@ class BaseJointDriver(InversionDriver):
         self._drivers = drivers
         self.initialize()
 
-    def _reset_directives(self):
-        """
-        Reset the inversion parameters to a given iteration and beta value.
-
-        Assumes that the workspace is already opened to access data.
-        """
-        super()._reset_directives()
-
-        for child in self.out_group.children:
-            if not child.name.endswith(".chi"):
-                continue
-
-            # chi_array = read_csv(BytesIO(child.file_bytes), sep=" ")
-            #
-            # self.directives.
-
-        self.directives.directive_list.remove(
-            self.directives.beta_estimate_by_eigenvalues_directive
-        )
-
     @staticmethod
     def _validate_model_consistency(model: list[None | Any], model_type: str):
         """

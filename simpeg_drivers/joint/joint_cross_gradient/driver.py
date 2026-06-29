@@ -99,16 +99,29 @@ class JointCrossGradientDriver(BaseJointDriver):
         """
         Create a list of directives for the joint inversion.
         """
+        regularization = self.regularization  # Pre-compute the regularization
         directives_list = super()._get_joint_directives()
 
         if self.params.iterative_rescaling:
-            for reg in self.regularization.objfcts:
+            for reg in regularization.objfcts:
                 if isinstance(reg, CrossGradient):
                     directives_list.append(
                         directives.ScaleMaximumDerivatives(reg)
                     )  # Update preconditioner after each iteration to account for cross-gradient regularization
 
         return directives_list
+
+    def _reset_directives(self, iteration):
+        """
+        Reset the inversion parameters to a given iteration and beta value.
+
+        Assumes that the workspace is already opened to access data.
+        """
+        super()._reset_directives(iteration)
+
+        for directive in self.directives.directive_list:
+            if isinstance(directive, directives.ScaleMaximumDerivatives):
+                directive.scale_on_current_model(self.models.starting_model)
 
 
 if __name__ == "__main__":
