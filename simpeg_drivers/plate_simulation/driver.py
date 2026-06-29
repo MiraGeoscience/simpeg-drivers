@@ -302,7 +302,6 @@ class PlateSimulationDriver(Driver):
         simulation_options = deepcopy(self.params.simulation.options)
         simulation_options["geoh5"] = self.params.geoh5
 
-        # TODO replace InputFile.data with UIJson.to_params
         input_file = InputFile(ui_json=simulation_options, validate=False)
         driver = driver_class_from_dict(input_file.data)
 
