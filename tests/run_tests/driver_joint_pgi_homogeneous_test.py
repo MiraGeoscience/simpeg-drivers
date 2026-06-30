@@ -340,7 +340,7 @@ def test_homogeneous_run(
             max_irls_iterations=1,
         )
         driver = JointPetrophysicsDriver(joint_params)
-
+        driver.initialize()
         with pytest.raises(
             GeoAppsError, match="A reference model must be set and active on each"
         ):
