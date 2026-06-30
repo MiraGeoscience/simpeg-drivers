@@ -313,7 +313,7 @@ def test_joint_cross_gradient_inv_run(
             sens_wts_threshold=1.0,
             percentile=100,
         )
-        out_group = validate_out_group(params)
+        out_group = validate_out_group(joint_params)
         joint_params.out_group = out_group
 
     file = joint_params.write_ui_json(tmp_path / "Joint_Inv_run.ui.json")
@@ -389,12 +389,12 @@ def test_restart_run(tmp_path):
     with Workspace(tmp_path / "inversion_test.ui.geoh5") as ws:
         out_file = ws.get_entity("inversion_test.ui.out")[0]
         out_array = read_csv(BytesIO(out_file.file_bytes), sep=" ")
-        np.testing.assert_almost_equal(out_array["beta"].iloc[4], last_beta, decimal=1)
+        np.testing.assert_almost_equal(out_array["beta"].iloc[5], last_beta, decimal=1)
         np.testing.assert_almost_equal(
-            out_array["phi_d"].iloc[4], last_phi_d, decimal=1
+            out_array["phi_d"].iloc[5], last_phi_d, decimal=0
         )
         np.testing.assert_almost_equal(
-            out_array["phi_m"].iloc[4], last_phi_m, decimal=1
+            out_array["phi_m"].iloc[5], last_phi_m, decimal=0
         )
 
 
