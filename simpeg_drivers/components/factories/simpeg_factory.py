@@ -20,8 +20,6 @@ if TYPE_CHECKING:
 
     from simpeg_drivers.options import BaseOptions
 
-# TODO Redesign simpeg factory to avoid pylint arguments-differ complaint
-
 
 class SimPEGFactory(ABC):
     """
