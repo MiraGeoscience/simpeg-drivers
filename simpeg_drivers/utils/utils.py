@@ -761,8 +761,6 @@ def driver_class_from_name(name: str, forward_only: bool = False) -> type[Driver
     """
     Get the driver class from the inversion type name.
 
-    TODO: Only for backward compatibility. To be deprecated in future versions.
-
     :param name: The inversion type name.
     :param forward_only: Whether to forward only the forward operators.
 

@@ -29,7 +29,6 @@ from simpeg_drivers.utils.utils import drape_2_tensor
 logger = getLogger(__name__)
 
 
-# TODO: Import this from newer octree-creation-app release
 def tree_levels(mesh: Octree) -> np.ndarray | None:
     """
     Convert Octree n cell indices to Treemesh level indices.

@@ -42,7 +42,6 @@ from simpeg_drivers.utils.utils import start_dask_run, validate_out_group
 logger = get_logger(name=__name__, level_name=False, propagate=False, add_name=False)
 
 
-# TODO: Can we make this generic (PlateSweepDriver -> SweepDriver)?
 class PlateSweepDriver(Driver):
     """Sets up and manages workers to run all combinations of swepts parameters."""
 

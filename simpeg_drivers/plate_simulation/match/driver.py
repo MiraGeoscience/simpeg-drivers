@@ -165,7 +165,6 @@ class PlateMatchDriver(Driver):
         logger.info("Loading input file . . .")
         filepath = Path(filepath).resolve()
 
-        # TODO: Replace with UIJson when fully implemented
         uijson = SimPEGDriversUIJson.read(filepath)
 
         with Workspace(uijson.geoh5, mode=mode) as workspace:

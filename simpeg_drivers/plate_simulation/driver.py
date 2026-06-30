@@ -315,7 +315,6 @@ class PlateSimulationDriver(Driver):
         update = {}
         models_update = {}
         if opts.physical_property == "conductivity":
-            # TODO: validate this logic
             models_update["model_type"] = ModelTypeEnum.resistivity
         if not self.params.use_leroi:
             update["mesh"] = None

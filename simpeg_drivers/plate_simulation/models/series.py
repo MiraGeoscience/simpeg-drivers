@@ -78,8 +78,6 @@ class Lithology(Series):
         and the last layer is the top unit
     """
 
-    # TODO: Provide an optional bottom surface to begin the deposition.
-
     def __init__(self, history: Sequence[Deposition]):
         super().__init__(history[::-1])
 
