@@ -19,6 +19,7 @@ from typing import Any
 import numpy as np
 import simpeg.dask.objective_function as dask_objective_function
 from geoh5py.groups import SimPEGGroup
+from geoh5py.objects import DrapeModel, Octree
 from geoh5py.shared.utils import fetch_active_workspace
 from grid_apps.utils import (
     collocate_octrees,
@@ -34,7 +35,8 @@ from simpeg_drivers.components.factories import (
     DirectivesFactory,
     SaveModelGeoh5Factory,
 )
-from simpeg_drivers.driver import InversionDriver
+from simpeg_drivers.components.meshes import InversionMesh
+from simpeg_drivers.driver import InversionDriver, first_child_of_type
 from simpeg_drivers.joint.options import BaseJointOptions
 from simpeg_drivers.options import ModelTypeEnum
 from simpeg_drivers.utils.utils import simpeg_group_to_driver
@@ -344,6 +346,21 @@ class BaseJointDriver(InversionDriver):
             drivers.append(driver)
 
         self._drivers = drivers
+
+    def _reset_on_iteration(self, start_iteration: int):
+        """
+        Reset the inversion parameters to a given iteration and beta value.
+
+        Assumes that the workspace is already opened to access data.
+
+        :param start_iteration: Iteration number to start back at.
+        """
+
+        self._reset_models(start_iteration)
+
+        mesh = first_child_of_type(self.out_group, (DrapeModel, Octree))
+        self._inversion_mesh = InversionMesh(self.workspace, self.params, entity=mesh)
+
         self.initialize()
 
     @staticmethod

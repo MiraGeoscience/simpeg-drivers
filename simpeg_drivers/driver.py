@@ -870,6 +870,7 @@ class InversionDriver(BaseDriver):
         )
 
         self._reset_on_iteration(last_iter)
+        self.optimization.iter = last_iter
         self._reset_directives(last_iter)
         self.inverse_problem.beta = last_beta
 
@@ -886,7 +887,9 @@ class InversionDriver(BaseDriver):
 
         mesh = first_child_of_type(self.out_group, (DrapeModel, Octree))
         self._inversion_mesh = InversionMesh(self.workspace, self.params, entity=mesh)
-        self.optimization.iter = start_iteration + 1
+        self.models.active_cells = (
+            self._inversion_mesh.permutation @ mesh.get_entity("active_cells")[0].values
+        ).astype(bool)
 
     def _reset_directives(self, iteration):
         """
