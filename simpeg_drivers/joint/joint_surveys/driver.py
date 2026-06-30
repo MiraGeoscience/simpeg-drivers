@@ -16,10 +16,11 @@ from logging import getLogger
 from pathlib import Path
 
 import numpy as np
+from geoh5py.objects import DrapeModel, Octree
 from geoh5py.shared.utils import fetch_active_workspace
 from simpeg import directives, maps
 
-from simpeg_drivers.driver import InversionDriver
+from simpeg_drivers.driver import InversionDriver, first_child_of_type
 from simpeg_drivers.joint.driver import BaseJointDriver
 from simpeg_drivers.joint.joint_surveys.options import JointSurveysOptions
 from simpeg_drivers.options import ModelTypeEnum
@@ -149,6 +150,21 @@ class JointSurveysDriver(BaseJointDriver):
                 self._directives.directive_list = directives_list
 
         return self._directives
+
+    def _reset_models(self, iteration):
+        """
+        Reset the inversion models based on specified iteration and mesh.
+
+        :param iteration: The iteration number to reset the models for.
+        """
+        mesh = first_child_of_type(self.out_group, (DrapeModel, Octree))
+        flag = f"Iteration_{iteration}_"
+        for child in mesh.children:
+            if flag in child.name:
+                self.params.models.starting_model = child
+                break
+
+        super()._reset_models(iteration)
 
 
 JointSurveysDriver.n_values = InversionDriver.n_values

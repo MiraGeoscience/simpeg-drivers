@@ -333,8 +333,6 @@ class BaseJointDriver(InversionDriver):
 
         :param iteration: The iteration number to reset the models for.
         """
-        super()._reset_models(iteration)  # Only needed for joint survey
-
         drivers = []
         # Create sub-drivers
         for group in self.out_group.children:
