@@ -1,9 +1,9 @@
 {
-    "version": "0.4.0",
+    "version": "0.5.0",
     "title": "Plate Simulation",
     "icon": "maxwellplate",
-    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/plate-simulation/",
-    "conda_environment": "simpeg_drivers",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/plate-simulation/simulation.html",
+    "conda_environment": "simpeg-drivers",
     "run_command": "simpeg_drivers.plate_simulation.driver",
     "geoh5": "",
     "monitoring_directory": "",
@@ -16,7 +16,7 @@
         ],
         "value": "",
         "enabled": true,
-        "tooltip": "Forward modelling SimPEG Group with at least the topography and survey set"
+        "tooltip": "Forward modelling SimPEG group with at least the topography and survey set"
     },
     "use_leroi": {
         "main": true,
@@ -36,7 +36,7 @@
         "group": "Basement",
         "label": "Physical property (SI)",
         "value": 2000.0,
-        "tooltip": "Value of the basement resisitivity (ohm-m), density (g/cc) or susceptibility (SI)",
+        "tooltip": "Value of the basement resistivity (ohm-m), density (g/cc) or susceptibility (SI)",
         "enabled": true
     },
     "overburden_property": {
@@ -44,7 +44,7 @@
         "group": "Overburden",
         "label": "Physical property (SI)",
         "value": 8000.0,
-        "tooltip": "Value of the overburden resisitivity (ohm-m), density (g/cc) or susceptibility (SI)",
+        "tooltip": "Value of the overburden resistivity (ohm-m), density (g/cc) or susceptibility (SI)",
         "enabled": true
     },
     "thickness": {
@@ -76,7 +76,7 @@
         "group": "Plate",
         "label": "Physical property (SI)",
         "value": 20.0,
-        "tooltip": "Value of the plate resisitivity (ohm-m), density (g/cc) or susceptibility (SI)",
+        "tooltip": "Value of the plate resistivity (ohm-m), density (g/cc) or susceptibility (SI)",
         "enabled": true
     },
     "width": {
@@ -130,7 +130,7 @@
         "value": 0.0,
         "enabled": true,
         "min": 0.0,
-        "tooltip": "Depth below topography to the plate centre (positive down)."
+        "tooltip": "Depth below topography to the plate centre (positive down)"
     },
     "u_cell_size": {
         "min": 0.0,

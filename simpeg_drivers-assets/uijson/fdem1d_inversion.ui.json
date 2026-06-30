@@ -1,9 +1,9 @@
 {
-    "version": "0.4.0",
+    "version": "0.5.0",
     "title": "Frequency-domain EM (FEM) 1D Inversion",
     "icon": "surveyairborneem",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
-    "conda_environment": "simpeg_drivers",
+    "conda_environment": "simpeg-drivers",
     "run_command": "simpeg_drivers.electromagnetics.frequency_domain_1d.inversion",
     "geoh5": "",
     "monitoring_directory": "",
@@ -27,10 +27,9 @@
         "main": true,
         "label": "Vertical (imaginary)",
         "tooltip": [
-            "Imaginary component of the magnetic data. If no receiver orientation provided:<dl>",
-            "<dt>Co-planar data are positive up along the z-axis .</dd>",
-            "<dt>Co-axial data are positive along North.</dd>",
-            "</dl>"
+            "Imaginary component of the magnetic data. If no receiver orientation provided:<ul>",
+            "<li>Co-planar data are positive up along the z-axis</li>",
+            "<li>Co-axial data are positive along North</li></ul>"
         ],
         "parent": "data_object",
         "optional": true,
@@ -64,10 +63,9 @@
         "main": true,
         "label": "Vertical (real)",
         "tooltip": [
-            "Real component of the magnetic data. If no receiver orientation provided:<dl>",
-            "<dt>Co-planar data are positive up along the z-axis .</dd>",
-            "<dt>Co-axial data are positive along North.</dd>",
-            "</dl>"
+            "Real component of the magnetic data. If no receiver orientation provided:<ul>",
+            "<li>Co-planar data are positive up along the z-axis</li>",
+            "<li>Co-axial data are positive along North</li></ul>"
         ],
         "parent": "data_object",
         "optional": true,
@@ -97,7 +95,7 @@
     },
     "v_cell_size": {
         "min": 0.0,
-        "group": "1D Mesh",
+        "group": "1D mesh",
         "main": true,
         "enabled": true,
         "label": "Vertical core cell size (m)",
@@ -105,7 +103,7 @@
     },
     "depth_core": {
         "min": 0.0,
-        "group": "1D Mesh",
+        "group": "1D mesh",
         "main": true,
         "enabled": true,
         "label": "Depth of core (m)",
@@ -118,7 +116,7 @@
     },
     "vertical_padding": {
         "min": 0.0,
-        "group": "1D Mesh",
+        "group": "1D mesh",
         "main": true,
         "dependencyType": "disabled",
         "label": "Vertical padding (m)",
@@ -126,7 +124,7 @@
     },
     "expansion_factor": {
         "main": true,
-        "group": "1D Mesh",
+        "group": "1D mesh",
         "label": "Expansion factor",
         "value": 1.1
     },
@@ -488,7 +486,7 @@
     },
     "sens_wts_threshold": {
         "group": "Update sensitivity weights directive",
-        "tooltip": "Threshold below which sensitivity weights become constant.  Measured as a percentage of the maximum sensitivity weight.",
+        "tooltip": "Threshold below which sensitivity weights become constant. Measured as a percentage of the maximum sensitivity weight.",
         "label": "Threshold (%)",
         "value": 100.0,
         "max": 100.0,
