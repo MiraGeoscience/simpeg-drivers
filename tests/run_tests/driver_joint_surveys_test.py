@@ -367,6 +367,7 @@ def test_joint_surveys_mvi_run(tmp_path, option_class, driver_class, anomaly=0.0
         )
 
         driver = JointSurveysDriver(joint_params)
+        driver.initialize()
         assert np.isclose(driver.models.reference_model[0], 0)  # Took it from driver_A
         assert driver.models.starting_model.shape == (driver.models.n_active * 3,)
         assert np.isclose(
@@ -446,6 +447,7 @@ def test_joint_surveys_conductivity_run(
         )
 
         driver = JointSurveysDriver(joint_params)
+        driver.initialize()
         assert np.isclose(
             driver.models.reference_model[0], np.log(1 / 5.0)
         )  # Took it from driver_A
@@ -536,6 +538,7 @@ def test_joint_surveys_tem_run(
         )
 
         driver = JointSurveysDriver(joint_params)
+        driver.initialize()
         assert (
             len(
                 [
