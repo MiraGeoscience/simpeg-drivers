@@ -162,7 +162,6 @@ class SweepOptions(Options):
                 "icon",
                 "documentation",
             ]
-            # TODO: add these to the Options fields with empty string defaults.
             out = {}
             for k, v in data.items():
                 if k in exceptions:

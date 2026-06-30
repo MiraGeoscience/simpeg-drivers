@@ -171,9 +171,6 @@ class CoreOptions(Options):
     :param generate_sweep: Generate sweep file instead of running the app.
     """
 
-    # TODO: Refactor to allow frozen True.  Currently params.data_object is
-    # updated after z_from_topo applied in entity_factory.py.  See
-    # simpeg_drivers/components/data.py ln. 127
     model_config = ConfigDict(
         frozen=False,
         arbitrary_types_allowed=True,
@@ -240,9 +237,6 @@ class CoreOptions(Options):
     def write_ui_json(self, path: Path) -> Path:
         """
         Write UI JSON file.
-
-        TODO: Replace in favor of base Options implementation
-            after geoapps_utils@feature/uijson is merged
         """
         ui_json = SimPEGDriversUIJson.read(self.default_ui_json)
 

@@ -497,7 +497,6 @@ class BaseDriver(Driver, ABC):
         """
         Run application specified by 'filepath' ui.json file.
 
-        TODO: To be replaced by the base Driver class implementation on geoapps_utils
         :param filepath: Path to valid ui.json file for the application driver.
         :param mode: Mode to open the geoh5 file with.
         :param kwargs: Additional keyword arguments for Options class.
@@ -899,8 +898,6 @@ def validate_workers(client, workers: list[tuple[str]] | None) -> list[tuple[str
 if __name__ == "__main__":
     file = Path(sys.argv[1]).resolve()
 
-    # TODO - Deprecate in favor of run_command to direct module
-    # Need to know the driver class before starting dask
     input_file = load_ui_json_as_dict(file)
     driver_class = driver_class_from_dict(input_file)
 
