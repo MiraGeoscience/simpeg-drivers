@@ -480,14 +480,17 @@ class BaseDriver(Driver, ABC):
                     [
                         child
                         for child in self.out_group.children
-                        if child.name.endswith("out")
+                        if child.name.endswith(".out")
                     ]
                 ):
                     self.warm_start(start_iteration)
                 else:
                     if Path(self.params.input_file.path_name).is_file():
                         self.out_group.add_file(self.params.input_file.path_name)
-                    self.logger.start()
+
+                    if self.logger:
+                        self.logger.start()
+
                     self.start_message()
 
                 self.simpeg_run()
@@ -862,12 +865,13 @@ class InversionDriver(BaseDriver):
         last_iter = out_array["iteration"].iloc[start_iteration]
         last_beta = out_array["beta"].iloc[start_iteration]
 
-        self.logger.write(
-            "\n\t\t###################################################\n"
-            + f"\t\t\tRe-starting inversion at iteration {last_iter}\n"
-            + f"\t\t\t\t{self.logger.start_date_time}\n"
-            + "\t\t###################################################\n"
-        )
+        if self.logger:
+            self.logger.write(
+                "\n\t\t###################################################\n"
+                + f"\t\t\tRe-starting inversion at iteration {last_iter}\n"
+                + f"\t\t\t\t{self.logger.start_date_time}\n"
+                + "\t\t###################################################\n"
+            )
 
         self._reset_on_iteration(last_iter)
         self.optimization.iter = last_iter
@@ -913,9 +917,11 @@ class InversionDriver(BaseDriver):
             break
 
         # Hard-wire beta and remove estimator directive
-        self.directives.directive_list.remove(
-            self.directives.beta_estimate_by_eigenvalues_directive
-        )
+        directive = self.directives.beta_estimate_by_eigenvalues_directive
+        if directive is not None and directive in self.directives.directive_list:
+            self.directives.directive_list.remove(
+                self.directives.beta_estimate_by_eigenvalues_directive
+            )
 
     def _reset_models(self, iteration):
         """

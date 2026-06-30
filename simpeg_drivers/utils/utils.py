@@ -832,9 +832,8 @@ def argument_parser() -> tuple:
     parser.add_argument("-i", "--start_iteration", type=int, required=False, default=-1)
     parser.add_argument("-w", "--n_workers", type=int, required=False, default=None)
     parser.add_argument("-t", "--n_threads", type=int, required=False, default=None)
-    parser.add_argument(
-        "-r", "--generate_report", type=bool, required=False, default=False
-    )
+    parser.add_argument("-r", "--generate_report", action="store_true")
 
     arguments = vars(parser.parse_args())
+    print(arguments)
     return arguments.pop("file"), arguments
