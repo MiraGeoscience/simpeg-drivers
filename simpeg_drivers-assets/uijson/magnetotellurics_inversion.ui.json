@@ -1,9 +1,9 @@
 {
-    "version": "0.4.0",
+    "version": "0.5.0",
     "title": "Magnetotellurics (MT) Inversion",
     "icon": "surveymagnetotellurics",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
-    "conda_environment": "simpeg_drivers",
+    "conda_environment": "simpeg-drivers",
     "run_command": "simpeg_drivers.natural_sources.magnetotellurics.inversion",
     "geoh5": "",
     "monitoring_directory": "",
@@ -686,7 +686,7 @@
     },
     "sens_wts_threshold": {
         "group": "Update sensitivity weights directive",
-        "tooltip": "Threshold below which sensitivity weights become constant.  Measured as a percentage of the maximum sensitivity weight.",
+        "tooltip": "Threshold below which sensitivity weights become constant. Measured as a percentage of the maximum sensitivity weight.",
         "label": "Threshold (%)",
         "value": 1.0,
         "max": 100.0,

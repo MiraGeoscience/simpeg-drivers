@@ -1,9 +1,9 @@
 {
-    "version": "0.4.0",
+    "version": "0.5.0",
     "title": "Time-domain EM (TEM) 1D Inversion",
     "icon": "surveyairborneem",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
-    "conda_environment": "simpeg_drivers",
+    "conda_environment": "simpeg-drivers",
     "run_command": "simpeg_drivers.electromagnetics.time_domain_1d.inversion",
     "geoh5": "",
     "monitoring_directory": "",
@@ -30,8 +30,8 @@
         "tooltip": [
             "Set the units of the data.<p>",
             "Data are expected to be normalized by the source strength, dependent on the type: <dl>",
-            "<dt>Dipole</dt><dd>Current * area * number of turns (NIA).</dd>",
-            "<dt>Wire</dt><dd>Current * number of turns (NI).</dd>",
+            "<dt>Dipole</dt><dd>Current * area * number of turns (NIA)</dd>",
+            "<dt>Wire</dt><dd>Current * number of turns (NI)</dd>",
             "</dl>"
         ],
         "value": "Airborne dB/dt (V/Am^4)"
@@ -74,7 +74,7 @@
     },
     "v_cell_size": {
         "min": 0.0,
-        "group": "1D Mesh",
+        "group": "1D mesh",
         "main": true,
         "enabled": true,
         "label": "Vertical core cell size (m)",
@@ -82,7 +82,7 @@
     },
     "depth_core": {
         "min": 0.0,
-        "group": "1D Mesh",
+        "group": "1D mesh",
         "main": true,
         "enabled": true,
         "label": "Depth of core (m)",
@@ -95,7 +95,7 @@
     },
     "vertical_padding": {
         "min": 0.0,
-        "group": "1D Mesh",
+        "group": "1D mesh",
         "main": true,
         "dependencyType": "disabled",
         "label": "Vertical padding (m)",
@@ -103,7 +103,7 @@
     },
     "expansion_factor": {
         "main": true,
-        "group": "1D Mesh",
+        "group": "1D mesh",
         "label": "Expansion factor",
         "value": 1.1
     },
@@ -459,7 +459,7 @@
     },
     "sens_wts_threshold": {
         "group": "Update sensitivity weights directive",
-        "tooltip": "Threshold below which sensitivity weights become constant.  Measured as a percentage of the maximum sensitivity weight.",
+        "tooltip": "Threshold below which sensitivity weights become constant. Measured as a percentage of the maximum sensitivity weight.",
         "label": "Threshold (%)",
         "value": 100.0,
         "max": 100.0,

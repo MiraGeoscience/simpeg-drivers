@@ -1,9 +1,9 @@
 {
-    "version": "0.4.0",
+    "version": "0.5.0",
     "title": "Time-domain EM (TEM) Inversion",
     "icon": "surveyairborneem",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
-    "conda_environment": "simpeg_drivers",
+    "conda_environment": "simpeg-drivers",
     "run_command": "simpeg_drivers.electromagnetics.time_domain.inversion",
     "geoh5": "",
     "monitoring_directory": "",
@@ -29,9 +29,9 @@
         "label": "Receivers orientation",
         "tooltip": [
             "Receivers orientation provided as 'Dip direction & dip' or '3D vector' data group. If not provided, it assumes: <dl>",
-            "<dt>In-line component</dt><dd>Positive towards North (Y).</dd>",
-            "<dt>Cross-line component</dt><dd>Positive towards East (X).</dd>",
-            "<dt>Vertical component</dt><dd>Positive up (Z).</dd>",
+            "<dt>In-line component</dt><dd>Positive towards North (Y)</dd>",
+            "<dt>Cross-line component</dt><dd>Positive towards East (X)</dd>",
+            "<dt>Vertical component</dt><dd>Positive up (Z)</dd>",
             "</dl>"
         ],
         "optional": true,
@@ -52,8 +52,8 @@
         "tooltip": [
             "Set the units of the data.<p>",
             "Data are expected to be normalized by the source strength, dependent on the type: <dl>",
-            "<dt>Dipole</dt><dd>Current * area * number of turns (NIA).</dd>",
-            "<dt>Wire</dt><dd>Current * number of turns (NI).</dd>",
+            "<dt>Dipole</dt><dd>Current * area * number of turns (NIA)</dd>",
+            "<dt>Wire</dt><dd>Current * number of turns (NI)</dd>",
             "</dl>"
         ],
         "value": "Airborne dB/dt (V/Am^4)"
@@ -562,7 +562,7 @@
     },
     "sens_wts_threshold": {
         "group": "Update sensitivity weights directive",
-        "tooltip": "Threshold below which sensitivity weights become constant.  Measured as a percentage of the maximum sensitivity weight.",
+        "tooltip": "Threshold below which sensitivity weights become constant. Measured as a percentage of the maximum sensitivity weight.",
         "label": "Threshold (%)",
         "value": 1.0,
         "max": 100.0,

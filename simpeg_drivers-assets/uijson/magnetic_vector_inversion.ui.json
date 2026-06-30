@@ -1,9 +1,9 @@
 {
-    "version": "0.4.0",
+    "version": "0.5.0",
     "title": "Magnetic Vector (MVI) Inversion",
     "icon": "surveyairbornemagnetics",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
-    "conda_environment": "simpeg_drivers",
+    "conda_environment": "simpeg-drivers",
     "run_command": "simpeg_drivers.potential_fields.magnetic_vector.inversion",
     "geoh5": "",
     "monitoring_directory": "",
@@ -14,7 +14,7 @@
         "lineEdit": false,
         "main": true,
         "group": "Inducing field",
-        "label": "Declination (deg)",
+        "label": "Declination (degrees)",
         "value": 0.0
     },
     "inducing_field_inclination": {
@@ -24,7 +24,7 @@
         "lineEdit": false,
         "main": true,
         "group": "Inducing field",
-        "label": "Inclination (deg)",
+        "label": "Inclination (degrees)",
         "value": 90.0
     },
     "inducing_field_strength": {
@@ -421,7 +421,7 @@
         "optional": true,
         "enabled": false,
         "parent": "mesh",
-        "label": "Initial inclination (deg)",
+        "label": "Initial inclination (degrees)",
         "property": "",
         "value": 0.0
     },
@@ -437,7 +437,7 @@
         "optional": true,
         "enabled": false,
         "parent": "mesh",
-        "label": "Initial declination (deg)",
+        "label": "Initial declination (degrees)",
         "property": "",
         "value": 0.0
     },
@@ -452,7 +452,7 @@
         "isValue": true,
         "optional": true,
         "enabled": false,
-        "label": "Reference inclination (deg)",
+        "label": "Reference inclination (degrees)",
         "parent": "mesh",
         "property": "",
         "value": 0.0
@@ -468,7 +468,7 @@
         "isValue": true,
         "optional": true,
         "enabled": false,
-        "label": "Reference declination (deg)",
+        "label": "Reference declination (degrees)",
         "parent": "mesh",
         "property": "",
         "value": 0.0
@@ -806,7 +806,7 @@
     },
     "sens_wts_threshold": {
         "group": "Update sensitivity weights directive",
-        "tooltip": "Threshold below which sensitivity weights become constant.  Measured as a percentage of the maximum sensitivity weight.",
+        "tooltip": "Threshold below which sensitivity weights become constant. Measured as a percentage of the maximum sensitivity weight.",
         "label": "Threshold (%)",
         "value": 0.001,
         "max": 100.0,

@@ -1,9 +1,9 @@
 {
-    "version": "0.2.0-alpha.1",
+    "version": "0.5.0",
     "title": "Plate Match",
     "icon": "maxwellplate",
-    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/plate-simulation/",
-    "conda_environment": "simpeg_drivers",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/plate-simulation/simulation.html",
+    "conda_environment": "simpeg-drivers",
     "run_command": "simpeg_drivers.plate_simulation.match.driver",
     "geoh5": "",
     "monitoring_directory": "",
@@ -32,7 +32,7 @@
     },
     "queries": {
         "main": true,
-        "label": "Query Points",
+        "label": "Query points",
         "meshType": [
             "{6a057fdc-b355-11e3-95be-fd84a7ffcb88}",
             "{202C5DB1-A56D-4004-9CAD-BAAFD8899406}"
@@ -42,7 +42,7 @@
     },
     "max_distance": {
         "main": true,
-        "label": "Query Max Distance (m)",
+        "label": "Query max distance (m)",
         "value": 1000.0,
         "tooltip": "Length on either side of the query points to evaluate the match"
     },
@@ -53,7 +53,7 @@
         ],
         "dataType": "Float",
         "main": true,
-        "label": "Strike Angles (degrees)",
+        "label": "Strike angles (degrees)",
         "parent": "queries",
         "optional": true,
         "enabled": false,
@@ -96,11 +96,11 @@
         "main": true,
         "label": "Simulations directory",
         "directoryOnly": true,
-        "tootip": "Directory where pre-computed simulations are stored.",
+        "tooltip": "Directory where pre-computed simulations are stored",
         "value": "./simulations"
     },
     "out_group": {
-        "label": "UIJsonGroup",
+        "label": "SimPEG group",
         "value": "",
         "groupType": "{55ed3daf-c192-4d4b-a439-60fa987fe2b8}",
         "visible": true,

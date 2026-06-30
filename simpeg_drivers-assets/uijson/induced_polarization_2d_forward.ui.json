@@ -1,9 +1,9 @@
 {
-    "version": "0.3.0-alpha.6",
+    "version": "0.5.0",
     "title": "Induced Polarization (IP) 2D Forward",
     "icon": "PotentialElectrode",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
-    "conda_environment": "simpeg_drivers",
+    "conda_environment": "simpeg-drivers",
     "run_command": "simpeg_drivers.electricals.induced_polarization.two_dimensions.forward",
     "geoh5": "",
     "monitoring_directory": "",
@@ -30,7 +30,7 @@
         "property": "",
         "optional": true,
         "enabled": false,
-        "tooltip": "Select a subset of lines in the survey for inversion"
+        "tooltip": "Select a subset of lines in the survey for forward modelling"
     },
     "chargeability_channel_bool": true,
     "mesh": {
@@ -118,7 +118,7 @@
         "isValue": true,
         "parent": "mesh",
         "label": "Background",
-        "tooltip": "Provide a background conductivity model in the model units (S/m or Ohm-m).\nGenerally the result of a 2D inversion of the DC resistivity data.",
+        "tooltip": "Provide a background conductivity model in the model units (S/m or ohm-m)",
         "property": "",
         "value": 0.001
     },
@@ -147,7 +147,7 @@
         "value": "",
         "optional": true,
         "enabled": true,
-        "tooltip": "Select a topography object to define the active cells for inversion"
+        "tooltip": "Select a topography object to define the active cells for forward modelling"
     },
     "topography": {
         "association": [
@@ -160,7 +160,7 @@
         "optional": true,
         "enabled": false,
         "label": "Elevation channel",
-        "tooltip": "Set elevation from channel.  If not set the topography will be set from the geometry of the selected 'topography' object",
+        "tooltip": "Set elevation from channel. If not set the topography will be set from the geometry of the selected 'topography' object",
         "parent": "topography_object",
         "dependency": "topography_object",
         "dependencyType": "enabled",
@@ -180,7 +180,7 @@
         "dependency": "topography_object",
         "dependencyType": "disabled",
         "label": "Active model",
-        "tooltip": "Provide the active cell boolean model directly if topography not set",
+        "tooltip": "Provide the active cell Boolean model directly if topography not set",
         "parent": "mesh",
         "value": ""
     },

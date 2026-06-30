@@ -1,9 +1,9 @@
 {
-    "version": "0.4.0",
+    "version": "0.5.0",
     "title": "Joint Cross Gradient Inversion",
     "icon": "function",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
-    "conda_environment": "simpeg_drivers",
+    "conda_environment": "simpeg-drivers",
     "run_command": "simpeg_drivers.joint.joint_cross_gradient.driver",
     "geoh5": "",
     "monitoring_directory": "",
@@ -68,7 +68,7 @@
     "cross_gradient_weight_c_a": {
         "min": 0.0,
         "group": "Joint",
-        "label": "A x B coupling scale",
+        "label": "A x C coupling scale",
         "value": 1.0,
         "main": true,
         "lineEdit": false,
@@ -424,7 +424,7 @@
     },
     "sens_wts_threshold": {
         "group": "Update sensitivity weights directive",
-        "tooltip": "Threshold below which sensitivity weights become constant.  Measured as a percentage of the maximum sensitivity weight.",
+        "tooltip": "Threshold below which sensitivity weights become constant. Measured as a percentage of the maximum sensitivity weight.",
         "label": "Threshold (%)",
         "value": 0.001,
         "max": 100.0,

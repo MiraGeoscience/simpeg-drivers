@@ -117,8 +117,6 @@ class TileEstimator(Driver):
         """
         Run the tile estimator.
         """
-        # TODO find out why this is needed. Without I get an error because the
-        # data_object is no longer the parent of tmi_channel.
         _ = self.driver.inversion  # Triggers creation of something
         results = self.get_results()
 

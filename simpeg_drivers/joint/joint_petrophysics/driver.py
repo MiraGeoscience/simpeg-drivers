@@ -51,25 +51,6 @@ class JointPetrophysicsDriver(BaseJointDriver):
                     )
                 )
 
-                # TODO: To bring back once we let the classification change
-                # directives_list.append(
-                #     directives.SavePGIModel(
-                #         self.inversion_mesh.entity,
-                #         self.pgi_regularization,
-                #         self.geo_units,
-                #         [driver.params.physical_property for driver in self.drivers],
-                #         transforms=[
-                #             lambda x: np.r_[list(self.geo_units)][self.class_mapping][
-                #                 x.astype(int)
-                #             ],
-                #             maps.InjectActiveCells(
-                #                 self.inversion_mesh.mesh, self.models.active_cells, 0
-                #             ),
-                #         ],
-                #         reference_type=self.params.models.petrophysical_model.entity_type,
-                #     )
-                # )
-
                 self._directives.directive_list = directives_list
 
         return self._directives
@@ -97,8 +78,6 @@ class JointPetrophysicsDriver(BaseJointDriver):
                 covariance_type="diag",
                 random_state=1,
             )
-            # TODO: Use the corresponding data_maps from the reference data
-            #  when available to define the means and covariances and weights
             self._gaussian_model.means_ = self.means[self.class_mapping]
             # set phys. prop covariances for each unit
             self._gaussian_model.covariances_ = self.covariances[self.class_mapping]
@@ -147,8 +126,6 @@ class JointPetrophysicsDriver(BaseJointDriver):
     def means(self) -> np.ndarray:
         """
         Means of the Gaussian mixture model.
-
-        TODO: Set the means based on the model units when made available.
         """
         means = []
         for mapping in self.mapping:
@@ -173,8 +150,6 @@ class JointPetrophysicsDriver(BaseJointDriver):
     def covariances(self) -> np.ndarray:
         """
         Covariances of the Gaussian mixture model.
-
-        TODO: Set the covariances based on the model units when made available.
         """
         return np.ones((self.n_units, len(self.mapping)))
 
@@ -182,8 +157,6 @@ class JointPetrophysicsDriver(BaseJointDriver):
     def weights(self) -> np.ndarray:
         """
         Weights of the Gaussian mixture model.
-
-        TODO: Set the weights based on the model units when made available.
         """
         weights = []
         volumes = self.inversion_mesh.mesh.cell_volumes[self.models.active_cells]

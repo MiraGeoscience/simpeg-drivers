@@ -545,7 +545,6 @@ def tile_locations(
         grid_locs = grid_locs[sorting, :]
 
     # Cluster
-    # TODO turn off filter once sklearn has dealt with the issue causing the warning
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", category=UserWarning)
         from sklearn.cluster import KMeans

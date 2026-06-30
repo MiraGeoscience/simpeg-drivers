@@ -1033,8 +1033,6 @@ def validate_workers(client, workers: list[tuple[str]] | None) -> list[tuple[str
 if __name__ == "__main__":
     file = Path(sys.argv[1]).resolve()
 
-    # TODO - Deprecate in favor of run_command to direct module
-    # Need to know the driver class before starting dask
     input_file = load_ui_json_as_dict(file)
     driver_class = driver_class_from_dict(input_file)
 
