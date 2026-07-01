@@ -11,9 +11,6 @@
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import numpy as np
 from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.objects import DrapeModel, Octree
@@ -25,6 +22,7 @@ from simpeg_drivers.driver import InversionDriver, first_child_of_type
 from simpeg_drivers.potential_fields.magnetic_vector_pde.options import (
     MagneticVectorPDEInversionOptions,
 )
+from simpeg_drivers.utils.utils import argument_parser
 
 
 class MagneticVectorPDEInversionDriver(InversionDriver):
@@ -87,5 +85,5 @@ class MagneticVectorPDEInversionDriver(InversionDriver):
 
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
-    MagneticVectorPDEInversionDriver.start_dask_run(file)
+    file, args = argument_parser()
+    MagneticVectorPDEInversionDriver.start_dask_run(file, **args)

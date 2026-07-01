@@ -11,14 +11,12 @@
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.electricals.base_2d import Base2DDriver
 from simpeg_drivers.electricals.induced_polarization.two_dimensions.options import (
     IP2DInversionOptions,
 )
+from simpeg_drivers.utils.utils import argument_parser
 
 
 class IP2DInversionDriver(Base2DDriver, InversionDriver):
@@ -28,5 +26,5 @@ class IP2DInversionDriver(Base2DDriver, InversionDriver):
 
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
-    IP2DInversionDriver.start_dask_run(file)
+    file, args = argument_parser()
+    IP2DInversionDriver.start_dask_run(file, **args)

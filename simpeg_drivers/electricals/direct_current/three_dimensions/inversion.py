@@ -11,13 +11,11 @@
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.electricals.direct_current.three_dimensions.options import (
     DC3DInversionOptions,
 )
+from simpeg_drivers.utils.utils import argument_parser
 
 
 class DC3DInversionDriver(InversionDriver):
@@ -27,5 +25,5 @@ class DC3DInversionDriver(InversionDriver):
 
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
-    DC3DInversionDriver.start_dask_run(file)
+    file, args = argument_parser()
+    DC3DInversionDriver.start_dask_run(file, **args)

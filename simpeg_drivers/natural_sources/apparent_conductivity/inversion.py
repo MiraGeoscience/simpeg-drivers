@@ -11,13 +11,11 @@
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.natural_sources.apparent_conductivity.options import (
     AppConInversionOptions,
 )
+from simpeg_drivers.utils.utils import argument_parser
 
 
 class AppConInversionDriver(InversionDriver):
@@ -27,5 +25,5 @@ class AppConInversionDriver(InversionDriver):
 
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
-    AppConInversionDriver.start_dask_run(file)
+    file, args = argument_parser()
+    AppConInversionDriver.start_dask_run(file, **args)

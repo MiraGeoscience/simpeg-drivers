@@ -76,9 +76,10 @@ from simpeg_drivers.uijson import SimPEGDriversUIJson
 from simpeg_drivers.utils.nested import tile_locations
 from simpeg_drivers.utils.regularization import cell_neighbors, set_rotated_operators
 from simpeg_drivers.utils.utils import (
-    validate_out_group,
-    start_dask_run,
+    argument_parser,
     driver_class_from_dict,
+    start_dask_run,
+    validate_out_group,
 )
 
 mlogger = logging.getLogger("distributed")
@@ -1037,9 +1038,9 @@ def validate_workers(client, workers: list[tuple[str]] | None) -> list[tuple[str
 
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
+    file, args = argument_parser()
 
     input_file = load_ui_json_as_dict(file)
     driver_class = driver_class_from_dict(input_file)
 
-    driver_class.start_dask_run(file)
+    driver_class.start_dask_run(file, **args)

@@ -11,13 +11,11 @@
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 from simpeg_drivers.driver import ForwardDriver
 from simpeg_drivers.natural_sources.apparent_conductivity.options import (
     AppConForwardOptions,
 )
+from simpeg_drivers.utils.utils import argument_parser
 
 
 class AppConForwardDriver(ForwardDriver):
@@ -27,5 +25,5 @@ class AppConForwardDriver(ForwardDriver):
 
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
-    AppConForwardDriver.start_dask_run(file)
+    file, args = argument_parser()
+    AppConForwardDriver.start_dask_run(file, **args)

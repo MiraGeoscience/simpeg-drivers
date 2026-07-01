@@ -11,11 +11,9 @@
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.natural_sources.magnetotellurics.options import MTInversionOptions
+from simpeg_drivers.utils.utils import argument_parser
 
 
 class MTInversionDriver(InversionDriver):
@@ -25,5 +23,5 @@ class MTInversionDriver(InversionDriver):
 
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
-    MTInversionDriver.start_dask_run(file)
+    file, args = argument_parser()
+    MTInversionDriver.start_dask_run(file, **args)

@@ -11,9 +11,7 @@
 
 from __future__ import annotations
 
-import sys
 from logging import getLogger
-from pathlib import Path
 
 import numpy as np
 from geoh5py.objects import DrapeModel, Octree
@@ -24,6 +22,7 @@ from simpeg_drivers.driver import InversionDriver, first_child_of_type
 from simpeg_drivers.joint.driver import BaseJointDriver
 from simpeg_drivers.joint.joint_surveys.options import JointSurveysOptions
 from simpeg_drivers.options import ModelTypeEnum
+from simpeg_drivers.utils.utils import argument_parser
 
 
 logger = getLogger(__name__)
@@ -171,5 +170,5 @@ JointSurveysDriver.n_values = InversionDriver.n_values
 JointSurveysDriver.mapping = InversionDriver.mapping
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
-    JointSurveysDriver.start_dask_run(file)
+    file, args = argument_parser()
+    JointSurveysDriver.start_dask_run(file, **args)

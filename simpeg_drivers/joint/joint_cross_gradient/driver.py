@@ -13,17 +13,15 @@
 
 from __future__ import annotations
 
-import sys
 from itertools import combinations
-from pathlib import Path
 
-from geoh5py.shared.utils import fetch_active_workspace
 from simpeg import directives, maps
 from simpeg.objective_function import ComboObjectiveFunction
 from simpeg.regularization import CrossGradient
 
 from simpeg_drivers.joint.driver import BaseJointDriver
 from simpeg_drivers.joint.joint_cross_gradient.options import JointCrossGradientOptions
+from simpeg_drivers.utils.utils import argument_parser
 
 
 class JointCrossGradientDriver(BaseJointDriver):
@@ -125,5 +123,5 @@ class JointCrossGradientDriver(BaseJointDriver):
 
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
-    JointCrossGradientDriver.start_dask_run(file)
+    file, args = argument_parser()
+    JointCrossGradientDriver.start_dask_run(file, **args)

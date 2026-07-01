@@ -11,13 +11,11 @@
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.potential_fields.magnetic_scalar.options import (
     MagneticInversionOptions,
 )
+from simpeg_drivers.utils.utils import argument_parser
 
 
 class MagneticInversionDriver(InversionDriver):
@@ -27,5 +25,5 @@ class MagneticInversionDriver(InversionDriver):
 
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
-    MagneticInversionDriver.start_dask_run(file)
+    file, args = argument_parser()
+    MagneticInversionDriver.start_dask_run(file, **args)
