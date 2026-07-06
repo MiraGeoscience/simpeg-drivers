@@ -109,7 +109,7 @@ class JointCrossGradientDriver(BaseJointDriver):
 
         return directives_list
 
-    def _reset_directives(self, iteration):
+    def _reset_directives(self, iteration: int):
         """
         Reset the inversion parameters to a given iteration and beta value.
 

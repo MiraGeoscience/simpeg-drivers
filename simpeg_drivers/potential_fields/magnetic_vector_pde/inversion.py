@@ -54,7 +54,7 @@ class MagneticVectorPDEInversionDriver(InversionDriver):
 
         return ComboObjectiveFunction(objfcts=reg_funcs)
 
-    def _reset_models(self, iteration):
+    def _reset_models(self, iteration: int):
         """
         Reset the inversion models based on specified iteration.
 

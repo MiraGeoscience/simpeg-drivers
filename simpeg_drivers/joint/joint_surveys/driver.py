@@ -150,7 +150,7 @@ class JointSurveysDriver(BaseJointDriver):
 
         return self._directives
 
-    def _reset_models(self, iteration):
+    def _reset_models(self, iteration: int):
         """
         Reset the inversion models based on specified iteration.
 
