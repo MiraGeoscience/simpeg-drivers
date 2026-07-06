@@ -39,17 +39,17 @@ dependencies:
   - brotli-python=1.2.0=py312hc6d9e41_1
   - bzip2=1.0.8=h0ad9c76_9
   - ca-certificates=2026.6.17=h4c7d964_0
-  - cached-property=1.5.2=hd8ed1ab_1
-  - cached_property=1.5.2=pyha770c72_1
+  - cached-property=1.5.2=hd8ed1ab_2
+  - cached_property=1.5.2=pyha770c72_2
   - certifi=2026.6.17=pyhd8ed1ab_0
   - cffi=2.0.0=py312he06e257_1
   - charset-normalizer=3.4.7=pyhd8ed1ab_0
-  - click=8.4.1=pyh6dadd2b_0
+  - click=8.4.2=pyh6dadd2b_0
   - cloudpickle=3.1.2=pyhcf101f3_1
   - colorama=0.4.6=pyhd8ed1ab_1
   - comm=0.2.3=pyhe01879c_0
   - contourpy=1.3.3=py312h78d62e6_4
-  - coverage=7.14.3=py312h05f76fc_0
+  - coverage=7.15.0=py312h05f76fc_0
   - cpython=3.12.13=py312hd8ed1ab_0
   - cycler=0.12.1=pyhcf101f3_2
   - cytoolz=1.1.0=py312he06e257_2
@@ -79,6 +79,7 @@ dependencies:
   - httpcore=1.0.9=pyh29332c3_0
   - httpx=0.28.1=pyhd8ed1ab_0
   - hyperframe=6.1.0=pyhd8ed1ab_0
+  - icu=78.3=h637d24d_0
   - idna=3.18=pyhcf101f3_0
   - imagesize=2.0.0=pyhd8ed1ab_0
   - importlib-metadata=9.0.0=pyhcf101f3_0
@@ -98,7 +99,7 @@ dependencies:
   - jsonschema=4.26.0=pyhcf101f3_0
   - jsonschema-specifications=2025.9.1=pyhcf101f3_0
   - jsonschema-with-format-nongpl=4.26.0=hcf101f3_0
-  - jupyter-book=2.1.5=pyhcf101f3_0
+  - jupyter-book=2.1.6=pyhcf101f3_0
   - jupyter-builder=1.0.2=pyhcf101f3_0
   - jupyter-lsp=2.3.1=pyhcf101f3_0
   - jupyter_client=8.9.1=pyhcf101f3_0
@@ -122,7 +123,7 @@ dependencies:
   - libbrotlidec=1.2.0=hfd05255_1
   - libbrotlienc=1.2.0=hfd05255_1
   - libcblas=3.11.0=6_h2a3cdd5_mkl
-  - libcurl=8.21.0=h8206538_1
+  - libcurl=8.21.0=h51a1c48_2
   - libdeflate=1.25=h51727cc_0
   - libdlf=0.3.0=pyhd8ed1ab_1
   - libexpat=2.8.1=hac47afa_1
@@ -137,16 +138,17 @@ dependencies:
   - liblapack=3.11.0=6_hf9ab0e9_mkl
   - liblzma=5.8.3=hfd05255_0
   - libpng=1.6.58=h7351971_0
+  - libpsl=0.22.0=hc1744f7_0
   - libsodium=1.0.22=h6a83c73_1
   - libspatialindex=2.1.0=h2854ae6_1
   - libsqlite=3.53.3=hf5d6505_0
   - libssh2=1.11.1=h9aa295b_0
-  - libtiff=4.7.1=h8f73337_1
+  - libtiff=4.7.2=h8f73337_0
   - libwebp-base=1.6.0=h4d5522a_0
   - libwinpthread=12.0.0.r4.gg4f2fc60ca=h57928b3_10
   - libxcb=1.17.0=h0e4246c_0
-  - libxml2=2.15.3=hbc0d294_0
-  - libxml2-16=2.15.3=h692994f_0
+  - libxml2=2.15.3=h8ef44ab_0
+  - libxml2-16=2.15.3=h3cfd58e_0
   - libzlib=1.3.2=hfd05255_2
   - llvm-openmp=22.1.8=h4fa8253_0
   - locket=1.0.0=pyhd8ed1ab_0
@@ -184,7 +186,7 @@ dependencies:
   - pandocfilters=1.5.0=pyhd8ed1ab_0
   - parso=0.8.7=pyhcf101f3_0
   - partd=1.4.2=pyhd8ed1ab_0
-  - pillow=12.2.0=py312h31f0997_0
+  - pillow=12.3.0=py312h31f0997_0
   - pip=26.1.2=pyh8b19718_0
   - platformdirs=4.10.0=pyhcf101f3_0
   - pluggy=1.6.0=pyhf9edf01_1
@@ -224,7 +226,7 @@ dependencies:
   - rfc3339-validator=0.1.4=pyhd8ed1ab_1
   - rfc3986-validator=0.1.1=pyh9f0ad1d_0
   - rfc3987-syntax=1.1.0=pyhe01879c_1
-  - rpds-py=2026.5.1=py312hd944d65_0
+  - rpds-py=2026.6.3=py312hd944d65_0
   - rtree=1.4.1=pyh11ca60a_0
   - scikit-learn=1.8.0=np2py312hea30aaf_1
   - scipy=1.17.1=py312h9b3c559_1
@@ -256,9 +258,9 @@ dependencies:
   - tqdm=4.68.3=pyha7b4d00_0
   - traitlets=5.15.1=pyhcf101f3_0
   - trimesh=4.12.2=pyh7b2049a_0
-  - typing-extensions=4.15.0=h396c80c_0
+  - typing-extensions=4.16.0=h69aa097_0
   - typing-inspection=0.4.2=pyhcf101f3_2
-  - typing_extensions=4.15.0=pyhcf101f3_0
+  - typing_extensions=4.16.0=pyhcf101f3_0
   - typing_utils=0.1.0=pyhd8ed1ab_1
   - tzdata=2025c=hc9c84f9_1
   - ucrt=10.0.26100.0=h57928b3_0
@@ -289,10 +291,10 @@ dependencies:
   - zlib-ng=2.3.3=h0261ad2_1
   - zstd=1.5.7=h534d264_6
   - pip:
-    - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@3b990d2fc9a02318c72476da648022b4ef59dd1f
-    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@e2e39b901bedbd08e7594fb29581dc068e77c4f2
-    - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@365135e240bc20fb95b986501ac33825c4a9f987
-    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@1f22857226a3892fe943fb90a4d895fe0cc349de
+    - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@ec294c0c205ea3e0a2bc660661738d2c047934b9
+    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@3a9bfce3a1f1a029e92a3e35c6de4ecda5c8e69e
+    - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@67e7c5f431ad12af4fc985282504a74c2ee690ac
+    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@91bd875f8bbb81b71be09e79af102a22062f12e5
 
 variables:
   KMP_WARNINGS: 0
