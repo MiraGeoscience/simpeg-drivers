@@ -59,7 +59,6 @@ class MagneticVectorPDEInversionDriver(InversionDriver):
         Reset the inversion models based on specified iteration.
 
         :param iteration: The iteration number to reset the models for.
-        :param mesh: The mesh to reset the models from.
         """
         mesh = first_child_of_type(self.out_group, (DrapeModel, Octree))
         flag = f"Iteration_{iteration}_"
