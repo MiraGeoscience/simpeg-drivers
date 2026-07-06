@@ -35,7 +35,7 @@ from geoh5py import Workspace
 from geoh5py.groups import SimPEGGroup
 from geoh5py.objects import DrapeModel, FEMSurvey, Octree
 from geoh5py.shared.utils import fetch_active_workspace
-from geoh5py.ui_json import BaseUIJson
+from geoh5py.ui_json import UIJson
 
 from simpeg import (
     directives,
@@ -514,7 +514,7 @@ class BaseDriver(Driver, ABC):
     @classmethod
     def start(
         cls,
-        filepath: str | Path | BaseUIJson,
+        filepath: str | Path | UIJson,
         mode="r+",
         start_iteration: int = -1,
         **kwargs,
@@ -536,8 +536,8 @@ class BaseDriver(Driver, ABC):
             else filepath
         )
 
-        if not isinstance(uijson, BaseUIJson):
-            raise TypeError("Input file must be a string path or a BaseUIJson object.")
+        if not isinstance(uijson, UIJson):
+            raise TypeError("Input file must be a string path or a UIJson object.")
 
         if uijson.geoh5 is None:
             raise GeoAppsError("The application needs a valid 'geoh5' file.")

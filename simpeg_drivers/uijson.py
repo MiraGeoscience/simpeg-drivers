@@ -11,7 +11,7 @@
 import json
 import logging
 
-from geoh5py.ui_json.ui_json import BaseUIJson
+from geoh5py.ui_json.ui_json import UIJson
 from packaging.version import Version
 from pydantic import field_validator
 
@@ -21,7 +21,7 @@ from . import public_version
 logger = logging.getLogger(__name__)
 
 
-class SimPEGDriversUIJson(BaseUIJson):
+class SimPEGDriversUIJson(UIJson):
     """Base class for simpeg-drivers UIJson."""
 
     icon: str
@@ -86,7 +86,7 @@ class SimPEGDriversUIJson(BaseUIJson):
             file.write(data)
 
     @classmethod
-    def from_dict(cls, data: dict) -> BaseUIJson:
+    def from_dict(cls, data: dict) -> UIJson:
         """
         Create a UIJson instance from a dictionary.
 
