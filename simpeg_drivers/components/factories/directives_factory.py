@@ -425,7 +425,7 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
                 active_cells_map,
                 inversion_object.permutation.T,
             ]
-            data_type = self.find_create_angle_data_type()
+            data_type = self.find_or_create_angle_data_type()
             kwargs["data_type"] = {
                 "": {
                     1: data_type,
