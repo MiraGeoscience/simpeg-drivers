@@ -463,7 +463,7 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
 
         return kwargs
 
-    def find_create_angle_data_type(self) -> DataType:
+    def find_or_create_angle_data_type(self) -> DataType:
         """
         Look for existing data type for angles in the geoh5 workspace.
         If not found, create a new data type with a colormap for angles.

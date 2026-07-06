@@ -152,7 +152,7 @@ class JointSurveysDriver(BaseJointDriver):
 
     def _reset_models(self, iteration):
         """
-        Reset the inversion models based on specified iteration and mesh.
+        Reset the inversion models based on specified iteration.
 
         :param iteration: The iteration number to reset the models for.
         """
