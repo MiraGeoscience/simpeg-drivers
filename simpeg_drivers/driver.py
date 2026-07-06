@@ -79,7 +79,6 @@ from simpeg_drivers.utils.utils import (
     argument_parser,
     driver_class_from_dict,
     start_dask_run,
-    validate_out_group,
 )
 
 mlogger = logging.getLogger("distributed")
@@ -90,6 +89,8 @@ class BaseDriver(Driver, ABC):
     """
     Base class for drivers handling the parallel setup.
     """
+
+    _out_group_class: type[SimPEGGroup]
 
     def __init__(
         self,
@@ -116,7 +117,7 @@ class BaseDriver(Driver, ABC):
         self._mappings: list[maps.IdentityMap] | None = None
         self.tiles: dict[str, list[np.ndarray]]
 
-        self.out_group = validate_out_group(self.params)
+        self.out_group = self.validate_out_group(self.params)
         self._client: Client | bool = validate_client(client)
 
         if getattr(self.params, "store_sensitivities", None) == "disk" and self.client:
@@ -386,14 +387,7 @@ class BaseDriver(Driver, ABC):
 
     @out_group.setter
     def out_group(self, value: SimPEGGroup):
-        if not isinstance(value, SimPEGGroup):
-            raise TypeError("Output group must be a SimPEGGroup.")
-
-        if self.params.out_group != value:
-            self.params.out_group = value
-            self.params.update_out_group_options()
-
-        self._out_group = value
+        self._out_group = self.validate_out_group(value)
 
     @property
     def params(self) -> BaseForwardOptions | BaseInversionOptions:
@@ -566,6 +560,25 @@ class BaseDriver(Driver, ABC):
         :param kwargs: Additional keyword arguments for the dask run.
         """
         start_dask_run(cls, json_path, **kwargs)
+
+    def validate_out_group(self, out_group: SimPEGGroup | None) -> SimPEGGroup:
+        """
+        Validate or create a SimPEGGroup to store results.
+
+        :param out_group: Output group from selection.
+        """
+
+        if not isinstance(out_group, SimPEGGroup | None):
+            raise TypeError("Output group must be a SimPEGGroup.")
+
+        if out_group is None:
+            out_group = self.to_out_group()
+
+        if self.params.out_group != out_group:
+            self.params.out_group = out_group
+            self.params.update_out_group_options()
+
+        return out_group
 
     @abstractmethod
     def warm_start(self, start_iteration: int = -1):

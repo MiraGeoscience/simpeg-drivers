@@ -680,28 +680,6 @@ def get_default_parallelization_params(json_path: Path) -> tuple[int, int]:
     return n_workers, n_threads
 
 
-def validate_out_group(options: Options) -> SimPEGGroup:
-    """
-    Validate or create a SimPEGGroup to store results.
-
-    :param out_group: Output group from selection.
-    """
-    if isinstance(options.out_group, SimPEGGroup):
-        return options.out_group
-
-    with fetch_active_workspace(options.geoh5, mode="r+"):
-        out_group = SimPEGGroup.create(
-            options.geoh5,
-            name=options.title,
-        )
-        out_group.entity_type.name = options.title
-        options = options.model_copy(update={"out_group": out_group})
-        out_group.options = stringify(options.input_file.ui_json)
-        out_group.metadata = None
-
-    return out_group
-
-
 def start_dask_run(
     class_type,
     json_path: Path,
