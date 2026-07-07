@@ -99,7 +99,7 @@
         "tooltip": "Directory where pre-computed simulations are stored",
         "value": "./simulations"
     },
-    "download-simulations": {
+    "download_simulations": {
         "icon": "information",
         "main": true,
         "value": null,
