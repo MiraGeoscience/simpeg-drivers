@@ -11,18 +11,18 @@
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import numpy as np
+from geoapps_utils.utils.importing import GeoAppsError
+from geoh5py.objects import DrapeModel, Octree
 from simpeg.maps import Projection
 from simpeg.objective_function import ComboObjectiveFunction
 from simpeg.regularization import BaseRegularization, VectorAmplitude
 
-from simpeg_drivers.driver import InversionDriver
+from simpeg_drivers.driver import InversionDriver, first_child_of_type
 from simpeg_drivers.potential_fields.magnetic_vector_pde.options import (
     MagneticVectorPDEInversionOptions,
 )
+from simpeg_drivers.utils.utils import argument_parser
 
 
 class MagneticVectorPDEInversionDriver(InversionDriver):
@@ -54,7 +54,35 @@ class MagneticVectorPDEInversionDriver(InversionDriver):
 
         return ComboObjectiveFunction(objfcts=reg_funcs)
 
+    def _reset_models(self, iteration: int):
+        """
+        Reset the inversion models based on specified iteration.
+
+        :param iteration: The iteration number to reset the models for.
+        """
+        mesh = first_child_of_type(self.out_group, (DrapeModel, Octree))
+        flag = f"Iteration_{iteration}_"
+        count = 0
+        for child in mesh.children:
+            if flag not in child.name:
+                continue
+
+            if "amplitude" in child.name:
+                self.params.models.starting_model = child
+            else:
+                name = "starting_" + child.name.split("_")[2]
+                setattr(self.params.models, name, child)
+            count += 1
+
+            if count == 3:
+                return
+
+        if count != 3:
+            raise GeoAppsError(
+                f"Could not reset the inversion at iteration {iteration}, no models found."
+            )
+
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
-    MagneticVectorPDEInversionDriver.start_dask_run(file)
+    file, args = argument_parser()
+    MagneticVectorPDEInversionDriver.start_dask_run(file, **args)

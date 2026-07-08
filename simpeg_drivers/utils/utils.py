@@ -16,6 +16,7 @@ import cProfile
 import multiprocessing
 import pstats
 import sys
+from argparse import ArgumentParser
 from copy import deepcopy
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -706,19 +707,24 @@ def start_dask_run(
     json_path: Path,
     n_workers: int | None = None,
     n_threads: int | None = None,
+    generate_report: bool = False,
+    start_iteration: int = -1,
 ):
     """
     Runs an application with Dask optimization.
 
+    :param class_type: Class type to run the application with.
     :param json_path: Path to input file (.ui.json) for the application.
     :param n_workers: Number of workers to use.
     :param n_threads: Number of threads to use.
+    :param generate_report: Flag to indicate whether to generate a performance report.
+    :param start_iteration: Iteration to warm-start the inversion if possible.
     """
     ui_json = load_ui_json_as_dict(json_path)
 
     n_workers = ui_json.get("n_workers", n_workers)
     n_threads = ui_json.get("n_threads", n_threads)
-    save_report = ui_json.get("performance_report", False)
+    save_report = ui_json.get("performance_report", generate_report)
 
     if (n_workers is not None and n_workers > 1) or n_threads is not None:
         cluster = LocalCluster(
@@ -743,7 +749,7 @@ def start_dask_run(
             if (save_report and isinstance(context_client, Client))
             else contextlib.nullcontext()
         ):
-            class_type.start(json_path)
+            class_type.start(json_path, start_iteration=start_iteration)
             sys.stdout.close()
 
     profiler.disable()
@@ -814,3 +820,20 @@ def driver_class_from_dict(data: dict) -> type[Driver]:
         "Could not find a driver for the given 'inversion_type' or 'run_command' parameter. "
         "Please review the 'run_command' in the UI JSON."
     )
+
+
+def argument_parser() -> tuple:
+    parser = ArgumentParser(
+        prog="simpeg_drivers.driver",
+        description="Launch a forward or inversion driver for simpeg.",
+    )
+
+    parser.add_argument("file", type=Path)
+    parser.add_argument("-i", "--start_iteration", type=int, required=False, default=-1)
+    parser.add_argument("-w", "--n_workers", type=int, required=False, default=None)
+    parser.add_argument("-t", "--n_threads", type=int, required=False, default=None)
+    parser.add_argument("-r", "--generate_report", action="store_true")
+
+    arguments = vars(parser.parse_args())
+    print(arguments)
+    return arguments.pop("file"), arguments

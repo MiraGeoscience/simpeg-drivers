@@ -18,7 +18,8 @@ from typing import Any
 
 import numpy as np
 import simpeg.dask.objective_function as dask_objective_function
-from geoh5py.groups.property_group_type import GroupTypeEnum
+from geoh5py.groups import SimPEGGroup
+from geoh5py.objects import DrapeModel, Octree
 from geoh5py.shared.utils import fetch_active_workspace
 from grid_apps.utils import (
     collocate_octrees,
@@ -34,7 +35,8 @@ from simpeg_drivers.components.factories import (
     DirectivesFactory,
     SaveModelGeoh5Factory,
 )
-from simpeg_drivers.driver import InversionDriver
+from simpeg_drivers.components.meshes import InversionMesh
+from simpeg_drivers.driver import InversionDriver, first_child_of_type
 from simpeg_drivers.joint.options import BaseJointOptions
 from simpeg_drivers.options import ModelTypeEnum
 from simpeg_drivers.utils.utils import simpeg_group_to_driver
@@ -48,6 +50,7 @@ class BaseJointDriver(InversionDriver):
         self._directives = None
         self._drivers = None
         self._wires = None
+        self._is_initialized = False
 
         super().__init__(params)
 
@@ -135,6 +138,9 @@ class BaseJointDriver(InversionDriver):
     def initialize(self):
         """Generate sub drivers."""
 
+        if self._is_initialized:
+            return
+
         self.validate_create_mesh()
 
         # Add re-projection to the global mesh
@@ -184,6 +190,7 @@ class BaseJointDriver(InversionDriver):
             driver.data_misfit.multipliers = multipliers
 
         self.validate_create_models()
+        self._is_initialized = True
 
     @property
     def inversion_data(self):
@@ -242,6 +249,11 @@ class BaseJointDriver(InversionDriver):
             self._n_values = count
 
         return self._n_values
+
+    def simpeg_run(self):
+        """Run inversion from params"""
+        self.initialize()
+        self.inversion.run(self.models.starting_model)
 
     def validate_create_mesh(self):
         """Function to validate and create the inversion mesh."""
@@ -314,6 +326,43 @@ class BaseJointDriver(InversionDriver):
 
             if model is not None:
                 getattr(self.models, f"_{model_type}").model = model
+
+    def _reset_models(self, iteration: int):
+        """
+        Reset the inversion models based on specified iteration and mesh.
+
+        :param iteration: The iteration number to reset the models for.
+        """
+        drivers = []
+        # Create sub-drivers
+        for group in self.out_group.children:
+            if not isinstance(group, SimPEGGroup):
+                continue
+
+            driver = simpeg_group_to_driver(group, self.workspace)
+            driver._reset_models(iteration)  # pylint: disable=protected-access
+            drivers.append(driver)
+
+        self._drivers = drivers
+
+    def _reset_on_iteration(self, start_iteration: int):
+        """
+        Reset the inversion parameters to a given iteration and beta value.
+
+        Assumes that the workspace is already opened to access data.
+
+        :param start_iteration: Iteration number to start back at.
+        """
+
+        self._reset_models(start_iteration)
+
+        mesh = first_child_of_type(self.out_group, (DrapeModel, Octree))
+        self._inversion_mesh = InversionMesh(self.workspace, self.params, entity=mesh)
+
+        self.initialize()
+
+        self.optimization.iter = start_iteration
+        self._reset_directives(start_iteration)
 
     @staticmethod
     def _validate_model_consistency(model: list[None | Any], model_type: str):

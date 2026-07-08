@@ -11,14 +11,12 @@
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.electromagnetics.base_1d_driver import Base1DDriver
 from simpeg_drivers.electromagnetics.time_domain_1d.options import (
     TDEM1DInversionOptions,
 )
+from simpeg_drivers.utils.utils import argument_parser
 
 
 class TDEM1DInversionDriver(InversionDriver, Base1DDriver):
@@ -28,5 +26,5 @@ class TDEM1DInversionDriver(InversionDriver, Base1DDriver):
 
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
-    TDEM1DInversionDriver.start_dask_run(file)
+    file, args = argument_parser()
+    TDEM1DInversionDriver.start_dask_run(file, **args)

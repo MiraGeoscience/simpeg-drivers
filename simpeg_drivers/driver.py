@@ -8,11 +8,12 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-
+# pylint: disable=too-many-lines
 # flake8: noqa
 
 from __future__ import annotations
 
+from io import BytesIO
 from abc import abstractmethod, ABC
 from typing import Self
 from copy import deepcopy
@@ -23,6 +24,7 @@ from pathlib import Path
 from time import time
 
 import numpy as np
+from pandas import read_csv
 from dask.distributed import get_client, Client
 
 from geoapps_utils.base import Driver, Options
@@ -30,8 +32,9 @@ from geoapps_utils.run import load_ui_json_as_dict
 from geoapps_utils.utils.importing import GeoAppsError
 
 from geoh5py import Workspace
+from geoh5py.data import FilenameData
 from geoh5py.groups import SimPEGGroup
-from geoh5py.objects import FEMSurvey
+from geoh5py.objects import DrapeModel, FEMSurvey, Octree
 from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json import BaseUIJson
 
@@ -74,9 +77,10 @@ from simpeg_drivers.uijson import SimPEGDriversUIJson
 from simpeg_drivers.utils.nested import tile_locations
 from simpeg_drivers.utils.regularization import cell_neighbors, set_rotated_operators
 from simpeg_drivers.utils.utils import (
-    validate_out_group,
-    start_dask_run,
+    argument_parser,
     driver_class_from_dict,
+    start_dask_run,
+    validate_out_group,
 )
 
 mlogger = logging.getLogger("distributed")
@@ -462,19 +466,35 @@ class BaseDriver(Driver, ABC):
         Starting message displayed by the logger.
         """
 
-    def run(self):
-        """Run inversion from params"""
+    def run(self, start_iteration: int = -1):
+        """
+        Run inversion from params
+
+        :param start_iteration: Whether to warm-start the inversion.
+        """
 
         if self.logger:
             sys.stdout = self.logger
-            self.logger.start()
 
         with fetch_active_workspace(self.workspace, mode="r+"):
-            if Path(self.params.input_file.path_name).is_file():
-                self.out_group.add_file(self.params.input_file.path_name)
-
             try:
-                self.start_message()
+                if any(
+                    [
+                        child
+                        for child in self.out_group.children
+                        if child.name.endswith(".out")
+                    ]
+                ):
+                    self.warm_start(start_iteration)
+                else:
+                    if Path(self.params.input_file.path_name).is_file():
+                        self.out_group.add_file(self.params.input_file.path_name)
+
+                    if self.logger:
+                        self.logger.start()
+
+                    self.start_message()
+
                 self.simpeg_run()
 
             except np.core._exceptions._ArrayMemoryError as error:  # pylint: disable=protected-access
@@ -493,12 +513,19 @@ class BaseDriver(Driver, ABC):
                 self.directives.save_iteration_log_files.write(1)
 
     @classmethod
-    def start(cls, filepath: str | Path | BaseUIJson, mode="r+", **kwargs) -> Self:
+    def start(
+        cls,
+        filepath: str | Path | BaseUIJson,
+        mode="r+",
+        start_iteration: int = -1,
+        **kwargs,
+    ) -> Self:
         """
         Run application specified by 'filepath' ui.json file.
 
         :param filepath: Path to valid ui.json file for the application driver.
         :param mode: Mode to open the geoh5 file with.
+        :param start_iteration: Iteration to warm-start the inversion if possible. Defaults to last iteration (-1).
         :param kwargs: Additional keyword arguments for Options class.
 
         :return: Self object.
@@ -522,7 +549,7 @@ class BaseDriver(Driver, ABC):
                 kwargs.update(data)
                 params = cls._params_class.build(**kwargs)
                 driver = cls(params)
-                driver.run()
+                driver.run(start_iteration=start_iteration)
             except GeoAppsError as error:
                 logging.getLogger(__name__).warning(
                     "\n\nApplicationError: %s\n\n", error
@@ -532,17 +559,20 @@ class BaseDriver(Driver, ABC):
         return driver
 
     @classmethod
-    def start_dask_run(
-        cls, json_path: Path, n_workers: int | None = None, n_threads: int | None = None
-    ):
+    def start_dask_run(cls, json_path: Path, **kwargs):
         """
         Sets Dask config settings.
 
         :param json_path: Path to input file (.ui.json) for the application.
-        :param n_workers: Number of workers to use.
-        :param n_threads: Number of threads to use.
+        :param kwargs: Additional keyword arguments for the dask run.
         """
-        start_dask_run(cls, json_path, n_workers=n_workers, n_threads=n_threads)
+        start_dask_run(cls, json_path, **kwargs)
+
+    @abstractmethod
+    def warm_start(self, start_iteration: int = -1):
+        """
+        Re-start the process where it left off
+        """
 
     @property
     def workers(self) -> list[tuple[str]]:
@@ -581,6 +611,11 @@ class ForwardDriver(BaseDriver):
     def start_message(self):
         if self.logger:
             self.logger.write("Running the forward simulation ...\n")
+
+    def warm_start(self, start_iteration: int = -1):
+        """
+        Re-start the process where it left off
+        """
 
 
 class InversionDriver(BaseDriver):
@@ -813,6 +848,116 @@ class InversionDriver(BaseDriver):
             f"with chifact = {self.params.irls.starting_chi_factor})\n"
         )
 
+    def warm_start(self, start_iteration: int = -1):
+        """
+        Re-start the process where it left off
+
+        :param start_iteration: Iteration number to start back at.
+        """
+        log_file = next(
+            child for child in self.out_group.children if child.name.endswith(".log")
+        )
+        log_file.save_file(path=self.workspace.h5file.parent, name=log_file.name)
+        out_file = next(
+            child for child in self.out_group.children if child.name.endswith(".out")
+        )
+        out_file.save_file(path=self.workspace.h5file.parent, name=out_file.name)
+        out_array = read_csv(BytesIO(out_file.file_bytes), sep=" ")
+
+        last_iter = out_array["iteration"].iloc[start_iteration]
+        last_beta = out_array["beta"].iloc[start_iteration]
+
+        if self.logger:
+            self.logger.write(
+                "\n\t\t###################################################\n"
+                + f"\t\t\tRe-starting inversion at iteration {last_iter}\n"
+                + f"\t\t\t\t{self.logger.start_date_time}\n"
+                + "\t\t###################################################\n"
+            )
+
+        self._reset_on_iteration(last_iter)
+        self.inverse_problem.beta = last_beta
+
+    def _reset_on_iteration(self, start_iteration: int):
+        """
+        Reset the inversion parameters to a given iteration and beta value.
+
+        Assumes that the workspace is already opened to access data.
+
+        :param start_iteration: Iteration number to start back at.
+        """
+
+        self._reset_models(start_iteration)
+
+        mesh = first_child_of_type(self.out_group, (DrapeModel, Octree))
+        self._inversion_mesh = InversionMesh(self.workspace, self.params, entity=mesh)
+        self.models.active_cells = (
+            self._inversion_mesh.permutation @ mesh.get_entity("active_cells")[0].values
+        ).astype(bool)
+
+        self.optimization.iter = start_iteration
+        self._reset_directives(start_iteration)
+
+    def _reset_directives(self, iteration: int):
+        """
+        Reset the inversion directives based on specified iteration and model.
+
+        :param iteration: The iteration number to reset directives for.
+        """
+        chi_data = [
+            child
+            for child in self.out_group.children
+            if child.name.endswith(".chi") and isinstance(child, FilenameData)
+        ]
+
+        if chi_data:
+            chi_array = np.loadtxt(BytesIO(chi_data[0].file_bytes), skiprows=1)
+
+            if self.directives.scale_misfits is not None:
+                self.directives.scale_misfits.scalings = chi_array[iteration, 1:]
+                self.directives.scale_misfits.multipliers = np.asarray(
+                    self.data_misfit.multipliers
+                )
+                self.data_misfit.multipliers *= self.directives.scale_misfits.scalings
+
+        # Hard-wire beta and remove estimator directive
+        directive = self.directives.beta_estimate_by_eigenvalues_directive
+        if directive is not None and directive in self.directives.directive_list:
+            self.directives.directive_list.remove(
+                self.directives.beta_estimate_by_eigenvalues_directive
+            )
+
+    def _reset_models(self, iteration: int):
+        """
+        Reset the inversion models based on specified iteration and mesh.
+
+        :param iteration: The iteration number to reset the models for.
+        """
+        mesh = first_child_of_type(self.out_group, (DrapeModel, Octree))
+        flag = f"Iteration_{iteration}_"
+        for child in mesh.children:
+            if flag in child.name:
+                self.params.models.starting_model = child
+                return
+
+        raise GeoAppsError(
+            f"Could not reset the inversion at iteration {iteration}, no model found."
+        )
+
+
+def first_child_of_type(entity, child_type: type | tuple):
+    """
+    Get the first child of a given type from an entity.
+
+    :param entity: The parent entity to search for children.
+    :param child_type: The type of child to find.
+    :return: The first child of the specified type.
+    """
+    for child in entity.children:
+        if isinstance(child, child_type):
+            return child
+    raise GeoAppsError(f"No child of type {child_type} found in {entity.name}.")
+
 
 class InversionLogger:
     """
@@ -896,9 +1041,9 @@ def validate_workers(client, workers: list[tuple[str]] | None) -> list[tuple[str
 
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
+    file, args = argument_parser()
 
     input_file = load_ui_json_as_dict(file)
     driver_class = driver_class_from_dict(input_file)
 
-    driver_class.start_dask_run(file)
+    driver_class.start_dask_run(file, **args)

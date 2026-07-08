@@ -9,14 +9,19 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 import logging
+import shutil
+from io import BytesIO
 from pathlib import Path
 
 import numpy as np
 from geoh5py.groups import GroupTypeEnum, PropertyGroup
 from geoh5py.objects import CurrentElectrode, Octree, Points
+from geoh5py.ui_json import BaseUIJson
 from geoh5py.workspace import Workspace
+from pandas import read_csv
 from simpeg.directives import UpdateIRLS
 
+from simpeg_drivers.driver import validate_out_group
 from simpeg_drivers.electricals.direct_current.three_dimensions.forward import (
     DC3DForwardDriver,
     DC3DForwardOptions,
@@ -65,7 +70,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 53.31485005157825, "phi_d": 562, "phi_m": 0.387}
+target_run = {"data_norm": 53.31485005157825, "phi_d": 498.5, "phi_m": 0.2658}
 INDUCING_FIELD = (50000.0, 90.0, 0.0)
 
 
@@ -191,15 +196,16 @@ def test_joint_cross_gradient_fwr_run(
 
 def test_joint_cross_gradient_inv_run(
     tmp_path,
-    max_iterations=1,
+    max_iterations=3,
     pytest=True,
 ):
     workpath = tmp_path / "inversion_test.ui.geoh5"
     if pytest:
-        workpath = (
+        shutil.copy(
             tmp_path.parent
             / "test_joint_cross_gradient_fwr_0"
-            / "inversion_test.ui.geoh5"
+            / "inversion_test.ui.geoh5",
+            tmp_path,
         )
 
     with Workspace(workpath) as geoh5:
@@ -307,6 +313,9 @@ def test_joint_cross_gradient_inv_run(
             sens_wts_threshold=1.0,
             percentile=100,
         )
+        out_group = validate_out_group(joint_params)
+        joint_params.out_group = out_group
+
     file = joint_params.write_ui_json(tmp_path / "Joint_Inv_run.ui.json")
     driver = JointCrossGradientDriver.start(file)
 
@@ -325,13 +334,13 @@ def test_joint_cross_gradient_inv_run(
     # the scaling from its total misfit.
     np.testing.assert_allclose(
         driver.directives.scale_misfits.scalings,
-        [1.0, 0.755269, 0.5, 0.5, 0.675174],
+        [1.0, 0.423491, 0.125, 0.125, 0.319101],
         atol=1e-3,
     )
     # Check that scaling * chi factor is reflected in data misfit multipliers
     np.testing.assert_allclose(
         driver.data_misfit.multipliers,
-        [0.8, 0.604215, 0.5, 0.5, 0.675174],
+        [0.8, 0.338793, 0.125, 0.125, 0.319101],
         atol=1e-3,
     )
 
@@ -343,6 +352,50 @@ def test_joint_cross_gradient_inv_run(
         output["data"] = np.hstack(orig_data)
         if pytest:
             check_target(output, target_run)
+
+
+def test_restart_run(tmp_path):
+    shutil.copy(
+        tmp_path.parent / "test_joint_cross_gradient_inv_0" / "Joint_Inv_run.ui.json",
+        tmp_path,
+    )
+    shutil.copy(
+        tmp_path.parent / "test_joint_cross_gradient_inv_0" / "inversion_test.ui.geoh5",
+        tmp_path,
+    )
+    shutil.copy(
+        tmp_path.parent / "test_joint_cross_gradient_inv_0" / "inversion_test.ui.chi",
+        tmp_path,
+    )
+    json_file = tmp_path / "Joint_Inv_run.ui.json"
+
+    # Remember the last iteration
+    out_array = read_csv(
+        tmp_path.parent / "test_joint_cross_gradient_inv_0/inversion_test.ui.out",
+        sep=" ",
+    )
+
+    last_beta = out_array["beta"].iloc[-1]
+    last_phi_d = out_array["phi_d"].iloc[-1]
+    last_phi_m = out_array["phi_m"].iloc[-1]
+
+    uijson = BaseUIJson.read(json_file)
+    uijson.geoh5 = tmp_path / "inversion_test.ui.geoh5"
+    uijson.set_values(max_global_iterations=5)
+    uijson.write(json_file)
+    JointCrossGradientDriver.start(json_file, start_iteration=-2)
+
+    # Read the out file again and check against the previous full run
+    with Workspace(tmp_path / "inversion_test.ui.geoh5") as ws:
+        out_file = ws.get_entity("inversion_test.ui.out")[0]
+        out_array = read_csv(BytesIO(out_file.file_bytes), sep=" ")
+        np.testing.assert_almost_equal(out_array["beta"].iloc[5], last_beta, decimal=1)
+        np.testing.assert_almost_equal(
+            out_array["phi_d"].iloc[5], last_phi_d, decimal=0
+        )
+        np.testing.assert_almost_equal(
+            out_array["phi_m"].iloc[5], last_phi_m, decimal=0
+        )
 
 
 def test_joint_cross_gradient_rotated_run(
@@ -451,10 +504,11 @@ def test_joint_cross_gradient_rotated_run(
             group_b_multiplier=1.0,
         )
 
-    with caplog.at_level(logging.WARNING):
-        _ = JointCrossGradientDriver(joint_params)
+        with caplog.at_level(logging.WARNING):
+            driver = JointCrossGradientDriver(joint_params)
+            driver.initialize()
 
-    assert "Some drivers do not have a model" in caplog.text
+        assert "Some drivers do not have a model" in caplog.text
 
     # Add gradient rotation to the mvi driver and check it is used
     params.models.gradient_rotation = gradient_rotation
@@ -471,9 +525,9 @@ def test_joint_cross_gradient_rotated_run(
         max_global_iterations=max_iterations,
     )
     joint_driver = JointCrossGradientDriver(joint_params)
-    assert joint_driver.models.gradient_dip is not None
 
     joint_driver.run()
+    assert joint_driver.models.gradient_dip is not None
 
 
 if __name__ == "__main__":

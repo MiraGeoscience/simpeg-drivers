@@ -11,11 +11,9 @@
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 from simpeg_drivers.driver import ForwardDriver
 from simpeg_drivers.electromagnetics.frequency_domain.options import FDEMForwardOptions
+from simpeg_drivers.utils.utils import argument_parser
 
 
 class FDEMForwardDriver(ForwardDriver):
@@ -28,5 +26,5 @@ class FDEMForwardDriver(ForwardDriver):
 
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
-    FDEMForwardDriver.start_dask_run(file)
+    file, args = argument_parser()
+    FDEMForwardDriver.start_dask_run(file, **args)

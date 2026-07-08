@@ -10,9 +10,7 @@
 
 from __future__ import annotations
 
-import sys
 from functools import cached_property
-from pathlib import Path
 
 import numpy as np
 from geoapps_utils.utils.importing import GeoAppsError
@@ -23,6 +21,7 @@ from simpeg.regularization.pgi import PGIsmallness
 
 from simpeg_drivers.joint.driver import BaseJointDriver
 from simpeg_drivers.joint.joint_petrophysics.options import JointPetrophysicsOptions
+from simpeg_drivers.utils.utils import argument_parser
 
 
 class JointPetrophysicsDriver(BaseJointDriver):
@@ -35,9 +34,6 @@ class JointPetrophysicsDriver(BaseJointDriver):
         self._pgi_regularization: PGIsmallness | None = None
 
         super().__init__(params)
-
-        with fetch_active_workspace(self.workspace, mode="r+"):
-            self.initialize()
 
     @property
     def directives(self):
@@ -209,5 +205,5 @@ class JointPetrophysicsDriver(BaseJointDriver):
 
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
-    JointPetrophysicsDriver.start_dask_run(file)
+    file, args = argument_parser()
+    JointPetrophysicsDriver.start_dask_run(file, **args)
