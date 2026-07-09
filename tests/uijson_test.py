@@ -263,101 +263,102 @@ CHANNEL_NAME = {
 }
 
 
-def test_legacy_uijson(tmp_path: Path, caplog):
+@pytest.mark.parametrize("version", ["v0.2.1", "v0.3.0", "v0.4.0"])
+def test_legacy_uijson(tmp_path: Path, caplog, version):
     """
     Loop over all uijson files in the legacy directory and check that the
     read and run still works.
     """
     path = Path(__file__).resolve().parent / "legacy"
 
-    for directory in path.iterdir():
-        if not directory.is_dir():
+    directory = path / version
+    if not directory.is_dir():
+        return
+
+    version_path = tmp_path / directory.name
+    for file in directory.glob("*.ui.json"):
+        ifile = SimPEGDriversUIJson.read(file)
+        inversion_type = getattr(ifile, "inversion_type", None)
+
+        if inversion_type not in CHANNEL_NAME:
             continue
 
-        version_path = tmp_path / directory.name
-        for file in directory.glob("*.ui.json"):
-            ifile = SimPEGDriversUIJson.read(file)
-            inversion_type = ifile.inversion_type
+        forward = ifile.forward_only
 
-            if inversion_type not in CHANNEL_NAME:
-                continue
+        work_path = version_path / (inversion_type + (" fwr" if forward else " inv"))
 
-            forward = ifile.forward_only
+        work_path.mkdir(parents=True)
+        opts = SyntheticsComponentsOptions(
+            method=inversion_type,
+            survey=SurveyOptions(
+                n_stations=10,
+                n_lines=3,
+            ),
+            mesh=DrapeModelOptions()
+            if ("2d" in inversion_type or "1D" in inversion_type)
+            else MeshOptions(),
+            model=ModelOptions(
+                background=1.0,
+                anomaly=2.0,
+            ),
+        )
+        with Workspace.create(work_path / "inversion_test.ui.geoh5") as geoh5:
+            components = SyntheticsComponents(geoh5, options=opts)
+            options = ifile.to_params(workspace=geoh5, validate=False)
+            options["geoh5"] = geoh5
+            options["mesh"] = components.mesh
+            options["starting_model"] = components.model
+            options["data_object"] = components.survey
+            options["topography_object"] = components.topography
 
-            work_path = version_path / (
-                inversion_type + (" fwr" if forward else " inv")
-            )
+            # Test deprecated name
+            options["coolingFactor"] = 4.0
 
-            work_path.mkdir(parents=True)
-            opts = SyntheticsComponentsOptions(
-                method=inversion_type,
-                survey=SurveyOptions(
-                    n_stations=10,
-                    n_lines=3,
-                ),
-                mesh=DrapeModelOptions() if "2d" in inversion_type else MeshOptions(),
-                model=ModelOptions(
-                    background=1.0,
-                    anomaly=2.0,
-                ),
-            )
-            with Workspace.create(work_path / "inversion_test.ui.geoh5") as geoh5:
-                components = SyntheticsComponents(geoh5, options=opts)
-                options = ifile.to_params(workspace=geoh5, validate=False)
-                options["geoh5"] = geoh5
-                options["mesh"] = components.mesh
-                options["starting_model"] = components.model
-                options["data_object"] = components.survey
-                options["topography_object"] = components.topography
+            if "2d" in inversion_type or "pseudo 3d" in inversion_type:
+                line_id = geoh5.get_entity("line_ids")[0]
+                options["line_object"] = line_id
 
-                # Test deprecated name
-                options["coolingFactor"] = 4.0
+            if not forward:
+                n_vals = components.survey.n_vertices
+                if (
+                    "direct current" in inversion_type
+                    or "induced polarization" in inversion_type
+                ):
+                    n_vals = components.survey.n_cells
 
-                if "2d" in inversion_type or "pseudo 3d" in inversion_type:
-                    line_id = geoh5.get_entity("line_ids")[0]
-                    options["line_object"] = line_id
+                channels = getattr(components.survey, "channels", [1])
 
-                if not forward:
-                    n_vals = components.survey.n_vertices
-                    if (
-                        "direct current" in inversion_type
-                        or "induced polarization" in inversion_type
-                    ):
-                        n_vals = components.survey.n_cells
-
-                    channels = getattr(components.survey, "channels", [1])
-
-                    data = []
-                    for channel in channels:
-                        data.append(
-                            components.survey.add_data(
-                                {
-                                    CHANNEL_NAME[inversion_type] + f"[{channel}]": {
-                                        "values": np.ones(n_vals)
-                                    }
+                data = []
+                for channel in channels:
+                    data.append(
+                        components.survey.add_data(
+                            {
+                                CHANNEL_NAME[inversion_type] + f"[{channel}]": {
+                                    "values": np.ones(n_vals)
                                 }
-                            )
+                            }
                         )
+                    )
 
-                    if len(data) > 1:
-                        channel = components.survey.add_data_to_group(data, "Group")
-                    else:
-                        channel = data[0]
+                if len(data) > 1:
+                    channel = components.survey.add_data_to_group(data, "Group")
+                else:
+                    channel = data[0]
 
-                    options[CHANNEL_NAME[inversion_type] + "_channel"] = channel
-                    options[CHANNEL_NAME[inversion_type] + "_uncertainty"] = channel
+                options[CHANNEL_NAME[inversion_type] + "_channel"] = channel
+                options[CHANNEL_NAME[inversion_type] + "_uncertainty"] = channel
 
-            driver = driver_class_from_dict(options)
+        driver = driver_class_from_dict(options)
 
-            with caplog.at_level(logging.WARNING):
-                params = driver._params_class.build(options)  # pylint: disable=protected-access
-                driver = driver(params)
+        with caplog.at_level(logging.WARNING):
+            params = driver._params_class.build(options)  # pylint: disable=protected-access
+            driver = driver(params)
 
-                if "pseudo" in inversion_type:
-                    assert "no longer support Octree meshes" in caplog.text
-                    assert "The Batch2D classes will be deprecated" in caplog.text
+            if "pseudo" in inversion_type:
+                assert "no longer support Octree meshes" in caplog.text
+                assert "The Batch2D classes will be deprecated" in caplog.text
 
-            assert driver.models
+        assert driver.models
 
 
 def test_driver_from_uijson():
