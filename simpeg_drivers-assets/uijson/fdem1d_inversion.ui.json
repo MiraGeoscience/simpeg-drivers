@@ -223,7 +223,7 @@
             "{b020a277-90e2-4cd7-84d6-612ee3f25051}"
         ],
         "value": "",
-        "optional": true,
+        "optional": false,
         "enabled": true,
         "tooltip": "Select a topography object to define the active cells for inversion"
     },
