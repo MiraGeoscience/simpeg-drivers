@@ -11,11 +11,9 @@
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 from simpeg_drivers.driver import ForwardDriver
 from simpeg_drivers.potential_fields.gravity.options import GravityForwardOptions
+from simpeg_drivers.utils.utils import argument_parser
 
 
 class GravityForwardDriver(ForwardDriver):
@@ -25,5 +23,5 @@ class GravityForwardDriver(ForwardDriver):
 
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
-    GravityForwardDriver.start_dask_run(file)
+    file, args = argument_parser()
+    GravityForwardDriver.start_dask_run(file, **args)

@@ -13,17 +13,15 @@
 
 from __future__ import annotations
 
-import sys
 from itertools import combinations
-from pathlib import Path
 
-from geoh5py.shared.utils import fetch_active_workspace
 from simpeg import directives, maps
 from simpeg.objective_function import ComboObjectiveFunction
 from simpeg.regularization import CrossGradient
 
 from simpeg_drivers.joint.driver import BaseJointDriver
 from simpeg_drivers.joint.joint_cross_gradient.options import JointCrossGradientOptions
+from simpeg_drivers.utils.utils import argument_parser
 
 
 class JointCrossGradientDriver(BaseJointDriver):
@@ -34,9 +32,6 @@ class JointCrossGradientDriver(BaseJointDriver):
         self._directives = None
 
         super().__init__(params)
-
-        with fetch_active_workspace(self.workspace, mode="r+"):
-            self.initialize()
 
     def get_regularization(self):
         """
@@ -102,10 +97,11 @@ class JointCrossGradientDriver(BaseJointDriver):
         """
         Create a list of directives for the joint inversion.
         """
+        regularization = self.regularization  # Pre-compute the regularization
         directives_list = super()._get_joint_directives()
 
         if self.params.iterative_rescaling:
-            for reg in self.regularization.objfcts:
+            for reg in regularization.objfcts:
                 if isinstance(reg, CrossGradient):
                     directives_list.append(
                         directives.ScaleMaximumDerivatives(reg)
@@ -113,7 +109,19 @@ class JointCrossGradientDriver(BaseJointDriver):
 
         return directives_list
 
+    def _reset_directives(self, iteration: int):
+        """
+        Reset the inversion parameters to a given iteration and beta value.
+
+        Assumes that the workspace is already opened to access data.
+        """
+        super()._reset_directives(iteration)
+
+        for directive in self.directives.directive_list:
+            if isinstance(directive, directives.ScaleMaximumDerivatives):
+                directive.scale_on_current_model(self.models.starting_model)
+
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
-    JointCrossGradientDriver.start_dask_run(file)
+    file, args = argument_parser()
+    JointCrossGradientDriver.start_dask_run(file, **args)

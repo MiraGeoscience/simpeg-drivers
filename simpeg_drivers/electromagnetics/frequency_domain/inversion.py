@@ -11,13 +11,11 @@
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 from simpeg_drivers.driver import InversionDriver
 from simpeg_drivers.electromagnetics.frequency_domain.options import (
     FDEMInversionOptions,
 )
+from simpeg_drivers.utils.utils import argument_parser
 
 
 class FDEMInversionDriver(InversionDriver):
@@ -27,5 +25,5 @@ class FDEMInversionDriver(InversionDriver):
 
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
-    FDEMInversionDriver.start_dask_run(file)
+    file, args = argument_parser()
+    FDEMInversionDriver.start_dask_run(file, **args)

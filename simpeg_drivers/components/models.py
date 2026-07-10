@@ -152,14 +152,17 @@ class InversionModelCollection:
         permutation = self.driver.inversion_mesh.permutation
         self.edit_ndv_model(permutation.T @ active_cells)
         self.remove_air(active_cells)
-        self.driver.inversion_mesh.entity.add_data(
-            {
-                "active_cells": {
-                    "values": permutation.T @ active_cells,
-                    "primitive_type": "boolean",
+
+        if not self.driver.inversion_mesh.entity.get_data("active_cells"):
+            self.driver.inversion_mesh.entity.add_data(
+                {
+                    "active_cells": {
+                        "values": permutation.T @ active_cells,
+                        "primitive_type": "boolean",
+                    }
                 }
-            }
-        )
+            )
+
         self._active_cells = active_cells
 
     @property

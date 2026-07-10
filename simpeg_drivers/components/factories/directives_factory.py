@@ -123,10 +123,10 @@ class DirectivesFactory:
         for directive in [
             "vector_inversion_directive",
             "update_irls_directive",
+            "scale_misfits",
             "update_sensitivity_weights_directive",
             "beta_estimate_by_eigenvalues_directive",
             "update_preconditioner_directive",
-            "scale_misfits",
         ]:
             if getattr(self, directive) is not None:
                 directives_list.append(getattr(self, directive))
@@ -293,6 +293,7 @@ class DirectivesFactory:
                 / f"{self.params.geoh5.h5file.stem}.chi",
                 nested_tiles,
                 target_chi=self.params.cooling_schedule.chi_factor,
+                cooling_factor=self.params.cooling_schedule.cooling_factor,
             )
         return self._scale_misfits
 
@@ -424,13 +425,7 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
                 active_cells_map,
                 inversion_object.permutation.T,
             ]
-            data_type = DataType.find_or_create_type(
-                self.params.geoh5,
-                "FLOAT",
-            )
-            angles = np.linspace(0, 1, 90)
-            colormap = np.c_[angles * 360, colormaps["twilight"](angles) * 255]
-            data_type.color_map = ColorMap(name="twilight.TBL", values=colormap)
+            data_type = self.find_or_create_angle_data_type()
             kwargs["data_type"] = {
                 "": {
                     1: data_type,
@@ -467,6 +462,27 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
             kwargs["transforms"].append(lambda x: nn_vals * x)
 
         return kwargs
+
+    def find_or_create_angle_data_type(self) -> DataType:
+        """
+        Look for existing data type for angles in the geoh5 workspace.
+        If not found, create a new data type with a colormap for angles.
+        """
+        for entity_type in self.params.geoh5.types:
+            if (
+                isinstance(entity_type, DataType)
+                and entity_type.name == "Degree angles"
+            ):
+                return entity_type
+
+        data_type = DataType.find_or_create_type(
+            self.params.geoh5, "FLOAT", name="Degree angles"
+        )
+        angles = np.linspace(0, 1, 90)
+        colormap = np.c_[angles * 360, colormaps["twilight"](angles) * 255]
+        data_type.color_map = ColorMap(name="twilight.TBL", values=colormap)
+
+        return data_type
 
 
 class SaveSensitivitiesGeoh5Factory(SaveGeoh5Factory):

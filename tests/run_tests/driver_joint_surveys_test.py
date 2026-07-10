@@ -8,14 +8,19 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
+import shutil
+from io import BytesIO
 from pathlib import Path
 
 import numpy as np
-import pytest
 from geoh5py.objects import Octree
+from geoh5py.ui_json import BaseUIJson
 from geoh5py.workspace import Workspace
+from pandas import read_csv
+from pytest import mark
 from simpeg.directives import SaveModelGeoH5, SavePropertyGroup
 
+from simpeg_drivers.driver import validate_out_group
 from simpeg_drivers.electricals.direct_current.three_dimensions.inversion import (
     DC3DInversionDriver,
 )
@@ -61,7 +66,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.5406566758729657, "phi_d": 1740, "phi_m": 137}
+target_run = {"data_norm": 0.5406566758729658, "phi_d": 1437, "phi_m": 342.9}
 
 
 def test_joint_surveys_fwr_run(
@@ -152,13 +157,14 @@ def test_joint_surveys_fwr_run(
 
 def test_joint_surveys_inv_run(
     tmp_path,
-    max_iterations=1,
-    unittest=True,
+    max_iterations=2,
+    pytest=True,
 ):
     workpath = tmp_path / "inversion_test.ui.geoh5"
-    if unittest:
-        workpath = (
-            tmp_path.parent / "test_joint_surveys_fwr_run0" / "inversion_test.ui.geoh5"
+    if pytest:
+        shutil.copy(
+            tmp_path.parent / "test_joint_surveys_fwr_run0" / "inversion_test.ui.geoh5",
+            tmp_path,
         )
 
     with Workspace(workpath) as geoh5:
@@ -215,13 +221,16 @@ def test_joint_surveys_inv_run(
             auto_scale_misfits=True,
         )
 
-    driver = JointSurveysDriver(joint_params)
-    driver.run()
+        out_group = validate_out_group(joint_params)
+        joint_params.out_group = out_group
+        joint_params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
+
+    driver = JointSurveysDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
     # The rescaling is done evenly on the two tiles for both surveys
     np.testing.assert_allclose(
         driver.data_misfit.multipliers,
-        [1.0, 1.0, 0.9440, 0.9440],
+        [1.0, 1.0, 0.8967, 0.8967],
         atol=1e-3,
     )
 
@@ -231,11 +240,54 @@ def test_joint_surveys_inv_run(
         )
         output["data"] = np.hstack(orig_data)
 
-        if unittest:
+        if pytest:
             check_target(output, target_run)
 
 
-@pytest.mark.parametrize(
+def test_restart_run(tmp_path):
+    shutil.copy(
+        tmp_path.parent / "test_joint_surveys_inv_run0" / "Inv_run.ui.json", tmp_path
+    )
+    shutil.copy(
+        tmp_path.parent / "test_joint_surveys_inv_run0" / "inversion_test.ui.geoh5",
+        tmp_path,
+    )
+    shutil.copy(
+        tmp_path.parent / "test_joint_surveys_inv_run0" / "inversion_test.ui.chi",
+        tmp_path,
+    )
+    json_file = tmp_path / "Inv_run.ui.json"
+
+    # Remember the last iteration
+    out_array = read_csv(
+        tmp_path.parent / "test_joint_surveys_inv_run0/inversion_test.ui.out", sep=" "
+    )
+
+    last_beta = out_array["beta"].iloc[-1]
+    last_phi_d = out_array["phi_d"].iloc[-1]
+    last_phi_m = out_array["phi_m"].iloc[-1]
+
+    uijson = BaseUIJson.read(json_file)
+    uijson.geoh5 = tmp_path / "inversion_test.ui.geoh5"
+    uijson.set_values(max_global_iterations=4)
+    uijson.write(json_file)
+    JointSurveysDriver.start(json_file, start_iteration=-2)
+
+    # Read the out file again and check against the previous full run
+    with Workspace(tmp_path / "inversion_test.ui.geoh5") as ws:
+        out_file = ws.get_entity("inversion_test.ui.out")[0]
+        out_array = read_csv(BytesIO(out_file.file_bytes), sep=" ")
+        np.testing.assert_almost_equal(out_array["beta"].iloc[4], last_beta, decimal=1)
+        np.testing.assert_almost_equal(
+            out_array["phi_d"].iloc[4], last_phi_d, decimal=1
+        )
+        np.testing.assert_almost_equal(
+            out_array["phi_m"].iloc[4], last_phi_m, decimal=1
+        )
+
+
+#
+@mark.parametrize(
     "option_class, driver_class",
     [
         (MagneticVectorInversionOptions, MagneticVectorInversionDriver),
@@ -315,6 +367,7 @@ def test_joint_surveys_mvi_run(tmp_path, option_class, driver_class, anomaly=0.0
         )
 
         driver = JointSurveysDriver(joint_params)
+        driver.initialize()
         assert np.isclose(driver.models.reference_model[0], 0)  # Took it from driver_A
         assert driver.models.starting_model.shape == (driver.models.n_active * 3,)
         assert np.isclose(
@@ -394,6 +447,7 @@ def test_joint_surveys_conductivity_run(
         )
 
         driver = JointSurveysDriver(joint_params)
+        driver.initialize()
         assert np.isclose(
             driver.models.reference_model[0], np.log(1 / 5.0)
         )  # Took it from driver_A
@@ -484,6 +538,7 @@ def test_joint_surveys_tem_run(
         )
 
         driver = JointSurveysDriver(joint_params)
+        driver.initialize()
         assert (
             len(
                 [
@@ -507,5 +562,5 @@ if __name__ == "__main__":
     test_joint_surveys_inv_run(
         Path("./"),
         max_iterations=20,
-        unittest=False,
+        pytest=False,
     )

@@ -11,13 +11,11 @@
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 from simpeg_drivers.driver import ForwardDriver
 from simpeg_drivers.potential_fields.magnetic_vector_pde.options import (
     MagneticVectorPDEForwardOptions,
 )
+from simpeg_drivers.utils.utils import argument_parser
 
 
 class MagneticVectorPDEForwardDriver(ForwardDriver):
@@ -27,5 +25,5 @@ class MagneticVectorPDEForwardDriver(ForwardDriver):
 
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
-    MagneticVectorPDEForwardDriver.start_dask_run(file)
+    file, args = argument_parser()
+    MagneticVectorPDEForwardDriver.start_dask_run(file, **args)

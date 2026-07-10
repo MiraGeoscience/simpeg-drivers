@@ -11,18 +11,18 @@
 
 from __future__ import annotations
 
-import sys
 from logging import getLogger
-from pathlib import Path
 
 import numpy as np
+from geoh5py.objects import DrapeModel, Octree
 from geoh5py.shared.utils import fetch_active_workspace
 from simpeg import directives, maps
 
-from simpeg_drivers.driver import InversionDriver
+from simpeg_drivers.driver import InversionDriver, first_child_of_type
 from simpeg_drivers.joint.driver import BaseJointDriver
 from simpeg_drivers.joint.joint_surveys.options import JointSurveysOptions
 from simpeg_drivers.options import ModelTypeEnum
+from simpeg_drivers.utils.utils import argument_parser
 
 
 logger = getLogger(__name__)
@@ -32,12 +32,6 @@ class JointSurveysDriver(BaseJointDriver):
     """Joint surveys inversion driver"""
 
     _params_class = JointSurveysOptions
-
-    def __init__(self, params: JointSurveysOptions):
-        super().__init__(params)
-
-        with fetch_active_workspace(self.workspace, mode="r+"):
-            self.initialize()
 
     def get_regularization(self):
         """
@@ -156,10 +150,25 @@ class JointSurveysDriver(BaseJointDriver):
 
         return self._directives
 
+    def _reset_models(self, iteration: int):
+        """
+        Reset the inversion models based on specified iteration.
+
+        :param iteration: The iteration number to reset the models for.
+        """
+        mesh = first_child_of_type(self.out_group, (DrapeModel, Octree))
+        flag = f"Iteration_{iteration}_"
+        for child in mesh.children:
+            if flag in child.name:
+                self.params.models.starting_model = child
+                break
+
+        super()._reset_models(iteration)
+
 
 JointSurveysDriver.n_values = InversionDriver.n_values
 JointSurveysDriver.mapping = InversionDriver.mapping
 
 if __name__ == "__main__":
-    file = Path(sys.argv[1]).resolve()
-    JointSurveysDriver.start_dask_run(file)
+    file, args = argument_parser()
+    JointSurveysDriver.start_dask_run(file, **args)
