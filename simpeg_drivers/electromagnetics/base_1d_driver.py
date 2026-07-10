@@ -103,9 +103,10 @@ class Base1DDriver(BaseDriver):
 
         if self.workers:
             n_chunks //= len(self.workers)
+            n_chunks = np.max([n_chunks, len(self.workers)])
 
         n_chunks = np.max([n_chunks, 1])
-        tiles = [[tile] for tile in np.array_split(indices, n_chunks) if np.any(tile)]
+        tiles = [[tile] for tile in np.array_split(indices, n_chunks) if len(tile) > 0]
         if self.workers is not None and len(self.workers) > len(tiles):
             self._workers = self.workers[: len(tiles)]
 

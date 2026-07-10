@@ -1,22 +1,45 @@
 {
-    "version": "0.5.0",
-    "title": "Frequency-domain EM (FEM) 1D Inversion",
+    "version": "0.4.0",
+    "title": "Time-domain EM (TEM) 1D Inversion",
     "icon": "surveyairborneem",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
-    "conda_environment": "simpeg-drivers",
-    "run_command": "simpeg_drivers.electromagnetics.frequency_domain_1d.inversion",
+    "conda_environment": "simpeg_drivers",
+    "run_command": "simpeg_drivers.driver",
     "geoh5": "",
     "monitoring_directory": "",
+    "inversion_type": "tdem 1d",
+    "physical_property": "conductivity",
+    "forward_only": false,
     "data_object": {
         "main": true,
         "group": "Data",
         "label": "Object",
         "meshType": [
-            "{b3a47539-0301-4b27-922e-1dde9d882c60}"
+            "{19730589-fd28-4649-9de0-ad47249d9aba}",
+            "{deebe11a-b57b-4a03-99d6-8f27b25eb2a8}"
         ],
         "value": ""
     },
-    "imag_channel": {
+    "data_units": {
+        "choiceList": [
+            "Airborne dB/dt (V/Am^4)",
+            "Airborne B (T/Am^2)",
+            "Ground dB/dt (V/Am^2)",
+            "Ground B (T/A)"
+        ],
+        "group": "Survey",
+        "main": true,
+        "label": "Data type",
+        "tooltip": [
+            "Set the units of the data.<p>",
+            "Data are expected to be normalized by the source strength, dependent on the type: <dl>",
+            "<dt>Dipole</dt><dd>Current * area * number of turns (NIA).</dd>",
+            "<dt>Wire</dt><dd>Current * number of turns (NI).</dd>",
+            "</dl>"
+        ],
+        "value": "dB/dt (T/s)"
+    },
+    "z_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -25,18 +48,13 @@
         "group": "Data",
         "dataGroupType": "Multi-element",
         "main": true,
-        "label": "Vertical (imaginary)",
-        "tooltip": [
-            "Imaginary component of the magnetic data. If no receiver orientation provided:<ul>",
-            "<li>Co-planar data are positive up along the z-axis</li>",
-            "<li>Co-axial data are positive along North</li></ul>"
-        ],
+        "label": "z-component",
         "parent": "data_object",
         "optional": true,
         "enabled": true,
         "value": ""
     },
-    "imag_uncertainty": {
+    "z_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -47,45 +65,8 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "imag_channel",
+        "dependency": "z_channel",
         "dependencyType": "enabled",
-        "enabled": false,
-        "value": ""
-    },
-    "real_channel": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
-        "main": true,
-        "label": "Vertical (real)",
-        "tooltip": [
-            "Real component of the magnetic data. If no receiver orientation provided:<ul>",
-            "<li>Co-planar data are positive up along the z-axis</li>",
-            "<li>Co-axial data are positive along North</li></ul>"
-        ],
-        "parent": "data_object",
-        "optional": true,
-        "enabled": true,
-        "value": ""
-    },
-    "real_uncertainty": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
-        "main": true,
-        "label": "Uncertainty",
-        "parent": "data_object",
-        "dependency": "real_channel",
-        "dependencyType": "enabled",
-        "enabled": false,
         "value": ""
     },
     "u_cell_size": {
@@ -95,7 +76,7 @@
     },
     "v_cell_size": {
         "min": 0.0,
-        "group": "1D mesh",
+        "group": "1D Mesh",
         "main": true,
         "enabled": true,
         "label": "Vertical core cell size (m)",
@@ -103,7 +84,7 @@
     },
     "depth_core": {
         "min": 0.0,
-        "group": "1D mesh",
+        "group": "1D Mesh",
         "main": true,
         "enabled": true,
         "label": "Depth of core (m)",
@@ -111,12 +92,12 @@
     },
     "horizontal_padding": {
         "visible": false,
-        "label": "Horizontal padding (m)",
-        "value": 1000.0
+        "label": "Vertical padding (m)",
+        "value": 0.0
     },
     "vertical_padding": {
         "min": 0.0,
-        "group": "1D mesh",
+        "group": "1D Mesh",
         "main": true,
         "dependencyType": "disabled",
         "label": "Vertical padding (m)",
@@ -124,7 +105,7 @@
     },
     "expansion_factor": {
         "main": true,
-        "group": "1D mesh",
+        "group": "1D Mesh",
         "label": "Expansion factor",
         "value": 1.1
     },
@@ -180,10 +161,7 @@
         "value": 0.001
     },
     "lower_bound": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
+        "association": "Cell",
         "main": true,
         "dataType": "Float",
         "group": "Mesh and models",
@@ -196,10 +174,7 @@
         "enabled": false
     },
     "upper_bound": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
+        "association": "Cell",
         "main": true,
         "dataType": "Float",
         "group": "Mesh and models",
@@ -245,6 +220,24 @@
         "value": "",
         "verbose": 2
     },
+    "active_model": {
+        "association": "Cell",
+        "dataType": [
+            "Referenced",
+            "Boolean",
+            "Integer"
+        ],
+        "group": "Topography",
+        "main": true,
+        "enabled": false,
+        "visible": false,
+        "dependency": "topography_object",
+        "dependencyType": "disabled",
+        "label": "Active model",
+        "tooltip": "Provide the active cell Boolean model directly if topography not set",
+        "parent": "mesh",
+        "value": ""
+    },
     "alpha_s": {
         "min": 0.0,
         "group": "Regularization",
@@ -263,7 +256,7 @@
     "length_scale_x": {
         "min": 0.0,
         "group": "Regularization",
-        "label": "X-smoothness weight",
+        "label": "Lateral-smoothness weight",
         "tooltip": "Larger values relative to other smoothness weights will result in x biased smoothness",
         "value": 1.0,
         "isValue": true,
@@ -277,8 +270,8 @@
     "length_scale_z": {
         "min": 0.0,
         "group": "Regularization",
-        "label": "Z-smoothness weight",
-        "tooltip": "Larger values relative to other smoothness weights will result in z biased smoothness",
+        "label": "Vertical-smoothness weight",
+        "tooltip": "Larger values relative to other smoothness weights will result in z biased smoothess",
         "value": 1.0,
         "isValue": true,
         "parent": "mesh",
@@ -310,7 +303,7 @@
         "association": "Cell",
         "dataType": "Float",
         "group": "Sparse/blocky model",
-        "label": "X-smoothness norm",
+        "label": "Lateral-smoothness norm",
         "isValue": true,
         "parent": "mesh",
         "property": "",
@@ -327,7 +320,7 @@
         "association": "Cell",
         "dataType": "Float",
         "group": "Sparse/blocky model",
-        "label": "Z-smoothness norm",
+        "label": "Vertical-smoothness norm",
         "isValue": true,
         "parent": "mesh",
         "property": "",
@@ -343,7 +336,7 @@
         "min": 0,
         "group": "Sparse/blocky model",
         "label": "Maximum IRLS iterations",
-        "tooltip": "Iterative Re-Weighted Least-squares (IRLS) iterations for non-L2 problems",
+        "tooltip": "Incomplete Re-weighted Least Squares iterations for non-L2 problems",
         "value": 25,
         "enabled": true,
         "verbose": 2
@@ -384,13 +377,13 @@
         "enabled": true,
         "tooltip": "The global target data misfit value"
     },
-    "auto_scale_tiles": {
+    "auto_scale_misfits": {
         "group": "Cooling schedule/target",
-        "label": "Auto-scale tiles",
+        "label": "Auto-scale misfits",
         "value": false,
         "verbose": 3,
         "visible": false,
-        "tooltip": "Whether to auto-scale the misfit function of tiles based on chi-factor"
+        "tooltip": "Whether to auto-scale misfits functions (tile, frequency, joint methods) based on chi-factor"
     },
     "initial_beta_ratio": {
         "min": 0.0,
@@ -463,7 +456,6 @@
         "label": "Maximum CG iterations",
         "value": 30,
         "enabled": true,
-        "tooltip": "Maximum number of iterations for the conjugate gradient solver used in the optimization",
         "verbose": 2
     },
     "tol_cg": {
@@ -472,7 +464,6 @@
         "label": "Conjugate gradient tolerance",
         "value": 0.0001,
         "enabled": true,
-        "tooltip": "Tolerance for the conjugate gradient solver used in the optimization",
         "verbose": 3
     },
     "f_min_change": {
@@ -486,7 +477,7 @@
     },
     "sens_wts_threshold": {
         "group": "Update sensitivity weights directive",
-        "tooltip": "Threshold below which sensitivity weights become constant. Measured as a percentage of the maximum sensitivity weight.",
+        "tooltip": "Update sensitivity weight threshold",
         "label": "Threshold (%)",
         "value": 100.0,
         "max": 100.0,
@@ -531,6 +522,9 @@
     "tile_spatial": {
         "group": "Compute",
         "label": "Number of tiles",
+        "parent": "data_object",
+        "isValue": true,
+        "property": "",
         "value": 1,
         "min": 1,
         "max": 1000,
@@ -540,12 +534,11 @@
     },
     "store_sensitivities": {
         "choiceList": [
-            "disk",
             "ram"
         ],
         "group": "Compute",
         "label": "Storage device",
-        "tooltip": "Use disk on a fast local SSD, and RAM elsewhere",
+        "tooltip": "Only RAM storage available for now",
         "value": "ram",
         "visible": false
     },
@@ -578,8 +571,8 @@
         "visible": false,
         "tooltip": "Generates a file for sweeping parameters instead of running the application"
     },
-    "n_workers": null,
-    "n_threads": null,
+    "n_workers": "",
+    "n_threads": "",
     "max_ram": "",
     "performance_report": false,
     "distributed_workers": ""

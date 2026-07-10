@@ -1,12 +1,15 @@
 {
-    "version": "0.5.0",
+    "version": "0.3.0-alpha.6",
     "title": "Frequency-domain EM (FEM) 1D Inversion",
     "icon": "surveyairborneem",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
-    "conda_environment": "simpeg-drivers",
-    "run_command": "simpeg_drivers.electromagnetics.frequency_domain_1d.inversion",
+    "conda_environment": "simpeg_drivers",
+    "run_command": "simpeg_drivers.driver",
     "geoh5": "",
     "monitoring_directory": "",
+    "inversion_type": "fdem 1d",
+    "physical_property": "conductivity",
+    "forward_only": false,
     "data_object": {
         "main": true,
         "group": "Data",
@@ -16,7 +19,7 @@
         ],
         "value": ""
     },
-    "imag_channel": {
+    "z_real_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -25,18 +28,13 @@
         "group": "Data",
         "dataGroupType": "Multi-element",
         "main": true,
-        "label": "Vertical (imaginary)",
-        "tooltip": [
-            "Imaginary component of the magnetic data. If no receiver orientation provided:<ul>",
-            "<li>Co-planar data are positive up along the z-axis</li>",
-            "<li>Co-axial data are positive along North</li></ul>"
-        ],
+        "label": "z-real component (ppm)",
         "parent": "data_object",
         "optional": true,
         "enabled": true,
         "value": ""
     },
-    "imag_uncertainty": {
+    "z_real_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -45,14 +43,13 @@
         "group": "Data",
         "dataGroupType": "Multi-element",
         "main": true,
-        "label": "Uncertainty",
+        "label": "Uncertainty (ppm)",
         "parent": "data_object",
-        "dependency": "imag_channel",
+        "dependency": "z_real_channel",
         "dependencyType": "enabled",
-        "enabled": false,
         "value": ""
     },
-    "real_channel": {
+    "z_imag_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -61,18 +58,13 @@
         "group": "Data",
         "dataGroupType": "Multi-element",
         "main": true,
-        "label": "Vertical (real)",
-        "tooltip": [
-            "Real component of the magnetic data. If no receiver orientation provided:<ul>",
-            "<li>Co-planar data are positive up along the z-axis</li>",
-            "<li>Co-axial data are positive along North</li></ul>"
-        ],
+        "label": "z-imag component (ppm)",
         "parent": "data_object",
         "optional": true,
         "enabled": true,
         "value": ""
     },
-    "real_uncertainty": {
+    "z_imag_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -81,11 +73,10 @@
         "group": "Data",
         "dataGroupType": "Multi-element",
         "main": true,
-        "label": "Uncertainty",
+        "label": "Uncertainty (ppm)",
         "parent": "data_object",
-        "dependency": "real_channel",
+        "dependency": "z_imag_channel",
         "dependencyType": "enabled",
-        "enabled": false,
         "value": ""
     },
     "u_cell_size": {
@@ -95,7 +86,7 @@
     },
     "v_cell_size": {
         "min": 0.0,
-        "group": "1D mesh",
+        "group": "1D Mesh",
         "main": true,
         "enabled": true,
         "label": "Vertical core cell size (m)",
@@ -103,7 +94,7 @@
     },
     "depth_core": {
         "min": 0.0,
-        "group": "1D mesh",
+        "group": "1D Mesh",
         "main": true,
         "enabled": true,
         "label": "Depth of core (m)",
@@ -116,7 +107,7 @@
     },
     "vertical_padding": {
         "min": 0.0,
-        "group": "1D mesh",
+        "group": "1D Mesh",
         "main": true,
         "dependencyType": "disabled",
         "label": "Vertical padding (m)",
@@ -124,7 +115,7 @@
     },
     "expansion_factor": {
         "main": true,
-        "group": "1D mesh",
+        "group": "1D Mesh",
         "label": "Expansion factor",
         "value": 1.1
     },
@@ -223,7 +214,7 @@
             "{b020a277-90e2-4cd7-84d6-612ee3f25051}"
         ],
         "value": "",
-        "optional": false,
+        "optional": true,
         "enabled": true,
         "tooltip": "Select a topography object to define the active cells for inversion"
     },
@@ -238,12 +229,29 @@
         "optional": true,
         "enabled": false,
         "label": "Elevation channel",
-        "tooltip": "Set elevation from channel. If not set the topography will be set from the geometry of the selected 'topography' object",
+        "tooltip": "Set elevation from channel.  If not set the topography will be set from the geometry of the selected 'topography' object",
         "parent": "topography_object",
         "dependency": "topography_object",
         "dependencyType": "enabled",
         "value": "",
         "verbose": 2
+    },
+    "active_model": {
+        "association": "Cell",
+        "dataType": [
+            "Referenced",
+            "Boolean",
+            "Integer"
+        ],
+        "group": "Topography",
+        "main": true,
+        "enabled": false,
+        "dependency": "topography_object",
+        "dependencyType": "disabled",
+        "label": "Active model",
+        "tooltip": "Provide the active cell boolean model directly if topography not set",
+        "parent": "mesh",
+        "value": ""
     },
     "alpha_s": {
         "min": 0.0,
@@ -278,7 +286,7 @@
         "min": 0.0,
         "group": "Regularization",
         "label": "Z-smoothness weight",
-        "tooltip": "Larger values relative to other smoothness weights will result in z biased smoothness",
+        "tooltip": "Larger values relative to other smoothness weights will result in z biased smoothess",
         "value": 1.0,
         "isValue": true,
         "parent": "mesh",
@@ -339,11 +347,12 @@
         "enabled": true,
         "tooltip": "Lp-norm used in the z-smoothness term of the objective function"
     },
+    "gradient_type": "total",
     "max_irls_iterations": {
         "min": 0,
         "group": "Sparse/blocky model",
         "label": "Maximum IRLS iterations",
-        "tooltip": "Iterative Re-Weighted Least-squares (IRLS) iterations for non-L2 problems",
+        "tooltip": "Incomplete Re-weighted Least Squares iterations for non-L2 problems",
         "value": 25,
         "enabled": true,
         "verbose": 2
@@ -384,13 +393,13 @@
         "enabled": true,
         "tooltip": "The global target data misfit value"
     },
-    "auto_scale_tiles": {
+    "auto_scale_misfits": {
         "group": "Cooling schedule/target",
-        "label": "Auto-scale tiles",
+        "label": "Auto-scale misfits",
         "value": false,
         "verbose": 3,
         "visible": false,
-        "tooltip": "Whether to auto-scale the misfit function of tiles based on chi-factor"
+        "tooltip": "Whether to auto-scale misfits functions (tile, frequency, joint methods) based on chi-factor"
     },
     "initial_beta_ratio": {
         "min": 0.0,
@@ -455,7 +464,7 @@
         "min": 1,
         "enabled": true,
         "verbose": 3,
-        "tooltip": "Perform an Armijo backtracking line search for the provided number of iterations"
+        "tooltip": "Perform an Armijo backtracking linesearch for the provided number of iterations"
     },
     "max_cg_iterations": {
         "min": 0,
@@ -463,7 +472,6 @@
         "label": "Maximum CG iterations",
         "value": 30,
         "enabled": true,
-        "tooltip": "Maximum number of iterations for the conjugate gradient solver used in the optimization",
         "verbose": 2
     },
     "tol_cg": {
@@ -472,7 +480,6 @@
         "label": "Conjugate gradient tolerance",
         "value": 0.0001,
         "enabled": true,
-        "tooltip": "Tolerance for the conjugate gradient solver used in the optimization",
         "verbose": 3
     },
     "f_min_change": {
@@ -486,7 +493,7 @@
     },
     "sens_wts_threshold": {
         "group": "Update sensitivity weights directive",
-        "tooltip": "Threshold below which sensitivity weights become constant. Measured as a percentage of the maximum sensitivity weight.",
+        "tooltip": "Update sensitivity weight threshold",
         "label": "Threshold (%)",
         "value": 100.0,
         "max": 100.0,
@@ -531,6 +538,9 @@
     "tile_spatial": {
         "group": "Compute",
         "label": "Number of tiles",
+        "parent": "data_object",
+        "isValue": true,
+        "property": "",
         "value": 1,
         "min": 1,
         "max": 1000,
@@ -555,7 +565,7 @@
         "optional": true,
         "enabled": true,
         "label": "Maximum chunk size (Mb)",
-        "value": 512,
+        "value": 128,
         "verbose": 3,
         "visible": false,
         "tooltip": "Limit the chunk size used by Dask for distributed computation"
@@ -575,11 +585,10 @@
         "group": "Python run preferences",
         "main": true,
         "value": false,
-        "visible": false,
         "tooltip": "Generates a file for sweeping parameters instead of running the application"
     },
-    "n_workers": null,
-    "n_threads": null,
+    "n_workers": "",
+    "n_threads": "",
     "max_ram": "",
     "performance_report": false,
     "distributed_workers": ""
