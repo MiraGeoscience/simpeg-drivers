@@ -98,12 +98,27 @@ class SimPEGDriversUIJson(BaseUIJson):
         """
         kwargs = {}
         for key, item in data.items():
+            # Tile spatial not a Data selector
             if isinstance(item, dict) and key == "tile_spatial":
                 item.pop("isValue", None)
                 item.pop("property", None)
                 item.pop("parent", None)
+                item.pop("association", None)
+
+            # Old default not in choiceList
+            if key == "data_units" and item["value"] not in item["choiceList"]:
+                item["value"] = item["choiceList"][0]
+
+            # Ignore active model if topography object is non-optional
+            if key == "active_model":
+                topo_form = data["topography_object"]
+                if not topo_form["optional"]:
+                    continue
 
             kwargs[key] = item if item != "" else None
+
+        if "geoh5" not in kwargs:
+            kwargs["geoh5"] = ""
 
         ui_json_class = cls.infer(**kwargs)
 
