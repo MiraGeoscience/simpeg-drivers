@@ -8,11 +8,13 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 import logging
+import re
 import shutil
 from pathlib import Path
 
 import numpy as np
 import pytest
+import requests
 from geoapps_utils.utils.importing import GeoAppsError
 from geoapps_utils.utils.transformations import rotate_xyz
 from geoh5py import Workspace
@@ -246,3 +248,15 @@ def test_suppress_logging_restores_disable_level():
         assert logging.root.manager.disable == logging.ERROR
     finally:
         logging.disable(original_disable_level)
+
+
+def test_simulations_url():
+
+    uijson = BaseUIJson.read(PlateMatchOptions.default_ui_json)
+    label = uijson.download_simulations.label
+    for part in label:
+        url = re.findall(r"href=(.*?)>for", part)
+        if any(url):
+            response = requests.head(url[0], allow_redirects=True, timeout=5)
+
+            assert response.status_code == 200
