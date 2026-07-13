@@ -18,7 +18,6 @@ from geoh5py.data import FloatData
 from simpeg_drivers.depth_of_investigation.sensitivity_cutoff.options import (
     SensitivityCutoffOptions,
 )
-from simpeg_drivers.utils.utils import validate_out_group
 
 
 logger = logging.getLogger(__name__)

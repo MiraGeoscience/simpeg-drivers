@@ -20,8 +20,8 @@ from geoapps_utils.base import Driver, get_logger
 from geoapps_utils.modelling.plates import Plate
 from geoapps_utils.utils.transformations import azimuth_to_unit_vector
 from geoh5py.data import FloatData, ReferencedData
+from geoh5py.groups import SimPEGGroup
 from geoh5py.objects import Octree, Points, Surface
-from geoh5py.shared.utils import fetch_active_workspace
 from geoh5py.ui_json.input_file import InputFile
 
 from simpeg_drivers.driver import (
@@ -36,11 +36,7 @@ from simpeg_drivers.plate_simulation.models.events import Anomaly, Erosion, Over
 from simpeg_drivers.plate_simulation.models.series import DikeSwarm, Geology
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
 from simpeg_drivers.utils.synthetics.meshes import get_octree_mesh
-from simpeg_drivers.utils.utils import (
-    driver_class_from_dict,
-    start_dask_run,
-    validate_out_group,
-)
+from simpeg_drivers.utils.utils import driver_class_from_dict, start_dask_run
 
 
 logger = get_logger(__name__, propagate=False)
@@ -57,6 +53,7 @@ class PlateSimulationDriver(Driver):
     """
 
     _params_class = PlateSimulationOptions
+    _out_group_class = SimPEGGroup
 
     def __init__(
         self,
@@ -66,7 +63,7 @@ class PlateSimulationDriver(Driver):
     ):
         super().__init__(params)
 
-        self._out_group = validate_out_group(self.params)
+        self._out_group = self.validate_out_group(self.params)
         self._plates: list[Plate] | None = None
         self._survey: Points | None = None
         self._mesh: Octree | None = None
@@ -321,7 +318,7 @@ class PlateSimulationDriver(Driver):
             models_update["starting_model"] = None
         update["models"] = opts.models.model_copy(update=models_update)
 
-        out_group = validate_out_group(opts)
+        out_group = self.validate_out_group(opts.out_group)
         out_group = out_group.copy(
             parent=self.out_group,
             copy_children=False,
