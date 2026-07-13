@@ -26,7 +26,7 @@ class MagneticVectorInversionDriver(InversionDriver):
 
     _params_class = MagneticVectorInversionOptions
 
-    def _reset_models(self, iteration):
+    def _reset_models(self, iteration: int):
         """
         Reset the inversion models based on specified iteration and mesh.
 

@@ -327,7 +327,7 @@ class BaseJointDriver(InversionDriver):
             if model is not None:
                 getattr(self.models, f"_{model_type}").model = model
 
-    def _reset_models(self, iteration):
+    def _reset_models(self, iteration: int):
         """
         Reset the inversion models based on specified iteration and mesh.
 
@@ -360,6 +360,9 @@ class BaseJointDriver(InversionDriver):
         self._inversion_mesh = InversionMesh(self.workspace, self.params, entity=mesh)
 
         self.initialize()
+
+        self.optimization.iter = start_iteration
+        self._reset_directives(start_iteration)
 
     @staticmethod
     def _validate_model_consistency(model: list[None | Any], model_type: str):

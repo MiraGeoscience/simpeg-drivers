@@ -32,6 +32,7 @@ from geoapps_utils.run import load_ui_json_as_dict
 from geoapps_utils.utils.importing import GeoAppsError
 
 from geoh5py import Workspace
+from geoh5py.data import FilenameData
 from geoh5py.groups import SimPEGGroup
 from geoh5py.objects import DrapeModel, FEMSurvey, Octree
 from geoh5py.shared.utils import fetch_active_workspace
@@ -888,8 +889,6 @@ class InversionDriver(BaseDriver):
             )
 
         self._reset_on_iteration(last_iter)
-        self.optimization.iter = last_iter
-        self._reset_directives(last_iter)
         self.inverse_problem.beta = last_beta
 
     def _reset_on_iteration(self, start_iteration: int):
@@ -909,17 +908,23 @@ class InversionDriver(BaseDriver):
             self._inversion_mesh.permutation @ mesh.get_entity("active_cells")[0].values
         ).astype(bool)
 
-    def _reset_directives(self, iteration):
+        self.optimization.iter = start_iteration
+        self._reset_directives(start_iteration)
+
+    def _reset_directives(self, iteration: int):
         """
         Reset the inversion directives based on specified iteration and model.
 
         :param iteration: The iteration number to reset directives for.
         """
-        for child in self.out_group.children:
-            if not child.name.endswith(".chi"):
-                continue
+        chi_data = [
+            child
+            for child in self.out_group.children
+            if child.name.endswith(".chi") and isinstance(child, FilenameData)
+        ]
 
-            chi_array = np.loadtxt(BytesIO(child.file_bytes), skiprows=1)
+        if chi_data:
+            chi_array = np.loadtxt(BytesIO(chi_data[0].file_bytes), skiprows=1)
 
             if self.directives.scale_misfits is not None:
                 self.directives.scale_misfits.scalings = chi_array[iteration, 1:]
@@ -928,8 +933,6 @@ class InversionDriver(BaseDriver):
                 )
                 self.data_misfit.multipliers *= self.directives.scale_misfits.scalings
 
-            break
-
         # Hard-wire beta and remove estimator directive
         directive = self.directives.beta_estimate_by_eigenvalues_directive
         if directive is not None and directive in self.directives.directive_list:
@@ -937,7 +940,7 @@ class InversionDriver(BaseDriver):
                 self.directives.beta_estimate_by_eigenvalues_directive
             )
 
-    def _reset_models(self, iteration):
+    def _reset_models(self, iteration: int):
         """
         Reset the inversion models based on specified iteration and mesh.
 
