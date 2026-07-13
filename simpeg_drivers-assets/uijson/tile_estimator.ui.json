@@ -5,6 +5,7 @@
     "documentation": "",
     "conda_environment": "simpeg-drivers",
     "run_command": "simpeg_drivers.utils.tile_estimate",
+    "geoh5": "",
     "monitoring_directory": "",
     "simulation": {
         "main": true,
