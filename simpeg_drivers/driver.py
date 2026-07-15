@@ -91,8 +91,6 @@ class BaseDriver(Driver, ABC):
     Base class for drivers handling the parallel setup.
     """
 
-    _out_group_class = SimPEGGroup
-
     def __init__(
         self,
         params: Options,
@@ -482,8 +480,7 @@ class BaseDriver(Driver, ABC):
                 ):
                     self.warm_start(start_iteration)
                 else:
-                    if Path(self.params.input_file.path_name).is_file():
-                        self.out_group.add_file(self.params.input_file.path_name)
+                    self.params.ui_json.to_file_data(self.out_group)
 
                     if self.logger:
                         self.logger.start()

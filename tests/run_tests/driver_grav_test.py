@@ -17,12 +17,11 @@ from unittest.mock import patch
 
 import numpy as np
 from geoapps_utils.utils.importing import GeoAppsError
-from geoh5py.ui_json import BaseUIJson
+from geoh5py.ui_json import UIJson
 from geoh5py.workspace import Workspace
 from pandas import read_csv
 from pytest import raises
 
-from simpeg_drivers.driver import validate_out_group
 from simpeg_drivers.potential_fields.gravity.forward import (
     GravityForwardDriver,
     GravityForwardOptions,
@@ -146,8 +145,6 @@ def test_gravity_run(
             sens_wts_threshold=1.0,
             save_sensitivities=True,
         )
-        out_group = validate_out_group(params)
-        params.out_group = out_group
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
     driver = GravityInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
@@ -213,7 +210,7 @@ def test_restart_run(tmp_path):
     last_phi_d = out_array["phi_d"].iloc[-1]
     last_phi_m = out_array["phi_m"].iloc[-1]
 
-    uijson = BaseUIJson.read(json_file)
+    uijson = UIJson.read(json_file)
     uijson.geoh5 = tmp_path / "inversion_test.ui.geoh5"
     uijson.set_values(max_global_iterations=5)
     uijson.write(json_file)

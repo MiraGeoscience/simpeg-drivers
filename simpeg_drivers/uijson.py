@@ -10,7 +10,9 @@
 
 import json
 import logging
+from typing import Self
 
+from geoh5py.groups import SimPEGGroup
 from geoh5py.ui_json.ui_json import UIJson
 from packaging.version import Version
 from pydantic import field_validator
@@ -26,6 +28,13 @@ class SimPEGDriversUIJson(UIJson):
 
     icon: str
     documentation: str = "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html"
+
+    n_workers: int | None = None
+    n_threads: int | None = None
+    performance_report: bool = False
+    distributed_workers: str | None = None
+
+    _out_group_class = SimPEGGroup
 
     @field_validator("version", mode="before")
     @classmethod
@@ -86,7 +95,7 @@ class SimPEGDriversUIJson(UIJson):
             file.write(data)
 
     @classmethod
-    def from_dict(cls, data: dict) -> UIJson:
+    def from_dict(cls, data: dict) -> Self:
         """
         Create a UIJson instance from a dictionary.
 

@@ -199,6 +199,8 @@ class CoreOptions(Options):
     # List of deprecated parameters
     deprecations: Deprecations
 
+    _ui_json_class: ClassVar[type] = SimPEGDriversUIJson
+
     @property
     def components(self) -> list[str]:
         """Return list of component names."""
