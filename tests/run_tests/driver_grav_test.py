@@ -85,7 +85,7 @@ def test_gravity_fwr_run(
             gz_channel_bool=True,
         )
 
-    fwr_driver = GravityForwardDriver(params)
+        fwr_driver = GravityForwardDriver(params)
     fwr_driver.run()
 
 
