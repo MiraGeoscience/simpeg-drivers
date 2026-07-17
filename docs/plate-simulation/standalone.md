@@ -36,8 +36,7 @@ modelling, just select the ``Use LeroiAir`` checkbox.
 width: 300pt
 align: center
 ---
-Selecting the initialized forward modelling SimPEG group and naming the group that will store the plate
-simulation results.
+Selecting the initialized forward modelling SimPEG group, optionally choosing LeroiAir for improved thin plate modelling and providing a name for the results group.
 ```
 
 - Create the required SimPEG group within Geoscience ANALYST through the
