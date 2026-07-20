@@ -33,7 +33,7 @@ Oftentimes, the user would like to model a thin plate that might push the resolu
 width: 300pt
 align: center
 ---
-Selecting the initialized forward modelling SimPEG group, optionally choosing LeroiAir for improved thin plate modelling and providing a name for the results group.
+Selecting the initialized forward modelling SimPEG group, or optionally choosing LeroiAir for improved thin plate modelling and providing a name for the results group.
 ```
 
 - Create the required SimPEG group within Geoscience ANALYST through the
