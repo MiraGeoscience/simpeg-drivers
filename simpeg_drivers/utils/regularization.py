@@ -181,7 +181,7 @@ def cell_neighbors(mesh: TreeMesh) -> np.ndarray:
 
     :param mesh: Input TreeMesh.
 
-    :return: Array of unique and sorted cell neighbor pairs.
+    :return: Array of cell neighbor index pairs (cell_id, neighbor_cell_id).
     """
     neighbors_lists = cell_neighbors_lists(mesh)
     return np.vstack(neighbors_lists)
