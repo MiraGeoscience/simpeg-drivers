@@ -103,11 +103,7 @@
         "icon": "information",
         "main": true,
         "value": null,
-        "label": [
-            "Download simulation examples",
-            "<a href=https://mirageoscience-my.sharepoint.com/:f:/p/dominiquef/IgBYoYv0sD8JSYKmb2YypaTYAV561Um3bpUC4Ds9dOS8YsU?e=B4KbFr>for HELITEM</a>,",
-            "<a href=https://mirageoscience-my.sharepoint.com/:f:/p/dominiquef/IgBhJmxHqcTXQZF6d2gWAuZqAZU5-P92pLWANBEwTpgUvOI?e=7ekGY1>for VTEM</a>"
-        ]
+        "label": "<a href='https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/downloads/plate-simulation'>Download simulation examples</a>"
     },
     "out_group": {
         "label": "SimPEG group",
