@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -8,9 +8,10 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-from geoh5py import Workspace
+import logging
+
 from geoh5py.groups import SimPEGGroup
-from geoh5py.ui_json import InputFile
+from geoh5py.ui_json import BaseUIJson
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.plate_simulation.driver import (
@@ -30,11 +31,12 @@ from simpeg_drivers.utils.synthetics.options import (
     SurveyOptions,
     SyntheticsComponentsOptions,
 )
+from simpeg_drivers.utils.utils import validate_out_group
 from tests.utils.targets import get_workspace
 
 
 # pylint: disable=too-many-statements
-def test_plate_simulation_params_from_input_file(tmp_path):
+def test_plate_simulation_params_from_input_file(tmp_path, caplog):
     opts = SyntheticsComponentsOptions(
         method="gravity",
         survey=SurveyOptions(n_stations=8, n_lines=8),
@@ -44,56 +46,53 @@ def test_plate_simulation_params_from_input_file(tmp_path):
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
 
-        ifile = InputFile.read_ui_json(
-            assets_path() / "uijson" / "plate_simulation.ui.json", validate=False
-        )
-        ifile.data["name"] = "test_gravity_plate_simulation"
-        ifile.data["geoh5"] = geoh5
-
         # Add simulation parameter
-        gravity_inversion = SimPEGGroup.create(geoh5)
-
         options = GravityForwardOptions.model_construct()
-        fwr_ifile = InputFile.read_ui_json(options.default_ui_json)
-        options_dict = fwr_ifile.ui_json
-        options_dict["inversion_type"] = "gravity"
-        options_dict["forward_only"] = True
-        options_dict["geoh5"] = str(geoh5.h5file)
-        options_dict["topography_object"]["value"] = str(components.topography.uid)
-        options_dict["data_object"]["value"] = str(components.survey.uid)
-        gravity_inversion.options = options_dict
-        ifile.data["simulation"] = gravity_inversion
+        fwr_ifile = BaseUIJson.read(options.default_ui_json)
+        options_dict = {
+            "inversion_type": "gravity",
+            "forward_only": True,
+            "topography_object": str(components.topography.uid),
+            "data_object": str(components.survey.uid),
+            "title": "gravity fwd",
+        }
+        fwr_ifile.set_values(**options_dict)
+        options_dict = fwr_ifile.to_params(workspace=geoh5)
+        options = GravityForwardOptions.build(options_dict)
+        gravity_inversion = validate_out_group(options)
 
-        # Add mesh parameters
-        ifile.data["u_cell_size"] = 10.0
-        ifile.data["v_cell_size"] = 10.0
-        ifile.data["w_cell_size"] = 10.0
-        ifile.data["depth_core"] = 400.0
-        ifile.data["minimum_level"] = 8
-        ifile.data["max_distance"] = 200.0
-        ifile.data["diagonal_balance"] = False
-        ifile.data["padding_distance"] = 1500.0
+        ifile = BaseUIJson.read(assets_path() / "uijson" / "plate_simulation.ui.json")
+        options_dict = {
+            "simulation": gravity_inversion,
+            # Add mesh parameters
+            "u_cell_size": 10.0,
+            "v_cell_size": 10.0,
+            "w_cell_size": 10.0,
+            "depth_core": 400.0,
+            "minimum_level": 8,
+            "max_distance": 200.0,
+            "diagonal_balance": False,
+            "padding_distance": 1500.0,
+            "name": "test_gravity_plate_simulation",
+            # Add model parameters
+            "background": 1000.0,
+            "overburden_property": 5.0,
+            "thickness": 50.0,
+            "plate_property": 2.0,
+            "width": 100.0,
+            "strike_length": 100.0,
+            "dip_length": 100.0,
+            "dip": 0.0,
+            "dip_direction": 0.0,
+            "number": 9,
+            "spacing": 10.0,
+            "elevation": 20,
+        }
+        ifile.set_values(**options_dict)
 
-        # Add model parameters
-        ifile.data["background"] = 1000.0
-        ifile.data["overburden"] = 5.0
-        ifile.data["thickness"] = 50.0
-        ifile.data["plate"] = 2.0
-        ifile.data["width"] = 100.0
-        ifile.data["strike_length"] = 100.0
-        ifile.data["dip_length"] = 100.0
-        ifile.data["dip"] = 0.0
-        ifile.data["dip_direction"] = 0.0
-        ifile.data["number"] = 9
-        ifile.data["spacing"] = 10.0
-        ifile.data["relative_locations"] = True
-        ifile.data["easting"] = 10.0
-        ifile.data["northing"] = 10.0
-        ifile.data["elevation"] = -250
-        ifile.data["reference_surface"] = "topography"
-        ifile.data["reference_type"] = "mean"
-
-    params = PlateSimulationOptions.build(ifile)
+    with caplog.at_level(logging.WARNING):
+        params = PlateSimulationOptions.build(ifile.to_params(workspace=geoh5))
+    assert "Overburden thickness exceeds the plate depth" in caplog.text
     assert isinstance(params.simulation, SimPEGGroup)
 
     simulation_parameters = params.simulation_parameters()
@@ -118,20 +117,17 @@ def test_plate_simulation_params_from_input_file(tmp_path):
     assert not params.mesh.diagonal_balance
 
     assert isinstance(params.model, ModelOptions)
-    assert params.model.plate_model.name == "test_gravity_plate_simulation"
+    assert params.model.plate_options.name == "test_gravity_plate_simulation"
     assert params.model.background == 1000.0
-    assert params.model.overburden_model.thickness == 50.0
-    assert params.model.overburden_model.overburden == 5.0
-    assert params.model.plate_model.plate == 2.0
-    assert params.model.plate_model.width == 100.0
-    assert params.model.plate_model.strike_length == 100.0
-    assert params.model.plate_model.dip_length == 100.0
-    assert params.model.plate_model.dip == 0.0
-    assert params.model.plate_model.dip_direction == 0.0
+    assert params.model.overburden_options.thickness == 50.0
+    assert params.model.overburden_options.overburden_property == 5.0
+    assert params.model.plate_options.plate_property == 2.0
+    assert params.model.plate_options.geometry.strike_length == 100.0
+    assert params.model.plate_options.geometry.dip_length == 100.0
+    assert params.model.plate_options.geometry.dip == 0.0
+    assert params.model.plate_options.geometry.direction == 0.0
 
-    assert params.model.plate_model.number == 9
-    assert params.model.plate_model.spacing == 10.0
-    assert params.model.plate_model.relative_locations
-    assert params.model.plate_model.easting == 10.0
-    assert params.model.plate_model.northing == 10.0
-    assert params.model.plate_model.elevation == -250.0
+    assert params.model.plate_options.number == 9
+    assert params.model.plate_options.spacing == 10.0
+    # reset by validator
+    assert params.model.plate_options.geometry.elevation == 50.0

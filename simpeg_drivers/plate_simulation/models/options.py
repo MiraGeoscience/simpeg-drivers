@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -8,70 +8,50 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-from typing import TypeVar
+
+from logging import getLogger
 
 import numpy as np
+from geoapps_utils.modelling.plates import PlateModel
+from geoapps_utils.utils.locations import topo_drape_elevation
 from geoh5py.objects import Points
 from pydantic import (
+    AliasChoices,
     BaseModel,
     ConfigDict,
-    ValidationInfo,
-    field_validator,
+    Field,
     model_validator,
 )
 
+from simpeg_drivers.options import Deprecated
 
-T = TypeVar("T")
+
+logger = getLogger(__name__)
 
 
 class PlateOptions(BaseModel):
     """
     Parameters describing an anomalous plate.
 
-    :param plate: Value given to the plate(s).
-    :param width: V-size of the plate.
-    :param strike_length: U-size of the plate.
-    :param dip_length: W-size of the plate.
-    :param dip: Orientation of the v-axis in degree from horizontal.
-    :param dip_direction: Orientation of the u axis in degree from north.
-    :param reference: Point of rotation to be 'center' or 'top'.
+    :param name: Name given to the plate.
+    :param plate_property: Value given to the plate(s).
+    :param geometry: Parameters describing the plate geometry.
     :param number: Number of offset plates to be created.
     :param spacing: Spacing between plates.
-    :param relative_locations: If True locations are relative to survey in xy and
-        mean topography in z.
-    :param easting: Easting offset relative to survey.
-    :param northing: Northing offset relative to survey.
-    :param elevation: plate(s) elevation.  May be true elevation or relative to
-        overburden or topography.
-    :param reference_surface: Switches between using topography and overburden as
-        elevation reference of the plate.
-    :param reference_type: Type of reference for plate elevation.  Can be 'mean'
-        'min', or 'max'.  Resulting elevation will be relative to the mean,
-        minimum, or maximum of the reference surface.
     """
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     name: str = "Plate"
-    plate: float
-    width: float
-    strike_length: float
-    dip_length: float
-    dip: float = 90.0
-    dip_direction: float = 90.0
+    plate_property: float = Field(
+        validation_alias=AliasChoices("plate_property", "plate")
+    )
+    geometry: PlateModel
     number: int = 1
     spacing: float = 0.0
-    relative_locations: bool = False
-    easting: float = 0.0
-    northing: float = 0.0
-    elevation: float
-    reference_surface: str = "topography"
-    reference_type: str = "mean"
-
-    @field_validator("reference_surface", "reference_type", mode="before")
-    @classmethod
-    def none_to_default(cls, value: T | None, info: ValidationInfo) -> T:
-        return value or cls.model_fields[info.field_name].default  # pylint: disable=unsubscriptable-object
+    relative_locations: Deprecated
+    reference_surface: Deprecated
+    reference_type: Deprecated
 
     @model_validator(mode="after")
     def single_plate(self):
@@ -79,54 +59,26 @@ class PlateOptions(BaseModel):
             self.spacing = 0.0
         return self
 
-    @property
-    def halfplate(self):
-        """Compute half the z-projection length of the plate."""
-        return 0.5 * self.dip_length * np.sin(np.deg2rad(self.dip))
-
     def center(
         self,
         survey: Points,
         surface: Points,
-        depth_offset: float = 0.0,
     ) -> tuple[float, float, float]:
         """
         Find the plate center relative to a survey and topography.
 
         :param survey: geoh5py survey object for plate simulation.
         :param surface: Points-like object to reference plate depth from.
-        :param depth_offset: Additional offset to be added to the depth of the plate.
         """
-        return *self._get_xy(survey), self._get_z(surface, depth_offset)
 
-    def _get_xy(self, survey: Points) -> tuple[float, float]:
-        """Return true or relative locations in x and y."""
+        center_x = survey.vertices[:, 0].mean() + self.geometry.easting
+        center_y = survey.vertices[:, 1].mean() + self.geometry.northing
+        xyz = np.atleast_2d([center_x, center_y, 0])
+        topo_at_center = topo_drape_elevation(
+            xyz, surface.vertices, method="linear", triangulation=surface.cells
+        )
 
-        if self.relative_locations:
-            return (
-                survey.vertices[:, 0].mean() + self.easting,
-                survey.vertices[:, 1].mean() + self.northing,
-            )
-
-        return self.easting, self.northing
-
-    def _get_z(self, surface: Points, offset: float = 0.0) -> float:
-        """
-        Return true or relative locations in z.
-
-        :param surface: Points-like object to reference plate depth from.
-        :offset: Additional offset to be added to the depth.
-
-        """
-        if surface.vertices is None:
-            raise ValueError("Topography object has no vertices.")
-        if self.relative_locations:
-            z = getattr(surface.vertices[:, 2], self.reference_type)()
-            z += offset + self.elevation - self.halfplate
-        else:
-            z = self.elevation
-
-        return z
+        return center_x, center_y, topo_at_center[0, 2] - self.geometry.elevation
 
 
 class OverburdenOptions(BaseModel):
@@ -134,11 +86,13 @@ class OverburdenOptions(BaseModel):
     Parameters for the overburden layer.
 
     :param thickness: Thickness of the overburden layer.
-    :param overburden: Value given to the overburden layer.
+    :param overburden_property: Value given to the overburden layer.
     """
 
     thickness: float
-    overburden: float
+    overburden_property: float = Field(
+        validation_alias=AliasChoices("overburden_property", "overburden")
+    )
 
 
 class ModelOptions(BaseModel):
@@ -153,5 +107,16 @@ class ModelOptions(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     background: float
-    overburden_model: OverburdenOptions
-    plate_model: PlateOptions
+    overburden_options: OverburdenOptions
+    plate_options: PlateOptions
+
+    @model_validator(mode="after")
+    def plate_top_below_overburden(self):
+        if self.plate_options.geometry.elevation < self.overburden_options.thickness:
+            logger.warning(
+                "Overburden thickness exceeds the plate depth.  Adjusting"
+                "plate to bottom of overburden to preserve plate's geometry."
+            )
+            self.plate_options.geometry.elevation = self.overburden_options.thickness
+
+        return self

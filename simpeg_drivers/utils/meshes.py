@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2024-2025 Mira Geoscience Ltd.                                     '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -7,19 +7,6 @@
 #  (see LICENSE file at the root of this source code package).                      '
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 import numpy as np
 from geoh5py.groups import UIJsonGroup
@@ -55,11 +42,11 @@ def auto_pad(survey, factor=2) -> tuple[list[float], list[float]]:
 
 
 def use_vertical_padding(inversion_type):
-    """Return true for all electrical and potential field methods."""
+    """Return False for all electrical and potential field methods."""
     out = True
     if any(
         k in inversion_type
-        for k in ["direct current", "induced polarization", "gravity", "magnetic"]
+        for k in ["direct current", "induced polarization", "gravity", "magnetic "]
     ):
         out = False
     return out
@@ -120,7 +107,7 @@ def auto_mesh_parameters(
                 {
                     "refinement_object": topography,
                     "levels": topography_refinement,
-                    "horizon": True,
+                    "horizon": False,
                 },
                 None,
             ],

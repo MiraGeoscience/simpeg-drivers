@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -13,12 +13,11 @@ from __future__ import annotations
 
 from geoh5py.data import FloatData
 from geoh5py.groups import PropertyGroup, SimPEGGroup
-from pydantic import ConfigDict
+from pydantic import BaseModel, ConfigDict
 
 from simpeg_drivers.options import (
     CoolingSceduleOptions,
     CoreOptions,
-    DirectiveOptions,
     IRLSOptions,
     ModelOptions,
     OptimizationOptions,
@@ -51,6 +50,28 @@ class JointModelOptions(ModelOptions):
     z_norm: float | FloatData | None = None
 
 
+class DirectiveOptions(BaseModel):
+    """
+    Directive options for inversion.
+
+    :param auto_scale_misfits: Automatically scale misfits of joint inversions.
+    :param auto_scale_tiles: Automatically scale tiles.
+    :param auto_scale_channels: Automatically scale channels.
+    :param beta_search: Beta search.
+    :param every_iteration_bool: Update the sensitivity weights every iteration.
+    :param save_sensitivities: Save sensitivities to file.
+    :param sens_wts_threshold: Threshold for sensitivity weights.
+    """
+
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True,
+    )
+    auto_scale_misfits: bool = True
+    every_iteration_bool: bool = True
+    save_sensitivities: bool = False
+    sens_wts_threshold: float | None = 1e-0
+
+
 class BaseJointOptions(CoreOptions):
     """
     Base Joint Options.
@@ -76,7 +97,7 @@ class BaseJointOptions(CoreOptions):
     group_c_multiplier: float | None = None
 
     irls: IRLSOptions = IRLSOptions()
-    directives: DirectiveOptions = DirectiveOptions(auto_scale_misfits=True)
+    directives: DirectiveOptions = DirectiveOptions()
     cooling_schedule: CoolingSceduleOptions = CoolingSceduleOptions()
     optimization: OptimizationOptions = OptimizationOptions()
 

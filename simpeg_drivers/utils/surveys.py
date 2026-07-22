@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -13,11 +13,17 @@ from __future__ import annotations
 
 import numpy as np
 from discretize import TreeMesh
-from geoapps_utils.utils.numerical import traveling_salesman
 from geoh5py import Workspace
-from geoh5py.objects import PotentialElectrode
+from geoh5py.objects import DrapeModel, PotentialElectrode
+from geoh5py.shared.merging.drape_model import DrapeModelMerger
+from scipy.sparse import csgraph, csr_matrix
 from scipy.spatial import cKDTree
 from simpeg.survey import BaseSurvey
+
+from simpeg_drivers.options import (
+    DrapeModelOptions,
+)
+from simpeg_drivers.utils.utils import get_drape_model
 
 
 def station_spacing(
@@ -62,47 +68,6 @@ def counter_clockwise_sort(segments: np.ndarray, vertices: np.ndarray) -> np.nda
     return segments
 
 
-def compute_alongline_distance(points: np.ndarray, ordered: bool = True):
-    """
-    Convert from cartesian (x, y, values) points to (distance, values) locations.
-
-    :param: points: Cartesian coordinates of points lying either roughly within a
-        plane or a line.
-    """
-    if not ordered:
-        order = traveling_salesman(points)
-        points = points[order, :]
-
-    distances = np.cumsum(
-        np.r_[0, np.linalg.norm(np.diff(points[:, :2], axis=0), axis=1)]
-    )
-    if points.shape[1] == 3:
-        distances = np.c_[distances, points[:, 2:]]
-
-    return distances
-
-
-def extract_dcip_survey(
-    workspace: Workspace, survey: PotentialElectrode, cell_mask: np.ndarray
-):
-    """
-    Returns a survey containing data from a single line.
-
-    :param workspace: geoh5py workspace containing a valid DCIP survey.
-    :param survey: PotentialElectrode object.
-    :param cell_mask: Boolean array of M-N pairs to include in the new survey.
-    """
-
-    if not np.any(cell_mask):
-        raise ValueError("No cells found in the mask.")
-
-    active_poles = np.zeros(survey.n_vertices, dtype=bool)
-    active_poles[survey.cells[cell_mask, :].ravel()] = True
-    potentials = survey.copy(parent=workspace, mask=active_poles, cell_mask=cell_mask)
-
-    return potentials
-
-
 def get_intersecting_cells(locations: np.ndarray, mesh: TreeMesh) -> np.ndarray:
     """
     Find cells that intersect with a set of segments.
@@ -145,6 +110,31 @@ def get_unique_locations(survey: BaseSurvey) -> np.ndarray:
     return np.unique(locations, axis=0)
 
 
+def get_parts_from_electrodes(survey: PotentialElectrode) -> np.ndarray:
+    """
+    Get part numbers from a survey containing PotentialElectrode objects.
+
+    :param survey: PotentialElectrode survey object.
+
+    :return: Array of part numbers corresponding to each cell in the survey.
+    """
+    edge_array = csr_matrix(
+        (
+            np.ones(survey.n_cells * 2),
+            (
+                np.kron(survey.cells[:, 0], [1, 1]),
+                survey.cells.flatten(),
+            ),
+        ),
+        shape=(survey.n_vertices, survey.n_vertices),
+    )
+
+    connections = csgraph.connected_components(edge_array)[1]
+    parts = connections[survey.cells[:, 0]]
+    _, u_part = np.unique(parts, return_inverse=True)
+    return u_part
+
+
 def compute_em_projections(locations, simulation):
     """
     Pre-compute projections for the receivers for efficiency.
@@ -182,3 +172,117 @@ def compute_dc_projections(locations, cells, simulation):
                 proj_mn -= projection[cells[indices, 1], :]
 
             receiver.spatialP = proj_mn  # pylint: disable=protected-access
+
+
+def create_mesh_by_line_id(
+    workspace: Workspace,
+    survey: PotentialElectrode,
+    line_ids: np.ndarray,
+    drape_options: DrapeModelOptions,
+    **object_kwargs,
+) -> DrapeModel:
+    """
+    Create a drape mesh for the dc resistivity survey lines.
+
+    :param workspace: Workspace to create the drape mesh in.
+    :param survey: PotentialElectrode survey object.
+    :param line_ids: Array containing the line IDs for each cell.
+    :param drape_options: DrapeModelOptions containing the parameters for the drape mesh
+    :param object_kwargs: Additional keyword arguments to pass to the DrapeModelMerger.create_object method.
+
+    :return: A DrapeModel object containing the merged drape mesh for all survey lines.
+    """
+    drape_models = []
+    temp_work = Workspace()
+
+    relief = get_max_line_relief(survey, line_ids, drape_options.v_cell_size)
+
+    for line_id in np.unique(line_ids):
+        poles = get_poles_by_line_id(survey, line_ids, line_id)
+        poles = np.unique(poles, axis=0)
+        poles = normalize_vertically(poles, relief)
+
+        drape_model = get_drape_model(
+            temp_work,
+            poles,
+            [
+                drape_options.u_cell_size,
+                drape_options.v_cell_size,
+            ],
+            drape_options.depth_core,
+            [drape_options.horizontal_padding] * 2
+            + [drape_options.vertical_padding, 1],
+            drape_options.expansion_factor,
+        )
+        drape_models.append(drape_model)
+
+    entity = DrapeModelMerger.create_object(workspace, drape_models, **object_kwargs)
+
+    return entity
+
+
+def get_max_line_relief(
+    survey: PotentialElectrode, line_ids: np.ndarray, z_cell_size: float
+) -> float:
+    """
+    Get the maximum relief across all survey lines, rounded to the nearest cell thickness.
+
+    :param survey: PotentialElectrode survey object.
+    :param line_ids: Array containing the line IDs for each vertex.
+    :param z_cell_size: Cell size in the vertical direction for the drape mesh.
+    """
+    max_relief = 0
+    for line_id in np.unique(line_ids):
+        poles = get_poles_by_line_id(survey, line_ids, line_id)
+        max_relief = np.maximum(poles[:, 2].max() - poles[:, 2].min(), max_relief)
+
+    return (max_relief // z_cell_size + 2) * z_cell_size
+
+
+def get_poles_by_line_id(
+    survey: PotentialElectrode, line_ids: np.ndarray, uid: int
+) -> np.ndarray:
+    """
+    Get the vertices associated with a given line ID.
+
+    :param survey: PotentialElectrode survey object.
+    :param line_ids: Array containing the line IDs for each vertex.
+    :param uid: Unique ID for the survey line.
+
+    :return: Array containing the receiver and transmitter pole locations associated with a given line ID.
+    """
+    mn_mask = line_ids == uid
+
+    unique_tx = np.unique(survey.ab_cell_id.values[mn_mask])
+
+    ab_mask = np.isin(survey.complement.ab_cell_id.values, unique_tx)
+
+    return np.vstack(
+        [
+            survey.vertices[survey.cells[mn_mask].flatten()],
+            survey.current_electrodes.vertices[
+                survey.current_electrodes.cells[ab_mask].flatten()
+            ],
+        ]
+    )
+
+
+def normalize_vertically(poles: np.ndarray, relief: float) -> np.ndarray:
+    """
+    Given a set of pole locations, normalize the vertical component to the maximum relief across all lines.
+
+    This ensures that the drape mesh has uniform vertical discretization across all survey lines.
+
+    :param poles: Array of pole locations to normalize.
+    :param relief: Maximum relief across all survey lines, rounded to the nearest cell thickness.
+
+    :return: Array of pole locations with normalized vertical component.
+    """
+    min_poles_z = poles[:, 2].min()
+    poles[:, 2] -= min_poles_z
+    poles[:, 2] *= relief / np.maximum(poles[:, 2].max(), 1e-3)
+
+    # Shift back vertically
+    poles[:, 2] += min_poles_z
+
+    return poles

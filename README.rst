@@ -52,7 +52,7 @@ Documentation
 
 Installation
 ^^^^^^^^^^^^
-**simpeg-drivers** is currently written for Python 3.10 or higher.
+**simpeg-drivers** is currently written for Python 3.12 or higher.
 
 Install Conda
 -------------
@@ -162,10 +162,10 @@ The simpeg-drivers Software may provide links to third party libraries or code (
 to implement various functions. Third Party Software does not comprise part of the Software.
 The use of Third Party Software is governed by the terms of such software license(s).
 Third Party Software notices and/or additional terms and conditions are located in the
-`THIRD_PARTY_SOFTWARE.rst`_ file.
+`THIRD_PARTY_SOFTWARE.md`_ file.
 
-.. _THIRD_PARTY_SOFTWARE.rst: docs/THIRD_PARTY_SOFTWARE.rst
+.. _THIRD_PARTY_SOFTWARE.md: docs/THIRD_PARTY_SOFTWARE.md
 
 Copyright
 ^^^^^^^^^
-Copyright (c) 2023-2025 Mira Geoscience Ltd.
+Copyright (c) 2023-2026 Mira Geoscience Ltd.

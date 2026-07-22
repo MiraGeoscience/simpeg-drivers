@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -13,7 +13,6 @@
 
 from __future__ import annotations
 
-from gc import is_finalized
 from typing import TYPE_CHECKING
 
 
@@ -46,13 +45,15 @@ class SurveyFactory(SimPEGFactory):
         """
         super().__init__(params)
         self.simpeg_object = self.concrete_object()
-        self.local_index = None
-        self.survey = None
         self.ordering = None
         self.sorting = None
 
     def concrete_object(self):
-        if self.factory_type in ["magnetic vector", "magnetic scalar"]:
+        if self.factory_type in [
+            "magnetic vector",
+            "magnetic scalar",
+            "magnetic vector pde",
+        ]:
             from simpeg.potential_fields.magnetics import survey
 
         elif self.factory_type == "gravity":
@@ -70,7 +71,11 @@ class SurveyFactory(SimPEGFactory):
         elif "tdem" in self.factory_type:
             from simpeg.electromagnetics.time_domain import survey
 
-        elif self.factory_type in ["magnetotellurics", "tipper"]:
+        elif self.factory_type in [
+            "apparent conductivity",
+            "magnetotellurics",
+            "tipper",
+        ]:
             from simpeg.electromagnetics.natural_source import survey
 
         else:
@@ -84,7 +89,11 @@ class SurveyFactory(SimPEGFactory):
             return self._dcip_arguments(data=data)
         elif "tdem" in self.factory_type:
             return self._tdem_arguments(data=data)
-        elif self.factory_type in ["magnetotellurics", "tipper"]:
+        elif self.factory_type in [
+            "apparent conductivity",
+            "magnetotellurics",
+            "tipper",
+        ]:
             return self._naturalsource_arguments(data=data)
         elif "fdem" in self.factory_type:
             return self._fem_arguments(data=data)
@@ -133,10 +142,10 @@ class SurveyFactory(SimPEGFactory):
     def _add_data(self, survey, data):
         # Stack the data by [channel, component, receiver]
         data_stack = np.dstack(
-            [np.vstack(list(k.values())) for k in data.observed.values()]
+            [np.vstack(list(k)) for k in data.observed.values()]
         ).transpose((0, 2, 1))
         uncert_stack = np.dstack(
-            [np.vstack(list(k.values())) for k in data.uncertainties.values()]
+            [np.vstack(list(k)) for k in data.uncertainties.values()]
         ).transpose((0, 2, 1))
 
         uncert_stack[np.isnan(data_stack)] = np.inf
@@ -179,7 +188,7 @@ class SurveyFactory(SimPEGFactory):
             sorting.append(receiver_indices)
             receivers = ReceiversFactory(self.params).build(
                 locations=receiver_locations,
-                local_index=receiver_entity.cells[receiver_indices],
+                local_indices=receiver_entity.cells[receiver_indices],
             )
 
             if receivers.nD == 0:
@@ -284,9 +293,7 @@ class SurveyFactory(SimPEGFactory):
 
             for comp_id, component in enumerate(data.components):
                 rx_obj = rx_factory.build(
-                    locations=locs,
-                    data=data,
-                    component=component,
+                    locations=locs, data=data, component=component, local_indices=rx_ids
                 )
                 rx_list.append(rx_obj)
                 n_times = len(receivers.channels)
@@ -312,34 +319,28 @@ class SurveyFactory(SimPEGFactory):
         channels = np.array(data.entity.channels)
         rx_locs = data.entity.vertices
         tx_locs = data.entity.transmitters.vertices
-        frequencies = data.entity.transmitters.workspace.get_entity("Tx frequency")[0]
-        frequencies = np.array(
-            [int(frequencies.value_map[f]) for f in frequencies.values]
-        )
+        frequencies = np.repeat(channels, rx_locs.shape[0])
 
         sources = []
         rx_factory = ReceiversFactory(self.params)
         tx_factory = SourcesFactory(self.params)
-        receiver_groups = []
-        block_ordering = []
-        for rx_id, locs in enumerate(rx_locs):
-            receivers = []
-            for comp_id, component in enumerate(data.components):
-                receiver = rx_factory.build(
-                    locations=locs,
-                    data=data,
-                    component=component,
-                )
-                block_ordering.append([comp_id, rx_id])
-                receivers.append(receiver)
-
-            receiver_groups.append(receivers)
-
-        block_ordering = np.vstack(block_ordering)
         ordering = []
         tx_count = 0
         for freq_id, frequency in enumerate(channels):
-            for rx_id, receivers in enumerate(receiver_groups):
+            for rx_id, locs in enumerate(rx_locs):
+                receivers = []
+                block_ordering = []
+                for comp_id, component in enumerate(data.components):
+                    receiver = rx_factory.build(
+                        locations=locs,
+                        data=data,
+                        component=component
+                        + ("_coaxial" if self.params.coaxial[freq_id] else "_coplanar"),
+                        local_indices=rx_id,
+                    )
+                    block_ordering.append([comp_id, rx_id])
+                    receivers.append(receiver)
+
                 locs = tx_locs[frequency == frequencies, :][rx_id, :]
                 tx = tx_factory.build(
                     receivers,
@@ -349,21 +350,18 @@ class SurveyFactory(SimPEGFactory):
                 tx.rx_ids = np.r_[rx_id]
                 sources.append(tx)
 
-            source_ids = (
-                np.repeat(np.arange(len(receiver_groups)), len(receivers)).astype(int)
-                + tx_count
-            )
-            ordering.append(
-                np.column_stack(
-                    [
-                        np.ones(block_ordering.shape[0]) * freq_id,
-                        block_ordering,
-                        source_ids,  # Source IDs
-                    ]
+                source_ids = np.full(len(block_ordering), tx_count)
+                ordering.append(
+                    np.column_stack(
+                        [
+                            np.full(len(block_ordering), freq_id),
+                            np.vstack(block_ordering),
+                            source_ids,  # Source IDs
+                        ]
+                    )
                 )
-            )
 
-            tx_count = source_ids.max() + 1
+                tx_count += 1
 
         self.ordering = np.vstack(ordering).astype(int)
         self.sorting = np.arange(rx_locs.shape[0], dtype=int)
@@ -386,6 +384,7 @@ class SurveyFactory(SimPEGFactory):
         tx_factory = SourcesFactory(self.params)
         block_ordering = []
         self.sorting = np.arange(data.locations.shape[0], dtype=int)
+
         for comp_id, comp in enumerate(data.components):
             receivers.append(
                 rx_factory.build(

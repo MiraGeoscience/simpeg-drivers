@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -12,7 +12,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import ClassVar, TypeAlias
+from typing import ClassVar
 
 import numpy as np
 from geoh5py.groups import PropertyGroup
@@ -21,6 +21,7 @@ from geoh5py.objects import (
     LargeLoopGroundTEMReceivers,
     MovingLoopGroundTEMReceivers,
 )
+from pydantic import AliasChoices, Field
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.options import (
@@ -31,9 +32,11 @@ from simpeg_drivers.options import (
 )
 
 
-Receivers: TypeAlias = (
-    MovingLoopGroundTEMReceivers | LargeLoopGroundTEMReceivers | AirborneTEMReceivers
-)
+CONVERSION = {
+    "Seconds (s)": 1.0,
+    "Milliseconds (ms)": 1e-3,
+    "Microseconds (us)": 1e-6,
+}
 
 
 class BaseTDEMOptions(EMDataMixin):
@@ -50,12 +53,7 @@ class BaseTDEMOptions(EMDataMixin):
     @property
     def unit_conversion(self):
         """Return time unit conversion factor."""
-        conversion = {
-            "Seconds (s)": 1.0,
-            "Milliseconds (ms)": 1e-3,
-            "Microseconds (us)": 1e-6,
-        }
-        return conversion[self.data_object.unit]
+        return CONVERSION[self.data_object.unit]
 
     @property
     def timing_mark(self):
@@ -79,21 +77,35 @@ class TDEMForwardOptions(BaseTDEMOptions, BaseForwardOptions):
     """
     Time Domain Electromagnetic forward options.
 
-    :param z_channel_bool: Z-component data channel boolean.
-    :param x_channel_bool: X-component data channel boolean.
-    :param y_channel_bool: Y-component data channel boolean.
+    :param vertical_channel_bool: Vertical data channel boolean.
+    :param inline_channel_bool: In-line data channel boolean.
+    :param crossline_channel_bool: Cross-line data channel boolean.
     """
 
     name: ClassVar[str] = "Time Domain Electromagnetics Forward"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/tdem_forward.ui.json"
+    run_command: str = "simpeg_drivers.electromagnetics.time_domain.forward"
+
     title: str = "Time-domain EM (TEM) Forward"
+    icon: str = "surveyairborneem"
     physical_property: str = "conductivity"
     inversion_type: str = "tdem"
 
-    data_object: Receivers
-    z_channel_bool: bool | None = None
-    x_channel_bool: bool | None = None
-    y_channel_bool: bool | None = None
+    data_object: (
+        MovingLoopGroundTEMReceivers
+        | LargeLoopGroundTEMReceivers
+        | AirborneTEMReceivers
+    )
+    receivers_orientation: PropertyGroup | None = None
+    vertical_channel_bool: bool = Field(
+        False, validation_alias=AliasChoices("z_channel_bool", "vertical_channel_bool")
+    )
+    inline_channel_bool: bool = Field(
+        False, validation_alias=AliasChoices("y_channel_bool", "inline_channel_bool")
+    )
+    crossline_channel_bool: bool = Field(
+        False, validation_alias=AliasChoices("x_channel_bool", "crossline_channel_bool")
+    )
     models: ConductivityModelOptions
 
 
@@ -101,25 +113,45 @@ class TDEMInversionOptions(BaseTDEMOptions, BaseInversionOptions):
     """
     Time Domain Electromagnetic Inversion options.
 
-    :param z_channel: Z-component data channel.
-    :param z_uncertainty: Z-component data channel uncertainty.
-    :param x_channel: X-component data channel.
-    :param x_uncertainty: X-component data channel uncertainty.
-    :param y_channel: Y-component data channel.
-    :param y_uncertainty: Y-component data channel uncertainty.
+    :param vertical_channel: Vertical component data channel.
+    :param vertical_uncertainty: Vertical component data channel uncertainty.
+    :param inline_channel: In-line data channel.
+    :param inline_uncertainty: In-line data channel uncertainty.
+    :param crossline_channel: Cross-line data channel.
+    :param crossline_uncertainty: Cross-line data channel uncertainty.
     """
 
     name: ClassVar[str] = "Time Domain Electromagnetics Inversion"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/tdem_inversion.ui.json"
+    run_command: str = "simpeg_drivers.electromagnetics.time_domain.inversion"
     title: str = "Time-domain EM (TEM) Inversion"
+    icon: str = "surveyairborneem"
     physical_property: str = "conductivity"
     inversion_type: str = "tdem"
 
-    data_object: Receivers
-    z_channel: PropertyGroup | None = None
-    z_uncertainty: PropertyGroup | None = None
-    x_channel: PropertyGroup | None = None
-    x_uncertainty: PropertyGroup | None = None
-    y_channel: PropertyGroup | None = None
-    y_uncertainty: PropertyGroup | None = None
+    data_object: (
+        MovingLoopGroundTEMReceivers
+        | LargeLoopGroundTEMReceivers
+        | AirborneTEMReceivers
+    )
+    receivers_orientation: PropertyGroup | None = None
+    vertical_channel: PropertyGroup | None = Field(
+        None, validation_alias=AliasChoices("z_channel", "vertical_channel")
+    )
+    vertical_uncertainty: PropertyGroup | None = Field(
+        None, validation_alias=AliasChoices("z_uncertainty", "vertical_uncertainty")
+    )
+    inline_channel: PropertyGroup | None = Field(
+        None, validation_alias=AliasChoices("y_channel", "inline_channel")
+    )
+    inline_uncertainty: PropertyGroup | None = Field(
+        None, validation_alias=AliasChoices("y_uncertainty", "inline_uncertainty")
+    )
+    crossline_channel: PropertyGroup | None = Field(
+        None, validation_alias=AliasChoices("x_channel", "crossline_channel")
+    )
+    crossline_uncertainty: PropertyGroup | None = Field(
+        None, validation_alias=AliasChoices("x_uncertainty", "crossline_uncertainty")
+    )
+
     models: ConductivityModelOptions

@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -13,28 +13,30 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-from geoh5py.data import FloatData
+import pytest
+from geoapps_utils import GeoAppsError
+from geoapps_utils.modelling.plates import PlateModel, make_plate
 from geoh5py.groups.property_group import GroupTypeEnum, PropertyGroup
-from geoh5py.groups.simpeg import SimPEGGroup
+from geoh5py.objects import Octree, Points
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.joint.joint_petrophysics.driver import JointPetrophysicsDriver
 from simpeg_drivers.joint.joint_petrophysics.options import JointPetrophysicsOptions
-from simpeg_drivers.potential_fields import (
-    GravityForwardOptions,
-    GravityInversionOptions,
-    MagneticInversionOptions,
-    MVIForwardOptions,
-)
-from simpeg_drivers.potential_fields.gravity.driver import (
+from simpeg_drivers.potential_fields.gravity.forward import (
     GravityForwardDriver,
+    GravityForwardOptions,
+)
+from simpeg_drivers.potential_fields.gravity.inversion import (
     GravityInversionDriver,
+    GravityInversionOptions,
 )
-from simpeg_drivers.potential_fields.magnetic_scalar.driver import (
+from simpeg_drivers.potential_fields.magnetic_scalar.inversion import (
     MagneticInversionDriver,
+    MagneticInversionOptions,
 )
-from simpeg_drivers.potential_fields.magnetic_vector.driver import (
-    MVIForwardDriver,
+from simpeg_drivers.potential_fields.magnetic_vector.forward import (
+    MagneticVectorForwardDriver,
+    MagneticVectorForwardOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (
     SyntheticsComponents,
@@ -54,34 +56,74 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 390.70695894864303, "phi_d": 2030, "phi_m": 9.23}
+target_run = {"data_norm": 422.92317507375105, "phi_d": 2920, "phi_m": 417}
 INDUCING_FIELD = (50000.0, 90.0, 0.0)
 
 
 def test_homogeneous_fwr_run(
     tmp_path: Path,
     n_grid_points=3,
+    cell_size=(20.0, 20.0, 20.0),
     refinement=(2,),
 ):
     # Create local problem A
     opts = SyntheticsComponentsOptions(
         method="gravity",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points,
             n_lines=n_grid_points,
             drape=15.0,
             name="survey A",
         ),
-        mesh=MeshOptions(refinement=refinement, name="mesh A"),
-        model=ModelOptions(anomaly=0.75, name="model A"),
+        mesh=MeshOptions(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+            name="mesh A",
+        ),
+        model=ModelOptions(
+            anomaly=0.75,
+            name="model A",
+            plate=PlateModel(
+                easting=-60,
+                strike_length=30.0,
+                dip_length=30.0,
+                width=30.0,
+                northing=0.0,
+                elevation=20.0,
+                dip=90.0,
+                direction=0.0,
+            ),
+        ),
         active=SyntheticsActiveCellsOptions(name="active A"),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
 
         # Change half the model
-        ind = components.mesh.centroids[:, 0] > 0
+        ind = components.mesh.centroids[:, 0] > -2
         components.model.values[ind] = 0.05
+
+        # Add a block
+        components.model.values = make_plate(
+            points=components.mesh.centroids,
+            plate=PlateModel(
+                strike_length=30.0,
+                dip_length=30.0,
+                width=30.0,
+                easting=40.0,
+                northing=0.0,
+                elevation=20.0,
+                dip=90.0,
+                direction=0.0,
+            ),
+            background=components.model.values,
+            anomaly=-0.5,
+        )
 
         params = GravityForwardOptions.build(
             geoh5=geoh5,
@@ -95,22 +137,61 @@ def test_homogeneous_fwr_run(
     with geoh5.open():
         opts = SyntheticsComponentsOptions(
             method="magnetic_vector",
+            refine_plate=True,
             survey=SurveyOptions(
                 n_stations=n_grid_points,
                 n_lines=n_grid_points,
                 drape=15.0,
                 name="survey B",
             ),
-            mesh=MeshOptions(refinement=refinement, name="mesh B"),
-            model=ModelOptions(anomaly=0.05, name="model B"),
+            mesh=MeshOptions(
+                u_cell_size=cell_size[0],
+                v_cell_size=cell_size[1],
+                w_cell_size=cell_size[2],
+                survey_refinement=list(refinement),
+                topography_refinement=[0, 0, 1],
+                plate_refinement=[1],
+                name="mesh B",
+            ),
+            model=ModelOptions(
+                anomaly=0.025,
+                name="model B",
+                plate=PlateModel(
+                    easting=-60,
+                    strike_length=30.0,
+                    dip_length=30.0,
+                    width=30.0,
+                    northing=0.0,
+                    elevation=20.0,
+                    dip=90.0,
+                    direction=0.0,
+                ),
+            ),
             active=SyntheticsActiveCellsOptions(name="active B"),
         )
         components = SyntheticsComponents(geoh5, options=opts)
         # Change half the model
-        ind = components.mesh.centroids[:, 0] > 0
+        ind = components.mesh.centroids[:, 0] > -2
         components.model.values[ind] = 0.01
 
-        params = MVIForwardOptions.build(
+        # Add a block
+        components.model.values = make_plate(
+            points=components.mesh.centroids,
+            plate=PlateModel(
+                strike_length=30.0,
+                dip_length=30.0,
+                width=30.0,
+                easting=40.0,
+                northing=0.0,
+                elevation=20.0,
+                dip=90.0,
+                direction=0.0,
+            ),
+            background=components.model.values,
+            anomaly=0.05,
+        )
+
+        params = MagneticVectorForwardOptions.build(
             geoh5=geoh5,
             mesh=components.mesh,
             topography_object=components.topography,
@@ -120,7 +201,7 @@ def test_homogeneous_fwr_run(
             data_object=components.survey,
             starting_model=components.model,
         )
-    fwr_driver_b = MVIForwardDriver(params)
+    fwr_driver_b = MagneticVectorForwardDriver(params)
 
     fwr_driver_a.run()
     fwr_driver_b.run()
@@ -129,10 +210,10 @@ def test_homogeneous_fwr_run(
 def test_homogeneous_run(
     tmp_path: Path,
     max_iterations=1,
-    pytest=True,
+    use_pytest=True,
 ):
     workpath = tmp_path / "inversion_test.ui.geoh5"
-    if pytest:
+    if use_pytest:
         workpath = (
             tmp_path.parent / "test_homogeneous_fwr_run0" / "inversion_test.ui.geoh5"
         )
@@ -144,29 +225,23 @@ def test_homogeneous_run(
         petrophysics = None
         gradient_rotation = None
 
-        for suffix in "AB":
-            components = SyntheticsComponents(
-                geoh5=geoh5,
-                options=SyntheticsComponentsOptions(
-                    method="joint",
-                    survey=SurveyOptions(name=f"survey {suffix}"),
-                    mesh=MeshOptions(name=f"mesh {suffix}"),
-                    model=ModelOptions(name=f"model {suffix}"),
-                    active=SyntheticsActiveCellsOptions(name=f"active {suffix}"),
-                ),
+        for name in ["Gravity Forward", "Magnetic Vector Forward"]:
+            group = geoh5.get_entity(name)[0]
+            mesh = next(child for child in group.children if isinstance(child, Octree))
+            survey = next(
+                child for child in group.children if isinstance(child, Points)
             )
-            mesh = components.mesh
-            survey = components.survey
 
-            if suffix == "A":
+            if name == "Gravity Forward":
                 global_mesh = mesh.copy(parent=geoh5)
                 model = global_mesh.get_entity("starting_model")[0]
 
                 mapping = {}
                 vals = np.zeros_like(model.values, dtype=int)
-                for ind, value in enumerate(np.unique(model.values)):
+                model_values = np.round(model.values, decimals=4)
+                for ind, value in enumerate(np.unique(model_values)):
                     mapping[ind + 1] = f"Unit{ind}"
-                    vals[model.values == value] = ind + 1
+                    vals[model_values == value] = ind + 1
 
                 topography = geoh5.get_entity("topography")[0]
                 petrophysics = global_mesh.add_data(
@@ -197,18 +272,24 @@ def test_homogeneous_run(
             ref_model = mesh.get_entity("starting_model")[0].copy(name="ref_model")
             ref_model.values = ref_model.values / 2.0
 
-            if suffix == "A":
+            if name == "Gravity Forward":
                 params = GravityInversionOptions.build(
                     geoh5=geoh5,
                     mesh=mesh,
                     topography_object=topography,
                     data_object=survey,
                     gz_channel=data,
-                    gz_uncertainty=1e-2,
+                    gz_uncertainty=5e-3,
                     starting_model=ref_model,
                     reference_model=ref_model,
                 )
-                drivers.append(GravityInversionDriver(params))
+                driver = GravityInversionDriver(params)
+
+                # Remove inversion type as per current json on file
+                options = driver.out_group.options
+                options.pop("inversion_type", None)
+                driver.out_group.options = options
+                drivers.append(driver)
             else:
                 params = MagneticInversionOptions.build(
                     geoh5=geoh5,
@@ -219,27 +300,28 @@ def test_homogeneous_run(
                     inducing_field_declination=INDUCING_FIELD[2],
                     data_object=survey,
                     starting_model=ref_model,
-                    reference_model=ref_model,
+                    reference_model=None,
                     tile_spatial=1,
                     tmi_channel=data,
                     tmi_uncertainty=5e0,
                 )
                 drivers.append(MagneticInversionDriver(params))
 
-        # Test if single group is valid
-        params = JointPetrophysicsOptions.build(
-            topography_object=topography,
-            geoh5=geoh5,
-            group_a=drivers[0].out_group,
-            mesh=global_mesh,
-            petrophysical_model=petrophysics,
-        )
-        driver = JointPetrophysicsDriver(params)
-        assert len(driver.data_misfit.objfcts) == 1
-        assert driver.data_misfit.multipliers == [1.0]
+            if len(drivers) == 1:
+                # Test if single group is valid
+                params = JointPetrophysicsOptions.build(
+                    topography_object=topography,
+                    geoh5=geoh5,
+                    group_a=drivers[0].out_group,
+                    mesh=global_mesh,
+                    petrophysical_model=petrophysics,
+                )
+                driver = JointPetrophysicsDriver(params)
+                assert len(driver.data_misfit.objfcts) == 1
+                assert driver.data_misfit.multipliers == [1.0]
 
         # Re-build full
-        params = JointPetrophysicsOptions.build(
+        joint_params = JointPetrophysicsOptions.build(
             topography_object=topography,
             geoh5=geoh5,
             group_a=drivers[0].out_group,
@@ -248,17 +330,34 @@ def test_homogeneous_run(
             group_b_multiplier=1.0,
             mesh=global_mesh,
             gradient_rotation=gradient_rotation,
+            alpha_s=10.0,
             length_scale_x=1.0,
             length_scale_y=1.0,
             length_scale_z=1.0,
             petrophysical_model=petrophysics,
             initial_beta_ratio=1e2,
             max_global_iterations=max_iterations,
+            max_irls_iterations=1,
         )
-        driver = JointPetrophysicsDriver(params)
+        driver = JointPetrophysicsDriver(joint_params)
+
+        with pytest.raises(
+            GeoAppsError, match="A reference model must be set and active on each"
+        ):
+            _ = driver.means
+
+        # Re-instate
+        params.models.reference_model = ref_model
+        params.out_group = None
+        new_driver = MagneticInversionDriver(params)
+        joint_params.group_b = new_driver.out_group
+        driver = JointPetrophysicsDriver(joint_params)
+
         driver.run()
 
-    if pytest:
+    if use_pytest:
+        assert driver.regularization.objfcts[-1].gmm.fixed_membership[0, 1] == 1
+
         with Workspace(driver.params.geoh5.h5file) as run_ws:
             output = get_inversion_output(
                 driver.params.geoh5.h5file, driver.out_group.uid
@@ -269,7 +368,7 @@ def test_homogeneous_run(
             out_group = run_ws.get_entity(driver.out_group.uid)[0]
             mesh = out_group.get_entity("mesh A")[0]
             petro_model = mesh.get_entity("petrophysical_model")[0]
-            assert len(np.unique(petro_model.values)) == 4
+            assert len(np.unique(petro_model.values)) == 5
 
 
 if __name__ == "__main__":
@@ -277,11 +376,12 @@ if __name__ == "__main__":
     test_homogeneous_fwr_run(
         Path("./"),
         n_grid_points=20,
-        refinement=(4, 8),
+        cell_size=(10.0, 10.0, 10.0),
+        refinement=(6, 4),
     )
 
     test_homogeneous_run(
         Path("./"),
         max_iterations=20,
-        pytest=False,
+        use_pytest=False,
     )

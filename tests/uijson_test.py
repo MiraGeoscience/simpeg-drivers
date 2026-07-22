@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -16,27 +16,24 @@ from typing import ClassVar
 import numpy as np
 import pytest
 from geoapps_utils.driver.data import BaseData
+from geoapps_utils.run import load_ui_json_as_dict
 from geoh5py import Workspace
-from geoh5py.ui_json import InputFile
 from geoh5py.ui_json.annotations import Deprecated
 from packaging.version import Version
 from pydantic import AliasChoices, Field
 
 import simpeg_drivers
-from simpeg_drivers.driver import InversionDriver
-from simpeg_drivers.line_sweep.driver import LineSweepDriver
 from simpeg_drivers.options import Deprecations, IRLSOptions
-from simpeg_drivers.potential_fields.gravity.options import GravityInversionOptions
-from simpeg_drivers.potential_fields.gravity.uijson import GravityInversionUIJson
 from simpeg_drivers.uijson import SimPEGDriversUIJson
 from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
 from simpeg_drivers.utils.synthetics.options import (
+    DrapeModelOptions,
     MeshOptions,
     ModelOptions,
     SurveyOptions,
     SyntheticsComponentsOptions,
 )
-from tests.utils.targets import get_workspace
+from simpeg_drivers.utils.utils import driver_class_from_dict
 
 
 logger = logging.getLogger(__name__)
@@ -165,6 +162,7 @@ def test_version_warning(
 def test_write_default(tmp_path):
     default_path = tmp_path / "default.ui.json"
     data = {
+        "icon": "",
         "version": "0.1.0",
         "title": "My app",
         "geoh5": "",
@@ -246,61 +244,6 @@ def test_uijson_alias(simpeg_uijson_factory):
     assert "myParam" not in uijson.model_dump()
 
 
-def test_gravity_uijson(tmp_path):
-    import warnings
-
-    warnings.filterwarnings("error")
-    opts = SyntheticsComponentsOptions(
-        method="gravity", model=ModelOptions(anomaly=0.75)
-    )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
-        components = SyntheticsComponents(geoh5, options=opts)
-        gz_channel = components.survey.add_data(
-            {"gz": {"values": np.ones(components.survey.n_vertices)}}
-        )
-        gz_uncerts = components.survey.add_data(
-            {"gz_unc": {"values": np.ones(components.survey.n_vertices)}}
-        )
-
-        opts = GravityInversionOptions.build(
-            version="old news",
-            geoh5=geoh5,
-            data_object=components.survey,
-            gz_channel=gz_channel,
-            gz_uncertainty=gz_uncerts,
-            mesh=components.mesh,
-            starting_model=components.model,
-            topography_object=components.topography,
-        )
-    params_uijson_path = tmp_path / "from_params.ui.json"
-    opts.write_ui_json(params_uijson_path)
-
-    uijson = GravityInversionUIJson.read(params_uijson_path)
-    uijson_path = tmp_path / "from_uijson.ui.json"
-    uijson.write(uijson_path)
-    with open(params_uijson_path, encoding="utf-8") as f:
-        params_data = json.load(f)
-        assert Version(params_data["version"]) == Version(_current_version().public)
-    with open(uijson_path, encoding="utf-8") as f:
-        uijson_data = json.load(f)
-
-    params_data_nobraces = {}
-    for param, data in params_data.items():
-        if isinstance(data, dict):
-            field_data_nobraces = {}
-            for field, value in data.items():
-                if isinstance(value, str):
-                    value = value.removeprefix("{").removesuffix("}")
-                if isinstance(value, list):
-                    value = [v.removeprefix("{").removesuffix("}") for v in value]
-                field_data_nobraces[field] = value
-        else:
-            field_data_nobraces = data
-        params_data_nobraces[param] = field_data_nobraces
-
-    assert uijson_data == params_data_nobraces
-
-
 CHANNEL_NAME = {
     "direct current pseudo 3d": "potential",
     "direct current 3d": "potential",
@@ -320,7 +263,7 @@ CHANNEL_NAME = {
 }
 
 
-def test_legacy_uijson(tmp_path: Path):
+def test_legacy_uijson(tmp_path: Path, caplog):
     """
     Loop over all uijson files in the legacy directory and check that the
     read and run still works.
@@ -333,13 +276,13 @@ def test_legacy_uijson(tmp_path: Path):
 
         version_path = tmp_path / directory.name
         for file in directory.glob("*.ui.json"):
-            ifile = InputFile.read_ui_json(file, validate=False)
-            inversion_type = ifile.data.get("inversion_type", None)
+            ifile = SimPEGDriversUIJson.read(file)
+            inversion_type = ifile.inversion_type
 
             if inversion_type not in CHANNEL_NAME:
                 continue
 
-            forward = ifile.data.get("forward_only", None)
+            forward = ifile.forward_only
 
             work_path = version_path / (
                 inversion_type + (" fwr" if forward else " inv")
@@ -352,7 +295,7 @@ def test_legacy_uijson(tmp_path: Path):
                     n_stations=10,
                     n_lines=3,
                 ),
-                mesh=MeshOptions(),
+                mesh=DrapeModelOptions() if "2d" in inversion_type else MeshOptions(),
                 model=ModelOptions(
                     background=1.0,
                     anomaly=2.0,
@@ -360,18 +303,19 @@ def test_legacy_uijson(tmp_path: Path):
             )
             with Workspace.create(work_path / "inversion_test.ui.geoh5") as geoh5:
                 components = SyntheticsComponents(geoh5, options=opts)
-                ifile.data["geoh5"] = geoh5
-                ifile.data["mesh"] = components.mesh
-                ifile.data["starting_model"] = components.model
-                ifile.data["data_object"] = components.survey
-                ifile.data["topography_object"] = components.topography
+                options = ifile.to_params(workspace=geoh5, validate=False)
+                options["geoh5"] = geoh5
+                options["mesh"] = components.mesh
+                options["starting_model"] = components.model
+                options["data_object"] = components.survey
+                options["topography_object"] = components.topography
 
                 # Test deprecated name
-                ifile.data["coolingFactor"] = 4.0
+                options["coolingFactor"] = 4.0
 
                 if "2d" in inversion_type or "pseudo 3d" in inversion_type:
                     line_id = geoh5.get_entity("line_ids")[0]
-                    ifile.data["line_object"] = line_id
+                    options["line_object"] = line_id
 
                 if not forward:
                     n_vals = components.survey.n_vertices
@@ -400,15 +344,25 @@ def test_legacy_uijson(tmp_path: Path):
                     else:
                         channel = data[0]
 
-                    ifile.data[CHANNEL_NAME[inversion_type] + "_channel"] = channel
-                    ifile.data[CHANNEL_NAME[inversion_type] + "_uncertainty"] = channel
+                    options[CHANNEL_NAME[inversion_type] + "_channel"] = channel
+                    options[CHANNEL_NAME[inversion_type] + "_uncertainty"] = channel
 
-            driver = InversionDriver.from_input_file(ifile.data)
+            driver = driver_class_from_dict(options)
 
-            if hasattr(driver.params, "cooling_factor"):
-                assert driver.params.cooling_factor == 4.0
+            with caplog.at_level(logging.WARNING):
+                params = driver._params_class.build(options)  # pylint: disable=protected-access
+                driver = driver(params)
 
-            if isinstance(driver, LineSweepDriver):
-                continue
+                if "pseudo" in inversion_type:
+                    assert "no longer support Octree meshes" in caplog.text
+                    assert "The Batch2D classes will be deprecated" in caplog.text
 
-            assert driver.inversion
+            assert driver.models
+
+
+def test_driver_from_uijson():
+    path = Path(__file__).resolve().parent / "legacy/v0.2.1"
+
+    for file in path.glob("*.ui.json"):
+        input_file = load_ui_json_as_dict(file)
+        assert driver_class_from_dict(input_file)

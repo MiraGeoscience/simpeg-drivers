@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -14,13 +14,13 @@ from pathlib import Path
 
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.electricals.induced_polarization.three_dimensions import (
-    IP3DForwardOptions,
-    IP3DInversionOptions,
-)
-from simpeg_drivers.electricals.induced_polarization.three_dimensions.driver import (
+from simpeg_drivers.electricals.induced_polarization.three_dimensions.forward import (
     IP3DForwardDriver,
+    IP3DForwardOptions,
+)
+from simpeg_drivers.electricals.induced_polarization.three_dimensions.inversion import (
     IP3DInversionDriver,
+    IP3DInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (
     SyntheticsComponents,
@@ -37,20 +37,29 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.008301530028556213, "phi_d": 107, "phi_m": 0.863}
+target_run = {"data_norm": 0.004782189506580897, "phi_d": 571, "phi_m": 1.55e-06}
 
 
 def test_ip_3d_fwr_run(
     tmp_path: Path,
     n_electrodes=4,
     n_lines=3,
+    cell_size=(20.0, 20.0, 20.0),
     refinement=(4, 6),
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="induced polarization 3d",
+        refine_plate=True,
         survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
-        mesh=MeshOptions(refinement=refinement),
+        mesh=MeshOptions(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=refinement,
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+        ),
         model=ModelOptions(background=1e-6, anomaly=1e-1),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
@@ -126,7 +135,8 @@ if __name__ == "__main__":
         Path("./"),
         n_electrodes=20,
         n_lines=5,
-        refinement=(4, 8),
+        cell_size=(20.0, 20.0, 20.0),
+        refinement=(4, 4),
     )
     test_ip_3d_run(
         Path("./"),

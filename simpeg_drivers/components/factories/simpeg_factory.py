@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -47,23 +47,25 @@ class SimPEGFactory(ABC):
     """
 
     valid_factory_types = [
-        "gravity",
-        "magnetic scalar",
-        "magnetic vector",
+        "apparent conductivity",
         "direct current pseudo 3d",
         "direct current 3d",
         "direct current 2d",
         "induced polarization 3d",
         "induced polarization 2d",
         "induced polarization pseudo 3d",
+        "joint cross gradient",
+        "joint surveys",
         "fdem",
         "fdem 1d",
+        "gravity",
+        "magnetic scalar",
+        "magnetic vector",
+        "magnetic vector pde",
+        "magnetotellurics",
         "tdem",
         "tdem 1d",
-        "magnetotellurics",
         "tipper",
-        "joint surveys",
-        "joint cross gradient",
     ]
 
     def __init__(self, params: BaseParams | BaseOptions):

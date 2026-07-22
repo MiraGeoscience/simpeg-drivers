@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -19,6 +19,7 @@ from geoh5py.groups import PropertyGroup
 from geoh5py.objects import MTReceivers
 
 from simpeg_drivers import assets_path
+from simpeg_drivers.electromagnetics.frequency_domain.options import DirectiveOptions
 from simpeg_drivers.options import (
     BaseForwardOptions,
     BaseInversionOptions,
@@ -46,8 +47,9 @@ class MTForwardOptions(EMDataMixin, BaseForwardOptions):
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/magnetotellurics_forward.ui.json"
     )
-
+    run_command: str = "simpeg_drivers.natural_sources.magnetotellurics.forward"
     title: str = "Magnetotellurics Forward"
+    icon: str = "surveymagnetotellurics"
     physical_property: str = "conductivity"
     inversion_type: str = "magnetotellurics"
 
@@ -93,8 +95,9 @@ class MTInversionOptions(EMDataMixin, BaseInversionOptions):
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/magnetotellurics_inversion.ui.json"
     )
-
+    run_command: str = "simpeg_drivers.natural_sources.magnetotellurics.inversion"
     title: str = "Magnetotellurics Inversion"
+    icon: str = "surveymagnetotellurics"
     physical_property: str = "conductivity"
     inversion_type: str = "magnetotellurics"
 
@@ -117,3 +120,5 @@ class MTInversionOptions(EMDataMixin, BaseInversionOptions):
     zyy_imag_uncertainty: PropertyGroup | None = None
 
     models: ConductivityModelOptions
+
+    directives: DirectiveOptions = DirectiveOptions()

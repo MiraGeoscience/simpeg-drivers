@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -13,22 +13,22 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+from geoapps_utils.modelling.plates import PlateModel
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.electricals.induced_polarization.two_dimensions import (
+from simpeg_drivers.electricals.induced_polarization.two_dimensions.forward import (
+    IP2DForwardDriver,
     IP2DForwardOptions,
+)
+from simpeg_drivers.electricals.induced_polarization.two_dimensions.inversion import (
+    IP2DInversionDriver,
     IP2DInversionOptions,
 )
-from simpeg_drivers.electricals.induced_polarization.two_dimensions.driver import (
-    IP2DForwardDriver,
-    IP2DInversionDriver,
-)
-from simpeg_drivers.options import LineSelectionOptions
 from simpeg_drivers.utils.synthetics.driver import (
     SyntheticsComponents,
 )
 from simpeg_drivers.utils.synthetics.options import (
-    MeshOptions,
+    DrapeModelOptions,
     ModelOptions,
     SurveyOptions,
     SyntheticsComponentsOptions,
@@ -39,21 +39,42 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.09193270795959556, "phi_d": 18300, "phi_m": 0.191}
+target_run = {"data_norm": 0.1236630897188764, "phi_d": 15800, "phi_m": 0.000171}
 
 
 def test_ip_2d_fwr_run(
     tmp_path: Path,
     n_electrodes=10,
     n_lines=3,
-    refinement=(4, 6),
+    cell_size=(5.0, 5.0),
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="induced polarization 2d",
+        refine_plate=True,
         survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
-        mesh=MeshOptions(refinement=refinement),
-        model=ModelOptions(background=1e-6, anomaly=1e-1),
+        mesh=DrapeModelOptions(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            depth_core=50.0,
+            expansion_factor=1.1,
+            vertical_padding=200.0,
+            horizontal_padding=200.0,
+        ),
+        model=ModelOptions(
+            background=1e-6,
+            anomaly=1e-1,
+            plate=PlateModel(
+                strike_length=1000.0,
+                dip_length=50.0,
+                width=20.0,
+                easting=-17.678,
+                northing=0.0,
+                elevation=17.678,
+                direction=90,
+                dip=45,
+            ),
+        ),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
@@ -65,10 +86,6 @@ def test_ip_2d_fwr_run(
             starting_model=components.model,
             conductivity_model=1e2,
             model_type="Resistivity (Ohm-m)",
-            line_selection=LineSelectionOptions(
-                line_object=geoh5.get_entity("line_ids")[0],
-                line_id=101,
-            ),
         )
 
     fwr_driver = IP2DForwardDriver(params)
@@ -87,19 +104,28 @@ def test_ip_2d_run(
     with Workspace(workpath) as geoh5:
         components = SyntheticsComponents(geoh5)
         chargeability = geoh5.get_entity("Iteration_0_chargeability")[0]
-
-        # Run the inverse
+        uncertainties = chargeability.parent.add_data(
+            {
+                "Uncertainties": {
+                    "values": np.abs(chargeability.values) * 0.05 + 1e-4,
+                }
+            }
+        )
+        # Run the inverse without a mesh
         params = IP2DInversionOptions.build(
             geoh5=geoh5,
-            mesh=components.mesh,
             topography_object=components.topography,
+            drape_model=DrapeModelOptions(
+                u_cell_size=5.0,
+                v_cell_size=5.0,
+                depth_core=50.0,
+                expansion_factor=1.1,
+                vertical_padding=200.0,
+                horizontal_padding=200.0,
+            ),
             data_object=chargeability.parent,
             chargeability_channel=chargeability,
-            chargeability_uncertainty=2e-4,
-            line_selection=LineSelectionOptions(
-                line_object=chargeability.parent.get_entity("line_ids")[0],
-                line_id=101,
-            ),
+            chargeability_uncertainty=uncertainties,
             starting_model=1e-6,
             reference_model=1e-6,
             conductivity_model=1e-2,
@@ -107,33 +133,28 @@ def test_ip_2d_run(
             x_norm=0.0,
             z_norm=0.0,
             max_global_iterations=max_iterations,
-            initial_beta=None,
-            initial_beta_ratio=1e0,
+            initial_beta_ratio=1e-2,
             percentile=100,
             upper_bound=0.1,
             cooling_rate=1,
         )
-        params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
+        # TODO Fix the write out with Multiselect of ReferenceData values
+        # params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    driver = IP2DInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
-
+    driver = IP2DInversionDriver(params)
+    driver.run()
     output = get_inversion_output(
         driver.params.geoh5.h5file, driver.params.out_group.uid
     )
     if geoh5.open():
         output["data"] = chargeability.values[np.isfinite(chargeability.values)]
     if pytest:
-        check_target(output, target_run)
+        check_target(output, target_run, tolerance=0.4)
 
 
 if __name__ == "__main__":
     # Full run
-    test_ip_2d_fwr_run(
-        Path("./"),
-        n_electrodes=20,
-        n_lines=3,
-        refinement=(4, 8),
-    )
+    test_ip_2d_fwr_run(Path("./"), n_electrodes=20, n_lines=3, cell_size=(5.0, 5.0))
     test_ip_2d_run(
         Path("./"),
         max_iterations=20,

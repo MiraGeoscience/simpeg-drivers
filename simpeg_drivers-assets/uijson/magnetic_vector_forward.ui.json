@@ -1,15 +1,12 @@
 {
-    "version": "0.4.0",
-    "title": "Magnetic Vector (MVI) Forward",
+    "version": "0.5.0",
+    "title": "Magnetic Forward",
     "icon": "surveyairbornemagnetics",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
-    "conda_environment": "simpeg_drivers",
-    "run_command": "simpeg_drivers.driver",
+    "conda_environment": "simpeg-drivers",
+    "run_command": "simpeg_drivers.potential_fields.magnetic_vector.forward",
     "geoh5": "",
     "monitoring_directory": "",
-    "inversion_type": "magnetic vector",
-    "physical_property": "susceptibility",
-    "forward_only": true,
     "inducing_field_declination": {
         "min": -180.0,
         "max": 180.0,
@@ -17,7 +14,7 @@
         "lineEdit": false,
         "main": true,
         "group": "Inducing field",
-        "label": "Declination (deg)",
+        "label": "Declination (degrees)",
         "value": 0.0
     },
     "inducing_field_inclination": {
@@ -27,7 +24,7 @@
         "lineEdit": false,
         "main": true,
         "group": "Inducing field",
-        "label": "Inclination (deg)",
+        "label": "Inclination (degrees)",
         "value": 90.0
     },
     "inducing_field_strength": {
@@ -49,12 +46,14 @@
             "{6a057fdc-b355-11e3-95be-fd84a7ffcb88}",
             "{f26feba3-aded-494b-b9e9-b2bbcbe298e1}",
             "{48f5054a-1c5c-4ca4-9048-80f36dc60a06}",
-            "{b020a277-90e2-4cd7-84d6-612ee3f25051}"
+            "{b020a277-90e2-4cd7-84d6-612ee3f25051}",
+            "{4b99204c-d133-4579-a916-a9c8b98cfccb}",
+            "{028e4905-cc97-4dab-b1bf-d76f58b501b5}"
         ],
         "value": "",
         "optional": true,
         "enabled": true,
-        "tooltip": "Select a topography object to define the active cells for inversion"
+        "tooltip": "Select a topography object to define the active cells for forward modelling"
     },
     "topography": {
         "association": [
@@ -101,8 +100,7 @@
             "{f26feba3-aded-494b-b9e9-b2bbcbe298e1}",
             "{48f5054a-1c5c-4ca4-9048-80f36dc60a06}",
             "{b020a277-90e2-4cd7-84d6-612ee3f25051}",
-            "{4b99204c-d133-4579-a916-a9c8b98cfccb}",
-            "{028e4905-cc97-4dab-b1bf-d76f58b501b5}"
+            "{4b99204c-d133-4579-a916-a9c8b98cfccb}"
         ],
         "value": ""
     },
@@ -174,7 +172,7 @@
         "value": "",
         "optional": true,
         "enabled": false,
-        "tooltip": "Select a mesh for the inversion"
+        "tooltip": "Select a mesh for the forward modelling"
     },
     "starting_model": {
         "association": [
@@ -202,7 +200,7 @@
         "optional": true,
         "enabled": false,
         "parent": "mesh",
-        "label": "Inclination (deg)",
+        "label": "Inclination (degrees)",
         "property": "",
         "value": 0.0
     },
@@ -218,7 +216,7 @@
         "optional": true,
         "enabled": false,
         "parent": "mesh",
-        "label": "Declination (deg)",
+        "label": "Declination (degrees)",
         "property": "",
         "value": 0.0
     },
@@ -235,9 +233,6 @@
     "tile_spatial": {
         "group": "Compute",
         "label": "Number of tiles",
-        "parent": "data_object",
-        "isValue": true,
-        "property": "",
         "value": 1,
         "min": 1,
         "max": 1000,
@@ -273,8 +268,8 @@
         "visible": false,
         "tooltip": "Generates a file for sweeping parameters instead of running the application"
     },
-    "n_workers": "",
-    "n_threads": "",
+    "n_workers": null,
+    "n_threads": null,
     "max_ram": "",
     "performance_report": false,
     "distributed_workers": ""

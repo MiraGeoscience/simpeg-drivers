@@ -1,15 +1,12 @@
 {
-    "version": "0.4.0",
+    "version": "0.5.0",
     "title": "Time-domain EM (TEM) Forward",
     "icon": "surveyairborneem",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
-    "conda_environment": "simpeg_drivers",
-    "run_command": "simpeg_drivers.driver",
+    "conda_environment": "simpeg-drivers",
+    "run_command": "simpeg_drivers.electromagnetics.time_domain.forward",
     "geoh5": "",
     "monitoring_directory": "",
-    "inversion_type": "tdem",
-    "physical_property": "conductivity",
-    "forward_only": true,
     "data_object": {
         "main": true,
         "group": "Survey",
@@ -18,6 +15,28 @@
             "{19730589-fd28-4649-9de0-ad47249d9aba}",
             "{deebe11a-b57b-4a03-99d6-8f27b25eb2a8}"
         ],
+        "value": ""
+    },
+    "receivers_orientation": {
+        "group": "Survey",
+        "main": true,
+        "association": "Vertex",
+        "dataType": "Float",
+        "dataGroupType": [
+            "Dip direction & dip",
+            "3D vector"
+        ],
+        "label": "Receivers orientation",
+        "tooltip": [
+            "Receivers orientation provided as 'Dip direction & dip' or '3D vector' data group. If not provided, it assumes: <dl>",
+            "<dt>In-line component</dt><dd>Positive towards North (Y)</dd>",
+            "<dt>Cross-line component</dt><dd>Positive towards East (X)</dd>",
+            "<dt>Vertical component</dt><dd>Positive up (Z)</dd>",
+            "</dl>"
+        ],
+        "optional": true,
+        "enabled": false,
+        "parent": "data_object",
         "value": ""
     },
     "data_units": {
@@ -33,28 +52,31 @@
         "tooltip": [
             "Set the units of the data.<p>",
             "Data are expected to be normalized by the source strength, dependent on the type: <dl>",
-            "<dt>Dipole</dt><dd>Current * area * number of turns (NIA).</dd>",
-            "<dt>Wire</dt><dd>Current * number of turns (NI).</dd>",
+            "<dt>Dipole</dt><dd>Current * area * number of turns (NIA)</dd>",
+            "<dt>Wire</dt><dd>Current * number of turns (NI)</dd>",
             "</dl>"
         ],
-        "value": "dB/dt (T/s)"
+        "value": "Airborne dB/dt (V/Am^4)"
     },
-    "z_channel_bool": {
+    "vertical_channel_bool": {
         "group": "Survey",
         "main": true,
-        "label": "Z component",
+        "label": "Vertical",
+        "tooltip": "Vertical (w) component of the magnetic data.\nPositive up along the z-axis if no receiver orientation provided",
         "value": true
     },
-    "x_channel_bool": {
+    "inline_channel_bool": {
         "group": "Survey",
         "main": true,
-        "label": "X component",
+        "label": "In-line",
+        "tooltip": "In-line (u) component of the magnetic data.\nPositive towards North if no receiver orientation provided",
         "value": true
     },
-    "y_channel_bool": {
+    "crossline_channel_bool": {
         "group": "Survey",
         "main": true,
-        "label": "Y component",
+        "label": "Cross-line",
+        "tooltip": "Cross-line (v) component of the magnetic data.\nPositive towards East if no receiver orientation provided",
         "value": true
     },
     "mesh": {
@@ -65,7 +87,7 @@
         "value": "",
         "optional": true,
         "enabled": false,
-        "tooltip": "Select a mesh for the inversion"
+        "tooltip": "Select a mesh for the forward modelling"
     },
     "model_type": {
         "choiceList": [
@@ -106,7 +128,7 @@
         "value": "",
         "optional": true,
         "enabled": true,
-        "tooltip": "Select a topography object to define the active cells for inversion"
+        "tooltip": "Select a topography object to define the active cells for forward modelling"
     },
     "topography": {
         "association": [
@@ -165,9 +187,6 @@
     "tile_spatial": {
         "group": "Compute",
         "label": "Number of tiles",
-        "parent": "data_object",
-        "isValue": true,
-        "property": "",
         "value": 1,
         "min": 1,
         "max": 1000,
@@ -203,8 +222,8 @@
         "visible": false,
         "tooltip": "Generates a file for sweeping parameters instead of running the application"
     },
-    "n_workers": "",
-    "n_threads": "",
+    "n_workers": null,
+    "n_threads": null,
     "max_ram": "",
     "performance_report": false,
     "distributed_workers": ""

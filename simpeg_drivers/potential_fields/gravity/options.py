@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -21,7 +21,16 @@ from simpeg_drivers.options import (
     BaseForwardOptions,
     BaseInversionOptions,
     DirectiveOptions,
+    ModelOptions,
 )
+
+
+class GravityModelOptions(ModelOptions):
+    """
+    ModelOptions class with defaulted reference model.
+    """
+
+    reference_model: float | FloatData | None = None
 
 
 class GravityForwardOptions(BaseForwardOptions):
@@ -41,8 +50,10 @@ class GravityForwardOptions(BaseForwardOptions):
 
     name: ClassVar[str] = "Gravity Forward"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/gravity_forward.ui.json"
+    run_command: str = "simpeg_drivers.potential_fields.gravity.forward"
 
     title: str = "Gravity Forward"
+    icon: str = "surveyairbornegravity"
     physical_property: str = "density"
     inversion_type: str = "gravity"
 
@@ -84,8 +95,10 @@ class GravityInversionOptions(BaseInversionOptions):
 
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/gravity_inversion.ui.json"
     name: ClassVar[str] = "Gravity Inversion"
+    run_command: str = "simpeg_drivers.potential_fields.gravity.inversion"
 
     title: str = "Gravity Inversion"
+    icon: str = "surveyairbornegravity"
     physical_property: str = "density"
     inversion_type: str = "gravity"
 
@@ -111,3 +124,5 @@ class GravityInversionOptions(BaseInversionOptions):
     gzz_uncertainty: FloatData | float | None = None
 
     directives: DirectiveOptions = DirectiveOptions(sens_wts_threshold=1e-3)
+
+    models: GravityModelOptions

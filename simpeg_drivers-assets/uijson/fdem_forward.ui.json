@@ -1,15 +1,12 @@
 {
-    "version": "0.4.0",
+    "version": "0.5.0",
     "title": "Frequency-domain EM (FEM) Forward",
     "icon": "surveyairborneem",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
-    "conda_environment": "simpeg_drivers",
-    "run_command": "simpeg_drivers.driver",
+    "conda_environment": "simpeg-drivers",
+    "run_command": "simpeg_drivers.electromagnetics.frequency_domain.forward",
     "geoh5": "",
     "monitoring_directory": "",
-    "inversion_type": "fdem",
-    "physical_property": "conductivity",
-    "forward_only": true,
     "data_object": {
         "main": true,
         "group": "Survey",
@@ -19,16 +16,48 @@
         ],
         "value": ""
     },
-    "z_imag_channel_bool": {
+    "receivers_orientation": {
         "group": "Survey",
         "main": true,
-        "label": "Z imag component",
+        "association": "Vertex",
+        "dataType": "Float",
+        "dataGroupType": [
+            "Dip direction & dip",
+            "3D vector"
+        ],
+        "label": "Receivers orientation",
+        "tooltip": [
+            "Receivers orientation provided as 'Dip direction & dip' or '3D vector' data group. If not provided, it assumes: <dl>",
+            "<dt>In-line component:</dt><dd>Positive towards North (Y)</dd>",
+            "<dt>Cross-line component:</dt><dd>Positive towards East (X)</dd>",
+            "<dt>Vertical component:</dt><dd>Positive up (Z)</dd>",
+            "</dl>"
+        ],
+        "optional": true,
+        "enabled": false,
+        "parent": "data_object",
+        "value": ""
+    },
+    "imag_channel_bool": {
+        "group": "Survey",
+        "main": true,
+        "label": "Imaginary",
+        "tooltip": [
+            "Imaginary component of the magnetic data. If no receiver orientation provided:<ul>",
+            "<li>Co-planar data are positive up along the z-axis</li>",
+            "<li>Co-axial data are positive along North</li></ul>"
+        ],
         "value": true
     },
-    "z_real_channel_bool": {
+    "real_channel_bool": {
         "group": "Survey",
         "main": true,
-        "label": "Z real component",
+        "label": "Real",
+        "tooltip": [
+            "Real component of the magnetic data. If no receiver orientation provided:<ul>",
+            "<li>Co-planar data are positive up along the z-axis</li>",
+            "<li>Co-axial data are positive along North</li></ul>"
+        ],
         "value": true
     },
     "mesh": {
@@ -39,7 +68,7 @@
         "value": "",
         "optional": true,
         "enabled": false,
-        "tooltip": "Select a mesh for the inversion"
+        "tooltip": "Select a mesh for the forward modelling"
     },
     "model_type": {
         "choiceList": [
@@ -80,7 +109,7 @@
         "value": "",
         "optional": true,
         "enabled": true,
-        "tooltip": "Select a topography object to define the active cells for inversion"
+        "tooltip": "Select a topography object to define the active cells for forward modelling"
     },
     "topography": {
         "association": [
@@ -139,9 +168,6 @@
     "tile_spatial": {
         "group": "Compute",
         "label": "Number of tiles",
-        "parent": "data_object",
-        "isValue": true,
-        "property": "",
         "value": 1,
         "min": 1,
         "max": 1000,
@@ -177,8 +203,8 @@
         "visible": false,
         "tooltip": "Generates a file for sweeping parameters instead of running the application"
     },
-    "n_workers": "",
-    "n_threads": "",
+    "n_workers": null,
+    "n_threads": null,
     "max_ram": "",
     "performance_report": false,
     "distributed_workers": ""

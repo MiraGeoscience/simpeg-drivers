@@ -1,15 +1,12 @@
 {
-    "version": "0.4.0",
+    "version": "0.5.0",
     "title": "Time-domain EM (TEM) Inversion",
     "icon": "surveyairborneem",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
-    "conda_environment": "simpeg_drivers",
-    "run_command": "simpeg_drivers.driver",
+    "conda_environment": "simpeg-drivers",
+    "run_command": "simpeg_drivers.electromagnetics.time_domain.inversion",
     "geoh5": "",
     "monitoring_directory": "",
-    "inversion_type": "tdem",
-    "physical_property": "conductivity",
-    "forward_only": false,
     "data_object": {
         "main": true,
         "group": "Data",
@@ -18,6 +15,28 @@
             "{19730589-fd28-4649-9de0-ad47249d9aba}",
             "{deebe11a-b57b-4a03-99d6-8f27b25eb2a8}"
         ],
+        "value": ""
+    },
+    "receivers_orientation": {
+        "group": "Survey",
+        "main": true,
+        "association": "Vertex",
+        "dataType": "Float",
+        "dataGroupType": [
+            "Dip direction & dip",
+            "3D vector"
+        ],
+        "label": "Receivers orientation",
+        "tooltip": [
+            "Receivers orientation provided as 'Dip direction & dip' or '3D vector' data group. If not provided, it assumes: <dl>",
+            "<dt>In-line component</dt><dd>Positive towards North (Y)</dd>",
+            "<dt>Cross-line component</dt><dd>Positive towards East (X)</dd>",
+            "<dt>Vertical component</dt><dd>Positive up (Z)</dd>",
+            "</dl>"
+        ],
+        "optional": true,
+        "enabled": false,
+        "parent": "data_object",
         "value": ""
     },
     "data_units": {
@@ -33,13 +52,13 @@
         "tooltip": [
             "Set the units of the data.<p>",
             "Data are expected to be normalized by the source strength, dependent on the type: <dl>",
-            "<dt>Dipole</dt><dd>Current * area * number of turns (NIA).</dd>",
-            "<dt>Wire</dt><dd>Current * number of turns (NI).</dd>",
+            "<dt>Dipole</dt><dd>Current * area * number of turns (NIA)</dd>",
+            "<dt>Wire</dt><dd>Current * number of turns (NI)</dd>",
             "</dl>"
         ],
-        "value": "dB/dt (T/s)"
+        "value": "Airborne dB/dt (V/Am^4)"
     },
-    "z_channel": {
+    "vertical_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -48,13 +67,14 @@
         "group": "Data",
         "dataGroupType": "Multi-element",
         "main": true,
-        "label": "z-component",
+        "label": "Vertical",
         "parent": "data_object",
+        "tooltip": "Vertical (w) component of the magnetic data.\nPositive up along the z-axis if no receiver orientation provided",
         "optional": true,
         "enabled": true,
         "value": ""
     },
-    "z_uncertainty": {
+    "vertical_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -65,11 +85,11 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "z_channel",
+        "dependency": "vertical_channel",
         "dependencyType": "enabled",
         "value": ""
     },
-    "x_channel": {
+    "inline_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -78,13 +98,45 @@
         "group": "Data",
         "dataGroupType": "Multi-element",
         "main": true,
-        "label": "x-component",
+        "label": "In-line",
+        "parent": "data_object",
+        "tooltip": "In-line (u) component of the magnetic data.\nPositive towards North if no receiver orientation provided",
+        "optional": true,
+        "enabled": false,
+        "value": ""
+    },
+    "inline_uncertainty": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data",
+        "dataGroupType": "Multi-element",
+        "main": true,
+        "label": "Uncertainty",
+        "parent": "data_object",
+        "dependency": "inline_channel",
+        "dependencyType": "enabled",
+        "value": ""
+    },
+    "crossline_channel": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "group": "Data",
+        "dataGroupType": "Multi-element",
+        "main": true,
+        "label": "Cross-line",
+        "tooltip": "Cross-line (v) component of the magnetic data.\nPositive towards East if no receiver orientation provided",
         "parent": "data_object",
         "optional": true,
         "enabled": false,
         "value": ""
     },
-    "x_uncertainty": {
+    "crossline_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -95,37 +147,7 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "x_channel",
-        "dependencyType": "enabled",
-        "value": ""
-    },
-    "y_channel": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
-        "main": true,
-        "label": "y-component",
-        "parent": "data_object",
-        "optional": true,
-        "enabled": false,
-        "value": ""
-    },
-    "y_uncertainty": {
-        "association": [
-            "Cell",
-            "Vertex"
-        ],
-        "dataType": "Float",
-        "group": "Data",
-        "dataGroupType": "Multi-element",
-        "main": true,
-        "label": "Uncertainty",
-        "parent": "data_object",
-        "dependency": "y_channel",
+        "dependency": "crossline_channel",
         "dependencyType": "enabled",
         "value": ""
     },
@@ -302,7 +324,7 @@
         "min": 0.0,
         "group": "Regularization",
         "label": "Z-smoothness weight",
-        "tooltip": "Larger values relative to other smoothness weights will result in z biased smoothess",
+        "tooltip": "Larger values relative to other smoothness weights will result in z biased smoothness",
         "value": 1.0,
         "isValue": true,
         "parent": "mesh",
@@ -324,6 +346,7 @@
         "parent": "mesh",
         "value": "",
         "optional": true,
+        "tooltip": "Rotate the gradient of the regularization to align with a provided structural orientation.\nThe data should be provided as a data group in the form of either strike & dip, dip direction & dip, or x/y/z components.",
         "enabled": false
     },
     "s_norm": {
@@ -396,7 +419,7 @@
         "min": 0,
         "group": "Sparse/blocky model",
         "label": "Maximum IRLS iterations",
-        "tooltip": "Incomplete Re-weighted Least Squares iterations for non-L2 problems",
+        "tooltip": "Iterative Re-Weighted Least-squares (IRLS) iterations for non-L2 problems",
         "value": 25,
         "enabled": true,
         "verbose": 2
@@ -437,13 +460,13 @@
         "enabled": true,
         "tooltip": "The global target data misfit value"
     },
-    "auto_scale_misfits": {
+    "auto_scale_tiles": {
         "group": "Cooling schedule/target",
-        "label": "Auto-scale misfits",
+        "label": "Auto-scale tiles",
         "value": false,
         "verbose": 3,
         "visible": true,
-        "tooltip": "Whether to auto-scale misfits functions (tile, frequency, joint methods) based on chi-factor"
+        "tooltip": "Whether to auto-scale the misfit function of tiles based on chi-factor"
     },
     "initial_beta_ratio": {
         "min": 0.0,
@@ -516,6 +539,7 @@
         "label": "Maximum CG iterations",
         "value": 30,
         "enabled": true,
+        "tooltip": "Maximum number of iterations for the conjugate gradient solver used in the optimization",
         "verbose": 2
     },
     "tol_cg": {
@@ -524,6 +548,7 @@
         "label": "Conjugate gradient tolerance",
         "value": 0.0001,
         "enabled": true,
+        "tooltip": "Tolerance for the conjugate gradient solver used in the optimization",
         "verbose": 3
     },
     "f_min_change": {
@@ -537,7 +562,7 @@
     },
     "sens_wts_threshold": {
         "group": "Update sensitivity weights directive",
-        "tooltip": "Update sensitivity weight threshold",
+        "tooltip": "Threshold below which sensitivity weights become constant. Measured as a percentage of the maximum sensitivity weight.",
         "label": "Threshold (%)",
         "value": 1.0,
         "max": 100.0,
@@ -582,9 +607,6 @@
     "tile_spatial": {
         "group": "Compute",
         "label": "Number of tiles",
-        "parent": "data_object",
-        "isValue": true,
-        "property": "",
         "value": 1,
         "min": 1,
         "max": 1000,
@@ -629,8 +651,8 @@
         "visible": false,
         "tooltip": "Generates a file for sweeping parameters instead of running the application"
     },
-    "n_workers": "",
-    "n_threads": "",
+    "n_workers": null,
+    "n_threads": null,
     "max_ram": "",
     "performance_report": false,
     "distributed_workers": ""

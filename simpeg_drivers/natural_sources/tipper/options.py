@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -19,6 +19,7 @@ from geoh5py.groups import PropertyGroup
 from geoh5py.objects import TipperReceivers
 
 from simpeg_drivers import assets_path
+from simpeg_drivers.electromagnetics.frequency_domain.options import DirectiveOptions
 from simpeg_drivers.options import (
     BaseForwardOptions,
     BaseInversionOptions,
@@ -39,12 +40,14 @@ class TipperForwardOptions(EMDataMixin, BaseForwardOptions):
 
     name: ClassVar[str] = "Tipper Forward"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/tipper_forward.ui.json"
-
+    run_command: str = "simpeg_drivers.natural_sources.tipper.forward"
     title: str = "Tipper Forward"
+    icon: str = "surveyztem"
     physical_property: str = "conductivity"
     inversion_type: str = "tipper"
 
     data_object: TipperReceivers
+
     txz_real_channel_bool: bool | None = None
     txz_imag_channel_bool: bool | None = None
     tyz_real_channel_bool: bool | None = None
@@ -68,12 +71,14 @@ class TipperInversionOptions(EMDataMixin, BaseInversionOptions):
 
     name: ClassVar[str] = "Tipper Inversion"
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/tipper_inversion.ui.json"
-
+    run_command: str = "simpeg_drivers.natural_sources.tipper.inversion"
     title: str = "Tipper Inversion"
+    icon: str = "surveyztem"
     physical_property: str = "conductivity"
     inversion_type: str = "tipper"
 
     data_object: TipperReceivers
+
     txz_real_channel: PropertyGroup | None = None
     txz_real_uncertainty: PropertyGroup | None = None
     txz_imag_channel: PropertyGroup | None = None
@@ -83,3 +88,5 @@ class TipperInversionOptions(EMDataMixin, BaseInversionOptions):
     tyz_imag_channel: PropertyGroup | None = None
     tyz_imag_uncertainty: PropertyGroup | None = None
     models: ConductivityModelOptions
+
+    directives: DirectiveOptions = DirectiveOptions()

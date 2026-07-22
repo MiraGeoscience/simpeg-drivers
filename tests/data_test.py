@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -25,11 +25,9 @@ from simpeg_drivers.electricals.direct_current.three_dimensions.options import (
     DC3DForwardOptions,
 )
 from simpeg_drivers.options import ActiveCellsOptions
-from simpeg_drivers.potential_fields.magnetic_vector.driver import (
-    MVIInversionDriver,
-)
-from simpeg_drivers.potential_fields.magnetic_vector.options import (
-    MVIInversionOptions,
+from simpeg_drivers.potential_fields.magnetic_vector.inversion import (
+    MagneticVectorInversionDriver,
+    MagneticVectorInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
 from simpeg_drivers.utils.synthetics.options import (
@@ -41,12 +39,16 @@ from simpeg_drivers.utils.synthetics.options import (
 from tests.utils.targets import get_workspace
 
 
-def get_mvi_params(tmp_path: Path, **kwargs) -> MVIInversionOptions:
+def get_mvi_params(tmp_path: Path, **kwargs) -> MagneticVectorInversionOptions:
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         opts = SyntheticsComponentsOptions(
             method="magnetic_vector",
             survey=SurveyOptions(n_stations=2, n_lines=2),
-            mesh=MeshOptions(refinement=(2,)),
+            mesh=MeshOptions(
+                survey_refinement=[
+                    2,
+                ]
+            ),
             model=ModelOptions(anomaly=0.05),
         )
     components = SyntheticsComponents(geoh5=geoh5, options=opts)
@@ -55,7 +57,7 @@ def get_mvi_params(tmp_path: Path, **kwargs) -> MVIInversionOptions:
         tmi_channel = components.survey.add_data(
             {"tmi": {"values": np.random.rand(components.survey.n_vertices)}}
         )
-        params = MVIInversionOptions.build(
+        params = MagneticVectorInversionOptions.build(
             geoh5=geoh5,
             data_object=components.survey,
             tmi_channel=tmi_channel,
@@ -128,7 +130,7 @@ def test_survey_data(tmp_path: Path):
         active_cells = ActiveCellsOptions(
             topography_object=test_topo_object, topography=topo
         )
-        params = MVIInversionOptions.build(
+        params = MagneticVectorInversionOptions.build(
             geoh5=workspace,
             data_object=test_data_object,
             active_cells=active_cells,
@@ -146,7 +148,7 @@ def test_survey_data(tmp_path: Path):
             inducing_field_declination=30.0,
         )
 
-        driver = MVIInversionDriver(params)
+        driver = MagneticVectorInversionDriver(params)
 
     assert driver.inversion is not None
 
@@ -226,8 +228,8 @@ def test_get_uncertainty_component(tmp_path: Path):
         data = InversionData(geoh5, params)
         unc = params.uncertainties["tmi"]
         assert len(unc) == 1
-        assert np.unique(unc[None])[0] == 1
-        assert len(unc[None]) == data.entity.n_vertices
+        assert np.unique(unc[0])[0] == 1
+        assert len(unc[0]) == data.entity.n_vertices
 
 
 def test_normalize(tmp_path: Path):
@@ -237,7 +239,7 @@ def test_normalize(tmp_path: Path):
         data = InversionData(geoh5, params)
         data.normalizations = data.get_normalizations()
         test_data = data.normalize(data.observed)
-        assert all(test_data["tmi"][None] == params.data["tmi"][None])
+        assert all(test_data["tmi"][0] == params.data["tmi"][0])
         assert len(test_data) == 1
 
 

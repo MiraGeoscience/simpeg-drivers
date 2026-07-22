@@ -13,18 +13,28 @@ chapters:
     - file: fundamentals/regularization/sparse
     - file: fundamentals/regularization/rotated_gradients
   - file: fundamentals/mesh_design
-  - file: fundamentals/joint_inversion
-  - file: fundamentals/depth_of_investigation
+  - file: fundamentals/joint_inversion/index
+    sections:
+    - file: fundamentals/joint_inversion/joint_surveys
+    - file: fundamentals/joint_inversion/cross_gradient
+    - file: fundamentals/joint_inversion/pgi
   - file: fundamentals/optimization
-- file: tutorials/introduction
+  - file: fundamentals/parallelization
+- file: geophysical_methods/introduction
   sections:
-  - file: tutorials/background
-  - file: tutorials/magnetic
-  - file: tutorials/gravity
-  - file: tutorials/dc_resistivity
-  - file: tutorials/tipper
-  - file: tutorials/airborne_tem
-  - file: tutorials/joint_inversion
+  - file: geophysical_methods/background
+  - file: geophysical_methods/magnetic
+  - file: geophysical_methods/gravity
+  - file: geophysical_methods/dc_resistivity
+  - file: geophysical_methods/tipper
+  - file: geophysical_methods/airborne_tem
+  - file: geophysical_methods/joint_inversion
+- file: fundamentals/depth_of_investigation
+- file: plate-simulation/simulation
+  sections:
+  - file: plate-simulation/standalone
+  - file: plate-simulation/sweep
+  - file: plate-simulation/match
 - file: case_studies/index
   sections:
   - file: case_studies/Forrestania/forrestania
@@ -34,10 +44,4 @@ chapters:
         - file: case_studies/Forrestania/python_code/unconstrained_gravity_inv_training
         - file: case_studies/Forrestania/python_code/unconstrained_magnetics_inv_training
         - file: case_studies/Forrestania/python_code/joint_grav_mag
-- file: plate-simulation/index
-  sections:
-  - file: plate-simulation/usage
-    title: Basic Usage
-  - file: plate-simulation/methodology
-    title: Methodology
 - file: THIRD_PARTY_SOFTWARE

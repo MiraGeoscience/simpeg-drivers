@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -13,15 +13,14 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.electromagnetics.time_domain_1d.driver import (
+from simpeg_drivers.electromagnetics.time_domain_1d.forward import (
     TDEM1DForwardDriver,
-    TDEM1DInversionDriver,
-)
-from simpeg_drivers.electromagnetics.time_domain_1d.options import (
     TDEM1DForwardOptions,
+)
+from simpeg_drivers.electromagnetics.time_domain_1d.inversion import (
+    TDEM1DInversionDriver,
     TDEM1DInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (
@@ -38,7 +37,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
-target_run = {"data_norm": 6.15712e-10, "phi_d": 57.8, "phi_m": 124000}
+target_run = {"data_norm": 4.697209832464402e-10, "phi_d": 30.8, "phi_m": 82400}
 
 
 def test_airborne_tem_1d_fwr_run(
@@ -50,11 +49,18 @@ def test_airborne_tem_1d_fwr_run(
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="airborne tdem 1d",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points, n_lines=n_grid_points, drape=10.0
         ),
         mesh=MeshOptions(
-            cell_size=cell_size, refinement=refinement, padding_distance=400.0
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+            padding_distance=400.0,
         ),
         model=ModelOptions(background=0.1),
     )
@@ -92,7 +98,7 @@ def test_airborne_tem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
         data = {}
         uncertainties = {}
         channels = {
-            "z": "dBzdt",
+            "vertical": "vertical",
         }
 
         for chan, cname in channels.items():
@@ -120,13 +126,13 @@ def test_airborne_tem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
         data_kwargs = {}
         for chan in channels:
             data_kwargs[f"{chan}_channel"] = components.survey.fetch_property_group(
-                name=f"dB{chan}dt"
+                name="vertical"
             )
             data_kwargs[f"{chan}_uncertainty"] = components.survey.fetch_property_group(
-                name=f"dB{chan}dt uncertainties"
+                name="vertical uncertainties"
             )
 
-        orig_dBzdt = geoh5.get_entity("Iteration_0_z_[0]")[0].values
+        orig_dBzdt = geoh5.get_entity("Iteration_0_vertical_[0]")[0].values
 
         # Run the inverse
         params = TDEM1DInversionOptions.build(
@@ -148,7 +154,18 @@ def test_airborne_tem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    driver = TDEM1DInversionDriver(params)
+        driver = TDEM1DInversionDriver(params)
+
+        if pytest:
+            # Mock workers and check if the list shrinks to number of stations
+            driver._workers = [None] * 100  # pylint: disable=protected-access
+
+            driver.get_tiles()  # Trigger reset
+            assert len(driver.workers) == 1
+
+            # Reset and run
+            driver._workers = []  # pylint: disable=protected-access
+
     driver.run()
 
     with geoh5.open() as run_ws:

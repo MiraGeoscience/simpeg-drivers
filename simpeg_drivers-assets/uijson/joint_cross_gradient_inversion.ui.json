@@ -1,15 +1,12 @@
 {
-    "version": "0.4.0",
+    "version": "0.5.0",
     "title": "Joint Cross Gradient Inversion",
     "icon": "function",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
-    "conda_environment": "simpeg_drivers",
-    "run_command": "simpeg_drivers.driver",
+    "conda_environment": "simpeg-drivers",
+    "run_command": "simpeg_drivers.joint.joint_cross_gradient.driver",
     "geoh5": "",
     "monitoring_directory": "",
-    "inversion_type": "joint cross gradient",
-    "physical_property": "",
-    "forward_only": false,
     "group_a": {
         "main": true,
         "group": "Joint",
@@ -21,9 +18,9 @@
         "min": 0.0,
         "main": true,
         "group": "Joint",
-        "label": "Misfit A Scale",
+        "label": "Misfit A scale",
         "value": 1.0,
-        "tooltip": "Constant multiplier for the data misfit function for Group A"
+        "tooltip": "Constant multiplier for the data misfit function for group A"
     },
     "group_b": {
         "main": true,
@@ -36,18 +33,18 @@
         "min": 0.0,
         "main": true,
         "group": "Joint",
-        "label": "Misfit B Scale",
+        "label": "Misfit B scale",
         "value": 1.0,
-        "tooltip": "Constant multiplier for the data misfit function for Group B"
+        "tooltip": "Constant multiplier for the data misfit function for group B"
     },
     "cross_gradient_weight_a_b": {
         "min": 0.0,
         "group": "Joint",
-        "label": "A x B Coupling Scale",
+        "label": "A x B coupling scale",
         "value": 1.0,
         "main": true,
         "lineEdit": false,
-        "tooltip": "Weight applied to the cross gradient regularizations (1: equal weight with the standard Smallness and Smoothness terms.)"
+        "tooltip": "Weight applied to the cross gradient regularizations (1: equal weight with the standard smallness and smoothness terms)"
     },
     "group_c": {
         "main": true,
@@ -62,33 +59,42 @@
         "min": 0.0,
         "main": true,
         "group": "Joint",
-        "label": "Misfit C Scale",
+        "label": "Misfit C scale",
         "value": 1.0,
         "dependency": "group_c",
         "dependencyType": "enabled",
-        "tooltip": "Constant multiplier for the data misfit function for Group C"
+        "tooltip": "Constant multiplier for the data misfit function for group C"
     },
     "cross_gradient_weight_c_a": {
         "min": 0.0,
         "group": "Joint",
-        "label": "A x C Coupling Scale",
+        "label": "A x C coupling scale",
         "value": 1.0,
         "main": true,
         "lineEdit": false,
         "dependency": "group_c",
         "dependencyType": "enabled",
-        "tooltip": "Weight applied to the cross gradient regularizations (1: equal weight with the standard Smallness and Smoothness terms.)"
+        "tooltip": "Weight applied to the cross gradient regularizations (1: equal weight with the standard smallness and smoothness terms)"
     },
     "cross_gradient_weight_c_b": {
         "min": 0.0,
         "group": "Joint",
-        "label": "B x C Coupling Scale",
+        "label": "B x C coupling scale",
         "value": 1.0,
         "main": true,
         "lineEdit": false,
         "dependency": "group_c",
         "dependencyType": "enabled",
-        "tooltip": "Weight applied to the cross gradient regularizations (1: equal weight with the standard Smallness and Smoothness terms.)"
+        "tooltip": "Weight applied to the cross gradient regularizations (1: equal weight with the standard smallness and smoothness terms)"
+    },
+    "iterative_rescaling": {
+        "group": "Joint",
+        "label": "Iterative rescaling",
+        "value": true,
+        "verbose": 1,
+        "visible": true,
+        "main": true,
+        "tooltip": "Whether to rescale the cross-gradient terms iteratively based on derivatives of smoothness regularization terms"
     },
     "mesh": {
         "group": "Mesh and models",
@@ -194,7 +200,7 @@
         "min": 0.0,
         "group": "Regularization",
         "label": "Z-smoothness weight",
-        "tooltip": "Larger values relative to other smoothness weights will result in z biased smoothess",
+        "tooltip": "Larger values relative to other smoothness weights will result in z biased smoothness",
         "value": 1.0,
         "isValue": true,
         "parent": "mesh",
@@ -216,6 +222,7 @@
         "optional": true,
         "enabled": false,
         "parent": "mesh",
+        "tooltip": "Rotate the gradient of the regularization to align with a provided structural orientation.\nThe data should be provided as a data group in the form of either strike & dip, dip direction & dip, or x/y/z components.",
         "value": ""
     },
     "s_norm": {
@@ -274,7 +281,7 @@
         "min": 0,
         "group": "Sparse/blocky model",
         "label": "Maximum IRLS iterations",
-        "tooltip": "Incomplete Re-weighted Least Squares iterations for non-L2 problems",
+        "tooltip": "Iterative Re-Weighted Least-squares (IRLS) iterations for non-L2 problems",
         "value": 25,
         "enabled": true,
         "verbose": 2
@@ -321,7 +328,7 @@
         "value": true,
         "verbose": 3,
         "visible": true,
-        "tooltip": "Whether to auto-scale misfits functions (tile, frequency, joint methods) based on chi-factor"
+        "tooltip": "Whether to auto-scale misfits functions of joint methods based on chi-factor"
     },
     "initial_beta_ratio": {
         "min": 0.0,
@@ -394,6 +401,7 @@
         "label": "Maximum CG iterations",
         "value": 30,
         "enabled": true,
+        "tooltip": "Maximum number of iterations for the conjugate gradient solver used in the optimization",
         "verbose": 2
     },
     "tol_cg": {
@@ -402,6 +410,7 @@
         "label": "Conjugate gradient tolerance",
         "value": 0.0001,
         "enabled": true,
+        "tooltip": "Tolerance for the conjugate gradient solver used in the optimization",
         "verbose": 3
     },
     "f_min_change": {
@@ -415,7 +424,7 @@
     },
     "sens_wts_threshold": {
         "group": "Update sensitivity weights directive",
-        "tooltip": "Update sensitivity weight threshold",
+        "tooltip": "Threshold below which sensitivity weights become constant. Measured as a percentage of the maximum sensitivity weight.",
         "label": "Threshold (%)",
         "value": 0.001,
         "max": 100.0,
@@ -496,8 +505,8 @@
         "visible": false,
         "tooltip": "Generates a file for sweeping parameters instead of running the application"
     },
-    "n_workers": "",
-    "n_threads": "",
+    "n_workers": null,
+    "n_threads": null,
     "max_ram": "",
     "performance_report": false,
     "distributed_workers": ""

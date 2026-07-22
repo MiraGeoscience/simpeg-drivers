@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -18,4 +18,3 @@ from .data import InversionData
 from .meshes import InversionMesh
 from .models import InversionModel, InversionModelCollection
 from .topography import InversionTopography
-from .windows import InversionWindow

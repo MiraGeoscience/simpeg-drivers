@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -11,28 +11,33 @@
 
 from __future__ import annotations
 
-import multiprocessing
 from logging import getLogger
+from pathlib import Path
+from typing import Any
 
 import numpy as np
 from discretize import TensorMesh
 from discretize.utils import mesh_utils
 from geoapps_utils.utils.locations import topo_drape_elevation
 from geoh5py import Workspace
-from geoh5py.objects import FEMSurvey
+from geoh5py.objects import Surface
 from geoh5py.shared.merging.drape_model import DrapeModelMerger
 from geoh5py.ui_json.ui_json import fetch_active_workspace
+from numpy import ndarray
 
-from simpeg_drivers.components.factories import MisfitFactory, SimulationFactory
+from simpeg_drivers.components.factories import SimulationFactory
 from simpeg_drivers.components.meshes import InversionMesh
-from simpeg_drivers.driver import InversionDriver
-from simpeg_drivers.utils.utils import xyz_2_drape_model
+from simpeg_drivers.driver import BaseDriver
+from simpeg_drivers.utils.utils import (
+    get_default_parallelization_params,
+    xyz_2_drape_model,
+)
 
 
 logger = getLogger(__name__)
 
 
-class Base1DDriver(InversionDriver):
+class Base1DDriver(BaseDriver):
     """Base 1D driver for electromagnetic simulations."""
 
     _params_class = None
@@ -44,6 +49,9 @@ class Base1DDriver(InversionDriver):
         self.topo_z_drape = topo_drape_elevation(
             self.params.data_object.vertices,
             self.inversion_topography.locations,
+            triangulation=self.params.active_cells.topography_object.cells
+            if isinstance(self.params.active_cells.topography_object, Surface)
+            else None,
         )
 
     @property
@@ -86,6 +94,23 @@ class Base1DDriver(InversionDriver):
         )
         return layers_mesh
 
+    def get_tiles(self) -> dict[None, list[list[ndarray[tuple[Any, ...]]]]]:
+        n_data = len(self.inversion_data.locations)
+        indices = np.arange(n_data)
+
+        # Heuristic to avoid too many chunks
+        n_chunks = n_data // self.params.compute.max_chunk_size
+
+        if self.workers:
+            n_chunks //= len(self.workers)
+
+        n_chunks = np.max([n_chunks, 1])
+        tiles = [[tile] for tile in np.array_split(indices, n_chunks) if np.any(tile)]
+        if self.workers is not None and len(self.workers) > len(tiles):
+            self._workers = self.workers[: len(tiles)]
+
+        return {None: tiles}
+
     @property
     def simulation(self):
         """
@@ -113,15 +138,11 @@ class Base1DDriver(InversionDriver):
 
         return self._simulation
 
-    @property
-    def workers(self):
-        """List of workers"""
-        if self._workers is None:
-            if self.client:
-                self._workers = [
-                    (worker.worker_address,)
-                    for worker in self.client.cluster.workers.values()
-                ]
-            else:
-                self._workers = np.arange(multiprocessing.cpu_count()).tolist()
-        return self._workers
+    @classmethod
+    def start_dask_run(
+        cls, json_path: Path, n_workers: int | None = None, n_threads: int | None = None
+    ):
+        """Overload configurations of BaseDriver Dask config settings."""
+        n_workers, n_threads = get_default_parallelization_params(json_path)
+
+        super().start_dask_run(json_path, n_workers=n_workers, n_threads=n_threads)

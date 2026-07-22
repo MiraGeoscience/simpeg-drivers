@@ -1,15 +1,12 @@
 {
-    "version": "0.4.0",
+    "version": "0.5.0",
     "title": "Magnetotellurics (MT) Inversion",
     "icon": "surveymagnetotellurics",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
-    "conda_environment": "simpeg_drivers",
-    "run_command": "simpeg_drivers.driver",
+    "conda_environment": "simpeg-drivers",
+    "run_command": "simpeg_drivers.natural_sources.magnetotellurics.inversion",
     "geoh5": "",
     "monitoring_directory": "",
-    "inversion_type": "magnetotellurics",
-    "physical_property": "conductivity",
-    "forward_only": false,
     "data_object": {
         "main": true,
         "group": "Data",
@@ -443,7 +440,7 @@
         "min": 0.0,
         "group": "Regularization",
         "label": "Z-smoothness weight",
-        "tooltip": "Larger values relative to other smoothness weights will result in z biased smoothess",
+        "tooltip": "Larger values relative to other smoothness weights will result in z biased smoothness",
         "value": 1.0,
         "isValue": true,
         "parent": "mesh",
@@ -465,6 +462,7 @@
         "optional": true,
         "enabled": false,
         "parent": "mesh",
+        "tooltip": "Rotate the gradient of the regularization to align with a provided structural orientation.\nThe data should be provided as a data group in the form of either strike & dip, dip direction & dip, or x/y/z components.",
         "value": ""
     },
     "s_norm": {
@@ -537,7 +535,7 @@
         "min": 0,
         "group": "Sparse/blocky model",
         "label": "Maximum IRLS iterations",
-        "tooltip": "Incomplete Re-weighted Least Squares iterations for non-L2 problems",
+        "tooltip": "Iterative Re-Weighted Least-squares (IRLS) iterations for non-L2 problems",
         "value": 25,
         "enabled": true,
         "verbose": 2
@@ -578,13 +576,21 @@
         "enabled": true,
         "tooltip": "The global target data misfit value"
     },
-    "auto_scale_misfits": {
+    "auto_scale_tiles": {
         "group": "Cooling schedule/target",
-        "label": "Auto-scale misfits",
+        "label": "Auto-scale tiles",
         "value": false,
         "verbose": 3,
         "visible": true,
-        "tooltip": "Whether to auto-scale misfits functions (tile, frequency, joint methods) based on chi-factor"
+        "tooltip": "Whether to auto-scale the misfit function of tiles based on chi-factor"
+    },
+    "auto_scale_channels": {
+        "group": "Cooling schedule/target",
+        "label": "Auto-scale frequencies",
+        "value": false,
+        "verbose": 3,
+        "visible": true,
+        "tooltip": "Whether to auto-scale frequencies based on chi-factor"
     },
     "initial_beta_ratio": {
         "min": 0.0,
@@ -657,6 +663,7 @@
         "label": "Maximum CG iterations",
         "value": 30,
         "enabled": true,
+        "tooltip": "Maximum number of iterations for the conjugate gradient solver used in the optimization",
         "verbose": 2
     },
     "tol_cg": {
@@ -665,6 +672,7 @@
         "label": "Conjugate gradient tolerance",
         "value": 0.0001,
         "enabled": true,
+        "tooltip": "Tolerance for the conjugate gradient solver used in the optimization",
         "verbose": 3
     },
     "f_min_change": {
@@ -678,7 +686,7 @@
     },
     "sens_wts_threshold": {
         "group": "Update sensitivity weights directive",
-        "tooltip": "Update sensitivity weight threshold",
+        "tooltip": "Threshold below which sensitivity weights become constant. Measured as a percentage of the maximum sensitivity weight.",
         "label": "Threshold (%)",
         "value": 1.0,
         "max": 100.0,
@@ -723,9 +731,6 @@
     "tile_spatial": {
         "group": "Compute",
         "label": "Number of tiles",
-        "parent": "data_object",
-        "isValue": true,
-        "property": "",
         "value": 1,
         "min": 1,
         "max": 1000,
@@ -771,8 +776,8 @@
         "visible": false,
         "tooltip": "Generates a file for sweeping parameters instead of running the application"
     },
-    "n_workers": "",
-    "n_threads": "",
+    "n_workers": null,
+    "n_threads": null,
     "max_ram": "",
     "performance_report": false,
     "distributed_workers": ""

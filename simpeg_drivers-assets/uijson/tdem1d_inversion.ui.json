@@ -1,15 +1,12 @@
 {
-    "version": "0.4.0",
+    "version": "0.5.0",
     "title": "Time-domain EM (TEM) 1D Inversion",
     "icon": "surveyairborneem",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
-    "conda_environment": "simpeg_drivers",
-    "run_command": "simpeg_drivers.driver",
+    "conda_environment": "simpeg-drivers",
+    "run_command": "simpeg_drivers.electromagnetics.time_domain_1d.inversion",
     "geoh5": "",
     "monitoring_directory": "",
-    "inversion_type": "tdem 1d",
-    "physical_property": "conductivity",
-    "forward_only": false,
     "data_object": {
         "main": true,
         "group": "Data",
@@ -33,13 +30,13 @@
         "tooltip": [
             "Set the units of the data.<p>",
             "Data are expected to be normalized by the source strength, dependent on the type: <dl>",
-            "<dt>Dipole</dt><dd>Current * area * number of turns (NIA).</dd>",
-            "<dt>Wire</dt><dd>Current * number of turns (NI).</dd>",
+            "<dt>Dipole</dt><dd>Current * area * number of turns (NIA)</dd>",
+            "<dt>Wire</dt><dd>Current * number of turns (NI)</dd>",
             "</dl>"
         ],
-        "value": "dB/dt (T/s)"
+        "value": "Airborne dB/dt (V/Am^4)"
     },
-    "z_channel": {
+    "vertical_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -48,13 +45,14 @@
         "group": "Data",
         "dataGroupType": "Multi-element",
         "main": true,
-        "label": "z-component",
+        "label": "Vertical",
+        "tooltip": "Vertical (w) component of the magnetic data",
         "parent": "data_object",
         "optional": true,
         "enabled": true,
         "value": ""
     },
-    "z_uncertainty": {
+    "vertical_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -65,7 +63,7 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "z_channel",
+        "dependency": "vertical_channel",
         "dependencyType": "enabled",
         "value": ""
     },
@@ -76,7 +74,7 @@
     },
     "v_cell_size": {
         "min": 0.0,
-        "group": "1D Mesh",
+        "group": "1D mesh",
         "main": true,
         "enabled": true,
         "label": "Vertical core cell size (m)",
@@ -84,7 +82,7 @@
     },
     "depth_core": {
         "min": 0.0,
-        "group": "1D Mesh",
+        "group": "1D mesh",
         "main": true,
         "enabled": true,
         "label": "Depth of core (m)",
@@ -97,7 +95,7 @@
     },
     "vertical_padding": {
         "min": 0.0,
-        "group": "1D Mesh",
+        "group": "1D mesh",
         "main": true,
         "dependencyType": "disabled",
         "label": "Vertical padding (m)",
@@ -105,7 +103,7 @@
     },
     "expansion_factor": {
         "main": true,
-        "group": "1D Mesh",
+        "group": "1D mesh",
         "label": "Expansion factor",
         "value": 1.1
     },
@@ -220,24 +218,6 @@
         "value": "",
         "verbose": 2
     },
-    "active_model": {
-        "association": "Cell",
-        "dataType": [
-            "Referenced",
-            "Boolean",
-            "Integer"
-        ],
-        "group": "Topography",
-        "main": true,
-        "enabled": false,
-        "visible": false,
-        "dependency": "topography_object",
-        "dependencyType": "disabled",
-        "label": "Active model",
-        "tooltip": "Provide the active cell Boolean model directly if topography not set",
-        "parent": "mesh",
-        "value": ""
-    },
     "alpha_s": {
         "min": 0.0,
         "group": "Regularization",
@@ -271,7 +251,7 @@
         "min": 0.0,
         "group": "Regularization",
         "label": "Vertical-smoothness weight",
-        "tooltip": "Larger values relative to other smoothness weights will result in z biased smoothess",
+        "tooltip": "Larger values relative to other smoothness weights will result in z biased smoothness",
         "value": 1.0,
         "isValue": true,
         "parent": "mesh",
@@ -336,7 +316,7 @@
         "min": 0,
         "group": "Sparse/blocky model",
         "label": "Maximum IRLS iterations",
-        "tooltip": "Incomplete Re-weighted Least Squares iterations for non-L2 problems",
+        "tooltip": "Iterative Re-Weighted Least-squares (IRLS) iterations for non-L2 problems",
         "value": 25,
         "enabled": true,
         "verbose": 2
@@ -377,13 +357,13 @@
         "enabled": true,
         "tooltip": "The global target data misfit value"
     },
-    "auto_scale_misfits": {
+    "auto_scale_tiles": {
         "group": "Cooling schedule/target",
-        "label": "Auto-scale misfits",
+        "label": "Auto-scale tiles",
         "value": false,
         "verbose": 3,
         "visible": false,
-        "tooltip": "Whether to auto-scale misfits functions (tile, frequency, joint methods) based on chi-factor"
+        "tooltip": "Whether to auto-scale the misfit function of tiles based on chi-factor"
     },
     "initial_beta_ratio": {
         "min": 0.0,
@@ -456,6 +436,7 @@
         "label": "Maximum CG iterations",
         "value": 30,
         "enabled": true,
+        "tooltip": "Maximum number of iterations for the conjugate gradient solver used in the optimization",
         "verbose": 2
     },
     "tol_cg": {
@@ -464,6 +445,7 @@
         "label": "Conjugate gradient tolerance",
         "value": 0.0001,
         "enabled": true,
+        "tooltip": "Tolerance for the conjugate gradient solver used in the optimization",
         "verbose": 3
     },
     "f_min_change": {
@@ -477,7 +459,7 @@
     },
     "sens_wts_threshold": {
         "group": "Update sensitivity weights directive",
-        "tooltip": "Update sensitivity weight threshold",
+        "tooltip": "Threshold below which sensitivity weights become constant. Measured as a percentage of the maximum sensitivity weight.",
         "label": "Threshold (%)",
         "value": 100.0,
         "max": 100.0,
@@ -522,9 +504,6 @@
     "tile_spatial": {
         "group": "Compute",
         "label": "Number of tiles",
-        "parent": "data_object",
-        "isValue": true,
-        "property": "",
         "value": 1,
         "min": 1,
         "max": 1000,
@@ -571,8 +550,8 @@
         "visible": false,
         "tooltip": "Generates a file for sweeping parameters instead of running the application"
     },
-    "n_workers": "",
-    "n_threads": "",
+    "n_workers": null,
+    "n_threads": null,
     "max_ram": "",
     "performance_report": false,
     "distributed_workers": ""

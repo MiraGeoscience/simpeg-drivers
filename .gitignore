@@ -147,3 +147,4 @@ pyproject-sha.toml
 
 #version ignore
 simpeg_drivers/_version.py
+/_version.json

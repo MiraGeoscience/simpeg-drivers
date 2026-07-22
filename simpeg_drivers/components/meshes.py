@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -12,15 +12,12 @@
 from __future__ import annotations
 
 from logging import getLogger
-from typing import TYPE_CHECKING
 
 import numpy as np
 from discretize import TensorMesh, TreeMesh
 from geoh5py import Workspace
-from geoh5py.groups import UIJsonGroup
 from geoh5py.objects import DrapeModel, Grid2D, Octree, Points
 from grid_apps.octree_creation.driver import OctreeDriver
-from grid_apps.octree_creation.options import OctreeOptions
 from grid_apps.utils import octree_2_treemesh, treemesh_2_octree
 from scipy.sparse import csr_matrix, identity
 
@@ -30,9 +27,6 @@ from simpeg_drivers.utils.utils import drape_2_tensor
 
 
 logger = getLogger(__name__)
-if TYPE_CHECKING:
-    from simpeg_drivers.components.data import InversionData
-    from simpeg_drivers.components.topography import InversionTopography
 
 
 # TODO: Import this from newer octree-creation-app release
@@ -107,6 +101,8 @@ class InversionMesh:
             mesh_entity = self.params.mesh.copy(
                 parent=self.params.out_group, copy_children=False
             )
+            if self.params.mesh.visual_parameters is not None:
+                self.params.mesh.visual_parameters.copy(parent=mesh_entity)
 
         return mesh_entity
 
@@ -255,7 +251,7 @@ class InversionMesh:
         indices = treemesh.get_containing_cells(mesh.centroids)
         ind = np.argsort(indices)
         for child in mesh.children:
-            if child.values is None or isinstance(child.values, np.ndarray):
+            if child.values is None or not isinstance(child.values, np.ndarray):
                 continue
             child.values = child.values[ind]
 

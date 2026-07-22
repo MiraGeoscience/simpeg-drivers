@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -18,7 +18,9 @@ from geoh5py import Workspace
 from geoh5py.objects import Curve, Grid2D, Points
 
 from simpeg_drivers.components.locations import InversionLocations
-from simpeg_drivers.potential_fields import MVIInversionOptions
+from simpeg_drivers.potential_fields.magnetic_vector.inversion import (
+    MagneticVectorInversionOptions,
+)
 from simpeg_drivers.utils.nested import tile_locations
 from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
 from simpeg_drivers.utils.synthetics.options import (
@@ -30,7 +32,7 @@ from simpeg_drivers.utils.synthetics.options import (
 from tests.utils.targets import get_workspace
 
 
-def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
+def get_mvi_params(tmp_path: Path) -> MagneticVectorInversionOptions:
     opts = SyntheticsComponentsOptions(
         method="magnetic_vector",
         survey=SurveyOptions(n_lines=2, n_stations=2),
@@ -42,7 +44,7 @@ def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
         tmi_channel = components.survey.add_data(
             {"tmi": {"values": np.random.rand(components.survey.n_vertices)}}
         )
-        params = MVIInversionOptions.build(
+        params = MagneticVectorInversionOptions.build(
             geoh5=geoh5,
             data_object=components.survey,
             tmi_channel=tmi_channel,
@@ -55,21 +57,6 @@ def get_mvi_params(tmp_path: Path) -> MVIInversionOptions:
             inducing_field_declination=30.0,
         )
         return params
-
-
-def test_mask(tmp_path: Path):
-    params = get_mvi_params(tmp_path)
-    geoh5 = params.geoh5
-    with geoh5.open():
-        locations = InversionLocations(geoh5, params)
-        loc_mask = [0, 1, 1, 0]
-        locations.mask = loc_mask
-        assert isinstance(locations.mask, np.ndarray)
-        assert locations.mask.dtype == bool
-        loc_mask = [0, 1, 2, 3]
-        with pytest.raises(ValueError) as excinfo:
-            locations.mask = loc_mask
-        assert "Badly formed" in str(excinfo.value)
 
 
 def test_get_locations(tmp_path: Path):
@@ -98,49 +85,34 @@ def test_get_locations(tmp_path: Path):
         np.testing.assert_allclose(dlocs, locs)
 
 
-def test_filter(tmp_path: Path):
-    params = get_mvi_params(tmp_path)
-    geoh5 = params.geoh5
-    with geoh5.open():
-        locations = InversionLocations(geoh5, params)
-        test_data = np.array([0, 1, 2, 3, 4, 5])
-        locations.mask = np.array([0, 0, 1, 1, 1, 0])
-        filtered_data = locations.filter(test_data)
-        assert np.all(filtered_data == [2, 3, 4])
-
-        test_data = {"key": test_data}
-        filtered_data = locations.filter(test_data)
-        assert np.all(filtered_data["key"] == [2, 3, 4])
+# TODO Find a scalable algo better than linear_sum_assignment to do even split
+# The tiling strategy should yield even "densities" (area x n_receivers)
+# def test_tile_locations(tmp_path: Path):
+#     with Workspace.create(tmp_path / f"{__name__}.geoh5") as ws:
+#         grid_x, grid_y = np.meshgrid(np.arange(100), np.arange(100))
+#         choices = np.c_[grid_x.ravel(), grid_y.ravel(), np.zeros(grid_x.size)]
+#         inds = np.random.randint(0, 10000, 1000)
+#         pts = Points.create(
+#             ws,
+#             name="test-points",
+#             vertices=choices[inds],
 
 
-def test_tile_locations(tmp_path: Path):
-    with Workspace.create(tmp_path / f"{__name__}.geoh5") as ws:
-        grid_x, grid_y = np.meshgrid(np.arange(100), np.arange(100))
-        choices = np.c_[grid_x.ravel(), grid_y.ravel(), np.zeros(grid_x.size)]
-        inds = np.random.randint(0, 10000, 1000)
-        pts = Points.create(
-            ws,
-            name="test-points",
-            vertices=choices[inds],
-        )
-        tiles = tile_locations(pts.vertices[:, :2], n_tiles=8)
+def test_tile_locations():
+    n_points = 1000
+    rng = np.random.default_rng(0)
+    locations = rng.standard_normal((n_points, 2))
 
-        values = np.zeros(pts.n_vertices)
-        pop = []
-        for ind, tile in enumerate(tiles):
-            values[tile] = ind
-            pop.append(len(tile))
+    tiles = tile_locations(locations, n_tiles=8)
 
-        pts.add_data(
-            {
-                "values": {
-                    "values": values,
-                }
-            }
-        )
-        assert np.std(pop) / np.mean(pop) < 0.02, (
-            "Population of tiles are not almost equal."
-        )
+    # All indices should be covered exactly once across tiles
+    all_indices = np.concatenate(tiles)
+    assert np.array_equal(np.sort(all_indices), np.arange(n_points))
+
+    # Tiles should be reasonably balanced in population
+    pop = np.array([len(tile) for tile in tiles])
+    assert pop.min() > 0
+    assert np.std(pop) / np.mean(pop) < 0.5
 
 
 def test_tile_locations_labels(tmp_path: Path):

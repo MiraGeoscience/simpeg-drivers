@@ -1,15 +1,12 @@
 {
-    "version": "0.4.0",
+    "version": "0.5.0",
     "title": "Gravity Inversion",
     "icon": "surveyairbornegravity",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
-    "conda_environment": "simpeg_drivers",
-    "run_command": "simpeg_drivers.driver",
+    "conda_environment": "simpeg-drivers",
+    "run_command": "simpeg_drivers.potential_fields.gravity.inversion",
     "geoh5": "",
     "monitoring_directory": "",
-    "inversion_type": "gravity",
-    "forward_only": false,
-    "physical_property": "density",
     "data_object": {
         "main": true,
         "group": "Data",
@@ -19,7 +16,9 @@
             "{6a057fdc-b355-11e3-95be-fd84a7ffcb88}",
             "{f26feba3-aded-494b-b9e9-b2bbcbe298e1}",
             "{48f5054a-1c5c-4ca4-9048-80f36dc60a06}",
-            "{b020a277-90e2-4cd7-84d6-612ee3f25051}"
+            "{b020a277-90e2-4cd7-84d6-612ee3f25051}",
+            "{b54f6be6-0eb5-4a4e-887a-ba9d276f9a83}",
+            "{5ffa3816-358d-4cdd-9b7d-e1f7f5543e05}"
         ],
         "value": ""
     },
@@ -357,7 +356,7 @@
         "group": "Mesh and models",
         "isValue": true,
         "optional": true,
-        "enabled": false,
+        "enabled": true,
         "parent": "mesh",
         "label": "Reference density (g/cc)",
         "property": "",
@@ -491,7 +490,7 @@
         "min": 0.0,
         "group": "Regularization",
         "label": "Z-smoothness weight",
-        "tooltip": "Larger values relative to other smoothness weights will result in z biased smoothess",
+        "tooltip": "Larger values relative to other smoothness weights will result in z biased smoothness",
         "value": 1.0,
         "isValue": true,
         "parent": "mesh",
@@ -513,6 +512,7 @@
         "optional": true,
         "enabled": false,
         "parent": "mesh",
+        "tooltip": "Rotate the gradient of the regularization to align with a provided structural orientation.\nThe data should be provided as a data group in the form of either strike & dip, dip direction & dip, or x/y/z components.",
         "value": ""
     },
     "s_norm": {
@@ -585,7 +585,7 @@
         "min": 0,
         "group": "Sparse/blocky model",
         "label": "Maximum IRLS iterations",
-        "tooltip": "Incomplete Re-weighted Least Squares iterations for non-L2 problems",
+        "tooltip": "Iterative Re-Weighted Least-squares (IRLS) iterations for non-L2 problems",
         "value": 25,
         "enabled": true,
         "verbose": 2
@@ -626,13 +626,13 @@
         "enabled": true,
         "tooltip": "The global target data misfit value"
     },
-    "auto_scale_misfits": {
+    "auto_scale_tiles": {
         "group": "Cooling schedule/target",
-        "label": "Auto-scale misfits",
+        "label": "Auto-scale tiles",
         "value": false,
         "verbose": 3,
         "visible": true,
-        "tooltip": "Whether to auto-scale misfits functions (tile, frequency, joint methods) based on chi-factor"
+        "tooltip": "Whether to auto-scale the misfit function of tiles based on chi-factor"
     },
     "initial_beta_ratio": {
         "min": 0.0,
@@ -704,6 +704,7 @@
         "label": "Maximum CG iterations",
         "value": 30,
         "enabled": true,
+        "tooltip": "Maximum number of iterations for the conjugate gradient solver used in the optimization",
         "verbose": 2
     },
     "tol_cg": {
@@ -712,6 +713,7 @@
         "label": "Conjugate gradient tolerance",
         "value": 0.0001,
         "enabled": true,
+        "tooltip": "Tolerance for the conjugate gradient solver used in the optimization",
         "verbose": 3
     },
     "f_min_change": {
@@ -725,7 +727,7 @@
     },
     "sens_wts_threshold": {
         "group": "Update sensitivity weights directive",
-        "tooltip": "Update sensitivity weight threshold",
+        "tooltip": "Threshold below which sensitivity weights become constant. Measured as a percentage of the maximum sensitivity weight.",
         "label": "Threshold (%)",
         "value": 0.001,
         "max": 100.0,
@@ -761,14 +763,6 @@
     "tile_spatial": {
         "group": "Compute",
         "label": "Number of tiles",
-        "parent": "data_object",
-        "isValue": true,
-        "property": "",
-        "dataType": "Float",
-        "association": [
-            "Vertex",
-            "Cell"
-        ],
         "value": 1,
         "min": 1,
         "max": 1000,
@@ -814,8 +808,8 @@
         "visible": false,
         "tooltip": "Generates a file for sweeping parameters instead of running the application"
     },
-    "n_workers": "",
-    "n_threads": "",
+    "n_workers": null,
+    "n_threads": null,
     "max_ram": "",
     "performance_report": false,
     "distributed_workers": ""

@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -30,6 +30,7 @@ class MagneticModelOptions(ModelOptions):
     ModelOptions class with defaulted lower bound.
     """
 
+    reference_model: float | FloatData | None = None
     lower_bound: float | FloatData | None = 0
 
 
@@ -53,8 +54,10 @@ class MagneticForwardOptions(BaseForwardOptions):
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/magnetic_scalar_forward.ui.json"
     )
+    run_command: str = "simpeg_drivers.potential_fields.magnetic_scalar.forward"
 
     title: str = "Magnetic Scalar Forward"
+    icon: str = "surveyairbornemagnetics"
     physical_property: str = "susceptibility"
     inversion_type: str = "magnetic scalar"
 
@@ -108,8 +111,10 @@ class MagneticInversionOptions(BaseInversionOptions):
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/magnetic_scalar_inversion.ui.json"
     )
+    run_command: str = "simpeg_drivers.potential_fields.magnetic_scalar.inversion"
 
     title: str = "Magnetic Scalar Inversion"
+    icon: str = "surveyairbornemagnetics"
     physical_property: str = "susceptibility"
     inversion_type: str = "magnetic scalar"
 

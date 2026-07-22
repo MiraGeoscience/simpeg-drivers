@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -34,7 +34,7 @@ def get_inversion_output(h5file: str | Workspace, inversion_group: str | UUID):
             f"BaseInversion group {inversion_group} could not be found in the target geoh5 {h5file}"
         ) from exc
 
-    outfile = group.get_entity("SimPEG.out")[0]
+    outfile = next(file for file in group.children if ".out" in file.name)
     out = list(outfile.file_bytes.decode("utf-8").replace("\r", "").split("\n"))[:-1]
     cols = out.pop(0).split(" ")
     out = [[string_to_numeric(k) for k in elem.split(" ")] for elem in out]

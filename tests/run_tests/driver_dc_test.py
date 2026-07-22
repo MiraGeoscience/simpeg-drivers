@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -15,12 +15,12 @@ from pathlib import Path
 import numpy as np
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.electricals.direct_current.three_dimensions.driver import (
+from simpeg_drivers.electricals.direct_current.three_dimensions.forward import (
     DC3DForwardDriver,
-    DC3DInversionDriver,
-)
-from simpeg_drivers.electricals.direct_current.three_dimensions.options import (
     DC3DForwardOptions,
+)
+from simpeg_drivers.electricals.direct_current.three_dimensions.inversion import (
+    DC3DInversionDriver,
     DC3DInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (
@@ -38,20 +38,29 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.1503264550032795, "phi_d": 43.9, "phi_m": 935}
+target_run = {"data_norm": 0.14571066077648995, "phi_d": 14.4, "phi_m": 3940}
 
 
 def test_dc_3d_fwr_run(
     tmp_path: Path,
     n_electrodes=4,
     n_lines=3,
+    cell_size=(20.0, 20.0, 20.0),
     refinement=(4, 6),
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="direct current 3d",
+        refine_plate=True,
         survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
-        mesh=MeshOptions(refinement=refinement),
+        mesh=MeshOptions(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+        ),
         model=ModelOptions(background=0.01, anomaly=10.0),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
@@ -147,13 +156,22 @@ def test_dc_single_line_fwr_run(
     tmp_path: Path,
     n_electrodes=4,
     n_lines=1,
+    cell_size=(20.0, 20.0, 20.0),
     refinement=(4, 6),
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="direct current 3d",
+        refine_plate=True,
         survey=SurveyOptions(n_stations=n_electrodes, n_lines=n_lines),
-        mesh=MeshOptions(refinement=refinement),
+        mesh=MeshOptions(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+        ),
         model=ModelOptions(background=0.01, anomaly=10.0),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
@@ -167,7 +185,7 @@ def test_dc_single_line_fwr_run(
         )
 
     fwr_driver = DC3DForwardDriver(params)
-    assert np.all(fwr_driver.window.window["size"] > 0)
+    assert fwr_driver.inversion_mesh.mesh.n_cells == 3560
 
 
 if __name__ == "__main__":
@@ -177,7 +195,8 @@ if __name__ == "__main__":
         Path("./"),
         n_electrodes=20,
         n_lines=5,
-        refinement=(4, 8),
+        cell_size=(20.0, 20.0, 20.0),
+        refinement=(4, 4),
     )
 
     test_dc_3d_run(

@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -13,16 +13,15 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-from geoh5py.groups import SimPEGGroup
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.natural_sources.tipper import (
-    TipperForwardOptions,
-    TipperInversionOptions,
-)
-from simpeg_drivers.natural_sources.tipper.driver import (
+from simpeg_drivers.natural_sources.tipper.forward import (
     TipperForwardDriver,
+    TipperForwardOptions,
+)
+from simpeg_drivers.natural_sources.tipper.inversion import (
     TipperInversionDriver,
+    TipperInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (
     SyntheticsComponents,
@@ -39,22 +38,30 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.006549595419474837, "phi_d": 221, "phi_m": 270}
+target_run = {"data_norm": 0.011288577319036807, "phi_d": 11.7, "phi_m": 49.9}
 
 
 def test_tipper_fwr_run(
     tmp_path: Path,
     n_grid_points=2,
-    refinement=(2,),
     cell_size=(20.0, 20.0, 20.0),
+    refinement=(2,),
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="tipper",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points, n_lines=n_grid_points, drape=15.0
         ),
-        mesh=MeshOptions(cell_size=cell_size, refinement=refinement),
+        mesh=MeshOptions(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+        ),
         model=ModelOptions(background=100.0),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:

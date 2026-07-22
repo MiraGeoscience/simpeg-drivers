@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2024-2025 Mira Geoscience Ltd.                                     '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -7,19 +7,7 @@
 #  (see LICENSE file at the root of this source code package).                      '
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
 import logging
 import sys
 from pathlib import Path
@@ -31,6 +19,7 @@ from discretize import TreeMesh
 from geoapps_utils.base import Driver, Options
 from geoapps_utils.utils.numerical import fibonacci_series, fit_circle
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
+from pydantic import field_validator
 from scipy.interpolate import interp1d
 from tqdm import tqdm
 
@@ -53,10 +42,22 @@ class TileParameters(Options):
     """
 
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/tile_estimator.ui.json"
+    icon: str = "tilelist"
 
     simulation: SimPEGGroup
     render_plot: bool = True
     out_group: UIJsonGroup | None = None
+
+    @field_validator("simulation", mode="before")
+    @classmethod
+    def forward_and_inverse_drivers_only(cls, value):
+        """Prevents users from running with incompatible apps."""
+        run_command = value.options.get("run_command", "nope")
+        invalid = ["plate_simulation", "depth_of_investigation"]
+        if any(k in run_command for k in invalid):
+            title = value.options.get("title", "Requested application")
+            raise ValueError(f"{title} is not a valid target for tile estimation.")
+        return value
 
 
 class TileEstimator(Driver):

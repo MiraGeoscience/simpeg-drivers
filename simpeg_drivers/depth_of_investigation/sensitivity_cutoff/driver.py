@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2024-2025 Mira Geoscience Ltd.                                     '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -7,19 +7,6 @@
 #  (see LICENSE file at the root of this source code package).                      '
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#
-#  This file is part of simpeg-drivers.
-#
-#  The software and information contained herein are proprietary to, and
-#  comprise valuable trade secrets of, Mira Geoscience, which
-#  intend to preserve as trade secrets such software and information.
-#  This software is furnished pursuant to a written license agreement and
-#  may be used, copied, transmitted, and stored only in accordance with
-#  the terms of such license and with the inclusion of the above copyright
-#  notice.  This software and information or any other copies thereof may
-#  not be provided or otherwise made available to any other person.
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 import logging
 import sys
@@ -31,6 +18,7 @@ from geoh5py.data import FloatData
 from simpeg_drivers.depth_of_investigation.sensitivity_cutoff.options import (
     SensitivityCutoffOptions,
 )
+from simpeg_drivers.utils.utils import validate_out_group
 
 
 logger = logging.getLogger(__name__)
@@ -78,11 +66,14 @@ def sensitivity_mask(
     """
     Create cutoff mask for one of 'percentile', 'percent', or 'log_percent' methods.
 
+    Zero sensitivities are excluded from cutoff statistics and will be masked.
+
     :param sensitivity: Sensitivity data object.
     :param cutoff: Cutoff value.
     :param method: Cutoffs methods can be lower 'percentile', 'percent', or 'log_percent'.
     """
     values = sensitivity.values.copy()
+    values[values == 0.0] = np.nan
 
     if method == "percentile":
         mask = lower_percentile_mask(values, cutoff)
@@ -120,11 +111,17 @@ class SensitivityCutoffDriver(Driver):
             self.params.cutoff_method,
         )
         logger.info("Creating cutoff mask '%s'", self.params.mask_name)
-        cutoff_mask = self.params.mesh.add_data(
+
+        out_mesh = (
+            self.params.mesh
+            if self.out_group is None
+            else self.params.mesh.copy(parent=self.out_group, copy_children=False)
+        )
+        cutoff_mask = out_mesh.add_data(
             {f"{self.params.mask_name}": {"values": mask, "association": "CELL"}}
         )
 
-        self.update_monitoring_directory(self.params.mesh)
+        self.update_monitoring_directory(self.out_group or out_mesh)
 
         return cutoff_mask
 

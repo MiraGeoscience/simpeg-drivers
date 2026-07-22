@@ -1,14 +1,14 @@
 {
-    "version": "0.3.0-beta.1",
+    "version": "0.5.0",
     "title": "Tile Estimation",
     "icon": "tilelist",
     "documentation": "",
-    "conda_environment": "simpeg_drivers",
+    "conda_environment": "simpeg-drivers",
     "run_command": "simpeg_drivers.utils.tile_estimate",
     "monitoring_directory": "",
     "simulation": {
         "main": true,
-        "label": "SimPEG Group",
+        "label": "SimPEG group",
         "groupType": "{55ed3daf-c192-4d4b-a439-60fa987fe2b8}",
         "value": ""
     },

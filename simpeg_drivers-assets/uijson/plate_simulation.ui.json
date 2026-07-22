@@ -1,24 +1,22 @@
 {
-    "version": "0.4.0",
+    "version": "0.5.0",
     "title": "Plate Simulation",
     "icon": "maxwellplate",
-    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/plate-simulation/",
-    "conda_environment": "simpeg_drivers",
-    "run_command": "simpeg_drivers.driver",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/plate-simulation/simulation.html",
+    "conda_environment": "simpeg-drivers",
+    "run_command": "simpeg_drivers.plate_simulation.driver",
     "geoh5": "",
     "monitoring_directory": "",
-    "inversion_type": "plate simulation",
-    "forward_only": true,
     "simulation": {
         "main": true,
-        "label": "SimPEG Group",
+        "label": "Forward group",
         "groupType": [
             "{55ed3daf-c192-4d4b-a439-60fa987fe2b8}",
             "{BB50AC61-A657-4926-9C82-067658E246A0}"
         ],
         "value": "",
         "enabled": true,
-        "tooltip": "Forward modelling SimPEG Group with at least the topography and survey set"
+        "tooltip": "Forward modelling SimPEG group with at least the topography and survey set"
     },
     "name": {
         "main": true,
@@ -32,15 +30,15 @@
         "group": "Basement",
         "label": "Physical property (SI)",
         "value": 2000.0,
-        "tooltip": "Value of the basement resisitivity (ohm-m), density (g/cc) or susceptibility (SI)",
+        "tooltip": "Value of the basement resistivity (ohm-m), density (g/cc) or susceptibility (SI)",
         "enabled": true
     },
-    "overburden": {
+    "overburden_property": {
         "main": true,
         "group": "Overburden",
         "label": "Physical property (SI)",
         "value": 8000.0,
-        "tooltip": "Value of the overburden resisitivity (ohm-m), density (g/cc) or susceptibility (SI)",
+        "tooltip": "Value of the overburden resistivity (ohm-m), density (g/cc) or susceptibility (SI)",
         "enabled": true
     },
     "thickness": {
@@ -67,12 +65,12 @@
         "enabled": true,
         "tooltip": "Spacing between plates"
     },
-    "plate": {
+    "plate_property": {
         "main": true,
         "group": "Plate",
         "label": "Physical property (SI)",
         "value": 20.0,
-        "tooltip": "Value of the plate resisitivity (ohm-m), density (g/cc) or susceptibility (SI)",
+        "tooltip": "Value of the plate resistivity (ohm-m), density (g/cc) or susceptibility (SI)",
         "enabled": true
     },
     "width": {
@@ -117,71 +115,16 @@
         "enabled": true,
         "min": 0.0,
         "max": 360.0,
-        "tooltip": "Direction of the dip vector in degrees from North"
-    },
-    "relative_locations": {
-        "label": "Relative locations",
-        "main": true,
-        "group": "Plate",
-        "value": true,
-        "enabled": true,
-        "tooltip": "If checked locations are relative to the survey centre and either topography or overburden in z according to 'Depth reference' selection"
-    },
-    "easting": {
-        "label": "Easting (m)",
-        "group": "Plate",
-        "main": true,
-        "value": 0.0,
-        "enabled": true,
-        "tooltip": "If relative locations, Easting is relative to the centre of the survey"
-    },
-    "northing": {
-        "label": "Northing (m)",
-        "main": true,
-        "group": "Plate",
-        "value": 0.0,
-        "enabled": true,
-        "tooltip": "If relative locations, Northing is relative to the centre of the survey"
+        "tooltip": "Direction of the dip vector in degrees from north"
     },
     "elevation": {
-        "label": "Elevation (m)",
+        "label": "Depth (m)",
         "main": true,
         "group": "Plate",
         "value": 0.0,
         "enabled": true,
-        "tooltip": "If relative location, Elevation is relative to the topography or overburden according to 'Depth reference' selection"
-    },
-    "reference_surface": {
-        "label": "Depth reference",
-        "main": true,
-        "group": "Plate",
-        "dependency": "relative_locations",
-        "dependencyType": "enabled",
-        "choiceList": [
-            "topography",
-            "overburden"
-        ],
-        "tooltop": "If relative locations, the depth will be below the min/mean/max (according to 'Reference type') of the reference surface chosen.",
-        "value": "overburden"
-    },
-    "reference_type": {
-        "label": "Reference type",
-        "main": true,
-        "group": "Plate",
-        "dependency": "relative_locations",
-        "dependencyType": "enabled",
-        "choiceList": [
-            "min",
-            "mean",
-            "max"
-        ],
-        "tooltip": "If relative locations, the depth will be below the min/mean/max of the 'Depth reference' chosen",
-        "value": "min"
-    },
-    "generate_sweep": {
-        "label": "Generate sweep file",
-        "main": true,
-        "value": false
+        "min": 0.0,
+        "tooltip": "Depth below topography to the plate centre (positive down)"
     },
     "u_cell_size": {
         "min": 0.0,
@@ -248,7 +191,7 @@
         "enabled": true
     },
     "out_group": {
-        "label": "Simulation group",
+        "label": "SimPEG group",
         "value": "",
         "groupType": "{55ed3daf-c192-4d4b-a439-60fa987fe2b8}",
         "visible": true,

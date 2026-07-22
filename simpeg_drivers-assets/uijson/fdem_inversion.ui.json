@@ -1,15 +1,12 @@
 {
-    "version": "0.4.0",
+    "version": "0.5.0",
     "title": "Frequency-domain EM (FEM) Inversion",
     "icon": "surveyairborneem",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
-    "conda_environment": "simpeg_drivers",
-    "run_command": "simpeg_drivers.driver",
+    "conda_environment": "simpeg-drivers",
+    "run_command": "simpeg_drivers.electromagnetics.frequency_domain.inversion",
     "geoh5": "",
     "monitoring_directory": "",
-    "inversion_type": "fdem",
-    "physical_property": "conductivity",
-    "forward_only": false,
     "data_object": {
         "main": true,
         "group": "Data",
@@ -19,7 +16,29 @@
         ],
         "value": ""
     },
-    "z_imag_channel": {
+    "receivers_orientation": {
+        "group": "Survey",
+        "main": true,
+        "association": "Vertex",
+        "dataType": "Float",
+        "dataGroupType": [
+            "Dip direction & dip",
+            "3D vector"
+        ],
+        "label": "Receivers orientation",
+        "tooltip": [
+            "Receivers orientation provided as 'Dip direction & dip' or '3D vector' data group. If not provided, it assumes: <dl>",
+            "<dt>In-line component</dt><dd>Positive towards North (Y)</dd>",
+            "<dt>Cross-line component</dt><dd>Positive towards East (X)</dd>",
+            "<dt>Vertical component</dt><dd>Positive up (Z)</dd>",
+            "</dl>"
+        ],
+        "optional": true,
+        "enabled": false,
+        "parent": "data_object",
+        "value": ""
+    },
+    "imag_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -28,13 +47,18 @@
         "group": "Data",
         "dataGroupType": "Multi-element",
         "main": true,
-        "label": "z-imag component",
+        "label": "Imaginary",
+        "tooltip": [
+            "Imaginary component of the magnetic data. If no receiver orientation provided:<ul>",
+            "<li>Co-planar data are positive up along the z-axis</li>",
+            "<li>Co-axial data are positive along North</li></ul>"
+        ],
         "parent": "data_object",
         "optional": true,
         "enabled": true,
         "value": ""
     },
-    "z_imag_uncertainty": {
+    "imag_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -45,11 +69,12 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "z_imag_channel",
+        "dependency": "imag_channel",
         "dependencyType": "enabled",
+        "enabled": false,
         "value": ""
     },
-    "z_real_channel": {
+    "real_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -58,13 +83,18 @@
         "group": "Data",
         "dataGroupType": "Multi-element",
         "main": true,
-        "label": "z-real component",
+        "label": "Real",
+        "tooltip": [
+            "Real component of the magnetic data. If no receiver orientation provided:<ul>",
+            "<li>Co-planar data are positive up along the z-axis</li>",
+            "<li>Co-axial data are positive along North</li></ul>"
+        ],
         "parent": "data_object",
         "optional": true,
         "enabled": true,
         "value": ""
     },
-    "z_real_uncertainty": {
+    "real_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -75,8 +105,9 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "z_real_channel",
+        "dependency": "real_channel",
         "dependencyType": "enabled",
+        "enabled": false,
         "value": ""
     },
     "mesh": {
@@ -258,7 +289,7 @@
         "min": 0.0,
         "group": "Regularization",
         "label": "Z-smoothness weight",
-        "tooltip": "Larger values relative to other smoothness weights will result in z biased smoothess",
+        "tooltip": "Larger values relative to other smoothness weights will result in z biased smoothness",
         "value": 1.0,
         "isValue": true,
         "parent": "mesh",
@@ -280,6 +311,7 @@
         "optional": true,
         "enabled": false,
         "parent": "mesh",
+        "tooltip": "Rotate the gradient of the regularization to align with a provided structural orientation.\nThe data should be provided as a data group in the form of either strike & dip, dip direction & dip, or x/y/z components.",
         "value": ""
     },
     "s_norm": {
@@ -352,7 +384,7 @@
         "min": 0,
         "group": "Sparse/blocky model",
         "label": "Maximum IRLS iterations",
-        "tooltip": "Incomplete Re-weighted Least Squares iterations for non-L2 problems",
+        "tooltip": "Iterative Re-Weighted Least-squares (IRLS) iterations for non-L2 problems",
         "value": 25,
         "enabled": true,
         "verbose": 2
@@ -393,13 +425,21 @@
         "enabled": true,
         "tooltip": "The global target data misfit value"
     },
-    "auto_scale_misfits": {
+    "auto_scale_tiles": {
         "group": "Cooling schedule/target",
-        "label": "Auto-scale misfits",
+        "label": "Auto-scale tiles",
         "value": false,
         "verbose": 3,
         "visible": true,
-        "tooltip": "Whether to auto-scale misfits functions (tile, frequency, joint methods) based on chi-factor"
+        "tooltip": "Whether to auto-scale the misfit function of tiles based on chi-factor"
+    },
+    "auto_scale_channels": {
+        "group": "Cooling schedule/target",
+        "label": "Auto-scale frequencies",
+        "value": false,
+        "verbose": 3,
+        "visible": true,
+        "tooltip": "Whether to auto-scale frequencies based on chi-factor"
     },
     "initial_beta_ratio": {
         "min": 0.0,
@@ -472,6 +512,7 @@
         "label": "Maximum CG iterations",
         "value": 30,
         "enabled": true,
+        "tooltip": "Maximum number of iterations for the conjugate gradient solver used in the optimization",
         "verbose": 2
     },
     "tol_cg": {
@@ -480,6 +521,7 @@
         "label": "Conjugate gradient tolerance",
         "value": 0.0001,
         "enabled": true,
+        "tooltip": "Tolerance for the conjugate gradient solver used in the optimization",
         "verbose": 3
     },
     "f_min_change": {
@@ -493,7 +535,7 @@
     },
     "sens_wts_threshold": {
         "group": "Update sensitivity weights directive",
-        "tooltip": "Update sensitivity weight threshold",
+        "tooltip": "Threshold below which sensitivity weights become constant. Measured as a percentage of the maximum sensitivity weight.",
         "label": "Threshold (%)",
         "value": 1.0,
         "max": 100.0,
@@ -538,9 +580,6 @@
     "tile_spatial": {
         "group": "Compute",
         "label": "Number of tiles",
-        "parent": "data_object",
-        "isValue": true,
-        "property": "",
         "value": 1,
         "min": 1,
         "max": 1000,
@@ -586,8 +625,8 @@
         "visible": false,
         "tooltip": "Generates a file for sweeping parameters instead of running the application"
     },
-    "n_workers": "",
-    "n_threads": "",
+    "n_workers": null,
+    "n_threads": null,
     "max_ram": "",
     "performance_report": false,
     "distributed_workers": ""

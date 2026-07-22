@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -10,22 +10,19 @@
 
 from __future__ import annotations
 
-from itertools import combinations
+import sys
+from functools import cached_property
+from pathlib import Path
 
 import numpy as np
-from geoh5py.groups.property_group_type import GroupTypeEnum
+from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.shared.utils import fetch_active_workspace
 from simpeg import directives, maps, utils
 from simpeg.objective_function import ComboObjectiveFunction
 from simpeg.regularization.pgi import PGIsmallness
 
-from simpeg_drivers.components.factories import (
-    DirectivesFactory,
-    SaveModelGeoh5Factory,
-)
 from simpeg_drivers.joint.driver import BaseJointDriver
-
-from .options import JointPetrophysicsOptions
+from simpeg_drivers.joint.joint_petrophysics.options import JointPetrophysicsOptions
 
 
 class JointPetrophysicsDriver(BaseJointDriver):
@@ -33,9 +30,7 @@ class JointPetrophysicsDriver(BaseJointDriver):
 
     def __init__(self, params: JointPetrophysicsOptions):
         self._wires = None
-        self._class_mapping: np.ndarray | None = None
         self._directives = None
-        self._membership: np.ndarray = None
         self._gaussian_model = None
         self._pgi_regularization: PGIsmallness | None = None
 
@@ -48,7 +43,7 @@ class JointPetrophysicsDriver(BaseJointDriver):
     def directives(self):
         if getattr(self, "_directives", None) is None and not self.params.forward_only:
             with fetch_active_workspace(self.workspace, mode="r+"):
-                directives_list = self._get_drivers_directives()
+                directives_list = self._get_joint_directives()
                 directives_list.append(
                     directives.PGI_UpdateParameters(
                         update_gmm=True,
@@ -58,7 +53,6 @@ class JointPetrophysicsDriver(BaseJointDriver):
                         ],
                     )
                 )
-                directives_list += self._get_global_model_save_directives()
 
                 # TODO: To bring back once we let the classification change
                 # directives_list.append(
@@ -78,20 +72,8 @@ class JointPetrophysicsDriver(BaseJointDriver):
                 #         reference_type=self.params.models.petrophysical_model.entity_type,
                 #     )
                 # )
-                directives_list.append(
-                    directives.SaveLPModelGroup(
-                        self.inversion_mesh.entity,
-                        self._directives.update_irls_directive,
-                    )
-                )
-                directives_list.append(self._directives.save_iteration_log_files)
-                self._directives.directive_list = (
-                    self._directives.inversion_directives + directives_list
-                )
 
-                DirectivesFactory.configure_save_directives(
-                    self._directives.directive_list
-                )
+                self._directives.directive_list = directives_list
 
         return self._directives
 
@@ -131,20 +113,17 @@ class JointPetrophysicsDriver(BaseJointDriver):
 
         return self._gaussian_model
 
-    @property
-    def class_mapping(self) -> dict:
+    @cached_property
+    def class_mapping(self) -> np.ndarray:
         """Mapping of model units to geophysical properties."""
-        if getattr(self, "_class_mapping", None) is None:
-            self._class_mapping = np.argsort(self.weights)[::-1]
+        return np.argsort(self.weights)[::-1]
 
-        return self._class_mapping
-
-    @property
+    @cached_property
     def n_units(self) -> int:
         """Number of model units."""
         return len(self.geo_units)
 
-    @property
+    @cached_property
     def geo_units(self) -> dict:
         """Model units."""
         units = np.unique(self.models.petrophysical_model)
@@ -156,15 +135,16 @@ class JointPetrophysicsDriver(BaseJointDriver):
 
         return model_map
 
-    @property
-    def membership(self) -> np.ndarray[np.int]:
-        if self._membership is None:
-            self._membership = np.empty(self.models.n_active, dtype=int)
-            for ii, unit in enumerate(self.geo_units):
-                unit_ind = self.models.petrophysical_model == unit
-                self._membership[unit_ind] = self.class_mapping[ii]
+    @cached_property
+    def membership(self) -> np.ndarray:
 
-        return self._membership
+        membership = np.empty(self.models.n_active, dtype=int)
+        keys = list(self.geo_units)
+        for ii, unit in enumerate(self.class_mapping):
+            unit_ind = self.models.petrophysical_model == keys[unit]
+            membership[unit_ind] = ii
+
+        return membership
 
     @property
     def means(self) -> np.ndarray:
@@ -175,6 +155,12 @@ class JointPetrophysicsDriver(BaseJointDriver):
         """
         means = []
         for mapping in self.mapping:
+            if self.models.reference_model is None:
+                raise GeoAppsError(
+                    "A reference model must be set and active on each inversion driver "
+                    "to determine the means of the Gaussian mixture model.\n"
+                    "Please revise the input options of individual drivers."
+                )
             model_vec = mapping @ self.models.reference_model
             unit_mean = []
             for uid in self.geo_units:
@@ -186,7 +172,7 @@ class JointPetrophysicsDriver(BaseJointDriver):
 
         return np.hstack(means)
 
-    @property
+    @cached_property
     def covariances(self) -> np.ndarray:
         """
         Covariances of the Gaussian mixture model.
@@ -195,7 +181,7 @@ class JointPetrophysicsDriver(BaseJointDriver):
         """
         return np.ones((self.n_units, len(self.mapping)))
 
-    @property
+    @cached_property
     def weights(self) -> np.ndarray:
         """
         Weights of the Gaussian mixture model.
@@ -206,7 +192,17 @@ class JointPetrophysicsDriver(BaseJointDriver):
         volumes = self.inversion_mesh.mesh.cell_volumes[self.models.active_cells]
         for uid in self.geo_units:
             weights.append(volumes[self.models.petrophysical_model == uid].sum())
-        return np.r_[weights] / np.sum(weights)
+
+        # Add a tiny increment to assure uniqueness without materially changing proportions
+        weights = np.r_[weights].astype(float)
+        if weights.size:
+            weights = weights + (
+                np.finfo(weights.dtype).eps
+                * max(1.0, weights.max())
+                * np.arange(weights.size)
+            )
+
+        return weights / np.sum(weights)
 
     @property
     def pgi_regularization(self):
@@ -237,3 +233,8 @@ class JointPetrophysicsDriver(BaseJointDriver):
             reg.alpha_s = 0.0
 
         return reg_list, multipliers
+
+
+if __name__ == "__main__":
+    file = Path(sys.argv[1]).resolve()
+    JointPetrophysicsDriver.start_dask_run(file)

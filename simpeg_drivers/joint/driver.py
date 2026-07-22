@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -13,9 +13,8 @@
 
 from __future__ import annotations
 
-import sys
 from logging import getLogger
-from pathlib import Path
+from typing import Any
 
 import numpy as np
 import simpeg.dask.objective_function as dask_objective_function
@@ -33,7 +32,6 @@ from simpeg.objective_function import ComboObjectiveFunction
 
 from simpeg_drivers.components.factories import (
     DirectivesFactory,
-    SaveDataGeoh5Factory,
     SaveModelGeoh5Factory,
 )
 from simpeg_drivers.driver import InversionDriver
@@ -58,6 +56,7 @@ class BaseJointDriver(InversionDriver):
         if getattr(self, "_data_misfit", None) is None and self.drivers is not None:
             objective_functions = []
             multipliers = []
+            tiles = []
             for label, driver in zip("abc", self.drivers, strict=False):
                 if driver.data_misfit is not None:
                     objective_functions += driver.data_misfit.objfcts
@@ -65,11 +64,17 @@ class BaseJointDriver(InversionDriver):
                     for ii, fun in enumerate(driver.data_misfit.objfcts):
                         fun.name = f"Group_{label.upper()}:Tile_{ii}"
 
-                    multipliers += [
-                        (getattr(self.params, f"group_{label}_multiplier") or 1.0)
-                        ** 2.0
-                    ] * len(driver.data_misfit.objfcts)
+                    multipliers += (
+                        [
+                            (getattr(self.params, f"group_{label}_multiplier") or 1.0)
+                            ** 2.0
+                            * driver.directives.update_irls_directive.chifact_target  # Adjust for local chi factors
+                        ]
+                        * len(driver.data_misfit.objfcts)
+                    )
+                    tiles.append(driver.tiles)
 
+            self.tiles = tiles
             if self.client:
                 return dask_objective_function.DistributedComboMisfits(
                     objfcts=objective_functions,
@@ -116,6 +121,17 @@ class BaseJointDriver(InversionDriver):
         ] = False
         return global_active
 
+    def get_nested_tiles(self):
+        """Get nested tiles from all drivers."""
+        all_tiles = []
+        for driver in self.drivers:
+            if self.params.directives.auto_scale_misfits:
+                all_tiles.append(driver.get_nested_tiles())
+            else:
+                all_tiles += driver.get_nested_tiles()
+
+        return all_tiles
+
     def initialize(self):
         """Generate sub drivers."""
 
@@ -128,8 +144,22 @@ class BaseJointDriver(InversionDriver):
             global_actives |= local_actives
 
         self.models.active_cells = global_actives
+
+        # Set the model as input to the sub-drivers to force interpolation
+        # onto their respective mesh
+        for name, val in self.params.models.model_dump().items():
+            if not val:
+                continue
+
+            if not hasattr(self.drivers[0].params.models, name):
+                continue
+
+            for child_driver in self.drivers:
+                setattr(child_driver.params.models, name, val)
+
         for driver, wire in zip(self.drivers, self.wires, strict=True):
             logger.info("Initializing driver %s", driver.params.name)
+            # Create a projection from global mesh to driver specific mesh
             projection = TileMap(
                 self.inversion_mesh.mesh,
                 global_actives,
@@ -140,6 +170,8 @@ class BaseJointDriver(InversionDriver):
             tile_map = projection * wire
             driver.params.active_model = None
             driver.models.active_cells = projection.local_active
+
+            # Keep a copy on the top combo/future for saving directives and model creation
             driver.data_misfit.model_map = tile_map
 
             multipliers = []
@@ -150,6 +182,7 @@ class BaseJointDriver(InversionDriver):
                 multipliers.append(mult * (mapping[0].shape[0] / projection.shape[1]))
 
             driver.data_misfit.multipliers = multipliers
+
         self.validate_create_models()
 
     @property
@@ -161,23 +194,7 @@ class BaseJointDriver(InversionDriver):
     def directives(self):
         if getattr(self, "_directives", None) is None and not self.params.forward_only:
             with fetch_active_workspace(self.workspace, mode="r+"):
-                directives_list = self._get_drivers_directives()
-
-                directives_list += self._get_global_model_save_directives()
-                directives_list.append(
-                    directives.SaveLPModelGroup(
-                        self.inversion_mesh.entity,
-                        self._directives.update_irls_directive,
-                    )
-                )
-                directives_list.append(self._directives.save_iteration_log_files)
-                self._directives.directive_list = (
-                    self._directives.inversion_directives + directives_list
-                )
-
-                DirectivesFactory.configure_save_directives(
-                    self._directives.directive_list
-                )
+                self._directives.directive_list = self._get_joint_directives()
 
         return self._directives
 
@@ -226,36 +243,6 @@ class BaseJointDriver(InversionDriver):
 
         return self._n_values
 
-    def run(self):
-        """Run inversion from params"""
-        if self.logger:
-            sys.stdout = self.logger
-            self.logger.start()
-            self.configure_dask()
-
-        if Path(self.params.input_file.path_name).is_file():
-            with fetch_active_workspace(self.workspace, mode="r+"):
-                self.out_group.add_file(self.params.input_file.path_name)
-
-        if self.params.forward_only:
-            print("Running the forward simulation ...")
-            predicted = self.inverse_problem.get_dpred(
-                self.models.starting_model, compute_J=False
-            )
-
-            for sub, driver in zip(predicted, self.drivers, strict=True):
-                SaveDataGeoh5Factory(driver.params).build(
-                    inversion_object=driver.inversion_data,
-                ).write(0, sub)
-        else:
-            # Run the inversion
-            self.start_inversion_message()
-            self.inversion.run(self.models.starting_model)
-        if self.logger:
-            self.logger.end()
-            sys.stdout = self.logger.terminal
-            self._update_log()
-
     def validate_create_mesh(self):
         """Function to validate and create the inversion mesh."""
 
@@ -278,8 +265,6 @@ class BaseJointDriver(InversionDriver):
         for model_type in self.models.model_types:
             if model_type in [
                 "petrophysical_model",
-                "gradient_dip",
-                "gradient_direction",
                 "starting_inclination",
                 "starting_declination",
                 "reference_inclination",
@@ -287,11 +272,14 @@ class BaseJointDriver(InversionDriver):
             ]:
                 continue
 
-            model = getattr(self.models, f"_{model_type}").model
+            model_collection = getattr(self.models, f"_{model_type}")
 
             # If set on joint driver, repeat for all drivers
-            if model is not None:
-                model = np.kron(np.ones(len(self.mapping)), model)
+            if (
+                model_collection.model is not None
+                and model_collection.trim_active_cells
+            ):
+                model = np.tile(model_collection.model, len(self.mapping))
 
             # Concatenate models from individual drivers projected onto the global mesh
             else:
@@ -304,33 +292,48 @@ class BaseJointDriver(InversionDriver):
                         model.append(None)
                         continue
 
-                    projection = child_driver.data_misfit.model_map.deriv(vec).T
+                    if model_collection.trim_active_cells:
+                        projection = child_driver.data_misfit.model_map.deriv(vec).T
 
-                    if isinstance(model_local_values, float):
-                        model_local_values = (
-                            np.ones(projection.shape[1]) * model_local_values
+                        if isinstance(model_local_values, float):
+                            model_local_values = (
+                                np.ones(projection.shape[1]) * model_local_values
+                            )
+
+                        norm = np.array(np.sum(projection, axis=1)).flatten()
+                        model.append((projection * model_local_values) / (norm + 1e-8))
+                    else:
+                        ind = child_driver.inversion_mesh.mesh.get_containing_cells(
+                            self.inversion_mesh.mesh.cell_centers
                         )
+                        model.append(model_local_values[ind] / len(self.drivers))
 
-                    norm = np.array(np.sum(projection, axis=1)).flatten()
-                    model.append((projection * model_local_values) / (norm + 1e-8))
-
-                # Mostly for rotated gradient mode
-                is_none = [val is None for val in model]
-                if any(is_none):
-                    if not all(is_none):
-                        logger.warning(
-                            "Some drivers do not have a model of type "
-                            "'%s' set. Please assign a value to individual drivers"
-                            " or use the joint driver options to set it globally.\n"
-                            "Parameter ignored for the inversion.",
-                            model_type,
-                        )
-                    model = None
-                else:
+                model = self._validate_model_consistency(model, model_type)
+                if model:
                     model = np.sum(model, axis=0)
 
             if model is not None:
                 getattr(self.models, f"_{model_type}").model = model
+
+    @staticmethod
+    def _validate_model_consistency(model: list[None | Any], model_type: str):
+        """
+        Check consistency of model values across drivers for a given model type.
+        If some drivers have None and others have values, log a warning and ignore the model for the inversion.
+        """
+        is_none = [val is None for val in model]
+        if any(is_none):
+            if not all(is_none):
+                logger.warning(
+                    "Some drivers do not have a model of type "
+                    "'%s' set. Please assign a value to individual drivers"
+                    " or use the joint driver options to set it globally.\n"
+                    "Parameter ignored for the inversion.",
+                    model_type,
+                )
+            model = None
+
+        return model
 
     @property
     def wires(self):
@@ -376,7 +379,7 @@ class BaseJointDriver(InversionDriver):
             misfits = self.data_misfit.objfcts
 
         for driver in self.drivers:
-            driver_directives = DirectivesFactory(driver)
+            driver_directives = driver.directives
 
             if hasattr(driver.params.models, "model_type") and hasattr(
                 self.params.models, "model_type"
@@ -392,13 +395,13 @@ class BaseJointDriver(InversionDriver):
             directives_list.append(save_model)
             directives_list.append(
                 SaveLPModelGroup(
-                    driver.inversion_mesh.entity,
+                    self.workspace.get_entity(save_model.h5_object)[0],
                     self._directives.update_irls_directive,
                 )
             )
 
-            if driver_directives.save_property_group is not None:
-                directives_list.append(driver_directives.save_property_group)
+            if driver_directives.save_model_groups is not None:
+                directives_list.append(driver_directives.save_model_groups)
 
             n_tiles = len(driver.data_misfit.objfcts)
             for name in [
@@ -437,6 +440,24 @@ class BaseJointDriver(InversionDriver):
             directives_list += self._get_local_model_save_directives(driver, wire)
         return directives_list
 
+    def _get_joint_directives(self) -> list[directives.Directive]:
+        """
+        Create a list of directives for the joint inversion.
+        """
+        directives_list = self._get_drivers_directives()
+        directives_list += self._get_global_model_save_directives()
+        directives_list.append(
+            directives.SaveLPModelGroup(
+                self.inversion_mesh.entity,
+                self._directives.update_irls_directive,
+            )
+        )
+        directives_list.append(self._directives.save_iteration_log_files)
+        directives_list += self._directives.inversion_directives
+        DirectivesFactory.configure_save_directives(directives_list)
+
+        return directives_list
+
     def _get_local_model_save_directives(
         self, driver, wire
     ) -> list[directives.Directive]:
@@ -452,24 +473,25 @@ class BaseJointDriver(InversionDriver):
         )
 
         model_directive.label = driver.params.physical_property
+
         if (
             getattr(driver.params.models, "model_type", None)
             == ModelTypeEnum.resistivity
         ):
             model_directive.label = "resistivity_model"
+            group_name = ["resistivity"]
+        elif "magnetic vector" in driver.params.inversion_type:
+            group_name = ["amplitude", "inclination", "declination"]
+        else:
+            group_name = [driver.params.physical_property]
 
         model_directive.transforms = [wire, *model_directive.transforms]
+        group_directive = directives.SaveModelGroup(
+            self.inversion_mesh.entity,
+            components=group_name,
+        )
 
-        directives_list = [model_directive]
-        if driver.directives.save_property_group is not None:
-            directives_list.append(
-                directives.SavePropertyGroup(
-                    self.inversion_mesh.entity,
-                    group_type=GroupTypeEnum.DIPDIR,
-                    channels=["declination", "inclination"],
-                )
-            )
-        return directives_list
+        return [model_directive, group_directive]
 
     def _overload_regularization(self, regularization: ComboObjectiveFunction):
         """

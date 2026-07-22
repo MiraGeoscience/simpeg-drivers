@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -13,14 +13,14 @@ from __future__ import annotations
 
 from copy import deepcopy
 from re import findall
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 from geoh5py.objects import LargeLoopGroundTEMReceivers, PotentialElectrode
-from scipy.sparse import csgraph, csr_matrix
 from scipy.spatial import cKDTree
 from simpeg.electromagnetics.static.utils.static_utils import geometric_factor
 
+from simpeg_drivers.utils.surveys import get_parts_from_electrodes
 from simpeg_drivers.utils.utils import drape_2_tensor
 
 from .factories import (
@@ -75,8 +75,6 @@ class InversionData(InversionLocations):
         """
         super().__init__(workspace, params)
         self.locations: np.ndarray | None = None
-        self.mask: np.ndarray | None = None
-
         self._observed: dict[str, np.ndarray] | None = None
         self._uncertainties: dict[str, np.ndarray] | None = None
 
@@ -90,20 +88,9 @@ class InversionData(InversionLocations):
     def _initialize(self) -> None:
         """Extract data from the workspace using params data."""
         self.components = self.params.active_components
-
         self.has_tensor = InversionData.check_tensor(self.params.components)
         self.locations = super().get_locations(self.params.data_object)
-
-        if "2d" in self.params.inversion_type:
-            self.mask = (
-                self.params.line_selection.line_object.values
-                == self.params.line_selection.line_id
-            )
-        else:
-            self.mask = np.ones(len(self.locations), dtype=bool)
-
-        self.normalizations: dict[str, Any] = self.get_normalizations()
-
+        self.normalizations: list[dict] = self.get_normalizations()
         self.entity = self.write_entity()
 
         self.save_data()
@@ -115,8 +102,7 @@ class InversionData(InversionLocations):
         Return observed data filtered and normalized.
         """
         if self._observed is None:
-            filtered = self.filter(self.params.data, mask=self.mask)
-            self._observed = self.normalize(filtered)
+            self._observed = self.normalize(self.params.data)
 
         return self._observed
 
@@ -126,8 +112,9 @@ class InversionData(InversionLocations):
         Return uncertainties filtered and normalized.
         """
         if self._uncertainties is None and hasattr(self.params, "uncertainties"):
-            filtered = self.filter(self.params.uncertainties, mask=self.mask)
-            self._uncertainties = self.normalize(filtered, absolute=True)
+            self._uncertainties = self.normalize(
+                self.params.uncertainties, absolute=True
+            )
 
         return self._uncertainties
 
@@ -137,19 +124,7 @@ class InversionData(InversionLocations):
         Return parts indices from the entity.
         """
         if isinstance(self.entity, PotentialElectrode):
-            edge_array = csr_matrix(
-                (
-                    np.ones(self.entity.n_cells * 2),
-                    (
-                        np.kron(self.entity.cells[:, 0], [1, 1]),
-                        self.entity.cells.flatten(),
-                    ),
-                ),
-                shape=(self.entity.n_vertices, self.entity.n_vertices),
-            )
-
-            connections = csgraph.connected_components(edge_array)[1]
-            return connections[self.entity.cells[:, 0]]
+            return get_parts_from_electrodes(self.entity)
 
         if isinstance(self.entity, LargeLoopGroundTEMReceivers):
             return self.entity.tx_id_property.values
@@ -166,7 +141,9 @@ class InversionData(InversionLocations):
         local_tensor = drape_2_tensor(self.params.mesh)
 
         # Interpolate distance assuming always inside the mesh trace
-        tree = cKDTree(self.params.mesh.prisms[:, :2])
+        actives = self.params.mesh.prisms[:, -1] != 1
+        prisms = self.params.mesh.prisms[actives, :]
+        tree = cKDTree(prisms[:, :2])
         rad, ind = tree.query(locations[:, :2], k=2)
         distance_interp = 0.0
         for ii in range(2):
@@ -176,7 +153,9 @@ class InversionData(InversionLocations):
 
         distance_interp /= ((rad + 1e-8) ** -1.0).sum(axis=1)
 
-        return np.c_[distance_interp, locations[:, 2:]]
+        # Adjust elevation relative to the origin
+        delta = prisms[0, 2] - prisms[ind[:, 0], 2]
+        return np.c_[distance_interp, locations[:, 2] + delta]
 
     def get_data(self) -> tuple[list, dict, dict]:
         """
@@ -208,6 +187,7 @@ class InversionData(InversionLocations):
     def save_data(self):
         """Write out the data to geoh5"""
         has_channels = self.params.inversion_type in [
+            "apparent conductivity",
             "magnetotellurics",
             "tipper",
             "tdem",
@@ -226,18 +206,18 @@ class InversionData(InversionLocations):
             if channels is None:
                 continue
 
-            for ind, (channel, values) in enumerate(channels.items()):
+            for ind, values in enumerate(channels):
                 suffix = f"_{component}"
                 if has_channels:
                     suffix += f"_[{ind}]"
 
-                normalized_data = values / self.normalizations[channel][component]
+                normalized_data = values / self.normalizations[ind][component]
                 data_entity = self.entity.add_data(
                     {"Observed" + suffix: {"values": normalized_data}}
                 )
                 uncerts = np.abs(
-                    self.uncertainties[component][channel].flatten()
-                    / self.normalizations[channel][component]
+                    self.uncertainties[component][ind].flatten()
+                    / self.normalizations[ind][component]
                 )
                 uncerts[np.isinf(uncerts)] = np.nan
                 uncert_entity = self.entity.add_data(
@@ -255,71 +235,85 @@ class InversionData(InversionLocations):
                     data_dict[component] = data_entity
                     uncert_dict[component] = uncert_entity
 
-                data_types[component][channel] = data_entity.entity_type
+                data_types[component][ind] = data_entity.entity_type
 
         self._observed_data_types = data_types
         self.update_params(data_dict, uncert_dict)
 
+        if (
+            getattr(self.params, "line_selection", None) is not None
+            and self.params.line_selection.property is not None
+        ):
+            self.params.line_selection.property.copy(
+                parent=self.entity,
+                values=self.params.line_selection.property.values,
+            )
+
     def normalize(
-        self, data: dict[str, np.ndarray], absolute=False
-    ) -> dict[str, np.ndarray]:
+        self, data: dict[str, list | None], absolute=False
+    ) -> dict[str, list]:
         """
         Apply data type specific normalizations to data.
 
         Calling normalize will apply the normalization to the data AND append
         to the normalizations attribute list the value applied to the data.
 
-        :param: data: Components and associated geophysical data.
+        :param data: Components and associated geophysical data.
+        :param absolute: Absolute value of the data is taken after normalization if True.
 
-        :return: d: Normalized data.
+        :return: Normalized data.
         """
-        d = deepcopy(data)
-        for chan in getattr(self.params.data_object, "channels", [None]):
+        norm_data = deepcopy(data)
+        for chan, _ in enumerate(getattr(self.params.data_object, "channels", [None])):
             for comp in self.params.active_components:
-                if isinstance(d[comp], dict):
-                    if d[comp][chan] is not None:
-                        d[comp][chan] *= self.normalizations[chan][comp]
-                        if absolute:
-                            d[comp][chan] = np.abs(d[comp][chan])
-                elif d[comp] is not None:
-                    d[comp] *= self.normalizations[chan][comp]
-                    if absolute:
-                        d[comp] = np.abs(d[comp])
+                if norm_data[comp] is None:
+                    continue
 
-        return d
+                norm_data[comp][chan] = (
+                    norm_data[comp][chan] * self.normalizations[chan][comp]
+                )
+                if absolute:
+                    norm_data[comp][chan] = np.abs(norm_data[comp][chan])
 
-    def get_normalizations(self):
+        return norm_data
+
+    def get_normalizations(self) -> list[dict]:
         """Create normalizations dictionary."""
-        normalizations = {}
-        for chan in getattr(self.params.data_object, "channels", [None]):
-            normalizations[chan] = {}
+        normalizations = []
+        for chan, _ in enumerate(getattr(self.params.data_object, "channels", [None])):
+            normalizations.append({})
+            n_locs = len(self.locations)
             for comp in self.params.active_components:
-                normalizations[chan][comp] = np.ones(self.mask.sum())
+                normalizations[chan][comp] = np.ones(n_locs)
                 if comp in ["potential", "chargeability"]:
                     normalizations[chan][comp] = 1
                 if comp in ["gz", "bz", "gxz", "gyz", "bxz", "byz"]:
-                    normalizations[chan][comp] = -1 * np.ones(self.mask.sum())
+                    normalizations[chan][comp] = np.full(n_locs, -1)
                 elif self.params.inversion_type in ["magnetotellurics"]:
-                    normalizations[chan][comp] = np.ones(self.mask.sum())
+                    normalizations[chan][comp] = np.ones(n_locs)
                 elif self.params.inversion_type in ["tipper"]:
                     if "imag" in comp:
-                        normalizations[chan][comp] = -1 * np.ones(self.mask.sum())
-                elif "fdem" == self.params.inversion_type:  # Assume always ppm data
+                        normalizations[chan][comp] = np.full(n_locs, -1)
+
+                # Assume always ppm data, so convert to SI units using a dipole source
+                elif "fdem" == self.params.inversion_type:
                     mu0 = 4 * np.pi * 1e-7
-                    offsets = self.params.tx_offsets
-                    offsets = {
-                        k: v * np.ones(len(self.locations)) for k, v in offsets.items()
-                    }
-                    normalizations[chan][comp] = (
-                        mu0 * (-1 / offsets[chan] ** 3 / (4 * np.pi)) / 1e6
+                    offsets = (
+                        np.ones(len(self.locations)) * self.params.tx_offsets[chan]
                     )
+                    normalizations[chan][comp] = -1 * (
+                        mu0 * (2 / offsets**3 / (4 * np.pi)) / 1e6
+                    )
+
+                    # Normalization for primary coplanar, half the strength of the coaxial component
+                    if not self.params.coaxial[chan]:
+                        normalizations[chan][comp] *= 0.5
+
                 elif (
                     "tdem" in self.params.inversion_type
                     and "dB/dt" in self.params.data_units
                 ):
-                    if comp in ["x", "y", "z"]:
-                        normalizations[chan][comp] = -1
-                    normalizations[chan][comp] *= np.ones(self.mask.sum())
+                    normalizations[chan][comp] = np.full(n_locs, -1)
 
         return normalizations
 
@@ -348,8 +342,22 @@ class InversionData(InversionLocations):
             )
             survey.cells = self.entity.cells
 
+            observed = self.entity.get_data("Observed_potential")
+            if observed:
+                self.entity.add_data(
+                    {
+                        "Observed_apparent_resistivity": {
+                            "values": survey.apparent_resistivity * observed[0].values
+                        }
+                    }
+                )
+
         if "induced polarization" in self.params.inversion_type:
             survey.cells = self.entity.cells
+
+        if "2d" in self.params.inversion_type:
+            # Assign line id with sequential numbering to mirror the drape mesh parts
+            survey.line_ids = self.params.line_parts[survey_factory.sorting]
 
         return survey
 
@@ -384,13 +392,6 @@ class InversionData(InversionLocations):
             setattr(self.params, f"{comp}_channel", data_dict[comp])
             setattr(self.params, f"{comp}_uncertainty", uncert_dict[comp])
 
-        if getattr(self.params, "line_selection", None) is not None:
-            new_line = self.params.line_selection.line_object.copy(
-                parent=self.entity,
-                values=self.params.line_selection.line_object.values[self.mask],
-            )
-            self.params.line_selection.line_object = new_line
-
     @property
     def survey(self):
         if self._survey is None:
@@ -398,15 +399,16 @@ class InversionData(InversionLocations):
 
         return self._survey
 
-    def n_data(self, finite_only=True):
+    def n_data(self, finite_only=True) -> int:
+        """
+        Number of non-infinite data entries across all components and channels.
+        """
         n_data = 0
         for comp in self.params.active_components:
-            if isinstance(self.observed[comp], dict):
+            if isinstance(self.observed[comp], list):
                 for channel in self.observed[comp]:
                     n_data += (
-                        np.isfinite(self.observed[comp][channel]).sum()
-                        if finite_only
-                        else len(self.observed[comp][channel])
+                        np.isfinite(channel).sum() if finite_only else len(channel)
                     )
             else:
                 n_data += (

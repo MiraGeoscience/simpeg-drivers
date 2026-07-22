@@ -1,9 +1,9 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
-#  This file is part of geoapps-utils package.                                      '
+#  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
-#  geoapps-utils is distributed under the terms and conditions of the MIT License   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
 #  (see LICENSE file at the root of this source code package).                      '
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -34,7 +34,7 @@ def generate_tdem_survey(
     vertices = np.column_stack([X.flatten(), Y.flatten(), Z.flatten()])
     center = np.mean(vertices, axis=0)
     if flatten:
-        center[2] -= np.unique(Z)
+        center[2] -= np.mean(Z)
     n_lines = X.shape[0]
     arrays = [
         np.c_[

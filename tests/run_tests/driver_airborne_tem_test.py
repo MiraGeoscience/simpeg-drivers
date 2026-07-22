@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -17,12 +17,12 @@ from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.workspace import Workspace
 from pytest import raises
 
-from simpeg_drivers.electromagnetics.time_domain.driver import (
+from simpeg_drivers.electromagnetics.time_domain.forward import (
     TDEMForwardDriver,
-    TDEMInversionDriver,
-)
-from simpeg_drivers.electromagnetics.time_domain.options import (
     TDEMForwardOptions,
+)
+from simpeg_drivers.electromagnetics.time_domain.inversion import (
+    TDEMInversionDriver,
     TDEMInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (
@@ -39,19 +39,29 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
-target_run = {"data_norm": 7.05481e-08, "phi_d": 198000000, "phi_m": 7540}
+target_run = {"data_norm": 3.5453800870424367e-10, "phi_d": 29300, "phi_m": 4600}
 
 
 def test_bad_waveform(tmp_path: Path):
     n_grid_points = 3
+    cell_size = (20.0, 20.0, 20.0)
     refinement = (2,)
 
     opts = SyntheticsComponentsOptions(
         method="airborne tdem",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points, n_lines=n_grid_points, drape=10.0
         ),
-        mesh=MeshOptions(refinement=refinement, padding_distance=400.0),
+        mesh=MeshOptions(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+            padding_distance=400.0,
+        ),
         model=ModelOptions(background=0.001),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
@@ -90,11 +100,18 @@ def test_airborne_tem_fwr_run(
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="airborne tdem",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points, n_lines=n_grid_points, drape=10.0
         ),
         mesh=MeshOptions(
-            cell_size=cell_size, refinement=refinement, padding_distance=400.0
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+            padding_distance=400.0,
         ),
         model=ModelOptions(background=0.001),
     )
@@ -129,7 +146,7 @@ def test_airborne_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         data = {}
         uncertainties = {}
         channels = {
-            "z": "dBzdt",
+            "vertical": "vertical",
         }
 
         for chan, cname in channels.items():
@@ -157,13 +174,13 @@ def test_airborne_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         data_kwargs = {}
         for chan in channels:
             data_kwargs[f"{chan}_channel"] = components.survey.fetch_property_group(
-                name=f"dB{chan}dt"
+                name="vertical"
             )
             data_kwargs[f"{chan}_uncertainty"] = components.survey.fetch_property_group(
-                name=f"dB{chan}dt uncertainties"
+                name="vertical uncertainties"
             )
 
-        orig_dBzdt = geoh5.get_entity("Iteration_0_z_[0]")[0].values
+        orig_dBzdt = geoh5.get_entity("Iteration_0_vertical_[0]")[0].values
 
         # Run the inverse
         params = TDEMInversionOptions.build(

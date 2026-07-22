@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -16,14 +16,13 @@ from pathlib import Path
 
 import numpy as np
 from geoh5py import Workspace
-from geoh5py.groups import SimPEGGroup
 
-from simpeg_drivers.electromagnetics.frequency_domain_1d.driver import (
+from simpeg_drivers.electromagnetics.frequency_domain_1d.forward import (
     FDEM1DForwardDriver,
-    FDEM1DInversionDriver,
-)
-from simpeg_drivers.electromagnetics.frequency_domain_1d.options import (
     FDEM1DForwardOptions,
+)
+from simpeg_drivers.electromagnetics.frequency_domain_1d.inversion import (
+    FDEM1DInversionDriver,
     FDEM1DInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (
@@ -41,7 +40,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 638.1518041350254, "phi_d": 177000, "phi_m": 2860}
+target_run = {"data_norm": 381.0495293422212, "phi_d": 33400, "phi_m": 198}
 
 
 def test_fem_fwr_1d_run(
@@ -53,11 +52,18 @@ def test_fem_fwr_1d_run(
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="fdem 1d",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points, n_lines=n_grid_points, drape=10.0
         ),
         mesh=MeshOptions(
-            cell_size=cell_size, refinement=refinement, padding_distance=400.0
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=refinement,
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+            padding_distance=400.0,
         ),
         model=ModelOptions(background=1e-4, anomaly=0.1),
     )
@@ -87,8 +93,8 @@ def test_fem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
         data = {}
         uncertainties = {}
         channels = {
-            "z_real": "z_real",
-            "z_imag": "z_imag",
+            "real": "real",
+            "imag": "imag",
         }
 
         for chan, cname in channels.items():
@@ -123,7 +129,7 @@ def test_fem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
             data_kwargs[f"{chan}_channel"] = data_group
             data_kwargs[f"{chan}_uncertainty"] = uncert_group
 
-        orig_z_real_1 = geoh5.get_entity("Iteration_0_z_real_[0]")[0].values
+        orig_z_real_1 = geoh5.get_entity("Iteration_0_real_[0]")[0].values
 
         # Run the inverse
         params = FDEM1DInversionOptions.build(
@@ -156,8 +162,8 @@ def test_fem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
         output["data"] = orig_z_real_1
 
         assert (
-            run_ws.get_entity("Iteration_1_z_imag_[1]")[0].entity_type.uid
-            == run_ws.get_entity("Observed_z_imag_[1]")[0].entity_type.uid
+            run_ws.get_entity("Iteration_1_imag_[1]")[0].entity_type.uid
+            == run_ws.get_entity("Observed_imag_[1]")[0].entity_type.uid
         )
 
         if pytest:

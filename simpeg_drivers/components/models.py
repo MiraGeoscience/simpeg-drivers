@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -17,7 +17,7 @@ import numpy as np
 from geoapps_utils.utils.importing import GeoAppsError
 from geoapps_utils.utils.numerical import weighted_average
 from geoh5py.data import Data, FloatData, NumericData
-from geoh5py.data.data_type import GeometricDataValueMapType
+from geoh5py.data.data_type import GeometricDataValueMapType, ReferencedValueMapType
 from geoh5py.objects import ObjectBase
 from simpeg.utils.mat_utils import (
     dip_azimuth2cartesian,
@@ -74,7 +74,10 @@ class InversionModelCollection:
         self._active_cells: np.ndarray | None = None
         self._driver = driver
         self.is_sigma = self.driver.params.physical_property == "conductivity"
-        self.is_vector = self.driver.params.inversion_type == "magnetic vector"
+        self.is_vector = self.driver.params.inversion_type in [
+            "magnetic vector",
+            "magnetic vector pde",
+        ]
 
         self._starting_model = InversionModel(
             driver, "starting_model", is_sigma=self.is_sigma
@@ -233,6 +236,7 @@ class InversionModelCollection:
                 self.reference_inclination,
                 self.reference_declination,
             )
+            ref_model += 1e-8  # To avoid zeroing the angles
             ref_model = (field_vecs.T * ref_model).flatten()
 
         return ref_model
@@ -271,11 +275,14 @@ class InversionModelCollection:
         else:
             bound_model = self._lower_bound.model
 
-        if (
-            self.driver.params.inversion_type == "magnetic vector"
-            and self._upper_bound.model is not None
-        ):
-            bound_model = -self._upper_bound.model
+        if self.driver.params.inversion_type in [
+            "magnetic vector",
+            "magnetic vector pde",
+        ]:
+            bound_model = None
+
+            if self._upper_bound.model is not None:
+                bound_model = -self._upper_bound.model
 
         if bound_model is None:
             lbound = np.full(self.n_active, -np.inf)
@@ -511,8 +518,8 @@ class InversionModel:
         """
         :param driver: InversionDriver object.
         :param model_type: Type of inversion model, can be any of MODEL_TYPES.
-        :param is_vector: If True, model is a vector.
         :param trim_active_cells: If True, remove air cells from model.
+        :param is_sigma: If True, model values must be strictly positive.
         """
         self.driver = driver
         self.model_type = model_type
@@ -595,6 +602,7 @@ class InversionModel:
         if (
             getattr(self.driver.params.models, "model_type", None)
             == ModelTypeEnum.resistivity
+            and model_type == "conductivity_model"
         ):
             model_type = "resistivity_model"
 
@@ -639,10 +647,9 @@ class InversionModel:
         if isinstance(model, NumericData):
             model = self.obj_2_mesh(model, self.driver.inversion_mesh.entity)
             model = (self.driver.inversion_mesh.permutation @ model).astype(model.dtype)
-        else:
+        elif isinstance(model, int | float):
             nc = self.driver.inversion_mesh.mesh.n_cells
-            if isinstance(model, int | float):
-                model *= np.ones(nc)
+            model *= np.ones(nc)
 
         return model
 
@@ -662,7 +669,9 @@ class InversionModel:
 
         values = data.values.astype(float)
 
-        if isinstance(data.entity_type, GeometricDataValueMapType):
+        if isinstance(
+            data.entity_type, GeometricDataValueMapType | ReferencedValueMapType
+        ):
             values[values == 0] = np.nan
 
         full_vector = weighted_average(xyz_in, xyz_out, [values], n=1)[0]

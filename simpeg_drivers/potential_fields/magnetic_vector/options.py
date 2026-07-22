@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -15,12 +15,12 @@ from pathlib import Path
 from typing import ClassVar
 
 from geoh5py.data import FloatData
-from geoh5py.ui_json.annotations import Deprecated
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.options import (
     BaseForwardOptions,
     BaseInversionOptions,
+    Deprecated,
     DirectiveOptions,
     ModelOptions,
 )
@@ -31,14 +31,15 @@ class VectorModelOptions(ModelOptions):
     Magnetic Vector Model options.
     """
 
-    lower_bound: Deprecated | None = None
+    lower_bound: Deprecated
+    reference_model: float | FloatData | None = None
     starting_inclination: float | FloatData | None = None
     starting_declination: float | FloatData | None = None
     reference_inclination: float | FloatData | None = None
     reference_declination: float | FloatData | None = None
 
 
-class MVIForwardOptions(BaseForwardOptions):
+class MagneticVectorForwardOptions(BaseForwardOptions):
     """
     Magnetic Vector forward options.
 
@@ -58,8 +59,9 @@ class MVIForwardOptions(BaseForwardOptions):
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/magnetic_vector_forward.ui.json"
     )
-
+    run_command: str = "simpeg_drivers.potential_fields.magnetic_vector.forward"
     title: str = "Magnetic Vector Forward"
+    icon: str = "surveyairbornemagnetics"
     physical_property: str = "susceptibility"
     inversion_type: str = "magnetic vector"
 
@@ -79,7 +81,7 @@ class MVIForwardOptions(BaseForwardOptions):
     models: VectorModelOptions
 
 
-class MVIInversionOptions(BaseInversionOptions):
+class MagneticVectorInversionOptions(BaseInversionOptions):
     """
     Magnetic Vector Inversion options.
 
@@ -112,8 +114,9 @@ class MVIInversionOptions(BaseInversionOptions):
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/magnetic_vector_inversion.ui.json"
     )
-
+    run_command: str = "simpeg_drivers.potential_fields.magnetic_vector.inversion"
     title: str = "Magnetic Vector Inversion"
+    icon: str = "surveyairbornemagnetics"
     physical_property: str = "susceptibility"
     inversion_type: str = "magnetic vector"
 

@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2023-2025 Mira Geoscience Ltd.                                     '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -22,8 +22,10 @@ from simpeg_drivers.depth_of_investigation.sensitivity_cutoff.driver import (
 from simpeg_drivers.depth_of_investigation.sensitivity_cutoff.options import (
     SensitivityCutoffOptions,
 )
-from simpeg_drivers.potential_fields import GravityInversionOptions
-from simpeg_drivers.potential_fields.gravity.driver import GravityInversionDriver
+from simpeg_drivers.potential_fields.gravity.inversion import (
+    GravityInversionDriver,
+    GravityInversionOptions,
+)
 from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
 from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
@@ -37,14 +39,23 @@ from tests.utils.targets import get_workspace
 def setup_inversion_results(
     tmp_path: Path,
     n_grid_points=2,
+    cell_size=(20.0, 20.0, 20.0),
     refinement=(2,),
 ):
     opts = SyntheticsComponentsOptions(
         method="gravity",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points, n_lines=n_grid_points, drape=5.0
         ),
-        mesh=MeshOptions(refinement=refinement),
+        mesh=MeshOptions(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+        ),
         model=ModelOptions(anomaly=0.75),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
@@ -116,7 +127,7 @@ def test_sensitivity_percent_cutoff_run(tmp_path):
     SensitivityCutoffDriver.start(str(tmp_path / "sensitivity_cutoff_percent.ui.json"))
     with Workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         mask = geoh5.get_entity("5 percent cutoff")[0]
-        assert mask.values.sum() == 2546
+        assert mask.values.sum() == 525
 
 
 def test_sensitivity_cutoff_percentile_run(tmp_path):
@@ -144,7 +155,7 @@ def test_sensitivity_cutoff_percentile_run(tmp_path):
     )
     with Workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         mask = geoh5.get_entity("5 percentile cutoff")[0]
-        assert mask.values.sum() == 22962
+        assert mask.values.sum() == 792
 
 
 def test_sensitivity_cutoff_log_percent_run(tmp_path):
@@ -172,4 +183,4 @@ def test_sensitivity_cutoff_log_percent_run(tmp_path):
     )
     with Workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         mask = geoh5.get_entity("5 percent log cutoff")[0]
-        assert mask.values.sum() == 23178
+        assert mask.values.sum() == 798

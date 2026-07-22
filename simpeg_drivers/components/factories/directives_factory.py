@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -19,7 +19,10 @@ from logging import getLogger
 from typing import TYPE_CHECKING
 
 import numpy as np
+from geoh5py.data.data_type import ColorMap, DataType
 from geoh5py.groups.property_group import GroupTypeEnum
+from geoh5py.objects import PotentialElectrode
+from matplotlib import colormaps
 from numpy import sqrt
 from simpeg import directives, maps
 from simpeg.utils.mat_utils import cartesian2amplitude_dip_azimuth
@@ -46,7 +49,7 @@ class DirectivesFactory:
         self._beta_estimate_by_eigenvalues_directive = None
         self._update_preconditioner_directive = None
         self._save_iteration_model_directive = None
-        self._save_property_group = None
+        self._save_model_groups = None
         self._save_sensitivities_directive = None
         self._save_iteration_data_directive = None
         self._save_iteration_residual_directive = None
@@ -81,7 +84,7 @@ class DirectivesFactory:
             and self._beta_estimate_by_eigenvalues_directive is None
         ):
             self._beta_estimate_by_eigenvalues_directive = (
-                directives.BetaEstimateDerivative(
+                directives.BetaEstimateMaxDerivative(
                     beta0_ratio=self.params.cooling_schedule.initial_beta_ratio,
                     random_seed=0,
                 )
@@ -138,7 +141,7 @@ class DirectivesFactory:
             "save_iteration_data_directive",
             "save_iteration_residual_directive",
             "save_sensitivities_directive",
-            "save_property_group",
+            "save_model_groups",
             "save_iteration_log_files",
             "save_iteration_apparent_resistivity_directive",
         ]:
@@ -185,17 +188,17 @@ class DirectivesFactory:
         return self._save_iteration_apparent_resistivity_directive
 
     @property
-    def save_property_group(self):
+    def save_model_groups(self):
         if (
-            self._save_property_group is None
-            and self.params.inversion_type == "magnetic vector"
+            self._save_model_groups is None
+            and "magnetic vector" in self.params.inversion_type
         ):
-            self._save_property_group = directives.SavePropertyGroup(
+            self._save_model_groups = directives.SaveModelGroup(
                 self.driver.inversion_mesh.entity,
-                group_type=GroupTypeEnum.DIPDIR,
-                channels=["declination", "inclination"],
+                components=["amplitude", "declination", "inclination"],
             )
-        return self._save_property_group
+
+        return self._save_model_groups
 
     @property
     def save_sensitivities_directive(self):
@@ -246,6 +249,7 @@ class DirectivesFactory:
         if self._save_iteration_log_files is None and self.driver.logger:
             self._save_iteration_log_files = directives.SaveLogFilesGeoH5(
                 self.driver.out_group,
+                f"{self.params.geoh5.h5file.stem}",
             )
         return self._save_iteration_log_files
 
@@ -255,7 +259,15 @@ class DirectivesFactory:
         if (
             self._save_iteration_residual_directive is None
             and self.factory_type
-            not in ["tdem", "tdem 1d", "fdem", "fdem 1d", "magnetotellurics", "tipper"]
+            not in [
+                "apparent conductivity",
+                "tdem",
+                "tdem 1d",
+                "fdem",
+                "fdem 1d",
+                "magnetotellurics",
+                "tipper",
+            ]
         ):
             self._save_iteration_residual_directive = SaveDataGeoh5Factory(
                 self.params
@@ -269,11 +281,18 @@ class DirectivesFactory:
     def scale_misfits(self):
         if (
             self._scale_misfits is None
-            and self.params.directives.auto_scale_misfits
+            and any(
+                getattr(self.params.directives, f"auto_scale_{val}", False)
+                for val in ["tiles", "channels", "misfits"]
+            )
             and len(self.driver.data_misfit.objfcts) > 1
         ):
+            nested_tiles = self.driver.get_nested_tiles()
             self._scale_misfits = directives.ScaleMisfitMultipliers(
                 self.params.geoh5.h5file.parent
+                / f"{self.params.geoh5.h5file.stem}.chi",
+                nested_tiles,
+                target_chi=self.params.cooling_schedule.chi_factor,
             )
         return self._scale_misfits
 
@@ -331,7 +350,10 @@ class DirectivesFactory:
     @property
     def vector_inversion_directive(self):
         """Directive to update vector model."""
-        if self._vector_inversion_directive is None and "vector" in self.factory_type:
+        if (
+            self._vector_inversion_directive is None
+            and self.factory_type == "magnetic vector"
+        ):
             reference_angles = (
                 getattr(self.driver.params.models, "reference_model", None) is not None,
                 getattr(self.driver.params.models, "reference_inclination", None)
@@ -343,6 +365,7 @@ class DirectivesFactory:
             self._vector_inversion_directive = directives.VectorInversion(
                 self.driver.data_misfit.objfcts,
                 self.driver.regularization,
+                inversion_type=self.factory_type,
                 chifact_target=self.driver.params.cooling_schedule.chi_factor * 2,
                 reference_angles=reference_angles,
             )
@@ -367,7 +390,7 @@ class SaveGeoh5Factory(SimPEGFactory, ABC):
         global_misfit=None,
         name=None,
     ):
-        return [inversion_object.entity]
+        return [inversion_object.entity] if inversion_object else []
 
 
 class SaveModelGeoh5Factory(SaveGeoh5Factory):
@@ -394,15 +417,29 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
             "transforms": [active_cells_map, inversion_object.permutation.T],
         }
 
-        if self.factory_type == "magnetic vector":
+        if "magnetic vector" in self.factory_type:
             kwargs["channels"] = ["amplitude", "inclination", "declination"]
             kwargs["transforms"] = [
                 cartesian2amplitude_dip_azimuth,
                 active_cells_map,
                 inversion_object.permutation.T,
             ]
+            data_type = DataType.find_or_create_type(
+                self.params.geoh5,
+                "FLOAT",
+            )
+            angles = np.linspace(0, 1, 90)
+            colormap = np.c_[angles * 360, colormaps["twilight"](angles) * 255]
+            data_type.color_map = ColorMap(name="twilight.TBL", values=colormap)
+            kwargs["data_type"] = {
+                "": {
+                    1: data_type,
+                    2: data_type,
+                }
+            }
 
         if self.factory_type in [
+            "apparent conductivity",
             "direct current 3d",
             "direct current 2d",
             "magnetotellurics",
@@ -421,7 +458,7 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
             if self.params.models.model_type == ModelTypeEnum.resistivity:
                 kwargs["transforms"].append(lambda x: 1 / x)
 
-        if "1d" in self.factory_type:
+        if "1d" in self.factory_type or "2d" in self.factory_type:
             ghosts = (
                 np.squeeze(np.asarray(inversion_object.permutation.sum(axis=0))) == 0
             )
@@ -466,7 +503,7 @@ class SaveSensitivitiesGeoh5Factory(SaveGeoh5Factory):
             ],
         }
 
-        if self.factory_type == "magnetic vector":
+        if "magnetic vector" in self.factory_type:
             kwargs["channels"] = [None]
             kwargs["transforms"] = [
                 lambda x: x.reshape((-1, 3), order="F"),
@@ -489,7 +526,10 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
         self,
         inversion_object=None,
         name=None,
-    ):
+    ) -> dict:
+        if not inversion_object:
+            return {}
+
         receivers = inversion_object.entity
         channels = [
             float(val) if val else None
@@ -497,10 +537,14 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
         ]
         components = list(inversion_object.observed)
         ordering = inversion_object.survey.ordering
-        n_locations = len(np.unique(ordering[:, 2]))
+
+        if isinstance(receivers, PotentialElectrode):
+            n_locations = receivers.n_cells
+        else:
+            n_locations = receivers.n_vertices
 
         def reshape(values):
-            data = np.zeros((len(channels), len(components), n_locations))
+            data = np.full((len(channels), len(components), n_locations), np.nan)
             data[ordering[:, 0], ordering[:, 1], ordering[:, 2]] = values
             return data
 
@@ -511,7 +555,7 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
                 np.hstack(
                     [
                         1 / inversion_object.normalizations[chan][comp]
-                        for chan in channels
+                        for chan in range(len(channels))
                         for comp in components
                     ],
                 ),
@@ -531,7 +575,12 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
                 inversion_object=inversion_object, name=name, **kwargs
             )
 
-        elif self.factory_type in ["gravity", "magnetic scalar", "magnetic vector"]:
+        elif self.factory_type in [
+            "gravity",
+            "magnetic scalar",
+            "magnetic vector",
+            "magnetic vector pde",
+        ]:
             kwargs = self.assemble_data_keywords_potential_fields(
                 inversion_object=inversion_object,
                 name=name,
@@ -551,7 +600,7 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
             data = inversion_object.normalize(inversion_object.observed)
 
             def potfield_transform(x):
-                data_stack = np.vstack([k[None] for k in data.values()])
+                data_stack = np.vstack([k[0] for k in data.values()])
                 return data_stack.ravel() - x
 
             kwargs.pop("data_type")
@@ -585,7 +634,7 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
             data = inversion_object.normalize(inversion_object.observed)
 
             def dcip_transform(x):
-                data_stack = np.vstack([k[None] for k in data.values()])
+                data_stack = np.vstack([k[0] for k in data.values()])
                 return data_stack.ravel() - x
 
             kwargs["transforms"].insert(0, dcip_transform)

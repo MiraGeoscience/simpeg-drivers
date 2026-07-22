@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -15,25 +15,17 @@ from pathlib import Path
 from typing import ClassVar
 
 from geoh5py.data import FloatData
-from geoh5py.objects import DrapeModel, PotentialElectrode
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.options import (
-    BaseForwardOptions,
-    BaseInversionOptions,
-    ConductivityModelOptions,
-    DrapeModelOptions,
-    LineSelectionOptions,
-)
+from simpeg_drivers.electricals.base_2d import Base2DOptions, Conductivity2DModelOptions
+from simpeg_drivers.options import BaseForwardOptions, BaseInversionOptions
 
 
-class DC2DForwardOptions(BaseForwardOptions):
+class DC2DForwardOptions(BaseForwardOptions, Base2DOptions):
     """
     Direct Current 2D forward options.
 
     :param potential_channel_bool: Potential channel boolean.
-    :param line_selection: Line selection parameters.
-    :param drape_model: Drape model parameters.
     """
 
     name: ClassVar[str] = "Direct Current 2D Forward"
@@ -42,18 +34,15 @@ class DC2DForwardOptions(BaseForwardOptions):
     )
 
     title: str = "Direct Current 2D Forward"
+    icon: str = "PotentialElectrode"
     physical_property: str = "conductivity"
     inversion_type: str = "direct current 2d"
 
-    data_object: PotentialElectrode
     potential_channel_bool: bool = True
-    line_selection: LineSelectionOptions
-    mesh: DrapeModel | None = None
-    drape_model: DrapeModelOptions
-    models: ConductivityModelOptions
+    models: Conductivity2DModelOptions
 
 
-class DC2DInversionOptions(BaseInversionOptions):
+class DC2DInversionOptions(BaseInversionOptions, Base2DOptions):
     """
     Direct Current 2D inversion options.
 
@@ -67,15 +56,11 @@ class DC2DInversionOptions(BaseInversionOptions):
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/direct_current_2d_inversion.ui.json"
     )
-
+    icon: str = "PotentialElectrode"
     title: str = "Direct Current 2D Inversion"
     physical_property: str = "conductivity"
     inversion_type: str = "direct current 2d"
 
-    data_object: PotentialElectrode
     potential_channel: FloatData
     potential_uncertainty: float | FloatData | None = None
-    line_selection: LineSelectionOptions
-    mesh: DrapeModel | None = None
-    drape_model: DrapeModelOptions
-    models: ConductivityModelOptions
+    models: Conductivity2DModelOptions

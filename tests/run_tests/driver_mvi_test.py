@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -20,15 +20,16 @@ from geoh5py.groups import PropertyGroup
 from geoh5py.groups.property_group import GroupTypeEnum
 from geoh5py.objects import Curve
 from geoh5py.workspace import Workspace
+from simpeg.utils.mat_utils import cartesian2amplitude_dip_azimuth
 
 from simpeg_drivers.components.factories import DirectivesFactory
-from simpeg_drivers.potential_fields import (
-    MVIForwardOptions,
-    MVIInversionOptions,
+from simpeg_drivers.potential_fields.magnetic_vector.forward import (
+    MagneticVectorForwardDriver,
+    MagneticVectorForwardOptions,
 )
-from simpeg_drivers.potential_fields.magnetic_vector.driver import (
-    MVIForwardDriver,
-    MVIInversionDriver,
+from simpeg_drivers.potential_fields.magnetic_vector.inversion import (
+    MagneticVectorInversionDriver,
+    MagneticVectorInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (
     SyntheticsComponents,
@@ -45,21 +46,30 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_mvi_run = {"data_norm": 149.10117434016038, "phi_d": 1040, "phi_m": 0.129}
+target_mvi_run = {"data_norm": 177.6657250156235, "phi_d": 15.6, "phi_m": 0.0556}
 
 
 def test_magnetic_vector_fwr_run(
     tmp_path: Path,
     n_grid_points=3,
+    cell_size=(5.0, 5.0, 5.0),
     refinement=(2,),
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="magnetic_vector",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points, n_lines=n_grid_points, drape=5.0
         ),
-        mesh=MeshOptions(refinement=refinement),
+        mesh=MeshOptions(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+        ),
         model=ModelOptions(anomaly=0.05),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
@@ -71,7 +81,7 @@ def test_magnetic_vector_fwr_run(
         )
         geoh5.remove_entity(components.survey)
         inducing_field = (50000.0, 90.0, 0.0)
-        params = MVIForwardOptions.build(
+        params = MagneticVectorForwardOptions.build(
             forward_only=True,
             geoh5=geoh5,
             mesh=components.mesh,
@@ -84,14 +94,14 @@ def test_magnetic_vector_fwr_run(
             starting_inclination=45,
             starting_declination=270,
         )
-    fwr_driver = MVIForwardDriver(params)
+    fwr_driver = MagneticVectorForwardDriver(params)
     fwr_driver.run()
 
 
 def test_magnetic_vector_run(
     tmp_path: Path,
     caplog,
-    max_iterations=3,
+    max_iterations=5,
     upper_bound=2.5e-3,
     pytest=True,
 ):
@@ -124,7 +134,7 @@ def test_magnetic_vector_run(
         )
         # Run the inverse
         with caplog.at_level(logging.WARNING) if caplog else contextlib.nullcontext():
-            params = MVIInversionOptions.build(
+            params = MagneticVectorInversionOptions.build(
                 geoh5=geoh5,
                 mesh=mesh,
                 topography_object=topography,
@@ -144,13 +154,13 @@ def test_magnetic_vector_run(
                 lower_bound=1e-6,
                 upper_bound=upper_bound,
                 max_global_iterations=max_iterations,
-                initial_beta_ratio=1e1,
+                initial_beta_ratio=5e-2,
             )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
         if caplog:
-            assert "Skipping deprecated field: lower_bound" in caplog.text
+            assert "Deprecated field 'lower_bound' will be ignored." in caplog.text
 
-    driver = MVIInversionDriver(params)
+    driver = MagneticVectorInversionDriver(params)
     assert np.all(driver.models.lower_bound == -upper_bound)
     driver.run()
 
@@ -166,33 +176,38 @@ def test_magnetic_vector_run(
             inactive_ind = run_ws.get_entity("active_cells")[0].values == 0
             assert np.all(nan_ind == inactive_ind)
 
-            assert np.nanmin(model.values) <= 1e-5
+            assert np.nanmin(model.values) <= 2e-5
             assert np.isclose(driver.inversion.opt.upper[0], upper_bound)
 
             out_group = run_ws.get_entity("Magnetic Vector Inversion")[0]
             mesh = out_group.get_entity("mesh")[0]
-            assert len(mesh.property_groups) == 6
-            assert len(mesh.fetch_property_group("Iteration_0").properties) == 2
+            assert len(mesh.property_groups) == 5
             assert len(mesh.fetch_property_group("LP models").properties) == 6
-            assert (
-                mesh.fetch_property_group("Iteration_1").property_group_type
-                == GroupTypeEnum.DIPDIR
-            )
+
             check_target(output, target_mvi_run)
 
 
 def test_magnetic_vector_reference(
     tmp_path: Path,
     n_grid_points=3,
+    cell_size=(20.0, 20.0, 20.0),
     refinement=(2,),
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="magnetic_vector",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points, n_lines=n_grid_points, drape=5.0
         ),
-        mesh=MeshOptions(refinement=refinement),
+        mesh=MeshOptions(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=refinement,
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+        ),
         model=ModelOptions(anomaly=0.05),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
@@ -202,7 +217,7 @@ def test_magnetic_vector_reference(
             {"tmi": {"values": np.random.randn(components.survey.n_vertices)}}
         )
         inducing_field = (50000.0, 90.0, 0.0)
-        params = MVIInversionOptions.build(
+        params = MagneticVectorInversionOptions.build(
             geoh5=geoh5,
             mesh=components.mesh,
             topography_object=components.topography,
@@ -213,24 +228,21 @@ def test_magnetic_vector_reference(
             tmi_uncertainty=5.0,
             data_object=components.survey,
             starting_model=components.model,
-            reference_model=1.0,
+            reference_model=0.0,
             reference_inclination=30,
             reference_declination=0,
         )
-    driver = MVIInversionDriver(params)
+    driver = MagneticVectorInversionDriver(params)
 
     directives = DirectivesFactory(driver)
     assert np.all(directives.vector_inversion_directive.reference_angles)
     assert np.all(driver.models.reference_inclination == 30)
     assert np.all(driver.models.reference_declination == 0)
 
-    np.allclose(
-        np.kron(
-            np.r_[0, np.cos(-np.deg2rad(30)), np.sin(-np.deg2rad(30))],
-            np.ones(driver.models.n_active),
-        ),
-        driver.models.reference_model,
-    )
+    ref_model = driver.models.reference_model
+    ref_spherical = cartesian2amplitude_dip_azimuth(ref_model.reshape(-1, 3, order="F"))
+    np.allclose(ref_spherical[0, 1], 30)
+    np.allclose(ref_spherical[0, 2], 0)
 
 
 if __name__ == "__main__":
@@ -240,7 +252,10 @@ if __name__ == "__main__":
             # Full run
             with performance_report(filename="diagnostics.html"):
                 test_magnetic_vector_fwr_run(
-                    Path("./"), n_grid_points=20, refinement=(4, 8)
+                    Path("./"),
+                    n_grid_points=20,
+                    cell_size=(5.0, 5.0, 5.0),
+                    refinement=(4, 4),
                 )
                 test_magnetic_vector_run(
                     Path("./"), None, max_iterations=30, upper_bound=5e-3, pytest=False

@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -12,99 +12,72 @@ from __future__ import annotations
 
 import shutil
 import sys
+from numbers import Number
 from pathlib import Path
+from typing import Self
 
 import numpy as np
+from dask.distributed import Client
+from geoapps_utils.base import Driver
 from geoapps_utils.utils.importing import GeoAppsError
 from geoapps_utils.utils.logger import get_logger
 from geoh5py import Workspace
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
 from geoh5py.shared.utils import (
     dict_to_json_str,
-    fetch_active_workspace,
+    str_json_to_dict,
     uuid_from_values,
 )
 from geoh5py.ui_json.utils import flatten
-from typing_extensions import Self
+from h5py import File
+from pandas import DataFrame
 
-from simpeg_drivers.driver import BaseDriver
+from simpeg_drivers.driver import BaseDriver, validate_client, validate_workers
 from simpeg_drivers.plate_simulation.driver import PlateSimulationDriver
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
 from simpeg_drivers.plate_simulation.sweep.options import SweepOptions
-from simpeg_drivers.plate_simulation.sweep.uijson import PlateSweepUIJson
+from simpeg_drivers.utils.utils import start_dask_run, validate_out_group
 
 
 logger = get_logger(name=__name__, level_name=False, propagate=False, add_name=False)
 
 
 # TODO: Can we make this generic (PlateSweepDriver -> SweepDriver)?
-class PlateSweepDriver(BaseDriver):
+class PlateSweepDriver(Driver):
     """Sets up and manages workers to run all combinations of swepts parameters."""
 
     _params_class = SweepOptions
 
-    def __init__(self, params: SweepOptions, workers: list[tuple[str]] | None = None):
-        super().__init__(params, workers=workers)
+    def __init__(
+        self,
+        params: SweepOptions,
+        client: Client | bool | None = None,
+        workers: list[tuple[str]] | None = None,
+    ):
+        super().__init__(params)
 
-        self.out_group = self.validate_out_group(self.params.out_group)
+        self._out_group = validate_out_group(self.params)
+        self._client: Client | bool = validate_client(client)
+        self._workers: list[tuple[str]] = validate_workers(self._client, workers)
 
-    @property
-    def out_group(self) -> SimPEGGroup:
+    def simpeg_run(self):
         """
-        Returns the output group for the simulation.
+        Run call to simpeg.
         """
-        return self._out_group
 
-    @out_group.setter
-    def out_group(self, value: SimPEGGroup):
-        if not isinstance(value, SimPEGGroup):
-            raise TypeError("Output group must be a SimPEGGroup.")
-
-        if self.params.out_group != value:
-            self.params.out_group = value
-            self.params.update_out_group_options()
-
-        self._out_group = value
-
-    def validate_out_group(self, out_group: SimPEGGroup | None) -> SimPEGGroup:
+    def start_message(self):
         """
-        Validate or create a UIJsonGroup to store results.
-
-        :param value: Output group from selection.
+        Starting message displayed by the logger.
         """
-        if isinstance(out_group, SimPEGGroup):
-            return out_group
-
-        with fetch_active_workspace(self.params.geoh5, mode="r+"):
-            out_group = SimPEGGroup.create(
-                self.params.geoh5,
-                name=self.params.title,
-            )
-            out_group.entity_type.name = self.params.title
-
-        return out_group
 
     @classmethod
     def start(cls, filepath: str | Path, mode="r", **_) -> Self:
-        """Start the parameter sweep from a ui.json file."""
-        logger.info("Loading input file . . .")
-        filepath = Path(filepath).resolve()
-        uijson = PlateSweepUIJson.read(filepath)
+        """
+        Start the parameter sweep from a ui.json file.
 
-        with Workspace(uijson.geoh5, mode=mode) as workspace:
-            try:
-                options = SweepOptions.build(uijson.to_params(workspace=workspace))
-                logger.info("Initializing application . . .")
-                driver = cls(options)
-                logger.info("Running application . . .")
-                driver.run()
-                logger.info("Results saved to %s", options.geoh5.h5file)
-
-            except GeoAppsError as error:
-                logger.warning("\n\nApplicationError: %s\n\n", error)
-                sys.exit(1)
-
-        return driver
+        Force the mode to be read-only for safe copy.
+        """
+        return super().start(filepath, mode="r")
 
     def run(self):
         """Loop over all trials and run a worker for each unique parameter set."""
@@ -116,10 +89,10 @@ class PlateSweepDriver(BaseDriver):
             self.params.template.options["title"],
         )
 
-        use_futures = self.client
+        use_futures = self._client
 
-        if use_futures:
-            blocks = np.array_split(trials, len(self.workers))
+        if use_futures and trials:
+            blocks = np.array_split(trials, len(self._workers))
         else:
             blocks = trials
 
@@ -127,13 +100,13 @@ class PlateSweepDriver(BaseDriver):
         for ind, block in enumerate(blocks):
             if use_futures:
                 futures.append(
-                    self.client.submit(
+                    self._client.submit(
                         run_block,
                         block,
                         self.params.geoh5.h5file,
                         self.params.workdir,
-                        self.workers[ind],
-                        workers=self.workers[ind],
+                        self._workers[ind],
+                        workers=self._workers[ind],
                     )
                 )
 
@@ -145,7 +118,14 @@ class PlateSweepDriver(BaseDriver):
                 )
 
         if use_futures:
-            self.client.gather(futures)
+            self._client.gather(futures)
+
+        if self.params.generate_summary:
+            summary = generate_summary(self.params.workdir.iterdir())
+            out_file = self.params.geoh5.h5file.parent / "summary.xlsx"
+            summary.to_excel(out_file, index=False)
+            with self.params.geoh5.open(mode="r+"):
+                self._out_group.add_file(out_file)
 
     @staticmethod
     def run_trial(
@@ -178,7 +158,10 @@ class PlateSweepDriver(BaseDriver):
                 group
                 for group in workspace.groups
                 if isinstance(group, SimPEGGroup | UIJsonGroup)
-                and "plate simulation" == group.options.get("inversion_type")
+                and (
+                    "plate_simulation.driver" in group.options.get("run_command")
+                    or "plate simulation" == group.options.get("inversion_type")
+                )
             )
 
             opt_dict = workspace.promote(flatten(plate_simulation.options))
@@ -198,6 +181,66 @@ class PlateSweepDriver(BaseDriver):
         del plate_sim
         return None
 
+    @classmethod
+    def start_dask_run(
+        cls, json_path: Path, n_workers: int | None = None, n_threads: int | None = None
+    ):
+        """
+        Runs plate sweep application with Dask optimization
+
+        :param json_path: Path to input file (.ui.json) for the application.
+        :param n_workers: Number of workers to use.
+        :param n_threads: Number of threads to use.
+        """
+        start_dask_run(cls, json_path, n_workers=n_workers, n_threads=n_threads)
+
+
+def forms_to_values(data: dict) -> dict:
+    """
+    Convert a dictionary of forms to a dictionary of values, where the value is a number.
+
+    :param data: Dictionary of forms.
+
+    :return: Dictionary of key and numeric values
+    """
+    fields = {}
+    for name, form in data.items():
+        if isinstance(form, dict) and isinstance(form.get("value"), Number):
+            fields[name] = form.get("value")
+
+    return fields
+
+
+def generate_summary(directory: list[Path]) -> DataFrame:
+    """
+    Generate a summary of the trials and save it to the geoh5 file.
+
+    :param directory: List of paths to geoh5 files to summarize.
+
+    :return: Dataframe of trial names and options.
+    """
+    summary = []
+    for simulation in directory:
+        if Path(simulation).resolve().suffix != ".geoh5":
+            continue
+
+        with File(simulation, mode="r") as geoh5:
+            for group in geoh5["GEOSCIENCE"]["Groups"].values():
+                if group.get("options", None):
+                    options = str_json_to_dict(np.r_[group["options"]][0])
+
+                    if (
+                        options["title"] == "Plate Simulation"
+                        and len(group["Objects"]) > 0
+                    ):
+                        options = forms_to_values(options)
+                        output = {"file": simulation.stem}
+                        output.update(options)
+                        summary.append(output)
+                        break
+
+    return DataFrame(summary)
+
 
 def run_block(
     trials: list[dict],
@@ -214,4 +257,4 @@ def run_block(
 
 if __name__ == "__main__":
     file = Path(sys.argv[1])
-    PlateSweepDriver.start(file)
+    PlateSweepDriver.start_dask_run(file)

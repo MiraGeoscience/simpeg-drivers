@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -46,8 +46,9 @@ class JointPetrophysicsOptions(BaseJointOptions):
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/joint_petrophysics_inversion.ui.json"
     )
-
+    run_command: str = "simpeg_drivers.joint.joint_petrophysics.driver"
     title: str = "Joint Petrophysically Guided Inversion (PGI)"
+    icon: str = "referencedata"
     inversion_type: str = "joint petrophysics"
 
     group_a_multiplier: float | None = None

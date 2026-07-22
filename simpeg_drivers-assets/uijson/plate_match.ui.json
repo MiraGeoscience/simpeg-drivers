@@ -1,0 +1,110 @@
+{
+    "version": "0.5.0",
+    "title": "Plate Match",
+    "icon": "maxwellplate",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/plate-simulation/simulation.html",
+    "conda_environment": "simpeg-drivers",
+    "run_command": "simpeg_drivers.plate_simulation.match.driver",
+    "geoh5": "",
+    "monitoring_directory": "",
+    "survey": {
+        "main": true,
+        "label": "Survey",
+        "meshType": [
+            "{6a057fdc-b355-11e3-95be-fd84a7ffcb88}",
+            "{19730589-fd28-4649-9de0-ad47249d9aba}"
+        ],
+        "tooltip": "Airborne TEM survey containing transmitter and receiver locations",
+        "value": ""
+    },
+    "data": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "dataGroupType": "Multi-element",
+        "main": true,
+        "label": "EM Data",
+        "parent": "survey",
+        "tooltip": "Observed EM data to fit during plate matching",
+        "value": ""
+    },
+    "queries": {
+        "main": true,
+        "label": "Query points",
+        "meshType": [
+            "{6a057fdc-b355-11e3-95be-fd84a7ffcb88}",
+            "{202C5DB1-A56D-4004-9CAD-BAAFD8899406}"
+        ],
+        "tooltip": "Locations of EM anomalies on the survey to evaluate the match",
+        "value": ""
+    },
+    "max_distance": {
+        "main": true,
+        "label": "Query max distance (m)",
+        "value": 1000.0,
+        "tooltip": "Length on either side of the query points to evaluate the match"
+    },
+    "strike_angles": {
+        "association": [
+            "Cell",
+            "Vertex"
+        ],
+        "dataType": "Float",
+        "main": true,
+        "label": "Strike angles (degrees)",
+        "parent": "queries",
+        "optional": true,
+        "enabled": false,
+        "tooltip": "Data containing the estimated angles between the flight path and dipping body",
+        "value": ""
+    },
+    "topography_object": {
+        "main": true,
+        "group": "Topography",
+        "label": "Topography",
+        "meshType": [
+            "{202c5db1-a56d-4004-9cad-baafd8899406}",
+            "{6a057fdc-b355-11e3-95be-fd84a7ffcb88}",
+            "{f26feba3-aded-494b-b9e9-b2bbcbe298e1}",
+            "{48f5054a-1c5c-4ca4-9048-80f36dc60a06}",
+            "{b020a277-90e2-4cd7-84d6-612ee3f25051}"
+        ],
+        "value": "",
+        "tooltip": "Select a topography object to define the drape height for the survey"
+    },
+    "topography": {
+        "association": [
+            "Vertex",
+            "Cell"
+        ],
+        "dataType": "Float",
+        "group": "Topography",
+        "main": true,
+        "optional": true,
+        "enabled": false,
+        "label": "Elevation channel",
+        "tooltip": "Set elevation from channel. If not set the topography will be set from the geometry of the selected 'topography' object",
+        "parent": "topography_object",
+        "dependency": "topography_object",
+        "dependencyType": "enabled",
+        "value": "",
+        "verbose": 2
+    },
+    "simulations": {
+        "main": true,
+        "label": "Simulations directory",
+        "directoryOnly": true,
+        "tooltip": "Directory where pre-computed simulations are stored",
+        "value": "./simulations"
+    },
+    "out_group": {
+        "label": "SimPEG group",
+        "value": "",
+        "groupType": "{55ed3daf-c192-4d4b-a439-60fa987fe2b8}",
+        "visible": true,
+        "optional": true,
+        "enabled": false
+    }
+}

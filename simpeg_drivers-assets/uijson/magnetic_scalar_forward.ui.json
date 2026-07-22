@@ -4,12 +4,9 @@
     "icon": "surveyairbornemagnetics",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
     "conda_environment": "simpeg_drivers",
-    "run_command": "simpeg_drivers.driver",
+    "run_command": "simpeg_drivers.potential_fields.magnetic_scalar.forward",
     "geoh5": "",
     "monitoring_directory": "",
-    "inversion_type": "magnetic scalar",
-    "physical_property": "susceptibility",
-    "forward_only": true,
     "inducing_field_declination": {
         "min": -180.0,
         "max": 180.0,
@@ -67,7 +64,7 @@
         "optional": true,
         "enabled": false,
         "label": "Elevation channel",
-        "tooltip": "Set elevation from channel.  If not set the topography will be set from the geometry of the selected 'topography' object",
+        "tooltip": "Set elevation from channel. If not set the topography will be set from the geometry of the selected 'topography' object",
         "parent": "topography_object",
         "dependency": "topography_object",
         "dependencyType": "enabled",
@@ -203,9 +200,6 @@
     "tile_spatial": {
         "group": "Compute",
         "label": "Number of tiles",
-        "parent": "data_object",
-        "isValue": true,
-        "property": "",
         "value": 1,
         "min": 1,
         "max": 1000,
@@ -241,8 +235,8 @@
         "visible": false,
         "tooltip": "Generates a file for sweeping parameters instead of running the application"
     },
-    "n_workers": "",
-    "n_threads": "",
+    "n_workers": null,
+    "n_threads": null,
     "max_ram": "",
     "performance_report": false,
     "distributed_workers": ""

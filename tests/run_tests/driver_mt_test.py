@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -15,15 +15,16 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-from geoh5py.groups import SimPEGGroup
+from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.workspace import Workspace
+from pytest import raises
 
-from simpeg_drivers.natural_sources.magnetotellurics.driver import (
+from simpeg_drivers.natural_sources.magnetotellurics.forward import (
     MTForwardDriver,
-    MTInversionDriver,
-)
-from simpeg_drivers.natural_sources.magnetotellurics.options import (
     MTForwardOptions,
+)
+from simpeg_drivers.natural_sources.magnetotellurics.inversion import (
+    MTInversionDriver,
     MTInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (
@@ -41,7 +42,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.032649770, "phi_d": 7.13, "phi_m": 282}
+target_run = {"data_norm": 0.003584600661140228, "phi_d": 4.45, "phi_m": 5.56}
 
 
 def setup_data(workspace, survey):
@@ -76,7 +77,7 @@ def setup_data(workspace, survey):
                     }
                 }
             )
-            uncertainties[f"{cname} uncertainties"].append(uncert.copy(parent=survey))
+            uncertainties[f"{cname} uncertainties"].append(uncert)
 
     data_groups = survey.add_components_data(data)
     uncert_groups = survey.add_components_data(uncertainties)
@@ -94,15 +95,23 @@ def setup_data(workspace, survey):
 def test_magnetotellurics_fwr_run(
     tmp_path: Path,
     n_grid_points=2,
+    cell_size=(5.0, 5.0, 5.0),
     refinement=(2,),
-    cell_size=(20.0, 20.0, 20.0),
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="magnetotellurics",
+        refine_plate=True,
         survey=SurveyOptions(n_stations=n_grid_points, n_lines=n_grid_points),
-        mesh=MeshOptions(cell_size=cell_size, refinement=refinement),
-        model=ModelOptions(background=0.01),
+        mesh=MeshOptions(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+        ),
+        model=ModelOptions(background=100.0),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
@@ -116,7 +125,8 @@ def test_magnetotellurics_fwr_run(
             topography_object=components.topography,
             data_object=components.survey,
             starting_model=components.model,
-            background_conductivity=1e-2,
+            model_type="Resistivity (Ohm-m)",
+            background_conductivity=1e2,
             zxx_real_channel_bool=True,
             zxx_imag_channel_bool=True,
             zxy_real_channel_bool=True,
@@ -133,6 +143,59 @@ def test_magnetotellurics_fwr_run(
 
     with Workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         assert geoh5.get_entity("Iteration_0_zyy_real_[0]")[0] is not None
+
+
+def test_bad_uncertainties(
+    tmp_path: Path,
+):
+    workpath = (
+        tmp_path.parent / "test_magnetotellurics_fwr_run0" / "inversion_test.ui.geoh5"
+    )
+
+    with Workspace(workpath) as geoh5:
+        with Workspace.create(tmp_path / f"{__name__}.geoh5") as ws:
+            components = SyntheticsComponents(geoh5)
+            survey = components.survey.copy(
+                parent=ws, copy_children=False, name="bad_uncertainties"
+            )
+            mesh = components.mesh
+            topography = components.topography
+            data_kwargs = setup_data(geoh5, survey)
+
+            # Add NDV to some uncertainties
+            for elem in [
+                "uncertainty_zxx_imag_[0]",
+                "uncertainty_zyx_real_[0]",
+                "uncertainty_zyx_imag_[0]",
+            ]:
+                data = survey.get_entity(elem)[0]
+                vals = data.values
+                vals[0] = np.nan
+                data.values = vals
+
+            # Also NDV the data for one of them
+            data = survey.get_entity("Iteration_0_zyx_imag_[0]")[0]
+            vals = data.values
+            vals[0] = np.nan
+            data.values = vals
+
+            # Run the inverse
+            params = MTInversionOptions.build(
+                geoh5=geoh5,
+                mesh=mesh,
+                topography_object=topography,
+                data_object=survey,
+                starting_model=100.0,
+                background_conductivity=100.0,
+                **data_kwargs,
+            )
+
+            with raises(GeoAppsError) as error:
+                _ = params.uncertainties
+
+    assert "zxx_imag" in str(error.value)
+    assert "zyx_real" in str(error.value)
+    assert "zyx_imag" not in str(error.value)
 
 
 def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
@@ -197,13 +260,21 @@ def test_magnetotellurics_tiles(
     tmp_path: Path,
     n_grid_points=32,
     refinement=(2,),
-    cell_size=(20.0, 20.0, 20.0),
+    cell_size=(10.0, 10.0, 10.0),
 ):
     workpath = tmp_path / f"{__name__}.geoh5"
     opts = SyntheticsComponentsOptions(
         method="magnetotellurics",
+        refine_plate=True,
         survey=SurveyOptions(n_stations=n_grid_points, n_lines=n_grid_points),
-        mesh=MeshOptions(cell_size=cell_size, refinement=refinement),
+        mesh=MeshOptions(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+        ),
         model=ModelOptions(background=0.01),
     )
     with Workspace.create(workpath) as geoh5:
@@ -238,7 +309,7 @@ def test_magnetotellurics_tiles(
 if __name__ == "__main__":
     # Full run
     test_magnetotellurics_fwr_run(
-        Path("./"), n_grid_points=8, cell_size=(5.0, 5.0, 5.0), refinement=(4, 8)
+        Path("./"), n_grid_points=8, cell_size=(5.0, 5.0, 5.0), refinement=(4, 4)
     )
     test_magnetotellurics_run(
         Path("./"),

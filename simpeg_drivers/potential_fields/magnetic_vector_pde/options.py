@@ -1,0 +1,111 @@
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
+#                                                                                   '
+#  This file is part of simpeg-drivers package.                                     '
+#                                                                                   '
+#  simpeg-drivers is distributed under the terms and conditions of the MIT License  '
+#  (see LICENSE file at the root of this source code package).                      '
+#                                                                                   '
+# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+
+from __future__ import annotations
+
+from pathlib import Path
+from typing import ClassVar
+
+from geoh5py.data import FloatData
+
+from simpeg_drivers import assets_path
+from simpeg_drivers.options import (
+    BaseForwardOptions,
+    BaseInversionOptions,
+    Deprecated,
+    DirectiveOptions,
+    ModelOptions,
+)
+
+
+class VectorModelPDEOptions(ModelOptions):
+    """
+    Magnetic Vector Model options.
+    """
+
+    lower_bound: Deprecated
+    reference_model: float | FloatData | None = None
+    starting_inclination: float | FloatData | None = None
+    starting_declination: float | FloatData | None = None
+
+
+class MagneticVectorPDEForwardOptions(BaseForwardOptions):
+    """
+    Magnetic Vector forward options.
+
+    :param tmi_channel_bool: Total magnetic intensity channel boolean.
+    :param bx_channel_bool: Bx channel boolean.
+    :param by_channel_bool: By channel boolean.
+    :param bz_channel_bool: Bz channel boolean.
+    """
+
+    name: ClassVar[str] = "Magnetic Vector Forward"
+    default_ui_json: ClassVar[Path] = (
+        assets_path() / "uijson/magnetic_vector_pde_forward.ui.json"
+    )
+    run_command: str = "simpeg_drivers.potential_fields.magnetic_vector_pde.forward"
+    title: str = "Magnetic Vector Forward"
+    physical_property: str = "susceptibility"
+    inversion_type: str = "magnetic vector pde"
+
+    tmi_channel_bool: bool = True
+    bx_channel_bool: bool = False
+    by_channel_bool: bool = False
+    bz_channel_bool: bool = False
+
+    inducing_field_strength: float | FloatData
+    inducing_field_inclination: float | FloatData
+    inducing_field_declination: float | FloatData
+    models: VectorModelPDEOptions
+
+
+class MagneticVectorPDEInversionOptions(BaseInversionOptions):
+    """
+    Magnetic Vector Inversion options.
+
+    :param tmi_channel: Total magnetic intensity channel.
+    :param bx_channel: Bx channel.
+    :param by_channel: By channel.
+    :param bz_channel: Bz channel.
+    :param tmi_uncertainty: Total magnetic intensity uncertainty.
+    :param bx_uncertainty: Bx uncertainty.
+    :param by_uncertainty: By uncertainty.
+    :param bz_uncertainty: Bz uncertainty.
+    :param inducing_field_strength: Inducing field strength.
+    :param inducing_field_inclination: Inducing field inclination.
+    :param inducing_field_declination: Inducing field declination.
+    """
+
+    name: ClassVar[str] = "Magnetic Vector Inversion"
+    default_ui_json: ClassVar[Path] = (
+        assets_path() / "uijson/magnetic_vector_pde_inversion.ui.json"
+    )
+    run_command: str = "simpeg_drivers.potential_fields.magnetic_vector_pde.inversion"
+    title: str = "Magnetic Vector Inversion"
+    physical_property: str = "susceptibility"
+    inversion_type: str = "magnetic vector pde"
+
+    tmi_channel: FloatData | None = None
+    bx_channel: FloatData | None = None
+    by_channel: FloatData | None = None
+    bz_channel: FloatData | None = None
+
+    tmi_uncertainty: float | FloatData | None = None
+    bx_uncertainty: float | FloatData | None = None
+    by_uncertainty: float | FloatData | None = None
+    bz_uncertainty: float | FloatData | None = None
+
+    inducing_field_strength: float | FloatData
+    inducing_field_inclination: float | FloatData
+    inducing_field_declination: float | FloatData
+    models: VectorModelPDEOptions
+
+    directives: DirectiveOptions = DirectiveOptions(sens_wts_threshold=1e-3)

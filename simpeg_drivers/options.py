@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -11,13 +11,14 @@
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 from logging import getLogger
 from pathlib import Path
-from typing import Annotated, Any, ClassVar, Literal, TypeAlias
+from typing import Annotated, Any, ClassVar, Literal
 
 import numpy as np
 from geoapps_utils.base import Options
+from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.data import (
     BooleanData,
     DataAssociationEnum,
@@ -29,8 +30,6 @@ from geoh5py.data import (
 from geoh5py.groups import PropertyGroup, SimPEGGroup, UIJsonGroup
 from geoh5py.objects import DrapeModel, Grid2D, Octree, Points
 from geoh5py.objects.surveys.electromagnetics.base import BaseEMSurvey
-from geoh5py.ui_json import InputFile
-from geoh5py.ui_json.utils import fetch_active_workspace
 from pydantic import (
     AliasChoices,
     BaseModel,
@@ -42,15 +41,13 @@ from pydantic import (
     model_validator,
 )
 
+from simpeg_drivers.uijson import SimPEGDriversUIJson
+from simpeg_drivers.utils.regularization import direction_and_dip
+
 from . import public_version
-from .utils.regularization import direction_and_dip
 
 
 logger = getLogger(__name__)
-
-InversionDataDict: TypeAlias = (
-    dict[str, np.ndarray | None] | dict[str, dict[float, np.ndarray | None]]
-)
 
 
 def deprecate_warning(value, info):
@@ -64,7 +61,7 @@ def deprecate_warning(value, info):
 
 Deprecated = Annotated[
     Any,
-    Field(default=None),
+    Field(None),
     BeforeValidator(deprecate_warning),
 ]
 
@@ -132,7 +129,7 @@ class ComputeOptions(BaseModel):
     max_ram: float | None = None
     n_cpu: int | None = None
     n_threads: int | None = None
-    n_workers: int | None = 1
+    n_workers: int | None = None
     performance_report: bool = False
     solver_type: Literal["Pardiso", "Mumps"] = "Pardiso"
     tile_spatial: int = 1
@@ -188,7 +185,9 @@ class CoreOptions(Options):
     version: str = public_version()
     icon: str | None = None
     inversion_type: str
-    documentation: str | None = None
+    documentation: str | None = (
+        "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html"
+    )
     conda_environment: str = "simpeg_drivers"
     run_command: str = "simpeg_drivers.driver"
     mesh: Octree | Grid2D | DrapeModel | None = None
@@ -225,7 +224,7 @@ class CoreOptions(Options):
 
     @property
     def workpath(self):
-        return Path(self.geoh5.h5file).parent
+        return Path(self.geoh5.h5file).resolve().parent
 
     @property
     def padding_cells(self) -> int:
@@ -238,10 +237,31 @@ class CoreOptions(Options):
 
         return 4 if self.inversion_type in ["fdem", "tdem"] else 6
 
-    def _create_input_file_from_attributes(self) -> InputFile:
-        ifile = super()._create_input_file_from_attributes()
-        ifile.set_data_value("version", public_version())
-        return ifile
+    def write_ui_json(self, path: Path) -> Path:
+        """
+        Write UI JSON file.
+
+        TODO: Replace in favor of base Options implementation
+            after geoapps_utils@feature/uijson is merged
+        """
+        ui_json = SimPEGDriversUIJson.read(self.default_ui_json)
+
+        value_dict = self.model_dump(exclude_unset=True)
+
+        def _recursive_flatten(data: dict[str, Any]) -> dict[str, Any]:
+            values: dict[str, Any] = {}
+            for key, val in data.items():
+                if isinstance(val, dict) and getattr(ui_json, key, None) is None:
+                    values.update(_recursive_flatten(val))
+                else:
+                    values[key] = val
+
+            return values
+
+        flatten = _recursive_flatten(value_dict)
+        ui_json.set_values(**flatten)
+
+        return ui_json.write(path)
 
 
 class ModelOptions(BaseModel):
@@ -286,20 +306,22 @@ class ModelOptions(BaseModel):
     y_norm: float | FloatData | None = 2.0
     z_norm: float | FloatData = 2.0
 
-    @property
-    def gradient_direction(self) -> np.ndarray:
-        if self.gradient_orientations is None:
-            return None
-        return self.gradient_orientations[:, 0]
+    _gradient_orientations: list[FloatData] | None = None
 
     @property
-    def gradient_dip(self) -> np.ndarray:
+    def gradient_direction(self) -> FloatData | None:
         if self.gradient_orientations is None:
             return None
-        return self.gradient_orientations[:, 1]
+        return self.gradient_orientations[0]
 
     @property
-    def gradient_orientations(self) -> tuple(float, float):
+    def gradient_dip(self) -> FloatData | None:
+        if self.gradient_orientations is None:
+            return None
+        return self.gradient_orientations[1]
+
+    @property
+    def gradient_orientations(self) -> list[FloatData] | None:
         """
         Direction and dip angles for rotated gradient regularization.
 
@@ -307,15 +329,14 @@ class ModelOptions(BaseModel):
         and clockwise from horizontal for dip.
         """
 
-        if self.gradient_rotation is not None:
+        if self._gradient_orientations is None and self.gradient_rotation is not None:
             orientations = direction_and_dip(self.gradient_rotation)
+            self._gradient_orientations = orientations
 
-            return np.deg2rad(orientations)
-
-        return None
+        return self._gradient_orientations
 
 
-class ModelTypeEnum(str, Enum):
+class ModelTypeEnum(StrEnum):
     conductivity = "Conductivity (S/m)"
     resistivity = "Resistivity (Ohm-m)"
 
@@ -352,7 +373,7 @@ class BaseForwardOptions(CoreOptions):
         return [k for k in self.components if getattr(self, f"{k}_channel_bool")]
 
     @property
-    def data(self) -> InversionDataDict:
+    def data(self) -> dict[str, dict[float, np.ndarray | None]]:
         """Return dictionary of data components and associated values."""
         return dict.fromkeys(self.active_components)
 
@@ -386,8 +407,8 @@ class DirectiveOptions(BaseModel):
     """
     Directive options for inversion.
 
-    :param auto_scale_misfits: Automatically scale misfits of sub objectives.
-    :param beta_search: Beta search.
+    :param auto_scale_tiles: Automatically scale tiles.
+    :param auto_scale_channels: Automatically scale channels.
     :param every_iteration_bool: Update the sensitivity weights every iteration.
     :param save_sensitivities: Save sensitivities to file.
     :param sens_wts_threshold: Threshold for sensitivity weights.
@@ -396,7 +417,10 @@ class DirectiveOptions(BaseModel):
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
     )
-    auto_scale_misfits: bool = False
+    auto_scale_tiles: bool = Field(
+        False, validation_alias=AliasChoices("auto_scale_misfits", "auto_scale_tiles")
+    )
+    auto_scale_channels: bool = False
     every_iteration_bool: bool = True
     save_sensitivities: bool = False
     sens_wts_threshold: float | None = 1e-0
@@ -420,6 +444,7 @@ class DrapeModelOptions(BaseModel):
     horizontal_padding: float | None = 100.0
     vertical_padding: float | None = 100.0
     expansion_factor: float | None = 1.1
+    name: str = "mesh"
 
 
 class EMDataMixin:
@@ -434,31 +459,24 @@ class EMDataMixin:
 
     def component_data(self, component: str):
         """Return data values associated with the component."""
-        property_group = getattr(self, "_".join([component, "channel"]), None)
+        property_group = getattr(self, "_".join([component, "channel"]))
         return self.property_group_data(property_group)
 
     def component_uncertainty(self, component: str):
         """Return uncertainty values associated with the component."""
-        property_group = getattr(self, "_".join([component, "uncertainty"]), None)
+        property_group = getattr(self, "_".join([component, "uncertainty"]))
         return self.property_group_data(property_group)
 
-    def property_group_data(self, property_group: PropertyGroup):
+    def property_group_data(self, property_group: PropertyGroup | None) -> list:
         """
         Return dictionary of channel/data.
 
         :param property_group: Property group uid
         """
-        frequencies = self.data_object.channels
-        if property_group is None:
-            return dict.fromkeys(frequencies)
-
         group = next(
             k for k in self.data_object.property_groups if k.uid == property_group.uid
         )
-        data = {
-            freq: self.geoh5.get_entity(p)[0].values
-            for freq, p in zip(frequencies, group.properties, strict=False)
-        }
+        data = [self.data_object.get_entity(p)[0].values for p in group.properties]
         return data
 
 
@@ -501,20 +519,31 @@ class LineSelectionOptions(BaseModel):
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
     )
-    line_id: int = 1
-    line_object: ReferencedData
+    line_id: int | None = None
+    line_object: IntegerData | ReferencedData | None = None
+    property: ReferencedData | None = None
+    value: list[int] | None = None
 
-    @field_validator("line_object", mode="before")
+    @field_validator("property", mode="before")
     @classmethod
     def validate_cell_association(cls, value):
-        if value.association is not DataAssociationEnum.CELL:
+        if value and value.association is not DataAssociationEnum.CELL:
             raise ValueError("Line identifier must be associated with cells.")
         return value
 
     @model_validator(mode="after")
     def line_id_referenced(self):
-        if self.line_id not in self.line_object.values:
-            raise ValueError("Line id isn't referenced in the line object.")
+        if self.line_object is not None:
+            logger.warning(
+                "Running with an older version of DC inversion 2D.\n"
+                "Please update to version 0.5.0 or later to ensure line selection is properly applied.\n"
+                "Results may be affected.",
+            )
+            self.property = self.line_object
+
+            if isinstance(self.line_id, int):
+                self.value = [self.line_id]
+
         return self
 
 
@@ -593,7 +622,7 @@ class BaseInversionOptions(CoreOptions):
         ]
 
     @property
-    def data(self) -> InversionDataDict:
+    def data(self) -> dict[str, list[np.ndarray | None]]:
         """Return dictionary of data components and associated values."""
         out = {}
         for k in self.active_components:
@@ -601,21 +630,36 @@ class BaseInversionOptions(CoreOptions):
         return out
 
     @property
-    def uncertainties(self) -> InversionDataDict:
-        """Return dictionary of unceratinty components and associated values."""
+    def uncertainties(self) -> dict[str, list[np.ndarray | None]]:
+        """Return dictionary of uncertainty components and associated values."""
         out = {}
+        flags = []
         for k in self.active_components:
             out[k] = self.component_uncertainty(k)
+
+            for uncert, data in zip(out[k], self.component_data(k), strict=True):
+                if np.any((np.isnan(uncert) | (uncert < 0)) & ~np.isnan(data)):
+                    flags.append(f"{k} component")
+                    break
+
+        if flags:
+            summary = (
+                "Issues encountered with uncertainties having NDV or negative values:\n\n - "
+                + "\n - ".join(flags)
+            )
+            summary += "\n\nPlease review the input values."
+            raise GeoAppsError(summary)
+
         return out
 
-    def component_data(self, component: str) -> np.ndarray | None:
+    def component_data(self, component: str) -> list[np.ndarray]:
         """Return data values associated with the component."""
         data = getattr(self, "_".join([component, "channel"]), None)
         if isinstance(data, NumericData):
             data = data.values
-        return {None: data}
+        return [data]
 
-    def component_uncertainty(self, component: str) -> np.ndarray | None:
+    def component_uncertainty(self, component: str) -> list[np.ndarray]:
         """
         Return uncertainty values associated with the component.
 
@@ -628,6 +672,14 @@ class BaseInversionOptions(CoreOptions):
         if isinstance(data, NumericData):
             data = data.values
         elif isinstance(data, float):
-            data *= np.ones_like(self.component_data(component)[None])
+            data *= np.ones_like(self.component_data(component)[0])
 
-        return {None: data}
+        return [data]
+
+
+class IPModelOptions(ConductivityModelOptions):
+    """
+    ModelOptions class with defaulted lower bound.
+    """
+
+    lower_bound: float | FloatData | None = 0

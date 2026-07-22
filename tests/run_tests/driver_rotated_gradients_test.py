@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -18,13 +18,13 @@ from geoapps_utils.utils.locations import gaussian
 from geoh5py.groups.property_group import PropertyGroup
 from geoh5py.workspace import Workspace
 
-from simpeg_drivers.potential_fields import (
-    GravityForwardOptions,
-    GravityInversionOptions,
-)
-from simpeg_drivers.potential_fields.gravity.driver import (
+from simpeg_drivers.potential_fields.gravity.forward import (
     GravityForwardDriver,
+    GravityForwardOptions,
+)
+from simpeg_drivers.potential_fields.gravity.inversion import (
     GravityInversionDriver,
+    GravityInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (
     SyntheticsComponents,
@@ -42,18 +42,20 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # Move this file out of the test directory and run.
 # pylint: disable=no-member
 
-target_run = {"data_norm": 0.4076195420139727, "phi_d": 35.5, "phi_m": 432}
+target_run = {"data_norm": 0.37623107854757576, "phi_d": 31300, "phi_m": 5.13}
 
 
 def test_gravity_rotated_grad_fwr_run(
     tmp_path: Path,
     n_grid_points=2,
+    cell_size=(20.0, 20.0, 20.0),
     refinement=(2,),
 ):
     # Run the forward
 
     opts = SyntheticsComponentsOptions(
         method="gravity",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points,
             n_lines=n_grid_points,
@@ -61,14 +63,23 @@ def test_gravity_rotated_grad_fwr_run(
             drape=5.0,
             topography=lambda x, y: gaussian(x, y, amplitude=50.0, width=100.0) + 15,
         ),
-        mesh=MeshOptions(refinement=refinement),
+        mesh=MeshOptions(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+        ),
         model=ModelOptions(
             anomaly=0.75,
             plate=PlateModel(
                 strike_length=500.0,
                 dip_length=150.0,
                 width=20.0,
-                origin=(0.0, 0.0, -10.0),
+                easting=-15.0,
+                northing=0.0,
+                elevation=20.0,
                 direction=60.0,
                 dip=70.0,
             ),
@@ -142,6 +153,7 @@ def test_rotated_grad_run(
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e-1,
             percentile=95,
+            sens_wts_threshold=1.0,
             save_sensitivities=True,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
@@ -173,6 +185,7 @@ if __name__ == "__main__":
     test_gravity_rotated_grad_fwr_run(
         Path("./"),
         n_grid_points=10,
+        cell_size=(20.0, 20.0, 20.0),
         refinement=(6, 8),
     )
 

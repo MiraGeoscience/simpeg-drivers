@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -28,6 +28,7 @@ from discretize import TreeMesh
 from geoh5py.data import NumericData
 from geoh5py.objects.surveys.electromagnetics.base import LargeLoopGroundEMSurvey
 from geoh5py.shared import Entity
+from scipy.spatial import cKDTree
 
 from simpeg_drivers.components.data import InversionData
 from simpeg_drivers.components.locations import InversionLocations
@@ -37,7 +38,7 @@ from simpeg_drivers.utils.utils import (
     active_from_xyz,
     floating_active,
     get_containing_cells,
-    get_neighbouring_cells,
+    mask_vertices_and_cells,
 )
 
 
@@ -89,8 +90,11 @@ class InversionTopography(InversionLocations):
             "magnetotellurics",
             "direct current 3d",
             "direct current 2d",
+            "direct current pseudo 3d",
             "induced polarization 3d",
             "induced polarization 2d",
+            "induced polarization pseudo 3d",
+            "apparent conductivity",
         ] or isinstance(data.entity, LargeLoopGroundEMSurvey)
 
         if isinstance(self.params, Base1DOptions):
@@ -100,14 +104,25 @@ class InversionTopography(InversionLocations):
             active_cells = InversionModel.obj_2_mesh(
                 self.params.active_cells.active_model, mesh.entity
             )
+
         else:
+            if any(k in self.params.inversion_type for k in ["2d", "pseudo"]):
+                vertices = self.locations
+                cells = getattr(
+                    self.params.active_cells.topography_object, "cells", None
+                )
+            else:
+                vertices, cells = mask_vertices_and_cells(
+                    mesh.entity.extent[:, :2],
+                    self.locations,
+                    getattr(self.params.active_cells.topography_object, "cells", None),
+                )
+
             active_cells = active_from_xyz(
                 mesh.entity,
-                self.locations,
-                grid_reference="bottom" if forced_to_surface else "center",
-                triangulation=getattr(
-                    self.params.active_cells.topography_object, "cells", None
-                ),
+                vertices,
+                grid_reference="center",
+                triangulation=cells,
             )
 
         active_cells = (mesh.permutation @ active_cells).astype(bool)
@@ -166,22 +181,14 @@ class InversionTopography(InversionLocations):
         containing_cells = get_containing_cells(mesh.mesh, data)
         active_cells[containing_cells] = True
 
-        # Apply extra active cells to ensure connectivity for tree meshes
-        if isinstance(mesh.mesh, TreeMesh):
-            neighbours = get_neighbouring_cells(mesh.mesh, containing_cells)
-            neighbours_xy = np.r_[neighbours[0] + neighbours[1]]
-
-            neighbours_xy = neighbours_xy[neighbours_xy != -1]
-            # Make sure the new actives are connected to the old actives
-            new_actives = ~active_cells[neighbours_xy]
-            if np.any(new_actives):
-                neighbours = get_neighbouring_cells(
-                    mesh.mesh, neighbours_xy[new_actives]
-                )
-                neighbours_z = np.r_[neighbours[2][0]]
-                neighbours_z = neighbours_z[neighbours_z != -1]
-                active_cells[neighbours_z] = True  # z-axis neighbours
-
-            active_cells[neighbours_xy] = True  # xy-axis neighbours
+        # Apply extra active cells to ensure connectivity for neighbours
+        tree = cKDTree(mesh.mesh.cell_centers[containing_cells, :-1])
+        rad, ind = tree.query(mesh.mesh.cell_centers[:, :-1])
+        neighbours_xy = rad < (3 * mesh.mesh.h[0].min())
+        neighbours_xy &= (
+            mesh.mesh.cell_centers[containing_cells, :][ind, -1]
+            >= mesh.mesh.cell_centers[:, -1]
+        )
+        active_cells[neighbours_xy] = True  # xy-axis neighbours
 
         return active_cells

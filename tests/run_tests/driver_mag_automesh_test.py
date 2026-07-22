@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -15,11 +15,9 @@ from pathlib import Path
 import numpy as np
 from geoh5py import Workspace
 
-from simpeg_drivers.potential_fields import (
-    MagneticForwardOptions,
-)
-from simpeg_drivers.potential_fields.magnetic_scalar.driver import (
+from simpeg_drivers.potential_fields.magnetic_scalar.forward import (
     MagneticForwardDriver,
+    MagneticForwardOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
 from simpeg_drivers.utils.synthetics.options import (
@@ -30,21 +28,30 @@ from simpeg_drivers.utils.synthetics.options import (
 )
 
 
-TARGET = 1132.1998
+TARGET = 2874.854552748384
 
 
 def test_automesh(
     tmp_path: Path,
     n_grid_points=20,
-    refinement=(4, 8),
+    cell_size=(20.0, 20.0, 20.0),
+    refinement=(4, 4),
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="magnetic_scalar",
+        refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points, n_lines=n_grid_points, drape=5.0
         ),
-        mesh=MeshOptions(refinement=refinement),
+        mesh=MeshOptions(
+            u_cell_size=cell_size[0],
+            v_cell_size=cell_size[1],
+            w_cell_size=cell_size[2],
+            survey_refinement=list(refinement),
+            topography_refinement=[0, 0, 1],
+            plate_refinement=[1],
+        ),
         model=ModelOptions(anomaly=0.05),
     )
     with Workspace.create(tmp_path / "forward_test.ui.geoh5") as geoh5:

@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -40,6 +40,7 @@ class SimulationFactory(SimPEGFactory):
 
         self.solver = None
         if self.factory_type in [
+            "apparent conductivity",
             "direct current pseudo 3d",
             "direct current 3d",
             "direct current 2d",
@@ -50,6 +51,7 @@ class SimulationFactory(SimPEGFactory):
             "tipper",
             "fdem",
             "tdem",
+            "magnetic vector pde",
         ]:
             import pymatsolver.direct as solver_module
 
@@ -61,12 +63,17 @@ class SimulationFactory(SimPEGFactory):
 
             return simulation.Simulation3DIntegral
 
+        if self.factory_type == "magnetic vector pde":
+            from simpeg.potential_fields.magnetics import simulation
+
+            return simulation.Simulation3DDifferential
+
         if self.factory_type == "gravity":
             from simpeg.potential_fields.gravity import simulation
 
             return simulation.Simulation3DIntegral
 
-        if self.factory_type in ["direct current 3d", "direct current pseudo 3d"]:
+        if self.factory_type == "direct current 3d":
             from simpeg.electromagnetics.static.resistivity import simulation
 
             return simulation.Simulation3DNodal
@@ -76,10 +83,7 @@ class SimulationFactory(SimPEGFactory):
 
             return simulation_2d.Simulation2DNodal
 
-        if self.factory_type in [
-            "induced polarization 3d",
-            "induced polarization pseudo 3d",
-        ]:
+        if self.factory_type == "induced polarization 3d":
             from simpeg.electromagnetics.static.induced_polarization import simulation
 
             return simulation.Simulation3DNodal
@@ -91,7 +95,7 @@ class SimulationFactory(SimPEGFactory):
 
             return Simulation2DNodal
 
-        if self.factory_type in ["magnetotellurics", "tipper"]:
+        if self.factory_type in ["apparent conductivity", "magnetotellurics", "tipper"]:
             from simpeg.electromagnetics.natural_source import simulation
 
             return simulation.Simulation3DPrimarySecondary
@@ -150,6 +154,19 @@ class SimulationFactory(SimPEGFactory):
             kwargs["active_cells"] = active_cells
             kwargs["chiMap"] = maps.IdentityMap(nP=int(active_cells.sum()))
 
+        if self.factory_type == "magnetic vector pde":
+            inject = maps.InjectActiveCells(
+                mesh,
+                active_cells=np.tile(active_cells, 3),
+                value_inactive=0,
+                nC=mesh.n_cells * 3,
+            )
+            kwargs["remMap"] = inject * maps.EffectiveSusceptibilityMap(
+                nP=active_cells.sum() * 3,
+                ambient_field_magnitude=survey.source_field.amplitude,
+            )
+            kwargs["solver_dtype"] = np.float32
+
         if self.factory_type == "gravity":
             kwargs["active_cells"] = active_cells
             kwargs["rhoMap"] = maps.IdentityMap(nP=int(active_cells.sum()))
@@ -167,6 +184,7 @@ class SimulationFactory(SimPEGFactory):
             )
 
         if self.factory_type in [
+            "apparent conductivity",
             "direct current 3d",
             "direct current 2d",
             "magnetotellurics",

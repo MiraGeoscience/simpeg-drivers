@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -20,9 +20,10 @@ from geoh5py.objects import Grid2D, Octree
 from grid_apps.utils import treemesh_2_octree
 
 from simpeg_drivers.components import InversionMesh
-from simpeg_drivers.options import ActiveCellsOptions
-from simpeg_drivers.potential_fields import MVIInversionOptions
-from simpeg_drivers.potential_fields.magnetic_vector.driver import MVIInversionDriver
+from simpeg_drivers.potential_fields.magnetic_vector.inversion import (
+    MagneticVectorInversionDriver,
+    MagneticVectorInversionOptions,
+)
 from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
 from simpeg_drivers.utils.synthetics.options import (
     MeshOptions,
@@ -33,7 +34,7 @@ from simpeg_drivers.utils.synthetics.options import (
 from tests.utils.targets import get_workspace
 
 
-def get_mvi_params(tmp_path: Path, updates=None) -> MVIInversionOptions:
+def get_mvi_params(tmp_path: Path, updates=None) -> MagneticVectorInversionOptions:
     opts = SyntheticsComponentsOptions(
         method="magnetic_vector",
         survey=SurveyOptions(n_stations=4, n_lines=4),
@@ -68,7 +69,7 @@ def get_mvi_params(tmp_path: Path, updates=None) -> MVIInversionOptions:
         }
         if updates is not None:
             kwargs.update(updates)
-        params = MVIInversionOptions.build(**kwargs)
+        params = MagneticVectorInversionOptions.build(**kwargs)
     return params
 
 
@@ -240,4 +241,4 @@ def test_handle_grid2d(tmp_path):
 
     updates = {"mesh": None, "topography_object": topo, "topography": elev}
     params = get_mvi_params(tmp_path, updates=updates)
-    MVIInversionDriver(params)  # Doesn't crash
+    MagneticVectorInversionDriver(params)  # Doesn't crash

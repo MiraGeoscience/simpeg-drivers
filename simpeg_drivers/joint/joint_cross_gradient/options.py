@@ -1,5 +1,5 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-#  Copyright (c) 2025 Mira Geoscience Ltd.                                          '
+#  Copyright (c) 2023-2026 Mira Geoscience Ltd.                                     '
 #                                                                                   '
 #  This file is part of simpeg-drivers package.                                     '
 #                                                                                   '
@@ -30,14 +30,16 @@ class JointCrossGradientOptions(BaseJointOptions):
         regularization between the first and third models.
     :param cross_gradient_weight_c_b:  Weight applied to the cross gradient
         regularization between the second and third model.
+    :param iterative_rescaling:  Whether to rescale the cross gradient iteratively
     """
 
     name: ClassVar[str] = "Joint Cross Gradient Inversion"
     default_ui_json: ClassVar[Path] = (
         assets_path() / "uijson/joint_cross_gradient_inversion.ui.json"
     )
-
+    run_command: str = "simpeg_drivers.joint.joint_cross_gradient.driver"
     title: str = "Joint Cross Gradient Inversion"
+    icon: str = "function"
     inversion_type: str = "joint cross gradient"
 
     mesh: Octree | None = None
@@ -45,4 +47,5 @@ class JointCrossGradientOptions(BaseJointOptions):
     cross_gradient_weight_c_a: float | None = None
     cross_gradient_weight_c_b: float | None = None
 
+    iterative_rescaling: bool = True
     models: JointModelOptions = JointModelOptions()
