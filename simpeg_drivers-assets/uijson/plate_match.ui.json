@@ -25,7 +25,7 @@
         "dataType": "Float",
         "dataGroupType": "Multi-element",
         "main": true,
-        "label": "EM Data",
+        "label": "EM data",
         "parent": "survey",
         "tooltip": "Observed EM data to fit during plate matching",
         "value": ""
