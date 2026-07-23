@@ -601,7 +601,7 @@
         "group": "Compute",
         "optional": true,
         "enabled": true,
-        "label": "Maximum chunk size (Mb)",
+        "label": "Maximum chunk size (MB)",
         "value": 128,
         "verbose": 3,
         "visible": false,
