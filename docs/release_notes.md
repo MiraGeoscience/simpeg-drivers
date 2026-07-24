@@ -19,12 +19,13 @@
 * Revert legacy behaviour with reference model ON by default
 ### FEM/TEM
 * Implement arbitrary receiver orientations (u-v-w) for airborne EM surveys
-* Relabel uijson for TEM using Vertical, inLine, cross-line
+* Relabel ui.json for TEM using Vertical, inLine, cross-line
 * Airborne FEM coaxial do not rotate transmitter, and ppm normalization needs to be adjusted
 * Allow rotated receivers for ground EM survey
 * Remove dependency on Tx frequency for airborne FEM survey
 ### Natural Sources
 * Incorporate MobileMT inversion with SimPEG (apparent conductivity only) DC/IP
+### DC/IP
 * Parallelize batch 2D inversion
 * Improve topography augmentation for DC and MT
 * Accept 2D inversion mesh (DrapeModel) in sensitivity_cutoff application
@@ -50,7 +51,7 @@
 * Conductivity/Resistivity switcher doesn't make sense for joint mvi/mag
 * Synthetic topography for runtests is overly sampled
 * Fix capitalization in labels and tooltips of ui.json files
-* Update minimum requirement to python >=3.12, <3.15 and numpy 2.*
+* Update minimum requirement to python >=3.12, <3.14 and numpy 2.*
 * Implement direct run_commands to specific modules for forwards and inversions
 * DCIP 2D crash on line ID selection
 * PGI failure on petrophysical model with air cells
@@ -67,7 +68,6 @@
 
 * Support 3D vector property group for orientation of rotated gradients
 * Add rotated_gradient to 2D inversions
-* Joint inversion: PGI
 * Refactor components of inversion options
 * single entry point to run any application
 * Joint inversion: PGI
@@ -85,22 +85,21 @@
 * Add case study with Forestania datasets
 * Improve rotated gradient on octree change with average cell dim
 * Add files via upload
-* Add case study with Forestania datasets
 * Add docs on rotated gradient options
 * Force use of MKL for Blas implementation
 * Bad flipping of large loop orientation
 * Refactor of the Factory classes
 * Migrate octree-creation-app to grid-app
-* Investigate double-print of of Geoapps-Error
+* Investigate double-print of Geoapps-Error
 * Can't handle topography grid with nan
 * Parallelize 1D simulations
-* Forward simulation of potential fields always form the full J
+* Forward simulation of potential fields always forms the full J
 * Re-order parameters to mimic the order in metadata
 * Add check for negative cond/res model values
 * Lost control on reference angles for MVI
 * Add core depth to the max-min elevation of the survey
 * Detect issues with waveform and throw a custom GeoappsError if found
-* Add a copy group+object base in input file as it exists uin ui json group
+* Add a copy group+object base in input file as it exists in the UIJson group
 * Failure of directives when using Futures for simulation
 * Create custom sweep UIjson for plate-simulation
 * Investigate speckly looking MVI models with rotated gradients
@@ -112,12 +111,10 @@
 * Crash on Zarr file shape for tiled inversions with disk storage
 * Crash on no-upper bound for MVI within a joint process
 * Improve parallel creation of 1D simulations
-* Parallelize the Sweeps
 * Investigate erratic corner cells when using rotated gradients
 * Add custom error for topography grid selected without data
 * Random failure of sensitivity cutoff app tests
 * Workers crash on creating misfits for large problems
-* Random failure of sensitivity cutoff app tests
 * Remove save directive for petrophysical model
 * Adjust target misfit down to account for number of NDV in data
 * PGI fails with single simulation selected
@@ -127,7 +124,7 @@
 * Wrong normalization for MT
 * Speed up active from topography algorithm
 * Bring in doc of plate simulation
-* Remove out_group form ui.json. It's redundant, and was currently fai…
+* Remove out_group form ui.json
 * Cannot load results from Batch 2D inversion runs
 * DEVOPS-922: adjust or fix text in ui.json
 * Check for MVI Simpeg groups and raise error
@@ -165,9 +162,7 @@
 * Duplicated survey object when monitoring_directory is used
 * Resolve deprecation warnings with latest simpeg 0.23 and discretize 0.11
 * Create documentation for depth of investigation app
-* Add UIJson class for gravity forward/inversion
 * Fixup dependencies
-* Resolve deprecation warnings with latest simpeg 0.23 and discretize 0.11
 * Draft uml file for the UIJson/Params design
 * Update inversion docs to describe the auto-mesh option
 * Phi-d at Iter 0 shows as nan in the *.out file
@@ -197,7 +192,7 @@
 * Change default auto-scaling to false
 * Bring back adjusted ui.json from Analyst to their respective repo
 * Bad referencing to transmitter id name
-* MVI name change brakes the forward
+* MVI name change breaks the forward
 * Fem1d title
 * Outdated inversion_type for 3D FDEM
 * Non-zero evaluation of the rotated gradient of a constant model
@@ -210,7 +205,6 @@
 * Make the canny add_data optional on get_edges method
 * Crash on joint survey with apparent resistivity
 * Update simpeg fork to 0.21.2
-* Enforce counter-clock wise ordering of EM large loops
 * Streamline geoapps-utils
 * Generate tutorial for Natural source EM
 * Add checks on waveform before sending to SimPEG
@@ -248,7 +242,7 @@
 * Remove factor of half on cpu count for n_cpu=disabled
 * Fix reduced set of linter errors on simpeg-drivers
 * Regenerate env lock files (for SimPEG rc.1)
-* Enforce counter-clock wise loop for TEM large loop
+* Enforce counter-clockwise ordering of EM large loops
 * Move params tests from geoapps to simpeg-drivers
 * Deal with negative octree cell dimensions from legacy inversions
 * Improve tiling strategy for large loop EM
