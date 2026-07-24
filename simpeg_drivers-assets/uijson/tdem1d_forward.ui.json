@@ -1,5 +1,5 @@
 {
-    "version": "0.5.0",
+    "version": "0.5.1",
     "title": "Time-domain EM (TEM) 1D Forward",
     "icon": "surveyairborneem",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
@@ -186,7 +186,7 @@
         "group": "Compute",
         "optional": true,
         "enabled": true,
-        "label": "Maximum chunk size (Mb)",
+        "label": "Maximum chunk size (MB)",
         "value": 512,
         "verbose": 3,
         "visible": false,

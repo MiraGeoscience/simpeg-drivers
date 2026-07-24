@@ -1,5 +1,5 @@
 {
-    "version": "0.5.0",
+    "version": "0.5.1",
     "title": "Plate Sweep",
     "icon": "maxwellplate",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/plate-simulation/simulation.html",
@@ -25,7 +25,7 @@
         "label": "Output directory",
         "enabled": false,
         "optional": true,
-        "tooltip": "Directory to store simulation results, relative to the working geoh5.",
+        "tooltip": "Directory to store simulation results, relative to the working geoh5",
         "value": "./simulations"
     },
     "generate_summary": {
@@ -33,7 +33,7 @@
         "group": "Base",
         "label": "Generate summary file (.xlsx)",
         "enabled": true,
-        "tooltip": "Create an xlsx file summarizing the parameters of all simulations found in the 'Output directory'.",
+        "tooltip": "Create an xlsx file summarizing the parameters of all simulations found in the 'Output directory'",
         "value": true
     },
     "background_start": {
@@ -63,19 +63,19 @@
         "group": "Overburden",
         "groupOptional": true,
         "enabled": false,
-        "label": "starting",
+        "label": "Starting",
         "value": 8000.0
     },
     "overburden_stop": {
         "main": true,
         "group": "Overburden",
-        "label": "ending",
+        "label": "Ending",
         "value": 8000.0
     },
     "overburden_count": {
         "main": true,
         "group": "Overburden",
-        "label": "number of samples",
+        "label": "Number of samples",
         "value": 1
     },
     "thickness_start": {
@@ -83,19 +83,19 @@
         "group": "Thickness",
         "groupOptional": true,
         "enabled": false,
-        "label": "starting",
+        "label": "Starting",
         "value": 200.0
     },
     "thickness_stop": {
         "main": true,
         "group": "Thickness",
-        "label": "ending",
+        "label": "Ending",
         "value": 200.0
     },
     "thickness_count": {
         "main": true,
         "group": "Thickness",
-        "label": "number of samples",
+        "label": "Number of samples",
         "value": 1
     },
     "plate_start": {
@@ -103,19 +103,19 @@
         "group": "Plate",
         "groupOptional": true,
         "enabled": false,
-        "label": "starting",
+        "label": "Starting",
         "value": 20.0
     },
     "plate_stop": {
         "main": true,
         "group": "Plate",
-        "label": "ending",
+        "label": "Ending",
         "value": 20.0
     },
     "plate_count": {
         "main": true,
         "group": "Plate",
-        "label": "number of samples",
+        "label": "Number of samples",
         "value": 1
     },
     "width_start": {
@@ -123,19 +123,19 @@
         "group": "Width",
         "groupOptional": true,
         "enabled": false,
-        "label": "starting",
+        "label": "Starting",
         "value": 90.0
     },
     "width_stop": {
         "main": true,
         "group": "Width",
-        "label": "ending",
+        "label": "Ending",
         "value": 90.0
     },
     "width_count": {
         "main": true,
         "group": "Width",
-        "label": "number of samples",
+        "label": "Number of samples",
         "value": 1
     },
     "strike_length_start": {
@@ -143,19 +143,19 @@
         "group": "Strike length",
         "groupOptional": true,
         "enabled": false,
-        "label": "starting",
+        "label": "Starting",
         "value": 800.0
     },
     "strike_length_stop": {
         "main": true,
         "group": "Strike length",
-        "label": "ending",
+        "label": "Ending",
         "value": 800.0
     },
     "strike_length_count": {
         "main": true,
         "group": "Strike length",
-        "label": "number of samples",
+        "label": "Number of samples",
         "value": 1
     },
     "dip_length_start": {
@@ -163,19 +163,19 @@
         "group": "Dip length",
         "groupOptional": true,
         "enabled": false,
-        "label": "starting",
+        "label": "Starting",
         "value": 800.0
     },
     "dip_length_stop": {
         "main": true,
         "group": "Dip length",
-        "label": "ending",
+        "label": "Ending",
         "value": 800.0
     },
     "dip_length_count": {
         "main": true,
         "group": "Dip length",
-        "label": "number of samples",
+        "label": "Number of samples",
         "value": 1
     },
     "dip_start": {
@@ -183,19 +183,19 @@
         "group": "Dip",
         "groupOptional": true,
         "enabled": false,
-        "label": "starting",
+        "label": "Starting",
         "value": 60.0
     },
     "dip_stop": {
         "main": true,
         "group": "Dip",
-        "label": "ending",
+        "label": "Ending",
         "value": 60.0
     },
     "dip_count": {
         "main": true,
         "group": "Dip",
-        "label": "number of samples",
+        "label": "Number of samples",
         "value": 1
     },
     "dip_direction_start": {
@@ -203,19 +203,19 @@
         "group": "Dip dir.",
         "groupOptional": true,
         "enabled": false,
-        "label": "starting",
+        "label": "Starting",
         "value": 60.0
     },
     "dip_direction_stop": {
         "main": true,
         "group": "Dip dir.",
-        "label": "ending",
+        "label": "Ending",
         "value": 60.0
     },
     "dip_direction_count": {
         "main": true,
         "group": "Dip dir.",
-        "label": "number of samples",
+        "label": "Number of samples",
         "value": 1
     },
     "out_group": {
