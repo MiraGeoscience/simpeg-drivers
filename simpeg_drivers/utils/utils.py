@@ -26,8 +26,8 @@ from dask.distributed import Client, LocalCluster, performance_report
 from discretize import TensorMesh, TreeMesh
 from discretize.utils import mesh_utils
 from geoapps_utils import GeoAppsError
-from geoapps_utils.base import Driver, Options
-from geoapps_utils.run import fetch_driver_class_from_string, load_ui_json_as_dict
+from geoapps_utils.base import Driver
+from geoapps_utils.run import fetch_driver_class_from_string
 from geoapps_utils.utils.locations import mask_under_horizon
 from geoapps_utils.utils.numerical import running_mean, traveling_salesman
 from geoh5py import Workspace
@@ -40,7 +40,7 @@ from geoh5py.objects.surveys.electromagnetics.airborne_app_con import (
 )
 from geoh5py.objects.surveys.electromagnetics.base import LargeLoopGroundEMSurvey
 from geoh5py.shared import INTEGER_NDV
-from geoh5py.shared.utils import fetch_active_workspace, mask_by_extent, stringify
+from geoh5py.shared.utils import mask_by_extent
 from grid_apps.utils import octree_2_treemesh
 from scipy.interpolate import interp1d
 from scipy.spatial import ConvexHull, cKDTree
@@ -51,7 +51,6 @@ from simpeg_drivers.uijson import SimPEGDriversUIJson
 
 if TYPE_CHECKING:
     from simpeg_drivers.components.data import InversionData
-    from simpeg_drivers.driver import InversionDriver
 
 
 def mask_vertices_and_cells(
@@ -662,22 +661,21 @@ def get_default_parallelization_params(json_path: Path) -> tuple[int, int]:
     :param json_path: Path to ui_json file.
     :returns: Tuple of parallelization parameters.
     """
-    ui_json = load_ui_json_as_dict(json_path)
+    ui_json = SimPEGDriversUIJson.read(json_path)
 
-    n_workers = ui_json.get("n_workers", None)
-    n_threads = ui_json.get("n_threads", None)
-
-    if n_workers is None:
+    if ui_json.n_workers is None or ui_json.n_threads is None:
         cpu_count = multiprocessing.cpu_count()
 
         if cpu_count < 16:
-            n_threads = n_threads or 2
+            n_threads = ui_json.n_threads or 2
         else:
-            n_threads = n_threads or 4
+            n_threads = ui_json.n_threads or 4
 
         n_workers = cpu_count // n_threads
 
-    return n_workers, n_threads
+        return n_workers, n_threads
+
+    return ui_json.n_workers, ui_json.n_threads
 
 
 def start_dask_run(
@@ -698,13 +696,13 @@ def start_dask_run(
     :param generate_report: Flag to indicate whether to generate a performance report.
     :param start_iteration: Iteration to warm-start the inversion if possible.
     """
-    ui_json = load_ui_json_as_dict(json_path)
+    ui_json = SimPEGDriversUIJson.read(json_path)
 
-    n_workers = ui_json.get("n_workers", n_workers)
-    n_threads = ui_json.get("n_threads", n_threads)
-    save_report = ui_json.get("performance_report", generate_report)
+    n_workers = ui_json.n_workers or n_workers
+    n_threads = ui_json.n_threads or n_threads
+    save_report = ui_json.performance_report or generate_report
 
-    if (n_workers is not None and n_workers > 1) or n_threads is not None:
+    if (n_workers is not None and n_workers > 1) and n_threads is not None:
         cluster = LocalCluster(
             processes=True,
             n_workers=n_workers,

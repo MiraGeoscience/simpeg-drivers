@@ -28,7 +28,7 @@ from pandas import read_csv
 from dask.distributed import get_client, Client
 
 from geoapps_utils.base import Driver, Options
-from geoapps_utils.run import load_ui_json_as_dict
+
 from geoapps_utils.utils.importing import GeoAppsError
 
 from geoh5py import Workspace
@@ -1035,7 +1035,7 @@ def validate_workers(client, workers: list[tuple[str]] | None) -> list[tuple[str
 if __name__ == "__main__":
     file, args = argument_parser()
 
-    input_file = load_ui_json_as_dict(file)
+    input_file = UIJson.read(file).flatten()
     driver_class = driver_class_from_dict(input_file)
 
     driver_class.start_dask_run(file, **args)

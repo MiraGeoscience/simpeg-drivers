@@ -45,7 +45,6 @@ from simpeg_drivers.uijson import SimPEGDriversUIJson
 from simpeg_drivers.utils.utils import (
     get_default_parallelization_params,
     start_dask_run,
-    validate_out_group,
 )
 
 
@@ -56,6 +55,7 @@ class PlateMatchDriver(Driver):
     """Sets up and manages workers to run all combinations of swept parameters."""
 
     _params_class = PlateMatchOptions
+    _out_group_class = SimPEGGroup
 
     def __init__(
         self,
@@ -65,7 +65,7 @@ class PlateMatchDriver(Driver):
     ):
         super().__init__(params)
 
-        self._out_group = validate_out_group(self.params)
+        self._out_group = self.validate_out_group(self.params)
         self._client: Client | bool = validate_client(client)
         self._workers: list[tuple[str]] = validate_workers(self._client, workers)
 

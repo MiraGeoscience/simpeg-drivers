@@ -36,7 +36,7 @@ from simpeg_drivers.driver import BaseDriver, validate_client, validate_workers
 from simpeg_drivers.plate_simulation.driver import PlateSimulationDriver
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
 from simpeg_drivers.plate_simulation.sweep.options import SweepOptions
-from simpeg_drivers.utils.utils import start_dask_run, validate_out_group
+from simpeg_drivers.utils.utils import start_dask_run
 
 
 logger = get_logger(name=__name__, level_name=False, propagate=False, add_name=False)
@@ -46,6 +46,7 @@ class PlateSweepDriver(Driver):
     """Sets up and manages workers to run all combinations of swepts parameters."""
 
     _params_class = SweepOptions
+    _out_group_class = SimPEGGroup
 
     def __init__(
         self,
@@ -55,7 +56,7 @@ class PlateSweepDriver(Driver):
     ):
         super().__init__(params)
 
-        self._out_group = validate_out_group(self.params)
+        self._out_group = self.validate_out_group(self.params)
         self._client: Client | bool = validate_client(client)
         self._workers: list[tuple[str]] = validate_workers(self._client, workers)
 

@@ -22,7 +22,7 @@ from geoapps_utils.utils.transformations import azimuth_to_unit_vector
 from geoh5py.data import FloatData, ReferencedData
 from geoh5py.groups import SimPEGGroup
 from geoh5py.objects import Octree, Points, Surface
-from geoh5py.ui_json.input_file import InputFile
+from geoh5py.ui_json import UIJson
 
 from simpeg_drivers.driver import (
     InversionDriver,
@@ -297,12 +297,13 @@ class PlateSimulationDriver(Driver):
         """Collect template simulation options."""
 
         simulation_options = deepcopy(self.params.simulation.options)
-        simulation_options["geoh5"] = self.params.geoh5
 
-        input_file = InputFile(ui_json=simulation_options, validate=False)
-        driver = driver_class_from_dict(input_file.data)
+        ui_json = UIJson.from_dict(simulation_options)
+        driver = driver_class_from_dict(simulation_options)
 
-        return driver._params_class.build(input_file.data)  # pylint: disable=protected-access
+        return driver._params_class.build(  # pylint: disable=protected-access
+            ui_json.to_params(workspace=self.params.geoh5)
+        )
 
     def _initialize_forward_opts(self) -> BaseForwardOptions:
         """Initialize the forward simulation options with mesh and model."""

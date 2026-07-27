@@ -95,13 +95,14 @@ class SimPEGDriversUIJson(UIJson):
             file.write(data)
 
     @classmethod
-    def from_dict(cls, data: dict) -> Self:
+    def from_dict(cls, data: dict, validate: bool = True) -> Self:
         """
         Create a UIJson instance from a dictionary.
 
         Deal with known issues in legacy files
 
         :param data: Dictionary representing the ui json object.
+        :param validate: Whether to validate the data against the model schema.
 
         :returns: UIJson object.
         """
@@ -131,4 +132,7 @@ class SimPEGDriversUIJson(UIJson):
 
         ui_json_class = cls.infer(**kwargs)
 
-        return ui_json_class(**kwargs)
+        if validate:
+            return ui_json_class(**kwargs)
+
+        return ui_json_class.model_construct(**kwargs)  # type: ignore[return-value, arg-type]
