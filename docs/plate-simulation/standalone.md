@@ -26,13 +26,14 @@ The parameters controlling the forward simulation are defined through a SimPEG f
 must ensure that the SimPEG group has been previously edited with appropriate options, including a topography object,
 a survey object and data components to simulate.
 
+Oftentimes, the user would like to model a thin plate that might push the resolution limits of the finite-volume approach taken by SimPEG.  In this case, the LeroiAir application may be used instead to model the secondary fields from a rectangular prism with a known conductivity-thickness.  To use the LeroiAir application for the forward modelling, select the ``Use LeroiAir`` checkbox.
+
 ```{figure} images/methodology/data/simpeg_group_options.png
 ---
 width: 300pt
 align: center
 ---
-Selecting the initialized forward modelling SimPEG group and naming the group that will store the plate
-simulation results.
+Selecting the initialized forward modelling SimPEG group, or optionally choosing LeroiAir for improved thin plate modelling and providing a name for the results group.
 ```
 
 - Create the required SimPEG group within Geoscience ANALYST through the

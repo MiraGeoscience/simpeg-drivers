@@ -48,17 +48,15 @@ def cell_neighbors_along_axis(mesh: TreeMesh, axis: str) -> np.ndarray:
 
 def clean_index_array(index_array: np.ndarray) -> np.ndarray:
     """
-    Remove duplicate rows or rows with -1 in index array.
+    Remove rows with -1 in index array.
 
     :param index_array: Array of index pairs.
 
     :return: Cleaned array of index pairs.
     """
-    array = np.unique(index_array, axis=0)
-
     # Remove all the -1 for TreeMesh
-    mask = ~np.any(array == -1, axis=1)
-    return array[mask, :]
+    mask = ~np.any(index_array == -1, axis=1)
+    return index_array[mask, :]
 
 
 def collect_all_neighbors(
@@ -183,10 +181,10 @@ def cell_neighbors(mesh: TreeMesh) -> np.ndarray:
 
     :param mesh: Input TreeMesh.
 
-    :return: Array of unique and sorted cell neighbor pairs.
+    :return: Array of cell neighbor index pairs (cell_id, neighbor_cell_id).
     """
     neighbors_lists = cell_neighbors_lists(mesh)
-    return np.unique(np.vstack(neighbors_lists), axis=1)
+    return np.vstack(neighbors_lists)
 
 
 def rotate_xz_2d(mesh: TreeMesh, phi: np.ndarray) -> ssp.csr_matrix:
