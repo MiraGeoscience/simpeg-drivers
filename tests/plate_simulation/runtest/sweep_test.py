@@ -10,13 +10,13 @@
 
 from geoh5py import Workspace
 from geoh5py.groups import SimPEGGroup
-from geoh5py.ui_json import UIJson
 from pandas import read_excel
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
 from simpeg_drivers.plate_simulation.sweep.driver import PlateSweepDriver
 from simpeg_drivers.potential_fields.gravity.options import GravityForwardOptions
+from simpeg_drivers.uijson import SimPEGDriversUIJson
 from simpeg_drivers.utils.synthetics.options import SyntheticsComponentsOptions
 from simpeg_drivers.utils.synthetics.surveys.factory import get_survey
 from simpeg_drivers.utils.synthetics.topography import get_topography_surface
@@ -28,7 +28,7 @@ def setup_plate_sweep(workspace) -> SimPEGGroup:
     topo = get_topography_surface(workspace, options)
 
     options = GravityForwardOptions.model_construct()
-    fwr_file = UIJson.read(options.default_ui_json)
+    fwr_file = SimPEGDriversUIJson.read(options.default_ui_json)
 
     fwr_file.inversion_type = "gravity"
     fwr_file.forward_only = True
@@ -39,7 +39,7 @@ def setup_plate_sweep(workspace) -> SimPEGGroup:
     gravity = fwr_file.to_ui_json_group(workspace=workspace, name="gravity fwd")
 
     options = PlateSimulationOptions.model_construct()
-    plate_ifile = UIJson.read(options.default_ui_json)
+    plate_ifile = SimPEGDriversUIJson.read(options.default_ui_json)
 
     plate_ifile.simulation.value = str(gravity.uid)
     plate_ifile.overburden_property.value = 100.0
@@ -69,7 +69,9 @@ def test_sweep(tmp_path):
     with Workspace.create(tmp_path / "test.geoh5") as ws:
         plate_simulation = setup_plate_sweep(ws)
 
-        ifile = UIJson.read(assets_path() / "uijson" / "plate_sweep.ui.json")
+        ifile = SimPEGDriversUIJson.read(
+            assets_path() / "uijson" / "plate_sweep.ui.json"
+        )
         data = {
             "name": "test_gravity_plate_simulation",
             "geoh5": ws,
@@ -90,7 +92,7 @@ def test_sweep(tmp_path):
     assert workdir.exists()
 
     with Workspace(tmp_path / "test.geoh5"):
-        ifile = UIJson.read(tmp_path / "plate_sweep.ui.json")
+        ifile = SimPEGDriversUIJson.read(tmp_path / "plate_sweep.ui.json")
         ifile.set_values(background_count=3)
         ifile.write(tmp_path / "plate_sweep_modified.ui.json")
 
