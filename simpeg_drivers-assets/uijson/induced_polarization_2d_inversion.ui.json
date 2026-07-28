@@ -1,5 +1,5 @@
 {
-    "version": "0.5.0",
+    "version": "0.5.1",
     "title": "Induced Polarization (IP) 2D Inversion",
     "icon": "PotentialElectrode",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
@@ -565,7 +565,7 @@
         "group": "Compute",
         "optional": true,
         "enabled": true,
-        "label": "Maximum chunk size (Mb)",
+        "label": "Maximum chunk size (MB)",
         "value": 128,
         "verbose": 3,
         "visible": false,
