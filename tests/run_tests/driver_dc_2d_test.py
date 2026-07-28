@@ -104,7 +104,7 @@ def test_dc_2d_run(
 
     with Workspace(workpath) as geoh5:
         components = SyntheticsComponents(geoh5)
-        fwr_group = geoh5.get_entity("Direct Current 2D Forward")[0]
+        fwr_group = geoh5.get_entity("Direct Current (DC) 2D Forward")[0]
         survey = fwr_group.get_entity("survey")[0]
         potential = survey.get_data("Iteration_0_potential")[0]
         uncertainties = survey.add_data(
@@ -146,7 +146,7 @@ def test_dc_2d_run(
         output["data"] = potential.values
 
         # Check that the boundary cells are still on start value
-        inv_group = geoh5.get_entity("Direct Current 2D Inversion")[0]
+        inv_group = geoh5.get_entity("Direct Current (DC) 2D Inversion")[0]
         mesh = inv_group.get_entity("mesh")[0]
         model = mesh.get_entity("Iteration_1_model")[0]
         np.testing.assert_almost_equal(model.values[10:33], 1e-3)
@@ -166,7 +166,7 @@ def test_dc_single_run(
 
     with Workspace(workpath) as geoh5:
         components = SyntheticsComponents(geoh5)
-        fwr_group = geoh5.get_entity("Direct Current 2D Forward")[0]
+        fwr_group = geoh5.get_entity("Direct Current (DC) 2D Forward")[0]
         survey = fwr_group.get_entity("survey")[0]
         potential = survey.get_data("Iteration_0_potential")[0]
         uncertainties = survey.add_data(

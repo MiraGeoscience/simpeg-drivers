@@ -423,6 +423,8 @@ class DrapeModelOptions(BaseModel):
 class EMDataMixin:
     """
     Mixin class to add data and uncertainty access from property groups.
+
+    :param data_object: The data object containing the TDEM data.
     """
 
     data_object: BaseEMSurvey
@@ -492,8 +494,8 @@ class LineSelectionOptions(BaseModel):
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
     )
-    line_id: int | None = None
-    line_object: IntegerData | ReferencedData | None = None
+    line_id: int | None = Field(default=None, exclude=True)
+    line_object: IntegerData | ReferencedData | None = Field(default=None, exclude=True)
     property: ReferencedData | None = None
     value: list[int] | None = None
 

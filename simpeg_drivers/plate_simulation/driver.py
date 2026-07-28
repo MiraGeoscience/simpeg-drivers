@@ -53,7 +53,6 @@ class PlateSimulationDriver(Driver):
     """
 
     _params_class = PlateSimulationOptions
-    _out_group_class = SimPEGGroup
 
     def __init__(
         self,
@@ -63,7 +62,7 @@ class PlateSimulationDriver(Driver):
     ):
         super().__init__(params)
 
-        self._out_group = self.validate_out_group(self.params)
+        self._out_group = self.validate_out_group(self.params.out_group)
         self._plates: list[Plate] | None = None
         self._survey: Points | None = None
         self._mesh: Octree | None = None
@@ -327,7 +326,6 @@ class PlateSimulationDriver(Driver):
         )
         update["out_group"] = out_group
         forward_opts = opts.model_copy(update=update)
-        forward_opts.update_out_group_options()
 
         return forward_opts
 

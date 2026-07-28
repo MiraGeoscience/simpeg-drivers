@@ -56,7 +56,7 @@ class PlateSweepDriver(Driver):
     ):
         super().__init__(params)
 
-        self._out_group = self.validate_out_group(self.params)
+        self._out_group = self.validate_out_group(self.params.out_group)
         self._client: Client | bool = validate_client(client)
         self._workers: list[tuple[str]] = validate_workers(self._client, workers)
 

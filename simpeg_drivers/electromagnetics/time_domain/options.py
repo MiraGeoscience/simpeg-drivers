@@ -11,8 +11,9 @@
 
 from __future__ import annotations
 
+from logging import getLogger
 from pathlib import Path
-from typing import ClassVar
+from typing import ClassVar, Literal
 
 import numpy as np
 from geoh5py.groups import PropertyGroup
@@ -20,8 +21,9 @@ from geoh5py.objects import (
     AirborneTEMReceivers,
     LargeLoopGroundTEMReceivers,
     MovingLoopGroundTEMReceivers,
+    TEMSurvey,
 )
-from pydantic import AliasChoices, Field
+from pydantic import AliasChoices, Field, field_validator
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.options import (
@@ -33,10 +35,13 @@ from simpeg_drivers.options import (
 
 
 CONVERSION = {
+    None: 1.0,
     "Seconds (s)": 1.0,
     "Milliseconds (ms)": 1e-3,
     "Microseconds (us)": 1e-6,
 }
+
+logger = getLogger(__name__)
 
 
 class BaseTDEMOptions(EMDataMixin):
@@ -44,11 +49,39 @@ class BaseTDEMOptions(EMDataMixin):
     Base class for Time Domain Electromagnetic options.
 
     :param data_object: The data object containing the TDEM data.
-    :param physical_property: The physical property being modeled (e.g., conductivity).
     :param data_units: The units of the TDEM data (e.g., "Airborne dB/dt (V/Am^4)").
     """
 
-    data_units: str = "Airborne dB/dt (V/Am^4)"
+    data_object: TEMSurvey
+    data_units: Literal[
+        "Airborne dB/dt (V/Am^4)",
+        "Airborne B (T/Am^2)",
+        "Ground dB/dt (V/Am^2)",
+        "Ground B (T/A)",
+    ] = "Airborne dB/dt (V/Am^4)"
+
+    @field_validator("data_units", mode="before")
+    @classmethod
+    def validate_legacy_units(cls, value):
+        if "Airborne" not in value or "Ground" not in value:
+            original = value
+            if "dB/dt" in value:
+                value = "Airborne dB/dt (V/Am^4)"
+
+            elif "B" in value:
+                value = "Airborne B (T/Am^2)"
+
+            else:
+                value = "Ground B (T/A)"
+
+            logger.warning(
+                "Legacy data units '%s' converted to '%s'."
+                "Consider updating your ui.json file to the newest version.",
+                original,
+                value,
+            )
+
+        return value
 
     @property
     def unit_conversion(self):

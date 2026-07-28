@@ -20,6 +20,7 @@ from geoh5py.objects.surveys.electromagnetics.airborne_tem import AirborneTEMRec
 from pydantic import ConfigDict
 
 from simpeg_drivers import assets_path
+from simpeg_drivers.uijson import SimPEGDriversUIJson
 
 
 class PlateMatchOptions(Options):
@@ -51,6 +52,8 @@ class PlateMatchOptions(Options):
     topography_object: Points | Grid2D
     topography: FloatData | None = None
     simulations: str | Path
+
+    _ui_json_class: ClassVar[type[SimPEGDriversUIJson]] = SimPEGDriversUIJson
 
     @property
     def simulation_files(self) -> list[Path]:

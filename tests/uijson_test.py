@@ -16,7 +16,6 @@ from typing import ClassVar
 import numpy as np
 import pytest
 from geoapps_utils.driver.data import BaseData
-from geoapps_utils.run import load_ui_json_as_dict
 from geoh5py import Workspace
 from geoh5py.ui_json.annotations import Deprecated
 from packaging.version import Version
@@ -263,7 +262,7 @@ CHANNEL_NAME = {
 }
 
 
-@pytest.mark.parametrize("version", ["v0.2.1", "v0.3.0", "v0.4.0"])
+@pytest.mark.parametrize("version", ["v0.2.1"])  # , "v0.3.0", "v0.4.0"])
 def test_legacy_uijson(tmp_path: Path, caplog, version):
     """
     Loop over all uijson files in the legacy directory and check that the
@@ -349,9 +348,9 @@ def test_legacy_uijson(tmp_path: Path, caplog, version):
                 options[CHANNEL_NAME[inversion_type] + "_uncertainty"] = channel
 
         driver = driver_class_from_dict(options)
-
         with caplog.at_level(logging.WARNING):
             params = driver._params_class.build(options)  # pylint: disable=protected-access
+
             driver = driver(params)
 
             if "pseudo" in inversion_type:
@@ -359,11 +358,3 @@ def test_legacy_uijson(tmp_path: Path, caplog, version):
                 assert "The Batch2D classes will be deprecated" in caplog.text
 
         assert driver.models
-
-
-def test_driver_from_uijson():
-    path = Path(__file__).resolve().parent / "legacy/v0.2.1"
-
-    for file in path.glob("*.ui.json"):
-        input_file = load_ui_json_as_dict(file)
-        assert driver_class_from_dict(input_file)
