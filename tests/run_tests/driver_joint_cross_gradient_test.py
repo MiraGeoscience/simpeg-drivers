@@ -313,6 +313,8 @@ def test_joint_cross_gradient_inv_run(
             percentile=100,
         )
 
+        joint_params.out_group = joint_params.ui_json.to_ui_json_group(workspace=geoh5)
+
     file = joint_params.write_ui_json(tmp_path / "Joint_Inv_run.ui.json")
     driver = JointCrossGradientDriver.start(file)
 
@@ -415,8 +417,8 @@ def test_joint_cross_gradient_rotated_run(
         orig_data = []
         origin = None
         for name in [
-            "Direct Current 3D Forward",
-            "Magnetic Vector Forward",
+            "Direct Current (DC) 3D Forward",
+            "Magnetic Forward",
         ]:
             group = geoh5.get_entity(name)[0]
             mesh = next(child for child in group.children if isinstance(child, Octree))
@@ -447,7 +449,7 @@ def test_joint_cross_gradient_rotated_run(
             data = next(k for k in survey.children if "Iteration_0" in k.name)
             orig_data.append(data.values)
 
-            if name == "Direct Current 3D Forward":
+            if name == "Direct Current (DC) 3D Forward":
                 uncertainties = survey.add_data(
                     {
                         "Uncertainties": {

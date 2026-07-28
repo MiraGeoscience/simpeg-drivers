@@ -219,6 +219,7 @@ def test_joint_surveys_inv_run(
             percentile=100,
             auto_scale_misfits=True,
         )
+        joint_params.out_group = joint_params.ui_json.to_ui_json_group(workspace=geoh5)
         joint_params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
     driver = JointSurveysDriver.start(str(tmp_path / "Inv_run.ui.json"))

@@ -85,7 +85,6 @@ def auto_mesh_parameters(
         base_cell_size = round_nearest(spacing, 5)
         padding = auto_pad(survey.locations)
         vertical_padding = use_vertical_padding(inversion_type)
-        out_group = UIJsonGroup.create(workspace, name="AutoMesh")
 
         params_dict = {
             "geoh5": workspace,
@@ -111,11 +110,8 @@ def auto_mesh_parameters(
                 },
                 None,
             ],
-            "out_group": out_group,
         }
         params = OctreeOptions(**params_dict)
-        options = params.serialize()
-        options.pop("out_group")
-        out_group.options = options
+        params.out_group = params.ui_json.to_ui_json_group(workspace=workspace)
 
         return params
