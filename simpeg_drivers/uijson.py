@@ -13,6 +13,7 @@ import logging
 from typing import Self
 
 from geoh5py.groups import SimPEGGroup
+from geoh5py.ui_json.annotations import OptionalString
 from geoh5py.ui_json.ui_json import UIJson
 from packaging.version import Version
 from pydantic import field_validator
@@ -29,8 +30,8 @@ class SimPEGDriversUIJson(UIJson):
     icon: str
     documentation: str = "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html"
 
-    n_workers: int | None = None
-    n_threads: int | None = None
+    n_workers: int | OptionalString = None
+    n_threads: int | OptionalString = None
     performance_report: bool = False
     distributed_workers: str | None = None
 
