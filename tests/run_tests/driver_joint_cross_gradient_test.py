@@ -214,8 +214,8 @@ def test_joint_cross_gradient_inv_run(
         origin = None
         for name in [
             "Gravity Forward",
-            "Magnetic Vector Forward",
-            "Direct Current 3D Forward",
+            "Magnetic Forward",
+            "Direct Current (DC) 3D Forward",
         ]:
             group = geoh5.get_entity(name)[0]
             mesh = next(child for child in group.children if isinstance(child, Octree))
@@ -251,7 +251,7 @@ def test_joint_cross_gradient_inv_run(
                     chi_factor=0.8,
                 )
                 drivers.append(GravityInversionDriver(params))
-            elif name == "Direct Current 3D Forward":
+            elif name == "Direct Current (DC) 3D Forward":
                 uncertainties = survey.add_data(
                     {
                         "Uncertainties": {
