@@ -43,11 +43,11 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 1.0474e01, "phi_d": 2.0890e05, "phi_m": 3.9450e02}
+target_run = {"data_norm": 1.0864e01, "phi_d": 4.5530e04, "phi_m": 7.7120e02}
 
 
 def test_dc_rotated_2d_fwr_run(
-    tmp_path: Path, n_electrodes=10, n_lines=3, cell_size=(5.0, 5.0)
+    tmp_path: Path, n_electrodes=10, n_lines=3, cell_size=(10.0, 10.0)
 ):
     opts = SyntheticsComponentsOptions(
         method="direct current 2d",
@@ -162,7 +162,7 @@ def test_dc_rotated_gradient_2d_run(
     if geoh5.open():
         output["data"] = potential.values
     if pytest:
-        check_target(output, target_run, tolerance=0.2)
+        check_target(output, target_run)
 
 
 if __name__ == "__main__":
