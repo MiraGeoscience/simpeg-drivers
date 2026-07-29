@@ -121,7 +121,7 @@ class InversionTopography(InversionLocations):
             active_cells = active_from_xyz(
                 mesh.entity,
                 vertices,
-                grid_reference="center",
+                grid_reference="bottom" if forced_to_surface else "center",
                 triangulation=cells,
             )
 
