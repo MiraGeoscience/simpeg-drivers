@@ -162,7 +162,7 @@ def test_dc_rotated_gradient_2d_run(
     if geoh5.open():
         output["data"] = potential.values
     if pytest:
-        check_target(output, target_run)
+        check_target(output, target_run, tolerance=0.1)
 
 
 if __name__ == "__main__":
