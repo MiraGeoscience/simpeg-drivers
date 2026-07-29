@@ -145,6 +145,7 @@ def test_gravity_run(
             sens_wts_threshold=1.0,
             save_sensitivities=True,
         )
+        params.out_group = params.ui_json.to_ui_json_group(workspace=geoh5)
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
     driver = GravityInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))

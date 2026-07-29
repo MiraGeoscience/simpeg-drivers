@@ -108,7 +108,6 @@ def auto_mesh_parameters(
                     "levels": topography_refinement,
                     "horizon": False,
                 },
-                None,
             ],
         }
         params = OctreeOptions(**params_dict)

@@ -184,7 +184,7 @@ def test_magnetic_vector_run(
             assert np.nanmin(model.values) <= 2e-5
             assert np.isclose(driver.inversion.opt.upper[0], upper_bound)
 
-            out_group = run_ws.get_entity("Magnetic Vector Inversion")[0]
+            out_group = run_ws.get_entity("Magnetic Vector (MVI) Inversion")[0]
             mesh = out_group.get_entity("mesh")[0]
             assert len(mesh.property_groups) == 5
             assert len(mesh.fetch_property_group("LP models").properties) == 6
