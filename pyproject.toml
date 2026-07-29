@@ -97,7 +97,7 @@ trimesh = "^4.1.3"
 geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "feature/uijson"}
 
 # grid-apps = {version = ">=0.3.0a, 0.3.*", source = "pypi", allow-prereleases = true}
-grid-apps = {git = "https://github.com/MiraGeoscience/grid-apps.git", rev = "develop"}
+grid-apps = {git = "https://github.com/MiraGeoscience/grid-apps.git", rev = "GEOPY-2731"}
 
 # geoapps-utils = {version = ">=0.8.0a, 0.8.*", source = "pypi", allow-prereleases = true}
 geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "feature/uijson"}
