@@ -365,7 +365,7 @@ class BaseJointDriver(InversionDriver):
         self._reset_directives(start_iteration)
 
     @staticmethod
-    def _validate_model_consistency(model: list[None | Any], model_type: str):
+    def _validate_model_consistency(model: list[Any | None], model_type: str):
         """
         Check consistency of model values across drivers for a given model type.
         If some drivers have None and others have values, log a warning and ignore the model for the inversion.
