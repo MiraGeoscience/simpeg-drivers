@@ -111,6 +111,9 @@ class MisfitFactory(SimPEGFactory):
                     if use_futures and tile_count % len(self.workers) == 0:
                         wait(misfits)
 
+        if use_futures:
+            wait(misfits)
+            print("Collected misfits")
         os.unlink(temp_file.name)
 
         local_orderings = self.collect_ordering_from_misfits(misfits)
