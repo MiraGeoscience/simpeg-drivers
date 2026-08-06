@@ -113,7 +113,8 @@ class MisfitFactory(SimPEGFactory):
 
         if use_futures:
             wait(misfits)
-            print("Collected misfits")
+            print(f"Collected misfits Line 116 {self.client.nthreads()}")
+
         os.unlink(temp_file.name)
 
         local_orderings = self.collect_ordering_from_misfits(misfits)
@@ -166,7 +167,8 @@ class MisfitFactory(SimPEGFactory):
             for future in self.client.gather(attributes):
                 ordering += future
 
-            print("Collected ordering")
+            print(f"Collected ordering Line 170 {self.client.nthreads()}")
+
             return ordering
         return attributes
 

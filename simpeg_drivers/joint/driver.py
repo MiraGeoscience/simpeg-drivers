@@ -79,6 +79,8 @@ class BaseJointDriver(InversionDriver):
 
             self.tiles = tiles
             if self.client:
+                print(f"In data_misfit Line 82 {self.client.nthreads()}")
+                print(f"In data_misfit Line 82 workers{self.workers}")
                 return dask_objective_function.DistributedComboMisfits(
                     objfcts=objective_functions,
                     multipliers=multipliers,
@@ -190,6 +192,7 @@ class BaseJointDriver(InversionDriver):
             driver.data_misfit.multipliers = multipliers
 
         self.validate_create_models()
+        print("Models interpolated")
         self._is_initialized = True
 
     @property
@@ -423,6 +426,7 @@ class BaseJointDriver(InversionDriver):
         count = 0
 
         if self.client:
+            print(f"In joint driver Line 428 {self.client.nthreads()}")
             misfits = np.hstack(self.data_misfit._workloads).tolist()  # pylint: disable=protected-access
         else:
             misfits = self.data_misfit.objfcts
@@ -593,7 +597,8 @@ class BaseJointDriver(InversionDriver):
             mappings = []
             for future in self.client.gather(futures):
                 mappings.append(future)
-            print("Distributed mappings")
+
+            print(f"In driver Line 600 {self.client.nthreads()}")
             return mappings
         return futures
 
