@@ -593,6 +593,7 @@ class BaseJointDriver(InversionDriver):
             mappings = []
             for future in self.client.gather(futures):
                 mappings.append(future)
+            print("Distributed mappings")
             return mappings
         return futures
 

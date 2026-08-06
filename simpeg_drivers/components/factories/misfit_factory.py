@@ -165,6 +165,8 @@ class MisfitFactory(SimPEGFactory):
             ordering = []
             for future in self.client.gather(attributes):
                 ordering += future
+
+            print("Collected ordering")
             return ordering
         return attributes
 
