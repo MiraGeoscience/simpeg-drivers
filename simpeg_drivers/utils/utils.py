@@ -835,5 +835,5 @@ def argument_parser() -> tuple:
     parser.add_argument("-r", "--generate_report", action="store_true")
 
     arguments = vars(parser.parse_args())
-    print(arguments)
+
     return arguments.pop("file"), arguments
