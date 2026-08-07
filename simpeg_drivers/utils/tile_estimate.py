@@ -108,7 +108,7 @@ class TileEstimator(Driver):
                 padding_cells=self.driver.params.padding_cells,
             )
 
-            # Estimate total size in Gb
+            # Estimate total size in GB
             results[count] = float(sim.survey.nD) * mapping.shape[0] * count * 8 * 1e-9
 
         return results
@@ -122,7 +122,7 @@ class TileEstimator(Driver):
 
         logger.info(
             "Estimates:\n%s\n%s",
-            "Tiling \t Total size (Gb) ",
+            "Tiling \t Total size (GB) ",
             "\n".join(f"{key} \t {value:.2e}" for key, value in results.items()),
         )
 
@@ -246,7 +246,7 @@ class TileEstimator(Driver):
         ax.plot(optimal, fun(optimal), "ro")
         ax.set_xlabel("Number of tiles")
         ax.set_aspect(tile_counts.max() / problem_sizes.max())
-        ax.set_ylabel("Est. total size (Gb)")
+        ax.set_ylabel("Est. total size (GB)")
 
         ax2 = plt.subplot(2, 1, 2)
         tiles = tile_locations(
