@@ -116,13 +116,10 @@ class SensitivityCutoffDriver(Driver):
             if self.out_group is None
             else self.params.mesh.copy(parent=self.out_group, copy_children=False)
         )
-        cutoff_mask = out_mesh.add_data(
+        out_mesh.add_data(
             {f"{self.params.mask_name}": {"values": mask, "association": "CELL"}}
         )
-
-        self.update_monitoring_directory(self.out_group or out_mesh)
-
-        return cutoff_mask
+        return out_mesh
 
 
 if __name__ == "__main__":

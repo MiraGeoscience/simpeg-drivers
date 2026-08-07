@@ -111,6 +111,7 @@ def auto_mesh_parameters(
             ],
         }
         params = OctreeOptions(**params_dict)
-        params.out_group = params.ui_json.to_ui_json_group(workspace=workspace)
+        out_group = params.ui_json.to_ui_json_group(workspace=workspace)
 
-        return params
+        params_dict.update({"out_group": out_group})
+        return OctreeOptions(**params_dict)

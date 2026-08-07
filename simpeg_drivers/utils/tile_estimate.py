@@ -142,8 +142,6 @@ class TileEstimator(Driver):
             figure.savefig(path)
             out_group.add_file(path)
 
-        self.update_monitoring_directory(out_group)
-
         return out_group
 
     @property

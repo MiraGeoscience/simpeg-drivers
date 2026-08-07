@@ -53,6 +53,7 @@ class PlateSimulationDriver(Driver):
     """
 
     _params_class = PlateSimulationOptions
+    _out_group_class = SimPEGGroup
 
     def __init__(
         self,
@@ -72,17 +73,16 @@ class PlateSimulationDriver(Driver):
         self._simulation_driver: InversionDriver | None = None
         self.simulation_parameters: BaseForwardOptions = self._initialize_forward_opts()
 
-    def run(self) -> InversionDriver:
+    def run(self) -> SimPEGGroup:
         """Create octree mesh, fill model, and simulate."""
 
         self.simulation_driver.run()
         self.simulation_parameters.update_out_group_options()
-        self.update_monitoring_directory(self._out_group)
 
         logger.info("done.")
         logger.handlers.clear()
 
-        return self.simulation_driver
+        return self._out_group
 
     @property
     def simulation_driver(self) -> InversionDriver:

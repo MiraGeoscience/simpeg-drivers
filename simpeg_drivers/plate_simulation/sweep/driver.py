@@ -14,7 +14,6 @@ import shutil
 import sys
 from numbers import Number
 from pathlib import Path
-from typing import Self
 
 import numpy as np
 from dask.distributed import Client
@@ -70,18 +69,9 @@ class PlateSweepDriver(Driver):
         Starting message displayed by the logger.
         """
 
-    @classmethod
-    def start(cls, filepath: str | Path, mode="r", **_) -> Self:
-        """
-        Start the parameter sweep from a ui.json file.
-
-        Force the mode to be read-only for safe copy.
-        """
-        return super().start(filepath, mode="r")
-
     def run(self):
         """Loop over all trials and run a worker for each unique parameter set."""
-
+        self.workspace.close()
         trials = self.params.trials
         logger.info(
             "Running %d trials of %s . . .",
@@ -120,12 +110,12 @@ class PlateSweepDriver(Driver):
         if use_futures:
             self._client.gather(futures)
 
+        self.workspace.open()
         if self.params.generate_summary:
             summary = generate_summary(self.params.workdir.iterdir())
             out_file = self.params.geoh5.h5file.parent / "summary.xlsx"
             summary.to_excel(out_file, index=False)
-            with self.params.geoh5.open(mode="r+"):
-                self._out_group.add_file(out_file)
+            self._out_group.add_file(out_file)
 
     @staticmethod
     def run_trial(

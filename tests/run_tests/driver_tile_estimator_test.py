@@ -13,6 +13,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+from geoh5py.groups import SimPEGGroup
 
 from simpeg_drivers.potential_fields.magnetic_scalar.inversion import (
     MagneticInversionDriver,
@@ -74,11 +75,17 @@ def test_tile_estimator_run(
 
     driver = MagneticInversionDriver(params)
     tile_params = TileParameters(geoh5=geoh5, simulation=driver.out_group)
-    estimator = TileEstimator(tile_params)
+    uijson = tile_params.write_ui_json(tmp_path / "tile_estimator.ui.json")
+
+    estimator = TileEstimator.start(uijson)
+    assert len(estimator.get_results(max_tiles=32)) == 8
 
     with geoh5.open():
-        assert len(estimator.get_results(max_tiles=32)) == 8
-        simpeg_group = estimator.run()
+        simpeg_group = next(
+            group
+            for group in geoh5.groups
+            if isinstance(group, SimPEGGroup) and group.uid != driver.out_group.uid
+        )
         driver = simpeg_group_to_driver(simpeg_group, geoh5)
 
     assert driver.inversion_type == "magnetic scalar"
