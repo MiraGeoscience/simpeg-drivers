@@ -108,8 +108,8 @@ class MisfitFactory(SimPEGFactory):
 
                     tile_count += 1
 
-                    if use_futures and tile_count % len(self.workers) == 0:
-                        wait(misfits)
+                    # if use_futures and tile_count % len(self.workers) == 0:
+                    #     wait(misfits)
 
         if use_futures:
             wait(misfits)
@@ -131,6 +131,7 @@ class MisfitFactory(SimPEGFactory):
         misfits = self.assemble_arguments(tiles)
 
         if self.client:
+            print(f"In misfit factory Line 134 {len(misfits)}")
             return dask_objective_function.DistributedComboMisfits(
                 misfits,
                 client=self.client,
