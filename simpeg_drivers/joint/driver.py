@@ -61,12 +61,15 @@ class BaseJointDriver(InversionDriver):
             multipliers = []
             tiles = []
             for label, driver in zip("abc", self.drivers, strict=False):
+                logger.info("In data_misfit Line 64 %i", len(self.client.nthreads()))
                 if driver.data_misfit is not None:
                     objective_functions += driver.data_misfit.objfcts
 
                     for ii, fun in enumerate(driver.data_misfit.objfcts):
                         fun.name = f"Group_{label.upper()}:Tile_{ii}"
-
+                    logger.info(
+                        "In data_misfit Line 70 %i", len(self.client.nthreads())
+                    )
                     multipliers += (
                         [
                             (getattr(self.params, f"group_{label}_multiplier") or 1.0)
@@ -79,7 +82,7 @@ class BaseJointDriver(InversionDriver):
 
             self.tiles = tiles
             if self.client:
-                print(f"In data_misfit Line 82 {len(self.client.nthreads())}")
+                logger.info("In data_misfit Line 83 %i", len(self.client.nthreads()))
 
                 return dask_objective_function.DistributedComboMisfits(
                     objfcts=objective_functions,
