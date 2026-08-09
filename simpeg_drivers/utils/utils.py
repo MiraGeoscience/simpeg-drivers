@@ -728,6 +728,12 @@ def start_dask_run(
     profiler = cProfile.Profile()
     profiler.enable()
 
+    max_ram = ui_json.get("max_ram", None)
+    if max_ram is not None and n_workers is not None:
+        max_ram = f"{int(max_ram / n_workers)}GiB"
+
+    print(f"Max_ram {max_ram}")
+
     with (
         LocalCluster(
             processes=True,
@@ -742,6 +748,9 @@ def start_dask_run(
             if isinstance(cluster, LocalCluster)
             else contextlib.nullcontext() as context_client
         ):
+
+            if context_client is not None:
+                print([w["memory_limit"] / 1e9 for w in context_client.scheduler_info()["workers"].values()])
             # Full run
             with (
                 performance_report(filename=json_path.parent / "dask_profile.html")
