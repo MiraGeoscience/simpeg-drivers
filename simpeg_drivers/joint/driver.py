@@ -259,7 +259,9 @@ class BaseJointDriver(InversionDriver):
 
     def simpeg_run(self):
         """Run inversion from params"""
+        ct = time()
         self.initialize()
+        print(f"Initialization time {time()-ct} sec")
         self.inversion.run(self.models.starting_model)
 
     def validate_create_mesh(self):
@@ -429,6 +431,7 @@ class BaseJointDriver(InversionDriver):
         directives_list = []
         count = 0
 
+        ct = time()
         if self.client:
             print(f"In joint driver Line 428 {len(self.client.nthreads())}")
             misfits = np.hstack(self.data_misfit._workloads).tolist()  # pylint: disable=protected-access
@@ -486,6 +489,7 @@ class BaseJointDriver(InversionDriver):
                     directives_list.append(save_group)
             count += n_tiles
 
+        print(f"In joint drier Line 490: {time()-ct} sec")
         return directives_list
 
     def _get_global_model_save_directives(self):
