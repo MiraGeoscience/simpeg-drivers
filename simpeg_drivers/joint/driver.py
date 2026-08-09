@@ -14,6 +14,7 @@
 from __future__ import annotations
 
 from logging import getLogger
+from time import time
 from typing import Any
 
 import numpy as np
@@ -61,15 +62,12 @@ class BaseJointDriver(InversionDriver):
             multipliers = []
             tiles = []
             for label, driver in zip("abc", self.drivers, strict=False):
-                logger.info("In data_misfit Line 64 %i", len(self.client.nthreads()))
                 if driver.data_misfit is not None:
                     objective_functions += driver.data_misfit.objfcts
 
                     for ii, fun in enumerate(driver.data_misfit.objfcts):
                         fun.name = f"Group_{label.upper()}:Tile_{ii}"
-                    logger.info(
-                        "In data_misfit Line 70 %i", len(self.client.nthreads())
-                    )
+
                     multipliers += (
                         [
                             (getattr(self.params, f"group_{label}_multiplier") or 1.0)
@@ -83,12 +81,14 @@ class BaseJointDriver(InversionDriver):
             self.tiles = tiles
             if self.client:
                 logger.info("In data_misfit Line 83 %i", len(self.client.nthreads()))
-
-                return dask_objective_function.DistributedComboMisfits(
+                ct = time()
+                combo = dask_objective_function.DistributedComboMisfits(
                     objfcts=objective_functions,
                     multipliers=multipliers,
                     client=self.client,
                 )
+                print(f"Joint driver Line 93 {time() - ct}")
+                return combo
 
             self._data_misfit = ComboObjectiveFunction(
                 objfcts=objective_functions, multipliers=multipliers
@@ -168,6 +168,7 @@ class BaseJointDriver(InversionDriver):
             for child_driver in self.drivers:
                 setattr(child_driver.params.models, name, val)
 
+        ct = time()
         for driver, wire in zip(self.drivers, self.wires, strict=True):
             logger.info("Initializing driver %s", driver.params.name)
             # Create a projection from global mesh to driver specific mesh
@@ -195,7 +196,7 @@ class BaseJointDriver(InversionDriver):
             driver.data_misfit.multipliers = multipliers
 
         self.validate_create_models()
-        print(f"Joint driver Line 195 {len(self.client.nthreads())}")
+        print(f"Joint driver Line 195: {time() - ct} sec")
         self._is_initialized = True
 
     @property
@@ -500,6 +501,7 @@ class BaseJointDriver(InversionDriver):
         """
         Create a list of directives for the joint inversion.
         """
+        ct = time()
         directives_list = self._get_drivers_directives()
         directives_list += self._get_global_model_save_directives()
         directives_list.append(
@@ -511,7 +513,7 @@ class BaseJointDriver(InversionDriver):
         directives_list.append(self._directives.save_iteration_log_files)
         directives_list += self._directives.inversion_directives
         DirectivesFactory.configure_save_directives(directives_list)
-
+        print(f"Collected directives {time() - ct} sec")
         return directives_list
 
     def _get_local_model_save_directives(
@@ -581,7 +583,7 @@ class BaseJointDriver(InversionDriver):
         :return: List of collected attributes.
         """
         futures = []
-
+        ct = time()
         for misfit in misfits.objfcts:
             if self.client:
                 delayed_mapping = self.client.scatter(mapping)
@@ -601,7 +603,7 @@ class BaseJointDriver(InversionDriver):
             for future in self.client.gather(futures):
                 mappings.append(future)
 
-            print(f"In driver Line 600 {len(self.client.nthreads())}")
+            print(f"In driver Line 600: {time() - ct} sec")
             return mappings
         return futures
 

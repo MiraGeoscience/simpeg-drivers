@@ -71,7 +71,9 @@ class MisfitFactory(SimPEGFactory):
 
         misfits = []
         tile_count = 0
+        from time import time
 
+        ct = time()
         for channel, tile_list in tiles.items():
             for tile in tile_list:
                 # Split again but use the same mesh extent based on tile vertices
@@ -113,7 +115,9 @@ class MisfitFactory(SimPEGFactory):
 
         if use_futures:
             wait(misfits)
-            print(f"Collected misfits Line 116 {self.client.nthreads()}")
+            print(
+                f"Collected misfits Line 116 {len(self.client.nthreads())}: {time() - ct} sec"
+            )
 
         os.unlink(temp_file.name)
 
