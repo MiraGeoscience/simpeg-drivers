@@ -71,9 +71,7 @@ class MisfitFactory(SimPEGFactory):
 
         misfits = []
         tile_count = 0
-        from time import time
 
-        ct = time()
         for channel, tile_list in tiles.items():
             for tile in tile_list:
                 # Split again but use the same mesh extent based on tile vertices
@@ -110,14 +108,8 @@ class MisfitFactory(SimPEGFactory):
 
                     tile_count += 1
 
-                    # if use_futures and tile_count % len(self.workers) == 0:
-                    #     wait(misfits)
-
         if use_futures:
             wait(misfits)
-            print(
-                f"Collected misfits Line 116 {len(self.client.nthreads())}: {time() - ct} sec"
-            )
 
         os.unlink(temp_file.name)
 
@@ -135,7 +127,6 @@ class MisfitFactory(SimPEGFactory):
         misfits = self.assemble_arguments(tiles)
 
         if self.client:
-            print(f"In misfit factory Line 134 {len(misfits)}")
             return dask_objective_function.DistributedComboMisfits(
                 misfits,
                 client=self.client,
@@ -171,8 +162,6 @@ class MisfitFactory(SimPEGFactory):
             ordering = []
             for future in self.client.gather(attributes):
                 ordering += future
-
-            print(f"Collected ordering Line 170 {self.client.nthreads()}")
 
             return ordering
         return attributes

@@ -14,7 +14,6 @@
 from __future__ import annotations
 
 from logging import getLogger
-from time import time
 from typing import Any
 
 import numpy as np
@@ -81,13 +80,11 @@ class BaseJointDriver(InversionDriver):
             self.tiles = tiles
             if self.client:
                 logger.info("In data_misfit Line 83 %i", len(self.client.nthreads()))
-                ct = time()
                 combo = dask_objective_function.DistributedComboMisfits(
                     objfcts=objective_functions,
                     multipliers=multipliers,
                     client=self.client,
                 )
-                print(f"Joint driver Line 93 {time() - ct}")
                 return combo
 
             self._data_misfit = ComboObjectiveFunction(
@@ -168,7 +165,6 @@ class BaseJointDriver(InversionDriver):
             for child_driver in self.drivers:
                 setattr(child_driver.params.models, name, val)
 
-        ct = time()
         for driver, wire in zip(self.drivers, self.wires, strict=True):
             logger.info("Initializing driver %s", driver.params.name)
             # Create a projection from global mesh to driver specific mesh
@@ -196,7 +192,7 @@ class BaseJointDriver(InversionDriver):
             driver.data_misfit.multipliers = multipliers
 
         self.validate_create_models()
-        print(f"Joint driver Line 195: {time() - ct} sec")
+
         self._is_initialized = True
 
     @property
@@ -259,16 +255,13 @@ class BaseJointDriver(InversionDriver):
 
     def simpeg_run(self):
         """Run inversion from params"""
-        ct = time()
         self.initialize()
-        print(f"Initialization time {time() - ct} sec")
         self.inversion.run(self.models.starting_model)
 
     def validate_create_mesh(self):
         """Function to validate and create the inversion mesh."""
 
         if self.params.mesh is None:
-            print("Creating a global mesh from sub-meshes parameters.")
             tree = create_octree_from_octrees(
                 [driver.inversion_mesh.mesh for driver in self.drivers]
             )
@@ -431,9 +424,7 @@ class BaseJointDriver(InversionDriver):
         directives_list = []
         count = 0
 
-        ct = time()
         if self.client:
-            print(f"In joint driver Line 428 {len(self.client.nthreads())}")
             misfits = np.hstack(self.data_misfit._workloads).tolist()  # pylint: disable=protected-access
         else:
             misfits = self.data_misfit.objfcts
@@ -489,7 +480,6 @@ class BaseJointDriver(InversionDriver):
                     directives_list.append(save_group)
             count += n_tiles
 
-        print(f"In joint drier Line 490: {time() - ct} sec")
         return directives_list
 
     def _get_global_model_save_directives(self):
@@ -505,7 +495,6 @@ class BaseJointDriver(InversionDriver):
         """
         Create a list of directives for the joint inversion.
         """
-        ct = time()
         directives_list = self._get_drivers_directives()
         directives_list += self._get_global_model_save_directives()
         directives_list.append(
@@ -517,7 +506,6 @@ class BaseJointDriver(InversionDriver):
         directives_list.append(self._directives.save_iteration_log_files)
         directives_list += self._directives.inversion_directives
         DirectivesFactory.configure_save_directives(directives_list)
-        print(f"Collected directives {time() - ct} sec")
         return directives_list
 
     def _get_local_model_save_directives(
@@ -587,7 +575,6 @@ class BaseJointDriver(InversionDriver):
         :return: List of collected attributes.
         """
         futures = []
-        ct = time()
         if self.client:
             mapping = self.client.scatter(mapping)
 
@@ -609,7 +596,6 @@ class BaseJointDriver(InversionDriver):
             for future in self.client.gather(futures):
                 mappings.append(future)
 
-            print(f"In driver Line 600: {time() - ct} sec")
             return mappings
         return futures
 
