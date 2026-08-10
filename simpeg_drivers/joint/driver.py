@@ -599,9 +599,15 @@ class BaseJointDriver(InversionDriver):
         return futures
 
 
-def _get_set_mapping(obj, mapping) -> list:
-    """Recursively get ordering from components of misfit function."""
+def _get_set_mapping(obj, mapping) -> int:
+    """
+    Update the mappings of simulation.
 
+    :param obj: Simulation object.
+    :param mapping: Mapping to be applied to the simulation.
+
+    :return: Shape of the simulation mapping
+    """
     mappings = []
     for fun in obj.simulation.mappings:
         mappings.append(fun * mapping)
