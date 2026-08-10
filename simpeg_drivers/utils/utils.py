@@ -748,9 +748,13 @@ def start_dask_run(
             if isinstance(cluster, LocalCluster)
             else contextlib.nullcontext() as context_client
         ):
-
             if context_client is not None:
-                print([w["memory_limit"] / 1e9 for w in context_client.scheduler_info()["workers"].values()])
+                print(
+                    [
+                        w["memory_limit"] / 1e9
+                        for w in context_client.scheduler_info()["workers"].values()
+                    ]
+                )
             # Full run
             with (
                 performance_report(filename=json_path.parent / "dask_profile.html")
