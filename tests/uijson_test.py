@@ -262,7 +262,7 @@ CHANNEL_NAME = {
 }
 
 
-@pytest.mark.parametrize("version", ["v0.2.1"])  # , "v0.3.0", "v0.4.0"])
+@pytest.mark.parametrize("version", ["v0.2.1", "v0.3.0", "v0.4.0"])
 def test_legacy_uijson(tmp_path: Path, caplog, version):
     """
     Loop over all uijson files in the legacy directory and check that the

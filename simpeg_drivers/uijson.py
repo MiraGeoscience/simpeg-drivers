@@ -27,8 +27,10 @@ logger = logging.getLogger(__name__)
 class SimPEGDriversUIJson(UIJson):
     """Base class for simpeg-drivers UIJson."""
 
-    icon: str
-    documentation: str = "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html"
+    icon: str | None = None
+    documentation: str | None = (
+        "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html"
+    )
 
     n_workers: int | OptionalString = None
     n_threads: int | OptionalString = None
