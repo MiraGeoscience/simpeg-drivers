@@ -188,10 +188,10 @@ class BaseJointDriver(InversionDriver):
 
             multipliers = []
             mappings = self._get_set_simulation_mappings(driver.data_misfit, tile_map)
-            for mult, mapping in zip(
+            for mult, shape in zip(
                 driver.data_misfit.multipliers, mappings, strict=False
             ):
-                multipliers.append(mult * (mapping[0].shape[0] / projection.shape[1]))
+                multipliers.append(mult * (shape / projection.shape[1]))
 
             driver.data_misfit.multipliers = multipliers
 
@@ -261,7 +261,7 @@ class BaseJointDriver(InversionDriver):
         """Run inversion from params"""
         ct = time()
         self.initialize()
-        print(f"Initialization time {time()-ct} sec")
+        print(f"Initialization time {time() - ct} sec")
         self.inversion.run(self.models.starting_model)
 
     def validate_create_mesh(self):
@@ -489,7 +489,7 @@ class BaseJointDriver(InversionDriver):
                     directives_list.append(save_group)
             count += n_tiles
 
-        print(f"In joint drier Line 490: {time()-ct} sec")
+        print(f"In joint drier Line 490: {time() - ct} sec")
         return directives_list
 
     def _get_global_model_save_directives(self):
@@ -588,14 +588,16 @@ class BaseJointDriver(InversionDriver):
         """
         futures = []
         ct = time()
+        if self.client:
+            mapping = self.client.scatter(mapping)
+
         for misfit in misfits.objfcts:
             if self.client:
-                delayed_mapping = self.client.scatter(mapping)
                 futures.append(
                     self.client.submit(
                         _get_set_mapping,
                         misfit,
-                        delayed_mapping,
+                        mapping,
                         workers=self.client.who_has(misfit)[misfit.key],
                     )
                 )
@@ -621,4 +623,4 @@ def _get_set_mapping(obj, mapping) -> list:
 
     obj.simulation.mappings = mappings
 
-    return mappings
+    return mappings[0].shape[0]
