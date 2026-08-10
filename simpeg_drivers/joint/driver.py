@@ -79,7 +79,6 @@ class BaseJointDriver(InversionDriver):
 
             self.tiles = tiles
             if self.client:
-                logger.info("In data_misfit Line 83 %i", len(self.client.nthreads()))
                 combo = dask_objective_function.DistributedComboMisfits(
                     objfcts=objective_functions,
                     multipliers=multipliers,
