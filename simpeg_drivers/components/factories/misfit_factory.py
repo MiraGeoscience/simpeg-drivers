@@ -108,8 +108,8 @@ class MisfitFactory(SimPEGFactory):
 
                     tile_count += 1
 
-                    if use_futures and tile_count % len(self.workers) == 0:
-                        wait(misfits)
+        if use_futures:
+            wait(misfits)
 
         os.unlink(temp_file.name)
 
@@ -162,6 +162,7 @@ class MisfitFactory(SimPEGFactory):
             ordering = []
             for future in self.client.gather(attributes):
                 ordering += future
+
             return ordering
         return attributes
 

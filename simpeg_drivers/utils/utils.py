@@ -725,32 +725,31 @@ def start_dask_run(
     n_workers = ui_json.get("n_workers", n_workers)
     n_threads = ui_json.get("n_threads", n_threads)
     save_report = ui_json.get("performance_report", generate_report)
-
-    if (n_workers is not None and n_workers > 1) or n_threads is not None:
-        cluster = LocalCluster(
-            processes=True,
-            n_workers=n_workers,
-            threads_per_worker=n_threads,
-        )
-    else:
-        cluster = None
-
     profiler = cProfile.Profile()
     profiler.enable()
 
     with (
-        cluster.get_client()
-        if cluster is not None
-        else contextlib.nullcontext() as context_client
+        LocalCluster(
+            processes=True,
+            n_workers=n_workers,
+            threads_per_worker=n_threads,
+        )
+        if ((n_workers is not None and n_workers > 1) and n_threads is not None)
+        else contextlib.nullcontext() as cluster
     ):
-        # Full run
         with (
-            performance_report(filename=json_path.parent / "dask_profile.html")
-            if (save_report and isinstance(context_client, Client))
-            else contextlib.nullcontext()
+            cluster.get_client()
+            if isinstance(cluster, LocalCluster)
+            else contextlib.nullcontext() as context_client
         ):
-            class_type.start(json_path, start_iteration=start_iteration)
-            sys.stdout.close()
+            # Full run
+            with (
+                performance_report(filename=json_path.parent / "dask_profile.html")
+                if (save_report and isinstance(context_client, Client))
+                else contextlib.nullcontext()
+            ):
+                class_type.start(json_path, start_iteration=start_iteration)
+                sys.stdout.close()
 
     profiler.disable()
 
