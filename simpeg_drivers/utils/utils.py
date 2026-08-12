@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import contextlib
 import cProfile
-import gc
 import multiprocessing
 import pstats
 import sys
@@ -728,30 +727,37 @@ def start_dask_run(
     profiler = cProfile.Profile()
     profiler.enable()
 
-    with (
-        LocalCluster(
-            processes=True,
-            n_workers=n_workers,
-            threads_per_worker=n_threads,
-        )
-        if ((n_workers is not None and n_workers > 1) and n_threads is not None)
-        else contextlib.nullcontext() as cluster
-    ):
-        context_client = (
-            cluster.get_client()
-            if isinstance(cluster, LocalCluster)
-            else contextlib.nullcontext()
-        )
+    try:
         with (
-            performance_report(filename=json_path.parent / "dask_profile.html")
-            if (save_report and isinstance(context_client, Client))
-            else contextlib.nullcontext()
+            LocalCluster(
+                processes=True,
+                n_workers=n_workers,
+                threads_per_worker=n_threads,
+            )
+            if ((n_workers is not None and n_workers > 1) and n_threads is not None)
+            else contextlib.nullcontext() as cluster
         ):
-            driver = class_type.start(json_path, start_iteration=start_iteration)
+            with (
+                cluster.get_client()
+                if isinstance(cluster, LocalCluster)
+                else contextlib.nullcontext() as context_client
+            ):
+                with (
+                    performance_report(filename=json_path.parent / "dask_profile.html")
+                    if (save_report and isinstance(context_client, Client))
+                    else contextlib.nullcontext()
+                ):
+                    driver = class_type.start(
+                        json_path, start_iteration=start_iteration
+                    )
 
-            del driver
-            gc.collect()
-            sys.stdout.close()
+                    if isinstance(context_client, Client):
+                        context_client.cancel(driver.data_misfit.objfcts)
+
+                    sys.stdout.close()
+
+    except TimeoutError:
+        pass
 
     profiler.disable()
 
