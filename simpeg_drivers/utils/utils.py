@@ -722,9 +722,9 @@ def start_dask_run(
     """
     ui_json = load_ui_json_as_dict(json_path)
 
-    n_workers = ui_json.get("n_workers", n_workers)
-    n_threads = ui_json.get("n_threads", n_threads)
-    save_report = ui_json.get("performance_report", generate_report)
+    n_workers = ui_json.get("n_workers") or n_workers
+    n_threads = ui_json.get("n_threads") or n_threads
+    save_report = ui_json.get("performance_report") or generate_report
     profiler = cProfile.Profile()
     profiler.enable()
 
