@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import contextlib
 import cProfile
-import logging
 import multiprocessing
 import pstats
 import sys
@@ -738,23 +737,22 @@ def start_dask_run(
         if ((n_workers is not None and n_workers > 1) and n_threads is not None)
         else contextlib.nullcontext() as cluster
     ):
-        context_client = (
+        with (
             cluster.get_client()
             if isinstance(cluster, LocalCluster)
-            else contextlib.nullcontext()
-        )
-        # Full run
-        with (
-            performance_report(filename=json_path.parent / "dask_profile.html")
-            if (save_report and isinstance(context_client, Client))
-            else contextlib.nullcontext()
+            else contextlib.nullcontext() as context_client
         ):
-            class_type.start(json_path, start_iteration=start_iteration)
-            sys.stdout.close()
+            with (
+                performance_report(filename=json_path.parent / "dask_profile.html")
+                if (save_report and isinstance(context_client, Client))
+                else contextlib.nullcontext()
+            ):
+                driver = class_type.start(json_path, start_iteration=start_iteration)
 
-        if isinstance(context_client, Client):
-            with silence_logging_cmgr(logging.CRITICAL):
-                context_client.shutdown()
+                if isinstance(context_client, Client):
+                    context_client.cancel(driver.data_misfit.objfcts)
+
+                sys.stdout.close()
 
     profiler.disable()
 
