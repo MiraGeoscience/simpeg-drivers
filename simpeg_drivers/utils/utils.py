@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import contextlib
 import cProfile
+import logging
 import multiprocessing
 import pstats
 import sys
@@ -25,6 +26,7 @@ import numpy as np
 from dask.distributed import Client, LocalCluster, performance_report
 from discretize import TensorMesh, TreeMesh
 from discretize.utils import mesh_utils
+from distributed.utils import silence_logging_cmgr
 from geoapps_utils import GeoAppsError
 from geoapps_utils.base import Driver, Options
 from geoapps_utils.run import fetch_driver_class_from_string, load_ui_json_as_dict
@@ -51,7 +53,6 @@ from simpeg_drivers.uijson import SimPEGDriversUIJson
 
 if TYPE_CHECKING:
     from simpeg_drivers.components.data import InversionData
-    from simpeg_drivers.driver import InversionDriver
 
 
 def mask_vertices_and_cells(
@@ -752,7 +753,8 @@ def start_dask_run(
             sys.stdout.close()
 
         if isinstance(context_client, Client):
-            context_client.shutdown()
+            with silence_logging_cmgr(logging.CRITICAL):
+                context_client.shutdown()
 
     profiler.disable()
 
