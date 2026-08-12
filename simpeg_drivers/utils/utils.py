@@ -728,28 +728,28 @@ def start_dask_run(
     profiler = cProfile.Profile()
     profiler.enable()
 
-    with (
+    cluster = (
         LocalCluster(
             processes=True,
             n_workers=n_workers,
             threads_per_worker=n_threads,
         )
         if ((n_workers is not None and n_workers > 1) and n_threads is not None)
-        else contextlib.nullcontext() as cluster
+        else contextlib.nullcontext()
+    )
+    with (
+        cluster.get_client()
+        if isinstance(cluster, LocalCluster)
+        else contextlib.nullcontext() as context_client
     ):
+        # Full run
         with (
-            cluster.get_client()
-            if isinstance(cluster, LocalCluster)
-            else contextlib.nullcontext() as context_client
+            performance_report(filename=json_path.parent / "dask_profile.html")
+            if (save_report and isinstance(context_client, Client))
+            else contextlib.nullcontext()
         ):
-            # Full run
-            with (
-                performance_report(filename=json_path.parent / "dask_profile.html")
-                if (save_report and isinstance(context_client, Client))
-                else contextlib.nullcontext()
-            ):
-                class_type.start(json_path, start_iteration=start_iteration)
-                sys.stdout.close()
+            class_type.start(json_path, start_iteration=start_iteration)
+            sys.stdout.close()
 
     profiler.disable()
 
