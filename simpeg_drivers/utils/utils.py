@@ -737,22 +737,22 @@ def start_dask_run(
         if ((n_workers is not None and n_workers > 1) and n_threads is not None)
         else contextlib.nullcontext() as cluster
     ):
-        with (
+        context_client = (
             cluster.get_client()
             if isinstance(cluster, LocalCluster)
-            else contextlib.nullcontext() as context_client
+            else contextlib.nullcontext()
+        )
+        with (
+            performance_report(filename=json_path.parent / "dask_profile.html")
+            if (save_report and isinstance(context_client, Client))
+            else contextlib.nullcontext()
         ):
-            with (
-                performance_report(filename=json_path.parent / "dask_profile.html")
-                if (save_report and isinstance(context_client, Client))
-                else contextlib.nullcontext()
-            ):
-                driver = class_type.start(json_path, start_iteration=start_iteration)
+            class_type.start(json_path, start_iteration=start_iteration)
 
-                if isinstance(context_client, Client):
-                    context_client.cancel(driver.data_misfit.objfcts)
+            sys.stdout.close()
 
-                sys.stdout.close()
+        if isinstance(context_client, Client):
+            context_client.restart()
 
     profiler.disable()
 
