@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import contextlib
 import cProfile
+import gc
 import multiprocessing
 import pstats
 import sys
@@ -25,7 +26,6 @@ import numpy as np
 from dask.distributed import Client, LocalCluster, performance_report
 from discretize import TensorMesh, TreeMesh
 from discretize.utils import mesh_utils
-from distributed.utils import silence_logging_cmgr
 from geoapps_utils import GeoAppsError
 from geoapps_utils.base import Driver, Options
 from geoapps_utils.run import fetch_driver_class_from_string, load_ui_json_as_dict
@@ -747,12 +747,11 @@ def start_dask_run(
             if (save_report and isinstance(context_client, Client))
             else contextlib.nullcontext()
         ):
-            class_type.start(json_path, start_iteration=start_iteration)
+            driver = class_type.start(json_path, start_iteration=start_iteration)
 
+            del driver
+            gc.collect()
             sys.stdout.close()
-
-        if isinstance(context_client, Client):
-            context_client.restart()
 
     profiler.disable()
 
