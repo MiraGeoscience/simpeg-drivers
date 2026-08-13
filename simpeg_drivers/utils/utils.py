@@ -51,7 +51,6 @@ from simpeg_drivers.uijson import SimPEGDriversUIJson
 
 if TYPE_CHECKING:
     from simpeg_drivers.components.data import InversionData
-    from simpeg_drivers.driver import InversionDriver
 
 
 def mask_vertices_and_cells(
@@ -722,34 +721,43 @@ def start_dask_run(
     """
     ui_json = load_ui_json_as_dict(json_path)
 
-    n_workers = ui_json.get("n_workers", n_workers)
-    n_threads = ui_json.get("n_threads", n_threads)
-    save_report = ui_json.get("performance_report", generate_report)
+    n_workers = ui_json.get("n_workers") or n_workers
+    n_threads = ui_json.get("n_threads") or n_threads
+    save_report = ui_json.get("performance_report") or generate_report
     profiler = cProfile.Profile()
     profiler.enable()
 
-    with (
-        LocalCluster(
-            processes=True,
-            n_workers=n_workers,
-            threads_per_worker=n_threads,
-        )
-        if ((n_workers is not None and n_workers > 1) and n_threads is not None)
-        else contextlib.nullcontext() as cluster
-    ):
+    try:
         with (
-            cluster.get_client()
-            if isinstance(cluster, LocalCluster)
-            else contextlib.nullcontext() as context_client
+            LocalCluster(
+                processes=True,
+                n_workers=n_workers,
+                threads_per_worker=n_threads,
+            )
+            if ((n_workers is not None and n_workers > 1) and n_threads is not None)
+            else contextlib.nullcontext() as cluster
         ):
-            # Full run
             with (
-                performance_report(filename=json_path.parent / "dask_profile.html")
-                if (save_report and isinstance(context_client, Client))
-                else contextlib.nullcontext()
+                cluster.get_client()
+                if isinstance(cluster, LocalCluster)
+                else contextlib.nullcontext() as context_client
             ):
-                class_type.start(json_path, start_iteration=start_iteration)
-                sys.stdout.close()
+                with (
+                    performance_report(filename=json_path.parent / "dask_profile.html")
+                    if (save_report and isinstance(context_client, Client))
+                    else contextlib.nullcontext()
+                ):
+                    driver = class_type.start(
+                        json_path, start_iteration=start_iteration
+                    )
+
+                    if isinstance(context_client, Client):
+                        context_client.cancel(driver.data_misfit.objfcts)
+
+                    sys.stdout.close()
+
+    except TimeoutError:
+        pass
 
     profiler.disable()
 
