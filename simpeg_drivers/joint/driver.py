@@ -79,11 +79,12 @@ class BaseJointDriver(InversionDriver):
 
             self.tiles = tiles
             if self.client:
-                return dask_objective_function.DistributedComboMisfits(
+                combo = dask_objective_function.DistributedComboMisfits(
                     objfcts=objective_functions,
                     multipliers=multipliers,
                     client=self.client,
                 )
+                return combo
 
             self._data_misfit = ComboObjectiveFunction(
                 objfcts=objective_functions, multipliers=multipliers
@@ -182,14 +183,15 @@ class BaseJointDriver(InversionDriver):
 
             multipliers = []
             mappings = self._get_set_simulation_mappings(driver.data_misfit, tile_map)
-            for mult, mapping in zip(
+            for mult, shape in zip(
                 driver.data_misfit.multipliers, mappings, strict=False
             ):
-                multipliers.append(mult * (mapping[0].shape[0] / projection.shape[1]))
+                multipliers.append(mult * (shape / projection.shape[1]))
 
             driver.data_misfit.multipliers = multipliers
 
         self.validate_create_models()
+
         self._is_initialized = True
 
     @property
@@ -259,7 +261,6 @@ class BaseJointDriver(InversionDriver):
         """Function to validate and create the inversion mesh."""
 
         if self.params.mesh is None:
-            print("Creating a global mesh from sub-meshes parameters.")
             tree = create_octree_from_octrees(
                 [driver.inversion_mesh.mesh for driver in self.drivers]
             )
@@ -504,7 +505,6 @@ class BaseJointDriver(InversionDriver):
         directives_list.append(self._directives.save_iteration_log_files)
         directives_list += self._directives.inversion_directives
         DirectivesFactory.configure_save_directives(directives_list)
-
         return directives_list
 
     def _get_local_model_save_directives(
@@ -574,15 +574,16 @@ class BaseJointDriver(InversionDriver):
         :return: List of collected attributes.
         """
         futures = []
+        if self.client:
+            mapping = self.client.scatter(mapping)
 
         for misfit in misfits.objfcts:
             if self.client:
-                delayed_mapping = self.client.scatter(mapping)
                 futures.append(
                     self.client.submit(
                         _get_set_mapping,
                         misfit,
-                        delayed_mapping,
+                        mapping,
                         workers=self.client.who_has(misfit)[misfit.key],
                     )
                 )
@@ -593,17 +594,24 @@ class BaseJointDriver(InversionDriver):
             mappings = []
             for future in self.client.gather(futures):
                 mappings.append(future)
+
             return mappings
         return futures
 
 
-def _get_set_mapping(obj, mapping) -> list:
-    """Recursively get ordering from components of misfit function."""
+def _get_set_mapping(obj, mapping) -> int:
+    """
+    Update the mappings of simulation.
 
+    :param obj: Simulation object.
+    :param mapping: Mapping to be applied to the simulation.
+
+    :return: Shape of the simulation mapping
+    """
     mappings = []
     for fun in obj.simulation.mappings:
         mappings.append(fun * mapping)
 
     obj.simulation.mappings = mappings
 
-    return mappings
+    return mappings[0].shape[0]

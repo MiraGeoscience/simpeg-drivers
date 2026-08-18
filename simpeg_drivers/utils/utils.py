@@ -692,36 +692,43 @@ def start_dask_run(
     :param start_iteration: Iteration to warm-start the inversion if possible.
     """
     ui_json = SimPEGDriversUIJson.read(json_path)
-
-    n_workers = ui_json.n_workers or n_workers
-    n_threads = ui_json.n_threads or n_threads
-    save_report = ui_json.performance_report or generate_report
-
-    if (n_workers is not None and n_workers > 1) and n_threads is not None:
-        cluster = LocalCluster(
-            processes=True,
-            n_workers=n_workers,
-            threads_per_worker=n_threads,
-        )
-    else:
-        cluster = None
-
+    n_workers = ui_json.get("n_workers") or n_workers
+    n_threads = ui_json.get("n_threads") or n_threads
+    save_report = ui_json.get("performance_report") or generate_report
     profiler = cProfile.Profile()
     profiler.enable()
 
-    with (
-        cluster.get_client()
-        if cluster is not None
-        else contextlib.nullcontext() as context_client
-    ):
-        # Full run
+    try:
         with (
-            performance_report(filename=json_path.parent / "dask_profile.html")
-            if (save_report and isinstance(context_client, Client))
-            else contextlib.nullcontext()
+            LocalCluster(
+                processes=True,
+                n_workers=n_workers,
+                threads_per_worker=n_threads,
+            )
+            if ((n_workers is not None and n_workers > 1) and n_threads is not None)
+            else contextlib.nullcontext() as cluster
         ):
-            class_type.start(json_path, start_iteration=start_iteration)
-            sys.stdout.close()
+            with (
+                cluster.get_client()
+                if isinstance(cluster, LocalCluster)
+                else contextlib.nullcontext() as context_client
+            ):
+                with (
+                    performance_report(filename=json_path.parent / "dask_profile.html")
+                    if (save_report and isinstance(context_client, Client))
+                    else contextlib.nullcontext()
+                ):
+                    driver = class_type.start(
+                        json_path, start_iteration=start_iteration
+                    )
+
+                    if isinstance(context_client, Client):
+                        context_client.cancel(driver.data_misfit.objfcts)
+
+                    sys.stdout.close()
+
+    except TimeoutError:
+        pass
 
     profiler.disable()
 
