@@ -63,7 +63,7 @@ class BaseTDEMOptions(EMDataMixin):
     @field_validator("data_units", mode="before")
     @classmethod
     def validate_legacy_units(cls, value):
-        if "Airborne" not in value or "Ground" not in value:
+        if "Airborne" not in value and "Ground" not in value:
             original = value
             if "dB/dt" in value:
                 value = "Airborne dB/dt (V/Am^4)"
