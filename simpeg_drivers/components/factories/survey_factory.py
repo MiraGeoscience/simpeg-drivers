@@ -316,7 +316,7 @@ class SurveyFactory(SimPEGFactory):
         return [tx_list]
 
     def _fem_arguments(self, data=None):
-        channels = np.array(data.entity.channels) * self.params.unit_conversion
+        channels = np.array(data.entity.channels) / self.params.unit_conversion
         rx_locs = data.entity.vertices
         tx_locs = data.entity.transmitters.vertices
         frequencies = np.repeat(channels, rx_locs.shape[0])

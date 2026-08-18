@@ -155,6 +155,7 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
                         f"uncertainty_{chan}_[{ind}]": {
                             "values": np.ones_like(abs_val)
                             * freq
+                            * 1e3
                             / 200.0  # * 2**(np.abs(ind-1))
                         }
                     }
