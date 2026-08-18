@@ -654,28 +654,23 @@ def compute_alongline_distance(points: np.ndarray, ordered: bool = True) -> np.n
 
 def get_default_parallelization_params(json_path: Path) -> tuple[int, int]:
     """
-    Get parallelization parameters from a ui_json file.
+    Get parallelization parameters from an ui.json file.
 
     If the number of workers is unset, it is estimated from the number of CPU cores.
 
-    :param json_path: Path to ui_json file.
+    :param json_path: Path to ui.json file.
     :returns: Tuple of parallelization parameters.
     """
     ui_json = SimPEGDriversUIJson.read(json_path)
+    cpu_count = multiprocessing.cpu_count()
 
-    if ui_json.n_workers is None or ui_json.n_threads is None:
-        cpu_count = multiprocessing.cpu_count()
+    if n_threads := ui_json.n_threads is None:
+        n_threads = 2 if cpu_count < 16 else 4
 
-        if cpu_count < 16:
-            n_threads = ui_json.n_threads or 2
-        else:
-            n_threads = ui_json.n_threads or 4
-
+    if n_workers := ui_json.n_workers is None:
         n_workers = cpu_count // n_threads
 
-        return n_workers, n_threads
-
-    return ui_json.n_workers, ui_json.n_threads
+    return n_workers, n_threads
 
 
 def start_dask_run(
