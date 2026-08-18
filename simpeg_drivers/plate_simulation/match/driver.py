@@ -399,9 +399,6 @@ class PlateMatchDriver(Driver):
             }
         )
 
-        if self.params.monitoring_directory:
-            self.update_monitoring_directory(self._out_group)
-
         return out
 
     def run_scores(self, spatial_projection, data) -> tuple[np.ndarray, np.ndarray]:
