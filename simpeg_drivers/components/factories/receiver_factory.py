@@ -271,4 +271,7 @@ class ReceiversFactory(SimPEGFactory):
 
             return orientations
 
+        # elif "borehole" in self.params.inversion_type:
+        #     pass
+
         return normals

@@ -46,6 +46,7 @@ class SimPEGFactory(ABC):
 
     valid_factory_types = [
         "apparent conductivity",
+        "borehole tdem",
         "direct current pseudo 3d",
         "direct current 3d",
         "direct current 2d",

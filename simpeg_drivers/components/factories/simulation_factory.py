@@ -41,6 +41,7 @@ class SimulationFactory(SimPEGFactory):
         self.solver = None
         if self.factory_type in [
             "apparent conductivity",
+            "borehole tdem",
             "direct current pseudo 3d",
             "direct current 3d",
             "direct current 2d",
@@ -185,6 +186,7 @@ class SimulationFactory(SimPEGFactory):
 
         if self.factory_type in [
             "apparent conductivity",
+            "borehole tdem",
             "direct current 3d",
             "direct current 2d",
             "magnetotellurics",
