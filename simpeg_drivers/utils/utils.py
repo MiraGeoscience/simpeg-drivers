@@ -680,7 +680,7 @@ def start_dask_run(
     n_threads: int | None = None,
     generate_report: bool = False,
     start_iteration: int = -1,
-):
+) -> Driver:
     """
     Runs an application with Dask optimization.
 
@@ -692,9 +692,9 @@ def start_dask_run(
     :param start_iteration: Iteration to warm-start the inversion if possible.
     """
     ui_json = SimPEGDriversUIJson.read(json_path)
-    n_workers = ui_json.get("n_workers") or n_workers
-    n_threads = ui_json.get("n_threads") or n_threads
-    save_report = ui_json.get("performance_report") or generate_report
+    n_workers = ui_json.n_workers or n_workers
+    n_threads = ui_json.n_threads or n_threads
+    save_report = ui_json.performance_report or generate_report
     profiler = cProfile.Profile()
     profiler.enable()
 
@@ -739,6 +739,8 @@ def start_dask_run(
             ps = pstats.Stats(profiler, stream=s)
             ps.sort_stats("cumulative")
             ps.print_stats()
+
+    return driver
 
 
 def driver_class_from_name(name: str, forward_only: bool = False) -> type[Driver]:

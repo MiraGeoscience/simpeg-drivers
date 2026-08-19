@@ -551,14 +551,14 @@ class BaseDriver(Driver, ABC):
         return driver
 
     @classmethod
-    def start_dask_run(cls, json_path: Path, **kwargs):
+    def start_dask_run(cls, json_path: Path, **kwargs) -> Driver:
         """
         Sets Dask config settings.
 
         :param json_path: Path to input file (.ui.json) for the application.
         :param kwargs: Additional keyword arguments for the dask run.
         """
-        start_dask_run(cls, json_path, **kwargs)
+        return start_dask_run(cls, json_path, **kwargs)
 
     @abstractmethod
     def warm_start(self, start_iteration: int = -1):
