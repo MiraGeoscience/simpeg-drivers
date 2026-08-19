@@ -53,7 +53,7 @@ class BaseTDEMOptions(EMDataMixin):
     @property
     def unit_conversion(self):
         """Return time unit conversion factor."""
-        return CONVERSION[self.data_object.unit]
+        return CONVERSION[getattr(self.data_object, "unit", "Seconds (s)")]
 
     @property
     def timing_mark(self):

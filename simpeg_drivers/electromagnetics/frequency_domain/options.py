@@ -85,7 +85,7 @@ class BaseFDEMOptions(EMDataMixin):
     @property
     def unit_conversion(self):
         """Return time unit conversion factor."""
-        return CONVERSION[self.data_object.unit]
+        return CONVERSION[getattr(self.data_object, "unit", "Hertz (Hz)")]
 
     @field_validator("inversion_type", mode="before")
     @classmethod

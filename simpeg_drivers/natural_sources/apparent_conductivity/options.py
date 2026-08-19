@@ -14,20 +14,19 @@ from __future__ import annotations
 from pathlib import Path
 from typing import ClassVar
 
-from geoh5py.data import FloatData
 from geoh5py.groups import PropertyGroup
 from geoh5py.objects import AirborneAppConReceivers
 
 from simpeg_drivers import assets_path
+from simpeg_drivers.electromagnetics.frequency_domain.options import BaseFDEMOptions
 from simpeg_drivers.options import (
     BaseForwardOptions,
     BaseInversionOptions,
     ConductivityModelOptions,
-    EMDataMixin,
 )
 
 
-class AppConForwardOptions(EMDataMixin, BaseForwardOptions):
+class AppConForwardOptions(BaseFDEMOptions, BaseForwardOptions):
     """
     AppCon forward options.
     """
@@ -46,7 +45,7 @@ class AppConForwardOptions(EMDataMixin, BaseForwardOptions):
     models: ConductivityModelOptions
 
 
-class AppConInversionOptions(EMDataMixin, BaseInversionOptions):
+class AppConInversionOptions(BaseFDEMOptions, BaseInversionOptions):
     """
     AppCon Inversion options.
 
