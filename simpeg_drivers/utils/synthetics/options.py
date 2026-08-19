@@ -16,7 +16,7 @@ from geoapps_utils.utils.locations import gaussian
 from geoh5py.objects import ObjectBase, Points, Surface
 from geoh5py.shared.utils import fetch_active_workspace
 from grid_apps.octree_creation.options import OctreeOptions
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from simpeg_drivers.options import DrapeModelOptions
 
@@ -56,10 +56,10 @@ class MeshOptions(BaseModel):
     max_distance: float = 100.0
     minimum_level: int = 8
     diagonal_balance: bool = True
-    survey_refinement: list[int] = [4, 6]
-    topography_refinement: list[int] = [0, 0, 1]
-    plate_refinement: list[int] = [4]
-    name: str = "mesh"
+    survey_refinement: list[int] = Field(default=[4, 6], exclude=True)
+    topography_refinement: list[int] = Field(default=[0, 0, 1], exclude=True)
+    plate_refinement: list[int] = Field(default=[4], exclude=True)
+    name: str = Field(default="mesh", exclude=True)
 
     @property
     def cell_size(self) -> tuple[float, float, float]:

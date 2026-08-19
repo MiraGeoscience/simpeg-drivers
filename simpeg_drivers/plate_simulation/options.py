@@ -52,6 +52,8 @@ class PlateSimulationOptions(Options):
     simulation: SimPEGGroup | UIJsonGroup
     use_leroi: bool = False
 
+    _ui_json_class: ClassVar[type[SimPEGDriversUIJson]] = SimPEGDriversUIJson
+
     @model_validator(mode="before")
     @classmethod
     def use_leroi_em_only(cls, data) -> dict:

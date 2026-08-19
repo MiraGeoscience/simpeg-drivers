@@ -14,7 +14,6 @@ import shutil
 import sys
 from numbers import Number
 from pathlib import Path
-from typing import Self
 
 import numpy as np
 from dask.distributed import Client
@@ -36,7 +35,7 @@ from simpeg_drivers.driver import BaseDriver, validate_client, validate_workers
 from simpeg_drivers.plate_simulation.driver import PlateSimulationDriver
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
 from simpeg_drivers.plate_simulation.sweep.options import SweepOptions
-from simpeg_drivers.utils.utils import start_dask_run, validate_out_group
+from simpeg_drivers.utils.utils import start_dask_run
 
 
 logger = get_logger(name=__name__, level_name=False, propagate=False, add_name=False)
@@ -46,6 +45,7 @@ class PlateSweepDriver(Driver):
     """Sets up and manages workers to run all combinations of swepts parameters."""
 
     _params_class = SweepOptions
+    _out_group_class = SimPEGGroup
 
     def __init__(
         self,
@@ -55,7 +55,7 @@ class PlateSweepDriver(Driver):
     ):
         super().__init__(params)
 
-        self._out_group = validate_out_group(self.params)
+        self._out_group = self.validate_out_group(self.params.out_group)
         self._client: Client | bool = validate_client(client)
         self._workers: list[tuple[str]] = validate_workers(self._client, workers)
 
@@ -69,18 +69,9 @@ class PlateSweepDriver(Driver):
         Starting message displayed by the logger.
         """
 
-    @classmethod
-    def start(cls, filepath: str | Path, mode="r", **_) -> Self:
-        """
-        Start the parameter sweep from a ui.json file.
-
-        Force the mode to be read-only for safe copy.
-        """
-        return super().start(filepath, mode="r")
-
     def run(self):
         """Loop over all trials and run a worker for each unique parameter set."""
-
+        self.workspace.close()
         trials = self.params.trials
         logger.info(
             "Running %d trials of %s . . .",
@@ -119,12 +110,12 @@ class PlateSweepDriver(Driver):
         if use_futures:
             self._client.gather(futures)
 
+        self.workspace.open()
         if self.params.generate_summary:
             summary = generate_summary(self.params.workdir.iterdir())
             out_file = self.params.geoh5.h5file.parent / "summary.xlsx"
             summary.to_excel(out_file, index=False)
-            with self.params.geoh5.open(mode="r+"):
-                self._out_group.add_file(out_file)
+            self._out_group.add_file(out_file)
 
     @staticmethod
     def run_trial(

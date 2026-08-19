@@ -199,6 +199,8 @@ class CoreOptions(Options):
     # List of deprecated parameters
     deprecations: Deprecations
 
+    _ui_json_class: ClassVar[type] = SimPEGDriversUIJson
+
     @property
     def components(self) -> list[str]:
         """Return list of component names."""
@@ -233,29 +235,6 @@ class CoreOptions(Options):
             return 100
 
         return 4 if self.inversion_type in ["fdem", "tdem"] else 6
-
-    def write_ui_json(self, path: Path) -> Path:
-        """
-        Write UI JSON file.
-        """
-        ui_json = SimPEGDriversUIJson.read(self.default_ui_json)
-
-        value_dict = self.model_dump(exclude_unset=True)
-
-        def _recursive_flatten(data: dict[str, Any]) -> dict[str, Any]:
-            values: dict[str, Any] = {}
-            for key, val in data.items():
-                if isinstance(val, dict) and getattr(ui_json, key, None) is None:
-                    values.update(_recursive_flatten(val))
-                else:
-                    values[key] = val
-
-            return values
-
-        flatten = _recursive_flatten(value_dict)
-        ui_json.set_values(**flatten)
-
-        return ui_json.write(path)
 
 
 class ModelOptions(BaseModel):
@@ -444,6 +423,8 @@ class DrapeModelOptions(BaseModel):
 class EMDataMixin:
     """
     Mixin class to add data and uncertainty access from property groups.
+
+    :param data_object: The data object containing the TDEM data.
     """
 
     data_object: BaseEMSurvey
@@ -513,8 +494,8 @@ class LineSelectionOptions(BaseModel):
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
     )
-    line_id: int | None = None
-    line_object: IntegerData | ReferencedData | None = None
+    line_id: int | None = Field(default=None, exclude=True)
+    line_object: IntegerData | ReferencedData | None = Field(default=None, exclude=True)
     property: ReferencedData | None = None
     value: list[int] | None = None
 
