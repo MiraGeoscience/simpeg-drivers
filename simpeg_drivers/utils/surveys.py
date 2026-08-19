@@ -16,7 +16,7 @@ from discretize import TreeMesh
 from geoh5py import Workspace
 from geoh5py.objects import DrapeModel, PotentialElectrode
 from geoh5py.shared.merging.drape_model import DrapeModelMerger
-from scipy.sparse import csgraph, csr_matrix
+from scipy.sparse import csgraph, csr_matrix, diags
 from scipy.spatial import cKDTree
 from simpeg.survey import BaseSurvey
 
@@ -149,9 +149,13 @@ def compute_em_projections(locations, simulation):
         indices = source.rx_ids
         for receiver in source.receiver_list:
             projection = 0.0
-            for orientation, comp in zip(receiver.orientation, "xyz", strict=True):
-                if orientation == 0:
+            orientations = receiver.orientation.reshape((-1, 3))
+            for orientation, comp in zip(orientations.T, "xyz", strict=True):
+                if len(orientation) == 1 and orientation == 0:
                     continue
+                elif len(orientation) > 1:
+                    orientation = diags(orientation)
+
                 projection += orientation * projections[comp][indices, :]
             receiver.spatialP = projection
 
