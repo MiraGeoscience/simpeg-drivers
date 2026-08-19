@@ -13,7 +13,6 @@ from __future__ import annotations
 import sys
 from io import BytesIO
 from pathlib import Path
-from typing import Self
 
 import matplotlib
 
@@ -45,7 +44,6 @@ from simpeg_drivers.uijson import SimPEGDriversUIJson
 from simpeg_drivers.utils.utils import (
     get_default_parallelization_params,
     start_dask_run,
-    validate_out_group,
 )
 
 
@@ -56,6 +54,7 @@ class PlateMatchDriver(Driver):
     """Sets up and manages workers to run all combinations of swept parameters."""
 
     _params_class = PlateMatchOptions
+    _out_group_class = SimPEGGroup
 
     def __init__(
         self,
@@ -65,7 +64,7 @@ class PlateMatchDriver(Driver):
     ):
         super().__init__(params)
 
-        self._out_group = validate_out_group(self.params)
+        self._out_group = self.validate_out_group(self.params.out_group)
         self._client: Client | bool = validate_client(client)
         self._workers: list[tuple[str]] = validate_workers(self._client, workers)
 
@@ -158,30 +157,6 @@ class PlateMatchDriver(Driver):
         """
         Starting message displayed by the logger.
         """
-
-    @classmethod
-    def start(cls, filepath: str | Path, mode="r+", **_) -> Self:
-        """Start the parameter matching from a ui.json file."""
-        logger.info("Loading input file . . .")
-        filepath = Path(filepath).resolve()
-
-        uijson = SimPEGDriversUIJson.read(filepath)
-
-        with Workspace(uijson.geoh5, mode=mode) as workspace:
-            try:
-                data = uijson.to_params(workspace)
-                options = PlateMatchOptions.build(**data)
-                logger.info("Initializing application . . .")
-                driver = cls(options)
-                logger.info("Running application . . .")
-                driver.run()
-                logger.info("Results saved to %s", uijson.geoh5)
-
-            except GeoAppsError as error:
-                logger.warning("\n\nApplicationError: %s\n\n", error)
-                sys.exit(1)
-
-        return driver
 
     def _create_plate_from_parameters(
         self, index_center: int, model_options: ModelOptions, strike_angle: float
@@ -423,9 +398,6 @@ class PlateMatchDriver(Driver):
                 },
             }
         )
-
-        if self.params.monitoring_directory:
-            self.update_monitoring_directory(self._out_group)
 
         return out
 

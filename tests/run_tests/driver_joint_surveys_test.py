@@ -14,13 +14,12 @@ from pathlib import Path
 
 import numpy as np
 from geoh5py.objects import Octree
-from geoh5py.ui_json import BaseUIJson
+from geoh5py.ui_json import UIJson
 from geoh5py.workspace import Workspace
 from pandas import read_csv
 from pytest import mark
 from simpeg.directives import SaveModelGeoH5, SavePropertyGroup
 
-from simpeg_drivers.driver import validate_out_group
 from simpeg_drivers.electricals.direct_current.three_dimensions.inversion import (
     DC3DInversionDriver,
 )
@@ -103,7 +102,7 @@ def test_joint_surveys_fwr_run(
             data_object=components.survey,
             starting_model=components.model,
         )
-    fwr_driver_a = GravityForwardDriver(params)
+        fwr_driver_a = GravityForwardDriver(params)
 
     with fwr_driver_a.out_group.workspace.open():
         fwr_driver_a.out_group.name = "Gravity Forward [0]"
@@ -139,7 +138,7 @@ def test_joint_surveys_fwr_run(
             data_object=components.survey,
             starting_model=components.model,
         )
-    fwr_driver_b = GravityForwardDriver(params)
+        fwr_driver_b = GravityForwardDriver(params)
 
     with fwr_driver_b.out_group.workspace.open():
         # Force co-location of meshes
@@ -220,9 +219,7 @@ def test_joint_surveys_inv_run(
             percentile=100,
             auto_scale_misfits=True,
         )
-
-        out_group = validate_out_group(joint_params)
-        joint_params.out_group = out_group
+        joint_params.out_group = joint_params.ui_json.to_ui_json_group(workspace=geoh5)
         joint_params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
     driver = JointSurveysDriver.start(str(tmp_path / "Inv_run.ui.json"))
@@ -267,7 +264,7 @@ def test_restart_run(tmp_path):
     last_phi_d = out_array["phi_d"].iloc[-1]
     last_phi_m = out_array["phi_m"].iloc[-1]
 
-    uijson = BaseUIJson.read(json_file)
+    uijson = UIJson.read(json_file)
     uijson.geoh5 = tmp_path / "inversion_test.ui.geoh5"
     uijson.set_values(max_global_iterations=4)
     uijson.write(json_file)
