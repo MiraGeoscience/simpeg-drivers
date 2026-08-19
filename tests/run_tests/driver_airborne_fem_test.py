@@ -27,6 +27,7 @@ from simpeg_drivers.electromagnetics.frequency_domain.inversion import (
     FDEMInversionDriver,
     FDEMInversionOptions,
 )
+from simpeg_drivers.electromagnetics.frequency_domain.options import CONVERSION
 from simpeg_drivers.utils.synthetics.driver import (
     SyntheticsComponents,
 )
@@ -155,7 +156,7 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
                         f"uncertainty_{chan}_[{ind}]": {
                             "values": np.ones_like(abs_val)
                             * freq
-                            * 1e3
+                            / CONVERSION[data_entity.parent.unit]
                             / 200.0  # * 2**(np.abs(ind-1))
                         }
                     }
