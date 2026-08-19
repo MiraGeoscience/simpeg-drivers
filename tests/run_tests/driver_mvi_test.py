@@ -21,13 +21,12 @@ from dask.distributed import LocalCluster, performance_report
 from geoh5py.groups import PropertyGroup
 from geoh5py.groups.property_group import GroupTypeEnum
 from geoh5py.objects import Curve
-from geoh5py.ui_json import BaseUIJson
+from geoh5py.ui_json import UIJson
 from geoh5py.workspace import Workspace
 from pandas import read_csv
 from simpeg.utils.mat_utils import cartesian2amplitude_dip_azimuth
 
 from simpeg_drivers.components.factories import DirectivesFactory
-from simpeg_drivers.driver import validate_out_group
 from simpeg_drivers.potential_fields.magnetic_vector.forward import (
     MagneticVectorForwardDriver,
     MagneticVectorForwardOptions,
@@ -162,9 +161,6 @@ def test_magnetic_vector_run(
                 max_global_iterations=max_iterations,
                 initial_beta_ratio=5e-2,
             )
-
-            out_group = validate_out_group(params)
-            params.out_group = out_group
             params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
         if caplog:
             assert "Deprecated field 'lower_bound' will be ignored." in caplog.text
@@ -188,7 +184,7 @@ def test_magnetic_vector_run(
             assert np.nanmin(model.values) <= 2e-5
             assert np.isclose(driver.inversion.opt.upper[0], upper_bound)
 
-            out_group = run_ws.get_entity("Magnetic Vector Inversion")[0]
+            out_group = run_ws.get_entity("Magnetic Vector (MVI) Inversion")[0]
             mesh = out_group.get_entity("mesh")[0]
             assert len(mesh.property_groups) == 5
             assert len(mesh.fetch_property_group("LP models").properties) == 6
@@ -215,7 +211,7 @@ def test_restart_run(tmp_path):
     last_phi_d = out_array["phi_d"].iloc[-2]
     last_phi_m = out_array["phi_m"].iloc[-2]
 
-    uijson = BaseUIJson.read(json_file)
+    uijson = UIJson.read(json_file)
     uijson.geoh5 = tmp_path / "inversion_test.ui.geoh5"
     uijson.set_values(max_global_iterations=5)
     uijson.write(json_file)

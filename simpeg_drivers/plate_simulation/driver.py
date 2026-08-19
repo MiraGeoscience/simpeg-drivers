@@ -20,9 +20,9 @@ from geoapps_utils.base import Driver, get_logger
 from geoapps_utils.modelling.plates import Plate
 from geoapps_utils.utils.transformations import azimuth_to_unit_vector
 from geoh5py.data import FloatData, ReferencedData
+from geoh5py.groups import SimPEGGroup
 from geoh5py.objects import Octree, Points, Surface
-from geoh5py.shared.utils import fetch_active_workspace
-from geoh5py.ui_json.input_file import InputFile
+from geoh5py.ui_json import UIJson
 
 from simpeg_drivers.driver import (
     InversionDriver,
@@ -36,11 +36,7 @@ from simpeg_drivers.plate_simulation.models.events import Anomaly, Erosion, Over
 from simpeg_drivers.plate_simulation.models.series import DikeSwarm, Geology
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
 from simpeg_drivers.utils.synthetics.meshes import get_octree_mesh
-from simpeg_drivers.utils.utils import (
-    driver_class_from_dict,
-    start_dask_run,
-    validate_out_group,
-)
+from simpeg_drivers.utils.utils import driver_class_from_dict, start_dask_run
 
 
 logger = get_logger(__name__, propagate=False)
@@ -57,6 +53,7 @@ class PlateSimulationDriver(Driver):
     """
 
     _params_class = PlateSimulationOptions
+    _out_group_class = SimPEGGroup
 
     def __init__(
         self,
@@ -66,7 +63,7 @@ class PlateSimulationDriver(Driver):
     ):
         super().__init__(params)
 
-        self._out_group = validate_out_group(self.params)
+        self._out_group = self.validate_out_group(self.params.out_group)
         self._plates: list[Plate] | None = None
         self._survey: Points | None = None
         self._mesh: Octree | None = None
@@ -76,17 +73,16 @@ class PlateSimulationDriver(Driver):
         self._simulation_driver: InversionDriver | None = None
         self.simulation_parameters: BaseForwardOptions = self._initialize_forward_opts()
 
-    def run(self) -> InversionDriver:
+    def run(self) -> SimPEGGroup:
         """Create octree mesh, fill model, and simulate."""
 
         self.simulation_driver.run()
         self.simulation_parameters.update_out_group_options()
-        self.update_monitoring_directory(self._out_group)
 
         logger.info("done.")
         logger.handlers.clear()
 
-        return self.simulation_driver
+        return self._out_group
 
     @property
     def simulation_driver(self) -> InversionDriver:
@@ -300,12 +296,13 @@ class PlateSimulationDriver(Driver):
         """Collect template simulation options."""
 
         simulation_options = deepcopy(self.params.simulation.options)
-        simulation_options["geoh5"] = self.params.geoh5
 
-        input_file = InputFile(ui_json=simulation_options, validate=False)
-        driver = driver_class_from_dict(input_file.data)
+        ui_json = UIJson.from_dict(simulation_options)
+        driver = driver_class_from_dict(simulation_options)
 
-        return driver._params_class.build(input_file.data)  # pylint: disable=protected-access
+        return driver._params_class.build(  # pylint: disable=protected-access
+            ui_json.to_params(workspace=self.params.geoh5)
+        )
 
     def _initialize_forward_opts(self) -> BaseForwardOptions:
         """Initialize the forward simulation options with mesh and model."""
@@ -321,7 +318,7 @@ class PlateSimulationDriver(Driver):
             models_update["starting_model"] = None
         update["models"] = opts.models.model_copy(update=models_update)
 
-        out_group = validate_out_group(opts)
+        out_group = self.validate_out_group(opts.out_group)
         out_group = out_group.copy(
             parent=self.out_group,
             copy_children=False,
@@ -329,7 +326,6 @@ class PlateSimulationDriver(Driver):
         )
         update["out_group"] = out_group
         forward_opts = opts.model_copy(update=update)
-        forward_opts.update_out_group_options()
 
         return forward_opts
 

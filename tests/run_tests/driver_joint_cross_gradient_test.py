@@ -16,12 +16,11 @@ from pathlib import Path
 import numpy as np
 from geoh5py.groups import GroupTypeEnum, PropertyGroup
 from geoh5py.objects import CurrentElectrode, Octree, Points
-from geoh5py.ui_json import BaseUIJson
+from geoh5py.ui_json import UIJson
 from geoh5py.workspace import Workspace
 from pandas import read_csv
 from simpeg.directives import UpdateIRLS
 
-from simpeg_drivers.driver import validate_out_group
 from simpeg_drivers.electricals.direct_current.three_dimensions.forward import (
     DC3DForwardDriver,
     DC3DForwardOptions,
@@ -215,8 +214,8 @@ def test_joint_cross_gradient_inv_run(
         origin = None
         for name in [
             "Gravity Forward",
-            "Magnetic Vector Forward",
-            "Direct Current 3D Forward",
+            "Magnetic Forward",
+            "Direct Current (DC) 3D Forward",
         ]:
             group = geoh5.get_entity(name)[0]
             mesh = next(child for child in group.children if isinstance(child, Octree))
@@ -252,7 +251,7 @@ def test_joint_cross_gradient_inv_run(
                     chi_factor=0.8,
                 )
                 drivers.append(GravityInversionDriver(params))
-            elif name == "Direct Current 3D Forward":
+            elif name == "Direct Current (DC) 3D Forward":
                 uncertainties = survey.add_data(
                     {
                         "Uncertainties": {
@@ -313,8 +312,8 @@ def test_joint_cross_gradient_inv_run(
             sens_wts_threshold=1.0,
             percentile=100,
         )
-        out_group = validate_out_group(joint_params)
-        joint_params.out_group = out_group
+
+        joint_params.out_group = joint_params.ui_json.to_ui_json_group(workspace=geoh5)
 
     file = joint_params.write_ui_json(tmp_path / "Joint_Inv_run.ui.json")
     driver = JointCrossGradientDriver.start(file)
@@ -379,7 +378,7 @@ def test_restart_run(tmp_path):
     last_phi_d = out_array["phi_d"].iloc[-1]
     last_phi_m = out_array["phi_m"].iloc[-1]
 
-    uijson = BaseUIJson.read(json_file)
+    uijson = UIJson.read(json_file)
     uijson.geoh5 = tmp_path / "inversion_test.ui.geoh5"
     uijson.set_values(max_global_iterations=5)
     uijson.write(json_file)
@@ -418,8 +417,8 @@ def test_joint_cross_gradient_rotated_run(
         orig_data = []
         origin = None
         for name in [
-            "Direct Current 3D Forward",
-            "Magnetic Vector Forward",
+            "Direct Current (DC) 3D Forward",
+            "Magnetic Forward",
         ]:
             group = geoh5.get_entity(name)[0]
             mesh = next(child for child in group.children if isinstance(child, Octree))
@@ -450,7 +449,7 @@ def test_joint_cross_gradient_rotated_run(
             data = next(k for k in survey.children if "Iteration_0" in k.name)
             orig_data.append(data.values)
 
-            if name == "Direct Current 3D Forward":
+            if name == "Direct Current (DC) 3D Forward":
                 uncertainties = survey.add_data(
                     {
                         "Uncertainties": {

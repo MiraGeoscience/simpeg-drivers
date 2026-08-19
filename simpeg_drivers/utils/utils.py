@@ -26,8 +26,8 @@ from dask.distributed import Client, LocalCluster, performance_report
 from discretize import TensorMesh, TreeMesh
 from discretize.utils import mesh_utils
 from geoapps_utils import GeoAppsError
-from geoapps_utils.base import Driver, Options
-from geoapps_utils.run import fetch_driver_class_from_string, load_ui_json_as_dict
+from geoapps_utils.base import Driver
+from geoapps_utils.run import fetch_driver_class_from_string
 from geoapps_utils.utils.locations import mask_under_horizon
 from geoapps_utils.utils.numerical import running_mean, traveling_salesman
 from geoh5py import Workspace
@@ -40,7 +40,7 @@ from geoh5py.objects.surveys.electromagnetics.airborne_app_con import (
 )
 from geoh5py.objects.surveys.electromagnetics.base import LargeLoopGroundEMSurvey
 from geoh5py.shared import INTEGER_NDV
-from geoh5py.shared.utils import fetch_active_workspace, mask_by_extent, stringify
+from geoh5py.shared.utils import mask_by_extent
 from grid_apps.utils import octree_2_treemesh
 from scipy.interpolate import interp1d
 from scipy.spatial import ConvexHull, cKDTree
@@ -654,51 +654,23 @@ def compute_alongline_distance(points: np.ndarray, ordered: bool = True) -> np.n
 
 def get_default_parallelization_params(json_path: Path) -> tuple[int, int]:
     """
-    Get parallelization parameters from a ui_json file.
+    Get parallelization parameters from an ui.json file.
 
     If the number of workers is unset, it is estimated from the number of CPU cores.
 
-    :param json_path: Path to ui_json file.
+    :param json_path: Path to ui.json file.
     :returns: Tuple of parallelization parameters.
     """
-    ui_json = load_ui_json_as_dict(json_path)
+    ui_json = SimPEGDriversUIJson.read(json_path)
+    cpu_count = multiprocessing.cpu_count()
 
-    n_workers = ui_json.get("n_workers", None)
-    n_threads = ui_json.get("n_threads", None)
+    if n_threads := ui_json.n_threads is None:
+        n_threads = 2 if cpu_count < 16 else 4
 
-    if n_workers is None:
-        cpu_count = multiprocessing.cpu_count()
-
-        if cpu_count < 16:
-            n_threads = n_threads or 2
-        else:
-            n_threads = n_threads or 4
-
+    if n_workers := ui_json.n_workers is None:
         n_workers = cpu_count // n_threads
 
     return n_workers, n_threads
-
-
-def validate_out_group(options: Options) -> SimPEGGroup:
-    """
-    Validate or create a SimPEGGroup to store results.
-
-    :param out_group: Output group from selection.
-    """
-    if isinstance(options.out_group, SimPEGGroup):
-        return options.out_group
-
-    with fetch_active_workspace(options.geoh5, mode="r+"):
-        out_group = SimPEGGroup.create(
-            options.geoh5,
-            name=options.title,
-        )
-        out_group.entity_type.name = options.title
-        options = options.model_copy(update={"out_group": out_group})
-        out_group.options = stringify(options.input_file.ui_json)
-        out_group.metadata = None
-
-    return out_group
 
 
 def start_dask_run(
@@ -708,7 +680,7 @@ def start_dask_run(
     n_threads: int | None = None,
     generate_report: bool = False,
     start_iteration: int = -1,
-):
+) -> Driver:
     """
     Runs an application with Dask optimization.
 
@@ -719,11 +691,10 @@ def start_dask_run(
     :param generate_report: Flag to indicate whether to generate a performance report.
     :param start_iteration: Iteration to warm-start the inversion if possible.
     """
-    ui_json = load_ui_json_as_dict(json_path)
-
-    n_workers = ui_json.get("n_workers") or n_workers
-    n_threads = ui_json.get("n_threads") or n_threads
-    save_report = ui_json.get("performance_report") or generate_report
+    ui_json = SimPEGDriversUIJson.read(json_path)
+    n_workers = ui_json.n_workers or n_workers
+    n_threads = ui_json.n_threads or n_threads
+    save_report = ui_json.performance_report or generate_report
     profiler = cProfile.Profile()
     profiler.enable()
 
@@ -768,6 +739,8 @@ def start_dask_run(
             ps = pstats.Stats(profiler, stream=s)
             ps.sort_stats("cumulative")
             ps.print_stats()
+
+    return driver
 
 
 def driver_class_from_name(name: str, forward_only: bool = False) -> type[Driver]:

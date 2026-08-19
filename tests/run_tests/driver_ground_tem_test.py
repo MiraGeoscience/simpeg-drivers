@@ -45,7 +45,7 @@ logger = getLogger(__name__)
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 7.508983742457165e-07, "phi_d": 36.2, "phi_m": 9880}
+target_run = {"data_norm": 1.8460e-11, "phi_d": 3.0390e01, "phi_m": 2.0320e04}
 
 
 def test_tiling_ground_tem(
@@ -168,6 +168,7 @@ def test_ground_tem_fwr_run(
             x_channel_bool=True,
             y_channel_bool=True,
             z_channel_bool=True,
+            data_units="Ground B (T/A)",
             solver_type="Mumps",
         )
 
@@ -268,6 +269,7 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
             max_cg_iterations=200,
             percentile=100,
             solver_type="Mumps",
+            data_units="Ground B (T/A)",
             **data_kwargs,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")

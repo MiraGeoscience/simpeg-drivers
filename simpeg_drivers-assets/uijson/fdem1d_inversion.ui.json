@@ -1,5 +1,5 @@
 {
-    "version": "0.5.1",
+    "version": "0.0.0",
     "title": "Frequency-domain EM (FEM) 1D Inversion",
     "icon": "surveyairborneem",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",

@@ -69,6 +69,8 @@ class SweepOptions(Options):
     sweeps: list[ParamSweep]
     workdir: Path = Path("./simulations")
 
+    _ui_json_class: ClassVar[type[SimPEGDriversUIJson]] = SimPEGDriversUIJson
+
     @field_validator("workdir", mode="before")
     @classmethod
     def workdir_optional(cls, value):

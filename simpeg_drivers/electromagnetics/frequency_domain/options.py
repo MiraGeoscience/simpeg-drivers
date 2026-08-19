@@ -20,6 +20,7 @@ from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.groups import PropertyGroup
 from geoh5py.objects import (
     AirborneFEMReceivers,
+    FEMSurvey,
     LargeLoopGroundFEMReceivers,
     MovingLoopGroundFEMReceivers,
 )
@@ -38,6 +39,7 @@ from simpeg_drivers.options import (
 logger = getLogger(__name__)
 
 CONVERSION = {
+    None: 1e-0,
     "Hertz (Hz)": 1e-0,
     "KiloHertz (kHz)": 1e-3,
     "MegaHertz (MHz)": 1e-6,
@@ -48,7 +50,11 @@ CONVERSION = {
 class BaseFDEMOptions(EMDataMixin):
     """
     Base Frequency Domain Electromagnetic options.
+
+    :param data_object: The data object containing the FEM data.
     """
+
+    data_object: FEMSurvey
 
     @cached_property
     def tx_offsets(self) -> list:
