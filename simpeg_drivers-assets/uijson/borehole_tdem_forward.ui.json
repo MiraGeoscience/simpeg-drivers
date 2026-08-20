@@ -58,21 +58,21 @@
         ],
         "value": "Airborne dB/dt (V/Am^4)"
     },
-    "inline_channel_bool": {
+    "A_channel_bool": {
         "group": "Survey",
         "main": true,
         "label": "A-component",
         "tooltip": "Axial (A) component parallel to the hole trace.\nPositive upward along the hole trace",
         "value": true
     },
-    "vertical_channel_bool": {
+    "U_channel_bool": {
         "group": "Survey",
         "main": true,
         "label": "U-component",
         "tooltip": "Perpendicular (U) component of the magnetic data.\nPositive upward in the hole dip direction",
         "value": true
     },
-    "crossline_channel_bool": {
+    "V_channel_bool": {
         "group": "Survey",
         "main": true,
         "label": "V-component",

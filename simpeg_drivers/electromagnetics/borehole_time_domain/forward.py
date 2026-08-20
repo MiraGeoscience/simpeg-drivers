@@ -12,16 +12,19 @@
 from __future__ import annotations
 
 from simpeg_drivers.driver import ForwardDriver
-from simpeg_drivers.electromagnetics.time_domain.options import TDEMForwardOptions
+from simpeg_drivers.electromagnetics.borehole_time_domain.options import (
+    BoreholeTDEMForwardOptions,
+)
 from simpeg_drivers.utils.utils import argument_parser
 
 
 class BoreholeTDEMForwardDriver(ForwardDriver):
     """Time Domain Electromagnetic forward driver."""
 
-    _params_class = TDEMForwardOptions
+    _params_class = BoreholeTDEMForwardOptions
 
 
 if __name__ == "__main__":
-    file, args = argument_parser()
-    BoreholeTDEMForwardDriver.start_dask_run(file, **args)
+    # file, args = argument_parser()
+    file = r"C:\Users\dominiquef\Documents\tests\Borehole_EM\fwr_model_A.ui.json"
+    BoreholeTDEMForwardDriver.start_dask_run(file)

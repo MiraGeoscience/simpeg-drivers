@@ -14,20 +14,29 @@ from __future__ import annotations
 from pathlib import Path
 from typing import ClassVar
 
+from geoh5py.groups import PropertyGroup
+from geoh5py.objects import (
+    AirborneTEMReceivers,
+    LargeLoopGroundTEMReceivers,
+    MovingLoopGroundTEMReceivers,
+)
+
 from simpeg_drivers import assets_path
-from simpeg_drivers.electromagnetics.time_domain.options import (
-    TDEMForwardOptions,
-    TDEMInversionOptions,
+from simpeg_drivers.electromagnetics.time_domain.options import BaseTDEMOptions
+from simpeg_drivers.options import (
+    BaseForwardOptions,
+    BaseInversionOptions,
+    ConductivityModelOptions,
 )
 
 
-class BoreholeTDEMForwardOptions(TDEMForwardOptions):
+class BoreholeTDEMForwardOptions(BaseTDEMOptions, BaseForwardOptions):
     """
     Time Domain Electromagnetic forward options for borehole surveys.
 
-    :param vertical_channel_bool: Vertical (U) data channel boolean.
-    :param inline_channel_bool: In-line (A) data channel boolean.
-    :param crossline_channel_bool: Cross-line (V) data channel boolean.
+    :param A_channel_bool: In-line (A) data channel boolean.
+    :param U_channel_bool: Vertical (U) data channel boolean.
+    :param V_channel_bool: Cross-line (V) data channel boolean.
     """
 
     name: ClassVar[str] = "Borehole TDEM Forward"
@@ -39,18 +48,31 @@ class BoreholeTDEMForwardOptions(TDEMForwardOptions):
     title: str = "Borehole TDEM Forward"
     icon: str = "surveyairborneem"
     inversion_type: str = "borehole tdem"
+    physical_property: str = "conductivity"
+
+    data_object: (
+        MovingLoopGroundTEMReceivers
+        | LargeLoopGroundTEMReceivers
+        | AirborneTEMReceivers
+    )
+    receivers_orientation: PropertyGroup | None = None
+    A_channel_bool: bool = False
+    U_channel_bool: bool = False
+    V_channel_bool: bool = False
+
+    models: ConductivityModelOptions
 
 
-class BoreholeTDEMInversionOptions(TDEMInversionOptions):
+class BoreholeTDEMInversionOptions(BaseTDEMOptions, BaseInversionOptions):
     """
     Time Domain Electromagnetic Inversion options for borehole surveys.
 
-    :param vertical_channel: Vertical (U) component data channel.
-    :param vertical_uncertainty: Vertical (U) component data channel uncertainty.
-    :param inline_channel: In-line (A) data channel.
-    :param inline_uncertainty: In-line (A) data channel uncertainty.
-    :param crossline_channel: Cross-line (V) data channel.
-    :param crossline_uncertainty: Cross-line(V) data channel uncertainty.
+    :param U_channel: Vertical (U) component data channel.
+    :param U_uncertainty: Vertical (U) component data channel uncertainty.
+    :param A_channel: In-line (A) data channel.
+    :param A_uncertainty: In-line (A) data channel uncertainty.
+    :param V_channel: Cross-line (V) data channel.
+    :param V_uncertainty: Cross-line(V) data channel uncertainty.
     """
 
     name: ClassVar[str] = "Borehole TDEM Inversion"
@@ -62,3 +84,18 @@ class BoreholeTDEMInversionOptions(TDEMInversionOptions):
     icon: str = "surveyairborneem"
     physical_property: str = "conductivity"
     inversion_type: str = "borehole tdem"
+
+    data_object: (
+        MovingLoopGroundTEMReceivers
+        | LargeLoopGroundTEMReceivers
+        | AirborneTEMReceivers
+    )
+    receivers_orientation: PropertyGroup | None = None
+    U_channel: PropertyGroup | None = None
+    U_uncertainty: PropertyGroup | None = None
+    A_channel: PropertyGroup | None = None
+    A_uncertainty: PropertyGroup | None = None
+    V_channel: PropertyGroup | None = None
+    V_uncertainty: PropertyGroup | None = None
+
+    models: ConductivityModelOptions

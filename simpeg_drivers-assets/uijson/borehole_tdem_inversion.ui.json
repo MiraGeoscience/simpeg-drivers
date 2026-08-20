@@ -58,7 +58,7 @@
         ],
         "value": "Airborne dB/dt (V/Am^4)"
     },
-    "inline_channel": {
+    "A_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -71,10 +71,10 @@
         "parent": "data_object",
         "tooltip": "Axial (A) component parallel to the hole trace.\nPositive upward along the hole trace",
         "optional": true,
-        "enabled": false,
+        "enabled": true,
         "value": ""
     },
-    "inline_uncertainty": {
+    "A_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -85,11 +85,11 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "inline_channel",
+        "dependency": "A_channel",
         "dependencyType": "enabled",
         "value": ""
     },
-    "vertical_channel": {
+    "U_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -102,10 +102,10 @@
         "parent": "data_object",
         "tooltip": "Perpendicular (U) component of the magnetic data.\nPositive upward in the hole dip direction",
         "optional": true,
-        "enabled": true,
+        "enabled": false,
         "value": ""
     },
-    "vertical_uncertainty": {
+    "U_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -116,11 +116,11 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "vertical_channel",
+        "dependency": "U_channel",
         "dependencyType": "enabled",
         "value": ""
     },
-    "crossline_channel": {
+    "V_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -136,7 +136,7 @@
         "enabled": false,
         "value": ""
     },
-    "crossline_uncertainty": {
+    "V_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -147,7 +147,7 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "crossline_channel",
+        "dependency": "V_channel",
         "dependencyType": "enabled",
         "value": ""
     },

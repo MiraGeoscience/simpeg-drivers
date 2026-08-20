@@ -16,7 +16,12 @@ from __future__ import annotations
 
 import numpy as np
 from geoapps_utils.utils.locations import azimuth_dip_from_segments
-from geoapps_utils.utils.transformations import x_rotation_matrix, z_rotation_matrix
+from geoapps_utils.utils.transformations import (
+    cartesian_to_azimuth_dip,
+    x_rotation_matrix,
+    z_rotation_matrix,
+)
+from geoh5py.groups.property_group_type import GroupTypeEnum
 from geoh5py.objects.surveys.electromagnetics.base import (
     AirborneEMSurvey,
     LargeLoopGroundEMSurvey,
@@ -33,6 +38,9 @@ ORIENTATION_MAP = {
     "vertical": "z",
     "inline": "y",
     "crossline": "x",
+    "A": "y",
+    "U": "z",
+    "V": "x",
 }
 
 
@@ -254,9 +262,20 @@ class ReceiversFactory(SimPEGFactory):
         }
 
         azi_dip = None
-        if getattr(self.params, "receivers_orientation", None):
-            azm, dip = direction_and_dip(self.params.receivers_orientation)
-            azi_dip = np.deg2rad(np.c_[azm.values, dip.values])
+
+        if property_group := getattr(self.params, "receivers_orientation", None):
+            group_type = property_group.property_group_type
+            azi_dip = np.vstack(
+                [
+                    property_group.parent.get_data(k)[0].values
+                    for k in property_group.properties
+                ]
+            ).T
+
+            if group_type == GroupTypeEnum.VECTOR:
+                azi_dip = cartesian_to_azimuth_dip(azi_dip)
+            else:
+                azi_dip = np.deg2rad(azi_dip)
 
         elif "borehole" in self.params.inversion_type:
             azi_dip = azimuth_dip_from_segments(self.params.data_object)

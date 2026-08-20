@@ -111,7 +111,7 @@ class SimulationFactory(SimPEGFactory):
 
             return simulation_1d.Simulation1DLayered
 
-        if self.factory_type in ["tdem"]:
+        if self.factory_type in ["tdem", "borehole tdem"]:
             from simpeg.electromagnetics.time_domain import simulation
 
             return simulation.Simulation3DMagneticFluxDensity
