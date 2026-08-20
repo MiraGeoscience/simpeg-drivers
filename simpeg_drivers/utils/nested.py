@@ -444,7 +444,7 @@ def create_survey(
             else:
                 new_rx.locations = rx.locations[intersect]
 
-            if hasattr(rx, "orientation") and rx.orientation.ndim > 1:
+            if getattr(rx, "orientation", None) is not None and rx.orientation.ndim > 1:
                 new_rx.orientation = rx.orientation[intersect, :]
 
             receivers.append(new_rx)

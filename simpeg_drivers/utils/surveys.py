@@ -153,9 +153,8 @@ def compute_em_projections(locations, simulation):
             for orientation, comp in zip(orientations.T, "xyz", strict=True):
                 if len(orientation) == 1 and orientation == 0:
                     continue
-                elif len(orientation) > 1:
-                    orientation = diags(orientation)
 
+                orientation = diags(orientation)
                 projection += orientation * projections[comp][indices, :]
             receiver.spatialP = projection
 
