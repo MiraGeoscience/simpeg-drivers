@@ -1,6 +1,6 @@
 {
     "version": "0.0.0",
-    "title": "Borehole TDEM Forward",
+    "title": "Borehole TDEM Inversion",
     "icon": "surveyairborneem",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
     "conda_environment": "simpeg-drivers",
