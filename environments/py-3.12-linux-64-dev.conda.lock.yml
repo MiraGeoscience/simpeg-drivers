@@ -12,7 +12,7 @@ dependencies:
   - annotated-types=0.8.0=pyhd8ed1ab_0
   - anyio=4.14.2=pyhcf101f3_0
   - argon2-cffi=25.1.0=pyhd8ed1ab_0
-  - argon2-cffi-bindings=25.1.0=py312h4c3975b_2
+  - argon2-cffi-bindings=26.1.0=py312h5cc1888_0
   - arrow=1.4.0=pyhcf101f3_0
   - asciitree=0.3.3=py_2
   - astroid=4.0.4=py312h7900ff3_0

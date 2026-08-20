@@ -189,23 +189,23 @@ package:
   category: dev
   optional: true
 - name: argon2-cffi-bindings
-  version: 25.1.0
+  version: 26.1.0
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     cffi: '>=1.0.1'
-    libgcc: '>=14'
+    libgcc: '>=15'
     python: '>=3.13,<3.14.0a0'
     python_abi: 3.13.*
-  url: https://repo.prefix.dev/conda-forge/linux-64/argon2-cffi-bindings-25.1.0-py313h07c4f96_2.conda
+  url: https://repo.prefix.dev/conda-forge/linux-64/argon2-cffi-bindings-26.1.0-py313h995f894_0.conda
   hash:
-    md5: 27bbec9f2f3a15d32b60ec5734f5b41c
-    sha256: ad188ccc06a06c633dc124b09e9e06fb9df4c32ffc38acc96ecc86e506062090
+    md5: db73f7be4911943040efc5ca79c9775e
+    sha256: e07a2c721f480ee8109b519ca2201603abcc3aed5a9673fb830adbc9b6768ab8
   category: dev
   optional: true
 - name: argon2-cffi-bindings
-  version: 25.1.0
+  version: 26.1.0
   manager: conda
   platform: win-64
   dependencies:
@@ -215,10 +215,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.3,<15'
     vc14_runtime: '>=14.44.35208'
-  url: https://repo.prefix.dev/conda-forge/win-64/argon2-cffi-bindings-25.1.0-py313h5ea7bf4_2.conda
+  url: https://repo.prefix.dev/conda-forge/win-64/argon2-cffi-bindings-26.1.0-py313h5ea7bf4_0.conda
   hash:
-    md5: eabb4b677b54874d7d6ab775fdaa3d27
-    sha256: 3f8a1affdfeb2be5289d709e365fc6e386d734773895215cf8cbc5100fa6af9a
+    md5: 0e05f2b2dba8c28bc6be0ee952ce4fbc
+    sha256: 0532093a043aa452c90798cbff19dfc3ab4e331726239dad42ffce83538d94cc
   category: dev
   optional: true
 - name: arrow
@@ -4384,10 +4384,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.3,<15'
     vc14_runtime: '>=14.44.35208'
-  url: https://repo.prefix.dev/conda-forge/win-64/libxml2-2.15.3-h8ef44ab_0.conda
+  url: https://repo.prefix.dev/conda-forge/win-64/libxml2-2.15.3-h8ef44ab_1.conda
   hash:
-    md5: 95591ca5671d2213f5b2d5aa7818420d
-    sha256: a4599c6bbbbdd7db570896e520c557eec8e66d94e839a59d17dc1f24a3d5f82b
+    md5: 45a5a1c709a69f14cf176220788d18a9
+    sha256: a83e9adcf7c50f20289dc6890707c8e4e84151b4204b0f7344998138807458d1
   category: main
   optional: false
 - name: libxml2-16
@@ -4419,10 +4419,10 @@ package:
     ucrt: '>=10.0.20348.0'
     vc: '>=14.3,<15'
     vc14_runtime: '>=14.44.35208'
-  url: https://repo.prefix.dev/conda-forge/win-64/libxml2-16-2.15.3-h3cfd58e_0.conda
+  url: https://repo.prefix.dev/conda-forge/win-64/libxml2-16-2.15.3-h3cfd58e_1.conda
   hash:
-    md5: 9e8dd0d90ed830107b2c36801035b7db
-    sha256: 3b61ee3caba702d2ff432fa3920835db963026e5c99c4e6fdca0c6114f59e7ce
+    md5: 6e7dadff3f3bde2d29d29a3ec34f2d58
+    sha256: 8163de24a7ddb4ebf9587c3a45ba950caf3690b9646b76f007ca15e6e52b5881
   category: main
   optional: false
 - name: libzlib
