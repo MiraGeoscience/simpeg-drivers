@@ -14,15 +14,8 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-
-if TYPE_CHECKING:
-    from geoapps_utils.driver.params import BaseParams
-
-    from simpeg_drivers.options import BaseOptions
-
 import numpy as np
+from geoapps_utils.utils.locations import azimuth_dip_from_segments
 from geoapps_utils.utils.transformations import x_rotation_matrix, z_rotation_matrix
 from geoh5py.objects.surveys.electromagnetics.base import (
     AirborneEMSurvey,
@@ -30,6 +23,7 @@ from geoh5py.objects.surveys.electromagnetics.base import (
 )
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
+from simpeg_drivers.options import CoreOptions
 from simpeg_drivers.utils.regularization import direction_and_dip, get_cell_normals
 
 
@@ -45,7 +39,7 @@ ORIENTATION_MAP = {
 class ReceiversFactory(SimPEGFactory):
     """Build SimPEG receivers objects based on factory type."""
 
-    def __init__(self, params: BaseParams | BaseOptions):
+    def __init__(self, params: CoreOptions):
         """
         :param params: Options object containing SimPEG object parameters.
 
@@ -259,9 +253,15 @@ class ReceiversFactory(SimPEGFactory):
             for comp in "xyz"
         }
 
+        azi_dip = None
         if getattr(self.params, "receivers_orientation", None):
             azm, dip = direction_and_dip(self.params.receivers_orientation)
             azi_dip = np.deg2rad(np.c_[azm.values, dip.values])
+
+        elif "borehole" in self.params.inversion_type:
+            azi_dip = azimuth_dip_from_segments(self.params.data_object)
+
+        if azi_dip is not None:
             orientations = {}
             for axis in "xyz":
                 orientations[axis] = (
@@ -270,8 +270,5 @@ class ReceiversFactory(SimPEGFactory):
                 ).reshape((-1, 3))
 
             return orientations
-
-        # elif "borehole" in self.params.inversion_type:
-        #     pass
 
         return normals

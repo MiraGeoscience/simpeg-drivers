@@ -37,8 +37,7 @@
         "optional": true,
         "enabled": false,
         "parent": "data_object",
-        "value": "",
-        "visible": false
+        "value": ""
     },
     "data_units": {
         "choiceList": [
