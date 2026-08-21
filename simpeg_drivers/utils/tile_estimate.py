@@ -142,8 +142,6 @@ class TileEstimator(Driver):
             figure.savefig(path)
             out_group.add_file(path)
 
-        self.update_monitoring_directory(out_group)
-
         return out_group
 
     @property
@@ -219,8 +217,7 @@ class TileEstimator(Driver):
         out_group = self.params.simulation.copy(copy_children=False)
         self.driver.params.compute.tile_spatial = optimal
         self.driver.params.out_group = out_group
-        out_group.options = self.driver.params.serialize()
-        out_group.metadata = None
+        self.driver.params.update_out_group_options()
 
         if self.params.out_group is not None:
             out_group.parent = self.params.out_group

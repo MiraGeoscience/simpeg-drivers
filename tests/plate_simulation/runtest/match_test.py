@@ -21,7 +21,7 @@ from geoh5py import Workspace
 from geoh5py.data import FilenameData
 from geoh5py.groups import PropertyGroup, SimPEGGroup
 from geoh5py.objects import Points
-from geoh5py.ui_json import BaseUIJson
+from geoh5py.ui_json import UIJson
 from scipy import signal
 
 from simpeg_drivers import assets_path
@@ -148,7 +148,7 @@ def test_matching_driver(tmp_path: Path):
 
         fwr_driver = TDEMForwardDriver(params)
 
-        ifile = BaseUIJson.read(assets_path() / "uijson" / "plate_simulation.ui.json")
+        ifile = UIJson.read(assets_path() / "uijson" / "plate_simulation.ui.json")
         ifile.set_values(simulation=fwr_driver.out_group)
 
         plate_options = PlateSimulationOptions.build(ifile.to_params(workspace=geoh5))
@@ -252,7 +252,7 @@ def test_suppress_logging_restores_disable_level():
 
 def test_simulations_url():
 
-    uijson = BaseUIJson.read(PlateMatchOptions.default_ui_json)
+    uijson = UIJson.read(PlateMatchOptions.default_ui_json)
     label = uijson.download_simulations.label
     for part in label:
         url = re.findall(r"href=(.*?)>for", part)

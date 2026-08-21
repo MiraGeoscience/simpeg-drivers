@@ -77,7 +77,7 @@ def test_leroi_run(tmp_path):
             topography_object=components.topography,
             data_object=components.survey,
             geoh5=geoh5,
-            starting_model=components.model,
+            starting_model=0.1,
             z_channel_bool=True,
             out_group=out_group,
         )

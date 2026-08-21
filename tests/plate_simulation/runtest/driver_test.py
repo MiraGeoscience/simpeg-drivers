@@ -11,7 +11,7 @@
 import logging
 
 from geoh5py.groups import SimPEGGroup
-from geoh5py.ui_json import BaseUIJson
+from geoh5py.ui_json import UIJson
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.plate_simulation.driver import (
@@ -19,6 +19,7 @@ from simpeg_drivers.plate_simulation.driver import (
 )
 from simpeg_drivers.plate_simulation.models.options import ModelOptions
 from simpeg_drivers.plate_simulation.options import MeshOptions
+from simpeg_drivers.potential_fields.gravity.forward import GravityForwardDriver
 from simpeg_drivers.potential_fields.gravity.options import GravityForwardOptions
 from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
 from simpeg_drivers.utils.synthetics.options import (
@@ -31,7 +32,6 @@ from simpeg_drivers.utils.synthetics.options import (
     SurveyOptions,
     SyntheticsComponentsOptions,
 )
-from simpeg_drivers.utils.utils import validate_out_group
 from tests.utils.targets import get_workspace
 
 
@@ -48,7 +48,7 @@ def test_plate_simulation_params_from_input_file(tmp_path, caplog):
 
         # Add simulation parameter
         options = GravityForwardOptions.model_construct()
-        fwr_ifile = BaseUIJson.read(options.default_ui_json)
+        fwr_ifile = UIJson.read(options.default_ui_json)
         options_dict = {
             "inversion_type": "gravity",
             "forward_only": True,
@@ -59,9 +59,10 @@ def test_plate_simulation_params_from_input_file(tmp_path, caplog):
         fwr_ifile.set_values(**options_dict)
         options_dict = fwr_ifile.to_params(workspace=geoh5)
         options = GravityForwardOptions.build(options_dict)
-        gravity_inversion = validate_out_group(options)
+        driver = GravityForwardDriver(options)
+        gravity_inversion = driver.validate_out_group(options.out_group)
 
-        ifile = BaseUIJson.read(assets_path() / "uijson" / "plate_simulation.ui.json")
+        ifile = UIJson.read(assets_path() / "uijson" / "plate_simulation.ui.json")
         options_dict = {
             "simulation": gravity_inversion,
             # Add mesh parameters

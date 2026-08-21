@@ -28,7 +28,7 @@ from pandas import read_csv
 from dask.distributed import get_client, Client
 
 from geoapps_utils.base import Driver, Options
-from geoapps_utils.run import load_ui_json_as_dict
+
 from geoapps_utils.utils.importing import GeoAppsError
 
 from geoh5py import Workspace
@@ -36,7 +36,7 @@ from geoh5py.data import FilenameData
 from geoh5py.groups import SimPEGGroup
 from geoh5py.objects import DrapeModel, FEMSurvey, Octree
 from geoh5py.shared.utils import fetch_active_workspace
-from geoh5py.ui_json import BaseUIJson
+from geoh5py.ui_json import UIJson
 
 from simpeg import (
     directives,
@@ -80,7 +80,6 @@ from simpeg_drivers.utils.utils import (
     argument_parser,
     driver_class_from_dict,
     start_dask_run,
-    validate_out_group,
 )
 
 mlogger = logging.getLogger("distributed")
@@ -117,7 +116,7 @@ class BaseDriver(Driver, ABC):
         self._mappings: list[maps.IdentityMap] | None = None
         self.tiles: dict[str, list[np.ndarray]]
 
-        self.out_group = validate_out_group(self.params)
+        self.out_group = self.validate_out_group(self.params.out_group)
         self._client: Client | bool = validate_client(client)
 
         if getattr(self.params, "store_sensitivities", None) == "disk" and self.client:
@@ -387,14 +386,8 @@ class BaseDriver(Driver, ABC):
 
     @out_group.setter
     def out_group(self, value: SimPEGGroup):
-        if not isinstance(value, SimPEGGroup):
-            raise TypeError("Output group must be a SimPEGGroup.")
-
-        if self.params.out_group != value:
-            self.params.out_group = value
-            self.params.update_out_group_options()
-
-        self._out_group = value
+        self._out_group = self.validate_out_group(value)
+        self.params.out_group = self._out_group
 
     @property
     def params(self) -> BaseForwardOptions | BaseInversionOptions:
@@ -487,8 +480,7 @@ class BaseDriver(Driver, ABC):
                 ):
                     self.warm_start(start_iteration)
                 else:
-                    if Path(self.params.input_file.path_name).is_file():
-                        self.out_group.add_file(self.params.input_file.path_name)
+                    self.params.ui_json.to_file_data(self.out_group)
 
                     if self.logger:
                         self.logger.start()
@@ -515,7 +507,7 @@ class BaseDriver(Driver, ABC):
     @classmethod
     def start(
         cls,
-        filepath: str | Path | BaseUIJson,
+        filepath: str | Path | UIJson,
         mode="r+",
         start_iteration: int = -1,
         **kwargs,
@@ -537,8 +529,8 @@ class BaseDriver(Driver, ABC):
             else filepath
         )
 
-        if not isinstance(uijson, BaseUIJson):
-            raise TypeError("Input file must be a string path or a BaseUIJson object.")
+        if not isinstance(uijson, UIJson):
+            raise TypeError("Input file must be a string path or a UIJson object.")
 
         if uijson.geoh5 is None:
             raise GeoAppsError("The application needs a valid 'geoh5' file.")
@@ -559,14 +551,14 @@ class BaseDriver(Driver, ABC):
         return driver
 
     @classmethod
-    def start_dask_run(cls, json_path: Path, **kwargs):
+    def start_dask_run(cls, json_path: Path, **kwargs) -> Driver:
         """
         Sets Dask config settings.
 
         :param json_path: Path to input file (.ui.json) for the application.
         :param kwargs: Additional keyword arguments for the dask run.
         """
-        start_dask_run(cls, json_path, **kwargs)
+        return start_dask_run(cls, json_path, **kwargs)
 
     @abstractmethod
     def warm_start(self, start_iteration: int = -1):
@@ -1043,7 +1035,7 @@ def validate_workers(client, workers: list[tuple[str]] | None) -> list[tuple[str
 if __name__ == "__main__":
     file, args = argument_parser()
 
-    input_file = load_ui_json_as_dict(file)
+    input_file = UIJson.read(file).flatten()
     driver_class = driver_class_from_dict(input_file)
 
     driver_class.start_dask_run(file, **args)

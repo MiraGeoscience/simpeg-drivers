@@ -10,8 +10,11 @@
 
 import json
 import logging
+from typing import Self
 
-from geoh5py.ui_json.ui_json import BaseUIJson
+from geoh5py.groups import SimPEGGroup
+from geoh5py.ui_json.annotations import OptionalInteger
+from geoh5py.ui_json.ui_json import UIJson
 from packaging.version import Version
 from pydantic import field_validator
 
@@ -21,11 +24,20 @@ from . import public_version
 logger = logging.getLogger(__name__)
 
 
-class SimPEGDriversUIJson(BaseUIJson):
+class SimPEGDriversUIJson(UIJson):
     """Base class for simpeg-drivers UIJson."""
 
-    icon: str
-    documentation: str = "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html"
+    icon: str | None = None
+    documentation: str | None = (
+        "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/stable/intro.html"
+    )
+
+    n_workers: int | OptionalInteger = None
+    n_threads: int | OptionalInteger = None
+    performance_report: bool = False
+    distributed_workers: str | None = None
+
+    _out_group_class = SimPEGGroup
 
     @field_validator("version", mode="before")
     @classmethod
@@ -86,13 +98,14 @@ class SimPEGDriversUIJson(BaseUIJson):
             file.write(data)
 
     @classmethod
-    def from_dict(cls, data: dict) -> BaseUIJson:
+    def from_dict(cls, data: dict, validate: bool = True) -> Self:
         """
         Create a UIJson instance from a dictionary.
 
         Deal with known issues in legacy files
 
         :param data: Dictionary representing the ui json object.
+        :param validate: Whether to validate the data against the model schema.
 
         :returns: UIJson object.
         """
@@ -122,4 +135,7 @@ class SimPEGDriversUIJson(BaseUIJson):
 
         ui_json_class = cls.infer(**kwargs)
 
-        return ui_json_class(**kwargs)
+        if validate:
+            return ui_json_class(**kwargs)
+
+        return ui_json_class.model_construct(**kwargs)  # type: ignore[return-value, arg-type]

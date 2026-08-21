@@ -225,7 +225,7 @@ def test_homogeneous_run(
         petrophysics = None
         gradient_rotation = None
 
-        for name in ["Gravity Forward", "Magnetic Vector Forward"]:
+        for name in ["Gravity Forward", "Magnetic Forward"]:
             group = geoh5.get_entity(name)[0]
             mesh = next(child for child in group.children if isinstance(child, Octree))
             survey = next(
