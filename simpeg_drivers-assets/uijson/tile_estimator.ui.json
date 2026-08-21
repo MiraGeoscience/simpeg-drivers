@@ -1,10 +1,11 @@
 {
-    "version": "0.5.0",
+    "version": "0.5.1",
     "title": "Tile Estimation",
     "icon": "tilelist",
     "documentation": "",
     "conda_environment": "simpeg-drivers",
     "run_command": "simpeg_drivers.utils.tile_estimate",
+    "geoh5": "",
     "monitoring_directory": "",
     "simulation": {
         "main": true,

@@ -1,0 +1,204 @@
+{
+    "version": "0.2.0-alpha.1",
+    "title": "Plate Sweep",
+    "icon": "maxwellplate",
+    "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/plate-simulation/",
+    "conda_environment": "simpeg_drivers",
+    "run_command": "simpeg_drivers.driver",
+    "geoh5": "",
+    "monitoring_directory": "",
+    "inversion_type": "plate sweep",
+    "forward_only": true,
+    "template": {
+        "main": true,
+        "group": "Base",
+        "label": "Plate simulation",
+        "groupType": [
+            "{55ed3daf-c192-4d4b-a439-60fa987fe2b8}",
+            "{BB50AC61-A657-4926-9C82-067658E246A0}"
+        ],
+        "value": "",
+        "enabled": true,
+        "tooltip": "Plate simulation options that will be overwritten by sweep parameters."
+    },
+    "workdir": {
+        "main": true,
+        "group": "Base",
+        "label": "Output directory",
+        "directoryOnly": true,
+        "enabled": false,
+        "optional": true,
+        "tootip": "Directory to store simulation results, relative to the working geoh5.",
+        "value": "./simulations"
+    },
+    "background_start": {
+        "main": true,
+        "group": "Background",
+        "groupOptional": true,
+        "enabled": false,
+        "label": "starting",
+        "value": 0.0
+    },
+    "background_stop": {
+        "main": true,
+        "group": "Background",
+        "groupOptional": true,
+        "label": "ending",
+        "value": 0.0
+    },
+    "background_count": {
+        "main": true,
+        "group": "Background",
+        "groupOptional": true,
+        "label": "number of samples",
+        "value": 1
+    },
+    "overburden_start": {
+        "main": true,
+        "group": "Overburden",
+        "groupOptional": true,
+        "enabled": false,
+        "label": "starting",
+        "value": 8000.0
+    },
+    "overburden_stop": {
+        "main": true,
+        "group": "Overburden",
+        "label": "ending",
+        "value": 8000.0
+    },
+    "overburden_count": {
+        "main": true,
+        "group": "Overburden",
+        "label": "number of samples",
+        "value": 1
+    },
+    "thickness_start": {
+        "main": true,
+        "group": "Thickness",
+        "groupOptional": true,
+        "enabled": false,
+        "label": "starting",
+        "value": 200.0
+    },
+    "thickness_stop": {
+        "main": true,
+        "group": "Thickness",
+        "label": "ending",
+        "value": 200.0
+    },
+    "thickness_count": {
+        "main": true,
+        "group": "Thickness",
+        "label": "number of samples",
+        "value": 1
+    },
+    "plate_start": {
+        "main": true,
+        "group": "Plate",
+        "groupOptional": true,
+        "enabled": false,
+        "label": "starting",
+        "value": 20.0
+    },
+    "plate_stop": {
+        "main": true,
+        "group": "Plate",
+        "label": "ending",
+        "value": 20.0
+    },
+    "plate_count": {
+        "main": true,
+        "group": "Plate",
+        "label": "number of samples",
+        "value": 1
+    },
+    "width_start": {
+        "main": true,
+        "group": "Width",
+        "groupOptional": true,
+        "enabled": false,
+        "label": "starting",
+        "value": 90.0
+    },
+    "width_stop": {
+        "main": true,
+        "group": "Width",
+        "label": "ending",
+        "value": 90.0
+    },
+    "width_count": {
+        "main": true,
+        "group": "Width",
+        "label": "number of samples",
+        "value": 1
+    },
+    "strike_length_start": {
+        "main": true,
+        "group": "Strike length",
+        "groupOptional": true,
+        "enabled": false,
+        "label": "starting",
+        "value": 800.0
+    },
+    "strike_length_stop": {
+        "main": true,
+        "group": "Strike length",
+        "label": "ending",
+        "value": 800.0
+    },
+    "strike_length_count": {
+        "main": true,
+        "group": "Strike length",
+        "label": "number of samples",
+        "value": 1
+    },
+    "dip_length_start": {
+        "main": true,
+        "group": "Dip length",
+        "groupOptional": true,
+        "enabled": false,
+        "label": "starting",
+        "value": 800.0
+    },
+    "dip_length_stop": {
+        "main": true,
+        "group": "Dip length",
+        "label": "ending",
+        "value": 800.0
+    },
+    "dip_length_count": {
+        "main": true,
+        "group": "Dip length",
+        "label": "number of samples",
+        "value": 1
+    },
+    "dip_start": {
+        "main": true,
+        "group": "Dip",
+        "groupOptional": true,
+        "enabled": false,
+        "label": "starting",
+        "value": 60.0
+    },
+    "dip_stop": {
+        "main": true,
+        "group": "Dip",
+        "label": "ending",
+        "value": 60.0
+    },
+    "dip_count": {
+        "main": true,
+        "group": "Dip",
+        "label": "number of samples",
+        "value": 1
+    },
+    "out_group": {
+        "label": "SimPEGGroup",
+        "value": "",
+        "groupType": "{55ed3daf-c192-4d4b-a439-60fa987fe2b8}",
+        "visible": true,
+        "optional": true,
+        "enabled": false
+    }
+}

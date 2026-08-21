@@ -1,5 +1,5 @@
 {
-    "version": "0.5.0",
+    "version": "0.5.1",
     "title": "Plate Match",
     "icon": "maxwellplate",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/plate-simulation/simulation.html",
@@ -25,7 +25,7 @@
         "dataType": "Float",
         "dataGroupType": "Multi-element",
         "main": true,
-        "label": "EM Data",
+        "label": "EM data",
         "parent": "survey",
         "tooltip": "Observed EM data to fit during plate matching",
         "value": ""
@@ -98,6 +98,12 @@
         "directoryOnly": true,
         "tooltip": "Directory where pre-computed simulations are stored",
         "value": "./simulations"
+    },
+    "download_simulations": {
+        "icon": "information",
+        "main": true,
+        "value": null,
+        "label": "<a href='https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/downloads/plate-simulation'>Download simulation examples</a>"
     },
     "out_group": {
         "label": "SimPEG group",

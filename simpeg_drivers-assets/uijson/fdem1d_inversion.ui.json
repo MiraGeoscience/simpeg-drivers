@@ -1,5 +1,5 @@
 {
-    "version": "0.5.0",
+    "version": "0.5.1",
     "title": "Frequency-domain EM (FEM) 1D Inversion",
     "icon": "surveyairborneem",
     "documentation": "https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/en/latest/",
@@ -223,7 +223,7 @@
             "{b020a277-90e2-4cd7-84d6-612ee3f25051}"
         ],
         "value": "",
-        "optional": true,
+        "optional": false,
         "enabled": true,
         "tooltip": "Select a topography object to define the active cells for inversion"
     },
@@ -554,7 +554,7 @@
         "group": "Compute",
         "optional": true,
         "enabled": true,
-        "label": "Maximum chunk size (Mb)",
+        "label": "Maximum chunk size (MB)",
         "value": 512,
         "verbose": 3,
         "visible": false,
