@@ -400,7 +400,9 @@ class SurveyFactory(SimPEGFactory):
         block_ordering = np.vstack(block_ordering)
         ordering = []
 
-        for freq_id, frequency in enumerate(data.entity.channels):
+        channels = np.array(data.entity.channels) / self.params.unit_conversion
+
+        for freq_id, frequency in enumerate(channels):
             tx = tx_factory.build(receivers, frequency=frequency)
             tx.rx_ids = np.arange(data.locations.shape[0], dtype=int)
             sources.append(tx)
