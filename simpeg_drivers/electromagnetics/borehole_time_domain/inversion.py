@@ -25,6 +25,5 @@ class BoreholeTDEMInversionDriver(InversionDriver):
 
 
 if __name__ == "__main__":
-    # file, args = argument_parser()
-    file = r"C:\Users\dominiquef\Documents\tests\Borehole_EM\inv_run1.ui.json"
-    BoreholeTDEMInversionDriver.start_dask_run(file)
+    file, args = argument_parser()
+    BoreholeTDEMInversionDriver.start_dask_run(file, **args)

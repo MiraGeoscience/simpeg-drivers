@@ -25,6 +25,5 @@ class BoreholeTDEMForwardDriver(ForwardDriver):
 
 
 if __name__ == "__main__":
-    # file, args = argument_parser()
-    file = r"C:\Users\dominiquef\Documents\tests\Borehole_EM\fwr_model_A.ui.json"
-    BoreholeTDEMForwardDriver.start_dask_run(file)
+    file, args = argument_parser()
+    BoreholeTDEMForwardDriver.start_dask_run(file, **args)
