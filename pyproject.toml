@@ -94,16 +94,16 @@ trimesh = "^4.1.3"
 ## Pip dependencies from Git repositories
 #----------------------------------------
 # geoh5py = {version = ">=0.14.0a, 0.14.*", source = "pypi", allow-prereleases = true}
-geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "feature/uijson"}
+geoh5py = {git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "develop"}
 
 # grid-apps = {version = ">=0.3.0a, 0.3.*", source = "pypi", allow-prereleases = true}
-grid-apps = {git = "https://github.com/MiraGeoscience/grid-apps.git", rev = "feature/uijson"}
+grid-apps = {git = "https://github.com/MiraGeoscience/grid-apps.git", rev = "develop"}
 
 # geoapps-utils = {version = ">=0.8.0a, 0.8.*", source = "pypi", allow-prereleases = true}
-geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "feature/uijson"}
+geoapps-utils = {git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "develop"}
 
 # mira-simpeg = {version = ">=0.25.0.2a, 0.25.0.*", source="pypi", allow-prereleases = true, extras = ["dask"]}
-mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", rev = "GEOPY-2880", extras = ["dask"]}
+mira-simpeg = {git = "https://github.com/MiraGeoscience/simpeg.git", rev = "develop", extras = ["dask"]}
 
 ## about pip dependencies
 # to be specified to work with conda-lock
