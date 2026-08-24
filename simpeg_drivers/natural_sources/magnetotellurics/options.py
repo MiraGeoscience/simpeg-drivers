@@ -14,21 +14,22 @@ from __future__ import annotations
 from pathlib import Path
 from typing import ClassVar
 
-from geoh5py.data import FloatData
 from geoh5py.groups import PropertyGroup
 from geoh5py.objects import MTReceivers
 
 from simpeg_drivers import assets_path
-from simpeg_drivers.electromagnetics.frequency_domain.options import DirectiveOptions
+from simpeg_drivers.electromagnetics.frequency_domain.options import (
+    BaseFDEMOptions,
+    DirectiveOptions,
+)
 from simpeg_drivers.options import (
     BaseForwardOptions,
     BaseInversionOptions,
     ConductivityModelOptions,
-    EMDataMixin,
 )
 
 
-class MTForwardOptions(EMDataMixin, BaseForwardOptions):
+class MTForwardOptions(BaseFDEMOptions, BaseForwardOptions):
     """
     Magnetotellurics forward options.
 
@@ -69,7 +70,7 @@ class MTForwardOptions(EMDataMixin, BaseForwardOptions):
         return ["_".join(k.split("_")[:2]) for k in self.__dict__ if "channel" in k]
 
 
-class MTInversionOptions(EMDataMixin, BaseInversionOptions):
+class MTInversionOptions(BaseFDEMOptions, BaseInversionOptions):
     """
     Magnetotellurics inversion options.
 
