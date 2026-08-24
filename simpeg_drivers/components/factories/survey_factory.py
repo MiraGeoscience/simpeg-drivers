@@ -316,7 +316,7 @@ class SurveyFactory(SimPEGFactory):
         return [tx_list]
 
     def _fem_arguments(self, data=None):
-        channels = np.array(data.entity.channels)
+        channels = np.array(data.entity.channels) / self.params.unit_conversion
         rx_locs = data.entity.vertices
         tx_locs = data.entity.transmitters.vertices
         frequencies = np.repeat(channels, rx_locs.shape[0])
@@ -400,7 +400,9 @@ class SurveyFactory(SimPEGFactory):
         block_ordering = np.vstack(block_ordering)
         ordering = []
 
-        for freq_id, frequency in enumerate(data.entity.channels):
+        channels = np.array(data.entity.channels) / self.params.unit_conversion
+
+        for freq_id, frequency in enumerate(channels):
             tx = tx_factory.build(receivers, frequency=frequency)
             tx.rx_ids = np.arange(data.locations.shape[0], dtype=int)
             sources.append(tx)
