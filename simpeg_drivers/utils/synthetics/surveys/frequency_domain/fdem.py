@@ -15,9 +15,9 @@ from geoh5py.objects import AirborneFEMReceivers, AirborneFEMTransmitters
 
 
 frequency_config = [
-    {"Coaxial data": False, "Frequency": 900, "Offset": 7.86},
-    {"Coaxial data": False, "Frequency": 7200, "Offset": 7.86},
-    {"Coaxial data": False, "Frequency": 56000, "Offset": 6.3},
+    {"Coaxial data": False, "Frequency": 0.9, "Offset": 7.86},
+    {"Coaxial data": False, "Frequency": 7.200, "Offset": 7.86},
+    {"Coaxial data": False, "Frequency": 56.000, "Offset": 6.3},
 ]
 
 
@@ -38,6 +38,7 @@ def generate_fdem_survey(
     survey = AirborneFEMReceivers.create(geoh5, vertices=vertices, name=name)
     survey.remove_cells(mask_large_connections(survey, 200.0))
     survey.metadata["EM Dataset"]["Frequency configurations"] = frequency_config
+    survey.metadata["EM Dataset"]["Unit"] = "KiloHertz (kHz)"
 
     tx_locs_list = []
     frequency_list = []

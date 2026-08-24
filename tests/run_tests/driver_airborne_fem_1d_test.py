@@ -17,6 +17,7 @@ from pathlib import Path
 import numpy as np
 from geoh5py import Workspace
 
+from simpeg_drivers.electromagnetics.frequency_domain.options import CONVERSION
 from simpeg_drivers.electromagnetics.frequency_domain_1d.forward import (
     FDEM1DForwardDriver,
     FDEM1DForwardOptions,
@@ -111,6 +112,7 @@ def test_fem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
                         f"uncertainty_{chan}_[{ind}]": {
                             "values": np.ones_like(abs_val)
                             * freq
+                            / CONVERSION[data_entity.parent.unit]
                             / 200.0  # * 2**(np.abs(ind-1))
                         }
                     }
