@@ -22,7 +22,7 @@ def generate_tipper_survey(
     X: np.ndarray,
     Y: np.ndarray,
     Z: np.ndarray,
-    channels: tuple = (10.0, 100.0, 1000.0),
+    channels: tuple = (0.01, 0.1, 1.0),
     name: str = "survey",
 ) -> TipperReceivers:
     """Create a Tipper survey object from survey grid locations."""
@@ -39,6 +39,7 @@ def generate_tipper_survey(
         ],
         channels=list(channels),
     )
+    survey.metadata["EM Dataset"]["Unit"] = "KiloHertz (kHz)"
     base_station = TipperBaseStations.create(geoh5, vertices=np.c_[vertices[0, :]].T)
     base_station.tx_id_property = np.r_[1]
 
