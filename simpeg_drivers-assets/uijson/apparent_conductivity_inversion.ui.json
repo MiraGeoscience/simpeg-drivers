@@ -287,7 +287,10 @@
     },
     "y_norm": {
         "association": "Cell",
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "group": "Sparse/blocky model",
         "label": "Y-smoothness norm",
         "isValue": true,
