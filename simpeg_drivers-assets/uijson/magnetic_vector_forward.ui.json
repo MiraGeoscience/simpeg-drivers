@@ -60,7 +60,10 @@
             "Vertex",
             "Cell"
         ],
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "group": "Topography",
         "main": true,
         "optional": true,
@@ -179,7 +182,10 @@
             "Cell",
             "Vertex"
         ],
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "group": "Mesh and models",
         "main": true,
         "isValue": true,
@@ -193,7 +199,10 @@
             "Cell",
             "Vertex"
         ],
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "group": "Mesh and models",
         "main": true,
         "isValue": true,
@@ -209,7 +218,10 @@
             "Cell",
             "Vertex"
         ],
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "group": "Mesh and models",
         "main": true,
         "isValue": true,
