@@ -107,15 +107,15 @@ def test_tem_fwr_run(tmp_path: Path):
             for child in norm_sim.children
             if isinstance(child, LargeLoopGroundTEMReceivers)
         )
-        norm_vals = []
+        comp_vals = []
 
         for comp in ["crossline", "inline", "vertical"]:
-            norm_vals.append(
+            comp_vals.append(
                 norm_survey.get_entity(f"Iteration_0_{comp}_[0]")[0].values
             )
 
-        norm_vals = np.vstack(norm_vals)
-        norm_vals /= np.linalg.norm(norm_vals, axis=0)[np.newaxis, :]
+        comp_vals = np.vstack(comp_vals)
+        norm_vals = comp_vals / np.linalg.norm(comp_vals, axis=0)[np.newaxis, :]
 
         rad_azm_dip = cartesian_to_spherical(norm_vals.T)
         azimuth = 90 - np.rad2deg(rad_azm_dip[:, 1])
@@ -164,12 +164,13 @@ def test_tem_fwr_run(tmp_path: Path):
             rot_vals.append(rot_survey.get_entity(f"Iteration_0_{comp}_[0]")[0].values)
 
         rot_vals = np.vstack(rot_vals)
-        rot_vals /= np.linalg.norm(rot_vals, axis=0)[np.newaxis, :]
 
         # Check that the total fields are preserved
         np.testing.assert_allclose(
-            np.linalg.norm(rot_vals, axis=0), np.linalg.norm(norm_vals, axis=0)
+            np.linalg.norm(rot_vals, axis=0), np.linalg.norm(comp_vals, axis=0)
         )
+
+        rot_vals /= np.linalg.norm(rot_vals, axis=0)[np.newaxis, :]
 
         # Rotate back and validate components
         rot_x = x_rotation_matrix(np.deg2rad(-dip))
