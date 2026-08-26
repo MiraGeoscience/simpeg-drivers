@@ -10,6 +10,7 @@
 
 import numpy as np
 from geoapps_utils.utils.locations import gaussian
+from geoapps_utils.utils.transformations import y_rotation_matrix
 from geoh5py import Workspace
 from geoh5py.objects import (
     LargeLoopGroundTEMReceivers,
@@ -95,7 +96,17 @@ def generate_tdem_survey(
         name=f"{name}_tx",
     )
     transmitters.tx_id_property = transmitters.parts + 1
-    survey = LargeLoopGroundTEMReceivers.create(geoh5, name=name, vertices=vertices)
+
+    cells = []
+    count = 0
+    for _ in range(X.shape[0]):
+        inds = np.arange(count, count + X.shape[1] - 1)
+        cells.append(np.c_[inds, inds + 1])
+        count += X.shape[1]
+
+    survey = LargeLoopGroundTEMReceivers.create(
+        geoh5, name=name, vertices=vertices, cells=np.vstack(cells)
+    )
     survey.transmitters = transmitters
     survey.tx_id_property = np.hstack(loop_id)
 

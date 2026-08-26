@@ -278,7 +278,7 @@ class ReceiversFactory(SimPEGFactory):
                 azi_dip = np.deg2rad(azi_dip)
 
         elif "borehole" in self.params.inversion_type:
-            azi_dip = azimuth_dip_from_segments(self.params.data_object)
+            azi_dip = azimuth_dip_from_segments(self.params.data_object, reverse=True)
 
         if azi_dip is not None:
             orientations = {}
