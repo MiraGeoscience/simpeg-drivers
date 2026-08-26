@@ -33,7 +33,6 @@ from .locations import InversionLocations
 if TYPE_CHECKING:
     from geoh5py.workspace import Workspace
 
-    from simpeg_drivers.components.meshes import InversionMesh
     from simpeg_drivers.options import InversionBaseOptions
 
 
