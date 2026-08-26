@@ -13,7 +13,7 @@ from typing import ClassVar
 
 from geoapps_utils.base import Options
 from geoh5py.data import FloatData
-from geoh5py.groups import SimPEGGroup, UIJsonGroup
+from geoh5py.groups import UIJsonGroup
 from geoh5py.objects import DrapeModel, Octree
 from pydantic import field_validator
 
