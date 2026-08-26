@@ -58,7 +58,7 @@
         ],
         "value": "Airborne dB/dt (V/Am^4)"
     },
-    "A_channel": {
+    "a_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -74,7 +74,7 @@
         "enabled": true,
         "value": ""
     },
-    "A_uncertainty": {
+    "a_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -85,11 +85,11 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "A_channel",
+        "dependency": "a_channel",
         "dependencyType": "enabled",
         "value": ""
     },
-    "U_channel": {
+    "u_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -105,7 +105,7 @@
         "enabled": false,
         "value": ""
     },
-    "U_uncertainty": {
+    "u_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -116,11 +116,11 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "U_channel",
+        "dependency": "u_channel",
         "dependencyType": "enabled",
         "value": ""
     },
-    "V_channel": {
+    "v_channel": {
         "association": [
             "Cell",
             "Vertex"
@@ -136,7 +136,7 @@
         "enabled": false,
         "value": ""
     },
-    "V_uncertainty": {
+    "v_uncertainty": {
         "association": [
             "Cell",
             "Vertex"
@@ -147,7 +147,7 @@
         "main": true,
         "label": "Uncertainty",
         "parent": "data_object",
-        "dependency": "V_channel",
+        "dependency": "v_channel",
         "dependencyType": "enabled",
         "value": ""
     },

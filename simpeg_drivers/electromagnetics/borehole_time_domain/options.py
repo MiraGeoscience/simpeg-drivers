@@ -34,9 +34,9 @@ class BoreholeTDEMForwardOptions(BaseTDEMOptions, BaseForwardOptions):
     """
     Time Domain Electromagnetic forward options for borehole surveys.
 
-    :param A_channel_bool: In-line (A) data channel boolean.
-    :param U_channel_bool: Vertical (U) data channel boolean.
-    :param V_channel_bool: Cross-line (V) data channel boolean.
+    :param a_channel_bool: In-line (A) data channel boolean.
+    :param u_channel_bool: Vertical (U) data channel boolean.
+    :param v_channel_bool: Cross-line (V) data channel boolean.
     """
 
     name: ClassVar[str] = "Borehole TDEM Forward"
@@ -56,9 +56,9 @@ class BoreholeTDEMForwardOptions(BaseTDEMOptions, BaseForwardOptions):
         | AirborneTEMReceivers
     )
     receivers_orientation: PropertyGroup | None = None
-    A_channel_bool: bool = False
-    U_channel_bool: bool = False
-    V_channel_bool: bool = False
+    a_channel_bool: bool = False
+    u_channel_bool: bool = False
+    v_channel_bool: bool = False
 
     models: ConductivityModelOptions
 
@@ -67,12 +67,12 @@ class BoreholeTDEMInversionOptions(BaseTDEMOptions, BaseInversionOptions):
     """
     Time Domain Electromagnetic Inversion options for borehole surveys.
 
-    :param U_channel: Vertical (U) component data channel.
-    :param U_uncertainty: Vertical (U) component data channel uncertainty.
-    :param A_channel: In-line (A) data channel.
-    :param A_uncertainty: In-line (A) data channel uncertainty.
-    :param V_channel: Cross-line (V) data channel.
-    :param V_uncertainty: Cross-line(V) data channel uncertainty.
+    :param u_channel: Vertical (U) component data channel.
+    :param u_uncertainty: Vertical (U) component data channel uncertainty.
+    :param a_channel: In-line (A) data channel.
+    :param a_uncertainty: In-line (A) data channel uncertainty.
+    :param v_channel: Cross-line (V) data channel.
+    :param v_uncertainty: Cross-line(V) data channel uncertainty.
     """
 
     name: ClassVar[str] = "Borehole TDEM Inversion"
@@ -91,11 +91,11 @@ class BoreholeTDEMInversionOptions(BaseTDEMOptions, BaseInversionOptions):
         | AirborneTEMReceivers
     )
     receivers_orientation: PropertyGroup | None = None
-    U_channel: PropertyGroup | None = None
-    U_uncertainty: PropertyGroup | None = None
-    A_channel: PropertyGroup | None = None
-    A_uncertainty: PropertyGroup | None = None
-    V_channel: PropertyGroup | None = None
-    V_uncertainty: PropertyGroup | None = None
+    u_channel: PropertyGroup | None = None
+    u_uncertainty: PropertyGroup | None = None
+    a_channel: PropertyGroup | None = None
+    a_uncertainty: PropertyGroup | None = None
+    v_channel: PropertyGroup | None = None
+    v_uncertainty: PropertyGroup | None = None
 
     models: ConductivityModelOptions

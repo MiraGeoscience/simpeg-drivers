@@ -38,9 +38,9 @@ ORIENTATION_MAP = {
     "vertical": "z",
     "inline": "y",
     "crossline": "x",
-    "A": "y",
-    "U": "z",
-    "V": "x",
+    "a": "y",
+    "u": "z",
+    "v": "x",
 }
 
 
