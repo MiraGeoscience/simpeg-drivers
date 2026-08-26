@@ -334,7 +334,9 @@ class InversionData(InversionLocations):
 
         # Make sure the ordering of channels stays the same
         if hasattr(survey, "_frequencies"):
-            survey._frequencies = self.entity.channels  # pylint: disable=protected-access
+            survey._frequencies = (  # pylint: disable=protected-access
+                np.asarray(self.entity.channels) / self.params.unit_conversion
+            )
 
         # Save apparent resistivity in geoh5 order
         if "direct current" in self.params.inversion_type:

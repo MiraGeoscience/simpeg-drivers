@@ -16,7 +16,7 @@ import numpy as np
 import pytest
 from discretize import TreeMesh
 from geoh5py import Workspace
-from geoh5py.objects import Grid2D, Octree
+from geoh5py.objects import DrapeModel, Grid2D, Octree
 from grid_apps.utils import treemesh_2_octree
 
 from simpeg_drivers.components import InversionMesh
@@ -31,6 +31,7 @@ from simpeg_drivers.utils.synthetics.options import (
     SurveyOptions,
     SyntheticsComponentsOptions,
 )
+from simpeg_drivers.utils.utils import drape_2_tensor
 from tests.utils.targets import get_workspace
 
 
@@ -242,3 +243,28 @@ def test_handle_grid2d(tmp_path):
     updates = {"mesh": None, "topography_object": topo, "topography": elev}
     params = get_mvi_params(tmp_path, updates=updates)
     MagneticVectorInversionDriver(params)  # Doesn't crash
+
+
+def test_drape_to_tensor(tmp_path):
+    with Workspace.create(tmp_path / f"{__name__}.geoh5") as ws:
+        n_col, n_row = 64, 32
+        j, i = np.meshgrid(np.arange(n_row), np.arange(n_col))
+        bottom = -j / 10 - 0.1
+
+        x = np.sin(2 * np.arange(n_col) / n_col * np.pi)
+        y = np.cos(2 * np.arange(n_col) / n_col * np.pi)
+        top = bottom.flatten()[::n_row] + 0.1
+
+        layers = np.c_[i.flatten(), j.flatten(), bottom.flatten()]
+        prisms = np.c_[
+            x, y, top, np.arange(0, i.flatten().shape[0], n_row), np.tile(n_row, n_col)
+        ]
+        drape = DrapeModel.create(ws, layers=layers, prisms=prisms)
+
+        tensor = drape_2_tensor(drape)
+
+        # Validate that the horizontal cell size remains the same along the path
+        np.testing.assert_array_almost_equal(
+            np.linalg.norm(drape.prisms[1:, :2] - drape.prisms[:-1, :2], axis=1),
+            tensor.h[0][1:],
+        )

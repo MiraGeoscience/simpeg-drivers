@@ -18,7 +18,7 @@ from discretize import TensorMesh, TreeMesh
 from geoh5py import Workspace
 from geoh5py.objects import DrapeModel, Grid2D, Octree, Points
 from grid_apps.octree_creation.driver import OctreeDriver
-from grid_apps.utils import octree_2_treemesh, treemesh_2_octree
+from grid_apps.utils import octree_2_treemesh, tree_levels, treemesh_2_octree
 from scipy.sparse import csr_matrix, identity
 
 from simpeg_drivers.options import BaseForwardOptions, BaseInversionOptions
@@ -27,28 +27,6 @@ from simpeg_drivers.utils.utils import drape_2_tensor
 
 
 logger = getLogger(__name__)
-
-
-def tree_levels(mesh: Octree) -> np.ndarray | None:
-    """
-    Convert Octree n cell indices to Treemesh level indices.
-
-    :param mesh: Octree object with n cell index.
-
-    :returns: Array of level indices.
-    """
-    if mesh.octree_cells is None:
-        return None
-
-    n_cell_dim = [mesh.u_count, mesh.v_count, mesh.w_count]
-    ls = np.log2(n_cell_dim).astype(int)
-    if len(set(ls)) == 1:
-        max_level = ls[0]
-    else:
-        max_level = min(ls) + 1
-    levels = max_level - np.log2(mesh.octree_cells["NCells"])
-
-    return levels
 
 
 class InversionMesh:
