@@ -28,6 +28,7 @@ def generate_tdem_survey(
     channels: np.ndarray = CHANNELS,
     waveform: np.ndarray = WAVEFORM,
     name: str = "survey",
+    n_loops: int = 2,
 ) -> LargeLoopGroundTEMReceivers:
     """Create a large loop TDEM survey object from survey grid locations."""
 
@@ -36,19 +37,15 @@ def generate_tdem_survey(
     center = np.mean(vertices, axis=0)
     if flatten:
         center[2] -= np.mean(Z)
-    n_lines = X.shape[0]
+
+    x_blocks = np.array_split(X, n_loops, axis=0)
+    y_blocks = np.array_split(Y, n_loops, axis=0)
+    z_blocks = np.array_split(Z, n_loops, axis=0)
     arrays = [
-        np.c_[
-            X[: int(n_lines / 2), :].flatten(),
-            Y[: int(n_lines / 2), :].flatten(),
-            Z[: int(n_lines / 2), :].flatten(),
-        ],
-        np.c_[
-            X[int(n_lines / 2) :, :].flatten(),
-            Y[int(n_lines / 2) :, :].flatten(),
-            Z[int(n_lines / 2) :, :].flatten(),
-        ],
+        np.c_[x.flatten(), y.flatten(), z.flatten()]
+        for x, y, z in zip(x_blocks, y_blocks, z_blocks, strict=True)
     ]
+
     loops = []
     loop_cells = []
     loop_id = []
@@ -83,8 +80,7 @@ def generate_tdem_survey(
             if flatten
             else gaussian(loop[:, 0], loop[:, 1], amplitude=50.0, width=100.0)
         )
-        loop = np.c_[loop, elevation]
-        loops += [loop + np.asarray(center)]
+        loops += [np.c_[loop, elevation]]
         loop_cells += [np.c_[np.arange(15) + count, np.arange(15) + count + 1]]
         loop_cells += [np.c_[count + 15, count]]
         count += 16

@@ -33,7 +33,7 @@ def generate_borehole_tdem_survey(
     """Create a large loop TDEM survey object from survey grid locations."""
 
     survey = generate_tdem_survey(
-        geoh5, X, Y, Z, channels=channels, waveform=waveform, name=name
+        geoh5, X, Y, Z, channels=channels, waveform=waveform, name=name, n_loops=1
     )
 
     center = survey.vertices[0, :]

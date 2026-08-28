@@ -91,10 +91,10 @@ class BoreholeTDEMInversionOptions(BaseTDEMOptions, BaseInversionOptions):
         | AirborneTEMReceivers
     )
     receivers_orientation: PropertyGroup | None = None
-    u_channel: PropertyGroup | None = None
-    u_uncertainty: PropertyGroup | None = None
     a_channel: PropertyGroup | None = None
     a_uncertainty: PropertyGroup | None = None
+    u_channel: PropertyGroup | None = None
+    u_uncertainty: PropertyGroup | None = None
     v_channel: PropertyGroup | None = None
     v_uncertainty: PropertyGroup | None = None
 

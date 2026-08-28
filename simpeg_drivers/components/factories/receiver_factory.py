@@ -29,7 +29,7 @@ from geoh5py.objects.surveys.electromagnetics.base import (
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
 from simpeg_drivers.options import CoreOptions
-from simpeg_drivers.utils.regularization import direction_and_dip, get_cell_normals
+from simpeg_drivers.utils.regularization import get_cell_normals
 
 
 ORIENTATION_MAP = {
