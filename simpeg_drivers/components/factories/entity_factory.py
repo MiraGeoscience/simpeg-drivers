@@ -18,6 +18,9 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from geoapps_utils.utils.importing import GeoAppsError
+from geoapps_utils.utils.locations import azimuth_dip_from_segments
+from geoapps_utils.utils.transformations import x_rotation_matrix, z_rotation_matrix
+from geoh5py.groups import PropertyGroup
 from geoh5py.objects import (
     CurrentElectrode,
     Curve,
@@ -96,7 +99,44 @@ class EntityFactory(AbstractFactory):
                 if tx_freq:
                     tx_freq[0].copy(parent=entity.transmitters)
 
+            if "borehole" in self.params.inversion_type:
+                if property_group := self.params.receivers_orientation is not None:
+                    property_group.copy(parent=entity)
+                else:
+                    self._add_auv_data_groups(entity)
+
         return entity
+
+    @staticmethod
+    def _add_auv_data_groups(entity: Curve):
+        """
+        Compute the segments orientation and add A, U and V vector data
+        to the entity.
+
+        :param entity: Curve entity
+        """
+        azi_dip = azimuth_dip_from_segments(entity, reverse=True)
+
+        for ind, comp in enumerate("vau"):
+            vector = np.zeros((azi_dip.shape[0], 3))
+            vector[:, ind] = 1
+            vector = (
+                z_rotation_matrix(-azi_dip[:, 0])
+                * (x_rotation_matrix(-azi_dip[:, 1]) * vector.flatten())
+            ).reshape((-1, 3))
+            vec_data = entity.add_data(
+                {
+                    f"{comp}_x": {"values": vector[:, 0]},
+                    f"{comp}_y": {"values": vector[:, 1]},
+                    f"{comp}_z": {"values": vector[:, 2]},
+                }
+            )
+            PropertyGroup(
+                entity,
+                property_group_type="3D vector",
+                name=f"{comp}_ori".capitalize(),
+                properties=vec_data,
+            )
 
     @staticmethod
     def _prune_from_indices(curve: Curve, cell_indices: np.ndarray):
