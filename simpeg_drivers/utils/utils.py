@@ -305,7 +305,7 @@ def drape_2_tensor(drape_model: DrapeModel, return_sorting: bool = False) -> tup
                 section = []
                 part += 1
         else:
-            section.append(np.c_[prisms[ii, 0], 0])
+            section.append(np.r_[prisms[ii, :2], 0])
             count += n_layers
 
     cell_widths.append(cell_width_from_centers(np.vstack(section)))
