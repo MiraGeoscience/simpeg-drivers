@@ -10,7 +10,6 @@
 
 from __future__ import annotations
 
-import re
 from logging import INFO, getLogger
 from pathlib import Path
 
@@ -19,13 +18,13 @@ from geoapps_utils.modelling.plates import PlateModel
 from geoh5py.workspace import Workspace
 from pymatsolver.direct import Mumps
 
-from simpeg_drivers.electromagnetics.time_domain.forward import (
-    TDEMForwardDriver,
-    TDEMForwardOptions,
+from simpeg_drivers.electromagnetics.borehole_time_domain.forward import (
+    BoreholeTDEMForwardDriver,
+    BoreholeTDEMForwardOptions,
 )
-from simpeg_drivers.electromagnetics.time_domain.inversion import (
-    TDEMInversionDriver,
-    TDEMInversionOptions,
+from simpeg_drivers.electromagnetics.borehole_time_domain.inversion import (
+    BoreholeTDEMInversionDriver,
+    BoreholeTDEMInversionOptions,
 )
 from simpeg_drivers.utils.synthetics.driver import (
     SyntheticsComponents,
@@ -45,77 +44,10 @@ logger = getLogger(__name__)
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 1.8460e-11, "phi_d": 3.0390e01, "phi_m": 2.0320e04}
+target_run = {"data_norm": 6.3414e-11, "phi_d": 1.1820e04, "phi_m": 9.7920e02}
 
 
-def test_tiling_ground_tem(
-    tmp_path: Path,
-    *,
-    n_grid_points=4,
-    cell_size=(20.0, 20.0, 20.0),
-    refinement=(2,),
-    **_,
-):
-    # Run the forward
-    opts = SyntheticsComponentsOptions(
-        method="ground tdem",
-        refine_plate=True,
-        survey=SurveyOptions(
-            n_stations=n_grid_points,
-            n_lines=n_grid_points,
-            drape=5.0,
-            topography=lambda x, y: np.zeros(x.shape),
-            name="ground_tdem_survey",
-        ),
-        mesh=MeshOptions(
-            u_cell_size=cell_size[0],
-            v_cell_size=cell_size[1],
-            w_cell_size=cell_size[2],
-            survey_refinement=list(refinement),
-            topography_refinement=[0, 0, 1],
-            plate_refinement=[1],
-            padding_distance=1000.0,
-        ),
-        model=ModelOptions(
-            background=0.001,
-            plate=PlateModel(
-                strike_length=40.0,
-                dip_length=40.0,
-                width=40.0,
-                easting=0.0,
-                northing=0.0,
-                elevation=-50.0,
-            ),
-        ),
-    )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
-        components = SyntheticsComponents(geoh5, options=opts)
-        params = TDEMForwardOptions.build(
-            geoh5=geoh5,
-            mesh=components.mesh,
-            topography_object=components.topography,
-            data_object=components.survey,
-            starting_model=components.model,
-            x_channel_bool=True,
-            y_channel_bool=True,
-            z_channel_bool=True,
-            tile_spatial=4,
-            solver_type="Mumps",
-        )
-    fwr_driver = TDEMForwardDriver(params)
-
-    with geoh5.open():
-        tiles = fwr_driver.get_tiles()
-
-    assert len(tiles[None]) == 4
-
-    for tile in tiles[None]:
-        assert len(np.unique(components.survey.tx_id_property.values[tile])) == 1
-
-    fwr_driver.run()
-
-
-def test_ground_tem_fwr_run(
+def test_borehole_tem_fwr_run(
     tmp_path: Path,
     caplog,
     n_grid_points=4,
@@ -127,10 +59,10 @@ def test_ground_tem_fwr_run(
         caplog.set_level(INFO)
     # Run the forward
     opts = SyntheticsComponentsOptions(
-        method="ground tdem",
+        method="borehole tdem",
         refine_plate=True,
         survey=SurveyOptions(
-            n_stations=n_grid_points,
+            n_stations=n_grid_points * 2,
             n_lines=n_grid_points,
             drape=5.0,
             topography=lambda x, y: np.zeros(x.shape),
@@ -150,59 +82,36 @@ def test_ground_tem_fwr_run(
                 strike_length=40.0,
                 dip_length=40.0,
                 width=40.0,
-                easting=0.0,
+                easting=-40.0,
                 northing=0.0,
-                elevation=-50.0,
+                elevation=-75.0,
             ),
         ),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
-        components.survey.transmitters.remove_cells([15])
-        params = TDEMForwardOptions.build(
+        params = BoreholeTDEMForwardOptions.build(
             geoh5=geoh5,
             mesh=components.mesh,
             topography_object=components.topography,
             data_object=components.survey,
             starting_model=components.model,
-            x_channel_bool=True,
-            y_channel_bool=True,
-            z_channel_bool=True,
-            data_units="Ground B (T/A)",
+            a_channel_bool=True,
+            u_channel_bool=True,
+            v_channel_bool=True,
             solver_type="Mumps",
+            data_units="Ground B (T/A)",
         )
 
-    fwr_driver = TDEMForwardDriver(params)
-
-    assert fwr_driver.out_group is not None
-    with components.survey.workspace.open():
-        components.survey.tx_id_property.name = "tx_id"
-        assert fwr_driver.inversion_data.survey.source_list[0].n_segments == 16
-
-    if pytest and caplog:
-        loop_warnings = [
-            k
-            for k in caplog.records
-            if re.match(r"Loop \d+ modified", k.message) is not None
-        ]
-        assert len(loop_warnings) == 2
-        for record in loop_warnings:
-            assert record.levelname == "INFO"
-            assert "counter-clockwise" in record.message
-
-        assert "closed" in loop_warnings[0].message
-
-        assert (
-            fwr_driver.data_misfit.objfcts[0].simulation.simulations[0].solver == Mumps
-        )
+    fwr_driver = BoreholeTDEMForwardDriver(params)
     fwr_driver.run()
 
 
-def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
+def test_borehole_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
     workpath = tmp_path / "inversion_test.ui.geoh5"
     if pytest:
         workpath = (
-            tmp_path.parent / "test_ground_tem_fwr_run0" / "inversion_test.ui.geoh5"
+            tmp_path.parent / "test_borehole_tem_fwr_run0" / "inversion_test.ui.geoh5"
         )
 
     with Workspace(workpath) as geoh5:
@@ -210,28 +119,28 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         data = {}
         uncertainties = {}
         channels = {
-            "vertical": "vertical",
+            "a": "a",
+            "u": "u",
+            "v": "v",
         }
 
-        for chan, cname in channels.items():
-            data[cname] = []
-            uncertainties[f"{cname} uncertainties"] = []
+        for chan in channels:
+            data[chan] = []
+            uncertainties[f"{chan} uncertainties"] = []
             for ii, _ in enumerate(components.survey.channels):
                 data_entity = geoh5.get_entity(f"Iteration_0_{chan}_[{ii}]")[0].copy(
                     parent=components.survey
                 )
-                data[cname].append(data_entity)
+                data[chan].append(data_entity)
 
                 uncert = components.survey.add_data(
                     {
                         f"uncertainty_{chan}_[{ii}]": {
-                            "values": np.ones_like(data_entity.values)
-                            * np.median(np.abs(data_entity.values))
-                            / 2.0
+                            "values": np.abs(data_entity.values) * 0.05 + 3e-13
                         }
                     }
                 )
-                uncertainties[f"{cname} uncertainties"].append(uncert)
+                uncertainties[f"{chan} uncertainties"].append(uncert)
 
         components.survey.add_components_data(data)
         components.survey.add_components_data(uncertainties)
@@ -239,49 +148,51 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
         data_kwargs = {}
         for chan in channels:
             data_kwargs[f"{chan}_channel"] = components.survey.fetch_property_group(
-                name="vertical"
+                name=f"{chan}"
             )
             data_kwargs[f"{chan}_uncertainty"] = components.survey.fetch_property_group(
-                name="vertical uncertainties"
+                name=f"{chan} uncertainties"
             )
 
-        orig_dBzdt = geoh5.get_entity("Iteration_0_vertical_[0]")[0].values
+        orig_dBzdt = geoh5.get_entity("Iteration_0_a_[0]")[0].values
 
         # Run the inverse
-        params = TDEMInversionOptions.build(
+        params = BoreholeTDEMInversionOptions.build(
             geoh5=geoh5,
             mesh=components.mesh,
             topography_object=components.topography,
             data_object=components.survey,
-            starting_model=1e-3,
+            starting_model=3e-3,
             reference_model=1e-3,
             chi_factor=0.1,
-            s_norm=2.0,
+            s_norm=0.0,
             x_norm=2.0,
             y_norm=2.0,
             z_norm=2.0,
-            alpha_s=0e-1,
+            alpha_s=0e-0,
             lower_bound=2e-6,
             upper_bound=1e2,
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e1,
-            cooling_rate=2,
+            starting_chi_factor=1000,
+            cooling_rate=1,
             max_cg_iterations=200,
-            percentile=100,
+            percentile=5,
+            sens_wts_threshold=1.0,
             solver_type="Mumps",
             data_units="Ground B (T/A)",
             **data_kwargs,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    driver = TDEMInversionDriver(params)
+    driver = BoreholeTDEMInversionDriver(params)
     driver.run()
 
     with geoh5.open() as run_ws:
         output = get_inversion_output(
             driver.params.geoh5.h5file, driver.params.out_group.uid
         )
-        assert driver.inversion_data.entity.tx_id_property.name == "tx_id"
+        assert driver.inversion_data.entity.tx_id_property.name == "Transmitter ID"
         output["data"] = orig_dBzdt
         if pytest:
             check_target(output, target_run)
@@ -292,7 +203,7 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
 
 if __name__ == "__main__":
     # Full run
-    test_ground_tem_fwr_run(
+    test_borehole_tem_fwr_run(
         Path("./"),
         None,
         n_grid_points=5,
@@ -300,8 +211,8 @@ if __name__ == "__main__":
         cell_size=(5.0, 5.0, 5.0),
         pytest=False,
     )
-    test_ground_tem_run(
+    test_borehole_tem_run(
         Path("./"),
-        max_iterations=15,
+        max_iterations=10,
         pytest=False,
     )
