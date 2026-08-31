@@ -553,7 +553,7 @@ if __name__ == "__main__":
     test_joint_surveys_fwr_run(
         Path("./"),
         n_grid_points=20,
-        cell_size=(20.0, 20.0, 20.0),
+        cell_size=(5.0, 5.0, 5.0),
         refinement=(4, 4),
     )
     test_joint_surveys_inv_run(
