@@ -37,7 +37,7 @@ class JointModelOptions(ModelOptions):
     upper_bound: float | FloatData | IntegerData | None = None
 
     # Model values for regularization
-    alpha_s: float | FloatData | IntegerData | None | None = None
+    alpha_s: float | FloatData | IntegerData | None = None
     length_scale_x: float | FloatData | IntegerData | None = None
     length_scale_y: float | FloatData | IntegerData | None = None
     length_scale_z: float | FloatData | IntegerData | None = None

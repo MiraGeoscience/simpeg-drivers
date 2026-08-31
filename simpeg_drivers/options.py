@@ -320,7 +320,7 @@ class ConductivityModelOptions(ModelOptions):
     """
 
     model_type: ModelTypeEnum = ModelTypeEnum.conductivity
-    conductivity_model: float | FloatData | None = Field(
+    conductivity_model: float | FloatData | IntegerData | None = Field(
         None,
         validation_alias=AliasChoices("background_conductivity", "conductivity_model"),
     )
@@ -657,4 +657,4 @@ class IPModelOptions(ConductivityModelOptions):
     ModelOptions class with defaulted lower bound.
     """
 
-    lower_bound: float | FloatData | None = 0
+    lower_bound: float | FloatData | IntegerData | None = 0
