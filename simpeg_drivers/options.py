@@ -282,7 +282,7 @@ class ModelOptions(BaseModel):
     _gradient_orientations: list[FloatData | IntegerData] | None = None
 
     @property
-    def gradient_direction(self) -> FloatData | None:
+    def gradient_direction(self) -> FloatData | IntegerData | None:
         if self.gradient_orientations is None:
             return None
         return self.gradient_orientations[0]
