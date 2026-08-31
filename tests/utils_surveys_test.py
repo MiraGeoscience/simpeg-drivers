@@ -78,13 +78,22 @@ def test_station_spacing(tmp_path):
 
 def test_counterclockwise_sort():
     vertices = np.array(
-        [[0, 0], [0.25, 1.5], [0.0, 2.0], [0.5, 1], [1.5, 0], [0.2, 0.2]]
+        [
+            [0, 0, 1.0],
+            [0.25, 1.5, 1.0],
+            [0.0, 2.0, 1.0],
+            [0.5, 1, 1.0],
+            [1.5, 0, 1.0],
+            [0.2, 0.2, 1.0],
+        ]
     )
     segments = np.c_[np.arange(len(vertices)), np.arange(1, len(vertices) + 1)]
     segments[-1, 1] = 0
 
     # Add a second loop far offsetted
-    vertices = np.vstack([vertices, vertices + np.c_[0, -2], vertices + np.c_[-2, -2]])
+    vertices = np.vstack(
+        [vertices, vertices + np.c_[0, -2, 2.0], vertices + np.c_[-2, -2, 2.0]]
+    )
 
     ccw_sorted = counter_clockwise_sort(segments, vertices)
 
