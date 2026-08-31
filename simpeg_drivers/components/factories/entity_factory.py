@@ -100,7 +100,7 @@ class EntityFactory(AbstractFactory):
                     tx_freq[0].copy(parent=entity.transmitters)
 
             if "borehole" in self.params.inversion_type:
-                if property_group := self.params.receivers_orientation is not None:
+                if (property_group := self.params.receivers_orientation) is not None:
                     property_group.copy(parent=entity)
                 else:
                     self._add_auv_data_groups(entity)

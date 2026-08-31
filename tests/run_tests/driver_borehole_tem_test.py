@@ -10,7 +10,7 @@
 
 from __future__ import annotations
 
-from logging import INFO, getLogger
+from logging import getLogger
 from pathlib import Path
 
 import numpy as np
@@ -49,14 +49,10 @@ target_run = {"data_norm": 6.3414e-11, "phi_d": 1.1820e04, "phi_m": 9.7920e02}
 
 def test_borehole_tem_fwr_run(
     tmp_path: Path,
-    caplog,
     n_grid_points=4,
     refinement=(2,),
     cell_size=(20.0, 20.0, 20.0),
-    pytest=True,
 ):
-    if pytest and caplog:
-        caplog.set_level(INFO)
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="borehole tdem",
@@ -205,11 +201,9 @@ if __name__ == "__main__":
     # Full run
     test_borehole_tem_fwr_run(
         Path("./"),
-        None,
         n_grid_points=5,
         refinement=(2, 2, 2),
         cell_size=(5.0, 5.0, 5.0),
-        pytest=False,
     )
     test_borehole_tem_run(
         Path("./"),
