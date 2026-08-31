@@ -6,7 +6,7 @@ channels:
   - conda-forge
   - nodefaults
 dependencies:
-  - _openmp_mutex=4.5=7_kmp_llvm
+  - _openmp_mutex=4.5=8_kmp_llvm
   - annotated-types=0.8.0=pyhd8ed1ab_0
   - asciitree=0.3.3=py_2
   - aws-c-auth=0.10.4=h4610da3_2
@@ -49,13 +49,13 @@ dependencies:
   - hpack=4.2.0=pyhd8ed1ab_0
   - hyperframe=6.1.0=pyhd8ed1ab_0
   - icu=75.1=he02047a_0
-  - importlib-metadata=9.0.0=pyhcf101f3_0
+  - importlib-metadata=9.0.1=pyhcf101f3_0
   - jinja2=3.1.6=pyhcf101f3_1
-  - joblib=1.5.3=pyhd8ed1ab_0
+  - joblib=1.6.0=pyhcf101f3_0
   - keyutils=1.6.3=h7cc23a3_1
-  - kiwisolver=1.5.0=py313hc8edb43_0
+  - kiwisolver=1.5.1=py313h2551ef2_0
   - krb5=1.22.2=hbc21106_2
-  - lcms2=2.19.1=h0c24ade_1
+  - lcms2=2.19.1=h9073bf1_2
   - ld_impl_linux-64=2.46.1=default_hbd61a6d_102
   - lerc=4.2.0=hdb68285_0
   - libaec=1.1.5=h088129d_0
@@ -94,7 +94,7 @@ dependencies:
   - libtiff=4.7.2=hcc2c06a_1
   - libuuid=2.42.2=h5347b49_0
   - libwebp-base=1.6.0=hd42ef1d_1
-  - libxcb=1.17.0=hb83e432_1
+  - libxcb=1.17.0=hb83e432_2
   - libxml2=2.15.1=h26afc86_0
   - libxml2-16=2.15.1=ha9997c6_0
   - libzlib=1.3.2=h25fd6f3_3
@@ -104,7 +104,7 @@ dependencies:
   - matplotlib-base=3.10.9=py313h683a580_0
   - metis=5.1.0=hd0bcaf9_1007
   - mkl=2025.3.1=h0e700b2_12
-  - msgpack-python=1.2.1=py313hc8edb43_1
+  - msgpack-python=1.2.2=py313h2551ef2_1
   - mumps-include=5.8.2=h5a610fb_2
   - mumps-seq=5.8.2=hc1b3267_2
   - munkres=1.1.4=pyhd8ed1ab_1
@@ -141,7 +141,6 @@ dependencies:
   - s2n=1.7.6=h7e3ee7f_0
   - scikit-learn=1.8.0=np2py313h16d504d_1
   - scipy=1.17.1=py313h4b8bb8b_1
-  - setuptools=84.0.0=pyh332efcf_0
   - six=1.17.0=pyhe01879c_1
   - sortedcontainers=2.4.0=pyhd8ed1ab_1
   - tbb=2023.0.0=hab88423_2
@@ -157,7 +156,7 @@ dependencies:
   - typing_extensions=4.16.0=pyhcf101f3_0
   - tzdata=2026c=h151e31d_0
   - urllib3=2.7.0=pyhd8ed1ab_0
-  - wrapt=2.3.0=py313h07c4f96_0
+  - wrapt=2.4.0=py313hd42f317_0
   - xorg-libxau=1.0.12=hb03c661_2
   - xorg-libxdmcp=1.1.5=hb03c661_2
   - xyzservices=2026.3.0=pyhd8ed1ab_0
