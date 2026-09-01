@@ -343,10 +343,21 @@ def test_joint_cross_gradient_inv_run(
         atol=1e-3,
     )
 
-    with Workspace(driver.params.geoh5.h5file):
+    with Workspace(driver.params.geoh5.h5file) as ws:
         output = get_inversion_output(
             driver.params.geoh5.h5file, driver.params.out_group.uid
         )
+
+        # Check that the L2 iterations group was properly added.
+        out_group = ws.get_entity(driver.params.out_group.uid)[0]
+        mvi_group = next(
+            child
+            for child in out_group.children
+            if child.name == "Magnetic Vector (MVI) Inversion"
+        )
+        survey = next(child for child in mvi_group.children if child.name == "survey B")
+
+        assert len(survey.property_groups) == 1
 
         output["data"] = np.hstack(orig_data)
         if pytest:
