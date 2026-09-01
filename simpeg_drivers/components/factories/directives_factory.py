@@ -19,6 +19,7 @@ from logging import getLogger
 from typing import TYPE_CHECKING
 
 import numpy as np
+from geoh5py.data import FloatData
 from geoh5py.data.data_type import ColorMap, DataType
 from geoh5py.groups.property_group import GroupTypeEnum
 from geoh5py.objects import PotentialElectrode
@@ -56,6 +57,7 @@ class DirectivesFactory:
         self._save_iteration_log_files = None
         self._save_iteration_apparent_resistivity_directive = None
         self._scale_misfits = None
+        self._scale_misfit_channels = None
 
     @staticmethod
     def configure_save_directives(directives_list):
@@ -124,6 +126,7 @@ class DirectivesFactory:
             "vector_inversion_directive",
             "update_irls_directive",
             "scale_misfits",
+            "scale_misfit_channels",
             "update_sensitivity_weights_directive",
             "beta_estimate_by_eigenvalues_directive",
             "update_preconditioner_directive",
@@ -276,6 +279,15 @@ class DirectivesFactory:
                 name="Residual",
             )
         return self._save_iteration_residual_directive
+
+    @property
+    def scale_misfit_channels(self):
+        if self._scale_misfit_channels is None:
+            self._scale_misfit_channels = directives.ScaleMisfitsChannels(
+                self.driver.data_misfit.objfcts,
+                1,
+            )
+        return self._scale_misfit_channels
 
     @property
     def scale_misfits(self):
