@@ -125,8 +125,8 @@ class DirectivesFactory:
         for directive in [
             "vector_inversion_directive",
             "update_irls_directive",
+            # "scale_misfit_channels",
             "scale_misfits",
-            "scale_misfit_channels",
             "update_sensitivity_weights_directive",
             "beta_estimate_by_eigenvalues_directive",
             "update_preconditioner_directive",
@@ -284,9 +284,17 @@ class DirectivesFactory:
     @property
     def scale_misfit_channels(self):
         if self._scale_misfit_channels is None:
+            receivers = self.driver.inversion_data.entity
+            channels = [
+                float(val) if val else None
+                for val in getattr(receivers, "channels", [None])
+            ]
+            components = list(self.driver.inversion_data.observed)
+
             self._scale_misfit_channels = directives.ScaleMisfitsChannels(
                 self.driver.data_misfit.objfcts,
-                1,
+                channels=channels,
+                components=components,
             )
         return self._scale_misfit_channels
 
