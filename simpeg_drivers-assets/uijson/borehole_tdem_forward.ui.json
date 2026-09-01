@@ -28,10 +28,10 @@
         ],
         "label": "Receivers orientation",
         "tooltip": [
-            "Receivers orientation provided as 'Dip direction & dip' or '3D vector' data group. If not provided, it assumes: <dl>",
-            "<dt>In-line component</dt><dd>Positive towards North (Y)</dd>",
-            "<dt>Cross-line component</dt><dd>Positive towards East (X)</dd>",
-            "<dt>Vertical component</dt><dd>Positive up (Z)</dd>",
+            "Receiver orientation provided as a 'Dip direction & dip' or '3D vector' data group. If not provided, it is derived from the borehole trace: <dl>",
+            "<dt>Axial (A)</dt><dd>Parallel to and positive upward along the hole trace</dd>",
+            "<dt>Perpendicular (U)</dt><dd>Positive upward in the hole dip direction</dd>",
+            "<dt>Perpendicular (V)</dt><dd>Horizontal, to the left of the hole dip direction</dd>",
             "</dl>"
         ],
         "optional": true,
