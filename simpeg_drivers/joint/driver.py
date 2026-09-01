@@ -467,10 +467,7 @@ class BaseJointDriver(InversionDriver):
                     ]
                     directives_list.append(directive)
 
-                if (
-                    isinstance(directive, directives.SaveDataGeoH5)
-                    and len(directive.channels) > 1
-                ):
+                if isinstance(directive, directives.SaveDataGeoH5):
                     if len(directive.channels) > 1:
                         save_group = directives.SavePropertyGroup(
                             driver.inversion_data.entity,
