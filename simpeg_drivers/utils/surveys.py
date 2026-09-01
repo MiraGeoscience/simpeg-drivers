@@ -16,7 +16,7 @@ from discretize import TreeMesh
 from geoh5py import Workspace
 from geoh5py.objects import DrapeModel, PotentialElectrode
 from geoh5py.shared.merging.drape_model import DrapeModelMerger
-from scipy.sparse import csgraph, csr_matrix
+from scipy.sparse import csgraph, csr_matrix, diags
 from scipy.spatial import cKDTree
 from simpeg.survey import BaseSurvey
 
@@ -57,10 +57,15 @@ def counter_clockwise_sort(segments: np.ndarray, vertices: np.ndarray) -> np.nda
 
     :return: Sorted segments.
     """
-    center = np.mean(vertices[segments[:, 0], :2], axis=0)
-    center_to_vertices = vertices[segments[:, 0], :2] - center[:2]
-    deltas = vertices[segments[:, 1], :2] - vertices[segments[:, 0], :2]
+    center = np.mean(vertices[segments[:, 0], :], axis=0)
+    center_to_vertices = vertices[segments[:, 0], :] - center[:]
+    deltas = vertices[segments[:, 1], :] - vertices[segments[:, 0], :]
+
+    # Turn into a flat 2D problem
+    center_to_vertices[:, -1] = 0
+    deltas[:, -1] = 0
     cross = np.cross(center_to_vertices, deltas)
+    cross = cross[:, -1]  # Only keep the Z component
 
     if np.mean(np.sign(cross[cross != 0])) < 0:
         segments = segments[::-1, ::-1]
@@ -149,9 +154,12 @@ def compute_em_projections(locations, simulation):
         indices = source.rx_ids
         for receiver in source.receiver_list:
             projection = 0.0
-            for orientation, comp in zip(receiver.orientation, "xyz", strict=True):
-                if orientation == 0:
+            orientations = receiver.orientation.reshape((-1, 3))
+            for orientation, comp in zip(orientations.T, "xyz", strict=True):
+                if len(orientation) == 1 and orientation == 0:
                     continue
+
+                orientation = diags(orientation)
                 projection += orientation * projections[comp][indices, :]
             receiver.spatialP = projection
 

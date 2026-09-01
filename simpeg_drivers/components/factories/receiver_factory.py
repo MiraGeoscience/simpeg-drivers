@@ -198,11 +198,8 @@ class ReceiversFactory(SimPEGFactory):
             and local_indices is not None
         ):
             orientations = self.orientations[kwargs["orientation"]][local_indices, :]
-
-            if orientations.ndim == 2:
-                orientations = np.mean(orientations, axis=0)
-
             kwargs["orientation"] = orientations
+
         return kwargs
 
     def _dcip_arguments(self, locations=None, local_indices=None):
