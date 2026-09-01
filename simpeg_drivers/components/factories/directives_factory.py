@@ -149,22 +149,27 @@ class DirectivesFactory:
             if save_directive is not None:
                 directives_list.append(save_directive)
 
-                if (
-                    isinstance(save_directive, directives.SaveDataGeoH5)
-                    and len(save_directive.channels) > 1
-                ):
-                    save_group = directives.SavePropertyGroup(
-                        self.driver.inversion_data.entity,
-                        channels=save_directive.channels,
-                        components=save_directive.components,
-                    )
-                    directives_list.append(save_group)
+                if isinstance(save_directive, directives.SaveDataGeoH5):
+                    if len(save_directive.channels) > 1:
+                        save_group = directives.SavePropertyGroup(
+                            self.driver.inversion_data.entity,
+                            channels=save_directive.channels,
+                            components=save_directive.components,
+                        )
+                        directives_list.append(save_group)
+                    else:
+                        save_group = directives.SaveLPIterationsGroup(
+                            self.driver.inversion_data.entity,
+                            self.driver.directives.update_irls_directive,
+                            components=save_directive.components,
+                        )
+                        directives_list.append(save_group)
 
                 if (
                     isinstance(save_directive, directives.SaveModelGeoH5)
                     and not self.params.forward_only
                 ):
-                    save_model_group = directives.SaveLPModelGroup(
+                    save_model_group = directives.SaveLPIterationsGroup(
                         self.driver.inversion_mesh.entity,
                         self.driver.directives.update_irls_directive,
                     )
