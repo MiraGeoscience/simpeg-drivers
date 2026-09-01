@@ -252,7 +252,10 @@
         "isValue": true,
         "parent": "mesh",
         "association": "Cell",
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "property": "",
         "enabled": true
     },
@@ -265,7 +268,10 @@
         "isValue": true,
         "parent": "mesh",
         "association": "Cell",
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "property": "",
         "enabled": true
     },
@@ -278,7 +284,10 @@
         "isValue": true,
         "parent": "mesh",
         "association": "Cell",
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "property": "",
         "enabled": true
     },
@@ -291,7 +300,10 @@
         "isValue": true,
         "parent": "mesh",
         "association": "Cell",
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "property": "",
         "enabled": true
     },

@@ -384,7 +384,10 @@
     },
     "s_norm": {
         "association": "Cell",
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "group": "Sparse/blocky model",
         "label": "Smallness norm",
         "isValue": true,
@@ -402,7 +405,10 @@
     },
     "x_norm": {
         "association": "Cell",
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "group": "Sparse/blocky model",
         "label": "X-smoothness norm",
         "isValue": true,
@@ -418,7 +424,10 @@
     },
     "y_norm": {
         "association": "Cell",
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "group": "Sparse/blocky model",
         "label": "Y-smoothness norm",
         "isValue": true,
@@ -434,7 +443,10 @@
     },
     "z_norm": {
         "association": "Cell",
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "group": "Sparse/blocky model",
         "label": "Z-smoothness norm",
         "isValue": true,
