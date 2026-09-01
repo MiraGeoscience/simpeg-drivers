@@ -265,6 +265,7 @@ class DirectivesFactory:
             not in [
                 "apparent conductivity",
                 "tdem",
+                "borehole tdem",
                 "tdem 1d",
                 "fdem",
                 "fdem 1d",
@@ -452,6 +453,7 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
             "magnetotellurics",
             "tipper",
             "tdem",
+            "borehole tdem",
             "tdem 1d",
             "fdem",
             "fdem 1d",

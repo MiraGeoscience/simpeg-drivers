@@ -28,15 +28,13 @@ from simpeg_drivers.options import ModelTypeEnum
 
 
 if TYPE_CHECKING:
-    from geoapps_utils.driver.params import BaseParams
-
-    from simpeg_drivers.options import BaseOptions
+    from simpeg_drivers.options import CoreOptions
 
 
 class SourcesFactory(SimPEGFactory):
     """Build SimPEG sources objects based on factory type."""
 
-    def __init__(self, params: BaseParams | BaseOptions):
+    def __init__(self, params: CoreOptions):
         """
         :param params: Options object containing SimPEG object parameters.
 

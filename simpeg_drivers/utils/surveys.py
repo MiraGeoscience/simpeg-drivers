@@ -156,7 +156,7 @@ def compute_em_projections(locations, simulation):
             projection = 0.0
             orientations = receiver.orientation.reshape((-1, 3))
             for orientation, comp in zip(orientations.T, "xyz", strict=True):
-                if len(orientation) == 1 and orientation == 0:
+                if len(orientation) == 1 and orientation.item() == 0:
                     continue
 
                 orientation = diags(orientation)
