@@ -125,9 +125,9 @@ class DirectivesFactory:
         for directive in [
             "vector_inversion_directive",
             "update_irls_directive",
-            # "scale_misfit_channels",
             "scale_misfits",
             "update_sensitivity_weights_directive",
+            "scale_misfit_channels",
             "beta_estimate_by_eigenvalues_directive",
             "update_preconditioner_directive",
         ]:
