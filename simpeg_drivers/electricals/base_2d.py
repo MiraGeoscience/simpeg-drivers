@@ -16,7 +16,7 @@ from logging import getLogger
 from typing import Any
 
 import numpy as np
-from geoh5py.data import FloatData
+from geoh5py.data import FloatData, IntegerData
 from geoh5py.objects import DrapeModel, Octree, PotentialElectrode
 from geoh5py.ui_json.ui_json import fetch_active_workspace
 from pydantic import AliasChoices, Field, field_validator, model_validator
@@ -51,7 +51,7 @@ class Conductivity2DModelOptions(ModelOptions):
     """
 
     model_type: ModelTypeEnum = ModelTypeEnum.conductivity
-    conductivity_model: float | FloatData | None = Field(
+    conductivity_model: float | FloatData | IntegerData | None = Field(
         None,
         validation_alias=AliasChoices("background_conductivity", "conductivity_model"),
     )
