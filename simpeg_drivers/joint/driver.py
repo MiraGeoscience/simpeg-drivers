@@ -478,7 +478,7 @@ class BaseJointDriver(InversionDriver):
                     else:
                         save_group = directives.SaveLPIterationsGroup(
                             driver.inversion_data.entity,
-                            driver.directives.update_irls_directive,
+                            self._directives.update_irls_directive,
                             components=directive.components,
                         )
                         directives_list.append(save_group)
