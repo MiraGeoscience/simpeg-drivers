@@ -14,7 +14,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import ClassVar
 
-from geoh5py.data import FloatData
+from geoh5py.data import FloatData, IntegerData
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.options import (
@@ -32,11 +32,11 @@ class VectorModelOptions(ModelOptions):
     """
 
     lower_bound: Deprecated
-    reference_model: float | FloatData | None = None
-    starting_inclination: float | FloatData | None = None
-    starting_declination: float | FloatData | None = None
-    reference_inclination: float | FloatData | None = None
-    reference_declination: float | FloatData | None = None
+    reference_model: float | FloatData | IntegerData | None = None
+    starting_inclination: float | FloatData | IntegerData | None = None
+    starting_declination: float | FloatData | IntegerData | None = None
+    reference_inclination: float | FloatData | IntegerData | None = None
+    reference_declination: float | FloatData | IntegerData | None = None
 
 
 class MagneticVectorForwardOptions(BaseForwardOptions):
@@ -75,9 +75,9 @@ class MagneticVectorForwardOptions(BaseForwardOptions):
     byy_channel_bool: bool = False
     byz_channel_bool: bool = False
     bzz_channel_bool: bool = False
-    inducing_field_strength: float | FloatData
-    inducing_field_inclination: float | FloatData
-    inducing_field_declination: float | FloatData
+    inducing_field_strength: float
+    inducing_field_inclination: float
+    inducing_field_declination: float
     models: VectorModelOptions
 
 

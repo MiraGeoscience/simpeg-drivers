@@ -121,8 +121,8 @@ def test_rotated_grad_run(
         topography = components.topography
 
         # Create property group with orientation
-        dip = np.ones(mesh.n_cells) * 70
-        azimuth = np.ones(mesh.n_cells) * 60
+        dip = np.full(mesh.n_cells, 70, dtype=int)
+        azimuth = np.full(mesh.n_cells, 60, dtype=int)
 
         data_list = mesh.add_data(
             {

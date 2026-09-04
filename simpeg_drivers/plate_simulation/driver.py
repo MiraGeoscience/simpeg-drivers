@@ -19,7 +19,7 @@ from dask.distributed import Client
 from geoapps_utils.base import Driver, get_logger
 from geoapps_utils.modelling.plates import Plate
 from geoapps_utils.utils.transformations import azimuth_to_unit_vector
-from geoh5py.data import FloatData, ReferencedData
+from geoh5py.data import FloatData, IntegerData, ReferencedData
 from geoh5py.groups import SimPEGGroup
 from geoh5py.objects import Octree, Points, Surface
 from geoh5py.ui_json import UIJson
@@ -67,7 +67,7 @@ class PlateSimulationDriver(Driver):
         self._plates: list[Plate] | None = None
         self._survey: Points | None = None
         self._mesh: Octree | None = None
-        self._model: FloatData | None = None
+        self._model: FloatData | IntegerData | None = None
         self._client: Client | bool = validate_client(client)
         self._workers: list[tuple[str]] = validate_workers(self._client, workers)
         self._simulation_driver: InversionDriver | None = None

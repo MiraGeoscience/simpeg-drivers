@@ -14,7 +14,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import ClassVar
 
-from geoh5py.data import FloatData
+from geoh5py.data import FloatData, IntegerData
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.options import (
@@ -30,7 +30,7 @@ class GravityModelOptions(ModelOptions):
     ModelOptions class with defaulted reference model.
     """
 
-    reference_model: float | FloatData | None = None
+    reference_model: float | FloatData | IntegerData | None = None
 
 
 class GravityForwardOptions(BaseForwardOptions):

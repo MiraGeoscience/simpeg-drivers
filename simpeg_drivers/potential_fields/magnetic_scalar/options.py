@@ -14,7 +14,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import ClassVar
 
-from geoh5py.data import FloatData
+from geoh5py.data import FloatData, IntegerData
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.options import (
@@ -30,8 +30,8 @@ class MagneticModelOptions(ModelOptions):
     ModelOptions class with defaulted lower bound.
     """
 
-    reference_model: float | FloatData | None = None
-    lower_bound: float | FloatData | None = 0
+    reference_model: float | FloatData | IntegerData | None = None
+    lower_bound: float | FloatData | IntegerData | None = 0
 
 
 class MagneticForwardOptions(BaseForwardOptions):
@@ -71,9 +71,9 @@ class MagneticForwardOptions(BaseForwardOptions):
     byy_channel_bool: bool = False
     byz_channel_bool: bool = False
     bzz_channel_bool: bool = False
-    inducing_field_strength: float | FloatData
-    inducing_field_inclination: float | FloatData
-    inducing_field_declination: float | FloatData
+    inducing_field_strength: float
+    inducing_field_inclination: float
+    inducing_field_declination: float
 
     models: MagneticModelOptions
 
@@ -138,9 +138,9 @@ class MagneticInversionOptions(BaseInversionOptions):
     byy_uncertainty: float | FloatData | None = None
     byz_uncertainty: float | FloatData | None = None
     bzz_uncertainty: float | FloatData | None = None
-    inducing_field_strength: float | FloatData
-    inducing_field_inclination: float | FloatData
-    inducing_field_declination: float | FloatData
+    inducing_field_strength: float
+    inducing_field_inclination: float
+    inducing_field_declination: float
 
     models: MagneticModelOptions
 

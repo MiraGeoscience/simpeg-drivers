@@ -79,7 +79,7 @@ class ActiveCellsOptions(BaseModel):
         arbitrary_types_allowed=True,
     )
     topography_object: Points | Grid2D | None = None
-    topography: FloatData | float | None = None
+    topography: FloatData | IntegerData | float | None = None
     active_model: BooleanData | IntegerData | None = None
 
     @model_validator(mode="before")
@@ -261,28 +261,28 @@ class ModelOptions(BaseModel):
     )
 
     # Model options
-    starting_model: float | FloatData
-    reference_model: float | FloatData | None = None
-    lower_bound: float | FloatData | None = None
-    upper_bound: float | FloatData | None = None
+    starting_model: float | FloatData | IntegerData
+    reference_model: float | FloatData | IntegerData | None = None
+    lower_bound: float | FloatData | IntegerData | None = None
+    upper_bound: float | FloatData | IntegerData | None = None
 
     # Model values for regularization
-    alpha_s: float | FloatData | None = 1.0
-    length_scale_x: float | FloatData = 1.0
-    length_scale_y: float | FloatData | None = 1.0
-    length_scale_z: float | FloatData = 1.0
+    alpha_s: float | FloatData | IntegerData | None = 1.0
+    length_scale_x: float | FloatData | IntegerData = 1.0
+    length_scale_y: float | FloatData | IntegerData | None = 1.0
+    length_scale_z: float | FloatData | IntegerData = 1.0
     gradient_rotation: PropertyGroup | None = None
 
     # Model values for IRLS
-    s_norm: float | FloatData | None = 0.0
-    x_norm: float | FloatData = 2.0
-    y_norm: float | FloatData | None = 2.0
-    z_norm: float | FloatData = 2.0
+    s_norm: float | FloatData | IntegerData | None = 0.0
+    x_norm: float | FloatData | IntegerData = 2.0
+    y_norm: float | FloatData | IntegerData | None = 2.0
+    z_norm: float | FloatData | IntegerData = 2.0
 
-    _gradient_orientations: list[FloatData] | None = None
+    _gradient_orientations: list[FloatData | IntegerData] | None = None
 
     @property
-    def gradient_direction(self) -> FloatData | None:
+    def gradient_direction(self) -> FloatData | IntegerData | None:
         if self.gradient_orientations is None:
             return None
         return self.gradient_orientations[0]
@@ -320,7 +320,7 @@ class ConductivityModelOptions(ModelOptions):
     """
 
     model_type: ModelTypeEnum = ModelTypeEnum.conductivity
-    conductivity_model: float | FloatData | None = Field(
+    conductivity_model: float | FloatData | IntegerData | None = Field(
         None,
         validation_alias=AliasChoices("background_conductivity", "conductivity_model"),
     )
@@ -657,4 +657,4 @@ class IPModelOptions(ConductivityModelOptions):
     ModelOptions class with defaulted lower bound.
     """
 
-    lower_bound: float | FloatData | None = 0
+    lower_bound: float | FloatData | IntegerData | None = 0
