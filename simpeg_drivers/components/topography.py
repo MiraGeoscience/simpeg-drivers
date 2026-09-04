@@ -157,9 +157,7 @@ class InversionTopography(InversionLocations):
             elif isinstance(self.params.active_cells.topography, int | float):
                 elev = np.ones_like(locs[:, 2]) * self.params.active_cells.topography
             else:
-                elev = (
-                    self.params.active_cells.topography.values
-                )  # Must be FloatData at this point
+                elev = (self.params.active_cells.topography.values).astype(float)
 
             if not np.all(locs[:, 2] == elev):
                 locs[:, 2] = elev

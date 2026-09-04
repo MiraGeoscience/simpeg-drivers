@@ -109,10 +109,15 @@ def test_gravity_run(
         inds = (components.mesh.centroids[:, 0] > -35) & (
             components.mesh.centroids[:, 0] < 35
         )
-        norms = np.ones(components.mesh.n_cells) * 2
+        norms = np.full(components.mesh.n_cells, 2, dtype=int)
         norms[inds] = 0
         gradient_norms = components.mesh.add_data({"norms": {"values": norms}})
-
+        length_scales = components.mesh.add_data(
+            {"lengths": {"values": np.ones(components.mesh.n_cells, dtype=int)}}
+        )
+        reference = components.mesh.add_data(
+            {"reference": {"values": np.zeros(components.mesh.n_cells, dtype=int)}}
+        )
         # Test mesh UBC ordered
         ind = np.argsort(components.mesh.octree_cells, order=["K", "J", "I"])
         components.mesh.octree_cells = components.mesh.octree_cells[ind]
@@ -133,6 +138,9 @@ def test_gravity_run(
             x_norm=gradient_norms,
             y_norm=gradient_norms,
             z_norm=gradient_norms,
+            length_scale_x=length_scales,
+            length_scale_y=length_scales,
+            length_scale_z=length_scales,
             gz_channel=gz,
             gz_uncertainty=2e-3,
             lower_bound=0.0,
@@ -141,7 +149,7 @@ def test_gravity_run(
             percentile=100,
             starting_model=1e-4,
             topography_object=components.topography,
-            reference_model=0.0,
+            reference_model=reference,
             sens_wts_threshold=1.0,
             save_sensitivities=True,
         )

@@ -108,7 +108,10 @@
             "Vertex",
             "Cell"
         ],
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "group": "Topography",
         "main": true,
         "optional": true,
@@ -174,7 +177,10 @@
     "gradient_rotation": {
         "group": "Regularization",
         "association": "Cell",
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "dataGroupType": "Dip direction & dip",
         "label": "Gradient rotation",
         "optional": true,
@@ -192,7 +198,10 @@
         "isValue": true,
         "parent": "mesh",
         "association": "Cell",
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "property": "",
         "enabled": true,
         "visible": false
@@ -206,7 +215,10 @@
         "isValue": true,
         "parent": "mesh",
         "association": "Cell",
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "property": "",
         "enabled": true
     },
@@ -219,7 +231,10 @@
         "isValue": true,
         "parent": "mesh",
         "association": "Cell",
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "property": "",
         "enabled": true
     },
@@ -232,7 +247,10 @@
         "isValue": true,
         "parent": "mesh",
         "association": "Cell",
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "property": "",
         "enabled": true
     },

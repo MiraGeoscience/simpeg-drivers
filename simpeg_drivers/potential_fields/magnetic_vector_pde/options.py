@@ -14,7 +14,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import ClassVar
 
-from geoh5py.data import FloatData
+from geoh5py.data import FloatData, IntegerData
 
 from simpeg_drivers import assets_path
 from simpeg_drivers.options import (
@@ -32,9 +32,9 @@ class VectorModelPDEOptions(ModelOptions):
     """
 
     lower_bound: Deprecated
-    reference_model: float | FloatData | None = None
-    starting_inclination: float | FloatData | None = None
-    starting_declination: float | FloatData | None = None
+    reference_model: float | FloatData | IntegerData | None = None
+    starting_inclination: float | FloatData | IntegerData | None = None
+    starting_declination: float | FloatData | IntegerData | None = None
 
 
 class MagneticVectorPDEForwardOptions(BaseForwardOptions):
@@ -61,9 +61,9 @@ class MagneticVectorPDEForwardOptions(BaseForwardOptions):
     by_channel_bool: bool = False
     bz_channel_bool: bool = False
 
-    inducing_field_strength: float | FloatData
-    inducing_field_inclination: float | FloatData
-    inducing_field_declination: float | FloatData
+    inducing_field_strength: float
+    inducing_field_inclination: float
+    inducing_field_declination: float
     models: VectorModelPDEOptions
 
 
@@ -103,9 +103,9 @@ class MagneticVectorPDEInversionOptions(BaseInversionOptions):
     by_uncertainty: float | FloatData | None = None
     bz_uncertainty: float | FloatData | None = None
 
-    inducing_field_strength: float | FloatData
-    inducing_field_inclination: float | FloatData
-    inducing_field_declination: float | FloatData
+    inducing_field_strength: float
+    inducing_field_inclination: float
+    inducing_field_declination: float
     models: VectorModelPDEOptions
 
     directives: DirectiveOptions = DirectiveOptions(sens_wts_threshold=1e-3)

@@ -11,7 +11,7 @@
 
 from __future__ import annotations
 
-from geoh5py.data import FloatData
+from geoh5py.data import FloatData, IntegerData
 from geoh5py.groups import PropertyGroup, SimPEGGroup
 from pydantic import BaseModel, ConfigDict
 
@@ -33,21 +33,21 @@ class JointModelOptions(ModelOptions):
 
     starting_model: None = None
     reference_model: None = None
-    lower_bound: float | FloatData | None = None
-    upper_bound: float | FloatData | None = None
+    lower_bound: float | FloatData | IntegerData | None = None
+    upper_bound: float | FloatData | IntegerData | None = None
 
     # Model values for regularization
-    alpha_s: float | FloatData | None | None = None
-    length_scale_x: float | FloatData | None = None
-    length_scale_y: float | FloatData | None = None
-    length_scale_z: float | FloatData | None = None
+    alpha_s: float | FloatData | IntegerData | None = None
+    length_scale_x: float | FloatData | IntegerData | None = None
+    length_scale_y: float | FloatData | IntegerData | None = None
+    length_scale_z: float | FloatData | IntegerData | None = None
     gradient_rotation: PropertyGroup | None = None
 
     # Model values for IRLS
-    s_norm: float | FloatData | None = None
-    x_norm: float | FloatData | None = None
-    y_norm: float | FloatData | None = None
-    z_norm: float | FloatData | None = None
+    s_norm: float | FloatData | IntegerData | None = None
+    x_norm: float | FloatData | IntegerData | None = None
+    y_norm: float | FloatData | IntegerData | None = None
+    z_norm: float | FloatData | IntegerData | None = None
 
 
 class DirectiveOptions(BaseModel):
