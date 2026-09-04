@@ -433,7 +433,6 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
             data_type = self.find_or_create_angle_data_type()
             kwargs["data_type"] = {
                 "": {
-                    1: data_type,
                     2: data_type,
                 }
             }
