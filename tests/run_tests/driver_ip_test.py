@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import numpy as np
 from geoh5py.workspace import Workspace
 
 from simpeg_drivers.electricals.induced_polarization.three_dimensions.forward import (
@@ -92,13 +93,18 @@ def test_ip_3d_run(
         mesh = geoh5.get_entity("mesh")[0]
         topography = geoh5.get_entity("topography")[0]
 
+        # Test conductivity model as IntegerData
+        conductivity_model = mesh.add_data(
+            {"conductivity": {"values": np.full(mesh.n_cells, 1e2, dtype=int)}}
+        )
+
         # Run the inverse
         params = IP3DInversionOptions.build(
             geoh5=geoh5,
             mesh=mesh,
             topography_object=topography,
             data_object=potential.parent,
-            conductivity_model=1e2,
+            conductivity_model=conductivity_model,
             model_type="Resistivity (Ohm-m)",
             reference_model=1e-6,
             starting_model=1e-6,

@@ -21,7 +21,10 @@
         "group": "Survey",
         "main": true,
         "association": "Vertex",
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "dataGroupType": [
             "Dip direction & dip",
             "3D vector"
@@ -177,7 +180,10 @@
             "Cell",
             "Vertex"
         ],
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "group": "Mesh and models",
         "main": true,
         "isValue": true,
@@ -191,7 +197,10 @@
             "Cell",
             "Vertex"
         ],
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "main": true,
         "group": "Mesh and models",
         "isValue": true,
@@ -205,7 +214,10 @@
     "lower_bound": {
         "association": "Cell",
         "main": true,
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "group": "Mesh and models",
         "isValue": true,
         "parent": "mesh",
@@ -218,7 +230,10 @@
     "upper_bound": {
         "association": "Cell",
         "main": true,
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "group": "Mesh and models",
         "isValue": true,
         "parent": "mesh",
@@ -249,7 +264,10 @@
             "Vertex",
             "Cell"
         ],
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "group": "Topography",
         "main": true,
         "optional": true,
@@ -290,7 +308,10 @@
         "isValue": true,
         "parent": "mesh",
         "association": "Cell",
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "property": "",
         "enabled": true
     },
@@ -303,7 +324,10 @@
         "isValue": true,
         "parent": "mesh",
         "association": "Cell",
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "property": "",
         "enabled": true
     },
@@ -316,7 +340,10 @@
         "isValue": true,
         "parent": "mesh",
         "association": "Cell",
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "property": "",
         "enabled": true
     },
@@ -329,14 +356,20 @@
         "isValue": true,
         "parent": "mesh",
         "association": "Cell",
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "property": "",
         "enabled": true
     },
     "gradient_rotation": {
         "group": "Regularization",
         "association": "Cell",
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "dataGroupType": [
             "Strike & dip",
             "Dip direction & dip",
@@ -351,7 +384,10 @@
     },
     "s_norm": {
         "association": "Cell",
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "group": "Sparse/blocky model",
         "label": "Smallness norm",
         "isValue": true,
@@ -369,7 +405,10 @@
     },
     "x_norm": {
         "association": "Cell",
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "group": "Sparse/blocky model",
         "label": "X-smoothness norm",
         "isValue": true,
@@ -385,7 +424,10 @@
     },
     "y_norm": {
         "association": "Cell",
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "group": "Sparse/blocky model",
         "label": "Y-smoothness norm",
         "isValue": true,
@@ -401,7 +443,10 @@
     },
     "z_norm": {
         "association": "Cell",
-        "dataType": "Float",
+        "dataType": [
+            "Float",
+            "Integer"
+        ],
         "group": "Sparse/blocky model",
         "label": "Z-smoothness norm",
         "isValue": true,

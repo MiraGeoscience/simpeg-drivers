@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import ClassVar
 
 from geoapps_utils.run import fetch_driver_class_from_string
-from geoh5py.data import FloatData
+from geoh5py.data import FloatData, IntegerData
 from pydantic import model_validator
 
 from simpeg_drivers import assets_path
@@ -33,8 +33,8 @@ class JointSurveysModelOptions(JointModelOptions):
     """
 
     model_type: ModelTypeEnum | None = None
-    starting_model: float | FloatData | None = None
-    reference_model: float | FloatData | None = None
+    starting_model: float | FloatData | IntegerData | None = None
+    reference_model: float | FloatData | IntegerData | None = None
 
 
 class JointSurveysOptions(BaseJointOptions):
