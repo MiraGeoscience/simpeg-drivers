@@ -14,23 +14,22 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-
-if TYPE_CHECKING:
-    from geoapps_utils.driver.params import BaseParams
-
-    from simpeg_drivers.options import BaseOptions
-
 import numpy as np
-from geoapps_utils.utils.transformations import x_rotation_matrix, z_rotation_matrix
+from geoapps_utils.utils.locations import azimuth_dip_from_segments
+from geoapps_utils.utils.transformations import (
+    cartesian_to_azimuth_dip,
+    x_rotation_matrix,
+    z_rotation_matrix,
+)
+from geoh5py.groups.property_group_type import GroupTypeEnum
 from geoh5py.objects.surveys.electromagnetics.base import (
     AirborneEMSurvey,
     LargeLoopGroundEMSurvey,
 )
 
 from simpeg_drivers.components.factories.simpeg_factory import SimPEGFactory
-from simpeg_drivers.utils.regularization import direction_and_dip, get_cell_normals
+from simpeg_drivers.options import CoreOptions
+from simpeg_drivers.utils.regularization import get_cell_normals
 
 
 ORIENTATION_MAP = {
@@ -39,13 +38,16 @@ ORIENTATION_MAP = {
     "vertical": "z",
     "inline": "y",
     "crossline": "x",
+    "a": "y",
+    "u": "z",
+    "v": "x",
 }
 
 
 class ReceiversFactory(SimPEGFactory):
     """Build SimPEG receivers objects based on factory type."""
 
-    def __init__(self, params: BaseParams | BaseOptions):
+    def __init__(self, params: CoreOptions):
         """
         :param params: Options object containing SimPEG object parameters.
 
@@ -259,9 +261,26 @@ class ReceiversFactory(SimPEGFactory):
             for comp in "xyz"
         }
 
-        if getattr(self.params, "receivers_orientation", None):
-            azm, dip = direction_and_dip(self.params.receivers_orientation)
-            azi_dip = np.deg2rad(np.c_[azm.values, dip.values])
+        azi_dip = None
+
+        if property_group := getattr(self.params, "receivers_orientation", None):
+            group_type = property_group.property_group_type
+            azi_dip = np.vstack(
+                [
+                    property_group.parent.get_data(k)[0].values
+                    for k in property_group.properties
+                ]
+            ).T
+
+            if group_type == GroupTypeEnum.VECTOR:
+                azi_dip = cartesian_to_azimuth_dip(azi_dip)
+            else:
+                azi_dip = np.deg2rad(azi_dip)
+
+        elif "borehole" in self.params.inversion_type:
+            azi_dip = azimuth_dip_from_segments(self.params.data_object, reverse=True)
+
+        if azi_dip is not None:
             orientations = {}
             for axis in "xyz":
                 orientations[axis] = (
