@@ -17,6 +17,7 @@ from unittest.mock import patch
 
 import numpy as np
 from geoapps_utils.utils.importing import GeoAppsError
+from geoh5py.groups import PropertyGroup
 from geoh5py.ui_json import UIJson
 from geoh5py.workspace import Workspace
 from pandas import read_csv
@@ -192,6 +193,11 @@ def test_gravity_run(
         assert not any(np.isnan(predicted.values)), (
             "Predicted data should not have nans."
         )
+
+        l2_data_group = predicted.parent.get_entity("L2 iterations")[0]
+        assert isinstance(l2_data_group, PropertyGroup)
+        assert len(l2_data_group.properties) == 6
+
         output["data"] = orig_gz
 
         assert len(run_ws.get_entity("inversion_test.ui.log")) == 2
