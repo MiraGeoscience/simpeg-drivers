@@ -141,7 +141,7 @@ if __name__ == "__main__":
         Path("./"),
         n_electrodes=20,
         n_lines=5,
-        cell_size=(20.0, 20.0, 20.0),
+        cell_size=(5.0, 5.0, 5.0),
         refinement=(4, 4),
     )
     test_ip_3d_run(

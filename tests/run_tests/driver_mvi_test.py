@@ -187,7 +187,7 @@ def test_magnetic_vector_run(
             out_group = run_ws.get_entity("Magnetic Vector (MVI) Inversion")[0]
             mesh = out_group.get_entity("mesh")[0]
             assert len(mesh.property_groups) == 5
-            assert len(mesh.fetch_property_group("LP models").properties) == 6
+            assert len(mesh.fetch_property_group("LP iterations").properties) == 6
 
             check_target(output, target_mvi_run)
 

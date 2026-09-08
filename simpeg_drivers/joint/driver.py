@@ -27,7 +27,7 @@ from grid_apps.utils import (
     treemesh_2_octree,
 )
 from simpeg import directives
-from simpeg.directives import SaveLPModelGroup
+from simpeg.directives import SaveLPIterationsGroup
 from simpeg.maps import Projection, TileMap
 from simpeg.objective_function import ComboObjectiveFunction
 
@@ -444,7 +444,7 @@ class BaseJointDriver(InversionDriver):
 
             directives_list.append(save_model)
             directives_list.append(
-                SaveLPModelGroup(
+                SaveLPIterationsGroup(
                     self.workspace.get_entity(save_model.h5_object)[0],
                     self._directives.update_irls_directive,
                 )
@@ -467,16 +467,22 @@ class BaseJointDriver(InversionDriver):
                     ]
                     directives_list.append(directive)
 
-                if (
-                    isinstance(directive, directives.SaveDataGeoH5)
-                    and len(directive.channels) > 1
-                ):
-                    save_group = directives.SavePropertyGroup(
-                        driver.inversion_data.entity,
-                        channels=directive.channels,
-                        components=directive.components,
-                    )
-                    directives_list.append(save_group)
+                if isinstance(directive, directives.SaveDataGeoH5):
+                    if len(directive.channels) > 1:
+                        save_group = directives.SavePropertyGroup(
+                            driver.inversion_data.entity,
+                            channels=directive.channels,
+                            components=directive.components,
+                        )
+                        directives_list.append(save_group)
+                    else:
+                        save_group = directives.SaveLPIterationsGroup(
+                            driver.inversion_data.entity,
+                            self._directives.update_irls_directive,
+                            components=directive.components,
+                        )
+                        directives_list.append(save_group)
+
             count += n_tiles
 
         return directives_list
@@ -497,7 +503,7 @@ class BaseJointDriver(InversionDriver):
         directives_list = self._get_drivers_directives()
         directives_list += self._get_global_model_save_directives()
         directives_list.append(
-            directives.SaveLPModelGroup(
+            directives.SaveLPIterationsGroup(
                 self.inversion_mesh.entity,
                 self._directives.update_irls_directive,
             )
