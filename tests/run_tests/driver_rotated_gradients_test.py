@@ -185,7 +185,7 @@ if __name__ == "__main__":
     test_gravity_rotated_grad_fwr_run(
         Path("./"),
         n_grid_points=10,
-        cell_size=(20.0, 20.0, 20.0),
+        cell_size=(5.0, 5.0, 5.0),
         refinement=(6, 8),
     )
 
