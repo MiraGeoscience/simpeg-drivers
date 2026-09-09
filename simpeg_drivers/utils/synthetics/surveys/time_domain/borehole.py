@@ -38,7 +38,7 @@ def generate_borehole_tdem_survey(
 
     center = survey.vertices[0, :]
     survey.vertices = (
-        y_rotation_matrix(np.pi / 2) @ (survey.vertices - center).T
+        y_rotation_matrix(np.pi / 4) @ (survey.vertices - center).T
     ).T + center
 
     return survey

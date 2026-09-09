@@ -10,7 +10,7 @@
 
 from __future__ import annotations
 
-from logging import getLogger
+from logging import INFO, getLogger
 from pathlib import Path
 
 import numpy as np
@@ -44,15 +44,19 @@ logger = getLogger(__name__)
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 6.3414e-11, "phi_d": 1.1820e04, "phi_m": 9.7920e02}
+target_run = {"data_norm": 4.6386e-11, "phi_d": 1.4840e03, "phi_m": 2.8200e04}
 
 
 def test_borehole_tem_fwr_run(
     tmp_path: Path,
+    caplog,
     n_grid_points=4,
     refinement=(2,),
     cell_size=(20.0, 20.0, 20.0),
+    pytest=True,
 ):
+    if pytest and caplog:
+        caplog.set_level(INFO)
     # Run the forward
     opts = SyntheticsComponentsOptions(
         method="borehole tdem",
@@ -74,18 +78,28 @@ def test_borehole_tem_fwr_run(
         ),
         model=ModelOptions(
             background=0.001,
+            anomaly=1,
             plate=PlateModel(
                 strike_length=40.0,
                 dip_length=40.0,
                 width=40.0,
-                easting=-40.0,
-                northing=0.0,
-                elevation=-75.0,
+                easting=0.0,
+                northing=-40.0,
+                elevation=-40.0,
             ),
         ),
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
+        components.mesh.origin = (
+            np.r_[
+                components.mesh.origin["x"],
+                components.mesh.origin["y"],
+                components.mesh.origin["z"],
+            ]
+            + np.r_[-2.5, -2.5, 0.0]
+        )
+        # components.survey.complement.vertices = components.survey.complement.vertices + np.r_[-100.0, -100.0, 0.0]
         params = BoreholeTDEMForwardOptions.build(
             geoh5=geoh5,
             mesh=components.mesh,
@@ -95,7 +109,6 @@ def test_borehole_tem_fwr_run(
             a_channel_bool=True,
             u_channel_bool=True,
             v_channel_bool=True,
-            solver_type="Mumps",
             data_units="Ground B (T/A)",
         )
 
@@ -132,7 +145,7 @@ def test_borehole_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
                 uncert = components.survey.add_data(
                     {
                         f"uncertainty_{chan}_[{ii}]": {
-                            "values": np.abs(data_entity.values) * 0.05 + 3e-13
+                            "values": np.abs(data_entity.values) * 0.0 + 1e-12
                         }
                     }
                 )
@@ -158,7 +171,7 @@ def test_borehole_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
             mesh=components.mesh,
             topography_object=components.topography,
             data_object=components.survey,
-            starting_model=3e-3,
+            starting_model=1e-3,
             reference_model=1e-3,
             chi_factor=0.1,
             s_norm=0.0,
@@ -170,13 +183,13 @@ def test_borehole_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
             upper_bound=1e2,
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e1,
-            starting_chi_factor=1000,
+            starting_chi_factor=0.1,
             cooling_rate=1,
             max_cg_iterations=200,
-            percentile=5,
-            sens_wts_threshold=1.0,
-            solver_type="Mumps",
+            percentile=100,
+            sens_wts_threshold=0.1,
             data_units="Ground B (T/A)",
+            save_sensitivities=True,
             **data_kwargs,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
@@ -201,12 +214,14 @@ if __name__ == "__main__":
     # Full run
     test_borehole_tem_fwr_run(
         Path("./"),
+        None,
         n_grid_points=5,
         refinement=(2, 2, 2),
         cell_size=(5.0, 5.0, 5.0),
+        pytest=False,
     )
     test_borehole_tem_run(
         Path("./"),
-        max_iterations=10,
+        max_iterations=15,
         pytest=False,
     )
