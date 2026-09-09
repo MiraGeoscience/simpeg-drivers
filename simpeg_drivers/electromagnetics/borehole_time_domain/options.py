@@ -67,10 +67,10 @@ class BoreholeTDEMInversionOptions(BaseTDEMOptions, BaseInversionOptions):
     """
     Time Domain Electromagnetic Inversion options for borehole surveys.
 
-    :param u_channel: Vertical (U) component data channel.
-    :param u_uncertainty: Vertical (U) component data channel uncertainty.
     :param a_channel: In-line (A) data channel.
     :param a_uncertainty: In-line (A) data channel uncertainty.
+    :param u_channel: Vertical (U) component data channel.
+    :param u_uncertainty: Vertical (U) component data channel uncertainty.
     :param v_channel: Cross-line (V) data channel.
     :param v_uncertainty: Cross-line(V) data channel uncertainty.
     """
