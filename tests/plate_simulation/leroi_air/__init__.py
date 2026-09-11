@@ -17,7 +17,7 @@ from simpeg_drivers.plate_simulation.leroi_air.options import (
     LeroiAirOptions,
     SurveyOptions,
 )
-from simpeg_drivers.utils.synthetics.surveys.time_domain.airborne_tdem import (
+from simpeg_drivers.utils.synthetics.surveys.time_domain.airborne import (
     generate_airborne_tdem_survey,
 )
 

@@ -91,11 +91,6 @@ class MeshOptions(BaseModel):
                 "horizon": False,
             },
             {
-                "refinement_object": survey,
-                "levels": self.survey_refinement,
-                "horizon": False,
-            },
-            {
                 "refinement_object": topography,
                 "levels": self.topography_refinement,
                 "horizon": False,

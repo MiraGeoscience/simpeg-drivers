@@ -33,7 +33,6 @@ from .locations import InversionLocations
 if TYPE_CHECKING:
     from geoh5py.workspace import Workspace
 
-    from simpeg_drivers.components.meshes import InversionMesh
     from simpeg_drivers.options import InversionBaseOptions
 
 
@@ -188,6 +187,7 @@ class InversionData(InversionLocations):
         """Write out the data to geoh5"""
         has_channels = self.params.inversion_type in [
             "apparent conductivity",
+            "borehole tdem",
             "magnetotellurics",
             "tipper",
             "tdem",

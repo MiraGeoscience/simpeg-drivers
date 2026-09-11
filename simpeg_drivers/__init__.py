@@ -54,6 +54,13 @@ DRIVER_MAP = {
         "simpeg_drivers.natural_sources.apparent_conductivity",
         {"forward": "AppConForwardDriver", "inversion": "AppConInversionDriver"},
     ),
+    "borehole tdem": (
+        "simpeg_drivers.electromagnetics.borehole_time_domain",
+        {
+            "forward": "BoreholeTDEMForwardDriver",
+            "inversion": "BoreholeTDEMInversionDriver",
+        },
+    ),
     "direct current 3d": (
         "simpeg_drivers.electricals.direct_current.three_dimensions",
         {
