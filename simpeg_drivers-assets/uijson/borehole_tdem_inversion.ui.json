@@ -12,10 +12,19 @@
         "group": "Data",
         "label": "Object",
         "meshType": [
-            "{19730589-fd28-4649-9de0-ad47249d9aba}",
             "{deebe11a-b57b-4a03-99d6-8f27b25eb2a8}"
         ],
         "value": ""
+    },
+    "closed_loop": {
+        "group": "Survey",
+        "main": true,
+        "label": "Closed loops",
+        "tooltip": [
+            "Set to true if the sources are closed loops.<p>",
+            "If not set, the sources are assumed to be grounded electrodes."
+        ],
+        "value": true
     },
     "receivers_orientation": {
         "group": "Survey",

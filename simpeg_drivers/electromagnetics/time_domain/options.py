@@ -48,10 +48,12 @@ class BaseTDEMOptions(EMDataMixin):
     """
     Base class for Time Domain Electromagnetic options.
 
+    :param closed_loops: Boolean indicating if the TDEM survey is a closed loop.
     :param data_object: The data object containing the TDEM data.
     :param data_units: The units of the TDEM data (e.g., "Airborne dB/dt (V/Am^4)").
     """
 
+    closed_loops: bool = True
     data_object: TEMSurvey
     data_units: Literal[
         "Airborne dB/dt (V/Am^4)",

@@ -17,6 +17,16 @@
         ],
         "value": ""
     },
+    "closed_loop": {
+        "group": "Survey",
+        "main": true,
+        "label": "Closed loops",
+        "tooltip": [
+            "Set to true if the sources are closed loops.<p>",
+            "If not set, the sources are assumed to be grounded electrodes."
+        ],
+        "value": true
+    },
     "receivers_orientation": {
         "group": "Survey",
         "main": true,

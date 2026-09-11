@@ -50,11 +50,7 @@ class BoreholeTDEMForwardOptions(BaseTDEMOptions, BaseForwardOptions):
     inversion_type: str = "borehole tdem"
     physical_property: str = "conductivity"
 
-    data_object: (
-        MovingLoopGroundTEMReceivers
-        | LargeLoopGroundTEMReceivers
-        | AirborneTEMReceivers
-    )
+    data_object: LargeLoopGroundTEMReceivers
     receivers_orientation: PropertyGroup | None = None
     a_channel_bool: bool = False
     u_channel_bool: bool = False
@@ -85,11 +81,7 @@ class BoreholeTDEMInversionOptions(BaseTDEMOptions, BaseInversionOptions):
     physical_property: str = "conductivity"
     inversion_type: str = "borehole tdem"
 
-    data_object: (
-        MovingLoopGroundTEMReceivers
-        | LargeLoopGroundTEMReceivers
-        | AirborneTEMReceivers
-    )
+    data_object: LargeLoopGroundTEMReceivers
     receivers_orientation: PropertyGroup | None = None
     a_channel: PropertyGroup | None = None
     a_uncertainty: PropertyGroup | None = None
