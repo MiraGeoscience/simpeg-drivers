@@ -17,7 +17,8 @@ from geoh5py.objects import (
 
 from simpeg_drivers.utils.synthetics.surveys.time_domain import CHANNELS, WAVEFORM
 from simpeg_drivers.utils.synthetics.surveys.time_domain.ground import (
-    generate_tdem_survey,
+    generate_galvanic_tdem_survey,
+    generate_large_loop_tdem_survey,
 )
 
 
@@ -32,7 +33,7 @@ def generate_borehole_tdem_survey(
 ) -> LargeLoopGroundTEMReceivers:
     """Create a large loop TDEM survey object from survey grid locations."""
 
-    survey = generate_tdem_survey(
+    survey = generate_large_loop_tdem_survey(
         geoh5, X, Y, Z, channels=channels, waveform=waveform, name=name, n_loops=1
     )
 

@@ -24,7 +24,10 @@ from .natural_sources.magnetotellurics import generate_magnetotellurics_survey
 from .natural_sources.tipper import generate_tipper_survey
 from .time_domain.airborne import generate_airborne_tdem_survey
 from .time_domain.borehole import generate_borehole_tdem_survey
-from .time_domain.ground import generate_tdem_survey
+from .time_domain.ground import (
+    generate_galvanic_tdem_survey,
+    generate_large_loop_tdem_survey,
+)
 
 
 def grid_layout(
@@ -107,8 +110,13 @@ def get_survey(
             return generate_borehole_tdem_survey(
                 geoh5, grid_x, grid_y, grid_z, name=options.name
             )
-
-        return generate_tdem_survey(geoh5, grid_x, grid_y, grid_z, name=options.name)
+        elif "galvanic" in method:
+            return generate_galvanic_tdem_survey(
+                geoh5, grid_x, grid_y, grid_z, name=options.name
+            )
+        return generate_large_loop_tdem_survey(
+            geoh5, grid_x, grid_y, grid_z, name=options.name
+        )
 
     return Points.create(
         geoh5,
