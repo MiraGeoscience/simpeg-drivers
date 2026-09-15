@@ -17,9 +17,7 @@ from simpeg_drivers.plate_simulation.leroi_air.options import (
     LeroiAirOptions,
     SurveyOptions,
 )
-from simpeg_drivers.utils.synthetics.surveys.time_domain.airborne import (
-    generate_airborne_tdem_survey,
-)
+from simpeg_drivers.utils.synthetics.surveys.time_domain import generate_airborne_survey
 
 
 def generate_plate_options(workspace):
@@ -30,7 +28,7 @@ def generate_plate_options(workspace):
 
     with fetch_active_workspace(workspace) as geoh5:
         out_group = SimPEGGroup.create(geoh5)
-        survey = generate_airborne_tdem_survey(geoh5, X=X, Y=Y, Z=Z)
+        survey = generate_airborne_survey(geoh5, X=X, Y=Y, Z=Z)
         layer_resistivities = [1500.0, 2000.0, 5000.0]
         layer_thicknesses = [50.0, 1000.0, 2000.0]
         plate_resistivities = [100.0]
