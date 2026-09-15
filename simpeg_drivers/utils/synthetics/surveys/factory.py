@@ -16,6 +16,14 @@ from geoh5py import Workspace
 from geoh5py.objects import ObjectBase, Points
 
 from simpeg_drivers.utils.synthetics.options import SurveyOptions
+from simpeg_drivers.utils.synthetics.surveys.frequency_domain import (
+    generate_fdem_survey,
+)
+from simpeg_drivers.utils.synthetics.surveys.natural_sources import (
+    generate_apparent_conductivity_survey,
+    generate_magnetotellurics_survey,
+    generate_tipper_survey,
+)
 from simpeg_drivers.utils.synthetics.surveys.time_domain import (
     generate_airborne_survey,
     generate_borehole_survey,
@@ -23,11 +31,7 @@ from simpeg_drivers.utils.synthetics.surveys.time_domain import (
     generate_large_loop_survey,
 )
 
-from .dcip import generate_dc_survey
-from .frequency_domain.fdem import generate_fdem_survey
-from .natural_sources.apparent_conductivity import generate_apparent_conductivity_survey
-from .natural_sources.magnetotellurics import generate_magnetotellurics_survey
-from .natural_sources.tipper import generate_tipper_survey
+from .direct_current import generate_dc_survey
 
 
 def grid_layout(
