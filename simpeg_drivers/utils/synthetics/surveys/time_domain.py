@@ -9,18 +9,134 @@
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 import numpy as np
-from geoapps_utils.utils.locations import gaussian
+from geoapps_utils.utils.locations import gaussian, mask_large_connections
 from geoapps_utils.utils.transformations import y_rotation_matrix
 from geoh5py import Workspace
 from geoh5py.objects import (
+    AirborneTEMReceivers,
+    AirborneTEMTransmitters,
     LargeLoopGroundTEMReceivers,
     LargeLoopGroundTEMTransmitters,
 )
 
-from simpeg_drivers.utils.synthetics.surveys.time_domain import CHANNELS, WAVEFORM
+
+CHANNELS = np.r_[3e-04, 6e-04, 1.2e-03] * 1e3
+WAVEFORM = np.c_[
+    np.r_[
+        np.arange(-0.002, -0.0001, 5e-4),
+        np.arange(-0.0004, 0.0, 1e-4),
+        np.arange(0.0, 0.002, 5e-4),
+    ]
+    * 1e3
+    + 2.0,
+    np.r_[np.linspace(0, 1, 4), np.linspace(0.9, 0.0, 4), np.zeros(4)],
+]
 
 
-def generate_tdem_survey(
+def generate_airborne_survey(
+    geoh5: Workspace,
+    X: np.ndarray,
+    Y: np.ndarray,
+    Z: np.ndarray,
+    channels: np.ndarray = CHANNELS,
+    waveform: np.ndarray = WAVEFORM,
+    name: str = "survey",
+) -> AirborneTEMReceivers:
+    """Create an Airborne TDEM survey object from survey grid locations"""
+    vertices = np.column_stack([X.flatten(), Y.flatten(), Z.flatten()])
+    survey = AirborneTEMReceivers.create(geoh5, vertices=vertices, name=name)
+    transmitters = AirborneTEMTransmitters.create(
+        geoh5, vertices=vertices, name=f"{name}_tx"
+    )
+    mask = mask_large_connections(survey, 200.0)
+    survey.remove_cells(mask)
+    transmitters.remove_cells(mask)
+
+    survey.transmitters = transmitters
+    survey.channels = channels
+    survey.waveform = waveform
+    survey.timing_mark = 2.0
+    survey.unit = "Milliseconds (ms)"
+
+    return survey
+
+
+def generate_borehole_survey(
+    geoh5: Workspace,
+    X: np.ndarray,
+    Y: np.ndarray,
+    Z: np.ndarray,
+    channels: np.ndarray = CHANNELS,
+    waveform: np.ndarray = WAVEFORM,
+    name: str = "survey",
+) -> LargeLoopGroundTEMReceivers:
+    """Create a large loop TDEM survey object from survey grid locations."""
+
+    survey = generate_large_loop_survey(
+        geoh5, X, Y, Z, channels=channels, waveform=waveform, name=name, n_loops=1
+    )
+
+    center = survey.vertices[0, :]
+    survey.vertices = (
+        y_rotation_matrix(np.pi / 4) @ (survey.vertices - center).T
+    ).T + center
+
+    return survey
+
+
+def generate_galvanic_tdem_survey(
+    geoh5: Workspace,
+    X: np.ndarray,
+    Y: np.ndarray,
+    Z: np.ndarray,
+    channels: np.ndarray = CHANNELS,
+    waveform: np.ndarray = WAVEFORM,
+    name: str = "survey",
+):
+    vertices = np.column_stack([X.flatten(), Y.flatten(), Z.flatten()])
+    tx_vertices = np.vstack(
+        [
+            [X.min(), 0, 5],
+            [X.max(), 0, 5],
+            [0, Y.min(), 5],
+            [0, Y.max(), 5],
+        ]
+    )
+
+    transmitters = LargeLoopGroundTEMTransmitters.create(
+        geoh5,
+        vertices=tx_vertices,
+        cells=np.vstack([[0, 1], [2, 3]]),
+        name=f"{name}_tx",
+    )
+    transmitters.tx_id_property = transmitters.parts + 1
+
+    cells = []
+    count = 0
+    for _ in range(X.shape[0]):
+        inds = np.arange(count, count + X.shape[1] - 1)
+        cells.append(np.c_[inds, inds + 1])
+        count += X.shape[1]
+
+    survey = LargeLoopGroundTEMReceivers.create(
+        geoh5, name=name, vertices=vertices, cells=np.vstack(cells)
+    )
+    survey.transmitters = transmitters
+    blocks = np.array_split(np.arange(vertices.shape[0]).reshape(X.shape), 2, axis=0)
+    tx_ids = np.ones(vertices.shape[0])
+    for ind, block in enumerate(blocks):
+        tx_ids[block.flatten()] = ind + 1
+
+    survey.tx_id_property = tx_ids
+    survey.channels = channels
+    survey.waveform = waveform
+    survey.timing_mark = 2.0
+    survey.unit = "Milliseconds (ms)"
+
+    return survey
+
+
+def generate_large_loop_survey(
     geoh5: Workspace,
     X: np.ndarray,
     Y: np.ndarray,
@@ -105,9 +221,7 @@ def generate_tdem_survey(
     )
     survey.transmitters = transmitters
     survey.tx_id_property = np.hstack(loop_id)
-
     survey.channels = channels
-
     survey.waveform = waveform
     survey.timing_mark = 2.0
     survey.unit = "Milliseconds (ms)"

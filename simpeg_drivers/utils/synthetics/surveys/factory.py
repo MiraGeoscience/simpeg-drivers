@@ -16,15 +16,22 @@ from geoh5py import Workspace
 from geoh5py.objects import ObjectBase, Points
 
 from simpeg_drivers.utils.synthetics.options import SurveyOptions
+from simpeg_drivers.utils.synthetics.surveys.frequency_domain import (
+    generate_fdem_survey,
+)
+from simpeg_drivers.utils.synthetics.surveys.natural_sources import (
+    generate_apparent_conductivity_survey,
+    generate_magnetotellurics_survey,
+    generate_tipper_survey,
+)
+from simpeg_drivers.utils.synthetics.surveys.time_domain import (
+    generate_airborne_survey,
+    generate_borehole_survey,
+    generate_galvanic_tdem_survey,
+    generate_large_loop_survey,
+)
 
-from .dcip import generate_dc_survey
-from .frequency_domain.fdem import generate_fdem_survey
-from .natural_sources.apparent_conductivity import generate_apparent_conductivity_survey
-from .natural_sources.magnetotellurics import generate_magnetotellurics_survey
-from .natural_sources.tipper import generate_tipper_survey
-from .time_domain.airborne import generate_airborne_tdem_survey
-from .time_domain.borehole import generate_borehole_tdem_survey
-from .time_domain.ground import generate_tdem_survey
+from .direct_current import generate_dc_survey
 
 
 def grid_layout(
@@ -100,15 +107,20 @@ def get_survey(
 
     if "tdem" in method:
         if "airborne" in method:
-            return generate_airborne_tdem_survey(
+            return generate_airborne_survey(
                 geoh5, grid_x, grid_y, grid_z, name=options.name
             )
         elif "borehole" in method:
-            return generate_borehole_tdem_survey(
+            return generate_borehole_survey(
                 geoh5, grid_x, grid_y, grid_z, name=options.name
             )
-
-        return generate_tdem_survey(geoh5, grid_x, grid_y, grid_z, name=options.name)
+        elif "galvanic" in method:
+            return generate_galvanic_tdem_survey(
+                geoh5, grid_x, grid_y, grid_z, name=options.name
+            )
+        return generate_large_loop_survey(
+            geoh5, grid_x, grid_y, grid_z, name=options.name
+        )
 
     return Points.create(
         geoh5,

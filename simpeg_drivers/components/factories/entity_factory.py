@@ -88,7 +88,7 @@ class EntityFactory(AbstractFactory):
             if isinstance(
                 self.params.data_object.transmitters,
                 LargeLoopGroundFEMTransmitters | LargeLoopGroundTEMTransmitters,
-            ):
+            ) and getattr(self.params, "closed_loops", True):
                 cells = self._validate_large_loop_cells(
                     self.params.data_object.transmitters
                 )
