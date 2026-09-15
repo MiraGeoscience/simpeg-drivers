@@ -85,13 +85,10 @@ class EntityFactory(AbstractFactory):
             entity = self.params.data_object.copy(**kwargs)
 
         if isinstance(self.params.data_object, BaseEMSurvey):
-            if (
-                isinstance(
-                    self.params.data_object.transmitters,
-                    LargeLoopGroundFEMTransmitters | LargeLoopGroundTEMTransmitters,
-                )
-                and self.params.closed_loops
-            ):
+            if isinstance(
+                self.params.data_object.transmitters,
+                LargeLoopGroundFEMTransmitters | LargeLoopGroundTEMTransmitters,
+            ) and getattr(self.params, "closed_loops", False):
                 cells = self._validate_large_loop_cells(
                     self.params.data_object.transmitters
                 )
