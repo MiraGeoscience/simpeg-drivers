@@ -16,7 +16,7 @@
         ],
         "value": ""
     },
-    "closed_loop": {
+    "closed_loops": {
         "group": "Survey",
         "main": true,
         "label": "Closed loops",

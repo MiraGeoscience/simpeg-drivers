@@ -44,7 +44,7 @@ logger = getLogger(__name__)
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 1.8460e-11, "phi_d": 3.0390e01, "phi_m": 2.0320e04}
+target_run = {"data_norm": 1.8600e-10, "phi_d": 2.3440e04, "phi_m": 1.4010e05}
 
 
 def test_galvanic_tem_fwr_run(
@@ -59,7 +59,7 @@ def test_galvanic_tem_fwr_run(
         caplog.set_level(INFO)
     # Run the forward
     opts = SyntheticsComponentsOptions(
-        method="ground tdem",
+        method="galvanic tdem",
         refine_plate=True,
         survey=SurveyOptions(
             n_stations=n_grid_points,
@@ -77,7 +77,8 @@ def test_galvanic_tem_fwr_run(
             padding_distance=1000.0,
         ),
         model=ModelOptions(
-            background=0.001,
+            background=0.01,
+            anomaly=10,
             plate=PlateModel(
                 strike_length=40.0,
                 dip_length=40.0,
@@ -90,14 +91,6 @@ def test_galvanic_tem_fwr_run(
     )
     with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
-
-        # Make single wire loop for testing
-        components.survey.tx_id_property.values = np.ones(components.survey.n_vertices)
-        removal = np.ones(components.survey.transmitters.n_vertices, dtype=bool)
-        removal[[4, 8]] = False
-        components.survey.transmitters.remove_vertices(removal)
-        components.survey.transmitters.cells = np.c_[0, 1]
-
         params = TDEMForwardOptions.build(
             geoh5=geoh5,
             mesh=components.mesh,
@@ -149,9 +142,7 @@ def test_galvanic_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
                 uncert = components.survey.add_data(
                     {
                         f"uncertainty_{chan}_[{ii}]": {
-                            "values": np.ones_like(data_entity.values)
-                            * np.median(np.abs(data_entity.values))
-                            / 2.0
+                            "values": np.full(data_entity.parent.n_vertices, 1e-12)
                         }
                     }
                 )
@@ -177,22 +168,19 @@ def test_galvanic_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
             mesh=components.mesh,
             topography_object=components.topography,
             data_object=components.survey,
-            starting_model=1e-3,
-            reference_model=1e-3,
+            starting_model=1e-2,
+            reference_model=1e-2,
             closed_loops=False,
-            chi_factor=0.1,
-            s_norm=2.0,
-            x_norm=2.0,
-            y_norm=2.0,
-            z_norm=2.0,
-            alpha_s=0e-1,
+            chi_factor=1.0,
+            starting_chi_factor=1.0,
+            alpha_s=1e-0,
             lower_bound=2e-6,
             upper_bound=1e2,
             max_global_iterations=max_iterations,
-            initial_beta_ratio=1e1,
-            cooling_rate=2,
-            max_cg_iterations=200,
-            percentile=100,
+            initial_beta_ratio=1e2,
+            cooling_rate=1,
+            sens_wts_threshold=1.0,
+            save_sensitivities=True,
             solver_type="Mumps",
             data_units="Ground B (T/A)",
             **data_kwargs,
@@ -225,8 +213,8 @@ if __name__ == "__main__":
         cell_size=(5.0, 5.0, 5.0),
         pytest=False,
     )
-    # test_galvanic_tem_run(
-    #     Path("./"),
-    #     max_iterations=15,
-    #     pytest=False,
-    # )
+    test_galvanic_tem_run(
+        Path("./"),
+        max_iterations=15,
+        pytest=False,
+    )
