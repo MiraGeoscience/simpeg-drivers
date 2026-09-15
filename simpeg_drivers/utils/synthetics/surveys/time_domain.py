@@ -126,10 +126,9 @@ def generate_galvanic_tdem_survey(
     tx_ids = np.ones(vertices.shape[0])
     for ind, block in enumerate(blocks):
         tx_ids[block.flatten()] = ind + 1
+
     survey.tx_id_property = tx_ids
-
     survey.channels = channels
-
     survey.waveform = waveform
     survey.timing_mark = 2.0
     survey.unit = "Milliseconds (ms)"
@@ -222,9 +221,7 @@ def generate_large_loop_survey(
     )
     survey.transmitters = transmitters
     survey.tx_id_property = np.hstack(loop_id)
-
     survey.channels = channels
-
     survey.waveform = waveform
     survey.timing_mark = 2.0
     survey.unit = "Milliseconds (ms)"
