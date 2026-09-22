@@ -73,8 +73,10 @@ def test_tile_estimator_run(
             starting_model=components.model,
         )
 
-    driver = MagneticInversionDriver(params)
-    tile_params = TileParameters(geoh5=geoh5, simulation=driver.out_group)
+        driver = MagneticInversionDriver(params)
+        tile_params = TileParameters(geoh5=geoh5, simulation=driver.out_group)
+        tile_params.out_group = tile_params.ui_json.to_ui_json_group(workspace=geoh5)
+
     uijson = tile_params.write_ui_json(tmp_path / "tile_estimator.ui.json")
 
     estimator = TileEstimator.start(uijson)
