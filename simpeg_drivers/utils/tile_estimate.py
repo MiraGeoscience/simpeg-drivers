@@ -119,7 +119,6 @@ class TileEstimator(Driver):
         """
         Run the tile estimator.
         """
-        _ = self.driver.inversion  # Triggers creation of something
         results = self.get_results()
 
         logger.info(
