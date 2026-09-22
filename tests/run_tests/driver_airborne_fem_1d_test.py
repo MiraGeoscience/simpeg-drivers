@@ -41,14 +41,14 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 381.0495293422212, "phi_d": 33400, "phi_m": 198}
+target_run = {"data_norm": 5.5379e02, "phi_d": 4.5220e04, "phi_m": 2.2230e02}
 
 
 def test_fem_fwr_1d_run(
     tmp_path: Path,
     n_grid_points=3,
     refinement=(2,),
-    cell_size=(20.0, 20.0, 20.0),
+    cell_size=(10.0, 10.0, 10.0),
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(
@@ -68,7 +68,7 @@ def test_fem_fwr_1d_run(
         ),
         model=ModelOptions(background=1e-4, anomaly=0.1),
     )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5=geoh5, options=opts)
         params = FDEM1DForwardOptions.build(
             geoh5=geoh5,
@@ -85,9 +85,9 @@ def test_fem_fwr_1d_run(
 
 
 def test_fem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
-    workpath = tmp_path / "inversion_test.ui.geoh5"
+    workpath = tmp_path / "inversion_test.geoh5"
     if pytest:
-        workpath = tmp_path.parent / "test_fem_fwr_1d_run0" / "inversion_test.ui.geoh5"
+        workpath = tmp_path.parent / "test_fem_fwr_1d_run0" / "inversion_test.geoh5"
 
     with Workspace(workpath) as geoh5:
         components = SyntheticsComponents(geoh5)
@@ -97,7 +97,7 @@ def test_fem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
             "real": "real",
             "imag": "imag",
         }
-
+        mesh = geoh5.get_entity("Draped Model")[0]
         for chan, cname in channels.items():
             data[cname] = []
             uncertainties[f"{cname} uncertainties"] = []
@@ -136,7 +136,7 @@ def test_fem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
         # Run the inverse
         params = FDEM1DInversionOptions.build(
             geoh5=geoh5,
-            mesh=components.mesh,
+            mesh=mesh,
             topography_object=components.topography,
             data_object=components.survey,
             starting_model=1e-3,
