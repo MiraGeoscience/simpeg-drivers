@@ -218,7 +218,9 @@ def test_restart_run(tmp_path):
     uijson.geoh5 = tmp_path / "inversion_test.geoh5"
     uijson.set_values(max_global_iterations=5)
     uijson.write(json_file)
-    TDEM1DInversionDriver.start(json_file, start_iteration=-2)
+    TDEM1DInversionDriver.start_dask_run(
+        json_file, start_iteration=-2, n_workers=1, n_threads=1
+    )
 
     # Read the out file again and check against the previous full run
     with Workspace(tmp_path / "inversion_test.geoh5") as ws:
