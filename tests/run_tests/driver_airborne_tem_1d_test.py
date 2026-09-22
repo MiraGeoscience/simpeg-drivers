@@ -10,10 +10,14 @@
 
 from __future__ import annotations
 
+import shutil
+from io import BytesIO
 from pathlib import Path
 
 import numpy as np
+from geoh5py.ui_json import UIJson
 from geoh5py.workspace import Workspace
+from pandas import read_csv
 
 from simpeg_drivers.electromagnetics.time_domain_1d.forward import (
     TDEM1DForwardDriver,
@@ -37,14 +41,14 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
-target_run = {"data_norm": 4.697209832464402e-10, "phi_d": 30.8, "phi_m": 82400}
+target_run = {"data_norm": 4.1821e-10, "phi_d": 5.7170e01, "phi_m": 1.2470e04}
 
 
 def test_airborne_tem_1d_fwr_run(
     tmp_path: Path,
     n_grid_points=3,
     refinement=(2,),
-    cell_size=(20.0, 20.0, 20.0),
+    cell_size=(10.0, 10.0, 10.0),
 ):
     # Run the forward
     opts = SyntheticsComponentsOptions(
@@ -64,7 +68,7 @@ def test_airborne_tem_1d_fwr_run(
         ),
         model=ModelOptions(background=0.1),
     )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(
             geoh5,
             options=opts,
@@ -84,13 +88,13 @@ def test_airborne_tem_1d_fwr_run(
     fwr_driver.run()
 
 
-def test_airborne_tem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
-    workpath = tmp_path / "inversion_test.ui.geoh5"
+def test_airborne_tem_1d_run(tmp_path: Path, max_iterations=3, pytest=True):
+    workpath = tmp_path / "inversion_test.geoh5"
+
     if pytest:
-        workpath = (
-            tmp_path.parent
-            / "test_airborne_tem_1d_fwr_run0"
-            / "inversion_test.ui.geoh5"
+        shutil.copy(
+            tmp_path.parent / "test_airborne_tem_1d_fwr_run0" / "inversion_test.geoh5",
+            tmp_path,
         )
 
     with Workspace(workpath) as geoh5:
@@ -100,7 +104,7 @@ def test_airborne_tem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
         channels = {
             "vertical": "vertical",
         }
-
+        mesh = geoh5.get_entity("Draped Model")[0]
         for chan, cname in channels.items():
             data[cname] = []
             uncertainties[f"{cname} uncertainties"] = []
@@ -137,7 +141,7 @@ def test_airborne_tem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
         # Run the inverse
         params = TDEM1DInversionOptions.build(
             geoh5=geoh5,
-            mesh=components.mesh,
+            mesh=mesh,
             topography_object=components.topography,
             data_object=components.survey,
             starting_model=5e-1,
@@ -149,9 +153,11 @@ def test_airborne_tem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
             lower_bound=1e-4,
             upper_bound=1e2,
             max_global_iterations=max_iterations,
-            initial_beta_ratio=1e-2,
+            initial_beta_ratio=1e-0,
+            cooling_rate=1,
             **data_kwargs,
         )
+        params.out_group = params.ui_json.to_ui_json_group(workspace=geoh5)
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
         driver = TDEM1DInversionDriver(params)
@@ -188,6 +194,43 @@ def test_airborne_tem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
             nan_ind = np.isnan(run_ws.get_entity("Iteration_0_model")[0].values)
             inactive_ind = run_ws.get_entity("active_cells")[0].values == 0
             assert np.all(nan_ind == inactive_ind)
+
+
+def test_restart_run(tmp_path):
+    shutil.copy(
+        tmp_path.parent / "test_airborne_tem_1d_run0" / "Inv_run.ui.json", tmp_path
+    )
+    shutil.copy(
+        tmp_path.parent / "test_airborne_tem_1d_run0" / "inversion_test.geoh5", tmp_path
+    )
+    json_file = tmp_path / "Inv_run.ui.json"
+
+    # Remember the last iteration
+    out_array = read_csv(
+        tmp_path.parent / "test_airborne_tem_1d_run0/inversion_test.out", sep=" "
+    )
+
+    last_beta = out_array["beta"].iloc[-1]
+    last_phi_d = out_array["phi_d"].iloc[-1]
+    last_phi_m = out_array["phi_m"].iloc[-1]
+
+    uijson = UIJson.read(json_file)
+    uijson.geoh5 = tmp_path / "inversion_test.geoh5"
+    uijson.set_values(max_global_iterations=5)
+    uijson.write(json_file)
+    TDEM1DInversionDriver.start(json_file, start_iteration=-2)
+
+    # Read the out file again and check against the previous full run
+    with Workspace(tmp_path / "inversion_test.geoh5") as ws:
+        out_file = ws.get_entity("inversion_test.out")[0]
+        out_array = read_csv(BytesIO(out_file.file_bytes), sep=" ")
+        np.testing.assert_almost_equal(out_array["beta"].iloc[5], last_beta, decimal=1)
+        np.testing.assert_almost_equal(
+            out_array["phi_d"].iloc[5], last_phi_d, decimal=1
+        )
+        np.testing.assert_almost_equal(
+            out_array["phi_m"].iloc[5], last_phi_m, decimal=1
+        )
 
 
 if __name__ == "__main__":

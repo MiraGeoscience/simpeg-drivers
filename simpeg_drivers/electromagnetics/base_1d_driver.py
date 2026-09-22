@@ -20,7 +20,7 @@ from discretize import TensorMesh
 from discretize.utils import mesh_utils
 from geoapps_utils.utils.locations import topo_drape_elevation
 from geoh5py import Workspace
-from geoh5py.objects import Surface
+from geoh5py.objects import DrapeModel, Octree, Surface
 from geoh5py.shared.merging.drape_model import DrapeModelMerger
 from geoh5py.ui_json.ui_json import fetch_active_workspace
 from numpy import ndarray
@@ -29,6 +29,7 @@ from simpeg_drivers.components.factories import SimulationFactory
 from simpeg_drivers.components.meshes import InversionMesh
 from simpeg_drivers.driver import BaseDriver
 from simpeg_drivers.utils.utils import (
+    drape_2_tensor,
     get_default_parallelization_params,
     xyz_2_drape_model,
 )
@@ -82,9 +83,23 @@ class Base1DDriver(BaseDriver):
         return self._inversion_mesh
 
     def get_1d_mesh(self) -> TensorMesh:
+        """
+        Get a 1D mesh template from input parameters.
+
+        If the input mesh is a DrapeModel, it is converted to a TensorMesh and extract the vertical cell sizes.
+        Otherwise, a new TensorMesh is created based on the drape model parameters.
+        """
+        if isinstance(self.params.mesh, DrapeModel):
+            tensor = drape_2_tensor(self.params.mesh)
+            return TensorMesh([tensor.h[1]])
+
+        cell_size = self.params.drape_model.v_cell_size
+        if isinstance(self.params.mesh, Octree):
+            cell_size = self.params.mesh.w_cell_size
+
         layers_mesh = mesh_utils.mesh_builder_xyz(
             np.c_[0],
-            np.r_[self.params.drape_model.v_cell_size],
+            np.r_[cell_size],
             padding_distance=[
                 [self.params.drape_model.vertical_padding, 0],
             ],
@@ -140,10 +155,9 @@ class Base1DDriver(BaseDriver):
         return self._simulation
 
     @classmethod
-    def start_dask_run(
-        cls, json_path: Path, n_workers: int | None = None, n_threads: int | None = None
-    ):
+    def start_dask_run(cls, json_path: Path, **kwargs):
         """Overload configurations of BaseDriver Dask config settings."""
         n_workers, n_threads = get_default_parallelization_params(json_path)
-
-        super().start_dask_run(json_path, n_workers=n_workers, n_threads=n_threads)
+        kwargs["n_workers"] = n_workers
+        kwargs["n_threads"] = n_threads
+        super().start_dask_run(json_path, **kwargs)
