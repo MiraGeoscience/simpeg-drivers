@@ -158,6 +158,10 @@ class Base1DDriver(BaseDriver):
     def start_dask_run(cls, json_path: Path, **kwargs):
         """Overload configurations of BaseDriver Dask config settings."""
         n_workers, n_threads = get_default_parallelization_params(json_path)
-        kwargs["n_workers"] = n_workers
-        kwargs["n_threads"] = n_threads
+
+        if "n_workers" not in kwargs:
+            kwargs["n_workers"] = n_workers
+        if "n_threads" not in kwargs:
+            kwargs["n_threads"] = n_threads
+
         super().start_dask_run(json_path, **kwargs)
