@@ -91,14 +91,7 @@ def test_borehole_tem_fwr_run(
     )
     with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
-        components.mesh.origin = (
-            np.r_[
-                components.mesh.origin["x"],
-                components.mesh.origin["y"],
-                components.mesh.origin["z"],
-            ]
-            + np.r_[-2.5, -2.5, 0.0]
-        )
+        components.mesh.origin = components.mesh.origin + np.r_[-2.5, -2.5, 0.0]
         # components.survey.complement.vertices = components.survey.complement.vertices + np.r_[-100.0, -100.0, 0.0]
         params = BoreholeTDEMForwardOptions.build(
             geoh5=geoh5,
