@@ -99,7 +99,7 @@
         "main": true,
         "enabled": true,
         "label": "Vertical core cell size (m)",
-        "value": 25.0
+        "value": 10.0
     },
     "depth_core": {
         "min": 0.0,
@@ -107,12 +107,12 @@
         "main": true,
         "enabled": true,
         "label": "Depth of core (m)",
-        "value": 500.0
+        "value": 100.0
     },
     "horizontal_padding": {
         "visible": false,
         "label": "Horizontal padding (m)",
-        "value": 1000.0
+        "value": 100.0
     },
     "vertical_padding": {
         "min": 0.0,
@@ -120,7 +120,7 @@
         "main": true,
         "dependencyType": "disabled",
         "label": "Vertical padding (m)",
-        "value": 1000.0
+        "value": 100.0
     },
     "expansion_factor": {
         "main": true,
@@ -132,7 +132,10 @@
         "group": "Mesh and models",
         "main": true,
         "label": "Mesh",
-        "meshType": "{4ea87376-3ece-438b-bf12-3479733ded46}",
+        "meshType": [
+            "{c94968ea-cf7d-11eb-b8bc-0242ac130003}",
+            "{4ea87376-3ece-438b-bf12-3479733ded46}"
+        ],
         "value": "",
         "optional": true,
         "enabled": false,
