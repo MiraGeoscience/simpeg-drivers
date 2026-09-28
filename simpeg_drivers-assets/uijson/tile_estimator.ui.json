@@ -17,5 +17,13 @@
         "main": true,
         "label": "Create plot",
         "value": true
+    },
+    "out_group": {
+        "label": "UIJson group",
+        "value": "",
+        "groupType": "{BB50AC61-A657-4926-9C82-067658E246A0}",
+        "visible": true,
+        "optional": true,
+        "enabled": false
     }
 }
