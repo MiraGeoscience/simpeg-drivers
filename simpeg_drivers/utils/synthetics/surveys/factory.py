@@ -14,6 +14,7 @@ import numpy as np
 from geoapps_utils.utils.transformations import rotate_xyz
 from geoh5py import Workspace
 from geoh5py.objects import ObjectBase, Points
+from geoh5py.objects.surveys.gravity import AirborneGravity
 
 from simpeg_drivers.utils.synthetics.options import SurveyOptions
 from simpeg_drivers.utils.synthetics.surveys.frequency_domain import (
@@ -120,6 +121,15 @@ def get_survey(
             )
         return generate_large_loop_survey(
             geoh5, grid_x, grid_y, grid_z, name=options.name
+        )
+
+    if "gravity" in method:
+        return AirborneGravity.create(
+            geoh5,
+            vertices=np.column_stack(
+                [grid_x.flatten(), grid_y.flatten(), grid_z.flatten()]
+            ),
+            name=options.name,
         )
 
     return Points.create(
