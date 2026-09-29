@@ -43,6 +43,7 @@ class MagneticVectorPDEInversionDriver(InversionDriver):
             active_cells=self.models.active_cells,
             mapping=mapping,
             reference_model=self.models.reference_model,
+            reference_model_in_smooth=self.params.reference_model_in_smooth,
         )
 
         functions = self.get_modified_regularization(
