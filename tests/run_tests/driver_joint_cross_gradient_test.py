@@ -533,10 +533,12 @@ def test_joint_cross_gradient_rotated_run(
         group_b=drivers[1].out_group,
         group_b_multiplier=1.0,
         max_global_iterations=max_iterations,
+        reference_model_in_smooth=True,
     )
     joint_driver = JointCrossGradientDriver(joint_params)
 
     joint_driver.run()
+    assert joint_driver.regularization.objfcts[0].reference_model_in_smooth
     assert joint_driver.models.gradient_dip is not None
 
 

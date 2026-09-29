@@ -137,11 +137,14 @@ def test_mvi_pde_run(
             upper_bound=upper_bound,
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e-0,
+            reference_model_in_smooth=True,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
     driver = MagneticVectorPDEInversionDriver(params)
     driver.run()
+
+    assert driver.regularization.objfcts[0].reference_model_in_smooth is True
 
     if pytest:
         with Workspace(driver.params.geoh5.h5file) as ws:
