@@ -558,7 +558,7 @@ class BaseInversionOptions(CoreOptions):
     :param conda_environment: Name of the conda environment used to run the program
     :param data_object: Data object containing the survey data.
     :param models: Model options for the inversion.
-    :param regularization: Options specific to the regularization function.
+    :param reference_model_in_smooth: Whether to include the reference model in the smoothness term of the regularization.
     :param irls: Options specific to the IRLS (Iteratively Reweighted Least Squares) directive.
     :param directives: Additional directives to be used in the inversion.
     :param cooling_schedule: Options controlling the trade-off schedule between data misfit and model regularization.
@@ -580,6 +580,7 @@ class BaseInversionOptions(CoreOptions):
 
     data_object: Points
     models: ModelOptions
+    reference_model_in_smooth: bool = False
     irls: IRLSOptions = IRLSOptions()
     directives: DirectiveOptions = DirectiveOptions()
     cooling_schedule: CoolingSceduleOptions = CoolingSceduleOptions()
