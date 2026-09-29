@@ -213,6 +213,7 @@ def test_joint_surveys_inv_run(
             x_norm=0.0,
             y_norm=0.0,
             z_norm=0.0,
+            reference_model_in_smooth=True,
             lower_bound=0.0,
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e-2,
@@ -223,6 +224,8 @@ def test_joint_surveys_inv_run(
         joint_params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
     driver = JointSurveysDriver.start(str(tmp_path / "Inv_run.ui.json"))
+
+    assert driver.regularization.objfcts[0].reference_model_in_smooth
 
     # The rescaling is done evenly on the two tiles for both surveys
     np.testing.assert_allclose(

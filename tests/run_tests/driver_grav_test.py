@@ -151,6 +151,7 @@ def test_gravity_run(
             starting_model=1e-4,
             topography_object=components.topography,
             reference_model=reference,
+            reference_model_in_smooth=True,
             sens_wts_threshold=1.0,
             save_sensitivities=True,
         )
@@ -159,6 +160,7 @@ def test_gravity_run(
 
     driver = GravityInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
 
+    assert driver.regularization.objfcts[0].reference_model_in_smooth
     if not pytest:
         return
 

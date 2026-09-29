@@ -287,6 +287,14 @@
         "property": "",
         "enabled": true
     },
+    "reference_model_in_smooth": {
+        "group": "Regularization",
+        "label": "Reference model in smoothness",
+        "value": false,
+        "verbose": 3,
+        "visible": true,
+        "tooltip": "Whether to subtract the reference model before computing the smoothness terms (x, y and z). \nThis is useful for preserving sharp contrasts from a reference model"
+    },
     "gradient_rotation": "",
     "s_norm": {
         "association": "Cell",
