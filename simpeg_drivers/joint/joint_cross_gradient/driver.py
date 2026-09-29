@@ -56,6 +56,11 @@ class JointCrossGradientDriver(BaseJointDriver):
             for mapping in driver.mapping:
                 self._mapping[driver, mapping] = mapping
 
+            if "reference_model_in_smooth" in self.params.model_fields_set:
+                driver.params.reference_model_in_smooth = (
+                    self.params.reference_model_in_smooth
+                )
+
             for multiplier, objfct in driver.regularization:
                 multipliers.append(multiplier)
                 reg_list.append(objfct)

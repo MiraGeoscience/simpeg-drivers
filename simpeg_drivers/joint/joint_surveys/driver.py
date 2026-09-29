@@ -45,6 +45,8 @@ class JointSurveysDriver(BaseJointDriver):
         driver._inversion_mesh = self.inversion_mesh  # pylint: disable=protected-access
         driver._n_values = self.models.n_active  # pylint: disable=protected-access
         driver.mapping = self.mapping
+
+        driver.params.reference_model_in_smooth = self.params.reference_model_in_smooth
         return driver.get_regularization()
 
     def validate_create_models(self):

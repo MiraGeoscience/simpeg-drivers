@@ -252,6 +252,23 @@ class BaseJointDriver(InversionDriver):
 
         return self._n_values
 
+    @property
+    def params(self) -> BaseJointOptions:
+        """Application parameters."""
+        return self._params
+
+    @params.setter
+    def params(
+        self,
+        val: BaseJointOptions,
+    ):
+        if not isinstance(
+            val,
+            BaseJointOptions,
+        ):
+            raise TypeError("Parameters must be of type 'BaseJointOptions'.")
+        self._params = val
+
     def simpeg_run(self):
         """Run inversion from params"""
         self.initialize()
@@ -559,7 +576,14 @@ class BaseJointDriver(InversionDriver):
         for driver in self.drivers:
             reg_block = []
             for mapping in driver.mapping:
-                reg_block.append(reg_dict[self._mapping[driver, mapping]])
+                reg = reg_dict[self._mapping[driver, mapping]]
+                reference_model_in_smooth = driver.params.reference_model_in_smooth
+
+                if "reference_model_in_smooth" in self.params.model_fields_set:
+                    reference_model_in_smooth = self.params.reference_model_in_smooth
+
+                reg.reference_model_in_smooth = reference_model_in_smooth
+                reg_block.append(reg)
 
             driver.regularization = ComboObjectiveFunction(objfcts=reg_block)
 
