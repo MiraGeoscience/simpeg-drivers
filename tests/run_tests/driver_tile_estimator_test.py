@@ -13,7 +13,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-from geoh5py.groups import SimPEGGroup
+from geoh5py.groups import RootGroup, SimPEGGroup
 
 from simpeg_drivers.potential_fields.magnetic_scalar.inversion import (
     MagneticInversionDriver,
@@ -73,8 +73,10 @@ def test_tile_estimator_run(
             starting_model=components.model,
         )
 
-    driver = MagneticInversionDriver(params)
-    tile_params = TileParameters(geoh5=geoh5, simulation=driver.out_group)
+        driver = MagneticInversionDriver(params)
+        tile_params = TileParameters(geoh5=geoh5, simulation=driver.out_group)
+        tile_params.out_group = tile_params.ui_json.to_ui_json_group(workspace=geoh5)
+
     uijson = tile_params.write_ui_json(tmp_path / "tile_estimator.ui.json")
 
     estimator = TileEstimator.start(uijson)
@@ -84,15 +86,16 @@ def test_tile_estimator_run(
         simpeg_group = next(
             group
             for group in geoh5.groups
-            if isinstance(group, SimPEGGroup) and group.uid != driver.out_group.uid
+            if isinstance(group, SimPEGGroup)
+            and not isinstance(group.parent, RootGroup)
         )
         driver = simpeg_group_to_driver(simpeg_group, geoh5)
 
     assert driver.inversion_type == "magnetic scalar"
     assert driver.params.compute.tile_spatial == 3
     assert (
-        len(simpeg_group.children) == 2
-        and simpeg_group.children[0].name == "tile_estimator.png"
+        len(estimator.out_group.children) == 3
+        and estimator.out_group.children[1].name == "tile_estimator.png"
     )
 
 

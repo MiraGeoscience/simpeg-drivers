@@ -19,7 +19,7 @@ from discretize import TreeMesh
 from geoapps_utils.base import Driver, Options
 from geoapps_utils.utils.numerical import fibonacci_series, fit_circle
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
-from pydantic import field_validator
+from pydantic import ConfigDict, field_validator
 from scipy.interpolate import interp1d
 from tqdm import tqdm
 
@@ -40,6 +40,8 @@ class TileParameters(Options):
     """
     Parameters for the tile estimator.
     """
+
+    model_config = ConfigDict(frozen=False, arbitrary_types_allowed=True)
 
     default_ui_json: ClassVar[Path] = assets_path() / "uijson/tile_estimator.ui.json"
     icon: str = "tilelist"
@@ -117,7 +119,6 @@ class TileEstimator(Driver):
         """
         Run the tile estimator.
         """
-        _ = self.driver.inversion  # Triggers creation of something
         results = self.get_results()
 
         logger.info(
