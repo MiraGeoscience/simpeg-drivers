@@ -159,11 +159,7 @@ class SweepOptions(Options):
 
         with fetch_active_workspace(workspace, mode="r") as ws:
             data = ifile.to_params(workspace=ws, validate=False)
-            exceptions = list(Options.model_fields) + [
-                "version",
-                "icon",
-                "documentation",
-            ]
+            exceptions = list(Options.model_fields)
             out = {}
             for k, v in data.items():
                 if k in exceptions:

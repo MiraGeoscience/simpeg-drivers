@@ -18,6 +18,7 @@ from unittest.mock import patch
 import numpy as np
 from geoapps_utils.utils.importing import GeoAppsError
 from geoh5py.groups import PropertyGroup
+from geoh5py.objects.surveys.gravity import AirborneGravity
 from geoh5py.ui_json import UIJson
 from geoh5py.workspace import Workspace
 from pandas import read_csv
@@ -54,7 +55,7 @@ def test_gravity_fwr_run(
     cell_size=(20.0, 20.0, 20.0),
     refinement=(2,),
 ):
-    filepath = Path(tmp_path) / "inversion_test.ui.geoh5"
+    filepath = Path(tmp_path) / "inversion_test.geoh5"
     with get_workspace(filepath) as geoh5:
         # Run the forward
         components = SyntheticsComponents(
@@ -89,16 +90,18 @@ def test_gravity_fwr_run(
         fwr_driver = GravityForwardDriver(params)
     fwr_driver.run()
 
+    assert isinstance(params.data_object, AirborneGravity)
+
 
 def test_gravity_run(
     tmp_path: Path,
     max_iterations=2,
     pytest=True,
 ):
-    workpath = tmp_path / "inversion_test.ui.geoh5"
+    workpath = tmp_path / "inversion_test.geoh5"
     if pytest:
         shutil.copy(
-            tmp_path.parent / "test_gravity_fwr_run0" / "inversion_test.ui.geoh5",
+            tmp_path.parent / "test_gravity_fwr_run0" / "inversion_test.geoh5",
             tmp_path,
         )
 
@@ -171,7 +174,7 @@ def test_gravity_run(
         driver.directives.directive_list[0].chifact_target, 0.8888, decimal=3
     )
 
-    with open(workpath.parent / "inversion_test.ui.log", encoding="utf8") as file:
+    with open(workpath.parent / "inversion_test.log", encoding="utf8") as file:
         content = file.read()
         assert "Target Misfit: 8.00e+00 (8 data with chifact = 1.0)" in content
         assert "IRLS Start Misfit: 8.00e+00 (8 data with chifact = 1.0)" in content
@@ -202,8 +205,8 @@ def test_gravity_run(
 
         output["data"] = orig_gz
 
-        assert len(run_ws.get_entity("inversion_test.ui.log")) == 2
-        assert len(run_ws.get_entity("inversion_test.ui.out")) == 1
+        assert len(run_ws.get_entity("inversion_test.log")) == 2
+        assert len(run_ws.get_entity("inversion_test.out")) == 1
 
         check_target(output, target_run)
         nan_ind = np.isnan(run_ws.get_entity("Iteration_0_model")[0].values)
@@ -214,13 +217,13 @@ def test_gravity_run(
 def test_restart_run(tmp_path):
     shutil.copy(tmp_path.parent / "test_gravity_run0" / "Inv_run.ui.json", tmp_path)
     shutil.copy(
-        tmp_path.parent / "test_gravity_run0" / "inversion_test.ui.geoh5", tmp_path
+        tmp_path.parent / "test_gravity_run0" / "inversion_test.geoh5", tmp_path
     )
     json_file = tmp_path / "Inv_run.ui.json"
 
     # Remember the last iteration
     out_array = read_csv(
-        tmp_path.parent / "test_gravity_run0/inversion_test.ui.out", sep=" "
+        tmp_path.parent / "test_gravity_run0/inversion_test.out", sep=" "
     )
 
     last_beta = out_array["beta"].iloc[-1]
@@ -228,14 +231,14 @@ def test_restart_run(tmp_path):
     last_phi_m = out_array["phi_m"].iloc[-1]
 
     uijson = UIJson.read(json_file)
-    uijson.geoh5 = tmp_path / "inversion_test.ui.geoh5"
+    uijson.geoh5 = tmp_path / "inversion_test.geoh5"
     uijson.set_values(max_global_iterations=5)
     uijson.write(json_file)
     GravityInversionDriver.start(json_file, start_iteration=-2)
 
     # Read the out file again and check against the previous full run
-    with Workspace(tmp_path / "inversion_test.ui.geoh5") as ws:
-        out_file = ws.get_entity("inversion_test.ui.out")[0]
+    with Workspace(tmp_path / "inversion_test.geoh5") as ws:
+        out_file = ws.get_entity("inversion_test.out")[0]
         out_array = read_csv(BytesIO(out_file.file_bytes), sep=" ")
         np.testing.assert_almost_equal(out_array["beta"].iloc[4], last_beta, decimal=1)
         np.testing.assert_almost_equal(
@@ -249,7 +252,7 @@ def test_restart_run(tmp_path):
 def test_array_too_large_run(
     tmp_path: Path,
 ):
-    workpath = tmp_path.parent / "test_gravity_fwr_run0" / "inversion_test.ui.geoh5"
+    workpath = tmp_path.parent / "test_gravity_fwr_run0" / "inversion_test.geoh5"
 
     with Workspace(workpath) as geoh5:
         components = SyntheticsComponents(geoh5)
