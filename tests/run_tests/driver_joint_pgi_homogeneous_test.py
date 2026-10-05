@@ -19,6 +19,7 @@ from geoapps_utils.modelling.plates import PlateModel, make_plate
 from geoh5py.groups.property_group import GroupTypeEnum, PropertyGroup
 from geoh5py.objects import Octree, Points
 from geoh5py.workspace import Workspace
+from simpeg.regularization import PGIsmallness
 
 from simpeg_drivers.joint.joint_petrophysics.driver import JointPetrophysicsDriver
 from simpeg_drivers.joint.joint_petrophysics.options import JointPetrophysicsOptions
@@ -56,7 +57,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 422.92317507375105, "phi_d": 2920, "phi_m": 417}
+target_run = {"data_norm": 4.2090e02, "phi_d": 2.8860e03, "phi_m": 8.2700e01}
 INDUCING_FIELD = (50000.0, 90.0, 0.0)
 
 
@@ -337,6 +338,7 @@ def test_homogeneous_run(
             petrophysical_model=petrophysics,
             initial_beta_ratio=1e2,
             max_global_iterations=max_iterations,
+            reference_model_in_smooth=True,
             max_irls_iterations=1,
         )
         driver = JointPetrophysicsDriver(joint_params)
@@ -352,8 +354,13 @@ def test_homogeneous_run(
         new_driver = MagneticInversionDriver(params)
         joint_params.group_b = new_driver.out_group
         driver = JointPetrophysicsDriver(joint_params)
-
         driver.run()
+
+        assert all(
+            objfct.reference_model_in_smooth
+            for objfct in driver.regularization.objfcts
+            if not isinstance(objfct, PGIsmallness)
+        )
 
     if use_pytest:
         assert driver.regularization.objfcts[-1].gmm.fixed_membership[0, 1] == 1
