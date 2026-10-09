@@ -142,15 +142,25 @@ class InversionData(InversionLocations):
         # Interpolate distance assuming always inside the mesh trace
         actives = self.params.mesh.prisms[:, -1] != 1
         prisms = self.params.mesh.prisms[actives, :]
-        tree = cKDTree(prisms[:, :2])
-        rad, ind = tree.query(locations[:, :2], k=2)
-        distance_interp = 0.0
-        for ii in range(2):
-            distance_interp += local_tensor.cell_centers_x[ind[:, ii]] / (
-                rad[:, ii] + 1e-8
-            )
 
-        distance_interp /= ((rad + 1e-8) ** -1.0).sum(axis=1)
+        # Loop through the parts and find the part with the most points inside the mesh
+        distance_interp = np.full(locations.shape[0], np.inf)
+
+        for part in np.unique(local_tensor.parts):
+            part_mask = local_tensor.parts == part
+            tree = cKDTree(prisms[part_mask, :2])
+            rad, ind = tree.query(locations[:, :2], k=2)
+            distances = 0.0
+            for ii in range(2):
+                distances += local_tensor.cell_centers_x[part_mask][ind[:, ii]] / (
+                    rad[:, ii] + 1e-8
+                )
+
+            distances /= ((rad + 1e-8) ** -1.0).sum(axis=1)
+
+            # Keep as long as half of the points are closer than the previous
+            if (distances < distance_interp).sum() > locations.shape[0] / 2:
+                distance_interp = distances
 
         # Adjust elevation relative to the origin
         delta = prisms[0, 2] - prisms[ind[:, 0], 2]

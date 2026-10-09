@@ -166,8 +166,28 @@ class SurveyFactory(SimPEGFactory):
         currents = receiver_entity.current_electrodes
 
         if "2d" in self.params.inversion_type:
-            receiver_locations = data.drape_locations(receiver_entity.vertices)
-            source_locations = data.drape_locations(currents.vertices)
+            receiver_locations = np.empty(
+                (receiver_entity.vertices.shape[0], 2), dtype=float
+            )
+            source_locations = np.empty((currents.vertices.shape[0], 2), dtype=float)
+            for part in np.unique(self.params.line_parts):
+                vert_ind = np.unique(
+                    receiver_entity.cells[self.params.line_parts == part, :]
+                )
+                receiver_locations[vert_ind, :] = data.drape_locations(
+                    receiver_entity.vertices[vert_ind, :]
+                )
+
+                # Do the same for source locations
+                part_ab_ids = np.unique(
+                    receiver_entity.ab_cell_id.values[self.params.line_parts == part]
+                )
+                vert_ind = np.unique(
+                    currents.cells[np.isin(currents.ab_cell_id.values, part_ab_ids), :]
+                )
+                source_locations[vert_ind, :] = data.drape_locations(
+                    currents.vertices[vert_ind, :]
+                )
         else:
             receiver_locations = receiver_entity.vertices
             source_locations = currents.vertices
