@@ -145,7 +145,7 @@ class InversionData(InversionLocations):
 
         # Loop through the parts and find the part with the most points inside the mesh
         distance_interp = np.full(locations.shape[0], np.inf)
-
+        mean_dist = np.inf
         for part in np.unique(local_tensor.parts):
             part_mask = local_tensor.parts == part
             tree = cKDTree(prisms[part_mask, :2])
@@ -159,8 +159,9 @@ class InversionData(InversionLocations):
             distances /= ((rad + 1e-8) ** -1.0).sum(axis=1)
 
             # Keep as long as half of the points are closer than the previous
-            if (distances < distance_interp).sum() > locations.shape[0] / 2:
+            if np.mean(rad) < mean_dist:
                 distance_interp = distances
+                mean_dist = np.mean(rad)
 
         # Adjust elevation relative to the origin
         delta = prisms[0, 2] - prisms[ind[:, 0], 2]
