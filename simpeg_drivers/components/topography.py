@@ -27,7 +27,7 @@ import numpy as np
 from discretize import TreeMesh
 from geoh5py.data import NumericData
 from geoh5py.objects.surveys.electromagnetics.base import LargeLoopGroundEMSurvey
-from geoh5py.shared import Entity
+from geoh5py.shared.entity import Entity
 from scipy.spatial import cKDTree
 
 from simpeg_drivers.components.data import InversionData
