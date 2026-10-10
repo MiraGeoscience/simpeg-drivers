@@ -521,16 +521,21 @@ def get_containing_cells(
 def cell_size_z(drape_model: DrapeModel) -> np.ndarray:
     """Compute z cell sizes of drape model."""
 
-    # TODO: Optimize
-    hz = []
-    for prism in drape_model.prisms:
-        top_z, top_layer, n_layers = prism[2:]
-        bottoms = drape_model.layers[
-            range(int(top_layer), int(top_layer + n_layers)), 2
-        ]
-        z = np.hstack([top_z, bottoms])
-        hz.append(z[:-1] - z[1:])
-    return np.hstack(hz)
+    # Pre-allocate cell sizes if assuming uniform number of layers per prism
+    elevations = np.full(
+        (drape_model.prisms[:, -1].max().astype(int) + 1, drape_model.prisms.shape[0]),
+        np.nan,
+    )
+    elevations[0, :] = drape_model.prisms[:, 2]
+    elevations[
+        drape_model.layers[:, 1].astype(int) + 1, drape_model.layers[:, 0].astype(int)
+    ] = drape_model.layers[:, 2]
+    hz = -np.diff(elevations, axis=0).T.flatten()
+
+    # Remove ghost cells if present
+    mask = ~np.isnan(hz)
+
+    return hz[mask]
 
 
 def active_from_xyz(
