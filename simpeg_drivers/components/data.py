@@ -130,12 +130,46 @@ class InversionData(InversionLocations):
 
         return getattr(self.entity, "parts", None)
 
-    def drape_locations(self, locations: np.ndarray) -> np.ndarray:
+    def drape_locations(self) -> tuple[np.ndarray, np.ndarray]:
         """
-        Return pseudo locations along line in distance, depth.
+        Return pseudo locations along line in distance, depth coordinates.
 
         The horizontal distance is referenced to first node of the core mesh.
+        """
+        receiver_locations = np.empty((self.entity.vertices.shape[0], 2), dtype=float)
+        source_locations = np.empty(
+            (self.entity.current_electrodes.vertices.shape[0], 2), dtype=float
+        )
+        for part in np.unique(self.params.line_parts):
+            vert_ind = np.unique(self.entity.cells[self.params.line_parts == part, :])
+            receiver_locations[vert_ind, :] = self.get_2d_coordinates(
+                self.entity.vertices[vert_ind, :]
+            )
 
+            # Do the same for source locations
+            part_ab_ids = np.unique(
+                self.entity.ab_cell_id.values[self.params.line_parts == part]
+            )
+            vert_ind = np.unique(
+                self.entity.current_electrodes.cells[
+                    np.isin(
+                        self.entity.current_electrodes.ab_cell_id.values, part_ab_ids
+                    ),
+                    :,
+                ]
+            )
+            source_locations[vert_ind, :] = self.get_2d_coordinates(
+                self.entity.current_electrodes.vertices[vert_ind, :]
+            )
+
+        return receiver_locations, source_locations
+
+    def get_2d_coordinates(self, locations: np.ndarray) -> np.ndarray:
+        """
+        Return the 2D coordinates of the locations in distance, depth relative to the mesh.
+
+        :param locations: Locations to be draped.
+        :return: 2D coordinates of the locations in distance, depth.
         """
         local_tensor = drape_2_tensor(self.params.mesh)
 
@@ -145,6 +179,7 @@ class InversionData(InversionLocations):
 
         # Loop through the parts and find the part with the most points inside the mesh
         distance_interp = np.full(locations.shape[0], np.inf)
+        delta = np.zeros(locations.shape[0])
         mean_dist = np.inf
         for part in np.unique(local_tensor.parts):
             part_mask = local_tensor.parts == part
@@ -163,8 +198,9 @@ class InversionData(InversionLocations):
                 distance_interp = distances
                 mean_dist = np.mean(rad)
 
-        # Adjust elevation relative to the origin
-        delta = prisms[0, 2] - prisms[ind[:, 0], 2]
+                # Adjust elevation relative to the origin
+                delta = prisms[:, 2][0] - prisms[part_mask][ind[:, 0], 2]
+
         return np.c_[distance_interp, locations[:, 2] + delta]
 
     def get_data(self) -> tuple[list, dict, dict]:
