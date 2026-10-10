@@ -8,15 +8,15 @@ channels:
 dependencies:
   - annotated-types=0.8.0=pyhd8ed1ab_0
   - asciitree=0.3.3=py_2
-  - aws-c-auth=0.10.4=h98da7c9_2
-  - aws-c-cal=0.9.15=hf2e3468_1
-  - aws-c-common=0.14.3=hfd05255_0
-  - aws-c-compression=0.3.2=h0d56620_5
-  - aws-c-http=0.11.0=he024045_5
-  - aws-c-io=0.27.5=hef21f9d_1
-  - aws-c-s3=0.13.1=h0deae5e_1
-  - aws-c-sdkutils=0.2.7=h0d56620_3
-  - aws-checksums=0.2.10=h0d56620_5
+  - aws-c-auth=1.0.0=h6467a12_2
+  - aws-c-cal=1.0.0=h83b9fca_1
+  - aws-c-common=1.0.3=h6a83c73_0
+  - aws-c-compression=1.0.0=h83b9fca_1
+  - aws-c-http=1.0.0=hfc53fa4_1
+  - aws-c-io=1.0.0=hf08500a_0
+  - aws-c-s3=1.0.0=h9752aa2_1
+  - aws-c-sdkutils=1.0.0=h83b9fca_1
+  - aws-checksums=1.0.1=h83b9fca_0
   - backports.zstd=1.7.0=py312h06d0912_1
   - bokeh=3.6.3=pyhd8ed1ab_0
   - brotli=1.2.0=hc8c2fe1_4
@@ -31,20 +31,20 @@ dependencies:
   - colorama=0.4.6=pyhd8ed1ab_1
   - contourpy=1.4.0=py312h78d62e6_1
   - cycler=0.12.1=pyhcf101f3_2
-  - cytoolz=1.1.0=py312he06e257_3
+  - cytoolz=1.2.0=py312he5662c2_0
   - dask-core=2025.3.1=pyhd8ed1ab_0
-  - deprecated=1.3.1=pyhd8ed1ab_1
+  - deprecated=3.0.0=pyhc364b38_0
   - discretize=0.12.0=np2py312h7c90ba1_1
   - distributed=2025.3.1=pyhd8ed1ab_0
   - et_xmlfile=2.0.0=pyhd8ed1ab_1
   - fasteners=0.20=pyhd8ed1ab_0
-  - fonttools=4.65.0=py312h05f76fc_0
+  - fonttools=4.66.1=py312h05f76fc_0
   - freetype=2.14.3=h57928b3_2
-  - fsspec=2026.7.0=pyhd8ed1ab_0
+  - fsspec=2026.9.0=pyhd8ed1ab_0
   - geoana=0.8.1=np2py312h7c90ba1_0
   - h2=4.4.1=pyhcf101f3_0
-  - h5py=3.16.0=nompi_py312h5ddec8c_104
-  - hdf5=2.2.0=nompi_hf525611_100
+  - h5py=3.16.0=nompi_py312h5ddec8c_105
+  - hdf5=2.2.0=nompi_hd8f1e69_101
   - hpack=4.2.0=pyhd8ed1ab_0
   - hyperframe=6.1.0=pyhd8ed1ab_0
   - icu=78.3=h5112557_2
@@ -64,33 +64,33 @@ dependencies:
   - libcurl=8.22.0=hdb0ef4a_0
   - libdeflate=1.25=h1a1d4e4_1
   - libdlf=0.3.0=pyhd8ed1ab_1
-  - libexpat=2.8.4=hac47afa_0
+  - libexpat=2.8.5=hac47afa_0
   - libffi=3.7.0=h3d046cb_1
   - libfreetype=2.14.3=h57928b3_2
   - libfreetype6=2.14.3=hdbac1cb_2
-  - libhwloc=2.13.0=default_h049141e_1000
+  - libhwloc=2.15.0=default_hae90fe0_1001
   - libiconv=1.18=hc1393d2_3
   - libjpeg-turbo=3.2.0=hfd05255_1
   - liblapack=3.11.0=6_hf9ab0e9_mkl
   - liblzma=5.8.3=hfd05255_1
-  - libpng=1.6.58=hdc8cecf_1
+  - libpng=1.6.59=hdc8cecf_0
   - libpsl=0.23.1=h9b16d47_1
-  - libpython=3.12.14=hcc31f7b_3_cpython
+  - libpython=3.12.15=hcc31f7b_1_cpython
   - libspatialindex=2.1.0=h2854ae6_2
-  - libsqlite=3.53.4=hf5d6505_1
+  - libsqlite=3.54.0=hf5d6505_100
   - libssh2=1.11.1=h734d217_1
   - libtiff=4.7.2=h8f73337_1
   - libwebp-base=1.6.0=h4d5522a_1
   - libwinpthread=12.0.0.r4.gg4f2fc60ca=h11686cb_11
-  - libxml2=2.15.4=he095d88_0
-  - libxml2-16=2.15.4=h3cfd58e_0
+  - libxml2=2.15.4=he095d88_1
+  - libxml2-16=2.15.4=h3cfd58e_1
   - libzlib=1.3.2=hfd05255_3
-  - llvm-openmp=23.1.1=h49e36cd_0
+  - llvm-openmp=23.1.3=h49e36cd_0
   - locket=1.0.0=pyhd8ed1ab_0
-  - markupsafe=3.0.3=py312h05f76fc_1
+  - markupsafe=3.0.4=py312h6fa65f5_1
   - matplotlib-base=3.10.9=py312h0ebf65c_0
   - mkl=2025.3.1=hac47afa_13
-  - msgpack-python=1.2.2=py312h78d62e6_2
+  - msgpack-python=1.2.3=py312h78d62e6_0
   - mumps-seq=5.8.2=flang_h3fd9f6e_3
   - munkres=1.1.4=pyhd8ed1ab_1
   - numcodecs=0.15.1=py312hc128f0a_1
@@ -98,7 +98,7 @@ dependencies:
   - onemkl-license=2025.3.1=h57928b3_13
   - openjpeg=2.5.4=h90fa87c_2
   - openpyxl=3.1.5=py312h83acffa_4
-  - openssl=3.6.4=hf411b9b_0
+  - openssl=3.6.5=hf411b9b_0
   - packaging=26.3=pyhc364b38_0
   - pandas=2.3.3=py312hc128f0a_2
   - partd=1.4.2=pyhd8ed1ab_0
@@ -111,12 +111,12 @@ dependencies:
   - pymatsolver=0.3.1=pyh48887ae_201
   - pyparsing=3.3.3=pyh5ded981_0
   - pysocks=1.7.1=pyh09c184e_7
-  - python=3.12.14=hb12b558_3_cpython
+  - python=3.12.15=hb12b558_1_cpython
   - python-dateutil=2.9.0.post0=pyhe01879c_2
   - python-mumps=0.0.6=nompi_hd0d704b
-  - python-tzdata=2026.3=pyhd8ed1ab_0
+  - python-tzdata=2026.5=pyh5ded981_0
   - python_abi=3.12=9_cp312
-  - pytz=2026.3.post1=pyhcf101f3_0
+  - pytz=2026.5=pyh5ded981_0
   - pyyaml=6.0.3=py312h05f76fc_1
   - qhull=2020.2=hc790b64_5
   - rtree=1.4.1=pyh11ca60a_0
@@ -125,11 +125,11 @@ dependencies:
   - setuptools=84.0.0=pyh332efcf_0
   - six=1.17.0=pyhe01879c_1
   - sortedcontainers=2.4.0=pyhd8ed1ab_1
-  - tbb=2023.1.0=hdcfe883_0
+  - tbb=2023.1.0=h272cf33_2
   - tblib=3.2.2=pyhcf101f3_0
   - threadpoolctl=3.7.0=pyhc455866_0
   - tk=8.6.13=h967ab96_4
-  - toolz=1.1.0=pyhd8ed1ab_1
+  - toolz=1.2.0=pyh5ded981_0
   - tornado=6.5.10=py312he06e257_0
   - tqdm=4.70.1=pyh6be1c34_0
   - trimesh=4.12.2=pyh7b2049a_0
@@ -145,20 +145,20 @@ dependencies:
   - vcomp14=14.51.36247=habf1de7_41
   - wheel=0.48.0=pyhd8ed1ab_0
   - win_inet_pton=1.1.0=pyh7428d3b_8
-  - wrapt=2.4.1=py312he5662c2_0
+  - wrapt=2.5.0=py312he5662c2_0
   - xyzservices=2026.9.1=pyhd8ed1ab_0
   - yaml=0.2.5=h6a83c73_3
   - zarr=2.14.2=pyhd8ed1ab_0
   - zict=3.0.0=pyhd8ed1ab_1
-  - zipp=4.1.0=pyhcf101f3_0
+  - zipp=4.1.1=pyh5ded981_0
   - zlib=1.3.2=hfd05255_3
   - zlib-ng=2.3.3=h0261ad2_1
   - zstd=1.5.7=h534d264_7
   - pip:
-    - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@a8101df536eec74db4cee740709f27396206fdcb
-    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@856ad776e1d7eb6ee9b9a92e46a9ce7940e09651
-    - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@4d42970942d8f5254b56532e6bf041ff927125b1
-    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@ce3068d0b13190fb4384cd96410a7fb872f25394
+    - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@78fffb5b9f6de6bb152625fa04490060eae94630
+    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@7a264e44c05a6bf419bc7a7b0921242e082149cb
+    - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@5ee00e39379992730b137146aab80deaac631a56
+    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@3e70e2295f9c49a94ca4b76a92ddbfbfd4a932f0
 
 variables:
   KMP_WARNINGS: 0
