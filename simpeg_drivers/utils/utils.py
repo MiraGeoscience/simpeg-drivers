@@ -506,11 +506,8 @@ def get_containing_cells(
             inds = np.r_[inds, np.hstack(line_ind)]
 
     elif isinstance(mesh, TensorMesh):
-        potentials = data.entity.vertices
-        currents = data.entity.current_electrodes.vertices
-        locations = np.unique(np.r_[potentials, currents], axis=0)
-
-        locations = data.drape_locations(np.unique(locations, axis=0))
+        locations = data.drape_locations()
+        locations = np.vstack(locations)
         xi = np.searchsorted(mesh.nodes_x, locations[:, 0]) - 1
         yi = np.searchsorted(mesh.nodes_y, locations[:, -1]) - 1
         inds = xi + yi * mesh.shape_cells[0]
@@ -523,6 +520,8 @@ def get_containing_cells(
 
 def cell_size_z(drape_model: DrapeModel) -> np.ndarray:
     """Compute z cell sizes of drape model."""
+
+    # TODO: Optimize
     hz = []
     for prism in drape_model.prisms:
         top_z, top_layer, n_layers = prism[2:]
