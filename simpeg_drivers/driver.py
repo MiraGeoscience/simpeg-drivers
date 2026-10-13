@@ -904,7 +904,9 @@ class InversionDriver(BaseDriver):
         ]
 
         if chi_data:
-            chi_array = np.loadtxt(BytesIO(chi_data[0].file_bytes), skiprows=1)
+            chi_array = np.loadtxt(
+                BytesIO(next(iter(chi_data[0].file_bytes.values()))), skiprows=1
+            )
 
             if self.directives.scale_misfits is not None:
                 self.directives.scale_misfits.scalings = chi_array[iteration, 1:]
