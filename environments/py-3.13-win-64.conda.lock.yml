@@ -17,7 +17,7 @@ dependencies:
   - aws-c-s3=1.0.0=h9752aa2_1
   - aws-c-sdkutils=1.0.0=h83b9fca_1
   - aws-checksums=1.0.1=h83b9fca_0
-  - backports.zstd=1.7.0=py313h2a31948_1
+  - backports.zstd=1.8.0=py313h2a31948_0
   - bokeh=3.6.3=pyhd8ed1ab_0
   - brotli=1.2.0=hc8c2fe1_4
   - brotli-bin=1.2.0=hd477307_4
@@ -76,9 +76,9 @@ dependencies:
   - libmpdec=4.0.0=hfd05255_2
   - libpng=1.6.59=hdc8cecf_0
   - libpsl=0.23.1=h9b16d47_1
-  - libpython=3.13.16=h4f90d01_101_cp313
+  - libpython=3.13.16=hc6187dd_102_cp313
   - libspatialindex=2.1.0=h2854ae6_2
-  - libsqlite=3.54.0=hf5d6505_100
+  - libsqlite=3.54.0=hf5d6505_101
   - libssh2=1.11.1=h734d217_1
   - libtiff=4.7.2=h8f73337_1
   - libwebp-base=1.6.0=h4d5522a_1
@@ -112,7 +112,7 @@ dependencies:
   - pymatsolver=0.3.1=pyh48887ae_201
   - pyparsing=3.3.3=pyh5ded981_0
   - pysocks=1.7.1=pyh09c184e_7
-  - python=3.13.16=h254dcb4_101_cp313
+  - python=3.13.16=h254dcb4_102_cp313
   - python-dateutil=2.9.0.post0=pyhe01879c_2
   - python-mumps=0.0.6=nompi_h88661b0
   - python-tzdata=2026.5=pyh5ded981_0
@@ -154,9 +154,9 @@ dependencies:
   - zstd=1.5.7=h534d264_7
   - pip:
     - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@78fffb5b9f6de6bb152625fa04490060eae94630
-    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@7a264e44c05a6bf419bc7a7b0921242e082149cb
-    - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@5ee00e39379992730b137146aab80deaac631a56
-    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@3e70e2295f9c49a94ca4b76a92ddbfbfd4a932f0
+    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@079824b3058f8197bdf17d9430a12b5ff035a489
+    - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@8c7c997201e215b3bf9752368ace0d4472e41b5c
+    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@51d08bb94fa3bc3e4c18ebf3850fe6bb4465202e
 
 variables:
   KMP_WARNINGS: 0
