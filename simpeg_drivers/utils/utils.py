@@ -518,26 +518,6 @@ def get_containing_cells(
     return np.unique(inds)
 
 
-def cell_size_z(drape_model: DrapeModel) -> np.ndarray:
-    """Compute z cell sizes of drape model."""
-
-    # Pre-allocate cell sizes if assuming uniform number of layers per prism
-    elevations = np.full(
-        (drape_model.prisms[:, -1].max().astype(int) + 1, drape_model.prisms.shape[0]),
-        np.nan,
-    )
-    elevations[0, :] = drape_model.prisms[:, 2]
-    elevations[
-        drape_model.layers[:, 1].astype(int) + 1, drape_model.layers[:, 0].astype(int)
-    ] = drape_model.layers[:, 2]
-    hz = -np.diff(elevations, axis=0).T.flatten()
-
-    # Remove ghost cells if present
-    mask = ~np.isnan(hz)
-
-    return hz[mask]
-
-
 def active_from_xyz(
     mesh: DrapeModel | Octree,
     topo: np.ndarray,
@@ -558,7 +538,7 @@ def active_from_xyz(
     locations = mesh.centroids.copy()
 
     if mesh_dim == 2:
-        z_offset = cell_size_z(mesh) / 2.0
+        z_offset = mesh.z_cell_size / 2.0
     else:
         z_offset = mesh.octree_cells["NCells"] * np.abs(mesh.w_cell_size) / 2
 
