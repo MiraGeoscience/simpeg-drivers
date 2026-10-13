@@ -36,10 +36,7 @@ def get_inversion_output(h5file: str | Workspace, inversion_group: str | UUID):
 
     outfile = next(file for file in group.children if ".out" in file.name)
     out = list(
-        outfile.file_bytes["inversion_test.ui.out"]
-        .decode("utf-8")
-        .replace("\r", "")
-        .split("\n")
+        next(outfile.file_bytes.values()).decode("utf-8").replace("\r", "").split("\n")
     )[:-1]
     cols = out.pop(0).split(" ")
     out = [[string_to_numeric(k) for k in elem.split(" ")] for elem in out]
