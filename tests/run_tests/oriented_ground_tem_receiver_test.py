@@ -177,4 +177,4 @@ def test_tem_fwr_run(tmp_path: Path):
         rot_z = z_rotation_matrix(np.deg2rad(-azimuth))
         back_vals = (rot_z @ (rot_x @ rot_vals.T.flatten())).reshape((3, -1), order="F")
 
-        np.testing.assert_allclose(back_vals, np.vstack(norm_vals))
+        np.testing.assert_array_almost_equal(back_vals, np.vstack(norm_vals))

@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+from abc import ABC
 from logging import getLogger
 from pathlib import Path
 from typing import Any
@@ -38,7 +39,7 @@ from simpeg_drivers.utils.utils import (
 logger = getLogger(__name__)
 
 
-class Base1DDriver(BaseDriver):
+class Base1DDriver(BaseDriver, ABC):
     """Base 1D driver for electromagnetic simulations."""
 
     _params_class = None
