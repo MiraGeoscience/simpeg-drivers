@@ -239,7 +239,7 @@ def test_restart_run(tmp_path):
     # Read the out file again and check against the previous full run
     with Workspace(tmp_path / "inversion_test.geoh5") as ws:
         out_file = ws.get_entity("inversion_test.out")[0]
-        out_array = read_csv(BytesIO(out_file.file_bytes), sep=" ")
+        out_array = read_csv(BytesIO(next(iter(out_file.file_bytes.values()))), sep=" ")
         np.testing.assert_almost_equal(out_array["beta"].iloc[4], last_beta, decimal=1)
         np.testing.assert_almost_equal(
             out_array["phi_d"].iloc[4], last_phi_d, decimal=1

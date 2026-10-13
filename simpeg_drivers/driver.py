@@ -850,12 +850,12 @@ class InversionDriver(BaseDriver):
         log_file = next(
             child for child in self.out_group.children if child.name.endswith(".log")
         )
-        log_file.save_file(path=self.workspace.h5file.parent, name=log_file.name)
+        log_file.save_file(self.workspace.h5file.parent)
         out_file = next(
             child for child in self.out_group.children if child.name.endswith(".out")
         )
-        out_file.save_file(path=self.workspace.h5file.parent, name=out_file.name)
-        out_array = read_csv(BytesIO(out_file.file_bytes), sep=" ")
+        out_file.save_file(self.workspace.h5file.parent)
+        out_array = read_csv(BytesIO(next(iter(out_file.file_bytes.values()))), sep=" ")
 
         last_iter = out_array["iteration"].iloc[start_iteration]
         last_beta = out_array["beta"].iloc[start_iteration]
