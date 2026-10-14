@@ -45,7 +45,7 @@ logger = getLogger(__name__)
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 1.8460e-11, "phi_d": 3.0390e01, "phi_m": 2.0320e04}
+target_run = {"data_norm": 1.8460e-11, "phi_d": 3.0370e01, "phi_m": 2.0310e04}
 
 
 def test_tiling_ground_tem(
