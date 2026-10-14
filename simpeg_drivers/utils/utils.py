@@ -491,8 +491,6 @@ def get_containing_cells(
         else:
             locations = data.locations
 
-        inds = mesh.get_containing_cells(locations)
-
         if isinstance(data.entity, LargeLoopGroundEMSurvey):
             line_ind = []
             transmitters = data.entity.transmitters
@@ -503,7 +501,9 @@ def get_containing_cells(
                         transmitters.vertices[cell[1], :],
                     )
                 )
-            inds = np.r_[inds, np.hstack(line_ind)]
+            inds = np.hstack(line_ind)
+        else:
+            inds = mesh.get_containing_cells(locations)
 
     elif isinstance(mesh, TensorMesh):
         locations = data.drape_locations()
