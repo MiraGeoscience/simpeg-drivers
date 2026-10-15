@@ -83,8 +83,13 @@ def create_nested_2d_tensor(
 
 
 def _refine_padded_distance(
-    locations, base_mesh, nested_mesh, padding_cells, minimum_level, dim=2
-):
+    locations: np.ndarray,
+    base_mesh: TreeMesh,
+    nested_mesh: TreeMesh,
+    padding_cells: int,
+    minimum_level: int,
+    dim: int = 2,
+) -> TreeMesh:
     """
     Refine the nested mesh based on the distance to the survey locations.
 
