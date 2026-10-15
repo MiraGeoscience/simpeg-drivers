@@ -216,6 +216,9 @@ def generate_large_loop_survey(
         cells.append(np.c_[inds, inds + 1])
         count += X.shape[1]
 
+    # Put receivers in the air
+    vertices[:, 2] += 25.0
+
     survey = LargeLoopGroundTEMReceivers.create(
         geoh5, name=name, vertices=vertices, cells=np.vstack(cells)
     )
