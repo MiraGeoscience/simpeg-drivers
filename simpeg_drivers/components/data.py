@@ -332,12 +332,9 @@ class InversionData(InversionLocations):
             n_locs = len(self.locations)
             for comp in self.params.active_components:
                 normalizations[chan][comp] = np.ones(n_locs)
-                if comp in ["potential", "chargeability"]:
-                    normalizations[chan][comp] = 1
+
                 if comp in ["gz", "bz", "gxz", "gyz", "bxz", "byz"]:
                     normalizations[chan][comp] = np.full(n_locs, -1)
-                elif self.params.inversion_type in ["magnetotellurics"]:
-                    normalizations[chan][comp] = np.ones(n_locs)
                 elif self.params.inversion_type in ["tipper"]:
                     if "imag" in comp:
                         normalizations[chan][comp] = np.full(n_locs, -1)
