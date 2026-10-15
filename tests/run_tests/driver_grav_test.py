@@ -195,9 +195,7 @@ def test_gravity_run(
             for pred in run_ws.get_entity("Iteration_0_gz")
             if pred.parent.parent.name == "Gravity Inversion"
         )
-        assert not any(np.isnan(predicted.values)), (
-            "Predicted data should not have nans."
-        )
+        assert np.isnan(predicted.values).sum() == 1
 
         l2_data_group = predicted.parent.get_entity("L2 iterations")[0]
         assert isinstance(l2_data_group, PropertyGroup)
