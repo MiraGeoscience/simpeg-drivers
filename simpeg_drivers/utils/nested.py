@@ -168,7 +168,7 @@ def create_nested_treemesh(
 
     if tx_loops:
         nested_mesh = _refine_padded_distance(
-            np.vstack(tx_loops), base_mesh, nested_mesh, 2, minimum_level, dim=3
+            np.vstack(tx_loops), base_mesh, nested_mesh, 4, minimum_level, dim=3
         )
 
     if finalize:
