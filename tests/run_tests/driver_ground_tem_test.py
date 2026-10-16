@@ -45,7 +45,7 @@ logger = getLogger(__name__)
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 1.8460e-11, "phi_d": 3.0390e01, "phi_m": 2.0320e04}
+target_run = {"data_norm": 3.3993e-11, "phi_d": 2.3720e02, "phi_m": 6.4250e03}
 
 
 def test_tiling_ground_tem(
@@ -112,6 +112,11 @@ def test_tiling_ground_tem(
     for tile in tiles[None]:
         assert len(np.unique(components.survey.tx_id_property.values[tile])) == 1
 
+    # Check that all receivers are in the air
+    indices = fwr_driver.inversion_mesh.mesh.get_containing_cells(
+        components.survey.vertices
+    )
+    assert np.all(~fwr_driver.models.active_cells[indices])
     fwr_driver.run()
 
 

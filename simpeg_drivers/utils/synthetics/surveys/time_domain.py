@@ -75,11 +75,11 @@ def generate_borehole_survey(
     survey = generate_large_loop_survey(
         geoh5, X, Y, Z, channels=channels, waveform=waveform, name=name, n_loops=1
     )
-
-    center = survey.vertices[0, :]
-    survey.vertices = (
-        y_rotation_matrix(np.pi / 4) @ (survey.vertices - center).T
-    ).T + center
+    # Put receivers in the air
+    vertices = survey.vertices
+    vertices[:, 2] -= 25.0
+    center = vertices[0, :]
+    survey.vertices = (y_rotation_matrix(np.pi / 4) @ (vertices - center).T).T + center
 
     return survey
 
@@ -215,6 +215,9 @@ def generate_large_loop_survey(
         inds = np.arange(count, count + X.shape[1] - 1)
         cells.append(np.c_[inds, inds + 1])
         count += X.shape[1]
+
+    # Put receivers in the air
+    vertices[:, 2] += 25.0
 
     survey = LargeLoopGroundTEMReceivers.create(
         geoh5, name=name, vertices=vertices, cells=np.vstack(cells)
