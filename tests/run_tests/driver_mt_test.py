@@ -42,7 +42,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 3.4932e-02, "phi_d": 1.4260e-01, "phi_m": 3.3270e00}
+target_run = {"data_norm": 3.4932e-02, "phi_d": 1.4110e-01, "phi_m": 3.3300e00}
 
 
 def setup_data(workspace, survey):
@@ -113,7 +113,7 @@ def test_magnetotellurics_fwr_run(
         ),
         model=ModelOptions(background=100.0),
     )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
 
         # Test for label index supporting ints - bypass setter
@@ -141,7 +141,7 @@ def test_magnetotellurics_fwr_run(
     fwr_driver = MTForwardDriver(params)
     fwr_driver.run()
 
-    with Workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with Workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         assert geoh5.get_entity("Iteration_0_zyy_real_[0]")[0] is not None
 
 
@@ -149,7 +149,7 @@ def test_bad_uncertainties(
     tmp_path: Path,
 ):
     workpath = (
-        tmp_path.parent / "test_magnetotellurics_fwr_run0" / "inversion_test.ui.geoh5"
+        tmp_path.parent / "test_magnetotellurics_fwr_run0" / "inversion_test.geoh5"
     )
 
     with Workspace(workpath) as geoh5:
@@ -200,12 +200,10 @@ def test_bad_uncertainties(
 
 def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
     # pass
-    workpath = tmp_path / "inversion_test.ui.geoh5"
+    workpath = tmp_path / "inversion_test.geoh5"
     if pytest:
         workpath = (
-            tmp_path.parent
-            / "test_magnetotellurics_fwr_run0"
-            / "inversion_test.ui.geoh5"
+            tmp_path.parent / "test_magnetotellurics_fwr_run0" / "inversion_test.geoh5"
         )
 
     with Workspace(workpath) as geoh5:
@@ -216,6 +214,12 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
         data_kwargs = setup_data(geoh5, survey)
 
         orig_zyy_real_1 = geoh5.get_entity("Iteration_0_zyy_real_[0]")[0].values
+
+        # Also NDV the data for one of them
+        data = geoh5.get_entity(data_kwargs["zyy_real_channel"].properties[0])[0]
+        vals = data.values
+        vals[0] = np.nan
+        data.values = vals
 
         # Run the inverse
         params = MTInversionOptions.build(
@@ -247,6 +251,11 @@ def test_magnetotellurics_run(tmp_path: Path, max_iterations=1, pytest=True):
         output = get_inversion_output(
             driver.params.geoh5.h5file, driver.params.out_group.uid
         )
+
+        # Check the predicted returns a nan
+        data = run_ws.get_entity("Iteration_1_zyy_real_[0]")[0]
+        assert np.isnan(data.values)[0]
+
         output["data"] = orig_zyy_real_1
         assert not run_ws.get_entity("Iteration_0_sensitivities")[0]
         if pytest:
