@@ -82,11 +82,11 @@ class MeshOptions(BaseModel):
         locs = survey.vertices.copy()
         locs = np.vstack([locs, locs - np.r_[self.cell_size] / 2])
         with fetch_active_workspace(survey.workspace) as geoh5:
-            survey = Points.create(geoh5, vertices=locs)
+            pts_survey = Points.create(geoh5, vertices=locs)
 
         refinements = [
             {
-                "refinement_object": survey,
+                "refinement_object": pts_survey,
                 "levels": self.survey_refinement,
                 "horizon": False,
             },
@@ -97,6 +97,15 @@ class MeshOptions(BaseModel):
                 "distance": 1000.0,
             },
         ]
+
+        if (complement := getattr(survey, "complement", None)) is not None:
+            refinements.append(
+                {
+                    "refinement_object": complement,
+                    "levels": [1, 1],
+                    "horizon": False,
+                }
+            )
 
         if plates is not None:
             for plate in plates:
@@ -109,7 +118,7 @@ class MeshOptions(BaseModel):
                 )
 
         octree_params = OctreeOptions(
-            geoh5=survey.workspace,
+            geoh5=pts_survey.workspace,
             objects=survey,
             u_cell_size=self.u_cell_size,
             v_cell_size=self.v_cell_size,

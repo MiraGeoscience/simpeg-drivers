@@ -26,6 +26,7 @@ from simpeg_drivers.electromagnetics.borehole_time_domain.inversion import (
     BoreholeTDEMInversionDriver,
     BoreholeTDEMInversionOptions,
 )
+from simpeg_drivers.utils.surveys import get_intersecting_cells
 from simpeg_drivers.utils.synthetics.driver import (
     SyntheticsComponents,
 )
@@ -44,7 +45,7 @@ logger = getLogger(__name__)
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 4.6386e-11, "phi_d": 1.4840e03, "phi_m": 2.8200e04}
+target_run = {"data_norm": 4.9374e-11, "phi_d": 1.5090e03, "phi_m": 2.6720e04}
 
 
 def test_borehole_tem_fwr_run(
@@ -102,10 +103,22 @@ def test_borehole_tem_fwr_run(
             a_channel_bool=True,
             u_channel_bool=True,
             v_channel_bool=True,
+            tile_spatial=2,
             data_units="Ground B (T/A)",
         )
 
     fwr_driver = BoreholeTDEMForwardDriver(params)
+
+    # Check that the loop source is well discretized on the tile meshes
+    for obj in fwr_driver.data_misfit.objfcts:
+        mesh = obj.simulation.simulations[0].mesh
+        indices = get_intersecting_cells(components.survey.complement.vertices, mesh)
+        levels = mesh.cell_levels_by_index(indices)
+
+        assert np.all(levels == 7), (
+            "Loop source is not well discretized on the tile meshes."
+        )
+
     fwr_driver.run()
 
 
