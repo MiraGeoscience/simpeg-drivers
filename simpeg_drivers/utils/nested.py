@@ -565,15 +565,13 @@ def tile_locations(
                 "Labels array must have the same length as the locations array."
             )
         labels = labels.reshape((grid_locs.shape[0], -1))
-        if len(np.unique(labels, axis=0)) >= n_tiles:
-            label_groups = np.array_split(np.unique(labels, axis=0), n_tiles)
+        unique_labels, ind_unique = np.unique(labels, axis=0, return_inverse=True)
+        if len(unique_labels) >= n_tiles:
+            label_groups = np.array_split(np.unique(ind_unique), n_tiles)
 
             tiles = []
             for group in label_groups:
-                mask = np.zeros(grid_locs.shape[0], dtype=bool)
-                for elem in group:
-                    mask |= np.all(labels == elem, axis=1)
-                tiles.append(np.where(mask)[0])
+                tiles.append(np.where(np.isin(ind_unique, group))[0])
             return tiles
 
         # Normalize location coordinates to [0, 1] range
