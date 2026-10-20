@@ -121,7 +121,7 @@ class MeshOptions(BaseModel):
 
         octree_params = OctreeOptions(
             geoh5=pts_survey.workspace,
-            objects=survey,
+            objects=pts_survey,
             u_cell_size=self.u_cell_size,
             v_cell_size=self.v_cell_size,
             w_cell_size=self.w_cell_size,
