@@ -267,14 +267,14 @@ class ModelOptions(BaseModel):
     upper_bound: float | FloatData | IntegerData | None = None
 
     # Model values for regularization
-    alpha_s: float | FloatData | IntegerData | None = None
+    alpha_s: float | FloatData | IntegerData | None = 1.0
     length_scale_x: float | FloatData | IntegerData = 1.0
     length_scale_y: float | FloatData | IntegerData | None = 1.0
     length_scale_z: float | FloatData | IntegerData = 1.0
     gradient_rotation: PropertyGroup | None = None
 
     # Model values for IRLS
-    s_norm: float | FloatData | IntegerData | None = None
+    s_norm: float | FloatData | IntegerData | None = 2.0
     x_norm: float | FloatData | IntegerData = 2.0
     y_norm: float | FloatData | IntegerData | None = 2.0
     z_norm: float | FloatData | IntegerData = 2.0
@@ -307,6 +307,14 @@ class ModelOptions(BaseModel):
             self._gradient_orientations = orientations
 
         return self._gradient_orientations
+
+    def model_post_init(self, __context: Any) -> None:
+        """
+        Post-initialization method.
+        """
+        if self.reference_model is None:
+            self.alpha_s = None
+            self.s_norm = None
 
 
 class ModelTypeEnum(StrEnum):
