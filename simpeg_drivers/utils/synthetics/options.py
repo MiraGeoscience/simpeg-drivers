@@ -13,7 +13,7 @@ from collections.abc import Callable
 import numpy as np
 from geoapps_utils.modelling.plates import PlateModel
 from geoapps_utils.utils.locations import gaussian
-from geoh5py.objects import ObjectBase, Points, Surface
+from geoh5py.objects import LargeLoopGroundTEMTransmitters, ObjectBase, Points, Surface
 from geoh5py.shared.utils import fetch_active_workspace
 from grid_apps.octree_creation.options import OctreeOptions
 from pydantic import BaseModel, ConfigDict, Field
@@ -98,7 +98,9 @@ class MeshOptions(BaseModel):
             },
         ]
 
-        if (complement := getattr(survey, "complement", None)) is not None:
+        if (
+            complement := getattr(survey, "complement", None)
+        ) is not None and isinstance(complement, LargeLoopGroundTEMTransmitters):
             refinements.append(
                 {
                     "refinement_object": complement,
