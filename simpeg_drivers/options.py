@@ -267,14 +267,14 @@ class ModelOptions(BaseModel):
     upper_bound: float | FloatData | IntegerData | None = None
 
     # Model values for regularization
-    alpha_s: float | FloatData | IntegerData | None = 1.0
+    alpha_s: float | FloatData | IntegerData | None = None
     length_scale_x: float | FloatData | IntegerData = 1.0
     length_scale_y: float | FloatData | IntegerData | None = 1.0
     length_scale_z: float | FloatData | IntegerData = 1.0
     gradient_rotation: PropertyGroup | None = None
 
     # Model values for IRLS
-    s_norm: float | FloatData | IntegerData | None = 0.0
+    s_norm: float | FloatData | IntegerData | None = None
     x_norm: float | FloatData | IntegerData = 2.0
     y_norm: float | FloatData | IntegerData | None = 2.0
     z_norm: float | FloatData | IntegerData = 2.0

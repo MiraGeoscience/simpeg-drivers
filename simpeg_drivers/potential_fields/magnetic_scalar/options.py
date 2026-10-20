@@ -31,7 +31,7 @@ class MagneticModelOptions(ModelOptions):
     """
 
     reference_model: float | FloatData | IntegerData | None = None
-    lower_bound: float | FloatData | IntegerData | None = 0
+    lower_bound: float | FloatData | IntegerData | None = None
 
 
 class MagneticForwardOptions(BaseForwardOptions):
