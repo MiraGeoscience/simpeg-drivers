@@ -25,14 +25,15 @@ build:
       # Generate on-the-fly Sphinx configuration from Jupyter Book's _config.yml
       - "jupyter-book config sphinx docs/"
       - "pip install . --no-deps"
+    post_build:
+      - mkdir -p $READTHEDOCS_OUTPUT/htmlzip
+      - cd $READTHEDOCS_OUTPUT/html && zip -r ../htmlzip/simpeg-drivers-docs.zip .
+
 
 sphinx:
   builder: html
   configuration: docs/conf.py
   fail_on_warning: false
-
-formats:
-  - htmlzip
 
 conda:
   environment: docs/environment.yml
