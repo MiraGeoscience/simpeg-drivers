@@ -39,12 +39,12 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 4.2216e01, "phi_d": 1.9600e-02, "phi_m": 3.9470e-04}
+target_run = {"data_norm": 8.7538e01, "phi_d": 2.3750e03, "phi_m": 2.4590e-02}
 
 
 def test_susceptibility_fwr_run(
     tmp_path: Path,
-    n_grid_points=2,
+    n_grid_points=3,
     cell_size=(20.0, 20.0, 20.0),
     refinement=(2,),
 ):
@@ -124,7 +124,7 @@ def test_susceptibility_run(
             x_norm=1.0,
             y_norm=1.0,
             z_norm=1.0,
-            initial_beta_ratio=1e-2,
+            initial_beta_ratio=1e-0,
             tmi_channel=tmi,
             tmi_uncertainty=1.0,
             max_global_iterations=max_iterations,
