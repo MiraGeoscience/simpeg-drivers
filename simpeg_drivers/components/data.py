@@ -16,7 +16,7 @@ from re import findall
 from typing import TYPE_CHECKING
 
 import numpy as np
-from geoh5py.objects import LargeLoopGroundTEMReceivers, PotentialElectrode
+from geoh5py.objects import LargeLoopGroundTEMReceivers, Points, PotentialElectrode
 from scipy.spatial import cKDTree
 from simpeg.electromagnetics.static.utils.static_utils import geometric_factor
 
@@ -125,10 +125,15 @@ class InversionData(InversionLocations):
         if isinstance(self.entity, PotentialElectrode):
             return get_parts_from_electrodes(self.entity)
 
-        if isinstance(self.entity, LargeLoopGroundTEMReceivers):
-            return self.entity.tx_id_property.values
+        parts = getattr(self.entity, "parts", None)
 
-        return getattr(self.entity, "parts", None)
+        if isinstance(self.entity, LargeLoopGroundTEMReceivers):
+            if parts is None:
+                return self.entity.tx_id_property.values
+
+            return np.c_[parts, self.entity.tx_id_property.values]
+
+        return parts
 
     def drape_locations(self) -> tuple[np.ndarray, np.ndarray]:
         """
