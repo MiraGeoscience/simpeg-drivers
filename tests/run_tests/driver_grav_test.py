@@ -195,9 +195,7 @@ def test_gravity_run(
             for pred in run_ws.get_entity("Iteration_0_gz")
             if pred.parent.parent.name == "Gravity Inversion"
         )
-        assert not any(np.isnan(predicted.values)), (
-            "Predicted data should not have nans."
-        )
+        assert np.isnan(predicted.values).sum() == 1
 
         l2_data_group = predicted.parent.get_entity("L2 iterations")[0]
         assert isinstance(l2_data_group, PropertyGroup)
@@ -239,7 +237,7 @@ def test_restart_run(tmp_path):
     # Read the out file again and check against the previous full run
     with Workspace(tmp_path / "inversion_test.geoh5") as ws:
         out_file = ws.get_entity("inversion_test.out")[0]
-        out_array = read_csv(BytesIO(out_file.file_bytes), sep=" ")
+        out_array = read_csv(BytesIO(next(iter(out_file.file_bytes.values()))), sep=" ")
         np.testing.assert_almost_equal(out_array["beta"].iloc[4], last_beta, decimal=1)
         np.testing.assert_almost_equal(
             out_array["phi_d"].iloc[4], last_phi_d, decimal=1

@@ -166,8 +166,7 @@ class SurveyFactory(SimPEGFactory):
         currents = receiver_entity.current_electrodes
 
         if "2d" in self.params.inversion_type:
-            receiver_locations = data.drape_locations(receiver_entity.vertices)
-            source_locations = data.drape_locations(currents.vertices)
+            receiver_locations, source_locations = data.drape_locations()
         else:
             receiver_locations = receiver_entity.vertices
             source_locations = currents.vertices

@@ -570,18 +570,20 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
             data[ordering[:, 0], ordering[:, 1], ordering[:, 2]] = values
             return data
 
+        transforms = []
+        for chan in range(len(channels)):
+            for comp in components:
+                transform = 1 / inversion_object.normalizations[chan][comp]
+
+                if inversion_object.observed[comp]:
+                    transform[np.isnan(inversion_object.observed[comp][chan])] = np.nan
+
+                transforms.append(transform)
+
         kwargs = {
             "data_type": inversion_object.observed_data_types,
             "association": "VERTEX",
-            "transforms": [
-                np.hstack(
-                    [
-                        1 / inversion_object.normalizations[chan][comp]
-                        for chan in range(len(channels))
-                        for comp in components
-                    ],
-                ),
-            ],
+            "transforms": [np.hstack(transforms)],
             "channels": channels,
             "components": components,
             "reshape": reshape,

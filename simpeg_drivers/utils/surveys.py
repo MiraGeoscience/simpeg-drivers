@@ -18,6 +18,10 @@ from geoh5py.objects import DrapeModel, PotentialElectrode
 from geoh5py.shared.merging.drape_model import DrapeModelMerger
 from scipy.sparse import csgraph, csr_matrix, diags
 from scipy.spatial import cKDTree
+from simpeg.electromagnetics.frequency_domain.sources import (
+    LineCurrent as FEMLineCurrent,
+)
+from simpeg.electromagnetics.time_domain.sources import LineCurrent as TEMLineCurrent
 from simpeg.survey import BaseSurvey
 
 from simpeg_drivers.options import (
@@ -102,7 +106,9 @@ def get_unique_locations(survey: BaseSurvey) -> np.ndarray:
         locations = []
         for source in survey.source_list:
             source_location = source.location
-            if source_location is not None:
+            if source_location is not None and not isinstance(
+                source, TEMLineCurrent | FEMLineCurrent
+            ):
                 if not isinstance(source_location, list):
                     locations += [[source_location]]
                 else:

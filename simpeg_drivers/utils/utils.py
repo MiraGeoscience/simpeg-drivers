@@ -491,8 +491,6 @@ def get_containing_cells(
         else:
             locations = data.locations
 
-        inds = mesh.get_containing_cells(locations)
-
         if isinstance(data.entity, LargeLoopGroundEMSurvey):
             line_ind = []
             transmitters = data.entity.transmitters
@@ -503,14 +501,13 @@ def get_containing_cells(
                         transmitters.vertices[cell[1], :],
                     )
                 )
-            inds = np.r_[inds, np.hstack(line_ind)]
+            inds = np.hstack(line_ind)
+        else:
+            inds = mesh.get_containing_cells(locations)
 
     elif isinstance(mesh, TensorMesh):
-        potentials = data.entity.vertices
-        currents = data.entity.current_electrodes.vertices
-        locations = np.unique(np.r_[potentials, currents], axis=0)
-
-        locations = data.drape_locations(np.unique(locations, axis=0))
+        locations = data.drape_locations()
+        locations = np.vstack(locations)
         xi = np.searchsorted(mesh.nodes_x, locations[:, 0]) - 1
         yi = np.searchsorted(mesh.nodes_y, locations[:, -1]) - 1
         inds = xi + yi * mesh.shape_cells[0]
@@ -519,19 +516,6 @@ def get_containing_cells(
         raise TypeError("Mesh must be 'TreeMesh' or 'TensorMesh'")
 
     return np.unique(inds)
-
-
-def cell_size_z(drape_model: DrapeModel) -> np.ndarray:
-    """Compute z cell sizes of drape model."""
-    hz = []
-    for prism in drape_model.prisms:
-        top_z, top_layer, n_layers = prism[2:]
-        bottoms = drape_model.layers[
-            range(int(top_layer), int(top_layer + n_layers)), 2
-        ]
-        z = np.hstack([top_z, bottoms])
-        hz.append(z[:-1] - z[1:])
-    return np.hstack(hz)
 
 
 def active_from_xyz(
@@ -554,7 +538,7 @@ def active_from_xyz(
     locations = mesh.centroids.copy()
 
     if mesh_dim == 2:
-        z_offset = cell_size_z(mesh) / 2.0
+        z_offset = mesh.z_cell_size / 2.0
     else:
         z_offset = mesh.octree_cells["NCells"] * np.abs(mesh.w_cell_size) / 2
 

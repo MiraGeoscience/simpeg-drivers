@@ -69,7 +69,7 @@
         "dependencyType": "disabled",
         "main": true,
         "enabled": true,
-        "label": "Easting core cell size (m)",
+        "label": "Horizontal core cell size (m)",
         "value": 25.0
     },
     "v_cell_size": {
@@ -79,7 +79,7 @@
         "dependencyType": "disabled",
         "main": true,
         "enabled": true,
-        "label": "Northing core cell size (m)",
+        "label": "Vertical core cell size (m)",
         "value": 25.0
     },
     "depth_core": {
@@ -320,8 +320,6 @@
         "group": "Regularization",
         "label": "Reference model in smoothness",
         "value": false,
-        "verbose": 3,
-        "visible": true,
         "tooltip": "Whether to subtract the reference model before computing the smoothness terms (x, y and z). \nThis is useful for preserving sharp contrasts from a reference model"
     },
     "s_norm": {

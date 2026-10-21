@@ -143,5 +143,5 @@ def test_ensure_dip_direction_convention(tmp_path):
             name="vector", property_group_type="3D vector", properties=data_list
         )
         dir_dip = direction_and_dip(prop_group)
-    assert np.allclose(dir_dip[0].values, [90, 0, 270, 180] * 2 + [254])
+    assert np.allclose(dir_dip[0].values, [90, 360, 270, 180] * 2 + [254])
     assert np.allclose(dir_dip[1].values, [45] * 4 + [30] * 4 + [37])

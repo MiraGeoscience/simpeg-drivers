@@ -16,7 +16,7 @@ from re import findall
 from typing import TYPE_CHECKING
 
 import numpy as np
-from geoh5py.objects import LargeLoopGroundTEMReceivers, PotentialElectrode
+from geoh5py.objects import LargeLoopGroundTEMReceivers, Points, PotentialElectrode
 from scipy.spatial import cKDTree
 from simpeg.electromagnetics.static.utils.static_utils import geometric_factor
 
@@ -125,35 +125,87 @@ class InversionData(InversionLocations):
         if isinstance(self.entity, PotentialElectrode):
             return get_parts_from_electrodes(self.entity)
 
+        parts = getattr(self.entity, "parts", None)
+
         if isinstance(self.entity, LargeLoopGroundTEMReceivers):
-            return self.entity.tx_id_property.values
+            if parts is None:
+                return self.entity.tx_id_property.values
 
-        return getattr(self.entity, "parts", None)
+            return np.c_[parts, self.entity.tx_id_property.values]
 
-    def drape_locations(self, locations: np.ndarray) -> np.ndarray:
+        return parts
+
+    def drape_locations(self) -> tuple[np.ndarray, np.ndarray]:
         """
-        Return pseudo locations along line in distance, depth.
+        Return pseudo locations along line in distance, depth coordinates.
 
         The horizontal distance is referenced to first node of the core mesh.
+        """
+        receiver_locations = np.empty((self.entity.vertices.shape[0], 2), dtype=float)
+        source_locations = np.empty(
+            (self.entity.current_electrodes.vertices.shape[0], 2), dtype=float
+        )
+        for part in np.unique(self.params.line_parts):
+            vert_ind = np.unique(self.entity.cells[self.params.line_parts == part, :])
+            receiver_locations[vert_ind, :] = self.get_2d_coordinates(
+                self.entity.vertices[vert_ind, :]
+            )
 
+            # Do the same for source locations
+            part_ab_ids = np.unique(
+                self.entity.ab_cell_id.values[self.params.line_parts == part]
+            )
+            vert_ind = np.unique(
+                self.entity.current_electrodes.cells[
+                    np.isin(
+                        self.entity.current_electrodes.ab_cell_id.values, part_ab_ids
+                    ),
+                    :,
+                ]
+            )
+            source_locations[vert_ind, :] = self.get_2d_coordinates(
+                self.entity.current_electrodes.vertices[vert_ind, :]
+            )
+
+        return receiver_locations, source_locations
+
+    def get_2d_coordinates(self, locations: np.ndarray) -> np.ndarray:
+        """
+        Return the 2D coordinates of the locations in distance, depth relative to the mesh.
+
+        :param locations: Locations to be draped.
+        :return: 2D coordinates of the locations in distance, depth.
         """
         local_tensor = drape_2_tensor(self.params.mesh)
 
         # Interpolate distance assuming always inside the mesh trace
         actives = self.params.mesh.prisms[:, -1] != 1
         prisms = self.params.mesh.prisms[actives, :]
-        tree = cKDTree(prisms[:, :2])
-        rad, ind = tree.query(locations[:, :2], k=2)
-        distance_interp = 0.0
-        for ii in range(2):
-            distance_interp += local_tensor.cell_centers_x[ind[:, ii]] / (
-                rad[:, ii] + 1e-8
-            )
 
-        distance_interp /= ((rad + 1e-8) ** -1.0).sum(axis=1)
+        # Loop through the parts and find the part with the most points inside the mesh
+        distance_interp = np.full(locations.shape[0], np.inf)
+        delta = np.zeros(locations.shape[0])
+        mean_dist = np.inf
+        for part in np.unique(local_tensor.parts):
+            part_mask = local_tensor.parts == part
+            tree = cKDTree(prisms[part_mask, :2])
+            rad, ind = tree.query(locations[:, :2], k=2)
+            distances = 0.0
+            for ii in range(2):
+                distances += local_tensor.cell_centers_x[part_mask][ind[:, ii]] / (
+                    rad[:, ii] + 1e-8
+                )
 
-        # Adjust elevation relative to the origin
-        delta = prisms[0, 2] - prisms[ind[:, 0], 2]
+            distances /= ((rad + 1e-8) ** -1.0).sum(axis=1)
+
+            # Keep as long as half of the points are closer than the previous
+            if np.mean(rad) < mean_dist:
+                distance_interp = distances
+                mean_dist = np.mean(rad)
+
+                # Adjust elevation relative to the origin
+                delta = prisms[:, 2][0] - prisms[part_mask][ind[:, 0], 2]
+
         return np.c_[distance_interp, locations[:, 2] + delta]
 
     def get_data(self) -> tuple[list, dict, dict]:
@@ -285,12 +337,9 @@ class InversionData(InversionLocations):
             n_locs = len(self.locations)
             for comp in self.params.active_components:
                 normalizations[chan][comp] = np.ones(n_locs)
-                if comp in ["potential", "chargeability"]:
-                    normalizations[chan][comp] = 1
+
                 if comp in ["gz", "bz", "gxz", "gyz", "bxz", "byz"]:
                     normalizations[chan][comp] = np.full(n_locs, -1)
-                elif self.params.inversion_type in ["magnetotellurics"]:
-                    normalizations[chan][comp] = np.ones(n_locs)
                 elif self.params.inversion_type in ["tipper"]:
                     if "imag" in comp:
                         normalizations[chan][comp] = np.full(n_locs, -1)

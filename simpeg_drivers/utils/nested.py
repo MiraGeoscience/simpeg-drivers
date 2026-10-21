@@ -82,6 +82,41 @@ def create_nested_2d_tensor(
     )
 
 
+def _refine_padded_distance(
+    locations: np.ndarray,
+    base_mesh: TreeMesh,
+    nested_mesh: TreeMesh,
+    padding_cells: int,
+    minimum_level: int,
+    dim: int = 2,
+) -> TreeMesh:
+    """
+    Refine the nested mesh based on the distance to the survey locations.
+
+    :param locations: Array of survey locations.
+    :param base_mesh: The base mesh to refine from.
+    :param nested_mesh: The nested mesh to refine.
+    :param padding_cells: Number of cells to pad around the survey locations.
+    :param minimum_level: The minimum level of refinement to apply.
+    :param dim: The dimension to consider for distance calculation (default is 2).
+    """
+    base_cell = np.min([base_mesh.h[0][0], base_mesh.h[1][0]])
+    tree = cKDTree(locations[:, :dim])
+    rad, _ = tree.query(base_mesh.gridCC[:, :dim])
+    pad_distance = 0.0
+    for ii in range(minimum_level):
+        pad_distance += base_cell * 2**ii * padding_cells
+        indices = np.where(rad < pad_distance)[0]
+        levels = base_mesh.cell_levels_by_index(indices)
+        levels[levels > (base_mesh.max_level - ii)] = base_mesh.max_level - ii
+        nested_mesh.insert_cells(
+            base_mesh.gridCC[indices, :],
+            levels,
+            finalize=False,
+        )
+    return nested_mesh
+
+
 def create_nested_treemesh(
     survey: BaseSurvey,
     base_mesh: TreeMesh,
@@ -119,7 +154,12 @@ def create_nested_treemesh(
         base_refinement,
         finalize=False,
     )
-    base_cell = np.min([base_mesh.h[0][0], base_mesh.h[1][0]])
+
+    nested_mesh = _refine_padded_distance(
+        locations, base_mesh, nested_mesh, padding_cells, minimum_level, dim=2
+    )
+
+    # Special refinement along the source wire paths
     tx_loops = []
     for source in survey.source_list:
         if isinstance(source, TEMLineCurrent | FEMLineCurrent):
@@ -127,20 +167,8 @@ def create_nested_treemesh(
             tx_loops.append(base_mesh.cell_centers[mesh_indices, :])
 
     if tx_loops:
-        locations = np.vstack([locations, *tx_loops])
-
-    tree = cKDTree(locations[:, :2])
-    rad, _ = tree.query(base_mesh.gridCC[:, :2])
-    pad_distance = 0.0
-    for ii in range(minimum_level):
-        pad_distance += base_cell * 2**ii * padding_cells
-        indices = np.where(rad < pad_distance)[0]
-        levels = base_mesh.cell_levels_by_index(indices)
-        levels[levels > (base_mesh.max_level - ii)] = base_mesh.max_level - ii
-        nested_mesh.insert_cells(
-            base_mesh.gridCC[indices, :],
-            levels,
-            finalize=False,
+        nested_mesh = _refine_padded_distance(
+            np.vstack(tx_loops), base_mesh, nested_mesh, 4, minimum_level, dim=3
         )
 
     if finalize:
@@ -536,10 +564,15 @@ def tile_locations(
             raise ValueError(
                 "Labels array must have the same length as the locations array."
             )
+        labels = labels.reshape((grid_locs.shape[0], -1))
+        unique_labels, ind_unique = np.unique(labels, axis=0, return_inverse=True)
+        if len(unique_labels) >= n_tiles:
+            label_groups = np.array_split(np.unique(ind_unique), n_tiles)
 
-        if len(np.unique(labels)) >= n_tiles:
-            label_groups = np.array_split(np.unique(labels), n_tiles)
-            return [np.where(np.isin(labels, group))[0] for group in label_groups]
+            tiles = []
+            for group in label_groups:
+                tiles.append(np.where(np.isin(ind_unique, group))[0])
+            return tiles
 
         # Normalize location coordinates to [0, 1] range
         grid_locs -= grid_locs.min(axis=0)

@@ -166,7 +166,7 @@ def test_tem_fwr_run(tmp_path: Path):
         rot_vals = np.vstack(rot_vals)
 
         # Check that the total fields are preserved
-        np.testing.assert_allclose(
+        np.testing.assert_array_almost_equal(
             np.linalg.norm(rot_vals, axis=0), np.linalg.norm(comp_vals, axis=0)
         )
 
@@ -177,4 +177,4 @@ def test_tem_fwr_run(tmp_path: Path):
         rot_z = z_rotation_matrix(np.deg2rad(-azimuth))
         back_vals = (rot_z @ (rot_x @ rot_vals.T.flatten())).reshape((3, -1), order="F")
 
-        np.testing.assert_allclose(back_vals, np.vstack(norm_vals))
+        np.testing.assert_array_almost_equal(back_vals, np.vstack(norm_vals))
