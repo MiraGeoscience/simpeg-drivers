@@ -147,7 +147,6 @@ def test_app_con_run(tmp_path: Path, max_iterations=1, pytest=True):
             starting_model=1e2,
             reference_model=None,
             background_conductivity=1e2,
-            alpha_s=1.0,
             model_type="Resistivity (Ohm-m)",
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e1,
