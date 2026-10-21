@@ -349,8 +349,20 @@ def test_homogeneous_run(
             _ = driver.means
 
         # Re-instate
-        params.models.reference_model = ref_model
-        params.out_group = None
+        params = MagneticInversionOptions.build(
+            geoh5=geoh5,
+            mesh=mesh,
+            topography_object=topography,
+            inducing_field_strength=INDUCING_FIELD[0],
+            inducing_field_inclination=INDUCING_FIELD[1],
+            inducing_field_declination=INDUCING_FIELD[2],
+            data_object=survey,
+            starting_model=ref_model,
+            reference_model=ref_model,
+            tile_spatial=1,
+            tmi_channel=data,
+            tmi_uncertainty=5e0,
+        )
         new_driver = MagneticInversionDriver(params)
         joint_params.group_b = new_driver.out_group
         driver = JointPetrophysicsDriver(joint_params)
