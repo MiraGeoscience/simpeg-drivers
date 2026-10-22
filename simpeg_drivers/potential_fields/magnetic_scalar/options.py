@@ -25,15 +25,6 @@ from simpeg_drivers.options import (
 )
 
 
-class MagneticModelOptions(ModelOptions):
-    """
-    ModelOptions class with defaulted lower bound.
-    """
-
-    reference_model: float | FloatData | IntegerData | None = None
-    lower_bound: float | FloatData | IntegerData | None = 0
-
-
 class MagneticForwardOptions(BaseForwardOptions):
     """
     Magnetic forward options.
@@ -75,7 +66,7 @@ class MagneticForwardOptions(BaseForwardOptions):
     inducing_field_inclination: float
     inducing_field_declination: float
 
-    models: MagneticModelOptions
+    models: ModelOptions
 
 
 class MagneticInversionOptions(BaseInversionOptions):
@@ -142,6 +133,6 @@ class MagneticInversionOptions(BaseInversionOptions):
     inducing_field_inclination: float
     inducing_field_declination: float
 
-    models: MagneticModelOptions
+    models: ModelOptions
 
     directives: DirectiveOptions = DirectiveOptions(sens_wts_threshold=1e-3)

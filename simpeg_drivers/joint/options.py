@@ -11,6 +11,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from geoh5py.data import FloatData, IntegerData
 from geoh5py.groups import PropertyGroup, SimPEGGroup
 from pydantic import BaseModel, ConfigDict
@@ -48,6 +50,14 @@ class JointModelOptions(ModelOptions):
     x_norm: float | FloatData | IntegerData | None = None
     y_norm: float | FloatData | IntegerData | None = None
     z_norm: float | FloatData | IntegerData | None = None
+
+    def model_post_init(self, __context: Any) -> None:
+        """
+        Post-initialization method.
+        """
+        if "reference_model" in self.model_fields_set and self.reference_model is None:
+            self.alpha_s = None
+            self.s_norm = None
 
 
 class DirectiveOptions(BaseModel):
