@@ -1,13 +1,6 @@
 # Fundamentals
 
-This module documents the use of [SimPEG](https://simpeg.xyz/) for
-geophysical data inversion with user-interface (UIjson) made available
-through the [Mira
-Geoscience-geoapps](https://mirageoscience-geoapps.readthedocs-hosted.com/)
-project. While the code itself has its own documentation, there is a
-need to demonstrate the effect of parameters controlling the inversion.
-This document is meant to be a reference guide with practical examples
-to help practitioners with their inversion work.
+This module covers the core concepts of geophysical inversion, including the inversion framework, data misfit, regularization, mesh design, joint inversion strategies, depth of investigation, and tiling/nested meshes.
 
 - [Background](background): An overview of the inversion framework.
 - [Data Fit](data_misfit): Assigning uncertainties and global target
@@ -19,5 +12,7 @@ to help practitioners with their inversion work.
   geophysical surveys.
 - [Depth of Investigation](depth_of_investigation): Using sensitivities
   to set depth extents
+- [Tiling and Nested Meshes](tiling.md): Splitting a
+  survey into tiles with local nested meshes
 
 ![inversion_ui](./images/inversion_ui.png)

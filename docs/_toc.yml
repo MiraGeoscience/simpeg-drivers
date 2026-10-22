@@ -20,6 +20,7 @@ chapters:
     - file: fundamentals/joint_inversion/pgi
   - file: fundamentals/optimization
   - file: fundamentals/parallelization
+  - file: fundamentals/tiling
 - file: geophysical_methods/introduction
   sections:
   - file: geophysical_methods/background

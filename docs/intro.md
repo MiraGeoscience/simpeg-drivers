@@ -1,10 +1,12 @@
 # About
 
-This document contains training material for geophysical forward modeling and inversions using [SimPEG](https://simpeg.xyz/) and [Geoscience ANALYST](https://www.mirageoscience.com/mining-industry-software/geoscience-analyst/).
+This module documents the use of [SimPEG](https://simpeg.xyz/) for geophysical data inversion with user-interface (UIjson) made available through the [Mira Geoscience-geoapps](https://mirageoscience-geoapps.readthedocs-hosted.com/) project.
+
 ```{image} ./images/ore_body.png
 :width: 500px
 ```
 
+ While the code itself has its own documentation, there is a need to demonstrate the effect of parameters controlling the inversion. This document is meant to be a reference guide with practical examples to help practitioners with their inversion work.
 
 # Table of contents
 
