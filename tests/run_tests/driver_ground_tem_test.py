@@ -268,7 +268,7 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
             upper_bound=1e2,
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e1,
-            cooling_rate=2,
+            cooling_rate=1,
             max_cg_iterations=200,
             percentile=100,
             solver_type="Mumps",

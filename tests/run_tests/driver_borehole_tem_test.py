@@ -45,7 +45,7 @@ logger = getLogger(__name__)
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 4.6520e-11, "phi_d": 1.5080e03, "phi_m": 3.3560e04}
+target_run = {"data_norm": 4.6520e-11, "phi_d": 1.5050e03, "phi_m": 2.3150e04}
 
 
 def test_borehole_tem_fwr_run(

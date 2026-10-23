@@ -200,7 +200,7 @@ def test_airborne_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
             upper_bound=1e2,
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e2,
-            cooling_rate=4,
+            cooling_rate=1,
             max_cg_iterations=200,
             percentile=5,
             solver_type="Mumps",
