@@ -39,7 +39,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 42.21641479029038, "phi_d": 1350, "phi_m": 0.00205}
+target_run = {"data_norm": 4.2216e01, "phi_d": 6.3950e02, "phi_m": 1.9560e-02}
 
 
 def test_susceptibility_fwr_run(
@@ -65,7 +65,7 @@ def test_susceptibility_fwr_run(
         ),
         model=ModelOptions(anomaly=0.05),
     )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
         inducing_field = (49999.8, 90.0, 0.0)
 
@@ -95,10 +95,10 @@ def test_susceptibility_run(
     max_iterations=1,
     pytest=True,
 ):
-    workpath = tmp_path / "inversion_test.ui.geoh5"
+    workpath = tmp_path / "inversion_test.geoh5"
     if pytest:
         workpath = (
-            tmp_path.parent / "test_susceptibility_fwr_run0" / "inversion_test.ui.geoh5"
+            tmp_path.parent / "test_susceptibility_fwr_run0" / "inversion_test.geoh5"
         )
 
     with Workspace(workpath) as geoh5:

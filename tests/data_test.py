@@ -40,7 +40,7 @@ from tests.utils.targets import get_workspace
 
 
 def get_mvi_params(tmp_path: Path, **kwargs) -> MagneticVectorInversionOptions:
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         opts = SyntheticsComponentsOptions(
             method="magnetic_vector",
             survey=SurveyOptions(n_stations=2, n_lines=2),
@@ -260,7 +260,7 @@ def test_data_parts(tmp_path: Path):
         mesh=MeshOptions(),
         model=ModelOptions(background=0.01, anomaly=10.0),
     )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
         params = DC3DForwardOptions.build(
             geoh5=geoh5,

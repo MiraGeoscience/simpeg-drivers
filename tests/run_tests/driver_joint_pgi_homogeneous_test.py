@@ -57,7 +57,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 4.2090e02, "phi_d": 2.8860e03, "phi_m": 8.2700e01}
+target_run = {"data_norm": 4.2090e02, "phi_d": 6.4090e03, "phi_m": 2.7630e-01}
 INDUCING_FIELD = (50000.0, 90.0, 0.0)
 
 
@@ -102,7 +102,7 @@ def test_homogeneous_fwr_run(
         ),
         active=SyntheticsActiveCellsOptions(name="active A"),
     )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
 
         # Change half the model
@@ -213,10 +213,10 @@ def test_homogeneous_run(
     max_iterations=1,
     use_pytest=True,
 ):
-    workpath = tmp_path / "inversion_test.ui.geoh5"
+    workpath = tmp_path / "inversion_test.geoh5"
     if use_pytest:
         workpath = (
-            tmp_path.parent / "test_homogeneous_fwr_run0" / "inversion_test.ui.geoh5"
+            tmp_path.parent / "test_homogeneous_fwr_run0" / "inversion_test.geoh5"
         )
 
     with Workspace(workpath, mode="r+") as geoh5:

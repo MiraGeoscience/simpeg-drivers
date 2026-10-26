@@ -39,7 +39,7 @@ def get_mvi_params(tmp_path: Path) -> MagneticVectorInversionOptions:
         mesh=MeshOptions(refinement=(2,)),
         model=ModelOptions(background=0.0, anomaly=0.05),
     )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
         tmi_channel = components.survey.add_data(
             {"tmi": {"values": np.random.rand(components.survey.n_vertices)}}

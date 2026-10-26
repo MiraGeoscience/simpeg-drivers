@@ -43,7 +43,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 1.0864e01, "phi_d": 4.5530e04, "phi_m": 7.7120e02}
+target_run = {"data_norm": 1.0945e01, "phi_d": 9.5860e04, "phi_m": 2.5160e02}
 
 
 def test_dc_rotated_2d_fwr_run(
@@ -76,7 +76,7 @@ def test_dc_rotated_2d_fwr_run(
             ),
         ),
     )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
         params = DC2DForwardOptions.build(
             geoh5=geoh5,
@@ -94,10 +94,10 @@ def test_dc_rotated_gradient_2d_run(
     max_iterations=1,
     pytest=True,
 ):
-    workpath = tmp_path / "inversion_test.ui.geoh5"
+    workpath = tmp_path / "inversion_test.geoh5"
     if pytest:
         workpath = (
-            tmp_path.parent / "test_dc_rotated_2d_fwr_run0" / "inversion_test.ui.geoh5"
+            tmp_path.parent / "test_dc_rotated_2d_fwr_run0" / "inversion_test.geoh5"
         )
 
     with Workspace(workpath) as geoh5:

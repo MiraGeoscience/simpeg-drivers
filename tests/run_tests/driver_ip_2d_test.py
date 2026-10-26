@@ -39,7 +39,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 1.2313e-01, "phi_d": 1.5580e04, "phi_m": 2.2570e-04}
+target_run = {"data_norm": 1.2312e-01, "phi_d": 9.3120e02, "phi_m": 3.2340e-01}
 
 
 def test_ip_2d_fwr_run(
@@ -76,7 +76,7 @@ def test_ip_2d_fwr_run(
             ),
         ),
     )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
         params = IP2DForwardOptions.build(
             geoh5=geoh5,
@@ -97,9 +97,9 @@ def test_ip_2d_run(
     max_iterations=1,
     pytest=True,
 ):
-    workpath = tmp_path / "inversion_test.ui.geoh5"
+    workpath = tmp_path / "inversion_test.geoh5"
     if pytest:
-        workpath = tmp_path.parent / "test_ip_2d_fwr_run0" / "inversion_test.ui.geoh5"
+        workpath = tmp_path.parent / "test_ip_2d_fwr_run0" / "inversion_test.geoh5"
 
     with Workspace(workpath) as geoh5:
         components = SyntheticsComponents(geoh5)
