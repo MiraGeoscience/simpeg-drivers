@@ -110,14 +110,17 @@ def test_borehole_tem_fwr_run(
     fwr_driver = BoreholeTDEMForwardDriver(params)
 
     # Check that the loop source is well discretized on the tile meshes
-    for obj in fwr_driver.data_misfit.objfcts:
-        mesh = obj.simulation.simulations[0].mesh
-        indices = get_intersecting_cells(components.survey.complement.vertices, mesh)
-        levels = mesh.cell_levels_by_index(indices)
+    if pytest:
+        for obj in fwr_driver.data_misfit.objfcts:
+            mesh = obj.simulation.simulations[0].mesh
+            indices = get_intersecting_cells(
+                components.survey.complement.vertices, mesh
+            )
+            levels = mesh.cell_levels_by_index(indices)
 
-        assert np.all(levels == 7), (
-            "Loop source is not well discretized on the tile meshes."
-        )
+            assert np.all(levels == 7), (
+                "Loop source is not well discretized on the tile meshes."
+            )
 
     fwr_driver.run()
 
