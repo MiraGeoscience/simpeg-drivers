@@ -126,14 +126,16 @@ class JointPetrophysicsDriver(BaseJointDriver):
         """
         Means of the Gaussian mixture model.
         """
+
+        if self.models.reference_model is None:
+            raise GeoAppsError(
+                "A reference model must be set and active on each inversion driver "
+                "to determine the means of the Gaussian mixture model.\n"
+                "Please revise the input options of individual drivers."
+            )
+
         means = []
         for mapping in self.mapping:
-            if self.models.reference_model is None:
-                raise GeoAppsError(
-                    "A reference model must be set and active on each inversion driver "
-                    "to determine the means of the Gaussian mixture model.\n"
-                    "Please revise the input options of individual drivers."
-                )
             model_vec = mapping @ self.models.reference_model
             unit_mean = []
             for uid in self.geo_units:

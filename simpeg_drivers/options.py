@@ -274,7 +274,7 @@ class ModelOptions(BaseModel):
     gradient_rotation: PropertyGroup | None = None
 
     # Model values for IRLS
-    s_norm: float | FloatData | IntegerData | None = 0.0
+    s_norm: float | FloatData | IntegerData | None = 2.0
     x_norm: float | FloatData | IntegerData = 2.0
     y_norm: float | FloatData | IntegerData | None = 2.0
     z_norm: float | FloatData | IntegerData = 2.0
@@ -307,6 +307,14 @@ class ModelOptions(BaseModel):
             self._gradient_orientations = orientations
 
         return self._gradient_orientations
+
+    def model_post_init(self, __context: Any) -> None:
+        """
+        Post-initialization method.
+        """
+        if self.reference_model is None:
+            self.alpha_s = None
+            self.s_norm = None
 
 
 class ModelTypeEnum(StrEnum):
