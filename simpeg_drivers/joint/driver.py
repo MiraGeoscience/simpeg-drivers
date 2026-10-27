@@ -28,7 +28,7 @@ from grid_apps.utils import (
 )
 from simpeg import directives
 from simpeg.directives import SaveLPIterationsGroup
-from simpeg.maps import Projection, TileMap
+from simpeg.maps import Projection, TileMapNested
 from simpeg.objective_function import ComboObjectiveFunction
 
 from simpeg_drivers.components.factories import (
@@ -167,7 +167,7 @@ class BaseJointDriver(InversionDriver):
         for driver, wire in zip(self.drivers, self.wires, strict=True):
             logger.info("Initializing driver %s", driver.params.name)
             # Create a projection from global mesh to driver specific mesh
-            projection = TileMap(
+            projection = TileMapNested(
                 self.inversion_mesh.mesh,
                 global_actives,
                 driver.inversion_mesh.mesh,
