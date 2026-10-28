@@ -43,7 +43,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 122.63745463149134, "phi_d": 2890, "phi_m": 438}
+target_run = {"data_norm": 1.2264e02, "phi_d": 2.8390e03, "phi_m": 5.6000e02}
 
 
 def test_fem_name_change(tmp_path, caplog):
@@ -60,7 +60,7 @@ def test_fem_name_change(tmp_path, caplog):
         ),
         model=ModelOptions(background=1e-3),
     )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
         with caplog.at_level(logging.WARNING):
             FDEMForwardOptions.build(
@@ -115,7 +115,7 @@ def test_fem_fwr_run(
             ),
         ),
     )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
         params = FDEMForwardOptions.build(
             geoh5=geoh5,
@@ -132,9 +132,9 @@ def test_fem_fwr_run(
 
 
 def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
-    workpath = tmp_path / "inversion_test.ui.geoh5"
+    workpath = tmp_path / "inversion_test.geoh5"
     if pytest:
-        workpath = tmp_path.parent / "test_fem_fwr_run0" / "inversion_test.ui.geoh5"
+        workpath = tmp_path.parent / "test_fem_fwr_run0" / "inversion_test.geoh5"
 
     with Workspace(workpath) as geoh5:
         components = SyntheticsComponents(geoh5)
@@ -207,7 +207,7 @@ def test_fem_run(tmp_path: Path, max_iterations=1, pytest=True):
         # Scaling is done evenly on channels
         np.testing.assert_allclose(
             driver.data_misfit.multipliers,
-            [1.0, 1.0, 0.5514, 0.5514, 0.5028, 0.5028],
+            [1.0, 1.0, 0.5526, 0.5526, 0.5032, 0.5032],
             atol=1e-3,
         )
 

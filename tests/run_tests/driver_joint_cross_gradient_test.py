@@ -69,7 +69,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 5.3315e01, "phi_d": 4.9190e02, "phi_m": 2.7810e-01}
+target_run = {"data_norm": 5.3315e01, "phi_d": 6.0430e02, "phi_m": 2.3450e-02}
 INDUCING_FIELD = (50000.0, 90.0, 0.0)
 
 
@@ -99,7 +99,7 @@ def test_joint_cross_gradient_fwr_run(
         model=ModelOptions(anomaly=0.75, name="model A"),
         active=SyntheticsActiveCellsOptions(name="active A"),
     )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
         params = GravityForwardOptions.build(
             geoh5=geoh5,
@@ -198,12 +198,12 @@ def test_joint_cross_gradient_inv_run(
     max_iterations=3,
     pytest=True,
 ):
-    workpath = tmp_path / "inversion_test.ui.geoh5"
+    workpath = tmp_path / "inversion_test.geoh5"
     if pytest:
         shutil.copy(
             tmp_path.parent
             / "test_joint_cross_gradient_fwr_0"
-            / "inversion_test.ui.geoh5",
+            / "inversion_test.geoh5",
             tmp_path,
         )
 
@@ -333,13 +333,13 @@ def test_joint_cross_gradient_inv_run(
     # the scaling from its total misfit.
     np.testing.assert_allclose(
         driver.directives.scale_misfits.scalings,
-        [1.0, 0.423571, 0.125, 0.125, 0.300323],
+        [1.0, 0.434902, 0.125, 0.125, 0.270871],
         atol=1e-3,
     )
     # Check that scaling * chi factor is reflected in data misfit multipliers
     np.testing.assert_allclose(
         driver.data_misfit.multipliers,
-        [0.8, 0.338857, 0.125, 0.125, 0.300323],
+        [0.8, 0.347922, 0.125, 0.125, 0.270871],
         atol=1e-3,
     )
 
@@ -370,18 +370,18 @@ def test_restart_run(tmp_path):
         tmp_path,
     )
     shutil.copy(
-        tmp_path.parent / "test_joint_cross_gradient_inv_0" / "inversion_test.ui.geoh5",
+        tmp_path.parent / "test_joint_cross_gradient_inv_0" / "inversion_test.geoh5",
         tmp_path,
     )
     shutil.copy(
-        tmp_path.parent / "test_joint_cross_gradient_inv_0" / "inversion_test.ui.chi",
+        tmp_path.parent / "test_joint_cross_gradient_inv_0" / "inversion_test.chi",
         tmp_path,
     )
     json_file = tmp_path / "Joint_Inv_run.ui.json"
 
     # Remember the last iteration
     out_array = read_csv(
-        tmp_path.parent / "test_joint_cross_gradient_inv_0/inversion_test.ui.out",
+        tmp_path.parent / "test_joint_cross_gradient_inv_0/inversion_test.out",
         sep=" ",
     )
 
@@ -390,14 +390,14 @@ def test_restart_run(tmp_path):
     last_phi_m = out_array["phi_m"].iloc[-1]
 
     uijson = UIJson.read(json_file)
-    uijson.geoh5 = tmp_path / "inversion_test.ui.geoh5"
+    uijson.geoh5 = tmp_path / "inversion_test.geoh5"
     uijson.set_values(max_global_iterations=5)
     uijson.write(json_file)
     JointCrossGradientDriver.start(json_file, start_iteration=-2)
 
     # Read the out file again and check against the previous full run
-    with Workspace(tmp_path / "inversion_test.ui.geoh5") as ws:
-        out_file = ws.get_entity("inversion_test.ui.out")[0]
+    with Workspace(tmp_path / "inversion_test.geoh5") as ws:
+        out_file = ws.get_entity("inversion_test.out")[0]
         out_array = read_csv(BytesIO(next(iter(out_file.file_bytes.values()))), sep=" ")
         np.testing.assert_almost_equal(out_array["beta"].iloc[5], last_beta, decimal=1)
         np.testing.assert_almost_equal(
@@ -414,12 +414,10 @@ def test_joint_cross_gradient_rotated_run(
     max_iterations=1,
     pytest=True,
 ):
-    workpath = tmp_path / "inversion_test.ui.geoh5"
+    workpath = tmp_path / "inversion_test.geoh5"
     if pytest:
         workpath = (
-            tmp_path.parent
-            / "test_joint_cross_gradient_fwr_0"
-            / "inversion_test.ui.geoh5"
+            tmp_path.parent / "test_joint_cross_gradient_fwr_0" / "inversion_test.geoh5"
         )
 
     with Workspace(workpath) as geoh5:

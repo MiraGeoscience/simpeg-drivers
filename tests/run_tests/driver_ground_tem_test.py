@@ -45,7 +45,7 @@ logger = getLogger(__name__)
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 3.3985e-11, "phi_d": 2.4130e02, "phi_m": 3.6390e03}
+target_run = {"data_norm": 3.3985e-11, "phi_d": 2.4390e02, "phi_m": 2.5800e03}
 
 
 def test_tiling_ground_tem(
@@ -268,7 +268,7 @@ def test_ground_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
             upper_bound=1e2,
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e1,
-            cooling_rate=2,
+            cooling_rate=1,
             max_cg_iterations=200,
             percentile=100,
             solver_type="Mumps",

@@ -566,7 +566,7 @@
     "cooling_rate": {
         "group": "Optimization",
         "label": "Iterations per beta",
-        "value": 2,
+        "value": 1,
         "min": 1,
         "LineEdit": false,
         "max": 10,

@@ -36,7 +36,7 @@ from tests.utils.targets import get_workspace
 
 def test_gravity_plate_simulation(tmp_path):
 
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         geometry = PlateModel(
             elevation=100.0,
             width=100.0,

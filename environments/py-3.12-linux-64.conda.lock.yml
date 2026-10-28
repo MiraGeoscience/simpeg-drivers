@@ -16,16 +16,16 @@ dependencies:
   - aws-c-http=1.0.0=h392d1a3_1
   - aws-c-io=1.0.0=h07ba609_0
   - aws-c-s3=1.0.0=hfe03eda_1
-  - aws-c-sdkutils=1.0.0=ha404f16_1
+  - aws-c-sdkutils=1.0.1=ha404f16_0
   - aws-checksums=1.0.1=ha404f16_0
-  - backports.zstd=1.8.0=py312h3f22e6b_0
+  - backports.zstd=1.8.0=py312hf114f2f_1
   - bokeh=3.6.3=pyhd8ed1ab_0
-  - brotli=1.2.0=h505cf86_4
-  - brotli-bin=1.2.0=h9908984_4
-  - brotli-python=1.2.0=py312he9c40d5_4
+  - brotli=1.2.1=h505cf86_0
+  - brotli-bin=1.2.1=h9908984_0
+  - brotli-python=1.2.1=py312he9c40d5_0
   - bzip2=1.0.8=hda65f42_10
   - c-ares=1.34.9=hebe6cf0_0
-  - ca-certificates=2026.10.19=hbd8a1cb_0
+  - ca-certificates=2026.10.23=hbd8a1cb_0
   - cached-property=2.0.1=pyhcf101f3_0
   - cached_property=2.0.1=pyhcf101f3_0
   - click=8.5.0=pyh5ded981_0
@@ -39,7 +39,7 @@ dependencies:
   - distributed=2025.3.1=pyhd8ed1ab_0
   - et_xmlfile=2.0.0=pyhd8ed1ab_1
   - fasteners=0.20=pyhd8ed1ab_0
-  - fonttools=4.67.0=py312hfd18d64_0
+  - fonttools=4.67.0=py312hfd18d64_1
   - freetype=2.14.3=ha770c72_2
   - fsspec=2026.9.0=pyhd8ed1ab_0
   - geoana=0.8.1=np2py312h2a48985_0
@@ -49,7 +49,7 @@ dependencies:
   - hpack=4.2.0=pyhd8ed1ab_0
   - hyperframe=6.1.0=pyhd8ed1ab_0
   - icu=78.3=py310h44b86e0_2
-  - importlib-metadata=9.0.1=pyhcf101f3_0
+  - importlib-metadata=10.0.0=pyh5ded981_0
   - jinja2=3.1.6=pyhcf101f3_1
   - joblib=1.6.0=pyhcf101f3_0
   - keyutils=1.6.3=h7cc23a3_1
@@ -60,16 +60,16 @@ dependencies:
   - lerc=4.2.0=hdb68285_0
   - libaec=1.1.5=h088129d_0
   - libblas=3.11.0=6_h5875eb1_mkl
-  - libbrotlicommon=1.2.0=h39a168f_4
-  - libbrotlidec=1.2.0=ha411449_4
-  - libbrotlienc=1.2.0=h018ffa1_4
+  - libbrotlicommon=1.2.1=h39a168f_0
+  - libbrotlidec=1.2.1=ha411449_0
+  - libbrotlienc=1.2.1=h018ffa1_0
   - libcblas=3.11.0=6_hfef963f_mkl
   - libcurl=8.23.0=ha042cf0_0
   - libdeflate=1.25=hd45a770_1
   - libdlf=0.3.0=pyhd8ed1ab_1
   - libedit=3.1.20260512=pl5321h373387f_0
   - libev=4.33=h280c20c_3
-  - libexpat=2.8.5=hd2095e1_0
+  - libexpat=2.9.0=hd2095e1_0
   - libffi=3.7.0=h81df57d_1
   - libfreetype=2.14.3=ha770c72_2
   - libfreetype6=2.14.3=h5e6c136_2
@@ -86,7 +86,7 @@ dependencies:
   - libnsl=2.0.1=hb9d3cd8_1
   - libpng=1.6.59=h922cc85_0
   - libpsl=0.23.1=hd9e3e90_1
-  - libpython=3.12.15=ha57cdbe_2_cpython
+  - libpython=3.12.16=ha57cdbe_0_cpython
   - libscotch=7.0.11=int64_h807e49d_3
   - libspatialindex=2.1.0=hee9eb32_2
   - libsqlite=3.54.1=h13e7031_0
@@ -103,11 +103,11 @@ dependencies:
   - libzlib=1.3.2=h25fd6f3_3
   - llvm-openmp=23.1.4=h7148c6a_0
   - locket=1.0.0=pyhd8ed1ab_0
-  - markupsafe=3.0.4=py312h8b7ec3f_1
+  - markupsafe=3.0.4=py312h8b7ec3f_2
   - matplotlib-base=3.10.9=py312he3d6523_0
   - metis=5.1.0=h86e3903_1008
   - mkl=2025.3.1=h0e700b2_12
-  - msgpack-python=1.2.3=py312h9be0db6_0
+  - msgpack-python=1.2.4=py312h9be0db6_0
   - mumps-include=5.8.2=h5a610fb_3
   - mumps-seq=5.8.2=gfortran_hfb83c00_3
   - munkres=1.1.4=pyhd8ed1ab_1
@@ -131,8 +131,8 @@ dependencies:
   - pymatsolver=0.3.1=pyh48887ae_201
   - pyparsing=3.3.3=pyh5ded981_0
   - pysocks=1.7.1=pyha55dd90_7
-  - python=3.12.15=h5f976f7_2_cpython
-  - python-dateutil=2.9.0.post0=pyhe01879c_2
+  - python=3.12.16=h5f976f7_0_cpython
+  - python-dateutil=3.0.0=pyh5ded981_0
   - python-mumps=0.0.6=nompi_hfa0b550
   - python-tzdata=2026.5=pyh5ded981_0
   - python_abi=3.12=9_cp312
@@ -158,7 +158,7 @@ dependencies:
   - typing-extensions=4.16.0=h69aa097_0
   - typing-inspection=0.4.4=pyhcf101f3_0
   - typing_extensions=4.16.0=pyhcf101f3_0
-  - tzdata=2026c=h151e31d_0
+  - tzdata=2026e=h5d301ff_0
   - unicodedata2=18.0.0=py312h5cc1888_0
   - urllib3=2.8.0=pyhd8ed1ab_0
   - wheel=0.48.0=pyhd8ed1ab_0
@@ -169,14 +169,14 @@ dependencies:
   - yaml=0.2.5=hebe6cf0_3
   - zarr=2.14.2=pyhd8ed1ab_0
   - zict=3.0.0=pyhd8ed1ab_1
-  - zipp=4.1.1=pyh5ded981_0
+  - zipp=4.1.2=pyh5ded981_0
   - zlib-ng=2.3.3=hce19668_1
   - zstd=1.5.7=hb78ec9c_7
   - pip:
-    - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@78fffb5b9f6de6bb152625fa04490060eae94630
-    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@6a4c16a74d012b7f2f77b02769418861a99aa2fa
-    - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@8c7c997201e215b3bf9752368ace0d4472e41b5c
-    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@51d08bb94fa3bc3e4c18ebf3850fe6bb4465202e
+    - geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@965d7eb7841d5a6c6759691299ee44890bc35ac7
+    - geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@3d3e27086f07c86373ac1721d4334a60e58d36e9
+    - grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@3fc83fc8284ecebb1e5c5010910ed1127e081c57
+    - mira-simpeg @ git+https://github.com/MiraGeoscience/simpeg.git@42c72e55a236e0bb998383613ee0db1a085f9245
 
 variables:
   KMP_WARNINGS: 0
