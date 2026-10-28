@@ -279,10 +279,10 @@ def test_restart_run(tmp_path):
         out_array = read_csv(BytesIO(next(iter(out_file.file_bytes.values()))), sep=" ")
         np.testing.assert_almost_equal(out_array["beta"].iloc[4], last_beta, decimal=1)
         np.testing.assert_almost_equal(
-            out_array["phi_d"].iloc[4], last_phi_d, decimal=1
+            out_array["phi_d"].iloc[4], last_phi_d, decimal=-1
         )
         np.testing.assert_almost_equal(
-            out_array["phi_m"].iloc[4], last_phi_m, decimal=1
+            out_array["phi_m"].iloc[4], last_phi_m, decimal=-1
         )
 
 

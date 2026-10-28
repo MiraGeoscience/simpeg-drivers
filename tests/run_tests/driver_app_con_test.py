@@ -39,7 +39,8 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 1.9805e-02, "phi_d": 5.0750e03, "phi_m": 2.5010e00}
+
+target_run = {"data_norm": 1.9805e-02, "phi_d": 5.8220e03, "phi_m": 2.2910e-03}
 
 
 def test_app_con_fwr_run(
@@ -147,7 +148,6 @@ def test_app_con_run(tmp_path: Path, max_iterations=1, pytest=True):
             starting_model=1e2,
             reference_model=None,
             background_conductivity=1e2,
-            alpha_s=1.0,
             model_type="Resistivity (Ohm-m)",
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e1,

@@ -39,12 +39,12 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 4.2216e01, "phi_d": 6.3950e02, "phi_m": 1.9560e-02}
+target_run = {"data_norm": 8.7537e01, "phi_d": 6.7690e00, "phi_m": 2.3150e-01}
 
 
 def test_susceptibility_fwr_run(
     tmp_path: Path,
-    n_grid_points=2,
+    n_grid_points=3,
     cell_size=(20.0, 20.0, 20.0),
     refinement=(2,),
 ):
@@ -92,7 +92,7 @@ def test_susceptibility_fwr_run(
 
 def test_susceptibility_run(
     tmp_path: Path,
-    max_iterations=1,
+    max_iterations=2,
     pytest=True,
 ):
     workpath = tmp_path / "inversion_test.geoh5"
@@ -119,20 +119,21 @@ def test_susceptibility_run(
             inducing_field_declination=inducing_field[2],
             data_object=tmi.parent,
             starting_model=1e-4,
-            reference_model=0.0,
-            s_norm=0.0,
+            reference_model=None,
+            lower_bound=None,
             x_norm=1.0,
             y_norm=1.0,
             z_norm=1.0,
-            initial_beta_ratio=1e0,
+            initial_beta_ratio=1e-0,
             tmi_channel=tmi,
             tmi_uncertainty=1.0,
             max_global_iterations=max_iterations,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
-    assert params.models.lower_bound == 0.0
     driver = MagneticInversionDriver.start(str(tmp_path / "Inv_run.ui.json"))
+    assert np.all(driver.models.lower_bound == -np.inf)
+    assert driver.regularization.objfcts[0].multipliers[0] == 0.0
 
     with Workspace(driver.params.geoh5.h5file) as run_ws:
         output = get_inversion_output(
