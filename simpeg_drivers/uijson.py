@@ -43,10 +43,13 @@ class SimPEGDriversUIJson(UIJson):
     @classmethod
     def verify_and_update_version(cls, value: str) -> str:
         package_version = cls.comparable_version(public_version())
-        if package_version == "0.0.0":  # dynamic version did not get generated
+        input_version = cls.comparable_version(value)
+
+        if (
+            package_version == "0.0.0" or input_version == "0.0.0"
+        ):  # dynamic version did not get generated
             return value
 
-        input_version = cls.comparable_version(value)
         if input_version != package_version:
             logger.warning(
                 "Provided ui.json file version '%s' does not match the current "
