@@ -58,7 +58,7 @@ def setup_inversion_results(
         ),
         model=ModelOptions(anomaly=0.75),
     )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
 
         # Run the inverse with save_sensitivities=True
@@ -99,18 +99,18 @@ def test_setup_inversion_results(tmp_path: Path):
         refinement=(2,),
     )
 
-    with Workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with Workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         sensitivity = geoh5.get_entity("Iteration_1_sensitivities")[0]
         assert sensitivity is not None
 
 
 def test_sensitivity_percent_cutoff_run(tmp_path):
     shutil.copy(
-        tmp_path / "../test_setup_inversion_results0/inversion_test.ui.geoh5",
-        tmp_path / "inversion_test.ui.geoh5",
+        tmp_path / "../test_setup_inversion_results0/inversion_test.geoh5",
+        tmp_path / "inversion_test.geoh5",
     )
 
-    with Workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with Workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5)
         sensitivity = geoh5.get_entity("Iteration_1_sensitivities")[0]
         mesh = components.mesh
@@ -125,18 +125,18 @@ def test_sensitivity_percent_cutoff_run(tmp_path):
         params.write_ui_json(path=tmp_path / "sensitivity_cutoff_percent")
 
     SensitivityCutoffDriver.start(str(tmp_path / "sensitivity_cutoff_percent.ui.json"))
-    with Workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with Workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         mask = geoh5.get_entity("5 percent cutoff")[0]
         assert mask.values.sum() == 525
 
 
 def test_sensitivity_cutoff_percentile_run(tmp_path):
     shutil.copy(
-        tmp_path / "../test_setup_inversion_results0/inversion_test.ui.geoh5",
-        tmp_path / "inversion_test.ui.geoh5",
+        tmp_path / "../test_setup_inversion_results0/inversion_test.geoh5",
+        tmp_path / "inversion_test.geoh5",
     )
 
-    with Workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with Workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5)
         sensitivity = geoh5.get_entity("Iteration_1_sensitivities")[0]
         mesh = components.mesh
@@ -153,18 +153,18 @@ def test_sensitivity_cutoff_percentile_run(tmp_path):
     SensitivityCutoffDriver.start(
         str(tmp_path / "sensitivity_cutoff_percentile.ui.json")
     )
-    with Workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with Workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         mask = geoh5.get_entity("5 percentile cutoff")[0]
         assert mask.values.sum() == 792
 
 
 def test_sensitivity_cutoff_log_percent_run(tmp_path):
     shutil.copy(
-        tmp_path / "../test_setup_inversion_results0/inversion_test.ui.geoh5",
-        tmp_path / "inversion_test.ui.geoh5",
+        tmp_path / "../test_setup_inversion_results0/inversion_test.geoh5",
+        tmp_path / "inversion_test.geoh5",
     )
 
-    with Workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with Workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5)
         sensitivity = geoh5.get_entity("Iteration_1_sensitivities")[0]
         mesh = components.mesh
@@ -181,6 +181,6 @@ def test_sensitivity_cutoff_log_percent_run(tmp_path):
     SensitivityCutoffDriver.start(
         str(tmp_path / "sensitivity_cutoff_log_percent.ui.json")
     )
-    with Workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with Workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         mask = geoh5.get_entity("5 percent log cutoff")[0]
         assert mask.values.sum() == 798

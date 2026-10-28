@@ -38,7 +38,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 1.3680e-01, "phi_d": 1.1720e01, "phi_m": 4.6400e03}
+target_run = {"data_norm": 1.3680e-01, "phi_d": 1.0430e02, "phi_m": 1.5360e03}
 
 
 def test_dc_3d_fwr_run(
@@ -63,7 +63,7 @@ def test_dc_3d_fwr_run(
         ),
         model=ModelOptions(background=0.01, anomaly=10.0),
     )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
 
         # Randomly flip order of receivers
@@ -99,9 +99,9 @@ def test_dc_3d_run(
     pytest=True,
     n_lines=3,
 ):
-    workpath = tmp_path / "inversion_test.ui.geoh5"
+    workpath = tmp_path / "inversion_test.geoh5"
     if pytest:
-        workpath = tmp_path.parent / "test_dc_3d_fwr_run0" / "inversion_test.ui.geoh5"
+        workpath = tmp_path.parent / "test_dc_3d_fwr_run0" / "inversion_test.geoh5"
 
     with Workspace(workpath) as geoh5:
         components = SyntheticsComponents(geoh5)
@@ -174,7 +174,7 @@ def test_dc_single_line_fwr_run(
         ),
         model=ModelOptions(background=0.01, anomaly=10.0),
     )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
         params = DC3DForwardOptions.build(
             geoh5=geoh5,

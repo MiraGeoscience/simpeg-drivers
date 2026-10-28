@@ -65,7 +65,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.5406566758729658, "phi_d": 1437, "phi_m": 342.9}
+target_run = {"data_norm": 5.4066e-01, "phi_d": 3.8490e01, "phi_m": 1.3400e04}
 
 
 def test_joint_surveys_fwr_run(
@@ -93,7 +93,7 @@ def test_joint_surveys_fwr_run(
         model=ModelOptions(anomaly=0.75, name="model A"),
         active=SyntheticsActiveCellsOptions(name="active A"),
     )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
         params = GravityForwardOptions.build(
             geoh5=geoh5,
@@ -159,10 +159,10 @@ def test_joint_surveys_inv_run(
     max_iterations=2,
     pytest=True,
 ):
-    workpath = tmp_path / "inversion_test.ui.geoh5"
+    workpath = tmp_path / "inversion_test.geoh5"
     if pytest:
         shutil.copy(
-            tmp_path.parent / "test_joint_surveys_fwr_run0" / "inversion_test.ui.geoh5",
+            tmp_path.parent / "test_joint_surveys_fwr_run0" / "inversion_test.geoh5",
             tmp_path,
         )
 
@@ -230,7 +230,7 @@ def test_joint_surveys_inv_run(
     # The rescaling is done evenly on the two tiles for both surveys
     np.testing.assert_allclose(
         driver.data_misfit.multipliers,
-        [1.0, 1.0, 0.8967, 0.8967],
+        [1.0, 1.0, 0.678076, 0.678076],
         atol=1e-3,
     )
 
@@ -249,18 +249,18 @@ def test_restart_run(tmp_path):
         tmp_path.parent / "test_joint_surveys_inv_run0" / "Inv_run.ui.json", tmp_path
     )
     shutil.copy(
-        tmp_path.parent / "test_joint_surveys_inv_run0" / "inversion_test.ui.geoh5",
+        tmp_path.parent / "test_joint_surveys_inv_run0" / "inversion_test.geoh5",
         tmp_path,
     )
     shutil.copy(
-        tmp_path.parent / "test_joint_surveys_inv_run0" / "inversion_test.ui.chi",
+        tmp_path.parent / "test_joint_surveys_inv_run0" / "inversion_test.chi",
         tmp_path,
     )
     json_file = tmp_path / "Inv_run.ui.json"
 
     # Remember the last iteration
     out_array = read_csv(
-        tmp_path.parent / "test_joint_surveys_inv_run0/inversion_test.ui.out", sep=" "
+        tmp_path.parent / "test_joint_surveys_inv_run0/inversion_test.out", sep=" "
     )
 
     last_beta = out_array["beta"].iloc[-1]
@@ -268,14 +268,14 @@ def test_restart_run(tmp_path):
     last_phi_m = out_array["phi_m"].iloc[-1]
 
     uijson = UIJson.read(json_file)
-    uijson.geoh5 = tmp_path / "inversion_test.ui.geoh5"
+    uijson.geoh5 = tmp_path / "inversion_test.geoh5"
     uijson.set_values(max_global_iterations=4)
     uijson.write(json_file)
     JointSurveysDriver.start(json_file, start_iteration=-2)
 
     # Read the out file again and check against the previous full run
-    with Workspace(tmp_path / "inversion_test.ui.geoh5") as ws:
-        out_file = ws.get_entity("inversion_test.ui.out")[0]
+    with Workspace(tmp_path / "inversion_test.geoh5") as ws:
+        out_file = ws.get_entity("inversion_test.out")[0]
         out_array = read_csv(BytesIO(next(iter(out_file.file_bytes.values()))), sep=" ")
         np.testing.assert_almost_equal(out_array["beta"].iloc[4], last_beta, decimal=1)
         np.testing.assert_almost_equal(

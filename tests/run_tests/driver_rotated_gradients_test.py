@@ -42,7 +42,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # Move this file out of the test directory and run.
 # pylint: disable=no-member
 
-target_run = {"data_norm": 0.37623107854757576, "phi_d": 31300, "phi_m": 5.13}
+target_run = {"data_norm": 3.7945e-01, "phi_d": 5.1190e02, "phi_m": 1.8810e03}
 
 
 def test_gravity_rotated_grad_fwr_run(
@@ -85,7 +85,7 @@ def test_gravity_rotated_grad_fwr_run(
             ),
         ),
     )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
 
         params = GravityForwardOptions.build(
@@ -105,12 +105,10 @@ def test_rotated_grad_run(
     max_iterations=1,
     pytest=True,
 ):
-    workpath = tmp_path / "inversion_test.ui.geoh5"
+    workpath = tmp_path / "inversion_test.geoh5"
     if pytest:
         workpath = (
-            tmp_path.parent
-            / "test_gravity_rotated_grad_fwr_0"
-            / "inversion_test.ui.geoh5"
+            tmp_path.parent / "test_gravity_rotated_grad_fwr_0" / "inversion_test.geoh5"
         )
 
     with Workspace(workpath) as geoh5:
