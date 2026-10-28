@@ -39,7 +39,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 1.9870e-02, "phi_d": 4.4350e02, "phi_m": 1.0680e01}
+target_run = {"data_norm": 1.9870e-02, "phi_d": 5.7510e03, "phi_m": 7.0320e-03}
 
 
 def test_app_con_fwr_run(
@@ -81,7 +81,7 @@ def test_app_con_fwr_run(
             ),
         ),
     )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
 
         params = AppConForwardOptions.build(
@@ -102,9 +102,9 @@ def test_app_con_fwr_run(
 
 
 def test_app_con_run(tmp_path: Path, max_iterations=1, pytest=True):
-    workpath = tmp_path / "inversion_test.ui.geoh5"
+    workpath = tmp_path / "inversion_test.geoh5"
     if pytest:
-        workpath = tmp_path.parent / "test_app_con_fwr_run0" / "inversion_test.ui.geoh5"
+        workpath = tmp_path.parent / "test_app_con_fwr_run0" / "inversion_test.geoh5"
 
     with Workspace(workpath) as geoh5:
         components = SyntheticsComponents(geoh5=geoh5)

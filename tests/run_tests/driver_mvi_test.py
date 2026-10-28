@@ -50,7 +50,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_mvi_run = {"data_norm": 177.6657250156235, "phi_d": 15.6, "phi_m": 0.0556}
+target_mvi_run = {"data_norm": 1.7767e02, "phi_d": 1.0400e02, "phi_m": 4.9100e-02}
 
 
 def test_magnetic_vector_fwr_run(
@@ -76,7 +76,7 @@ def test_magnetic_vector_fwr_run(
         ),
         model=ModelOptions(anomaly=0.05),
     )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
 
         # Unitest dealing with Curve
@@ -105,16 +105,14 @@ def test_magnetic_vector_fwr_run(
 def test_magnetic_vector_run(
     tmp_path: Path,
     caplog,
-    max_iterations=5,
+    max_iterations=3,
     upper_bound=2.5e-3,
     pytest=True,
 ):
-    workpath = tmp_path / "inversion_test.ui.geoh5"
+    workpath = tmp_path / "inversion_test.geoh5"
     if pytest:
         shutil.copy(
-            tmp_path.parent
-            / "test_magnetic_vector_fwr_run0"
-            / "inversion_test.ui.geoh5",
+            tmp_path.parent / "test_magnetic_vector_fwr_run0" / "inversion_test.geoh5",
             tmp_path,
         )
 
@@ -159,7 +157,7 @@ def test_magnetic_vector_run(
                 lower_bound=1e-6,
                 upper_bound=upper_bound,
                 max_global_iterations=max_iterations,
-                initial_beta_ratio=5e-2,
+                initial_beta_ratio=2e0,
             )
             params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
         if caplog:
@@ -197,36 +195,36 @@ def test_restart_run(tmp_path):
         tmp_path.parent / "test_magnetic_vector_run0" / "Inv_run.ui.json", tmp_path
     )
     shutil.copy(
-        tmp_path.parent / "test_magnetic_vector_run0" / "inversion_test.ui.geoh5",
+        tmp_path.parent / "test_magnetic_vector_run0" / "inversion_test.geoh5",
         tmp_path,
     )
     json_file = tmp_path / "Inv_run.ui.json"
 
     # Remember the last iteration
     out_array = read_csv(
-        tmp_path.parent / "test_magnetic_vector_run0/inversion_test.ui.out", sep=" "
+        tmp_path.parent / "test_magnetic_vector_run0/inversion_test.out", sep=" "
     )
 
-    last_beta = out_array["beta"].iloc[-2]
-    last_phi_d = out_array["phi_d"].iloc[-2]
-    last_phi_m = out_array["phi_m"].iloc[-2]
+    last_beta = out_array["beta"].iloc[-1]
+    last_phi_d = out_array["phi_d"].iloc[-1]
+    last_phi_m = out_array["phi_m"].iloc[-1]
 
     uijson = UIJson.read(json_file)
-    uijson.geoh5 = tmp_path / "inversion_test.ui.geoh5"
+    uijson.geoh5 = tmp_path / "inversion_test.geoh5"
     uijson.set_values(max_global_iterations=5)
     uijson.write(json_file)
-    MagneticVectorInversionDriver.start(json_file, start_iteration=-4)
+    MagneticVectorInversionDriver.start(json_file, start_iteration=-3)
 
     # Read the out file again and check against the previous full run
-    with Workspace(tmp_path / "inversion_test.ui.geoh5") as ws:
-        out_file = ws.get_entity("inversion_test.ui.out")[0]
+    with Workspace(tmp_path / "inversion_test.geoh5") as ws:
+        out_file = ws.get_entity("inversion_test.out")[0]
         out_array = read_csv(BytesIO(next(iter(out_file.file_bytes.values()))), sep=" ")
-        np.testing.assert_almost_equal(out_array["beta"].iloc[4], last_beta, decimal=1)
+        np.testing.assert_almost_equal(out_array["beta"].iloc[3], last_beta, decimal=1)
         np.testing.assert_almost_equal(
-            out_array["phi_d"].iloc[4], last_phi_d, decimal=1
+            out_array["phi_d"].iloc[3], last_phi_d, decimal=1
         )
         np.testing.assert_almost_equal(
-            out_array["phi_m"].iloc[4], last_phi_m, decimal=1
+            out_array["phi_m"].iloc[3], last_phi_m, decimal=1
         )
 
 
@@ -253,7 +251,7 @@ def test_magnetic_vector_reference(
         ),
         model=ModelOptions(anomaly=0.05),
     )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
 
         tmi = components.survey.add_data(

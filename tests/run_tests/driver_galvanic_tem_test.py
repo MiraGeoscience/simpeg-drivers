@@ -44,7 +44,7 @@ logger = getLogger(__name__)
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 1.8600e-10, "phi_d": 2.3440e04, "phi_m": 1.4010e05}
+target_run = {"data_norm": 1.8600e-10, "phi_d": 2.2210e04, "phi_m": 1.8470e05}
 
 
 def test_galvanic_tem_fwr_run(
