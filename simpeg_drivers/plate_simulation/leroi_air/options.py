@@ -54,7 +54,7 @@ class SurveyOptions(BaseModel):
     @property
     def channels(self) -> np.ndarray:
         """Channels in expected units of milliseconds."""
-        channels = self.entity.channels.copy()
+        channels = np.asarray(self.entity.channels)
         channels *= TIME_UNIT_CONVERSION[self.entity.unit]
         return channels
 
