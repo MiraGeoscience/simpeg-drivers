@@ -51,7 +51,7 @@ class PlateMatchOptions(Options):
     max_distance: float = 1000.0
     topography_object: Points | Grid2D
     topography: FloatData | None = None
-    simulations: str | Path
+    simulations: Path
 
     _ui_json_class: ClassVar[type[SimPEGDriversUIJson]] = SimPEGDriversUIJson
 
