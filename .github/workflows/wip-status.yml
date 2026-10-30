@@ -6,7 +6,7 @@ on:
 
 jobs:
   call-workflow-wip-status:
-    uses: MiraGeoscience/CI-tools/.github/workflows/reusable-wip-status.yml@7241532854727d993872b67fc761139b8438615b # v3.12.0
+    uses: MiraGeoscience/CI-tools/.github/workflows/reusable-wip-status.yml@9e46551783cee8a8c2c7a30794af4b98e2671729 # v3.13.6
     permissions:
       contents: read
       statuses: write
