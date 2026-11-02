@@ -706,7 +706,9 @@ def start_dask_run(
                         json_path, start_iteration=start_iteration
                     )
 
-                    if isinstance(context_client, Client):
+                    if isinstance(context_client, Client) and hasattr(
+                        driver, "data_misfit"
+                    ):
                         context_client.cancel(driver.data_misfit.objfcts)
 
                     sys.stdout.close()
