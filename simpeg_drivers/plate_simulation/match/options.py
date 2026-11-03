@@ -51,20 +51,19 @@ class PlateMatchOptions(Options):
     max_distance: float = 1000.0
     topography_object: Points | Grid2D
     topography: FloatData | None = None
-    simulations: str | Path
+    simulations: Path
 
     _ui_json_class: ClassVar[type[SimPEGDriversUIJson]] = SimPEGDriversUIJson
 
     @property
     def simulation_files(self) -> list[Path]:
         """Path to simulation files directory."""
-        sim_dir = self.geoh5.h5file.parent / self.simulations
         simulation_files = []
 
-        if not sim_dir.exists():
+        if not self.simulations.exists():
             raise GeoAppsError("Simulation directory not found. Please revise.")
 
-        for file in sim_dir.iterdir():
+        for file in self.simulations.iterdir():
             if Path(file).resolve().suffix == ".geoh5":
                 simulation_files.append(Path(file))
 

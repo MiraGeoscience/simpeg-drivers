@@ -52,7 +52,7 @@ class JointSurveysDriver(BaseJointDriver):
     def validate_create_models(self):
         """Check if all models were provided, otherwise use the first driver models."""
         # Create projection for first driver to global mesh
-        mapping = maps.TileMap(
+        mapping = maps.TileMapNested(
             self.inversion_mesh.mesh,
             self.models.active_cells,
             self.drivers[0].inversion_mesh.mesh,

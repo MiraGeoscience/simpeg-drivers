@@ -316,7 +316,7 @@ def create_simulation(
         args = (local_mesh,)
 
         if isinstance(local_mesh, TreeMesh):
-            mapping = maps.TileMap(
+            mapping = maps.TileMapNested(
                 simulation.mesh,
                 simulation.active_cells,
                 local_mesh,
