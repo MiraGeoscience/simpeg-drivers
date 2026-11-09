@@ -560,17 +560,18 @@ class BaseInversionOptions(CoreOptions):
 
     :param name: Name of the inversion.
     :param title: Title of the inversion.
-    :param run_command: Command (module name) used to run the application from
-        command line.
-    :param forward_only: If True, only run the forward simulation.
+    :param run_command: Command (module name) used to run the application from command line.
     :param conda_environment: Name of the conda environment used to run the program
-    :param data_object: Data object containing the survey data.
-    :param models: Model options for the inversion.
-    :param reference_model_in_smooth: Whether to include the reference model in the smoothness term of the regularization.
-    :param irls: Options specific to the IRLS (Iteratively Reweighted Least Squares) directive.
-    :param directives: Additional directives to be used in the inversion.
+
     :param cooling_schedule: Options controlling the trade-off schedule between data misfit and model regularization.
+    :param data_object: Data object containing the survey data.
+    :param directives: Additional directives to be used in the inversion.
+    :param forward_only: Whether to run the forward simulation only.
+    :param irls: Options specific to the IRLS (Iteratively Reweighted Least Squares) directive.
+    :param normalized_residuals: Whether to use normalized residuals in the inversion.
+    :param models: Model options for the inversion.
     :param optimization: Options for the optimization algorithm used in the inversion.
+    :param reference_model_in_smooth: Whether to include the reference model in the smoothness term of the regularization.
     :param store_sensitivities: Where to store sensitivities, either in RAM or on disk.
     """
 
@@ -579,21 +580,19 @@ class BaseInversionOptions(CoreOptions):
     )
 
     name: ClassVar[str] = "Inversion"
-
     title: str = "Geophysical inversion"
     run_command: str = "simpeg_drivers.driver"
-
-    forward_only: bool = False
     conda_environment: str = "simpeg_drivers"
 
-    data_object: Points
-    models: ModelOptions
-    reference_model_in_smooth: bool = False
-    irls: IRLSOptions = IRLSOptions()
-    directives: DirectiveOptions = DirectiveOptions()
     cooling_schedule: CoolingSceduleOptions = CoolingSceduleOptions()
+    data_object: Points
+    directives: DirectiveOptions = DirectiveOptions()
+    forward_only: bool = False
+    irls: IRLSOptions = IRLSOptions()
+    normalized_residuals: bool = False
+    models: ModelOptions
     optimization: OptimizationOptions = OptimizationOptions()
-
+    reference_model_in_smooth: bool = False
     store_sensitivities: str = "ram"
 
     @property
