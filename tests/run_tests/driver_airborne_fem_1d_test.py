@@ -41,7 +41,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 5.5379e02, "phi_d": 4.5220e04, "phi_m": 2.2230e02}
+target_run = {"data_norm": 5.5379e02, "phi_d": 4.0330e04, "phi_m": 1.0110e03}
 
 
 def test_fem_fwr_1d_run(
@@ -149,7 +149,7 @@ def test_fem_1d_run(tmp_path: Path, max_iterations=1, pytest=True):
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e1,
             percentile=100,
-            cooling_rate=3,
+            cooling_rate=1,
             chi_factor=0.25,
             **data_kwargs,
         )

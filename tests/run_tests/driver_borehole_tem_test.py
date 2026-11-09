@@ -45,7 +45,7 @@ logger = getLogger(__name__)
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 4.6520e-11, "phi_d": 1.5080e03, "phi_m": 3.3560e04}
+target_run = {"data_norm": 4.6520e-11, "phi_d": 1.5050e03, "phi_m": 2.3150e04}
 
 
 def test_borehole_tem_fwr_run(
@@ -90,7 +90,7 @@ def test_borehole_tem_fwr_run(
             ),
         ),
     )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
         components.mesh.origin = components.mesh.origin + np.r_[-2.5, -2.5, 0.0]
         # components.survey.complement.vertices = components.survey.complement.vertices + np.r_[-100.0, -100.0, 0.0]
@@ -110,23 +110,26 @@ def test_borehole_tem_fwr_run(
     fwr_driver = BoreholeTDEMForwardDriver(params)
 
     # Check that the loop source is well discretized on the tile meshes
-    for obj in fwr_driver.data_misfit.objfcts:
-        mesh = obj.simulation.simulations[0].mesh
-        indices = get_intersecting_cells(components.survey.complement.vertices, mesh)
-        levels = mesh.cell_levels_by_index(indices)
+    if pytest:
+        for obj in fwr_driver.data_misfit.objfcts:
+            mesh = obj.simulation.simulations[0].mesh
+            indices = get_intersecting_cells(
+                components.survey.complement.vertices, mesh
+            )
+            levels = mesh.cell_levels_by_index(indices)
 
-        assert np.all(levels == 7), (
-            "Loop source is not well discretized on the tile meshes."
-        )
+            assert np.all(levels == 7), (
+                "Loop source is not well discretized on the tile meshes."
+            )
 
     fwr_driver.run()
 
 
 def test_borehole_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
-    workpath = tmp_path / "inversion_test.ui.geoh5"
+    workpath = tmp_path / "inversion_test.geoh5"
     if pytest:
         workpath = (
-            tmp_path.parent / "test_borehole_tem_fwr_run0" / "inversion_test.ui.geoh5"
+            tmp_path.parent / "test_borehole_tem_fwr_run0" / "inversion_test.geoh5"
         )
 
     with Workspace(workpath) as geoh5:

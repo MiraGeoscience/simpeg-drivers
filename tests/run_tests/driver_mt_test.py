@@ -42,7 +42,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 3.4932e-02, "phi_d": 1.4110e-01, "phi_m": 3.3300e00}
+target_run = {"data_norm": 3.4932e-02, "phi_d": 6.8560e-01, "phi_m": 1.5640e-02}
 
 
 def setup_data(workspace, survey):

@@ -36,7 +36,7 @@ def test_smallness_terms(tmp_path: Path):
         mesh=MeshOptions(refinement=refinement),
         model=ModelOptions(anomaly=0.75),
     )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
 
         gz = components.survey.add_data(
@@ -75,7 +75,7 @@ def test_target_chi(tmp_path: Path, caplog):
         mesh=MeshOptions(refinement=refinement),
         model=ModelOptions(anomaly=0.75),
     )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
         gz = components.survey.add_data(
             {"gz": {"values": np.ones(components.survey.n_vertices)}}
@@ -110,7 +110,7 @@ def test_mesh_visual_parameters_copy(tmp_path: Path):
         mesh=MeshOptions(refinement=refinement),
         model=ModelOptions(anomaly=0.75),
     )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
 
         gz = components.survey.add_data(

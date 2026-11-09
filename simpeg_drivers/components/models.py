@@ -177,8 +177,8 @@ class InversionModelCollection:
                 mstart = 1 / mstart
 
             mstart = np.log(mstart)
-        else:
-            mstart[mstart == 0] = 1e-8  # To avoid nan in beta estimator
+        elif np.all(mstart == 0):
+            mstart += 1e-8  # To avoid nan in beta estimator
 
         if self.is_vector:
             field_vecs = dip_azimuth2cartesian(

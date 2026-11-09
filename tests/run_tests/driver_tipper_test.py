@@ -38,7 +38,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 0.011288577319036807, "phi_d": 11.7, "phi_m": 49.9}
+target_run = {"data_norm": 1.1289e-02, "phi_d": 1.3310e01, "phi_m": 1.9600e-02}
 
 
 def test_tipper_fwr_run(
@@ -64,7 +64,7 @@ def test_tipper_fwr_run(
         ),
         model=ModelOptions(background=100.0),
     )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
 
         params = TipperForwardOptions.build(
@@ -89,9 +89,9 @@ def test_tipper_fwr_run(
 
 
 def test_tipper_run(tmp_path: Path, max_iterations=1, pytest=True):
-    workpath = tmp_path / "inversion_test.ui.geoh5"
+    workpath = tmp_path / "inversion_test.geoh5"
     if pytest:
-        workpath = tmp_path.parent / "test_tipper_fwr_run0" / "inversion_test.ui.geoh5"
+        workpath = tmp_path.parent / "test_tipper_fwr_run0" / "inversion_test.geoh5"
 
     with Workspace(workpath) as geoh5:
         components = SyntheticsComponents(geoh5=geoh5)

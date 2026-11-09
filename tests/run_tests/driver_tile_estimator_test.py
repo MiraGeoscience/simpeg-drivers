@@ -54,7 +54,7 @@ def test_tile_estimator_run(
         ),
         model=ModelOptions(anomaly=0.05),
     )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
         tmi_channel = components.survey.add_data(
             {

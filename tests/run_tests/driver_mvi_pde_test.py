@@ -41,7 +41,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_mvi_pde_run = {"data_norm": 181.99122096291276, "phi_d": 408, "phi_m": 0.013}
+target_mvi_pde_run = {"data_norm": 1.8199e02, "phi_d": 1.8090e01, "phi_m": 1.6040e-01}
 
 
 def test_mvi_pde_fwr_run(
@@ -67,7 +67,7 @@ def test_mvi_pde_fwr_run(
         ),
         model=ModelOptions(anomaly=0.05),
     )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
         inducing_field = (50000.0, 90.0, 0.0)
         params = MagneticVectorPDEForwardOptions.build(
@@ -93,9 +93,9 @@ def test_mvi_pde_run(
     upper_bound=1e-2,
     pytest=True,
 ):
-    workpath = tmp_path / "inversion_test.ui.geoh5"
+    workpath = tmp_path / "inversion_test.geoh5"
     if pytest:
-        workpath = tmp_path.parent / "test_mvi_pde_fwr_run0" / "inversion_test.ui.geoh5"
+        workpath = tmp_path.parent / "test_mvi_pde_fwr_run0" / "inversion_test.geoh5"
 
     with Workspace(workpath) as geoh5:
         tmi = geoh5.get_entity("Iteration_0_tmi")[0]

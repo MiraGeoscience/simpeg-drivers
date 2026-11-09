@@ -104,7 +104,7 @@ def test_fem_fwr_run(tmp_path: Path, azimuth, dip):
         ),
     )
 
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
         survey = components.survey
 
@@ -146,12 +146,12 @@ def test_fem_fwr_run(tmp_path: Path, azimuth, dip):
 def test_validate_orientations(tmp_path: Path):
 
     with Workspace(
-        tmp_path / "../test_fem_fwr_run_90_0_0/inversion_test.ui.geoh5"
+        tmp_path / "../test_fem_fwr_run_90_0_0/inversion_test.geoh5"
     ) as geoh5:
         sim_90_0 = collect_real_components(geoh5)
 
     with Workspace(
-        tmp_path / "../test_fem_fwr_run_45_0_0/inversion_test.ui.geoh5"
+        tmp_path / "../test_fem_fwr_run_45_0_0/inversion_test.geoh5"
     ) as geoh5:
         sim_45_0 = collect_real_components(geoh5)
 

@@ -43,7 +43,7 @@ def test_plate_simulation_params_from_input_file(tmp_path, caplog):
         mesh=SyntheticsMeshOptions(),
         model=SyntheticsModelOptions(anomaly=0.0),
     )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
 
         # Add simulation parameter

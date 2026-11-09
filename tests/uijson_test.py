@@ -301,7 +301,7 @@ def test_legacy_uijson(tmp_path: Path, caplog, version):
                 anomaly=2.0,
             ),
         )
-        with Workspace.create(work_path / "inversion_test.ui.geoh5") as geoh5:
+        with Workspace.create(work_path / "inversion_test.geoh5") as geoh5:
             components = SyntheticsComponents(geoh5, options=opts)
             options = ifile.to_params(workspace=geoh5, validate=False)
             options["geoh5"] = geoh5

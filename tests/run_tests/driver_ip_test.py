@@ -38,7 +38,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
 
-target_run = {"data_norm": 4.6608e-03, "phi_d": 5.4190e02, "phi_m": 2.1450e-06}
+target_run = {"data_norm": 4.6608e-03, "phi_d": 2.4880e01, "phi_m": 1.9730e00}
 
 
 def test_ip_3d_fwr_run(
@@ -63,7 +63,7 @@ def test_ip_3d_fwr_run(
         ),
         model=ModelOptions(background=1e-6, anomaly=1e-1),
     )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
         params = IP3DForwardOptions.build(
             geoh5=geoh5,
@@ -84,9 +84,9 @@ def test_ip_3d_run(
     pytest=True,
     n_lines=3,
 ):
-    workpath = tmp_path / "inversion_test.ui.geoh5"
+    workpath = tmp_path / "inversion_test.geoh5"
     if pytest:
-        workpath = tmp_path.parent / "test_ip_3d_fwr_run0" / "inversion_test.ui.geoh5"
+        workpath = tmp_path.parent / "test_ip_3d_fwr_run0" / "inversion_test.geoh5"
 
     with Workspace(workpath) as geoh5:
         potential = geoh5.get_entity("Iteration_0_chargeability")[0]

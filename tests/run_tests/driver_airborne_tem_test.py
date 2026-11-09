@@ -39,7 +39,7 @@ from tests.utils.targets import check_target, get_inversion_output, get_workspac
 
 # To test the full run and validate the inversion.
 # Move this file out of the test directory and run.
-target_run = {"data_norm": 3.5453800870424367e-10, "phi_d": 29300, "phi_m": 4600}
+target_run = {"data_norm": 3.5454e-10, "phi_d": 2.9170e04, "phi_m": 3.4520e04}
 
 
 def test_bad_waveform(tmp_path: Path):
@@ -64,7 +64,7 @@ def test_bad_waveform(tmp_path: Path):
         ),
         model=ModelOptions(background=0.001),
     )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
         params = TDEMForwardOptions.build(
             geoh5=geoh5,
@@ -115,7 +115,7 @@ def test_airborne_tem_fwr_run(
         ),
         model=ModelOptions(background=0.001),
     )
-    with get_workspace(tmp_path / "inversion_test.ui.geoh5") as geoh5:
+    with get_workspace(tmp_path / "inversion_test.geoh5") as geoh5:
         components = SyntheticsComponents(geoh5, options=opts)
         params = TDEMForwardOptions.build(
             geoh5=geoh5,
@@ -135,10 +135,10 @@ def test_airborne_tem_fwr_run(
 
 
 def test_airborne_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
-    workpath = tmp_path / "inversion_test.ui.geoh5"
+    workpath = tmp_path / "inversion_test.geoh5"
     if pytest:
         workpath = (
-            tmp_path.parent / "test_airborne_tem_fwr_run0" / "inversion_test.ui.geoh5"
+            tmp_path.parent / "test_airborne_tem_fwr_run0" / "inversion_test.geoh5"
         )
 
     with Workspace(workpath) as geoh5:
@@ -200,7 +200,7 @@ def test_airborne_tem_run(tmp_path: Path, max_iterations=1, pytest=True):
             upper_bound=1e2,
             max_global_iterations=max_iterations,
             initial_beta_ratio=1e2,
-            cooling_rate=4,
+            cooling_rate=1,
             max_cg_iterations=200,
             percentile=5,
             solver_type="Mumps",
