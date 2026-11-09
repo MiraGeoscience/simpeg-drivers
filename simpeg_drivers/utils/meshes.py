@@ -49,6 +49,10 @@ def use_vertical_padding(inversion_type):
         for k in ["direct current", "induced polarization", "gravity", "magnetic "]
     ):
         out = False
+
+    if "pde" in inversion_type:
+        out = True
+
     return out
 
 
