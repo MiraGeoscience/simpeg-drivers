@@ -245,7 +245,7 @@ class ReceiversFactory(SimPEGFactory):
 
         # E-field on base stations and H-field locations
         if self.factory_type == "apparent conductivity":
-            return stations, locations
+            return locations, stations
 
         # H-field on locations with base stations
         return locations, stations
