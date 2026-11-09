@@ -361,10 +361,10 @@ class PlateMatchDriver(Driver):
 
                 ui_json_dict = survey.parent.parent.options
                 ui_json_dict["geoh5"] = ws
-                uijson = SimPEGDriversUIJson.from_dict(ui_json_dict)
 
                 # Avoid getting pydantic deprecation warnings from old PlateSimulations stored
                 with suppress_logging():
+                    uijson = SimPEGDriversUIJson.from_dict(ui_json_dict)
                     options = PlateSimulationOptions.build(**uijson.to_params(ws))
 
                 dir_correction = strike_angle[ii] + 180 if flip else strike_angle[ii]
