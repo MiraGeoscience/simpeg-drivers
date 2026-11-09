@@ -168,7 +168,6 @@ class CoreOptions(Options):
     :param active_cells: Active cell data as either a topography surface/data or a 3D model.
 
     :param out_group: Output group to save results.
-    :param generate_sweep: Generate sweep file instead of running the app.
     """
 
     model_config = ConfigDict(
@@ -191,7 +190,6 @@ class CoreOptions(Options):
     active_cells: ActiveCellsOptions
     compute: ComputeOptions = ComputeOptions()
     out_group: SimPEGGroup | UIJsonGroup | None = None
-    generate_sweep: bool = False
     workspace_geoh5: Path | None = Field(
         default=None,
         exclude=True,
