@@ -8,21 +8,21 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-import json
+
+import importlib
 import logging
 from pathlib import Path
-from typing import ClassVar
 
 import numpy as np
 import pytest
-from geoapps_utils.driver.data import BaseData
+from geoapps_utils.base import Options
 from geoh5py import Workspace
 from geoh5py.ui_json.annotations import Deprecated
 from packaging.version import Version
 from pydantic import AliasChoices, Field
 
 import simpeg_drivers
-from simpeg_drivers.options import Deprecations, IRLSOptions
+from simpeg_drivers.options import CoreOptions, Deprecations, IRLSOptions
 from simpeg_drivers.uijson import SimPEGDriversUIJson
 from simpeg_drivers.utils.synthetics.driver import SyntheticsComponents
 from simpeg_drivers.utils.synthetics.options import (
@@ -75,38 +75,6 @@ def simpeg_uijson_factory_fixture(workspace):
 
 
 @pytest.mark.parametrize(
-    "version_input,expected",
-    [
-        # Normal version
-        ("1.2.3", "1.2.3"),
-        # Dev version
-        ("1.2.3.dev1", "1.2.3"),
-        # Post-release version
-        ("1.2.3.post1", "1.2.3"),
-        # RC pre-release version
-        ("1.2.3rc1", "1.2.3"),
-        # Alpha pre-release version (should not normalize)
-        ("1.2.3a1", "1.2.3a1"),
-        # Beta pre-release version (should not normalize)
-        ("1.2.3b1", "1.2.3b1"),
-        # Local version
-        ("1.2.3+local", "1.2.3"),
-        # Combined cases with RC and post
-        ("1.2.3rc1.post2+local", "1.2.3"),
-        # Combined cases with RC and dev
-        ("1.2.3rc1.dev2+local", "1.2.3"),
-        # Combined cases with pre non-RC and post
-        ("1.2.3b1.post2+local", "1.2.3b1"),
-        # Combined cases with pre non-RC and dev
-        ("1.2.3b1.dev2+local", "1.2.3b1"),
-    ],
-)
-def test_comparable_version(version_input, expected):
-    """Test the comparable_version method of SimPEGDriversUIJson."""
-    assert SimPEGDriversUIJson.comparable_version(version_input) == expected
-
-
-@pytest.mark.parametrize(
     "version_input,package_version,should_warn",
     [
         # Different version (should warn)
@@ -137,20 +105,20 @@ def test_comparable_version(version_input, expected):
 def test_version_warning(
     monkeypatch,
     caplog,
-    simpeg_uijson_factory,
     version_input,
     package_version,
     should_warn,
 ):
     """Test version warning behavior with mocked package version."""
     # Mock the package version
-    monkeypatch.setattr(simpeg_drivers, "__version__", package_version)
+    monkeypatch.setattr(
+        importlib.metadata, "version", lambda package_name: package_version
+    )
 
     with caplog.at_level(logging.WARNING):
         caplog.clear()
-        _ = simpeg_uijson_factory(version=version_input)
-
-        warning_message = f"version '{version_input}' does not match the current simpeg-drivers version"
+        CoreOptions.verify_and_update_version(version_input)
+        warning_message = f"version '{version_input}' does not match the current 'simpeg_drivers' version"
         warning_found = any(
             warning_message in record.message for record in caplog.records
         )
@@ -158,57 +126,27 @@ def test_version_warning(
         assert warning_found == should_warn
 
 
-def test_write_default(tmp_path):
-    default_path = tmp_path / "default.ui.json"
-    data = {
-        "icon": "",
-        "version": "0.1.0",
-        "title": "My app",
-        "geoh5": "",
-        "run_command": "myapp.driver",
-        "monitoring_directory": "",
-        "conda_environment": "my-app",
-        "workspace_geoh5": "",
-    }
-    with open(default_path, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=4)
-
-    class MyUIJson(SimPEGDriversUIJson):
-        default_ui_json: ClassVar[Path] = default_path
-        version: str = "0.2.0"
-
-    MyUIJson.write_default()
-
-    with open(default_path, encoding="utf-8") as f:
-        data = json.load(f)
-
-    # Use comparable_version for comparison to handle pre/post-release versions
-    assert SimPEGDriversUIJson.comparable_version(
-        data["version"]
-    ) == SimPEGDriversUIJson.comparable_version(simpeg_drivers.__version__)
-
-
 def test_alias_options():
     geoh5 = Workspace()
 
-    class Options(BaseData):
+    class TestOptions(Options):
         irls: IRLSOptions = IRLSOptions()
         name: str = "My Inversion"
 
-    options = Options.build(geoh5=geoh5, coolEpsFact=0.1)
+    options = TestOptions.build(geoh5=geoh5, coolEpsFact=0.1)
     assert options.irls.epsilon_cooling_factor == 0.1
 
 
 def test_deprecated_options(caplog):
     geoh5 = Workspace()
 
-    class Options(BaseData):
+    class TestOptions(Options):
         irls: IRLSOptions = IRLSOptions()
         name: str = "My Inversion"
         deprecations: Deprecations
 
     with caplog.at_level(logging.WARNING):
-        options = Options.build(geoh5=geoh5, gradient_type="abc")
+        options = TestOptions.build(geoh5=geoh5, gradient_type="abc")
 
     assert "Deprecated field 'gradient_type' will be ignored" in caplog.text
     assert "deprecations" not in options.model_dump()
