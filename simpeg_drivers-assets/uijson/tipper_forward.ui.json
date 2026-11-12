@@ -186,14 +186,6 @@
         "enabled": false,
         "tooltip": "Optionally set the SimPEG group to which results will be saved"
     },
-    "generate_sweep": {
-        "label": "Generate sweep file",
-        "group": "Python run preferences",
-        "main": true,
-        "value": false,
-        "visible": false,
-        "tooltip": "Generates a file for sweeping parameters instead of running the application"
-    },
     "n_workers": null,
     "n_threads": null,
     "max_ram": "",

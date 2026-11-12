@@ -158,6 +158,7 @@ def test_magnetic_vector_run(
                 upper_bound=upper_bound,
                 max_global_iterations=max_iterations,
                 initial_beta_ratio=2e0,
+                normalized_residuals=True,
             )
             params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
         if caplog:
@@ -188,6 +189,17 @@ def test_magnetic_vector_run(
             assert len(mesh.fetch_property_group("LP iterations").properties) == 6
 
             check_target(output, target_mvi_run)
+
+            # Check that the residuals are normalized
+            obs = run_ws.get_entity("Observed_tmi")[0]
+            uncert = run_ws.get_entity("Uncertainties_tmi")[0]
+            pred = run_ws.get_entity("Iteration_1_tmi")[0]
+            norm_res = (obs.values - pred.values) / uncert.values
+            np.testing.assert_almost_equal(
+                norm_res,
+                run_ws.get_entity("Iteration_1_tmi_NormResiduals")[0].values,
+                decimal=3,
+            )
 
 
 def test_restart_run(tmp_path):
