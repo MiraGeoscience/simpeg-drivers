@@ -611,12 +611,19 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
                 **kwargs,
             )
 
+        if name == "Residual" and self.params.normalized_residuals:
+            uncertainties = np.vstack(
+                [k[0] for k in inversion_object.uncertainties.values()]
+            )
+            kwargs["label"] = "NormResiduals"
+            kwargs["transforms"].append(lambda x: x / uncertainties.ravel())
+
         return kwargs
 
     @staticmethod
     def assemble_data_keywords_potential_fields(
         inversion_object=None,
-        name=None,
+        name: str | None = None,
         **kwargs,
     ):
         if name == "Residual":
@@ -635,7 +642,7 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
     def assemble_data_keywords_dcip(
         self,
         inversion_object=None,
-        name=None,
+        name: str | None = None,
         **kwargs,
     ):
         components = list(inversion_object.observed)

@@ -173,6 +173,13 @@
         "property": "",
         "value": 1.0
     },
+    "normalized_residuals": {
+        "label": "Normalized residuals",
+        "group": "Data",
+        "main": true,
+        "value": false,
+        "tooltip": "Whether to normalize the residuals by the uncertainty."
+    },
     "mesh": {
         "group": "Mesh and models",
         "main": true,
