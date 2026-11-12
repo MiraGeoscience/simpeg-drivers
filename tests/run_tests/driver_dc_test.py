@@ -131,6 +131,7 @@ def test_dc_3d_run(
             save_sensitivities=True,
             cooling_rate=1,
             chi_factor=0.5,
+            normalized_residuals=True,
         )
         params.write_ui_json(path=tmp_path / "Inv_run.ui.json")
 
@@ -143,13 +144,24 @@ def test_dc_3d_run(
     output = get_inversion_output(
         driver.params.geoh5.h5file, driver.params.out_group.uid
     )
+
     if geoh5.open():
         output["data"] = potential.values
     if pytest:
         check_target(output, target_run)
 
-    with Workspace(workpath) as geoh5:
-        assert geoh5.get_entity("Iteration_1_sensitivities")[0] is not None
+        with Workspace(workpath) as geoh5:
+            assert geoh5.get_entity("Iteration_1_sensitivities")[0] is not None
+            # Check that the residuals are normalized
+            obs = geoh5.get_entity("Observed_potential")[0]
+            uncert = geoh5.get_entity("Uncertainties_potential")[0]
+            pred = geoh5.get_entity("Iteration_1_potential")[0]
+            norm_res = (obs.values - pred.values) / uncert.values
+            np.testing.assert_almost_equal(
+                norm_res,
+                geoh5.get_entity("Iteration_1_potential_NormResiduals")[0].values,
+                decimal=3,
+            )
 
 
 def test_dc_single_line_fwr_run(

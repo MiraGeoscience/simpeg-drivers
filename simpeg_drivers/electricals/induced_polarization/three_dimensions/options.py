@@ -21,7 +21,7 @@ from simpeg_drivers import assets_path
 from simpeg_drivers.options import (
     BaseForwardOptions,
     BaseInversionOptions,
-    IPModelOptions,
+    ConductivityModelOptions,
 )
 
 
@@ -43,7 +43,7 @@ class IP3DForwardOptions(BaseForwardOptions):
 
     data_object: PotentialElectrode
     chargeability_channel_bool: bool = True
-    models: IPModelOptions
+    models: ConductivityModelOptions
 
 
 class IP3DInversionOptions(BaseInversionOptions):
@@ -66,4 +66,4 @@ class IP3DInversionOptions(BaseInversionOptions):
     data_object: PotentialElectrode
     chargeability_channel: FloatData
     chargeability_uncertainty: float | FloatData | None = None
-    models: IPModelOptions
+    models: ConductivityModelOptions

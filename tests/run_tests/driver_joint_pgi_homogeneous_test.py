@@ -365,6 +365,7 @@ def test_homogeneous_run(
         )
         new_driver = MagneticInversionDriver(params)
         joint_params.group_b = new_driver.out_group
+        joint_params.models.alpha_s = 10.0
         driver = JointPetrophysicsDriver(joint_params)
         driver.run()
 

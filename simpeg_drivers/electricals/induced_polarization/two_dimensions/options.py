@@ -21,7 +21,7 @@ from simpeg_drivers.electricals.base_2d import Base2DOptions
 from simpeg_drivers.options import (
     BaseForwardOptions,
     BaseInversionOptions,
-    IPModelOptions,
+    ConductivityModelOptions,
 )
 
 
@@ -44,7 +44,7 @@ class IP2DForwardOptions(BaseForwardOptions, Base2DOptions):
     inversion_type: str = "induced polarization 2d"
 
     chargeability_channel_bool: bool = True
-    models: IPModelOptions
+    models: ConductivityModelOptions
 
 
 class IP2DInversionOptions(BaseInversionOptions, Base2DOptions):
@@ -68,4 +68,4 @@ class IP2DInversionOptions(BaseInversionOptions, Base2DOptions):
 
     chargeability_channel: FloatData
     chargeability_uncertainty: float | FloatData | None = None
-    models: IPModelOptions
+    models: ConductivityModelOptions
