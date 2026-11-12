@@ -224,7 +224,7 @@ class InversionModelCollection:
             return mref
 
         if mref is None or (self.is_sigma and all(mref == 0)):
-            self.driver.params.alpha_s = 0.0
+            self.driver.params.models.alpha_s = 0.0
 
             return None
 

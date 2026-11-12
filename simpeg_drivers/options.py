@@ -659,11 +659,3 @@ class BaseInversionOptions(CoreOptions):
             data *= np.ones_like(self.component_data(component)[0])
 
         return [data]
-
-
-class IPModelOptions(ConductivityModelOptions):
-    """
-    ModelOptions class with defaulted lower bound.
-    """
-
-    lower_bound: float | FloatData | IntegerData | None = 0
