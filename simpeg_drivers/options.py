@@ -189,6 +189,7 @@ class CoreOptions(Options):
     mesh: Octree | Grid2D | DrapeModel | None = None
     active_cells: ActiveCellsOptions
     compute: ComputeOptions = ComputeOptions()
+    physical_property: str = Field(exclude=True)
     out_group: SimPEGGroup | UIJsonGroup | None = None
     workspace_geoh5: Path | None = Field(
         default=None,
@@ -196,7 +197,6 @@ class CoreOptions(Options):
     )
     # List of deprecated parameters
     deprecations: Deprecations
-
     _ui_json_class: ClassVar[type] = SimPEGDriversUIJson
 
     @property
