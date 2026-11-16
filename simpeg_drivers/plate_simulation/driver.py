@@ -313,11 +313,12 @@ class PlateSimulationDriver(Driver):
         models_update = {}
         if opts.physical_property == "conductivity":
             models_update["model_type"] = ModelTypeEnum.resistivity
+
         if not self.params.use_leroi:
             update["mesh"] = None
             models_update["starting_model"] = None
-        update["models"] = opts.models.model_copy(update=models_update)
 
+        update["models"] = opts.models.model_copy(update=models_update)
         out_group = self.validate_out_group(opts.out_group)
         out_group = out_group.copy(
             parent=self.out_group,
