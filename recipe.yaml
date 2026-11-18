@@ -30,7 +30,7 @@ requirements:
     - poetry-core >=2.2.1
     - poetry-dynamic-versioning >=1.9, 1.*
   run:
-    - python >=${{ python_min }}, <3.14.0a.dev
+    - python >=${{ python_min }}, <3.15.0a.dev
     # Mira packages
     - geoapps-utils >=0.8.0b1, <0.9.0
     - geoh5py >=0.14.0b1, <0.15.0
@@ -44,7 +44,7 @@ requirements:
     - matplotlib-base >=3.10.4, 3.10.*
     - numpy >=2.4.2, 2.4.*
     - openpyxl >=3.1.2, 3.*
-    - pandas >=2.2.1, 2.*
+    - pandas >=2.3.3, 2.*
     - pydantic 2.12.*
     - pydiso 0.2.*
     - python-mumps 0.0.6.*
