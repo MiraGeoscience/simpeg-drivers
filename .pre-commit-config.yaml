@@ -70,7 +70,7 @@ repos:
     rev: v2.4.3
     hooks:
     -   id: codespell
-        exclude: (pixi\.lock|-lock\.ya?ml|\benvironments/.*\.ya?ml|\.ipynb|\.svg|^THIRD_PARTY_SOFTWARE\.rst)$
+        exclude: (pixi\.lock|\.ipynb|\.svg|^THIRD_PARTY_SOFTWARE\.rst)$
         entry: codespell -I .codespellignore
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
