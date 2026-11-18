@@ -52,7 +52,7 @@ grid-apps = ">=0.3.0a1.dev1,<0.4.0"
 # grid-apps = { git = "https://github.com/MiraGeoscience/grid-apps.git", rev = "GA-9681" }
 geoapps-utils = ">=0.8.0b1,<0.9.0"
 # geoapps-utils = { git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "release/ga-4.9" }
-mira-simpeg = { version = ">=0.26.0a1.dev1,<0.27.0", extras = ["dask"] }
+mira-simpeg = { version = ">=0.26.0.1b1,<0.27.0", extras = ["dask"] }
 # mira-simpeg = { git = "https://github.com/MiraGeoscience/simpeg.git", rev = "release/ga-4.9" }
 
 [pypi-options]
