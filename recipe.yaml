@@ -34,8 +34,8 @@ requirements:
     # Mira packages
     - geoapps-utils >=0.8.0b1, <0.9.0
     - geoh5py >=0.14.0b1, <0.15.0
-    - grid-apps >=0.3.0a1, <0.4.0
-    - mira-simpeg >=0.25.0.2a3, <0.26.0
+    - grid-apps >=0.3.0a1.dev1, <0.4.0
+    - mira-simpeg >=0.26.0a1.dev1, <0.27.0
 
     # direct dependencies
     - dask-core 2026.1.*
@@ -55,7 +55,7 @@ requirements:
     - trimesh >=4.1.3, 4.*
     # constrain version for some indirect dependencies from SimPEG
     - geoana 0.8.*
-    - h5py >=3.15.1, 3.*
+    - h5py >=3.15.1, <3.16
     - pillow >=13.0.0, 13.*
     - pymatsolver 0.3.*
     - psutil >=7.2.2, 7.2.*
@@ -63,7 +63,8 @@ requirements:
   run_constraints:
     - __glibc >=2.17
     - bokeh 3.6.*
-    - certifi >=2026.10.18, 2026.*
+    # Transitive security floor, not a direct dependency; GHSA-6q48-6c7w-9gw2 is fixed in 2026.10.18.
+    - certifi >=2026.10.18
     - fsspec >=2022.0
     - msgpack-python >=1.2.3, 1.*
     - tornado >=6.6.1, 6.*
