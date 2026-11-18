@@ -48,8 +48,8 @@ certifi = ">=2026.10.18"
 [pypi-dependencies]
 geoh5py = ">=0.14.0b1,<0.15.0"
 # geoh5py = { git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "release/ga-4.9" }
-grid-apps = ">=0.3.0a1.dev1,<0.4.0"
-# grid-apps = { git = "https://github.com/MiraGeoscience/grid-apps.git", rev = "GA-9681" }
+grid-apps = ">=0.3.0b1,<0.4.0"
+# grid-apps = { git = "https://github.com/MiraGeoscience/grid-apps.git", rev = "release/ga-4.9" }
 geoapps-utils = ">=0.8.0b1,<0.9.0"
 # geoapps-utils = { git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "release/ga-4.9" }
 mira-simpeg = { version = ">=0.26.0.1b1,<0.27.0", extras = ["dask"] }

@@ -34,7 +34,7 @@ requirements:
     # Mira packages
     - geoapps-utils >=0.8.0b1, <0.9.0
     - geoh5py >=0.14.0b1, <0.15.0
-    - grid-apps >=0.3.0a1.dev1, <0.4.0
+    - grid-apps >=0.3.0b1, <0.4.0
     - mira-simpeg >=0.26.0.1b1, <0.27.0
 
     # direct dependencies
