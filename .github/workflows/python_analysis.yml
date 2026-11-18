@@ -26,27 +26,35 @@ concurrency:
 jobs:
   call-workflow-static-analysis:
     name: Static analysis
-    uses: MiraGeoscience/CI-tools/.github/workflows/reusable-python-static_analysis.yml@edb72d7524d25db3b4eb976890eb6837a8eb39f8 # v4.0.1
+    uses: MiraGeoscience/CI-tools/.github/workflows/reusable-python-static_analysis.yml@a04f702dfd2c9d840b5cb79f31fada5a3c5ea2f6 # GA-9681-pixi-workflow
     permissions:
       contents: read
       pull-requests: read
     with:
-      package-manager: 'conda'
+      package-manager: 'pixi'
       app-name: 'simpeg_drivers'
       python-version: '3.12'
+      pixi-version: 'v0.84.2'
+    secrets:
+      JFROG_ARTIFACTORY_URL: ${{ secrets.JFROG_ARTIFACTORY_URL }}
+      JFROG_ARTIFACTORY_TOKEN: ${{ secrets.JFROG_ARTIFACTORY_TOKEN }}
   call-workflow-pytest:
     name: Pytest
-    uses: MiraGeoscience/CI-tools/.github/workflows/reusable-python-pytest.yml@edb72d7524d25db3b4eb976890eb6837a8eb39f8 # v4.0.1
+    uses: MiraGeoscience/CI-tools/.github/workflows/reusable-python-pytest.yml@a04f702dfd2c9d840b5cb79f31fada5a3c5ea2f6 # GA-9681-pixi-workflow
     permissions:
       contents: read
       pull-requests: read
     with:
-      package-manager: 'conda'
-      python-versions: '["3.12", "3.13"]'
+      package-manager: 'pixi'
+      python-versions: '["3.12", "3.13", "3.14"]'
+      pixi-version: 'v0.84.2'
+      pixi-setup-task: 'install'
       os: '["ubuntu-latest", "windows-latest"]'
       cache-number: 1
       codecov-reference-python-version: '3.12'
       codecov-reference-os: '["ubuntu-latest"]'
       timeout-minutes: 40
     secrets:
+      JFROG_ARTIFACTORY_URL: ${{ secrets.JFROG_ARTIFACTORY_URL }}
+      JFROG_ARTIFACTORY_TOKEN: ${{ secrets.JFROG_ARTIFACTORY_TOKEN }}
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
