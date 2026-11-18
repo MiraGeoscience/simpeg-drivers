@@ -151,3 +151,4 @@ simpeg_drivers/_version.py
 
 # Pixi environments and local credentials
 .pixi/
+/poetry.lock
