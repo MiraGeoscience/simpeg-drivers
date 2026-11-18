@@ -27,20 +27,20 @@ requirements:
   host:
     - python ${{ python_min }}.*
     - pip
-    - poetry-core >=1.8.0
+    - poetry-core >=2.2.1
     - poetry-dynamic-versioning >=1.9, 1.*
   run:
-    - python >=${{ python_min }}
+    - python >=${{ python_min }}, <3.14.0a.dev
     # Mira packages
-    - geoapps-utils >=0.8.0a, 0.8.*
-    - geoh5py >=0.14.0a, 0.14.*
-    - grid-apps >=0.3.0a, 0.3.*
-    - mira-simpeg >=0.25.0.2a, 0.25.0.*
+    - geoapps-utils >=0.8.0b1, <0.9.0
+    - geoh5py >=0.14.0b1, <0.15.0
+    - grid-apps >=0.3.0a1, <0.4.0
+    - mira-simpeg >=0.25.0.2a3, <0.26.0
 
     # direct dependencies
     - dask-core 2026.1.*
     - discretize 0.12.*
-    - distributed >=2026.1.0, 2026.*
+    - distributed 2026.1.*
     - matplotlib-base >=3.10.4, 3.10.*
     - numpy >=2.4.2, 2.4.*
     - openpyxl >=3.1.2, 3.*
