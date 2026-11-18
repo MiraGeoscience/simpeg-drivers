@@ -11,6 +11,27 @@ execute:
   execute_notebooks: auto
   exclude_patterns: [case_studies/Forrestania/python_code/*,]
 
+sphinx:
+  extra_extensions:
+    - sphinx.ext.autodoc
+    - sphinx.ext.intersphinx
+    - sphinx.ext.todo
+    - sphinx_issues
+    - sphinxcontrib.googleanalytics
+  local_extensions:
+    dynamic_config: _ext/
+  config:
+    autodoc_typehints: signature
+    issues_github_path: mirageoscience/simpeg-drivers
+    todo_include_todos: true
+    intersphinx_mapping:
+      numpy:
+        - https://numpy.org/doc/stable/
+        - null
+      python:
+        - https://docs.python.org/3.14/
+        - null
+
 # Define the name of the latex output file for PDF builds
 latex:
   latex_documents:
@@ -25,7 +46,7 @@ bibtex_reference_style:
 
 # Information about where the book exists on the web
 repository:
-  url: https://github.com/executablebooks/jupyter-book  # Online location of your book
+  url: https://github.com/MiraGeoscience/simpeg-drivers
   path_to_book: docs  # Optional path to your book, relative to the repository root
   branch: master  # Which branch of the repository should be used when creating links (optional)
 

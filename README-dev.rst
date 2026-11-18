@@ -39,6 +39,22 @@ To test editable dependencies from sibling checkouts explicitly::
 This diagnostic task changes the selected environment; reinstall it from the
 lock before validating published dependency compatibility.
 
+Building documentation
+^^^^^^^^^^^^^^^^^^^^^^
+
+The separate ``docs`` environment uses Python 3.14 and Jupyter Book 1.
+Fetch the Git LFS documentation images, then build HTML with::
+
+    git lfs pull
+    pixi run --frozen --environment docs build-docs
+
+The task installs the local package without dependencies, generates ``docs/conf.py``
+from ``docs/_config.yml``, and builds the existing book into ``docs/_build/html``.
+The generated Sphinx configuration is ignored; edit ``docs/_config.yml`` or
+``docs/_ext/dynamic_config.py`` instead. Read the Docs uses the same task and
+also creates the downloadable ``simpeg-drivers-docs.zip`` archive.
+
+
 Updating dependencies
 ^^^^^^^^^^^^^^^^^^^^^
 

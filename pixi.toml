@@ -66,6 +66,7 @@ py314 = { features = ["py314", "test", "lint"], solve-group = "py314" }
 runtime = { features = ["py312"], solve-group = "py312" }
 runtime-py313 = { features = ["py313"], solve-group = "py313" }
 runtime-py314 = { features = ["py314"], solve-group = "py314" }
+docs = { features = ["py314", "docs"], no-default-feature = true }
 
 [feature.py312.dependencies]
 python = "3.12.*"
@@ -106,6 +107,34 @@ pylint = ">=4.0.9,<5"
 
 [feature.lint.tasks]
 lint = { cmd = "pylint", description = "Run pylint on the local sources" }
+
+[feature.docs.dependencies]
+ipykernel = "*"
+jupyter-book = "1.0.*"
+jupytext = ">=1.14,<2.0"
+numpy = ">=2.4.2,<2.5.0"
+packaging = "*"
+sphinx = ">=7.4,<8.0"
+sphinx-autodoc-typehints = "*"
+sphinx-issues = "*"
+sphinxcontrib-googleanalytics = "*"
+uv = "*"
+
+[feature.docs.tasks._install-no-deps]
+cmd = "uv pip install --python \"$CONDA_PREFIX\" --no-deps ."
+
+[feature.docs.tasks.config-docs]
+depends-on = ["_install-no-deps"]
+cmd = "jupyter-book config sphinx docs/"
+
+[feature.docs.tasks.build-docs]
+args = [
+    { arg = "builder", default = "html" },
+    { arg = "outputdir", default = "docs/_build" },
+]
+depends-on = ["config-docs"]
+cmd = "sphinx-build -T -b {{builder}} docs {{outputdir}}/{{builder}}"
+env = { PYTHONPATH = "docs/_ext" }
 
 [tasks]
 install = { cmd = "uv pip install --python \"$CONDA_PREFIX\" --no-deps --editable . && uv pip check --python \"$CONDA_PREFIX\"", description = "Install the local package in editable mode without changing locked dependencies, then check compatibility" }

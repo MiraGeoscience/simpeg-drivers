@@ -152,3 +152,6 @@ simpeg_drivers/_version.py
 # Pixi environments and local credentials
 .pixi/
 /poetry.lock
+
+# Generated from the Jupyter Book configuration
+/docs/conf.py
