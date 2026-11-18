@@ -75,9 +75,9 @@ version = "0.0.0.dev0"
 
 [tool.poetry.dependencies]
 # note: py-deps-lock defines custom mapping from dask to dask-core
-dask = "~2025.3.0"  # also in simpeg[dask]
+dask = "~2026.1.0"  # also in simpeg[dask]
 discretize = "~0.12.0"  # also in simpeg, grid-apps
-distributed = "~2025.3.0"  # for dask[distributed]
+distributed = "~2026.1.0"  # for dask[distributed]
 matplotlib = "~3.10.4"  # also in geoapps-utils
 numpy = "~2.4.2"
 openpyxl = "^3.1.2"
@@ -139,12 +139,17 @@ libblas = "*=*mkl"  # because simpeg already brings in the MKL
 ## indirect dependencies, forcing them here for installation through Conda not pip
 #---------------------------------------------------------------------------------
 bokeh = "3.6.*"   # optional, for dask reporting
+certifi = ">=2026.10.18, 2026.*"
 fsspec = ">=2022.0"  # from simpeg[dask]
 geoana = "0.8.*"  # from simpeg
 h5py = ">=3.15.1, 3.*"  # from geoh5py
-pillow = ">=12.1.0, 12.*"  # from geoh5py
+pillow = ">=13.0.0, 13.*"  # from geoh5py
 psutil = ">=7.2.2, 7.2.*"  # from geoh5py
+msgpack = ">=1.2.3, 1.*"  # from distributed
 pymatsolver = "0.3.*"  # from simpeg
+tornado = ">=6.6.1, 6.*"  # from distributed
+urllib3 = ">=2.8.0, 2.*"
+werkzeug = ">=3.1.9, 3.*"
 zarr = ">=2.14.2, 2.14.*"  # from simpeg[dask]
 
 [tool.poetry.requires-plugins]
