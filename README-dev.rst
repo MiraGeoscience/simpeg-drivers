@@ -22,6 +22,16 @@ locked dependencies, then checks package compatibility. Use ``py313`` to test
 Python 3.13, ``py314`` for Python 3.14, or ``pixi run test-pyvers`` to test all versions.
 The ``runtime`` environment omits test and lint tools.
 
+On Windows, install the locked runtime into Geoscience Analyst with::
+
+    install_in_analyst.bat
+    install_in_analyst.bat -e --name simpeg-drivers-dev
+
+The script exports the locked ``win-64`` runtime, installs its dependencies
+through Analyst, and installs this checkout without resolving dependencies
+again. Pass ``-e`` first for editable mode; optional ``--conda`` and ``--name``
+arguments are forwarded to Analyst. A valid ``pixi.lock`` is required.
+
 To test editable dependencies from sibling checkouts explicitly::
 
     pixi run -e py312 test-local
