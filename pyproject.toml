@@ -222,3 +222,64 @@ fail_under = 85
 [tool.coverage.html]
 skip_empty = true
 skip_covered = true
+
+[tool.pylint.main]
+extension-pkg-allow-list = ["numpy", "scipy"]
+fail-on = ["F", "E", "W"]
+jobs = 0
+py-version = "3.12"
+
+[tool.pylint.basic]
+good-names = ["i", "j", "k", "x", "y", "z", "ex", "Run", "id", "_"]
+
+[tool.pylint.classes]
+defining-attr-methods = ["__init__", "__new__", "setUp", "__post_init__"]
+exclude-protected = ["_asdict", "_fields", "_replace", "_source", "_make"]
+valid-metaclass-classmethod-first-arg = ["cls"]
+
+[tool.pylint.design]
+max-args = 9
+max-attributes = 15
+max-bool-expr = 6
+max-branches = 13
+max-locals = 18
+max-public-methods = 21
+max-statements = 65
+min-public-methods = 1
+
+[tool.pylint.imports]
+deprecated-modules = ["optparse", "tkinter.tix"]
+
+[tool.pylint."messages control"]
+disable = [
+    "raw-checker-failed",
+    "bad-inline-option",
+    "locally-disabled",
+    "file-ignored",
+    "suppressed-message",
+    "useless-suppression",
+    "deprecated-pragma",
+    "use-symbolic-message-instead",
+    "use-implicit-booleaness-not-comparison-to-string",
+    "use-implicit-booleaness-not-comparison-to-zero",
+    "missing-module-docstring",
+    "missing-function-docstring",
+    "missing-class-docstring",
+    "fixme",
+    "R",
+    "arguments-differ",
+    "arguments-renamed",
+    "empty-docstring",
+    "import-outside-toplevel",
+    "invalid-name",
+    "line-too-long",
+    "superfluous-parens",
+    "ungrouped-imports",
+    "unused-import",
+    "unused-variable",
+    "wrong-import-position",
+]
+enable = ["c-extension-no-member"]
+
+[tool.pylint.similarities]
+min-similarity-lines = 7
