@@ -90,6 +90,7 @@ pytest = "*"
 pytest-cov = "*"
 pytest-mock = "*"
 pyyaml = "*"
+requests = "*"
 
 [feature.test.tasks]
 test = { cmd = "pytest --cov --cov-report=xml", description = "Run tests directly from the source checkout with coverage" }

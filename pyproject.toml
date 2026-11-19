@@ -116,6 +116,7 @@ dev = [
     "pytest-cov",
     "pyyaml",
     "packaging",
+    "requests",
 ]
 docs = [
     "ipywidgets>=7.6.5,<8.0.0",
