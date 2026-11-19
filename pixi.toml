@@ -25,7 +25,7 @@ pandas = ">=2.3.3,<3.0.0"
 pillow = ">=13.0.0, 13.*"  # Security floor (GHSA-wqgw-9xfh-qf2g).
 psutil = ">=7.2.2, 7.2.*"
 pydantic = ">=2.12.0,<2.13.0"
-pydiso = ">=0.2.0,<0.3.0"
+pydiso = ">=0.3.1,<0.4.0"
 pymatsolver = "0.3.*"
 python-mumps = "0.0.6.*"
 rtree = ">=1.4.0,<1.5.0"
@@ -40,6 +40,7 @@ werkzeug = ">=3.1.9, 3.*"
 zarr = ">=2.14.2, 2.14.*"
 
 [constraints]
+mkl = ">=2026.1.0,<2027.0.0"
 # Transitive security floor, not a direct dependency: GHSA-6q48-6c7w-9gw2,
 # fixed in certifi 2026.10.18.
 certifi = ">=2026.10.18"

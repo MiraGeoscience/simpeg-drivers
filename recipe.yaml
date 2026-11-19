@@ -46,7 +46,7 @@ requirements:
     - openpyxl >=3.1.2, 3.*
     - pandas >=2.3.3, 2.*
     - pydantic 2.12.*
-    - pydiso 0.2.*
+    - pydiso >=0.3.1, 0.3.*
     - python-mumps 0.0.6.*
     - rtree 1.4.*
     - scikit-learn 1.8.*
