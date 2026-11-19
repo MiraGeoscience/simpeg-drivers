@@ -58,7 +58,8 @@ Development with Pixi
 ---------------------
 
 Use `Pixi <https://pixi.sh/>`_ 0.84.2 to install the locked Conda and PyPI
-dependencies. Authenticate with ``pixi auth login mirageoscienceltd.jfrog.io``
+dependencies. Install external `uv <https://docs.astral.sh/uv/>`_ and keep both
+commands on ``PATH``. Authenticate with ``pixi auth login mirageoscienceltd.jfrog.io``
 using your own Artifactory credentials, then run::
 
   pixi install --locked -e py312

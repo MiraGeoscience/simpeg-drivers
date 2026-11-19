@@ -1,7 +1,8 @@
 Setup for development
 =====================
 
-Install `Pixi <https://pixi.sh/>`_ 0.84.2 and clone the repository.
+Install `Pixi <https://pixi.sh/>`_ 0.84.2 and external `uv <https://docs.astral.sh/uv/>`_.
+Keep both commands on ``PATH``; uv is not installed by Pixi. Clone the repository.
 Authenticate with Mira Artifactory using your own credentials::
 
     pixi auth login mirageoscienceltd.jfrog.io

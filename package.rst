@@ -21,7 +21,8 @@ Installation
 Install with Pixi
 -----------------
 
-Install `Pixi <https://pixi.sh/>`_ version 0.84.2 or newer and clone the repository.
+Install `Pixi <https://pixi.sh/>`_ version 0.84.2 or newer and external
+`uv <https://docs.astral.sh/uv/>`_, with both commands on ``PATH``, and clone the repository.
 From the checkout, install the locked runtime and the local package with::
 
     pixi run --frozen --environment runtime install
