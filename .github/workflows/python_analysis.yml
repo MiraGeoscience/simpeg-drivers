@@ -26,7 +26,7 @@ concurrency:
 jobs:
   call-workflow-static-analysis:
     name: Static analysis
-    uses: MiraGeoscience/CI-tools/.github/workflows/reusable-python-static_analysis.yml@ada36c93a8c58e7eaf49522cb6b5c79c5c47bca2 # GA-9681-pixi-workflow
+    uses: MiraGeoscience/CI-tools/.github/workflows/reusable-python-static_analysis.yml@9d0728c5214f5e416e580139fe0e7f1cea1237aa # GA-9681-pixi-workflow
     permissions:
       contents: read
       pull-requests: read
@@ -40,7 +40,7 @@ jobs:
       JFROG_ARTIFACTORY_TOKEN: ${{ secrets.JFROG_ARTIFACTORY_TOKEN }}
   call-workflow-pytest:
     name: Pytest
-    uses: MiraGeoscience/CI-tools/.github/workflows/reusable-python-pytest.yml@ada36c93a8c58e7eaf49522cb6b5c79c5c47bca2 # GA-9681-pixi-workflow
+    uses: MiraGeoscience/CI-tools/.github/workflows/reusable-python-pytest.yml@9d0728c5214f5e416e580139fe0e7f1cea1237aa # GA-9681-pixi-workflow
     permissions:
       contents: read
       pull-requests: read
