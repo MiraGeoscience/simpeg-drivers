@@ -421,7 +421,7 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
             "label": "model",
             "association": "CEll",
             "transforms": [active_cells_map, inversion_object.permutation.T],
-            "data_type_attributes": {"mapping": "logarithmic", "scale": "Log"},
+            "data_type_attributes": {"mapping": "linear"},
         }
 
         if "magnetic vector" in self.factory_type:
