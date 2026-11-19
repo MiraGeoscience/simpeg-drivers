@@ -83,15 +83,11 @@ tests:
         - geoh5py
         - grid_apps
         - simpeg
-      pip_check: false
 
   - script:
-      # Ignore unrelated user-site packages when checking the test environment.
-      - python -I -m pip check
-      - python -I -m pytest --ignore=tests/version_test.py --ignore=tests/run_tests --ignore=tests/plate_simulation
+      - pytest --ignore=tests/version_test.py --ignore=tests/run_tests --ignore=tests/plate_simulation
     requirements:
       run:
-        - pip
         - pytest
     files:
       source:
