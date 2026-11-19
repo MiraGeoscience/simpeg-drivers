@@ -16,11 +16,10 @@ from __future__ import annotations
 
 from abc import ABC
 from logging import getLogger
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from geoh5py.data.data_type import ColorMap, DataType
-from geoh5py.groups.property_group import GroupTypeEnum
 from geoh5py.objects import PotentialElectrode
 from matplotlib import colormaps
 from numpy import sqrt
@@ -418,7 +417,7 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
         active_cells_map = maps.InjectActiveCells(
             inversion_object.mesh, active_cells, np.nan
         )
-        kwargs = {
+        kwargs: dict[str, Any] = {
             "label": "model",
             "association": "CEll",
             "transforms": [active_cells_map, inversion_object.permutation.T],
@@ -458,6 +457,8 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
 
             if self.params.models.model_type == ModelTypeEnum.resistivity:
                 kwargs["transforms"].append(lambda x: 1 / x)
+
+            kwargs["data_type_attributes"] = {"mapping": "logarithmic"}
 
         if "1d" in self.factory_type or "2d" in self.factory_type:
             ghosts = (
@@ -659,6 +660,7 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
                 kwargs["data_type"] = {
                     components[0]: {"apparent_resistivity": observed.entity_type}
                 }
+            kwargs["data_type_attributes"] = {"mapping": "logarithmic"}
 
         if name == "Residual":
             kwargs["label"] = name
