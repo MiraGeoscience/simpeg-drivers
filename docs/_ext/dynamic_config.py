@@ -12,7 +12,7 @@ def configure_version(app, config):
         release = release.rsplit(".post", 1)[0]
     config.release = release
     config.version = full_version.base_version
-    config.copyright = datetime.now().strftime("%Y, Mira Geoscience Ltd.")
+    config.copyright = datetime.now().strftime("%Y, Mira Geoscience Ltd")
     config.rst_epilog = (
         f"\n.. |copyright_notice| replace:: Copyright {config.copyright}.\n"
     )
