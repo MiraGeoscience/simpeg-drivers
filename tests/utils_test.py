@@ -37,3 +37,13 @@ def test_mask_vertices_and_cells():
     masked_vertices, masked_cells = mask_vertices_and_cells(extent, vertices, cells)
     assert len(masked_vertices) == 6
     assert len(masked_cells) == 4
+
+
+def test_mask_outside_extent():
+    X, Y = np.meshgrid(np.arange(2), np.arange(2))
+    Z = np.zeros_like(X)
+    vertices = np.column_stack([X.ravel(), Y.ravel(), Z.ravel()]) * 10.0
+    extent = np.vstack([[0.5, 0.5, 0], [2, 2, 0]])
+    out_vert, _ = mask_vertices_and_cells(extent, vertices, None)
+
+    assert out_vert is vertices

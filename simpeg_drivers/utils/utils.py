@@ -67,6 +67,10 @@ def mask_vertices_and_cells(
 
     vertex_mask = mask_by_extent(vertices, extent=extent)
 
+    # No vertices are inside the extent, return the array back as is
+    if ~np.all(vertex_mask):
+        return vertices, cells
+
     if cells is None:
         return vertices[vertex_mask], None
 
