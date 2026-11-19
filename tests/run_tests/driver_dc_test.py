@@ -155,6 +155,8 @@ def test_dc_3d_run(
             # Check that the residuals are normalized
             obs = geoh5.get_entity("Observed_potential")[0]
             uncert = geoh5.get_entity("Uncertainties_potential")[0]
+            model = geoh5.get_entity("Iteration_1_model")[0]
+            assert model.entity_type.mapping == "logarithmic"
             pred = geoh5.get_entity("Iteration_1_potential")[0]
             norm_res = (obs.values - pred.values) / uncert.values
             np.testing.assert_almost_equal(
