@@ -1,0 +1,154 @@
+[workspace]
+name = "simpeg-drivers"
+requires-pixi = ">=0.84.2"
+channels = ["https://repo.prefix.dev/conda-forge"]
+platforms = ["win-64", "linux-64"]
+
+[activation.env]
+PYTHONNOUSERSITE = "1"
+
+[dependencies]
+bokeh = "3.6.*"
+dask-core = ">=2026.1.0,<2026.2.0"
+defusedxml = ">=0.7.1, 0.7.*"
+discretize = ">=0.12.0,<0.13.0"
+distributed = ">=2026.1.0,<2026.2.0"
+fsspec = ">=2022.0"
+geoana = "0.8.*"
+h5py = ">=3.15.1,<3.16"
+libblas = { version = "*", build = "*mkl" }
+matplotlib-base = ">=3.10.4,<3.11.0"
+msgpack-python = ">=1.2.3, 1.*"
+numpy = ">=2.4.2,<2.5.0"
+openpyxl = ">=3.1.2,<4.0.0"
+pandas = ">=2.3.3,<3.0.0"
+pillow = ">=13.0.0, 13.*"
+psutil = ">=7.2.2, 7.2.*"
+pydantic = ">=2.12.0,<2.13.0"
+pydiso = ">=0.2.0,<0.3.0"
+pymatsolver = "0.3.*"
+python-mumps = "0.0.6.*"
+rtree = ">=1.4.0,<1.5.0"
+scikit-learn = ">=1.8.0,<1.9.0"
+scipy = ">=1.17.0,<1.18.0"
+setuptools = ">=84.1.0"
+tornado = ">=6.6.1, 6.*"
+tqdm = ">=4.66.1,<5.0.0"
+trimesh = ">=4.1.3,<5.0.0"
+urllib3 = ">=2.8.0, 2.*"
+werkzeug = ">=3.1.9, 3.*"
+zarr = ">=2.14.2, 2.14.*"
+
+[constraints]
+# Transitive security floor, not a direct dependency: GHSA-6q48-6c7w-9gw2,
+# fixed in certifi 2026.10.18.
+certifi = ">=2026.10.18"
+
+[pypi-dependencies]
+geoh5py = ">=0.14.0b1,<0.15.0"
+# geoh5py = { git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "release/ga-4.9" }
+grid-apps = ">=0.3.0b1,<0.4.0"
+# grid-apps = { git = "https://github.com/MiraGeoscience/grid-apps.git", rev = "release/ga-4.9" }
+geoapps-utils = ">=0.8.0b1,<0.9.0"
+# geoapps-utils = { git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "release/ga-4.9" }
+mira-simpeg = { version = ">=0.26.0.1b1,<0.27.0", extras = ["dask"] }
+# mira-simpeg = { git = "https://github.com/MiraGeoscience/simpeg.git", rev = "release/ga-4.9" }
+
+[pypi-options]
+index-url = "https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/simple"
+
+[environments]
+default = { features = ["py312", "test", "lint", "dev"], solve-group = "py312" }
+py312 = { features = ["py312", "test", "lint"], solve-group = "py312" }
+py313 = { features = ["py313", "test", "lint"], solve-group = "py313" }
+py314 = { features = ["py314", "test", "lint"], solve-group = "py314" }
+runtime = { features = ["py312"], solve-group = "py312" }
+runtime-py313 = { features = ["py313"], solve-group = "py313" }
+runtime-py314 = { features = ["py314"], solve-group = "py314" }
+docs = { features = ["py314", "docs"], no-default-feature = true }
+
+[feature.py312.dependencies]
+python = "3.12.*"
+
+[feature.py313.dependencies]
+python = "3.13.*"
+
+[feature.py314.dependencies]
+python = "3.14.*"
+
+[feature.dev.dependencies]
+pygments = "*"
+ipython = "*"
+
+[feature.dev.tasks]
+repl = "ipython"
+
+[feature.test.dependencies]
+packaging = "*"
+pytest = "*"
+pytest-cov = "*"
+pytest-mock = "*"
+pyyaml = "*"
+requests = "*"
+
+[feature.test.tasks]
+test = { cmd = "pytest --cov --cov-report=xml", description = "Run tests directly from the source checkout with coverage" }
+
+[feature.test.tasks.test-local]
+description = "Run tests with editable dependencies from sibling checkouts"
+args = [{ arg = "packages", default = "geoh5py grid-apps geoapps-utils mira-simpeg" }]
+depends-on = [
+    { task = "use-local-deps", args = ["{{ packages }}"] },
+]
+cmd = "uv pip show --python \"$CONDA_PREFIX\" {{ packages }} && pytest --cov --cov-report=xml"
+
+[feature.lint.dependencies]
+pylint = ">=4.0.9,<5"
+
+[feature.lint.tasks]
+lint = { cmd = "pylint", description = "Run pylint on the local sources" }
+
+[feature.docs.dependencies]
+ipykernel = "*"
+jupyter-book = "1.0.*"
+jupytext = ">=1.14,<2.0"
+numpy = ">=2.4.2,<2.5.0"
+packaging = "*"
+sphinx = ">=7.4,<8.0"
+sphinx-autodoc-typehints = "*"
+sphinx-issues = "*"
+sphinxcontrib-googleanalytics = "*"
+
+[feature.docs.tasks._install-no-deps]
+cmd = "uv pip install --python \"$CONDA_PREFIX\" --no-deps ."
+
+[feature.docs.tasks.config-docs]
+depends-on = ["_install-no-deps"]
+cmd = "jupyter-book config sphinx docs/"
+
+[feature.docs.tasks.build-docs]
+args = [
+    { arg = "builder", default = "html" },
+    { arg = "outputdir", default = "docs/_build" },
+]
+depends-on = ["config-docs"]
+cmd = "sphinx-build -T -b {{builder}} docs {{outputdir}}/{{builder}}"
+env = { PYTHONPATH = "docs/_ext" }
+
+[tasks]
+install = { cmd = "uv pip install --python \"$CONDA_PREFIX\" --no-deps --editable . && uv pip check --python \"$CONDA_PREFIX\"", description = "Install the local package in editable mode without changing locked dependencies, then check compatibility" }
+test-pyvers = { cmd = "pixi run --frozen -e py312 test && pixi run --frozen -e py313 test && pixi run --frozen -e py314 test", description = "Run tests across all supported Python versions" }
+
+[tasks.show-pip-source]
+description = "Display installed package metadata and source"
+args = [{ arg = "packages", default = "geoh5py grid-apps geoapps-utils mira-simpeg" }]
+cmd = "uv pip show --python \"$CONDA_PREFIX\" {{ packages }}"
+
+[tasks.use-local-deps]
+description = "Install editable dependencies from sibling checkouts without changing Conda packages"
+args = [{ arg = "packages", default = "geoh5py grid-apps geoapps-utils mira-simpeg" }]
+cmd = """
+uv pip install --python "$CONDA_PREFIX" --no-deps --force-reinstall \
+{% for package in packages | split %} -e ../{{ package | trim }}{% endfor %} \
+&& uv pip check --python "$CONDA_PREFIX"
+"""

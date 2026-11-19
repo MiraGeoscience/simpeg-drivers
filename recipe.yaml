@@ -27,24 +27,24 @@ requirements:
   host:
     - python ${{ python_min }}.*
     - pip
-    - poetry-core >=1.8.0
+    - poetry-core >=2.2.1
     - poetry-dynamic-versioning >=1.9, 1.*
   run:
-    - python >=${{ python_min }}
+    - python >=${{ python_min }}, <3.15.0a.dev
     # Mira packages
-    - geoapps-utils 0.7.*
-    - geoh5py >=0.13.1rc2, 0.13.*
-    - grid-apps 0.2.*
-    - mira-simpeg >=0.25.0.1, 0.25.0.*
+    - geoapps-utils >=0.8.0b1, <0.9.0
+    - geoh5py >=0.14.0b1, <0.15.0
+    - grid-apps >=0.3.0b1, <0.4.0
+    - mira-simpeg >=0.26.0.1b1, <0.27.0
 
     # direct dependencies
-    - dask-core 2025.3.*
+    - dask-core 2026.1.*
     - discretize 0.12.*
-    - distributed 2025.3.*
+    - distributed 2026.1.*
     - matplotlib-base >=3.10.4, 3.10.*
     - numpy >=2.4.2, 2.4.*
     - openpyxl >=3.1.2, 3.*
-    - pandas >=2.2.1, 2.*
+    - pandas >=2.3.3, 2.*
     - pydantic 2.12.*
     - pydiso 0.2.*
     - python-mumps 0.0.6.*
@@ -55,12 +55,22 @@ requirements:
     - trimesh >=4.1.3, 4.*
     # constrain version for some indirect dependencies from SimPEG
     - geoana 0.8.*
+    - h5py >=3.15.1, <3.16
+    - pillow >=13.0.0, 13.*
     - pymatsolver 0.3.*
+    - psutil >=7.2.2, 7.2.*
     - zarr >=2.14.2, 2.14.*
   run_constraints:
     - __glibc >=2.17
     - bokeh 3.6.*
+    # Legacy compatibility minimum, not a security fix; Mira SimPEG requires >=0.3.3.
     - fsspec >=2022.0
+    # Transitive security floors; major-version caps are compatibility limits.
+    - certifi >=2026.10.18  # GHSA-6q48-6c7w-9gw2
+    - msgpack-python >=1.2.3, 1.*  # GHSA-j586-36cw-2gc2
+    - tornado >=6.6.1, 6.*  # GHSA-5cjw-f85j-cv6r
+    - urllib3 >=2.8.0, 2.*  # GHSA-gh4c-6fx4-qh6g
+    - werkzeug >=3.1.9, 3.*  # GHSA-g6x2-hccm-hh4m
 
 tests:
   - python:
@@ -74,7 +84,6 @@ tests:
         - geoh5py
         - grid_apps
         - simpeg
-      pip_check: true
 
   - script:
       - pytest --ignore=tests/version_test.py --ignore=tests/run_tests --ignore=tests/plate_simulation

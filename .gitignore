@@ -148,3 +148,10 @@ pyproject-sha.toml
 #version ignore
 simpeg_drivers/_version.py
 /_version.json
+
+# Pixi environments and local credentials
+.pixi/
+/poetry.lock
+
+# Generated from the Jupyter Book configuration
+/docs/conf.py

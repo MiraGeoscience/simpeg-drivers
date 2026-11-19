@@ -54,29 +54,21 @@ Installation
 ^^^^^^^^^^^^
 **simpeg-drivers** is currently written for Python 3.12 or higher.
 
-Install Conda
--------------
+Development with Pixi
+---------------------
 
-To install **simpeg-drivers**, you need to install **Conda** first.
+Use `Pixi <https://pixi.sh/>`_ 0.84.2 to install the locked Conda and PyPI
+dependencies. Install external `uv <https://docs.astral.sh/uv/>`_ and keep both
+commands on ``PATH``. Authenticate with ``pixi auth login mirageoscienceltd.jfrog.io``
+using your own Artifactory credentials, then run::
 
-We recommend to install **Conda** using `miniforge`_.
+  pixi install --locked -e py312
+  pixi run --frozen -e py312 install
+  pixi run --frozen -e py312 test
 
-.. _miniforge: https://github.com/conda-forge/miniforge
-
-Within a conda environment
---------------------------
-
-You can install (or update) a conda environment with all the requires packages to run **simpeg-drivers**.
-To do so you can directly run the **Install_or_Update.bat** file by double left clicking on it.
-
-Install with conda
-------------------
-
-You can install the package using ``conda`` and the ``.lock`` files from a conda prompt:
-
-.. code-block:: bash
-
-  conda env create -n my-env -f environments/[the_desired_env].lock.yml
+Use ``py313`` for Python 3.13, ``py314`` for Python 3.14 (pandas >=2.3.3),
+or ``runtime`` without test tools.
+See `README-dev.rst`_ for dependency updates and hook setup.
 
 Install with PyPI
 -----------------
