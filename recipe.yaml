@@ -63,13 +63,14 @@ requirements:
   run_constraints:
     - __glibc >=2.17
     - bokeh 3.6.*
-    # Transitive security floor, not a direct dependency; GHSA-6q48-6c7w-9gw2 is fixed in 2026.10.18.
-    - certifi >=2026.10.18
+    # Legacy compatibility minimum, not a security fix; Mira SimPEG requires >=0.3.3.
     - fsspec >=2022.0
-    - msgpack-python >=1.2.3, 1.*
-    - tornado >=6.6.1, 6.*
-    - urllib3 >=2.8.0, 2.*
-    - werkzeug >=3.1.9, 3.*
+    # Transitive security floors; major-version caps are compatibility limits.
+    - certifi >=2026.10.18  # GHSA-6q48-6c7w-9gw2
+    - msgpack-python >=1.2.3, 1.*  # GHSA-j586-36cw-2gc2
+    - tornado >=6.6.1, 6.*  # GHSA-5cjw-f85j-cv6r
+    - urllib3 >=2.8.0, 2.*  # GHSA-gh4c-6fx4-qh6g
+    - werkzeug >=3.1.9, 3.*  # GHSA-g6x2-hccm-hh4m
 
 tests:
   - python:
