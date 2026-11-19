@@ -14,6 +14,9 @@ build:
       - asdf plugin add pixi
       - asdf install pixi 0.84.2
       - asdf global pixi 0.84.2
+      - asdf plugin add uv https://github.com/asdf-community/asdf-uv.git
+      - asdf install uv 0.13.8
+      - asdf global uv 0.13.8
       - pixi install --locked --environment docs
     build:
       html:

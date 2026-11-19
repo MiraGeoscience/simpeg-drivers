@@ -42,6 +42,9 @@ lock before validating published dependency compatibility.
 Building documentation
 ^^^^^^^^^^^^^^^^^^^^^^
 
+Install `uv <https://docs.astral.sh/uv/>`_ alongside Pixi and keep both commands
+available on ``PATH``. Read the Docs installs uv 0.13.8 separately.
+
 The separate ``docs`` environment uses Python 3.14 and Jupyter Book 1.
 Fetch the Git LFS documentation images, then build HTML with::
 

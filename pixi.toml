@@ -118,7 +118,6 @@ sphinx = ">=7.4,<8.0"
 sphinx-autodoc-typehints = "*"
 sphinx-issues = "*"
 sphinxcontrib-googleanalytics = "*"
-uv = "*"
 
 [feature.docs.tasks._install-no-deps]
 cmd = "uv pip install --python \"$CONDA_PREFIX\" --no-deps ."
