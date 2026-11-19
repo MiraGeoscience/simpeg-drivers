@@ -15,7 +15,6 @@ sphinx:
   extra_extensions:
     - sphinx.ext.autodoc
     - sphinx.ext.intersphinx
-    - sphinx.ext.todo
     - sphinx_issues
     - sphinxcontrib.googleanalytics
   local_extensions:
@@ -23,7 +22,6 @@ sphinx:
   config:
     autodoc_typehints: signature
     issues_github_path: mirageoscience/simpeg-drivers
-    todo_include_todos: true
     intersphinx_mapping:
       numpy:
         - https://numpy.org/doc/stable/
