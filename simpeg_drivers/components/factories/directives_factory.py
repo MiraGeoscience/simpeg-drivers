@@ -421,6 +421,7 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
             "label": "model",
             "association": "CEll",
             "transforms": [active_cells_map, inversion_object.permutation.T],
+            "data_type_attributes": {"mapping": "logarithmic", "scale": "Log"},
         }
 
         if "magnetic vector" in self.factory_type:
@@ -458,7 +459,7 @@ class SaveModelGeoh5Factory(SaveGeoh5Factory):
             if self.params.models.model_type == ModelTypeEnum.resistivity:
                 kwargs["transforms"].append(lambda x: 1 / x)
 
-            kwargs["data_type_attributes"] = {"mapping": "logarithmic"}
+            kwargs["data_type_attributes"] = {"mapping": "logarithmic", "scale": "Log"}
 
         if "1d" in self.factory_type or "2d" in self.factory_type:
             ghosts = (
@@ -534,6 +535,7 @@ class SaveSensitivitiesGeoh5Factory(SaveGeoh5Factory):
             ] + kwargs["transforms"]
 
         kwargs["label"] = "sensitivities"
+        kwargs["data_type_attributes"] = {"mapping": "logarithmic", "scale": "Log"}
 
         return kwargs
 
@@ -660,7 +662,7 @@ class SaveDataGeoh5Factory(SaveGeoh5Factory):
                 kwargs["data_type"] = {
                     components[0]: {"apparent_resistivity": observed.entity_type}
                 }
-            kwargs["data_type_attributes"] = {"mapping": "logarithmic"}
+            kwargs["data_type_attributes"] = {"mapping": "logarithmic", "scale": "Log"}
 
         if name == "Residual":
             kwargs["label"] = name
