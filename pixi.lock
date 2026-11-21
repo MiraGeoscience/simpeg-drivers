@@ -160,6 +160,7 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/parso-0.8.7-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/partd-1.4.2-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/pexpect-4.9.0-pyhd8ed1ab_1.conda
+      - conda: https://repo.prefix.dev/conda-forge/noarch/pixi-pycharm-0.0.12-unix_hf108a03_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/platformdirs-4.14.7-pyh5ded981_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/pluggy-1.7.0-pyh5ded981_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/prompt-toolkit-3.0.53-pyha770c72_0.conda
@@ -247,6 +248,7 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/packaging-26.3-pyhc364b38_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/parso-0.8.7-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/partd-1.4.2-pyhd8ed1ab_0.conda
+      - conda: https://repo.prefix.dev/conda-forge/noarch/pixi-pycharm-0.0.12-win_hba80fca_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/platformdirs-4.14.7-pyh5ded981_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/pluggy-1.7.0-pyh5ded981_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/prompt-toolkit-3.0.53-pyha770c72_0.conda
@@ -6545,6 +6547,30 @@ packages:
   run_exports: {}
   size: 53561
   timestamp: 1733302019362
+- conda: https://repo.prefix.dev/conda-forge/noarch/pixi-pycharm-0.0.12-unix_hf108a03_0.conda
+  sha256: 66cd439b83657c2728d0e45e4e40d140eb33dd22b61b045b23f922cae51bb503
+  md5: a92eadbeec2c489f209382433acf14a5
+  depends:
+  - __unix
+  - python >=3.8
+  license: BSD-3-Clause
+  license_family: BSD
+  purls: []
+  run_exports: {}
+  size: 7177
+  timestamp: 1783850404460
+- conda: https://repo.prefix.dev/conda-forge/noarch/pixi-pycharm-0.0.12-win_hba80fca_0.conda
+  sha256: 534ded667c2d914f0c5fc0af98837121f66dec5c57c192e338e210381e9c5c0d
+  md5: 9173b283fc573d5e4e7e7071456a0d29
+  depends:
+  - __win
+  - python >=3.8
+  license: BSD-3-Clause
+  license_family: BSD
+  purls: []
+  run_exports: {}
+  size: 7188
+  timestamp: 1783850402995
 - conda: https://repo.prefix.dev/conda-forge/noarch/platformdirs-4.14.7-pyh5ded981_0.conda
   sha256: 961bf26704dc91e4c90e04d73b4553237a3f8fd3e28c1602375da4b5162f8319
   md5: f5ead77823454e222b1e7c4d8266f6c3

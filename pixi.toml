@@ -83,6 +83,7 @@ python = "3.14.*"
 [feature.dev.dependencies]
 pygments = "*"
 ipython = "*"
+pixi-pycharm = ">=0.0.12,<0.0.13"
 
 [feature.dev.tasks]
 repl = "ipython"

@@ -18,6 +18,8 @@ Prerequisites
   hooks.
 * **IDE interpreter:** Configure your IDE to use the interpreter inside
   ``.pixi/envs/default`` and exclude ``.pixi`` from source indexing.
+  For **PyCharm**, follow Pixi's `JetBrains integration guide
+  <https://pixi.prefix.dev/latest/integration/editor/jetbrains/>`_.
 * **JFrog authentication:** authenticate with Mira  Artifactory using your
   own credentials::
 
