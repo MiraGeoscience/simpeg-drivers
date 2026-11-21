@@ -74,9 +74,14 @@ Refresh and validate the lock after editing requirements::
     pixi run --frozen -e py312 install
     pixi run --frozen -e py312 test
 
-Commit ``pixi.lock`` with the manifest changes. Keep branch-resolution examples
-commented beside published constraints; public package metadata must not contain
-active Git dependencies.
+Commit ``pixi.lock`` with the manifest changes. Mira packages use the
+``mira-pypi`` feature and the existing Artifactory index. Indirect Conda
+dependencies are kept only where needed to force Conda sources; compatibility
+and security floors are conditional constraints, not published dependencies.
+Pixi Conda constraints do not constrain PyPI-only packages. Check the lock with
+``pixi run --frozen -e py312 pytest tests/lock_test.py`` after every solve;
+the test checks security floors for both sources without overriding upstream
+PyPI requirements.
 
 Git hooks
 ^^^^^^^^^

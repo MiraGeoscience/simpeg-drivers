@@ -181,7 +181,6 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/pytz-2026.6-pyh5ded981_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/requests-2.34.2-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/rtree-1.4.1-pyh11ca60a_0.conda
-      - conda: https://repo.prefix.dev/conda-forge/noarch/setuptools-84.2.1-pyhe730653_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/sortedcontainers-2.4.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/stack_data-0.6.3-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/tblib-3.2.2-pyhcf101f3_0.conda
@@ -197,7 +196,6 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/typing_extensions-4.16.0-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/tzdata-2026e-h5d301ff_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/urllib3-2.8.0-pyh5ded981_1.conda
-      - conda: https://repo.prefix.dev/conda-forge/noarch/werkzeug-3.1.9-pyh5ded981_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/xyzservices-2026.9.1-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zarr-2.14.2-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
@@ -269,7 +267,6 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/pytz-2026.6-pyh5ded981_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/requests-2.34.2-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/rtree-1.4.1-pyh11ca60a_0.conda
-      - conda: https://repo.prefix.dev/conda-forge/noarch/setuptools-84.2.1-pyhe730653_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/sortedcontainers-2.4.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/stack_data-0.6.3-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/tblib-3.2.2-pyhcf101f3_0.conda
@@ -285,7 +282,6 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/typing_extensions-4.16.0-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/tzdata-2026e-h5d301ff_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/urllib3-2.8.0-pyh5ded981_1.conda
-      - conda: https://repo.prefix.dev/conda-forge/noarch/werkzeug-3.1.9-pyh5ded981_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/xyzservices-2026.9.1-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zarr-2.14.2-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
@@ -814,7 +810,6 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/pytz-2026.6-pyh5ded981_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/requests-2.34.2-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/rtree-1.4.1-pyh11ca60a_0.conda
-      - conda: https://repo.prefix.dev/conda-forge/noarch/setuptools-84.2.1-pyhe730653_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/sortedcontainers-2.4.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/tblib-3.2.2-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/threadpoolctl-3.8.0-pyhc455866_0.conda
@@ -828,7 +823,6 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/typing_extensions-4.16.0-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/tzdata-2026e-h5d301ff_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/urllib3-2.8.0-pyh5ded981_1.conda
-      - conda: https://repo.prefix.dev/conda-forge/noarch/werkzeug-3.1.9-pyh5ded981_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/xyzservices-2026.9.1-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zarr-2.14.2-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
@@ -890,7 +884,6 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/pytz-2026.6-pyh5ded981_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/requests-2.34.2-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/rtree-1.4.1-pyh11ca60a_0.conda
-      - conda: https://repo.prefix.dev/conda-forge/noarch/setuptools-84.2.1-pyhe730653_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/sortedcontainers-2.4.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/tblib-3.2.2-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/threadpoolctl-3.8.0-pyhc455866_0.conda
@@ -904,7 +897,6 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/typing_extensions-4.16.0-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/tzdata-2026e-h5d301ff_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/urllib3-2.8.0-pyh5ded981_1.conda
-      - conda: https://repo.prefix.dev/conda-forge/noarch/werkzeug-3.1.9-pyh5ded981_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/xyzservices-2026.9.1-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zarr-2.14.2-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
@@ -1151,7 +1143,6 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/pytz-2026.6-pyh5ded981_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/requests-2.34.2-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/rtree-1.4.1-pyh11ca60a_0.conda
-      - conda: https://repo.prefix.dev/conda-forge/noarch/setuptools-84.2.1-pyhe730653_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/sortedcontainers-2.4.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/tblib-3.2.2-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/threadpoolctl-3.8.0-pyhc455866_0.conda
@@ -1165,7 +1156,6 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/typing_extensions-4.16.0-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/tzdata-2026e-h5d301ff_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/urllib3-2.8.0-pyh5ded981_1.conda
-      - conda: https://repo.prefix.dev/conda-forge/noarch/werkzeug-3.1.9-pyh5ded981_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/xyzservices-2026.9.1-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zarr-2.14.2-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
@@ -1227,7 +1217,6 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/pytz-2026.6-pyh5ded981_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/requests-2.34.2-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/rtree-1.4.1-pyh11ca60a_0.conda
-      - conda: https://repo.prefix.dev/conda-forge/noarch/setuptools-84.2.1-pyhe730653_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/sortedcontainers-2.4.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/tblib-3.2.2-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/threadpoolctl-3.8.0-pyhc455866_0.conda
@@ -1241,7 +1230,6 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/typing_extensions-4.16.0-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/tzdata-2026e-h5d301ff_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/urllib3-2.8.0-pyh5ded981_1.conda
-      - conda: https://repo.prefix.dev/conda-forge/noarch/werkzeug-3.1.9-pyh5ded981_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/xyzservices-2026.9.1-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zarr-2.14.2-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
@@ -1488,7 +1476,6 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/pytz-2026.6-pyh5ded981_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/requests-2.34.2-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/rtree-1.4.1-pyh11ca60a_0.conda
-      - conda: https://repo.prefix.dev/conda-forge/noarch/setuptools-84.2.1-pyhe730653_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/sortedcontainers-2.4.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/tblib-3.2.2-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/threadpoolctl-3.8.0-pyhc455866_0.conda
@@ -1502,7 +1489,6 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/typing_extensions-4.16.0-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/tzdata-2026e-h5d301ff_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/urllib3-2.8.0-pyh5ded981_1.conda
-      - conda: https://repo.prefix.dev/conda-forge/noarch/werkzeug-3.1.9-pyh5ded981_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/xyzservices-2026.9.1-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zarr-2.14.2-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
@@ -1564,7 +1550,6 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/pytz-2026.6-pyh5ded981_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/requests-2.34.2-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/rtree-1.4.1-pyh11ca60a_0.conda
-      - conda: https://repo.prefix.dev/conda-forge/noarch/setuptools-84.2.1-pyhe730653_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/sortedcontainers-2.4.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/tblib-3.2.2-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/threadpoolctl-3.8.0-pyhc455866_0.conda
@@ -1578,7 +1563,6 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/typing_extensions-4.16.0-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/tzdata-2026e-h5d301ff_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/urllib3-2.8.0-pyh5ded981_1.conda
-      - conda: https://repo.prefix.dev/conda-forge/noarch/werkzeug-3.1.9-pyh5ded981_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/xyzservices-2026.9.1-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zarr-2.14.2-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
@@ -1807,7 +1791,6 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/python_abi-3.12-9_cp312.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/pytz-2026.6-pyh5ded981_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/rtree-1.4.1-pyh11ca60a_0.conda
-      - conda: https://repo.prefix.dev/conda-forge/noarch/setuptools-84.2.1-pyhe730653_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/sortedcontainers-2.4.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/tblib-3.2.2-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/threadpoolctl-3.8.0-pyhc455866_0.conda
@@ -1819,7 +1802,6 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/typing_extensions-4.16.0-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/tzdata-2026e-h5d301ff_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/urllib3-2.8.0-pyh5ded981_1.conda
-      - conda: https://repo.prefix.dev/conda-forge/noarch/werkzeug-3.1.9-pyh5ded981_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/xyzservices-2026.9.1-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zarr-2.14.2-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
@@ -1865,7 +1847,6 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/python_abi-3.12-9_cp312.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/pytz-2026.6-pyh5ded981_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/rtree-1.4.1-pyh11ca60a_0.conda
-      - conda: https://repo.prefix.dev/conda-forge/noarch/setuptools-84.2.1-pyhe730653_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/sortedcontainers-2.4.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/tblib-3.2.2-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/threadpoolctl-3.8.0-pyhc455866_0.conda
@@ -1877,7 +1858,6 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/typing_extensions-4.16.0-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/tzdata-2026e-h5d301ff_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/urllib3-2.8.0-pyh5ded981_1.conda
-      - conda: https://repo.prefix.dev/conda-forge/noarch/werkzeug-3.1.9-pyh5ded981_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/xyzservices-2026.9.1-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zarr-2.14.2-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
@@ -2101,7 +2081,6 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/python_abi-3.13-9_cp313.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/pytz-2026.6-pyh5ded981_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/rtree-1.4.1-pyh11ca60a_0.conda
-      - conda: https://repo.prefix.dev/conda-forge/noarch/setuptools-84.2.1-pyhe730653_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/sortedcontainers-2.4.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/tblib-3.2.2-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/threadpoolctl-3.8.0-pyhc455866_0.conda
@@ -2113,7 +2092,6 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/typing_extensions-4.16.0-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/tzdata-2026e-h5d301ff_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/urllib3-2.8.0-pyh5ded981_1.conda
-      - conda: https://repo.prefix.dev/conda-forge/noarch/werkzeug-3.1.9-pyh5ded981_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/xyzservices-2026.9.1-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zarr-2.14.2-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
@@ -2159,7 +2137,6 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/python_abi-3.13-9_cp313.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/pytz-2026.6-pyh5ded981_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/rtree-1.4.1-pyh11ca60a_0.conda
-      - conda: https://repo.prefix.dev/conda-forge/noarch/setuptools-84.2.1-pyhe730653_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/sortedcontainers-2.4.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/tblib-3.2.2-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/threadpoolctl-3.8.0-pyhc455866_0.conda
@@ -2171,7 +2148,6 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/typing_extensions-4.16.0-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/tzdata-2026e-h5d301ff_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/urllib3-2.8.0-pyh5ded981_1.conda
-      - conda: https://repo.prefix.dev/conda-forge/noarch/werkzeug-3.1.9-pyh5ded981_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/xyzservices-2026.9.1-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zarr-2.14.2-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
@@ -2395,7 +2371,6 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/python_abi-3.14-9_cp314.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/pytz-2026.6-pyh5ded981_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/rtree-1.4.1-pyh11ca60a_0.conda
-      - conda: https://repo.prefix.dev/conda-forge/noarch/setuptools-84.2.1-pyhe730653_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/sortedcontainers-2.4.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/tblib-3.2.2-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/threadpoolctl-3.8.0-pyhc455866_0.conda
@@ -2407,7 +2382,6 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/typing_extensions-4.16.0-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/tzdata-2026e-h5d301ff_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/urllib3-2.8.0-pyh5ded981_1.conda
-      - conda: https://repo.prefix.dev/conda-forge/noarch/werkzeug-3.1.9-pyh5ded981_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/xyzservices-2026.9.1-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zarr-2.14.2-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
@@ -2453,7 +2427,6 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/python_abi-3.14-9_cp314.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/pytz-2026.6-pyh5ded981_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/rtree-1.4.1-pyh11ca60a_0.conda
-      - conda: https://repo.prefix.dev/conda-forge/noarch/setuptools-84.2.1-pyhe730653_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/sortedcontainers-2.4.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/tblib-3.2.2-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/threadpoolctl-3.8.0-pyhc455866_0.conda
@@ -2465,7 +2438,6 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/typing_extensions-4.16.0-pyhcf101f3_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/tzdata-2026e-h5d301ff_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/urllib3-2.8.0-pyh5ded981_1.conda
-      - conda: https://repo.prefix.dev/conda-forge/noarch/werkzeug-3.1.9-pyh5ded981_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/xyzservices-2026.9.1-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zarr-2.14.2-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
@@ -7580,20 +7552,6 @@ packages:
   run_exports: {}
   size: 113282
   timestamp: 1794575230703
-- conda: https://repo.prefix.dev/conda-forge/noarch/werkzeug-3.1.9-pyh5ded981_0.conda
-  sha256: 9bb5c06955efec7a5801bb39a06896f22026c39d845b9fc8ade15e6861ef9284
-  md5: cb4014ab1e412ad4a8aeeee11577065e
-  depends:
-  - markupsafe >=2.1.1
-  - python >=3.11
-  - python
-  license: BSD-3-Clause
-  license_family: BSD
-  purls:
-  - pkg:pypi/werkzeug?source=compressed-mapping
-  run_exports: {}
-  size: 260273
-  timestamp: 1790550578594
 - conda: https://repo.prefix.dev/conda-forge/noarch/xyzservices-2026.9.1-pyhd8ed1ab_0.conda
   sha256: b9439f1716ff580ce56e9b4a4df7ea92e5ed2bdc9567d25cdff223d62c3183a8
   md5: 5d7c149ba9c728d4951f3fe6d3ce0f84
