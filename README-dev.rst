@@ -52,7 +52,9 @@ The ``runtime`` environment omits test and lint tools.
 On Windows, install the locked runtime into Geoscience Analyst with::
 
     install_in_analyst.bat
-    install_in_analyst.bat -e --name simpeg-drivers-dev
+    install_in_analyst.bat -e --name mirageo-dev
+
+Possibly, replace ``mirageo-dev`` with a dedicated environment name of your choice.
 
 The script exports the locked ``win-64`` runtime, installs its dependencies
 through Analyst, and installs this checkout without resolving dependencies
@@ -94,7 +96,6 @@ The task installs the local package without dependencies, generates ``docs/conf.
 from ``docs/_config.yml``, and builds the existing book into ``docs/_build/html``.
 The generated Sphinx configuration is ignored; edit ``docs/_config.yml`` or
 ``docs/_ext/dynamic_config.py`` instead. Read the Docs uses the same task.
-
 
 Updating dependencies
 ^^^^^^^^^^^^^^^^^^^^^
