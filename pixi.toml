@@ -30,48 +30,45 @@ trimesh = ">=4.1.3,<5.0.0"
 
 # Force Conda sources for dependencies reached through PyPI metadata. Keep
 # compatible bounds here: Pixi solves Conda before PyPI without backtracking.
+mkl = ">=2026.1.0,<2027.0.0"
 defusedxml = ">=0.7.1, 0.7.*"
 fsspec = ">=2022.0"
 geoana = "0.8.*"
-pillow = ">=13.0.0, 13.*"
+pillow = ">=13.0.0, 13.*"  # Security floor: GHSA-wqgw-9xfh-qf2g.
 psutil = ">=7.2.2, 7.2.*"
 pymatsolver = "0.3.*"
 zarr = ">=2.14.2, 2.14.*"
 
 [constraints]
-mkl = ">=2026.1.0,<2027.0.0"
-defusedxml = ">=0.7.1, 0.7.*"
-fsspec = ">=2022.0"
-geoana = "0.8.*"
-psutil = ">=7.2.2, 7.2.*"
-pymatsolver = "0.3.*"
-zarr = ">=2.14.2, 2.14.*"
 # Conditional security floors; version caps retain existing compatibility limits.
 certifi = ">=2026.10.18"  # GHSA-6q48-6c7w-9gw2
 msgpack-python = ">=1.2.3, 1.*"  # GHSA-j586-36cw-2gc2
-pillow = ">=13.0.0, 13.*"  # GHSA-wqgw-9xfh-qf2g
 setuptools = ">=84.1.0"  # GHSA-xmj3-9gf7-h52w
 tornado = ">=6.6.1, 6.*"  # GHSA-5cjw-f85j-cv6r
 urllib3 = ">=2.8.0, 2.*"  # GHSA-gh4c-6fx4-qh6g
 werkzeug = ">=3.1.9, 3.*"  # GHSA-g6x2-hccm-hh4m
 
 [feature.mira-pypi.pypi-dependencies]
-geoh5py = ">=0.14.0b1,<0.15.0"
-grid-apps = ">=0.3.0b1,<0.4.0"
-geoapps-utils = ">=0.8.0b1,<0.9.0"
-mira-simpeg = { version = ">=0.26.0.1b1,<0.27.0", extras = ["dask"] }
+geoh5py = ">=0.14.0b1,==0.14.*"
+# geoh5py = { git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "release/ga-4.9"}
+grid-apps = ">=0.3.0b1,==0.3.*"
+# grid-apps = { git = "https://github.com/MiraGeoscience/grid-apps.git", rev = "release/ga-4.9"}
+geoapps-utils = ">=0.8.0b1,==0.8.*"
+# geoapps-utils = { git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "release/ga-4.9"}
+mira-simpeg = { version = ">=0.26.0.1b1,==0.26.0.*", extras = ["dask"] }
+# mira-simpeg = { git = "https://github.com/MiraGeoscience/simpeg.git", rev = "release/ga-4.9", extras = ["dask"] }
 
 [feature.mira-pypi.pypi-options]
 index-url = "https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/simple"
 
 [environments]
-default = { features = ["mira-pypi", "py312", "test", "lint", "dev"], solve-group = "py312" }
-py312 = { features = ["mira-pypi", "py312", "test", "lint"], solve-group = "py312" }
-py313 = { features = ["mira-pypi", "py313", "test", "lint"], solve-group = "py313" }
-py314 = { features = ["mira-pypi", "py314", "test", "lint"], solve-group = "py314" }
-runtime = { features = ["mira-pypi", "py312"], solve-group = "py312" }
-runtime-py313 = { features = ["mira-pypi", "py313"], solve-group = "py313" }
-runtime-py314 = { features = ["mira-pypi", "py314"], solve-group = "py314" }
+default = { features = ["py312", "mira-pypi", "test", "lint", "dev"], solve-group = "py312" }
+py312 = { features = ["py312", "mira-pypi", "test", "lint"], solve-group = "py312" }
+py313 = { features = ["py313", "mira-pypi", "test", "lint"], solve-group = "py313" }
+py314 = { features = ["py314", "mira-pypi", "test", "lint"], solve-group = "py314" }
+runtime = { features = ["py312", "mira-pypi"], solve-group = "py312" }
+runtime-py313 = { features = ["py313", "mira-pypi"], solve-group = "py313" }
+runtime-py314 = { features = ["py314", "mira-pypi"], solve-group = "py314" }
 docs = { features = ["py314", "docs"], no-default-feature = true }
 
 [feature.py312.dependencies]
@@ -118,10 +115,10 @@ lint = { cmd = "pylint", description = "Run pylint on the local sources" }
 [feature.docs.dependencies]
 ipykernel = "*"
 jupyter-book = "1.0.*"
-jupytext = ">=1.14,<2.0"
-numpy = ">=2.4.2,<2.5.0"
+jupytext = ">=1.14, 1.*"
+numpy = ">=2.4.2, 2.4.*"
 packaging = "*"
-sphinx = ">=7.4,<8.0"
+sphinx = ">=7.4, 7.*"
 sphinx-autodoc-typehints = "*"
 sphinx-issues = "*"
 sphinxcontrib-googleanalytics = "*"

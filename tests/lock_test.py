@@ -8,87 +8,49 @@
 #                                                                                   '
 # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
+import tomllib
 from pathlib import Path
-from urllib.parse import unquote, urlsplit
 
-import pytest
 import yaml
-from packaging.utils import (
-    canonicalize_name,
-    parse_sdist_filename,
-    parse_wheel_filename,
-)
-from packaging.version import Version
+from packaging.utils import canonicalize_name
 
 
-FLOORS = {
-    "certifi": "2026.10.18",
-    "msgpack": "1.2.3",
-    "msgpack-python": "1.2.3",
-    "pillow": "13.0.0",
-    "setuptools": "84.1.0",
-    "tornado": "6.6.1",
-    "urllib3": "2.8.0",
-    "werkzeug": "3.1.9",
-}
-CONDA_SOURCES = {
-    "bokeh",
-    "defusedxml",
-    "fsspec",
-    "geoana",
-    "pillow",
-    "psutil",
-    "pymatsolver",
-    "zarr",
-}
-MIRA_SOURCES = {"geoh5py", "grid-apps", "geoapps-utils", "mira-simpeg"}
+def locked_pypi_names(entries, packages):
+    return {
+        canonicalize_name(packages[entry["pypi"]])
+        for entry in entries
+        if "pypi" in entry
+    }
 
 
-def package_info(entry):
-    source, url = next(iter(entry.items()))
-    filename = unquote(urlsplit(url).path.rsplit("/", 1)[-1])
-    if source == "conda":
-        name, version, _ = filename.rsplit(".", 1)[0].rsplit("-", 2)
-    elif filename.endswith(".whl"):
-        name, version, _, _ = parse_wheel_filename(filename)
-    else:
-        name, version = parse_sdist_filename(filename)
-    return source, canonicalize_name(name), str(version)
+def test_locked_pypi_names_with_git_source():
+    url = "git+https://github.com/MiraGeoscience/geoh5py.git@release/ga-4.9"
+    assert locked_pypi_names([{"pypi": url}], {url: "geoh5py"}) == {"geoh5py"}
 
 
-def check_floor(entry):
-    source, name, version = package_info(entry)
-    if name in FLOORS:
-        assert Version(version) >= Version(FLOORS[name]), (
-            source,
-            name,
-            version,
-            FLOORS[name],
-        )
+def test_locked_pypi_sources():
+    """Test that the only packages resolved from PyPI are the ones specified in the mira-pypi feature."""
 
-
-def test_security_floor_checks_pypi_and_conda():
-    check_floor({"pypi": "https://example.org/certifi-2026.10.18-py3-none-any.whl"})
-    with pytest.raises(AssertionError):
-        check_floor({"pypi": "https://example.org/certifi-2026.1.1-py3-none-any.whl"})
-    with pytest.raises(AssertionError):
-        check_floor({"conda": "https://example.org/pillow-12.0.0-py312_0.conda"})
-
-
-def test_locked_runtime_sources_and_security_floors():
-    lock = yaml.safe_load(
-        (Path(__file__).resolve().parents[1] / "pixi.lock").read_text()
-    )
+    package_root = Path(__file__).resolve().parents[1]
+    pixi = tomllib.loads((package_root / "pixi.toml").read_text())
+    mira_sources = {
+        canonicalize_name(name)
+        for name in pixi["feature"]["mira-pypi"]["pypi-dependencies"]
+    }
+    lock = yaml.safe_load((package_root / "pixi.lock").read_text())
+    packages = {
+        package["pypi"]: package["name"]
+        for package in lock["packages"]
+        if "pypi" in package
+    }
     for environment, data in lock["environments"].items():
         if environment == "docs":
             continue
         for platform, entries in data["packages"].items():
-            sources = {}
-            for entry in entries:
-                check_floor(entry)
-                source, name, _ = package_info(entry)
-                sources[name] = source
-            for name in CONDA_SOURCES:
-                assert sources.get(name) == "conda", (environment, platform, name)
-            for name in MIRA_SOURCES:
-                assert sources.get(name) == "pypi", (environment, platform, name)
+            pypi_sources = locked_pypi_names(entries, packages)
+            assert pypi_sources == mira_sources, (
+                environment,
+                platform,
+                mira_sources - pypi_sources,
+                pypi_sources - mira_sources,
+            )

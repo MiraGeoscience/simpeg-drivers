@@ -74,17 +74,16 @@ Refresh and validate the lock after editing requirements::
     pixi run --frozen -e py312 install
     pixi run --frozen -e py312 test
 
-Commit ``pixi.lock`` with the manifest changes. Mira packages use the
-``mira-pypi`` feature and the existing Artifactory index. Indirect Conda
-dependencies are kept only where needed to force Conda sources; compatibility
-and security floors are conditional constraints, not published dependencies.
-Source-forcing dependencies retain compatibility bounds because Pixi solves
-Conda before PyPI without general backtracking. In particular, the Pillow
-bound also matches the Mira packages' published requirement.
-Pixi Conda constraints do not constrain PyPI-only packages. Check the lock with
-``pixi run --frozen -e py312 pytest tests/lock_test.py`` after every solve;
-the test checks security floors for both sources without overriding upstream
-PyPI requirements.
+Commit ``pixi.lock`` with the manifest changes. In ``pixi.toml``, the
+``mira-pypi`` feature lists Mira packages resolved from PyPI or GitHub:
+
+    - on a development branch, comment out published versions, and use git sources.
+    - when preparing a release, use published versions, and comment out git sources.
+
+The lock file is checked by ``tests/lock_test.py``: it ensures all dependencies
+are resolved from Conda, except for the Mira packages listed under the
+``mira-pypi`` feature. Keep compatibility bounds on indirect Conda dependencies:
+Pixi solves Conda before PyPI and does not backtrack between them.
 
 Git hooks
 ^^^^^^^^^

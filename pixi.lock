@@ -200,9 +200,9 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/zarr-2.14.2-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zipp-4.1.2-pyh5ded981_0.conda
+      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/mira-simpeg/0.26.0.1b2/mira_simpeg-0.26.0.1b2-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/50/a3/474e2769a66716e629829a234adea681df96f7bc153567c3ec818a7dadc8/geoh5py-0.14.0b1-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/7c/9f/b6c42a9ec1c3a75558c321536d82887954096399013dbd55fd8ed6c65534/grid_apps-0.3.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/82/da/6f81aba097e616b5d33f7da22c8d557509fa32ca5a47b5feee3000c9288d/mira_simpeg-0.26.0.1b1-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/fd/56/9a7d2fb5a53b943bbef1fa0944e2d91245c4b403eaa4dd0a14b36c20a356/geoapps_utils-0.8.0b1-py3-none-any.whl
       win-64:
       - conda: https://repo.prefix.dev/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
@@ -370,9 +370,9 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/win-64/zlib-1.3.2-hfd05255_3.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zlib-ng-2.3.3-h0261ad2_1.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zstd-1.5.7-h534d264_7.conda
+      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/mira-simpeg/0.26.0.1b2/mira_simpeg-0.26.0.1b2-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/50/a3/474e2769a66716e629829a234adea681df96f7bc153567c3ec818a7dadc8/geoh5py-0.14.0b1-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/7c/9f/b6c42a9ec1c3a75558c321536d82887954096399013dbd55fd8ed6c65534/grid_apps-0.3.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/82/da/6f81aba097e616b5d33f7da22c8d557509fa32ca5a47b5feee3000c9288d/mira_simpeg-0.26.0.1b1-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/fd/56/9a7d2fb5a53b943bbef1fa0944e2d91245c4b403eaa4dd0a14b36c20a356/geoapps_utils-0.8.0b1-py3-none-any.whl
   docs:
     channels:
@@ -827,9 +827,9 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/zarr-2.14.2-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zipp-4.1.2-pyh5ded981_0.conda
+      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/mira-simpeg/0.26.0.1b2/mira_simpeg-0.26.0.1b2-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/50/a3/474e2769a66716e629829a234adea681df96f7bc153567c3ec818a7dadc8/geoh5py-0.14.0b1-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/7c/9f/b6c42a9ec1c3a75558c321536d82887954096399013dbd55fd8ed6c65534/grid_apps-0.3.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/82/da/6f81aba097e616b5d33f7da22c8d557509fa32ca5a47b5feee3000c9288d/mira_simpeg-0.26.0.1b1-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/fd/56/9a7d2fb5a53b943bbef1fa0944e2d91245c4b403eaa4dd0a14b36c20a356/geoapps_utils-0.8.0b1-py3-none-any.whl
       win-64:
       - conda: https://repo.prefix.dev/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
@@ -984,9 +984,9 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/win-64/zlib-1.3.2-hfd05255_3.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zlib-ng-2.3.3-h0261ad2_1.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zstd-1.5.7-h534d264_7.conda
+      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/mira-simpeg/0.26.0.1b2/mira_simpeg-0.26.0.1b2-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/50/a3/474e2769a66716e629829a234adea681df96f7bc153567c3ec818a7dadc8/geoh5py-0.14.0b1-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/7c/9f/b6c42a9ec1c3a75558c321536d82887954096399013dbd55fd8ed6c65534/grid_apps-0.3.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/82/da/6f81aba097e616b5d33f7da22c8d557509fa32ca5a47b5feee3000c9288d/mira_simpeg-0.26.0.1b1-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/fd/56/9a7d2fb5a53b943bbef1fa0944e2d91245c4b403eaa4dd0a14b36c20a356/geoapps_utils-0.8.0b1-py3-none-any.whl
   py313:
     channels:
@@ -1160,9 +1160,9 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/zarr-2.14.2-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zipp-4.1.2-pyh5ded981_0.conda
+      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/mira-simpeg/0.26.0.1b2/mira_simpeg-0.26.0.1b2-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/50/a3/474e2769a66716e629829a234adea681df96f7bc153567c3ec818a7dadc8/geoh5py-0.14.0b1-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/7c/9f/b6c42a9ec1c3a75558c321536d82887954096399013dbd55fd8ed6c65534/grid_apps-0.3.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/82/da/6f81aba097e616b5d33f7da22c8d557509fa32ca5a47b5feee3000c9288d/mira_simpeg-0.26.0.1b1-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/fd/56/9a7d2fb5a53b943bbef1fa0944e2d91245c4b403eaa4dd0a14b36c20a356/geoapps_utils-0.8.0b1-py3-none-any.whl
       win-64:
       - conda: https://repo.prefix.dev/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
@@ -1317,9 +1317,9 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/win-64/zlib-1.3.2-hfd05255_3.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zlib-ng-2.3.3-h0261ad2_1.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zstd-1.5.7-h534d264_7.conda
+      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/mira-simpeg/0.26.0.1b2/mira_simpeg-0.26.0.1b2-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/50/a3/474e2769a66716e629829a234adea681df96f7bc153567c3ec818a7dadc8/geoh5py-0.14.0b1-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/7c/9f/b6c42a9ec1c3a75558c321536d82887954096399013dbd55fd8ed6c65534/grid_apps-0.3.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/82/da/6f81aba097e616b5d33f7da22c8d557509fa32ca5a47b5feee3000c9288d/mira_simpeg-0.26.0.1b1-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/fd/56/9a7d2fb5a53b943bbef1fa0944e2d91245c4b403eaa4dd0a14b36c20a356/geoapps_utils-0.8.0b1-py3-none-any.whl
   py314:
     channels:
@@ -1493,9 +1493,9 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/zarr-2.14.2-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zipp-4.1.2-pyh5ded981_0.conda
+      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/mira-simpeg/0.26.0.1b2/mira_simpeg-0.26.0.1b2-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/50/a3/474e2769a66716e629829a234adea681df96f7bc153567c3ec818a7dadc8/geoh5py-0.14.0b1-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/7c/9f/b6c42a9ec1c3a75558c321536d82887954096399013dbd55fd8ed6c65534/grid_apps-0.3.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/82/da/6f81aba097e616b5d33f7da22c8d557509fa32ca5a47b5feee3000c9288d/mira_simpeg-0.26.0.1b1-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/fd/56/9a7d2fb5a53b943bbef1fa0944e2d91245c4b403eaa4dd0a14b36c20a356/geoapps_utils-0.8.0b1-py3-none-any.whl
       win-64:
       - conda: https://repo.prefix.dev/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
@@ -1650,9 +1650,9 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/win-64/zlib-1.3.2-hfd05255_3.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zlib-ng-2.3.3-h0261ad2_1.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zstd-1.5.7-h534d264_7.conda
+      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/mira-simpeg/0.26.0.1b2/mira_simpeg-0.26.0.1b2-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/50/a3/474e2769a66716e629829a234adea681df96f7bc153567c3ec818a7dadc8/geoh5py-0.14.0b1-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/7c/9f/b6c42a9ec1c3a75558c321536d82887954096399013dbd55fd8ed6c65534/grid_apps-0.3.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/82/da/6f81aba097e616b5d33f7da22c8d557509fa32ca5a47b5feee3000c9288d/mira_simpeg-0.26.0.1b1-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/fd/56/9a7d2fb5a53b943bbef1fa0944e2d91245c4b403eaa4dd0a14b36c20a356/geoapps_utils-0.8.0b1-py3-none-any.whl
   runtime:
     channels:
@@ -1806,9 +1806,9 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/zarr-2.14.2-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zipp-4.1.2-pyh5ded981_0.conda
+      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/mira-simpeg/0.26.0.1b2/mira_simpeg-0.26.0.1b2-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/50/a3/474e2769a66716e629829a234adea681df96f7bc153567c3ec818a7dadc8/geoh5py-0.14.0b1-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/7c/9f/b6c42a9ec1c3a75558c321536d82887954096399013dbd55fd8ed6c65534/grid_apps-0.3.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/82/da/6f81aba097e616b5d33f7da22c8d557509fa32ca5a47b5feee3000c9288d/mira_simpeg-0.26.0.1b1-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/fd/56/9a7d2fb5a53b943bbef1fa0944e2d91245c4b403eaa4dd0a14b36c20a356/geoapps_utils-0.8.0b1-py3-none-any.whl
       win-64:
       - conda: https://repo.prefix.dev/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
@@ -1942,9 +1942,9 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/win-64/zlib-1.3.2-hfd05255_3.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zlib-ng-2.3.3-h0261ad2_1.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zstd-1.5.7-h534d264_7.conda
+      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/mira-simpeg/0.26.0.1b2/mira_simpeg-0.26.0.1b2-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/50/a3/474e2769a66716e629829a234adea681df96f7bc153567c3ec818a7dadc8/geoh5py-0.14.0b1-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/7c/9f/b6c42a9ec1c3a75558c321536d82887954096399013dbd55fd8ed6c65534/grid_apps-0.3.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/82/da/6f81aba097e616b5d33f7da22c8d557509fa32ca5a47b5feee3000c9288d/mira_simpeg-0.26.0.1b1-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/fd/56/9a7d2fb5a53b943bbef1fa0944e2d91245c4b403eaa4dd0a14b36c20a356/geoapps_utils-0.8.0b1-py3-none-any.whl
   runtime-py313:
     channels:
@@ -2096,9 +2096,9 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/zarr-2.14.2-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zipp-4.1.2-pyh5ded981_0.conda
+      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/mira-simpeg/0.26.0.1b2/mira_simpeg-0.26.0.1b2-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/50/a3/474e2769a66716e629829a234adea681df96f7bc153567c3ec818a7dadc8/geoh5py-0.14.0b1-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/7c/9f/b6c42a9ec1c3a75558c321536d82887954096399013dbd55fd8ed6c65534/grid_apps-0.3.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/82/da/6f81aba097e616b5d33f7da22c8d557509fa32ca5a47b5feee3000c9288d/mira_simpeg-0.26.0.1b1-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/fd/56/9a7d2fb5a53b943bbef1fa0944e2d91245c4b403eaa4dd0a14b36c20a356/geoapps_utils-0.8.0b1-py3-none-any.whl
       win-64:
       - conda: https://repo.prefix.dev/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
@@ -2232,9 +2232,9 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/win-64/zlib-1.3.2-hfd05255_3.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zlib-ng-2.3.3-h0261ad2_1.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zstd-1.5.7-h534d264_7.conda
+      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/mira-simpeg/0.26.0.1b2/mira_simpeg-0.26.0.1b2-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/50/a3/474e2769a66716e629829a234adea681df96f7bc153567c3ec818a7dadc8/geoh5py-0.14.0b1-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/7c/9f/b6c42a9ec1c3a75558c321536d82887954096399013dbd55fd8ed6c65534/grid_apps-0.3.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/82/da/6f81aba097e616b5d33f7da22c8d557509fa32ca5a47b5feee3000c9288d/mira_simpeg-0.26.0.1b1-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/fd/56/9a7d2fb5a53b943bbef1fa0944e2d91245c4b403eaa4dd0a14b36c20a356/geoapps_utils-0.8.0b1-py3-none-any.whl
   runtime-py314:
     channels:
@@ -2386,9 +2386,9 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/zarr-2.14.2-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zipp-4.1.2-pyh5ded981_0.conda
+      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/mira-simpeg/0.26.0.1b2/mira_simpeg-0.26.0.1b2-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/50/a3/474e2769a66716e629829a234adea681df96f7bc153567c3ec818a7dadc8/geoh5py-0.14.0b1-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/7c/9f/b6c42a9ec1c3a75558c321536d82887954096399013dbd55fd8ed6c65534/grid_apps-0.3.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/82/da/6f81aba097e616b5d33f7da22c8d557509fa32ca5a47b5feee3000c9288d/mira_simpeg-0.26.0.1b1-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/fd/56/9a7d2fb5a53b943bbef1fa0944e2d91245c4b403eaa4dd0a14b36c20a356/geoapps_utils-0.8.0b1-py3-none-any.whl
       win-64:
       - conda: https://repo.prefix.dev/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
@@ -2522,9 +2522,9 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/win-64/zlib-1.3.2-hfd05255_3.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zlib-ng-2.3.3-h0261ad2_1.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zstd-1.5.7-h534d264_7.conda
+      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/mira-simpeg/0.26.0.1b2/mira_simpeg-0.26.0.1b2-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/50/a3/474e2769a66716e629829a234adea681df96f7bc153567c3ec818a7dadc8/geoh5py-0.14.0b1-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/7c/9f/b6c42a9ec1c3a75558c321536d82887954096399013dbd55fd8ed6c65534/grid_apps-0.3.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/82/da/6f81aba097e616b5d33f7da22c8d557509fa32ca5a47b5feee3000c9288d/mira_simpeg-0.26.0.1b1-py3-none-any.whl
       - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/fd/56/9a7d2fb5a53b943bbef1fa0944e2d91245c4b403eaa4dd0a14b36c20a356/geoapps_utils-0.8.0b1-py3-none-any.whl
 packages:
 - conda: https://repo.prefix.dev/conda-forge/linux-64/_openmp_mutex-4.5-20_gnu.conda
@@ -10288,37 +10288,10 @@ packages:
     - zstd >=1.5.7,<1.6.0a0
   size: 387535
   timestamp: 1786599623274
-- pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/50/a3/474e2769a66716e629829a234adea681df96f7bc153567c3ec818a7dadc8/geoh5py-0.14.0b1-py3-none-any.whl
-  name: geoh5py
-  version: 0.14.0b1
-  sha256: e6f57dc47305ed69825c1dafc9899c78072c00e86fa04bcf02e6cced260aa871
-  index: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/simple
-  requires_dist:
-  - pillow>=13.0.0,<14.0.0
-  - defusedxml>=0.7.1,<0.8.0
-  - h5py>=3.15.0,<3.16.0
-  - numpy>=2.4.0,<2.5.0
-  - psutil>=7.2.2,<7.3.0
-  - pydantic>=2.12.0,<2.13.0
-  requires_python: '>=3.12,<3.15'
-- pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/7c/9f/b6c42a9ec1c3a75558c321536d82887954096399013dbd55fd8ed6c65534/grid_apps-0.3.0b1-py3-none-any.whl
-  name: grid-apps
-  version: 0.3.0b1
-  sha256: e3e26ba28195524d4db0b653b4e9e756075c231db841091eeed67bd12e1bafce
-  index: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/simple
-  requires_dist:
-  - discretize>=0.12.0,<0.13.0
-  - geoapps-utils>=0.8.0b1,<0.9.0
-  - geoh5py>=0.14.0b1,<0.15.0
-  - numpy>=2.4.2,<2.5.0
-  - pillow>=13.0.0,<14.0.0
-  - pydantic>=2.12.0,<2.13.0
-  - scipy>=1.17.0,<1.18.0
-  requires_python: '>=3.12,<3.15'
-- pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/82/da/6f81aba097e616b5d33f7da22c8d557509fa32ca5a47b5feee3000c9288d/mira_simpeg-0.26.0.1b1-py3-none-any.whl
+- pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/mira-simpeg/0.26.0.1b2/mira_simpeg-0.26.0.1b2-py3-none-any.whl
   name: mira-simpeg
-  version: 0.26.0.1b1
-  sha256: 73f6529d703060afc09a42468a73064753b98ef6d154a9b5cbddad88cdd1aff9
+  version: 0.26.0.1b2
+  sha256: 8f92de0bb2e987000a4b9e62443189b8f735d7383824d4ce608ecc9ed59ab90d
   index: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/simple
   requires_dist:
   - geoh5py>=0.14.0b1,<0.15.0
@@ -10368,6 +10341,33 @@ packages:
   - pytest-cov ; extra == 'tests'
   - simpeg[all,docs,style,tests] ; extra == 'dev'
   requires_python: '>=3.12,<4.0'
+- pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/50/a3/474e2769a66716e629829a234adea681df96f7bc153567c3ec818a7dadc8/geoh5py-0.14.0b1-py3-none-any.whl
+  name: geoh5py
+  version: 0.14.0b1
+  sha256: e6f57dc47305ed69825c1dafc9899c78072c00e86fa04bcf02e6cced260aa871
+  index: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/simple
+  requires_dist:
+  - pillow>=13.0.0,<14.0.0
+  - defusedxml>=0.7.1,<0.8.0
+  - h5py>=3.15.0,<3.16.0
+  - numpy>=2.4.0,<2.5.0
+  - psutil>=7.2.2,<7.3.0
+  - pydantic>=2.12.0,<2.13.0
+  requires_python: '>=3.12,<3.15'
+- pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/7c/9f/b6c42a9ec1c3a75558c321536d82887954096399013dbd55fd8ed6c65534/grid_apps-0.3.0b1-py3-none-any.whl
+  name: grid-apps
+  version: 0.3.0b1
+  sha256: e3e26ba28195524d4db0b653b4e9e756075c231db841091eeed67bd12e1bafce
+  index: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/simple
+  requires_dist:
+  - discretize>=0.12.0,<0.13.0
+  - geoapps-utils>=0.8.0b1,<0.9.0
+  - geoh5py>=0.14.0b1,<0.15.0
+  - numpy>=2.4.2,<2.5.0
+  - pillow>=13.0.0,<14.0.0
+  - pydantic>=2.12.0,<2.13.0
+  - scipy>=1.17.0,<1.18.0
+  requires_python: '>=3.12,<3.15'
 - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/packages/packages/fd/56/9a7d2fb5a53b943bbef1fa0944e2d91245c4b403eaa4dd0a14b36c20a356/geoapps_utils-0.8.0b1-py3-none-any.whl
   name: geoapps-utils
   version: 0.8.0b1
