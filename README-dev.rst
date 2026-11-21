@@ -27,6 +27,14 @@ Prerequisites
 
   Never add credentials to ``pixi.toml`` or ``pixi.lock``.
 
+.. note:: External contributors using Pixi
+
+   If you do not have Mira Artifactory credentials, comment out ``index-url``
+   under ``[feature.mira-pypi.pypi-options]`` in ``pixi.toml``, then run
+   ``pixi lock``. Packages configured with version references will resolve from
+   public PyPI; packages configured with Git references will resolve from Git.
+   Keep these local ``pixi.toml`` and ``pixi.lock`` changes uncommitted.
+
 Install and test
 ^^^^^^^^^^^^^^^^
 
