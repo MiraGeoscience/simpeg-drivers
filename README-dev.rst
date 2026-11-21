@@ -74,9 +74,16 @@ Refresh and validate the lock after editing requirements::
     pixi run --frozen -e py312 install
     pixi run --frozen -e py312 test
 
-Commit ``pixi.lock`` with the manifest changes. Keep branch-resolution examples
-commented beside published constraints; public package metadata must not contain
-active Git dependencies.
+Commit ``pixi.lock`` with the manifest changes. In ``pixi.toml``, the
+``mira-pypi`` feature lists Mira packages resolved from PyPI or GitHub:
+
+    - on a development branch, comment out published versions, and use git sources.
+    - when preparing a release, use published versions, and comment out git sources.
+
+The lock file is checked by ``tests/lock_test.py``: it ensures all dependencies
+are resolved from Conda, except for the Mira packages listed under the
+``mira-pypi`` feature. Keep compatibility bounds on indirect Conda dependencies:
+Pixi solves Conda before PyPI and does not backtrack between them.
 
 Git hooks
 ^^^^^^^^^
