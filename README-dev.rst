@@ -78,6 +78,9 @@ Commit ``pixi.lock`` with the manifest changes. Mira packages use the
 ``mira-pypi`` feature and the existing Artifactory index. Indirect Conda
 dependencies are kept only where needed to force Conda sources; compatibility
 and security floors are conditional constraints, not published dependencies.
+Source-forcing dependencies retain compatibility bounds because Pixi solves
+Conda before PyPI without general backtracking. In particular, the Pillow
+bound also matches the Mira packages' published requirement.
 Pixi Conda constraints do not constrain PyPI-only packages. Check the lock with
 ``pixi run --frozen -e py312 pytest tests/lock_test.py`` after every solve;
 the test checks security floors for both sources without overriding upstream
