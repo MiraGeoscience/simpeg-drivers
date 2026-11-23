@@ -84,7 +84,7 @@ editable installs remain in effect.
 Building documentation
 ^^^^^^^^^^^^^^^^^^^^^^
 
-Read the Docs installs uv 0.13.8 separately.
+Read the Docs installs uv separately.
 
 The separate ``docs`` environment uses Python 3.14 and Jupyter Book 1.
 Fetch the Git LFS documentation images, then build HTML with::
