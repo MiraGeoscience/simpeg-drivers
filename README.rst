@@ -41,10 +41,6 @@ on `GEOH5 files <https://mirageoscience-geoh5py.readthedocs-hosted.com/en/stable
 Users will be able to directly leverage the powerful visualization
 capabilities of `Geoscience ANALYST <https://mirageoscience.com/mining-industry-software/geoscience-analyst/>`_.
 
-.. contents:: Table of Contents
-   :local:
-   :depth: 3
-
 Documentation
 ^^^^^^^^^^^^^
 `Online documentation <https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/>`_
@@ -159,3 +155,7 @@ Third Party Software notices and/or additional terms and conditions are located 
 `THIRD_PARTY_SOFTWARE.md`_ file.
 
 .. _THIRD_PARTY_SOFTWARE.md: docs/THIRD_PARTY_SOFTWARE.md
+
+Trademarks
+^^^^^^^^^^
+"Python" and the Python logos are trademarks or registered trademarks of the Python Software Foundation.
