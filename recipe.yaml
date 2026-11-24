@@ -64,7 +64,7 @@ requirements:
     # Legacy compatibility minimum, not a security fix; Mira SimPEG requires >=0.3.3.
     - fsspec >=2022.0
     # Security floors for transitive dependencies:
-    - certifi >=2026.10.18  # GHSA-6q48-6c7w-9gw2
+    - certifi >=2026.10.19  # GHSA-6q48-6c7w-9gw2 (recommends certifi 2026.10.19+, no CVE assigned)
     - msgpack-python >=1.2.3  # GHSA-j586-36cw-2gc2
     - pillow >=13.0.0  # GHSA-wqgw-9xfh-qf2g
     - setuptools >=84.1.0  # GHSA-xmj3-9gf7-h52w
