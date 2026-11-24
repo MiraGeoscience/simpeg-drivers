@@ -4,12 +4,29 @@ requires-pixi = ">=0.84.2"
 channels = ["https://repo.prefix.dev/conda-forge"]
 platforms = ["win-64", "linux-64"]
 
+[workspace.exclude-newer]
+cutoff = "8d"
+
+[workspace.exclude-newer.exemptions]
+# from Mira sources
+geoapps-utils = "*"
+geoh5py = "*"
+grid-apps = "*"
+mira-simpeg = "*"
+
+[workspace.pypi-exclude-newer.exemptions]
+# from Mira sources
+geoapps-utils = "*"
+geoh5py = "*"
+grid-apps = "*"
+mira-simpeg = "*"
+
 [activation.env]
 PYTHONNOUSERSITE = "1"
 
 [dependencies]
-# Dask performance reports require Bokeh.
-bokeh = "3.6.*"
+# Direct runtime dependencies
+bokeh = "3.6.*"  # Dask performance reports require Bokeh.
 dask-core = "2026.1.*"
 discretize = "0.12.*"
 distributed = "2026.1.*"  # Security floor: GHSA-c336-7962-wfj2
@@ -28,25 +45,8 @@ scipy = "1.17.*"
 tqdm = ">=4.66.1, 4.*"
 trimesh = ">=4.1.3, 4.*"
 
-# Force Conda sources for dependencies reached through PyPI metadata. Keep
-# compatible bounds here: Pixi solves Conda before PyPI without backtracking.
-mkl = ">=2026.1.0, 2026.*"
-defusedxml = ">=0.7.1, 0.7.*"
-fsspec = ">=2022.0"
-geoana = "0.8.*"
-pillow = ">=13.0.0, 13.*"  # Security floor: GHSA-wqgw-9xfh-qf2g
-psutil = ">=7.2.2, 7.2.*"
-pymatsolver = "0.3.*"
-zarr = ">=2.14.2, 2.14.*"
-
-[constraints]
-# Conditional security floors; version caps retain existing compatibility limits.
-certifi = ">=2026.10.18"  # GHSA-6q48-6c7w-9gw2
-msgpack-python = ">=1.2.3, 1.*"  # GHSA-j586-36cw-2gc2
-setuptools = ">=84.1.0"  # GHSA-xmj3-9gf7-h52w
-tornado = ">=6.6.1, 6.*"  # GHSA-5cjw-f85j-cv6r
-urllib3 = ">=2.8.0, 2.*"  # GHSA-gh4c-6fx4-qh6g
-werkzeug = ">=3.1.9, 3.*"  # GHSA-g6x2-hccm-hh4m
+[pypi-dependencies]
+# no default PyPI dependencies. See feature "mira-pypi"
 
 [feature.mira-pypi.pypi-dependencies]
 geoh5py = ">=0.14.0b1,==0.14.*"
@@ -59,17 +59,27 @@ mira-simpeg = { version = ">=0.26.0.1b1,==0.26.0.*", extras = ["dask"] }
 # mira-simpeg = { git = "https://github.com/MiraGeoscience/simpeg.git", rev = "release/ga-4.9", extras = ["dask"] }
 
 [feature.mira-pypi.pypi-options]
-index-url = "https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev/simple"
+# Authenticate for this private PyPI index first; see README-dev.rst.
+index-url = "https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/simple"
 
 [environments]
-default = { features = ["py312", "mira-pypi", "test", "lint", "dev"], solve-group = "py312" }
-py312 = { features = ["py312", "mira-pypi", "test", "lint"], solve-group = "py312" }
-py313 = { features = ["py313", "mira-pypi", "test", "lint"], solve-group = "py313" }
-py314 = { features = ["py314", "mira-pypi", "test", "lint"], solve-group = "py314" }
-runtime = { features = ["py312", "mira-pypi"], solve-group = "py312" }
-runtime-py313 = { features = ["py313", "mira-pypi"], solve-group = "py313" }
-runtime-py314 = { features = ["py314", "mira-pypi"], solve-group = "py314" }
+default = { features = ["py312", "mira-pypi", "conda-rt", "test", "lint", "dev"], solve-group = "py312" }
+py312 = { features = ["py312", "mira-pypi", "conda-rt", "test", "lint"], solve-group = "py312" }
+py313 = { features = ["py313", "mira-pypi", "conda-rt", "test", "lint"], solve-group = "py313" }
+py314 = { features = ["py314", "mira-pypi", "conda-rt", "test", "lint"], solve-group = "py314" }
+runtime = { features = ["py312", "mira-pypi", "conda-rt"], solve-group = "py312" }
+runtime-py313 = { features = ["py313", "mira-pypi", "conda-rt"], solve-group = "py313" }
+runtime-py314 = { features = ["py314", "mira-pypi", "conda-rt"], solve-group = "py314" }
 docs = { features = ["py314", "docs"], no-default-feature = true }
+
+[constraints]
+# Conditional security floors; version caps retain existing compatibility limits.
+certifi = ">=2026.10.19"  # GHSA-6q48-6c7w-9gw2 (recommends certifi 2026.10.19+ (no CVE assigned)
+msgpack-python = ">=1.2.3, 1.*"  # GHSA-j586-36cw-2gc2
+setuptools = ">=84.1.0"  # GHSA-xmj3-9gf7-h52w
+tornado = ">=6.6.1, 6.*"  # GHSA-5cjw-f85j-cv6r
+urllib3 = ">=2.8.0, 2.*"  # GHSA-gh4c-6fx4-qh6g
+werkzeug = ">=3.1.9, 3.*"  # GHSA-g6x2-hccm-hh4m
 
 [feature.py312.dependencies]
 python = "3.12.*"
@@ -79,6 +89,17 @@ python = "3.13.*"
 
 [feature.py314.dependencies]
 python = "3.14.*"
+
+[feature.conda-rt.dependencies]
+# Indirect dependencies to force their resolution from Conda, specifying compatible versions
+mkl = ">=2026.1.0, 2026.*"
+defusedxml = ">=0.7.1, 0.7.*"
+fsspec = ">=2022.0"
+geoana = "0.8.*"
+pillow = ">=13.0.0, 13.*"  # Security floor: GHSA-wqgw-9xfh-qf2g
+psutil = ">=7.2.2, 7.2.*"
+pymatsolver = "0.3.*"
+zarr = ">=2.14.2, 2.14.*"
 
 [feature.dev.dependencies]
 pygments = "*"
@@ -140,9 +161,17 @@ depends-on = ["config-docs"]
 cmd = "sphinx-build -T -nW -b {{builder}} docs {{outputdir}}/{{builder}}"
 env = { PYTHONPATH = "docs/_ext" }
 
-[tasks]
-install = { cmd = "uv pip install --python \"$CONDA_PREFIX\" --no-deps --editable . && uv pip check --python \"$CONDA_PREFIX\"", description = "Install the local package in editable mode without changing locked dependencies, then check compatibility" }
-test-pyvers = { cmd = "pixi run --frozen -e py312 test && pixi run --frozen -e py313 test && pixi run --frozen -e py314 test", description = "Run tests across all supported Python versions" }
+[tasks.install]
+cmd = "uv pip install --python \"$CONDA_PREFIX\" --no-deps --editable . && uv pip check --python \"$CONDA_PREFIX\""
+description = "Install the local package in editable mode without changing locked dependencies, then check compatibility"
+
+[tasks.test-pyvers]
+description = "Run tests across all supported Python versions"
+depends-on = [
+    {task = "test", environment = "py312"},
+    {task = "test", environment = "py313"},
+    {task = "test", environment = "py314"},
+]
 
 [tasks.show-pip-source]
 description = "Display installed package metadata and source"
