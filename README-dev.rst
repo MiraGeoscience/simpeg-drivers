@@ -49,17 +49,8 @@ locked dependencies, then checks package compatibility.
 
 The ``runtime`` environment omits test and lint tools.
 
-On Windows, install the locked runtime into Geoscience Analyst with::
-
-    install_in_analyst.bat
-    install_in_analyst.bat -e --name mirageo-dev
-
-Possibly, replace ``mirageo-dev`` with a dedicated environment name of your choice.
-
-The script exports the locked ``win-64`` runtime, installs its dependencies
-through Analyst, and installs this checkout without resolving dependencies
-again. Pass ``-e`` first for editable mode; optional ``--conda`` and ``--name``
-arguments are forwarded to Analyst. A valid ``pixi.lock`` is required.
+To install the local source package into Geoscience ANALYST, see `geoapps-install
+<https://github.com/MiraGeoscience/geoapps-install>`_ .
 
 Working with local sibling checkouts
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
