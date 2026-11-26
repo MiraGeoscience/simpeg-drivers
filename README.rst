@@ -41,10 +41,6 @@ on `GEOH5 files <https://mirageoscience-geoh5py.readthedocs-hosted.com/en/stable
 Users will be able to directly leverage the powerful visualization
 capabilities of `Geoscience ANALYST <https://mirageoscience.com/mining-industry-software/geoscience-analyst/>`_.
 
-.. contents:: Table of Contents
-   :local:
-   :depth: 3
-
 Documentation
 ^^^^^^^^^^^^^
 `Online documentation <https://mirageoscience-simpeg-drivers.readthedocs-hosted.com/>`_
@@ -130,6 +126,8 @@ License
 ^^^^^^^
 MIT License
 
+Copyright (c) 2023-2026 Mira Geoscience Ltd.
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -158,6 +156,6 @@ Third Party Software notices and/or additional terms and conditions are located 
 
 .. _THIRD_PARTY_SOFTWARE.md: docs/THIRD_PARTY_SOFTWARE.md
 
-Copyright
-^^^^^^^^^
-Copyright (c) 2023-2026 Mira Geoscience Ltd.
+Trademarks
+^^^^^^^^^^
+"Python" and the Python logos are trademarks or registered trademarks of the Python Software Foundation.

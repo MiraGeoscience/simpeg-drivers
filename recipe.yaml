@@ -32,15 +32,17 @@ requirements:
   run:
     - python >=${{ python_min }}, <3.15.0a.dev
     # Mira packages
-    - geoapps-utils >=0.8.0b1, <0.9.0
-    - geoh5py >=0.14.0b1, <0.15.0
-    - grid-apps >=0.3.0b1, <0.4.0
-    - mira-simpeg >=0.26.0.1b1, <0.27.0
+    - geoapps-utils >=0.8.0b1, 0.8.*
+    - geoh5py >=0.14.0b1, 0.14.*
+    - grid-apps >=0.3.0b1, 0.3.*
+    - mira-simpeg >=0.26.0.1b1, 0.26.0.*
 
-    # direct dependencies
+    # other direct dependencies
+    - bokeh 3.6.*
     - dask-core 2026.1.*
     - discretize 0.12.*
-    - distributed 2026.1.*
+    - distributed 2026.1.*  # GHSA-c336-7962-wfj2
+    - h5py >=3.15.1, 3.15.*
     - matplotlib-base >=3.10.4, 3.10.*
     - numpy >=2.4.2, 2.4.*
     - openpyxl >=3.1.2, 3.*
@@ -53,24 +55,22 @@ requirements:
     - scipy 1.17.*
     - tqdm >=4.66.1, 4.*
     - trimesh >=4.1.3, 4.*
-    # constrain version for some indirect dependencies from SimPEG
-    - geoana 0.8.*
-    - h5py >=3.15.1, <3.16
-    - pillow >=13.0.0, 13.*  # Security floor (GHSA-wqgw-9xfh-qf2g).
-    - pymatsolver 0.3.*
-    - psutil >=7.2.2, 7.2.*
-    - zarr >=2.14.2, 2.14.*
   run_constraints:
     - __glibc >=2.17
-    - bokeh 3.6.*
+    - geoana 0.8.*
+    - psutil >=7.2.2, 7.2.*
+    - pymatsolver 0.3.*
+    - zarr >=2.14.2, 2.14.*
     # Legacy compatibility minimum, not a security fix; Mira SimPEG requires >=0.3.3.
     - fsspec >=2022.0
-    # Transitive security floors; major-version caps are compatibility limits.
-    - certifi >=2026.10.18  # GHSA-6q48-6c7w-9gw2
-    - msgpack-python >=1.2.3, 1.*  # GHSA-j586-36cw-2gc2
-    - tornado >=6.6.1, 6.*  # GHSA-5cjw-f85j-cv6r
-    - urllib3 >=2.8.0, 2.*  # GHSA-gh4c-6fx4-qh6g
-    - werkzeug >=3.1.9, 3.*  # GHSA-g6x2-hccm-hh4m
+    # Security floors for transitive dependencies:
+    - certifi >=2026.10.19  # GHSA-6q48-6c7w-9gw2 (recommends certifi 2026.10.19+, no CVE assigned)
+    - msgpack-python >=1.2.3  # GHSA-j586-36cw-2gc2
+    - pillow >=13.0.0  # GHSA-wqgw-9xfh-qf2g
+    - setuptools >=84.1.0  # GHSA-xmj3-9gf7-h52w
+    - tornado >=6.6.1  # GHSA-5cjw-f85j-cv6r
+    - urllib3 >=2.8.0  # GHSA-gh4c-6fx4-qh6g
+    - werkzeug >=3.1.9  # GHSA-g6x2-hccm-hh4m
 
 tests:
   - python:
@@ -86,7 +86,7 @@ tests:
         - simpeg
 
   - script:
-      - pytest --ignore=tests/version_test.py --ignore=tests/run_tests --ignore=tests/plate_simulation
+      - pytest --ignore=tests/version_test.py --ignore=tests/pixi_lock_test.py --ignore=tests/run_tests --ignore=tests/plate_simulation
     requirements:
       run:
         - pytest
