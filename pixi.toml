@@ -49,18 +49,20 @@ trimesh = ">=4.1.3, 4.*"
 # no default PyPI dependencies. See feature "mira-pypi"
 
 [feature.mira-pypi.pypi-dependencies]
-geoh5py = ">=0.14.0b1,==0.14.*"
-# geoh5py = { git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "release/ga-4.9"}
-grid-apps = ">=0.3.0b1,==0.3.*"
-# grid-apps = { git = "https://github.com/MiraGeoscience/grid-apps.git", rev = "release/ga-4.9"}
-geoapps-utils = ">=0.8.0b1,==0.8.*"
-# geoapps-utils = { git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "release/ga-4.9"}
-# mira-simpeg = { version = ">=0.26.0.1b1,==0.26.0.*", extras = ["dask"] }
+# geoh5py = ">=0.14.0b2,==0.14.*"
+geoh5py = { git = "https://github.com/MiraGeoscience/geoh5py.git", rev = "release/ga-4.9"}
+# grid-apps = ">=0.3.0b2,==0.3.*"
+grid-apps = { git = "https://github.com/MiraGeoscience/grid-apps.git", rev = "release/ga-4.9"}
+# geoapps-utils = ">=0.8.0b2,==0.8.*"
+geoapps-utils = { git = "https://github.com/MiraGeoscience/geoapps-utils.git", rev = "release/ga-4.9"}
+# mira-simpeg = { version = ">=0.26.0.1b2,==0.26.0.*", extras = ["dask"] }
 mira-simpeg = { git = "https://github.com/MiraGeoscience/simpeg.git", rev = "release/ga-4.9", extras = ["dask"] }
 
 [feature.mira-pypi.pypi-options]
 # Authenticate for this private PyPI index first; see README-dev.rst.
-index-url = "https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/simple"
+extra-index-urls = [
+    "https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/simple",
+]
 
 [environments]
 default = { features = ["py312", "mira-pypi", "conda-rt", "test", "lint", "dev"], solve-group = "py312" }

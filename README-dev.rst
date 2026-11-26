@@ -29,7 +29,7 @@ Prerequisites
 
 .. note:: External contributors using Pixi
 
-   If you do not have Mira Artifactory credentials, comment out ``index-url``
+   If you do not have Mira Artifactory credentials, comment out ``extra-index-urls``
    under ``[feature.mira-pypi.pypi-options]`` in ``pixi.toml``, then run
    ``pixi lock``. Packages configured with version references will resolve from
    public PyPI; packages configured with Git references will resolve from Git.

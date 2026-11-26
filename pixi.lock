@@ -15,6 +15,7 @@ environments:
     channels:
     - url: https://repo.prefix.dev/conda-forge/
     indexes:
+    - https://pypi.org/simple
     - https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/simple
     packages:
       linux-64:
@@ -201,10 +202,10 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/zarr-2.14.2-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zipp-4.1.2-pyh5ded981_0.conda
+      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git?rev=release%2Fga-4.9#f3586a451a516f7ca564d1786e9f8e2495cf1931
+      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git?rev=release%2Fga-4.9#5c3fa9df0e006d7544e5d985a9276c74c873e168
+      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git?rev=release%2Fga-4.9#f3b6ce7cc8bf8dc54c3a656a76178ca3f4551669
       - pypi: git+https://github.com/MiraGeoscience/simpeg.git?rev=release%2Fga-4.9#5684fded1b82e895ba1fff4cbf358fac1682aca1
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/geoapps-utils/0.8.0b1/geoapps_utils-0.8.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/geoh5py/0.14.0b1/geoh5py-0.14.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/grid-apps/0.3.0b1/grid_apps-0.3.0b1-py3-none-any.whl
       win-64:
       - conda: https://repo.prefix.dev/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/annotated-types-0.8.0-pyhd8ed1ab_0.conda
@@ -372,10 +373,10 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/win-64/zlib-1.3.2-hfd05255_3.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zlib-ng-2.3.3-h0261ad2_1.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zstd-1.5.7-h534d264_7.conda
+      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git?rev=release%2Fga-4.9#f3586a451a516f7ca564d1786e9f8e2495cf1931
+      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git?rev=release%2Fga-4.9#5c3fa9df0e006d7544e5d985a9276c74c873e168
+      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git?rev=release%2Fga-4.9#f3b6ce7cc8bf8dc54c3a656a76178ca3f4551669
       - pypi: git+https://github.com/MiraGeoscience/simpeg.git?rev=release%2Fga-4.9#5684fded1b82e895ba1fff4cbf358fac1682aca1
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/geoapps-utils/0.8.0b1/geoapps_utils-0.8.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/geoh5py/0.14.0b1/geoh5py-0.14.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/grid-apps/0.3.0b1/grid_apps-0.3.0b1-py3-none-any.whl
   docs:
     channels:
     - url: https://repo.prefix.dev/conda-forge/
@@ -659,6 +660,7 @@ environments:
     channels:
     - url: https://repo.prefix.dev/conda-forge/
     indexes:
+    - https://pypi.org/simple
     - https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/simple
     packages:
       linux-64:
@@ -829,10 +831,10 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/zarr-2.14.2-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zipp-4.1.2-pyh5ded981_0.conda
+      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git?rev=release%2Fga-4.9#f3586a451a516f7ca564d1786e9f8e2495cf1931
+      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git?rev=release%2Fga-4.9#5c3fa9df0e006d7544e5d985a9276c74c873e168
+      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git?rev=release%2Fga-4.9#f3b6ce7cc8bf8dc54c3a656a76178ca3f4551669
       - pypi: git+https://github.com/MiraGeoscience/simpeg.git?rev=release%2Fga-4.9#5684fded1b82e895ba1fff4cbf358fac1682aca1
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/geoapps-utils/0.8.0b1/geoapps_utils-0.8.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/geoh5py/0.14.0b1/geoh5py-0.14.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/grid-apps/0.3.0b1/grid_apps-0.3.0b1-py3-none-any.whl
       win-64:
       - conda: https://repo.prefix.dev/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/annotated-types-0.8.0-pyhd8ed1ab_0.conda
@@ -986,14 +988,15 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/win-64/zlib-1.3.2-hfd05255_3.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zlib-ng-2.3.3-h0261ad2_1.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zstd-1.5.7-h534d264_7.conda
+      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git?rev=release%2Fga-4.9#f3586a451a516f7ca564d1786e9f8e2495cf1931
+      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git?rev=release%2Fga-4.9#5c3fa9df0e006d7544e5d985a9276c74c873e168
+      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git?rev=release%2Fga-4.9#f3b6ce7cc8bf8dc54c3a656a76178ca3f4551669
       - pypi: git+https://github.com/MiraGeoscience/simpeg.git?rev=release%2Fga-4.9#5684fded1b82e895ba1fff4cbf358fac1682aca1
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/geoapps-utils/0.8.0b1/geoapps_utils-0.8.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/geoh5py/0.14.0b1/geoh5py-0.14.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/grid-apps/0.3.0b1/grid_apps-0.3.0b1-py3-none-any.whl
   py313:
     channels:
     - url: https://repo.prefix.dev/conda-forge/
     indexes:
+    - https://pypi.org/simple
     - https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/simple
     packages:
       linux-64:
@@ -1162,10 +1165,10 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/zarr-2.14.2-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zipp-4.1.2-pyh5ded981_0.conda
+      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git?rev=release%2Fga-4.9#f3586a451a516f7ca564d1786e9f8e2495cf1931
+      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git?rev=release%2Fga-4.9#5c3fa9df0e006d7544e5d985a9276c74c873e168
+      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git?rev=release%2Fga-4.9#f3b6ce7cc8bf8dc54c3a656a76178ca3f4551669
       - pypi: git+https://github.com/MiraGeoscience/simpeg.git?rev=release%2Fga-4.9#5684fded1b82e895ba1fff4cbf358fac1682aca1
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/geoapps-utils/0.8.0b1/geoapps_utils-0.8.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/geoh5py/0.14.0b1/geoh5py-0.14.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/grid-apps/0.3.0b1/grid_apps-0.3.0b1-py3-none-any.whl
       win-64:
       - conda: https://repo.prefix.dev/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/annotated-types-0.8.0-pyhd8ed1ab_0.conda
@@ -1319,14 +1322,15 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/win-64/zlib-1.3.2-hfd05255_3.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zlib-ng-2.3.3-h0261ad2_1.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zstd-1.5.7-h534d264_7.conda
+      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git?rev=release%2Fga-4.9#f3586a451a516f7ca564d1786e9f8e2495cf1931
+      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git?rev=release%2Fga-4.9#5c3fa9df0e006d7544e5d985a9276c74c873e168
+      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git?rev=release%2Fga-4.9#f3b6ce7cc8bf8dc54c3a656a76178ca3f4551669
       - pypi: git+https://github.com/MiraGeoscience/simpeg.git?rev=release%2Fga-4.9#5684fded1b82e895ba1fff4cbf358fac1682aca1
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/geoapps-utils/0.8.0b1/geoapps_utils-0.8.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/geoh5py/0.14.0b1/geoh5py-0.14.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/grid-apps/0.3.0b1/grid_apps-0.3.0b1-py3-none-any.whl
   py314:
     channels:
     - url: https://repo.prefix.dev/conda-forge/
     indexes:
+    - https://pypi.org/simple
     - https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/simple
     packages:
       linux-64:
@@ -1495,10 +1499,10 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/zarr-2.14.2-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zipp-4.1.2-pyh5ded981_0.conda
+      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git?rev=release%2Fga-4.9#f3586a451a516f7ca564d1786e9f8e2495cf1931
+      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git?rev=release%2Fga-4.9#5c3fa9df0e006d7544e5d985a9276c74c873e168
+      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git?rev=release%2Fga-4.9#f3b6ce7cc8bf8dc54c3a656a76178ca3f4551669
       - pypi: git+https://github.com/MiraGeoscience/simpeg.git?rev=release%2Fga-4.9#5684fded1b82e895ba1fff4cbf358fac1682aca1
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/geoapps-utils/0.8.0b1/geoapps_utils-0.8.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/geoh5py/0.14.0b1/geoh5py-0.14.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/grid-apps/0.3.0b1/grid_apps-0.3.0b1-py3-none-any.whl
       win-64:
       - conda: https://repo.prefix.dev/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/annotated-types-0.8.0-pyhd8ed1ab_0.conda
@@ -1652,14 +1656,15 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/win-64/zlib-1.3.2-hfd05255_3.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zlib-ng-2.3.3-h0261ad2_1.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zstd-1.5.7-h534d264_7.conda
+      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git?rev=release%2Fga-4.9#f3586a451a516f7ca564d1786e9f8e2495cf1931
+      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git?rev=release%2Fga-4.9#5c3fa9df0e006d7544e5d985a9276c74c873e168
+      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git?rev=release%2Fga-4.9#f3b6ce7cc8bf8dc54c3a656a76178ca3f4551669
       - pypi: git+https://github.com/MiraGeoscience/simpeg.git?rev=release%2Fga-4.9#5684fded1b82e895ba1fff4cbf358fac1682aca1
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/geoapps-utils/0.8.0b1/geoapps_utils-0.8.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/geoh5py/0.14.0b1/geoh5py-0.14.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/grid-apps/0.3.0b1/grid_apps-0.3.0b1-py3-none-any.whl
   runtime:
     channels:
     - url: https://repo.prefix.dev/conda-forge/
     indexes:
+    - https://pypi.org/simple
     - https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/simple
     packages:
       linux-64:
@@ -1808,10 +1813,10 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/zarr-2.14.2-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zipp-4.1.2-pyh5ded981_0.conda
+      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git?rev=release%2Fga-4.9#f3586a451a516f7ca564d1786e9f8e2495cf1931
+      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git?rev=release%2Fga-4.9#5c3fa9df0e006d7544e5d985a9276c74c873e168
+      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git?rev=release%2Fga-4.9#f3b6ce7cc8bf8dc54c3a656a76178ca3f4551669
       - pypi: git+https://github.com/MiraGeoscience/simpeg.git?rev=release%2Fga-4.9#5684fded1b82e895ba1fff4cbf358fac1682aca1
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/geoapps-utils/0.8.0b1/geoapps_utils-0.8.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/geoh5py/0.14.0b1/geoh5py-0.14.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/grid-apps/0.3.0b1/grid_apps-0.3.0b1-py3-none-any.whl
       win-64:
       - conda: https://repo.prefix.dev/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/annotated-types-0.8.0-pyhd8ed1ab_0.conda
@@ -1944,14 +1949,15 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/win-64/zlib-1.3.2-hfd05255_3.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zlib-ng-2.3.3-h0261ad2_1.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zstd-1.5.7-h534d264_7.conda
+      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git?rev=release%2Fga-4.9#f3586a451a516f7ca564d1786e9f8e2495cf1931
+      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git?rev=release%2Fga-4.9#5c3fa9df0e006d7544e5d985a9276c74c873e168
+      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git?rev=release%2Fga-4.9#f3b6ce7cc8bf8dc54c3a656a76178ca3f4551669
       - pypi: git+https://github.com/MiraGeoscience/simpeg.git?rev=release%2Fga-4.9#5684fded1b82e895ba1fff4cbf358fac1682aca1
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/geoapps-utils/0.8.0b1/geoapps_utils-0.8.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/geoh5py/0.14.0b1/geoh5py-0.14.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/grid-apps/0.3.0b1/grid_apps-0.3.0b1-py3-none-any.whl
   runtime-py313:
     channels:
     - url: https://repo.prefix.dev/conda-forge/
     indexes:
+    - https://pypi.org/simple
     - https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/simple
     packages:
       linux-64:
@@ -2098,10 +2104,10 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/zarr-2.14.2-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zipp-4.1.2-pyh5ded981_0.conda
+      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git?rev=release%2Fga-4.9#f3586a451a516f7ca564d1786e9f8e2495cf1931
+      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git?rev=release%2Fga-4.9#5c3fa9df0e006d7544e5d985a9276c74c873e168
+      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git?rev=release%2Fga-4.9#f3b6ce7cc8bf8dc54c3a656a76178ca3f4551669
       - pypi: git+https://github.com/MiraGeoscience/simpeg.git?rev=release%2Fga-4.9#5684fded1b82e895ba1fff4cbf358fac1682aca1
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/geoapps-utils/0.8.0b1/geoapps_utils-0.8.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/geoh5py/0.14.0b1/geoh5py-0.14.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/grid-apps/0.3.0b1/grid_apps-0.3.0b1-py3-none-any.whl
       win-64:
       - conda: https://repo.prefix.dev/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/annotated-types-0.8.0-pyhd8ed1ab_0.conda
@@ -2234,14 +2240,15 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/win-64/zlib-1.3.2-hfd05255_3.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zlib-ng-2.3.3-h0261ad2_1.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zstd-1.5.7-h534d264_7.conda
+      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git?rev=release%2Fga-4.9#f3586a451a516f7ca564d1786e9f8e2495cf1931
+      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git?rev=release%2Fga-4.9#5c3fa9df0e006d7544e5d985a9276c74c873e168
+      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git?rev=release%2Fga-4.9#f3b6ce7cc8bf8dc54c3a656a76178ca3f4551669
       - pypi: git+https://github.com/MiraGeoscience/simpeg.git?rev=release%2Fga-4.9#5684fded1b82e895ba1fff4cbf358fac1682aca1
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/geoapps-utils/0.8.0b1/geoapps_utils-0.8.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/geoh5py/0.14.0b1/geoh5py-0.14.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/grid-apps/0.3.0b1/grid_apps-0.3.0b1-py3-none-any.whl
   runtime-py314:
     channels:
     - url: https://repo.prefix.dev/conda-forge/
     indexes:
+    - https://pypi.org/simple
     - https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/simple
     packages:
       linux-64:
@@ -2388,10 +2395,10 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/noarch/zarr-2.14.2-pyhd8ed1ab_0.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zict-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/zipp-4.1.2-pyh5ded981_0.conda
+      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git?rev=release%2Fga-4.9#f3586a451a516f7ca564d1786e9f8e2495cf1931
+      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git?rev=release%2Fga-4.9#5c3fa9df0e006d7544e5d985a9276c74c873e168
+      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git?rev=release%2Fga-4.9#f3b6ce7cc8bf8dc54c3a656a76178ca3f4551669
       - pypi: git+https://github.com/MiraGeoscience/simpeg.git?rev=release%2Fga-4.9#5684fded1b82e895ba1fff4cbf358fac1682aca1
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/geoapps-utils/0.8.0b1/geoapps_utils-0.8.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/geoh5py/0.14.0b1/geoh5py-0.14.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/grid-apps/0.3.0b1/grid_apps-0.3.0b1-py3-none-any.whl
       win-64:
       - conda: https://repo.prefix.dev/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
       - conda: https://repo.prefix.dev/conda-forge/noarch/annotated-types-0.8.0-pyhd8ed1ab_0.conda
@@ -2524,10 +2531,10 @@ environments:
       - conda: https://repo.prefix.dev/conda-forge/win-64/zlib-1.3.2-hfd05255_3.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zlib-ng-2.3.3-h0261ad2_1.conda
       - conda: https://repo.prefix.dev/conda-forge/win-64/zstd-1.5.7-h534d264_7.conda
+      - pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git?rev=release%2Fga-4.9#f3586a451a516f7ca564d1786e9f8e2495cf1931
+      - pypi: git+https://github.com/MiraGeoscience/geoh5py.git?rev=release%2Fga-4.9#5c3fa9df0e006d7544e5d985a9276c74c873e168
+      - pypi: git+https://github.com/MiraGeoscience/grid-apps.git?rev=release%2Fga-4.9#f3b6ce7cc8bf8dc54c3a656a76178ca3f4551669
       - pypi: git+https://github.com/MiraGeoscience/simpeg.git?rev=release%2Fga-4.9#5684fded1b82e895ba1fff4cbf358fac1682aca1
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/geoapps-utils/0.8.0b1/geoapps_utils-0.8.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/geoh5py/0.14.0b1/geoh5py-0.14.0b1-py3-none-any.whl
-      - pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/grid-apps/0.3.0b1/grid_apps-0.3.0b1-py3-none-any.whl
 packages:
 - conda: https://repo.prefix.dev/conda-forge/linux-64/_openmp_mutex-4.5-20_gnu.conda
   build_number: 20
@@ -5885,6 +5892,7 @@ packages:
   license_family: MIT
   purls:
   - pkg:pypi/et-xmlfile?source=hash-mapping
+  run_exports: {}
   size: 21908
   timestamp: 1733749746332
 - conda: https://repo.prefix.dev/conda-forge/noarch/exceptiongroup-1.3.1-pyhd8ed1ab_0.conda
@@ -6313,6 +6321,7 @@ packages:
   license_family: BSD
   purls:
   - pkg:pypi/libdlf?source=hash-mapping
+  run_exports: {}
   size: 173626
   timestamp: 1735056347659
 - conda: https://repo.prefix.dev/conda-forge/noarch/linkify-it-py-2.2.0-pyhcf101f3_0.conda
@@ -6336,6 +6345,7 @@ packages:
   license_family: BSD
   purls:
   - pkg:pypi/locket?source=hash-mapping
+  run_exports: {}
   size: 8250
   timestamp: 1650660473123
 - conda: https://repo.prefix.dev/conda-forge/noarch/markdown-it-py-3.0.0-pyhd8ed1ab_1.conda
@@ -6534,6 +6544,7 @@ packages:
   license_family: BSD
   purls:
   - pkg:pypi/partd?source=hash-mapping
+  run_exports: {}
   size: 20884
   timestamp: 1715026639309
 - conda: https://repo.prefix.dev/conda-forge/noarch/pexpect-4.9.0-pyhd8ed1ab_1.conda
@@ -7082,6 +7093,7 @@ packages:
   license_family: APACHE
   purls:
   - pkg:pypi/sortedcontainers?source=hash-mapping
+  run_exports: {}
   size: 28657
   timestamp: 1738440459037
 - conda: https://repo.prefix.dev/conda-forge/noarch/soupsieve-4.1.1-pyhd8ed1ab_0.conda
@@ -10320,6 +10332,38 @@ packages:
     - zstd >=1.5.7,<1.6.0a0
   size: 387535
   timestamp: 1786599623274
+- pypi: git+https://github.com/MiraGeoscience/geoapps-utils.git?rev=release%2Fga-4.9#f3586a451a516f7ca564d1786e9f8e2495cf1931
+  name: geoapps-utils
+  version: 0.8.0b2.dev38+f3586a4
+  requires_dist:
+  - geoh5py>=0.14.0b1,<0.15
+  - matplotlib==3.10.*
+  - numpy>=2.4.2,<2.5
+  - pydantic==2.12.*
+  - scipy==1.17.*
+  requires_python: '>=3.12,<3.15'
+- pypi: git+https://github.com/MiraGeoscience/geoh5py.git?rev=release%2Fga-4.9#5c3fa9df0e006d7544e5d985a9276c74c873e168
+  name: geoh5py
+  version: 0.14.0b2.dev61+5c3fa9df
+  requires_dist:
+  - pillow==13.*
+  - defusedxml>=0.7.1,<0.8
+  - h5py==3.15.*
+  - numpy==2.4.*
+  - psutil>=7.2.2,<7.3
+  - pydantic==2.12.*
+  requires_python: '>=3.12,<3.15'
+- pypi: git+https://github.com/MiraGeoscience/grid-apps.git?rev=release%2Fga-4.9#f3b6ce7cc8bf8dc54c3a656a76178ca3f4551669
+  name: grid-apps
+  version: 0.3.0b2.dev37+f3b6ce7
+  requires_dist:
+  - discretize==0.12.*
+  - geoapps-utils>=0.8.0b1,<0.9
+  - geoh5py>=0.14.0b1,<0.15
+  - numpy>=2.4.2,<2.5
+  - pydantic==2.12.*
+  - scipy==1.17.*
+  requires_python: '>=3.12,<3.15'
 - pypi: git+https://github.com/MiraGeoscience/simpeg.git?rev=release%2Fga-4.9#5684fded1b82e895ba1fff4cbf358fac1682aca1
   name: mira-simpeg
   version: 0.26.0.1b3.dev3+g5684fded1
@@ -10371,42 +10415,3 @@ packages:
   - pytest-cov ; extra == 'tests'
   - simpeg[all,docs,style,tests] ; extra == 'dev'
   requires_python: '>=3.12,<4.0'
-- pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/geoapps-utils/0.8.0b1/geoapps_utils-0.8.0b1-py3-none-any.whl
-  name: geoapps-utils
-  version: 0.8.0b1
-  sha256: 1ff1bbd9cb9d8d909027fd4ac2f7f7248cf1251579401a34dcc2a750743c45c1
-  index: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/simple
-  requires_dist:
-  - geoh5py>=0.14.0b1,<0.15.0
-  - matplotlib>=3.10.0,<3.11.0
-  - numpy>=2.4.2,<2.5.0
-  - pydantic>=2.12.0,<2.13.0
-  - scipy>=1.17.0,<1.18.0
-  requires_python: '>=3.12,<3.15'
-- pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/geoh5py/0.14.0b1/geoh5py-0.14.0b1-py3-none-any.whl
-  name: geoh5py
-  version: 0.14.0b1
-  sha256: e6f57dc47305ed69825c1dafc9899c78072c00e86fa04bcf02e6cced260aa871
-  index: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/simple
-  requires_dist:
-  - pillow>=13.0.0,<14.0.0
-  - defusedxml>=0.7.1,<0.8.0
-  - h5py>=3.15.0,<3.16.0
-  - numpy>=2.4.0,<2.5.0
-  - psutil>=7.2.2,<7.3.0
-  - pydantic>=2.12.0,<2.13.0
-  requires_python: '>=3.12,<3.15'
-- pypi: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/grid-apps/0.3.0b1/grid_apps-0.3.0b1-py3-none-any.whl
-  name: grid-apps
-  version: 0.3.0b1
-  sha256: e3e26ba28195524d4db0b653b4e9e756075c231db841091eeed67bd12e1bafce
-  index: https://mirageoscienceltd.jfrog.io/artifactory/api/pypi/public-pypi-dev-local/simple
-  requires_dist:
-  - discretize>=0.12.0,<0.13.0
-  - geoapps-utils>=0.8.0b1,<0.9.0
-  - geoh5py>=0.14.0b1,<0.15.0
-  - numpy>=2.4.2,<2.5.0
-  - pillow>=13.0.0,<14.0.0
-  - pydantic>=2.12.0,<2.13.0
-  - scipy>=1.17.0,<1.18.0
-  requires_python: '>=3.12,<3.15'
