@@ -18,7 +18,6 @@ from pathlib import Path
 import numpy as np
 from dask.distributed import Client
 from geoapps_utils.base import Driver
-from geoapps_utils.utils.importing import GeoAppsError
 from geoapps_utils.utils.logger import get_logger
 from geoh5py import Workspace
 from geoh5py.groups import SimPEGGroup, UIJsonGroup
@@ -27,11 +26,11 @@ from geoh5py.shared.utils import (
     str_json_to_dict,
     uuid_from_values,
 )
-from geoh5py.ui_json.utils import flatten
+from geoh5py.ui_json import UIJson
 from h5py import File
 from pandas import DataFrame
 
-from simpeg_drivers.driver import BaseDriver, validate_client, validate_workers
+from simpeg_drivers.driver import validate_client, validate_workers
 from simpeg_drivers.plate_simulation.driver import PlateSimulationDriver
 from simpeg_drivers.plate_simulation.options import PlateSimulationOptions
 from simpeg_drivers.plate_simulation.sweep.options import SweepOptions
@@ -154,7 +153,9 @@ class PlateSweepDriver(Driver):
                 )
             )
 
-            opt_dict = workspace.promote(flatten(plate_simulation.options))
+            opt_dict = UIJson.from_dict(plate_simulation.options).to_params(
+                workspace=workspace
+            )
             opt_dict["geoh5"] = workspace
             opt_dict["out_group"] = None
             opt_dict["monitoring_directory"] = None
