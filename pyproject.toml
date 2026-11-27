@@ -46,8 +46,8 @@ maintainers = [
 
 dependencies = [
     # Mira packages
-    # "geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@release/ga-4.9",
-    "geoh5py>=0.14.0b1,<0.15.0",
+     "geoh5py @ git+https://github.com/MiraGeoscience/geoh5py.git@release/ga-4.9",
+#    "geoh5py>=0.14.0b1,<0.15.0",
     # "grid-apps @ git+https://github.com/MiraGeoscience/grid-apps.git@release/ga-4.9",
     "grid-apps>=0.3.0b1,<0.4.0",
     # "geoapps-utils @ git+https://github.com/MiraGeoscience/geoapps-utils.git@release/ga-4.9",
